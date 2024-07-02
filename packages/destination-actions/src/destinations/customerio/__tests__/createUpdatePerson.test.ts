@@ -403,21 +403,18 @@ describe('CustomerIO', () => {
           full_name: 'Test User',
           email: 'test@example.com',
           created_at: timestamp,
+          objectId: groupId,
           person: {
             over18: true,
             identification: 'valid',
             birthdate
           }
         }
-        const context = {
-          groupId: groupId
-        }
         const event = createTestEvent({
           userId,
           anonymousId,
           timestamp,
-          traits,
-          context
+          traits
         })
         const response = await action('createUpdatePerson', {
           event,
@@ -455,25 +452,23 @@ describe('CustomerIO', () => {
         const timestamp = dayjs.utc().toISOString()
         const groupId = 'g12345'
         const traits: {
+          objectId: string
           full_name: string
           email: string
           created_at: string
           object_type_id?: string
         } = {
+          objectId: groupId,
           full_name: 'Test User',
           email: 'test@example.com',
           created_at: timestamp,
           object_type_id: '2'
         }
-        const context = {
-          groupId: groupId
-        }
         const event = createTestEvent({
           userId,
           anonymousId,
           timestamp,
-          traits,
-          context
+          traits
         })
         const response = await action('createUpdatePerson', {
           event,
@@ -590,6 +585,7 @@ describe('CustomerIO', () => {
           full_name: 'Test User',
           email: 'test@example.com',
           createdAt: timestamp,
+          objectId: groupId,
           person: {
             over18: true,
             identification: 'valid',
@@ -598,16 +594,11 @@ describe('CustomerIO', () => {
           relationshipAttributes
         }
 
-        const context = {
-          groupId: groupId
-        }
-
         const event = createTestEvent({
           userId,
           anonymousId,
           timestamp,
-          traits,
-          context
+          traits
         })
         const response = await action('createUpdatePerson', {
           event,
@@ -621,6 +612,7 @@ describe('CustomerIO', () => {
             anonymous_id: anonymousId,
             created_at: dayjs.utc(timestamp).unix(),
             email: traits.email,
+            objectId: groupId,
             full_name: traits.full_name,
             person: {
               ...traits.person,
@@ -650,6 +642,7 @@ describe('CustomerIO', () => {
           full_name: 'Test User',
           email: 'test@example.com',
           createdAt: timestamp,
+          objectId: groupId,
           person: {
             over18: true,
             identification: 'valid',
@@ -660,17 +653,11 @@ describe('CustomerIO', () => {
             prefix: 'Mr.'
           }
         }
-
-        const context = {
-          groupId: groupId
-        }
-
         const event = createTestEvent({
           userId,
           anonymousId,
           timestamp,
-          traits,
-          context
+          traits
         })
 
         const mapping = getDefaultMappings('createUpdatePerson')
@@ -687,6 +674,7 @@ describe('CustomerIO', () => {
             created_at: dayjs.utc(timestamp).unix(),
             email: traits.email,
             full_name: traits.full_name,
+            objectId: groupId,
             person: {
               ...traits.person,
               birthdate: dayjs.utc(birthdate).unix()

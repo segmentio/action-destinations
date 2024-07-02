@@ -11,10 +11,8 @@ describe('CustomerIO', () => {
           const objectId = 'object_id123'
           const objectTypeId = 'object_type_id123'
           const event = createTestEvent({
-            context: {
-              groupId: objectId
-            },
             properties: {
+              objectId: objectId,
               objectTypeId: objectTypeId
             }
           })
@@ -58,11 +56,9 @@ describe('CustomerIO', () => {
           const objectId = 'object_id123'
           const objectTypeId = 'object_type_id123'
           const event = createTestEvent({
-            context: {
-              groupId: objectId
-            },
             properties: {
-              objectTypeId
+              objectTypeId,
+              objectId
             }
           })
 
@@ -107,10 +103,8 @@ describe('CustomerIO', () => {
 
       it('should work if `userId` is an id', async () => {
         const event = createTestEvent({
-          context: {
-            groupId: 'object_id123'
-          },
           properties: {
+            objectId: 'object_id123',
             objectTypeId: 'object_type_id123'
           },
           userId: '123'
@@ -135,7 +129,7 @@ describe('CustomerIO', () => {
             }
           ],
           identifiers: {
-            object_id: event.context?.groupId,
+            object_id: event.properties?.objectId,
             object_type_id: event.properties?.objectTypeId
           },
           type: 'object'
@@ -144,11 +138,9 @@ describe('CustomerIO', () => {
 
       it('should work if `userId` is an email', async () => {
         const event = createTestEvent({
-          context: {
-            groupId: 'object_id123'
-          },
           properties: {
-            objectTypeId: 'object_type_id123'
+            objectTypeId: 'object_type_id123',
+            objectId: 'object_id123'
           },
           userId: 'foo@bar.com'
         })
@@ -172,7 +164,7 @@ describe('CustomerIO', () => {
             }
           ],
           identifiers: {
-            object_id: event.context?.groupId,
+            object_id: event.properties?.objectId,
             object_type_id: event.properties?.objectTypeId
           },
           type: 'object'
@@ -181,10 +173,8 @@ describe('CustomerIO', () => {
 
       it('should work if `userId` is a `cio_` identifier', async () => {
         const event = createTestEvent({
-          context: {
-            groupId: 'object_id123'
-          },
           properties: {
+            objectId: 'object_id123',
             objectTypeId: 'object_type_id123'
           },
           userId: 'cio_456'
@@ -209,7 +199,7 @@ describe('CustomerIO', () => {
             }
           ],
           identifiers: {
-            object_id: event.context?.groupId,
+            object_id: event.properties?.objectId,
             object_type_id: event.properties?.objectTypeId
           },
           type: 'object'

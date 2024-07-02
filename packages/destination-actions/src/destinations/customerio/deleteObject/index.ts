@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'An object ID used to identify an object.',
       type: 'string',
       default: {
-        '@path': '$.context.groupId'
+        '@path': '$.properties.objectId'
       }
     },
     object_type_id: {
