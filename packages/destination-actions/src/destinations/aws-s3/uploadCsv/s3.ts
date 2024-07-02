@@ -122,7 +122,9 @@ async function uploadS3(
       filename = `${filename}_${dateSuffix}.csv`
     }
 
-    await uploadCSV(credentials, fileContent, payload.s3_aws_bucket_name, payload.s3_aws_folder_name, filename, region)
+    const folderName = payload.s3_aws_folder_name || ''
+
+    await uploadCSV(credentials, fileContent, payload.s3_aws_bucket_name, folderName, filename, region)
     return { statusCode: 200, message: 'Upload successful' }
   } catch (err) {
     console.error('Error', err)
