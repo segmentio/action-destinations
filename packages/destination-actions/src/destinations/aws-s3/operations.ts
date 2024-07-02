@@ -29,15 +29,7 @@ export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unkno
 
 function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   // Using a Set to keep track of headers
-  // const headers = new Set<string>()
   let headers = new Set<string>()
-
-  // if (payloads[0].is_audience) {
-  //   headers.add('audience_key')
-  // }
-  // console.log('payloads', payloads)
-  // console.log('headers', headers)
-  // Declare rows as an empty Buffer
   let rows = Buffer.from('')
 
   // Prepare data rows
