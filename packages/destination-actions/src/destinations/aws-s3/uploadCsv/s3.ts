@@ -17,8 +17,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 
 // Assume role and get temporary credentials
-const assumeRole = async (roleArn: string, roleSessionName: string) => {
-  console.log(roleArn)
+const assumeRole = async (roleArn: string, roleSessionName: string): Promise<Credentials> => {
   const stsClient = new STSClient({ region })
   const command = new AssumeRoleCommand({
     RoleArn: roleArn,
@@ -29,11 +28,11 @@ const assumeRole = async (roleArn: string, roleSessionName: string) => {
   if (!response.Credentials) {
     throw new Error('Failed to assume role and get temporary credentials')
   }
-  console.log('Assumed role and got temporary credentials', response)
+
   return {
-    accessKeyId: response.Credentials.AccessKeyId,
-    secretAccessKey: response.Credentials.SecretAccessKey,
-    sessionToken: response.Credentials.SessionToken
+    accessKeyId: response.Credentials.AccessKeyId!,
+    secretAccessKey: response.Credentials.SecretAccessKey!,
+    sessionToken: response.Credentials.SessionToken!
   }
 }
 
@@ -91,10 +90,9 @@ const uploadCSV = async (
 }
 
 // Function to get credentials
-const getCredentials = async (roleArn: string, roleSessionName: string) => {
+const getCredentials = async (roleArn: string, roleSessionName: string): Promise<Credentials> => {
   try {
     const credentials = await assumeRole(roleArn, roleSessionName)
-    console.log('Assumed role and got temporary credentials', credentials)
     return credentials
   } catch (err) {
     console.error('Error assuming role', err)
@@ -110,7 +108,7 @@ async function uploadS3(
   try {
     roleArn = payload.iam_role_arn
     roleSessionName = uuidv4()
-    region = payload.s3_aws_region
+    region = payload.s3_aws_region!
     const credentials = await getCredentials(roleArn, roleSessionName)
     console.log('Credentials outside async block:', credentials)
 
