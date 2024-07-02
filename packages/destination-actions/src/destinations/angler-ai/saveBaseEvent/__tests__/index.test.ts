@@ -16,9 +16,9 @@ describe('AnglerAi.saveBaseEvent', () => {
     nock(baseURL).post(endpointURL).reply(201)
 
     const response = await testDestination.testAction('saveBaseEvent', {
-      event: {
-        ...event,
-        event: 'page_viewed'
+      event,
+      mapping: {
+        eventName: 'page_viewed'
       },
       useDefaultMappings: true,
       settings: {

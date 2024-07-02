@@ -16,9 +16,9 @@ describe('AnglerAi.saveCheckoutEvent', () => {
     nock(baseURL).post(endpointURL).reply(201)
 
     const response = await testDestination.testAction('saveCheckoutEvent', {
-      event: {
-        ...event,
-        event: 'checkout_started'
+      event,
+      mapping: {
+        eventName: 'checkout_started'
       },
       useDefaultMappings: true,
       settings: {

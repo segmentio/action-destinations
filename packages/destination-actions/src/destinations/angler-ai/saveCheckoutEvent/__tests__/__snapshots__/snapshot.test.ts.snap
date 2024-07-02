@@ -6,63 +6,15 @@ Object {
     Object {
       "checkout": Object {
         "currencyCode": "&yVQWLT2[LyiR]Lnd6^",
-        "lineItems": Array [
-          Object {
-            "discountAllocations": Array [
-              Object {
-                "amount": Object {
-                  "amount": 73487254164602.88,
-                },
-                "discountApplication": Object {
-                  "title": "&yVQWLT2[LyiR]Lnd6^",
-                  "value": Object {
-                    "amount": 73487254164602.88,
-                  },
-                },
-              },
-            ],
-            "id": "&yVQWLT2[LyiR]Lnd6^",
-            "quantity": 73487254164602.88,
-            "title": "&yVQWLT2[LyiR]Lnd6^",
-            "variant": Object {
-              "id": "&yVQWLT2[LyiR]Lnd6^",
-              "image": Object {
-                "src": "&yVQWLT2[LyiR]Lnd6^",
-              },
-              "price": Object {
-                "amount": 73487254164602.88,
-              },
-              "product": Object {
-                "id": "&yVQWLT2[LyiR]Lnd6^",
-                "title": "&yVQWLT2[LyiR]Lnd6^",
-                "type": "&yVQWLT2[LyiR]Lnd6^",
-                "untranslatedTitle": "&yVQWLT2[LyiR]Lnd6^",
-                "url": "&yVQWLT2[LyiR]Lnd6^",
-                "vendor": "&yVQWLT2[LyiR]Lnd6^",
-              },
-              "sku": "&yVQWLT2[LyiR]Lnd6^",
-              "title": "&yVQWLT2[LyiR]Lnd6^",
-              "untranslatedTitle": "&yVQWLT2[LyiR]Lnd6^",
-            },
-          },
-        ],
-        "order": Object {
-          "id": "&yVQWLT2[LyiR]Lnd6^",
-        },
+        "order": Object {},
         "shippingLine": Object {
-          "price": Object {
-            "amount": 73487254164602.88,
-          },
+          "price": Object {},
         },
-        "subtotalPrice": Object {
-          "amount": 73487254164602.88,
-        },
+        "subtotalPrice": Object {},
         "totalPrice": Object {
           "amount": 73487254164602.88,
         },
-        "totalTax": Object {
-          "amount": 73487254164602.88,
-        },
+        "totalTax": Object {},
       },
       "client_id": "&yVQWLT2[LyiR]Lnd6^",
       "data": Object {
@@ -120,7 +72,7 @@ Object {
         },
       },
       "event_id": "&yVQWLT2[LyiR]Lnd6^",
-      "event_name": "form_submitted",
+      "event_name": "checkout_started",
       "fbc": "&yVQWLT2[LyiR]Lnd6^",
       "fpb": "&yVQWLT2[LyiR]Lnd6^",
       "ga": "&yVQWLT2[LyiR]Lnd6^",
@@ -159,7 +111,7 @@ Object {
         "customer": Object {},
       },
       "event_id": "&yVQWLT2[LyiR]Lnd6^",
-      "event_name": "form_submitted",
+      "event_name": "checkout_started",
     },
   ],
   "src": "SEGMENT",

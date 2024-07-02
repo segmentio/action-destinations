@@ -35,41 +35,8 @@ Object {
       "data": Object {
         "cart": Object {
           "cost": Object {
-            "totalAmount": Object {
-              "amount": 57986244453335.04,
-              "currencyCode": "C)6#KZenr)fGyu%KjQ",
-            },
+            "totalAmount": Object {},
           },
-          "id": "C)6#KZenr)fGyu%KjQ",
-          "lines": Array [
-            Object {
-              "cost": Object {
-                "totalAmount": Object {
-                  "amount": 57986244453335.04,
-                },
-              },
-              "merchandise": Object {
-                "id": "C)6#KZenr)fGyu%KjQ",
-                "image": Object {
-                  "src": "C)6#KZenr)fGyu%KjQ",
-                },
-                "price": Object {
-                  "amount": 57986244453335.04,
-                },
-                "product": Object {
-                  "title": "C)6#KZenr)fGyu%KjQ",
-                  "type": "C)6#KZenr)fGyu%KjQ",
-                  "untranslatedTitle": "C)6#KZenr)fGyu%KjQ",
-                  "url": "C)6#KZenr)fGyu%KjQ",
-                  "vendor": "C)6#KZenr)fGyu%KjQ",
-                },
-                "sku": "C)6#KZenr)fGyu%KjQ",
-                "title": "C)6#KZenr)fGyu%KjQ",
-                "untranslatedTitle": "C)6#KZenr)fGyu%KjQ",
-              },
-              "quantity": 57986244453335.04,
-            },
-          ],
         },
         "customData": Array [
           Object {
@@ -87,7 +54,7 @@ Object {
         },
       },
       "event_id": "C)6#KZenr)fGyu%KjQ",
-      "event_name": "search_submitted",
+      "event_name": "product_removed_from_cart",
       "fbc": "C)6#KZenr)fGyu%KjQ",
       "fpb": "C)6#KZenr)fGyu%KjQ",
       "ga": "C)6#KZenr)fGyu%KjQ",
@@ -127,7 +94,7 @@ Object {
         "customer": Object {},
       },
       "event_id": "C)6#KZenr)fGyu%KjQ",
-      "event_name": "search_submitted",
+      "event_name": "product_removed_from_cart",
     },
   ],
   "src": "SEGMENT",

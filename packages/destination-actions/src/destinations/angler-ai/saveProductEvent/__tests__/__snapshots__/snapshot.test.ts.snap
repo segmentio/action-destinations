@@ -60,7 +60,7 @@ Object {
         },
       },
       "event_id": "CFQcvY4UNbVp*xK",
-      "event_name": "product_added_to_cart",
+      "event_name": "product_viewed",
       "fbc": "CFQcvY4UNbVp*xK",
       "fpb": "CFQcvY4UNbVp*xK",
       "ga": "CFQcvY4UNbVp*xK",
@@ -110,7 +110,7 @@ Object {
         "customer": Object {},
       },
       "event_id": "CFQcvY4UNbVp*xK",
-      "event_name": "product_added_to_cart",
+      "event_name": "product_viewed",
       "productVariant": Object {
         "image": Object {},
         "price": Object {},

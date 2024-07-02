@@ -16,9 +16,12 @@ describe('AnglerAi.saveCustomEvent', () => {
     nock(baseURL).post(endpointURL).reply(201)
 
     const response = await testDestination.testAction('saveCustomEvent', {
-      event: {
-        ...event,
-        event: 'custom_event'
+      event,
+      mapping: {
+        eventId: '1234567890',
+        eventName: 'custom_event',
+        customEventName: 'custom_event_name',
+        identifiers: { clientId: '1234567890' }
       },
       useDefaultMappings: true,
       settings: {

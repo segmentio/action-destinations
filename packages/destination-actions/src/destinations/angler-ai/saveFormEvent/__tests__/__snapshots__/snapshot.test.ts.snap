@@ -60,7 +60,7 @@ Object {
         },
       },
       "event_id": "3qODCwqyQBu%vq^Yajvl",
-      "event_name": "custom_event",
+      "event_name": "form_submitted",
       "fbc": "3qODCwqyQBu%vq^Yajvl",
       "form": Object {
         "action": "3qODCwqyQBu%vq^Yajvl",
@@ -103,7 +103,7 @@ Object {
         "customer": Object {},
       },
       "event_id": "3qODCwqyQBu%vq^Yajvl",
-      "event_name": "custom_event",
+      "event_name": "form_submitted",
       "form": Object {
         "id": "3qODCwqyQBu%vq^Yajvl",
       },

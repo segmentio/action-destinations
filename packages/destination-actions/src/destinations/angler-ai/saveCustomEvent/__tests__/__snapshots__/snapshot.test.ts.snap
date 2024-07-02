@@ -33,63 +33,15 @@ Object {
       },
       "checkout": Object {
         "currencyCode": "VjtX1zqO^*9PrF@2",
-        "lineItems": Array [
-          Object {
-            "discountAllocations": Array [
-              Object {
-                "amount": Object {
-                  "amount": 33800216662507.52,
-                },
-                "discountApplication": Object {
-                  "title": "VjtX1zqO^*9PrF@2",
-                  "value": Object {
-                    "amount": 33800216662507.52,
-                  },
-                },
-              },
-            ],
-            "id": "VjtX1zqO^*9PrF@2",
-            "quantity": 33800216662507.52,
-            "title": "VjtX1zqO^*9PrF@2",
-            "variant": Object {
-              "id": "VjtX1zqO^*9PrF@2",
-              "image": Object {
-                "src": "VjtX1zqO^*9PrF@2",
-              },
-              "price": Object {
-                "amount": 33800216662507.52,
-              },
-              "product": Object {
-                "id": "VjtX1zqO^*9PrF@2",
-                "title": "VjtX1zqO^*9PrF@2",
-                "type": "VjtX1zqO^*9PrF@2",
-                "untranslatedTitle": "VjtX1zqO^*9PrF@2",
-                "url": "VjtX1zqO^*9PrF@2",
-                "vendor": "VjtX1zqO^*9PrF@2",
-              },
-              "sku": "VjtX1zqO^*9PrF@2",
-              "title": "VjtX1zqO^*9PrF@2",
-              "untranslatedTitle": "VjtX1zqO^*9PrF@2",
-            },
-          },
-        ],
-        "order": Object {
-          "id": "VjtX1zqO^*9PrF@2",
-        },
+        "order": Object {},
         "shippingLine": Object {
-          "price": Object {
-            "amount": 33800216662507.52,
-          },
+          "price": Object {},
         },
-        "subtotalPrice": Object {
-          "amount": 33800216662507.52,
-        },
+        "subtotalPrice": Object {},
         "totalPrice": Object {
           "amount": 33800216662507.52,
         },
-        "totalTax": Object {
-          "amount": 33800216662507.52,
-        },
+        "totalTax": Object {},
       },
       "client_id": "VjtX1zqO^*9PrF@2",
       "collection": Object {

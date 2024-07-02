@@ -132,41 +132,8 @@ Object {
       "data": Object {
         "cart": Object {
           "cost": Object {
-            "totalAmount": Object {
-              "amount": -84797762138275.84,
-              "currencyCode": "HI!s%",
-            },
+            "totalAmount": Object {},
           },
-          "id": "HI!s%",
-          "lines": Array [
-            Object {
-              "cost": Object {
-                "totalAmount": Object {
-                  "amount": -84797762138275.84,
-                },
-              },
-              "merchandise": Object {
-                "id": "HI!s%",
-                "image": Object {
-                  "src": "HI!s%",
-                },
-                "price": Object {
-                  "amount": -84797762138275.84,
-                },
-                "product": Object {
-                  "title": "HI!s%",
-                  "type": "HI!s%",
-                  "untranslatedTitle": "HI!s%",
-                  "url": "HI!s%",
-                  "vendor": "HI!s%",
-                },
-                "sku": "HI!s%",
-                "title": "HI!s%",
-                "untranslatedTitle": "HI!s%",
-              },
-              "quantity": -84797762138275.84,
-            },
-          ],
         },
         "customData": Array [
           Object {
@@ -184,7 +151,7 @@ Object {
         },
       },
       "event_id": "HI!s%",
-      "event_name": "page_viewed",
+      "event_name": "product_added_to_cart",
       "fbc": "HI!s%",
       "fpb": "HI!s%",
       "ga": "HI!s%",
@@ -224,7 +191,7 @@ Object {
         "customer": Object {},
       },
       "event_id": "HI!s%",
-      "event_name": "page_viewed",
+      "event_name": "product_added_to_cart",
     },
   ],
   "src": "SEGMENT",
@@ -237,63 +204,15 @@ Object {
     Object {
       "checkout": Object {
         "currencyCode": "ThtPtJ2v(7[yo[",
-        "lineItems": Array [
-          Object {
-            "discountAllocations": Array [
-              Object {
-                "amount": Object {
-                  "amount": 11547049229025.28,
-                },
-                "discountApplication": Object {
-                  "title": "ThtPtJ2v(7[yo[",
-                  "value": Object {
-                    "amount": 11547049229025.28,
-                  },
-                },
-              },
-            ],
-            "id": "ThtPtJ2v(7[yo[",
-            "quantity": 11547049229025.28,
-            "title": "ThtPtJ2v(7[yo[",
-            "variant": Object {
-              "id": "ThtPtJ2v(7[yo[",
-              "image": Object {
-                "src": "ThtPtJ2v(7[yo[",
-              },
-              "price": Object {
-                "amount": 11547049229025.28,
-              },
-              "product": Object {
-                "id": "ThtPtJ2v(7[yo[",
-                "title": "ThtPtJ2v(7[yo[",
-                "type": "ThtPtJ2v(7[yo[",
-                "untranslatedTitle": "ThtPtJ2v(7[yo[",
-                "url": "ThtPtJ2v(7[yo[",
-                "vendor": "ThtPtJ2v(7[yo[",
-              },
-              "sku": "ThtPtJ2v(7[yo[",
-              "title": "ThtPtJ2v(7[yo[",
-              "untranslatedTitle": "ThtPtJ2v(7[yo[",
-            },
-          },
-        ],
-        "order": Object {
-          "id": "ThtPtJ2v(7[yo[",
-        },
+        "order": Object {},
         "shippingLine": Object {
-          "price": Object {
-            "amount": 11547049229025.28,
-          },
+          "price": Object {},
         },
-        "subtotalPrice": Object {
-          "amount": 11547049229025.28,
-        },
+        "subtotalPrice": Object {},
         "totalPrice": Object {
           "amount": 11547049229025.28,
         },
-        "totalTax": Object {
-          "amount": 11547049229025.28,
-        },
+        "totalTax": Object {},
       },
       "client_id": "ThtPtJ2v(7[yo[",
       "data": Object {
@@ -351,7 +270,7 @@ Object {
         },
       },
       "event_id": "ThtPtJ2v(7[yo[",
-      "event_name": "payment_info_submitted",
+      "event_name": "checkout_contact_info_submitted",
       "fbc": "ThtPtJ2v(7[yo[",
       "fpb": "ThtPtJ2v(7[yo[",
       "ga": "ThtPtJ2v(7[yo[",
@@ -390,7 +309,7 @@ Object {
         "customer": Object {},
       },
       "event_id": "ThtPtJ2v(7[yo[",
-      "event_name": "payment_info_submitted",
+      "event_name": "checkout_contact_info_submitted",
     },
   ],
   "src": "SEGMENT",
@@ -483,7 +402,7 @@ Object {
         },
       },
       "event_id": "3@hKatc0uie7SW8j",
-      "event_name": "product_removed_from_cart",
+      "event_name": "collection_viewed",
       "fbc": "3@hKatc0uie7SW8j",
       "fpb": "3@hKatc0uie7SW8j",
       "ga": "3@hKatc0uie7SW8j",
@@ -514,7 +433,7 @@ Object {
         "customer": Object {},
       },
       "event_id": "3@hKatc0uie7SW8j",
-      "event_name": "product_removed_from_cart",
+      "event_name": "collection_viewed",
     },
   ],
   "src": "SEGMENT",
@@ -554,63 +473,15 @@ Object {
       },
       "checkout": Object {
         "currencyCode": "#p#iS",
-        "lineItems": Array [
-          Object {
-            "discountAllocations": Array [
-              Object {
-                "amount": Object {
-                  "amount": -86377660573286.4,
-                },
-                "discountApplication": Object {
-                  "title": "#p#iS",
-                  "value": Object {
-                    "amount": -86377660573286.4,
-                  },
-                },
-              },
-            ],
-            "id": "#p#iS",
-            "quantity": -86377660573286.4,
-            "title": "#p#iS",
-            "variant": Object {
-              "id": "#p#iS",
-              "image": Object {
-                "src": "#p#iS",
-              },
-              "price": Object {
-                "amount": -86377660573286.4,
-              },
-              "product": Object {
-                "id": "#p#iS",
-                "title": "#p#iS",
-                "type": "#p#iS",
-                "untranslatedTitle": "#p#iS",
-                "url": "#p#iS",
-                "vendor": "#p#iS",
-              },
-              "sku": "#p#iS",
-              "title": "#p#iS",
-              "untranslatedTitle": "#p#iS",
-            },
-          },
-        ],
-        "order": Object {
-          "id": "#p#iS",
-        },
+        "order": Object {},
         "shippingLine": Object {
-          "price": Object {
-            "amount": -86377660573286.4,
-          },
+          "price": Object {},
         },
-        "subtotalPrice": Object {
-          "amount": -86377660573286.4,
-        },
+        "subtotalPrice": Object {},
         "totalPrice": Object {
           "amount": -86377660573286.4,
         },
-        "totalTax": Object {
-          "amount": -86377660573286.4,
-        },
+        "totalTax": Object {},
       },
       "client_id": "#p#iS",
       "collection": Object {
@@ -878,7 +749,7 @@ Object {
         },
       },
       "event_id": "MzABQb$ZztnY3",
-      "event_name": "collection_viewed",
+      "event_name": "form_submitted",
       "fbc": "MzABQb$ZztnY3",
       "form": Object {
         "action": "MzABQb$ZztnY3",
@@ -921,7 +792,7 @@ Object {
         "customer": Object {},
       },
       "event_id": "MzABQb$ZztnY3",
-      "event_name": "collection_viewed",
+      "event_name": "form_submitted",
       "form": Object {
         "id": "MzABQb$ZztnY3",
       },
@@ -941,7 +812,6 @@ Object {
           "value": "E0rNrwcK",
         },
       ],
-      "app_id": "E0rNrwcK",
       "billing_address": Object {
         "address1": "E0rNrwcK",
         "address2": "E0rNrwcK",
@@ -971,18 +841,11 @@ Object {
       },
       "browser_ip": "E0rNrwcK",
       "buyer_accepts_marketing": true,
-      "cancel_reason": "E0rNrwcK",
-      "cancelled_at": "E0rNrwcK",
       "checkout_id": "E0rNrwcK",
       "client_details": Object {
-        "accept_language": "E0rNrwcK",
-        "browser_height": -51347472609443.84,
         "browser_ip": "E0rNrwcK",
-        "browser_width": -51347472609443.84,
-        "session_hash": "E0rNrwcK",
         "user_agent": "E0rNrwcK",
       },
-      "closed_at": "E0rNrwcK",
       "confirmed": true,
       "contact_email": "E0rNrwcK",
       "created_at": "E0rNrwcK",
@@ -1014,44 +877,13 @@ Object {
       "estimated_taxes": true,
       "financial_status": "E0rNrwcK",
       "fulfillment_status": "E0rNrwcK",
-      "fulfillments": Array [
-        Object {
-          "created_at": "E0rNrwcK",
-          "id": "E0rNrwcK",
-          "order_id": "E0rNrwcK",
-          "shipment_status": "E0rNrwcK",
-          "status": "E0rNrwcK",
-          "tracking_company": "E0rNrwcK",
-          "updated_at": "E0rNrwcK",
-        },
-      ],
       "gateway": "E0rNrwcK",
       "id": "E0rNrwcK",
       "landing_site": "E0rNrwcK",
       "landing_site_ref": "E0rNrwcK",
-      "location_id": "E0rNrwcK",
       "name": "E0rNrwcK",
-      "note": "E0rNrwcK",
-      "note_attributes": Array [
-        Object {
-          "name": "E0rNrwcK",
-          "value": "E0rNrwcK",
-        },
-      ],
-      "number": -5134747260944384,
       "order_number": -5134747260944384,
-      "payment_details": Object {
-        "avs_result_code": "E0rNrwcK",
-        "credit_card_bin": "E0rNrwcK",
-        "credit_card_expiration_month": "E0rNrwcK",
-        "credit_card_expiration_year": "E0rNrwcK",
-        "credit_card_name": "E0rNrwcK",
-        "credit_card_number": "E0rNrwcK",
-        "credit_card_wallet": "E0rNrwcK",
-        "cvv_result_code": "E0rNrwcK",
-      },
       "phone": "E0rNrwcK",
-      "presentment_currency": "E0rNrwcK",
       "processed_at": "E0rNrwcK",
       "processing_method": "E0rNrwcK",
       "reference": "E0rNrwcK",
@@ -1095,7 +927,6 @@ Object {
       "total_price": "E0rNrwcK",
       "total_price_usd": "E0rNrwcK",
       "total_tax": "E0rNrwcK",
-      "total_tip_received": "E0rNrwcK",
       "updated_at": "E0rNrwcK",
       "user_id": "E0rNrwcK",
     },
@@ -1108,11 +939,9 @@ exports[`Testing snapshot for actions-angler-ai destination: saveOrder action - 
 Object {
   "data": Array [
     Object {
-      "app_id": "E0rNrwcK",
       "checkout_id": "E0rNrwcK",
       "customer_id": "E0rNrwcK",
       "id": "E0rNrwcK",
-      "location_id": "E0rNrwcK",
       "source_identifier": "E0rNrwcK",
       "user_id": "E0rNrwcK",
     },
@@ -1181,7 +1010,7 @@ Object {
         },
       },
       "event_id": "Gzg!*To",
-      "event_name": "checkout_address_info_submitted",
+      "event_name": "product_viewed",
       "fbc": "Gzg!*To",
       "fpb": "Gzg!*To",
       "ga": "Gzg!*To",
@@ -1231,7 +1060,7 @@ Object {
         "customer": Object {},
       },
       "event_id": "Gzg!*To",
-      "event_name": "checkout_address_info_submitted",
+      "event_name": "product_viewed",
       "productVariant": Object {
         "image": Object {},
         "price": Object {},
@@ -1303,7 +1132,7 @@ Object {
         },
       },
       "event_id": "zjYJOkMXvxa&fnXrdj",
-      "event_name": "form_submitted",
+      "event_name": "search_submitted",
       "fbc": "zjYJOkMXvxa&fnXrdj",
       "fpb": "zjYJOkMXvxa&fnXrdj",
       "ga": "zjYJOkMXvxa&fnXrdj",
@@ -1358,7 +1187,7 @@ Object {
         "customer": Object {},
       },
       "event_id": "zjYJOkMXvxa&fnXrdj",
-      "event_name": "form_submitted",
+      "event_name": "search_submitted",
       "searchResult": Object {},
     },
   ],
