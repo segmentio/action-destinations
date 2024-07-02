@@ -57,7 +57,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.properties',
           {
-            order_id: { '@path': '$.properties.order_id' }
+            order_id: {
+              '@if': {
+                exists: { '@path': '$.properties.order_id' },
+                then: { '@path': '$.properties.order_id' },
+                else: { '@path': '$.properties.orderId' }
+              }
+            }
           }
         ]
       },
@@ -143,7 +149,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@arrayPath': [
           '$.properties.products',
           {
-            product_id: { '@path': '$.properties.product_id' },
+            product_id: {
+              '@if': {
+                exists: { '@path': '$.properties.product_id' },
+                then: { '@path': '$.properties.product_id' },
+                else: { '@path': '$.properties.productId' }
+              }
+            },
             category: { '@path': '$.properties.category' },
             name: { '@path': '$.properties.name' },
             sku: { '@path': '$.properties.sku' },
