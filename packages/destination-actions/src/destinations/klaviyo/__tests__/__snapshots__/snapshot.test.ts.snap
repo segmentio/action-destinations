@@ -54,7 +54,28 @@ Object {
         },
       },
       "properties": Object {
-        "testType": "PE*zlOgIPA]mVozMLBaL",
+        "Categories": Array [
+          "PE*zlOgIPA]mVozMLBaL",
+        ],
+        "ItemNames": Array [
+          "PE*zlOgIPA]mVozMLBaL",
+        ],
+        "Items": Array [
+          Object {
+            "Categories": Array [
+              "PE*zlOgIPA]mVozMLBaL",
+            ],
+            "ImageURL": "PE*zlOgIPA]mVozMLBaL",
+            "ItemPrice": 83414764297912.31,
+            "ProductId": "PE*zlOgIPA]mVozMLBaL",
+            "ProductName": "PE*zlOgIPA]mVozMLBaL",
+            "ProductURL": "PE*zlOgIPA]mVozMLBaL",
+            "Quantity": 83414764297912.31,
+            "RowTotal": 83414764297912.31,
+            "SKU": "PE*zlOgIPA]mVozMLBaL",
+          },
+        ],
+        "OrderId": "PE*zlOgIPA]mVozMLBaL",
       },
       "time": "2021-02-01T00:00:00.000Z",
       "unique_id": "PE*zlOgIPA]mVozMLBaL",
