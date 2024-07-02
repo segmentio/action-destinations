@@ -93,12 +93,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async createAudience(request, createAudienceInput) {
       const {
         settings,
-        audienceSettings: { audience_name, personas } = {}
+        personas,
+        audienceSettings: { audience_name } = {}
       }: {
-        settings: Settings
+        settings: Settings,
+        personas?: PersonasSettings,
         audienceSettings?: {
           audience_name?: string
-          personas?: PersonasSettings | undefined
         }
       } = createAudienceInput
 
