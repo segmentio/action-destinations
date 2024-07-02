@@ -1,8 +1,12 @@
 import { InvalidAuthenticationError } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
-// import { fromTemporaryCredentials } from "@aws-sdk/credential-providers";
-
+//Define the Interface for testing
+interface Credentials {
+  accessKeyId: string
+  secretAccessKey: string
+  sessionToken: string
+}
 // Assume role and get temporary credentials
 let roleArn: string,
   roleSessionName: string,
@@ -69,11 +73,7 @@ const uploadCSV = async (
       sessionToken: credentials.sessionToken
     }
   })
-
   const objectKey = folderName ? `${folderName}${key}` : key
-
-  console.log('testsetsteasgdasdfasfsadf ' + objectKey)
-
   const uploadParams = {
     Bucket: bucketName,
     Key: objectKey,
@@ -123,8 +123,6 @@ async function uploadS3(
       // Append the date suffix followed by .csv
       filename = `${filename}_${dateSuffix}.csv`
     }
-
-    console.log(filename)
 
     await uploadCSV(credentials, fileContent, payload.s3_aws_bucket_name, payload.s3_aws_folder_name, filename, region)
     return { statusCode: 200, message: 'Upload successful' }
