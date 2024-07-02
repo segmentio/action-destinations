@@ -18,7 +18,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Properties of this event. Segment will title case the keys of this object before sending it to Klaviyo.
+   * Properties of this event. Segment adds products array as Items, ItemNames and Categories properties in the properties object. Segment will title case the keys of this object before sending it to Klaviyo.
    */
   properties: {
     /**
@@ -47,7 +47,7 @@ export interface Payload {
    */
   unique_id?: string
   /**
-   * List of products purchased in the order. Segment will title case the keys of this object before sending it to Klaviyo.
+   * List of products purchased in the order.
    */
   products?: {
     /**

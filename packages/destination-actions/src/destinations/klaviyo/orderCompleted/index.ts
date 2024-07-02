@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true
     },
     properties: {
-      description: `Properties of this event. Segment will title case the keys of this object before sending it to Klaviyo.`,
+      description: `Properties of this event. Segment adds products array as Items, ItemNames and Categories properties in the properties object. Segment will title case the keys of this object before sending it to Klaviyo.`,
       label: 'Properties',
       type: 'object',
       additionalProperties: true,
@@ -99,8 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     products: {
       label: 'Products',
-      description:
-        'List of products purchased in the order. Segment will title case the keys of this object before sending it to Klaviyo.',
+      description: 'List of products purchased in the order.',
       multiple: true,
       type: 'object',
       additionalProperties: true,
