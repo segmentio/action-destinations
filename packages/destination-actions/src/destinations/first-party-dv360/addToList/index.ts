@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to List',
-  description: '',
+  description: 'Adds to list',
   fields: {},
   perform: (_request, _data) => {
     // Make your partner api request here!
