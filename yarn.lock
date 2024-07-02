@@ -2485,6 +2485,19 @@
     dayjs "^1.10.7"
     ts-custom-error "^3.2.0"
 
+"@segment/actions-shared@^1.98.0":
+  version "1.98.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.98.0.tgz#0c6998319e4c08a1bfa324f37b8233ba214f0bf3"
+  integrity sha512-xWBtFb7wka8iLuoY4lcrQB7GcB3bAyPniqh4e/gQwjVKM7xEi4fUumgySR/k9zCE96qGUkzx6vRygGg13oJdrQ==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/actions-core" "^3.116.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^10.8.4"
+    lodash "^4.17.21"
+
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sabil/-/analytics-browser-actions-sabil-1.6.0.tgz#4e1faf694e7b9b513e7309b74654abc31e789a37"
