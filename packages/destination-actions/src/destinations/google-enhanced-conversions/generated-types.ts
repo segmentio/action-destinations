@@ -10,3 +10,11 @@ export interface Settings {
    */
   customerId?: string
 }
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface AudienceSettings {
+  /**
+   * Customer match upload key types.
+   */
+  external_id_type: string
+}

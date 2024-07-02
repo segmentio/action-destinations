@@ -30,6 +30,15 @@ export class GoogleAdsError extends HTTPError {
   }
 }
 
+export interface CreateAudienceInput {
+  audienceName: string
+  settings: {
+    customerId?: string
+    conversionTrackingId?: string
+  }
+  audienceSettings?: unknown
+}
+
 export function formatCustomVariables(
   customVariables: object,
   customVariableIdsResults: Array<ConversionCustomVariable>
@@ -184,4 +193,73 @@ export const commonHashedEmailValidation = (email: string): string => {
   }
 
   return String(hash(email))
+}
+
+export async function createGoogleAudience(
+  request: RequestClient,
+  input: CreateAudienceInput,
+  statsContext?: StatsContext
+) {
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
+  const json = {
+    operations: [
+      {
+        create: {
+          crmBasedUserList: {
+            uploadKeyType: (input.audienceSettings as { external_id_type: string }).external_id_type
+          },
+          membershipLifeSpan: '10000', // In days. 10000 is interpreted as 'unlimited'.
+          name: `${input.audienceName}`
+        }
+      }
+    ]
+  }
+
+  const response = await request(`https://googleads.googleapis.com/v16/customers/${input.settings.customerId}:mutate`, {
+    method: 'post',
+    json
+  })
+
+  // Successful response body looks like:
+  // {"results": [{ "resourceName": "customers/<customer_id>/userLists/<user_list_id>" }]}
+  const name = (response.data as any).results[0].resourceName
+  if (!name) {
+    statsClient?.incr('createAudience.error', 1, statsTags)
+    throw new IntegrationError('Failed to receive a created customer list id.', 'INVALID_RESPONSE', 400)
+  }
+
+  statsClient?.incr('createAudience.success', 1, statsTags)
+  return name.split('/')[3]
+}
+
+export async function getGoogleAudience(
+  request: RequestClient,
+  settings: any,
+  externalId: string,
+  statsContext?: StatsContext
+) {
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
+  const json = {
+    query: `SELECT user_list.id, user_list.name FROM user_list where user_list.id = '${externalId}'`
+  }
+
+  const response = await request(
+    `https://googleads.googleapis.com/v16/customers/${settings.customerId}/googleAds:search`,
+    {
+      method: 'post',
+      json
+    }
+  )
+
+  const id = (response.data as any).results[0].userList.id
+
+  if (!id) {
+    statsClient?.incr('getAudience.error', 1, statsTags)
+    throw new IntegrationError('Failed to receive a customer list.', 'INVALID_RESPONSE', 400)
+  }
+
+  statsClient?.incr('getAudience.success', 1, statsTags)
+  return id
 }
