@@ -107,12 +107,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
 
-  perform: async (request, { audienceSettings, payload, settings, logger }) => {
+  perform: async (request, { audienceSettings, payload, settings }) => {
     const { external_audience_id } = payload
-
-    logger?.info(`actions-dynamic-yield-audiences:perform: payload ${JSON.stringify(payload, null, 2)}`)
-
-    logger?.info(`actions-dynamic-yield-audiences:perform: external_audience_id ${external_audience_id}`)
 
     if (!audienceSettings?.audience_name) {
       throw new IntegrationError('Audience Name is required', 'MISSING_REQUIRED_FIELD', 400)
@@ -130,10 +126,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     const identifierType = (audienceSettings?.identifier_type).toLowerCase().replace(/_/g, '')
     const audienceValue = payload.traits_or_props[payload.segment_audience_key]
 
-    logger?.info(
-      `actions-dynamic-yield-audiences:perform: audienceValue ${audienceValue}, identifierType ${identifierType}, audienceName ${audienceName}`
-    )
-
     let primaryIdentifier: string | undefined
 
     switch (identifierType) {
@@ -149,8 +141,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       default:
         primaryIdentifier = (payload.traits_or_props[identifierType] as string) ?? undefined
     }
-
-    logger?.info(`actions-dynamic-yield-audiences:perform: primaryIdentifier ${primaryIdentifier}`)
 
     if (!primaryIdentifier) {
       throw new IntegrationError('Primary Identifier not found', 'MISSING_REQUIRED_FIELD', 400)
@@ -188,8 +178,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         }
       ]
     }
-
-    logger?.info(`actions-dynamic-yield-audiences:perform: json ${JSON.stringify(json, null, 2)}, URL ${URL}`)
 
     return request(URL, {
       method: 'post',

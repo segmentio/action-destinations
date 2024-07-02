@@ -3,7 +3,6 @@ import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { getCreateAudienceURL, hashAndEncodeToInt } from './helpers'
 import { v4 as uuidv4 } from '@lukeed/uuid'
-import { Logger } from 'ecs-logs-js'
 
 type PersonasSettings = {
   computation_id: string
@@ -59,7 +58,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     }
   },
-  extendRequest({ settings, logger }) {
+  extendRequest({ settings }) {
     let secret = undefined
 
     switch (settings.dataCenter) {
@@ -74,14 +73,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         break
     }
 
-    logger?.info(`actions-dynamic-yield-audiences:extendRequest: secret type: ${typeof secret}`)
-
     if (secret === undefined) {
-      logger?.error(`actions-dynamic-yield-audiences:extendRequest: secret is undefined`)
       throw new IntegrationError('Missing Dynamic Yield Audiences Client Secret', 'MISSING_REQUIRED_FIELD', 400)
     }
-
-    logger?.info(`actions-dynamic-yield-audiences:extendRequest: secret starts with: ${secret?.substring(0, 3)}`)
 
     return {
       headers: {
@@ -108,11 +102,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         }
       } = createAudienceInput
 
-      const logger = new Logger({
-        level: 'error',
-        devMode: true
-      })
-
       if (!audience_name) {
         throw new IntegrationError('Missing Audience Name', 'MISSING_REQUIRED_FIELD', 400)
       }
@@ -122,18 +111,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       const audience_id = hashAndEncodeToInt(personas.computation_id)
-
-      logger.info(
-        `actions-dynamic-yield-audiences:createAudience: settings: ${JSON.stringify(
-          settings,
-          null,
-          2
-        )}, audience_name: ${audience_name}, personas: ${JSON.stringify(
-          personas,
-          null,
-          2
-        )}, personas.computation_id: ${audience_id}`
-      )
 
       const json = {
         type: 'audience_subscription_request',
@@ -150,41 +127,25 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         action: 'add'
       }
 
-      logger.info(`actions-dynamic-yield-audiences:createAudience: json: ${JSON.stringify(json, null, 2)}`)
+      const response = await request(getCreateAudienceURL(settings.dataCenter), {
+        method: 'POST',
+        json
+      })
+      const responseData = await response.json()
 
-      try {
-        const response = await request(getCreateAudienceURL(settings.dataCenter), {
-          method: 'POST',
-          json
-        })
-        const responseData = await response.json()
-
-        if (!responseData.id) {
-          throw new IntegrationError(
-            `Failed to create Audience in Dynamic Yield - responseData.id null or undefined`,
-            'DYNAMIC_YIELD_AUDIENCE_CREATION_FAILED',
-            400
-          )
-        }
-
-        const externalId = {
-          externalId: String(audience_id) // must be returned as a string
-        }
-
-        logger.info(
-          `actions-dynamic-yield-audiences:createAudience: externalId: ${JSON.stringify(externalId, null, 2)}`
-        )
-
-        return externalId
-      } catch (e) {
-        const errorMessage = e instanceof Error ? e.message : 'Unknown error'
-        logger.error(`actions-dynamic-yield-audiences:createAudience: error: ${errorMessage}`)
+      if (!responseData.id) {
         throw new IntegrationError(
-          `Failed to create Audience in Dynamic Yield - ${errorMessage}`,
+          `Failed to create Audience in Dynamic Yield - responseData.id null or undefined`,
           'DYNAMIC_YIELD_AUDIENCE_CREATION_FAILED',
           400
         )
       }
+
+      const externalId = {
+        externalId: String(audience_id) // must be returned as a string
+      }
+
+      return externalId
     },
     async getAudience(_, getAudienceInput) {
       return {
