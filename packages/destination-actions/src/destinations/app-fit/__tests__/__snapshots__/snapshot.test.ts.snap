@@ -6,15 +6,27 @@ Object {
   "occurredAt": "2021-02-01T00:00:00.000Z",
   "payload": Object {
     "anonymousId": "m]^ldlwPRQruDQ&OXR1",
-    "deviceId": "m]^ldlwPRQruDQ&OXR1",
-    "deviceType": "m]^ldlwPRQruDQ&OXR1",
-    "eventId": "m]^ldlwPRQruDQ&OXR1",
-    "name": "m]^ldlwPRQruDQ&OXR1",
-    "osName": "m]^ldlwPRQruDQ&OXR1",
+    "eventName": "m]^ldlwPRQruDQ&OXR1",
     "properties": Object {
       "testType": "m]^ldlwPRQruDQ&OXR1",
     },
+    "sourceEventId": "m]^ldlwPRQruDQ&OXR1",
+    "systemProperties": Object {
+      "appVersion": "m]^ldlwPRQruDQ&OXR1",
+      "device": Object {
+        "advertisingId": "m]^ldlwPRQruDQ&OXR1",
+        "id": "m]^ldlwPRQruDQ&OXR1",
+        "manufacturer": "m]^ldlwPRQruDQ&OXR1",
+        "model": "m]^ldlwPRQruDQ&OXR1",
+      },
+      "ipAddress": "m]^ldlwPRQruDQ&OXR1",
+      "os": Object {
+        "name": "m]^ldlwPRQruDQ&OXR1",
+        "version": "m]^ldlwPRQruDQ&OXR1",
+      },
+    },
     "userId": "m]^ldlwPRQruDQ&OXR1",
+    "version": "2",
   },
 }
 `;
@@ -24,8 +36,13 @@ Object {
   "eventSource": "segment",
   "occurredAt": "2021-02-01T00:00:00.000Z",
   "payload": Object {
-    "eventId": "m]^ldlwPRQruDQ&OXR1",
-    "name": "m]^ldlwPRQruDQ&OXR1",
+    "eventName": "m]^ldlwPRQruDQ&OXR1",
+    "sourceEventId": "m]^ldlwPRQruDQ&OXR1",
+    "systemProperties": Object {
+      "device": Object {},
+      "os": Object {},
+    },
+    "version": "2",
   },
 }
 `;
