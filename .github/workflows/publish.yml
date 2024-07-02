@@ -56,7 +56,7 @@ jobs:
 
       - name: Publish
         run: |
-          yarn lerna publish from-git --yes --allowBranch=main --loglevel=verbose --dist-tag latest
+          yarn lerna publish from-package --yes --allowBranch=main --loglevel=verbose --dist-tag latest
 
   release:
     needs: build-and-publish # comment when testing locally with https://github.com/nektos/act
