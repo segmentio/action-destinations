@@ -60,7 +60,7 @@ export function formatOrderedProduct(product: Product, order_id?: string, unique
 
 export function formatProductItems(product: Product) {
   const { sku, name, quantity, price, category, url, image_url, id, product_id, ...otherProperties } = product
-  const formattedProduct = {
+  return {
     ProductId: product_id ?? id,
     SKU: sku,
     ProductName: name,
@@ -72,7 +72,6 @@ export function formatProductItems(product: Product) {
     ImageURL: image_url,
     // copy other properties as is. If other properties have properties with same name
     // as the above, they will be overwritten which is the expected behavior
-    ...otherProperties
+    ...convertKeysToTitleCase(otherProperties)
   }
-  return convertKeysToTitleCase(formattedProduct)
 }
