@@ -78,12 +78,17 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     },
     device_id: {
       label: 'Mobile Device ID',
-      description: 'Mobile Device ID.',
+      description:
+        "To send iOS and Android Device IDs, include the 'ios.id' and 'android.id' Identifiers from the 'Customized Setup' option when connecting your Audience.",
       type: 'string',
       required: false,
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       default: {
-        '@path': '$.context.device.id'
+        '@if': {
+          exists: { '@path': '$.properties.ios.id' },
+          then: { '@path': '$.properties.ios.id' },
+          else: { '@path': '$.properties.android.id' }
+        }
       }
     },
     batch_size: {
