@@ -122,7 +122,7 @@ async function uploadS3(
       filename = `${filename}_${dateSuffix}.csv`
     }
 
-    const bucketName = payload.s3_aws_bucket_name
+    const bucketName = payload.s3_aws_bucket_name!
     const folderName = payload.s3_aws_folder_name || ''
 
     await uploadCSV(credentials, fileContent, bucketName, folderName, filename, region)
