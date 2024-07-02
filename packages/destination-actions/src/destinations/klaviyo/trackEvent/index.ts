@@ -8,7 +8,7 @@ import { API_URL } from '../config'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Track user events and associate it with their profile.',
-  defaultSubscription: 'type = "track" and event !="Order Completed"',
+  defaultSubscription: 'type = "track" and event != "Order Completed"',
   fields: {
     profile: {
       label: 'Profile',
