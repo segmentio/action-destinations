@@ -6,7 +6,7 @@ export interface Payload {
    */
   createdAt?: string | number
   /**
-   * Attributes maintained by your team.
+   * Contact attributes maintained by your team.
    */
   customAttributes?: {
     [k: string]: unknown
@@ -23,6 +23,12 @@ export interface Payload {
    * The contact's surname.
    */
   lastName?: string
+  /**
+   * An object containing key-value pairs of mailing list IDs and true/false determining if the contact should be added to or removed from each list.
+   */
+  mailingLists?: {
+    [k: string]: unknown
+  }
   /**
    * The contact's source.
    */
