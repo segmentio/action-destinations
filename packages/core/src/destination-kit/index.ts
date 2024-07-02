@@ -445,20 +445,17 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     if (!isEmpty(createAudienceInput.audienceSettings)) {
       validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))
     }
-    // const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
-    // const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
     const destinationSettings = this.getDestinationSettings(settings)
-    const auth = getAuthData(settings)
-    const context: ExecuteInput<Settings, any, AudienceSettings> = {
-      audienceSettings: createAudienceInput.audienceSettings,
-      settings: destinationSettings,
-      payload: undefined,
-      auth
-    }
-    const opts = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
-
     const run = async () => {
+      const auth = getAuthData(settings)
+      const context: ExecuteInput<Settings, any, AudienceSettings> = {
+        audienceSettings: createAudienceInput.audienceSettings,
+        settings: destinationSettings,
+        payload: undefined,
+        auth
+      }
+      const opts = this.extendRequest?.(context) ?? {}
+      const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
       return await audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
     }
 
@@ -487,7 +484,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
-
       await options?.onTokenRefresh?.(newTokens)
     }
 
@@ -503,16 +499,16 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       throw new Error('Unexpected call to getAudience')
     }
     const destinationSettings = this.getDestinationSettings(settings)
-    const auth = getAuthData(settings)
-    const context: ExecuteInput<Settings, any, AudienceSettings> = {
-      audienceSettings: getAudienceInput.audienceSettings,
-      settings: destinationSettings,
-      payload: undefined,
-      auth
-    }
-    const opts = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
     const run = async () => {
+      const auth = getAuthData(settings)
+      const context: ExecuteInput<Settings, any, AudienceSettings> = {
+        audienceSettings: getAudienceInput.audienceSettings,
+        settings: destinationSettings,
+        payload: undefined,
+        auth
+      }
+      const opts = this.extendRequest?.(context) ?? {}
+      const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
       return audienceDefinition.audienceConfig?.getAudience(requestClient, getAudienceInput)
     }
 
