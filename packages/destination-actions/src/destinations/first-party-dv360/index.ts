@@ -1,6 +1,8 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import addToList from './addToList'
+
 const destination: AudienceDestinationDefinition<Settings> = {
   name: 'First Party Dv360',
   slug: 'actions-first-party-dv360',
@@ -37,7 +39,9 @@ const destination: AudienceDestinationDefinition<Settings> = {
     // implement this function and should remove it completely.
   },
 
-  actions: {}
+  actions: {
+    addToList
+  }
 }
 
 export default destination
