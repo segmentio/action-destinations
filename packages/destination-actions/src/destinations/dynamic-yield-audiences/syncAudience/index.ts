@@ -33,7 +33,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'External Audience ID',
       description: 'Unique Audience Identifier returned by the createAudience() function call.',
       required: true,
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       default: {
         '@path': '$.context.personas.external_audience_id'
       }
@@ -42,7 +42,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'Audience Key',
       description: 'Segment Audience key / name',
       type: 'string',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
@@ -52,7 +52,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'Traits or Properties',
       description: 'Traits or Properties object',
       type: 'object',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       required: true,
       default: {
         '@if': {
@@ -148,38 +148,40 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
     const URL = getUpsertURL(settings.dataCenter)
 
+    const json = {
+      type: 'audience_membership_change_request',
+      id: payload.message_id,
+      timestamp_ms: new Date(payload.timestamp).getTime(),
+      account: {
+        account_settings: {
+          section_id: settings.sectionId,
+          identifier_type: identifierType,
+          accessKey: settings.accessKey
+        }
+      },
+      user_profiles: [
+        {
+          user_identities: [
+            {
+              type: identifierType,
+              encoding: identifierType === 'email' ? '"sha-256"' : 'raw',
+              value: identifierType === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
+            }
+          ],
+          audiences: [
+            {
+              audience_id: Number(external_audience_id), // must be sent as an integer
+              audience_name: audienceName,
+              action: audienceValue ? 'add' : 'delete'
+            }
+          ]
+        }
+      ]
+    }
+
     return request(URL, {
       method: 'post',
-      json: {
-        type: 'audience_membership_change_request',
-        id: payload.message_id,
-        timestamp_ms: new Date(payload.timestamp).getTime(),
-        account: {
-          account_settings: {
-            section_id: settings.sectionId,
-            identifier_type: identifierType,
-            accessKey: settings.accessKey
-          }
-        },
-        user_profiles: [
-          {
-            user_identities: [
-              {
-                type: identifierType,
-                encoding: identifierType === 'email' ? '"sha-256"' : 'raw',
-                value: identifierType === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
-              }
-            ],
-            audiences: [
-              {
-                audience_id: external_audience_id,
-                audience_name: audienceName,
-                action: audienceValue ? 'add' : 'delete'
-              }
-            ]
-          }
-        ]
-      }
+      json
     })
   }
 }
