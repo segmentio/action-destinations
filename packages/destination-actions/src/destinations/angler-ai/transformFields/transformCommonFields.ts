@@ -10,13 +10,13 @@ export function transformCommonFields(payload: Payload) {
     fpb: payload.identifiers.fbp,
     fbc: payload.identifiers.fbc,
     ga: payload.identifiers.ga,
-    identifiers: Object.keys(payload.identifiers).reduce((acc: Record<string, unknown>, key) => {
+    identifiers: Object.keys(payload.identifiers).reduce((acc: { name: string; value: string }[], key) => {
       const omitKeys = ['userId', 'anonymousId', 'clientId', 'fbp', 'fbc', 'ga']
-      if (!omitKeys.includes(key)) {
-        acc[key] = payload.identifiers[key]
+      if (omitKeys.includes(key)) {
+        return acc
       }
-      return acc
-    }, {}),
+      return [...acc, { name: key, value: String(payload.identifiers[key]) }]
+    }, []),
     url: payload.page?.url,
     client_id: payload.identifiers.clientId,
     referrer: payload.page?.referrer,
