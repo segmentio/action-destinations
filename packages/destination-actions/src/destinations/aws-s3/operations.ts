@@ -56,15 +56,12 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
     // Process identifier_data, skipping keys that have already been processed
     if (payload.identifier_data) {
       for (const key in payload.identifier_data) {
-        console.log('key', Object.prototype.hasOwnProperty.call(payload.identifier_data, key))
         if (Object.prototype.hasOwnProperty.call(payload.identifier_data, key) && !headers.has(key)) {
           headers.add(key)
           row.push(enquoteIdentifier(String(payload.identifier_data[key])))
         }
       }
     }
-    console.log('headers', headers)
-    console.log('fileContents', row)
 
     rows = Buffer.concat([rows, Buffer.from(row.join(payload.delimiter) + (i + 1 === payloads.length ? '' : '\n'))])
   }

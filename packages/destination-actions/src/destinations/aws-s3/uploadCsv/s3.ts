@@ -81,10 +81,9 @@ const uploadCSV = async (
   }
 
   try {
-    const data = await s3Client.send(new PutObjectCommand(uploadParams))
-    console.log('Upload Success', data)
+    await s3Client.send(new PutObjectCommand(uploadParams))
   } catch (err) {
-    console.error('Error', err)
+    throw new Error(`Non-retryable error: ${err.message}`, { cause: err, code: 400 })
   }
   return { statusCode: 200, message: 'Upload successful' }
 }
@@ -95,8 +94,7 @@ const getCredentials = async (roleArn: string, roleSessionName: string): Promise
     const credentials = await assumeRole(roleArn, roleSessionName)
     return credentials
   } catch (err) {
-    console.error('Error assuming role', err)
-    throw err
+    throw new Error(`Non-retryable error: ${err.message}`, { cause: err, code: 400 })
   }
 }
 
@@ -110,8 +108,6 @@ async function uploadS3(
     roleSessionName = uuidv4()
     region = payload.s3_aws_region!
     const credentials = await getCredentials(roleArn, roleSessionName)
-    console.log('Credentials outside async block:', credentials)
-
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
     if (filename.endsWith('.csv')) {
@@ -128,7 +124,6 @@ async function uploadS3(
     await uploadCSV(credentials, fileContent, bucketName, folderName, filename, region)
     return { statusCode: 200, message: 'Upload successful' }
   } catch (err) {
-    console.error('Error', err)
     return { statusCode: 500, message: 'Upload failed' }
   }
 }
