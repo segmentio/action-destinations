@@ -488,7 +488,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
-    // return audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
   }
 
   async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>) {
