@@ -5,11 +5,11 @@ export function transformCart(payload: Payload) {
     cart: {
       cost: {
         totalAmount: {
-          amount: payload.totalAmount,
-          currencyCode: payload.currencyCode
+          amount: payload.cart?.totalAmount,
+          currencyCode: payload.cart?.currencyCode
         }
       },
-      id: payload.cartId,
+      id: payload.cart?.id,
       lines: payload.cartLines?.map((cartLine) => ({
         cost: {
           totalAmount: {

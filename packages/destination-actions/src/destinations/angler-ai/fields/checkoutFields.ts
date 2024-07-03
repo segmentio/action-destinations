@@ -2,6 +2,61 @@ import { InputField } from '@segment/actions-core/index'
 import { productsDefaultProperties, productsFields } from './productsFields'
 
 export const checkoutFields: Record<string, InputField> = {
+  checkout: {
+    label: 'Checkout',
+    type: 'object',
+    description: 'Checkout details',
+    properties: {
+      totalAmount: {
+        label: 'Total Amount',
+        type: 'number',
+        description: 'Decimal money amount.',
+        default: {
+          '@path': '$.properties.total'
+        }
+      },
+      currencyCode: {
+        label: 'Currency Code',
+        type: 'string',
+        description: 'The currency code of the money.',
+        default: {
+          '@path': '$.properties.currency'
+        }
+      },
+      orderId: {
+        label: 'Order ID',
+        type: 'string',
+        description: 'The ID of the order associated with this checkout.',
+        default: {
+          '@path': '$.properties.order_id'
+        }
+      },
+      subtotalPriceAmount: {
+        label: 'Subtotal Price Amount',
+        type: 'number',
+        description: 'A monetary value.',
+        default: {
+          '@path': '$.properties.subtotal'
+        }
+      },
+      totalTaxAmount: {
+        label: 'Total Tax Amount',
+        type: 'number',
+        description: 'A monetary value with currency.',
+        default: {
+          '@path': '$.properties.tax'
+        }
+      },
+      shippingLinePriceAmount: {
+        label: 'Shipping Line Price Amount',
+        type: 'number',
+        description: 'A monetary value.',
+        default: {
+          '@path': '$.properties.shipping'
+        }
+      }
+    }
+  },
   checkoutLineItems: {
     ...productsFields,
     label: 'Checkout Line Items',
@@ -40,54 +95,6 @@ export const checkoutFields: Record<string, InputField> = {
           }
         }
       ]
-    }
-  },
-  totalAmount: {
-    label: 'Total Amount',
-    type: 'number',
-    description: 'Decimal money amount.',
-    default: {
-      '@path': '$.properties.total'
-    }
-  },
-  currencyCode: {
-    label: 'Currency Code',
-    type: 'string',
-    description: 'The currency code of the money.',
-    default: {
-      '@path': '$.properties.currency'
-    }
-  },
-  orderId: {
-    label: 'Order ID',
-    type: 'string',
-    description: 'The ID of the order associated with this checkout.',
-    default: {
-      '@path': '$.properties.order_id'
-    }
-  },
-  subtotalPriceAmount: {
-    label: 'Subtotal Price Amount',
-    type: 'number',
-    description: 'A monetary value.',
-    default: {
-      '@path': '$.properties.subtotal'
-    }
-  },
-  totalTaxAmount: {
-    label: 'Total Tax Amount',
-    type: 'number',
-    description: 'A monetary value with currency.',
-    default: {
-      '@path': '$.properties.tax'
-    }
-  },
-  shippingLinePriceAmount: {
-    label: 'Shipping Line Price Amount',
-    type: 'number',
-    description: 'A monetary value.',
-    default: {
-      '@path': '$.properties.shipping'
     }
   }
 }

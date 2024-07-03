@@ -200,10 +200,7 @@ Object {
       "data": Object {
         "cart": Object {
           "cost": Object {
-            "totalAmount": Object {
-              "amount": 11547049229025.28,
-              "currencyCode": "ThtPtJ2v(7[yo[",
-            },
+            "totalAmount": Object {},
           },
         },
         "checkout": Object {

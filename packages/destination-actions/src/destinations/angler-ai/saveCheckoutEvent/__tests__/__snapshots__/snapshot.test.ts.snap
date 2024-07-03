@@ -8,10 +8,7 @@ Object {
       "data": Object {
         "cart": Object {
           "cost": Object {
-            "totalAmount": Object {
-              "amount": 73487254164602.88,
-              "currencyCode": "&yVQWLT2[LyiR]Lnd6^",
-            },
+            "totalAmount": Object {},
           },
         },
         "checkout": Object {

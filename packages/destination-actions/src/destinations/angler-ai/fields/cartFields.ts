@@ -2,20 +2,27 @@ import { InputField } from '@segment/actions-core/index'
 import { productsFields } from './productsFields'
 
 export const cartFields: Record<string, InputField> = {
-  cartId: {
-    label: 'Cart ID',
-    type: 'string',
-    description: 'A globally unique identifier for the cart.'
-  },
-  totalAmount: {
-    label: 'Total Amount',
-    type: 'number',
-    description: 'Decimal money amount.'
-  },
-  currencyCode: {
-    label: 'Currency Code',
-    type: 'string',
-    description: 'The currency code of the money.'
+  cart: {
+    label: 'Cart',
+    type: 'object',
+    description: 'Cart details',
+    properties: {
+      id: {
+        label: 'Cart ID',
+        type: 'string',
+        description: 'A globally unique identifier for the cart.'
+      },
+      totalAmount: {
+        label: 'Total Amount',
+        type: 'number',
+        description: 'Decimal money amount.'
+      },
+      currencyCode: {
+        label: 'Currency Code',
+        type: 'string',
+        description: 'The currency code of the money.'
+      }
+    }
   },
   cartLines: {
     ...productsFields,

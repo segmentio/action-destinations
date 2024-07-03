@@ -3,7 +3,7 @@ import { Payload } from '../saveCustomEvent/generated-types'
 export function transformCheckout(payload: Payload) {
   return {
     checkout: {
-      currencyCode: payload.currencyCode,
+      currencyCode: payload.checkout?.currencyCode,
       lineItems: payload.checkoutLineItems?.map((lineItem) => ({
         discountAllocations: [
           {
@@ -43,21 +43,21 @@ export function transformCheckout(payload: Payload) {
         }
       })),
       order: {
-        id: payload.orderId
+        id: payload.checkout?.orderId
       },
       shippingLine: {
         price: {
-          amount: payload.shippingLinePriceAmount
+          amount: payload.checkout?.shippingLinePriceAmount
         }
       },
       subtotalPrice: {
-        amount: payload.subtotalPriceAmount
+        amount: payload.checkout?.subtotalPriceAmount
       },
       totalPrice: {
-        amount: payload.totalAmount
+        amount: payload.checkout?.totalAmount
       },
       totalTax: {
-        amount: payload.totalTaxAmount
+        amount: payload.checkout?.totalTaxAmount
       }
     }
   }

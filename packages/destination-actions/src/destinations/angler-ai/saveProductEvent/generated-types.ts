@@ -92,17 +92,22 @@ export interface Payload {
     dob?: string
   }
   /**
-   * A globally unique identifier for the cart.
+   * Cart details
    */
-  cartId?: string
-  /**
-   * Decimal money amount.
-   */
-  totalAmount?: number
-  /**
-   * The currency code of the money.
-   */
-  currencyCode?: string
+  cart?: {
+    /**
+     * A globally unique identifier for the cart.
+     */
+    id?: string
+    /**
+     * Decimal money amount.
+     */
+    totalAmount?: number
+    /**
+     * The currency code of the money.
+     */
+    currencyCode?: string
+  }
   /**
    * Cart Line Item details
    */
