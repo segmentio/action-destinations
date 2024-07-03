@@ -92,21 +92,9 @@ export interface Payload {
     dob?: string
   }
   /**
-   * A globally unique identifier for the cart.
+   * Checkout Line Item details
    */
-  cartId?: string
-  /**
-   * Decimal money amount.
-   */
-  totalAmount?: number
-  /**
-   * The currency code of the money.
-   */
-  currencyCode?: string
-  /**
-   * Cart Line Item details
-   */
-  cartLines?: {
+  checkoutLineItems?: {
     /**
      * A globally unique identifier for the item.
      */
@@ -151,7 +139,39 @@ export interface Payload {
      * Quantity of the item
      */
     quantity?: number
+    /**
+     * The Discount Code applied to the item.
+     */
+    discountTitle?: string
+    /**
+     * The Discount value applied to the item.
+     */
+    discountValue?: number
   }[]
+  /**
+   * Decimal money amount.
+   */
+  totalAmount?: number
+  /**
+   * The currency code of the money.
+   */
+  currencyCode?: string
+  /**
+   * The ID of the order associated with this checkout.
+   */
+  orderId?: string
+  /**
+   * A monetary value.
+   */
+  subtotalPriceAmount?: number
+  /**
+   * A monetary value with currency.
+   */
+  totalTaxAmount?: number
+  /**
+   * A monetary value.
+   */
+  shippingLinePriceAmount?: number
   /**
    * The name of the Checkout Event to track.
    */

@@ -204,15 +204,63 @@ Object {
     Object {
       "checkout": Object {
         "currencyCode": "ThtPtJ2v(7[yo[",
-        "order": Object {},
-        "shippingLine": Object {
-          "price": Object {},
+        "lineItems": Array [
+          Object {
+            "discountAllocations": Array [
+              Object {
+                "amount": Object {
+                  "amount": 11547049229025.28,
+                },
+                "discountApplication": Object {
+                  "title": "ThtPtJ2v(7[yo[",
+                  "value": Object {
+                    "amount": 11547049229025.28,
+                  },
+                },
+              },
+            ],
+            "id": "ThtPtJ2v(7[yo[",
+            "quantity": 11547049229025.28,
+            "title": "ThtPtJ2v(7[yo[",
+            "variant": Object {
+              "id": "ThtPtJ2v(7[yo[",
+              "image": Object {
+                "src": "ThtPtJ2v(7[yo[",
+              },
+              "price": Object {
+                "amount": 11547049229025.28,
+              },
+              "product": Object {
+                "id": "ThtPtJ2v(7[yo[",
+                "title": "ThtPtJ2v(7[yo[",
+                "type": "ThtPtJ2v(7[yo[",
+                "untranslatedTitle": "ThtPtJ2v(7[yo[",
+                "url": "ThtPtJ2v(7[yo[",
+                "vendor": "ThtPtJ2v(7[yo[",
+              },
+              "sku": "ThtPtJ2v(7[yo[",
+              "title": "ThtPtJ2v(7[yo[",
+              "untranslatedTitle": "ThtPtJ2v(7[yo[",
+            },
+          },
+        ],
+        "order": Object {
+          "id": "ThtPtJ2v(7[yo[",
         },
-        "subtotalPrice": Object {},
+        "shippingLine": Object {
+          "price": Object {
+            "amount": 11547049229025.28,
+          },
+        },
+        "subtotalPrice": Object {
+          "amount": 11547049229025.28,
+        },
         "totalPrice": Object {
           "amount": 11547049229025.28,
         },
-        "totalTax": Object {},
+        "totalTax": Object {
+          "amount": 11547049229025.28,
+        },
       },
       "client_id": "ThtPtJ2v(7[yo[",
       "data": Object {
@@ -223,36 +271,6 @@ Object {
               "currencyCode": "ThtPtJ2v(7[yo[",
             },
           },
-          "id": "ThtPtJ2v(7[yo[",
-          "lines": Array [
-            Object {
-              "cost": Object {
-                "totalAmount": Object {
-                  "amount": 11547049229025.28,
-                },
-              },
-              "merchandise": Object {
-                "id": "ThtPtJ2v(7[yo[",
-                "image": Object {
-                  "src": "ThtPtJ2v(7[yo[",
-                },
-                "price": Object {
-                  "amount": 11547049229025.28,
-                },
-                "product": Object {
-                  "title": "ThtPtJ2v(7[yo[",
-                  "type": "ThtPtJ2v(7[yo[",
-                  "untranslatedTitle": "ThtPtJ2v(7[yo[",
-                  "url": "ThtPtJ2v(7[yo[",
-                  "vendor": "ThtPtJ2v(7[yo[",
-                },
-                "sku": "ThtPtJ2v(7[yo[",
-                "title": "ThtPtJ2v(7[yo[",
-                "untranslatedTitle": "ThtPtJ2v(7[yo[",
-              },
-              "quantity": 11547049229025.28,
-            },
-          ],
         },
         "customData": Array [
           Object {
@@ -473,15 +491,63 @@ Object {
       },
       "checkout": Object {
         "currencyCode": "#p#iS",
-        "order": Object {},
-        "shippingLine": Object {
-          "price": Object {},
+        "lineItems": Array [
+          Object {
+            "discountAllocations": Array [
+              Object {
+                "amount": Object {
+                  "amount": -86377660573286.4,
+                },
+                "discountApplication": Object {
+                  "title": "#p#iS",
+                  "value": Object {
+                    "amount": -86377660573286.4,
+                  },
+                },
+              },
+            ],
+            "id": "#p#iS",
+            "quantity": -86377660573286.4,
+            "title": "#p#iS",
+            "variant": Object {
+              "id": "#p#iS",
+              "image": Object {
+                "src": "#p#iS",
+              },
+              "price": Object {
+                "amount": -86377660573286.4,
+              },
+              "product": Object {
+                "id": "#p#iS",
+                "title": "#p#iS",
+                "type": "#p#iS",
+                "untranslatedTitle": "#p#iS",
+                "url": "#p#iS",
+                "vendor": "#p#iS",
+              },
+              "sku": "#p#iS",
+              "title": "#p#iS",
+              "untranslatedTitle": "#p#iS",
+            },
+          },
+        ],
+        "order": Object {
+          "id": "#p#iS",
         },
-        "subtotalPrice": Object {},
+        "shippingLine": Object {
+          "price": Object {
+            "amount": -86377660573286.4,
+          },
+        },
+        "subtotalPrice": Object {
+          "amount": -86377660573286.4,
+        },
         "totalPrice": Object {
           "amount": -86377660573286.4,
         },
-        "totalTax": Object {},
+        "totalTax": Object {
+          "amount": -86377660573286.4,
+        },
       },
       "client_id": "#p#iS",
       "collection": Object {

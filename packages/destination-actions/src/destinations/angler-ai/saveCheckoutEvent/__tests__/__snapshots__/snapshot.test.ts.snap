@@ -6,15 +6,63 @@ Object {
     Object {
       "checkout": Object {
         "currencyCode": "&yVQWLT2[LyiR]Lnd6^",
-        "order": Object {},
-        "shippingLine": Object {
-          "price": Object {},
+        "lineItems": Array [
+          Object {
+            "discountAllocations": Array [
+              Object {
+                "amount": Object {
+                  "amount": 73487254164602.88,
+                },
+                "discountApplication": Object {
+                  "title": "&yVQWLT2[LyiR]Lnd6^",
+                  "value": Object {
+                    "amount": 73487254164602.88,
+                  },
+                },
+              },
+            ],
+            "id": "&yVQWLT2[LyiR]Lnd6^",
+            "quantity": 73487254164602.88,
+            "title": "&yVQWLT2[LyiR]Lnd6^",
+            "variant": Object {
+              "id": "&yVQWLT2[LyiR]Lnd6^",
+              "image": Object {
+                "src": "&yVQWLT2[LyiR]Lnd6^",
+              },
+              "price": Object {
+                "amount": 73487254164602.88,
+              },
+              "product": Object {
+                "id": "&yVQWLT2[LyiR]Lnd6^",
+                "title": "&yVQWLT2[LyiR]Lnd6^",
+                "type": "&yVQWLT2[LyiR]Lnd6^",
+                "untranslatedTitle": "&yVQWLT2[LyiR]Lnd6^",
+                "url": "&yVQWLT2[LyiR]Lnd6^",
+                "vendor": "&yVQWLT2[LyiR]Lnd6^",
+              },
+              "sku": "&yVQWLT2[LyiR]Lnd6^",
+              "title": "&yVQWLT2[LyiR]Lnd6^",
+              "untranslatedTitle": "&yVQWLT2[LyiR]Lnd6^",
+            },
+          },
+        ],
+        "order": Object {
+          "id": "&yVQWLT2[LyiR]Lnd6^",
         },
-        "subtotalPrice": Object {},
+        "shippingLine": Object {
+          "price": Object {
+            "amount": 73487254164602.88,
+          },
+        },
+        "subtotalPrice": Object {
+          "amount": 73487254164602.88,
+        },
         "totalPrice": Object {
           "amount": 73487254164602.88,
         },
-        "totalTax": Object {},
+        "totalTax": Object {
+          "amount": 73487254164602.88,
+        },
       },
       "client_id": "&yVQWLT2[LyiR]Lnd6^",
       "data": Object {
@@ -25,36 +73,6 @@ Object {
               "currencyCode": "&yVQWLT2[LyiR]Lnd6^",
             },
           },
-          "id": "&yVQWLT2[LyiR]Lnd6^",
-          "lines": Array [
-            Object {
-              "cost": Object {
-                "totalAmount": Object {
-                  "amount": 73487254164602.88,
-                },
-              },
-              "merchandise": Object {
-                "id": "&yVQWLT2[LyiR]Lnd6^",
-                "image": Object {
-                  "src": "&yVQWLT2[LyiR]Lnd6^",
-                },
-                "price": Object {
-                  "amount": 73487254164602.88,
-                },
-                "product": Object {
-                  "title": "&yVQWLT2[LyiR]Lnd6^",
-                  "type": "&yVQWLT2[LyiR]Lnd6^",
-                  "untranslatedTitle": "&yVQWLT2[LyiR]Lnd6^",
-                  "url": "&yVQWLT2[LyiR]Lnd6^",
-                  "vendor": "&yVQWLT2[LyiR]Lnd6^",
-                },
-                "sku": "&yVQWLT2[LyiR]Lnd6^",
-                "title": "&yVQWLT2[LyiR]Lnd6^",
-                "untranslatedTitle": "&yVQWLT2[LyiR]Lnd6^",
-              },
-              "quantity": 73487254164602.88,
-            },
-          ],
         },
         "customData": Array [
           Object {

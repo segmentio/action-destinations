@@ -202,6 +202,79 @@ export interface Payload {
     quantity?: number
   }
   /**
+   * Checkout Line Item details
+   */
+  checkoutLineItems?: {
+    /**
+     * A globally unique identifier for the item.
+     */
+    id?: string
+    /**
+     * Identifier for the variant of the product
+     */
+    variantId?: string
+    /**
+     * The location of the image as a URL.
+     */
+    imageSrc?: string
+    /**
+     * The price of the product variant.
+     */
+    priceAmount?: number
+    /**
+     * The SKU (stock keeping unit) associated with the variant.
+     */
+    sku?: string
+    /**
+     * The product variant's title.
+     */
+    title?: string
+    /**
+     * The product variant's untranslated title.
+     */
+    untranslatedTitle?: string
+    /**
+     * The product's vendor name.
+     */
+    vendor?: string
+    /**
+     * The product type specified by the merchant.
+     */
+    type?: string
+    /**
+     * The relative URL of the product.
+     */
+    url?: string
+    /**
+     * Quantity of the item
+     */
+    quantity?: number
+    /**
+     * The Discount Code applied to the item.
+     */
+    discountTitle?: string
+    /**
+     * The Discount value applied to the item.
+     */
+    discountValue?: number
+  }[]
+  /**
+   * The ID of the order associated with this checkout.
+   */
+  orderId?: string
+  /**
+   * A monetary value.
+   */
+  subtotalPriceAmount?: number
+  /**
+   * A monetary value with currency.
+   */
+  totalTaxAmount?: number
+  /**
+   * A monetary value.
+   */
+  shippingLinePriceAmount?: number
+  /**
    * Collection details
    */
   collection?: {
