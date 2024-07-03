@@ -164,14 +164,5 @@ export const presets: DestinationDefinition['presets'] = [
       eventName: 'form_submitted'
     },
     type: 'automatic'
-  },
-  {
-    name: 'Save Event - Custom Event',
-    subscribe: 'event = "Abracadabra"',
-    partnerAction: 'saveCustomEvent',
-    mapping: {
-      eventName: 'custom_event'
-    },
-    type: 'automatic'
   }
 ]
