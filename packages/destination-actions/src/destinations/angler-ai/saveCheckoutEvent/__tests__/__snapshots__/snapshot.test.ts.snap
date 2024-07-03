@@ -4,66 +4,6 @@ exports[`Testing snapshot for AnglerAi's saveCheckoutEvent destination action: a
 Object {
   "data": Array [
     Object {
-      "checkout": Object {
-        "currencyCode": "&yVQWLT2[LyiR]Lnd6^",
-        "lineItems": Array [
-          Object {
-            "discountAllocations": Array [
-              Object {
-                "amount": Object {
-                  "amount": 73487254164602.88,
-                },
-                "discountApplication": Object {
-                  "title": "&yVQWLT2[LyiR]Lnd6^",
-                  "value": Object {
-                    "amount": 73487254164602.88,
-                  },
-                },
-              },
-            ],
-            "id": "&yVQWLT2[LyiR]Lnd6^",
-            "quantity": 73487254164602.88,
-            "title": "&yVQWLT2[LyiR]Lnd6^",
-            "variant": Object {
-              "id": "&yVQWLT2[LyiR]Lnd6^",
-              "image": Object {
-                "src": "&yVQWLT2[LyiR]Lnd6^",
-              },
-              "price": Object {
-                "amount": 73487254164602.88,
-              },
-              "product": Object {
-                "id": "&yVQWLT2[LyiR]Lnd6^",
-                "title": "&yVQWLT2[LyiR]Lnd6^",
-                "type": "&yVQWLT2[LyiR]Lnd6^",
-                "untranslatedTitle": "&yVQWLT2[LyiR]Lnd6^",
-                "url": "&yVQWLT2[LyiR]Lnd6^",
-                "vendor": "&yVQWLT2[LyiR]Lnd6^",
-              },
-              "sku": "&yVQWLT2[LyiR]Lnd6^",
-              "title": "&yVQWLT2[LyiR]Lnd6^",
-              "untranslatedTitle": "&yVQWLT2[LyiR]Lnd6^",
-            },
-          },
-        ],
-        "order": Object {
-          "id": "&yVQWLT2[LyiR]Lnd6^",
-        },
-        "shippingLine": Object {
-          "price": Object {
-            "amount": 73487254164602.88,
-          },
-        },
-        "subtotalPrice": Object {
-          "amount": 73487254164602.88,
-        },
-        "totalPrice": Object {
-          "amount": 73487254164602.88,
-        },
-        "totalTax": Object {
-          "amount": 73487254164602.88,
-        },
-      },
       "client_id": "&yVQWLT2[LyiR]Lnd6^",
       "data": Object {
         "cart": Object {
@@ -72,6 +12,66 @@ Object {
               "amount": 73487254164602.88,
               "currencyCode": "&yVQWLT2[LyiR]Lnd6^",
             },
+          },
+        },
+        "checkout": Object {
+          "currencyCode": "&yVQWLT2[LyiR]Lnd6^",
+          "lineItems": Array [
+            Object {
+              "discountAllocations": Array [
+                Object {
+                  "amount": Object {
+                    "amount": 73487254164602.88,
+                  },
+                  "discountApplication": Object {
+                    "title": "&yVQWLT2[LyiR]Lnd6^",
+                    "value": Object {
+                      "amount": 73487254164602.88,
+                    },
+                  },
+                },
+              ],
+              "id": "&yVQWLT2[LyiR]Lnd6^",
+              "quantity": 73487254164602.88,
+              "title": "&yVQWLT2[LyiR]Lnd6^",
+              "variant": Object {
+                "id": "&yVQWLT2[LyiR]Lnd6^",
+                "image": Object {
+                  "src": "&yVQWLT2[LyiR]Lnd6^",
+                },
+                "price": Object {
+                  "amount": 73487254164602.88,
+                },
+                "product": Object {
+                  "id": "&yVQWLT2[LyiR]Lnd6^",
+                  "title": "&yVQWLT2[LyiR]Lnd6^",
+                  "type": "&yVQWLT2[LyiR]Lnd6^",
+                  "untranslatedTitle": "&yVQWLT2[LyiR]Lnd6^",
+                  "url": "&yVQWLT2[LyiR]Lnd6^",
+                  "vendor": "&yVQWLT2[LyiR]Lnd6^",
+                },
+                "sku": "&yVQWLT2[LyiR]Lnd6^",
+                "title": "&yVQWLT2[LyiR]Lnd6^",
+                "untranslatedTitle": "&yVQWLT2[LyiR]Lnd6^",
+              },
+            },
+          ],
+          "order": Object {
+            "id": "&yVQWLT2[LyiR]Lnd6^",
+          },
+          "shippingLine": Object {
+            "price": Object {
+              "amount": 73487254164602.88,
+            },
+          },
+          "subtotalPrice": Object {
+            "amount": 73487254164602.88,
+          },
+          "totalPrice": Object {
+            "amount": 73487254164602.88,
+          },
+          "totalTax": Object {
+            "amount": 73487254164602.88,
           },
         },
         "customData": Array [
@@ -94,6 +94,7 @@ Object {
       "fbc": "&yVQWLT2[LyiR]Lnd6^",
       "fpb": "&yVQWLT2[LyiR]Lnd6^",
       "ga": "&yVQWLT2[LyiR]Lnd6^",
+      "identifiers": Object {},
       "ip_address": "&yVQWLT2[LyiR]Lnd6^",
       "referrer": "&yVQWLT2[LyiR]Lnd6^",
       "timestamp": "&yVQWLT2[LyiR]Lnd6^",
@@ -109,15 +110,6 @@ exports[`Testing snapshot for AnglerAi's saveCheckoutEvent destination action: r
 Object {
   "data": Array [
     Object {
-      "checkout": Object {
-        "order": Object {},
-        "shippingLine": Object {
-          "price": Object {},
-        },
-        "subtotalPrice": Object {},
-        "totalPrice": Object {},
-        "totalTax": Object {},
-      },
       "client_id": "&yVQWLT2[LyiR]Lnd6^",
       "data": Object {
         "cart": Object {
@@ -125,11 +117,21 @@ Object {
             "totalAmount": Object {},
           },
         },
+        "checkout": Object {
+          "order": Object {},
+          "shippingLine": Object {
+            "price": Object {},
+          },
+          "subtotalPrice": Object {},
+          "totalPrice": Object {},
+          "totalTax": Object {},
+        },
         "customData": Array [],
         "customer": Object {},
       },
       "event_id": "&yVQWLT2[LyiR]Lnd6^",
       "event_name": "checkout_started",
+      "identifiers": Object {},
     },
   ],
   "src": "SEGMENT",

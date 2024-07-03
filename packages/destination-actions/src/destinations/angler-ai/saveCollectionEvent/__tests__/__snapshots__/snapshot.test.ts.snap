@@ -5,32 +5,6 @@ Object {
   "data": Array [
     Object {
       "client_id": "!rMDy$ShoCe*^$(%J2H",
-      "collection": Object {
-        "id": "!rMDy$ShoCe*^$(%J2H",
-        "productVariants": Array [
-          Object {
-            "id": "!rMDy$ShoCe*^$(%J2H",
-            "image": Object {
-              "src": "!rMDy$ShoCe*^$(%J2H",
-            },
-            "price": Object {
-              "amount": 77185613761085.44,
-            },
-            "product": Object {
-              "id": "!rMDy$ShoCe*^$(%J2H",
-              "title": "!rMDy$ShoCe*^$(%J2H",
-              "type": "!rMDy$ShoCe*^$(%J2H",
-              "untranslatedTitle": "!rMDy$ShoCe*^$(%J2H",
-              "url": "!rMDy$ShoCe*^$(%J2H",
-              "vendor": "!rMDy$ShoCe*^$(%J2H",
-            },
-            "sku": "!rMDy$ShoCe*^$(%J2H",
-            "title": "!rMDy$ShoCe*^$(%J2H",
-            "untranslatedTitle": "!rMDy$ShoCe*^$(%J2H",
-          },
-        ],
-        "title": "!rMDy$ShoCe*^$(%J2H",
-      },
       "data": Object {
         "cart": Object {
           "cost": Object {
@@ -70,6 +44,32 @@ Object {
             },
           ],
         },
+        "collection": Object {
+          "id": "!rMDy$ShoCe*^$(%J2H",
+          "productVariants": Array [
+            Object {
+              "id": "!rMDy$ShoCe*^$(%J2H",
+              "image": Object {
+                "src": "!rMDy$ShoCe*^$(%J2H",
+              },
+              "price": Object {
+                "amount": 77185613761085.44,
+              },
+              "product": Object {
+                "id": "!rMDy$ShoCe*^$(%J2H",
+                "title": "!rMDy$ShoCe*^$(%J2H",
+                "type": "!rMDy$ShoCe*^$(%J2H",
+                "untranslatedTitle": "!rMDy$ShoCe*^$(%J2H",
+                "url": "!rMDy$ShoCe*^$(%J2H",
+                "vendor": "!rMDy$ShoCe*^$(%J2H",
+              },
+              "sku": "!rMDy$ShoCe*^$(%J2H",
+              "title": "!rMDy$ShoCe*^$(%J2H",
+              "untranslatedTitle": "!rMDy$ShoCe*^$(%J2H",
+            },
+          ],
+          "title": "!rMDy$ShoCe*^$(%J2H",
+        },
         "customData": Array [
           Object {
             "name": "testType",
@@ -90,6 +90,7 @@ Object {
       "fbc": "!rMDy$ShoCe*^$(%J2H",
       "fpb": "!rMDy$ShoCe*^$(%J2H",
       "ga": "!rMDy$ShoCe*^$(%J2H",
+      "identifiers": Object {},
       "ip_address": "!rMDy$ShoCe*^$(%J2H",
       "referrer": "!rMDy$ShoCe*^$(%J2H",
       "timestamp": "!rMDy$ShoCe*^$(%J2H",
@@ -106,18 +107,19 @@ Object {
   "data": Array [
     Object {
       "client_id": "!rMDy$ShoCe*^$(%J2H",
-      "collection": Object {},
       "data": Object {
         "cart": Object {
           "cost": Object {
             "totalAmount": Object {},
           },
         },
+        "collection": Object {},
         "customData": Array [],
         "customer": Object {},
       },
       "event_id": "!rMDy$ShoCe*^$(%J2H",
       "event_name": "collection_viewed",
+      "identifiers": Object {},
     },
   ],
   "src": "SEGMENT",

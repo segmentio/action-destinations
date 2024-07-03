@@ -4,39 +4,34 @@ exports[`Testing snapshot for AnglerAi's saveCartEvent destination action: all f
 Object {
   "data": Array [
     Object {
-      "cartLine": Object {
-        "cost": Object {
-          "totalAmount": Object {
-            "amount": 57986244453335.04,
-          },
-        },
-        "merchandise": Object {
-          "id": "C)6#KZenr)fGyu%KjQ",
-          "image": Object {
-            "src": "C)6#KZenr)fGyu%KjQ",
-          },
-          "price": Object {
-            "amount": 57986244453335.04,
-          },
-          "product": Object {
-            "title": "C)6#KZenr)fGyu%KjQ",
-            "type": "C)6#KZenr)fGyu%KjQ",
-            "untranslatedTitle": "C)6#KZenr)fGyu%KjQ",
-            "url": "C)6#KZenr)fGyu%KjQ",
-            "vendor": "C)6#KZenr)fGyu%KjQ",
-          },
-          "sku": "C)6#KZenr)fGyu%KjQ",
-          "title": "C)6#KZenr)fGyu%KjQ",
-          "untranslatedTitle": "C)6#KZenr)fGyu%KjQ",
-        },
-        "quantity": 57986244453335.04,
-      },
       "client_id": "C)6#KZenr)fGyu%KjQ",
       "data": Object {
-        "cart": Object {
+        "cartLine": Object {
           "cost": Object {
-            "totalAmount": Object {},
+            "totalAmount": Object {
+              "amount": 57986244453335.04,
+            },
           },
+          "merchandise": Object {
+            "id": "C)6#KZenr)fGyu%KjQ",
+            "image": Object {
+              "src": "C)6#KZenr)fGyu%KjQ",
+            },
+            "price": Object {
+              "amount": 57986244453335.04,
+            },
+            "product": Object {
+              "title": "C)6#KZenr)fGyu%KjQ",
+              "type": "C)6#KZenr)fGyu%KjQ",
+              "untranslatedTitle": "C)6#KZenr)fGyu%KjQ",
+              "url": "C)6#KZenr)fGyu%KjQ",
+              "vendor": "C)6#KZenr)fGyu%KjQ",
+            },
+            "sku": "C)6#KZenr)fGyu%KjQ",
+            "title": "C)6#KZenr)fGyu%KjQ",
+            "untranslatedTitle": "C)6#KZenr)fGyu%KjQ",
+          },
+          "quantity": 57986244453335.04,
         },
         "customData": Array [
           Object {
@@ -58,6 +53,7 @@ Object {
       "fbc": "C)6#KZenr)fGyu%KjQ",
       "fpb": "C)6#KZenr)fGyu%KjQ",
       "ga": "C)6#KZenr)fGyu%KjQ",
+      "identifiers": Object {},
       "ip_address": "C)6#KZenr)fGyu%KjQ",
       "referrer": "C)6#KZenr)fGyu%KjQ",
       "timestamp": "C)6#KZenr)fGyu%KjQ",
@@ -73,21 +69,16 @@ exports[`Testing snapshot for AnglerAi's saveCartEvent destination action: requi
 Object {
   "data": Array [
     Object {
-      "cartLine": Object {
-        "cost": Object {
-          "totalAmount": Object {},
-        },
-        "merchandise": Object {
-          "image": Object {},
-          "price": Object {},
-          "product": Object {},
-        },
-      },
       "client_id": "C)6#KZenr)fGyu%KjQ",
       "data": Object {
-        "cart": Object {
+        "cartLine": Object {
           "cost": Object {
             "totalAmount": Object {},
+          },
+          "merchandise": Object {
+            "image": Object {},
+            "price": Object {},
+            "product": Object {},
           },
         },
         "customData": Array [],
@@ -95,6 +86,7 @@ Object {
       },
       "event_id": "C)6#KZenr)fGyu%KjQ",
       "event_name": "product_removed_from_cart",
+      "identifiers": Object {},
     },
   ],
   "src": "SEGMENT",

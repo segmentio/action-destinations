@@ -1,29 +1,20 @@
+import { transformCart } from '../transformFields/transformCart'
+import { transformCommonFields } from '../transformFields/transformCommonFields'
+import { transformCustomer } from '../transformFields/transformCustomer'
+import { transformForm } from '../transformFields/transformForm'
 import { Payload } from './generated-types'
-import { transformPayload as transformBasePayload } from '../saveBaseEvent/transform-payload'
-
-export function transformFormPayload(payload: Payload) {
-  return {
-    form: {
-      id: payload.id,
-      action: payload.action,
-      elements: payload.elements?.map((element) => ({
-        id: element.id,
-        name: element.name,
-        tagName: element.tagName,
-        type: element.type,
-        value: element.value
-      }))
-    }
-  }
-}
 
 export function transformPayload(payload: Payload) {
-  const basePayload = transformBasePayload(payload)
-  const formPayload = transformFormPayload(payload)
+  const commonFields = transformCommonFields(payload)
 
   const result = {
-    ...basePayload,
-    ...formPayload
+    ...commonFields,
+    data: {
+      ...commonFields.data,
+      ...transformCart(payload),
+      ...transformCustomer(payload),
+      ...transformForm(payload)
+    }
   }
 
   return result
