@@ -83,7 +83,7 @@ const uploadCSV = async (
   try {
     await s3Client.send(new PutObjectCommand(uploadParams))
   } catch (err) {
-    throw new Error(`Non-retryable error: ${err.message}`, { cause: err, code: 400 })
+    throw new Error(`Non-retryable error: ${err}`, { cause: err, code: 400 })
   }
   return { statusCode: 200, message: 'Upload successful' }
 }
@@ -94,7 +94,7 @@ const getCredentials = async (roleArn: string, roleSessionName: string): Promise
     const credentials = await assumeRole(roleArn, roleSessionName)
     return credentials
   } catch (err) {
-    throw new Error(`Non-retryable error: ${err.message}`, { cause: err, code: 400 })
+    throw new Error(`Non-retryable error: ${err}`, { cause: err, code: 400 })
   }
 }
 
