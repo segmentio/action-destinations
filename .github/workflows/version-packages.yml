@@ -1,4 +1,4 @@
-name: actions-release
+name: version packages
 on:
   push:
     branches:
@@ -33,9 +33,11 @@ jobs:
       - name: Build
         run: NODE_ENV=production yarn build
 
-      - name: Version package
+      - name: Version packages
         run: yarn release
 
-      - name: Create new PR
+      - name: Create PR
         run: |
-          gh pr create --title "Publish" --body "Publish" --base main --head release-test
+          gh pr create --title "Publish" --body "Publish" --base main --head release-test --draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
