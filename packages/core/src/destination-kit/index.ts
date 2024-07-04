@@ -436,6 +436,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
       throw new Error('Unexpected call to createAudience')
     }
+    //dummy commit
     //validate audienceField Input
     if (!isEmpty(createAudienceInput.audienceSettings)) {
       validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))
