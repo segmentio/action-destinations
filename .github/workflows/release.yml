@@ -1,4 +1,4 @@
-name: release.yml
+name: actions-release
 on:
   workflow_dispatch:
     inputs:
