@@ -4,7 +4,6 @@ import type { Settings, AudienceSettings } from './generated-types'
 import {
   AudiencePayload,
   extractNumberAndSubstituteWithStringValue,
-  // getAuthSettings,
   getAuthToken,
   REGEX_ADVERTISERID,
   REGEX_AUDIENCEID
@@ -214,7 +213,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const res = await response.text()
       // Regular expression to find a audienceId number and replace the audienceId with quoted string
       const resp = extractNumberAndSubstituteWithStringValue(res, REGEX_AUDIENCEID, '"audienceId":"$1"')
-
       return {
         externalId: resp.audienceId
       }
@@ -228,7 +226,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       if (!audience_id) {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
-
       const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
         method: 'GET'
       })

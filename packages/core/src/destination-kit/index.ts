@@ -482,7 +482,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       }
       const opts = this.extendRequest?.(context) ?? {}
       const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
-      return audienceDefinition.audienceConfig?.getAudience(requestClient, getAudienceInput)
+      return await audienceDefinition.audienceConfig?.getAudience(requestClient, getAudienceInput)
     }
 
     const onFailedAttempt = async (error: ResponseError & HTTPError) => {
