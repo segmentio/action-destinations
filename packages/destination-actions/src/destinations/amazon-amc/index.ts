@@ -241,9 +241,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
       const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
         method: 'GET'
-        // headers: {
-        //   authorization: `Bearer ${authToken}`
-        // }
       })
       const res = await response.text()
       // Regular expression to find a audienceId number and replace the audienceId with quoted string
