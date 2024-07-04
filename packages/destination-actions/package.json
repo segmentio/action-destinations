@@ -43,7 +43,7 @@
     "@bufbuild/protobuf": "^1.4.2",
     "@bufbuild/protoc-gen-es": "^1.4.2",
     "@segment/a1-notation": "^2.1.4",
-    "@segment/actions-core": "3.116.0-staging-787f2db99",
+    "@segment/actions-core": "3.116.0-staging-b01297528",
     "@segment/actions-shared": "1.98.0-staging-50e2b5698",
     "@types/node": "^18.11.15",
     "ajv-formats": "^2.1.1",
