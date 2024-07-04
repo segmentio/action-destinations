@@ -1,11 +1,8 @@
 name: actions-release
 on:
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to create PR from'
-        required: true
-        default: 'release'
+  push:
+    branches:
+      - new-prod-release-workflow
 
 jobs:
   build:
@@ -24,8 +21,8 @@ jobs:
 
       - name: Checkout branch
         run: |
-          git checkout -b ${{ github.event.inputs.branch }}
-          git push origin ${{ github.event.inputs.branch }}
+          git checkout -b release-test
+          git push origin release-test
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile --ignore-optional
@@ -38,4 +35,4 @@ jobs:
 
       - name: Create new PR
         run: |
-          gh pr create --title "Publish" --body "Publish" --base main --head ${{ github.event.inputs.branch }}
+          gh pr create --title "Publish" --body "Publish" --base main --head release-test
