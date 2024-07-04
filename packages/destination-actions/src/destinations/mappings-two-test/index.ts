@@ -2,6 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import sendEvent from './sendEvent'
+import kitchenSink from './kitchenSink'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Mappings Two Test',
@@ -25,7 +26,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    sendEvent
+    sendEvent,
+    kitchenSink
   }
 }
 
