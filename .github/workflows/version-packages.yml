@@ -13,7 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          branch: main
           depth: 0
+
+      - name: For act to work (local testing)
+        run: npm -g install yarn
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -34,7 +38,7 @@ jobs:
         run: NODE_ENV=production yarn build
 
       - name: Version packages
-        run: yarn lerna version minor --no-private --no-git-tag-version --yes
+        run: yarn lerna version minor --allow-branch release-test --force-publish=@segment/action-destinations --no-private --no-git-tag-version --yes
 
       - name: Create PR
         run: |
