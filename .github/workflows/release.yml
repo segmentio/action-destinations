@@ -21,6 +21,21 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
+
+      - name: Checkout branch
+        run: |
+          git checkout -b ${{ github.event.inputs.branch }}
+          git push origin ${{ github.event.inputs.branch }}
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile --ignore-optional
+
+      - name: Build
+        run: NODE_ENV=production yarn build
+
+      - name: Version package
+        run: yarn release
+
       - name: Create new PR
         run: |
           gh pr create --title "Release" --body "Release" --base main --head ${{ github.event.inputs.branch }}
