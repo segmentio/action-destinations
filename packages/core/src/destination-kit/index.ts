@@ -97,12 +97,6 @@ export type AudienceResult = {
 export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
 export type Personas = { computation_id: 'string'; computation_key: 'string' }
 
-// interface OnEventOptions {
-//   onTokenRefresh?: (tokens: RefreshAccessTokenResult) => Promise<void>
-//   /** Handler to perform synchronization. If set, the refresh access token method will be synchronized across
-//    * all events across multiple instances of the destination using the same account for a given source*/
-//   synchronizeRefreshAccessToken?: () => Promise<void>
-// }
 export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
   settings: Settings
 
