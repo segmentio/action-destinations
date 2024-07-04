@@ -3,7 +3,7 @@ branch=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD);
 
 if [[ $branch != "main" && $branch != "release" ]];
 then
-  echo "You must be on the main or relesase branch to release"
+  echo "You must be on the main or release branch to release"
   exit
 fi;
 
