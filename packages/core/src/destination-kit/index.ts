@@ -34,7 +34,6 @@ import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './p
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
 import { HTTPError } from '..'
-import isEmpty from 'lodash/isEmpty'
 
 export type {
   BaseActionDefinition,
@@ -96,20 +95,12 @@ export type AudienceResult = {
 
 export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
 
-// interface OnEventOptions {
-//   onTokenRefresh?: (tokens: RefreshAccessTokenResult) => Promise<void>
-//   /** Handler to perform synchronization. If set, the refresh access token method will be synchronized across
-//    * all events across multiple instances of the destination using the same account for a given source*/
-//   synchronizeRefreshAccessToken?: () => Promise<void>
-// }
 export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
   settings: Settings
 
   audienceSettings?: AudienceSettings
 
   audienceName: string
-
-  options?: OnEventOptions
 
   statsContext?: StatsContext
 }
@@ -120,8 +111,6 @@ export type GetAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
   audienceSettings?: AudienceSettings
 
   externalId: string
-
-  options?: OnEventOptions
 
   statsContext?: StatsContext
 }
@@ -433,14 +422,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
   async createAudience(createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>) {
     let settings: JSONObject = createAudienceInput.settings as unknown as JSONObject
-    const options: OnEventOptions | undefined = createAudienceInput.options
     const audienceDefinition = this.definition as AudienceDestinationDefinition
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
       throw new Error('Unexpected call to createAudience')
-    }
-    //validate audienceField Input
-    if (!isEmpty(createAudienceInput.audienceSettings)) {
-      validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))
     }
     const destinationSettings = this.getDestinationSettings(settings)
     const run = async () => {
@@ -470,28 +454,20 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       }
 
       const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(
-        destinationSettings,
-        oauthSettings,
-        options?.synchronizeRefreshAccessToken
-      )
+      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
       if (!newTokens) {
         throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
 
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
-      await options?.onTokenRefresh?.(newTokens)
     }
-
     return await retry(run, { retries: 2, onFailedAttempt })
-    // return audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
   }
 
   async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>) {
     const audienceDefinition = this.definition as AudienceDestinationDefinition
     let settings: JSONObject = getAudienceInput.settings as unknown as JSONObject
-    const options: OnEventOptions | undefined = getAudienceInput.options
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
       throw new Error('Unexpected call to getAudience')
     }
@@ -523,19 +499,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       }
 
       const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(
-        destinationSettings,
-        oauthSettings,
-        options?.synchronizeRefreshAccessToken
-      )
+      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
       if (!newTokens) {
         throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
 
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
-
-      await options?.onTokenRefresh?.(newTokens)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })

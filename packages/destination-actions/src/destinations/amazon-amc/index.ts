@@ -137,8 +137,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, audienceSettings, settings, statsContext } = createAudienceInput
-      const { statsClient, tags: statsTags } = statsContext || {}
+      const { audienceName, audienceSettings, settings } = createAudienceInput
       const endpoint = settings.region
       const description = audienceSettings?.description
       const advertiser_id = audienceSettings?.advertiserId
@@ -147,10 +146,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const ttl = audienceSettings?.ttl
       const currency = audienceSettings?.currency
       const cpm_cents = audienceSettings?.cpmCents
-
-      const statsName = 'createAmazonAudience'
-      statsTags?.push(`slug:${destination.slug}`)
-      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
 
       if (!advertiser_id) {
         throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
@@ -203,11 +198,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
       }
 
-      // @ts-ignore - TS doesn't know about the oauth property
-      // const authSettings = getAuthSettings(settings)
-
-      // const authToken = await getAuthToken(request, createAudienceInput.settings, authSettings)
-
       let payloadString = JSON.stringify(payload)
       // Regular expression to find a advertiserId numeric string and replace the quoted advertiserId string with an unquoted number
       // AdvertiserId is very big number string and can not be assigned or converted to number directly as it changes the value due to integer overflow.
@@ -218,14 +208,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         body: payloadString,
         headers: {
           'Content-Type': 'application/vnd.amcaudiences.v1+json'
-          // authorization: `Bearer ${authToken}`
         }
       })
 
       const res = await response.text()
       // Regular expression to find a audienceId number and replace the audienceId with quoted string
       const resp = extractNumberAndSubstituteWithStringValue(res, REGEX_AUDIENCEID, '"audienceId":"$1"')
-      statsClient?.incr(`${statsName}.sucsess`, 1, statsTags)
 
       return {
         externalId: resp.audienceId
@@ -235,28 +223,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async getAudience(request, getAudienceInput) {
       // getAudienceInput.externalId represents audience ID that was created in createAudience
       const audience_id = getAudienceInput.externalId
-      const { settings, statsContext } = getAudienceInput
+      const { settings } = getAudienceInput
       const endpoint = settings.region
-      const { statsClient, tags: statsTags } = statsContext || {}
       if (!audience_id) {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
-      // @ts-ignore - TS doesn't know about the oauth property
-      // const authSettings = getAuthSettings(settings)
-      // const authToken = await getAuthToken(request, settings, authSettings)
-      const statsName = 'getAmazonAudience'
-      statsTags?.push(`slug:${destination.slug}`)
-      statsClient?.incr(`${statsName}.intialise`, 1, statsTags)
+
       const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
         method: 'GET'
-        // headers: {
-        //   authorization: `Bearer ${authToken}`
-        // }
       })
       const res = await response.text()
       // Regular expression to find a audienceId number and replace the audienceId with quoted string
       const resp = extractNumberAndSubstituteWithStringValue(res, REGEX_AUDIENCEID, '"audienceId":"$1"')
-      statsClient?.incr(`${statsName}.success`, 1, statsTags)
       return {
         externalId: resp.audienceId
       }
