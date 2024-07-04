@@ -38,6 +38,6 @@ jobs:
 
       - name: Create PR
         run: |
-          gh pr create --title "Publish" --body "Publish" --base main --head release-test --draft
+          gh pr create --base main --head release-test --draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
