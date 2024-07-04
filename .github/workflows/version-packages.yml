@@ -16,9 +16,6 @@ jobs:
           branch: main
           depth: 0
 
-      - name: For act to work (local testing)
-        run: npm -g install yarn
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
