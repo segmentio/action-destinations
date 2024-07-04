@@ -1,0 +1,26 @@
+name: release.yml
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to create PR from'
+        required: true
+        default: 'release'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+          cache: yarn
+      - name: Create new PR
+        run: |
+          gh pr create --title "Release" --body "Release" --base main --head ${{ github.event.inputs.branch }}
