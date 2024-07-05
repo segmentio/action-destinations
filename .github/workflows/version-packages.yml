@@ -1,12 +1,15 @@
 # This workflow is triggered manually via the GitHub Actions page or API
 name: Version Packages
 on:
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to create PR from'
-        required: true
-        default: 'release-actions'
+  #  workflow_dispatch:
+  #    inputs:
+  #      branch:
+  #        description: 'Branch to create PR from'
+  #        required: true
+  #        default: 'release-actions'
+  push:
+    branches:
+      - new-prod-release-workflow
 
 jobs:
   build-and-version-packages:
@@ -20,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-          depth: 0
+          fetch-depth: 0
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -31,8 +34,8 @@ jobs:
 
       - name: Checkout branch
         run: |
-          git checkout -b ${{ github.event.inputs.branch }}
-          git push origin ${{ github.event.inputs.branch }}
+          git checkout -b release-test
+          git push origin release-test
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile --ignore-optional
@@ -42,21 +45,25 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Build
-        run: NODE_ENV=production yarn build
-
-      - name: Version Packages
-        run: yarn lerna version minor --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private --yes
-
-      - name: Commit and push
-        run: yarn release ${{ github.event.inputs.branch }}
-
-      - name: Create PR
+      - name: Test Github Output
         run: |
-          packages_published=$(git status -s -uno| grep "package.json" |awk '{print $2}'| xargs jq -r '.name + "@" + .version' --argjson null {})
-          pr_message="This PR was opened by GithHub Actions. Whenever you're ready to publish the packages, merge this PR."
-          description="$(printf "%s\n # Packages\n%s" "$pr_message" "$packages_published")"
-          pr_url=$(gh pr create --base main --head ${{ github.event.inputs.branch }} --title "Publish" --body "$description")
-          echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          "hello=world" >> "$GITHUB_OUTPUT"
+
+#      - name: Build
+#        run: NODE_ENV=production yarn build
+#
+#      - name: Version Packages
+#        run: yarn lerna version minor --allow-branch release-test --no-git-tag-version --no-commit-hooks --no-private --yes
+#
+#      - name: Commit and push
+#        run: yarn release release-test
+#
+#      - name: Create PR
+#        run: |
+#          packages_published=$(git status -s -uno| grep "package.json" |awk '{print $2}'| xargs jq -r '.name + "@" + .version' --argjson null {})
+#          pr_message="This PR was opened by GithHub Actions. Whenever you're ready to publish the packages, merge this PR."
+#          description="$(printf "%s\n # Packages\n%s" "$pr_message" "$packages_published")"
+#          pr_url=$(gh pr create --base main --head release-test --title "Publish" --body "$description" --draft)
+#          echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
