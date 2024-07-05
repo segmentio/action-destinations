@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - new-prod-release-workflow
   pull_request:
 
 jobs:
@@ -133,28 +132,6 @@ jobs:
 
       - name: Assert generated types are up-to-date
         run: bash scripts/assert-types-updated.sh
-
-  check-tag-push-permission:
-    name: Check Tag Push Permission
-    runs-on: ubuntu-20.04
-    timeout-minutes: 5
-    permissions: write-all
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-      - name: Configure git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Push tag
-        run: |
-          git tag -a v1.0.0-test-workflow -m "Version 1.0.0"
-          git push origin v1.0.0-test-workflow
-      - name: Delete tag
-        run: |
-          git push --delete origin v1.0.0-test-workflow
 
   browser-destination-bundle-qa:
     name: Browser Destination Bundle QA
