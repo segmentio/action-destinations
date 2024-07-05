@@ -56,6 +56,7 @@ jobs:
           packages_published=$(git status -s -uno| grep "package.json" |awk '{print $2}'| xargs jq -r '.name + "@" + .version' --argjson null {})
           pr_message="This PR was opened by GithHub Actions. Whenever you're ready to publish the packages, merge this PR."
           description="$(printf "%s\n # Packages\n%s" "$pr_message" "$packages_published")"
-          gh pr create --base main --head ${{ github.event.inputs.branch }} --title "Publish" --body "$description"
+          pr_url=$(gh pr create --base main --head ${{ github.event.inputs.branch }} --title "Publish" --body "$description")
+          echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
