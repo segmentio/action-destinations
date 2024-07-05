@@ -26,7 +26,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Dynamic String Field',
       description: 'A test dynamic string field',
       type: 'string',
-      dynamic: true
+      dynamic: true,
+      multiple: true
     },
     number_field: {
       label: 'Number Field',
@@ -94,6 +95,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'A test unstructured object',
       type: 'object',
       defaultObjectUI: 'object:only'
+    },
+    mappable_and_editable_object: {
+      label: 'Unstructured Object that is both mappable and editable',
+      description: 'A test unstructured object that is both mappable and editable',
+      type: 'object'
     },
     structured_object: {
       label: 'Structured Object',

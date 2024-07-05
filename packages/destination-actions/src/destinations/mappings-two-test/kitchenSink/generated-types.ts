@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * A test dynamic string field
    */
-  dynamic_string_field?: string
+  dynamic_string_field?: string[]
   /**
    * A test number field
    */
@@ -55,6 +55,12 @@ export interface Payload {
    * A test unstructured object
    */
   mappable_object?: {
+    [k: string]: unknown
+  }
+  /**
+   * A test unstructured object that is both mappable and editable
+   */
+  mappable_and_editable_object?: {
     [k: string]: unknown
   }
   /**
