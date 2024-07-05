@@ -70,7 +70,7 @@ jobs:
 
       - name: Generate Release Tag
         id: get-release-tag
-        run: ./scripts/generate-release-tag.sh
+        run: ./scripts/generate-release-tags.sh
 
       - name: Create Github Release
         id: create-github-release
