@@ -87,7 +87,7 @@ const action: ActionDefinition<Settings, Payload> = {
           choices: [],
           error: {
             message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
-            code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+            code: (err as HubSpotError)?.response?.status + '' ?? '500'
           }
         }
       }

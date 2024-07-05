@@ -111,6 +111,170 @@ const destinationWithOptions: DestinationDefinition<JSONObject> = {
   }
 }
 
+const destinationWithSyncMode: DestinationDefinition<JSONObject> = {
+  name: 'Actions Google Analytics 4',
+  mode: 'cloud',
+  actions: {
+    customEvent: {
+      title: 'Send a Custom Event',
+      description: 'Send events to a custom event in API',
+      defaultSubscription: 'type = "track"',
+      fields: {},
+      syncMode: {
+        default: 'add',
+        description: 'Select the sync mode for the subscription',
+        label: 'Sync Mode',
+        choices: [
+          {
+            label: 'Insert',
+            value: 'add'
+          },
+          {
+            label: 'Delete',
+            value: 'delete'
+          }
+        ]
+      },
+      perform: (_request, { syncMode }) => {
+        return ['this is a test', syncMode]
+      },
+      performBatch: (_request, { syncMode }) => {
+        return ['this is a test', syncMode]
+      }
+    }
+  }
+}
+
+const destinationWithIdentifier: DestinationDefinition<JSONObject> = {
+  name: 'Actions Google Analytics 4',
+  mode: 'cloud',
+  actions: {
+    customEvent: {
+      title: 'Send a Custom Event',
+      description: 'Send events to a custom event in API',
+      defaultSubscription: 'type = "track"',
+      fields: {
+        userId: {
+          label: 'User ID',
+          description: 'The user ID',
+          type: 'string',
+          required: true,
+          category: 'identifier'
+        }
+      },
+      perform: (_request, { matchingKey }) => {
+        return ['this is a test', matchingKey]
+      },
+      performBatch: (_request, { matchingKey }) => {
+        return ['this is a test', matchingKey]
+      }
+    }
+  }
+}
+
+const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
+  name: 'Actions Dynamic Fields',
+  mode: 'cloud',
+  actions: {
+    customEvent: {
+      title: 'Send a Custom Event',
+      description: 'Send events to a custom event in API',
+      defaultSubscription: 'type = "track"',
+      fields: {
+        testDynamicField: {
+          label: 'Dynamic Field',
+          description: 'A dynamic field',
+          type: 'string',
+          required: true,
+          dynamic: true
+        },
+        testUnstructuredObject: {
+          label: 'Unstructured Object',
+          description: 'An unstructured object',
+          type: 'object',
+          dynamic: true
+        },
+        testStructuredObject: {
+          label: 'Structured Object',
+          description: 'A structured object',
+          type: 'object',
+          properties: {
+            testDynamicSubfield: {
+              label: 'Test Field',
+              description: 'A test field',
+              type: 'string',
+              required: true,
+              dynamic: true
+            }
+          }
+        },
+        testObjectArrays: {
+          label: 'Structured Array of Object',
+          description: 'A structured array of object',
+          type: 'object',
+          multiple: true,
+          properties: {
+            testDynamicSubfield: {
+              label: 'Test Field',
+              description: 'A test field',
+              type: 'string',
+              required: true,
+              dynamic: true
+            }
+          }
+        }
+      },
+      dynamicFields: {
+        testDynamicField: async () => {
+          return {
+            choices: [{ label: 'test', value: 'test' }],
+            nextPage: ''
+          }
+        },
+        testUnstructuredObject: {
+          __keys__: async () => {
+            return {
+              choices: [{ label: 'Im a key', value: '🔑' }],
+              nextPage: ''
+            }
+          },
+          __values__: async (_, input) => {
+            const { dynamicFieldContext } = input
+
+            return {
+              choices: [{ label: `Im a value for ${dynamicFieldContext?.selectedKey}`, value: '2️⃣' }],
+              nextPage: ''
+            }
+          }
+        },
+        testStructuredObject: {
+          testDynamicSubfield: async () => {
+            return {
+              choices: [{ label: 'Im a subfield', value: 'nah' }],
+              nextPage: ''
+            }
+          }
+        },
+        testObjectArrays: {
+          testDynamicSubfield: async (_, input) => {
+            const { dynamicFieldContext } = input
+
+            return {
+              choices: [
+                { label: `Im a subfield for element ${dynamicFieldContext?.selectedArrayIndex}`, value: 'nah' }
+              ],
+              nextPage: ''
+            }
+          }
+        }
+      },
+      perform: (_request, { syncMode }) => {
+        return ['this is a test', syncMode]
+      }
+    }
+  }
+}
+
 describe('destination kit', () => {
   describe('event validations', () => {
     test('should return `invalid subscription` when sending an empty subscribe', async () => {
@@ -273,6 +437,106 @@ describe('destination kit', () => {
         { output: 'Mappings resolved' },
         { output: 'Payload validated' },
         { output: 'Action Executed', data: ['this is a test', {}] }
+      ])
+    })
+
+    test('should inject the syncMode value in the perform handler', async () => {
+      const destinationTest = new Destination(destinationWithSyncMode)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_sync_mode: 'add'
+          }
+        }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings)
+
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        {
+          output: 'Action Executed',
+          data: ['this is a test', 'add']
+        }
+      ])
+    })
+
+    test('should inject the syncMode value in the performBatch handler', async () => {
+      const destinationTest = new Destination(destinationWithSyncMode)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_sync_mode: 'add'
+          }
+        }
+      }
+
+      const res = await destinationTest.onBatch([testEvent], testSettings)
+
+      expect(res).toEqual([
+        {
+          output: 'Action Executed',
+          data: ['this is a test', 'add']
+        }
+      ])
+    })
+
+    test('should inject the matchingKey value in the perform handler', async () => {
+      const destinationTest = new Destination(destinationWithIdentifier)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_matching_key: 'userId',
+            userId: 'this-is-a-user-id'
+          }
+        }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings)
+
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        {
+          output: 'Action Executed',
+          data: ['this is a test', 'userId']
+        }
+      ])
+    })
+
+    test('should inject the matchingKey value in the performBatch handler', async () => {
+      const destinationTest = new Destination(destinationWithIdentifier)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_matching_key: 'userId',
+            userId: 'this-is-a-user-id'
+          }
+        }
+      }
+
+      const res = await destinationTest.onBatch([testEvent], testSettings)
+
+      expect(res).toEqual([
+        {
+          output: 'Action Executed',
+          data: ['this is a test', 'userId']
+        }
       ])
     })
   })
@@ -591,6 +855,102 @@ describe('destination kit', () => {
           }
         }
       ])
+    })
+  })
+
+  describe('dynamicFields', () => {
+    test('should return empty array if action is not part of definition', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('ghostAction', 'testDynamicField', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual([])
+    })
+
+    test('should return 404 if handler for dynamic field does not exist', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('customEvent', 'randomField', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({
+        choices: [],
+        error: { code: '404', message: 'No dynamic field named randomField found.' },
+        nextPage: ''
+      })
+    })
+
+    test('should return a response with choices for string fields', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('customEvent', 'testDynamicField', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'test', value: 'test' }], nextPage: '' })
+    })
+
+    test('fetches keys for unstructured objects', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.__keys__', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a key', value: '🔑' }], nextPage: '' })
+    })
+
+    test('fetches values for unstructured objects', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      ;('testUnstructuredObject.__values__')
+      let res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.keyOne', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a value for keyOne', value: '2️⃣' }], nextPage: '' })
+
+      res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.keyTwo', {
+        settings: {},
+        payload: {}
+      })
+
+      expect(res).toEqual({ choices: [{ label: 'Im a value for keyTwo', value: '2️⃣' }], nextPage: '' })
+    })
+
+    test('fetches values for structured object subfields', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('customEvent', 'testStructuredObject.testDynamicSubfield', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a subfield', value: 'nah' }], nextPage: '' })
+    })
+
+    test('fetches values for structured array of object', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      let res = await destinationTest.executeDynamicField('customEvent', 'testObjectArrays.[0].testDynamicSubfield', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a subfield for element 0', value: 'nah' }], nextPage: '' })
+
+      res = await destinationTest.executeDynamicField('customEvent', 'testObjectArrays.[113].testDynamicSubfield', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a subfield for element 113', value: 'nah' }], nextPage: '' })
+    })
+
+    test('returns 404 for invalid subfields', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      const res = await destinationTest.executeDynamicField('customEvent', 'testStructuredObject.ghostSubfield', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({
+        choices: [],
+        error: { code: '404', message: 'No dynamic field named testStructuredObject.ghostSubfield found.' },
+        nextPage: ''
+      })
     })
   })
 })

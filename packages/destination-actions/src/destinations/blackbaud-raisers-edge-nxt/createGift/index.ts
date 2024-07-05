@@ -71,6 +71,15 @@ const fields: Record<string, InputField> = augmentFieldsWithConstituentFields({
     type: 'datetime',
     default: {
       '@path': '$.properties.checkDate'
+    },
+    depends_on: {
+      conditions: [
+        {
+          fieldKey: 'payment_method',
+          value: 'PersonalCheck',
+          operator: 'is'
+        }
+      ]
     }
   },
   check_number: {
@@ -79,6 +88,15 @@ const fields: Record<string, InputField> = augmentFieldsWithConstituentFields({
     type: 'string',
     default: {
       '@path': '$.properties.checkNumber'
+    },
+    depends_on: {
+      conditions: [
+        {
+          fieldKey: 'payment_method',
+          value: 'PersonalCheck',
+          operator: 'is'
+        }
+      ]
     }
   },
   constituency: {

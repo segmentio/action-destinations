@@ -95,6 +95,18 @@ export const user_data_field: InputField = {
       description: 'A two-letter country code in lowercase.',
       type: 'string',
       multiple: true
+    },
+    click_id: {
+      label: 'Click ID',
+      description: 'The unique identifier stored in _epik cookie on your domain or &epik= query parameter in the URL.',
+      type: 'string',
+      allowNull: true
+    },
+    partner_id: {
+      label: 'Partner ID',
+      description: "A unique identifier of visitors' information defined by third party partners.",
+      type: 'string',
+      allowNull: true
     }
   },
   default: {
@@ -231,6 +243,8 @@ export const hash_user_data = (payload: UserData): Object => {
     external_id: payload.user_data?.external_id,
     client_ip_address: payload.user_data?.client_ip_address,
     client_user_agent: payload.user_data?.client_user_agent,
-    hashed_maids: payload.user_data?.hashed_maids
+    hashed_maids: payload.user_data?.hashed_maids,
+    click_id: payload.user_data?.click_id,
+    partner_id: payload.user_data?.partner_id
   }
 }

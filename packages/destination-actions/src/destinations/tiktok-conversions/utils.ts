@@ -1,7 +1,7 @@
 import { RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload } from './reportWebEvent/generated-types'
-import { formatEmails, formatPhones, formatUserIds } from './formatter'
+import { formatEmails, formatPhones, formatUserIds, formatString, formatAddress } from './formatter'
 
 export function performWebEvent(request: RequestClient, settings: Settings, payload: Payload) {
   const phone_numbers = formatPhones(payload.phone_number)
@@ -41,13 +41,19 @@ export function performWebEvent(request: RequestClient, settings: Settings, payl
             ttp: payload.ttp ? payload.ttp : undefined,
             ip: payload.ip ? payload.ip : undefined,
             user_agent: payload.user_agent ? payload.user_agent : undefined,
-            locale: payload.locale ? payload.locale : undefined
+            locale: payload.locale ? payload.locale : undefined,
+            first_name: formatString(payload.first_name),
+            last_name: formatString(payload.last_name),
+            city: formatAddress(payload.address?.city),
+            state: formatAddress(payload.address?.state),
+            country: formatAddress(payload.address?.country),
+            zip_code: formatString(payload.address?.zip_code)
           },
           properties: {
             contents: payload.contents ? payload.contents : [],
             content_type: payload.content_type ? payload.content_type : undefined,
             currency: payload.currency ? payload.currency : undefined,
-            value: payload.value ? payload.value : undefined,
+            value: payload.value || payload.value === 0 ? payload.value : undefined,
             query: payload.query ? payload.query : undefined,
             description: payload.description ? payload.description : undefined,
             order_id: payload.order_id ? payload.order_id : undefined,
