@@ -23,6 +23,7 @@ export interface ExecuteInput<
   ActionHookInputs = any,
   ActionHookOutputs = any
 > {
+  rawData?: { [key: string]: unknown }
   /** The subscription mapping definition */
   readonly mapping?: JSONObject
   /** The global destination settings */
