@@ -49,16 +49,13 @@ jobs:
         run: yarn lerna version minor --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private --yes
 
       - name: Commit and push
-        run: |
-          git add .
-          packages_published=$(git status -s -uno| grep "package.json" |awk '{print $2}'| xargs jq -r '.name + "@" + .version' --argjson null {})
-          pr_message="This PR was opened by GithHub Actions. Whenever you're ready to publish the packages, merge this PR."
-          description="$(printf "%s\n # Packages\n%s" "$pr_message" "$packages_published")"
-          git commit -m "Publish" -m "$packages_published"
-          git push origin ${{ github.event.inputs.branch }}
+        run: yarn release ${{ github.event.inputs.branch }}
 
       - name: Create PR
         run: |
-          gh pr create --base main --head ${{ github.event.inputs.branch }}
+          packages_published=$(git status -s -uno| grep "package.json" |awk '{print $2}'| xargs jq -r '.name + "@" + .version' --argjson null {})
+          pr_message="This PR was opened by GithHub Actions. Whenever you're ready to publish the packages, merge this PR."
+          description="$(printf "%s\n # Packages\n%s" "$pr_message" "$packages_published")"
+          gh pr create --base main --head ${{ github.event.inputs.branch }} --title "Publish" --body "$description"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
