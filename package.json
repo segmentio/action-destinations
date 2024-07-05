@@ -24,7 +24,6 @@
     "cloud": "yarn workspace @segment/action-destinations",
     "core": "yarn workspace @segment/actions-core",
     "lint": "ls -d ./packages/* | xargs -I {} eslint '{}/**/*.ts' --cache",
-    "postversion": "bash scripts/postversion.sh",
     "prepare": "husky install",
     "release": "bash scripts/release.sh",
     "shared": "yarn workspace @segment/actions-shared",
