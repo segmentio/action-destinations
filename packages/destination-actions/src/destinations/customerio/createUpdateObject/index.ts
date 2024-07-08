@@ -145,8 +145,10 @@ function mapPayload(payload: Payload) {
     object_id: id
   }
   // Removes `object_type_id` and `relationshipAttributes` from the `custom_attributes` object because our API does not use these values.
-  delete (custom_attributes as { traits?: { object_type_id?: unknown } })?.traits?.object_type_id
-  delete (custom_attributes as { traits?: { relationshipAttributes?: unknown } })?.traits?.relationshipAttributes
+  delete custom_attributes?.object_type_id
+  delete custom_attributes?.objectTypeId
+  delete custom_attributes?.relationshipAttributes
+
   let rel_attrs = relationship_attributes as Record<string, unknown>
 
   if ('convert_timestamp' in payload && convert_timestamp !== false) {
