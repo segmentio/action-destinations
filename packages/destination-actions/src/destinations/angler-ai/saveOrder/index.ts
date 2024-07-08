@@ -6,7 +6,8 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Save Order',
-  description: 'Send an order to Angler.',
+  description:
+    'Send an order to Angler. Use this Mapping for transactions which may not originate from the browser. E.g. recurring subscriptions.',
   fields: {
     billing_address: {
       type: 'object',

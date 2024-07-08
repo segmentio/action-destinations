@@ -5,7 +5,6 @@ import saveCartEvent from './saveCartEvent'
 import saveCheckoutEvent from './saveCheckoutEvent'
 import saveCollectionEvent from './saveCollectionEvent'
 import saveFormEvent from './saveFormEvent'
-import saveOrder from './saveOrder'
 import saveProductEvent from './saveProductEvent'
 import saveSearchEvent from './saveSearchEvent'
 import saveUser from './saveUser'
@@ -16,13 +15,6 @@ export const presets: DestinationDefinition['presets'] = [
     subscribe: 'type = "identify"',
     partnerAction: 'saveUser',
     mapping: defaultValues(saveUser.fields),
-    type: 'automatic'
-  },
-  {
-    name: 'Save Order',
-    subscribe: 'event = "Purchase" or event = "Order Completed"',
-    partnerAction: 'saveOrder',
-    mapping: defaultValues(saveOrder.fields),
     type: 'automatic'
   },
   {
@@ -37,7 +29,7 @@ export const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Save Event - Cart Viewed',
-    subscribe: 'type = "page"',
+    subscribe: 'event = "Cart Viewed"',
     partnerAction: 'saveBaseEvent',
     mapping: {
       ...defaultValues(saveBaseEvent.fields),
@@ -47,7 +39,7 @@ export const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Save Event - Checkout Address Info Submitted',
-    subscribe: 'event = "Checkout Step Completed" and properties.step = 1',
+    subscribe: 'event = "Checkout Address Info Submitted"',
     partnerAction: 'saveCheckoutEvent',
     mapping: {
       ...defaultValues(saveCheckoutEvent.fields),
@@ -67,7 +59,7 @@ export const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Save Event - Checkout Contact Info Submitted',
-    subscribe: 'event = "Checkout Step Completed" and properties.step = 2',
+    subscribe: 'event = "Checkout Contact Info Submitted"',
     partnerAction: 'saveCheckoutEvent',
     mapping: {
       ...defaultValues(saveCheckoutEvent.fields),
@@ -77,7 +69,7 @@ export const presets: DestinationDefinition['presets'] = [
   },
   {
     name: 'Save Event - Checkout Shipping Info Submitted',
-    subscribe: 'event = "Checkout Step Completed" and properties.step = 3',
+    subscribe: 'event = "Checkout Shipping Info Submitted"',
     partnerAction: 'saveCheckoutEvent',
     mapping: {
       ...defaultValues(saveCheckoutEvent.fields),
