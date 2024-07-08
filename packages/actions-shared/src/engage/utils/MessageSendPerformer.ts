@@ -169,9 +169,9 @@ export abstract class MessageSendPerformer<
     }
 
     let error: undefined | Error = undefined
-    let result: ModifiedResponse | undefined = undefined
+    let result: ModifiedResponse<unknown> | undefined = undefined
     try {
-      result = this.sendToRecepient<ModifiedResponse>(recepient)
+      result = await this.sendToRecepient(recepient)
       return result
     } catch (e) {
       error = e
@@ -346,7 +346,7 @@ export abstract class MessageSendPerformer<
    * @param recepient The recipient to send the message to.
    * @returns The response from the server.
    */
-  abstract sendToRecepient<ReturnType>(recepient: ExtId<TPayload>): ReturnType
+  abstract sendToRecepient(recepient: ExtId<TPayload>): any
 
   /**
    * populate the logDetails object with the data that should be logged for every message
