@@ -6,8 +6,9 @@ import { AggregateError } from './AggregateError'
 import { MaybePromise } from '@segment/actions-core/destination-kit/types'
 import { getProfileApiEndpoint, Region } from './getProfileApiEndpoint'
 import { track } from './track'
-import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { IntegrationError, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
 import { getErrorDetails } from '.'
+import { CachedError, CachedResponseType, CachedValue, CachedValueFactory } from './CachedResponse'
 
 export enum SendabilityStatus {
   /**
@@ -102,12 +103,11 @@ export abstract class MessageSendPerformer<
    * @returns The response from the cache.
    */
   @track()
-  async putCache(value: any, messageId?: string, recipientId?: string) {
+  async putCache(value: string, messageId?: string, recipientId?: string) {
     if (!messageId || !recipientId || !this.engageDestinationCache) {
       return
     }
-    const status = value
-    await this.engageDestinationCache.setByKey(messageId + recipientId.toLowerCase(), JSON.stringify(status))
+    await this.engageDestinationCache.setByKey(messageId + recipientId.toLowerCase(), JSON.stringify(value))
   }
 
   /**
@@ -126,7 +126,7 @@ export abstract class MessageSendPerformer<
     if (!cached) {
       return
     }
-    return JSON.parse(cached)
+    return cached
   }
 
   /**
@@ -143,26 +143,29 @@ export abstract class MessageSendPerformer<
   protected async sendToRecepientCache(recepient: ExtId<TPayload>) {
     const messageId = (this.executeInput as any)['rawData']?.messageId
     const recipientId = recepient.id
-    let cachedResponse
+    let cachedResponse: CachedValue | CachedError | undefined
     try {
-      cachedResponse = await this.readCache(messageId, recipientId)
+      const rawCachedResponse = await this.readCache(messageId, recipientId)
+      if (rawCachedResponse) {
+        cachedResponse = CachedValueFactory.fromString(rawCachedResponse)
+      }
     } catch (error) {
       this.logError(`Failed to read cache for messageId: ${messageId}, recipientId: ${recipientId}`, error)
     }
 
-    if (cachedResponse?.error) {
-      const { message, code, status } = cachedResponse.error
+    if (cachedResponse?.type === CachedResponseType.Error && 'message' in cachedResponse) {
+      const { message, code, status } = cachedResponse
       const error = new IntegrationError(message, code, status)
       error.retry = false
       throw error
-    } else if (cachedResponse) {
+    } else if (cachedResponse?.type === CachedResponseType.Success) {
       return
     }
 
     let error: undefined | Error = undefined
-    let result: undefined | any
+    let result: ModifiedResponse | undefined = undefined
     try {
-      result = this.sendToRecepient(recepient)
+      result = this.sendToRecepient<ModifiedResponse>(recepient)
       return result
     } catch (e) {
       error = e
@@ -170,15 +173,13 @@ export abstract class MessageSendPerformer<
       try {
         if (error && !isRetryableError(error)) {
           const errorDetails = getErrorDetails(error)
-          await this.putCache(
-            {
-              error: errorDetails
-            },
-            messageId,
-            recipientId
-          )
-        } else if (!error) {
-          await this.putCache({}, messageId, recipientId)
+          if (errorDetails?.status) {
+            const cachedError = new CachedError(errorDetails.status, errorDetails.message, errorDetails.code)
+            await this.putCache(cachedError.toString(), messageId, recipientId)
+          }
+        } else if (!error && result) {
+          const cachedResult = new CachedValue(result.status)
+          await this.putCache(cachedResult.toString(), messageId, recipientId)
         }
       } catch (cacheError) {
         this.logError(`Failed to cache response for messageId: ${messageId}, recipientId: ${recipientId}`, cacheError)
@@ -339,7 +340,7 @@ export abstract class MessageSendPerformer<
    * @param recepient The recipient to send the message to.
    * @returns The response from the server.
    */
-  abstract sendToRecepient(recepient: ExtId<TPayload>): any
+  abstract sendToRecepient<ReturnType>(recepient: ExtId<TPayload>): ReturnType
 
   /**
    * populate the logDetails object with the data that should be logged for every message
