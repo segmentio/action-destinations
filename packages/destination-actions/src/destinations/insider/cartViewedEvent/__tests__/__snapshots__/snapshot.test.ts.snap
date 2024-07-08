@@ -30,9 +30,7 @@ Object {
         Object {
           "event_name": "cart_page_view",
           "event_params": Object {
-            "currency": "SRD",
             "custom": Object {},
-            "event_group_id": "uh[f!Dz)ZqkDd$x",
             "name": "uh[f!Dz)ZqkDd$x",
             "product_id": "uh[f!Dz)ZqkDd$x",
             "product_image_url": "uh[f!Dz)ZqkDd$x",

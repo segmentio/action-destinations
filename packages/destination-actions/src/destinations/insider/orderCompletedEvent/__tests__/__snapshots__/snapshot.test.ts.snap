@@ -30,9 +30,7 @@ Object {
         Object {
           "event_name": "confirmation_page_view",
           "event_params": Object {
-            "currency": "QAR",
             "custom": Object {},
-            "event_group_id": "^nSY[JM",
             "name": "^nSY[JM",
             "product_id": "^nSY[JM",
             "product_image_url": "^nSY[JM",
