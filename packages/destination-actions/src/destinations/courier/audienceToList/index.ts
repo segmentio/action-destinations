@@ -2,6 +2,7 @@ import { ActionDefinition, ModifiedResponse, RequestOptions } from '@segment/act
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getDomain } from '..'
+import snakeCase from 'lodash/snakeCase'
 
 export const CONSTANTS = {
   ADD: 'ADD',
@@ -100,7 +101,7 @@ const processPayload = (
 
   const domain = getDomain(settings.region)
 
-  const list_id = `${payload.segment_audience_key}-${payload.segment_audience_id}`
+  const list_id = snakeCase(`${payload.segment_audience_key}-${payload.segment_audience_id}`)
   const user_id = payload.segment_user_id ?? payload.segment_anonymous_id
 
   if (payload.audience_action === CONSTANTS.ADD) {
