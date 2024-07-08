@@ -16,6 +16,13 @@ export interface Result {
   data?: JSONObject | null
 }
 
+export interface DynamicFieldContext {
+  /** The index of the item in an array of objects that we are requesting data for */
+  selectedArrayIndex?: number
+  /** The key within a dynamic object for which we are requesting values */
+  selectedKey?: string
+}
+
 export interface ExecuteInput<
   Settings,
   Payload,
@@ -35,6 +42,8 @@ export interface ExecuteInput<
   hookInputs?: ActionHookInputs
   /** Stored outputs from an invokation of an actions hook */
   hookOutputs?: Partial<Record<ActionHookType, ActionHookOutputs>>
+  /** Context about dynamic fields */
+  dynamicFieldContext?: DynamicFieldContext
   /** The page used in dynamic field requests */
   page?: string
   /** The subscription sync mode */
@@ -179,6 +188,7 @@ export interface InputField extends InputFieldJSONSchema {
     | 'object' // Users will see the object editor by default and can change to the key value editor.
     | 'keyvalue:only' // Users will only use the key value editor.
     | 'object:only' // Users will only use the object editor.
+    | 'arrayeditor' // if used in conjunction with multi:true will allow user to edit array of object elements.
 
   /**
    * Determines whether this field should be hidden in the UI. Only use this in very limited cases where the field represents

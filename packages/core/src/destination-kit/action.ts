@@ -12,7 +12,8 @@ import type {
   ExecuteInput,
   Result,
   SyncMode,
-  SyncModeDefinition
+  SyncModeDefinition,
+  DynamicFieldContext
 } from './types'
 import { syncModeTypes } from './types'
 import { NormalizedOptions } from '../request-client'
@@ -81,9 +82,8 @@ export interface ActionDefinition<
    * This is likely going to change as we productionalize the data model and definition object
    */
   dynamicFields?: {
-    [K in keyof Payload]?:
-      | RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
-      | {
+    [K in keyof Payload]?: Payload[K] extends object
+      ? {
           [ObjectProperty in keyof Payload[K] | '__keys__' | '__values__']?: RequestFn<
             Settings,
             Payload[K],
@@ -91,6 +91,7 @@ export interface ActionDefinition<
             AudienceSettings
           >
         }
+      : RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
   }
 
   /** The operation to perform when this action is triggered */
@@ -175,6 +176,7 @@ export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = 
   features?: Features | undefined
   statsContext?: StatsContext | undefined
   hookInputs?: GenericActionHookValues
+  dynamicFieldContext?: DynamicFieldContext
 }
 
 interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, ActionHookValues = any> {
@@ -403,6 +405,41 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return results
   }
 
+  /*
+   * Extract the dynamic field context and handler path from a field string. Examples:
+   * - "structured.first_name" => { dynamicHandlerPath: "structured.first_name" }
+   * - "unstructuredObject.testProperty" => { dynamicHandlerPath: "unstructuredObject.__values__", dynamicFieldContext: { selectedKey: "testProperty" } }
+   * - "structuredArray.[0].first_name" => { dynamicHandlerPath: "structuredArray.first_name", dynamicFieldContext: { selectedArrayIndex: 0 } }
+   */
+  private extractFieldContextAndHandler(field: string): {
+    dynamicHandlerPath: string
+    dynamicFieldContext?: DynamicFieldContext
+  } {
+    const arrayRegex = /(.*)\.\[(\d+)\]\.(.*)/
+    const objectRegex = /(.*)\.(.*)/
+    let dynamicHandlerPath = field
+    let dynamicFieldContext: DynamicFieldContext | undefined
+
+    const match = arrayRegex.exec(field) || objectRegex.exec(field)
+    if (match) {
+      const [, parent, indexOrChild, child] = match
+      if (child) {
+        // It is an array, so we need to extract the index from parent.[index].child and call paret.child handler
+        dynamicFieldContext = { selectedArrayIndex: parseInt(indexOrChild, 10) }
+        dynamicHandlerPath = `${parent}.${child}`
+      } else {
+        // It is an object, if there is a dedicated fetcher for child we use it otherwise we use parent.__values__
+        const parentFetcher = this.definition.dynamicFields?.[parent]
+        if (parentFetcher && !(indexOrChild in parentFetcher)) {
+          dynamicHandlerPath = `${parent}.__values__`
+          dynamicFieldContext = { selectedKey: indexOrChild }
+        }
+      }
+    }
+
+    return { dynamicHandlerPath, dynamicFieldContext }
+  }
+
   async executeDynamicField(
     field: string,
     data: ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings>,
@@ -411,15 +448,16 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
      */
     dynamicFn?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
   ): Promise<DynamicFieldResponse> {
-    let fn
     if (dynamicFn && typeof dynamicFn === 'function') {
-      fn = dynamicFn
-    } else {
-      fn = get<RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>>(
-        this.definition.dynamicFields,
-        field
-      )
+      return (await this.performRequest(dynamicFn, { ...data })) as DynamicFieldResponse
     }
+
+    const { dynamicHandlerPath, dynamicFieldContext } = this.extractFieldContextAndHandler(field)
+
+    const fn = get<RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>>(
+      this.definition.dynamicFields,
+      dynamicHandlerPath
+    )
 
     if (typeof fn !== 'function') {
       return Promise.resolve({
@@ -433,7 +471,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     // fn will always be a dynamic field function, so we can safely cast it to DynamicFieldResponse
-    return (await this.performRequest(fn, data)) as DynamicFieldResponse
+    return (await this.performRequest(fn, { ...data, dynamicFieldContext })) as DynamicFieldResponse
   }
 
   async executeHook(
