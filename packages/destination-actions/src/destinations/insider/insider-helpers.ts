@@ -410,7 +410,6 @@ export function sendBulkTrackEvents(
         // @ts-ignore
         custom: {}
       },
-      not_append: true,
       events: []
     }
 
@@ -477,39 +476,47 @@ export function sendBulkTrackEvents(
     // @ts-ignore
     const eventName = event_name || data.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
 
-    let event: insiderEvent = {
-      event_name: eventName,
-      timestamp: data.timestamp.toString(),
-      event_params: {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        custom: {}
-      }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    for (const key of Object.keys(data.parameters || {})) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      event = addEventParameters(event, data.parameters, key)
-    }
-
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (data.products) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       for (const product of data.products) {
-        let productEvent = event
-
-        for (const key of Object.keys(product || {})) {
-          productEvent = addEventParameters(productEvent, product, key)
+        let event: insiderEvent = {
+          event_name: eventName,
+          timestamp: data.timestamp.toString(),
+          event_params: {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            custom: {}
+          }
         }
 
-        payload.events.push(productEvent)
+        for (const key of Object.keys(product || {})) {
+          event = addEventParameters(event, product, key)
+        }
+
+        payload.events.push(event)
       }
     } else {
+      let event: insiderEvent = {
+        event_name: eventName,
+        timestamp: data.timestamp.toString(),
+        event_params: {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          custom: {}
+        }
+      }
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      for (const key of Object.keys(data.parameters || {})) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        event = addEventParameters(event, data.parameters, key)
+      }
+
       payload.events.push(event)
     }
 
