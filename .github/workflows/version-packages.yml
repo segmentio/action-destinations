@@ -49,9 +49,20 @@ jobs:
         run: yarn lerna version minor --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private --yes
 
       - name: Commit and push
-        run: yarn release ${{ github.event.inputs.branch }}
+        id: commit_and_push
+        run: |
+          count=$(git diff --cached --stat)
+          if [ -z "$count" ]; then
+            echo "No changes to commit"
+            echo "SKIP_PR=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          git add .
+          git commit -m "chore: version packages"
+          git push origin ${{ github.event.inputs.branch }}
 
       - name: Create PR
+        if: ${{ steps.commit_and_push.outputs.SKIP_PR != 'true' }}
         run: |
           packages_published=$(git status -s -uno| grep "package.json" |awk '{print $2}'| xargs jq -r '.name + "@" + .version' --argjson null {})
           pr_message="This PR was opened by GithHub Actions. Whenever you're ready to publish the packages, merge this PR."
