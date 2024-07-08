@@ -111,7 +111,10 @@ Object {
 exports[`Testing snapshot for AnglerAi's saveUser destination action: required fields 1`] = `
 Object {
   "data": Array [
-    Object {},
+    Object {
+      "email_marketing_consent": Object {},
+      "sms_marketing_consent": Object {},
+    },
   ],
   "src": "SEGMENT",
 }
