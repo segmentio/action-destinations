@@ -154,11 +154,17 @@ export abstract class MessageSendPerformer<
     }
 
     if (cachedResponse?.type === CachedResponseType.Error && 'message' in cachedResponse) {
+      this.logInfo('Cached error found', {
+        message: cachedResponse.message,
+        code: cachedResponse.code,
+        status: cachedResponse.status
+      })
       const { message, code, status } = cachedResponse
       const error = new IntegrationError(message, code, status)
       error.retry = false
       throw error
     } else if (cachedResponse?.type === CachedResponseType.Success) {
+      this.logInfo('Cached response found', { status: cachedResponse.status })
       return
     }
 
