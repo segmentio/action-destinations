@@ -145,6 +145,33 @@ const destinationWithSyncMode: DestinationDefinition<JSONObject> = {
   }
 }
 
+const destinationWithIdentifier: DestinationDefinition<JSONObject> = {
+  name: 'Actions Google Analytics 4',
+  mode: 'cloud',
+  actions: {
+    customEvent: {
+      title: 'Send a Custom Event',
+      description: 'Send events to a custom event in API',
+      defaultSubscription: 'type = "track"',
+      fields: {
+        userId: {
+          label: 'User ID',
+          description: 'The user ID',
+          type: 'string',
+          required: true,
+          category: 'identifier'
+        }
+      },
+      perform: (_request, { matchingKey }) => {
+        return ['this is a test', matchingKey]
+      },
+      performBatch: (_request, { matchingKey }) => {
+        return ['this is a test', matchingKey]
+      }
+    }
+  }
+}
+
 const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
   name: 'Actions Dynamic Fields',
   mode: 'cloud',
@@ -180,6 +207,21 @@ const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
               dynamic: true
             }
           }
+        },
+        testObjectArrays: {
+          label: 'Structured Array of Object',
+          description: 'A structured array of object',
+          type: 'object',
+          multiple: true,
+          properties: {
+            testDynamicSubfield: {
+              label: 'Test Field',
+              description: 'A test field',
+              type: 'string',
+              required: true,
+              dynamic: true
+            }
+          }
         }
       },
       dynamicFields: {
@@ -196,9 +238,11 @@ const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
               nextPage: ''
             }
           },
-          __values__: async () => {
+          __values__: async (_, input) => {
+            const { dynamicFieldContext } = input
+
             return {
-              choices: [{ label: 'Im a value', value: '2️⃣' }],
+              choices: [{ label: `Im a value for ${dynamicFieldContext?.selectedKey}`, value: '2️⃣' }],
               nextPage: ''
             }
           }
@@ -207,6 +251,18 @@ const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
           testDynamicSubfield: async () => {
             return {
               choices: [{ label: 'Im a subfield', value: 'nah' }],
+              nextPage: ''
+            }
+          }
+        },
+        testObjectArrays: {
+          testDynamicSubfield: async (_, input) => {
+            const { dynamicFieldContext } = input
+
+            return {
+              choices: [
+                { label: `Im a subfield for element ${dynamicFieldContext?.selectedArrayIndex}`, value: 'nah' }
+              ],
               nextPage: ''
             }
           }
@@ -429,6 +485,57 @@ describe('destination kit', () => {
         {
           output: 'Action Executed',
           data: ['this is a test', 'add']
+        }
+      ])
+    })
+
+    test('should inject the matchingKey value in the perform handler', async () => {
+      const destinationTest = new Destination(destinationWithIdentifier)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_matching_key: 'userId',
+            userId: 'this-is-a-user-id'
+          }
+        }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings)
+
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        {
+          output: 'Action Executed',
+          data: ['this is a test', 'userId']
+        }
+      ])
+    })
+
+    test('should inject the matchingKey value in the performBatch handler', async () => {
+      const destinationTest = new Destination(destinationWithIdentifier)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_matching_key: 'userId',
+            userId: 'this-is-a-user-id'
+          }
+        }
+      }
+
+      const res = await destinationTest.onBatch([testEvent], testSettings)
+
+      expect(res).toEqual([
+        {
+          output: 'Action Executed',
+          data: ['this is a test', 'userId']
         }
       ])
     })
@@ -794,11 +901,19 @@ describe('destination kit', () => {
 
     test('fetches values for unstructured objects', async () => {
       const destinationTest = new Destination(destinationWithDynamicFields)
-      const res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.__values__', {
+      ;('testUnstructuredObject.__values__')
+      let res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.keyOne', {
         settings: {},
         payload: {}
       })
-      expect(res).toEqual({ choices: [{ label: 'Im a value', value: '2️⃣' }], nextPage: '' })
+      expect(res).toEqual({ choices: [{ label: 'Im a value for keyOne', value: '2️⃣' }], nextPage: '' })
+
+      res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.keyTwo', {
+        settings: {},
+        payload: {}
+      })
+
+      expect(res).toEqual({ choices: [{ label: 'Im a value for keyTwo', value: '2️⃣' }], nextPage: '' })
     })
 
     test('fetches values for structured object subfields', async () => {
@@ -808,6 +923,21 @@ describe('destination kit', () => {
         payload: {}
       })
       expect(res).toEqual({ choices: [{ label: 'Im a subfield', value: 'nah' }], nextPage: '' })
+    })
+
+    test('fetches values for structured array of object', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      let res = await destinationTest.executeDynamicField('customEvent', 'testObjectArrays.[0].testDynamicSubfield', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a subfield for element 0', value: 'nah' }], nextPage: '' })
+
+      res = await destinationTest.executeDynamicField('customEvent', 'testObjectArrays.[113].testDynamicSubfield', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a subfield for element 113', value: 'nah' }], nextPage: '' })
     })
 
     test('returns 404 for invalid subfields', async () => {

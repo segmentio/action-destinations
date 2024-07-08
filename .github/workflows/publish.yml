@@ -56,17 +56,22 @@ jobs:
 
       - name: Publish
         run: |
-          yarn lerna publish from-git --yes --allowBranch=main --loglevel=verbose --dist-tag latest
+          yarn lerna publish from-package --yes --allowBranch=main --loglevel=verbose --dist-tag latest
 
   release:
     needs: build-and-publish # comment when testing locally with https://github.com/nektos/act
+
     runs-on: ubuntu-20.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for computing changelog
+          fetch-depth: 0 # Shallow clones should be disabled to ensure the commit history for the repository is available to the action
           fetch-tags: true
+
+      - name: Generate Release Tag
+        id: get-release-tag
+        run: ./scripts/generate-release-tags.sh
 
       - name: Create Github Release
         id: create-github-release
