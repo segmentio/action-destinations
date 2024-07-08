@@ -70,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    const eventData = data.rawData as { [key: string]: unknown }
+    const eventData = (data as any).rawData as { [key: string]: unknown }
     const adjustPayload = validatePayload(data.payload, eventData, data.settings)
     return sendEvents(request, [adjustPayload])
   }
