@@ -78,12 +78,17 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     },
     device_id: {
       label: 'Mobile Device ID',
-      description: 'Mobile Device ID.',
+      description:
+        "To send iOS and Android Device IDs, include the 'ios.id' and 'android.id' Identifiers from the 'Customized Setup' option when connecting your Audience.",
       type: 'string',
       required: false,
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       default: {
-        '@path': '$.context.device.id'
+        '@if': {
+          exists: { '@path': '$.properties.ios.id' },
+          then: { '@path': '$.properties.ios.id' },
+          else: { '@path': '$.properties.android.id' }
+        }
       }
     },
     batch_size: {
@@ -107,7 +112,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
   perform: (request, { payload, audienceSettings }) => {
-
     if (!payload.external_audience_id) {
       throw new IntegrationError('Bad Request: payload.external_audience_id missing.', 'INVALID_REQUEST_DATA', 400)
     }
@@ -120,27 +124,10 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       )
     }
 
-    if (!audienceSettings) {
-      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
-    }
-
-    if (!audienceSettings.account_id) {
-      throw new IntegrationError('Bad Request: no audienceSettings.account_id found.', 'INVALID_REQUEST_DATA', 400)
-    }
-
     const taboolaClient = new TaboolaClient(request, [payload], audienceSettings)
     return taboolaClient.sendToTaboola()
   },
-  performBatch: async (request, { payload: payloads, audienceSettings }) => {
-
-    if (!audienceSettings) {
-      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
-    }
-
-    if (!audienceSettings.account_id) {
-      throw new IntegrationError('Bad Request: no audienceSettings.account_id found.', 'INVALID_REQUEST_DATA', 400)
-    }
-
+  performBatch: (request, { payload: payloads, audienceSettings }) => {
     const taboolaClient = new TaboolaClient(request, payloads, audienceSettings)
     return taboolaClient.sendToTaboola()
   }

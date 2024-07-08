@@ -2,7 +2,6 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getUpsertURL, hashAndEncode } from '../helpers'
-import { IDENTIFIER_TYPES } from '../constants'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience',
@@ -29,21 +28,21 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         '@path': '$.timestamp'
       }
     },
-    audience_id: {
+    external_audience_id: {
       type: 'string',
-      label: 'Audience ID',
+      label: 'External Audience ID',
       description: 'Unique Audience Identifier returned by the createAudience() function call.',
       required: true,
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       default: {
-        '@path': '$.context.personas.computation_id'
+        '@path': '$.context.personas.external_audience_id'
       }
     },
     segment_audience_key: {
       label: 'Audience Key',
       description: 'Segment Audience key / name',
       type: 'string',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
@@ -53,7 +52,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'Traits or Properties',
       description: 'Traits or Properties object',
       type: 'object',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       required: true,
       default: {
         '@if': {
@@ -108,24 +107,39 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
 
-  perform: async (request, data) => {
-    const { audienceSettings, payload, settings } = data
+  perform: async (request, { audienceSettings, payload, settings }) => {
+    const { external_audience_id } = payload
+
+    if (!audienceSettings?.audience_name) {
+      throw new IntegrationError('Audience Name is required', 'MISSING_REQUIRED_FIELD', 400)
+    }
+
+    if (!audienceSettings?.identifier_type) {
+      throw new IntegrationError('Identifier Type is required', 'MISSING_REQUIRED_FIELD', 400)
+    }
+
+    if (!external_audience_id) {
+      throw new IntegrationError('External Audience ID is required', 'MISSING_REQUIRED_FIELD', 400)
+    }
+
     const audienceName = audienceSettings?.audience_name
+    const identifierType = (audienceSettings?.identifier_type).toLowerCase().replace(/_/g, '')
     const audienceValue = payload.traits_or_props[payload.segment_audience_key]
-    const { audience_id } = payload
 
-    let primaryIdentifier
+    let primaryIdentifier: string | undefined
 
-    switch (settings.identifier_type) {
-      case IDENTIFIER_TYPES.EMAIL:
+    switch (identifierType) {
+      case 'email':
         primaryIdentifier = payload.email ?? undefined
         break
-      case IDENTIFIER_TYPES.SEGMENT_USER_ID:
+      case 'userid':
         primaryIdentifier = payload.userId ?? undefined
         break
-      case IDENTIFIER_TYPES.SEGMENT_ANONYMOUS_ID:
+      case 'anonymousid':
         primaryIdentifier = payload.anonymousId ?? undefined
         break
+      default:
+        primaryIdentifier = (payload.traits_or_props[identifierType] as string) ?? undefined
     }
 
     if (!primaryIdentifier) {
@@ -134,38 +148,40 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
     const URL = getUpsertURL(settings.dataCenter)
 
+    const json = {
+      type: 'audience_membership_change_request',
+      id: payload.message_id,
+      timestamp_ms: new Date(payload.timestamp).getTime(),
+      account: {
+        account_settings: {
+          section_id: settings.sectionId,
+          identifier_type: identifierType,
+          accessKey: settings.accessKey
+        }
+      },
+      user_profiles: [
+        {
+          user_identities: [
+            {
+              type: identifierType,
+              encoding: identifierType === 'email' ? '"sha-256"' : 'raw',
+              value: identifierType === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
+            }
+          ],
+          audiences: [
+            {
+              audience_id: Number(external_audience_id), // must be sent as an integer
+              audience_name: audienceName,
+              action: audienceValue ? 'add' : 'delete'
+            }
+          ]
+        }
+      ]
+    }
+
     return request(URL, {
       method: 'post',
-      json: {
-        type: 'audience_membership_change_request',
-        id: payload.message_id,
-        timestamp_ms: new Date(payload.timestamp).getTime(),
-        account: {
-          account_settings: {
-            section_id: settings.sectionId,
-            identifier_type: settings.identifier_type,
-            accessKey: settings.accessKey
-          }
-        },
-        user_profiles: [
-          {
-            user_identities: [
-              {
-                type: settings.identifier_type,
-                encoding: settings.identifier_type === 'email' ? '"sha-256"' : 'raw',
-                value: settings.identifier_type === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
-              }
-            ],
-            audiences: [
-              {
-                audience_id: audience_id,
-                audience_name: audienceName,
-                action: audienceValue ? 'add' : 'delete'
-              }
-            ]
-          }
-        ]
-      }
+      json
     })
   }
 }

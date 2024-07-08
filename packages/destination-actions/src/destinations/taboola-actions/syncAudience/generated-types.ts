@@ -28,7 +28,7 @@ export interface Payload {
    */
   enable_batching: boolean
   /**
-   * Mobile Device ID.
+   * To send iOS and Android Device IDs, include the 'ios.id' and 'android.id' Identifiers from the 'Customized Setup' option when connecting your Audience.
    */
   device_id?: string
   /**

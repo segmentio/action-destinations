@@ -469,4 +469,23 @@ describe('HubSpot.sendCustomBehavioralEvent', () => {
       ])
     )
   })
+
+  it('should return error message and code if dynamic fetch fails', async () => {
+    const errorResponse = {
+      status: '401',
+      message: 'Unable to fetch schemas',
+      correlationId: 'da20ed7c-1834-43c8-8d29-c8f65c411bc2',
+      category: 'EXPIRED_AUTHENTICATION'
+    }
+    nock(HUBSPOT_BASE_URL).get(`/events/v3/event-definitions`).reply(401, errorResponse)
+    const payload = {}
+    const responses = (await testDestination.executeDynamicField('sendCustomBehavioralEvent', 'eventName', {
+      payload: payload,
+      settings: {}
+    })) as DynamicFieldResponse
+
+    expect(responses.choices.length).toBe(0)
+    expect(responses.error?.message).toEqual(errorResponse.message)
+    expect(responses.error?.code).toEqual(errorResponse.status)
+  })
 })

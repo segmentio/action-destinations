@@ -2,7 +2,7 @@ import { createHash } from 'crypto'
 import type { ModifiedResponse } from '@segment/actions-core'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './generated-types'
-import { AudienceSettings } from '../generated-types'
+import { AudienceSettings, Settings } from '../generated-types'
 
 interface ClusterItem {
   user_id: string
@@ -14,23 +14,51 @@ type Cluster = { cluster: ClusterItem[] } | null
 
 interface TaboolaPayload {
   operation: 'ADD' | 'REMOVE'
-  audience_id: string
+  audience_id: number
   identities: Cluster[]
+}
+
+interface RefreshTokenResponse {
+  access_token: string
 }
 
 export class TaboolaClient {
   request: RequestClient
   payloads: Payload[]
-  audienceSettings: AudienceSettings
+  audienceSettings?: AudienceSettings
 
-  constructor(request: RequestClient, payloads: Payload[], audienceSettings: AudienceSettings) {
+  constructor(request: RequestClient, payloads: Payload[], audienceSettings?: AudienceSettings) {
     this.request = request
     this.payloads = payloads
     this.audienceSettings = audienceSettings
+
+    if (!this.audienceSettings) {
+      throw new IntegrationError('Bad Request: no audienceSettings found.', 'INVALID_REQUEST_DATA', 400)
+    }
+
+    if (!this.audienceSettings.account_id) {
+      throw new IntegrationError('Bad Request: no audienceSettings.account_id found.', 'INVALID_REQUEST_DATA', 400)
+    }
+  }
+
+  static async refreshAccessToken(request: RequestClient, settings: Settings) {
+    const res = await request<RefreshTokenResponse>('https://backstage.taboola.com/backstage/oauth/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: String(
+        new URLSearchParams({
+          client_id: settings.client_id,
+          client_secret: settings.client_secret,
+          grant_type: 'client_credentials'
+        })
+      )
+    })
+    return { accessToken: res.data.access_token }
   }
 
   async sendToTaboola() {
-
     this.payloads.forEach((payload) => {
       payload.action = payload.traits_or_props[payload.segment_computation_key] ? 'ADD' : 'REMOVE'
     })
@@ -59,12 +87,14 @@ export class TaboolaClient {
         if (identities.length > 0) {
           taboolaRequests.push(
             this.request(
-              `https://backstage.taboola.com/backstage/api/1.0/${this.audienceSettings.account_id}/audience_onboarding`,
+              `https://backstage.taboola.com/backstage/api/1.0/${
+                this.audienceSettings?.account_id as string
+              }/audience_onboarding`,
               {
                 method: 'POST',
                 json: {
                   operation: action as 'ADD' | 'REMOVE',
-                  audience_id: external_audience_id,
+                  audience_id: Number(external_audience_id),
                   identities
                 } as TaboolaPayload
               }
