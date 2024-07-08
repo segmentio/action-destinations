@@ -1,37 +1,45 @@
-import type { DestinationDefinition } from '@segment/actions-core'
-import type { Settings } from './generated-types'
+import type { AudienceDestinationDefinition } from '@segment/actions-core'
+// import { IntegrationError } from '@segment/actions-core'
+import type { Settings, AudienceSettings } from './generated-types'
+// import { generate_jwt } from './utils-rt'
+import updateSegment from './updateSegment'
 
-import audienceEnteredS3 from './audienceEnteredS3'
-import audienceEnteredSFTP from './audienceEnteredSftp'
-
-const destination: DestinationDefinition<Settings> = {
-  name: 'delivrai Audiences',
-  slug: 'actions-delivrai-activate',
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
+  name: 'Delivr AI Audiences',
+  slug: 'actions-delivrai-audiences',
   mode: 'cloud',
-
+  description: 'Sync Segment Engage Audiences to Delivr AI Audience Segmentation',
   authentication: {
     scheme: 'custom',
     fields: {
-      __segment_internal_engage_force_full_sync: {
-        label: 'Force Full Sync',
-        description: '',
-        type: 'boolean',
-        required: true,
-        default: true
-      },
-      __segment_internal_engage_batch_sync: {
-        label: 'Supports batch sync via ADS',
-        description: '',
-        type: 'boolean',
-        required: true,
-        default: true
+      client_identifier_id: {
+        label: 'Client Identifier',
+        description: 'Client Identifier is the Hashed Key that provided by Delivr AI',
+        type: 'string',
+        required: true
       }
     }
+    
   },
+  audienceFields: {
+    placeholder: {
+      type: 'boolean',
+      label: 'Placeholder Setting',
+      description: 'Placeholder field to allow the audience to be created. Do not change this',
+      default: true
+    }
+    // This is a required object, but we don't need to define any fields
+    // Placeholder setting will be removed once we make AudienceSettings optional
+  },
+  audienceConfig: {
+    mode: {
+      type: 'synced', // Indicates that the audience is synced on some schedule
+      full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+    },
+  },
+
   actions: {
-    audienceEnteredS3,
-    audienceEnteredSFTP
+    updateSegment
   }
 }
-
 export default destination

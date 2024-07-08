@@ -82,8 +82,8 @@ const directory = process.env.DIRECTORY as string
 const entryPath = (process.env.ENTRY as string) || 'index.ts'
 
 // For now, include the slug in the path, but when we support external repos, we'll have to change this
-const targetDirectory = path.join(process.cwd(), directory, destinationSlug, entryPath)
-
+//const targetDirectory = path.join(process.cwd(), directory, destinationSlug, entryPath)
+const targetDirectory = path.join(process.cwd(), destinationSlug, 'index.ts')
 
 const gracefulShutdown = once((exitCode: number) => {
   logger.info('Server stopping...')
