@@ -23,7 +23,7 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
   const mutation = `mutation {
       upsertProfiles(
         subAdvertiserId: 1,
-        externalProvider: "Segment",
+        externalProvider: "segmentio",
         profiles: ${JSON.stringify(profileUpdates).replace(/"([^"]+)":/g, '$1:') /* Remove quotes around keys */}
       ) {
         success

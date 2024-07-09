@@ -44,7 +44,7 @@ describe('onDelete', () => {
         "query": "mutation {
             deleteProfiles(
               subAdvertiserId: 1,
-              externalProvider: \\"Segment\\",
+              externalProvider: \\"segmentio\\",
               userIds: [\\"user-id\\"]
             ) {
               success

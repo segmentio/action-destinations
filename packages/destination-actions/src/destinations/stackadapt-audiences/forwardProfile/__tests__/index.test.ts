@@ -74,7 +74,7 @@ describe('forwardProfile', () => {
         "query": "mutation {
             upsertProfiles(
               subAdvertiserId: 1,
-              externalProvider: \\"Segment\\",
+              externalProvider: \\"segmentio\\",
               profiles: [{email:\\"admin@stackadapt.com\\",user_id:\\"user-id\\",audience_id:\\"aud_123\\",audience_name:\\"first_time_buyer\\",action:\\"enter\\"}]
             ) {
               success
@@ -105,7 +105,7 @@ describe('forwardProfile', () => {
         "query": "mutation {
             upsertProfiles(
               subAdvertiserId: 1,
-              externalProvider: \\"Segment\\",
+              externalProvider: \\"segmentio\\",
               profiles: [{email:\\"admin@stackadapt.com\\",user_id:\\"user-id\\",audience_id:\\"aud_123\\",audience_name:\\"first_time_buyer\\",action:\\"enter\\"},{email:\\"email2@stackadapt.com\\",user_id:\\"user-id2\\"}]
             ) {
               success

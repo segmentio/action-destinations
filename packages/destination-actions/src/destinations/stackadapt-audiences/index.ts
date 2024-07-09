@@ -68,7 +68,7 @@ const destination: DestinationDefinition<Settings> = {
     const query = `mutation {
       deleteProfiles(
         subAdvertiserId: 1,
-        externalProvider: "Segment",
+        externalProvider: "segmentio",
         userIds: ["${userId}"]
       ) {
         success
