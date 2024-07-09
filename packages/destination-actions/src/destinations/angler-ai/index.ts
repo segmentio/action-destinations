@@ -25,6 +25,7 @@ export type AuthResponseType = {
 const destination: DestinationDefinition<Settings> = {
   name: 'Angler AI',
   slug: 'actions-angler-ai',
+  description: 'Send analytics events to Angler AI.',
   mode: 'cloud',
 
   authentication: {
