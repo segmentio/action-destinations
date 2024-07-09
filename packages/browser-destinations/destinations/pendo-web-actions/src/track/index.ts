@@ -17,7 +17,7 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       default: {
         '@path': '$.event'
       },
-      readOnly: true
+      readOnly: false
     },
     metadata: {
       label: 'Metadata',
@@ -26,7 +26,7 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       default: {
         '@path': '$.properties'
       },
-      readOnly: true
+      readOnly: false
     }
   },
   perform: (pendo, { payload }) => {

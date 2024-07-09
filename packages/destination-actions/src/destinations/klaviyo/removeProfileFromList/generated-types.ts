@@ -13,4 +13,8 @@ export interface Payload {
    * 'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'
    */
   list_id: string
+  /**
+   * When enabled, the action will use the klaviyo batch API.
+   */
+  enable_batching?: boolean
 }

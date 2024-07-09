@@ -1,6 +1,6 @@
 /* eslint-disable */
 // @ts-nocheck
-export function initScript(pixelCode) {
+export function initScript(settings) {
   !(function (w, d, t) {
     w.TiktokAnalyticsObject = t
     var ttq = (w[t] = w[t] || [])
@@ -37,14 +37,17 @@ export function initScript(pixelCode) {
           (ttq._t = ttq._t || {}),
           (ttq._t[e] = +new Date()),
           (ttq._o = ttq._o || {}),
-          (ttq._o[e] = n || {})
+          (ttq._o[e] = n || {}),
+          (ttq._partner = ttq._partner || 'Segment')
         var o = document.createElement('script')
         ;(o.type = 'text/javascript'), (o.async = !0), (o.src = i + '?sdkid=' + e + '&lib=' + t)
         var a = document.getElementsByTagName('script')[0]
         a.parentNode.insertBefore(o, a)
       })
 
-    ttq.load(pixelCode)
-    ttq.page()
+    ttq.load(settings.pixelCode, {
+      limited_data_use: settings.ldu ? settings.ldu : false
+    })
+    ttq.instance(settings.pixelCode).page()
   })(window, document, 'ttq')
 }

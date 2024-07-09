@@ -1,8 +1,7 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
-import { SEGMENT_ENDPOINTS, DEFAULT_SEGMENT_ENDPOINT } from '../../properties'
-import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../../errors'
+import { MissingUserOrAnonymousIdThrowableError } from '../../errors'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -46,34 +45,7 @@ describe('Segment.sendGroup', () => {
     ).rejects.toThrowError(MissingUserOrAnonymousIdThrowableError)
   })
 
-  test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
-    const event = createTestEvent({
-      traits: {
-        name: 'Example Corp',
-        industry: 'Technology'
-      },
-      userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k',
-      groupId: 'test-group-ks2i7e'
-    })
-
-    await expect(
-      testDestination.testAction('sendGroup', {
-        event,
-        mapping: defaultGroupMapping,
-        settings: {
-          source_write_key: 'test-source-write-key',
-          endpoint: 'incorrect-endpoint'
-        }
-      })
-    ).rejects.toThrowError(InvalidEndpointSelectedThrowableError)
-  })
-
-  test('Should send an group event to Segment', async () => {
-    // Mock: Segment Group Call
-    const segmentEndpoint = SEGMENT_ENDPOINTS[DEFAULT_SEGMENT_ENDPOINT].url
-    nock(segmentEndpoint).post('/group').reply(200, { success: true })
-
+  test('Should return transformed event', async () => {
     const event = createTestEvent({
       traits: {
         name: 'Example Corp',
@@ -88,44 +60,7 @@ describe('Segment.sendGroup', () => {
       event,
       mapping: defaultGroupMapping,
       settings: {
-        source_write_key: 'test-source-write-key',
-        endpoint: DEFAULT_SEGMENT_ENDPOINT
-      }
-    })
-
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toEqual(200)
-    expect(responses[0].options.json).toMatchObject({
-      userId: event.userId,
-      anonymousId: event.anonymousId,
-      groupId: event.groupId,
-      traits: {
-        ...event.traits
-      },
-      context: {}
-    })
-  })
-
-  test('Should not send event if actions-segment-tapi-internal-enabled flag is enabled', async () => {
-    const event = createTestEvent({
-      traits: {
-        name: 'Example Corp',
-        industry: 'Technology'
-      },
-      userId: 'test-user-ufi5bgkko5',
-      anonymousId: 'arky4h2sh7k',
-      groupId: 'test-group-ks2i7e'
-    })
-
-    const responses = await testDestination.testAction('sendGroup', {
-      event,
-      mapping: defaultGroupMapping,
-      settings: {
-        source_write_key: 'test-source-write-key',
-        endpoint: DEFAULT_SEGMENT_ENDPOINT
-      },
-      features: {
-        'actions-segment-tapi-internal-enabled': true
+        source_write_key: 'test-source-write-key'
       }
     })
 
@@ -140,6 +75,61 @@ describe('Segment.sendGroup', () => {
           groupId: event.groupId,
           traits: {
             ...event.traits
+          },
+          context: {}
+        }
+      ]
+    })
+  })
+
+  it('should work with batch events', async () => {
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        traits: {
+          name: 'Example Corp',
+          industry: 'Technology'
+        },
+        userId: 'test-user-ufi5bgkko5',
+        anonymousId: 'arky4h2sh7k',
+        groupId: 'test-group-ks2i7e'
+      }),
+      createTestEvent({
+        traits: {
+          name: 'Example Corp',
+          industry: 'Technology'
+        },
+        userId: 'test-user-ufi5bgkko5',
+        groupId: 'test-group-ks2i7e'
+      })
+    ]
+
+    const responses = await testDestination.testBatchAction('sendGroup', {
+      events,
+      mapping: defaultGroupMapping,
+      settings: {
+        source_write_key: 'test-source-write-key'
+      }
+    })
+
+    const results = testDestination.results
+    expect(responses.length).toBe(0)
+    expect(results.length).toBe(1)
+    expect(results[0].data).toMatchObject({
+      batch: [
+        {
+          userId: events[0].userId,
+          anonymousId: events[0].anonymousId,
+          groupId: events[0].groupId,
+          traits: {
+            ...events[0].traits
+          },
+          context: {}
+        },
+        {
+          userId: events[1].userId,
+          groupId: events[0].groupId,
+          traits: {
+            ...events[0].traits
           },
           context: {}
         }

@@ -366,7 +366,9 @@ export interface Logger {
 
 export interface DataFeedCache {
   setRequestResponse(requestId: string, response: string, expiryInSeconds: number): Promise<void>
-  getRequestResponse(requestId: string): Promise<string>
+  getRequestResponse(requestId: string): Promise<string | null>
+  maxResponseSizeBytes: number
+  maxExpirySeconds: number
 }
 
 export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
@@ -601,7 +603,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
     }
 
-    await action.executeBatch({
+    return action.executeBatch({
       mapping,
       data: events as unknown as InputData[],
       settings,
@@ -614,8 +616,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       transactionContext,
       stateContext
     })
-
-    return [{ output: 'successfully processed batch of events' }]
   }
 
   public async executeDynamicField(

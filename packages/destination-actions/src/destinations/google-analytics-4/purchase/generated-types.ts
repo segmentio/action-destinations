@@ -113,6 +113,7 @@ export interface Payload {
      * Item quantity.
      */
     quantity?: number
+    [k: string]: unknown
   }[]
   /**
    * The unique identifier of a transaction.
@@ -146,4 +147,12 @@ export interface Payload {
   params?: {
     [k: string]: unknown
   }
+  /**
+   * Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.
+   */
+  ad_user_data_consent?: string
+  /**
+   * Sets consent for personalized advertising. Must be either GRANTED or DENIED.
+   */
+  ad_personalization_consent?: string
 }

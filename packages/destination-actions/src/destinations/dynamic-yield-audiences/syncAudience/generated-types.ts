@@ -2,27 +2,41 @@
 
 export interface Payload {
   /**
+   * Segment event message ID
+   */
+  message_id: string
+  /**
+   * Segment event timestamp
+   */
+  timestamp: string | number
+  /**
+   * Unique Audience Identifier returned by the createAudience() function call.
+   */
+  external_audience_id: string
+  /**
    * Segment Audience key / name
    */
   segment_audience_key: string
   /**
-   * Segment Audience ID
+   * Traits or Properties object
    */
-  segment_audience_id: string
+  traits_or_props: {
+    [k: string]: unknown
+  }
   /**
    * Segment computation class used to determine if input event is from an Engage Audience'. Value must be = 'audience'.
    */
   segment_computation_action: string
   /**
-   * The Segment userId value.
+   * User's email address
    */
-  segment_user_id?: string
+  email?: string
   /**
-   * The Segment anonymousId value.
+   * User's anonymousId
    */
-  segment_anonymous_id?: string
+  anonymousId?: string
   /**
-   * The user's email address
+   * User's unique User ID
    */
-  user_email?: string
+  userId?: string
 }

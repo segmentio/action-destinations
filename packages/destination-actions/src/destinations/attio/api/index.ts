@@ -3,6 +3,17 @@ import { ModifiedResponse } from '@segment/actions-core'
 import get from 'lodash/get'
 import sortBy from 'lodash/sortBy'
 
+export type SimpleValue = string | number | boolean
+
+type BatchAssertion = {
+  object: string
+  mode: 'create-or-update'
+  matching_attribute: string
+  multiselect_values: 'append'
+  values: Record<string, null | SimpleValue | Array<SimpleValue> | BatchAssertion | Array<BatchAssertion>>
+  received_at: string
+}
+
 export type AssertResponse = {
   data: {
     id: {
@@ -57,6 +68,26 @@ export class AttioClient {
         ...requestOptions
       }
     )
+  }
+
+  /**
+   * Send a series of (nested) assertions in a single HTTP call
+   *
+   * @param assertions One or more assertions to apply
+   * @param requestOptions Additional options for the request
+   */
+  async batchAssert({
+    assertions,
+    requestOptions
+  }: {
+    assertions: Array<BatchAssertion>
+    requestOptions?: Partial<RequestOptions>
+  }): Promise<ModifiedResponse<AssertResponse>> {
+    return await this.request(`${this.api_url}/v2/batch/records`, {
+      method: 'put',
+      json: { assertions },
+      ...requestOptions
+    })
   }
 
   /**

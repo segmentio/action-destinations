@@ -65,3 +65,5 @@ register('6261a8b6cb4caa70e19116e8', '@segment/analytics-browser-actions-snap-pl
 register('6554e468e280fb14fbb4433c', '@segment/analytics-browser-actions-replaybird')
 register('656773f0bd79a3676ab2733d', '@segment/analytics-browser-actions-1flow')
 register('656dc9330d1863a8870bacd1', '@segment/analytics-browser-actions-bucket')
+register('63e52bea7747fbc311d5b872', '@segment/analytics-browser-actions-algolia-plugins')
+register('65a6ac19ea6d3ced628be00b', '@segment/analytics-browser-actions-survicate')

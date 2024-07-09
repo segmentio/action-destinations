@@ -4,11 +4,15 @@ export interface Payload {
   /**
    * The ID of the Static List that users will be synced to.
    */
-  external_id: string
+  external_id?: string
   /**
-   * The user's email address to send to Marketo.
+   * The lead field to use for deduplication and filtering. This field must be apart of the Lead Info Fields below.
    */
-  email: string
+  lookup_field: string
+  /**
+   * The value cooresponding to the lookup field.
+   */
+  field_value: string
   /**
    * Enable batching of requests.
    */

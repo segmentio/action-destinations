@@ -1,0 +1,243 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-magellan-ai destination: addToCart action - all fields 1`] = `
+Object {
+  "currency": "NIO",
+  "productId": "1ycI^2r",
+  "productName": "1ycI^2r",
+  "productType": "1ycI^2r",
+  "productVendor": "1ycI^2r",
+  "quantity": -64992310240215.04,
+  "token": "1ycI^2r",
+  "value": -64992310240215.04,
+  "variantId": "1ycI^2r",
+  "variantName": "1ycI^2r",
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: addToCart action - required fields 1`] = `
+Object {
+  "currency": "NIO",
+  "quantity": -64992310240215.04,
+  "token": "1ycI^2r",
+  "value": -64992310240215.04,
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: checkout action - all fields 1`] = `
+Object {
+  "currency": "MDL",
+  "discountCode": "TIKRkwh0SbShPf)0A#[",
+  "id": "TIKRkwh0SbShPf)0A#[",
+  "lineItems": Array [
+    Object {
+      "productId": "TIKRkwh0SbShPf)0A#[",
+      "productName": "TIKRkwh0SbShPf)0A#[",
+      "productType": "TIKRkwh0SbShPf)0A#[",
+      "productVendor": "TIKRkwh0SbShPf)0A#[",
+      "quantity": 78081917945118.72,
+      "value": 78081917945118.72,
+      "variantId": "TIKRkwh0SbShPf)0A#[",
+      "variantName": "TIKRkwh0SbShPf)0A#[",
+    },
+  ],
+  "quantity": 78081917945118.72,
+  "token": "TIKRkwh0SbShPf)0A#[",
+  "value": 78081917945118.72,
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: checkout action - required fields 1`] = `
+Object {
+  "currency": "MDL",
+  "id": "TIKRkwh0SbShPf)0A#[",
+  "token": "TIKRkwh0SbShPf)0A#[",
+  "value": 78081917945118.72,
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: code action - all fields 1`] = `
+Object {
+  "code": "*[IgdmoTG@k",
+  "token": "*[IgdmoTG@k",
+  "type": "*[IgdmoTG@k",
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: code action - required fields 1`] = `
+Object {
+  "code": "*[IgdmoTG@k",
+  "token": "*[IgdmoTG@k",
+  "type": "*[IgdmoTG@k",
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: identify action - all fields 1`] = `
+Object {
+  "token": "lkK!Vfi",
+  "userId": "lkK!Vfi",
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: identify action - required fields 1`] = `
+Object {
+  "token": "lkK!Vfi",
+  "userId": "lkK!Vfi",
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: install action - all fields 1`] = `
+Object {
+  "aifa": "Dv!9gsCj43Mi1j",
+  "andi": "Dv!9gsCj43Mi1j",
+  "app": "Dv!9gsCj43Mi1j",
+  "host": "Dv!9gsCj43Mi1j",
+  "idfa": "Dv!9gsCj43Mi1j",
+  "idfv": "Dv!9gsCj43Mi1j",
+  "ip": "153.102.75.215",
+  "plat": "Dv!9gsCj43Mi1j",
+  "token": "Dv!9gsCj43Mi1j",
+  "ts": "Dv!9gsCj43Mi1j",
+  "ua": "Dv!9gsCj43Mi1j",
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: install action - required fields 1`] = `
+Object {
+  "app": "Dv!9gsCj43Mi1j",
+  "host": "Dv!9gsCj43Mi1j",
+  "idfa": "Dv!9gsCj43Mi1j",
+  "idfv": "Dv!9gsCj43Mi1j",
+  "ip": "153.102.75.215",
+  "plat": "Dv!9gsCj43Mi1j",
+  "token": "Dv!9gsCj43Mi1j",
+  "ts": "Dv!9gsCj43Mi1j",
+  "ua": "Dv!9gsCj43Mi1j",
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: lead action - all fields 1`] = `
+Object {
+  "category": "2bsDJl3C^^TnRNgF",
+  "currency": "BYR",
+  "id": "2bsDJl3C^^TnRNgF",
+  "productId": "2bsDJl3C^^TnRNgF",
+  "quantity": 40312441573212.16,
+  "token": "2bsDJl3C^^TnRNgF",
+  "type": "2bsDJl3C^^TnRNgF",
+  "value": 40312441573212.16,
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: lead action - required fields 1`] = `
+Object {
+  "currency": "BYR",
+  "id": "2bsDJl3C^^TnRNgF",
+  "token": "2bsDJl3C^^TnRNgF",
+  "value": 40312441573212.16,
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: product action - all fields 1`] = `
+Object {
+  "currency": "JPY",
+  "productId": "t7uT6JwnvlnnOV2jL",
+  "productName": "t7uT6JwnvlnnOV2jL",
+  "productType": "t7uT6JwnvlnnOV2jL",
+  "productVendor": "t7uT6JwnvlnnOV2jL",
+  "token": "t7uT6JwnvlnnOV2jL",
+  "value": 50320375514398.72,
+  "variantId": "t7uT6JwnvlnnOV2jL",
+  "variantName": "t7uT6JwnvlnnOV2jL",
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: product action - required fields 1`] = `
+Object {
+  "currency": "JPY",
+  "token": "t7uT6JwnvlnnOV2jL",
+  "value": 50320375514398.72,
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: purchase action - all fields 1`] = `
+Object {
+  "currency": "UGX",
+  "discountCode": "!OdP7X6NC",
+  "id": "!OdP7X6NC",
+  "isNewCustomer": true,
+  "lineItems": Array [
+    Object {
+      "productId": "!OdP7X6NC",
+      "productName": "!OdP7X6NC",
+      "productType": "!OdP7X6NC",
+      "productVendor": "!OdP7X6NC",
+      "quantity": -43325033891758.08,
+      "value": -43325033891758.08,
+      "variantId": "!OdP7X6NC",
+      "variantName": "!OdP7X6NC",
+    },
+  ],
+  "quantity": -43325033891758.08,
+  "token": "!OdP7X6NC",
+  "value": -43325033891758.08,
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: purchase action - required fields 1`] = `
+Object {
+  "currency": "UGX",
+  "id": "!OdP7X6NC",
+  "token": "!OdP7X6NC",
+  "value": -43325033891758.08,
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: thirdPartyEvent action - all fields 1`] = `
+Object {
+  "aifa": "gpemivU7z(*Qt",
+  "andi": "gpemivU7z(*Qt",
+  "app": "gpemivU7z(*Qt",
+  "evtattrs": Object {
+    "testType": "gpemivU7z(*Qt",
+  },
+  "evtname": "gpemivU7z(*Qt",
+  "host": "gpemivU7z(*Qt",
+  "idfa": "gpemivU7z(*Qt",
+  "idfv": "gpemivU7z(*Qt",
+  "ip": "129.22.53.15",
+  "plat": "gpemivU7z(*Qt",
+  "token": "gpemivU7z(*Qt",
+  "ts": "gpemivU7z(*Qt",
+  "ua": "gpemivU7z(*Qt",
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: thirdPartyEvent action - required fields 1`] = `
+Object {
+  "app": "gpemivU7z(*Qt",
+  "evtname": "gpemivU7z(*Qt",
+  "host": "gpemivU7z(*Qt",
+  "idfa": "gpemivU7z(*Qt",
+  "idfv": "gpemivU7z(*Qt",
+  "ip": "129.22.53.15",
+  "plat": "gpemivU7z(*Qt",
+  "token": "gpemivU7z(*Qt",
+  "ts": "gpemivU7z(*Qt",
+  "ua": "gpemivU7z(*Qt",
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: view action - all fields 1`] = `
+Object {
+  "token": "9&#iCHP1",
+  "url": "http://ova.gt/wihsa",
+}
+`;
+
+exports[`Testing snapshot for actions-magellan-ai destination: view action - required fields 1`] = `
+Object {
+  "token": "9&#iCHP1",
+  "url": "http://ova.gt/wihsa",
+}
+`;

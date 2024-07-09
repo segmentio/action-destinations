@@ -4,6 +4,7 @@ import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import { loadPendo } from './loadScript'
 import { PendoOptions, PendoSDK } from './types'
 import { ID } from '@segment/analytics-next'
+import { defaultValues } from '@segment/actions-core'
 
 import identify from './identify'
 import track from './track'
@@ -48,6 +49,22 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
         "If you are using Pendo's CNAME feature, this will update your Pendo install snippet with your content host.",
       type: 'string',
       required: false
+    },
+    disableUserTraitsOnLoad: {
+      label: "Disable passing Segment's user traits to Pendo on start up",
+      description:
+        "Override sending Segment's user traits on load. This will prevent Pendo from initializing with the user traits from Segment (analytics.user().traits()). Allowing you to adjust the mapping of visitor metadata in Segment's identify event.",
+      type: 'boolean',
+      required: false,
+      default: false
+    },
+    disableGroupIdAndTraitsOnLoad: {
+      label: "Disable passing Segment's group id and group traits to Pendo on start up",
+      description:
+        "Override sending Segment's group id for Pendo's account id. This will prevent Pendo from initializing with the group id from Segment (analytics.group().id()). Allowing you to adjust the mapping of account id in Segment's group event.",
+      type: 'boolean',
+      required: false,
+      default: false
     }
   },
 
@@ -77,10 +94,10 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
 
     const options: PendoOptions = {
       visitor: {
-        ...analytics.user().traits(),
+        ...(!settings.disableUserTraitsOnLoad ? analytics.user().traits() : {}),
         id: visitorId
       },
-      ...(accountId
+      ...(accountId && !settings.disableGroupIdAndTraitsOnLoad
         ? {
             account: {
               ...analytics.group().traits(),
@@ -98,7 +115,30 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
     track,
     identify,
     group
-  }
+  },
+  presets: [
+    {
+      name: 'Send Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'track',
+      mapping: defaultValues(track.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Send Identify Event',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identify',
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Send Group Event',
+      subscribe: 'type = "group"',
+      partnerAction: 'group',
+      mapping: defaultValues(group.fields),
+      type: 'automatic'
+    }
+  ]
 }
 
 export default browserDestination(destination)

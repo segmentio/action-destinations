@@ -7,7 +7,12 @@ import {
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CartItem, PartialErrorResponse } from '../types'
+import {
+  CartItemInterface,
+  PartialErrorResponse,
+  ClickConversionRequestObjectInterface,
+  UserIdentifierInterface
+} from '../types'
 import {
   formatCustomVariables,
   hash,
@@ -16,7 +21,8 @@ import {
   convertTimestamp,
   getApiVersion,
   commonHashedEmailValidation,
-  getConversionActionDynamicData
+  getConversionActionDynamicData,
+  isHashedInformation
 } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -190,12 +196,37 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       defaultObjectUI: 'keyvalue:only'
+    },
+    ad_user_data_consent_state: {
+      label: 'Ad User Data Consent State',
+      description:
+        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).',
+      type: 'string',
+      choices: [
+        { label: 'GRANTED', value: 'GRANTED' },
+        { label: 'DENIED', value: 'DENIED' },
+        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
+      ]
+    },
+    ad_personalization_consent_state: {
+      label: 'Ad Personalization Consent State',
+      type: 'string',
+      description:
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).',
+      choices: [
+        { label: 'GRANTED', value: 'GRANTED' },
+        { label: 'DENIED', value: 'DENIED' },
+        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
+      ]
     }
   },
 
   dynamicFields: {
-    conversion_action: async (request: RequestClient, { settings, auth }): Promise<DynamicFieldResponse> => {
-      return getConversionActionDynamicData(request, settings, auth)
+    conversion_action: async (
+      request: RequestClient,
+      { settings, auth, features, statsContext }
+    ): Promise<DynamicFieldResponse> => {
+      return getConversionActionDynamicData(request, settings, auth, features, statsContext)
     }
   },
   perform: async (request, { auth, settings, payload, features, statsContext }) => {
@@ -208,18 +239,18 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     settings.customerId = settings.customerId.replace(/-/g, '')
 
-    let cartItems: CartItem[] = []
+    let cartItems: CartItemInterface[] = []
     if (payload.items) {
       cartItems = payload.items.map((product) => {
         return {
           productId: product.product_id,
           quantity: product.quantity,
           unitPrice: product.price
-        } as CartItem
+        } as CartItemInterface
       })
     }
 
-    const request_object: { [key: string]: any } = {
+    const request_object: ClickConversionRequestObjectInterface = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       conversionDateTime: convertTimestamp(payload.conversion_timestamp),
       gclid: payload.gclid,
@@ -238,6 +269,20 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       userIdentifiers: []
     }
+    // Add Consent Signals 'adUserData' if it is defined
+    if (payload.ad_user_data_consent_state) {
+      request_object['consent'] = {
+        adUserData: payload.ad_user_data_consent_state
+      }
+    }
+
+    // Add Consent Signals 'adPersonalization' if it is defined
+    if (payload.ad_personalization_consent_state) {
+      request_object['consent'] = {
+        ...request_object['consent'],
+        adPersonalization: payload.ad_personalization_consent_state
+      }
+    }
 
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
@@ -255,11 +300,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
       request_object.userIdentifiers.push({
         hashedEmail: validatedEmail
-      })
+      } as UserIdentifierInterface)
     }
 
     if (payload.phone_number) {
-      request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
+      // remove '+' from phone number if received in payload duplicacy and add '+'
+      const phoneNumber = '+' + payload.phone_number.split('+').join('')
+
+      request_object.userIdentifiers.push({
+        hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(phoneNumber)
+      } as UserIdentifierInterface)
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(

@@ -15,10 +15,11 @@ import {
   android_push_token,
   android_push_subscription_status,
   ios_push_subscription_status,
-  ios_push_token
+  ios_push_token,
+  message_id,
+  consent
 } from './subscription-properties'
 import {
-  InvalidEndpointSelectedThrowableError,
   InvalidSubscriptionStatusError,
   MissingExternalIdsError,
   MissingSubscriptionStatusesError,
@@ -28,9 +29,7 @@ import {
   MissingIosPushTokenIfIosPushSubscriptionIsPresentError,
   MissingPhoneIfSmsOrWhatsappSubscriptionIsPresentError
 } from '../errors'
-import { generateSegmentAPIAuthHeaders } from '../helperFunctions'
-import { SEGMENT_ENDPOINTS } from '../properties'
-import { timestamp } from '../segment-properties'
+import { timestamp, validateConsentObject } from '../segment-properties'
 import { StatsClient } from '@segment/actions-core/destination-kit'
 
 interface SubscriptionStatusConfig {
@@ -281,19 +280,19 @@ const action: ActionDefinition<Settings, Payload> = {
     ios_push_token,
     ios_push_subscription_status,
     traits,
-    timestamp
+    timestamp,
+    message_id,
+    consent
   },
-  perform: (request, { payload, settings, features, statsContext }) => {
+  perform: (_request, { payload, statsContext }) => {
     const statsClient = statsContext?.statsClient
     const tags = statsContext?.tags
     tags?.push(`action:sendSubscription`)
-    //Throw an error if endpoint is not defined or invalid
-    if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      statsClient?.incr('invalid_endpoint', 1, tags)
-      throw InvalidEndpointSelectedThrowableError
-    }
+
     // Before sending subscription data to Segment, a series of validations are done.
     validateSubscriptions(payload, statsClient, tags)
+    const isValidConsentObject = validateConsentObject(payload?.consent)
+
     // Enriches ExternalId's
     const externalIds: ExtenalId[] = enrichExternalIds(payload, [])
     // Enrich Messaging Subscriptions
@@ -307,32 +306,22 @@ const action: ActionDefinition<Settings, Payload> = {
       context: {
         messaging_subscriptions: messagingSubscriptions,
         externalIds,
-        messaging_subscriptions_retl: true
+        messaging_subscriptions_retl: true,
+        consent: isValidConsentObject ? { ...payload?.consent } : {}
       },
       timestamp: payload?.timestamp,
       integrations: {
         // Setting 'integrations.All' to false will ensure that we don't send events
         // to any destinations which is connected to the Segment Profiles space
         All: false
-      }
+      },
+      messageId: payload?.message_id,
+      type: 'identify'
     }
 
     statsClient?.incr('success', 1, tags)
-    if (features && features['actions-segment-profiles-tapi-internal-enabled']) {
-      statsClient?.incr('tapi_internal', 1, tags)
-      const payload = { ...subscriptionPayload, type: 'identify' }
-      return { batch: [payload] }
-    }
-
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-
-    return request(`${selectedSegmentEndpoint}/identify`, {
-      method: 'POST',
-      json: subscriptionPayload,
-      headers: {
-        authorization: generateSegmentAPIAuthHeaders(payload.engage_space)
-      }
-    })
+    statsClient?.incr('tapi_internal', 1, tags)
+    return { batch: [subscriptionPayload] }
   }
 }
 

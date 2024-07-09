@@ -1,0 +1,136 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AnglerAi's saveCheckoutEvent destination action: all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "client_id": "&yVQWLT2[LyiR]Lnd6^",
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {},
+          },
+        },
+        "checkout": Object {
+          "currencyCode": "&yVQWLT2[LyiR]Lnd6^",
+          "lineItems": Array [
+            Object {
+              "discountAllocations": Array [
+                Object {
+                  "amount": Object {
+                    "amount": 73487254164602.88,
+                  },
+                  "discountApplication": Object {
+                    "title": "&yVQWLT2[LyiR]Lnd6^",
+                    "value": Object {
+                      "amount": 73487254164602.88,
+                    },
+                  },
+                },
+              ],
+              "id": "&yVQWLT2[LyiR]Lnd6^",
+              "quantity": 73487254164602.88,
+              "title": "&yVQWLT2[LyiR]Lnd6^",
+              "variant": Object {
+                "id": "&yVQWLT2[LyiR]Lnd6^",
+                "image": Object {
+                  "src": "&yVQWLT2[LyiR]Lnd6^",
+                },
+                "price": Object {
+                  "amount": 73487254164602.88,
+                },
+                "product": Object {
+                  "id": "&yVQWLT2[LyiR]Lnd6^",
+                  "title": "&yVQWLT2[LyiR]Lnd6^",
+                  "type": "&yVQWLT2[LyiR]Lnd6^",
+                  "untranslatedTitle": "&yVQWLT2[LyiR]Lnd6^",
+                  "url": "&yVQWLT2[LyiR]Lnd6^",
+                  "vendor": "&yVQWLT2[LyiR]Lnd6^",
+                },
+                "sku": "&yVQWLT2[LyiR]Lnd6^",
+                "title": "&yVQWLT2[LyiR]Lnd6^",
+                "untranslatedTitle": "&yVQWLT2[LyiR]Lnd6^",
+              },
+            },
+          ],
+          "order": Object {
+            "id": "&yVQWLT2[LyiR]Lnd6^",
+          },
+          "shippingLine": Object {
+            "price": Object {
+              "amount": 73487254164602.88,
+            },
+          },
+          "subtotalPrice": Object {
+            "amount": 73487254164602.88,
+          },
+          "totalPrice": Object {
+            "amount": 73487254164602.88,
+          },
+          "totalTax": Object {
+            "amount": 73487254164602.88,
+          },
+        },
+        "customData": Array [
+          Object {
+            "name": "testType",
+            "value": "&yVQWLT2[LyiR]Lnd6^",
+          },
+        ],
+        "customer": Object {
+          "dob": "&yVQWLT2[LyiR]Lnd6^",
+          "email": "eprer@gih.ne",
+          "firstName": "&yVQWLT2[LyiR]Lnd6^",
+          "id": "&yVQWLT2[LyiR]Lnd6^",
+          "lastName": "&yVQWLT2[LyiR]Lnd6^",
+          "phone": "&yVQWLT2[LyiR]Lnd6^",
+        },
+      },
+      "event_id": "&yVQWLT2[LyiR]Lnd6^",
+      "event_name": "checkout_started",
+      "fbc": "&yVQWLT2[LyiR]Lnd6^",
+      "fpb": "&yVQWLT2[LyiR]Lnd6^",
+      "ga": "&yVQWLT2[LyiR]Lnd6^",
+      "identifiers": Array [],
+      "ip_address": "&yVQWLT2[LyiR]Lnd6^",
+      "referrer": "&yVQWLT2[LyiR]Lnd6^",
+      "timestamp": "&yVQWLT2[LyiR]Lnd6^",
+      "url": "&yVQWLT2[LyiR]Lnd6^",
+      "user_agent": "&yVQWLT2[LyiR]Lnd6^",
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for AnglerAi's saveCheckoutEvent destination action: required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "client_id": "&yVQWLT2[LyiR]Lnd6^",
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {},
+          },
+        },
+        "checkout": Object {
+          "order": Object {},
+          "shippingLine": Object {
+            "price": Object {},
+          },
+          "subtotalPrice": Object {},
+          "totalPrice": Object {},
+          "totalTax": Object {},
+        },
+        "customData": Array [],
+        "customer": Object {},
+      },
+      "event_id": "&yVQWLT2[LyiR]Lnd6^",
+      "event_name": "checkout_started",
+      "identifiers": Array [],
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;

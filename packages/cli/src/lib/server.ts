@@ -296,7 +296,8 @@ function setupRoutes(def: DestinationDefinition | null): void {
             settings: req.body.settings || {},
             audienceSettings: req.body.payload?.context?.personas?.audience_settings || {},
             mapping: mapping || req.body.payload || {},
-            auth: req.body.auth || {}
+            auth: req.body.auth || {},
+            features: req.body.features || {}
           }
 
           if (Array.isArray(eventParams.data)) {
@@ -362,7 +363,8 @@ function setupRoutes(def: DestinationDefinition | null): void {
                 page: req.body.page || 1,
                 auth: req.body.auth || {},
                 audienceSettings: req.body.audienceSettings || {},
-                hookInputs: req.body.hookInputs || {}
+                hookInputs: req.body.hookInputs || {},
+                hookOutputs: req.body.hookOutputs || {}
               }
 
               const action = destination.actions[actionSlug]

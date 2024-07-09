@@ -45,9 +45,10 @@ export const destination: BrowserDestinationDefinition<Settings, Bucket> = {
   ],
 
   settings: {
+    // kept as the legacy `trackingKey` here to avoid needing to migrate installed plugins
     trackingKey: {
-      description: 'Your Bucket App tracking key, found on the tracking page.',
-      label: 'Tracking Key',
+      description: 'The publishable key for your Bucket environment, found on the tracking page on app.bucket.co.',
+      label: 'Publishable Key',
       type: 'string',
       required: true
     }
@@ -60,10 +61,21 @@ export const destination: BrowserDestinationDefinition<Settings, Bucket> = {
   },
 
   initialize: async ({ settings, analytics }, deps) => {
-    await deps.loadScript('https://cdn.jsdelivr.net/npm/@bucketco/tracking-sdk@2')
+    const {
+      // @ts-expect-error versionSettings is not part of the settings object but they are injected by Analytics 2.0, making Braze SDK raise a warning when we initialize it.
+      versionSettings,
+      // @ts-expect-error same as above.
+      subscriptions,
+
+      trackingKey,
+      // @ts-expect-error Code-only SDK version override. Can be set via analytics.load() integrations overrides
+      sdkVersion = '2',
+      ...options
+    } = settings
+    await deps.loadScript(`https://cdn.jsdelivr.net/npm/@bucketco/tracking-sdk@${sdkVersion}`)
     await deps.resolveWhen(() => window.bucket != undefined, 100)
 
-    window.bucket.init(settings.trackingKey)
+    window.bucket.init(settings.trackingKey, options)
 
     // If the analytics client already has a logged in user from a
     // previous session or page, consider the user logged in.

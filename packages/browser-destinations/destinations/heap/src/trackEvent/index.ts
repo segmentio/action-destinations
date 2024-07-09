@@ -78,6 +78,8 @@ const action: BrowserActionDefinition<Settings, HeapApi, Payload> = {
 
     if (browserArrayLimitSet) {
       eventProperties = heapTrackArrays(heap, eventName, eventProperties, browserArrayLimit)
+    } else {
+      eventProperties = flattenProperties(eventProperties)
     }
 
     heapTrack(heap, eventName, eventProperties)
@@ -99,12 +101,12 @@ const heapTrackArrays = (
       return eventProperties
     }
 
+    delete eventProperties[key]
+    eventProperties = { ...eventProperties, ...flat({ [key]: value }) }
+
     if (!Array.isArray(value)) {
       continue
     }
-
-    delete eventProperties[key]
-    eventProperties = { ...eventProperties, ...flat({ [key]: value }) }
 
     const arrayLength = value.length
     let arrayPropertyValues

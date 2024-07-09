@@ -2,23 +2,27 @@
 
 export interface Settings {
   /**
-   * 7 digit number ... description to be added
+   * Dynamic Yield Section ID
    */
   sectionId: string
   /**
-   * description to be added
+   * Dynamic Yield Data Center
    */
   dataCenter: string
   /**
    * Description to be added
    */
   accessKey: string
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface AudienceSettings {
   /**
-   * This setting will be removed
+   * Provide a name for your Audience to be displayed in Dynamic Yield.
    */
-  fullUpsertURL?: string
+  audience_name: string
   /**
-   * This setting will be removed
+   * The type of Identifier to send to Dynamic Yield. E.g. `email`, `anonymous_id`, `user_id`, or any other custom identifier. Make sure you configure the `Customized Setup` below so that your chosen include identifier is sent to Dynamic Yield.
    */
-  fullVerifyURL?: string
+  identifier_type: string
 }

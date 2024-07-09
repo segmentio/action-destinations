@@ -7,9 +7,15 @@ export interface Payload {
   profile: {
     email?: string
     phone_number?: string
-    other_properties?: {
-      [k: string]: unknown
-    }
+    /**
+     * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system.
+     */
+    external_id?: string
+    /**
+     * Anonymous user identifier for the user.
+     */
+    anonymous_id?: string
+    [k: string]: unknown
   }
   /**
    * Properties of this event.
@@ -40,15 +46,6 @@ export interface Payload {
    * List of products purchased in the order.
    */
   products?: {
-    /**
-     * A numeric value to associate with this event. For example, the dollar amount of a purchase.
-     */
-    value?: number
-    /**
-     * Properties of this event.
-     */
-    properties?: {
-      [k: string]: unknown
-    }
+    [k: string]: unknown
   }[]
 }

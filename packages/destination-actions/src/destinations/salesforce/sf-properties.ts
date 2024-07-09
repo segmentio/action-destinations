@@ -1,5 +1,15 @@
-import { InputField } from '@segment/actions-core/destination-kit/types'
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, InputField } from '@segment/actions-core'
+import { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
+
+export const hideIfDeleteOperation: DependsOnConditions = {
+  conditions: [
+    {
+      fieldKey: 'operation',
+      operator: 'is_not',
+      value: 'delete'
+    }
+  ]
+}
 
 export const operation: InputField = {
   label: 'Operation',
@@ -18,9 +28,10 @@ export const operation: InputField = {
 export const enable_batching: InputField = {
   label: 'Use Salesforce Bulk API',
   description:
-    'If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 1000 before sending to Salesforce. *Enabling Bulk API is not compatible with the `create` operation*.',
+    'If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 5000 before sending to Salesforce. *Enabling Bulk API is not compatible with the `create` operation*.',
   type: 'boolean',
-  default: false
+  default: false,
+  depends_on: hideIfDeleteOperation
 }
 
 export const batch_size: InputField = {
@@ -29,7 +40,8 @@ export const batch_size: InputField = {
   type: 'number',
   required: false,
   unsafe_hidden: true,
-  default: 5000
+  default: 5000,
+  depends_on: hideIfDeleteOperation
 }
 
 export const bulkUpsertExternalId: InputField = {
@@ -49,13 +61,43 @@ export const bulkUpsertExternalId: InputField = {
       description: 'The external id field value to use for bulk upsert.',
       type: 'string'
     }
+  },
+  depends_on: {
+    match: 'all',
+    conditions: [
+      {
+        fieldKey: 'operation',
+        operator: 'is',
+        value: 'upsert'
+      },
+      {
+        fieldKey: 'enable_batching',
+        operator: 'is',
+        value: true
+      }
+    ]
   }
 }
 
 export const bulkUpdateRecordId: InputField = {
   label: 'Bulk Update Record Id',
   description: 'The record id value to use for bulk update.',
-  type: 'string'
+  type: 'string',
+  depends_on: {
+    match: 'all',
+    conditions: [
+      {
+        fieldKey: 'operation',
+        operator: 'is',
+        value: 'update'
+      },
+      {
+        fieldKey: 'enable_batching',
+        operator: 'is',
+        value: true
+      }
+    ]
+  }
 }
 
 // Any actions configured before this field was added will have an undefined value for this field.
@@ -69,7 +111,16 @@ export const recordMatcherOperator: InputField = {
     { label: 'OR', value: 'OR' },
     { label: 'AND', value: 'AND' }
   ],
-  default: 'OR'
+  default: 'OR',
+  depends_on: {
+    conditions: [
+      {
+        fieldKey: 'operation',
+        operator: 'is',
+        value: ['update', 'upsert', 'delete']
+      }
+    ]
+  }
 }
 
 export const traits: InputField = {
@@ -84,7 +135,16 @@ export const traits: InputField = {
 
   `,
   type: 'object',
-  defaultObjectUI: 'keyvalue:only'
+  defaultObjectUI: 'keyvalue:only',
+  depends_on: {
+    conditions: [
+      {
+        fieldKey: 'operation',
+        operator: 'is',
+        value: ['update', 'upsert', 'delete']
+      }
+    ]
+  }
 }
 
 export const customFields: InputField = {
@@ -98,7 +158,8 @@ export const customFields: InputField = {
   
   `,
   type: 'object',
-  defaultObjectUI: 'keyvalue'
+  defaultObjectUI: 'keyvalue',
+  depends_on: hideIfDeleteOperation
 }
 
 interface Payload {

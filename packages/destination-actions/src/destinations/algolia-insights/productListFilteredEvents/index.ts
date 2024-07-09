@@ -1,6 +1,6 @@
 import type { ActionDefinition, Preset } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
-import { AlgoliaBehaviourURL, AlgoliaFilterClickedEvent } from '../algolia-insight-api'
+import { AlgoliaBehaviourURL, AlgoliaFilterClickedEvent, AlgoliaEventType } from '../algolia-insight-api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -40,14 +40,18 @@ export const productListFilteredEvents: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@path': '$.properties.query_id'
+        '@if': {
+          exists: { '@path': '$.properties.query_id' },
+          then: { '@path': '$.properties.query_id' },
+          else: { '@path': '$.integrations.Algolia Insights (Actions).query_id' }
+        }
       }
     },
     userToken: {
       type: 'string',
       required: true,
       description: 'The ID associated with the user.',
-      label: 'userToken',
+      label: 'User Token',
       default: {
         '@if': {
           exists: { '@path': '$.userId' },
@@ -60,11 +64,11 @@ export const productListFilteredEvents: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       description: 'The timestamp of the event.',
-      label: 'timestamp',
+      label: 'Timestamp',
       default: { '@path': '$.timestamp' }
     },
     extraProperties: {
-      label: 'extraProperties',
+      label: 'Extra Properties',
       required: false,
       description:
         'Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.',
@@ -72,6 +76,25 @@ export const productListFilteredEvents: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    eventName: {
+      label: 'Event Name',
+      description: "The name of the event to be send to Algolia. Defaults to 'Product List Filtered'",
+      type: 'string',
+      required: false,
+      default: 'Product List Filtered'
+    },
+    eventType: {
+      label: 'Event Type',
+      description: "The type of event to send to Algolia. Defaults to 'click'",
+      type: 'string',
+      required: false,
+      default: 'click',
+      choices: [
+        { label: 'view', value: 'view' },
+        { label: 'conversion', value: 'conversion' },
+        { label: 'click', value: 'click' }
+      ]
     }
   },
   defaultSubscription: 'type = "track" and event = "Product List Filtered"',
@@ -79,8 +102,8 @@ export const productListFilteredEvents: ActionDefinition<Settings, Payload> = {
     const filters: string[] = data.payload.filters.map(({ attribute, value }) => `${attribute}:${value}`)
     const insightEvent: AlgoliaFilterClickedEvent = {
       ...data.payload.extraProperties,
-      eventName: 'Product List Filtered',
-      eventType: 'click',
+      eventName: data.payload.eventName ?? 'Product List Filtered',
+      eventType: (data.payload.eventType as AlgoliaEventType) ?? ('click' as AlgoliaEventType),
       index: data.payload.index,
       queryID: data.payload.queryID,
       filters,

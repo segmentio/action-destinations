@@ -4,30 +4,38 @@ import {
   PartialErrorResponse,
   QueryResponse,
   ConversionActionId,
-  ConversionActionResponse
+  ConversionActionResponse,
+  CustomVariableInterface
 } from './types'
 import {
   ModifiedResponse,
   RequestClient,
   IntegrationError,
   PayloadValidationError,
-  DynamicFieldResponse,
-  APIError
+  DynamicFieldResponse
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Features } from '@segment/actions-core/mapping-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
+import { HTTPError } from '@segment/actions-core'
 
-export const API_VERSION = 'v13'
+export const API_VERSION = 'v15'
 export const CANARY_API_VERSION = 'v15'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
+
+export class GoogleAdsError extends HTTPError {
+  response: Response & {
+    status: string
+    statusText: string
+  }
+}
 
 export function formatCustomVariables(
   customVariables: object,
   customVariableIdsResults: Array<ConversionCustomVariable>
-): object {
+): CustomVariableInterface[] {
   // Maps custom variable keys to their resource names
-  const resourceNames: { [key: string]: any } = {}
+  const resourceNames: { [key: string]: string } = {}
   Object.entries(customVariableIdsResults).forEach(([_, customVariablesIds]) => {
     resourceNames[customVariablesIds.conversionCustomVariable.name] =
       customVariablesIds.conversionCustomVariable.resourceName
@@ -85,27 +93,39 @@ export async function getCustomVariables(
 export async function getConversionActionId(
   customerId: string | undefined,
   auth: any,
-  request: RequestClient
+  request: RequestClient,
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
 ): Promise<ModifiedResponse<QueryResponse[]>> {
-  return request(`https://googleads.googleapis.com/v14/customers/${customerId}/googleAds:searchStream`, {
-    method: 'post',
-    headers: {
-      authorization: `Bearer ${auth?.accessToken}`,
-      'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-    },
-    json: {
-      query: `SELECT conversion_action.id, conversion_action.name FROM conversion_action`
+  return request(
+    `https://googleads.googleapis.com/${getApiVersion(
+      features,
+      statsContext
+    )}/customers/${customerId}/googleAds:searchStream`,
+    {
+      method: 'post',
+      headers: {
+        authorization: `Bearer ${auth?.accessToken}`,
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      },
+      json: {
+        query: `SELECT conversion_action.id, conversion_action.name FROM conversion_action`
+      }
     }
-  })
+  )
 }
 
 export async function getConversionActionDynamicData(
   request: RequestClient,
   settings: any,
-  auth: any
+  auth: any,
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
 ): Promise<DynamicFieldResponse> {
   try {
-    const results = await getConversionActionId(settings.customerId, auth, request)
+    // remove '-' from CustomerId
+    settings.customerId = settings.customerId.replace(/-/g, '')
+    const results = await getConversionActionId(settings.customerId, auth, request, features, statsContext)
 
     const res: Array<ConversionActionResponse> = JSON.parse(results.content)
     const choices = res[0].results.map((input: ConversionActionId) => {
@@ -119,8 +139,8 @@ export async function getConversionActionDynamicData(
       choices: [],
       nextPage: '',
       error: {
-        message: (err as APIError).message ?? 'Unknown error',
-        code: (err as APIError).status + '' ?? 'Unknown error'
+        message: (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
+        code: (err as GoogleAdsError).response?.status + '' ?? '500'
       }
     }
   }
@@ -152,9 +172,9 @@ export function getApiVersion(features?: Features, statsContext?: StatsContext):
   return version
 }
 
-export const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
+export const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
 export const commonHashedEmailValidation = (email: string): string => {
-  if (isHashedEmail(email)) {
+  if (isHashedInformation(email)) {
     return email
   }
 

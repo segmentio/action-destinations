@@ -6,7 +6,7 @@ import {
   createUpdateRequest,
   sendUpdateRequest
 } from '../shared'
-import { AudienceSettings, Settings } from '../generated-types'
+import { AudienceSettings } from '../generated-types'
 import { UpdateHandlerPayload } from '../types'
 import { UpdateUsersDataResponse, ErrorCode, ErrorInfo } from '../proto/protofile'
 import { StatsContext, Response } from '@segment/actions-core'
@@ -16,7 +16,7 @@ const oneMockPayload: UpdateHandlerPayload = {
   external_audience_id: 'products/DISPLAY_VIDEO_ADVERTISER/customers/123/userLists/456',
   google_gid: 'CAESEHIV8HXNp0pFdHgi2rElMfk',
   mobile_advertising_id: '3b6e47b3-1437-4ba2-b3c9-446e4d0cd1e5',
-  anonymous_id: 'my-anon-id-42',
+  partner_provided_id: 'my-anon-id-42',
   enable_batching: true
 }
 
@@ -26,7 +26,7 @@ const manyMockPayloads: UpdateHandlerPayload[] = [
   oneMockPayload,
   {
     external_audience_id: 'products/DISPLAY_VIDEO_ADVERTISER/customers/123/userLists/456',
-    anonymous_id: 'my-anon-id-43',
+    partner_provided_id: 'my-anon-id-43',
     enable_batching: true
   },
   {
@@ -74,16 +74,14 @@ const createMockResponse = (errorCode: ErrorCode, payload: UpdateHandlerPayload[
     // Making assumptions about IdType and UserId here because
     // we are not currently testing their content therefore, it doesn't matter.
 
-    const errors = payload.map((p) => {
+    responseHandler.errors = payload.map((p) => {
       const errorInfo = new ErrorInfo()
       errorInfo.errorCode = getRandomError()
       errorInfo.userListId = BigInt(p.external_audience_id.split('/').pop() || '-1')
       errorInfo.userIdType = 0
-      errorInfo.userId = p.google_gid || p.mobile_advertising_id || p.anonymous_id || ''
+      errorInfo.userId = p.google_gid || p.mobile_advertising_id || p.partner_provided_id || ''
       return errorInfo
     })
-
-    responseHandler.errors = errors
   }
 
   const b = Buffer.from(responseHandler.toBinary())
@@ -95,20 +93,18 @@ const createMockResponse = (errorCode: ErrorCode, payload: UpdateHandlerPayload[
 describe('shared', () => {
   describe('buildHeaders', () => {
     it('should build headers correctly', () => {
+      const accessToken = 'real-token'
       const audienceSettings: AudienceSettings = {
         advertiserId: '123',
         accountType: 'DISPLAY_VIDEO_ADVERTISER'
       }
-      const settings: Settings = {
-        oauth: {
-          accessToken: 'real-token'
-        }
-      }
-      const result = buildHeaders(audienceSettings, settings)
+
+      const result = buildHeaders(audienceSettings, accessToken)
       expect(result).toEqual({
         Authorization: 'Bearer real-token',
         'Content-Type': 'application/json',
-        'Login-Customer-Id': 'products/DISPLAY_VIDEO_ADVERTISER/customers/123'
+        'Login-Customer-Id': 'products/DATA_PARTNER/customers/1663649500',
+        'Linked-Customer-Id': 'products/DISPLAY_VIDEO_ADVERTISER/customers/123'
       })
     })
   })
@@ -167,7 +163,7 @@ describe('shared', () => {
 
   // This method is used for both success and error cases.
   // The easiest way to tell if something worked is to check the calls to statsClient
-  // The assumptions made around the payload are based on the error codes described in the protofile.
+  // The assumptions made around the payload are based on the error codes described in the proto file.
   describe('bulkUploaderResponseHandler', () => {
     it('handles success', async () => {
       const mockResponse: Response = createMockResponse(ErrorCode.NO_ERROR, manyMockPayloads)

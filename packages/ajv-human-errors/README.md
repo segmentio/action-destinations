@@ -24,13 +24,13 @@ The following features of JSON Schema are not yet implemented (but will return t
 # Install
 
 ```console
-$ yarn add @segment/ajv-human-error
+$ yarn add @segment/ajv-human-errors
 ```
 
 or
 
 ```console
-$ npm install @segment/ajv-human-error
+$ npm install @segment/ajv-human-errors
 ```
 
 # Usage
@@ -202,7 +202,7 @@ Returns this error message when validating a non-string object:
 
 MIT License
 
-Copyright (c) 2023 Segment
+Copyright (c) 2024 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

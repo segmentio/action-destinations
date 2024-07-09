@@ -8,7 +8,7 @@ export function parseSections(section: { [key: string]: string }, nestDepth: num
 
   if (nestDepth > 10)
     throw new IntegrationError(
-      'Event data exceeds nesting depth. Use Mapping to flatten the data to no more than 3 levels deep',
+      'Event data exceeds nesting depth. Plese use mapping to flatten the data to no more than three levels deep.',
       'NESTING_DEPTH_EXCEEDED',
       400
     )
@@ -31,30 +31,43 @@ export function parseSections(section: { [key: string]: string }, nestDepth: num
       }
     }
   } catch (e) {
-    throw new IntegrationError(
-      `Unexpected Exception while parsing Event payload.\n ${e}`,
-      'UNEXPECTED_EVENT_PARSING_EXCEPTION',
-      400
-    )
+    const ie = e as IntegrationError
+    if (ie.code === 'NESTING_DEPTH_EXCEEDED')
+      throw new IntegrationError(
+        'Event data exceeds nesting depth. Use Mapping to flatten data structures to no more than 3 levels deep',
+        'NESTING_DEPTH_EXCEEDED',
+        400
+      )
+    else
+      throw new IntegrationError(
+        `Unexpected Exception while parsing Event payload.\n ${e}`,
+        'UNEXPECTED_EVENT_PARSING_EXCEPTION',
+        400
+      )
   }
   return parseResults
 }
 
-export function addUpdateEvents(payload: Payload, email: string) {
-  let eventName = ''
-  let eventValue = ''
+export function addUpdateEvents(payload: Payload, uniqRecip: string) {
+  //Index Signature type
+  let propertiesTraitsKV: { [key: string]: string } = {}
 
-  //Header
-  let csvRows = 'EMAIL, EventSource, EventName, EventValue, EventTimestamp\n'
+  propertiesTraitsKV = {
+    ...propertiesTraitsKV,
+    ...{ ['uniqueRecipient']: uniqRecip }
+  }
 
-  //Event Source
-  const eventSource = get(payload, 'type', 'Null') + ' Event'
+  propertiesTraitsKV = {
+    ...propertiesTraitsKV,
+    ...{ ['eventSource']: get(payload, 'type', 'Null') + ' Event' }
+  }
 
   //Timestamp
   // "timestamp": "2023-02-07T02:19:23.469Z"`
-  const timestamp = get(payload, 'timestamp', 'Null')
-
-  let propertiesTraitsKV: { [key: string]: string } = {}
+  propertiesTraitsKV = {
+    ...propertiesTraitsKV,
+    ...{ ['timestamp']: get(payload, 'timestamp', 'Null') as string }
+  }
 
   if (payload.key_value_pairs)
     propertiesTraitsKV = {
@@ -84,17 +97,16 @@ export function addUpdateEvents(payload: Payload, email: string) {
       ...parseSections(payload.context as { [key: string]: string }, 0)
     }
 
-  let ak = ''
-  let av = ''
-
   const getValue = (o: object, part: string) => Object.entries(o).find(([k, _v]) => k.includes(part))?.[1] as string
   const getKey = (o: object, part: string) => Object.entries(o).find(([k, _v]) => k.includes(part))?.[0] as string
+
+  let ak, av
 
   if (getValue(propertiesTraitsKV, 'computation_class')?.toLowerCase() === 'audience') {
     ak = getValue(propertiesTraitsKV, 'computation_key')
     av = getValue(propertiesTraitsKV, `${ak}`)
 
-    //Clean out already parsed attributes, reduce redundant attributes
+    //reduce redundant attributes
     let x = getKey(propertiesTraitsKV, 'computation_class')
     delete propertiesTraitsKV[`${x}`]
     x = getKey(propertiesTraitsKV, 'computation_key')
@@ -106,32 +118,23 @@ export function addUpdateEvents(payload: Payload, email: string) {
     ak = getValue(propertiesTraitsKV, 'audience_key')
     av = getValue(propertiesTraitsKV, `${ak}`)
 
-    //Clean out already parsed attributes, reduce redundant attributes
+    //reduce redundant attributes
     const x = getKey(propertiesTraitsKV, 'audience_key')
     delete propertiesTraitsKV[`${x}`]
     delete propertiesTraitsKV[`${ak}`]
   }
 
-  if (av !== '') {
-    let audiStatus = av
+  if (av !== null) {
+    if (av) av = 'Audience Entered'
+    if (!av) av = 'Audience Exited'
 
-    eventValue = audiStatus
-    audiStatus = audiStatus.toString().toLowerCase()
-    if (audiStatus === 'true') eventValue = 'Audience Entered'
-    if (audiStatus === 'false') eventValue = 'Audience Exited'
-
-    eventName = ak
-
-    //Initial Row
-    csvRows += `${email}, ${eventSource}, ${eventName}, ${eventValue}, ${timestamp}\n`
+    propertiesTraitsKV = {
+      ...propertiesTraitsKV,
+      ...{ [`${ak}`]: av } //as { [key: string]: string }
+    }
   }
 
-  //Add the rest of the CSV rows
-  for (const e in propertiesTraitsKV) {
-    const eventName = e
-    const eventValue = propertiesTraitsKV[e]
+  const l = propertiesTraitsKV.length
 
-    csvRows += `${email}, ${eventSource}, ${eventName}, ${eventValue}, ${timestamp}\n`
-  }
-  return csvRows
+  return { propertiesTraitsKV, l }
 }

@@ -11,6 +11,9 @@ const subscriptions: Subscription[] = [
     mapping: {
       method: {
         '@path': '$.properties.method'
+      },
+      send_to: {
+        '@path': '$.properties.send_to'
       }
     }
   }
@@ -39,7 +42,48 @@ describe('GoogleAnalytics4Web.login', () => {
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
 
-  test('GA4 login Event', async () => {
+  test('GA4 login Event when send to is false', async () => {
+    const context = new Context({
+      event: 'Login',
+      type: 'track',
+      properties: {
+        method: 'Google',
+        send_to: false
+      }
+    })
+    await loginEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('login'),
+      expect.objectContaining({
+        method: 'Google',
+        send_to: 'default'
+      })
+    )
+  })
+  test('GA4 login Event when send to is true', async () => {
+    const context = new Context({
+      event: 'Login',
+      type: 'track',
+      properties: {
+        method: 'Google',
+        send_to: true
+      }
+    })
+    await loginEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('login'),
+      expect.objectContaining({
+        method: 'Google',
+        send_to: settings.measurementID
+      })
+    )
+  })
+
+  test('GA4 login Event when send to is undefined', async () => {
     const context = new Context({
       event: 'Login',
       type: 'track',
@@ -53,7 +97,8 @@ describe('GoogleAnalytics4Web.login', () => {
       expect.anything(),
       expect.stringContaining('login'),
       expect.objectContaining({
-        method: 'Google'
+        method: 'Google',
+        send_to: 'default'
       })
     )
   })

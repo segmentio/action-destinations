@@ -3,6 +3,7 @@ import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from './generated-types'
 import { initScript } from './init-script'
+import sendTrackEvent from './sendTrackEvent'
 import sendUserData from './sendUserData'
 import { JimoSDK } from './types'
 
@@ -38,6 +39,13 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
       partnerAction: 'sendUserData',
       mapping: defaultValues(sendUserData.fields),
       type: 'automatic'
+    },
+    {
+      name: 'Send Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'sendTrackEvent',
+      mapping: defaultValues(sendTrackEvent.fields),
+      type: 'automatic'
     }
   ],
   initialize: async ({ settings }, deps) => {
@@ -45,12 +53,13 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
 
     await deps.loadScript(`${ENDPOINT_UNDERCITY}`)
 
-    await deps.resolveWhen(() => Array.isArray(window.jimo), 100)
+    await deps.resolveWhen(() => Array.isArray(window.jimo) === false, 100)
 
     return window.jimo as JimoSDK
   },
   actions: {
-    sendUserData
+    sendUserData,
+    sendTrackEvent
   }
 }
 

@@ -6,6 +6,24 @@ Object {
     "attributes": Object {
       "email": "mudwoz@zo.ad",
       "external_id": "E3nNk",
+      "first_name": "E3nNk",
+      "image": "E3nNk",
+      "last_name": "E3nNk",
+      "location": Object {
+        "address1": "E3nNk",
+        "address2": "E3nNk",
+        "city": "E3nNk",
+        "country": "E3nNk",
+        "latitude": "E3nNk",
+        "longitude": "E3nNk",
+        "region": "E3nNk",
+        "zip": "E3nNk",
+      },
+      "organization": "E3nNk",
+      "properties": Object {
+        "testType": "E3nNk",
+      },
+      "title": "E3nNk",
     },
     "type": "profile",
   },
@@ -27,10 +45,9 @@ Object {
       "profile": Object {
         "data": Object {
           "attributes": Object {
+            "anonymous_id": "PE*zlOgIPA]mVozMLBaL",
             "email": "rafebezuv@micfeoz.zm",
-            "other_properties": Object {
-              "testType": "PE*zlOgIPA]mVozMLBaL",
-            },
+            "external_id": "PE*zlOgIPA]mVozMLBaL",
             "phone_number": "PE*zlOgIPA]mVozMLBaL",
           },
           "type": "profile",
@@ -40,6 +57,7 @@ Object {
         "testType": "PE*zlOgIPA]mVozMLBaL",
       },
       "time": "2021-02-01T00:00:00.000Z",
+      "unique_id": "PE*zlOgIPA]mVozMLBaL",
       "value": 83414764297912.31,
     },
     "type": "event",
@@ -47,7 +65,53 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-klaviyo destination: removeProfile action - all fields 1`] = `""`;
+
 exports[`Testing snapshot for actions-klaviyo destination: removeProfileFromList action - all fields 1`] = `""`;
+
+exports[`Testing snapshot for actions-klaviyo destination: subscribeProfile action - all fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "custom_source": "TsKr#",
+      "profiles": Object {
+        "data": Array [
+          Object {
+            "attributes": Object {
+              "email": "ton@febmigi.bg",
+              "phone_number": "TsKr#",
+              "subscriptions": Object {
+                "email": Object {
+                  "marketing": Object {
+                    "consent": "SUBSCRIBED",
+                    "consented_at": "2021-02-01T00:00:00.000Z",
+                  },
+                },
+                "sms": Object {
+                  "marketing": Object {
+                    "consent": "SUBSCRIBED",
+                    "consented_at": "2021-02-01T00:00:00.000Z",
+                  },
+                },
+              },
+            },
+            "type": "profile",
+          },
+        ],
+      },
+    },
+    "relationships": Object {
+      "list": Object {
+        "data": Object {
+          "id": "TsKr#",
+          "type": "list",
+        },
+      },
+    },
+    "type": "profile-subscription-bulk-create-job",
+  },
+}
+`;
 
 exports[`Testing snapshot for actions-klaviyo destination: trackEvent action - all fields 1`] = `
 Object {
@@ -64,10 +128,9 @@ Object {
       "profile": Object {
         "data": Object {
           "attributes": Object {
+            "anonymous_id": "mTdOx(Nl)",
             "email": "ujoeri@ifosi.kp",
-            "other_properties": Object {
-              "testType": "mTdOx(Nl)",
-            },
+            "external_id": "mTdOx(Nl)",
             "phone_number": "mTdOx(Nl)",
           },
           "type": "profile",
@@ -77,9 +140,39 @@ Object {
         "testType": "mTdOx(Nl)",
       },
       "time": "2021-02-01T00:00:00.000Z",
+      "unique_id": "mTdOx(Nl)",
       "value": -35080566000844.8,
     },
     "type": "event",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-klaviyo destination: unsubscribeProfile action - all fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "profiles": Object {
+        "data": Array [
+          Object {
+            "attributes": Object {
+              "email": "vej@ir.cz",
+              "phone_number": "H*yKX0vG1",
+            },
+            "type": "profile",
+          },
+        ],
+      },
+    },
+    "relationships": Object {
+      "list": Object {
+        "data": Object {
+          "id": "H*yKX0vG1",
+          "type": "list",
+        },
+      },
+    },
+    "type": "profile-subscription-bulk-delete-job",
   },
 }
 `;

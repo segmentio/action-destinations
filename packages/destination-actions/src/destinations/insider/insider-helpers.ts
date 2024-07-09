@@ -76,6 +76,13 @@ export function userProfilePayload(data: UserPayload) {
     }
   }
 
+  if (data.custom_identifiers) {
+    identifiers.custom = {
+      ...identifiers.custom,
+      ...data.custom_identifiers
+    }
+  }
+
   if (data.email_as_identifier) {
     identifiers['email'] = data.email
   }
@@ -164,6 +171,13 @@ export function sendTrackEvent(
     uuid: data.uuid,
     custom: {
       segment_anonymous_id: data.segment_anonymous_id
+    }
+  }
+
+  if (data.custom_identifiers) {
+    identifiers.custom = {
+      ...identifiers.custom,
+      ...data.custom_identifiers
     }
   }
 
@@ -349,6 +363,13 @@ export function sendBulkTrackEvents(
       uuid: data.uuid,
       custom: {
         segment_anonymous_id: data.segment_anonymous_id
+      }
+    }
+
+    if (data.custom_identifiers) {
+      identifiers.custom = {
+        ...identifiers.custom,
+        ...data.custom_identifiers
       }
     }
 

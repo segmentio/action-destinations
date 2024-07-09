@@ -3,7 +3,7 @@ import { Settings } from './generated-types'
 import receiveEvents from './receiveEvents/index'
 
 const mod = `
-Last-Modified: 09.19.2023 10.30.43
+Last-Modified: 02.01.2024 10.30.43
 `
 //August 2023, refactor for S3Cache
 
@@ -15,7 +15,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'receiveEvents',
     mapping: {
       ...defaultValues(receiveEvents.fields),
-      email: {
+      uniqueRecipientId: {
         '@if': {
           exists: { '@path': '$.properties.email' },
           then: { '@path': '$.properties.email' },
@@ -31,7 +31,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'receiveEvents',
     mapping: {
       ...defaultValues(receiveEvents.fields),
-      email: {
+      uniqueRecipientId: {
         '@if': {
           exists: { '@path': '$.traits.email' },
           then: { '@path': '$.traits.email' },

@@ -20,10 +20,13 @@ import {
   user_agent,
   timezone,
   group_id,
-  properties
+  properties,
+  message_id,
+  enable_batching,
+  consent,
+  validateConsentObject
 } from '../segment-properties'
-import { SEGMENT_ENDPOINTS } from '../properties'
-import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../errors'
+import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Page',
@@ -48,62 +51,70 @@ const action: ActionDefinition<Settings, Payload> = {
     user_agent,
     timezone,
     group_id,
-    properties
+    properties,
+    message_id,
+    enable_batching,
+    consent
   },
-  perform: (request, { payload, settings, features, statsContext }) => {
+  perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
-    const pagePayload: Object = {
-      userId: payload?.user_id,
-      anonymousId: payload?.anonymous_id,
-      timestamp: payload?.timestamp,
-      name: payload?.page_name,
-      context: {
-        app: payload?.application,
-        campaign: payload?.campaign_parameters,
-        device: payload?.device,
-        ip: payload?.ip_address,
-        locale: payload?.locale,
-        location: payload?.location,
-        network: payload?.network,
-        os: payload?.operating_system,
-        page: payload?.page,
-        screen: payload?.screen,
-        userAgent: payload?.user_agent,
-        timezone: payload?.timezone,
-        groupId: payload?.group_id
-      },
-      properties: {
-        name: payload?.page_name,
-        category: payload?.page_category,
-        path: payload?.page?.path,
-        referrer: payload?.page?.referrer,
-        search: payload?.page?.search,
-        title: payload?.page?.title,
-        url: payload?.page?.url,
-        ...payload?.properties
+    const pagePayload: Object = convertPayload(payload)
+
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendPage'])
+    return { batch: [pagePayload] }
+  },
+  performBatch: (_request, { payload, statsContext }) => {
+    const pagePayload = payload.map((data) => {
+      if (!data.anonymous_id && !data.user_id) {
+        throw MissingUserOrAnonymousIdThrowableError
       }
-    }
-
-    // Throw an error if endpoint is not defined or invalid
-    if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      throw InvalidEndpointSelectedThrowableError
-    }
-
-    // Return transformed payload without sending it to TAPI endpoint
-    if (features && features['actions-segment-tapi-internal-enabled']) {
-      statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendPage'])
-      const payload = { ...pagePayload, type: 'page' }
-      return { batch: [payload] }
-    }
-
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-    return request(`${selectedSegmentEndpoint}/page`, {
-      method: 'POST',
-      json: pagePayload
+      return convertPayload(data)
     })
+
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendBatchPage'])
+    return { batch: pagePayload }
+  }
+}
+
+function convertPayload(data: Payload) {
+  const isValidConsentObject = validateConsentObject(data?.consent)
+
+  return {
+    userId: data?.user_id,
+    anonymousId: data?.anonymous_id,
+    timestamp: data?.timestamp,
+    name: data?.page_name,
+    messageId: data?.message_id,
+    context: {
+      app: data?.application,
+      campaign: data?.campaign_parameters,
+      consent: isValidConsentObject ? { ...data?.consent } : {},
+      device: data?.device,
+      ip: data?.ip_address,
+      locale: data?.locale,
+      location: data?.location,
+      network: data?.network,
+      os: data?.operating_system,
+      page: data?.page,
+      screen: data?.screen,
+      userAgent: data?.user_agent,
+      timezone: data?.timezone,
+      groupId: data?.group_id
+    },
+    properties: {
+      name: data?.page_name,
+      category: data?.page_category,
+      path: data?.page?.path,
+      referrer: data?.page?.referrer,
+      search: data?.page?.search,
+      title: data?.page?.title,
+      url: data?.page?.url,
+      ...data?.properties
+    },
+    type: 'page'
   }
 }
 
