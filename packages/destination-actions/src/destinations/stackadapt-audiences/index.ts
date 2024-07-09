@@ -62,6 +62,24 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+  onDelete: async (request, { payload }) => {
+    const userId = payload.userId ?? payload.anonymousId
+    // TODO: Add setting for advertiser ID and replace hardcoded value with it
+    const query = `mutation {
+      deleteProfiles(
+        subAdvertiserId: 1,
+        externalProvider: "Segment",
+        userIds: ["${userId}"]
+      ) {
+        success
+      }
+    }`
+    return request(domain, {
+      body: JSON.stringify({
+        query
+      })
+    })
+  },
   actions: {
     postMessage,
     forwardProfile
