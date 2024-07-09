@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customAttributes: {
       label: 'Custom Contact Attributes',
-      description: 'Attributes maintained by your team.',
+      description: 'Contact attributes maintained by your team.',
       type: 'object',
       required: false,
       default: { '@path': '$.traits' }
@@ -48,6 +48,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: { '@path': '$.traits.lastName' }
+    },
+    mailingLists: {
+      label: 'Mailing Lists',
+      description:
+        'An object containing key-value pairs of mailing list IDs and true/false determining if the contact should be added to or removed from each list.',
+      type: 'object',
+      required: false
     },
     source: {
       label: 'Source',
