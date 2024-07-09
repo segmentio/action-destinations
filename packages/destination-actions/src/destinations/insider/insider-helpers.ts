@@ -36,6 +36,13 @@ export function userProfilePayload(data: UserPayload) {
     }
   }
 
+  if (data.custom_identifiers) {
+    identifiers.custom = {
+      ...identifiers.custom,
+      ...data.custom_identifiers
+    }
+  }
+
   if (data.email_as_identifier) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -137,6 +144,13 @@ export function sendTrackEvent(
     }
   }
 
+  if (data.custom_identifiers) {
+    identifiers.custom = {
+      ...identifiers.custom,
+      ...data.custom_identifiers
+    }
+  }
+
   if (data.email_as_identifier && data?.attributes?.email) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -218,49 +232,39 @@ export function sendTrackEvent(
     }
   }
 
+  let event: insiderEvent = {
+    event_name,
+    timestamp: data.timestamp.toString(),
+    event_params: {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      custom: {}
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  for (const key of Object.keys(data.parameters || {})) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    event = addEventParameters(event, data.parameters, key)
+  }
+
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   if (data.products) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     for (const product of data.products) {
-      let event: insiderEvent = {
-        event_name,
-        timestamp: data.timestamp.toString(),
-        event_params: {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          custom: {}
-        }
-      }
+      let productEvent = event
 
       for (const key of Object.keys(product || {})) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        event = addEventParameters(event, product, key)
+        productEvent = addEventParameters(productEvent, product, key)
       }
 
-      payload.events.push(event)
+      payload.events.push(productEvent)
     }
   } else {
-    let event: insiderEvent = {
-      event_name,
-      timestamp: data.timestamp.toString(),
-      event_params: {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        custom: {}
-      }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    for (const key of Object.keys(data.parameters || {})) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      event = addEventParameters(event, data.parameters, key)
-    }
-
     payload.events.push(event)
   }
 
@@ -275,7 +279,8 @@ export function bulkUserProfilePayload(data: UserPayload[]) {
     const identifiers = {
       uuid: userPayload.uuid,
       custom: {
-        segment_anonymous_id: userPayload.segment_anonymous_id
+        segment_anonymous_id: userPayload.segment_anonymous_id,
+        ...userPayload.custom_identifiers
       }
     }
 
@@ -391,6 +396,13 @@ export function sendBulkTrackEvents(
       }
     }
 
+    if (data.custom_identifiers) {
+      identifiers.custom = {
+        ...identifiers.custom,
+        ...data.custom_identifiers
+      }
+    }
+
     if (data.email_as_identifier && data?.attributes?.email) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -410,6 +422,7 @@ export function sendBulkTrackEvents(
         // @ts-ignore
         custom: {}
       },
+      not_append: true,
       events: []
     }
 
@@ -476,47 +489,39 @@ export function sendBulkTrackEvents(
     // @ts-ignore
     const eventName = event_name || data.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
 
+    let event: insiderEvent = {
+      event_name: eventName,
+      timestamp: data.timestamp.toString(),
+      event_params: {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        custom: {}
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    for (const key of Object.keys(data.parameters || {})) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      event = addEventParameters(event, data.parameters, key)
+    }
+
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (data.products) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       for (const product of data.products) {
-        let event: insiderEvent = {
-          event_name: eventName,
-          timestamp: data.timestamp.toString(),
-          event_params: {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            custom: {}
-          }
-        }
+        let productEvent = event
 
         for (const key of Object.keys(product || {})) {
-          event = addEventParameters(event, product, key)
+          productEvent = addEventParameters(productEvent, product, key)
         }
 
-        payload.events.push(event)
+        payload.events.push(productEvent)
       }
     } else {
-      let event: insiderEvent = {
-        event_name: eventName,
-        timestamp: data.timestamp.toString(),
-        event_params: {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          custom: {}
-        }
-      }
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      for (const key of Object.keys(data.parameters || {})) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        event = addEventParameters(event, data.parameters, key)
-      }
-
       payload.events.push(event)
     }
 

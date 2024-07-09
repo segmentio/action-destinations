@@ -30,7 +30,9 @@ Object {
         Object {
           "event_name": "checkout_page_view",
           "event_params": Object {
+            "currency": "LAK",
             "custom": Object {},
+            "event_group_id": "Q!Q[jv1Wi&s0",
             "name": "Q!Q[jv1Wi&s0",
             "product_id": "Q!Q[jv1Wi&s0",
             "product_image_url": "Q!Q[jv1Wi&s0",
