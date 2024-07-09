@@ -140,8 +140,9 @@ const instanceOfAudienceDestinationSettingsWithCreateGet = (
 
 export interface AudienceDestinationDefinition<Settings = unknown, AudienceSettings = unknown>
   extends DestinationDefinition<Settings> {
-  audienceConfig: AudienceDestinationConfigurationWithCreateGet<Settings, AudienceSettings>
-  // | AudienceDestinationConfiguration
+  audienceConfig:
+    | AudienceDestinationConfigurationWithCreateGet<Settings, AudienceSettings>
+    | AudienceDestinationConfiguration
 
   audienceFields: Record<string, GlobalSetting>
 
@@ -422,8 +423,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
   async createAudience(createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>) {
     let settings: JSONObject = createAudienceInput.settings as unknown as JSONObject
-    const audienceDefinition = this.definition as AudienceDestinationDefinition
-    if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
+    const { audienceConfig } = this.definition as AudienceDestinationDefinition
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceConfig)) {
       throw new Error('Unexpected call to createAudience')
     }
     const destinationSettings = this.getDestinationSettings(settings)
@@ -437,7 +438,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       }
       const opts = this.extendRequest?.(context) ?? {}
       const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
-      return await audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
+      return await audienceConfig?.createAudience(requestClient, createAudienceInput)
     }
 
     const onFailedAttempt = async (error: ResponseError & HTTPError) => {
@@ -466,9 +467,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   }
 
   async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>) {
-    const audienceDefinition = this.definition as AudienceDestinationDefinition
+    const { audienceConfig } = this.definition as AudienceDestinationDefinition
     let settings: JSONObject = getAudienceInput.settings as unknown as JSONObject
-    if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceConfig)) {
       throw new Error('Unexpected call to getAudience')
     }
     const destinationSettings = this.getDestinationSettings(settings)
@@ -482,7 +483,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       }
       const opts = this.extendRequest?.(context) ?? {}
       const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
-      return await audienceDefinition.audienceConfig?.getAudience(requestClient, getAudienceInput)
+      return await audienceConfig?.getAudience(requestClient, getAudienceInput)
     }
 
     const onFailedAttempt = async (error: ResponseError & HTTPError) => {
