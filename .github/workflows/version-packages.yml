@@ -19,8 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
-          depth: 0
+          fetch-depth: 0
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -51,22 +50,26 @@ jobs:
       - name: Commit and push
         id: commit_and_push
         run: |
+          git add .
           count=$(git diff --cached --stat)
           if [ -z "$count" ]; then
             echo "No changes to commit"
             echo "SKIP_PR=true" >> $GITHUB_OUTPUT
             exit 0
           fi
-          git add .
-          git commit -m "chore: version packages"
+
+          packages_published=$(git status -s -uno| grep "package.json" |awk '{print $2}'| xargs jq -r '.name + "@" + .version' --argjson null {})
+          echo "packages_published<<EOF" >> $GITHUB_OUTPUT
+          echo "$packages_published" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          git commit -m "version packages"
           git push origin ${{ github.event.inputs.branch }}
 
       - name: Create PR
         if: ${{ steps.commit_and_push.outputs.SKIP_PR != 'true' }}
         run: |
-          packages_published=$(git status -s -uno| grep "package.json" |awk '{print $2}'| xargs jq -r '.name + "@" + .version' --argjson null {})
           pr_message="This PR was opened by GithHub Actions. Whenever you're ready to publish the packages, merge this PR."
-          description="$(printf "%s\n # Packages\n%s" "$pr_message" "$packages_published")"
+          description="$(printf "%s\n # Packages\n%s" "$pr_message" "${{ steps.commit_and_push.outputs.packages_published }}")"
           gh pr create --base main --head ${{ github.event.inputs.branch }} --title "Publish" --body "$description"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
