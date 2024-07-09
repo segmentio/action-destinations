@@ -63,7 +63,7 @@ jobs:
           echo "packages_published<<EOF" >> $GITHUB_OUTPUT
           echo "$packages_published" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          git commit -m "version packages"
+          git commit -m "Publish"
           git push origin ${{ github.event.inputs.branch }}
 
       - name: Create PR
