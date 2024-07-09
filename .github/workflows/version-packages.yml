@@ -59,8 +59,9 @@ jobs:
           fi
 
           packages_published=$(git status -s -uno| grep "package.json" |awk '{print $2}'| xargs jq -r '.name + "@" + .version' --argjson null {})
-          "packages_published<<EOF" >> $GITHUB_OUTPUT
-          $packages_published >> $GITHUB_OUTPUTecho "packages_published=$packages_published" >> $GITHUB_OUTPUT
+          echo "packages_published<<EOF" >> $GITHUB_OUTPUT
+          echo "$packages_published" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
           git commit -m "version packages"
           git push origin ${{ github.event.inputs.branch }}
 
