@@ -27,7 +27,7 @@ export interface Payload {
    * An object containing key-value pairs of mailing list IDs and true/false determining if the contact should be added to or removed from each list.
    */
   mailingLists?: {
-    [k: string]: unknown
+    [k: string]: boolean
   }
   /**
    * The contact's source.
