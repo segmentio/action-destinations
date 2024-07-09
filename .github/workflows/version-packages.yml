@@ -51,13 +51,15 @@ jobs:
       - name: Commit and push
         id: commit_and_push
         run: |
+          git add .
+
           count=$(git diff --cached --stat)
           if [ -z "$count" ]; then
             echo "No changes to commit"
             echo "SKIP_PR=true" >> $GITHUB_OUTPUT
             exit 0
           fi
-          git add .
+
           git commit -m "chore: version packages"
           git push origin ${{ github.event.inputs.branch }}
 
