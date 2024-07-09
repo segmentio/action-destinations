@@ -73,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
     confirmed: {
       type: 'boolean',
       label: 'Confirmed',
-      description: '',
+      description: 'Confirmed',
       default: {
         '@path': '$.properties.confirmed'
       }
@@ -81,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
     contact_email: {
       type: 'string',
       label: 'Contact Email',
-      description: '',
+      description: 'Contact Email',
       default: {
         '@if': {
           exists: { '@path': '$.properties.contact_email' },
@@ -316,7 +316,7 @@ const action: ActionDefinition<Settings, Payload> = {
     landing_site_ref: {
       type: 'string',
       label: 'Landing Site Ref',
-      description: '',
+      description: 'Landing Site Ref',
       default: {
         '@path': '$.properties.landing_site_ref'
       }
@@ -365,7 +365,7 @@ const action: ActionDefinition<Settings, Payload> = {
     reference: {
       type: 'string',
       label: 'Reference',
-      description: '',
+      description: 'Reference',
       default: {
         '@path': '$.properties.reference'
       }
