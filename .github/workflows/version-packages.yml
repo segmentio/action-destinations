@@ -7,7 +7,11 @@ on:
         description: 'Branch to create PR from'
         required: true
         default: 'release-actions'
+      unique_id:
+        description: 'Unique ID for the PR'
+        required: false
 
+run-name: Version Packages Run ID - [${{ github.event.inputs.unique_id }}]
 jobs:
   build-and-version-packages:
     env:
