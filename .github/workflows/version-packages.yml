@@ -1,0 +1,76 @@
+# This workflow is triggered manually via the GitHub Actions page or API
+name: Version Packages
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to create PR from'
+        required: true
+        default: 'release-actions'
+
+jobs:
+  build-and-version-packages:
+    env:
+      HUSKY: 0
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+          cache: yarn
+
+      - name: Checkout branch
+        run: |
+          git checkout -b ${{ github.event.inputs.branch }}
+          git push origin ${{ github.event.inputs.branch }}
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile --ignore-optional
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Build
+        run: NODE_ENV=production yarn build
+
+      - name: Version Packages
+        run: yarn lerna version minor --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private --yes
+
+      - name: Commit and push
+        id: commit_and_push
+        run: |
+          git add .
+          count=$(git diff --cached --stat)
+          if [ -z "$count" ]; then
+            echo "No changes to commit"
+            echo "SKIP_PR=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          packages_published=$(git status -s -uno| grep "package.json" |awk '{print $2}'| xargs jq -r '.name + "@" + .version' --argjson null {})
+          echo "packages_published<<EOF" >> $GITHUB_OUTPUT
+          echo "$packages_published" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          git commit -m "Publish"
+          git push origin ${{ github.event.inputs.branch }}
+
+      - name: Create PR
+        if: ${{ steps.commit_and_push.outputs.SKIP_PR != 'true' }}
+        run: |
+          pr_message="This PR was opened by GithHub Actions. Whenever you're ready to publish the packages, merge this PR."
+          description="$(printf "%s\n # Packages\n%s" "$pr_message" "${{ steps.commit_and_push.outputs.packages_published }}")"
+          gh pr create --base main --head ${{ github.event.inputs.branch }} --title "Publish" --body "$description"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -24,6 +24,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * The app version
+   */
+  appVersion?: string
+  /**
    * The device ID of the user
    */
   deviceId?: string
@@ -32,9 +36,29 @@ export interface Payload {
    */
   deviceType?: string
   /**
+   * The device manufacturer
+   */
+  deviceManufacturer?: string
+  /**
+   * The device model
+   */
+  deviceModel?: string
+  /**
+   * The device advertising ID
+   */
+  deviceAdvertisingId?: string
+  /**
+   * The IP address of the client
+   */
+  ipAddress?: string
+  /**
    * The name of the operating system
    */
   osName?: string
+  /**
+   * The version of the operating system
+   */
+  osVersion?: string
   /**
    * The event ID
    */

@@ -1,0 +1,100 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AnglerAi's saveBaseEvent destination action: all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "client_id": "bq$C8Z$A",
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {
+              "amount": -55721452288081.92,
+              "currencyCode": "bq$C8Z$A",
+            },
+          },
+          "id": "bq$C8Z$A",
+          "lines": Array [
+            Object {
+              "cost": Object {
+                "totalAmount": Object {
+                  "amount": -55721452288081.92,
+                },
+              },
+              "merchandise": Object {
+                "id": "bq$C8Z$A",
+                "image": Object {
+                  "src": "bq$C8Z$A",
+                },
+                "price": Object {
+                  "amount": -55721452288081.92,
+                },
+                "product": Object {
+                  "title": "bq$C8Z$A",
+                  "type": "bq$C8Z$A",
+                  "untranslatedTitle": "bq$C8Z$A",
+                  "url": "bq$C8Z$A",
+                  "vendor": "bq$C8Z$A",
+                },
+                "sku": "bq$C8Z$A",
+                "title": "bq$C8Z$A",
+                "untranslatedTitle": "bq$C8Z$A",
+              },
+              "quantity": -55721452288081.92,
+            },
+          ],
+        },
+        "customData": Array [
+          Object {
+            "name": "testType",
+            "value": "bq$C8Z$A",
+          },
+        ],
+        "customer": Object {
+          "dob": "bq$C8Z$A",
+          "email": "gokkah@fukeduz.kn",
+          "firstName": "bq$C8Z$A",
+          "id": "bq$C8Z$A",
+          "lastName": "bq$C8Z$A",
+          "phone": "bq$C8Z$A",
+        },
+      },
+      "event_id": "bq$C8Z$A",
+      "event_name": "page_viewed",
+      "fbc": "bq$C8Z$A",
+      "fpb": "bq$C8Z$A",
+      "ga": "bq$C8Z$A",
+      "identifiers": Array [],
+      "ip_address": "bq$C8Z$A",
+      "referrer": "bq$C8Z$A",
+      "timestamp": "bq$C8Z$A",
+      "url": "bq$C8Z$A",
+      "user_agent": "bq$C8Z$A",
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for AnglerAi's saveBaseEvent destination action: required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "client_id": "bq$C8Z$A",
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {},
+          },
+        },
+        "customData": Array [],
+        "customer": Object {},
+      },
+      "event_id": "bq$C8Z$A",
+      "event_name": "page_viewed",
+      "identifiers": Array [],
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;

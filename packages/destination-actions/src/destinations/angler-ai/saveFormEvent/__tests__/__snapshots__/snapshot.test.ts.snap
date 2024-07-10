@@ -1,0 +1,116 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AnglerAi's saveFormEvent destination action: all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "client_id": "3qODCwqyQBu%vq^Yajvl",
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {
+              "amount": 85712588620431.36,
+              "currencyCode": "3qODCwqyQBu%vq^Yajvl",
+            },
+          },
+          "id": "3qODCwqyQBu%vq^Yajvl",
+          "lines": Array [
+            Object {
+              "cost": Object {
+                "totalAmount": Object {
+                  "amount": 85712588620431.36,
+                },
+              },
+              "merchandise": Object {
+                "id": "3qODCwqyQBu%vq^Yajvl",
+                "image": Object {
+                  "src": "3qODCwqyQBu%vq^Yajvl",
+                },
+                "price": Object {
+                  "amount": 85712588620431.36,
+                },
+                "product": Object {
+                  "title": "3qODCwqyQBu%vq^Yajvl",
+                  "type": "3qODCwqyQBu%vq^Yajvl",
+                  "untranslatedTitle": "3qODCwqyQBu%vq^Yajvl",
+                  "url": "3qODCwqyQBu%vq^Yajvl",
+                  "vendor": "3qODCwqyQBu%vq^Yajvl",
+                },
+                "sku": "3qODCwqyQBu%vq^Yajvl",
+                "title": "3qODCwqyQBu%vq^Yajvl",
+                "untranslatedTitle": "3qODCwqyQBu%vq^Yajvl",
+              },
+              "quantity": 85712588620431.36,
+            },
+          ],
+        },
+        "customData": Array [
+          Object {
+            "name": "testType",
+            "value": "3qODCwqyQBu%vq^Yajvl",
+          },
+        ],
+        "customer": Object {
+          "dob": "3qODCwqyQBu%vq^Yajvl",
+          "email": "wof@ohaow.cv",
+          "firstName": "3qODCwqyQBu%vq^Yajvl",
+          "id": "3qODCwqyQBu%vq^Yajvl",
+          "lastName": "3qODCwqyQBu%vq^Yajvl",
+          "phone": "3qODCwqyQBu%vq^Yajvl",
+        },
+        "form": Object {
+          "action": "3qODCwqyQBu%vq^Yajvl",
+          "elements": Array [
+            Object {
+              "id": "3qODCwqyQBu%vq^Yajvl",
+              "name": "3qODCwqyQBu%vq^Yajvl",
+              "tagName": "3qODCwqyQBu%vq^Yajvl",
+              "type": "3qODCwqyQBu%vq^Yajvl",
+              "value": "3qODCwqyQBu%vq^Yajvl",
+            },
+          ],
+          "id": "3qODCwqyQBu%vq^Yajvl",
+        },
+      },
+      "event_id": "3qODCwqyQBu%vq^Yajvl",
+      "event_name": "form_submitted",
+      "fbc": "3qODCwqyQBu%vq^Yajvl",
+      "fpb": "3qODCwqyQBu%vq^Yajvl",
+      "ga": "3qODCwqyQBu%vq^Yajvl",
+      "identifiers": Array [],
+      "ip_address": "3qODCwqyQBu%vq^Yajvl",
+      "referrer": "3qODCwqyQBu%vq^Yajvl",
+      "timestamp": "3qODCwqyQBu%vq^Yajvl",
+      "url": "3qODCwqyQBu%vq^Yajvl",
+      "user_agent": "3qODCwqyQBu%vq^Yajvl",
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for AnglerAi's saveFormEvent destination action: required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "client_id": "3qODCwqyQBu%vq^Yajvl",
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {},
+          },
+        },
+        "customData": Array [],
+        "customer": Object {},
+        "form": Object {
+          "id": "3qODCwqyQBu%vq^Yajvl",
+        },
+      },
+      "event_id": "3qODCwqyQBu%vq^Yajvl",
+      "event_name": "form_submitted",
+      "identifiers": Array [],
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;
