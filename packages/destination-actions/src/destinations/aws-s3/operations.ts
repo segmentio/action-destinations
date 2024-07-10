@@ -1,7 +1,8 @@
-import { RequestClient, ExecuteInput } from '@segment/actions-core'
+import { ExecuteInput } from '@segment/actions-core'
 import { createHash } from 'crypto'
-import type { Payload as s3Payload } from './uploadCsv/generated-types'
-import type { Payload as sftpPayload } from './uploadCsv/generated-types'
+import type { Payload } from './syncAudienceToCSV/generated-types'
+import type { AudienceSettings, Settings } from './generated-types'
+
 
 // Type definitions
 export type RawData = {
@@ -14,20 +15,14 @@ export type RawData = {
   }
 }
 
-export type ProcessDataInput<T extends s3Payload | sftpPayload> = {
-  request: RequestClient
-  payloads: T[]
-  features?: Record<string, boolean>
-  rawData?: RawData[]
-}
-
 export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unknown> = ExecuteInput<
   Settings,
   Payload,
   AudienceSettings
 > & { rawData?: RawData }
 
-function generateFile(payloads: s3Payload[] | sftpPayload[]) {
+function generateFile(payloads: Payload[], settings: Settings, audienceSettings: AudienceSettings) {
+
   // Using a Set to keep track of headers
   let headers = new Set<string>()
   let rows = Buffer.from('')
@@ -63,14 +58,13 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
       }
     }
 
-    rows = Buffer.concat([rows, Buffer.from(row.join(payload.delimiter) + (i + 1 === payloads.length ? '' : '\n'))])
+    rows = Buffer.concat([rows, Buffer.from(row.join(settings.delimiter) + (i + 1 === payloads.length ? '' : '\n'))])
   }
 
   // Add headers to the beginning of the file contents
-  rows = Buffer.concat([Buffer.from(Array.from(headers).join(payloads[0].delimiter) + '\n'), rows])
+  rows = Buffer.concat([Buffer.from(Array.from(headers).join(settings.delimiter) + '\n'), rows])
 
-  const filename = payloads[0].filename
-  return { filename, fileContents: rows }
+  return { filename: audienceSettings?.filename, fileContents: rows }
 }
 
 function enquoteIdentifier(identifier: string) {

@@ -1,35 +1,73 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import uploadCsv from './uploadCsv'
+import syncAudienceToCSV from './syncAudienceToCSV'
 
-const destination: DestinationDefinition<Settings> = {
-  name: 'S3 CSV Audiences',
+const destination: AudienceDestinationDefinition<Settings> = {
+  name: 'AWS S3 CSV',
   slug: 'actions-s3-csv',
   mode: 'cloud',
-
+  description: 'Sync Segment event and Audience data to AWS S3.',
+  audienceFields: {
+    s3_aws_folder_name: {
+      label: 'AWS Subfolder Name',
+      description:
+        'Name of the S3 Subfolder where the files will be uploaded to. "/" must exist at the end of the folder name.',
+      type: 'string',
+      required: false
+    },
+    filename: {
+      label: 'Filename prefix',
+      description: `Prefix to append to the name of the uploaded file. A timestamp and lower cased audience name will be appended to the filename to ensure uniqueness.`,
+      type: 'string',
+      required: false
+    }
+  },
   authentication: {
     scheme: 'custom',
     fields: {
-      __segment_internal_engage_force_full_sync: {
-        label: 'Force Full Sync',
-        description: '',
-        type: 'boolean',
-        required: true,
-        default: true
+      iam_role_arn: {
+        label: 'IAM Role ARN',
+        description:
+          'IAM role ARN with write permissions to the S3 bucket. Format: arn:aws:iam::account-id:role/role-name',
+        type: 'string',
+        required: true
       },
-      __segment_internal_engage_batch_sync: {
-        label: 'Supports batch sync via ADS',
-        description: '',
-        type: 'boolean',
+      s3_aws_bucket_name: {
+        label: 'AWS Bucket Name',
+        description: 'Name of the S3 bucket where the files will be uploaded to.',
+        type: 'string',
+        required: true
+      },
+      s3_aws_region: {
+        label: 'AWS Region Code (S3 only)',
+        description: 'Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)',
+        type: 'string',
+        required: true
+      },
+      delimiter: {
+        label: 'Delimeter',
+        description: `Character used to separate tokens in the resulting file.`,
+        type: 'string',
         required: true,
-        default: true
+        choices: [
+          {label: ',', value: ','},
+          {label: '|', value: '|'},
+          {label: 'tab', value: 'tab'},
+          {label: ':', value: ':'},
+        ],
+        default: ','
       }
     }
   },
-
+  audienceConfig: {
+    mode: {
+      type: 'synced',
+      full_audience_sync: true
+    }
+  },
   actions: {
-    uploadCsv
+    syncAudienceToCSV
   }
 }
 
