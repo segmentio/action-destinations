@@ -46,7 +46,7 @@ export interface RevOrg extends IdFragment {
 
 export interface RevUser extends IdFragment {
   created_date: string
-  rev_org: IdFragment
+  rev_org?: IdFragment
   email: string
   tags?: {
     tag: {

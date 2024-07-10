@@ -9,7 +9,6 @@ import {
   accountsListResponse,
   revorgsListResponse,
   revUsersCreateResponse,
-  accountCreateResponse,
   domain,
   email,
   newerCreateDate,
@@ -18,7 +17,9 @@ import {
   testDescription,
   testRevUserOlder,
   testTag,
-  testRevUserNewer
+  testRevUserNewer,
+  revUsersSingleList,
+  revUserUpdateTagsResponse
 } from '../../mocks'
 
 const testDestination = createTestIntegration(Destination)
@@ -95,34 +96,16 @@ describe('Devrev.createRevUser', () => {
       .get('/internal/accounts.list')
       .query({ domains: `"${domain}"` })
       .reply(200, { accounts: [] })
-    nock('https://api.devrev.ai').post('/internal/accounts.create').reply(200, accountCreateResponse)
-    nock('https://api.devrev.ai')
-      .get('/internal/rev-orgs.list')
-      .query({ account: accountId })
-      .reply(200, revorgsListResponse.data)
+
     nock('https://api.devrev.ai').post('/internal/rev-users.create').reply(200, revUsersCreateResponse)
     const response = await testDestination.testAction('createRevUser', { settings, event, useDefaultMappings: true })
-    expect(response.length).toBe(5)
-    expect(response[4].data).toEqual({
+    expect(response.length).toBe(3)
+    expect(response[2].data).toEqual({
       rev_user: {
         id: testRevUserNewer.id,
         created_date: newerCreateDate,
         display_name: testUserFullName,
-        email: email,
-        rev_org: {
-          id: 'newer-but-default-revo',
-          display_name: 'test-org'
-        }
-      }
-    })
-    expect(response[2].data).toEqual({
-      account: {
-        id: 'test-account-id',
-        created_date: newerCreateDate,
-        display_name: domain,
-        external_refs: [domain],
-        domains: [domain],
-        state: 'active'
+        email: email
       }
     })
   })
@@ -135,11 +118,6 @@ describe('Devrev.createRevUser', () => {
       .get('/internal/accounts.list')
       .query({ external_refs: `"${email}"` })
       .reply(200, { accounts: [] })
-    nock('https://api.devrev.ai').post('/internal/accounts.create').reply(200, accountCreateResponse)
-    nock('https://api.devrev.ai')
-      .get('/internal/rev-orgs.list')
-      .query({ account: accountId })
-      .reply(200, revorgsListResponse.data)
     nock('https://api.devrev.ai').post('/internal/rev-users.create').reply(200, revUsersCreateResponse)
     const modifiedSettings = {
       ...settings
@@ -150,30 +128,40 @@ describe('Devrev.createRevUser', () => {
       event,
       useDefaultMappings: true
     })
-    expect(response.length).toBe(5)
-    expect(response[4].data).toEqual({
+    expect(response.length).toBe(3)
+    expect(response[2].data).toEqual({
       rev_user: {
         id: testRevUserNewer.id,
         created_date: newerCreateDate,
         display_name: testUserFullName,
-        email: email,
-        rev_org: {
-          id: 'newer-but-default-revo',
-          display_name: 'test-org'
-        }
-      }
-    })
-    expect(response[2].data).toEqual({
-      account: {
-        id: 'test-account-id',
-        created_date: newerCreateDate,
-        display_name: email,
-        state: 'active',
-        external_refs: [email]
+        email: email
       }
     })
   })
-  it('makes the correct devrev api calls: no revUser, no account, no comment, with tag and comment', async () => {
+  it('tags an existing user with a tag', async () => {
+    nock('https://api.devrev.ai')
+      .get('/internal/rev-users.list')
+      .query({ email: `"${email}"` })
+      .reply(200, revUsersSingleList.data)
+    nock('https://api.devrev.ai').post('/internal/rev-users.update').reply(200, revUserUpdateTagsResponse)
+    const mapping = {
+      tag: testTag.id
+    }
+    const response = await testDestination.testAction('createRevUser', {
+      settings,
+      event,
+      useDefaultMappings: true,
+      mapping
+    })
+    expect(response.length).toBe(2)
+    expect(response[1].data).toEqual({
+      rev_user: {
+        id: testRevUserNewer.id,
+        tags: [{ tag: { id: testTag.id } }]
+      }
+    })
+  })
+  it('makes the correct devrev api calls: no revUser, no account, with tag and comment', async () => {
     nock('https://api.devrev.ai')
       .get('/internal/rev-users.list')
       .query({ email: `"${email}"` })
@@ -182,11 +170,6 @@ describe('Devrev.createRevUser', () => {
       .get('/internal/accounts.list')
       .query({ domains: `"${domain}"` })
       .reply(200, { accounts: [] })
-    nock('https://api.devrev.ai').post('/internal/accounts.create').reply(200, accountCreateResponse)
-    nock('https://api.devrev.ai')
-      .get('/internal/rev-orgs.list')
-      .query({ account: accountId })
-      .reply(200, revorgsListResponse.data)
     nock('https://api.devrev.ai').post('/internal/rev-users.create').reply(200, revUsersCreateResponse)
     nock('https://api.devrev.ai').post('/timeline-entries.create').reply(200, loopback)
 
@@ -200,31 +183,17 @@ describe('Devrev.createRevUser', () => {
       useDefaultMappings: true,
       mapping
     })
-    expect(response.length).toBe(6)
-    expect(response[4].data).toEqual({
+    expect(response.length).toBe(4)
+    expect(response[2].data).toEqual({
       rev_user: {
         id: testRevUserNewer.id,
         created_date: newerCreateDate,
         display_name: testUserFullName,
         email: email,
-        rev_org: {
-          id: 'newer-but-default-revo',
-          display_name: 'test-org'
-        }
+        tags: [{ tag: { id: testTag.id } }]
       }
     })
-    expect(response[2].data).toEqual({
-      account: {
-        id: 'test-account-id',
-        created_date: newerCreateDate,
-        display_name: domain,
-        external_refs: [domain],
-        domains: [domain],
-        state: 'active',
-        tags: [{ id: testTag.id }]
-      }
-    })
-    expect(response[5].data).toEqual({
+    expect(response[3].data).toEqual({
       object: testRevUserNewer.id,
       type: 'timeline_comment',
       body_type: 'text',
