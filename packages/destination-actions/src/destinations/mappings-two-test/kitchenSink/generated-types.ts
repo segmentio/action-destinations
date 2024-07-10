@@ -126,3 +126,25 @@ export interface Payload {
     [k: string]: unknown
   }[]
 }
+// Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
+
+export interface HookBundle {
+  onMappingSave: {
+    inputs?: {
+      /**
+       * A test structured object
+       */
+      structured_hook_input?: {
+        /**
+         * A test string field
+         */
+        name?: string
+        /**
+         * A test number field
+         */
+        age?: number
+      }
+    }
+    outputs?: {}
+  }
+}

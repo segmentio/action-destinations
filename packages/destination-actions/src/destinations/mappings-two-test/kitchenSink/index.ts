@@ -15,6 +15,52 @@ const action: ActionDefinition<Settings, Payload> = {
       { label: 'Updates record in mappings 2 test destination', value: 'update' }
     ]
   },
+  hooks: {
+    onMappingSave: {
+      label: 'Excute the test hook 🎣',
+      description:
+        'This hook will be executed when the mapping is saved 🐟🐟🐟. It will send a test event to the destination.',
+      inputFields: {
+        structured_hook_input: {
+          label: 'Structured Hook Input',
+          description: 'A test structured object',
+          type: 'object',
+          properties: {
+            name: {
+              label: 'Name',
+              description: 'A test string field',
+              type: 'string'
+            },
+            age: {
+              label: 'Age',
+              description: 'A test number field',
+              type: 'number'
+            }
+          }
+        }
+      },
+
+      outputTypes: {},
+      performHook: async (request, { hookInputs, hookOutputs, payload, settings }) => {
+        const api_key = settings.apiKey
+        await request('https://api.segment.io/v1/t', {
+          method: 'POST',
+          json: {
+            userId: 'test-user',
+            type: 'track',
+            event: 'test-event-hooks',
+            writeKey: api_key,
+            properties: {
+              hookInputs,
+              hookOutputs,
+              payload
+            }
+          }
+        })
+        return {}
+      }
+    }
+  },
   fields: {
     string_field: {
       label: 'String Field',
