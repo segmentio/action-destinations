@@ -159,18 +159,21 @@ export abstract class MessageSendPerformer<
         code: cachedResponse.code,
         status: cachedResponse.status
       })
+      this.statsIncr('error_duplicate')
       const { message, code, status } = cachedResponse
       const error = new IntegrationError(message, code, status)
       error.retry = false
       throw error
     } else if (cachedResponse?.type === CachedResponseType.Success) {
       this.logInfo('Cached response found', { status: cachedResponse.status })
+      this.statsIncr('perform_duplicate')
       return
     }
 
     let error: undefined | Error = undefined
     let result: ModifiedResponse<unknown> | undefined = undefined
     try {
+      this.statsIncr('perform')
       result = await this.sendToRecepient(recepient)
       return result
     } catch (e) {
