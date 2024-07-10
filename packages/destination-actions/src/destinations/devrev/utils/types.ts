@@ -48,6 +48,11 @@ export interface RevUser extends IdFragment {
   created_date: string
   rev_org: IdFragment
   email: string
+  tags?: {
+    tag: {
+      id: string
+    }
+  }[]
 }
 
 export interface DevUser extends IdFragment {
