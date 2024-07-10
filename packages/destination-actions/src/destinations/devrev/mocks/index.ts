@@ -157,7 +157,7 @@ export const revUserUpdateTagsResponse = async (_: never, body: { id: string; ta
     rev_user: {
       id: body.id,
       tags: body.tags.map((tagid) => {
-        return { tag: { id: tagid } }
+        return { tag: tagid }
       })
     }
   }

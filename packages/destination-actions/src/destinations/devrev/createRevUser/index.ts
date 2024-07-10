@@ -172,11 +172,12 @@ const action: ActionDefinition<Settings, Payload> = {
       const tags = contact.tags?.map((tag) => tag.tag.id) ?? []
       if (tags.indexOf(payload.tag) === -1) {
         tags.push(payload.tag)
+        const formattedTags = tags.map((tag) => ({ id: tag }))
         await request(`${getBaseUrl(settings)}${devrevApiPaths.revUsersUpdate}`, {
           method: 'post',
           json: {
             id: contact.id,
-            tags
+            tags: formattedTags
           }
         })
       }
