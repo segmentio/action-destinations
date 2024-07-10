@@ -5,7 +5,7 @@ Object {
   "query": "mutation {
       upsertProfiles(
         subAdvertiserId: 1,
-        externalProvider: \\"Segment\\",
+        externalProvider: \\"segmentio\\",
         profiles: [{testType:\\"PsAwlRv%\\",user_id:\\"PsAwlRv%\\"}]
       ) {
         success
@@ -19,7 +19,7 @@ Object {
   "query": "mutation {
       upsertProfiles(
         subAdvertiserId: 1,
-        externalProvider: \\"Segment\\",
+        externalProvider: \\"segmentio\\",
         profiles: [{user_id:\\"PsAwlRv%\\"}]
       ) {
         success
