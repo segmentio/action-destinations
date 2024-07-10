@@ -87,8 +87,8 @@
     }
   },
   "lint-staged": {
-    "**/src/destinations/**/index.ts": [
-      "./bin/run generate:types",
+    "**/{browser-destinations,destinations}/**/*.ts": [
+      "./bin/run generate:types -p",
       "git add **/generated-types.ts"
     ],
     "!(**/templates/**)/*.ts": [
