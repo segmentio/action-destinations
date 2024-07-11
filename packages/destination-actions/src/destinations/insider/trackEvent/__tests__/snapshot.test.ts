@@ -9,13 +9,15 @@ const destinationSlug = 'Insider'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
+  afterEach(() => {
+    nock.cleanAll()
+  })
+
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
-    nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
-    nock(/.*/).persist().put(/.*/).reply(200)
+    nock('https://unification.useinsider.com').persist().post('/api/user/v1/upsert').reply(200, {})
 
     const event = createTestEvent({
       properties: eventData
@@ -47,9 +49,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
-    nock(/.*/).persist().put(/.*/).reply(200)
+    nock('https://unification.useinsider.com').persist().post('/api/user/v1/upsert').reply(200, {})
 
     const event = createTestEvent({
       properties: eventData
@@ -73,5 +73,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     } catch (err) {
       expect(rawBody).toMatchSnapshot()
     }
+
+    expect(request.headers).toMatchSnapshot()
   })
 })
