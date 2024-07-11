@@ -32,4 +32,21 @@ export interface Payload {
      */
     age?: number
   }
+  /**
+   * A dynamic array
+   */
+  dynamic_array?: {
+    /**
+     * Product Category
+     */
+    product_category?: string
+    /**
+     * Product Name
+     */
+    product_name?: string
+    /**
+     * Product Price
+     */
+    product_price?: number
+  }[]
 }

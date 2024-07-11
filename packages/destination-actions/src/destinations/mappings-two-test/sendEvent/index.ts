@@ -9,7 +9,7 @@ const action: ActionDefinition<Settings, Payload> = {
   syncMode: {
     description: 'Define how the records from your destination will be synced to mappings 2 test destination',
     label: 'How to sync records',
-    default: 'add',
+    default: 'update',
     choices: [
       { label: 'Adds record to mappings 2 test destination', value: 'add' },
       { label: 'Updates record in mappings 2 test destination', value: 'update' }
@@ -63,6 +63,36 @@ const action: ActionDefinition<Settings, Payload> = {
           ]
         }
       }
+    },
+    dynamic_array: {
+      label: 'Dynamic Array',
+      description: 'A dynamic array',
+      type: 'object',
+      defaultObjectUI: 'arrayeditor',
+      multiple: true,
+      properties: {
+        product_category: {
+          label: 'Product Category',
+          description: 'Product Category',
+          type: 'string',
+          choices: [
+            { label: 'Electronics', value: 'electronics' },
+            { label: 'Home Decor', value: 'home-decor' },
+            { label: 'Clothing', value: 'clothing' }
+          ]
+        },
+        product_name: {
+          label: 'Product Name',
+          description: 'Product Name',
+          type: 'string',
+          dynamic: true
+        },
+        product_price: {
+          label: 'Product Price',
+          description: 'Product Price',
+          type: 'number'
+        }
+      }
     }
   },
   dynamicFields: {
@@ -105,6 +135,9 @@ const action: ActionDefinition<Settings, Payload> = {
         })
       },
       __values__: async (_, { dynamicFieldContext }) => {
+        if (!dynamicFieldContext?.selectedKey) {
+          throw new Error('Selected key is missing')
+        }
         const selectedKey = dynamicFieldContext?.selectedKey || 'unknwon'
 
         return Promise.resolve({
@@ -174,6 +207,121 @@ const action: ActionDefinition<Settings, Payload> = {
               description: 'A fleshy plant that stores water in its leaves, stems, or roots.'
             }
           ],
+          nextPage: ''
+        })
+      }
+    },
+    dynamic_array: {
+      product_name: async (_, { dynamicFieldContext, payload }) => {
+        const products = [
+          {
+            name: 'Laptop 💻',
+            category: 'electronics',
+            slug: 'laptop',
+            description: 'A high-performance laptop with 16GB RAM and 512GB SSD.'
+          },
+          {
+            name: 'Smartphone 📱',
+            category: 'electronics',
+            slug: 'smartphone',
+            description: 'A sleek smartphone with a powerful camera and long battery life.'
+          },
+          {
+            name: 'Headphones 🎧',
+            category: 'electronics',
+            slug: 'headphones',
+            description: 'Noise-cancelling over-ear headphones with premium sound quality.'
+          },
+          {
+            name: 'Smartwatch ⌚',
+            category: 'electronics',
+            slug: 'smartwatch',
+            description: 'A stylish smartwatch with fitness tracking and notifications.'
+          },
+          {
+            name: 'T-shirt 👕',
+            category: 'clothing',
+            slug: 't-shirt',
+            description: 'A comfortable cotton t-shirt available in various colors.'
+          },
+          {
+            name: 'Jeans 👖',
+            category: 'clothing',
+            slug: 'jeans',
+            description: 'Classic blue jeans with a modern slim fit.'
+          },
+          {
+            name: 'Sneakers 👟',
+            category: 'clothing',
+            slug: 'sneakers',
+            description: 'Stylish and comfortable sneakers for everyday wear.'
+          },
+          {
+            name: 'Jacket 🧥',
+            category: 'clothing',
+            slug: 'jacket',
+            description: 'A warm and trendy jacket perfect for cold weather.'
+          },
+          {
+            name: 'Table Lamp 🛋️',
+            category: 'Home Decor',
+            slug: 'table-lamp',
+            description: 'A modern table lamp with adjustable brightness.'
+          },
+          {
+            name: 'Sofa 🛋️',
+            category: 'Home Decor',
+            slug: 'sofa',
+            description: 'A comfortable sofa with a stylish design and durable fabric.'
+          },
+          {
+            name: 'Wall Art 🖼️',
+            category: 'home-decor',
+            slug: 'wall-art',
+            description: 'Beautiful wall art to add a touch of elegance to your home.'
+          },
+          {
+            name: 'Rug 🏡',
+            category: 'home-decor',
+            slug: 'rug',
+            description: 'A soft and cozy rug perfect for any living space.'
+          },
+          {
+            name: 'Bluetooth Speaker 🔊',
+            category: 'Electronics',
+            slug: 'bluetooth-speaker',
+            description: 'Portable Bluetooth speaker with powerful sound and long battery life.'
+          },
+          {
+            name: 'Dress 👗',
+            category: 'Clothing',
+            slug: 'dress',
+            description: 'A stylish dress perfect for both casual and formal occasions.'
+          },
+          {
+            name: 'Curtains 🏡',
+            category: 'home-decor',
+            slug: 'curtains',
+            description: 'Elegant curtains to enhance the look of any room.'
+          },
+          {
+            name: 'Table 🛋️',
+            category: 'home-decor',
+            slug: 'table',
+            description: 'A modern dining table made of high-quality wood.'
+          }
+        ]
+
+        const index = dynamicFieldContext?.selectedArrayIndex || 0
+        const selectedCategory = payload.dynamic_array?.[index]?.product_category
+        const choices = products
+          .filter((product) => (selectedCategory ? product.category === selectedCategory : true))
+          .map((product) => {
+            return { value: product.slug, label: product.name }
+          })
+
+        return Promise.resolve({
+          choices: choices,
           nextPage: ''
         })
       }
