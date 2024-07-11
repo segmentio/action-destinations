@@ -22,39 +22,51 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'ID for the user',
       required: false
+    }, 
+    createAttributes: {
+      label: 'Create Attributes',
+      type: 'boolean',
+      description: 'Inidicates if Attributes should be created in Contentstack',
+      required: false,
+      default: {'@path': '$.integrations.Contentstack.createAttributes'}
     }
   },
   perform: async (request, { payload, settings }) => {
-    const personalizeAttributesData = (await fetchAllAttributes(request, settings.personalizeApiBaseUrl)).map(
-      (attribute: PersonalizeAttributes) => attribute?.key
-    )
-
-    const attributesToCreate = Object.keys(payload.traits || {}).filter(
-      (trait: string) => !personalizeAttributesData.includes(trait)
-    )
-
-    if (attributesToCreate?.length) {
-      const firstAttributeRes = await createCustomAttrbute(
-        request,
-        attributesToCreate[0],
-        settings.personalizeApiBaseUrl
+    
+    const { createAttributes } = payload
+    if(createAttributes){
+      const personalizeAttributesData = (await fetchAllAttributes(request, settings.personalizeApiBaseUrl)).map(
+        (attribute: PersonalizeAttributes) => attribute?.key
       )
-      if (firstAttributeRes.status === 401) return firstAttributeRes
-
-      const otherAttributes = attributesToCreate.slice(1)
-
-      await Promise.allSettled(
-        otherAttributes.map((trait: string) => createCustomAttrbute(request, trait, settings.personalizeApiBaseUrl))
+      
+      const attributesToCreate = Object.keys(payload.traits || {}).filter(
+        (trait: string) => !personalizeAttributesData.includes(trait)
       )
 
-      return request(`${settings.personalizeEdgeApiBaseUrl}/user-attributes`, {
-        method: 'patch',
-        json: payload.traits,
-        headers: {
-          'x-cs-eclipse-user-uid': payload.userId ?? ''
-        }
-      })
-    }
+      if (attributesToCreate?.length) {
+        const firstAttributeRes = await createCustomAttrbute(
+          request,
+          attributesToCreate[0],
+          settings.personalizeApiBaseUrl
+        )
+        if (firstAttributeRes.status === 401) return firstAttributeRes
+  
+        const otherAttributes = attributesToCreate.slice(1)
+  
+        await Promise.allSettled(
+          otherAttributes.map((trait: string) => createCustomAttrbute(request, trait, settings.personalizeApiBaseUrl))
+        )
+      }
+    }    
+
+    return request(`${settings.personalizeEdgeApiBaseUrl}/user-attributes`, {
+      method: 'patch',
+      json: payload.traits,
+      headers: {
+        'x-cs-eclipse-user-uid': payload.userId ?? ''
+      }
+    })
+    
   }
 }
 
