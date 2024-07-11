@@ -18,11 +18,16 @@ import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Features } from '@segment/actions-core/mapping-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
+import type { Payload as UserListPayload } from './userList/generated-types'
+import * as crypto from 'crypto'
 
-export const API_VERSION = 'v15'
-export const CANARY_API_VERSION = 'v15'
+export const API_VERSION = 'v16'
+export const CANARY_API_VERSION = 'v16'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 
+export interface AudienceSettings {
+  external_id_type: string
+}
 export class GoogleAdsError extends HTTPError {
   response: Response & {
     status: string
@@ -216,10 +221,13 @@ export async function createGoogleAudience(
     ]
   }
 
-  const response = await request(`https://googleads.googleapis.com/v16/customers/${input.settings.customerId}:mutate`, {
-    method: 'post',
-    json
-  })
+  const response = await request(
+    `https://googleads.googleapis.com/${API_VERSION}/customers/${input.settings.customerId}:mutate`,
+    {
+      method: 'post',
+      json
+    }
+  )
 
   // Successful response body looks like:
   // {"results": [{ "resourceName": "customers/<customer_id>/userLists/<user_list_id>" }]}
@@ -246,7 +254,7 @@ export async function getGoogleAudience(
   }
 
   const response = await request(
-    `https://googleads.googleapis.com/v16/customers/${settings.customerId}/googleAds:search`,
+    `https://googleads.googleapis.com/${API_VERSION}/customers/${settings.customerId}/googleAds:search`,
     {
       method: 'post',
       json
@@ -262,4 +270,160 @@ export async function getGoogleAudience(
 
   statsClient?.incr('getAudience.success', 1, statsTags)
   return id
+}
+
+const formatEmail = (email: string, hash_data?: boolean): string => {
+  if (!hash_data) {
+    return email
+  }
+  const googleDomain = new RegExp('^(gmail|googlemail).s*', 'g')
+  let normalizedEmail = email.toLowerCase().trim()
+  const emailParts = normalizedEmail.split('@')
+  if (emailParts.length > 1 && emailParts[1].match(googleDomain)) {
+    emailParts[0] = emailParts[0].replace('.', '')
+    normalizedEmail = `${emailParts[0]}@${emailParts[1]}`
+  }
+
+  return crypto.createHash('sha256').update(normalizedEmail).digest('hex')
+}
+
+function formatToE164(phoneNumber: string, defaultCountryCode: string): string {
+  // Remove any non-numeric characters
+  const numericPhoneNumber = phoneNumber.replace(/\D/g, '')
+
+  // Check if the phone number starts with the country code
+  let formattedPhoneNumber = numericPhoneNumber
+  if (!numericPhoneNumber.startsWith(defaultCountryCode)) {
+    formattedPhoneNumber = defaultCountryCode + numericPhoneNumber
+  }
+
+  // Ensure the formatted phone number starts with '+'
+  if (!formattedPhoneNumber.startsWith('+')) {
+    formattedPhoneNumber = '+' + formattedPhoneNumber
+  }
+
+  return formattedPhoneNumber
+}
+
+const formatPhone = (phone: string, hash_data?: boolean): string => {
+  if (!hash_data) {
+    return phone
+  }
+  const formattedPhone = formatToE164(phone, '1')
+  return crypto.createHash('sha256').update(formattedPhone).digest('hex')
+}
+
+const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: AudienceSettings) => {
+  const removeUserIdentifiers = []
+  const addUserIdentifiers = []
+
+  // Map user data to Google Ads API format
+  const identifierFunctions: { [key: string]: (payload: UserListPayload) => any } = {
+    MOBILE_ADVERTISING_ID: (payload: UserListPayload) => ({
+      mobileId: payload.mobile_advertising_id?.trim()
+    }),
+    CRM_ID: (payload: UserListPayload) => ({
+      thirdPartyUserId: payload.crm_id?.trim()
+    }),
+    CONTACT_INFO: (payload: UserListPayload) => {
+      const identifiers = []
+      if (payload.email) {
+        identifiers.push({
+          hashedEmail: formatEmail(payload.email, payload.hash_data)
+        })
+      }
+      if (payload.phone) {
+        identifiers.push({
+          hashedPhoneNumber: formatPhone(payload.phone, payload.hash_data)
+        })
+      }
+      return identifiers
+    }
+  }
+
+  // Map user data to Google Ads API format
+  for (const payload of payloads) {
+    if (payload.event_name == 'Audience Entered') {
+      addUserIdentifiers.push(identifierFunctions[audienceSettings.external_id_type](payload))
+    } else if (payload.event_name == 'Audience Exited') {
+      removeUserIdentifiers.push(identifierFunctions[audienceSettings.external_id_type](payload))
+    }
+  }
+  return [{ remove: { userIdentifiers: removeUserIdentifiers } }, { add: { userIdentifiers: addUserIdentifiers } }]
+}
+
+const createOfflineUserJob = async (request: RequestClient, payload: UserListPayload, settings: any) => {
+  const url = `https://googleads.googleapis.com/${API_VERSION}/customers/${settings.customerId}/offlineUserDataJobs:create`
+
+  const json = {
+    job: {
+      type: 'CUSTOMER_MATCH_USER_LIST',
+      customerMatchUserListMetadata: {
+        userList: `customers/${settings.customerId}/userLists/${payload.external_audience_id}`
+      }
+    }
+  }
+
+  const response = await request(url, {
+    method: 'post',
+    json
+  })
+
+  return (response.data as any).results[0].resourceName
+}
+
+const addOperations = async (request: RequestClient, userIdentifiers: any, resourceName: string) => {
+  const url = `https://googleads.googleapis.com/${API_VERSION}/${resourceName}:addOperations`
+
+  const json = {
+    operations: userIdentifiers,
+    enable_warnings: true
+  }
+
+  const response = await request(url, {
+    method: 'post',
+    json
+  })
+
+  return response.data
+}
+
+const runOfflineUserJob = async (request: RequestClient, resourceName: string) => {
+  const url = `https://googleads.googleapis.com/${API_VERSION}/${resourceName}:run`
+
+  const response = await request(url, {
+    method: 'post'
+  })
+
+  return response.data
+}
+
+export const handleUpdate = async (
+  request: RequestClient,
+  settings: any,
+  audienceSettings: any,
+  payloads: UserListPayload[],
+  statsContext: StatsContext | undefined
+) => {
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
+
+  // Format the user data for Google Ads API
+  const userIdentifiers = extractUserIdentifiers(payloads, audienceSettings)
+
+  // Create an offline user data job
+
+  const resourceName = await createOfflineUserJob(request, payloads[0], settings)
+
+  // Add operations to the offline user data job
+
+  await addOperations(request, userIdentifiers, resourceName)
+
+  // Run the offline user data job
+
+  const executedJob = await runOfflineUserJob(request, resourceName)
+
+  statsClient?.incr('success.offlineUpdateAudience', 1, statsTags)
+
+  return executedJob
 }

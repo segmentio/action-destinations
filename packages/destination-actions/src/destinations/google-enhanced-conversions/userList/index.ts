@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { handleUpdate } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Customer Match User List',
@@ -141,12 +142,11 @@ const action: ActionDefinition<Settings, Payload> = {
       readOnly: true
     }
   },
-  perform: (request, data) => {
-    // Make your partner api request here!
-    return request('https://example.com', {
-      method: 'post',
-      json: data.payload
-    })
+  perform: async (request, { settings, audienceSettings, payload, statsContext }) => {
+    return await handleUpdate(request, settings, audienceSettings, [payload], statsContext)
+  },
+  performBatch: async (request, { settings, audienceSettings, payload, statsContext }) => {
+    return await handleUpdate(request, settings, audienceSettings, payload, statsContext)
   }
 }
 
