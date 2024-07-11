@@ -39,4 +39,12 @@ export interface Payload {
    * User's unique User ID
    */
   userId?: string
+  /**
+   * Mobile Device Id
+   */
+  deviceId?: string
+  /**
+   * Mobile Advertising Id
+   */
+  advertisingId?: string
 }

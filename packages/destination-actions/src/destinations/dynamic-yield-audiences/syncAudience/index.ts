@@ -104,6 +104,22 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       required: false,
       unsafe_hidden: true,
       default: { '@path': '$.userId' }
+    },
+    deviceId: {
+      label: 'Mobile Device Id',
+      description: 'Mobile Device Id',
+      type: 'string',
+      required: false,
+      unsafe_hidden: true,
+      default: { '@path': '$.context.device.id' }
+    },
+    advertisingId: {
+      label: 'Mobile Advertising Id',
+      description: 'Mobile Advertising Id',
+      type: 'string',
+      required: false,
+      unsafe_hidden: true,
+      default: { '@path': '$.context.device.advertisingId' }
     }
   },
 
@@ -137,6 +153,12 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         break
       case 'anonymousid':
         primaryIdentifier = payload.anonymousId ?? undefined
+        break
+      case 'deviceid':
+        primaryIdentifier = payload.deviceId ?? undefined
+        break
+      case 'advertisingid':
+        primaryIdentifier = payload.advertisingId ?? undefined
         break
       default:
         primaryIdentifier = (payload.traits_or_props[identifierType] as string) ?? undefined
