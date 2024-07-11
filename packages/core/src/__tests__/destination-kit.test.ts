@@ -1,4 +1,4 @@
-import { ActionDefinition } from 'src/destination-kit/action'
+import { ActionDefinition } from '../destination-kit/action'
 import {
   StateContext,
   Destination,
