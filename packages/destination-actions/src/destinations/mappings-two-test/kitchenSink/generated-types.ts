@@ -8,7 +8,7 @@ export interface Payload {
   /**
    * A test dynamic string field
    */
-  dynamic_string_field?: string[]
+  dynamic_string_field?: string
   /**
    * A test number field
    */
