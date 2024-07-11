@@ -110,46 +110,39 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing computation parameters: Id and Key', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const audience_id = personas.computation_id
+      const audience_id = hashAndEncodeToInt(personas.computation_id)
 
-      try {
-        const response = await request(getCreateAudienceURL(settings.dataCenter), {
-          method: 'POST',
-          json: {
-            type: 'audience_subscription_request',
-            id: uuidv4(),
-            timestamp_ms: new Date().getTime(),
-            account: {
-              account_settings: {
-                section_id: settings.sectionId,
-                api_key: settings.accessKey
-              }
-            },
-            audience_id: hashAndEncodeToInt(audience_id),
-            audience_name: audience_name,
-            action: 'add'
+      const json = {
+        type: 'audience_subscription_request',
+        id: uuidv4(),
+        timestamp_ms: new Date().getTime(),
+        account: {
+          account_settings: {
+            section_id: settings.sectionId,
+            api_key: settings.accessKey
           }
-        })
-        const responseData = await response.json()
+        },
+        audience_id: audience_id, // must be sent as an integer
+        audience_name: audience_name,
+        action: 'add'
+      }
 
-        if (!responseData.id) {
-          throw new IntegrationError(
-            `Failed to create Audience in Dynamic Yield - responseData.id null or undefined`,
-            'DYNAMIC_YIELD_AUDIENCE_CREATION_FAILED',
-            400
-          )
-        }
+      const response = await request(getCreateAudienceURL(settings.dataCenter), {
+        method: 'POST',
+        json
+      })
+      const responseData = await response.json()
 
-        return {
-          externalId: String(responseData.id)
-        }
-      } catch (e) {
-        const errorMessage = e instanceof Error ? e.message : 'Unknown error'
+      if (!responseData.id) {
         throw new IntegrationError(
-          `Failed to create Audience in Dynamic Yield - ${errorMessage}`,
+          `Failed to create Audience in Dynamic Yield - responseData.id null or undefined`,
           'DYNAMIC_YIELD_AUDIENCE_CREATION_FAILED',
           400
         )
+      }
+
+      return {
+        externalId: String(audience_id) // must be returned as a string
       }
     },
     async getAudience(_, getAudienceInput) {
