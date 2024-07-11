@@ -123,12 +123,12 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
 
     const audienceName = audienceSettings?.audience_name
-    const identifierType = (audienceSettings?.identifier_type).toLowerCase().replace(/_/g, '')
+    const identifierType = audienceSettings?.identifier_type ?? ''
     const audienceValue = payload.traits_or_props[payload.segment_audience_key]
 
     let primaryIdentifier: string | undefined
 
-    switch (identifierType) {
+    switch (identifierType.toLowerCase().replace(/_/g, '')) {
       case 'email':
         primaryIdentifier = payload.email ?? undefined
         break
