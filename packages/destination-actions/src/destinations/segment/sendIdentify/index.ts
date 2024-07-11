@@ -22,7 +22,8 @@ import {
   message_id,
   enable_batching,
   consent,
-  validateConsentObject
+  validateConsentObject,
+  address
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
@@ -51,7 +52,8 @@ const action: ActionDefinition<Settings, Payload> = {
     traits,
     message_id,
     enable_batching,
-    consent
+    consent,
+    address
   },
   perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
@@ -99,7 +101,8 @@ function convertPayload(data: Payload) {
       groupId: data?.group_id
     },
     traits: {
-      ...data?.traits
+      ...data?.traits,
+      ...(data.address ? { address: data.address } : {})
     },
     type: 'identify'
   }
