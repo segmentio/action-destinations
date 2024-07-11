@@ -72,8 +72,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Dynamic String Field',
       description: 'A test dynamic string field',
       type: 'string',
-      dynamic: true,
-      multiple: true
+      dynamic: true
     },
     number_field: {
       label: 'Number Field',
