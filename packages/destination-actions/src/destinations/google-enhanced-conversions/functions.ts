@@ -225,6 +225,9 @@ export async function createGoogleAudience(
     `https://googleads.googleapis.com/${API_VERSION}/customers/${input.settings.customerId}:mutate`,
     {
       method: 'post',
+      headers: {
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      },
       json
     }
   )
@@ -257,6 +260,9 @@ export async function getGoogleAudience(
     `https://googleads.googleapis.com/${API_VERSION}/customers/${settings.customerId}/googleAds:search`,
     {
       method: 'post',
+      headers: {
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      },
       json
     }
   )
@@ -366,6 +372,9 @@ const createOfflineUserJob = async (request: RequestClient, payload: UserListPay
 
   const response = await request(url, {
     method: 'post',
+    headers: {
+      'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+    },
     json
   })
 
@@ -382,6 +391,9 @@ const addOperations = async (request: RequestClient, userIdentifiers: any, resou
 
   const response = await request(url, {
     method: 'post',
+    headers: {
+      'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+    },
     json
   })
 
@@ -392,7 +404,10 @@ const runOfflineUserJob = async (request: RequestClient, resourceName: string) =
   const url = `https://googleads.googleapis.com/${API_VERSION}/${resourceName}:run`
 
   const response = await request(url, {
-    method: 'post'
+    method: 'post',
+    headers: {
+      'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+    }
   })
 
   return response.data
