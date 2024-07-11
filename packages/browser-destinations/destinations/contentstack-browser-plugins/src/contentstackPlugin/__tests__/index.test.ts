@@ -40,8 +40,8 @@ describe('ajs-integration', () => {
 
     const updatedCtx = await contentstackPlugin.identify?.(ctx)
 
-    const snapIntegrationsObj = updatedCtx?.event?.integrations['Contentstack']
-    expect(snapIntegrationsObj['createAttributes']).toEqual(true)
+    const integrationsObj = updatedCtx?.event?.integrations['Contentstack']
+    expect(integrationsObj['createAttributes']).toEqual(true)
   })
 
 })
