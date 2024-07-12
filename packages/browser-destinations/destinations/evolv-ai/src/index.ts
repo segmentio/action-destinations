@@ -97,7 +97,7 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
       description: 'When set, all Evolv AI confirmations will be sent to segment',
       label: 'Receive experiment confirmations',
       type: 'boolean',
-      default: false
+      default: true
     },
     receiveUniqueConfirmations: {
       description: 'When set, only unique confirmations (each experiment per session) will be sent to segment',
