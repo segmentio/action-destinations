@@ -10,7 +10,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Placeholder field to create the AudienceSettings object. Please do not change this.
+   * The audience id required by the destination
    */
-  placeholder?: boolean
+  audience_id: number
 }

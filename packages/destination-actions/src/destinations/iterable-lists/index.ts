@@ -1,5 +1,7 @@
-import { IntegrationError, AudienceDestinationDefinition } from '@segment/actions-core'
+import { IntegrationError, AudienceDestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
+
+import upsert from './upsert'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Iterable Lists',
@@ -27,11 +29,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
 
   audienceFields: {
-    placeholder: {
-      type: 'boolean',
-      label: 'Placeholder Setting',
-      description: 'Placeholder field to create the AudienceSettings object. Please do not change this.',
-      default: true
+    audience_id: {
+      label: 'The audience id required by the destination',
+      description: 'The audience id required by the destination',
+      type: 'number',
+      required: true
     }
   },
   audienceConfig: {
@@ -53,9 +55,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       await request('https://api.iterable.com/api/lists', {
         method: 'POST',
         headers: { 'Api-Key': settings.apiKey },
-        body: JSON.stringify({
+        json: {
           name: audienceKey
-        })
+        }
       })
 
       return { externalId: audienceKey }
@@ -66,7 +68,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing audience id value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const response = await request(`https://api.iterable.com/api/lists/${audienceKey}`, {
+      const response = await request(`https://api.iterable.com/api/lists`, {
         method: 'GET',
         headers: { 'Api-Key': getAudienceInput.settings.apiKey }
       })
@@ -75,11 +77,35 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Audience not found', 'NOT_FOUND', 404)
       }
 
-      return { externalId: audienceKey }
+      for (const listItem of response.data as { id: string; name: string }[]) {
+        if (listItem.name === audienceKey) {
+          return { externalId: listItem.id }
+        }
+      }
+
+      throw new IntegrationError('Audience not found', 'PRECONDITION_FAILED', 424)
     }
   },
 
-  actions: {}
+  extendRequest({ settings }) {
+    return {
+      headers: { 'Api-Key': settings.apiKey }
+    }
+  },
+
+  actions: {
+    upsert
+  },
+
+  presets: [
+    {
+      name: 'Identify Calls',
+      subscribe: 'type = "identify"',
+      partnerAction: 'upsert',
+      mapping: defaultValues(upsert.fields),
+      type: 'automatic'
+    }
+  ]
 }
 
 export default destination
