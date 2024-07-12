@@ -59,7 +59,7 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
       default: false
     },
     evolvTimeout: {
-      description: `If you want to ignore users who take too long to apply the optimization changes then you can use this configuration to limit how long you will wait`,
+      description: `If you want to ignore users who take too long to apply the optimization changes, then you can use this configuration to limit how long Evolv should wait till the page renders.`,
       label: 'Evolv Timeout',
       type: 'number',
       depends_on: {
@@ -74,7 +74,7 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
       default: 10000
     },
     useCookies: {
-      description: `By default, Evolv stores the user id in local storage. This cannot be read across subdomains (e.g. domain1.example.com to domain2.example.com). If your optimization is crossing subdomains set this to the domain your users will be active across (for example .example.com)`,
+      description: `By default, Evolv stores the user id in local storage. Since localStorage cannot be read across subdomains (e.g. domain1.example.com to domain2.example.com), you will need to specify a cookie domain (for example .example.com) if you need to track users across subdomains.`,
       label: 'Cookie domain name to store Evolv uid',
       type: 'string',
       depends_on: {
@@ -94,14 +94,14 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
       default: ''
     },
     receiveConfirmations: {
-      description: 'When set, all Evolv AI confirmations will be sent to segment',
+      description: 'When set, all Evolv AI confirmations for each experiment will be sent to segment.',
       label: 'Receive experiment confirmations',
       type: 'boolean',
       default: true
     },
     receiveUniqueConfirmations: {
-      description: 'When set, only unique confirmations (each experiment per session) will be sent to segment',
-      label: 'Receive unique confirmations',
+      description: 'When set, only unique confirmations (each experiment per session) will be sent to segment.',
+      label: 'Receive unique experiment confirmations only',
       type: 'boolean',
       depends_on: {
         conditions: [
