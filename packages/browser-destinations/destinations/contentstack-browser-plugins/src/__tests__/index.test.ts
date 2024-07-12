@@ -1,7 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import { Subscription } from '@segment/browser-destination-runtime/types'
 import contentstack, { destination } from '../index'
-import { UniversalStorage } from '@segment/analytics-next'
+import { storageFallback } from '../contentstackPlugin/utils'
 
 const example: Subscription[] = [
   {
@@ -17,20 +17,20 @@ const example: Subscription[] = [
 
 let ajs: Analytics
 
-beforeEach(async () => {
-  ajs = new Analytics({
-    writeKey: 'yyuiuyiuyiuyi'
-  })
-
-  ajs.reset()
-
-  const storage = ajs.storage as UniversalStorage<Record<string, string>>
-
-  storage.set('traits', JSON.stringify({ email: 'test@test.com' }))
-})
+beforeEach(async () => {})
 
 describe('contentstack', () => {
-  test('should not populate integrations.Contentstack.createAttributes if no new traits detected', async () => {
+  test('should populate integrations.Contentstack.createAttributes = false if no new traits detected', async () => {
+    ajs = new Analytics({
+      writeKey: 'yyuiuyiuyiuyi'
+    })
+
+    ajs.reset()
+
+    const storage = storageFallback // note: UniversalStorage doesn't seem to work so well in tests
+
+    storage.set('traits', JSON.stringify({ email: 'test@messer.com' }))
+
     const [event] = await contentstack({ subscriptions: example })
 
     jest.spyOn(destination.actions.contentstackPlugin, 'perform')
@@ -42,9 +42,9 @@ describe('contentstack', () => {
     const ctx = await event.identify?.(
       new Context({
         type: 'identify',
-        userId: '2234',
+        userId: '123',
         traits: {
-          //email: 'test@test.com'
+          email: 'test@test.com'
         }
       })
     )
@@ -52,11 +52,28 @@ describe('contentstack', () => {
 
     expect(destination.actions.contentstackPlugin.perform).toHaveBeenCalled()
     expect(ctx).not.toBeUndefined()
-    const csIntegfrationObj = ctx?.event?.integrations?.Contentstack
-    expect(typeof csIntegfrationObj === 'object' && 'createAttributes' in csIntegfrationObj).toEqual(false)
+
+    if (!ctx || !ctx?.event || !ctx.event.integrations) {
+      throw new Error('integrations is undefined')
+    }
+    const integrationsObj: { createAttributes: boolean } = ctx.event.integrations['Contentstack'] as {
+      createAttributes: boolean
+    }
+
+    expect(integrationsObj.createAttributes).toEqual(false)
   })
 
   test('should populate integrations.Contentstack.createAttributes = true if new traits detected', async () => {
+    ajs = new Analytics({
+      writeKey: 'yyuiuyiuyiuyi'
+    })
+
+    ajs.reset()
+
+    const storage = storageFallback // note: UniversalStorage doesn't seem to work so well in tests
+
+    storage.set('traits', JSON.stringify({ email: 'test@messer.com' }))
+
     const [event] = await contentstack({ subscriptions: example })
 
     jest.spyOn(destination.actions.contentstackPlugin, 'perform')

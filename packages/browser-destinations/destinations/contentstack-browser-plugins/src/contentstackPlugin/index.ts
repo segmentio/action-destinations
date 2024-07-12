@@ -7,7 +7,8 @@ import { storageFallback } from './utils'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, {}, Payload> = {
   title: 'Contentstack Browser Plugin',
-  description: 'Enriches all Segment payloads with a value indicating if Attributes need to be created in Contentstack before they are synced.',
+  description:
+    'Enriches all Segment payloads with a value indicating if Attributes need to be created in Contentstack before they are synced.',
   platform: 'web',
   hidden: false,
   defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "group" or type = "alias"',
@@ -23,28 +24,27 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
   lifecycleHook: 'enrichment',
   perform: (_, { context, analytics, payload }) => {
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
-    
+
     const { traits } = payload
-    
-    console.log(`traits = ${JSON.stringify(traits, null, 2)}`)
-
     const cacheKey = 'traits'
+    const cachedDataString: string | null = storage.get(cacheKey)
 
-    const cachedData: string | null = storage.get(cacheKey)
-    
-    console.log(`cachedData = ${cachedData}`)
+    console.log(`cachedData = ${cachedDataString} typeof cachedData = ${typeof cachedDataString}`)
 
     let shoudCreate = false
-    let traitsFromCache = {}
+    let cacheData: object | undefined
 
-    if(cachedData){
-      traitsFromCache = JSON.parse(cachedData)
-      const differences = Object.keys(traits).filter((element) => !Object.keys(traitsFromCache).includes(element))
-      if(differences.length > 0){
+    if (cachedDataString) {
+      cacheData = JSON.parse(cachedDataString)
+
+      console.log(`cacheData = ${cacheData} typeof cacheData = ${typeof cacheData}`)
+      console.log(`cacheData tostring = ${JSON.stringify(cacheData, null, 2)}`)
+
+      const differences = Object.keys(traits).filter((element) => !Object.keys(cacheData ?? {}).includes(element))
+      if (differences.length > 0) {
         shoudCreate = true
       }
-    }
-    else {
+    } else {
       shoudCreate = true
     }
 
@@ -55,13 +55,12 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       context.updateEvent(`integrations.Contentstack.createAttributes`, shoudCreate)
     }
 
-    storage.set(cacheKey, JSON.stringify({ ...traitsFromCache, ...traits }))
+    storage.set(cacheKey, JSON.stringify({ ...cacheData, ...traits }))
 
     console.log(`updatedCacheData = ${storage.get(cacheKey)}`)
-      
+
     return
   }
-
 }
 
 export default action
