@@ -1,7 +1,5 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
-// import { IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-// import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
