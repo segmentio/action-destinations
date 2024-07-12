@@ -7,6 +7,7 @@ import { TaboolaClient } from './client'
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience',
   description: 'Sync a Segment Engage Audience to Taboola.',
+  defaultSubscription: 'type = "track"',
   fields: {
     external_audience_id: {
       label: 'External Audience ID',
