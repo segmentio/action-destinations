@@ -58,24 +58,32 @@ jobs:
         run: |
           yarn lerna publish from-package --yes --allowBranch=main --loglevel=verbose --dist-tag latest
 
-# Commenting this out temporarily until we fix the release script to not rely on tags
-#  release:
-#    needs: build-and-publish # comment when testing locally with https://github.com/nektos/act
-#
-#    runs-on: ubuntu-20.04
-#    timeout-minutes: 15
-#    steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          fetch-depth: 0 # Shallow clones should be disabled for computing changelog
-#          fetch-tags: true
-#
-#      - name: Create Github Release
-#        id: create-github-release
-#        uses: actions/github-script@v7
-#        env:
-#          RELEASE_TAG: ${{ steps.get-release-tag.outputs.release-tag }}
-#        with:
-#          script: |
-#            const script = require('./scripts/github-action/create-github-release.js')
-#            await script({github, context, core, exec})
+  release:
+    needs: build-and-publish # comment when testing locally with https://github.com/nektos/act
+
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled to ensure the commit history for the repository is available to the action
+          fetch-tags: true
+
+      - name: Setup git credentials
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate Release Tag
+        id: get-release-tag
+        run: ./scripts/generate-release-tags.sh
+
+      - name: Create Github Release
+        id: create-github-release
+        uses: actions/github-script@v7
+        env:
+          RELEASE_TAG: ${{ steps.get-release-tag.outputs.release-tag }}
+        with:
+          script: |
+            const script = require('./scripts/github-action/create-github-release.js')
+            await script({github, context, core, exec})
