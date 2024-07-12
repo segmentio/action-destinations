@@ -69,6 +69,11 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled to ensure the commit history for the repository is available to the action
           fetch-tags: true
 
+      - name: Setup git credentials
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Generate Release Tag
         id: get-release-tag
         run: ./scripts/generate-release-tags.sh
