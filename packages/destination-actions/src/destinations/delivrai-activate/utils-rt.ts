@@ -56,6 +56,22 @@ export async function generate_jwt(client_identifier: string ,request: RequestCl
  * @param payloads
  * @returns {DelivrAIPayload} The Delivr AI payload.
  */
+
+
+export function validate_phone(phone: string) {
+  /*
+  Phone must match E.164 format: a number up to 15 digits in length starting with a ‘+’
+  - remove any non-numerical characters
+  - check length
+  - if phone doesn't match the criteria - drop the value, otherwise - return the value prepended with a '+'
+  */
+  const phone_num = phone.replace(/\D/g, '')
+  if (phone_num.length <= 15 && phone_num.length >= 1) {
+    return '+' + phone_num
+  } else {
+    return ''
+  }
+}
 export function gen_update_segment_payload(payloads: Payload[]  , client_identifier_id:string): DelivrAIPayload {
   const data_groups: {
     [hashed_email: string]: {
@@ -71,36 +87,36 @@ export function gen_update_segment_payload(payloads: Payload[]  , client_identif
     let hashed_email: string | undefined = ''
     if (event.email) {
       hashed_email = create_hash(event.email.toLowerCase())
+    } 
+    let idfa: string | undefined = ''
+    let gpsaid: string | undefined = ''
+    if (event.advertising_id) {
+      if (event.device_type) {
+        switch (event.device_type) {
+          case 'ios':
+            idfa = event.advertising_id
+            break
+          case 'android':
+            gpsaid = event.advertising_id
+            break
+        }
+      } else {
+        if (event.advertising_id === event.advertising_id.toUpperCase()) {
+          // Apple IDFA is always uppercase
+          idfa = event.advertising_id
+        } else {
+          gpsaid = event.advertising_id
+        }
+      }
+     }
+    let hashed_phone: string | undefined = ''
+    if (event.phone) {
+      const phone = validate_phone(event.phone)
+      if (phone !== '') {
+        hashed_phone = phone
+      }
     }
-    // let idfa: string | undefined = ''
-    // let gpsaid: string | undefined = ''
-    // if (event.advertising_id) {
-    //   if (event.device_type) {
-    //     switch (event.device_type) {
-    //       case 'ios':
-    //         idfa = event.advertising_id
-    //         break
-    //       case 'android':
-    //         gpsaid = event.advertising_id
-    //         break
-    //     }
-    //   } else {
-    //     if (event.advertising_id === event.advertising_id.toUpperCase()) {
-    //       // Apple IDFA is always uppercase
-    //       idfa = event.advertising_id
-    //     } else {
-    //       gpsaid = event.advertising_id
-    //     }
-    //   }
-    // }
-    // let hashed_phone: string | undefined = ''
-    // if (event.phone) {
-    //   const phone = validate_phone(event.phone)
-    //   if (phone !== '') {
-    //     hashed_phone = create_hash(phone)
-    //   }
-    // }
-    if (hashed_email === '' ) {
+    if (hashed_email === '' && idfa === '' && gpsaid === '' && hashed_phone === '') {
       continue
     }
     const ts = Math.floor(new Date().getTime() / 1000)
@@ -117,7 +133,7 @@ export function gen_update_segment_payload(payloads: Payload[]  , client_identif
 
     const seg_id = event.segment_audience_id
     audience_key = seg_id;
-    const group_key = `${hashed_email}`
+    const group_key = `${hashed_email}|${idfa}|${gpsaid}|${hashed_phone}`
     if (!(group_key in data_groups)) {
       data_groups[group_key] = []
     }
@@ -130,14 +146,14 @@ export function gen_update_segment_payload(payloads: Payload[]  , client_identif
   }
   
   for (const [key] of Object.entries(data_groups)) {
-    const [hashed_email] = key.split('|');
+    const [hashed_email, idfa, gpsaid, hashed_phone] = key.split('|')
   //  let action_string = '';
     // for (const values of grouped_values) {
     //   action_string +=  values.seg_id;
     // }
  
   //  action_string = action_string.slice(0, -1)
-    data.push(hashed_email)
+  data.push({email : hashed_email,advertising_id_ios :  idfa,advertising_id_android :  gpsaid,phone :hashed_phone})
   }
 
   // const gdpr_flag = payloads[0].gdpr_settings ? payloads[0].gdpr_settings.gdpr_flag : false
@@ -147,7 +163,8 @@ export function gen_update_segment_payload(payloads: Payload[]  , client_identif
     data: data,
     client_identifier_id:client_identifier_id
   }
-
+  
+  console.log(data);
 
   // if (gdpr_flag) {
   //   delivr_ai_payload.gdpr_euconsent = payloads[0].gdpr_settings?.gdpr_euconsent

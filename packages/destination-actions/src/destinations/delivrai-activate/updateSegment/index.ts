@@ -34,6 +34,30 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    phone: {
+      label: 'User Phone',
+      description: 'Phone number of a user',
+      type: 'string',
+      unsafe_hidden: false,
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' }, // Phone is sent as identify's trait or track's property
+          else: { '@path': '$.properties.phone' }
+        }
+      }
+    },
+    advertising_id: {
+      label: 'User Mobile Advertising ID',
+      description: "User's mobile advertising Id",
+      type: 'string',
+      unsafe_hidden: false,
+      required: false,
+      default: {
+        '@path': '$.context.device.advertisingId'
+      }
+    },
     segment_audience_key: {
       label: 'Segment Audience Key',
       description: 'Segment Audience Key. Maps to the "Name" of the Segment node in Delivr AI Audience Segmentation',
@@ -147,7 +171,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload, settings }) => {
-    console.log('settings  ',payload);
     const rt_access_token_response: any = await generate_jwt(settings?.client_identifier_id, request);
     const rt_access_token = rt_access_token_response?.data?.token;
     return process_payload(request, [payload], rt_access_token, settings?.client_identifier_id)

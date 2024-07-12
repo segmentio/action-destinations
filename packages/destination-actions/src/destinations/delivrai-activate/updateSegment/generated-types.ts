@@ -22,8 +22,19 @@ export interface Payload {
   /**
    * Email address of a user
    */
-  email?: string
-
+  email?: string,
+  /**
+   * Phone number of a user
+   */
+  phone?: string,
+    /**
+   * User's mobile advertising Id
+   */
+    advertising_id?: string,
+     /**
+   * User's mobile device type
+   */
+  device_type?: string
 }
 
 
