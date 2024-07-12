@@ -21,12 +21,30 @@ const action: BrowserActionDefinition<Settings, Evolv, Payload> = {
       default: {
         '@path': '$.traits'
       }
+    },
+    userId: {
+      type: 'string',
+      description: 'A user’s unique visitor ID. Setting this allows .',
+      label: '',
+      default: {
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
+      }
     }
   },
   perform: (_, event) => {
     const { attributes } = event.payload
     const formattedAttributes = formatAttributes(attributes)
+    // const { attributes, ...other } = event.payload
+    // const formattedAttributes = formatAttributes(other)
 
+    console.info('evolv identify user called', event)
+    // if (evolv && !evolv.instancesCount){
+    //   window.evolv.setUid(event.payload.userId);
+    // }
     setValues(formattedAttributes)
   }
 }

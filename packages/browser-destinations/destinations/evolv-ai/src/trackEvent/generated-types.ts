@@ -11,4 +11,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * A user’s unique visitor ID. Setting this allows .
+   */
+  userId?: string
 }

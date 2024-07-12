@@ -1,11 +1,12 @@
-import type { Event, State } from './types'
+import { evolvWrapper } from './evolv'
+import type { State } from './types'
 
 const POLL = {
   interval: 20,
   duration: 5000
 }
 
-const QUEUE: { event: Array<Event>; state: Array<State> } = {
+const QUEUE: { event: Array<string>; state: Array<State> } = {
   event: [],
   state: []
 }
@@ -42,15 +43,15 @@ function processQueues() {
 }
 
 const Service = {
-  emit(event: Event) {
-    window.evolv.client.emit(event)
+  emit(event: string) {
+    evolvWrapper.client.emit(event)
   },
   bind(state: State) {
-    window.evolv.context.setValue(state)
+    evolvWrapper.context.update(state)
   }
 }
 
-export function emit(event: Event) {
+export function emit(event: string) {
   if (checkEvolv()) {
     Service.emit(event)
   } else {

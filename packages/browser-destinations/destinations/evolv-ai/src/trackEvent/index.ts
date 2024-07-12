@@ -29,12 +29,27 @@ const action: BrowserActionDefinition<Settings, Evolv, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    userId: {
+      type: 'string',
+      description: 'A user’s unique visitor ID. Setting this allows .',
+      label: '',
+      default: {
+        '@if': {
+          exists: { '@path': '$.userId' },
+          then: { '@path': '$.userId' },
+          else: { '@path': '$.anonymousId' }
+        }
+      }
     }
   },
   perform: (_, event) => {
     const { eventName } = event.payload
     const sanitisedEventName = sanitiseEventName(eventName)
 
+    // if (window.evolv && !window.evolv.instancesCount){
+    //   window.evolv.setUid(event.payload.userId);
+    // }
     emit(sanitisedEventName)
   }
 }
