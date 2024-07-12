@@ -95,7 +95,7 @@ export async function getCustomVariables(
       method: 'post',
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+        'developer-token': `jswOXXIc50JI8nAuUGWVRg`
       },
       json: {
         query: `SELECT conversion_custom_variable.id, conversion_custom_variable.name FROM conversion_custom_variable`
@@ -358,7 +358,12 @@ const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: A
   return [{ remove: { userIdentifiers: removeUserIdentifiers } }, { add: { userIdentifiers: addUserIdentifiers } }]
 }
 
-const createOfflineUserJob = async (request: RequestClient, payload: UserListPayload, settings: any) => {
+const createOfflineUserJob = async (
+  request: RequestClient,
+  payload: UserListPayload,
+  settings: any,
+  statsContext: StatsContext | undefined
+) => {
   const url = `https://googleads.googleapis.com/${API_VERSION}/customers/${settings.customerId}/offlineUserDataJobs:create`
 
   const json = {
@@ -370,18 +375,33 @@ const createOfflineUserJob = async (request: RequestClient, payload: UserListPay
     }
   }
 
-  const response = await request(url, {
-    method: 'post',
-    headers: {
-      'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-    },
-    json
-  })
+  try {
+    const response = await request(url, {
+      method: 'post',
+      headers: {
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      },
+      json
+    })
 
-  return (response.data as any).results[0].resourceName
+    return (response.data as any).results[0].resourceName
+  } catch (error) {
+    statsContext?.statsClient?.incr('error.createJob', 1, statsContext?.tags)
+    console.log(error)
+    throw new IntegrationError(
+      (error as GoogleAdsError).response?.statusText,
+      'INVALID_RESPONSE',
+      (error as GoogleAdsError).response?.status
+    )
+  }
 }
 
-const addOperations = async (request: RequestClient, userIdentifiers: any, resourceName: string) => {
+const addOperations = async (
+  request: RequestClient,
+  userIdentifiers: any,
+  resourceName: string,
+  statsContext: StatsContext | undefined
+) => {
   const url = `https://googleads.googleapis.com/${API_VERSION}/${resourceName}:addOperations`
 
   const json = {
@@ -389,28 +409,50 @@ const addOperations = async (request: RequestClient, userIdentifiers: any, resou
     enable_warnings: true
   }
 
-  const response = await request(url, {
-    method: 'post',
-    headers: {
-      'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-    },
-    json
-  })
+  try {
+    const response = await request(url, {
+      method: 'post',
+      headers: {
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      },
+      json
+    })
 
-  return response.data
+    return response.data
+  } catch (error) {
+    statsContext?.statsClient?.incr('error.addOperations', 1, statsContext?.tags)
+    throw new IntegrationError(
+      (error as GoogleAdsError).response?.statusText,
+      'INVALID_RESPONSE',
+      (error as GoogleAdsError).response?.status
+    )
+  }
 }
 
-const runOfflineUserJob = async (request: RequestClient, resourceName: string) => {
+const runOfflineUserJob = async (
+  request: RequestClient,
+  resourceName: string,
+  statsContext: StatsContext | undefined
+) => {
   const url = `https://googleads.googleapis.com/${API_VERSION}/${resourceName}:run`
 
-  const response = await request(url, {
-    method: 'post',
-    headers: {
-      'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-    }
-  })
+  try {
+    const response = await request(url, {
+      method: 'post',
+      headers: {
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      }
+    })
 
-  return response.data
+    return response.data
+  } catch (error) {
+    statsContext?.statsClient?.incr('error.runJob', 1, statsContext?.tags)
+    throw new IntegrationError(
+      (error as GoogleAdsError).response?.statusText,
+      'INVALID_RESPONSE',
+      (error as GoogleAdsError).response?.status
+    )
+  }
 }
 
 export const handleUpdate = async (
@@ -420,25 +462,19 @@ export const handleUpdate = async (
   payloads: UserListPayload[],
   statsContext: StatsContext | undefined
 ) => {
-  const statsClient = statsContext?.statsClient
-  const statsTags = statsContext?.tags
-
   // Format the user data for Google Ads API
   const userIdentifiers = extractUserIdentifiers(payloads, audienceSettings)
 
   // Create an offline user data job
-
-  const resourceName = await createOfflineUserJob(request, payloads[0], settings)
+  const resourceName = await createOfflineUserJob(request, payloads[0], settings, statsContext)
 
   // Add operations to the offline user data job
-
-  await addOperations(request, userIdentifiers, resourceName)
+  await addOperations(request, userIdentifiers, resourceName, statsContext)
 
   // Run the offline user data job
+  const executedJob = await runOfflineUserJob(request, resourceName, statsContext)
 
-  const executedJob = await runOfflineUserJob(request, resourceName)
-
-  statsClient?.incr('success.offlineUpdateAudience', 1, statsTags)
+  statsContext?.statsClient?.incr('success.offlineUpdateAudience', 1, statsContext?.tags)
 
   return executedJob
 }
