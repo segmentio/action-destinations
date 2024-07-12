@@ -133,7 +133,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     whatsapp: {
-      label: 'WhatsApp*',
+      label: 'WhatsApp',
       description: `The contact's WhatsApp.`,
       type: 'string',
       allowNull: true,
@@ -146,7 +146,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     line: {
-      label: 'Line*',
+      label: 'Line',
       description: `The contact's landline.`,
       type: 'string',
       allowNull: true,
@@ -159,7 +159,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     facebook: {
-      label: 'Facebook*',
+      label: 'Facebook',
       description: `The contact's Facebook identifier.`,
       type: 'string',
       allowNull: true,
@@ -172,7 +172,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     unique_name: {
-      label: 'Unique Name*',
+      label: 'Unique Name',
       description: `The contact's unique name.`,
       type: 'string',
       allowNull: true,
