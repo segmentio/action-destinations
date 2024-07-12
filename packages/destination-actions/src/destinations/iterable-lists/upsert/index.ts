@@ -119,7 +119,7 @@ const processPayload = (
   const personas = context.personas as { computation_key: string; computation_id: string; external_audience_id: string }
   if (!personas.computation_key || !personas.computation_id || !personas.external_audience_id) {
     throw new PayloadValidationError(
-      'Missing audience parameters: compuration id, computation key, and/or audience id.'
+      'Missing audience parameters: computation id, computation key, and/or audience id.'
     )
   }
 
