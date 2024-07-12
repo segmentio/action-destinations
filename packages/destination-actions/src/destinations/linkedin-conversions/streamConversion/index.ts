@@ -5,9 +5,8 @@ import { LinkedInConversions } from '../api'
 import {
   CONVERSION_TYPE_OPTIONS,
   SUPPORTED_LOOKBACK_WINDOW_CHOICES,
-  DEPENDS_ON_AD_ACCOUNT_ID,
-  DEPENDS_ON_OPERATION_IS_CREATE,
-  DEPENDS_ON_OPERATION_IS_USE_EXISTING
+  HIDE_IF_OPERATION_NOT_CREATE,
+  HIDE_IF_OPERATION_NOT_USE_EXISTING
 } from '../constants'
 import type { Payload, HookBundle } from './generated-types'
 import { LinkedInError } from '../types'
@@ -33,16 +32,15 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           }
         },
         operation: {
-          label: 'Should Segment create a new conversion rule or use an existing one?',
+          label: 'Create a new conversion rule or use an existing one?',
           description:
             'Choose whether to create a new conversion rule or use an existing one. If you choose to create a new rule we will display the list of fields required to create a rule. If you choose to select an existing rule we will provide a drop down with all conversion rules that exist in your ad account for you to choose from.',
           type: 'string',
           required: true,
           choices: [
-            { label: 'Create New Conversion Rule', value: 'create' },
-            { label: 'Use Existing Conversion Rule', value: 'use_existing' }
-          ],
-          depends_on: DEPENDS_ON_AD_ACCOUNT_ID
+            { label: 'Segment will create a new conversion rule in LinkedIn', value: 'create' },
+            { label: 'Segment will sync data to an existing conversion rule', value: 'use_existing' }
+          ]
         },
         campaignId: {
           label: 'Add Campaigns to Conversion',
@@ -55,7 +53,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
             const linkedIn = new LinkedInConversions(request)
             return linkedIn.getCampaignsList(hookInputs?.adAccountId)
           },
-          depends_on: DEPENDS_ON_OPERATION_IS_CREATE
+          depends_on: HIDE_IF_OPERATION_NOT_CREATE
         },
         /**
          * The configuration fields for a LinkedIn CAPI conversion rule.
@@ -72,20 +70,20 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
             const linkedIn = new LinkedInConversions(request)
             return linkedIn.getConversionRulesList(hookInputs?.adAccountId)
           },
-          depends_on: DEPENDS_ON_OPERATION_IS_USE_EXISTING
+          depends_on: HIDE_IF_OPERATION_NOT_USE_EXISTING
         },
         name: {
           type: 'string',
           label: 'Name',
           description: 'The name of the conversion rule.',
-          depends_on: DEPENDS_ON_OPERATION_IS_CREATE
+          depends_on: HIDE_IF_OPERATION_NOT_CREATE
         },
         conversionType: {
           type: 'string',
           label: 'Conversion Type',
           description: 'The type of conversion rule.',
           choices: CONVERSION_TYPE_OPTIONS,
-          depends_on: DEPENDS_ON_OPERATION_IS_CREATE
+          depends_on: HIDE_IF_OPERATION_NOT_CREATE
         },
         attribution_type: {
           label: 'Attribution Type',
@@ -95,7 +93,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
             { label: 'Each Campaign', value: 'LAST_TOUCH_BY_CAMPAIGN' },
             { label: 'Single Campaign', value: 'LAST_TOUCH_BY_CONVERSION' }
           ],
-          depends_on: DEPENDS_ON_OPERATION_IS_CREATE
+          depends_on: HIDE_IF_OPERATION_NOT_CREATE
         },
         post_click_attribution_window_size: {
           label: 'Post-Click Attribution Window Size',
@@ -104,7 +102,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           type: 'number',
           default: 30,
           choices: SUPPORTED_LOOKBACK_WINDOW_CHOICES,
-          depends_on: DEPENDS_ON_OPERATION_IS_CREATE
+          depends_on: HIDE_IF_OPERATION_NOT_CREATE
         },
         view_through_attribution_window_size: {
           label: 'View-Through Attribution Window Size',
@@ -113,7 +111,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           type: 'number',
           default: 7,
           choices: SUPPORTED_LOOKBACK_WINDOW_CHOICES,
-          depends_on: DEPENDS_ON_OPERATION_IS_CREATE
+          depends_on: HIDE_IF_OPERATION_NOT_CREATE
         }
       },
       outputTypes: {
