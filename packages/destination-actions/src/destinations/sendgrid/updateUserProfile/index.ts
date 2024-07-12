@@ -121,7 +121,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone_number: {
       label: 'Phone Number',
-      description: `The contact's phone number.`,
+      description: `The contact's phone number. Note: This is different from the Phone Number ID field, but the same value can be stored in both fields.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -133,7 +133,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     whatsapp: {
-      label: 'WhatsApp',
+      label: 'WhatsApp*',
       description: `The contact's WhatsApp.`,
       type: 'string',
       allowNull: true,
@@ -146,8 +146,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     line: {
-      label: 'LINE ID',
-      description: `The contact's LINE ID.`,
+      label: 'Line*',
+      description: `The contact's landline.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -159,8 +159,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     facebook: {
-      label: 'Facebook ID',
-      description: `The contact's Facebook ID.`,
+      label: 'Facebook*',
+      description: `The contact's Facebook identifier.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -172,7 +172,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     unique_name: {
-      label: 'Unique Name',
+      label: 'Unique Name*',
       description: `The contact's unique name.`,
       type: 'string',
       allowNull: true,
@@ -213,7 +213,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone_number_id: {
       label: 'Phone Number ID',
-      description: `The contact's Phone Number ID. This must be a valid phone number.`,
+      description: `Primary Phone Number used to identify a Contact. This must be a valid phone number.`,
       type: 'string',
       allowNull: true,
       required: false,
