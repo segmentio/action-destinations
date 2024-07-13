@@ -322,7 +322,6 @@ const formatPhone = (phone: string, hash_data?: boolean): string => {
 const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: AudienceSettings) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
-
   // Map user data to Google Ads API format
   const identifierFunctions: { [key: string]: (payload: UserListPayload) => any } = {
     MOBILE_ADVERTISING_ID: (payload: UserListPayload) => ({
@@ -332,21 +331,23 @@ const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: A
       thirdPartyUserId: payload.crm_id?.trim()
     }),
     CONTACT_INFO: (payload: UserListPayload) => {
-      const identifiers = []
-      if (payload.email) {
-        identifiers.push({
-          hashedEmail: formatEmail(payload.email, payload.hash_data)
-        })
-      }
-      if (payload.phone) {
-        identifiers.push({
-          hashedPhoneNumber: formatPhone(payload.phone, payload.hash_data)
-        })
+      const identifiers = {
+        hashedEmail: formatEmail(payload.email ?? '', payload.hash_data),
+        hashedPhoneNumber: formatPhone(payload.phone ?? '', payload.hash_data),
+        hashedFirstName: crypto
+          .createHash('sha256')
+          .update(payload.first_name ?? '')
+          .digest('hex'),
+        hashedLastName: crypto
+          .createHash('sha256')
+          .update(payload.last_name ?? '')
+          .digest('hex'),
+        countryCode: payload.country_code,
+        postalCode: payload.postal_code
       }
       return identifiers
     }
   }
-
   // Map user data to Google Ads API format
   for (const payload of payloads) {
     if (payload.event_name == 'Audience Entered') {
@@ -355,7 +356,7 @@ const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: A
       removeUserIdentifiers.push(identifierFunctions[audienceSettings.external_id_type](payload))
     }
   }
-  return [{ remove: { userIdentifiers: removeUserIdentifiers } }, { add: { userIdentifiers: addUserIdentifiers } }]
+  return [addUserIdentifiers, removeUserIdentifiers]
 }
 
 const createOfflineUserJob = async (
@@ -383,8 +384,7 @@ const createOfflineUserJob = async (
       },
       json
     })
-
-    return (response.data as any).results[0].resourceName
+    return (response.data as any).resourceName
   } catch (error) {
     statsContext?.statsClient?.incr('error.createJob', 1, statsContext?.tags)
     console.log(error)
@@ -463,13 +463,19 @@ export const handleUpdate = async (
   statsContext: StatsContext | undefined
 ) => {
   // Format the user data for Google Ads API
-  const userIdentifiers = extractUserIdentifiers(payloads, audienceSettings)
+  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, audienceSettings)
 
   // Create an offline user data job
   const resourceName = await createOfflineUserJob(request, payloads[0], settings, statsContext)
 
   // Add operations to the offline user data job
-  await addOperations(request, userIdentifiers, resourceName, statsContext)
+  if (adduserIdentifiers.length > 0) {
+    await addOperations(request, [{ create: { userIdentifiers: adduserIdentifiers } }], resourceName, statsContext)
+  }
+
+  if (removeUserIdentifiers.length > 0) {
+    await addOperations(request, [{ remove: { userIdentifiers: removeUserIdentifiers } }], resourceName, statsContext)
+  }
 
   // Run the offline user data job
   const executedJob = await runOfflineUserJob(request, resourceName, statsContext)
