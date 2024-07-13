@@ -331,19 +331,32 @@ const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: A
       thirdPartyUserId: payload.crm_id?.trim()
     }),
     CONTACT_INFO: (payload: UserListPayload) => {
-      const identifiers = {
-        hashedEmail: formatEmail(payload.email ?? '', payload.hash_data),
-        hashedPhoneNumber: formatPhone(payload.phone ?? '', payload.hash_data),
-        hashedFirstName: crypto
-          .createHash('sha256')
-          .update(payload.first_name ?? '')
-          .digest('hex'),
-        hashedLastName: crypto
-          .createHash('sha256')
-          .update(payload.last_name ?? '')
-          .digest('hex'),
-        countryCode: payload.country_code,
-        postalCode: payload.postal_code
+      const identifiers = []
+      if (payload.email) {
+        identifiers.push({
+          hashedEmail: formatEmail(payload.email, payload.hash_data)
+        })
+      }
+      if (payload.phone) {
+        identifiers.push({
+          hashedPhoneNumber: formatPhone(payload.phone, payload.hash_data)
+        })
+      }
+      if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
+        identifiers.push({
+          addressInfo: {
+            hashedFirstName: crypto
+              .createHash('sha256')
+              .update(payload.first_name ?? '')
+              .digest('hex'),
+            hashedLastName: crypto
+              .createHash('sha256')
+              .update(payload.last_name ?? '')
+              .digest('hex'),
+            countryCode: payload.country_code ?? '',
+            postalCode: payload.postal_code ?? ''
+          }
+        })
       }
       return identifiers
     }
