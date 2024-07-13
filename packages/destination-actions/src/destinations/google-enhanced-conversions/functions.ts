@@ -19,7 +19,7 @@ import { Features } from '@segment/actions-core/mapping-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
-import * as crypto from 'crypto'
+import { sha256SmartHash } from '@segment/actions-core'
 
 export const API_VERSION = 'v16'
 export const CANARY_API_VERSION = 'v16'
@@ -290,7 +290,7 @@ const formatEmail = (email: string, hash_data?: boolean): string => {
     normalizedEmail = `${emailParts[0]}@${emailParts[1]}`
   }
 
-  return crypto.createHash('sha256').update(normalizedEmail).digest('hex')
+  return sha256SmartHash(normalizedEmail)
 }
 
 function formatToE164(phoneNumber: string, defaultCountryCode: string): string {
@@ -316,7 +316,7 @@ const formatPhone = (phone: string, hash_data?: boolean): string => {
     return phone
   }
   const formattedPhone = formatToE164(phone, '1')
-  return crypto.createHash('sha256').update(formattedPhone).digest('hex')
+  return sha256SmartHash(formattedPhone)
 }
 
 const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: AudienceSettings) => {
@@ -345,14 +345,8 @@ const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: A
       if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
         identifiers.push({
           addressInfo: {
-            hashedFirstName: crypto
-              .createHash('sha256')
-              .update(payload.first_name ?? '')
-              .digest('hex'),
-            hashedLastName: crypto
-              .createHash('sha256')
-              .update(payload.last_name ?? '')
-              .digest('hex'),
+            hashedFirstName: sha256SmartHash(payload.first_name ?? ''),
+            hashedLastName: sha256SmartHash(payload.last_name ?? ''),
             countryCode: payload.country_code ?? '',
             postalCode: payload.postal_code ?? ''
           }
