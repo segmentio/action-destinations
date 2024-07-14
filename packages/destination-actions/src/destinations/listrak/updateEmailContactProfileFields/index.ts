@@ -17,7 +17,8 @@ type RequestsByListId = { [k: number]: ContactSegmentationFieldValues[] }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Email Contact Profile Fields',
-  description: 'One or more list imports will be started to update the specified contact profile fields on the specified list.',
+  description:
+    'One or more list imports will be started to update the specified contact profile fields on the specified list.',
   fields: {
     listId: {
       label: 'List ID',
@@ -39,10 +40,26 @@ const action: ActionDefinition<Settings, Payload> = {
     profileFieldValues: {
       label: 'Profile Field Values',
       description:
-        'Add key value pairs to set one or more profile fields. The key is the profile field ID you want to set. Find this under Help & Support > API ID Information in https://admin.listrak.com. The value is the profile field value. (i.e. 1234 = on)',
+        'Add one or more profile field IDs as object keys. You can find these IDs under Help & Support > API ID Information on https://admin.listrak.com. Choose one of three options as the object value: "on" (activates this field in Listrak), "off" (deactivates this field in Listrak), or leave it empty (Listrak sets the field based on the Segment Audience payload\'s audience_key: "true" activates the field, "false" deactivates it).',
       type: 'object',
       required: true,
       defaultObjectUI: 'keyvalue:only'
+    },
+    properties: {
+      label: 'Properties Object',
+      description: 'The properties object',
+      type: 'object',
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.properties'
+      }
+    },
+    audience_key: {
+      label: 'Audience Key',
+      description: 'The key that determines if the contact is in the audience or not.',
+      type: 'string',
+      readOnly: true,
+      default: { '@path': '$.properties.audience_key' }
     },
     enable_batching: {
       type: 'boolean',
@@ -70,9 +87,19 @@ async function processPayload(request: RequestClient, payload: Payload[]) {
       if (!requestsByListId[p.listId]) {
         requestsByListId[p.listId] = []
       }
+
+      let audienceEntered = null
+
+      if (p.audience_key && p.properties) {
+        audienceEntered = p.properties[p.audience_key]
+        if (typeof audienceEntered !== 'boolean') {
+          audienceEntered = null
+        }
+      }
+
       requestsByListId[p.listId].push({
         emailAddress: p.emailAddress,
-        segmentationFieldValues: createValidSegmentationFields(p.profileFieldValues)
+        segmentationFieldValues: createValidSegmentationFields(p.profileFieldValues, audienceEntered)
       })
     })
 
@@ -86,14 +113,29 @@ async function processPayload(request: RequestClient, payload: Payload[]) {
 
 export default action
 
-function createValidSegmentationFields(profileFieldValues: { [k: string]: unknown }): SegmentationFieldValue[] {
+function createValidSegmentationFields(
+  profileFieldValues: { [k: string]: unknown },
+  audienceEntered: boolean | null
+): SegmentationFieldValue[] {
   return Object.keys(profileFieldValues)
     .filter((x) => parseInt(x))
     .map((x) => {
       const segmentationFieldValue: SegmentationFieldValue = {
         segmentationFieldId: parseInt(x),
-        value: profileFieldValues[x] + ''
+        value: setProfileFieldValue(profileFieldValues[x] + '', audienceEntered)
       }
       return segmentationFieldValue
     })
+}
+
+function setProfileFieldValue(value: string, audienceEntered: boolean | null): string {
+  if (value === 'on' || value === 'off') {
+    return value
+  }
+  // if value is not "on" or "off", determine based on audience key
+  if (audienceEntered !== null) {
+    return audienceEntered ? 'on' : 'off'
+  }
+  // else return inputted string
+  return value
 }

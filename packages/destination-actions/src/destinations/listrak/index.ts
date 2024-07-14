@@ -30,6 +30,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     refreshAccessToken: async (request, { settings, auth }) => {
+      return true
       const baseUrl = `https://auth.listrak.com/OAuth2/Token`
       const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
         method: 'POST',
