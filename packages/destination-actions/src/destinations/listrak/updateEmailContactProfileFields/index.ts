@@ -89,14 +89,12 @@ async function processPayload(request: RequestClient, payload: Payload[]) {
       }
 
       let audienceEntered = null
-
       if (p.audience_key && p.properties) {
         audienceEntered = p.properties[p.audience_key]
         if (typeof audienceEntered !== 'boolean') {
           audienceEntered = null
         }
       }
-
       requestsByListId[p.listId].push({
         emailAddress: p.emailAddress,
         segmentationFieldValues: createValidSegmentationFields(p.profileFieldValues, audienceEntered)
@@ -132,8 +130,8 @@ function setProfileFieldValue(value: string, audienceEntered: boolean | null): s
   if (value === 'on' || value === 'off') {
     return value
   }
-  // if value is not "on" or "off", determine based on audience key
-  if (audienceEntered !== null) {
+  // if value is empty "", determine "on" or "off" based on audience key
+  if (value === '' && audienceEntered !== null) {
     return audienceEntered ? 'on' : 'off'
   }
   // else return inputted string
