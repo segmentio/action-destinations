@@ -108,6 +108,30 @@ export default class Init extends Command {
     ])
 
     const { name, slug, template } = answers
+    let grantType
+    if (template === 'oauth2-auth' || template === 'Audiences with OAuth2') {
+      const grantTypeAnswer = await autoPrompt(flags, [
+        {
+          type: 'select',
+          name: 'grantType',
+          message: 'Grant Type (default Authorization code',
+          choices: [
+            {
+              title: 'Authorisation code grant',
+              value: 'authorization_code'
+            },
+            {
+              title: 'Client Credentials grant',
+              value: 'client_credentials'
+            }
+          ]
+        }
+      ])
+      grantType = grantTypeAnswer.grantType
+      if (!grantType) {
+        grantType = 'authorization_code'
+      }
+    }
     if (!name || !slug || !template) {
       this.exit()
     }
@@ -122,7 +146,14 @@ export default class Init extends Command {
     const slugWithoutActions = String(slug).replace('actions-', '')
     const relativePath = path.join(directory, args.path || slugWithoutActions)
     const targetDirectory = path.join(process.cwd(), relativePath)
-    const templatePath = path.join(__dirname, '../../templates/destinations', template)
+
+    let templatePath
+    if ((template === 'oauth2-auth' || template === 'Audiences with OAuth2') && grantType === 'client_credentials') {
+      templatePath = path.join(__dirname, '../../templates/destinations', 'oauth2-client-credentials')
+    } else {
+      templatePath = path.join(__dirname, '../../templates/destinations', template)
+    }
+
     const snapshotPath = path.join(__dirname, '../../templates/actions/snapshot')
     const entryPath = isBrowserTemplate ? `${relativePath}/src/index.ts` : `${relativePath}/index.ts`
 

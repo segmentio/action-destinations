@@ -15,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
   authentication: {
     scheme: 'oauth2',
-    grantType: 'client_credentials',
+    oauthGrantType: 'client_credentials',
     fields: {
       subdomain: {
         label: 'Subdomain',
