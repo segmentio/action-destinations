@@ -26,6 +26,11 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
 
     const { traits } = payload
+
+    if (traits === undefined || traits === null) {
+      return
+    }
+
     const cacheKey = 'traits'
     const cachedDataString: string | null = storage.get(cacheKey)
 
