@@ -1,5 +1,4 @@
 import { ExecuteInput } from '@segment/actions-core'
-import { createHash } from 'crypto'
 import type { Payload } from './syncAudienceToCSV/generated-types'
 import type { AudienceSettings, Settings } from './generated-types'
 
@@ -23,6 +22,32 @@ export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unkno
 
 function generateFile(payloads: Payload[], settings: Settings, audienceSettings: AudienceSettings) {
 
+  const headers = []
+  const columnsField = payloads[0].columns
+  
+
+  // headers = ['audience_name', 'audience_id', 'audience_action', 'email', 'user_id', 'anonymous_id', 'timestamp', 'messageId', 'space_id']
+
+  Object.keys(columnsField).forEach(key => {
+    headers.push(columnsField[key])
+  })
+
+  const rows = []
+
+  payloads.forEach(payload => {
+    const row = []
+    if(headers.includes('audience_name')) {
+      row.push(payload.audience_name ?? '')
+    }
+    if(headers.includes('audience_id')) {
+      row.push(payload.audience_id ?? '')
+    }
+    rows.push(row)
+  }
+
+
+
+
   // Using a Set to keep track of headers
   let headers = new Set<string>()
   let rows = Buffer.from('')
@@ -32,28 +57,12 @@ function generateFile(payloads: Payload[], settings: Settings, audienceSettings:
     const payload = payloads[i]
     headers = new Set<string>()
 
-    if (payloads[0].is_audience) {
-      headers.add('audience_key')
-    }
-
-    const row: string[] = payload.is_audience ? [enquoteIdentifier(payload.computation_key || '')] : []
-
-    // Process unhashed_identifier_data first
-    if (payload.unhashed_identifier_data) {
-      for (const key in payload.unhashed_identifier_data) {
-        if (Object.prototype.hasOwnProperty.call(payload.unhashed_identifier_data, key)) {
+    // Process identifier_data
+    if (payload.data) {
+      for (const key in payload.data) {
+        if (Object.prototype.hasOwnProperty.call(payload.data, key) && !headers.has(key)) {
           headers.add(key)
-          row.push(`"${hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`)
-        }
-      }
-    }
-
-    // Process identifier_data, skipping keys that have already been processed
-    if (payload.identifier_data) {
-      for (const key in payload.identifier_data) {
-        if (Object.prototype.hasOwnProperty.call(payload.identifier_data, key) && !headers.has(key)) {
-          headers.add(key)
-          row.push(enquoteIdentifier(String(payload.identifier_data[key])))
+          row.push(enquoteIdentifier(String(payload.data[key])))
         }
       }
     }
@@ -71,34 +80,5 @@ function enquoteIdentifier(identifier: string) {
   return `"${String(identifier).replace(/"/g, '""')}"`
 }
 
-const hash = (value: string): string => {
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
-}
 
-const normalize = (key: string, value: string): string => {
-  switch (key) {
-    case 'phone_number': {
-      // Remove all country extensions, parentheses, and hyphens before hashing.
-      // For example, if the input phone number is "+1 (555) 123-4567", convert that to "5551234567" before hashing.
-
-      // This regex matches the country code in the first group, and captures the remaining digits.
-      // because the captures are optional, the regex works correctly even if some parts of the phone number are missing.
-      const phoneRegex = /(?:\+1)?\s*\(?\s*(\d+)\s*-?\)?\s*(\d+)\s*-?\s*(\d+)/
-      const match = phoneRegex.exec(value)
-      if (!match || match.length < 4) return value
-
-      // Drop the ALL capture. Return the rest of captures joined together.
-      return match.slice(1).join('')
-    }
-
-    case 'email': {
-      return value.toLowerCase().trim()
-    }
-  }
-
-  return value
-}
-
-export { generateFile, enquoteIdentifier, normalize }
+export { generateFile, enquoteIdentifier }

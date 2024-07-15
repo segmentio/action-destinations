@@ -2,47 +2,172 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import { generateFile } from '../operations'
 import type { Payload } from './generated-types'
-import { uploadS3, validateS3 } from './s3'
+import { uploadS3 } from './s3'
+
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Upload CSV',
   description: 'Uploads audience membership data to a CSV file in S3.',
   fields: {
-    is_audience: {
-      type: 'boolean',
-      label: 'Check if uploading audience data',
-      description: 'Check if the data being uploaded is audience data. This is required for sending audiences to S3',
+    columns: {
+      label: 'Columns',
+      description: `Column names to write to S3 CSV file.`,
+      type: 'object',
+      defaultObjectUI: 'object',
       required: true,
-      default: false
+      additionalProperties: false,
+      properties: {
+        audience_name: {
+          label: 'Audience Name column',
+          description: 'Name of column for the Audience Name',
+          type: 'string'
+        },
+        audience_id: {
+          label: 'Audience ID column',
+          description: 'Name of ...',
+          type: 'string'
+        },
+        audience_action: {
+          label: 'Audience Action column',
+          description: 'Indicates if the user has been added or removed from the Audience. true = added, false = removed.',
+          type: 'string'
+        },
+        email: {
+          label: 'Email column',
+          description: 'Name of ...',
+          type: 'string'
+        },
+        user_id: {
+          label: 'User ID column',
+          description: 'Name of ...',
+          type: 'string'
+        },
+        anonymous_id: {
+          label: 'Anonymous ID column',
+          description: 'Name of ...',
+          type: 'string'
+        },
+        timestamp: {
+          label: 'Timestamp',
+          description: 'Timestamp when the user was added or removed from the Audience',
+          type: 'datetime'
+        },
+        messageId: {
+          label: 'Message ID',
+          description: 'Unique identifier for the message.',
+          type: 'string'
+        },
+        space_id: {
+          label: 'Space ID',
+          description: 'Unique identifier for the Segment Engage Space which generated the event.',
+          type: 'string'
+        },
+        integrations_object: {
+          label: 'Integrations Object',
+          description: 'Details of which Destinations the event was synced to by Segment',
+          type: 'object'
+        },
+        properties_or_traits: {
+          label: 'Properties or Traits',
+          description: 'Contains the entire properties object from a track() call or the traits object from an identify() call emitted from Engage when a user is added to or removed from an Audience',
+          type: 'string'
+        }
+      },
+      default: {
+        audience_name: 'audience_name',
+        audience_id: 'audience_id',
+        email: 'email',
+        user_id: 'user_id',
+        anonymous_id: 'anonymous_id',
+        timestamp: 'timestamp',
+        messageId: 'message_id',
+        space_id: 'space_id',
+        integrations_object: 'integrations_object',
+        properties_or_traits: 'properties_or_traits'
+      }  
     },
-
-    identifier_data: {
-      label: 'Identifier Data',
-      description: `Additional data pertaining to the user to be written to the file.`,
-      type: 'object',
-      required: false,
-      defaultObjectUI: 'keyvalue:only'
-    },
-    unhashed_identifier_data: {
-      label: 'Hashable Identifier Data',
-      description: `Additional data pertaining to the user to be hashed before written to the file. Use field name **phone_number** or **email** to apply LiveRamp's specific hashing rules.`,
-      type: 'object',
-      required: false,
-      defaultObjectUI: 'keyvalue:only'
-    },
-
-    computation_key: {
-      label: 'Segment Audience Key',
-      description: 'A unique identifier assigned to a specific audience in Segment.',
+    audienceName: {
+      label: 'Audience Name Hidden Field',
+      description: 'Audience Name Hidden Field',
       type: 'string',
-      required: false,
+      required: true,
       unsafe_hidden: true,
       default: { '@path': '$.context.personas.computation_key' }
     },
-    traits_or_props: {
-      label: 'Traits or Properties',
-      description: 'Hidden field used to access traits or properties objects from Engage payloads.',
+    audienceId: {
+      label: 'Audience ID Hidden Field',
+      description: 'Audience ID Hidden Field',
+      type: 'string',
+      required: true,
+      unsafe_hidden: true,
+      default: { '@path': '$.context.personas.computation_id' }
+    },
+    email: {
+      label: 'Email Hidden Field',
+      description: 'Email Hidden Field',
+      type: 'string',
+      required: false,
+      unsafe_hidden: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.context.traits.email' }
+        }
+      }
+    },
+    userId: {
+      label: 'User ID Hidden Field',
+      description: 'User ID Hidden Field',
+      type: 'string',
+      required: false,
+      unsafe_hidden: true,
+      default: {'@path': '$.userId' }
+    },
+    anonymousId: {
+      label: 'Anonymous ID Hidden Field',
+      description: 'Anonymous ID Hidden Field',
+      type: 'string',
+      required: false,
+      unsafe_hidden: true,
+      default: {'@path': '$.anonymousId' }
+    },
+    timestamp: {
+      label: 'Timestamp Hidden Field',
+      description: 'Timestamp Hidden Field',
+      type: 'datetime',
+      required: true,
+      unsafe_hidden: true,
+      default: {'@path': '$.timestamp' }
+    },
+    messageId: {
+      label: 'Message ID Hidden Field',
+      description: 'Message ID Hidden Field',
+      type: 'string',
+      required: true,
+      unsafe_hidden: true,
+      default: {'@path': '$.messageId' }
+    },  
+    spaceId: {
+      label: 'Space ID Hidden Field',
+      description: 'Space ID Hidden Field',
+      type: 'string',
+      required: true,
+      unsafe_hidden: true,
+      default: {'@path': '$.context.personas.space_id' }
+    },
+    integrationsObject: {
+      label: 'Integrations Object Hidden Field',
+      description: 'Integrations Object Hidden Field',
       type: 'object',
+      required: true,
+      unsafe_hidden: true,
+      default: {'@path': '$.integrations' }
+    },
+    propertiesOrTraits: {
+      label: 'Properties or Traits Hidden Field',
+      description: 'Properties or Traits Hidden Field',
+      type: 'string',
       required: true,
       unsafe_hidden: true,
       default: {
@@ -53,17 +178,28 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         }
       }
     },
-    computation_class: {
-      label: 'Segment Audience Computation Class',
-      description:
-        "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' will be dropped before the perform() fuction call.",
-      type: 'string',
-      required: true,
-      unsafe_hidden: true,
-      default: { '@path': '$.context.personas.computation_class' },
-      choices: [{ label: 'Audience', value: 'audience' }]
+    additional_identifiers_and_traits_columns: {
+      label: 'Additional Identifier and Trait Columns',
+      description: 'Additional user identifiers and traits to include as separate columns in the CSV file.',
+      type: 'object',
+      multiple: true,
+      required: false,
+      defaultObjectUI: 'keyvalue:only',
+      properties: {
+        key: {
+          label: 'Trait or Identifier Name',
+          description: 'Name of the trait or identifier in the identify() traits object or track() properties object.',
+          type: 'string',
+          required: true
+        },
+        value: {
+          label: 'Column Name',
+          description: 'Name of the column to write to the CSV file.',
+          type: 'string',
+          required: true
+        }
+      }      
     },
-
     enable_batching: {
       type: 'boolean',
       label: 'Batch data',
@@ -79,6 +215,16 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       unsafe_hidden: true,
       required: false,
       default: 25000
+    },
+    computation_class: {
+      label: 'Segment Audience Computation Class',
+      description:
+        "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' will be dropped before the perform() fuction call.",
+      type: 'string',
+      required: true,
+      unsafe_hidden: true,
+      default: { '@path': '$.context.personas.computation_class' },
+      choices: [{ label: 'Audience', value: 'audience' }]
     }
   },
 
@@ -91,7 +237,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 }
 
 async function processData(payloads: Payload[], settings: Settings, audienceSettings?: AudienceSettings) {
-  validateS3(settings, audienceSettings as AudienceSettings)
   const { filename, fileContents } = generateFile(payloads, settings, audienceSettings as AudienceSettings)
   return uploadS3(settings, audienceSettings as AudienceSettings, filename ?? '', fileContents)
 }

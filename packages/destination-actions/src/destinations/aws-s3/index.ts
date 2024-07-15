@@ -21,6 +21,20 @@ const destination: AudienceDestinationDefinition<Settings> = {
       description: `Prefix to append to the name of the uploaded file. A timestamp and lower cased audience name will be appended to the filename to ensure uniqueness.`,
       type: 'string',
       required: false
+    },
+    delimiter: {
+      label: 'Delimeter',
+      description: `Character used to separate tokens in the resulting file.`,
+      type: 'string',
+      required: true,
+      choices: [
+        {label: 'comma', value: ','},
+        {label: 'pipe', value: '|'},
+        {label: 'tab', value: 'tab'},
+        {label: 'semicolon', value: ';'},
+        {label: 'colon', value: ':'},
+      ],
+      default: ','
     }
   },
   authentication: {
@@ -44,19 +58,6 @@ const destination: AudienceDestinationDefinition<Settings> = {
         description: 'Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)',
         type: 'string',
         required: true
-      },
-      delimiter: {
-        label: 'Delimeter',
-        description: `Character used to separate tokens in the resulting file.`,
-        type: 'string',
-        required: true,
-        choices: [
-          {label: ',', value: ','},
-          {label: '|', value: '|'},
-          {label: 'tab', value: 'tab'},
-          {label: ':', value: ':'},
-        ],
-        default: ','
       }
     }
   },

@@ -36,21 +36,6 @@ const assumeRole = async (roleArn: string, roleSessionName: string): Promise<Cre
   }
 }
 
-function validateS3(settings: Settings, audienceSettings: AudienceSettings) {
-  if (!settings.iam_role_arn) {
-    throw new InvalidAuthenticationError('Selected S3 upload mode, but missing IAM Role ARN')
-  }
-  if (!settings.s3_aws_bucket_name) {
-    throw new InvalidAuthenticationError('Selected S3 upload mode, but missing AWS S3 bucket name')
-  }
-  if (audienceSettings.s3_aws_folder_name && !audienceSettings.s3_aws_folder_name.endsWith('/')) {
-    throw new InvalidAuthenticationError('Selected S3 upload mode, but the folder name must end with "/"')
-  }
-  if (!settings.s3_aws_region) {
-    throw new InvalidAuthenticationError('Selected S3 upload mode, but missing AWS Region')
-  }
-}
-
 // Function to upload a CSV content to S3
 const uploadCSV = async (
   credentials: Credentials,
