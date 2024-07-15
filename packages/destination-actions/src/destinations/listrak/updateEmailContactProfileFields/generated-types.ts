@@ -10,7 +10,7 @@ export interface Payload {
    */
   emailAddress: string
   /**
-   * Add one or more profile field IDs as object keys. You can find these IDs under Help & Support > API ID Information on https://admin.listrak.com. Choose one of three options as the object value: "on" (activates this field in Listrak), "off" (deactivates this field in Listrak), or leave it empty (Listrak sets the field based on the Segment Audience payload's audience_key: "true" activates the field, "false" deactivates it).
+   * Add one or more profile field IDs as object keys. You can find these IDs under Help & Support > API ID Information on https://admin.listrak.com. Choose one of three options as the object value: "on" (activates this field in Listrak), "off" (deactivates this field in Listrak), or "useAudienceKey" (Listrak sets the field based on the Segment Audience payload's audience_key: "true" activates the field, "false" deactivates it).
    */
   profileFieldValues: {
     [k: string]: unknown
