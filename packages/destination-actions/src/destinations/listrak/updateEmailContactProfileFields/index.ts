@@ -130,7 +130,7 @@ function setProfileFieldValue(value: string, audienceEntered: boolean | null): s
   if (value === 'on' || value === 'off') {
     return value
   }
-  // if value is empty "useAudienceKey", determine "on" or "off" based on audience key
+  // if value is "useAudienceKey", determine "on" or "off" based on audience key
   if (value === 'useAudienceKey' && audienceEntered !== null) {
     return audienceEntered ? 'on' : 'off'
   }
