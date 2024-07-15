@@ -16,6 +16,7 @@ const auth: AuthTokens = {
 const AUDIENCE_ID = 'aud_12345' // References audienceSettings.audience_id
 const AUDIENCE_KEY = 'sneakers_buyers' // References audienceSettings.audience_key
 const client_identifier_id = 'delivrai' // References settings.customer_desc
+// const ADVERTISING_ID = 'foobar' // References device.advertisingId
 
 const bad_event = createTestEvent({
   type: 'identify',
@@ -41,9 +42,8 @@ const bad_event = createTestEvent({
 describe('delivrAIAudiences.updateSegment', () => {
 
   describe('Failure cases', () => {
-   
     it('should throw an error if event does not include email', async () => {
-      nock(`https://dev.cdpresolution.com`).post('/segment/audience/').reply(200, { status: false })
+      nock(`https://dev.cdpresolution.com`).post('/backend/segment/audience/').reply(200, { status: false })
 
       await expect(
         testDestination.testAction('updateSegment', {

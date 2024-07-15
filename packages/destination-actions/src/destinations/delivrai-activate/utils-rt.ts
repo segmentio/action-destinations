@@ -1,7 +1,7 @@
 import { createHash } from 'crypto'
 import { Payload } from './updateSegment/generated-types'
 import { DelivrAIPayload } from './types'
-import type {  RequestClient } from '@segment/actions-core'
+import {  RequestClient  } from '@segment/actions-core'
 import {DELIVRAI_BASE_URL , DELIVRAI_GET_TOKEN} from './constants';
 
 
@@ -23,10 +23,14 @@ export function create_hash(input: string | undefined): string | undefined {
  */
 export async function generate_jwt(client_identifier: string ,request: RequestClient,) {
   const url = `${DELIVRAI_BASE_URL}${DELIVRAI_GET_TOKEN}?client_identifier=${client_identifier}`
-
   return await request(url, {
-      method: 'GET'
-    })
+    method: 'GET'
+  }).then((response) => {
+      return response
+  }).catch((error) => {
+    throw new Error(error.response?.code);
+  })
+ 
 }
 
 /**

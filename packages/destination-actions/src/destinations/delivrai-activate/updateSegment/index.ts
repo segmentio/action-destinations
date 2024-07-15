@@ -86,9 +86,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload, settings }) => {
-    const rt_access_token_response: any = await generate_jwt(settings?.client_identifier_id, request);
-    const rt_access_token = rt_access_token_response?.data?.token;
-    return process_payload(request, [payload], rt_access_token, settings?.client_identifier_id)
+    const rt_access_token_response: any = settings?.client_identifier_id != '' ? await generate_jwt(settings?.client_identifier_id, request) : '';
+    const rt_access_token = rt_access_token_response != 401 ? rt_access_token_response?.data?.token : 401;
+    return rt_access_token != 401 ?  process_payload(request, [payload], rt_access_token, settings?.client_identifier_id) : [{status : false , message :"not valid customer"}];
   },
   performBatch: async (request, { payload, settings }) => {
     const rt_access_token_response: any = await generate_jwt(settings?.client_identifier_id, request);
@@ -109,13 +109,12 @@ async function process_payload(
   const body = gen_update_segment_payload(payload, client_identifier_id)
   // Send request to Delivr AI only when all events in the batch include selected Ids
   if (body.data.length > 0) {
-    return request(`${DELIVRAI_BASE_URL}${DELIVRAI_SEGMENTATION_AUDIENCE}`, {
+    return await request(`${DELIVRAI_BASE_URL}${DELIVRAI_SEGMENTATION_AUDIENCE}`, {
       method: 'POST',
       json: body,
       headers: {
         Authorization: `Bearer ${token}`
       }
-
     })
   } else {
     throw new PayloadValidationError('Selected identifier(s) not available in the event(s)')
