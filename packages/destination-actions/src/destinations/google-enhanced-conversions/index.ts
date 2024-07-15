@@ -4,7 +4,7 @@ import postConversion from './postConversion'
 import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
-import { createGoogleAudience, getGoogleAudience } from './functions'
+import { CreateAudienceInput, createGoogleAudience, getGoogleAudience } from './functions'
 
 import userList from './userList'
 
@@ -81,10 +81,16 @@ const destination: AudienceDestinationDefinition<Settings> = {
       description: 'Customer match upload key types.',
       required: true,
       choices: [
-        { label: 'CONTACT_INFO', value: 'CONTACT_INFO' },
-        { label: 'CRM_ID', value: 'CRM_ID' },
-        { label: 'MOBILE_ADVERTISING_ID', value: 'MOBILE_ADVERTISING_ID' }
+        { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
+        { label: 'CRM ID', value: 'CRM_ID' },
+        { label: 'MOBILE ADVERTISING ID', value: 'MOBILE_ADVERTISING_ID' }
       ]
+    },
+    app_id: {
+      label: 'App ID',
+      description:
+        'A string that uniquely identifies a mobile application from which the data was collected. Required if external ID type is mobile advertising ID',
+      type: 'string'
     }
   },
   audienceConfig: {
@@ -93,7 +99,11 @@ const destination: AudienceDestinationDefinition<Settings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      const userListId = await createGoogleAudience(request, createAudienceInput, createAudienceInput.statsContext)
+      const userListId = await createGoogleAudience(
+        request,
+        createAudienceInput as CreateAudienceInput,
+        createAudienceInput.statsContext
+      )
 
       return {
         externalId: userListId

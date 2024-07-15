@@ -66,13 +66,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The user's postal code.",
       type: 'string'
     },
-    hash_data: {
-      label: 'Hash Data?',
-      description:
-        'Should Segment hash the user’s data before sending it to Google? Set this to false if you are already sending hashed data.',
-      type: 'boolean',
-      default: true
-    },
     crm_id: {
       label: 'CRM ID',
       description: 'Advertiser-assigned user ID for Customer Match upload.',
@@ -85,11 +78,6 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.device.advertisingId'
       }
-    },
-    app_id: {
-      label: 'App ID',
-      description: 'A string that uniquely identifies a mobile application from which the data was collected.',
-      type: 'string'
     },
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',

@@ -26,10 +26,6 @@ export interface Payload {
    */
   postal_code?: string
   /**
-   * Should Segment hash the user’s data before sending it to Google? Set this to false if you are already sending hashed data.
-   */
-  hash_data?: boolean
-  /**
    * Advertiser-assigned user ID for Customer Match upload.
    */
   crm_id?: string
@@ -37,10 +33,6 @@ export interface Payload {
    * Mobile device ID (advertising ID/IDFA).
    */
   mobile_advertising_id?: string
-  /**
-   * A string that uniquely identifies a mobile application from which the data was collected.
-   */
-  app_id?: string
   /**
    * This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).
    */

@@ -28,6 +28,13 @@ export const FLAGON_NAME = 'google-enhanced-canary-version'
 export interface AudienceSettings {
   external_id_type: string
 }
+export interface GoogleAdsResonse {
+  resourceName?: string
+}
+export interface CreateGoogleAudienceResponse {
+  resourceName?: string
+  results: Array<{ resourceName: string }>
+}
 export class GoogleAdsError extends HTTPError {
   response: Response & {
     status: string
@@ -41,7 +48,10 @@ export interface CreateAudienceInput {
     customerId?: string
     conversionTrackingId?: string
   }
-  audienceSettings?: unknown
+  audienceSettings: {
+    external_id_type: string
+    app_id?: string
+  }
 }
 
 export function formatCustomVariables(
@@ -205,6 +215,10 @@ export async function createGoogleAudience(
   input: CreateAudienceInput,
   statsContext?: StatsContext
 ) {
+  if (input.audienceSettings.external_id_type === 'MOBILE_ADVERTISING_ID' && !input.audienceSettings.app_id) {
+    throw new PayloadValidationError('App ID is required when external ID type is mobile advertising ID.')
+  }
+
   const statsClient = statsContext?.statsClient
   const statsTags = statsContext?.tags
   const json = {
@@ -212,7 +226,8 @@ export async function createGoogleAudience(
       {
         create: {
           crmBasedUserList: {
-            uploadKeyType: (input.audienceSettings as { external_id_type: string }).external_id_type
+            uploadKeyType: input.audienceSettings.external_id_type,
+            appId: input.audienceSettings.app_id
           },
           membershipLifeSpan: '10000', // In days. 10000 is interpreted as 'unlimited'.
           name: `${input.audienceName}`
@@ -234,7 +249,7 @@ export async function createGoogleAudience(
 
   // Successful response body looks like:
   // {"results": [{ "resourceName": "customers/<customer_id>/userLists/<user_list_id>" }]}
-  const name = (response.data as any).results[0].resourceName
+  const name = (response.data as CreateGoogleAudienceResponse).results[0].resourceName
   if (!name) {
     statsClient?.incr('createAudience.error', 1, statsTags)
     throw new IntegrationError('Failed to receive a created customer list id.', 'INVALID_RESPONSE', 400)
