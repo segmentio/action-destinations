@@ -16,7 +16,7 @@ describe('Listrak', () => {
     },
     {
       name: 'Using Audience Key',
-      profileIdValue: ''
+      profileIdValue: 'useAudienceKey'
     },
     {
       name: 'Random String',
@@ -54,8 +54,8 @@ describe('Listrak', () => {
         }
       })
       expect(responses[0].status).toBe(201)
-      if (testData.profileIdValue === '') {
-        // If the profileIdValue is empty, the profileIdValue should be the value of the audience_key which is true
+      if (testData.profileIdValue === 'useAudienceKey') {
+        // If the profileIdValue is "useAudienceKey", the profileIdValue should be the value of the audience_key which is true
         expect(responses[0].options.body).toMatchInlineSnapshot(
           '"[{\\"emailAddress\\":\\"test.email@test.com\\",\\"segmentationFieldValues\\":[{\\"segmentationFieldId\\":456,\\"value\\":\\"on\\"}]}]"'
         )
@@ -110,7 +110,7 @@ describe('Listrak', () => {
         }
       })
       expect(responses[0].status).toBe(201)
-      if (testData.profileIdValue === '') {
+      if (testData.profileIdValue === 'useAudienceKey') {
         expect(responses[0].options.body).toMatchInlineSnapshot(
           '"[{\\"emailAddress\\":\\"test.email1@test.com\\",\\"segmentationFieldValues\\":[{\\"segmentationFieldId\\":456,\\"value\\":\\"on\\"}]},{\\"emailAddress\\":\\"test.email2@test.com\\",\\"segmentationFieldValues\\":[{\\"segmentationFieldId\\":456,\\"value\\":\\"off\\"}]}]"'
         )

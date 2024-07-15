@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
     profileFieldValues: {
       label: 'Profile Field Values',
       description:
-        'Add one or more profile field IDs as object keys. You can find these IDs under Help & Support > API ID Information on https://admin.listrak.com. Choose one of three options as the object value: "on" (activates this field in Listrak), "off" (deactivates this field in Listrak), or leave it empty (Listrak sets the field based on the Segment Audience payload\'s audience_key: "true" activates the field, "false" deactivates it).',
+        'Add one or more profile field IDs as object keys. You can find these IDs under Help & Support > API ID Information on https://admin.listrak.com. Choose one of three options as the object value: "on" (activates this field in Listrak), "off" (deactivates this field in Listrak), or "useAudienceKey" (Listrak sets the field based on the Segment Audience payload\'s audience_key: "true" activates the field, "false" deactivates it).',
       type: 'object',
       required: true,
       defaultObjectUI: 'keyvalue:only'
@@ -130,8 +130,8 @@ function setProfileFieldValue(value: string, audienceEntered: boolean | null): s
   if (value === 'on' || value === 'off') {
     return value
   }
-  // if value is empty "", determine "on" or "off" based on audience key
-  if (value === '' && audienceEntered !== null) {
+  // if value is empty "useAudienceKey", determine "on" or "off" based on audience key
+  if (value === 'useAudienceKey' && audienceEntered !== null) {
     return audienceEntered ? 'on' : 'off'
   }
   // else return inputted string
