@@ -35,10 +35,13 @@ describe('emit on track', () => {
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       window.evolv = {
         client: {
-          emit: jest.fn()
+          emit: jest.fn(),
+          on: jest.fn(),
+          getDisplayName: jest.fn()
         },
         context: {
-          setValue: jest.fn()
+          update: jest.fn(),
+          get: jest.fn()
         }
       }
       return Promise.resolve(window.evolv)

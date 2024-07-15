@@ -1,4 +1,4 @@
-import { evolvWrapper } from './evolv'
+import { evolvWrapper } from './wrapper'
 import type { State } from './types'
 
 const POLL = {

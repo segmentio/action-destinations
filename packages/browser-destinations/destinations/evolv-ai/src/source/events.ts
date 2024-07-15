@@ -1,4 +1,4 @@
-import { evolvWrapper } from '../evolv'
+import { evolvWrapper } from '../wrapper'
 import { Allocation } from '../types'
 
 export async function prepareEvent(event: Allocation) {

@@ -9,7 +9,8 @@ export const evolvWrapper = {
   },
   context: {
     update: (args: State): void => window.evolv.context.update(args),
-    getEvents: (args: string): Event[] => window.evolv.context.get(args),
-    getAllocations: (): Allocation[] => window.evolv.context.get('experiments').allocations
+    getEvents: (args: string): Event[] => window.evolv.context.get(args) as Event[],
+    getAllocations: (): Allocation[] =>
+      (window.evolv.context.get('experiments') as { allocations: Allocation[] }).allocations
   }
 }

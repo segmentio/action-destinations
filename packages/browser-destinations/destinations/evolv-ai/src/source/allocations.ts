@@ -1,4 +1,4 @@
-import { evolvWrapper } from '../evolv'
+import { evolvWrapper } from '../wrapper'
 import type { Evolv, Allocation } from '../types'
 
 declare global {

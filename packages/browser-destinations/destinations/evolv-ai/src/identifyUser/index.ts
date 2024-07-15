@@ -40,11 +40,6 @@ const action: BrowserActionDefinition<Settings, Evolv, Payload> = {
     const formattedAttributes = formatAttributes(attributes)
     // const { attributes, ...other } = event.payload
     // const formattedAttributes = formatAttributes(other)
-
-    console.info('evolv identify user called', event)
-    // if (evolv && !evolv.instancesCount){
-    //   window.evolv.setUid(event.payload.userId);
-    // }
     setValues(formattedAttributes)
   }
 }

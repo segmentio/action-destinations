@@ -23,7 +23,7 @@ export type Evolv = {
   }
   context: {
     update: (data: State) => void
-    get: (key: string) => unknown
+    get: (key: string) => { allocations: Allocation[] } | Event[]
   }
 }
 
