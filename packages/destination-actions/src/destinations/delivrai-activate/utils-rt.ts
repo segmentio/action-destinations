@@ -28,7 +28,7 @@ export async function generate_jwt(client_identifier: string ,request: RequestCl
   }).then((response) => {
       return response
   }).catch((error) => {
-    throw new Error(error.response?.code);
+    return error.response?.code;
   })
  
 }

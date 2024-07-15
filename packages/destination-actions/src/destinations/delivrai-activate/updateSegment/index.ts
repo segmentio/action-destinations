@@ -86,16 +86,43 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload, settings }) => {
-    const rt_access_token_response: any = settings?.client_identifier_id != '' ? await generate_jwt(settings?.client_identifier_id, request) : '';
-    const rt_access_token = rt_access_token_response != 401 ? rt_access_token_response?.data?.token : 401;
-    return rt_access_token != 401 ?  process_payload(request, [payload], rt_access_token, settings?.client_identifier_id) : [{status : false , message :"not valid customer"}];
+      // Check if client_identifier_id is valid
+      if (!settings?.client_identifier_id) {
+          return [{ status: false, message: "Client identifier is required" }];
+      }
+
+      // Generate JWT token
+      const rt_access_token_response = await generate_jwt(settings.client_identifier_id, request);
+      
+      // Check if token generation was successful
+      if (rt_access_token_response === 401) {
+          return [{ status: false, message: "Not valid customer" }];
+      }
+
+      const rt_access_token = rt_access_token_response?.data?.token;
+
+      // Process the payload with the valid token
+      return process_payload(request, [payload], rt_access_token, settings.client_identifier_id);
   },
   performBatch: async (request, { payload, settings }) => {
-    const rt_access_token_response: any = await generate_jwt(settings?.client_identifier_id, request);
-
-    const rt_access_token = rt_access_token_response?.data?.token;
-
-    return process_payload(request, payload, rt_access_token, settings?.client_identifier_id)
+    // Ensure client_identifier_id is provided
+    if (!settings?.client_identifier_id) {
+        return [{ status: false, message: "Client identifier is required" }];
+    }
+    try {
+        // Generate JWT token
+        const rt_access_token_response = await generate_jwt(settings.client_identifier_id, request);
+        // Check if token generation was successful
+        if (rt_access_token_response?.status === 401) {
+            return [{ status: false, message: "Not valid customer" }];
+        }
+        const rt_access_token = rt_access_token_response?.data?.token;
+        // Process the payload with the valid token
+        return process_payload(request, payload, rt_access_token, settings.client_identifier_id);
+    } catch (error:any) {
+        // Handle unexpected errors
+        return [{ status: false, message: "An error occurred", error: error?.message }];
+    }
   }
 }
 
@@ -115,6 +142,8 @@ async function process_payload(
       headers: {
         Authorization: `Bearer ${token}`
       }
+    }).catch((err) => {
+      return [{ status: false, message: 'HTTP error: ' + err.response.message , code: err.response.statusCode}];
     })
   } else {
     throw new PayloadValidationError('Selected identifier(s) not available in the event(s)')
