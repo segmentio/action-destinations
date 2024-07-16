@@ -6,6 +6,7 @@ import { DawnEvent } from '../dawn-types'
 const getEventFromPayload = (payload: Payload): DawnEvent => {
   const event: DawnEvent = {
     event: payload.event,
+    userId: payload.user_id || '',
     properties: payload.properties || {}
   }
   return event
@@ -13,7 +14,7 @@ const getEventFromPayload = (payload: Payload): DawnEvent => {
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const events = payload.map((value) => getEventFromPayload(value))
-  return request('https://api.dawnai.com/track-ai', {
+  return request('https://api.dawnai.com/track', {
     method: 'post',
     json: events,
     headers: {
@@ -23,7 +24,7 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Ai',
+  title: 'Track',
   description: '',
   fields: {
     event: {
@@ -33,6 +34,14 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: {
         '@path': '$.event'
+      }
+    },
+    user_id: {
+      label: 'User ID',
+      type: 'string',
+      description: 'The user ID performing the event.',
+      default: {
+        '@path': '$.userId'
       }
     },
     properties: {

@@ -4,7 +4,7 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('DawnAnalytics.trackAi', () => {
+describe('DawnAnalytics.track', () => {
   beforeEach(() => {
     nock.cleanAll()
   })
@@ -21,7 +21,7 @@ describe('DawnAnalytics.trackAi', () => {
     })
 
     nock('https://api.dawnai.com')
-      .post('/track-ai')
+      .post('/track')
       .reply(function (uri, requestBody) {
         // Check the request body
         expect(requestBody).toEqual([
@@ -41,7 +41,7 @@ describe('DawnAnalytics.trackAi', () => {
         return [200, { success: true }]
       })
 
-    const responses = await testDestination.testAction('trackAi', {
+    const responses = await testDestination.testAction('track', {
       event,
       useDefaultMappings: true,
       settings: {

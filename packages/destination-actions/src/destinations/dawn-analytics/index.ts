@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import trackAi from './trackAi'
+import track from './track'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Dawn Analytics',
@@ -37,7 +37,7 @@ const destination: DestinationDefinition<Settings> = {
   // },
 
   actions: {
-    trackAi
+    track
   }
 }
 

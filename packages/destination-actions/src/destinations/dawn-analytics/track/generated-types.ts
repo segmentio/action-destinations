@@ -6,6 +6,10 @@ export interface Payload {
    */
   event: string
   /**
+   * The user ID performing the event.
+   */
+  user_id?: string
+  /**
    * The properties of the event.
    */
   properties?: {
