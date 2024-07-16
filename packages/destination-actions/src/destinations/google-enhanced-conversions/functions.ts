@@ -261,7 +261,7 @@ export async function createGoogleAudience(
 
 export async function getGoogleAudience(
   request: RequestClient,
-  settings: any,
+  settings: CreateAudienceInput['settings'],
   externalId: string,
   statsContext?: StatsContext
 ) {
@@ -384,16 +384,22 @@ const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: A
 const createOfflineUserJob = async (
   request: RequestClient,
   payload: UserListPayload,
-  settings: any,
-  statsContext: StatsContext | undefined
+  settings: CreateAudienceInput['settings'],
+  hookListId?: string,
+  statsContext?: StatsContext | undefined
 ) => {
   const url = `https://googleads.googleapis.com/${API_VERSION}/customers/${settings.customerId}/offlineUserDataJobs:create`
+
+  let external_audience_id = payload.external_audience_id
+  if (hookListId) {
+    external_audience_id = hookListId
+  }
 
   const json = {
     job: {
       type: 'CUSTOMER_MATCH_USER_LIST',
       customerMatchUserListMetadata: {
-        userList: `customers/${settings.customerId}/userLists/${payload.external_audience_id}`
+        userList: `customers/${settings.customerId}/userLists/${external_audience_id}`
       }
     }
   }
@@ -420,7 +426,7 @@ const createOfflineUserJob = async (
 
 const addOperations = async (
   request: RequestClient,
-  userIdentifiers: any,
+  userIdentifiers: [{}],
   resourceName: string,
   statsContext: StatsContext | undefined
 ) => {
@@ -479,16 +485,17 @@ const runOfflineUserJob = async (
 
 export const handleUpdate = async (
   request: RequestClient,
-  settings: any,
-  audienceSettings: any,
+  settings: CreateAudienceInput['settings'],
+  audienceSettings: CreateAudienceInput['audienceSettings'],
   payloads: UserListPayload[],
+  hookOutputs: string,
   statsContext: StatsContext | undefined
 ) => {
   // Format the user data for Google Ads API
   const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, audienceSettings)
 
   // Create an offline user data job
-  const resourceName = await createOfflineUserJob(request, payloads[0], settings, statsContext)
+  const resourceName = await createOfflineUserJob(request, payloads[0], settings, hookOutputs, statsContext)
 
   // Add operations to the offline user data job
   if (adduserIdentifiers.length > 0) {

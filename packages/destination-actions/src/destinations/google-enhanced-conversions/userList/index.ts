@@ -237,11 +237,26 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, audienceSettings, payload, statsContext }) => {
-    return await handleUpdate(request, settings, audienceSettings, [payload], statsContext)
+  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext }) => {
+    hookOutputs?.retlOnMappingSave?.outputs.id
+    return await handleUpdate(
+      request,
+      settings,
+      audienceSettings,
+      [payload],
+      hookOutputs?.retlOnMappingSave?.outputs.id,
+      statsContext
+    )
   },
-  performBatch: async (request, { settings, audienceSettings, payload, statsContext }) => {
-    return await handleUpdate(request, settings, audienceSettings, payload, statsContext)
+  performBatch: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext }) => {
+    return await handleUpdate(
+      request,
+      settings,
+      audienceSettings,
+      payload,
+      hookOutputs?.retlOnMappingSave?.outputs.id,
+      statsContext
+    )
   }
 }
 
