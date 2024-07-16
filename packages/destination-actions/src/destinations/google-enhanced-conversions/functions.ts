@@ -105,7 +105,7 @@ export async function getCustomVariables(
       method: 'post',
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'developer-token': `jswOXXIc50JI8nAuUGWVRg`
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
       },
       json: {
         query: `SELECT conversion_custom_variable.id, conversion_custom_variable.name FROM conversion_custom_variable`
