@@ -349,12 +349,12 @@ const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: A
       const identifiers = []
       if (payload.email) {
         identifiers.push({
-          hashedEmail: formatEmail(payload.email, payload.hash_data)
+          hashedEmail: formatEmail(payload.email)
         })
       }
       if (payload.phone) {
         identifiers.push({
-          hashedPhoneNumber: formatPhone(payload.phone, payload.hash_data)
+          hashedPhoneNumber: formatPhone(payload.phone)
         })
       }
       if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
