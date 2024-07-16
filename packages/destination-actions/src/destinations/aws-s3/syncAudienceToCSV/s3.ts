@@ -1,4 +1,3 @@
-import { InvalidAuthenticationError } from '@segment/actions-core'
 import { AudienceSettings, Settings } from '../generated-types'
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 //Define the Interface for testing
