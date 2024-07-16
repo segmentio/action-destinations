@@ -30,6 +30,13 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
       label: 'Id',
       type: 'string',
       required: true
+    },
+    refetchExperiencesOnTraitsUpdate: {
+      description:
+        "Enable this option if you'd like Jimo to refetch experiences supposed to be shown to the user after user traits get updated. This is useful when if you have experiences that use segment based on Segment traits.",
+      label: 'Refetch experiences after traits changes',
+      type: 'boolean',
+      default: false
     }
   },
   presets: [
