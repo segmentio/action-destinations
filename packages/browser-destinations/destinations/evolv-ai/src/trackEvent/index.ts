@@ -8,7 +8,7 @@ import { emit } from '../proxy'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Evolv, Payload> = {
   title: 'Track Event',
-  description: `Sends Segment's track event to Evolv`,
+  description: `Send Segment track event to Evolv AI`,
   platform: 'web',
   defaultSubscription: 'type = "track"',
   fields: {
@@ -22,24 +22,12 @@ const action: BrowserActionDefinition<Settings, Evolv, Payload> = {
       }
     },
     properties: {
-      description: 'JSON object containing additional properties that will be associated with the event.',
+      description: 'JSON object containing additional properties associated with the event.',
       label: 'Properties',
       required: false,
       type: 'object',
       default: {
         '@path': '$.properties'
-      }
-    },
-    userId: {
-      type: 'string',
-      description: 'A user’s unique visitor ID. Setting this allows .',
-      label: '',
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
       }
     }
   },
@@ -47,9 +35,6 @@ const action: BrowserActionDefinition<Settings, Evolv, Payload> = {
     const { eventName } = event.payload
     const sanitisedEventName = sanitiseEventName(eventName)
 
-    // if (window.evolv && !window.evolv.instancesCount){
-    //   window.evolv.setUid(event.payload.userId);
-    // }
     emit(sanitisedEventName)
   }
 }

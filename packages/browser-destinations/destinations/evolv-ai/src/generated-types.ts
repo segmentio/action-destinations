@@ -2,27 +2,27 @@
 
 export interface Settings {
   /**
-   * When an environment is provided, this integration will load the Evolv AI snippet for that environment. This should only be used if you are not already loading the evolv snippet.
+   * To load the Evolv AI snippet via Segment, include your Environment API Key found in the Evolv AI Manager. This option should only be used if you are not already loading the Evolv AI snippet on your site.
    */
   environment?: string
   /**
-   * When set, will use segment's anonymous id to track users instead of evolv default.
+   * When using this option, Evolv AI will levarage the Segment Anonymous ID instead of generating a new user id.
    */
   useSegmentId?: boolean
   /**
-   * If you want to ignore users who take too long to apply the optimization changes then you can use this configuration to limit how long you will wait
+   * If you want to ignore users who take too long to apply the optimization changes, then you can use this configuration to limit how long Evolv AI should wait till the page renders.
    */
   evolvTimeout?: number
   /**
-   * Evolv normally stores the user id in local storage. This cannot be read across subdomains (e.g. domain1.example.com to domain2.example.com). If your optimization is crossing subdomains set this to the domain your users will be active across (for example .example.com)
+   * By default, Evolv AI stores the user id in localStorage. Since localStorage cannot be read across subdomains (e.g. domain1.example.com to domain2.example.com), you will need to specify a cookie domain (for example .example.com) in order to track users across subdomains.
    */
   useCookies?: string
   /**
-   * When set, all Evolv AI confirmations will be sent to segment
+   * When set, all Evolv AI confirmations for each project will be sent to Segment.
    */
   receiveConfirmations?: boolean
   /**
-   * When set, only unique confirmations (each experiment per session) will be sent to segment
+   * When set, only unique confirmations (once per project per session) will be sent to Segment.
    */
   receiveUniqueConfirmations?: boolean
 }

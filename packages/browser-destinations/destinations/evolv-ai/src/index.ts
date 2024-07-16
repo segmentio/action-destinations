@@ -2,7 +2,6 @@ import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import type { Evolv } from './types'
-import { initScript } from './init-script'
 import { defaultValues } from '@segment/actions-core'
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
@@ -38,14 +37,14 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
   settings: {
     environment: {
       description:
-        'When an environment is provided, this integration will load the Evolv AI snippet for that environment. This should only be used if you are not already loading the evolv snippet.',
-      label: 'Evolv AI environment key',
+        'To load the Evolv AI snippet via Segment, include your Environment API Key found in the Evolv AI Manager. This option should only be used if you are not already loading the Evolv AI snippet on your site.',
+      label: 'Evolv AI Environment Key',
       type: 'string',
       default: ''
     },
     useSegmentId: {
-      description: `When set, will use segment's anonymous id to track users instead of evolv default.`,
-      label: 'Use Segment user id instead of Evolv user id',
+      description: `When using this option, Evolv AI will levarage the Segment Anonymous ID instead of generating a new user id.`,
+      label: `Use Segment's Anonymous ID as the Evolv user id`,
       type: 'boolean',
       depends_on: {
         conditions: [
@@ -59,7 +58,7 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
       default: false
     },
     evolvTimeout: {
-      description: `If you want to ignore users who take too long to apply the optimization changes, then you can use this configuration to limit how long Evolv should wait till the page renders.`,
+      description: `If you want to ignore users who take too long to apply the optimization changes, then you can use this configuration to limit how long Evolv AI should wait till the page renders.`,
       label: 'Evolv Timeout',
       type: 'number',
       depends_on: {
@@ -74,8 +73,8 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
       default: 10000
     },
     useCookies: {
-      description: `By default, Evolv stores the user id in local storage. Since localStorage cannot be read across subdomains (e.g. domain1.example.com to domain2.example.com), you will need to specify a cookie domain (for example .example.com) if you need to track users across subdomains.`,
-      label: 'Cookie domain name to store Evolv uid',
+      description: `By default, Evolv AI stores the user id in localStorage. Since localStorage cannot be read across subdomains (e.g. domain1.example.com to domain2.example.com), you will need to specify a cookie domain (for example .example.com) in order to track users across subdomains.`,
+      label: 'Cookie domain name to store Evolv AI user id',
       type: 'string',
       depends_on: {
         conditions: [
@@ -94,14 +93,14 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
       default: ''
     },
     receiveConfirmations: {
-      description: 'When set, all Evolv AI confirmations for each experiment will be sent to segment.',
-      label: 'Receive experiment confirmations',
+      description: 'When set, all Evolv AI confirmations for each project will be sent to Segment.',
+      label: 'Receive all Evolv AI project confirmations',
       type: 'boolean',
       default: true
     },
     receiveUniqueConfirmations: {
-      description: 'When set, only unique confirmations (each experiment per session) will be sent to segment.',
-      label: 'Receive unique experiment confirmations only',
+      description: 'When set, only unique confirmations (once per project per session) will be sent to Segment.',
+      label: 'Receive unique project confirmations only',
       type: 'boolean',
       depends_on: {
         conditions: [
@@ -114,15 +113,6 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
       },
       default: false
     }
-
-    // bindEvents: {
-    //   description:
-    //     'When a audience name is provided, this integration will also bind all event names to that audience as an array',
-    //   label: 'Bind event names to Context attribute',
-    //   type: 'string',
-    //   default: ''
-    // }
-    // Add any Segment destination settings required here
   },
 
   initialize: async ({ settings }, deps) => {
@@ -131,13 +121,11 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
       scriptOptions['data-evolv-environment'] = settings.environment
       scriptOptions['data-evolv-pushstate'] = 'true'
       if (settings.useSegmentId && window.analytics) {
-        // @ts-ignore - complex window call
-        // scriptOptions['data-evolv-lazy-uid'] = `true`;
         try {
           // @ts-ignore - complex window call
           scriptOptions['data-evolv-uid'] = window.analytics.user().anonymousId()
         } catch (e) {
-          console.warn('unable to initialize evolv uid from segment')
+          console.warn('unable to initialize Evolv AI user id from segment')
         }
       }
       if (settings.useCookies) {
@@ -148,11 +136,8 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
       }
       await deps.loadScript('https://media.evolv.ai/asset-manager/releases/latest/webloader.min.js', scriptOptions)
     }
-    initScript({
-      // bindEvents: settings.bindEvents
-    })
 
-    window.evolv = window.evolv || []
+    window.evolv = window.evolv || {}
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'evolv'), 100)
 
     if (settings.receiveConfirmations) {

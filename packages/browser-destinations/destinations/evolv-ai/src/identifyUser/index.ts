@@ -9,37 +9,24 @@ import { setValues } from '../proxy'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Evolv, Payload> = {
   title: 'Identify User',
-  description: `Sends Segment's user traits to Evolv`,
+  description: `Send Segment user traits to Evolv AI`,
   defaultSubscription: 'type = "identify"',
   platform: 'web',
   fields: {
     attributes: {
-      description: 'JSON object containing additional attributes that will be associated with the user.',
+      description: 'JSON object containing additional attributes associated with the user.',
       label: 'Attributes',
       required: true,
       type: 'object',
       default: {
         '@path': '$.traits'
       }
-    },
-    userId: {
-      type: 'string',
-      description: 'A user’s unique visitor ID. Setting this allows .',
-      label: '',
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
     }
   },
   perform: (_, event) => {
     const { attributes } = event.payload
     const formattedAttributes = formatAttributes(attributes)
-    // const { attributes, ...other } = event.payload
-    // const formattedAttributes = formatAttributes(other)
+
     setValues(formattedAttributes)
   }
 }
