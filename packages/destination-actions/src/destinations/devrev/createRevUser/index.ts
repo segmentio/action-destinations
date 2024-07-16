@@ -13,7 +13,9 @@ import {
   getName,
   getBaseUrl,
   CreateRevUserBody,
-  RevUser
+  RevUser,
+  CreateAccountBody,
+  AccountGet
 } from '../utils'
 import { APIError } from '@segment/actions-core'
 
@@ -124,10 +126,8 @@ const action: ActionDefinition<Settings, Payload> = {
       `${getBaseUrl(settings)}${devrevApiPaths.revUsersList}?email="${email}"`
     )
     let contact: RevUser | undefined = undefined
-
     if (existingUsers.data.rev_users.length == 0) {
       // No existing revusers, search for Account
-
       // Create the payload
       const createUserPayload: CreateRevUserBody = {
         email,
@@ -141,15 +141,33 @@ const action: ActionDefinition<Settings, Payload> = {
       if (domain !== email) requestUrl = `${getBaseUrl(settings)}${devrevApiPaths.accountsList}?domains="${domain}"`
       else requestUrl = `${getBaseUrl(settings)}${devrevApiPaths.accountsList}?external_refs="${domain}"`
       const existingAccount: AccountListResponse = await request(requestUrl)
+      let accountId = ''
       if (existingAccount.data.accounts.length > 0) {
-        const accountId = existingAccount.data.accounts[0].id
+        accountId = existingAccount.data.accounts[0].id
+      } else if (domain !== email) {
+        // if the domain is equal to the email, we know that the domain is blacklisted.
+        // If there is not any account found already and the domain is not blacklisted we create a new account
+        const createAccountPayload: CreateAccountBody = {
+          display_name: domain,
+          external_refs: [domain],
+          domains: [domain]
+        }
+        if (payload.tag) createAccountPayload.tags = [{ id: payload.tag }]
+        const createAccount: AccountGet = await request(`${getBaseUrl(settings)}${devrevApiPaths.accountCreate}`, {
+          method: 'POST',
+          json: createAccountPayload
+        })
+        accountId = createAccount.data.account.id
+      }
+      // If we found or created an account, find the workspace and add it to the payload
+      if (accountId) {
         const accountRevorgs: RevOrgListResponse = await request(
           `${getBaseUrl(settings)}${devrevApiPaths.revOrgsList}?account=${accountId}`
         )
         const filtered = accountRevorgs.data.rev_orgs.filter(
           (revorg) => revorg.external_ref_issuer == 'devrev:platform:revorg:account'
         )
-        createUserPayload.org_id = filtered[0].id
+        if (filtered.length > 0) createUserPayload.org_id = filtered[0].id
       }
       // If there is a tag configured, apply it
       if (payload.tag) createUserPayload.tags = [{ id: payload.tag }]
