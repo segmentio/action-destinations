@@ -1,3 +1,4 @@
+import { ActionDefinition } from '../destination-kit/action'
 import {
   StateContext,
   Destination,
@@ -172,6 +173,15 @@ const destinationWithIdentifier: DestinationDefinition<JSONObject> = {
   }
 }
 
+interface Payload {
+  testDynamicField: string
+  testUnstructuredObject: Record<string, string>
+  testStructuredObject: {
+    testDynamicSubfield: string
+  }
+  testObjectArrays: Array<{ testDynamicSubfield: string }>
+}
+
 const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
   name: 'Actions Dynamic Fields',
   mode: 'cloud',
@@ -271,7 +281,7 @@ const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
       perform: (_request, { syncMode }) => {
         return ['this is a test', syncMode]
       }
-    }
+    } as ActionDefinition<JSONObject, Payload>
   }
 }
 
