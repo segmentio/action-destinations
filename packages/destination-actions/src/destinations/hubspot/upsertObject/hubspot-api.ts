@@ -1,4 +1,5 @@
 import { RequestClient, IntegrationError } from '@segment/actions-core'
+import { SyncMode } from '@segment/actions-core/destination-kit'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { SUPPORTED_HUBSPOT_OBJECT_TYPES } from './constants'
@@ -63,9 +64,11 @@ interface BatchAssociationsRequestBody {
 }
 export class HubspotClient {
     request: RequestClient
+    syncMode: SyncMode
 
-    constructor(request: RequestClient) {
+    constructor(request: RequestClient, syncMode: SyncMode) {
         this.request = request
+        this.syncMode = syncMode
     }
 
     async getIdFields(objectType: string) {
@@ -231,48 +234,44 @@ export class HubspotClient {
         return this.batchAssociationsRequest(requestBody, objectType, toObjectType)
     }
 
-    async ensureObjects(payloads: Payload[], isAssociationObject = false) {
+    async ensureObjects(payloads: Payload[]) {
 
-        const [{insertType, associationLabel }] = payloads
-        const idFieldName = isAssociationObject ? payloads[0].toIdFieldName : payloads[0].idFieldName
-        const objectType = isAssociationObject ? payloads[0].toObjectType : payloads[0].objectType
-        const idFieldValueFieldName = isAssociationObject ? 'toIdFieldValue' : 'idFieldValue'
-        const recordIdFieldName = isAssociationObject ? 'toRecordID' : 'recordID'
+        const { 
+            object_details: { 
+                from_object_type: fromObjectType, 
+                from_id_field_name: fromIdFieldName 
+            } 
+        } = payloads[0]
 
-        if( isAssociationObject && (!objectType || !idFieldName || !associationLabel) || (!objectType || !idFieldName) ){
-            throw new IntegrationError('Missing required Association fields. Associations require "To Object Type", "To ID Field Name" and "Association Label" fields to be set.','REQUIRED_ASSOCIATION_FIELDS_MISSING',400)
-        }
-
-        const readResponse = await this.batchObjectRequest('read', objectType, {
-            properties: [idFieldName],
-            idProperty: idFieldName,
-            inputs: payloads.map(p => { return {id: p[idFieldValueFieldName]}})             
+        const readResponse = await this.batchObjectRequest('read', fromObjectType, {
+            properties: [fromIdFieldName],
+            idProperty: fromIdFieldName,
+            inputs: payloads.map(p => { return {id: p.object_details.from_id_field_value}})             
         } as BatchReadRequestBody)
        
         readResponse?.data.results.forEach(result => {
             payloads
-                .filter(payload => payload[idFieldValueFieldName] == result.properties[idFieldName] as string)
-                .forEach(payload => payload[recordIdFieldName] = result.id )
+                .filter(payload => payload.object_details.from_id_field_value == result.properties[fromIdFieldName] as string)
+                .forEach(payload => payload.object_details.from_hs_object_id = result.id )
         })
 
         const updateRequestBody: BatchRequestBody = {inputs:[]}
         const createRequestBody: BatchRequestBody = {inputs:[]}
 
         payloads.forEach((payload) => {
-            const { stringProperties, numericProperties, booleanProperties, dateProperties } = payload
+
             const itemPayload: { id?: string | undefined; properties: { [key: string]: string | number | boolean | undefined } } = {
-                id: payload[recordIdFieldName] ?? undefined,
+                id: payload.object_details.from_id_field_name ?? undefined,
                 properties: {
-                    ...stringProperties, 
-                    ...numericProperties, 
-                    ...booleanProperties, 
-                    ...dateProperties,
-                    [idFieldName]: payload[idFieldValueFieldName]
+                    ...payload.properties,
+                    [fromIdFieldName]: payload.object_details.from_id_field_value
                 } as BatchRequestBodyItem['properties']
             } as BatchRequestBodyItem
+
             if(['update', 'upsert'].includes(insertType) && itemPayload.id){
                 updateRequestBody.inputs.push(itemPayload)
             }
+
             if(['create', 'upsert'].includes(insertType) && !itemPayload.id){
                 createRequestBody.inputs.push(itemPayload)
             }

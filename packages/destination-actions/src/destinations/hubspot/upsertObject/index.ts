@@ -84,13 +84,13 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const hubspotClient = new HubspotClient(request)
+    const hubspotClient = new HubspotClient(request, syncMode)
     await hubspotClient.ensureObjects([payload])
     await hubspotClient.ensureObjects([payload], true)
     await hubspotClient.ensureAssociations([payload])
   },
   performBatch: async (request, { payload: payloads }) => {
-    const hubspotClient = new HubspotClient(request)
+    const hubspotClient = new HubspotClient(request, syncMode)
     await hubspotClient.ensureObjects(payloads)
     await hubspotClient.ensureObjects(payloads, true)
     await hubspotClient.ensureAssociations(payloads)
