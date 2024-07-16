@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import trackAi from './trackAi'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Dawn Analytics',
   slug: 'actions-dawn-analytics',
@@ -34,7 +36,9 @@ const destination: DestinationDefinition<Settings> = {
   //   // implement this function and should remove it completely.
   // },
 
-  actions: {}
+  actions: {
+    trackAi
+  }
 }
 
 export default destination
