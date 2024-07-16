@@ -28,10 +28,14 @@ const assumeRole = async (roleArn: string, roleSessionName: string): Promise<Cre
     throw new Error('Failed to assume role and get temporary credentials')
   }
 
-  return {
-    accessKeyId: response.Credentials.AccessKeyId!,
-    secretAccessKey: response.Credentials.SecretAccessKey!,
-    sessionToken: response.Credentials.SessionToken!
+  if (response.Credentials && response.Credentials.AccessKeyId && response.Credentials.SecretAccessKey && response.Credentials.SessionToken) {
+    return {
+      accessKeyId: response.Credentials.AccessKeyId,
+      secretAccessKey: response.Credentials.SecretAccessKey,
+      sessionToken: response.Credentials.SessionToken
+    };
+  } else {
+    throw new Error("Credentials are not properly defined");
   }
 }
 
