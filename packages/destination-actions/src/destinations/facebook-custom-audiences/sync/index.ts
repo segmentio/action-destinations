@@ -17,6 +17,23 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Audience Name',
           description: 'The name of the audience in Facebook.',
           default: 'TODO: Model Name by default'
+        },
+        existingAudienceId: {
+          type: 'string',
+          label: 'Existing Audience ID',
+          description: 'The ID of the audience in Facebook.',
+          dynamic: async (request, { settings }) => {
+            const fbClient = new FacebookClient(request, settings.adAccountId)
+            const [choices, error] = await fbClient.getAllAudiences()
+
+            if (error) {
+              return { error, choices: [] }
+            }
+
+            return {
+              choices
+            }
+          }
         }
       },
       outputTypes: {
