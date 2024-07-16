@@ -22,16 +22,20 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           label: 'Existing Audience ID',
           description: 'The ID of the audience in Facebook.',
-          dynamic: async (request, { settings }) => {
+          dynamic: async (request, { settings, dynamicFieldContext }) => {
             const fbClient = new FacebookClient(request, settings.adAccountId)
-            const [choices, error] = await fbClient.getAllAudiences()
+            const { choices, error, nextPage } = await fbClient.getAllAudiences(dynamicFieldContext?.paging)
 
             if (error) {
               return { error, choices: [] }
             }
 
             return {
-              choices
+              choices,
+              paging: {
+                nextPage,
+                previousPage: dynamicFieldContext?.paging?.previousPage
+              }
             }
           }
         }

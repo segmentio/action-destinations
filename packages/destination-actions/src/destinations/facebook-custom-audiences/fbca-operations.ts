@@ -1,4 +1,4 @@
-import { DynamicFieldItem, DynamicFieldError, RequestClient } from '@segment/actions-core'
+import { DynamicFieldItem, DynamicFieldError, DynamicFieldPagination, RequestClient } from '@segment/actions-core'
 
 const FACEBOOK_API_VERSION = 'v20.0'
 
@@ -43,9 +43,16 @@ export default class FacebookClient {
     })
   }
 
-  getAllAudiences = async (): Promise<[DynamicFieldItem[], DynamicFieldError | undefined]> => {
+  getAllAudiences = async (
+    paging: DynamicFieldPagination | undefined
+  ): Promise<{ choices: DynamicFieldItem[]; error: DynamicFieldError | undefined; nextPage: string }> => {
+    let nextPageParam = ''
+    if (paging?.next) {
+      nextPageParam = `&after=${paging.next}`
+    }
+
     const { data } = await this.request<GetAllAudienceResponse>(
-      `${this.baseUrl}${this.adAccountId}/customaudiences?fields=id,name`
+      `${this.baseUrl}${this.adAccountId}/customaudiences?fields=id,name${nextPageParam}`
     )
 
     // console.log('data.paging', data.paging)
@@ -54,7 +61,11 @@ export default class FacebookClient {
       label: name
     }))
 
-    return [choices, undefined]
+    return {
+      choices,
+      error: undefined,
+      nextPage: data.paging.next
+    }
   }
 
   private formatAdAccount(adAccountId: string) {
