@@ -19,9 +19,7 @@ describe('Taboola.syncAudience', () => {
       event: 'Audience Entered',
       type: 'track',
       properties: {
-        ios: {
-          id: DEVICE_ID
-        }
+        ios_id: DEVICE_ID
       },
       context: {
         device: {
@@ -131,9 +129,7 @@ describe('Taboola.syncAudience', () => {
       event: 'Audience Entered',
       type: 'track',
       properties: {
-        ios: {
-          id: DEVICE_ID
-        }
+        ios_id: DEVICE_ID
       },
       context: {
         device: {
@@ -172,9 +168,7 @@ describe('Taboola.syncAudience', () => {
         event: 'Audience Entered',
         type: 'track',
         properties: {
-          ios: {
-            id: DEVICE_ID
-          }
+          ios_id: DEVICE_ID
         },
         context: {
           device: {
@@ -196,9 +190,7 @@ describe('Taboola.syncAudience', () => {
         event: 'Audience Exited',
         type: 'track',
         properties: {
-          ios: {
-            id: '456'
-          }
+          ios_id: '456'
         },
         context: {
           device: {
