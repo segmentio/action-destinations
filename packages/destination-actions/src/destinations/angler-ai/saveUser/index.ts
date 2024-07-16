@@ -11,9 +11,10 @@ const action: ActionDefinition<Settings, Payload> = {
     ...userFields
   },
   perform: (request, data) => {
+    const { user: userFields, ...payloadFields } = data.payload
     const payload = {
       src: 'SEGMENT',
-      data: [data.payload]
+      data: [{ ...userFields, ...payloadFields }]
     }
     return request(baseURL + customersEndpoint(data.settings.workspaceId), {
       method: 'post',

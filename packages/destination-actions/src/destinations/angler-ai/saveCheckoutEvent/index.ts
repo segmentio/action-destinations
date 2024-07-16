@@ -24,7 +24,8 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'checkout_completed', value: 'checkout_completed' },
         { label: 'checkout_contact_info_submitted', value: 'checkout_contact_info_submitted' },
         { label: 'checkout_shipping_info_submitted', value: 'checkout_shipping_info_submitted' },
-        { label: 'checkout_started', value: 'checkout_started' }
+        { label: 'checkout_started', value: 'checkout_started' },
+        { label: 'payment_info_submitted', value: 'payment_info_submitted' }
       ]
     }
   },
