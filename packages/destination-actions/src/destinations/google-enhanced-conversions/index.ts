@@ -1,9 +1,12 @@
-import { DestinationDefinition } from '@segment/actions-core'
+import { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
 import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
+import { CreateAudienceInput, createGoogleAudience, getGoogleAudience } from './functions'
+
+import userList from './userList'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -18,7 +21,7 @@ interface UserInfoResponse {
 }
 */
 
-const destination: DestinationDefinition<Settings> = {
+const destination: AudienceDestinationDefinition<Settings> = {
   // NOTE: We need to match the name with the creation name in DB.
   // This is not the value used in the UI.
   name: 'Google Ads Conversions',
@@ -71,11 +74,61 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+  audienceFields: {
+    external_id_type: {
+      type: 'string',
+      label: 'External ID Type',
+      description: 'Customer match upload key types.',
+      required: true,
+      choices: [
+        { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
+        { label: 'CRM ID', value: 'CRM_ID' },
+        { label: 'MOBILE ADVERTISING ID', value: 'MOBILE_ADVERTISING_ID' }
+      ]
+    },
+    app_id: {
+      label: 'App ID',
+      description:
+        'A string that uniquely identifies a mobile application from which the data was collected. Required if external ID type is mobile advertising ID',
+      type: 'string'
+    }
+  },
+  audienceConfig: {
+    mode: {
+      type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
+      full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+    },
+    async createAudience(request, createAudienceInput) {
+      const userListId = await createGoogleAudience(
+        request,
+        createAudienceInput as CreateAudienceInput,
+        createAudienceInput.statsContext
+      )
+
+      return {
+        externalId: userListId
+      }
+    },
+
+    async getAudience(request, getAudienceInput) {
+      const userListId = await getGoogleAudience(
+        request,
+        getAudienceInput.settings,
+        getAudienceInput.externalId,
+        getAudienceInput.statsContext
+      )
+
+      return {
+        externalId: userListId
+      }
+    }
+  },
   actions: {
     postConversion,
     uploadClickConversion,
     uploadCallConversion,
-    uploadConversionAdjustment
+    uploadConversionAdjustment,
+    userList
   }
 }
 
