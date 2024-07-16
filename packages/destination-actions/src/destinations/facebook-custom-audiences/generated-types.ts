@@ -2,9 +2,9 @@
 
 export interface Settings {
   /**
-   * Placeholder
+   * Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762).
    */
-  placeholder?: string
+  adAccountId: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 

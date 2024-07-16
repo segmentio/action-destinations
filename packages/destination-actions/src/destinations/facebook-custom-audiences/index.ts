@@ -1,7 +1,7 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-
+import { adAccountId } from './fbca-properties'
 import sync from './sync'
 
 export const FACEBOOK_API_VERSION = 'v17.0'
@@ -16,11 +16,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      placeholder: {
-        label: 'Placeholder',
-        description: 'Placeholder',
-        type: 'string'
-      }
+      adAccountId
     },
     refreshAccessToken: async () => {
       return { accessToken: 'TODO: Implement this' }
@@ -34,12 +30,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   audienceFields: {
-    adAccountId: {
-      type: 'string',
-      label: 'Advertiser Account ID',
-      description: 'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762).',
-      required: true
-    },
+    adAccountId,
     audienceDescription: {
       type: 'string',
       label: 'Description',
