@@ -26,7 +26,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Identifier Type',
       required: true,
       description:
-        'The type of Identifier to send to Dynamic Yield. E.g. `email`, `anonymous_id`, `user_id`, or any other custom identifier. Make sure you configure the `Customized Setup` below so that your chosen include identifier is sent to Dynamic Yield.'
+        'The type of Identifier to send to Dynamic Yield. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield.'
     }
   },
   authentication: {
