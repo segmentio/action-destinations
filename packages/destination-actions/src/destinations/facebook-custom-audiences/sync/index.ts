@@ -3,8 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Remove',
-  description: 'This action is in charge of removing elements to your audience.',
+  title: 'Sync Audience',
+  description: 'Sync data to Facebook Custom Audiences.',
   fields: {},
   perform: (_request, _data) => {
     // Make your partner api request here!

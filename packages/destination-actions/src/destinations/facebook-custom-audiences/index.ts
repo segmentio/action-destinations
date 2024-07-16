@@ -2,9 +2,7 @@ import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 
-import add from './add'
-
-import remove from './remove'
+import sync from './sync'
 
 export const FACEBOOK_API_VERSION = 'v17.0'
 const EXTERNAL_ID_KEY = 'id'
@@ -112,8 +110,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   actions: {
-    add,
-    remove
+    sync
   }
 }
 
