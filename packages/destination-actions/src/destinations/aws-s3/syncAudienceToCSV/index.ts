@@ -4,7 +4,6 @@ import { generateFile } from '../operations'
 import type { Payload } from './generated-types'
 import { uploadS3 } from './s3'
 
-
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Upload CSV',
   description: 'Uploads audience membership data to a CSV file in S3.',
@@ -29,7 +28,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         },
         audience_action: {
           label: 'Audience Action column',
-          description: 'Indicates if the user has been added or removed from the Audience. true = added, false = removed.',
+          description:
+            'Indicates if the user has been added or removed from the Audience. true = added, false = removed.',
           type: 'string'
         },
         email: {
@@ -50,7 +50,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         timestamp: {
           label: 'Timestamp',
           description: 'Timestamp when the user was added or removed from the Audience',
-          type: 'datetime'
+          type: 'string'
         },
         messageId: {
           label: 'Message ID',
@@ -65,11 +65,12 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         integrations_object: {
           label: 'Integrations Object',
           description: 'Details of which Destinations the event was synced to by Segment',
-          type: 'object'
+          type: 'string'
         },
         properties_or_traits: {
           label: 'Properties or Traits',
-          description: 'Contains the entire properties object from a track() call or the traits object from an identify() call emitted from Engage when a user is added to or removed from an Audience',
+          description:
+            'Contains the entire properties object from a track() call or the traits object from an identify() call emitted from Engage when a user is added to or removed from an Audience',
           type: 'string'
         }
       },
@@ -84,7 +85,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         space_id: 'space_id',
         integrations_object: 'integrations_object',
         properties_or_traits: 'properties_or_traits'
-      }  
+      }
     },
     audienceName: {
       label: 'Audience Name Hidden Field',
@@ -122,7 +123,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       type: 'string',
       required: false,
       unsafe_hidden: true,
-      default: {'@path': '$.userId' }
+      default: { '@path': '$.userId' }
     },
     anonymousId: {
       label: 'Anonymous ID Hidden Field',
@@ -130,7 +131,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       type: 'string',
       required: false,
       unsafe_hidden: true,
-      default: {'@path': '$.anonymousId' }
+      default: { '@path': '$.anonymousId' }
     },
     timestamp: {
       label: 'Timestamp Hidden Field',
@@ -138,7 +139,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       type: 'datetime',
       required: true,
       unsafe_hidden: true,
-      default: {'@path': '$.timestamp' }
+      default: { '@path': '$.timestamp' }
     },
     messageId: {
       label: 'Message ID Hidden Field',
@@ -146,15 +147,15 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       type: 'string',
       required: true,
       unsafe_hidden: true,
-      default: {'@path': '$.messageId' }
-    },  
+      default: { '@path': '$.messageId' }
+    },
     spaceId: {
       label: 'Space ID Hidden Field',
       description: 'Space ID Hidden Field',
       type: 'string',
       required: true,
       unsafe_hidden: true,
-      default: {'@path': '$.context.personas.space_id' }
+      default: { '@path': '$.context.personas.space_id' }
     },
     integrationsObject: {
       label: 'Integrations Object Hidden Field',
@@ -162,12 +163,12 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       type: 'object',
       required: true,
       unsafe_hidden: true,
-      default: {'@path': '$.integrations' }
+      default: { '@path': '$.integrations' }
     },
     propertiesOrTraits: {
       label: 'Properties or Traits Hidden Field',
       description: 'Properties or Traits Hidden Field',
-      type: 'string',
+      type: 'object',
       required: true,
       unsafe_hidden: true,
       default: {
@@ -198,7 +199,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
           type: 'string',
           required: true
         }
-      }      
+      }
     },
     enable_batching: {
       type: 'boolean',

@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Columns to write to S3 CSV file.
+   * Column names to write to S3 CSV file.
    */
   columns: {
     /**
@@ -32,7 +32,7 @@ export interface Payload {
     /**
      * Timestamp when the user was added or removed from the Audience
      */
-    timestamp?: string | number
+    timestamp?: string
     /**
      * Unique identifier for the message.
      */
@@ -44,9 +44,7 @@ export interface Payload {
     /**
      * Details of which Destinations the event was synced to by Segment
      */
-    integrations_object?: {
-      [k: string]: unknown
-    }
+    integrations_object?: string
     /**
      * Contains the entire properties object from a track() call or the traits object from an identify() call emitted from Engage when a user is added to or removed from an Audience
      */
@@ -93,7 +91,9 @@ export interface Payload {
   /**
    * Properties or Traits Hidden Field
    */
-  propertiesOrTraits: string
+  propertiesOrTraits: {
+    [k: string]: unknown
+  }
   /**
    * Additional user identifiers and traits to include as separate columns in the CSV file.
    */
