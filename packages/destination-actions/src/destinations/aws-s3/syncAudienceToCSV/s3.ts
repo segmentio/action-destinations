@@ -86,7 +86,7 @@ async function uploadS3(
   settings: Settings,
   audienceSettings: AudienceSettings,
   filename: string,
-  fileContent: Buffer
+  fileContent: string
 ): Promise<{ statusCode: number; message: string }> {
   try {
     roleArn = settings.iam_role_arn

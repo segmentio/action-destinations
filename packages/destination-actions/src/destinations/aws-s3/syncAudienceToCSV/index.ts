@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { generateFile } from '../operations'
+import {uploadS3} from './s3.ts'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Upload CSV',
@@ -240,7 +241,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
 async function processData(payloads: Payload[], settings: Settings, audienceSettings?: AudienceSettings) {
   const { filename, fileContents } = generateFile(payloads, audienceSettings as AudienceSettings)
-  //return uploadS3(settings, audienceSettings as AudienceSettings, filename ?? '', fileContents)
+  return uploadS3(settings, audienceSettings as AudienceSettings, filename ?? '', fileContents)
 }
 
 export default action
