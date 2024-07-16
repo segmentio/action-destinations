@@ -26,8 +26,8 @@ Object {
       },
     },
     "userId": "M$xwt#p",
-    "version": "2",
   },
+  "version": "2",
 }
 `;
 
@@ -42,7 +42,7 @@ Object {
       "device": Object {},
       "os": Object {},
     },
-    "version": "2",
   },
+  "version": "2",
 }
 `;
