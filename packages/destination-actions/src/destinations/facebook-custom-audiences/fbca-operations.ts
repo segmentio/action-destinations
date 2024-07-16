@@ -24,7 +24,8 @@ export default class FacebookClient {
       json: {
         name,
         subtype: 'CUSTOM',
-        description: 'TODO: Hardcoded for now'
+        description: 'TODO: Hardcoded for now',
+        customer_file_source: 'BOTH_USER_AND_PARTNER_PROVIDED' //required to create an audience
       }
     })
   }
