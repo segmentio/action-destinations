@@ -2,81 +2,61 @@
 
 export interface Payload {
   /**
-   * Specify if Segment should create a new Object Type automatically on HubSpot if it does not already exist.
+   * Details of the object to associate the record with
    */
-  createObject: boolean
+  object_details: {
+    /**
+     * The type of Hubspot Object to add/update a record for.
+     */
+    from_object_type: string
+    /**
+     * The name of the ID field for the record.
+     */
+    from_id_field_name: string
+    /**
+     * The ID value for the record.
+     */
+    from_id_field_value: string
+    /**
+     * The canonical record ID for the record. This will be fetched from Hubspot and cannot be supplied by the end user.
+     */
+    from_hs_object_id?: string
+  }
   /**
-   * Specify if Segment should create new Properties automatically on HubSpot if they do not already exist.
+   * Properties to set on the record.
    */
-  createProperties: boolean
-  /**
-   * Specify if Segment should create a new Identifier 'Unique Field' automatically on HubSpot if it does not already exist.
-   */
-  createIdentifier: boolean
-  /**
-   * The type of Hubspot Object to create, update or upsert the record to.
-   */
-  objectType: string
-  /**
-   * Specify if Segment should create, update or upsert a record.
-   */
-  insertType: string
-  /**
-   * The name of the unique field Segment will use as an identifier when creating, updating or upserting a record of 'Object Type'.
-   */
-  idFieldName: string
-  /**
-   * The type of Association between the two records. The Association must already exist in Hubspot.
-   */
-  associationLabel?: string
-  /**
-   * The value of the identifier to send to Hubspot.
-   */
-  idFieldValue: string
-  /**
-   * String Properties to send to HubSpot.
-   */
-  stringProperties?: {
+  properties?: {
     [k: string]: unknown
   }
   /**
-   * Number Properties to send to HubSpot.
+   * Associations to create between the record and other records.
    */
-  numericProperties?: {
-    [k: string]: unknown
-  }
+  associations?: {
+    /**
+     * The type of associated Hubspot Object.
+     */
+    to_object_type: string
+    /**
+     * The type of Association between the two records. The Association must already exist in Hubspot.
+     */
+    association_label: string
+    /**
+     * The name of the unique field Segment will use as an identifier when associating the record to another record. The unique field name must already exist on the Object in Hubspot.
+     */
+    to_id_field_name: string
+    /**
+     * The value of the identifier for the record to be associated with
+     */
+    to_id_field_value: string
+    /**
+     * The canonical record ID for the record. This will be fetched from Hubspot and cannot be supplied by the end user.
+     */
+    to_hs_object_id?: string
+  }[]
   /**
-   * Boolean Properties to send to HubSpot.
+   * Indicates if Segment should create new Properties fields on the associated object. Segment will infer the field types based on payload data. String, number and date types are supported. Other types will be converted to string.
    */
-  booleanProperties?: {
-    [k: string]: unknown
-  }
-  /**
-   * Datetime Properties to send to HubSpot.
-   */
-  dateProperties?: {
-    [k: string]: unknown
-  }
-  /**
-   * The name of the unique field Segment will use as an identifier when associating the record to another record. The unique field name must already exist on the Object in Hubspot.
-   */
-  toIdFieldName?: string
-  /**
-   * The value of the identifier for the record to be associated with
-   */
-  toIdFieldValue?: string
-  /**
-   * The type of Hubspot Object to associate the record to. This Object Type must already exist in Hubspot.
-   */
-  toObjectType?: string
-  /**
-   * Hubspot internal unique identifier for the Record.
-   */
-  recordID?: string
-  /**
-   * Hubspot internal unique identifier for the To Record.
-   */
-  toRecordID?: string
+  createAssociatedObjectProperties: boolean
   /**
    * By default Segment batches events to Hubspot.
    */

@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HubspotClient } from './hubspot-api'
-import { RequestClient} from '@segment/actions-core'
+//import { RequestClient} from '@segment/actions-core'
 import { commonFields } from './common-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -22,49 +22,65 @@ const action: ActionDefinition<Settings, Payload> = {
     ...commonFields
   },
   dynamicFields: {
-    objectType: async (request: RequestClient) => {
-      const client = new HubspotClient(request)
-      return await client.getObjectTypes()
+    object_details: {
+      from_object_type: async (request) => {
+        const client = new HubspotClient(request)
+        return await client.getObjectTypes()
+      },
+      from_id_field_name: async (request, { payload }) => {
+        const fromObjectType = payload?.object_details?.from_object_type
+
+        if (!fromObjectType) {
+          throw new Error("Select from 'From Object Type' first")
+        }
+        
+        const client = new HubspotClient(request)
+        return await client.getIdFields(fromObjectType) 
+      },
     },
-    idFieldName: async (request: RequestClient, { payload }) => {
-      const client = new HubspotClient(request)
-      return await client.getIdFields(payload.objectType) 
-    },
-    toObjectType: async (request: RequestClient) => {
-      const client = new HubspotClient(request)
-      return await client.getObjectTypes()
-    },
-    toIdFieldName: async (request: RequestClient, { payload }) => {
-      const toObjectType = payload.toObjectType
-      if(!toObjectType) {
-          return {
-              choices: [],
-              nextPage: '',
-              error: {
-                  message: "'To Object Type' is required before fetching 'To Object ID Field' field",
-                  code: "'To Object Type' is required before fetching 'To Object ID Field' field"
-              }
-          }
+    associations: {
+      to_object_type: async (request) => {
+        const client = new HubspotClient(request)
+        return await client.getObjectTypes()
+      },
+      association_label: async (request, { dynamicFieldContext, payload }) => {
+        const selectedIndex = dynamicFieldContext?.selectedArrayIndex as number | undefined
+        
+        if (selectedIndex === undefined) {
+          throw new Error('Selected array index is missing')
+        }
+   
+        const fromObjectType = payload?.object_details?.from_object_type
+        const toObjectType = payload?.associations?.[selectedIndex]?.to_object_type
+
+        if (!fromObjectType) {
+          throw new Error("Select from 'Object Type' first")
+        }
+        
+        if (!toObjectType) {
+          throw new Error("Select from 'To Object Type' first")
+        }
+
+        const client = new HubspotClient(request)
+        return await client.getAssociationLabel(fromObjectType, toObjectType) 
+      },
+      to_id_field_name: async (request, { dynamicFieldContext, payload }) => {
+        
+        const selectedIndex = dynamicFieldContext?.selectedArrayIndex as number | undefined
+        
+        if (selectedIndex === undefined) {
+          throw new Error('Selected array index is missing')
+        }
+  
+        const toObjectType = payload?.associations?.[selectedIndex]?.to_object_type
+
+        if (!toObjectType) {
+          throw new Error("Select from 'To Object Type' first")
+        }
+
+        const client = new HubspotClient(request)
+        return await client.getIdFields(toObjectType) 
       }
-      const client = new HubspotClient(request)
-      return await client.getIdFields(toObjectType) 
-    },
-    associationLabel: async (request: RequestClient, { payload }) => {
-      let { objectType, toObjectType }  = payload 
-      objectType = 'companies'
-      toObjectType = 'contacts'
-      if(!objectType || !toObjectType) {
-          return {
-              choices: [],
-              nextPage: '',
-              error: {
-                  message: "'Object Type' and 'To Object Type' fields are required before fetching 'Association Label' field.",
-                  code: "'Object Type' and 'To Object Type' fields are required before fetching 'Association Label' field."
-              }
-          }
-      }
-      const client = new HubspotClient(request)
-      return await client.getAssociationLabel(objectType, toObjectType) 
     }
   },
   perform: async (request, { payload }) => {

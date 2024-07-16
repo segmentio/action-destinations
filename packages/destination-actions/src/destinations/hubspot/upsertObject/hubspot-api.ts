@@ -133,7 +133,7 @@ export class HubspotClient {
         }
     }
 
-    async getAssociationLabel(objectType: string, toObjectType: string) {
+    async getAssociationLabel(fromObjectType: string, toObjectType: string) {
         interface AssociationLabel {
             category: AssociationCategory
             typeId: number
@@ -145,13 +145,13 @@ export class HubspotClient {
         
         try {
             const response = await this.request<GetAssociationLabelResponse>(
-                `${HUBSPOT_BASE_URL}/crm/v4/associations/${objectType}/${toObjectType}/labels`, {
+                `${HUBSPOT_BASE_URL}/crm/v4/associations/${fromObjectType}/${toObjectType}/labels`, {
                     method: 'GET',
                     skipResponseCloning: true
                 }
             )
             const choices = response?.data?.results?.map((res) => ({
-                label: !res.label ? `${objectType} to ${toObjectType} (Type ${res.typeId})` : `${objectType} to ${toObjectType} ${res.label}`,
+                label: !res.label ? `${fromObjectType} to ${toObjectType} (Type ${res.typeId})` : `${fromObjectType} to ${toObjectType} ${res.label}`,
                 value: `${res.category}:${res.typeId}`
             }))
 
