@@ -1,5 +1,3 @@
-// export type Event = string | { [k: string]: unknown } | undefined
-
 export type State = string | { [k: string]: unknown } | undefined
 
 export type Allocation = {
