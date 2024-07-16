@@ -1,9 +1,13 @@
-import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import type { Settings } from './generated-types'
+import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
+import type { AudienceSettings, Settings } from './generated-types'
 
 import syncAudienceToCSV from './syncAudienceToCSV'
 
-const destination: AudienceDestinationDefinition<Settings> = {
+type PersonasSettings = {
+  computation_id: string
+}
+
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'AWS S3 CSV',
   slug: 'actions-s3-csv',
   mode: 'cloud',
@@ -65,6 +69,23 @@ const destination: AudienceDestinationDefinition<Settings> = {
     mode: {
       type: 'synced',
       full_audience_sync: true
+    },
+    async createAudience(_, createAudienceInput) {
+      const audienceSettings = createAudienceInput.audienceSettings
+      // @ts-ignore type is not defined, and we will define it later
+      const personas = audienceSettings.personas as PersonasSettings
+      if (!personas) {
+        throw new IntegrationError('Missing computation parameters: Id and Key', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      return { externalId: personas.computation_id }
+    },
+    async getAudience(_, getAudienceInput) {
+      const audience_id = getAudienceInput.externalId
+      if (!audience_id) {
+        throw new IntegrationError('Missing audience_id value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+      return { externalId: audience_id }
     }
   },
   actions: {

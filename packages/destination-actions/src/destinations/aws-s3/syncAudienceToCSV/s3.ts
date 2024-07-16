@@ -110,4 +110,4 @@ async function uploadS3(
   }
 }
 
-export { validateS3, uploadS3 }
+export { uploadS3 }

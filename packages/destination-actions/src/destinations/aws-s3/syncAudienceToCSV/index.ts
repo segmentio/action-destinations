@@ -1,8 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
-import { generateFile } from '../operations'
 import type { Payload } from './generated-types'
-import { uploadS3 } from './s3'
+import { generateFile } from '../operations'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Upload CSV',
@@ -77,11 +76,12 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       default: {
         audience_name: 'audience_name',
         audience_id: 'audience_id',
+        audience_action: 'audience_action',
         email: 'email',
         user_id: 'user_id',
         anonymous_id: 'anonymous_id',
         timestamp: 'timestamp',
-        messageId: 'message_id',
+        message_id: 'message_id',
         space_id: 'space_id',
         integrations_object: 'integrations_object',
         properties_or_traits: 'properties_or_traits'
@@ -230,7 +230,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   },
 
   perform: async (_, { payload, settings, audienceSettings }) => {
-    return processData([payload], settings, audienceSettings)
+    const payloads = [{...payload, additional_identifiers_and_traits_columns: [{key:'key1', value:'value1'},{key:'key2', value:'value2'}]}, payload]
+    return processData(payloads, settings, audienceSettings)
   },
   performBatch: (_, { payload, settings, audienceSettings }) => {
     return processData(payload, settings, audienceSettings)
@@ -238,8 +239,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 }
 
 async function processData(payloads: Payload[], settings: Settings, audienceSettings?: AudienceSettings) {
-  const { filename, fileContents } = generateFile(payloads, settings, audienceSettings as AudienceSettings)
-  return uploadS3(settings, audienceSettings as AudienceSettings, filename ?? '', fileContents)
+  const { filename, fileContents } = generateFile(payloads, audienceSettings as AudienceSettings)
+  //return uploadS3(settings, audienceSettings as AudienceSettings, filename ?? '', fileContents)
 }
 
 export default action
