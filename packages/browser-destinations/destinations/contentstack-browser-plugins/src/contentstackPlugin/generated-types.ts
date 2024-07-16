@@ -7,12 +7,4 @@ export interface Payload {
   traits: {
     [k: string]: unknown
   }
-  /**
-   * ID for the user
-   */
-  userId?: string
-  /**
-   * Inidicates if Attributes should be created in Contentstack
-   */
-  createAttributes?: boolean
 }

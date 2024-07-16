@@ -62,6 +62,15 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+  presets: [
+    {
+      name: 'Contentstack Browser Plugin',
+      subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+      partnerAction: 'contentstackPlugin',
+      mapping: {},
+      type: 'automatic'
+    }
+  ],
   actions: {
     customAttributesSync
   }
