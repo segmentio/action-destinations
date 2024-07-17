@@ -47,8 +47,8 @@ export default class FacebookClient {
     paging: DynamicFieldPagination | undefined
   ): Promise<{ choices: DynamicFieldItem[]; error: DynamicFieldError | undefined; nextPage: string }> => {
     let nextPageParam = ''
-    if (paging?.next) {
-      nextPageParam = `&after=${paging.next}`
+    if (paging?.nextPage) {
+      nextPageParam = `&after=${paging.nextPage}`
     }
 
     const { data } = await this.request<GetAllAudienceResponse>(

@@ -74,6 +74,7 @@ export interface ExecuteInput<
 export interface DynamicFieldResponse {
   choices: DynamicFieldItem[]
   paging?: DynamicFieldPagination
+  nextPage?: string
   error?: DynamicFieldError
 }
 
