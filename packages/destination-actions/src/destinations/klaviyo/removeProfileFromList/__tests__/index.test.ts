@@ -34,7 +34,7 @@ const requestBody = {
 }
 
 describe('Remove List from Profile', () => {
-  it('should throw error if no external_id/email is provided', async () => {
+  it('should throw error if no external_id/email or phone_number is provided', async () => {
     const event = createTestEvent({
       type: 'track',
       properties: {}
@@ -138,6 +138,55 @@ describe('Remove List from Profile', () => {
       testDestination.testAction('removeProfileFromList', { event, mapping, settings })
     ).resolves.not.toThrowError()
   })
+
+  it('should remove profile from list if successful with Phone Number only', async () => {
+    const requestBody = {
+      data: [
+        {
+          type: 'profile',
+          id: 'XYZABC'
+        }
+      ]
+    }
+
+    const phone_number = '+15005435907'
+    nock(`${API_URL}/profiles`)
+      .get(`/?filter=equals(phone_number,"${phone_number}")`)
+      .reply(200, {
+        data: [{ id: 'XYZABC' }]
+      })
+
+    nock(`${API_URL}/lists/${listId}`)
+      .delete('/relationships/profiles/', requestBody)
+      .reply(200, {
+        data: [
+          {
+            id: 'XYZABC'
+          }
+        ]
+      })
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      context: {
+        personas: {
+          external_audience_id: listId
+        }
+      },
+      properties: {
+        ephone_number: '+15005435907'
+      }
+    })
+    const mapping = {
+      list_id: listId,
+      external_id: 'testing_123'
+    }
+
+    await expect(
+      testDestination.testAction('removeProfileFromList', { event, mapping, settings })
+    ).resolves.not.toThrowError()
+  })
 })
 
 describe('Remove List from Profile Batch', () => {
@@ -230,7 +279,47 @@ describe('Remove List from Profile Batch', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should remove profiles with valid emails and external IDs', async () => {
+  it('should remove multiple profiles with valid phone numbers', async () => {
+    const events = [
+      createTestEvent({
+        properties: {
+          phone: '+15005435907'
+        }
+      }),
+      createTestEvent({
+        properties: {
+          phone: '+15005435908'
+        }
+      })
+    ]
+    const mapping = {
+      list_id: listId,
+      phone_number: {
+        '@path': '$.properties.phone'
+      }
+    }
+
+    nock(`${API_URL}`)
+      .get('/profiles/')
+      .query({
+        filter: 'any(phone_number,["+15005435907","+15005435908"])'
+      })
+      .reply(200, {
+        data: [{ id: 'XYZABC' }, { id: 'XYZABD' }]
+      })
+
+    nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200)
+
+    await expect(
+      testDestination.testBatchAction('removeProfileFromList', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should remove profiles with valid emails, phone numbers and external IDs', async () => {
     const events = [
       createTestEvent({
         properties: {
@@ -240,6 +329,11 @@ describe('Remove List from Profile Batch', () => {
       createTestEvent({
         properties: {
           external_id: 'externalId2'
+        }
+      }),
+      createTestEvent({
+        properties: {
+          phone: '+15005435907'
         }
       })
     ]
@@ -251,6 +345,9 @@ describe('Remove List from Profile Batch', () => {
       },
       email: {
         '@path': '$.properties.email'
+      },
+      phone_number: {
+        '@path': '$.properties.phone'
       }
     }
 
@@ -272,6 +369,15 @@ describe('Remove List from Profile Batch', () => {
         data: [{ id: 'XYZABC' }]
       })
 
+    nock(`${API_URL}`)
+      .get('/profiles/')
+      .query({
+        filter: 'any(phone_number,["+15005435907"])'
+      })
+      .reply(200, {
+        data: [{ id: 'XYZABC' }]
+      })
+
     nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200)
 
     await expect(
@@ -283,7 +389,7 @@ describe('Remove List from Profile Batch', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should filter out profiles without email or external ID', async () => {
+  it('should filter out profiles without email, phone number or external ID', async () => {
     const events = [
       createTestEvent({
         properties: {
