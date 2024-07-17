@@ -1,60 +1,73 @@
-import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import Destination from '../../index'
+import { RequestClient } from '@segment/actions-core'
+import type { Settings } from '../../generated-types'
+import { Payload } from '../generated-types'
+import action from '../index' // Replace with the actual file name
 
-const testDestination = createTestIntegration(Destination)
+describe('Dawn AI Action', () => {
+  let mockRequest: jest.MockedFunction<RequestClient>
+  let mockSettings: Settings
+  let mockPayload: Payload
 
-describe('DawnAnalytics.track', () => {
   beforeEach(() => {
-    nock.cleanAll()
+    mockRequest = jest.fn().mockResolvedValue({ status: 200 })
+    mockSettings = {
+      writeKey: 'test-write-key'
+    }
+    mockPayload = {
+      event: 'test-event',
+      user_id: 'test-user-id',
+      properties: { key: 'value' }
+    }
   })
 
-  it('should send event data to Dawn Analytics API correctly', async () => {
-    const event = createTestEvent({
-      type: 'track',
-      event: 'Test Event',
-      properties: {
-        key: 'value',
-        number: 42,
-        boolean: true
-      }
-    })
-
-    nock('https://api.dawnai.com')
-      .post('/track')
-      .reply(function (uri, requestBody) {
-        // Check the request body
-        expect(requestBody).toEqual([
-          {
-            event: 'Test Event',
-            properties: {
-              key: 'value',
-              number: 42,
-              boolean: true
+  describe('perform function', () => {
+    it('should correctly transform payload and make API call', async () => {
+      await action.perform(mockRequest, { settings: mockSettings, payload: mockPayload })
+      expect(mockRequest).toHaveBeenCalledWith(
+        'https://api.dawnai.com/segment-track',
+        expect.objectContaining({
+          method: 'post',
+          json: [
+            {
+              event: 'test-event',
+              user_id: 'test-user-id',
+              properties: { key: 'value' }
             }
+          ],
+          headers: {
+            authorization: 'Bearer test-write-key'
           }
-        ])
-
-        // Check the authorization header
-        expect(this.req.headers.authorization).toBe('Bearer test-write-key')
-
-        return [200, { success: true }]
-      })
-
-    const responses = await testDestination.testAction('track', {
-      event,
-      useDefaultMappings: true,
-      settings: {
-        writeKey: 'test-write-key'
-      }
+        })
+      )
     })
 
-    // Check the response
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].data).toEqual({ success: true })
+    it('should handle missing user_id and properties', async () => {
+      const incompletePayload: Payload = { event: 'test-event', user_id: '', properties: {} }
+      await action.perform(mockRequest, { settings: mockSettings, payload: incompletePayload })
+      expect(mockRequest).toHaveBeenCalledWith(
+        'https://api.dawnai.com/segment-track',
+        expect.objectContaining({
+          json: [
+            {
+              event: 'test-event',
+              user_id: '',
+              properties: {}
+            }
+          ]
+        })
+      )
+    })
+  })
 
-    // Verify that all nock interceptors were used
-    expect(nock.isDone()).toBe(true)
+  describe('action definition', () => {
+    it('should have correct field definitions', () => {
+      expect(action.fields).toHaveProperty('event')
+      expect(action.fields).toHaveProperty('user_id')
+      expect(action.fields).toHaveProperty('properties')
+
+      expect(action.fields.event.required).toBe(true)
+      expect(action.fields.user_id.required).toBe(true)
+      expect(action.fields.properties.required).toBe(false)
+    })
   })
 })
