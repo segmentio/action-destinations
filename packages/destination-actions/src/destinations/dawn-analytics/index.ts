@@ -3,6 +3,8 @@ import type { Settings } from './generated-types'
 
 import track from './track'
 
+import identifyUser from './identifyUser'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Dawn Analytics',
   slug: 'actions-dawn-analytics',
@@ -37,7 +39,8 @@ const destination: DestinationDefinition<Settings> = {
   // },
 
   actions: {
-    track
+    track,
+    identifyUser
   }
 }
 

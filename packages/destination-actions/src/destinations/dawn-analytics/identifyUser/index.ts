@@ -1,22 +1,21 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { DawnEvent } from '../dawn-types'
+import { DawnIdentifyUser } from '../dawn-types'
 
-const getEventFromPayload = (payload: Payload): DawnEvent => {
-  const event: DawnEvent = {
-    event: payload.event,
+const getEventFromPayload = (payload: Payload): DawnIdentifyUser => {
+  const identifyUserPayload: DawnIdentifyUser = {
     user_id: payload.user_id || '',
-    properties: payload.properties || {}
+    traits: payload.traits || {}
   }
-  return event
+  return identifyUserPayload
 }
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
-  const events = payload.map((value) => getEventFromPayload(value))
-  return request('https://api.dawnai.com/segment-track', {
+  const identifyUsers = payload.map((value) => getEventFromPayload(value))
+  return request('https://api.dawnai.com/segment-identify', {
     method: 'post',
-    json: events,
+    json: identifyUsers,
     headers: {
       authorization: `Bearer ${settings.writeKey}`
     }
@@ -24,18 +23,9 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track',
+  title: 'Identify User',
   description: '',
   fields: {
-    event: {
-      label: 'Event Name',
-      type: 'string',
-      description: 'The name of the action being performed.',
-      required: true,
-      default: {
-        '@path': '$.event'
-      }
-    },
     user_id: {
       label: 'User ID',
       type: 'string',
@@ -45,13 +35,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    properties: {
-      label: 'Properties',
+    traits: {
+      label: 'Traits',
       type: 'object',
-      description: 'The properties of the event.',
+      description: 'The traits of the user.',
       required: false,
       default: {
-        '@path': '$event' // Currently dumping the entire event object as properties
+        '@path': '$event' // Currently dumping the entire event object as traits
       }
     }
   },
