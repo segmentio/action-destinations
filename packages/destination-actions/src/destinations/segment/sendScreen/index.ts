@@ -21,9 +21,7 @@ import {
   locale,
   location,
   message_id,
-  enable_batching,
-  consent,
-  validateConsentObject
+  consent
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
@@ -51,7 +49,6 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id,
     properties,
     message_id,
-    enable_batching,
     consent
   },
   perform: (_request, { payload, statsContext }) => {
@@ -59,53 +56,34 @@ const action: ActionDefinition<Settings, Payload> = {
       throw MissingUserOrAnonymousIdThrowableError
     }
 
-    const screenPayload: Object = convertPayload(payload)
+    const screenPayload: Object = {
+      userId: payload?.user_id,
+      anonymousId: payload?.anonymous_id,
+      timestamp: payload?.timestamp,
+      name: payload?.screen_name,
+      context: {
+        app: payload?.application,
+        campaign: payload?.campaign_parameters,
+        device: payload?.device,
+        ip: payload?.ip_address,
+        locale: payload?.locale,
+        location: payload?.location,
+        network: payload?.network,
+        os: payload?.operating_system,
+        page: payload?.page,
+        screen: payload?.screen,
+        userAgent: payload?.user_agent,
+        groupId: payload?.group_id
+      },
+      properties: {
+        name: payload?.screen_name,
+        ...payload?.properties
+      },
+      type: 'screen'
+    }
 
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendScreen'])
     return { batch: [screenPayload] }
-  },
-  performBatch: (_request, { payload, statsContext }) => {
-    const screenPayload = payload.map((data) => {
-      if (!data.anonymous_id && !data.user_id) {
-        throw MissingUserOrAnonymousIdThrowableError
-      }
-      return convertPayload(data)
-    })
-
-    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendBatchScreen'])
-    return { batch: screenPayload }
-  }
-}
-
-function convertPayload(data: Payload) {
-  const isValidConsentObject = validateConsentObject(data?.consent)
-
-  return {
-    userId: data?.user_id,
-    anonymousId: data?.anonymous_id,
-    timestamp: data?.timestamp,
-    name: data?.screen_name,
-    messageId: data?.message_id,
-    context: {
-      app: data?.application,
-      campaign: data?.campaign_parameters,
-      consent: isValidConsentObject ? { ...data?.consent } : {},
-      device: data?.device,
-      ip: data?.ip_address,
-      locale: data?.locale,
-      location: data?.location,
-      network: data?.network,
-      os: data?.operating_system,
-      page: data?.page,
-      screen: data?.screen,
-      userAgent: data?.user_agent,
-      groupId: data?.group_id
-    },
-    properties: {
-      name: data?.screen_name,
-      ...data?.properties
-    },
-    type: 'screen'
   }
 }
 
