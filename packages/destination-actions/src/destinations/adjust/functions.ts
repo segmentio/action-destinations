@@ -26,10 +26,9 @@ export function validatePayload(
     callback_params: JSON.stringify(payload)
   }
 
-  if (settings.send_event_creation_time) {
-    if (!eventData.timestamp) {
+  if (settings.send_event_creation_time && !payload.timestamp) {
       throw new Error('Event timestamp is required when send_event_creation_time is enabled.')
-    }
+   }
 
     adjustPayload.created_at_unix = parseInt((new Date(String(eventData.timestamp)).getTime() / 1000).toFixed(0))
   }
