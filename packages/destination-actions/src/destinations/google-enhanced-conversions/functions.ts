@@ -5,7 +5,12 @@ import {
   QueryResponse,
   ConversionActionId,
   ConversionActionResponse,
-  CustomVariableInterface
+  CustomVariableInterface,
+  CreateAudienceInput,
+  CreateGoogleAudienceResponse,
+  AudienceSettings,
+  UserListResponse,
+  UserList
 } from './types'
 import {
   ModifiedResponse,
@@ -25,32 +30,10 @@ export const API_VERSION = 'v16'
 export const CANARY_API_VERSION = 'v16'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 
-export interface AudienceSettings {
-  external_id_type: string
-}
-export interface GoogleAdsResonse {
-  resourceName?: string
-}
-export interface CreateGoogleAudienceResponse {
-  resourceName?: string
-  results: Array<{ resourceName: string }>
-}
 export class GoogleAdsError extends HTTPError {
   response: Response & {
     status: string
     statusText: string
-  }
-}
-
-export interface CreateAudienceInput {
-  audienceName: string
-  settings: {
-    customerId?: string
-    conversionTrackingId?: string
-  }
-  audienceSettings: {
-    external_id_type: string
-    app_id?: string
   }
 }
 
@@ -215,19 +198,35 @@ export async function getListIds(request: RequestClient, settings: CreateAudienc
     query: `SELECT user_list.id, user_list.name FROM user_list`
   }
 
-  const response = await request(
-    `https://googleads.googleapis.com/${API_VERSION}/customers/${settings.customerId}/googleAds:search`,
-    {
-      method: 'post',
-      headers: {
-        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`,
-        authorization: `Bearer ${auth?.accessToken}`
-      },
-      json
-    }
-  )
+  try {
+    const response: ModifiedResponse<UserListResponse> = await request(
+      `https://googleads.googleapis.com/${API_VERSION}/customers/${settings.customerId}/googleAds:search`,
+      {
+        method: 'post',
+        headers: {
+          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`,
+          authorization: `Bearer ${auth?.accessToken}`
+        },
+        json
+      }
+    )
 
-  return (response.data as any).results
+    const choices = response.data.results.map((input: UserList) => {
+      return { value: input.userList.id, label: input.userList.name }
+    })
+    return {
+      choices
+    }
+  } catch (err) {
+    return {
+      choices: [],
+      nextPage: '',
+      error: {
+        message: (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
+        code: (err as GoogleAdsError).response?.status + '' ?? '500'
+      }
+    }
+  }
 }
 
 export async function createGoogleAudience(

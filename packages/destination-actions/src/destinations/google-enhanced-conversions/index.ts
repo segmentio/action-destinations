@@ -4,7 +4,8 @@ import postConversion from './postConversion'
 import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
-import { CreateAudienceInput, createGoogleAudience, getGoogleAudience } from './functions'
+import { CreateAudienceInput } from './types'
+import { createGoogleAudience, getGoogleAudience } from './functions'
 
 import userList from './userList'
 
