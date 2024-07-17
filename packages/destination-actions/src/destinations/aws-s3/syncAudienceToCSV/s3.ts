@@ -24,36 +24,32 @@ export class S3CSVClient {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const stsClient = new STSClient({ region: 'us-west-2' })
 
-    console.log('111')
-
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const command = new AssumeRoleCommand({
       RoleArn: this.roleArn,
       RoleSessionName: this.roleSessionName
     })
-    console.log('222')
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const response = await stsClient.send(command)
-    console.log('999')
+
     if (!response.Credentials) {
-      console.log('444')
       throw new Error('Failed to assume role and get temporary credentials')
     }
-    console.log('333')
+
     if (
       response.Credentials &&
       response.Credentials.AccessKeyId &&
       response.Credentials.SecretAccessKey &&
       response.Credentials.SessionToken
     ) {
-      console.log('555')
+
       return {
         accessKeyId: response.Credentials.AccessKeyId,
         secretAccessKey: response.Credentials.SecretAccessKey,
         sessionToken: response.Credentials.SessionToken
       }
     } else {
-      console.log('666')
       throw new Error('Credentials are not properly defined')
     }
   }
@@ -67,7 +63,7 @@ export class S3CSVClient {
       filename = filename.replace('.csv', `_${dateSuffix}.csv`)
     } else {
       // Append the date suffix followed by .csv
-      filename = `${filename}_${dateSuffix}.csv`
+      filename = filename ? `${filename}_${dateSuffix}.csv` : `${dateSuffix}.csv`
     }
 
     const bucketName = settings.s3_aws_bucket_name
