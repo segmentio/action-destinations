@@ -26,6 +26,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
+      //dummy commit
       const { source_write_key } = settings
       const AWS_REGION = process.env['AWS_REGION'] || DEFAULT_SEGMENT_ENDPOINT
       return request(`${SEGMENT_ENDPOINTS[AWS_REGION].cdn}/projects/${source_write_key}/settings`)
