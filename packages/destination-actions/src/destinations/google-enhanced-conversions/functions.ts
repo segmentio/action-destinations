@@ -258,7 +258,7 @@ export async function createGoogleAudience(
   }
 
   const response = await request(
-    `https://googleads.googleapis.com/${API_VERSION}/customers/${input.settings.customerId}:mutate`,
+    `https://googleads.googleapis.com/${API_VERSION}/customers/${input.settings.customerId}/userLists:mutate`,
     {
       method: 'post',
       headers: {
