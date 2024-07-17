@@ -30,7 +30,7 @@ export function validatePayload(
       throw new Error('Event timestamp is required when send_event_creation_time is enabled.')
    }
 
-    adjustPayload.created_at_unix = parseInt((new Date(String(eventData.timestamp)).getTime() / 1000).toFixed(0))
+    adjustPayload.created_at_unix = parseInt((new Date(String(payload.timestamp)).getTime() / 1000).toFixed(0))
   }
 
   return adjustPayload
