@@ -29,6 +29,14 @@ export const commonFields: Record<string, InputField> = {
                 type: 'string',
                 required: true
             },
+            from_property_group: {
+                label: 'Property Group',
+                description: 'Segment can new create properties on the object if needed. To enable this select the property group for Segment to add new properties to. To disable leave this field blank.',
+                type: 'string',
+                required: false,
+                default: '',
+                dynamic: true
+            },
             from_hs_object_id: {
                 label: 'Canonical Record ID',
                 description: 'The canonical record ID for the record. This will be fetched from Hubspot and cannot be supplied by the end user.',
@@ -97,13 +105,6 @@ export const commonFields: Record<string, InputField> = {
                 default: undefined
             }
         }
-    },
-    createAssociatedObjectProperties: {
-        label: 'Create Associated Object Properties',
-        description: 'Indicates if Segment should create new Properties fields on the associated object. Segment will infer the field types based on payload data. String, number and date types are supported. Other types will be converted to string.',
-        type: 'boolean',
-        required: true,
-        default: false
     },
     enable_batching:{
         type: 'boolean',
