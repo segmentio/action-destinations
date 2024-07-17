@@ -14,7 +14,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * The ID for the Taboola Account to sync to.
+   * The alphabetic ID for the Taboola Account to sync to.
    */
   account_id: string
   /**

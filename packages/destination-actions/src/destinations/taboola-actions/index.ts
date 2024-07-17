@@ -43,7 +43,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       label: 'Account ID',
       required: true,
-      description: 'The ID for the Taboola Account to sync to.'
+      description: 'The alphabetic ID for the Taboola Account to sync to.'
     },
     ttl_in_hours: {
       type: 'number',
