@@ -25,10 +25,15 @@ jobs:
       pull-requests: write
       contents: write
     steps:
+      - name: Echo Inputs
+        run: |
+          echo "Branch ${{ github.event.inputs.branch }} will be created from ${{ github.event.inputs.base_branch }} and a PR will be created to ${{ github.event.inputs.base_branch }}"
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
+          ref: ${{ github.event.inputs.base_branch }}
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
