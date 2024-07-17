@@ -210,10 +210,31 @@ export const commonHashedEmailValidation = (email: string): string => {
   return String(hash(email))
 }
 
+export async function getListIds(request: RequestClient, settings: CreateAudienceInput['settings'], auth?: any) {
+  const json = {
+    query: `SELECT user_list.id, user_list.name FROM user_list`
+  }
+
+  const response = await request(
+    `https://googleads.googleapis.com/${API_VERSION}/customers/${settings.customerId}/googleAds:search`,
+    {
+      method: 'post',
+      headers: {
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`,
+        authorization: `Bearer ${auth?.accessToken}`
+      },
+      json
+    }
+  )
+
+  return (response.data as any).results
+}
+
 export async function createGoogleAudience(
   request: RequestClient,
   input: CreateAudienceInput,
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  auth?: any
 ) {
   if (input.audienceSettings.external_id_type === 'MOBILE_ADVERTISING_ID' && !input.audienceSettings.app_id) {
     throw new PayloadValidationError('App ID is required when external ID type is mobile advertising ID.')
@@ -241,7 +262,8 @@ export async function createGoogleAudience(
     {
       method: 'post',
       headers: {
-        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`,
+        authorization: `Bearer ${auth?.accessToken}`
       },
       json
     }
@@ -263,7 +285,8 @@ export async function getGoogleAudience(
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
   externalId: string,
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  auth?: any
 ) {
   const statsClient = statsContext?.statsClient
   const statsTags = statsContext?.tags
@@ -276,7 +299,8 @@ export async function getGoogleAudience(
     {
       method: 'post',
       headers: {
-        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`,
+        authorization: `Bearer ${auth?.accessToken}`
       },
       json
     }

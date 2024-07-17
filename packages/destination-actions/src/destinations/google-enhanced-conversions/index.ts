@@ -90,7 +90,17 @@ const destination: AudienceDestinationDefinition<Settings> = {
       label: 'App ID',
       description:
         'A string that uniquely identifies a mobile application from which the data was collected. Required if external ID type is mobile advertising ID',
-      type: 'string'
+      type: 'string',
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'external_id_type',
+            operator: 'is',
+            value: 'MOBILE_ADVERTISING_ID'
+          }
+        ]
+      }
     }
   },
   audienceConfig: {
