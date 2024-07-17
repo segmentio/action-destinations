@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createGoogleAudience, getGoogleAudience, handleUpdate } from '../functions'
+import { createGoogleAudience, getGoogleAudience, getListIds, handleUpdate } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -141,7 +141,10 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Existing List ID',
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
-          required: false
+          required: false,
+          dynamic: async (request, { settings, auth }) => {
+            return await getListIds(request, settings, auth)
+          }
         },
         list_name: {
           type: 'string',
@@ -153,7 +156,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           label: 'External ID Type',
           description: 'Customer match upload key types.',
-          required: true,
+          required: false,
           choices: [
             { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
             { label: 'CRM ID', value: 'CRM_ID' },
@@ -166,6 +169,7 @@ const action: ActionDefinition<Settings, Payload> = {
             'A string that uniquely identifies a mobile application from which the data was collected. Required if external ID type is mobile advertising ID',
           type: 'string',
           depends_on: {
+            match: 'all',
             conditions: [
               {
                 fieldKey: 'external_id_type',
@@ -190,7 +194,7 @@ const action: ActionDefinition<Settings, Payload> = {
           required: false
         }
       },
-      performHook: async (request, { settings, hookInputs, statsContext }) => {
+      performHook: async (request, { auth, settings, hookInputs, statsContext }) => {
         if (hookInputs.list_id) {
           try {
             return getGoogleAudience(request, settings, hookInputs.list_id)
@@ -215,7 +219,7 @@ const action: ActionDefinition<Settings, Payload> = {
               app_id: hookInputs.app_id
             }
           }
-          const listId = await createGoogleAudience(request, input, statsContext)
+          const listId = await createGoogleAudience(request, input, statsContext, auth)
 
           return {
             successMessage: `List '${hookInputs.list_name}' (id: ${listId}) created successfully!`,
