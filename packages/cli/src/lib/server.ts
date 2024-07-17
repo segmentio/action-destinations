@@ -403,7 +403,8 @@ function setupRoutes(def: DestinationDefinition | null): void {
                   page: req.body.page || 1,
                   auth: req.body.auth || {},
                   audienceSettings: req.body.audienceSettings || {},
-                  hookInputs: req.body.hookInputs || {}
+                  hookInputs: req.body.hookInputs || {},
+                  dynamicFieldContext: req.body.dynamicFieldContext || {}
                 }
                 const action = destination.actions[actionSlug]
                 const dynamicFn = dynamicInputs[fieldKey] as RequestFn<any, any, any, any>
