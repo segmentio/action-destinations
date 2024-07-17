@@ -26,20 +26,19 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings) {
 
   Object.entries(columnsField).forEach(([_, value]) => {
     if (value !== undefined) {
-      headers.push(value);
+      headers.push(value)
     }
-  });
+  })
 
   additionalColumns.forEach((additionalColumn) => {
-    headers.push(additionalColumn.value);
-  });
+    headers.push(additionalColumn.value)
+  })
 
   const headerString = `${headers.join(audienceSettings.delimiter === 'tab' ? '\t' : audienceSettings.delimiter)}\n`
 
   const rows: string[] = [headerString]
 
   payloads.forEach((payload, index, arr) => {
-
     const action = payload.propertiesOrTraits[payload.audienceName]
 
     const row: string[] = []
@@ -79,15 +78,17 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings) {
 
     additionalColumns.forEach((additionalColumn) => {
       row.push(enquoteIdentifier(String(JSON.stringify(payload.propertiesOrTraits[additionalColumn.key]) ?? '')))
-    });
-  
+    })
+
     const isLastRow = arr.length === index + 1
-    const rowString = `${row.join(audienceSettings.delimiter === 'tab' ? '\t' : audienceSettings.delimiter)}${isLastRow ? '' : '\n'}`
+    const rowString = `${row.join(audienceSettings.delimiter === 'tab' ? '\t' : audienceSettings.delimiter)}${
+      isLastRow ? '' : '\n'
+    }`
 
     rows.push(rowString)
   })
 
- console.log(rows.join(''))
+  console.log(rows.join(''))
 
   return { filename: audienceSettings?.filename, fileContents: rows.join('') }
 }

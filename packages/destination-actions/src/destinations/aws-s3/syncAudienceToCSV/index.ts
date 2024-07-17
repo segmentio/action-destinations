@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { generateFile } from '../operations'
-import {uploadS3} from './s3.ts'
+import { uploadS3 } from './s3.ts'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Upload CSV',
@@ -231,7 +231,15 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   },
 
   perform: async (_, { payload, settings, audienceSettings }) => {
-    const payloads = [{...payload, additional_identifiers_and_traits_columns: [{key:'key1', value:'value1'},{key:'key2', value:'value2'}]}, payload]
+    const payloads = [
+      {
+        ...payload,
+        additional_identifiers_and_traits_columns: [
+          { key: 'key1', value: 'value1' },
+          { key: 'key2', value: 'value2' }
+        ]
+      }
+    ] //, payload]
     return processData(payloads, settings, audienceSettings)
   },
   performBatch: (_, { payload, settings, audienceSettings }) => {
