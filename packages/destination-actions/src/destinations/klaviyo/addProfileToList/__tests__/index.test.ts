@@ -74,8 +74,8 @@ const profileProperties = {
   properties: { key: 'value' }
 }
 
-describe('Add List To Profile', () => {
-  it('should throw error if no email or External Id is provided', async () => {
+describe('Add Profile To List', () => {
+  it('should throw error if no email, phone number or External Id is provided', async () => {
     const event = createTestEvent({
       type: 'track',
       properties: {}
@@ -157,6 +157,41 @@ describe('Add List To Profile', () => {
     ).resolves.not.toThrowError()
   })
 
+  it('should add profile to list if successful with phone number only', async () => {
+    nock(`${API_URL}`)
+      .post('/profiles/', { data: { type: 'profile', attributes: { phone_number: '+15005435907' } } })
+      .reply(200, {
+        data: {
+          id: 'XYZABC'
+        }
+      })
+
+    nock(`${API_URL}/lists/${listId}`)
+      .post('/relationships/profiles/', requestBody)
+      .reply(
+        200,
+        JSON.stringify({
+          content: requestBody
+        })
+      )
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      properties: {
+        phone: '+15005435907'
+      }
+    })
+    const mapping = {
+      list_id: listId,
+      phone_number: '+15005435907'
+    }
+
+    await expect(
+      testDestination.testAction('addProfileToList', { event, mapping, settings })
+    ).resolves.not.toThrowError()
+  })
+
   it('should add profile to list if successful with both email and external id', async () => {
     nock(`${API_URL}`)
       .post('/profiles/', {
@@ -193,6 +228,54 @@ describe('Add List To Profile', () => {
       email: {
         '@path': '$.traits.email'
       }
+    }
+
+    await expect(
+      testDestination.testAction('addProfileToList', { event, mapping, settings })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should add profile to list if successful with both email, phone number and external id', async () => {
+    nock(`${API_URL}`)
+      .post('/profiles/', {
+        data: {
+          type: 'profile',
+          attributes: { email: 'demo@segment.com', external_id: 'testing_123', phone_number: '+15005435907' }
+        }
+      })
+      .reply(200, {
+        data: {
+          id: 'XYZABC'
+        }
+      })
+
+    nock(`${API_URL}/lists/${listId}`)
+      .post('/relationships/profiles/', requestBody)
+      .reply(
+        200,
+        JSON.stringify({
+          content: requestBody
+        })
+      )
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      properties: {
+        external_id: 'testing_123'
+      },
+      traits: {
+        email: 'demo@segment.com',
+        phone: '+15005435907'
+      }
+    })
+    const mapping = {
+      list_id: listId,
+      external_id: 'testing_123',
+      email: {
+        '@path': '$.traits.email'
+      },
+      phone_number: { '@path': '$.traits.phone' }
     }
 
     await expect(
@@ -298,7 +381,7 @@ describe('Add Profile To List Batch', () => {
     jest.resetAllMocks()
   })
 
-  it('should filter out profiles without email or external_id', async () => {
+  it('should filter out profiles without email, phone number or external_id', async () => {
     const events = [
       createTestEvent({
         context: { personas: { list_id: '123' }, traits: { email: 'valid@example.com' } }
