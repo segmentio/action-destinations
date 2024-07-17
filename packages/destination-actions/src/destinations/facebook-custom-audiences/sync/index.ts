@@ -34,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
               choices,
               paging: {
                 nextPage,
-                previousPage: dynamicFieldContext?.paging?.previousPage
+                previousPage: dynamicFieldContext?.paging?.nextPage
               }
             }
           }
