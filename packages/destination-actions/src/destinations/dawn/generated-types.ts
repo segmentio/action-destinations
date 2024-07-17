@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your write key from Dawn Analytics.
+   * Get your key at app.dawnai.com
    */
   writeKey: string
 }

@@ -6,16 +6,16 @@ import track from './track'
 import identifyUser from './identifyUser'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Dawn Analytics',
-  slug: 'actions-dawn-analytics',
+  name: 'Dawn AI',
+  slug: 'actions-dawn',
   mode: 'cloud',
 
   authentication: {
     scheme: 'custom',
     fields: {
       writeKey: {
-        label: 'Dawn write key',
-        description: 'Your write key from Dawn Analytics.',
+        label: 'Your write key',
+        description: 'Get your key at app.dawnai.com',
         type: 'string',
         required: true
       }
