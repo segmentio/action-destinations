@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Timestamp for when the event happened
+   */
+  timestamp: string | number
+  /**
    * The app token for your Adjust account. Overrides the Default App Token from Settings.
    */
   app_token?: string

@@ -8,6 +8,13 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event',
   description: 'Sends an Event to Adjust.',
   fields: {
+    timestamp: {
+      label: 'Timestamp',
+      description: 'Timestamp for when the event happened',
+      type: 'datetime',
+      required: true,
+      unsafe_hidden: true
+    },
     app_token: {
       label: 'App Token',
       description: 'The app token for your Adjust account. Overrides the Default App Token from Settings.',
@@ -70,8 +77,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    const eventData = (data as any).rawData as { [key: string]: unknown }
-    const adjustPayload = validatePayload(data.payload, eventData, data.settings)
+    // const eventData = (data as any).rawData as { [key: string]: unknown }
+    const adjustPayload = validatePayload(data.payload, data.settings)
     return sendEvents(request, [adjustPayload])
   }
 }

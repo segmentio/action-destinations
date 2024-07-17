@@ -5,11 +5,7 @@ import { AdjustPayload } from './types'
 import { Settings } from './generated-types'
 import { Payload } from './sendEvent/generated-types'
 
-export function validatePayload(
-  payload: Payload,
-  eventData: { [key: string]: unknown },
-  settings: Settings
-): AdjustPayload {
+export function validatePayload(payload: Payload, settings: Settings): AdjustPayload {
   if (!payload.app_token && !settings.default_app_token) {
     throw new Error('Either app_token in the mapping, or default_app_token in settings, must be provided.')
   }
@@ -27,11 +23,10 @@ export function validatePayload(
   }
 
   if (settings.send_event_creation_time && !payload.timestamp) {
-      throw new Error('Event timestamp is required when send_event_creation_time is enabled.')
-   }
-
-    adjustPayload.created_at_unix = parseInt((new Date(String(payload.timestamp)).getTime() / 1000).toFixed(0))
+    throw new Error('Event timestamp is required when send_event_creation_time is enabled.')
   }
+
+  adjustPayload.created_at_unix = parseInt((new Date(String(payload.timestamp)).getTime() / 1000).toFixed(0))
 
   return adjustPayload
 }
@@ -42,16 +37,18 @@ export function validatePayload(
  * @param events The events.
  * @returns An array of responses.
  */
-export async function sendEvents(request: RequestClient, events: AdjustPayload[]): Promise<any[]> {
-  const responses: Array<ModifiedResponse<unknown>> = []
-  for (const event of events) {
-    const response = await request('https://s2s.adjust.com/event', {
-      method: 'POST',
-      body: JSON.stringify(event)
-    })
-
-    responses.push(response)
-  }
+export async function sendEvents(
+  request: RequestClient,
+  events: AdjustPayload[]
+): Promise<ModifiedResponse<unknown>[]> {
+  const responses: Array<ModifiedResponse<unknown>> = await Promise.all(
+    events.map((event) =>
+      request('https://s2s.adjust.com/event', {
+        method: 'POST',
+        body: JSON.stringify(event)
+      })
+    )
+  )
 
   return responses
 }
