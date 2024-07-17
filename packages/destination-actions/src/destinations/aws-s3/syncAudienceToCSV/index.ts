@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { generateFile } from '../operations'
-import { uploadS3 } from './s3.ts'
+import { S3CSVClient } from './s3'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Upload CSV',
@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         },
         audience_id: {
           label: 'Audience ID column',
-          description: 'Name of ...',
+          description: 'Name of column for the Audience ID',
           type: 'string'
         },
         audience_action: {
@@ -34,43 +34,45 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         },
         email: {
           label: 'Email column',
-          description: 'Name of ...',
+          description: 'Name of column for email address',
           type: 'string'
         },
         user_id: {
           label: 'User ID column',
-          description: 'Name of ...',
+          description: 'Name of column for user ID',
           type: 'string'
         },
         anonymous_id: {
           label: 'Anonymous ID column',
-          description: 'Name of ...',
+          description: 'Name of column for anonymous ID',
           type: 'string'
         },
         timestamp: {
           label: 'Timestamp',
-          description: 'Timestamp when the user was added or removed from the Audience',
+          description: 'Name of column for timestamp for when the user was added or removed from the Audience',
           type: 'string'
         },
         messageId: {
           label: 'Message ID',
-          description: 'Unique identifier for the message.',
+          description: 'Name of column for the unique identifier for the message.',
           type: 'string'
         },
         space_id: {
           label: 'Space ID',
-          description: 'Unique identifier for the Segment Engage Space which generated the event.',
+          description:
+            'Name of column for the unique identifier for the Segment Engage Space that generated the event.',
           type: 'string'
         },
         integrations_object: {
           label: 'Integrations Object',
-          description: 'Details of which Destinations the event was synced to by Segment',
+          description:
+            'Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment',
           type: 'string'
         },
         properties_or_traits: {
           label: 'Properties or Traits',
           description:
-            'Contains the entire properties object from a track() call or the traits object from an identify() call emitted from Engage when a user is added to or removed from an Audience',
+            'Name of column for properties and traits. This data contains the entire properties object from a track() call or the traits object from an identify() call emitted from Engage when a user is added to or removed from an Audience',
           type: 'string'
         }
       },
@@ -231,16 +233,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   },
 
   perform: async (_, { payload, settings, audienceSettings }) => {
-    const payloads = [
-      {
-        ...payload,
-        additional_identifiers_and_traits_columns: [
-          { key: 'key1', value: 'value1' },
-          { key: 'key2', value: 'value2' }
-        ]
-      }
-    ] //, payload]
-    return processData(payloads, settings, audienceSettings)
+    return processData([payload], settings, audienceSettings)
   },
   performBatch: (_, { payload, settings, audienceSettings }) => {
     return processData(payload, settings, audienceSettings)
@@ -248,8 +241,11 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 }
 
 async function processData(payloads: Payload[], settings: Settings, audienceSettings?: AudienceSettings) {
-  const { filename, fileContents } = generateFile(payloads, audienceSettings as AudienceSettings)
-  return uploadS3(settings, audienceSettings as AudienceSettings, filename ?? '', fileContents)
+  const fileContent = generateFile(payloads, audienceSettings as AudienceSettings)
+
+  const s3Client = new S3CSVClient(settings.s3_aws_region, settings.iam_role_arn)
+
+  await s3Client.uploadS3(settings, audienceSettings as AudienceSettings, fileContent)
 }
 
 export default action

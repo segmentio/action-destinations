@@ -10,7 +10,7 @@ export interface Payload {
      */
     audience_name?: string
     /**
-     * Name of ...
+     * Name of column for the Audience ID
      */
     audience_id?: string
     /**
@@ -18,35 +18,35 @@ export interface Payload {
      */
     audience_action?: string
     /**
-     * Name of ...
+     * Name of column for email address
      */
     email?: string
     /**
-     * Name of ...
+     * Name of column for user ID
      */
     user_id?: string
     /**
-     * Name of ...
+     * Name of column for anonymous ID
      */
     anonymous_id?: string
     /**
-     * Timestamp when the user was added or removed from the Audience
+     * Name of column for timestamp for when the user was added or removed from the Audience
      */
     timestamp?: string
     /**
-     * Unique identifier for the message.
+     * Name of column for the unique identifier for the message.
      */
     messageId?: string
     /**
-     * Unique identifier for the Segment Engage Space which generated the event.
+     * Name of column for the unique identifier for the Segment Engage Space that generated the event.
      */
     space_id?: string
     /**
-     * Details of which Destinations the event was synced to by Segment
+     * Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment
      */
     integrations_object?: string
     /**
-     * Contains the entire properties object from a track() call or the traits object from an identify() call emitted from Engage when a user is added to or removed from an Audience
+     * Name of column for properties and traits. This data contains the entire properties object from a track() call or the traits object from an identify() call emitted from Engage when a user is added to or removed from an Audience
      */
     properties_or_traits?: string
   }

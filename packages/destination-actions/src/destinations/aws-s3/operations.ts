@@ -19,7 +19,7 @@ export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unkno
   AudienceSettings
 > & { rawData?: RawData }
 
-function generateFile(payloads: Payload[], audienceSettings: AudienceSettings) {
+function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): string {
   const headers: string[] = []
   const columnsField = payloads[0].columns
   const additionalColumns = payloads[0].additional_identifiers_and_traits_columns ?? []
@@ -88,9 +88,7 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings) {
     rows.push(rowString)
   })
 
-  console.log(rows.join(''))
-
-  return { filename: audienceSettings?.filename, fileContents: rows.join('') }
+  return rows.join('')
 }
 
 function enquoteIdentifier(str: string) {
