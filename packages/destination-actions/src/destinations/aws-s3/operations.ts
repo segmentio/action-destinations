@@ -77,7 +77,8 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): 
     }
 
     additionalColumns.forEach((additionalColumn) => {
-      row.push(enquoteIdentifier(String(JSON.stringify(payload.propertiesOrTraits[additionalColumn.key]) ?? '')))
+      //row.push(enquoteIdentifier(String(JSON.stringify(payload.propertiesOrTraits[additionalColumn.key]) ?? '')))
+      row.push(enquoteIdentifier(String(JSON.stringify(additionalColumn.key) ?? '')))
     })
 
     const isLastRow = arr.length === index + 1
