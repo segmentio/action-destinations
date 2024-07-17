@@ -57,7 +57,7 @@ export interface BaseActionDefinition {
   /**
    * The fields used to perform the action. These fields should match what the partner API expects.
    */
-  fields: { [x: string]: InputField }
+  fields: Record<string, InputField>
 }
 
 type HookValueTypes = string | boolean | number | Array<string | boolean | number>
