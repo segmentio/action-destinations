@@ -1,0 +1,54 @@
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import { DawnIdentifyUser } from '../dawn-types'
+
+const getEventFromPayload = (payload: Payload): DawnIdentifyUser => {
+  const identifyUserPayload: DawnIdentifyUser = {
+    user_id: payload.user_id || '',
+    traits: payload.traits || {}
+  }
+  return identifyUserPayload
+}
+
+const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
+  const identifyUsers = payload.map((value) => getEventFromPayload(value))
+  return request('https://api.dawnai.com/segment-identify', {
+    method: 'post',
+    json: identifyUsers,
+    headers: {
+      authorization: `Bearer ${settings.writeKey}`
+    }
+  })
+}
+
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Identify User',
+  description: '',
+  fields: {
+    user_id: {
+      label: 'User ID',
+      type: 'string',
+      description: 'The user ID performing the event.',
+      required: true,
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    traits: {
+      label: 'Traits',
+      type: 'object',
+      description: 'The traits of the user.',
+      required: false,
+      default: {
+        '@path': '$event' // Currently dumping the entire event object as traits
+      }
+    }
+  },
+
+  perform: async (request, { settings, payload }) => {
+    return processData(request, settings, [payload])
+  }
+}
+
+export default action
