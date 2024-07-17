@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Adjust',
+  name: 'Adjust (Actions)',
   slug: 'actions-adjust',
   mode: 'cloud',
 
