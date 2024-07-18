@@ -25,8 +25,8 @@ export class S3CSVClient {
   }
 
   async assumeRole(): Promise<Credentials> {
-    const intermediaryARN = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS!
-    const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID!
+    const intermediaryARN = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string
+    const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string
 
     const intermediaryCreds = await this.getSTSCredentials(intermediaryARN, intermediaryExternalId)
     return this.getSTSCredentials(this.roleArn, this.externalId, intermediaryCreds)
