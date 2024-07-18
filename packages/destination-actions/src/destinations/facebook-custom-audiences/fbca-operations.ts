@@ -38,7 +38,7 @@ export default class FacebookClient {
 
   getAllAudiences = async (): Promise<{ choices: DynamicFieldItem[]; error: DynamicFieldError | undefined }> => {
     const { data } = await this.request<GetAllAudienceResponse>(
-      `${this.baseUrl}${this.adAccountId}/customaudiences?fields=id,name`
+      `${this.baseUrl}${this.adAccountId}/customaudiences?fields=id,name&limit=200`
     )
 
     const choices = data.data.map(({ id, name }) => ({
