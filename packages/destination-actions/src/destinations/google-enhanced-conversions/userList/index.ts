@@ -8,6 +8,15 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Customer Match User List',
   description: 'Sync a Segment Engage Audience into a Google Customer Match User List.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
+  syncMode: {
+    description: 'Define how the records will be synced from RETL to Google',
+    label: 'How to sync records',
+    default: 'add',
+    choices: [
+      { label: 'Adds users to the connected Google Customer Match User List', value: 'add' },
+      { label: 'Remove users from the connected Google Customer Match User List', value: 'delete' }
+    ]
+  },
   fields: {
     first_name: {
       label: 'First Name',
@@ -241,7 +250,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext }) => {
+  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode }) => {
     hookOutputs?.retlOnMappingSave?.outputs.id
     return await handleUpdate(
       request,
@@ -249,16 +258,18 @@ const action: ActionDefinition<Settings, Payload> = {
       audienceSettings,
       [payload],
       hookOutputs?.retlOnMappingSave?.outputs.id,
+      syncMode,
       statsContext
     )
   },
-  performBatch: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext }) => {
+  performBatch: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode }) => {
     return await handleUpdate(
       request,
       settings,
       audienceSettings,
       payload,
       hookOutputs?.retlOnMappingSave?.outputs.id,
+      syncMode,
       statsContext
     )
   }

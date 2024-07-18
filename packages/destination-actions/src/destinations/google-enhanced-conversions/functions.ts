@@ -357,7 +357,7 @@ const formatPhone = (phone: string, hash_data?: boolean): string => {
   return sha256SmartHash(formattedPhone)
 }
 
-const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: AudienceSettings) => {
+const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: AudienceSettings, syncMode?: string) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
   // Map user data to Google Ads API format
@@ -395,9 +395,9 @@ const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: A
   }
   // Map user data to Google Ads API format
   for (const payload of payloads) {
-    if (payload.event_name == 'Audience Entered') {
+    if (payload.event_name == 'Audience Entered' || syncMode == 'add') {
       addUserIdentifiers.push(identifierFunctions[audienceSettings.external_id_type](payload))
-    } else if (payload.event_name == 'Audience Exited') {
+    } else if (payload.event_name == 'Audience Exited' || syncMode == 'delete') {
       removeUserIdentifiers.push(identifierFunctions[audienceSettings.external_id_type](payload))
     }
   }
@@ -512,7 +512,8 @@ export const handleUpdate = async (
   audienceSettings: CreateAudienceInput['audienceSettings'],
   payloads: UserListPayload[],
   hookOutputs: string,
-  statsContext: StatsContext | undefined
+  syncMode?: string,
+  statsContext?: StatsContext
 ) => {
   // Format the user data for Google Ads API
   const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, audienceSettings)
