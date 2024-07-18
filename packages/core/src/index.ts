@@ -79,7 +79,6 @@ export type {
 
 export type {
   DynamicFieldResponse,
-  DynamicFieldPagination,
   DynamicFieldError,
   DynamicFieldItem,
   InputField,

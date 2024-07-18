@@ -16,18 +16,11 @@ export interface Result {
   data?: JSONObject | null
 }
 
-export interface DynamicFieldPagination {
-  previousPage?: string
-  nextPage?: string
-}
-
 export interface DynamicFieldContext {
   /** The index of the item in an array of objects that we are requesting data for */
   selectedArrayIndex?: number
   /** The key within a dynamic object for which we are requesting values */
   selectedKey?: string
-
-  paging?: DynamicFieldPagination
 }
 
 export interface ExecuteInput<
@@ -73,7 +66,6 @@ export interface ExecuteInput<
 
 export interface DynamicFieldResponse {
   choices: DynamicFieldItem[]
-  paging?: DynamicFieldPagination
   nextPage?: string
   error?: DynamicFieldError
 }
