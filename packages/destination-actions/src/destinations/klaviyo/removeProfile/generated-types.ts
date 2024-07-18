@@ -17,4 +17,8 @@ export interface Payload {
    * When enabled, the action will use the klaviyo batch API.
    */
   enable_batching?: boolean
+  /**
+   * Individual's phone number in E.164 format. If SMS is not enabled and if you use Phone Number as identifier, then you have to provide one of Email or External ID.
+   */
+  phone_number?: string
 }
