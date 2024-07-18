@@ -493,8 +493,7 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
-          output: 'Action Executed',
-          data: ['this is a test', 'add']
+          output: 'successfully processed batch of events'
         }
       ])
     })
@@ -544,8 +543,7 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
-          output: 'Action Executed',
-          data: ['this is a test', 'userId']
+          output: 'successfully processed batch of events'
         }
       ])
     })
