@@ -3,6 +3,7 @@ import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import { S3Client, PutObjectCommandInput, PutObjectCommand } from '@aws-sdk/client-s3'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import * as process from 'process'
+import { ErrorCodes, IntegrationError } from '@segment/actions-core'
 
 interface Credentials {
   accessKeyId: string
@@ -14,60 +15,45 @@ export class S3CSVClient {
   roleArn: string
   roleSessionName: string
   region: string
+  externalId: string
 
-  constructor(region: string, roleArn: string) {
+  constructor(region: string, roleArn: string, externalId: string) {
     this.region = region
     this.roleSessionName = uuidv4()
     this.roleArn = roleArn
+    this.externalId = externalId
   }
 
   async assumeRole(): Promise<Credentials> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const stsClient = new STSClient({ region: 'us-west-2' })
+    const intermediaryARN = process.env.ACTIONS_S3_INTERMEDIARY_ROLE_ARN!
+    const intermediaryExternalId = process.env.ACTIONS_S3_EXTERNAL_ID!
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const intermediaryCreds = await this.getSTSCredentials(intermediaryARN, intermediaryExternalId)
+    return this.getSTSCredentials(this.roleArn, this.externalId, intermediaryCreds)
+  }
+
+  private async getSTSCredentials(roleId: string, externalId: string, credentials?: Credentials) {
+    const options = { region: this.region, credentials }
+    const stsClient = new STSClient(options)
     const command = new AssumeRoleCommand({
-      RoleArn: process.env.ACTIONS_S3_INTERMEDIARY_ROLE_ARN,
-      RoleSessionName: this.roleSessionName
+      RoleArn: roleId,
+      RoleSessionName: this.roleSessionName,
+      ExternalId: externalId
     })
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const response = await stsClient.send(command)
-
-    if (!response.Credentials) {
-      throw new Error('Failed to assume role and get temporary credentials')
-    }
-
+    const result = await stsClient.send(command)
     if (
-      response.Credentials &&
-      response.Credentials.AccessKeyId &&
-      response.Credentials.SecretAccessKey &&
-      response.Credentials.SessionToken
+      !result.Credentials ||
+      !result.Credentials.AccessKeyId ||
+      !result.Credentials.SecretAccessKey ||
+      !result.Credentials.SessionToken
     ) {
-      const intermediaryCreds = {
-        accessKeyId: response.Credentials.AccessKeyId,
-        secretAccessKey: response.Credentials.SecretAccessKey,
-        sessionToken: response.Credentials.SessionToken
-      }
-
-      const newStsClient = new STSClient({
-        region: this.region,
-        credentials: intermediaryCreds
-      })
-
-      const newCreds = await newStsClient.send(
-        new AssumeRoleCommand({
-          RoleArn: this.roleArn,
-          RoleSessionName: this.roleSessionName
-        })
-      )
-      return {
-        accessKeyId: newCreds.Credentials?.AccessKeyId ?? '',
-        secretAccessKey: newCreds.Credentials?.SecretAccessKey ?? '',
-        sessionToken: newCreds.Credentials?.SessionToken ?? ''
-      }
-    } else {
-      throw new Error('Credentials are not properly defined')
+      // TODO: Add more specific error handling
+      throw new IntegrationError('Failed to assume role', ErrorCodes.INVALID_AUTHENTICATION, 403)
+    }
+    return {
+      accessKeyId: result.Credentials.AccessKeyId,
+      secretAccessKey: result.Credentials.SecretAccessKey,
+      sessionToken: result.Credentials.SessionToken
     }
   }
 
