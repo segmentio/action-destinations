@@ -47,6 +47,22 @@ const action: ActionDefinition<Settings, Payload> = {
       performHook: async (request, { settings, hookInputs }) => {
         const fbClient = new FacebookClient(request, settings.adAccountId)
 
+        if (hookInputs.existingAudienceId) {
+          const error = fbClient.getSingleAudience(hookInputs.existingAudienceId)
+
+          if (error) {
+            return {
+              error
+            }
+          }
+
+          return {
+            successMessage: `Audience selected with ID: ${hookInputs.existingAudienceId}`,
+            savedData: {
+              audienceId: hookInputs.existingAudienceId
+            }
+          }
+        }
         const { data } = await fbClient.createAudience(hookInputs.audienceName)
 
         return {

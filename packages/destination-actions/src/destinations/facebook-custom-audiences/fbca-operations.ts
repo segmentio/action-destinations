@@ -35,6 +35,10 @@ export default class FacebookClient {
     })
   }
 
+  getSingleAudience = async (audienceId: string): void | Error => {
+    return this.request(`${this.baseUrl}${audienceId}`)
+  }
+
   getAllAudiences = async (): Promise<{ choices: DynamicFieldItem[]; error: DynamicFieldError | undefined }> => {
     const { data } = await this.request<GetAllAudienceResponse>(
       `${this.baseUrl}${this.adAccountId}/customaudiences?fields=id,name&limit=200`
