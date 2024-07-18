@@ -1,8 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
-const baseUrl = 'https://segment-api.blnd.ai/'
+import { BASE_URL } from '../consts'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Data',
@@ -22,15 +21,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   defaultSubscription: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
-  perform: (request, { payload }) => {
-    return request(baseUrl + 'sendData', {
+  perform: (request, { payload }) =>
+    request(BASE_URL + 'sendData', {
       method: 'POST',
       json: {
         type: payload.eventType,
         properties: payload.eventProperties
       }
     })
-  }
 }
 
 export default action
