@@ -223,7 +223,7 @@ export interface InputField extends InputFieldJSONSchema {
   /**
    * Determines how the field should be displayed in the UI:
    * - expanded: Fully visible title and description for detailed information.
-   * - normal: One line field, and title, with description hidden behind a tooltip.
+   * - normal (default): One line field, and title, with description hidden behind a tooltip.
    * - collapsed: Fields grouped behind a dropdown
    */
   displayMode?: FieldDisplayMode
