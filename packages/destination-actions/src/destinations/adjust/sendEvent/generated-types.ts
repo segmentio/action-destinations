@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * Timestamp for when the event happened
+   * Timestamp for when the event happened. Required if send_event_creation_time in Settings is true.
    */
-  timestamp: string | number
+  timestamp?: string | number
   /**
    * The app token for your Adjust account. Overrides the Default App Token from Settings.
    */
