@@ -11,7 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
   perform: (request, payload) => {
     return request(baseUrl + 'sendData', {
-      json: { payload: payload }
+			headers: { Authorization: `Bearer ${payload.settings.apiKey}` },
+      json: { payload }
     })
   }
 }
