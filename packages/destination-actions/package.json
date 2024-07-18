@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.290.0-staging-3f88702f7",
+  "version": "3.290.0-staging-628c708b6",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -56,8 +56,7 @@
     "kafkajs": "^2.2.4",
     "liquidjs": "^10.8.4",
     "lodash": "^4.17.21",
-    "ssh2-sftp-client": "^9.1.0",
-    "@aws-sdk/client-s3": "^3.600.0"
+    "ssh2-sftp-client": "^9.1.0"
   },
   "jest": {
     "preset": "ts-jest",
