@@ -2,6 +2,7 @@ import { AudienceSettings, Settings } from '../generated-types'
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import { S3Client, PutObjectCommandInput, PutObjectCommand } from '@aws-sdk/client-s3'
 import { v4 as uuidv4 } from '@lukeed/uuid'
+import * as process from 'process'
 
 interface Credentials {
   accessKeyId: string
@@ -26,7 +27,7 @@ export class S3CSVClient {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const command = new AssumeRoleCommand({
-      RoleArn: this.roleArn,
+      RoleArn: process.env.ACTIONS_S3_INTERMEDIARY_ROLE_ARN,
       RoleSessionName: this.roleSessionName
     })
 
@@ -43,11 +44,27 @@ export class S3CSVClient {
       response.Credentials.SecretAccessKey &&
       response.Credentials.SessionToken
     ) {
-
-      return {
+      const intermediaryCreds = {
         accessKeyId: response.Credentials.AccessKeyId,
         secretAccessKey: response.Credentials.SecretAccessKey,
         sessionToken: response.Credentials.SessionToken
+      }
+
+      const newStsClient = new STSClient({
+        region: this.region,
+        credentials: intermediaryCreds
+      })
+
+      const newCreds = await newStsClient.send(
+        new AssumeRoleCommand({
+          RoleArn: this.roleArn,
+          RoleSessionName: this.roleSessionName
+        })
+      )
+      return {
+        accessKeyId: newCreds.Credentials?.AccessKeyId ?? '',
+        secretAccessKey: newCreds.Credentials?.SecretAccessKey ?? '',
+        sessionToken: newCreds.Credentials?.SessionToken ?? ''
       }
     } else {
       throw new Error('Credentials are not properly defined')
