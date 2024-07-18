@@ -13,6 +13,20 @@ interface GetAllAudienceResponse {
     name: string
   }[]
 }
+
+interface GetSingleAudienceResponse {
+  name: string
+  id: string
+}
+
+interface FacebookResponseError {
+  error: {
+    message: string
+    type: string
+    code: number
+  }
+}
+
 export default class FacebookClient {
   request: RequestClient
   baseUrl: string
@@ -35,8 +49,16 @@ export default class FacebookClient {
     })
   }
 
-  getSingleAudience = async (audienceId: string): void | Error => {
-    return this.request(`${this.baseUrl}${audienceId}`)
+  getSingleAudience = async (
+    audienceId: string
+  ): Promise<{ data?: GetSingleAudienceResponse; error?: FacebookResponseError }> => {
+    try {
+      const fields = '?fields=id,name'
+      const { data } = await this.request<GetSingleAudienceResponse>(`${this.baseUrl}${audienceId}${fields}`)
+      return { data, error: undefined }
+    } catch (error) {
+      return { data: undefined, error: error as FacebookResponseError }
+    }
   }
 
   getAllAudiences = async (): Promise<{ choices: DynamicFieldItem[]; error: DynamicFieldError | undefined }> => {

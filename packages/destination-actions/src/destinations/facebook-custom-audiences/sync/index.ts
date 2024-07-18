@@ -37,6 +37,12 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       outputTypes: {
+        audienceName: {
+          type: 'string',
+          label: 'Audience Name',
+          description: 'The name of the audience in Facebook this mapping is connected to.',
+          required: true
+        },
         audienceId: {
           type: 'string',
           label: 'Audience ID',
@@ -48,18 +54,22 @@ const action: ActionDefinition<Settings, Payload> = {
         const fbClient = new FacebookClient(request, settings.adAccountId)
 
         if (hookInputs.existingAudienceId) {
-          const error = fbClient.getSingleAudience(hookInputs.existingAudienceId)
+          const { data, error } = await fbClient.getSingleAudience(hookInputs.existingAudienceId)
 
           if (error) {
             return {
-              error
+              error: {
+                message: error.error.message,
+                code: error.error.type
+              }
             }
           }
 
           return {
-            successMessage: `Audience selected with ID: ${hookInputs.existingAudienceId}`,
+            successMessage: `Connected to audience with ID: ${hookInputs.existingAudienceId}`,
             savedData: {
-              audienceId: hookInputs.existingAudienceId
+              audienceId: hookInputs.existingAudienceId,
+              audienceName: data?.name
             }
           }
         }
@@ -68,7 +78,8 @@ const action: ActionDefinition<Settings, Payload> = {
         return {
           successMessage: `Audience created with ID: ${data.id}`,
           savedData: {
-            audienceId: data.id
+            audienceId: data.id,
+            audienceName: hookInputs.audienceName
           }
         }
       }
