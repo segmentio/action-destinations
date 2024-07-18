@@ -66,8 +66,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       iam_external_id: {
         label: 'IAM External ID',
-        description: 'External ID to use when assuming the IAM role.',
-        type: 'string',
+        description: 'The External ID to your IAM role. Generate a secure string and treat it like a password.',
+        type: 'password',
         required: true
       }
     }

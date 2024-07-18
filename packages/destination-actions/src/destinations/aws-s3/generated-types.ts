@@ -14,7 +14,7 @@ export interface Settings {
    */
   s3_aws_region: string
   /**
-   * External ID to use when assuming the IAM role.
+   * The External ID to your IAM role. Generate a secure string and treat it like a password.
    */
   iam_external_id: string
 }
