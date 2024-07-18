@@ -20,7 +20,7 @@ export abstract class PhoneMessageSender<Payload extends PhoneMessagePayload> ex
     return Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString('base64')
   }
 
-  async sendToRecepient(recepient: ExtId<Payload>) {
+  async sendToRecepient(recepient: ExtId<Payload>): Promise<void | Response> {
     const phone = recepient.id!
     const op = this.currentOperation as OperationContext
     this.currentOperation?.onFinally.push(() => {

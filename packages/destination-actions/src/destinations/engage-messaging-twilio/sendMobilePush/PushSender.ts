@@ -46,7 +46,7 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
 
   bodyCustomDataBundle: BodyCustomDataBundle
 
-  async sendToRecepient(recipientDevice: Recepient) {
+  async sendToRecepient(recipientDevice: Recepient): Promise<void | Response> {
     const { requestBody, customData } = this.bodyCustomDataBundle
 
     const webhookUrl = this.getWebhookUrlWithParams(recipientDevice.type, recipientDevice.id)

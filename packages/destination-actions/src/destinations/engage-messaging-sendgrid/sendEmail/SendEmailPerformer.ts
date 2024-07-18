@@ -111,7 +111,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     return parsedContent
   }
 
-  async sendToRecepient(emailProfile: ExtId<Payload>) {
+  async sendToRecepient(emailProfile: ExtId<Payload>): Promise<void | Response> {
     const traits = await this.getProfileTraits()
 
     const profile: Profile = {
