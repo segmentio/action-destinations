@@ -10,10 +10,12 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     timestamp: {
       label: 'Timestamp',
-      description: 'Timestamp for when the event happened',
+      description: 'Timestamp for when the event happened. Required if send_event_creation_time in Settings is true.',
       type: 'datetime',
-      required: true,
-      unsafe_hidden: true
+      default: {
+        '@path': '$.timestamp'
+      },
+      required: false
     },
     app_token: {
       label: 'App Token',
@@ -77,7 +79,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    // const eventData = (data as any).rawData as { [key: string]: unknown }
     const adjustPayload = validatePayload(data.payload, data.settings)
     return sendEvents(request, [adjustPayload])
   }

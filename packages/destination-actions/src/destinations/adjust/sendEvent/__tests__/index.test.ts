@@ -31,8 +31,7 @@ describe('Adjust.sendEvent', () => {
         properties: {
           revenue: 10,
           currency: 'USD'
-        },
-        timestamp: '2024-07-05T12:34:56.789Z'
+        }
       })
 
       const responses = await testDestination.testAction('sendEvent', {
@@ -72,8 +71,7 @@ describe('Adjust.sendEvent', () => {
           currency: 'USD',
           appToken: 'app-token',
           eventToken: 'event-token'
-        },
-        timestamp: '2024-07-05T12:34:56.789Z'
+        }
       })
 
       const responses = await testDestination.testAction('sendEvent', {
@@ -103,6 +101,47 @@ describe('Adjust.sendEvent', () => {
       expect(responses).toHaveLength(1)
       expect(responses[0].content).toBeDefined()
       expect(responses[0].content).toEqual(JSON.stringify({ status: 'OK' }))
+    })
+  })
+
+  describe('Error cases', () => {
+    it('Should throw an error if app_token is not provided in the mapping or settings', async () => {
+      nock('https://s2s.adjust.com').post('/event').reply(200, { status: 'OK' })
+
+      const event = createTestEvent({
+        type: 'track',
+        context: {
+          device: {
+            id: DEVICE_ID,
+            advertisingId: ADVERTISING_ID,
+            type: DEVICE_TYPE
+          },
+          library: {
+            name: 'analytics-ios',
+            version: '4.0.0'
+          }
+        },
+        properties: {
+          revenue: 10,
+          currency: 'USD',
+          appToken: 'app-token',
+          eventToken: 'event-token'
+        },
+        timestamp: undefined
+      })
+
+      await expect(
+        testDestination.testAction('sendEvent', {
+          event,
+          settings: {
+            environment: 'sandbox',
+            default_app_token: 'app-token',
+            default_event_token: 'event-token',
+            send_event_creation_time: true
+          },
+          useDefaultMappings: true
+        })
+      ).rejects.toThrowError('Event timestamp is required when send_event_creation_time is enabled.')
     })
   })
 })
