@@ -111,7 +111,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     return parsedContent
   }
 
-  async sendToRecepient(emailProfile: ExtId<Payload>): Promise<void | Response> {
+  async sendToRecepient(emailProfile: ExtId<Payload>) {
     const traits = await this.getProfileTraits()
 
     const profile: Profile = {
@@ -433,6 +433,16 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
 
     if (hasSendgridSubstitutionTag) {
       return $.html()
+    }
+
+    if ($(unsubscribeLinkRef).length === 0) {
+      _this.logger.info(`Unsubscribe tag is missing`)
+      emailProfile.unsubscribeLink = ''
+    }
+
+    if ($(preferencesLinkRef).length === 0) {
+      _this.logger.info(`Preferences tag missing`)
+      emailProfile.preferencesLink = ''
     }
 
     if (groupId) {
