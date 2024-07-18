@@ -7,6 +7,14 @@ on:
         description: 'Branch to create PR from'
         required: true
         default: 'release-actions'
+      base_branch:
+        description: 'Base branch to create PR to'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+          - release
 
 jobs:
   build-and-version-packages:
@@ -17,10 +25,15 @@ jobs:
       pull-requests: write
       contents: write
     steps:
+      - name: Echo Inputs
+        run: |
+          echo "Branch ${{ github.event.inputs.branch }} will be created from ${{ github.event.inputs.base_branch }} and a PR will be created to ${{ github.event.inputs.base_branch }}"
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
+          ref: ${{ github.event.inputs.base_branch }}
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -71,6 +84,6 @@ jobs:
         run: |
           pr_message="This PR was opened by GithHub Actions. Whenever you're ready to publish the packages, merge this PR."
           description="$(printf "%s\n # Packages\n%s" "$pr_message" "${{ steps.commit_and_push.outputs.packages_published }}")"
-          gh pr create --base main --head ${{ github.event.inputs.branch }} --title "Publish" --body "$description"
+          gh pr create --base ${{ github.event.inputs.base_branch }} --head ${{ github.event.inputs.branch }} --title "Publish" --body "$description"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
