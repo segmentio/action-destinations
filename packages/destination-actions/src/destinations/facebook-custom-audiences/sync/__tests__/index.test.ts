@@ -3,7 +3,7 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('FacebookCustomAudiences.add', () => {
+describe('FacebookCustomAudiences.sync', () => {
   it('is magic', () => {
     expect(testDestination).toBe(testDestination)
   })
