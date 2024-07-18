@@ -35,7 +35,7 @@ describe('Braze Cloud Mode (Actions)', () => {
       expect(responses[0].options.json).toMatchSnapshot()
     })
 
-    it('should require one of braze_id, user_alias, or external_id', async () => {
+    it('should require one of braze_id, user_alias, external_id or email', async () => {
       nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
 
       const event = createTestEvent({
@@ -348,7 +348,57 @@ describe('Braze Cloud Mode (Actions)', () => {
             external_id: 'user1234',
             app_id: 'my-app-id',
             time: '2021-08-03T17:40:04.055Z',
-            properties: { products: [{ product_id: 'test-product-id', currency: 'USD', price: 99.99, quantity: 1 }] },
+            properties: {},
+            _update_existing_only: false,
+            product_id: 'test-product-id',
+            currency: 'USD',
+            price: 99.99,
+            quantity: 1
+          }
+        ]
+      })
+    })
+
+    it('should combine custom product properties with event properties', async () => {
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const event = createTestEvent({
+        event: 'Order Completed',
+        type: 'track',
+        receivedAt,
+        properties: {
+          products: [
+            {
+              product_id: 'test-product-id',
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1,
+              number_of_items: 2,
+              property_5: 45
+            }
+          ],
+          property2_: 'test',
+          property_3: true
+        }
+      })
+
+      const responses = await testDestination.testAction('trackPurchase', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.headers).toMatchSnapshot()
+      expect(responses[0].options.json).toMatchObject({
+        purchases: [
+          {
+            external_id: 'user1234',
+            app_id: 'my-app-id',
+            time: '2021-08-03T17:40:04.055Z',
+            properties: { number_of_items: 2, property2_: 'test', property_3: true, property_5: 45 },
             _update_existing_only: false,
             product_id: 'test-product-id',
             currency: 'USD',
@@ -395,6 +445,115 @@ describe('Braze Cloud Mode (Actions)', () => {
         expect(resp.status).toBe(200)
         expect(resp.data).toMatchObject({})
       }
+    })
+    it('should success with mapping of preset and Entity Added event(presets) ', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Entity Added',
+        properties: {
+          products: [
+            {
+              product_id: 'test-product-id',
+              currency: 'USD',
+              price: 99.99,
+              quantity: 1
+            }
+          ]
+        }
+      })
+
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const responses = await testDestination.testAction('trackEvent', {
+        event,
+        settings,
+        // Using the mapping of presets with event type 'track'
+        mapping: {
+          properties: {
+            '@path': '$.properties'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+    it('should success with mapping of preset and Journey Step Entered event(presets) ', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Journey Step Entered',
+        properties: {
+          journey_metadata: {
+            journey_id: 'test-journey-id',
+            journey_name: 'test-journey-name',
+            step_id: 'test-step-id',
+            step_name: 'test-step-name'
+          },
+          journey_context: {
+            appointment_booked: {
+              type: 'track',
+              event: 'Appointment Booked',
+              timestamp: '2021-09-01T00:00:00.000Z',
+              properties: {
+                appointment_id: 'test-appointment-id',
+                appointment_date: '2021-09-01T00:00:00.000Z',
+                appointment_type: 'test-appointment-type'
+              }
+            },
+            appointment_confirmed: {
+              type: 'track',
+              event: 'Appointment Confirmed',
+              timestamp: '2021-09-01T00:00:00.000Z',
+              properties: {
+                appointment_id: 'test-appointment-id',
+                appointment_date: '2021-09-01T00:00:00.000Z',
+                appointment_type: 'test-appointment-type'
+              }
+            }
+          }
+        }
+      })
+
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const responses = await testDestination.testAction('trackEvent', {
+        event,
+        settings,
+        // Using the mapping of presets with event type 'track'
+        mapping: {
+          properties: {
+            '@path': '$.properties'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+    it('should success with mapping of preset and `identify` call', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        receivedAt
+      })
+
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const responses = await testDestination.testAction('updateUserProfile', {
+        event,
+        settings,
+        // Using the mapping of presets with event type 'track'
+        mapping: {
+          custom_attributes: {
+            '@path': '$.traits'
+          }
+        },
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
     })
   })
 })

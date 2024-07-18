@@ -118,6 +118,52 @@ describe('Salesforce Utils', () => {
       }).toThrowError(`Invalid character in field name: a,weird,field`)
     })
 
+    it('should correctly build a create CSV', async () => {
+      const createPayloads: GenericPayload[] = [
+        {
+          operation: 'create',
+          enable_batching: true,
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890',
+          description: 'Krusty Krab'
+        },
+        {
+          operation: 'create',
+          enable_batching: true,
+          name: 'Squidward Tentacles',
+          phone: '1234567891',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      const csv = buildCSVData(createPayloads, '')
+      const expected = `Name,Phone,Description\n"SpongeBob Squarepants","1234567890","Krusty Krab"\n"Squidward Tentacles","1234567891","Krusty Krab"\n`
+
+      expect(csv).toEqual(expected)
+    })
+
+    it('should correctly build a create CSV with incomplete data', async () => {
+      const incompleteCreatePayloads: GenericPayload[] = [
+        {
+          operation: 'create',
+          enable_batching: true,
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890'
+        },
+        {
+          operation: 'create',
+          enable_batching: true,
+          name: 'Squidward Tentacles',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      const csv = buildCSVData(incompleteCreatePayloads, '')
+      const expected = `Name,Description,Phone\n"SpongeBob Squarepants",#N/A,"1234567890"\n"Squidward Tentacles","Krusty Krab",#N/A\n`
+
+      expect(csv).toEqual(expected)
+    })
+
     it('should correctly build an update CSV', async () => {
       const updatePayloads: GenericPayload[] = [
         {

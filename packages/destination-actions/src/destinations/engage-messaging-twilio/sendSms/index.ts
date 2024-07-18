@@ -2,9 +2,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { SmsMessageSender } from './sms-sender'
+import { SmsMessageSender } from './SmsMessageSender'
 
-const action: ActionDefinition<Settings, Payload> = {
+export const actionDefinition: ActionDefinition<Settings, Payload> = {
   title: 'Send SMS',
   description: 'Send SMS using Twilio',
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
@@ -30,7 +30,20 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Message',
       description: 'Message to send',
       type: 'text',
-      required: true
+      required: false
+    },
+    media: {
+      label: 'Media Urls',
+      description: 'Media to attach to message',
+      type: 'string',
+      required: false,
+      multiple: true
+    },
+    contentSid: {
+      label: 'SMS content template SID',
+      description: 'Content template SID for Twilio Content API',
+      type: 'string',
+      required: false
     },
     customArgs: {
       label: 'Custom Arguments',
@@ -59,6 +72,21 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: true
     },
+    sendBasedOnOptOut: {
+      label: 'Send OptOut',
+      description: 'Send to any subscription status other than unsubscribed',
+      type: 'boolean',
+      default: false
+    },
+    segmentComputationId: {
+      label: 'Segment Computation ID',
+      description: 'Segment computation ID',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.context.personas.computation_id'
+      }
+    },
     externalIds: {
       label: 'External IDs',
       description: 'An array of user profile identity information.',
@@ -73,6 +101,11 @@ const action: ActionDefinition<Settings, Payload> = {
         type: {
           label: 'type',
           description: 'The external ID contact type.',
+          type: 'string'
+        },
+        channelType: {
+          label: 'type',
+          description: 'The external ID contact channel type (SMS, WHATSAPP, etc).',
           type: 'string'
         },
         subscriptionStatus: {
@@ -90,6 +123,9 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             type: {
               '@path': '$.type'
+            },
+            channelType: {
+              '@path': '$.channelType'
             },
             subscriptionStatus: {
               '@path': '$.isSubscribed'
@@ -113,15 +149,18 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    messageId: {
+      type: 'string',
+      required: false,
+      description: 'The Segment messageId',
+      label: 'MessageId',
+      default: { '@path': '$.messageId' }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
-    const statsClient = statsContext?.statsClient
-    const tags = statsContext?.tags
-    tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
-
-    return new SmsMessageSender(request, payload, settings, statsClient, tags).send()
+  perform: async (request, data) => {
+    return new SmsMessageSender(request, data).perform()
   }
 }
 
-export default action
+export default actionDefinition

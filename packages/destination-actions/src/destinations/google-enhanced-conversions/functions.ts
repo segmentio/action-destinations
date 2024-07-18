@@ -1,15 +1,41 @@
 import { createHash } from 'crypto'
-import { ConversionCustomVariable, PartialErrorResponse, QueryResponse } from './types'
-import { ModifiedResponse, RequestClient, IntegrationError } from '@segment/actions-core'
-import { Features } from '@segment/actions-core/src/mapping-kit'
-import { StatsContext } from '@segment/actions-core/src/destination-kit'
+import {
+  ConversionCustomVariable,
+  PartialErrorResponse,
+  QueryResponse,
+  ConversionActionId,
+  ConversionActionResponse,
+  CustomVariableInterface
+} from './types'
+import {
+  ModifiedResponse,
+  RequestClient,
+  IntegrationError,
+  PayloadValidationError,
+  DynamicFieldResponse
+} from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
+import { Features } from '@segment/actions-core/mapping-kit'
+import { fullFormats } from 'ajv-formats/dist/formats'
+import { HTTPError } from '@segment/actions-core'
+
+export const API_VERSION = 'v15'
+export const CANARY_API_VERSION = 'v15'
+export const FLAGON_NAME = 'google-enhanced-canary-version'
+
+export class GoogleAdsError extends HTTPError {
+  response: Response & {
+    status: string
+    statusText: string
+  }
+}
 
 export function formatCustomVariables(
   customVariables: object,
   customVariableIdsResults: Array<ConversionCustomVariable>
-): object {
+): CustomVariableInterface[] {
   // Maps custom variable keys to their resource names
-  const resourceNames: { [key: string]: any } = {}
+  const resourceNames: { [key: string]: string } = {}
   Object.entries(customVariableIdsResults).forEach(([_, customVariablesIds]) => {
     resourceNames[customVariablesIds.conversionCustomVariable.name] =
       customVariablesIds.conversionCustomVariable.resourceName
@@ -43,19 +69,81 @@ export async function getCustomVariables(
   customerId: string,
   auth: any,
   request: RequestClient,
-  features?: Features,
-  statsContext?: StatsContext
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
 ): Promise<ModifiedResponse<QueryResponse[]>> {
-  return await request(`${getUrlByVersion(features, statsContext)}/${customerId}/googleAds:searchStream`, {
-    method: 'post',
-    headers: {
-      authorization: `Bearer ${auth?.accessToken}`,
-      'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-    },
-    json: {
-      query: `SELECT conversion_custom_variable.id, conversion_custom_variable.name FROM conversion_custom_variable`
+  return await request(
+    `https://googleads.googleapis.com/${getApiVersion(
+      features,
+      statsContext
+    )}/customers/${customerId}/googleAds:searchStream`,
+    {
+      method: 'post',
+      headers: {
+        authorization: `Bearer ${auth?.accessToken}`,
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      },
+      json: {
+        query: `SELECT conversion_custom_variable.id, conversion_custom_variable.name FROM conversion_custom_variable`
+      }
     }
-  })
+  )
+}
+
+export async function getConversionActionId(
+  customerId: string | undefined,
+  auth: any,
+  request: RequestClient,
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
+): Promise<ModifiedResponse<QueryResponse[]>> {
+  return request(
+    `https://googleads.googleapis.com/${getApiVersion(
+      features,
+      statsContext
+    )}/customers/${customerId}/googleAds:searchStream`,
+    {
+      method: 'post',
+      headers: {
+        authorization: `Bearer ${auth?.accessToken}`,
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      },
+      json: {
+        query: `SELECT conversion_action.id, conversion_action.name FROM conversion_action`
+      }
+    }
+  )
+}
+
+export async function getConversionActionDynamicData(
+  request: RequestClient,
+  settings: any,
+  auth: any,
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
+): Promise<DynamicFieldResponse> {
+  try {
+    // remove '-' from CustomerId
+    settings.customerId = settings.customerId.replace(/-/g, '')
+    const results = await getConversionActionId(settings.customerId, auth, request, features, statsContext)
+
+    const res: Array<ConversionActionResponse> = JSON.parse(results.content)
+    const choices = res[0].results.map((input: ConversionActionId) => {
+      return { value: input.conversionAction.id, label: input.conversionAction.name }
+    })
+    return {
+      choices
+    }
+  } catch (err) {
+    return {
+      choices: [],
+      nextPage: '',
+      error: {
+        message: (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
+        code: (err as GoogleAdsError).response?.status + '' ?? '500'
+      }
+    }
+  }
 }
 
 /* Ensures there is no error when using Google's partialFailure mode
@@ -74,13 +162,26 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
   return timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00')
 }
 
-// Ticket to remove flagon - https://segment.atlassian.net/browse/STRATCONN-1953
-export function getUrlByVersion(features?: Features, statsContext?: StatsContext): string {
+export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
   const statsClient = statsContext?.statsClient
   const tags = statsContext?.tags
 
-  const API_VERSION = features && features['google-enhanced-v12'] ? 'v12' : 'v11'
-  tags?.push(`version:${API_VERSION}`)
-  statsClient?.incr(`google_enhanced_conversions`, 1, tags)
-  return `https://googleads.googleapis.com/${API_VERSION}/customers`
+  const version = features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
+  tags?.push(`version:${version}`)
+  statsClient?.incr(`google_api_version`, 1, tags)
+  return version
+}
+
+export const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
+export const commonHashedEmailValidation = (email: string): string => {
+  if (isHashedInformation(email)) {
+    return email
+  }
+
+  // https://github.com/ajv-validator/ajv-formats/blob/master/src/formats.ts#L64-L65
+  if (!(fullFormats.email as RegExp).test(email)) {
+    throw new PayloadValidationError("Email provided doesn't seem to be in a valid format.")
+  }
+
+  return String(hash(email))
 }

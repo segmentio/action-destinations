@@ -38,7 +38,7 @@ export interface Payload {
    */
   address_line_2?: string | null
   /**
-   * The contact's phone number.
+   * The contact's phone number. Note: This is different from the Phone Number ID field, but the same value can be stored in both fields.
    */
   phone_number?: string | null
   /**
@@ -46,11 +46,11 @@ export interface Payload {
    */
   whatsapp?: string | null
   /**
-   * The contact's LINE ID.
+   * The contact's landline.
    */
   line?: string | null
   /**
-   * The contact's Facebook ID.
+   * The contact's Facebook identifier.
    */
   facebook?: string | null
   /**
@@ -58,13 +58,21 @@ export interface Payload {
    */
   unique_name?: string | null
   /**
-   * The contact's identity.
-   */
-  identity?: string | null
-  /**
    * The contact's email address.
    */
-  primary_email: string
+  primary_email?: string | null
+  /**
+   * Primary Phone Number used to identify a Contact. This must be a valid phone number.
+   */
+  phone_number_id?: string | null
+  /**
+   * The contact's External ID.
+   */
+  external_id?: string | null
+  /**
+   * The contact's Anonymous ID.
+   */
+  anonymous_id?: string | null
   /**
    *
    *   Additional fields to send to SendGrid. On the left-hand side, input the SendGrid Custom Fields Id. On the right-hand side, map the Segment field that contains the value.

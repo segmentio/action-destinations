@@ -227,4 +227,24 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * Free-form dictionary of traits that describe the user or group of users.
+   */
+  traits?: {
+    [k: string]: unknown
+  }
+  /**
+   * The Segment messageId.
+   */
+  message_id?: string
+  /**
+   * This is always disabled pending a full removal. When enabled, the action will send batch data. Segment accepts batches of up to 225 events.
+   */
+  enable_batching?: boolean
+  /**
+   * Segment event consent category preferences.
+   */
+  consent?: {
+    [k: string]: unknown
+  }
 }

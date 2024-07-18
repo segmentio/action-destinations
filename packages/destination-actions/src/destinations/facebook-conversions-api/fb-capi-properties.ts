@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 import { PayloadValidationError } from '@segment/actions-core'
 
 // Implementation of the facebook pixel object properties.
@@ -115,7 +115,9 @@ export const data_processing_options_state: InputField = {
   type: 'number',
   choices: [
     { label: 'Use Facebook’s Geolocation Logic', value: 0 },
-    { label: 'California', value: 1000 }
+    { label: 'California', value: 1000 },
+    { label: 'Colorado', value: 1001 },
+    { label: 'Connecticut', value: 1002 }
   ]
 }
 
@@ -178,7 +180,17 @@ export const action_source: InputField = {
   label: 'Action Source',
   description:
     'This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.',
-  type: 'string'
+  type: 'string',
+  choices: [
+    { label: 'EMAIL', value: 'email' },
+    { label: 'WEBSITE', value: 'website' },
+    { label: 'APP', value: 'app' },
+    { label: 'PHONE CALL', value: 'phone_call' },
+    { label: 'CHAT', value: 'chat' },
+    { label: 'PHYSICAL STORE', value: 'physical_store' },
+    { label: 'SYSTEM GENERATED', value: 'system_generated' },
+    { label: 'OTHER', value: 'other' }
+  ]
 }
 
 export const event_source_url: InputField = {

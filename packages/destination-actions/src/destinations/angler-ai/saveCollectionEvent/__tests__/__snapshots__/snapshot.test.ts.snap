@@ -1,0 +1,127 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AnglerAi's saveCollectionEvent destination action: all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "client_id": "!rMDy$ShoCe*^$(%J2H",
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {
+              "amount": 77185613761085.44,
+              "currencyCode": "!rMDy$ShoCe*^$(%J2H",
+            },
+          },
+          "id": "!rMDy$ShoCe*^$(%J2H",
+          "lines": Array [
+            Object {
+              "cost": Object {
+                "totalAmount": Object {
+                  "amount": 77185613761085.44,
+                },
+              },
+              "merchandise": Object {
+                "id": "!rMDy$ShoCe*^$(%J2H",
+                "image": Object {
+                  "src": "!rMDy$ShoCe*^$(%J2H",
+                },
+                "price": Object {
+                  "amount": 77185613761085.44,
+                },
+                "product": Object {
+                  "title": "!rMDy$ShoCe*^$(%J2H",
+                  "type": "!rMDy$ShoCe*^$(%J2H",
+                  "untranslatedTitle": "!rMDy$ShoCe*^$(%J2H",
+                  "url": "!rMDy$ShoCe*^$(%J2H",
+                  "vendor": "!rMDy$ShoCe*^$(%J2H",
+                },
+                "sku": "!rMDy$ShoCe*^$(%J2H",
+                "title": "!rMDy$ShoCe*^$(%J2H",
+                "untranslatedTitle": "!rMDy$ShoCe*^$(%J2H",
+              },
+              "quantity": 77185613761085.44,
+            },
+          ],
+        },
+        "collection": Object {
+          "id": "!rMDy$ShoCe*^$(%J2H",
+          "productVariants": Array [
+            Object {
+              "id": "!rMDy$ShoCe*^$(%J2H",
+              "image": Object {
+                "src": "!rMDy$ShoCe*^$(%J2H",
+              },
+              "price": Object {
+                "amount": 77185613761085.44,
+              },
+              "product": Object {
+                "id": "!rMDy$ShoCe*^$(%J2H",
+                "title": "!rMDy$ShoCe*^$(%J2H",
+                "type": "!rMDy$ShoCe*^$(%J2H",
+                "untranslatedTitle": "!rMDy$ShoCe*^$(%J2H",
+                "url": "!rMDy$ShoCe*^$(%J2H",
+                "vendor": "!rMDy$ShoCe*^$(%J2H",
+              },
+              "sku": "!rMDy$ShoCe*^$(%J2H",
+              "title": "!rMDy$ShoCe*^$(%J2H",
+              "untranslatedTitle": "!rMDy$ShoCe*^$(%J2H",
+            },
+          ],
+          "title": "!rMDy$ShoCe*^$(%J2H",
+        },
+        "customData": Array [
+          Object {
+            "name": "testType",
+            "value": "!rMDy$ShoCe*^$(%J2H",
+          },
+        ],
+        "customer": Object {
+          "dob": "!rMDy$ShoCe*^$(%J2H",
+          "email": "moprub@peviggu.co.uk",
+          "firstName": "!rMDy$ShoCe*^$(%J2H",
+          "id": "!rMDy$ShoCe*^$(%J2H",
+          "lastName": "!rMDy$ShoCe*^$(%J2H",
+          "phone": "!rMDy$ShoCe*^$(%J2H",
+        },
+      },
+      "event_id": "!rMDy$ShoCe*^$(%J2H",
+      "event_name": "collection_viewed",
+      "fbc": "!rMDy$ShoCe*^$(%J2H",
+      "fpb": "!rMDy$ShoCe*^$(%J2H",
+      "ga": "!rMDy$ShoCe*^$(%J2H",
+      "identifiers": Array [],
+      "ip_address": "!rMDy$ShoCe*^$(%J2H",
+      "referrer": "!rMDy$ShoCe*^$(%J2H",
+      "timestamp": "!rMDy$ShoCe*^$(%J2H",
+      "url": "!rMDy$ShoCe*^$(%J2H",
+      "user_agent": "!rMDy$ShoCe*^$(%J2H",
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for AnglerAi's saveCollectionEvent destination action: required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "client_id": "!rMDy$ShoCe*^$(%J2H",
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {},
+          },
+        },
+        "collection": Object {},
+        "customData": Array [],
+        "customer": Object {},
+      },
+      "event_id": "!rMDy$ShoCe*^$(%J2H",
+      "event_name": "collection_viewed",
+      "identifiers": Array [],
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;

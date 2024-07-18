@@ -19,6 +19,7 @@ Object {
     "testType": "z(%@QRCz7h$8M)#]",
   },
   "type": "z(%@QRCz7h$8M)#]",
+  "update_existing_only": false,
   "user_id": "z(%@QRCz7h$8M)#]",
 }
 `;
@@ -31,6 +32,7 @@ Object {
     "os": Object {},
   },
   "type": "z(%@QRCz7h$8M)#]",
+  "update_existing_only": false,
 }
 `;
 
@@ -54,6 +56,7 @@ Object {
   },
   "timestamp": "2021-02-01T00:00:00.000Z",
   "type": "E@t!q#n(^u",
+  "update_existing_only": true,
   "user_id": "E@t!q#n(^u",
 }
 `;
@@ -67,5 +70,6 @@ Object {
   },
   "event": "E@t!q#n(^u",
   "type": "E@t!q#n(^u",
+  "update_existing_only": false,
 }
 `;

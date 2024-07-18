@@ -8,7 +8,7 @@ const testDestination = createTestIntegration(Voucherify)
 const settings: Settings = {
   apiKey: 'voucherifyApiKey',
   secretKey: 'voucherifySecretKey',
-  customURL: 'https://us1.api.voucherify.io/segmentio'
+  customURL: 'https://us1.segmentio.voucherify.io/segmentio'
 }
 
 describe('Voucherify', () => {
@@ -16,9 +16,7 @@ describe('Voucherify', () => {
     it('should throw error when source_id is not specified', async () => {
       nock(settings.customURL).post('/customer-processing').reply(200)
       const testEvent = createTestEvent({
-        traits: {
-          name: 'Test'
-        },
+        name: 'Test',
         type: 'identify'
       })
 
@@ -40,7 +38,9 @@ describe('Voucherify', () => {
         },
         type: 'group',
         properties: {
-          source_id: 'test_customer_1'
+          customer: {
+            source_id: 'test_customer_1'
+          }
         }
       })
 

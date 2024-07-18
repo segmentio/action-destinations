@@ -1,14 +1,15 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   convertTimestamp,
   formatCustomVariables,
   getCustomVariables,
-  getUrlByVersion,
-  handleGoogleErrors
+  getApiVersion,
+  handleGoogleErrors,
+  getConversionActionDynamicData
 } from '../functions'
-import { PartialErrorResponse } from '../types'
+import { CallConversionRequestObjectInterface, PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -17,10 +18,10 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     conversion_action: {
       label: 'Conversion Action ID',
-      description:
-        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
+      description: 'The ID of the conversion action associated with this conversion.',
       type: 'number',
-      required: true
+      required: true,
+      dynamic: true
     },
     caller_id: {
       label: 'Caller ID',
@@ -69,6 +70,37 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       defaultObjectUI: 'keyvalue:only'
+    },
+    ad_user_data_consent_state: {
+      label: 'Ad User Data Consent State',
+      description:
+        'This represents consent for ad user data. For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).',
+      type: 'string',
+      choices: [
+        { label: 'GRANTED', value: 'GRANTED' },
+        { label: 'DENIED', value: 'DENIED' },
+        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
+      ]
+    },
+    ad_personalization_consent_state: {
+      label: 'Ad Personalization Consent State',
+      type: 'string',
+      description:
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).',
+      choices: [
+        { label: 'GRANTED', value: 'GRANTED' },
+        { label: 'DENIED', value: 'DENIED' },
+        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
+      ]
+    }
+  },
+
+  dynamicFields: {
+    conversion_action: async (
+      request: RequestClient,
+      { settings, auth, features, statsContext }
+    ): Promise<DynamicFieldResponse> => {
+      return getConversionActionDynamicData(request, settings, auth, features, statsContext)
     }
   },
   perform: async (request, { auth, settings, payload, features, statsContext }) => {
@@ -82,7 +114,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     settings.customerId = settings.customerId.replace(/-/g, '')
 
-    const request_object: { [key: string]: any } = {
+    const request_object: CallConversionRequestObjectInterface = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       callerId: payload.caller_id,
       callStartDateTime: convertTimestamp(payload.call_timestamp),
@@ -91,6 +123,20 @@ const action: ActionDefinition<Settings, Payload> = {
       currencyCode: payload.currency
     }
 
+    // Add Consent Signals 'adUserData' if it is defined
+    if (payload.ad_user_data_consent_state) {
+      request_object['consent'] = {
+        adUserData: payload.ad_user_data_consent_state
+      }
+    }
+
+    // Add Consent Signals 'adPersonalization' if it is defined
+    if (payload.ad_personalization_consent_state) {
+      request_object['consent'] = {
+        ...request_object['consent'],
+        adPersonalization: payload.ad_personalization_consent_state
+      }
+    }
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
     if (payload.custom_variables) {
       const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
@@ -100,7 +146,9 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${getUrlByVersion(features, statsContext)}/${settings.customerId}:uploadCallConversions`,
+      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadCallConversions`,
       {
         method: 'post',
         headers: {

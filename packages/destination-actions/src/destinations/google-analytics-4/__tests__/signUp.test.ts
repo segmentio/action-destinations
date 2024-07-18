@@ -45,7 +45,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -85,7 +84,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         useDefaultMappings: true
       })
 
@@ -186,7 +184,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             client_id: {
               '@path': '$.anonymousId'
@@ -230,7 +227,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             client_id: {
               '@path': '$.anonymousId'
@@ -256,7 +252,8 @@ describe('GA4', () => {
       nock('https://www.google-analytics.com/mp/collect')
         .post(`?api_secret=${apiSecret}&firebase_app_id=${firebaseAppId}`, {
           app_instance_id: 'anonId1234',
-          events: [{ name: 'sign_up', params: { method: 'Google', engagement_time_msec: 1 } }]
+          events: [{ name: 'sign_up', params: { method: 'Google', engagement_time_msec: 1 } }],
+          timestamp_micros: 1655936458905000
         })
         .reply(201, {})
 
@@ -341,5 +338,51 @@ describe('GA4', () => {
         })
       ).rejects.toThrowError('Client ID is required for web streams')
     })
+  })
+
+  it('should append consent correctly', async () => {
+    nock('https://www.google-analytics.com/mp/collect')
+      .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+      .reply(201, {})
+
+    const event = createTestEvent({
+      event: 'Signup',
+      userId: 'abc123',
+      timestamp: '2022-06-22T22:20:58.905Z',
+      anonymousId: 'anon-2134',
+      type: 'track',
+      properties: {
+        product_id: '12345abcde',
+        name: 'Quadruple Stack Oreos, 52 ct',
+        currency: 'USD',
+        price: 12.99,
+        quantity: 1
+      }
+    })
+    const responses = await testDestination.testAction('signUp', {
+      event,
+      settings: {
+        apiSecret,
+        measurementId
+      },
+      mapping: {
+        client_id: {
+          '@path': '$.anonymousId'
+        },
+        user_properties: {
+          hello: 'world',
+          a: '1',
+          b: '2',
+          c: '3'
+        },
+        ad_user_data_consent: 'GRANTED',
+        ad_personalization_consent: 'GRANTED'
+      },
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"sign_up\\",\\"params\\":{\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}},\\"timestamp_micros\\":1655936458905000,\\"consent\\":{\\"ad_user_data\\":\\"GRANTED\\",\\"ad_personalization\\":\\"GRANTED\\"}}"`
+    )
   })
 })

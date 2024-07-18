@@ -49,7 +49,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           transaction_id: {
             '@path': '$.properties.order_number'
@@ -183,7 +182,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           currency: {
             '@path': '$.properties.currency'
@@ -259,7 +257,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           currency: {
             '@path': '$.properties.currency'
@@ -477,7 +474,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             transaction_id: {
               '@path': '$.properties.order_number'
@@ -524,7 +520,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             transaction_id: {
               '@path': '$.properties.order_number'
@@ -558,7 +553,8 @@ describe('GA4', () => {
               name: 'refund',
               params: { currency: 'USD', transaction_id: '12345abcde', items: [], engagement_time_msec: 1 }
             }
-          ]
+          ],
+          timestamp_micros: 1655936458905000
         })
         .reply(201, {})
 
@@ -660,5 +656,54 @@ describe('GA4', () => {
         })
       ).rejects.toThrowError('Client ID is required for web streams')
     })
+  })
+
+  it('should append user_properties correctly', async () => {
+    nock('https://www.google-analytics.com/mp/collect')
+      .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+      .reply(201, {})
+
+    const event = createTestEvent({
+      event: 'Order Refunded',
+      userId: 'abc123',
+      timestamp: '2022-06-22T22:20:58.905Z',
+      anonymousId: 'anon-2134',
+      type: 'track',
+      properties: {
+        order_number: '12345abcde',
+        name: 'Quadruple Stack Oreos, 52 ct',
+        currency: 'USD',
+        price: 12.99,
+        quantity: 1
+      }
+    })
+    const responses = await testDestination.testAction('refund', {
+      event,
+      settings: {
+        apiSecret,
+        measurementId
+      },
+      mapping: {
+        transaction_id: {
+          '@path': '$.properties.order_number'
+        },
+        client_id: {
+          '@path': '$.anonymousId'
+        },
+        user_properties: {
+          hello: 'world',
+          a: '1',
+          b: '2',
+          c: '3'
+        },
+        ad_user_data_consent: 'GRANTED',
+        ad_personalization_consent: 'GRANTED'
+      },
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"refund\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"transaction_id\\":\\"12345abcde\\",\\"items\\":[],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}},\\"timestamp_micros\\":1655936458905000,\\"consent\\":{\\"ad_user_data\\":\\"GRANTED\\",\\"ad_personalization\\":\\"GRANTED\\"}}"`
+    )
   })
 })

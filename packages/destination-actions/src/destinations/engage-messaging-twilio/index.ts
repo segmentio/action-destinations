@@ -1,7 +1,8 @@
 import type { DestinationDefinition, InputField } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import sendSms from './sendSms'
-import sendWhatsApp from './sendWhatsApp'
+import { actionDefinition as sendSms } from './sendSms'
+import { actionDefinition as sendWhatsApp } from './sendWhatsApp'
+import { actionDefinition as sendMobilePush } from './sendMobilePush'
 
 const getRange = (val: number): { value: number; label: string }[] => {
   return Array(val)
@@ -77,13 +78,13 @@ const ConnectionOverridesProperties: Record<string, InputField> = {
   }
 }
 
-const destination: DestinationDefinition<Settings> = {
+export const destinationDefinition: DestinationDefinition<Settings> = {
   //The name below is creation name however in partner portal this is Actions Personas Messaging Twilio
   //This is due to integrations-consumer fetches the creation name instead of current name
   name: 'Engage Messaging Twilio',
   slug: 'actions-personas-messaging-twilio',
   mode: 'cloud',
-  description: 'This is an Engage specific action to send an SMS',
+  description: 'This is an Engage specific action to send an SMS and Whatsapp messages using Twilio API',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -152,6 +153,17 @@ const destination: DestinationDefinition<Settings> = {
         required: false,
         default: 'rp=all&rc=5',
         properties: ConnectionOverridesProperties
+      },
+      region: {
+        label: 'Region',
+        description: 'The region where the message is originating from',
+        type: 'string',
+        choices: [
+          { value: 'us-west-2', label: 'US West 2' },
+          { value: 'eu-west-1', label: 'EU West 1' }
+        ],
+        default: 'us-west-2',
+        required: false
       }
     },
     testAuthentication: (request, options) => {
@@ -169,8 +181,9 @@ const destination: DestinationDefinition<Settings> = {
   // },
   actions: {
     sendSms,
-    sendWhatsApp
+    sendWhatsApp,
+    sendMobilePush
   }
 }
 
-export default destination
+export default destinationDefinition

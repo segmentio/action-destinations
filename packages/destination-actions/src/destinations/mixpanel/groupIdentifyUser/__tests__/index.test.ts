@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { ApiRegions } from '../../utils'
+import { ApiRegions } from '../../common/utils'
 
 const testDestination = createTestIntegration(Destination)
 const MIXPANEL_API_SECRET = 'test-api-key'

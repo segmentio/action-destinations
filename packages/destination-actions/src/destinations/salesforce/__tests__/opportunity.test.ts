@@ -131,6 +131,67 @@ describe('Salesforce', () => {
       )
     })
 
+    it('should delete an opportunity record given an Id', async () => {
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).delete('/Opportunity/123').reply(204, {})
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Delete',
+        userId: '123'
+      })
+
+      const responses = await testDestination.testAction('opportunity', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          operation: 'delete',
+          traits: {
+            Id: { '@path': '$.userId' }
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(204)
+    })
+
+    it('should delete an opportunity record given some lookup traits', async () => {
+      const query = encodeURIComponent(`SELECT Id FROM Opportunity WHERE Email = 'bob@bobsburgers.net'`)
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/query`)
+        .get(`/?q=${query}`)
+        .reply(201, {
+          totalSize: 1,
+          records: [{ Id: 'abc123' }]
+        })
+
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/sobjects`).delete('/Opportunity/abc123').reply(201, {})
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Delete',
+        properties: {
+          email: 'bob@bobsburgers.net'
+        }
+      })
+
+      const responses = await testDestination.testAction('opportunity', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          operation: 'delete',
+          traits: {
+            Email: { '@path': '$.properties.email' }
+          }
+        }
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[0].status).toBe(201)
+      expect(responses[1].status).toBe(201)
+    })
+
     it('should update a opportunity record', async () => {
       const event = createTestEvent({
         type: 'track',

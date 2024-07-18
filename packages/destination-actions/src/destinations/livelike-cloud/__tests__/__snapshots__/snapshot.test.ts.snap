@@ -4,15 +4,16 @@ exports[`Testing snapshot for actions-livelike-cloud destination: trackEvent act
 Object {
   "events": Array [
     Object {
-      "action_description": "n]C0wig#f82f0li1(A",
-      "action_key": "n]C0wig#f82f0li1(A",
-      "action_name": "n]C0wig#f82f0li1(A",
+      "anonymous_id": "n]C0wig#f82f0li1(A",
+      "custom_id": "n]C0wig#f82f0li1(A",
+      "event_name": "n]C0wig#f82f0li1(A",
+      "event_type": "n]C0wig#f82f0li1(A",
       "livelike_profile_id": "n]C0wig#f82f0li1(A",
       "properties": Object {
         "testType": "n]C0wig#f82f0li1(A",
       },
+      "segment_user_id": "n]C0wig#f82f0li1(A",
       "timestamp": "n]C0wig#f82f0li1(A",
-      "user_id": "n]C0wig#f82f0li1(A",
     },
   ],
 }
@@ -22,10 +23,13 @@ exports[`Testing snapshot for actions-livelike-cloud destination: trackEvent act
 Object {
   "events": Array [
     Object {
-      "action_key": "n]C0wig#f82f0li1(A",
+      "anonymous_id": "n]C0wig#f82f0li1(A",
+      "custom_id": "n]C0wig#f82f0li1(A",
+      "event_name": "n]C0wig#f82f0li1(A",
+      "event_type": "n]C0wig#f82f0li1(A",
       "livelike_profile_id": "n]C0wig#f82f0li1(A",
+      "segment_user_id": "n]C0wig#f82f0li1(A",
       "timestamp": "n]C0wig#f82f0li1(A",
-      "user_id": "n]C0wig#f82f0li1(A",
     },
   ],
 }

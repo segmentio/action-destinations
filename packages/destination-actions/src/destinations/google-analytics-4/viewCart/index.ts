@@ -6,7 +6,8 @@ import {
   convertTimestamp,
   getMobileStreamParams,
   getWebStreamParams,
-  sendData
+  sendData,
+  formatConsent
 } from '../ga4-functions'
 import {
   formatUserProperties,
@@ -20,7 +21,9 @@ import {
   engagement_time_msec,
   timestamp_micros,
   app_instance_id,
-  data_stream_type
+  data_stream_type,
+  ad_user_data_consent,
+  ad_personalization_consent
 } from '../ga4-properties'
 import { DataStreamParams, DataStreamType, ProductItem } from '../ga4-types'
 import type { Settings } from '../generated-types'
@@ -44,9 +47,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_properties: user_properties,
     engagement_time_msec: engagement_time_msec,
-    params: params
+    params: params,
+    ad_user_data_consent: ad_user_data_consent,
+    ad_personalization_consent: ad_personalization_consent
   },
-  perform: (request, { payload, features, settings }) => {
+  perform: (request, { payload, settings }) => {
     const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
     const stream_params: DataStreamParams =
       data_stream_type === DataStreamType.MobileApp
@@ -84,10 +89,9 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    if (features && features['actions-google-analytics-4-verify-params-feature']) {
-      verifyParams(payload.params)
-      verifyUserProps(payload.user_properties)
-    }
+    verifyParams(payload.params)
+    verifyUserProps(payload.user_properties)
+
     const request_object: { [key: string]: unknown } = {
       ...stream_params.identifier,
       user_id: payload.user_id,
@@ -103,11 +107,12 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       ],
-      ...formatUserProperties(payload.user_properties)
-    }
-
-    if (features && features['actions-google-analytics-4-add-timestamp']) {
-      request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
+      ...formatUserProperties(payload.user_properties),
+      timestamp_micros: convertTimestamp(payload.timestamp_micros),
+      ...formatConsent({
+        ad_personalization_consent: payload.ad_personalization_consent,
+        ad_user_data_consent: payload.ad_user_data_consent
+      })
     }
 
     return sendData(request, stream_params.search_params, request_object)

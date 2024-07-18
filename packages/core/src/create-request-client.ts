@@ -1,7 +1,7 @@
 import addBasicAuthHeader from './middleware/before-request/add-basic-auth-header'
 import prepareHeaders from './middleware/after-response/prepare-headers'
 import prepareResponse from './middleware/after-response/prepare-response'
-import createInstance, { AllRequestOptions, RequestOptions } from './request-client'
+import createInstance, { AllRequestOptions, RequestOptions, DEFAULT_REQUEST_TIMEOUT } from './request-client'
 import type { ModifiedResponse } from './types'
 
 export interface ResponseError extends Error {
@@ -9,7 +9,7 @@ export interface ResponseError extends Error {
 }
 
 const baseClient = createInstance({
-  timeout: 10000,
+  timeout: DEFAULT_REQUEST_TIMEOUT,
   headers: {
     'user-agent': 'Segment (Actions)'
   },

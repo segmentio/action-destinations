@@ -42,6 +42,8 @@ The default port is set to `3000`. To use a different port, you can specify the 
 
 After running the `serve` command, select the destination you want to test locally. Once a destination is selected the server should start up.
 
+You can also run the serve command for a specific Destination without the Web UI being started up. For example `./bin/run serve --destination=criteo-audiences -n` will start the process for the criteo-audiences Destination, but will not start the Actions Tester web user interface.
+
 ### Testing an Action's perform() or performBatch() function
 
 To test a specific destination action's perform() or performBatch() function you can send a Postman or cURL request with the following URL format: `https://localhost:<PORT>/<ACTION>`. A list of eligible URLs will also be provided by the CLI command when the server is spun up.
@@ -165,6 +167,43 @@ curl --location --request POST 'http://localhost:3000/authentication' \
 }'
 ```
 
+### Example request to test createAudience() and getAudience()
+
+You can test the createAudience and getAudience methods as well. Use the commands below as an example and populate the
+settings according to the needs of your destination.
+
+**createAudience**
+
+```sh
+curl --location 'http://localhost:3000/createAudience' \
+--header 'Content-Type: application/json' \
+--data '{
+    "settings": {
+        "createAudienceUrl": "http://localhost:4242"
+    },
+    "audienceSettings": {
+        "advertiser_id": "abcxyz123"
+    },
+    "audienceName": "The Super Mario Brothers Super Audience"
+}'
+```
+
+**getAudience**
+
+```sh
+curl --location 'http://localhost:3000/getAudience' \
+--header 'Content-Type: application/json' \
+--data '{
+    "settings": {
+        "getAudienceUrl": "http://localhost:4242/getAudience"
+    },
+    "audienceSettings": {
+        "advertiser_id": "abcxyz123"
+    },
+    "externalId": 21
+}'
+```
+
 ## Unit Testing
 
 When building a destination action, you should write unit and end-to-end tests to ensure your action is working as intended. Tests are automatically run on every commit in Github Actions. Pull requests that do not include relevant tests will not be approved.
@@ -280,9 +319,15 @@ Once the actions under a new destination are complete, developers can run the fo
 yarn jest --testPathPattern='./packages/destination-actions/src/destinations/<DESTINATION SLUG>' --updateSnapshot
 ```
 
+Ensure your NODE_ENV environment variable is set to test.
+
+```
+export NODE_ENV=test
+```
+
 ## Code Coverage
 
-Code coverage is automatically collected upon completion of `yarn test`. Results may be inspected by examining the HTML report found at `coverage/lcov-report/index.html`, or directly in your IDE if _lcov_ is supported.
+Code coverage is collected upon completion of `yarn test --coverage`. Results may be inspected by examining the HTML report found at `coverage/lcov-report/index.html`, or directly in your IDE if _lcov_ is supported.
 
 ## Post Deployment Change Testing
 

@@ -1,6 +1,17 @@
 import { validate, parseFql, ErrorCondition } from '@segment/destination-subscriptions'
+import { EventEmitterSlug } from '@segment/action-emitters'
 import type { JSONSchema4 } from 'json-schema'
-import { Action, ActionDefinition, BaseActionDefinition, RequestFn, ExecuteDynamicFieldInput } from './action'
+import {
+  Action,
+  ActionDefinition,
+  ActionHookDefinition,
+  ActionHookType,
+  hookTypeStrings,
+  ActionHookResponse,
+  BaseActionDefinition,
+  RequestFn,
+  ExecuteDynamicFieldInput
+} from './action'
 import { time, duration } from '../time'
 import { JSONLikeObject, JSONObject, JSONValue } from '../json-object'
 import { SegmentEvent } from '../segment-event'
@@ -8,7 +19,15 @@ import { fieldsToJsonSchema, MinimalInputField } from './fields-to-jsonschema'
 import createRequestClient, { RequestClient, ResponseError } from '../create-request-client'
 import { validateSchema } from '../schema-validation'
 import type { ModifiedResponse } from '../types'
-import type { GlobalSetting, RequestExtension, ExecuteInput, Result, Deletion, DeletionPayload } from './types'
+import type {
+  GlobalSetting,
+  RequestExtension,
+  ExecuteInput,
+  Result,
+  Deletion,
+  DeletionPayload,
+  DynamicFieldResponse
+} from './types'
 import type { AllRequestOptions } from '../request-client'
 import { ErrorCodes, IntegrationError, InvalidAuthenticationError } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
@@ -16,7 +35,16 @@ import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
 import { HTTPError } from '..'
 
-export type { BaseActionDefinition, ActionDefinition, ExecuteInput, RequestFn }
+export type {
+  BaseActionDefinition,
+  ActionDefinition,
+  ActionHookDefinition,
+  ActionHookResponse,
+  ActionHookType,
+  ExecuteInput,
+  RequestFn
+}
+export { hookTypeStrings }
 export type { MinimalInputField }
 export { fieldsToJsonSchema }
 
@@ -29,8 +57,8 @@ export interface SubscriptionStats {
   output: Result[] | null
 }
 
-interface PartnerActions<Settings, Payload extends JSONLikeObject> {
-  [key: string]: Action<Settings, Payload>
+interface PartnerActions<Settings, Payload extends JSONLikeObject, AudienceSettings = any> {
+  [key: string]: Action<Settings, Payload, AudienceSettings>
 }
 
 export interface BaseDefinition {
@@ -58,7 +86,67 @@ export interface BaseDefinition {
   actions: Record<string, BaseActionDefinition>
 
   /** Subscription presets automatically applied in quick setup */
-  presets?: Subscription[]
+  presets?: Preset[]
+}
+
+export type AudienceResult = {
+  externalId: string
+}
+
+export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
+
+export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
+  settings: Settings
+
+  audienceSettings?: AudienceSettings
+
+  audienceName: string
+
+  statsContext?: StatsContext
+}
+
+export type GetAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
+  settings: Settings
+
+  audienceSettings?: AudienceSettings
+
+  externalId: string
+
+  statsContext?: StatsContext
+}
+
+export interface AudienceDestinationConfiguration {
+  mode: AudienceMode
+}
+
+export interface AudienceDestinationConfigurationWithCreateGet<Settings = unknown, AudienceSettings = unknown>
+  extends AudienceDestinationConfiguration {
+  createAudience(
+    request: RequestClient,
+    createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>
+  ): Promise<AudienceResult>
+
+  getAudience(
+    request: RequestClient,
+    getAudienceInput: GetAudienceInput<Settings, AudienceSettings>
+  ): Promise<AudienceResult>
+}
+
+const instanceOfAudienceDestinationSettingsWithCreateGet = (
+  object: any
+): object is AudienceDestinationConfigurationWithCreateGet => {
+  return 'createAudience' in object && 'getAudience' in object
+}
+
+export interface AudienceDestinationDefinition<Settings = unknown, AudienceSettings = unknown>
+  extends DestinationDefinition<Settings> {
+  audienceConfig:
+    | AudienceDestinationConfiguration
+    | AudienceDestinationConfigurationWithCreateGet<Settings, AudienceSettings>
+
+  audienceFields: Record<string, GlobalSetting>
+
+  actions: Record<string, ActionDefinition<Settings, any, AudienceSettings>>
 }
 
 export interface DestinationDefinition<Settings = unknown> extends BaseDefinition {
@@ -81,6 +169,15 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
 
   onDelete?: Deletion<Settings>
 }
+
+interface AutomaticPreset extends Subscription {
+  type: 'automatic'
+}
+interface SpecificEventPreset extends Omit<Subscription, 'subscribe'> {
+  type: 'specificEvent'
+  eventSlug: EventEmitterSlug
+}
+export type Preset = AutomaticPreset | SpecificEventPreset
 
 export interface Subscription {
   name?: string
@@ -182,6 +279,7 @@ interface EventInput<Settings> {
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
+  readonly dataFeedCache?: DataFeedCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
 }
@@ -196,6 +294,7 @@ interface BatchEventInput<Settings> {
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
+  readonly dataFeedCache?: DataFeedCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
 }
@@ -206,13 +305,17 @@ export interface DecoratedResponse extends ModifiedResponse {
 }
 
 interface OnEventOptions {
-  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => void
+  onTokenRefresh?: (tokens: RefreshAccessTokenResult) => Promise<void>
   onComplete?: (stats: SubscriptionStats) => void
   features?: Features
   statsContext?: StatsContext
   logger?: Logger
+  readonly dataFeedCache?: DataFeedCache
   transactionContext?: TransactionContext
   stateContext?: StateContext
+  /** Handler to perform synchronization. If set, the refresh access token method will be synchronized across
+   * all events across multiple instances of the destination using the same account for a given source*/
+  synchronizeRefreshAccessToken?: () => Promise<void>
 }
 
 /** Transaction variables and setTransaction method are passed from mono service for few Segment built integrations.
@@ -261,7 +364,14 @@ export interface Logger {
   withTags(extraTags: any): void
 }
 
-export class Destination<Settings = JSONObject> {
+export interface DataFeedCache {
+  setRequestResponse(requestId: string, response: string, expiryInSeconds: number): Promise<void>
+  getRequestResponse(requestId: string): Promise<string | null>
+  maxResponseSizeBytes: number
+  maxExpirySeconds: number
+}
+
+export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   readonly definition: DestinationDefinition<Settings>
   readonly name: string
   readonly authentication?: AuthenticationScheme<Settings>
@@ -269,7 +379,7 @@ export class Destination<Settings = JSONObject> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly extendRequest?: RequestExtension<Settings, any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly actions: PartnerActions<Settings, any>
+  readonly actions: PartnerActions<Settings, any, AudienceSettings>
   readonly responses: DecoratedResponse[]
   readonly settingsSchema?: JSONSchema4
   onDelete?: (event: SegmentEvent, settings: JSONObject, options?: OnEventOptions) => Promise<Result>
@@ -311,12 +421,54 @@ export class Destination<Settings = JSONObject> {
     }
   }
 
+  async createAudience(createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>) {
+    const audienceDefinition = this.definition as AudienceDestinationDefinition
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
+      throw new Error('Unexpected call to createAudience')
+    }
+    const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
+    const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
+    const context: ExecuteInput<Settings, any, AudienceSettings> = {
+      audienceSettings: createAudienceInput.audienceSettings,
+      settings: destinationSettings,
+      payload: undefined,
+      auth
+    }
+    const options = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+
+    return audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
+  }
+
+  async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>) {
+    const audienceDefinition = this.definition as AudienceDestinationDefinition
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
+      throw new Error('Unexpected call to getAudience')
+    }
+    const destinationSettings = this.getDestinationSettings(getAudienceInput.settings as unknown as JSONObject)
+    const auth = getAuthData(getAudienceInput.settings as unknown as JSONObject)
+    const context: ExecuteInput<Settings, any, AudienceSettings> = {
+      audienceSettings: getAudienceInput.audienceSettings,
+      settings: destinationSettings,
+      payload: undefined,
+      auth
+    }
+    const options = this.extendRequest?.(context) ?? {}
+    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
+
+    return audienceDefinition.audienceConfig?.getAudience(requestClient, getAudienceInput)
+  }
+
   async testAuthentication(settings: Settings): Promise<void> {
     const destinationSettings = this.getDestinationSettings(settings as unknown as JSONObject)
     const auth = getAuthData(settings as unknown as JSONObject)
     const data = { settings: destinationSettings, auth }
 
-    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload: undefined, auth }
+    const context: ExecuteInput<Settings, any> = {
+      settings: destinationSettings,
+      payload: undefined,
+      auth
+    }
 
     // Validate settings according to the destination's `authentication.fields` schema
     this.validateSettings(destinationSettings)
@@ -336,10 +488,11 @@ export class Destination<Settings = JSONObject> {
     }
   }
 
-  refreshAccessToken(
+  async refreshAccessToken(
     settings: Settings,
-    oauthData: OAuth2ClientCredentials
-  ): Promise<RefreshAccessTokenResult> | undefined {
+    oauthData: OAuth2ClientCredentials,
+    synchronizeRefreshAccessToken?: () => Promise<void>
+  ): Promise<RefreshAccessTokenResult | undefined> {
     if (!(this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')) {
       throw new IntegrationError(
         'refreshAccessToken is only valid with oauth2 authentication scheme',
@@ -361,11 +514,17 @@ export class Destination<Settings = JSONObject> {
       return undefined
     }
 
+    // Invoke synchronizeRefreshAccessToken handler if synchronizeRefreshAccessToken option is passed.
+    // This will ensure that there is only one active refresh happening at a time.
+    await synchronizeRefreshAccessToken?.()
     return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
   }
 
-  private partnerAction(slug: string, definition: ActionDefinition<Settings>): Destination<Settings> {
-    const action = new Action<Settings, {}>(this.name, definition, this.extendRequest)
+  private partnerAction(
+    slug: string,
+    definition: ActionDefinition<Settings, any, AudienceSettings>
+  ): Destination<Settings, AudienceSettings> {
+    const action = new Action<Settings, {}, AudienceSettings>(this.name, definition, this.extendRequest)
 
     action.on('response', (response) => {
       if (response) {
@@ -388,6 +547,7 @@ export class Destination<Settings = JSONObject> {
       features,
       statsContext,
       logger,
+      dataFeedCache,
       transactionContext,
       stateContext
     }: EventInput<Settings>
@@ -397,14 +557,21 @@ export class Destination<Settings = JSONObject> {
       return []
     }
 
+    let audienceSettings = {} as AudienceSettings
+    if (event.context?.personas) {
+      audienceSettings = event.context?.personas?.audience_settings as AudienceSettings
+    }
+
     return action.execute({
       mapping,
       data: event as unknown as InputData,
       settings,
+      audienceSettings,
       auth,
       features,
       statsContext,
       logger,
+      dataFeedCache,
       transactionContext,
       stateContext
     })
@@ -420,6 +587,7 @@ export class Destination<Settings = JSONObject> {
       features,
       statsContext,
       logger,
+      dataFeedCache,
       transactionContext,
       stateContext
     }: BatchEventInput<Settings>
@@ -429,32 +597,42 @@ export class Destination<Settings = JSONObject> {
       return []
     }
 
-    await action.executeBatch({
+    let audienceSettings = {} as AudienceSettings
+    // All events should be batched on the same audience
+    if (events[0].context?.personas) {
+      audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
+    }
+
+    return action.executeBatch({
       mapping,
       data: events as unknown as InputData[],
       settings,
+      audienceSettings,
       auth,
       features,
       statsContext,
       logger,
+      dataFeedCache,
       transactionContext,
       stateContext
     })
-
-    return [{ output: 'successfully processed batch of events' }]
   }
 
   public async executeDynamicField(
     actionSlug: string,
     fieldKey: string,
-    data: ExecuteDynamicFieldInput<Settings, object>
+    data: ExecuteDynamicFieldInput<Settings, object>,
+    /**
+     * The dynamicFn argument is optional since it is only used by dynamic hook input fields. (For now)
+     */
+    dynamicFn?: RequestFn<Settings, any, DynamicFieldResponse, AudienceSettings>
   ) {
     const action = this.actions[actionSlug]
     if (!action) {
       return []
     }
 
-    return action.executeDynamicField(fieldKey, data)
+    return action.executeDynamicField(fieldKey, data, dynamicFn)
   }
 
   private async onSubscription(
@@ -473,6 +651,7 @@ export class Destination<Settings = JSONObject> {
       features: options?.features || {},
       statsContext: options?.statsContext || ({} as StatsContext),
       logger: options?.logger,
+      dataFeedCache: options?.dataFeedCache,
       transactionContext: options?.transactionContext,
       stateContext: options?.stateContext
     }
@@ -552,8 +731,16 @@ export class Destination<Settings = JSONObject> {
     const destinationSettings = this.getDestinationSettings(settings as unknown as JSONObject)
     this.validateSettings(destinationSettings)
     const auth = getAuthData(settings as unknown as JSONObject)
-    const data: ExecuteInput<Settings, DeletionPayload> = { payload, settings: destinationSettings, auth }
-    const context: ExecuteInput<Settings, any> = { settings: destinationSettings, payload, auth }
+    const data: ExecuteInput<Settings, DeletionPayload> = {
+      payload,
+      settings: destinationSettings,
+      auth
+    }
+    const context: ExecuteInput<Settings, any> = {
+      settings: destinationSettings,
+      payload,
+      auth
+    }
 
     const opts = this.extendRequest?.(context) ?? {}
     const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
@@ -579,14 +766,18 @@ export class Destination<Settings = JSONObject> {
       }
 
       const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
       if (!newTokens) {
         throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
 
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
-      options?.onTokenRefresh?.(newTokens)
+      await options?.onTokenRefresh?.(newTokens)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -627,14 +818,18 @@ export class Destination<Settings = JSONObject> {
       }
 
       const oauthSettings = getOAuth2Data(settings)
-      const newTokens = await this.refreshAccessToken(destinationSettings, oauthSettings)
+      const newTokens = await this.refreshAccessToken(
+        destinationSettings,
+        oauthSettings,
+        options?.synchronizeRefreshAccessToken
+      )
       if (!newTokens) {
         throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
       }
 
       // Update `settings` with new tokens
       settings = updateOAuthSettings(settings, newTokens)
-      options?.onTokenRefresh?.(newTokens)
+      await options?.onTokenRefresh?.(newTokens)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })

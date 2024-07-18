@@ -1,0 +1,155 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-gameball destination: identifyPlayer action - all fields 1`] = `
+Object {
+  "deviceToken": "EZF$i$UL)#Y77)",
+  "email": "dop@vivdi.tr",
+  "levelOrder": 17948362481336.32,
+  "mobile": "EZF$i$UL)#Y77)",
+  "playerAttributes": Object {
+    "avgOrderAmount": 17948362481336.32,
+    "city": "EZF$i$UL)#Y77)",
+    "country": "EZF$i$UL)#Y77)",
+    "dateOfBirth": "2021-02-01T00:00:00.000Z",
+    "deviceToken": "EZF$i$UL)#Y77)",
+    "devices": Array [
+      Object {
+        "device": "EZF$i$UL)#Y77)",
+        "os": "EZF$i$UL)#Y77)",
+        "userAgent": "EZF$i$UL)#Y77)",
+      },
+    ],
+    "displayName": "EZF$i$UL)#Y77)",
+    "email": "dop@vivdi.tr",
+    "firstName": "EZF$i$UL)#Y77)",
+    "gender": "EZF$i$UL)#Y77)",
+    "guest": false,
+    "joinDate": "2021-02-01T00:00:00.000Z",
+    "lastName": "EZF$i$UL)#Y77)",
+    "lastOrderDate": "2021-02-01T00:00:00.000Z",
+    "levelOrder": 17948362481336.32,
+    "mobile": "EZF$i$UL)#Y77)",
+    "playerCustomAttributes": Object {
+      "testType": "EZF$i$UL)#Y77)",
+    },
+    "playerUniqueId": "EZF$i$UL)#Y77)",
+    "preferredLanguage": "EZF$i$UL)#Y77)",
+    "referrerCode": "EZF$i$UL)#Y77)",
+    "tags": "EZF$i$UL)#Y77)",
+    "totalOrders": 17948362481336.32,
+    "totalSpent": 17948362481336.32,
+    "utms": Array [
+      Object {
+        "campaign": "EZF$i$UL)#Y77)",
+        "content": "EZF$i$UL)#Y77)",
+        "medium": "EZF$i$UL)#Y77)",
+        "source": "EZF$i$UL)#Y77)",
+        "term": "EZF$i$UL)#Y77)",
+      },
+    ],
+    "zip": "EZF$i$UL)#Y77)",
+  },
+  "playerCustomAttributes": Object {
+    "testType": "EZF$i$UL)#Y77)",
+  },
+  "playerUniqueId": "EZF$i$UL)#Y77)",
+  "referrerCode": "EZF$i$UL)#Y77)",
+}
+`;
+
+exports[`Testing snapshot for actions-gameball destination: identifyPlayer action - required fields 1`] = `
+Object {
+  "playerAttributes": Object {
+    "playerUniqueId": "EZF$i$UL)#Y77)",
+  },
+  "playerUniqueId": "EZF$i$UL)#Y77)",
+}
+`;
+
+exports[`Testing snapshot for actions-gameball destination: trackEvent action - all fields 1`] = `
+Object {
+  "email": "kokoczi@daf.jp",
+  "events": Object {
+    "SBnT[CD": Object {
+      "testType": "SBnT[CD",
+    },
+  },
+  "mobile": "sbnt[cd",
+  "playerUniqueId": "sbnt[cd",
+}
+`;
+
+exports[`Testing snapshot for actions-gameball destination: trackEvent action - required fields 1`] = `
+Object {
+  "events": Object {},
+  "playerUniqueId": "sbnt[cd",
+}
+`;
+
+exports[`Testing snapshot for actions-gameball destination: trackOrder action - all fields 1`] = `
+Object {
+  "branchId": "![r@Ajo",
+  "branchName": "![r@Ajo",
+  "discountCodes": Array [
+    "![r@Ajo",
+  ],
+  "email": "hunako@cemvouf.ht",
+  "extra": Object {
+    "testType": "![r@Ajo",
+  },
+  "guest": true,
+  "holdReference": "![r@Ajo",
+  "lineItems": Array [
+    Object {
+      "category": Array [
+        "![r@Ajo",
+      ],
+      "collection": Array [
+        "![r@Ajo",
+      ],
+      "discount": -63119588736368.64,
+      "price": -63119588736368.64,
+      "productId": "![r@Ajo",
+      "quantity": -63119588736368.64,
+      "sku": "![r@Ajo",
+      "tags": Array [
+        "![r@Ajo",
+      ],
+      "taxes": -63119588736368.64,
+      "title": "![r@Ajo",
+      "vendor": "![r@Ajo",
+      "weight": -63119588736368.64,
+    },
+  ],
+  "merchant": Object {
+    "branch": Object {
+      "name": "![r@Ajo",
+      "uniqueId": "![r@Ajo",
+    },
+    "name": "![r@Ajo",
+    "uniqueId": "![r@Ajo",
+  },
+  "merchantId": "![r@Ajo",
+  "merchantName": "![r@Ajo",
+  "mobile": "![r@Ajo",
+  "orderDate": "2021-02-01T00:00:00.000Z",
+  "orderId": "![r@Ajo",
+  "playerUniqueId": "![r@Ajo",
+  "redeemedAmount": -63119588736368.64,
+  "totalDiscount": -63119588736368.64,
+  "totalPaid": -63119588736368.64,
+  "totalPrice": -63119588736368.64,
+  "totalShipping": -63119588736368.64,
+  "totalTax": -63119588736368.64,
+}
+`;
+
+exports[`Testing snapshot for actions-gameball destination: trackOrder action - required fields 1`] = `
+Object {
+  "orderDate": "2021-02-01T00:00:00.000Z",
+  "orderId": "![r@Ajo",
+  "playerUniqueId": "![r@Ajo",
+  "totalPaid": -63119588736368.64,
+  "totalPrice": -63119588736368.64,
+}
+`;

@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     page: {
       description: 'Contains context information regarding a webpage',
       label: 'Page',
-      required: true,
+      required: false,
       type: 'object',
       default: {
         '@path': '$.context.page'
@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
     userAgent: {
       description: 'User-Agent of the user',
       label: 'User Agent',
-      required: true,
+      required: false,
       type: 'string',
       default: {
         '@path': '$.context.userAgent'
@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       description: 'Timestamp on the event',
       label: 'Timestamp',
-      required: true,
+      required: false,
       type: 'string',
       default: {
         '@path': '$.timestamp'
@@ -67,9 +67,25 @@ const action: ActionDefinition<Settings, Payload> = {
     const eventName = 'vwo_syncVisitorProp'
     const attributes = payload.attributes
     delete attributes['vwo_uuid']
-    const visitor = { props: formatAttributes(attributes) }
-    const { headers, structuredPayload } = formatPayload(eventName, payload, true)
-    structuredPayload.d.visitor = structuredPayload.d.event.props['$visitor'] = visitor
+    const formattedAttributes = formatAttributes(attributes)
+    const visitor = { props: formattedAttributes }
+    const { headers, structuredPayload } = formatPayload(
+      eventName,
+      payload,
+      true,
+      false,
+      settings.apikey,
+      settings.vwoAccountId
+    )
+    if (structuredPayload.d.visitor && structuredPayload.d.event.props.$visitor) {
+      structuredPayload.d.visitor.props = {
+        ...structuredPayload.d.visitor.props,
+        ...formattedAttributes
+      }
+    } else {
+      structuredPayload.d.visitor = visitor
+      structuredPayload.d.event.props.$visitor = visitor
+    }
     const endpoint = `https://dev.visualwebsiteoptimizer.com/events/t?en=${eventName}&a=${settings.vwoAccountId}`
     return request(endpoint, {
       method: 'POST',

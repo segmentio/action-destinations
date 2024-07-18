@@ -26,6 +26,7 @@ interface GoogleError {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Enhanced Conversion (Legacy)',
   description: 'Upload a conversion enhancement to the legacy Google Enhanced Conversions API.',
+  hidden: true,
   fields: {
     // Required Fields - These fields are required by Google's EC API to successfully match conversions.
     conversion_label: {
@@ -269,7 +270,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const statusCode = err.response.status
         if (statusCode === 400) {
           const data = (err.response as ModifiedResponse).data as GoogleError
-          const invalidOAuth = data.error_statuses.find((es) => es.error_code === 'INVALID_OAUTH_TOKEN')
+          const invalidOAuth = data?.error_statuses?.find((es) => es.error_code === 'INVALID_OAUTH_TOKEN')
           if (invalidOAuth) {
             throw new IntegrationError('The OAuth token is missing or invalid.', 'INVALID_OAUTH_TOKEN', 401)
           }

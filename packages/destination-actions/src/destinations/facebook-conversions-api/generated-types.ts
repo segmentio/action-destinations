@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your Facebook Pixel ID
+   * Your Facebook Pixel ID. Note: You may also use a dataset ID here if you have configured a dataset in your Facebook Events Manager.
    */
   pixelId: string
   /**

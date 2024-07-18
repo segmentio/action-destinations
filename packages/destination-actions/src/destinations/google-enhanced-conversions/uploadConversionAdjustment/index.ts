@@ -1,8 +1,16 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { hash, handleGoogleErrors, convertTimestamp, getUrlByVersion } from '../functions'
+import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
+import {
+  hash,
+  handleGoogleErrors,
+  convertTimestamp,
+  getApiVersion,
+  commonHashedEmailValidation,
+  getConversionActionDynamicData,
+  isHashedInformation
+} from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { PartialErrorResponse } from '../types'
+import { PartialErrorResponse, ConversionAdjustmentRequestObjectInterface, UserIdentifierInterface } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -11,10 +19,10 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     conversion_action: {
       label: 'Conversion Action ID',
-      description:
-        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for `ctId` in the URL. For example, if the URL is `https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000`, your Conversion Action ID is `570000000`.',
+      description: 'The ID of the conversion action associated with this conversion.',
       type: 'number',
-      required: true
+      required: true,
+      dynamic: true
     },
     adjustment_type: {
       label: 'Adjustment Type',
@@ -22,6 +30,8 @@ const action: ActionDefinition<Settings, Payload> = {
         'The adjustment type. See [Google’s documentation](https://developers.google.com/google-ads/api/reference/rpc/v11/ConversionAdjustmentTypeEnum.ConversionAdjustmentType) for details on each type.',
       type: 'string',
       choices: [
+        { label: `UNSPECIFIED`, value: 'UNSPECIFIED' },
+        { label: `UNKNOWN`, value: 'UNKNOWN' },
         { label: `RETRACTION`, value: 'RETRACTION' },
         { label: 'RESTATEMENT', value: 'RESTATEMENT' },
         { label: `ENHANCEMENT`, value: 'ENHANCEMENT' }
@@ -66,20 +76,37 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Restatement Value',
       description:
         'The restated conversion value. This is the value of the conversion after restatement. For example, to change the value of a conversion from 100 to 70, an adjusted value of 70 should be reported. Required for RESTATEMENT adjustments.',
-      type: 'number'
+      type: 'number',
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'adjustment_type',
+            operator: 'is_not',
+            value: ['RETRACTION']
+          }
+        ]
+      }
     },
     restatement_currency_code: {
       label: 'Restatement Currency Code',
       description:
         'The currency of the restated value. If not provided, then the default currency from the conversion action is used, and if that is not set then the account currency is used. This is the ISO 4217 3-character currency code, e.g. USD or EUR.',
-      type: 'string'
+      type: 'string',
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'adjustment_type',
+            operator: 'is_not',
+            value: ['RETRACTION']
+          }
+        ]
+      }
     },
     email_address: {
       label: 'Email Address',
       description:
         'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
       type: 'string',
-      format: 'email',
       default: {
         '@if': {
           exists: { '@path': '$.properties.email' },
@@ -198,6 +225,14 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
+  dynamicFields: {
+    conversion_action: async (
+      request: RequestClient,
+      { settings, auth, features, statsContext }
+    ): Promise<DynamicFieldResponse> => {
+      return getConversionActionDynamicData(request, settings, auth, features, statsContext)
+    }
+  },
   perform: async (request, { settings, payload, features, statsContext }) => {
     /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
@@ -213,7 +248,7 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.adjustment_timestamp = new Date().toISOString()
     }
 
-    const request_object: { [key: string]: any } = {
+    const request_object: ConversionAdjustmentRequestObjectInterface = {
       conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
       adjustmentType: payload.adjustment_type,
       adjustmentDateTime: convertTimestamp(payload.adjustment_timestamp),
@@ -235,11 +270,17 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.email_address) {
-      request_object.userIdentifiers.push({ hashedEmail: hash(payload.email_address) })
+      const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+
+      request_object.userIdentifiers.push({
+        hashedEmail: validatedEmail
+      } as UserIdentifierInterface)
     }
 
     if (payload.phone_number) {
-      request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
+      request_object.userIdentifiers.push({
+        hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(payload.phone_number)
+      } as UserIdentifierInterface)
     }
 
     const containsAddressInfo =
@@ -254,9 +295,13 @@ const action: ActionDefinition<Settings, Payload> = {
     if (containsAddressInfo) {
       request_object.userIdentifiers.push({
         addressInfo: {
-          hashedFirstName: hash(payload.first_name),
-          hashedLastName: hash(payload.last_name),
-          hashedStreetAddress: hash(payload.street_address),
+          hashedFirstName: isHashedInformation(String(payload.first_name))
+            ? payload.first_name
+            : hash(payload.first_name),
+          hashedLastName: isHashedInformation(String(payload.last_name)) ? payload.last_name : hash(payload.last_name),
+          hashedStreetAddress: isHashedInformation(String(payload.street_address))
+            ? payload.street_address
+            : hash(payload.street_address),
           city: payload.city,
           state: payload.state,
           countryCode: payload.country,
@@ -266,7 +311,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `${getUrlByVersion(features, statsContext)}/${settings.customerId}:uploadConversionAdjustments`,
+      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadConversionAdjustments`,
       {
         method: 'post',
         headers: {

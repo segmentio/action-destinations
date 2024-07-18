@@ -11,10 +11,7 @@ type HeapEvent = {
   event: string | undefined
   idempotency_key: string
   timestamp?: string
-  properties: {
-    [k: string]: unknown
-  }
-  custom_properties?: {
+  custom_properties: {
     [k: string]: unknown
   }
   user_identifier?: {
@@ -111,9 +108,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload, settings }) => {
     const requests = []
-    if (!settings.appId) {
-      throw new IntegrationError('Missing app ID')
-    }
 
     if (!payload.anonymous_id && !payload.identity) {
       throw new IntegrationError('Either Anonymous id or Identity should be specified.', 'MISSING_REQUIRED_FIELD', 400)
@@ -123,7 +117,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const event: HeapEvent = {
       event: getEventName(payload),
-      properties: {
+      custom_properties: {
         segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME,
         ...flattenedProperties,
         ...(isDefined(payload.name) && { name: payload.name })
@@ -140,7 +134,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const trackPayload: IntegrationsTrackPayload = {
       app_id: settings.appId,
       events: [event],
-      library: 'Segment'
+      library: 'server'
     }
 
     if (isDefined(payload.identity) && (isDefined(payload.anonymous_id) || isDefined(payload.traits))) {

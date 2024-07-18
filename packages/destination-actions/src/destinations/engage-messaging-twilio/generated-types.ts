@@ -41,4 +41,8 @@ export interface Settings {
    * Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url
    */
   connectionOverrides?: string
+  /**
+   * The region where the message is originating from
+   */
+  region?: string
 }

@@ -133,6 +133,24 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
+  birthplace: {
+    label: 'Birthplace',
+    description: 'The birthplace of the constituent.',
+    type: 'string',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.birthplace'
+        },
+        then: {
+          '@path': '$.traits.birthplace'
+        },
+        else: {
+          '@path': '$.properties.birthplace'
+        }
+      }
+    }
+  },
   constituent_id: {
     label: 'Constituent ID',
     description: 'The ID of the constituent.',
@@ -179,6 +197,24 @@ export const fields: Record<string, InputField> = {
       type: ''
     }
   },
+  ethnicity: {
+    label: 'Ethnicity',
+    description: 'The ethnicity of the constituent.',
+    type: 'string',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.ethnicity'
+        },
+        then: {
+          '@path': '$.traits.ethnicity'
+        },
+        else: {
+          '@path': '$.properties.ethnicity'
+        }
+      }
+    }
+  },
   first: {
     label: 'First Name',
     description: "The constituent's first name up to 50 characters.",
@@ -193,6 +229,24 @@ export const fields: Record<string, InputField> = {
         },
         else: {
           '@path': '$.properties.firstName'
+        }
+      }
+    }
+  },
+  former_name: {
+    label: 'Former Name',
+    description: "The constituent's former name up to 100 characters.",
+    type: 'string',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.formerName'
+        },
+        then: {
+          '@path': '$.traits.formerName'
+        },
+        else: {
+          '@path': '$.properties.formerName'
         }
       }
     }
@@ -215,10 +269,59 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
+  gives_anonymously: {
+    label: 'Gives Anonymously',
+    description: 'Indicates whether the constituent gives anonymously.',
+    type: 'boolean',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.givesAnonymously'
+        },
+        then: {
+          '@path': '$.traits.givesAnonymously'
+        },
+        else: {
+          '@path': '$.properties.givesAnonymously'
+        }
+      }
+    }
+  },
   income: {
     label: 'Income',
     description: "The constituent's income.",
-    type: 'string'
+    type: 'string',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.income'
+        },
+        then: {
+          '@path': '$.traits.income'
+        },
+        else: {
+          '@path': '$.properties.income'
+        }
+      }
+    }
+  },
+  industry: {
+    label: 'Industry',
+    description: "The constituent's industry.",
+    type: 'string',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.industry'
+        },
+        then: {
+          '@path': '$.traits.industry'
+        },
+        else: {
+          '@path': '$.properties.industry'
+        }
+      }
+    }
   },
   last: {
     label: 'Last Name',
@@ -242,6 +345,24 @@ export const fields: Record<string, InputField> = {
     label: 'Lookup ID',
     description: 'The organization-defined identifier for the constituent.',
     type: 'string'
+  },
+  marital_status: {
+    label: 'Marital Status',
+    description: "The constituent's marital status. Available values are the entries in the Marital Status table.",
+    type: 'string',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.maritalStatus'
+        },
+        then: {
+          '@path': '$.traits.maritalStatus'
+        },
+        else: {
+          '@path': '$.properties.maritalStatus'
+        }
+      }
+    }
   },
   online_presence: {
     label: 'Online Presence',
@@ -318,6 +439,114 @@ export const fields: Record<string, InputField> = {
       },
       primary: '',
       type: ''
+    }
+  },
+  preferred_name: {
+    label: 'Preferred Name',
+    description: "The constituent's preferred name up to 50 characters.",
+    type: 'string',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.preferredName'
+        },
+        then: {
+          '@path': '$.traits.preferredName'
+        },
+        else: {
+          '@path': '$.properties.preferredName'
+        }
+      }
+    }
+  },
+  religion: {
+    label: 'Religion',
+    description: 'The religion of the constituent.',
+    type: 'string',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.religion'
+        },
+        then: {
+          '@path': '$.traits.religion'
+        },
+        else: {
+          '@path': '$.properties.religion'
+        }
+      }
+    }
+  },
+  suffix: {
+    label: 'Suffix',
+    description: "The constituent's primary suffix. Available values are the entries in the Suffixes table.",
+    type: 'string',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.suffix'
+        },
+        then: {
+          '@path': '$.traits.suffix'
+        },
+        else: {
+          '@path': '$.properties.suffix'
+        }
+      }
+    }
+  },
+  suffix_2: {
+    label: 'Secondary Suffix',
+    description: "The constituent's secondary suffix. Available values are the entries in the Suffixes table.",
+    type: 'string',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.suffix2'
+        },
+        then: {
+          '@path': '$.traits.suffix2'
+        },
+        else: {
+          '@path': '$.properties.suffix2'
+        }
+      }
+    }
+  },
+  title: {
+    label: 'Title',
+    description: "The constituent's primary title. Available values are the entries in the Titles table.",
+    type: 'string',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.title'
+        },
+        then: {
+          '@path': '$.traits.title'
+        },
+        else: {
+          '@path': '$.properties.title'
+        }
+      }
+    }
+  },
+  title_2: {
+    label: 'Secondary Title',
+    description: "The constituent's secondary title. Available values are the entries in the Titles table.",
+    type: 'string',
+    default: {
+      '@if': {
+        exists: {
+          '@path': '$.traits.title2'
+        },
+        then: {
+          '@path': '$.traits.title2'
+        },
+        else: {
+          '@path': '$.properties.title2'
+        }
+      }
     }
   }
 }

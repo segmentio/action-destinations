@@ -18,7 +18,8 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       pixelId: {
         label: 'Pixel ID',
-        description: 'Your Facebook Pixel ID',
+        description:
+          'Your Facebook Pixel ID. Note: You may also use a dataset ID here if you have configured a dataset in your Facebook Events Manager.',
         type: 'string',
         required: true
       },

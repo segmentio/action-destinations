@@ -6,7 +6,7 @@ export interface Payload {
    */
   user_key: string
   /**
-   * The user's previously used anonymous user key.
+   * The user's unauthenticated identifier.
    */
   previous_key: string
   /**

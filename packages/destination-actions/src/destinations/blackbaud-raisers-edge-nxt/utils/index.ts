@@ -52,11 +52,23 @@ export const augmentFieldsWithConstituentFields = (fields: Record<string, InputF
 
 export const splitConstituentPayload = (payload: CreateOrUpdateIndividualConstituentPayload) => {
   const constituentData: Partial<Constituent> = {
+    birthplace: payload.birthplace,
+    ethnicity: payload.ethnicity,
     first: payload.first,
+    former_name: payload.former_name,
     gender: payload.gender,
+    gives_anonymously: payload.gives_anonymously,
     income: payload.income,
+    industry: payload.industry,
     last: payload.last,
-    lookup_id: payload.lookup_id
+    lookup_id: payload.lookup_id,
+    marital_status: payload.marital_status,
+    preferred_name: payload.preferred_name,
+    religion: payload.religion,
+    suffix: payload.suffix,
+    suffix_2: payload.suffix_2,
+    title: payload.title,
+    title_2: payload.title_2
   }
   Object.keys(constituentData).forEach((key) => {
     if (!constituentData[key as keyof Constituent]) {
@@ -130,8 +142,12 @@ export const buildGiftDataFromPayload = (constituentId: string, payload: CreateG
     amount: {
       value: payload.amount
     },
+    constituency: payload.constituency,
     constituent_id: constituentId,
     date: payload.date,
+    default_fundraiser_credits: payload.default_fundraiser_credits,
+    default_soft_credits: payload.default_soft_credits,
+    gift_code: payload.gift_code,
     gift_status: payload.gift_status,
     is_anonymous: payload.is_anonymous,
     // hardcode is_manual
@@ -139,6 +155,7 @@ export const buildGiftDataFromPayload = (constituentId: string, payload: CreateG
     lookup_id: payload.lookup_id,
     post_date: payload.post_date,
     post_status: payload.post_status,
+    reference: payload.reference,
     subtype: payload.subtype,
     type: payload.type
   }
@@ -147,6 +164,12 @@ export const buildGiftDataFromPayload = (constituentId: string, payload: CreateG
       delete giftData[key as keyof Gift]
     }
   })
+
+  // batch number
+  if (payload.batch_number) {
+    giftData.batch_number = payload.batch_number
+    giftData.batch_prefix = payload.batch_prefix || 'API'
+  }
 
   // default date
   giftData.date = giftData.date || new Date().toISOString()

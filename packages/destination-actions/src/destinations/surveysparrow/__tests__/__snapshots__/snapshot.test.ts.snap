@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-surveysparrow destination: createContact action - all fields 1`] = `
+Object {
+  "email": "puhdal@lanuh.eg",
+  "full_name": ")vXolamUv*aA^%I)KHo",
+  "job_title": ")vXolamUv*aA^%I)KHo",
+  "mobile": ")vXolamUv*aA^%I)KHo",
+  "phone": ")vXolamUv*aA^%I)KHo",
+  "testType": ")vXolamUv*aA^%I)KHo",
+}
+`;
+
+exports[`Testing snapshot for actions-surveysparrow destination: triggerSurvey action - all fields 1`] = `
+Object {
+  "contacts": Array [
+    Object {
+      "email": "fonhom@aswoj.mg",
+      "mobile": "Kx&gS1q$N(lVM",
+    },
+  ],
+  "survey_id": 10571614257152,
+  "variables": Object {
+    "testType": "Kx&gS1q$N(lVM",
+  },
+}
+`;

@@ -52,13 +52,11 @@ const action: ActionDefinition<Settings, Payload> = {
     engagement_time_msec: engagement_time_msec,
     params: { ...params }
   },
-  perform: (request, { payload, features }) => {
+  perform: (request, { payload }) => {
     const event_name = normalizeEventName(payload.name, payload.lowercase)
 
-    if (features && features['actions-google-analytics-4-verify-params-feature']) {
-      verifyParams(payload.params)
-      verifyUserProps(payload.user_properties)
-    }
+    verifyParams(payload.params)
+    verifyUserProps(payload.user_properties)
 
     const request_object: { [key: string]: any } = {
       client_id: payload.clientId,
@@ -72,11 +70,8 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         }
       ],
-      ...formatUserProperties(payload.user_properties)
-    }
-
-    if (features && features['actions-google-analytics-4-add-timestamp']) {
-      request_object.timestamp_micros = convertTimestamp(payload.timestamp_micros)
+      ...formatUserProperties(payload.user_properties),
+      timestamp_micros: convertTimestamp(payload.timestamp_micros)
     }
 
     return request('https://gtmadapter-node-cbjg5cz5hq-ew.a.run.app/v2/consolidated-data', {

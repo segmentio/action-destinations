@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HubSpot.sendCustomBehavioralEvent One of email, utk or objectId is provided 1`] = `
+Object {
+  "email": undefined,
+  "eventName": "pe22596207_test_event_http",
+  "objectId": undefined,
+  "occurredAt": "2023-07-04T10:25:44.778Z",
+  "properties": Object {
+    "hs_city": "city",
+  },
+  "utk": "abverazffa===1314122f",
+}
+`;
+
+exports[`HubSpot.sendCustomBehavioralEvent should succeed when all fields are given 1`] = `
+Object {
+  "email": "vep@beri.dz",
+  "eventName": "pe22596207_test_event_http",
+  "objectId": "802",
+  "occurredAt": "2023-07-05T08:28:35.216Z",
+  "properties": Object {
+    "hs_city": "city",
+  },
+  "utk": "abverazffa===1314122f",
+}
+`;
