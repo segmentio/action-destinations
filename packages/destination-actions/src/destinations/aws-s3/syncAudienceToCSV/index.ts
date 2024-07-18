@@ -52,7 +52,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
           description: 'Name of column for timestamp for when the user was added or removed from the Audience',
           type: 'string'
         },
-        messageId: {
+        message_id: {
           label: 'Message ID',
           description: 'Name of column for the unique identifier for the message.',
           type: 'string'
