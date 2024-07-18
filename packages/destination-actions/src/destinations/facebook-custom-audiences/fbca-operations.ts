@@ -1,10 +1,11 @@
 import { DynamicFieldItem, DynamicFieldError, RequestClient } from '@segment/actions-core'
 
 const FACEBOOK_API_VERSION = 'v20.0'
+// exported for unit testing
+export const BASE_URL = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/`
 
 interface AudienceCreationResponse {
   id: string
-  message: string
 }
 
 interface GetAllAudienceResponse {
@@ -29,17 +30,15 @@ interface FacebookResponseError {
 
 export default class FacebookClient {
   request: RequestClient
-  baseUrl: string
   adAccountId: string
 
   constructor(request: RequestClient, adAccountId: string) {
     this.request = request
-    this.baseUrl = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/`
     this.adAccountId = this.formatAdAccount(adAccountId)
   }
 
   createAudience = async (name: string) => {
-    return this.request<AudienceCreationResponse>(`${this.baseUrl}${this.adAccountId}/customaudiences`, {
+    return await this.request<AudienceCreationResponse>(`${BASE_URL}${this.adAccountId}/customaudiences`, {
       method: 'post',
       json: {
         name,
@@ -54,7 +53,7 @@ export default class FacebookClient {
   ): Promise<{ data?: GetSingleAudienceResponse; error?: FacebookResponseError }> => {
     try {
       const fields = '?fields=id,name'
-      const { data } = await this.request<GetSingleAudienceResponse>(`${this.baseUrl}${audienceId}${fields}`)
+      const { data } = await this.request<GetSingleAudienceResponse>(`${BASE_URL}${audienceId}${fields}`)
       return { data, error: undefined }
     } catch (error) {
       return { data: undefined, error: error as FacebookResponseError }
@@ -63,7 +62,7 @@ export default class FacebookClient {
 
   getAllAudiences = async (): Promise<{ choices: DynamicFieldItem[]; error: DynamicFieldError | undefined }> => {
     const { data } = await this.request<GetAllAudienceResponse>(
-      `${this.baseUrl}${this.adAccountId}/customaudiences?fields=id,name&limit=200`
+      `${BASE_URL}${this.adAccountId}/customaudiences?fields=id,name&limit=200`
     )
 
     const choices = data.data.map(({ id, name }) => ({
