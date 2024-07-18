@@ -32,11 +32,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       required: true,
       choices: [
-        {label: 'comma', value: ','},
-        {label: 'pipe', value: '|'},
-        {label: 'tab', value: 'tab'},
-        {label: 'semicolon', value: ';'},
-        {label: 'colon', value: ':'},
+        { label: 'comma', value: ',' },
+        { label: 'pipe', value: '|' },
+        { label: 'tab', value: 'tab' },
+        { label: 'semicolon', value: ';' },
+        { label: 'colon', value: ':' }
       ],
       default: ','
     }
@@ -59,7 +59,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       s3_aws_region: {
         label: 'AWS Region Code (S3 only)',
-        description: 'Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)',
+        description:
+          'Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)',
+        type: 'string',
+        required: true
+      },
+      iam_external_id: {
+        label: 'IAM External ID',
+        description: 'External ID to use when assuming the IAM role.',
         type: 'string',
         required: true
       }

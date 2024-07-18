@@ -14,11 +14,13 @@ export class S3CSVClient {
   roleArn: string
   roleSessionName: string
   region: string
+  externalId: string
 
-  constructor(region: string, roleArn: string) {
+  constructor(region: string, roleArn: string, externalId: string) {
     this.region = region
     this.roleSessionName = uuidv4()
     this.roleArn = roleArn
+    this.externalId = externalId
   }
 
   async assumeRole(): Promise<Credentials> {
@@ -28,7 +30,8 @@ export class S3CSVClient {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const command = new AssumeRoleCommand({
       RoleArn: process.env.ACTIONS_S3_INTERMEDIARY_ROLE_ARN,
-      RoleSessionName: this.roleSessionName
+      RoleSessionName: this.roleSessionName,
+      ExternalId: process.env.ACTIONS_S3_EXTERNAL_ID
     })
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -58,7 +61,8 @@ export class S3CSVClient {
       const newCreds = await newStsClient.send(
         new AssumeRoleCommand({
           RoleArn: this.roleArn,
-          RoleSessionName: this.roleSessionName
+          RoleSessionName: this.roleSessionName,
+          ExternalId: this.externalId
         })
       )
       return {
