@@ -34,6 +34,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest: ({ settings }) => {
     return {
       method: 'POST',
+      headers: { Authorization: `Bearer ${settings.apiKey}` },
       json: { apiKey: settings.apiKey }
     }
   },
@@ -43,7 +44,7 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
       partnerAction: 'sendData',
       mapping: defaultValues(sendData.fields),
-			type: 'automatic'
+      type: 'automatic'
     }
   ],
   actions: {

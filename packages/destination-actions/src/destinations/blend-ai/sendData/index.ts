@@ -7,12 +7,28 @@ const baseUrl = 'https://segment-api.blnd.ai/'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Data',
   description: 'Send data to Blend AI for product usage insights',
-  fields: {},
+  fields: {
+    eventType: {
+      label: 'Event Type',
+      description: 'The type of event',
+      type: 'string',
+      required: true
+    },
+    eventProperties: {
+      label: 'Event Properties',
+      description: 'Properties of the event',
+      type: 'object',
+      required: true
+    }
+  },
   defaultSubscription: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload }) => {
     return request(baseUrl + 'sendData', {
-      headers: { Authorization: `Bearer ${settings.apiKey}` },
-      json: { payload }
+      method: 'POST',
+      json: {
+        type: payload.eventType,
+        properties: payload.eventProperties
+      }
     })
   }
 }
