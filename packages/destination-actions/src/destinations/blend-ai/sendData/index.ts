@@ -10,14 +10,12 @@ const action: ActionDefinition<Settings, Payload> = {
     eventType: {
       label: 'Event Type',
       description: 'The type of event',
-      type: 'string',
-      required: true
+      type: 'string'
     },
     eventProperties: {
       label: 'Event Properties',
       description: 'Properties of the event',
-      type: 'object',
-      required: true
+      type: 'object'
     }
   },
   defaultSubscription: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
