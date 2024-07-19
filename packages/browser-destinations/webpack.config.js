@@ -104,7 +104,8 @@ const unobfuscatedOutput = {
     mainFields: ['exports', 'module', 'browser', 'main'],
     extensions: ['.ts', '.js'],
     fallback: {
-      vm: require.resolve('vm-browserify')
+      vm: require.resolve('vm-browserify'),
+      crypto: false
     }
   },
   devServer: {

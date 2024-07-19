@@ -119,3 +119,37 @@ export interface PartialErrorResponse {
   }
   results: {}[]
 }
+
+export interface UserList {
+  userList: {
+    resourceName: string
+    id: string
+    name: string
+  }
+}
+
+export interface UserListResponse {
+  results: Array<UserList>
+  fieldMask: string
+}
+
+export interface CreateAudienceInput {
+  audienceName: string
+  settings: {
+    customerId?: string
+    conversionTrackingId?: string
+  }
+  audienceSettings: {
+    external_id_type: string
+    app_id?: string
+  }
+}
+
+export interface CreateGoogleAudienceResponse {
+  resourceName?: string
+  results: Array<{ resourceName: string }>
+}
+
+export interface AudienceSettings {
+  external_id_type: string
+}
