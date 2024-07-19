@@ -516,7 +516,7 @@ export const handleUpdate = async (
   statsContext?: StatsContext
 ) => {
   // Format the user data for Google Ads API
-  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, audienceSettings)
+  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, audienceSettings, syncMode)
 
   // Create an offline user data job
   const resourceName = await createOfflineUserJob(request, payloads[0], settings, hookOutputs, statsContext)
