@@ -1,7 +1,7 @@
-import { PayloadValidationError, ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { RawData, SingleUpdateRequestData, UpsertUserPayload } from '../types'
+import { SingleUpdateRequestData, UpsertUserPayload } from '../types'
 import { CONSTANTS } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -18,11 +18,11 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.traits.email' },
           then: { '@path': '$.traits.email' },
-          else: { '@path': '$.context.traits.email' } // Phone is sent as identify's trait or track's context.trait
+          else: { '@path': '$.context.traits.email' }
         }
       }
     },
-    user_id: {
+    userId: {
       label: 'User ID',
       description: 'User ID',
       type: 'string',
@@ -32,11 +32,19 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
-    data_fields: {
-      label: 'Data Fields',
-      description: 'Data fields to sync to Iterable Lists',
-      type: 'object',
+    dataFields: {
+      label: 'Additional traits or identifiers',
+      description: "Specify additional traits or identifiers to sync to Iterable. You will need to ensure these traits or obects are included via Event Settings >> Customized Setup.",
       required: false,
+      type: 'string',
+      multiple: true
+    },
+    traitsOrProperties: {
+      label: 'Traits or Properties',
+      description: 'Traits or Properties object from the identify() or track() call emitted by Engage',
+      type: 'object',
+      required: true,
+      unsafe_hidden: true, 
       default: {
         '@if': {
           exists: { '@path': '$.traits' },
@@ -46,7 +54,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, data) => {
+  perform: (request, { payload, settings, audienceSettings }) => {
+    
+    
     const payload = data.payload as { email: string; user_id: string; data_fields: Record<string, unknown> }
     const rawData = (data as unknown as SingleUpdateRequestData).rawData
     const iterablePayload = processPayload(payload, rawData)
@@ -106,42 +116,5 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 const processBatch = async (promises: Promise<unknown>[]) => await Promise.all(promises)
-
-const processPayload = (
-  payload: { email: string; user_id: string; data_fields: Record<string, unknown> },
-  rawData: RawData
-) => {
-  if (!payload.email && !payload.user_id) {
-    throw new PayloadValidationError('Must include email or user_id.')
-  }
-
-  const context = rawData.context
-  const personas = context.personas as { computation_key: string; computation_id: string; external_audience_id: string }
-  if (!personas.computation_key || !personas.computation_id || !personas.external_audience_id) {
-    throw new PayloadValidationError(
-      'Missing audience parameters: computation id, computation key, and/or audience id.'
-    )
-  }
-
-  const traitsOrProps = rawData.traits || rawData.properties
-  const action = traitsOrProps[personas.computation_key] ? 'subscribe' : 'usubscribe'
-  const iterablePayload: UpsertUserPayload = {
-    listId: Number(personas.external_audience_id),
-    action: action,
-    dataFields: payload.data_fields,
-    preferUserId: true,
-    mergeNestedObjects: true
-  }
-
-  if (payload.email) {
-    iterablePayload.email = payload.email
-  }
-
-  if (payload.user_id) {
-    iterablePayload.userId = payload.user_id
-  }
-
-  return iterablePayload
-}
 
 export default action

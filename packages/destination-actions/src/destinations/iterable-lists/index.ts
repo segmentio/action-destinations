@@ -29,10 +29,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
 
   audienceFields: {
-    update_existing_users_only: {
-      label: 'TODO',
-      description: 'TODO',
+    updateExistingUsersOnly: {
+      label: 'Update existing users only',
+      description: "Whether to skip operation when the request includes a userId or email that doesn't yet exist in the Iterable project. When true, Iterable ignores requests with unknown userIds and email addresses.",
       type: 'boolean',
+      default: false,
+      required: false
+    },
+    channelUnsubscribe: {
+      label: 'Global Unsubscribe',
+      description: "Unsubscribe email from list's associated channel - essentially a global unsubscribe",
+      type: 'boolean',
+      default: false,
+      required: false
+    },
+    campaignId: {
+      label: 'Campaign ID',
+      description: 'Campaign ID to associate with the unsubscribe',
+      type: 'string',
       required: false
     }
   },
@@ -62,28 +76,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       return { externalId: audienceKey }
     },
-    async getAudience(request, getAudienceInput) {
-      const audienceKey = getAudienceInput.externalId
-      if (!audienceKey) {
-        throw new IntegrationError('Missing audience id value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      const response = await request(`https://api.iterable.com/api/lists`, {
-        method: 'GET',
-        headers: { 'Api-Key': getAudienceInput.settings.apiKey }
-      })
-
-      if (response.status === 404) {
-        throw new IntegrationError('Audience not found', 'NOT_FOUND', 404)
-      }
-
-      for (const listItem of response.data as { id: string; name: string }[]) {
-        if (listItem.name === audienceKey) {
-          return { externalId: listItem.id }
-        }
-      }
-
-      throw new IntegrationError('Audience not found', 'PRECONDITION_FAILED', 424)
+    async getAudience(_, getAudienceInput) {
+      return  { externalId: getAudienceInput.externalId }
     }
   },
 
@@ -95,17 +89,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   actions: {
     upsert // TODO rename to syncAudience or similar
-  },
-
-  presets: [  // TODO remove presets. They don't work when a destination is connected to Engage 
-    {
-      name: 'Identify Calls',
-      subscribe: 'type = "identify"',
-      partnerAction: 'upsert',
-      mapping: defaultValues(upsert.fields),
-      type: 'automatic'
-    }
-  ]
+  }
 }
 
 export default destination
