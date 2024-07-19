@@ -6,7 +6,6 @@ import FacebookClient from '../fbca-operations'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
   description: 'Sync data to Facebook Custom Audiences.',
-  fields: {},
   hooks: {
     retlOnMappingSave: {
       label: 'Select or create an audience in Facebook',
@@ -143,12 +142,156 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (_request, _data) => {
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+  syncMode: {
+    label: 'Sync Mode',
+    description: 'The sync mode to use when syncing data to Facebook.',
+    default: 'upsert',
+    choices: [
+      { value: 'add', label: 'Add' },
+      { value: 'update', label: 'Update' },
+      { value: 'upsert', label: 'Upsert' },
+      { value: 'delete', label: 'Delete' }
+    ]
+  },
+  fields: {
+    // !Very important: the keys in this object are purposefully named as the lower case version of the
+    // schema that facebook expects when syncing data to audiences. For example, the Date Of Birth Year field
+    // is represented as DOBY in the schema that facebook expects.
+    email: {
+      type: 'string',
+      label: 'Email',
+      description: 'The email address of the user.'
+    },
+    phone: {
+      type: 'string',
+      label: 'Phone',
+      description: 'The phone number of the user.'
+    },
+    gen: {
+      type: 'string',
+      label: 'Gender',
+      description: 'The gender of the user.'
+    },
+    dob: {
+      // object with year, month, day properties
+      type: 'object',
+      label: 'Date of Birth',
+      description: 'The date of birth of the user.',
+      properties: {
+        doby: {
+          type: 'number',
+          label: 'Year'
+        },
+        dobm: {
+          type: 'number',
+          label: 'Month'
+        },
+        dobd: {
+          type: 'number',
+          label: 'Day'
+        }
+      }
+    },
+    name: {
+      // object with first, last, first_initial properties
+      type: 'object',
+      label: 'Name',
+      description: 'The name of the user.',
+      properties: {
+        fn: {
+          type: 'string',
+          label: 'First Name'
+        },
+        ln: {
+          type: 'string',
+          label: 'Last Name'
+        },
+        fi: {
+          type: 'string',
+          label: 'First Initial'
+        }
+      }
+    },
+    address: {
+      // object with city, state, postal_code, country properties
+      type: 'object',
+      label: 'Address',
+      description: 'The address of the user.',
+      properties: {
+        ct: {
+          type: 'string',
+          label: 'City'
+        },
+        st: {
+          type: 'string',
+          label: 'State'
+        },
+        zip: {
+          type: 'string',
+          label: 'Postal Code'
+        },
+        country: {
+          type: 'string',
+          label: 'Country'
+        }
+      }
+    },
+    madid: {
+      type: 'string',
+      label: 'Mobile Advertising ID',
+      description: 'The mobile advertising ID of the user.'
+    },
+    extern_id: {
+      type: 'string',
+      label: 'External ID',
+      description: 'The external ID of the user.'
+    },
+    app_ids: {
+      type: 'string',
+      multiple: true,
+      label: 'App IDs',
+      description: 'The app IDs of the user.'
+    },
+    page_ids: {
+      type: 'string',
+      multiple: true,
+      label: 'Page IDs',
+      description: 'The page IDs of the user.'
+    }
+  },
+  perform: async (request, { settings, payload, hookOutputs, syncMode }) => {
+    console.log('test perform')
+    const fbClient = new FacebookClient(request, settings.adAccountId)
+
+    console.log('settings', settings)
+    console.log('hookOutputs', hookOutputs)
+    console.log('syncMode', syncMode)
+
+    if (syncMode === 'add' || syncMode === 'update' || syncMode === 'upsert') {
+      return await fbClient.syncAudience({
+        audienceId: hookOutputs?.retlOnMappingSave.audienceId,
+        payload: [payload]
+      })
+    }
+
+    if (syncMode === 'delete') {
+      // TODO DELETE OPERATION
+    }
+  },
+  performBatch: async (request, { settings, payload, hookOutputs, syncMode }) => {
+    console.log('test performBatch')
+    const fbClient = new FacebookClient(request, settings.adAccountId)
+
+    if (syncMode === 'add' || syncMode === 'update' || syncMode === 'upsert') {
+      return await fbClient.syncAudience({
+        audienceId: hookOutputs?.retlOnMappingSave.audienceId,
+        payload
+      })
+    }
+
+    if (syncMode === 'delete') {
+      // TODO DELETE OPERATION
+    }
   }
 }
 

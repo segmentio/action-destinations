@@ -1,4 +1,7 @@
 import { DynamicFieldItem, DynamicFieldError, RequestClient } from '@segment/actions-core'
+import { Payload } from './sync/generated-types'
+import { audienceId } from '../talon-one/t1-properties'
+import { createHash } from 'crypto'
 
 const FACEBOOK_API_VERSION = 'v20.0'
 // exported for unit testing
@@ -74,6 +77,64 @@ export default class FacebookClient {
       choices,
       error: undefined
     }
+  }
+
+  syncAudience = async (input: { audienceId: string; payload: Payload[] }) => {
+    const schema = this.generateSchema(input.payload)
+    const data = this.generateData(schema, input.payload)
+
+    const params = {
+      payload: {
+        schema: schema,
+        data: data
+      }
+    }
+    console.log('params', JSON.stringify(params))
+
+    console.log('audienceId', input.audienceId)
+
+    try {
+      return await this.request(`${BASE_URL}${audienceId}/users`, {
+        method: 'post',
+        json: params
+      })
+    } catch (e) {
+      console.log('error', e)
+      return
+    }
+  }
+
+  private generateSchema = (payloads: Payload[]): string[] => {
+    const schema = new Set<string>()
+    payloads.forEach((payload) => {
+      Object.keys(payload).forEach((key) => {
+        schema.add(key.toUpperCase())
+      })
+    })
+
+    return Array.from(schema)
+  }
+
+  private generateData = (schema: string[], payloads: Payload[]) => {
+    const data: (string | number)[][] = []
+
+    payloads.forEach((payload) => {
+      console.log('payload', payload)
+      const row = []
+      schema.forEach((key) => {
+        console.log('key', key)
+        const value = payload[key.toLowerCase() as keyof Payload]
+        console.log('value', value)
+        row.push(this.hash(value) || '')
+      })
+      data.push(row)
+    })
+
+    return data
+  }
+
+  private hash = (value: string): string => {
+    return createHash('sha256').update(value).digest('hex')
   }
 
   private formatAdAccount(adAccountId: string) {
