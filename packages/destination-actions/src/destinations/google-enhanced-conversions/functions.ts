@@ -24,11 +24,25 @@ import { Features } from '@segment/actions-core/mapping-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
-import { sha256SmartHash } from '@segment/actions-core'
+// import { sha256SmartHashFunction } from '@segment/actions-core'
 
 export const API_VERSION = 'v16'
 export const CANARY_API_VERSION = 'v16'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
+
+/**
+ * Checks if value is already hashed with sha256 to avoid double hashing
+ */
+import * as crypto from 'crypto'
+
+const sha256HashedRegex = /^[a-f0-9]{64}$/i
+
+export function sha256SmartHashFunction(value: string): string {
+  if (sha256HashedRegex.test(value)) {
+    return value
+  }
+  return crypto.createHash('sha256').update(value).digest('hex')
+}
 
 export class GoogleAdsError extends HTTPError {
   response: Response & {
@@ -328,7 +342,7 @@ const formatEmail = (email: string, hash_data?: boolean): string => {
     normalizedEmail = `${emailParts[0]}@${emailParts[1]}`
   }
 
-  return sha256SmartHash(normalizedEmail)
+  return sha256SmartHashFunction(normalizedEmail)
 }
 
 function formatToE164(phoneNumber: string, defaultCountryCode: string): string {
@@ -354,7 +368,7 @@ const formatPhone = (phone: string, hash_data?: boolean): string => {
     return phone
   }
   const formattedPhone = formatToE164(phone, '1')
-  return sha256SmartHash(formattedPhone)
+  return sha256SmartHashFunction(formattedPhone)
 }
 
 const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: AudienceSettings, syncMode?: string) => {
@@ -383,8 +397,8 @@ const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: A
       if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
         identifiers.push({
           addressInfo: {
-            hashedFirstName: sha256SmartHash(payload.first_name ?? ''),
-            hashedLastName: sha256SmartHash(payload.last_name ?? ''),
+            hashedFirstName: sha256SmartHashFunction(payload.first_name ?? ''),
+            hashedLastName: sha256SmartHashFunction(payload.last_name ?? ''),
             countryCode: payload.country_code ?? '',
             postalCode: payload.postal_code ?? ''
           }

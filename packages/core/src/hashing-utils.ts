@@ -5,7 +5,7 @@ import * as crypto from 'crypto'
 
 const sha256HashedRegex = /^[a-f0-9]{64}$/i
 
-export function sha256SmartHash(value: string): string {
+export function sha256SmartHashFunction(value: string): string {
   if (sha256HashedRegex.test(value)) {
     return value
   }
