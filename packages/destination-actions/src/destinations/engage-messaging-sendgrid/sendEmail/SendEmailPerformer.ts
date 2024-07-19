@@ -435,6 +435,16 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       return $.html()
     }
 
+    if ($(unsubscribeLinkRef).length === 0) {
+      _this.logger.info(`Unsubscribe tag is missing`)
+      emailProfile.unsubscribeLink = ''
+    }
+
+    if ($(preferencesLinkRef).length === 0) {
+      _this.logger.info(`Preferences tag missing`)
+      emailProfile.preferencesLink = ''
+    }
+
     if (groupId) {
       const group = emailProfile.groups?.find((grp) => grp.id === groupId)
       const groupUnsubscribeLink = group?.groupUnsubscribeLink
