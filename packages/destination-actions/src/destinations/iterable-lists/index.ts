@@ -29,11 +29,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
 
   audienceFields: {
-    audience_id: {
-      label: 'The audience id required by the destination',
-      description: 'The audience id required by the destination',
-      type: 'number',
-      required: true
+    update_existing_users_only: {
+      label: 'TODO',
+      description: 'TODO',
+      type: 'boolean',
+      required: false
     }
   },
   audienceConfig: {
@@ -94,10 +94,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
 
   actions: {
-    upsert
+    upsert // TODO rename to syncAudience or similar
   },
 
-  presets: [
+  presets: [  // TODO remove presets. They don't work when a destination is connected to Engage 
     {
       name: 'Identify Calls',
       subscribe: 'type = "identify"',
