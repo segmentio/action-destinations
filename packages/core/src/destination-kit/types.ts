@@ -113,7 +113,13 @@ export interface GlobalSetting {
 export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
 
 /** The supported field categories */
-type FieldCategory = 'identifier' | 'data' | 'internal' | 'config'
+type FieldCategory = 'identifier' | 'data' | 'internal' | 'config' | 'sync'
+
+/** supported input methods when picking values */
+type FieldInputMethods = 'literal' | 'variable' | 'function' | 'enrichment' | 'freeform'
+
+/** display modes for a field */
+type FieldDisplayMode = 'expanded' | 'normal' | 'collapsed'
 
 /** Properties of an InputField which are involved in creating the generated-types.ts file */
 export interface InputFieldJSONSchema {
@@ -213,6 +219,19 @@ export interface InputField extends InputFieldJSONSchema {
    * Determines how the field should be categorized in the UI. This is useful for grouping fields together in the UI.
    */
   category?: FieldCategory
+
+  /**
+   * Determines how the field should be displayed in the UI:
+   * - expanded: Fully visible title and description for detailed information.
+   * - normal (default): One line field, and title, with description hidden behind a tooltip.
+   * - collapsed: Fields grouped behind a dropdown
+   */
+  displayMode?: FieldDisplayMode
+
+  /**
+   * Determines which input methods are disabled for this field. This is useful when you want to restrict variable selection, freeform entry, etc.
+   */
+  disabledInputMethods?: FieldInputMethods[]
 }
 
 /** Base interface for conditions  */

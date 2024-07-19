@@ -13,6 +13,10 @@ export interface Settings {
    * Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)
    */
   s3_aws_region: string
+  /**
+   * The External ID to your IAM role. Generate a secure string and treat it like a password.
+   */
+  iam_external_id: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 

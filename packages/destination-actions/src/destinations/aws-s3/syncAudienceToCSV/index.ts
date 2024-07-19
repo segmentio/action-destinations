@@ -243,7 +243,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 async function processData(payloads: Payload[], settings: Settings, audienceSettings?: AudienceSettings) {
   const fileContent = generateFile(payloads, audienceSettings as AudienceSettings)
 
-  const s3Client = new S3CSVClient(settings.s3_aws_region, settings.iam_role_arn)
+  const s3Client = new S3CSVClient(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
 
   await s3Client.uploadS3(settings, audienceSettings as AudienceSettings, fileContent)
 }
