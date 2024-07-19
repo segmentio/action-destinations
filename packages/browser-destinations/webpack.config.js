@@ -29,15 +29,15 @@ const plugins = [
   new WebpackManifestPlugin({
     fileName: `manifest-${sha}.json`,
     useEntryKeys: true,
-    filter: ({name}) => Object.keys(entries).includes(name),
+    filter: ({ name }) => Object.keys(entries).includes(name),
     map: filemap
   }),
   new WebpackManifestPlugin({
     fileName: `manifest-latest.json`,
     useEntryKeys: true,
-    filter: ({name}) => Object.keys(entries).includes(name),
+    filter: ({ name }) => Object.keys(entries).includes(name),
     map: filemap
-  }),
+  })
 ]
 
 if (isProd) {
@@ -77,8 +77,8 @@ const unobfuscatedOutput = {
       {
         test: /\.m?js$/,
         resolve: {
-          fullySpecified: false,
-        },
+          fullySpecified: false
+        }
       },
       {
         test: /\.ts$/,

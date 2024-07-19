@@ -2,7 +2,7 @@ import { ExtId, MessageSendPerformer, OperationContext, ResponseError, track, Pr
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
-import { IntegrationError, RequestOptions } from '@segment/actions-core'
+import { IntegrationError, ModifiedResponse, RequestOptions } from '@segment/actions-core'
 import {
   ApiLookupConfig,
   FLAGON_NAME_DATA_FEEDS,
@@ -111,7 +111,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     return parsedContent
   }
 
-  async sendToRecepient(emailProfile: ExtId<Payload>) {
+  async sendToRecepient(emailProfile: ExtId<Payload>): Promise<ModifiedResponse<unknown> | undefined> {
     const traits = await this.getProfileTraits()
 
     const profile: Profile = {
@@ -365,7 +365,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           this.tags,
           this.settings,
           this.logger.loggerClient,
-          this.dataFeedCache
+          this.engageDestinationCache
         )
         return { name: apiLookup.name, data }
       })
