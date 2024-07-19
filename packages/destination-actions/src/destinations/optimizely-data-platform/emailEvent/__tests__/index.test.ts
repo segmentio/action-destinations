@@ -30,7 +30,7 @@ const emailEvent = createTestEvent({
 
 describe('OptimizelyDataPlatform.emailEvent', () => {
   it('Should fire email event', async () => {
-    nock('https://function.zaius.app/twilio_segment').post('/email_event').reply(201)
+    nock('https://function.zaius.app/twilio_segment').post('/batch_email_event').reply(201)
 
     const response = await testDestination.testAction('emailEvent', {
       event: emailEvent,
@@ -52,6 +52,8 @@ describe('OptimizelyDataPlatform.emailEvent', () => {
     })
 
     expect(response[0].status).toBe(201)
-    expect(response[0].options.body).toMatchInlineSnapshot(`"{\\"type\\":\\"email\\",\\"action\\":\\"opened\\",\\"campaign\\":\\"opti-test-campaign\\",\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test@test.com\\"},\\"campaign_event_value\\":null,\\"timestamp\\":\\"2024-03-01T18:11:27.649Z\\"}"`)
+    expect(response[0].options.body).toMatchInlineSnapshot(
+      `"{\\"type\\":\\"email\\",\\"action\\":\\"opened\\",\\"campaign\\":\\"opti-test-campaign\\",\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test@test.com\\"},\\"campaign_event_value\\":null,\\"timestamp\\":\\"2024-03-01T18:11:27.649Z\\"}"`
+    )
   })
 })

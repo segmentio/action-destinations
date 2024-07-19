@@ -23,7 +23,7 @@ const productEvent = createTestEvent({
 
 describe('OptimizelyDataPlatform.trackEvent', () => {
   it('Should fire custom event', async () => {
-    nock('https://function.zaius.app/twilio_segment').post('/custom_event').reply(201, {})
+    nock('https://function.zaius.app/twilio_segment').post('/batch_custom_event').reply(201, {})
 
     const response = await testDestination.testAction('customEvent', {
       event: productEvent,

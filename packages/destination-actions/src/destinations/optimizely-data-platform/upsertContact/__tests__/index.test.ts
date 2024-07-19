@@ -29,7 +29,7 @@ const profileEvent = createTestEvent({
 
 describe('OptimizelyDataPlatform.upsertContact', () => {
   it('Should fire upsert contact profile', async () => {
-    nock('https://function.zaius.app/twilio_segment').post('/upsert_contact').reply(201)
+    nock('https://function.zaius.app/twilio_segment').post('/batch_upsert_contact').reply(201)
 
     const response = await testDestination.testAction('upsertContact', {
       event: profileEvent,
