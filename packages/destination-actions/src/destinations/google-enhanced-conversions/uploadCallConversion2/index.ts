@@ -16,9 +16,9 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Call Conversion',
   description: 'Upload an offline call conversion to the Google Ads API.',
   syncMode: {
-    description: 'Define how the records from your destination will be synced to mappings 2 test destination',
+    description: 'Define how the records from your destination will be synced to the destination',
     label: 'How to sync records',
-    default: 'update',
+    default: 'add',
     choices: [{ label: 'Adds record to destination', value: 'add' }]
   },
   fields: {
