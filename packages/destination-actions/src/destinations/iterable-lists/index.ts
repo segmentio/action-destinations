@@ -1,7 +1,7 @@
-import { IntegrationError, AudienceDestinationDefinition, defaultValues } from '@segment/actions-core'
+import { IntegrationError, AudienceDestinationDefinition } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 
-import upsert from './upsert'
+import syncAudience from './syncAudience'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Iterable Lists',
@@ -30,22 +30,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   audienceFields: {
     updateExistingUsersOnly: {
-      label: 'Update existing users only',
-      description: "Whether to skip operation when the request includes a userId or email that doesn't yet exist in the Iterable project. When true, Iterable ignores requests with unknown userIds and email addresses.",
+      label: 'Update existing users only. Only valid for subscribe action.',
+      description:
+        "Whether to skip operation when the request includes a userId or email that doesn't yet exist in the Iterable project. When true, Iterable ignores requests with unknown userIds and email addresses.",
       type: 'boolean',
       default: false,
       required: false
     },
-    channelUnsubscribe: {
+    globalUnsubscribe: {
       label: 'Global Unsubscribe',
-      description: "Unsubscribe email from list's associated channel - essentially a global unsubscribe",
+      description:
+        "Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid for unsubscribe action.",
       type: 'boolean',
       default: false,
       required: false
     },
     campaignId: {
       label: 'Campaign ID',
-      description: 'Campaign ID to associate with the unsubscribe',
+      description: 'Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.',
       type: 'string',
       required: false
     }
@@ -61,23 +63,27 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       // @ts-ignore type is not defined, and we will define it later
       const personasSettings = audienceSettings.personas
       if (!personasSettings) {
-        throw new IntegrationError('Missing computation parameters: Id and Key', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError('Missing computation parameters: Key', 'MISSING_REQUIRED_FIELD', 422)
+      }
+
+      if (!personasSettings.computation_key) {
+        throw new IntegrationError('Missing computation parameters: Key', 'MISSING_REQUIRED_FIELD', 422)
       }
 
       const audienceKey = personasSettings.computation_key
-
-      await request('https://api.iterable.com/api/lists', {
+      const createAudienceResponse = await request('https://api.iterable.com/api/lists', {
         method: 'POST',
         headers: { 'Api-Key': settings.apiKey },
         json: {
           name: audienceKey
         }
       })
+      const createAudienceResponseJson = await createAudienceResponse.json()
 
-      return { externalId: audienceKey }
+      return { externalId: createAudienceResponseJson.listId }
     },
     async getAudience(_, getAudienceInput) {
-      return  { externalId: getAudienceInput.externalId }
+      return { externalId: getAudienceInput.externalId }
     }
   },
 
@@ -88,7 +94,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
 
   actions: {
-    upsert // TODO rename to syncAudience or similar
+    syncAudience
   }
 }
 

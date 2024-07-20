@@ -10,7 +10,15 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * The audience id required by the destination
+   * Whether to skip operation when the request includes a userId or email that doesn't yet exist in the Iterable project. When true, Iterable ignores requests with unknown userIds and email addresses.
    */
-  audience_id: number
+  updateExistingUsersOnly?: boolean
+  /**
+   * Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid for unsubscribe action.
+   */
+  globalUnsubscribe?: boolean
+  /**
+   * Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.
+   */
+  campaignId?: string
 }
