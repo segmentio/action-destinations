@@ -64,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     segment_audience_key: {
       label: 'Audience Key',
-      description: 'Segment Audience Key to which user identifier should be added or removed',
+      description: 'Segment Audience Key to which user identifier should be added or removed.',
       type: 'string',
       unsafe_hidden: true,
       default: {
