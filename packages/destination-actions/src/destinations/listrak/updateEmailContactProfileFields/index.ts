@@ -33,33 +33,43 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       format: 'email',
       default: {
-        '@path': '$.context.traits.email'
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.traits.email' }
+        }
       },
       required: true
     },
     profileFieldValues: {
       label: 'Profile Field Values',
       description:
-        'Add one or more profile field IDs as object keys. You can find these IDs under Help & Support > API ID Information on https://admin.listrak.com. Choose one of three options as the object value: "on" (activates this field in Listrak), "off" (deactivates this field in Listrak), or "useAudienceKey" (Listrak sets the field based on the Segment Audience payload\'s audience_key: "true" activates the field, "false" deactivates it).',
+        'Add one or more profile field IDs as object keys. You can find these IDs under Help & Support > API ID Information on https://admin.listrak.com. Choose one of three options as the object value: "on" (activates this field in Listrak), "off" (deactivates this field in Listrak), or "useAudienceKey" (Listrak sets the field based on the Segment Audience payload\'s audience_key boolean value: "true" activates the field, "false" deactivates it).',
       type: 'object',
       required: true,
       defaultObjectUI: 'keyvalue:only'
     },
-    properties: {
-      label: 'Properties Object',
-      description: 'The properties object',
+    traits_or_props: {
+      label: 'Traits or properties Object',
+      description: 'A computed object for track and identify events. This field should not need to be edited.',
       type: 'object',
       unsafe_hidden: true,
       default: {
-        '@path': '$.properties'
+        '@if': {
+          exists: { '@path': '$.properties' },
+          then: { '@path': '$.properties' },
+          else: { '@path': '$.traits' }
+        }
       }
     },
-    audience_key: {
+    segment_audience_key: {
       label: 'Audience Key',
-      description: 'The key that determines if the contact is in the audience or not.',
+      description: 'Segment Audience key to which user identifier should be added or removed',
       type: 'string',
-      readOnly: true,
-      default: { '@path': '$.properties.audience_key' }
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.context.personas.computation_key'
+      }
     },
     enable_batching: {
       type: 'boolean',
@@ -89,8 +99,8 @@ async function processPayload(request: RequestClient, payload: Payload[]) {
       }
 
       let audienceEntered = null
-      if (p.audience_key && p.properties) {
-        audienceEntered = p.properties[p.audience_key]
+      if (p.segment_audience_key && p.traits_or_props) {
+        audienceEntered = p.traits_or_props[p.segment_audience_key]
         if (typeof audienceEntered !== 'boolean') {
           audienceEntered = null
         }

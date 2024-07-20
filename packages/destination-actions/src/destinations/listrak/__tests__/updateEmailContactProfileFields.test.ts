@@ -35,6 +35,9 @@ describe('Listrak', () => {
         context: {
           traits: {
             email: 'test.email@test.com'
+          },
+          personas: {
+            computation_key: 'listrak_audience'
           }
         },
         properties: {
@@ -79,6 +82,9 @@ describe('Listrak', () => {
           context: {
             traits: {
               email: 'test.email1@test.com'
+            },
+            personas: {
+              computation_key: 'listrak_audience'
             }
           },
           properties: {
@@ -90,6 +96,9 @@ describe('Listrak', () => {
           context: {
             traits: {
               email: 'test.email2@test.com'
+            },
+            personas: {
+              computation_key: 'listrak_audience'
             }
           },
           properties: {
