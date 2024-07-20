@@ -50,7 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     },
     traits_or_props: {
-      label: 'Traits or properties Object',
+      label: 'Traits or properties object',
       description: 'A computed object for track and identify events. This field should not need to be edited.',
       type: 'object',
       unsafe_hidden: true,
@@ -64,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     segment_audience_key: {
       label: 'Audience Key',
-      description: 'Segment Audience key to which user identifier should be added or removed',
+      description: 'Segment Audience Key to which user identifier should be added or removed',
       type: 'string',
       unsafe_hidden: true,
       default: {
