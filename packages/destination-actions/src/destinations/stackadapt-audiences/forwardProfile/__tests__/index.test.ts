@@ -37,6 +37,12 @@ const batchEventPayload: Partial<SegmentEvent> = {
   }
 }
 
+const aliasEventPayload: Partial<SegmentEvent> = {
+  type: 'alias',
+  userId: mockUserId,
+  previousId: mockUserId2
+}
+
 describe('forwardProfile', () => {
   it('should translate audience entry/exit into GQL format', async () => {
     let requestBody
@@ -107,6 +113,37 @@ describe('forwardProfile', () => {
               subAdvertiserId: 1,
               externalProvider: \\"segmentio\\",
               profiles: [{email:\\"admin@stackadapt.com\\",user_id:\\"user-id\\",audience_id:\\"aud_123\\",audience_name:\\"first_time_buyer\\",action:\\"enter\\"},{email:\\"email2@stackadapt.com\\",user_id:\\"user-id2\\"}]
+            ) {
+              success
+            }
+          }",
+      }
+    `)
+  })
+
+  it('should translate alias event into GQL format', async () => {
+    let requestBody
+    nock(gqlHostUrl)
+      .post(gqlPath, (body) => {
+        requestBody = body
+        return body
+      })
+      .reply(200, { data: { success: true } })
+    const event = createTestEvent(aliasEventPayload)
+    const responses = await testDestination.testAction('forwardProfile', {
+      event,
+      useDefaultMappings: true,
+      settings: { apiKey: mockGqlKey }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(requestBody).toMatchInlineSnapshot(`
+      Object {
+        "query": "mutation {
+            upsertProfiles(
+              subAdvertiserId: 1,
+              externalProvider: \\"segmentio\\",
+              profiles: [{user_id:\\"user-id\\",previous_id:\\"user-id2\\"}]
             ) {
               success
             }
