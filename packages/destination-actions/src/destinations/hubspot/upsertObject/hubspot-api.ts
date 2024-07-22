@@ -25,30 +25,32 @@ enum AssociationCategory {
     INTEGRATOR_DEFINED = 'INTEGRATOR_DEFINED'
 }
 
-interface BatchReadRequestBody {
-    properties: string[]
+interface BatchObjReadReqBody {
     idProperty: string
+    properties: string[]
     inputs: Array<{ id: string }>
 }
 
-interface BatchReadResponse {
+interface BatchObjUpsertReqBody {
+    inputs: Array<{
+        idProperty: string
+        id: string
+        properties: Record<string, string>
+    }>
+}
+interface BatchObjAddReqBody {
+    inputs: Array<{
+        idProperty: string
+        properties: Record<string, string>
+    }>
+}
+
+interface BatchObjResponse {
     status: string
-    results: BatchReadResponseItem[]
-}
-
-interface BatchReadResponseItem {
-    id: string
-    properties: Record<string, string | null>
-}
-
-interface BatchRequestBody {
-    inputs: BatchRequestBodyItem[];
-}
-interface BatchRequestBodyItem {
-    properties: {
-        [key: string]: string | number | boolean | undefined;
-    };
-    id?: string;
+    results: Array<{
+        id: string
+        properties: Record<string, string | null>
+    }>
 }
 
 interface AssociationType {
@@ -241,21 +243,6 @@ export class HubspotClient {
         return { associationCategory, associationTypeId } as AssociationType
     }
 
-    async batchObjectRequest(
-        action: 'update' | 'add' | 'read', 
-        objectType: string,
-        data: BatchReadRequestBody | BatchRequestBody
-    ) {    
-        if(data.inputs.length === 0){
-            return null
-        }
-
-        return this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
-            method: 'POST',
-            json: data
-        });
-    }
-
     async batchAssociationsRequest(body: BatchAssociationsRequestBody, objectType: string, toObjectType: string){
         if(body.inputs.length === 0){
             return null
@@ -327,154 +314,197 @@ export class HubspotClient {
         }
     }
 
-    findUniquePropertiesFromPayloads(payloads: Payload[]): PayloadPropertyItem[] {        
-
-        return Object.values(payloads.reduce((acc, payload) => {
-            for (const prop in payload.properties) {
-              if (payload.properties[prop]) {
-                acc[prop] = { name: prop, type: typeof payload.properties[prop] };
-              }
-            }
-            return acc;
-        }, {} as { [name: string]: PayloadPropertyItem }))
-
+    findUniquePayloadsProps(payloads: Payload[]): PayloadPropertyItem[] {        
+        return Object.values(
+            payloads.reduce((acc, payload) => {
+                if(payload.properties) {
+                    Object.keys(payload.properties).forEach(propName => {
+                        if(payload.properties) { // to keep linter happy
+                            acc[propName] = { 
+                                name: propName, 
+                                type: typeof payload.properties[propName]
+                            }
+                        }
+                    })
+                }
+                return acc
+            }, 
+            {} as { [name: string]: PayloadPropertyItem })
+        )
     }
 
-    async createProperties(objectType: string, properties: PayloadPropertyItem[]){
-        
-        
-        interface ResponseType {
-            data: {
-                status: string
-                results: CreatePropertiesResultItem[]
-            } 
+    createListPropsToCreate(uniquePayloadProperties: PayloadPropertyItem[], hubspotProperties: ReadPropertiesResultItem[]): PayloadPropertyItem[]{
+        return uniquePayloadProperties.filter(prop => !hubspotProperties.find(p => p.name === prop.name))
+    }
+
+    async ensureProperties(objectType: string, propertyGroup: string,  properties: PayloadPropertyItem[]){
+  
+        interface RequestBody {
+            inputs: Array<{
+                label: string,
+                type: 'string' | 'number' | 'enumeration',
+                groupName: string,
+                name: string,
+                fieldType: 'text' | 'number' | 'booleancheckbox',
+                options?: Array<{
+                    label: string,
+                    value: string,
+                    hidden: boolean,
+                    description: string,
+                    displayOrder: 1 | 2
+                }>
+            }> 
         }
 
-        try{
-            const response: ResponseType = await this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${objectType}/batch/create`, {
-                method: 'GET',
-                skipResponseCloning: true
+        const json = { 
+            inputs: properties.map(prop => {
+                switch(prop.type){
+                    case 'string':
+                        return {
+                            name: prop.name,
+                            label: prop.name,
+                            groupName: propertyGroup,
+                            type: "string",
+                            fieldType: "text"
+                        }
+                    case 'number':
+                        return {
+                            name: prop.name,
+                            label: prop.name,
+                            groupName: propertyGroup,
+                            type: "number",
+                            fieldType: "number"
+                        }    
+                    case 'boolean':
+                        return {
+                            name: prop.name,
+                            label: prop.name,
+                            groupName: propertyGroup,
+                            type: "enumeration",
+                            fieldType: 'booleancheckbox', 
+                            options: [
+                                {
+                                    label: "true",
+                                    value: "true",
+                                    hidden: false,
+                                    description: "True",
+                                    displayOrder: 1
+                                },
+                                {
+                                    label: "false",
+                                    value: "false",
+                                    hidden: false,
+                                    description: "False",
+                                    displayOrder: 2
+                                }
+                            ]
+                        }
+                }
             })
-
-            return response.data.results
-                .map((item: ReadPropertiesResultItem) => {
-                    return {
-                        name: item.name,
-                        type: item.type,
-                        fieldType: item.fieldType,
-                        hasUniqueValue: item.hasUniqueValue
-                    }
-                }) as ReadPropertiesResultItem[]
-
-        } catch(err) {
-            throw new IntegrationError(`readProperties() failed: ${(err as HubSpotError)?.response?.data?.message ?? 'Unknown error: readProperties() failed'}`, 'HUBSPOT_READ_PROPERTIES_FAILED', 400)
-        }
+        } as RequestBody
         
-        https://api.hubapi.com/crm/v3/properties//batch/create
+        await this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${objectType}/batch/create`, {
+            method: 'POST',
+            skipResponseCloning: true,
+            json
+        })
     }
 
-    async ensureProperties(payloads: Payload[]) {   
+    async batchObjectRequest(
+        action: 'upsert' | 'create' | 'update' |'read', 
+        objectType: string,
+        data: BatchObjReadReqBody | BatchObjUpsertReqBody | BatchObjAddReqBody
+    ) {   
+        return this.request<BatchObjResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
+            method: 'POST',
+            json: data
+        });
+    }
 
-        const missingProps = uniquePayloadProps.filter(prop => !propsFromHubspot.data.results.find((p: Property) => p.name === prop.name))
+    async enrichPayloadsWithHubspotIds(payloads: Payload[], fromObjectType: string, fromIdFieldName: string) {    
+        
+        const response = await this.batchObjectRequest('read', fromObjectType, {
+            properties: [fromIdFieldName],
+            idProperty: fromIdFieldName,
+            inputs: payloads.map(payload => { 
+                return {id: payload.object_details.from_id_field_value}
+            })             
+        } as BatchObjReadReqBody)
 
-        console.log('missingProperties', missingProps)
+        response?.data.results.forEach(result => {
+            payloads
+                .filter(payload => payload.object_details.from_id_field_value == result.properties[fromIdFieldName] as string)
+                .forEach(payload => payload.object_details.exists_on_hubspot = true )
+        })
 
-        if(missingProps.length > 0){
+        return payloads
+    }
+
+    async ensureFromObjects(payloads: Payload[], syncMode: 'upsert' | 'add' | 'update') {
+        const { 
+            object_details: { 
+                from_object_type: fromObjectType, 
+                from_id_field_name: fromIdFieldName 
+            } 
+        } = payloads[0]
+
+        switch(syncMode){
+            case 'upsert': {
+                const body: BatchObjUpsertReqBody = {
+                    inputs: []
+                }
+    
+                payloads.forEach(({ object_details: { from_id_field_value }, properties }) => {
+                    body.inputs.push({
+                      idProperty: fromIdFieldName,
+                      id: from_id_field_value,
+                      properties: properties 
+                    })
+                })
+    
+                return await this.batchObjectRequest(syncMode, fromObjectType, body)
+            }
+
+            case 'update': {
+                const body: BatchObjUpsertReqBody = {
+                    inputs: []
+                }
+
+                const enrichedPayloads = await this.enrichPayloadsWithHubspotIds(payloads, fromObjectType, fromIdFieldName)
             
-            // const createPropsRequestBody = {
-            //     inputs: [
-            //         {
-            //             "hidden": false,
-            //             "description": "string",
-            //             "label": "My Contact Property",
-            //             "type": "enumeration",
-            //             "formField": false,
-            //             "groupName": "contactinformation",
+                // Only update objects that have a hs_object_id. We still use the from_id_field_value to identify the object
+                enrichedPayloads
+                .filter(({ object_details }) => object_details.exists_on_hubspot)
+                .forEach(({ object_details: { from_id_field_value }, properties }) => {
+                    body.inputs.push({
+                        idProperty: fromIdFieldName,
+                        id: from_id_field_value,
+                        properties
+                    })
+                }) 
 
-            //             "referencedObjectType": "string",
-            //             "name": "string",
-            //             "options": [
-            //               {
-            //                 "label": "Option A",
-            //                 "value": "A",
-            //                 "hidden": false,
-            //                 "description": "Choice number one",
-            //                 "displayOrder": 1
-            //               },
-            //               {
-            //                 "label": "Option B",
-            //                 "value": "B",
-            //                 "hidden": false,
-            //                 "description": "Choice number two",
-            //                 "displayOrder": 2
-            //               }
-            //             ],
-            //             "calculationFormula": "string",
-            //             "hasUniqueValue": false,
-            //             "fieldType": "select",
-            //             "externalOptions": true
-            //           }
-            //     ]
-            // }
+                return await this.batchObjectRequest(syncMode, fromObjectType, body)
+            }
 
-            // const propsFromHubspot = await this.request<PropertyReadResponse>(`${HUBSPOT_BASE_URL}/crm/v3/properties/${toObjectType}/batch/create`, {
-            //     method: 'GET',
-            //     skipResponseCloning: true
-            // })
-
-        }
-
-
-    }
-
-    // async ensureFromObjects(payloads: Payload[]) {
-
-    //     const { 
-    //         object_details: { 
-    //             from_object_type: fromObjectType, 
-    //             from_id_field_name: fromIdFieldName 
-    //         } 
-    //     } = payloads[0]
-
-    //     const readResponse = await this.batchObjectRequest('read', fromObjectType, {
-    //         properties: [fromIdFieldName],
-    //         idProperty: fromIdFieldName,
-    //         inputs: payloads.map(p => { return {id: p.object_details.from_id_field_value}})             
-    //     } as BatchReadRequestBody)
-       
-    //     readResponse?.data.results.forEach(result => {
-    //         payloads
-    //             .filter(payload => payload.object_details.from_id_field_value == result.properties[fromIdFieldName] as string)
-    //             .forEach(payload => payload.object_details.from_hs_object_id = result.id )
-    //     })
-
-    //     const updateRequestBody: BatchRequestBody = {inputs:[]}
-    //     const createRequestBody: BatchRequestBody = {inputs:[]}
-
-    //     payloads.forEach((payload) => {
-
-    //         const itemPayload: { id?: string | undefined; properties: { [key: string]: string | number | boolean | undefined } } = {
-    //             id: payload.object_details.from_id_field_name ?? undefined,
-    //             properties: {
-    //                 ...payload.properties,
-    //                 [fromIdFieldName]: payload.object_details.from_id_field_value
-    //             } as BatchRequestBodyItem['properties']
-    //         } as BatchRequestBodyItem
-
-    //         if(['update', 'upsert'].includes(this.syncMode) && itemPayload.id){
-    //             updateRequestBody.inputs.push(itemPayload)
-    //         }
-
-    //         if(['add', 'upsert'].includes(this.syncMode) && !itemPayload.id){
-    //             createRequestBody.inputs.push(itemPayload)
-    //         }
-    //     })
+            case 'add': {
+                const body: BatchObjAddReqBody = {
+                    inputs: []
+                }
+                
+                const enrichedPayloads = await this.enrichPayloadsWithHubspotIds(payloads, fromObjectType, fromIdFieldName)
         
-    //     return Promise.all([
-    //         this.batchObjectRequest('update', fromObjectType, updateRequestBody),
-    //         this.batchObjectRequest('add', fromObjectType, createRequestBody)
-    //     ].filter(request => request !== null))
-    //     .then(writeRequests => writeRequests.length > 0 ? writeRequests : null);
-    // }
+                // Only update objects that don't have a hs_object_id. We still use the from_id_field_value to create the object
+                enrichedPayloads
+                .filter(({ object_details }) => !object_details.exists_on_hubspot)
+                .forEach(({ object_details: { from_id_field_value }, properties }) => {
+                    body.inputs.push({
+                        idProperty: fromIdFieldName,
+                        properties: { ...properties, [fromIdFieldName]: from_id_field_value },
+                    })
+                }) 
 
+                return await this.batchObjectRequest('create', fromObjectType, body)
+            }
+        }
+    }
 }

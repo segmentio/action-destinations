@@ -22,9 +22,9 @@ export interface Payload {
      */
     from_property_group?: string
     /**
-     * The canonical record ID for the record. This will be fetched from Hubspot and cannot be supplied by the end user.
+     * For Create or Update operations this field will be used to determine if the record already exists on Hubspot. This field will be fetched from Hubspot and cannot be supplied by the end user.
      */
-    from_hs_object_id?: string
+    exists_on_hubspot?: boolean
   }
   /**
    * Properties to set on the record.
