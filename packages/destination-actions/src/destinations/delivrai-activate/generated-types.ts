@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Delivr client_identifier_id provided by Delivr representative
+   * Client Identifier is the Hashed Key that provided by Delivr AI.
    */
   client_identifier_id: string
 }
@@ -10,7 +10,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Placeholder field to allow the audience to be created. Do not change this
+   * Placeholder field to allow the audience to be created. Do not change this.
    */
   placeholder?: boolean
 }
