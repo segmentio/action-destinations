@@ -3042,6 +3042,25 @@
   dependencies:
     "@types/node" "^18.11.15"
 
+"@segment/actions-core@3.116.1-channels-1094.115":
+  version "3.116.1-channels-1094.115"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.116.1-channels-1094.115.tgz#f8cc46db208617925c8f175ae69aa7e4ac27a113"
+  integrity sha512-dNeiA1LeCW3EpxIotzkn30ieP10GyD1dk0Sl29JL2tQdr6LUk+l6CaaPOsrfOrzpu5Rky6UBomgg5wu5qlJ28g==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/action-emitters" "^1.3.6"
+    "@segment/ajv-human-errors" "^2.13.0"
+    "@segment/destination-subscriptions" "^3.34.0"
+    "@types/node" "^18.11.15"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
 "@segment/actions-core@3.116.1-channels-1094.99":
   version "3.116.1-channels-1094.99"
   resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.116.1-channels-1094.99.tgz#296908d9733218c7f7f30fa0a0bcfcb0c2788ee4"

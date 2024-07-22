@@ -15,7 +15,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "3.116.1-channels-1094.99",
+    "@segment/actions-core": "3.116.1-channels-1094.115",
     "@segment/browser-destination-runtime": "^1.51.0"
   },
   "peerDependencies": {
