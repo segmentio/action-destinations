@@ -3,7 +3,8 @@ import {
   PayloadValidationError,
   ModifiedResponse,
   RequestClient,
-  DynamicFieldResponse
+  DynamicFieldResponse,
+  IntegrationError
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -336,6 +337,8 @@ const action: ActionDefinition<Settings, Payload> = {
       )
       handleGoogleErrors(response)
       return response
+    } else {
+      return new IntegrationError(`Unsupported Sync Mode "\`${syncMode}\`"`, 'INTEGRATION_ERROR', 400)
     }
   }
 }
