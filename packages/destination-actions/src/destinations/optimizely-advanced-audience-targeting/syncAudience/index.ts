@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { OptimizelyClient } from './optimizely-client'
+import { OptimizelyClient, Data } from './optimizely-client'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: true,
       unsafe_hidden: true
-    }, 
+    },
     batch_size: {
       label: 'Batch Size',
       description: 'Number of events to batch before sending to Optimizely.',
@@ -79,11 +79,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, data) => {
-    const optimizelyClient = new OptimizelyClient(request, data)
+    const optimizelyClient = new OptimizelyClient(request, data as Data)
     await optimizelyClient.send()
   },
   performBatch: async (request, data) => {
-    const optimizelyClient = new OptimizelyClient(request, data)
+    const optimizelyClient = new OptimizelyClient(request, data as Data)
     await optimizelyClient.send()
   }
 }
