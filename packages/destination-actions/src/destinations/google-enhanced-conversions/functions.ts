@@ -25,6 +25,7 @@ import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
 import { sha256SmartHash } from '@segment/actions-core'
+import { RefreshTokenResponse } from '.'
 
 export const API_VERSION = 'v16'
 export const CANARY_API_VERSION = 'v16'
@@ -232,12 +233,32 @@ export async function getListIds(request: RequestClient, settings: CreateAudienc
 export async function createGoogleAudience(
   request: RequestClient,
   input: CreateAudienceInput,
-  statsContext?: StatsContext,
-  auth?: any
+  auth: CreateAudienceInput['settings']['oauth'],
+  statsContext?: StatsContext
 ) {
   if (input.audienceSettings.external_id_type === 'MOBILE_ADVERTISING_ID' && !input.audienceSettings.app_id) {
     throw new PayloadValidationError('App ID is required when external ID type is mobile advertising ID.')
   }
+
+  if (
+    !auth?.refresh_token ||
+    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
+    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
+  ) {
+    throw new PayloadValidationError('Oauth credentials missing.')
+  }
+
+  const res = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: auth.refresh_token,
+      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
+      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  const accessToken = res.data.access_token
 
   const statsClient = statsContext?.statsClient
   const statsTags = statsContext?.tags
@@ -262,7 +283,7 @@ export async function createGoogleAudience(
       method: 'post',
       headers: {
         'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`,
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer ${accessToken}`
       },
       json
     }
@@ -284,9 +305,28 @@ export async function getGoogleAudience(
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
   externalId: string,
-  statsContext?: StatsContext,
-  auth?: any
+  auth: CreateAudienceInput['settings']['oauth'],
+  statsContext?: StatsContext
 ) {
+  if (
+    !auth?.refresh_token ||
+    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
+    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
+  ) {
+    throw new PayloadValidationError('Oauth credentials missing.')
+  }
+
+  const res = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: auth.refresh_token,
+      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
+      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  const accessToken = res.data.access_token
   const statsClient = statsContext?.statsClient
   const statsTags = statsContext?.tags
   const json = {
@@ -299,7 +339,7 @@ export async function getGoogleAudience(
       method: 'post',
       headers: {
         'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`,
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer ${accessToken}`
       },
       json
     }

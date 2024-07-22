@@ -1,3 +1,5 @@
+import { StatsContext } from '@segment/actions-core/destination-kit'
+
 export interface CartItemInterface {
   productId?: string
   quantity?: number
@@ -138,11 +140,31 @@ export interface CreateAudienceInput {
   settings: {
     customerId?: string
     conversionTrackingId?: string
+    oauth?: {
+      refresh_token?: string
+    }
   }
   audienceSettings: {
     external_id_type: string
     app_id?: string
   }
+  statsContext?: StatsContext
+}
+
+export interface GetAudienceInput {
+  externalId: string
+  settings: {
+    customerId?: string
+    conversionTrackingId?: string
+    oauth?: {
+      refresh_token?: string
+    }
+  }
+  audienceSettings: {
+    external_id_type: string
+    app_id?: string
+  }
+  statsContext?: StatsContext
 }
 
 export interface CreateGoogleAudienceResponse {
