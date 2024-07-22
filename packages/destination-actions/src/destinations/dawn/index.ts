@@ -14,7 +14,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       writeKey: {
-        label: 'Your write key',
+        label: 'Dawn Write Key',
         description: 'Get your key at app.dawnai.com',
         type: 'string',
         required: true
@@ -32,6 +32,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
 
+  /* Not implementing for now */
   // onDelete: async (request, { settings, payload }) => {
   //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
   //   // provided in the payload. If your destination does not support GDPR deletion you should not

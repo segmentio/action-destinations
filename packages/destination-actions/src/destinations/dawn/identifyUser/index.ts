@@ -24,12 +24,12 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
-  description: '',
+  description: 'Identify a user in Dawn and associate traits with them.',
   fields: {
     user_id: {
       label: 'User ID',
       type: 'string',
-      description: 'The user ID performing the event.',
+      description: 'The ID of the user performing the event.',
       required: true,
       default: {
         '@path': '$.userId'
@@ -41,7 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The traits of the user.',
       required: false,
       default: {
-        '@path': '$event' // Currently dumping the entire event object as traits
+        '@path': '$.traits'
       }
     }
   },

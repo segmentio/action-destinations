@@ -24,8 +24,9 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
 }
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track',
-  description: '',
+  title: 'Track Event',
+  description: 'Track regular or AI events in Dawn, adding desired data to properties',
+  defaultSubscription: 'type = "track"',
   fields: {
     event: {
       label: 'Event Name',
@@ -51,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The properties of the event.',
       required: false,
       default: {
-        '@path': '$event' // Currently dumping the entire event object as properties
+        '@path': '$.properties'
       }
     }
   },
