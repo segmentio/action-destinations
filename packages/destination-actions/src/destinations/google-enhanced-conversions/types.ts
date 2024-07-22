@@ -1,4 +1,5 @@
-import type { StatsContext } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
+
 export interface CartItemInterface {
   productId?: string
   quantity?: number
