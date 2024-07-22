@@ -9,10 +9,9 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send data to Blend AI for product usage insights',
   fields: {},
   defaultSubscription: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
-  perform: (request, { payload, settings }) => {
+  perform: (request, payload) => {
     return request(baseUrl + 'sendData', {
-      headers: { Authorization: `Bearer ${settings.apiKey}` },
-      json: { payload }
+      json: { payload: payload }
     })
   }
 }
