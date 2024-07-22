@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
@@ -7,12 +7,13 @@ const testDestination = createTestIntegration(Definition)
 describe('Iterable Lists', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+      nock('https://api.iterable.com/api').get('/lists').reply(200, {})
 
-      // This should match your authentication.fields
-      const authData = {}
+      const settings = {
+        apiKey: '12345'
+      }
 
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
     })
   })
 })
