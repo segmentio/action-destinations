@@ -8,7 +8,6 @@ import {
   CustomVariableInterface,
   CreateAudienceInput,
   CreateGoogleAudienceResponse,
-  AudienceSettings,
   UserListResponse,
   UserList
 } from './types'
@@ -353,13 +352,10 @@ export async function getGoogleAudience(
   }
 
   statsClient?.incr('getAudience.success', 1, statsTags)
-  return id
+  return response.data as UserListResponse
 }
 
-const formatEmail = (email: string, hash_data?: boolean): string => {
-  if (!hash_data) {
-    return email
-  }
+const formatEmail = (email: string): string => {
   const googleDomain = new RegExp('^(gmail|googlemail).s*', 'g')
   let normalizedEmail = email.toLowerCase().trim()
   const emailParts = normalizedEmail.split('@')
@@ -389,15 +385,12 @@ function formatToE164(phoneNumber: string, defaultCountryCode: string): string {
   return formattedPhoneNumber
 }
 
-const formatPhone = (phone: string, hash_data?: boolean): string => {
-  if (!hash_data) {
-    return phone
-  }
+const formatPhone = (phone: string): string => {
   const formattedPhone = formatToE164(phone, '1')
   return sha256SmartHash(formattedPhone)
 }
 
-const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: AudienceSettings, syncMode?: string) => {
+const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syncMode?: string) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
   // Map user data to Google Ads API format
@@ -436,9 +429,9 @@ const extractUserIdentifiers = (payloads: UserListPayload[], audienceSettings: A
   // Map user data to Google Ads API format
   for (const payload of payloads) {
     if (payload.event_name == 'Audience Entered' || syncMode == 'add') {
-      addUserIdentifiers.push(identifierFunctions[audienceSettings.external_id_type](payload))
+      addUserIdentifiers.push(identifierFunctions[idType](payload))
     } else if (payload.event_name == 'Audience Exited' || syncMode == 'delete') {
-      removeUserIdentifiers.push(identifierFunctions[audienceSettings.external_id_type](payload))
+      removeUserIdentifiers.push(identifierFunctions[idType](payload))
     }
   }
   return [addUserIdentifiers, removeUserIdentifiers]
@@ -551,15 +544,17 @@ export const handleUpdate = async (
   settings: CreateAudienceInput['settings'],
   audienceSettings: CreateAudienceInput['audienceSettings'],
   payloads: UserListPayload[],
-  hookOutputs: string,
+  hookListId: string,
+  hookListType: string,
   syncMode?: string,
   statsContext?: StatsContext
 ) => {
+  const id_type = hookListType ?? audienceSettings.external_id_type
   // Format the user data for Google Ads API
-  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, audienceSettings, syncMode)
+  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode)
 
   // Create an offline user data job
-  const resourceName = await createOfflineUserJob(request, payloads[0], settings, hookOutputs, statsContext)
+  const resourceName = await createOfflineUserJob(request, payloads[0], settings, hookListId, statsContext)
 
   // Add operations to the offline user data job
   if (adduserIdentifiers.length > 0) {

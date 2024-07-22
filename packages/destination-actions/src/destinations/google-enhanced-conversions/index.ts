@@ -4,7 +4,7 @@ import postConversion from './postConversion'
 import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
-import { CreateAudienceInput, GetAudienceInput } from './types'
+import { CreateAudienceInput, GetAudienceInput, UserListResponse } from './types'
 import { createGoogleAudience, getGoogleAudience } from './functions'
 
 import userList from './userList'
@@ -124,7 +124,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
     },
 
     async getAudience(request, getAudienceInput: GetAudienceInput) {
-      const userListId = await getGoogleAudience(
+      const response: UserListResponse = await getGoogleAudience(
         request,
         getAudienceInput.settings,
         getAudienceInput.externalId,
@@ -133,7 +133,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
       )
 
       return {
-        externalId: userListId
+        externalId: response.results[0].userList.id
       }
     }
   },

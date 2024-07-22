@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { createGoogleAudience, getGoogleAudience, getListIds, handleUpdate } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
+import { UserListResponse } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Customer Match User List',
@@ -201,12 +202,36 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'List Name',
           description: 'The name of the created Google Customer Match User list that users will be synced to.',
           required: false
+        },
+        external_id_type: {
+          type: 'string',
+          label: 'External ID Type',
+          description: 'Customer match upload key types.',
+          required: false
+        },
+        app_id: {
+          label: 'App ID',
+          description:
+            'A string that uniquely identifies a mobile application from which the data was collected. Required if external ID type is mobile advertising ID',
+          type: 'string',
+          required: false
         }
       },
       performHook: async (request, { auth, settings, hookInputs, statsContext }) => {
         if (hookInputs.list_id) {
           try {
-            return getGoogleAudience(request, settings, hookInputs.list_id, { refresh_token: auth?.refreshToken })
+            const response: UserListResponse = await getGoogleAudience(request, settings, hookInputs.list_id, {
+              refresh_token: auth?.refreshToken
+            })
+            return {
+              successMessage: `Using existing list '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
+              savedData: {
+                id: hookInputs.list_id,
+                name: response.results[0].userList.name,
+                external_id_type: hookInputs.external_id_type,
+                app_id: hookInputs.app_id
+              }
+            }
           } catch (e) {
             const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
             const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
@@ -234,7 +259,9 @@ const action: ActionDefinition<Settings, Payload> = {
             successMessage: `List '${hookInputs.list_name}' (id: ${listId}) created successfully!`,
             savedData: {
               id: listId,
-              name: hookInputs.list_name
+              name: hookInputs.list_name,
+              external_id_type: hookInputs.external_id_type,
+              app_id: hookInputs.app_id
             }
           }
         } catch (e) {
@@ -258,6 +285,7 @@ const action: ActionDefinition<Settings, Payload> = {
       audienceSettings,
       [payload],
       hookOutputs?.retlOnMappingSave?.outputs.id,
+      hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
       statsContext
     )
@@ -269,6 +297,7 @@ const action: ActionDefinition<Settings, Payload> = {
       audienceSettings,
       payload,
       hookOutputs?.retlOnMappingSave?.outputs.id,
+      hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
       statsContext
     )
