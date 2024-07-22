@@ -4,12 +4,12 @@ import postConversion from './postConversion'
 import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
-import { CreateAudienceInput } from './types'
+import { CreateAudienceInput, GetAudienceInput } from './types'
 import { createGoogleAudience, getGoogleAudience } from './functions'
 
 import userList from './userList'
 
-interface RefreshTokenResponse {
+export interface RefreshTokenResponse {
   access_token: string
   scope: string
   expires_in: number
@@ -109,10 +109,12 @@ const destination: AudienceDestinationDefinition<Settings> = {
       type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
-    async createAudience(request, createAudienceInput) {
+    async createAudience(request, createAudienceInput: CreateAudienceInput) {
+      const auth = createAudienceInput.settings.oauth
       const userListId = await createGoogleAudience(
         request,
-        createAudienceInput as CreateAudienceInput,
+        createAudienceInput,
+        auth,
         createAudienceInput.statsContext
       )
 
@@ -121,11 +123,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
       }
     },
 
-    async getAudience(request, getAudienceInput) {
+    async getAudience(request, getAudienceInput: GetAudienceInput) {
+      const auth = getAudienceInput.settings.oauth
       const userListId = await getGoogleAudience(
         request,
         getAudienceInput.settings,
         getAudienceInput.externalId,
+        auth,
         getAudienceInput.statsContext
       )
 

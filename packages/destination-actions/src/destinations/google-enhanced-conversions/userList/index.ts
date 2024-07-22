@@ -206,7 +206,7 @@ const action: ActionDefinition<Settings, Payload> = {
       performHook: async (request, { auth, settings, hookInputs, statsContext }) => {
         if (hookInputs.list_id) {
           try {
-            return getGoogleAudience(request, settings, hookInputs.list_id)
+            return getGoogleAudience(request, settings, hookInputs.list_id, { refresh_token: auth?.refreshToken })
           } catch (e) {
             const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
             const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
@@ -228,7 +228,7 @@ const action: ActionDefinition<Settings, Payload> = {
               app_id: hookInputs.app_id
             }
           }
-          const listId = await createGoogleAudience(request, input, statsContext, auth)
+          const listId = await createGoogleAudience(request, input, { refresh_token: auth?.refreshToken }, statsContext)
 
           return {
             successMessage: `List '${hookInputs.list_name}' (id: ${listId}) created successfully!`,
