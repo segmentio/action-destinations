@@ -1,5 +1,6 @@
 # This workflow is triggered manually via the GitHub Actions page or API
 name: Version Packages
+run-name: Version Packages ${{ github.event.inputs.run_id }}
 on:
   workflow_dispatch:
     inputs:
@@ -17,8 +18,7 @@ on:
           - release
       run_id:
         description: 'Unique identifier for the run'
-        required: true
-        default: ${{ github.run_id }}
+        required: false
 
 jobs:
   build-and-version-packages:
