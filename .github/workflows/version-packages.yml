@@ -15,6 +15,10 @@ on:
         options:
           - main
           - release
+      run_id:
+        description: 'Unique identifier for the run'
+        required: true
+        default: ${{ github.run_id }}
 
 jobs:
   build-and-version-packages:
