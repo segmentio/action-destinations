@@ -8,18 +8,8 @@ interface PropsOrTraits {
   traits?: Record<string, boolean>
 }
 
-interface Context {
-  context?: {
-    [k: string]: unknown
-    personas?: {
-      computation_key?: string
-      computation_class?: string
-    }
-  }
-}
-
 export interface Data {
-  payload: (Payload & Context) | Array<Payload & Context>
+  payload: Payload | Array<Payload>
   settings: Settings
   rawData: PropsOrTraits | Array<PropsOrTraits>
 }
