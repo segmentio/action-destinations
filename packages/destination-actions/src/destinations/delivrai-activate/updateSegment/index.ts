@@ -1,5 +1,5 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
-import { PayloadValidationError } from '@segment/actions-core'
+import { PayloadValidationError ,InvalidAuthenticationError , APIError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { gen_update_segment_payload, generate_jwt } from '../utils-rt'
@@ -62,7 +62,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Segment Audience Key',
       description: 'Segment Audience Key. Maps to the "Name" of the Segment node in Delivr AI Audience Segmentation',
       type: 'string',
-      // unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
@@ -87,42 +86,37 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { payload, settings }) => {
       // Check if client_identifier_id is valid
-      if (!settings?.client_identifier_id) {
-          return [{ status: false, message: "Client identifier is required" }];
-      }
-
+      let rt_access_token_response
       // Generate JWT token
-      const rt_access_token_response = await generate_jwt(settings.client_identifier_id, request);
-      
-      // Check if token generation was successful
-      if (rt_access_token_response === 401) {
-          return [{ status: false, message: "Not valid customer" }];
+      try {
+        rt_access_token_response = await generate_jwt(settings.client_identifier_id, request)
+      } catch (error) {
+        if (error === 401) {
+          throw new InvalidAuthenticationError('Invalid Client Identifier ID')
+        } else {
+          throw new APIError('Error Generating JWT', 400)
+        }
       }
-
-      const rt_access_token = rt_access_token_response?.data?.token;
-
+      const rt_access_token = rt_access_token_response?.data?.token
       // Process the payload with the valid token
-      return process_payload(request, [payload], rt_access_token, settings.client_identifier_id);
+      return process_payload(request, [payload], rt_access_token, settings.client_identifier_id)
   },
   performBatch: async (request, { payload, settings }) => {
     // Ensure client_identifier_id is provided
-    if (!settings?.client_identifier_id) {
-        return [{ status: false, message: "Client identifier is required" }];
-    }
+    let rt_access_token_response
+    // Generate JWT token
     try {
-        // Generate JWT token
-        const rt_access_token_response = await generate_jwt(settings.client_identifier_id, request);
-        // Check if token generation was successful
-        if (rt_access_token_response?.status === 401) {
-            return [{ status: false, message: "Not valid customer" }];
-        }
-        const rt_access_token = rt_access_token_response?.data?.token;
-        // Process the payload with the valid token
-        return process_payload(request, payload, rt_access_token, settings.client_identifier_id);
-    } catch (error:any) {
-        // Handle unexpected errors
-        return [{ status: false, message: "An error occurred", error: error?.message }];
+      rt_access_token_response = await generate_jwt(settings.client_identifier_id, request)
+    } catch (error) {
+      if (error === 401) {
+        throw new InvalidAuthenticationError('Invalid Client Identifier ID')
+      } else {
+        throw new APIError('Error Generating JWT', 400)
+      }
     }
+    const rt_access_token = rt_access_token_response?.data?.token
+    // Process the payload with the valid token
+    return process_payload(request, payload, rt_access_token, settings.client_identifier_id)
   }
 }
 
@@ -136,14 +130,15 @@ async function process_payload(
   const body = gen_update_segment_payload(payload, client_identifier_id)
   // Send request to Delivr AI only when all events in the batch include selected Ids
   if (body.data.length > 0) {
-    return await request(`${DELIVRAI_BASE_URL}${DELIVRAI_SEGMENTATION_AUDIENCE}`, {
+     return await request(`${DELIVRAI_BASE_URL}${DELIVRAI_SEGMENTATION_AUDIENCE}`, {
       method: 'POST',
       json: body,
       headers: {
         Authorization: `Bearer ${token}`
       }
     }).catch((err) => {
-      return [{ status: false, message: 'HTTP error: ' + err.response.message , code: err.response.statusCode}];
+      console.log(err)
+      throw new APIError('HTTP error: ' + err?.response?.statusText || 'something went wrong' , err?.response?.status || 500);
     })
   } else {
     throw new PayloadValidationError('Selected identifier(s) not available in the event(s)')

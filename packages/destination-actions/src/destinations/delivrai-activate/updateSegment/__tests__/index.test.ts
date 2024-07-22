@@ -42,7 +42,7 @@ const bad_event = createTestEvent({
 describe('delivrAIAudiences.updateSegment', () => {
   describe('Success cases', () => {
     it('should not throw an error if event includes email', async () => {
-      nock(`https://dev.cdpresolution.com`, {allowUnmocked: true}).post('/backend/segment/audience/').reply(403)
+      nock(`https://dev.cdpresolution.com`).post('/backend/segment/audience').reply(200)
 
       const good_event = createTestEvent({
         type: 'identify',
