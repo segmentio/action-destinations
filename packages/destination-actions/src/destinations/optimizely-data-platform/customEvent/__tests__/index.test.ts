@@ -6,8 +6,6 @@ let testDestination = createTestIntegration(Destination)
 
 describe('OptimizelyDataPlatform.trackEvent', () => {
   beforeEach((done) => {
-    // Re-Initialize the destination before each test
-    // This is done to mitigate a bug where action responses persist into other tests
     testDestination = createTestIntegration(Destination)
     nock.cleanAll()
     done()
@@ -63,8 +61,39 @@ describe('OptimizelyDataPlatform.trackEvent', () => {
       expect(response[0].options.body).toMatchSnapshot()
     })
 
+    it('Should fail if missing required field', async () => {
+      const missingData = createTestEvent({
+        type: 'track',
+        event: 'purchase',
+        context: {
+          traits: {
+            email: 'test.email@test.com'
+          }
+        },
+        properties: {
+          total: 20,
+          products: [
+            { product_id: '12345', quantity: 2 },
+            { product_id: '67890', quantity: 5 }
+          ]
+        }
+      })
+      const badData = {
+        settings: {
+          apiKey: 'abc123',
+          region: 'US'
+        },
+        useDefaultMappings: true,
+        event: missingData
+      }
+
+      await expect(testDestination.testAction('customEvent', badData)).rejects.toThrowError(
+        "The root value is missing the required field 'event_action'."
+      )
+    })
+
     it('Should handle 400 error (bad body)', async () => {
-      nock('https://function.zaius.app/twilio_segment').post('/batch_custom_event').reply(401)
+      nock('https://function.zaius.app/twilio_segment').post('/batch_custom_event').reply(400)
 
       await expect(testDestination.testAction('customEvent', requestData)).rejects.toThrowError()
     })
@@ -152,8 +181,21 @@ describe('OptimizelyDataPlatform.trackEvent', () => {
       expect(response[0].options.body).toMatchSnapshot()
     })
 
+    it('Should return empty array if missing required field', async () => {
+      const badData = {
+        events: productEvents,
+        settings: {
+          apiKey: 'abc123',
+          region: 'US'
+        },
+        useDefaultMappings: true
+      }
+
+      await expect(testDestination.testBatchAction('customEvent', badData)).resolves.toEqual([])
+    })
+
     it('Should handle 400 error (bad body)', async () => {
-      nock('https://function.zaius.app/twilio_segment').post('/batch_custom_event').reply(401)
+      nock('https://function.zaius.app/twilio_segment').post('/batch_custom_event').reply(400)
 
       await expect(testDestination.testBatchAction('customEvent', requestData)).rejects.toThrowError()
     })

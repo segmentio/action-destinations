@@ -35,10 +35,10 @@ const sendRequest = async (request: RequestClient, payloads: Payload[], settings
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
   description:
-    'Send user profile data from Segment to Optimizely Data Platform. Creates or updates a user profile in Optimzely Data Platform',
+    'Send user profile data from Segment to Optimizely Data Platform. Creates or updates a user profile in Optimizely Data Platform',
   defaultSubscription: 'type = "identify"',
   fields: {
-    user_identifiers: user_identifiers,
+    user_identifiers,
     company: {
       label: 'Company Name',
       type: 'string',

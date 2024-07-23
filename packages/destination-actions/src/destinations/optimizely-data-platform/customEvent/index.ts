@@ -30,18 +30,18 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Ecommerce Event',
   description: 'Send Segment Ecommerce track() events to Optimizely Data Platform',
   fields: {
-    user_identifiers: user_identifiers,
-    event_type: { ...event_type },
+    user_identifiers,
+    event_type,
     event_action: {
       label: 'Optimizely Event Action',
       description: 'The name of the Optimizely Event Action.',
       type: 'string',
       required: true
     },
-    products: { ...products },
-    order_id: { ...order_id },
-    total: { ...total },
-    timestamp: { ...timestamp },
+    products,
+    order_id,
+    total,
+    timestamp,
     enable_batching: {
       label: 'Enable Batching',
       description: 'Enable batching of event data to Optimizely.',

@@ -62,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.link_url'
       }
     },
-    timestamp: { ...timestamp },
+    timestamp,
     enable_batching: {
       label: 'Enable Batching',
       description: 'Enable batching of event data to Optimizely.',

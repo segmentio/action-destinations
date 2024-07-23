@@ -28,11 +28,11 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
   description: 'Send Segment custom track() events to Optimizely Data Platform',
   fields: {
-    user_identifiers: user_identifiers,
-    event_type: { ...event_type },
-    event_action: { ...event_action },
-    data: { ...data },
-    timestamp: { ...timestamp }
+    user_identifiers,
+    event_type,
+    event_action,
+    data,
+    timestamp
   },
   perform: (request, { payload, settings }) => {
     return sendRequest(request, [payload], settings)
