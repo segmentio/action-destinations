@@ -38,18 +38,38 @@ const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
     }
   },
   defaultSubscription: 'type = "identify"',
-  perform: (jimo, { payload }) => {
-    if (payload.userId != null) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      jimo.push(['set', 'user:id', [payload.userId]])
-    }
-    if (payload.email != null) {
+  perform: (jimo, { payload, settings }) => {
+    const pushEmail = () => {
+      if (payload.email == null) return
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       jimo.push(['set', 'user:email', [payload.email]])
     }
-    if (payload.traits != null) {
+    const pushTraits = () => {
+      if (payload.traits == null) return
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      jimo.push(['set', 'user:attributes', [payload.traits, false, true]])
+      jimo.push(['set', 'user:attributes', [payload.traits, settings.refetchExperiencesOnTraitsUpdate ?? false, true]])
+    }
+
+    // If a userId is passed, we need to make sure email and attributes changes only happen in the
+    // after the identify flow is done, that's why we pass it as a callback of the identify method
+    if (payload.userId != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      jimo.push([
+        'do',
+        'identify',
+        [
+          payload.userId,
+          () => {
+            pushEmail()
+            pushTraits()
+          }
+        ]
+      ])
+    }
+    // If no user id passed, there is no identify flow trigger, we can just execute the methods directly
+    else {
+      pushEmail()
+      pushTraits()
     }
   }
 }
