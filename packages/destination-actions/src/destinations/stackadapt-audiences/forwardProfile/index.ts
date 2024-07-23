@@ -1,7 +1,30 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, APIError, DynamicFieldResponse } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { performForwardProfiles } from './functions'
+import { domain } from '..'
+
+interface Advertiser {
+  id: string
+  name: string
+}
+
+interface TokenInfoResponse {
+  data: {
+    tokenInfo: {
+      scopesByAdvertiser: {
+        nodes: {
+          advertiser: Advertiser
+          scopes: string[]
+        }[]
+        pageInfo: {
+          hasNextPage: boolean
+          endCursor: string
+        }
+      }
+    }
+  }
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Forward Profile',
@@ -80,6 +103,59 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true,
       default: {
         '@path': '$.context.personas.computation_key'
+      }
+    },
+    advertiser_id: {
+      label: 'Advertiser',
+      description: 'The StackAdapt advertiser to add the profile to.',
+      type: 'string',
+      required: true,
+      dynamic: true
+    }
+  },
+  dynamicFields: {
+    advertiser_id: async (request, { page }): Promise<DynamicFieldResponse> => {
+      // Even though its typescript type is string, in testing I found page can be a number so I use == here
+      page = !page || page == '1' ? '' : page
+      try {
+        const query = `query {
+          tokenInfo {
+            scopesByAdvertiser(after: "${page}") {
+              nodes {
+                advertiser {
+                  id
+                  name
+                }
+                scopes
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+          }
+        }`
+        const response = await request<TokenInfoResponse>(domain, {
+          body: JSON.stringify({ query })
+        })
+        const scopesByAdvertiser = response.data.data.tokenInfo.scopesByAdvertiser
+        const choices = scopesByAdvertiser.nodes
+          .filter((advertiserEntry) => advertiserEntry.scopes.includes('WRITE'))
+          .map((advertiserEntry) => ({ value: advertiserEntry.advertiser.id, label: advertiserEntry.advertiser.name }))
+        const nextPage = scopesByAdvertiser.pageInfo.hasNextPage ? scopesByAdvertiser.pageInfo.endCursor : undefined
+        return {
+          choices,
+          nextPage
+        }
+      } catch (error) {
+        return {
+          choices: [],
+          nextPage: '',
+          error: {
+            message: (error as APIError).message ?? 'Unknown error',
+            code: (error as APIError).status?.toString() ?? 'Unknown error'
+          }
+        }
       }
     }
   },

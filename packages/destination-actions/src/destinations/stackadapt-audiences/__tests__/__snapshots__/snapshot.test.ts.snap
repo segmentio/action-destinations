@@ -4,7 +4,7 @@ exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardP
 Object {
   "query": "mutation {
       upsertProfiles(
-        subAdvertiserId: 1,
+        subAdvertiserId: PsAwlRv%,
         externalProvider: \\"segmentio\\",
         profiles: [{testType:\\"PsAwlRv%\\",userId:\\"PsAwlRv%\\"}]
       ) {
@@ -18,7 +18,7 @@ exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardP
 Object {
   "query": "mutation {
       upsertProfiles(
-        subAdvertiserId: 1,
+        subAdvertiserId: PsAwlRv%,
         externalProvider: \\"segmentio\\",
         profiles: [{userId:\\"PsAwlRv%\\"}]
       ) {

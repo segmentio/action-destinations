@@ -3,6 +3,7 @@ import { Payload } from './generated-types'
 import { domain } from '..'
 
 export async function performForwardProfiles(request: RequestClient, events: Payload[]) {
+  const advertiserId = events[0].advertiser_id
   const profileUpdates = events.map((event) => {
     const profile: Record<string, string | number | undefined> = {
       userId: event.user_id
@@ -29,7 +30,7 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
   // TODO: Add setting for advertiser ID and replace hardcoded value with it
   const mutation = `mutation {
       upsertProfiles(
-        subAdvertiserId: 1,
+        subAdvertiserId: ${advertiserId},
         externalProvider: "segmentio",
         profiles: ${JSON.stringify(profileUpdates).replace(/"([^"]+)":/g, '$1:') /* Remove quotes around keys */}
       ) {

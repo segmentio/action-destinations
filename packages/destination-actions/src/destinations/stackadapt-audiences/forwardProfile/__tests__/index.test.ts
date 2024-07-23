@@ -12,6 +12,8 @@ const mockEmail = 'admin@stackadapt.com'
 const mockUserId = 'user-id'
 const mockEmail2 = 'email2@stackadapt.com'
 const mockUserId2 = 'user-id2'
+const mockAdvertiserId = '23'
+const mockMappings = { advertiser_id: mockAdvertiserId }
 
 const defaultEventPayload: Partial<SegmentEvent> = {
   userId: mockUserId,
@@ -56,6 +58,7 @@ describe('forwardProfile', () => {
     const responses = await testDestination.testAction('forwardProfile', {
       event,
       useDefaultMappings: true,
+      mapping: mockMappings,
       settings: { apiKey: mockGqlKey }
     })
     expect(responses.length).toBe(1)
@@ -79,7 +82,7 @@ describe('forwardProfile', () => {
       Object {
         "query": "mutation {
             upsertProfiles(
-              subAdvertiserId: 1,
+              subAdvertiserId: ${mockAdvertiserId},
               externalProvider: \\"segmentio\\",
               profiles: [{email:\\"admin@stackadapt.com\\",userId:\\"user-id\\",audienceId:\\"aud_123\\",audienceName:\\"first_time_buyer\\",action:\\"enter\\"}]
             ) {
@@ -102,6 +105,7 @@ describe('forwardProfile', () => {
     const responses = await testDestination.testBatchAction('forwardProfile', {
       events,
       useDefaultMappings: true,
+      mapping: mockMappings,
       settings: { apiKey: mockGqlKey }
     })
     expect(responses.length).toBe(1)
@@ -110,7 +114,7 @@ describe('forwardProfile', () => {
       Object {
         "query": "mutation {
             upsertProfiles(
-              subAdvertiserId: 1,
+              subAdvertiserId: ${mockAdvertiserId},
               externalProvider: \\"segmentio\\",
               profiles: [{email:\\"admin@stackadapt.com\\",userId:\\"user-id\\",audienceId:\\"aud_123\\",audienceName:\\"first_time_buyer\\",action:\\"enter\\"},{email:\\"email2@stackadapt.com\\",userId:\\"user-id2\\"}]
             ) {
