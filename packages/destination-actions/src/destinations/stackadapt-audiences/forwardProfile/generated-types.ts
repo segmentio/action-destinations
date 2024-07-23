@@ -12,6 +12,14 @@ export interface Payload {
    */
   user_id?: string
   /**
+   * The user's previous ID, for alias events
+   */
+  previous_id?: string
+  /**
+   * The Segment event type (identify, alias, etc.)
+   */
+  event_type?: string
+  /**
    * When enabled, Segment will batch profiles together and send them to StackAdapt in a single request.
    */
   enable_batching: boolean
