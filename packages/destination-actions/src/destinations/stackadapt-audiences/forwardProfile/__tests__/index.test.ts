@@ -143,7 +143,7 @@ describe('forwardProfile', () => {
             upsertProfiles(
               subAdvertiserId: 1,
               externalProvider: \\"segmentio\\",
-              profiles: [{user_id:\\"user-id\\",previous_id:\\"user-id2\\"}]
+              profiles: [{userId:\\"user-id\\",previousId:\\"user-id2\\"}]
             ) {
               success
             }
