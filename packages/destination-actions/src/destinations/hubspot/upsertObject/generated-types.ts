@@ -18,13 +18,13 @@ export interface Payload {
      */
     from_id_field_value: string
     /**
-     * Segment can create new properties on the object if needed. To enable this, select the property group for Segment to add new properties to. If you do not want Segment to create new properties, leave this field blank.
+     * Segment can new create properties on the object if needed. To enable this select the property group for Segment to add new properties to. To disable leave this field blank.
      */
     from_property_group?: string
     /**
-     * For Create or Update operations this field will be used to determine if the record already exists on Hubspot. This field will be fetched from Hubspot and cannot be supplied by the end user.
+     * The Hubspot Record ID of the To record. Used when associating to other records
      */
-    exists_on_hubspot?: boolean
+    from_record_id?: string
   }
   /**
    * Properties to set on the record.
@@ -53,14 +53,14 @@ export interface Payload {
      */
     to_id_field_value: string
     /**
-     * The canonical record ID for the record. This will be fetched from Hubspot and cannot be supplied by the end user.
+     * The Hubspot Record ID of the record to be associated with
      */
-    to_hs_object_id?: string
+    to_record_id?: string
+    /**
+     * The Hubspot Record ID of the To record. Used when associating to the From record
+     */
+    from_record_id?: string
   }[]
-  /**
-   * Indicates if Segment should create new Properties fields on the associated object. Segment will infer the field types based on payload data. String, number and date types are supported. Other types will be converted to string.
-   */
-  createAssociatedObjectProperties: boolean
   /**
    * By default Segment batches events to Hubspot.
    */

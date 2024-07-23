@@ -120,9 +120,13 @@ const action: ActionDefinition<Settings, Payload> = {
     
     await hubspotClient.ensureProperties('companies', 'Companyinformation', propsToCreate )
 
-    const r = await hubspotClient.ensureFromObjects([payload], syncMode)
+    await hubspotClient.ensureFromRecords([payload], syncMode)
+
+
 
     
+
+    console.log(JSON.stringify(payloads))
 
     //await hubspotClient.ensureObjects([payload], true)
     //await hubspotClient.ensureAssociations([payload])
@@ -130,7 +134,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { payload: payloads, syncMode }) => {
     // const hubspotClient = new HubspotClient(request, syncMode as string)
     // await hubspotClient.ensureProperties(payloads)
-   // await hubspotClient.ensureFromObjects(payloads)
+   // await hubspotClient.ensureFromRecords(payloads)
     //await hubspotClient.ensureObjects(payloads, true)
     //await hubspotClient.ensureAssociations(payloads)
   }

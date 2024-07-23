@@ -37,13 +37,13 @@ export const commonFields: Record<string, InputField> = {
                 default: '',
                 dynamic: true
             },
-            exists_on_hubspot: {
-                label: 'Exists on Hubspot - Hidden field',
-                description: 'For Create or Update operations this field will be used to determine if the record already exists on Hubspot. This field will be fetched from Hubspot and cannot be supplied by the end user.',
-                type: 'boolean',
+            from_record_id: {
+                label: 'From Object Record ID - Hidden field',
+                description: 'The Hubspot Record ID of the To record. Used when associating to other records',
+                type: 'string',
                 unsafe_hidden: true,
                 required: false,
-                default: undefined
+                default: undefined 
             }
         }
     },
@@ -96,13 +96,21 @@ export const commonFields: Record<string, InputField> = {
                 type: 'string',
                 required: true
             },
-            to_hs_object_id: {
-                label: 'Canonical Record ID',
-                description: 'The canonical record ID for the record. This will be fetched from Hubspot and cannot be supplied by the end user.',
+            to_record_id: {
+                label: 'To Object Record ID - Hidden field',
+                description: 'The Hubspot Record ID of the record to be associated with',
                 type: 'string',
                 unsafe_hidden: true,
                 required: false,
-                default: undefined
+                default: undefined 
+            },
+            from_record_id: {
+                label: 'From Object Record ID - Hidden field',
+                description: 'The Hubspot Record ID of the From record. Used when associating to the To record.',
+                type: 'string',
+                unsafe_hidden: true,
+                required: false,
+                default: undefined 
             }
         }
     },

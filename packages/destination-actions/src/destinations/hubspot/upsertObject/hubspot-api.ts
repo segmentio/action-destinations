@@ -238,53 +238,6 @@ export class HubspotClient {
         }
     }
 
-    getAssociationType(associationLabel: string): AssociationType {
-        const [associationCategory, associationTypeId] = associationLabel.split(':');
-        return { associationCategory, associationTypeId } as AssociationType
-    }
-
-    async batchAssociationsRequest(body: BatchAssociationsRequestBody, objectType: string, toObjectType: string){
-        if(body.inputs.length === 0){
-            return null
-        }
-        
-        return this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v4/associations/${objectType}/${toObjectType}/batch/create`, {
-            method: 'POST',
-            json: body
-        })
-    }
-
-    async ensureAssociations(payloads: Payload[]) {
-        const [{objectType, toObjectType, associationLabel}] = payloads
-        
-        if(!objectType || !toObjectType || !associationLabel){
-            throw new IntegrationError('Missing required Association fields. Associations require "To Object Type", "To ID Field Name" and "Association Label" fields to be set.','REQUIRED_ASSOCIATION_FIELDS_MISSING',400)
-        }
-        
-        const {associationCategory, associationTypeId} = this.getAssociationType(associationLabel)
-
-        const requestBody: BatchAssociationsRequestBody = {
-            inputs: payloads.filter(p => p.recordID && p.toRecordID).map(p => { 
-                return {
-                    types: [
-                        {
-                            associationCategory,
-                            associationTypeId
-                        }
-                    ],
-                    from: {
-                        id: p.recordID as string
-                    },
-                    to: {
-                        id: p.toRecordID as string
-                    }
-                }
-            }) ?? []
-        }
-
-        return this.batchAssociationsRequest(requestBody, objectType, toObjectType)
-    }
-
     async readProperties(objectType: string): Promise<ReadPropertiesResultItem[]> {
         interface ResponseType {
             data: {
@@ -421,7 +374,7 @@ export class HubspotClient {
         });
     }
 
-    async enrichPayloadsWithHubspotIds(payloads: Payload[], fromObjectType: string, fromIdFieldName: string) {    
+    async enrichPayloadsWithRecordIds(payloads: Payload[], fromObjectType: string, fromIdFieldName: string): Promise<Payload[]> {    
         
         const response = await this.batchObjectRequest('read', fromObjectType, {
             properties: [fromIdFieldName],
@@ -434,13 +387,13 @@ export class HubspotClient {
         response?.data.results.forEach(result => {
             payloads
                 .filter(payload => payload.object_details.from_id_field_value == result.properties[fromIdFieldName] as string)
-                .forEach(payload => payload.object_details.exists_on_hubspot = true )
+                .forEach(payload => payload.object_details.from_record_id = result.id )
         })
 
         return payloads
     }
 
-    async ensureFromObjects(payloads: Payload[], syncMode: 'upsert' | 'add' | 'update') {
+    async ensureFromRecords(payloads: Payload[], syncMode: 'upsert' | 'add' | 'update') {
         const { 
             object_details: { 
                 from_object_type: fromObjectType, 
@@ -453,7 +406,7 @@ export class HubspotClient {
                 const body: BatchObjUpsertReqBody = {
                     inputs: []
                 }
-    
+                
                 payloads.forEach(({ object_details: { from_id_field_value }, properties }) => {
                     body.inputs.push({
                       idProperty: fromIdFieldName,
@@ -469,12 +422,13 @@ export class HubspotClient {
                 const body: BatchObjUpsertReqBody = {
                     inputs: []
                 }
-
-                const enrichedPayloads = await this.enrichPayloadsWithHubspotIds(payloads, fromObjectType, fromIdFieldName)
             
-                // Only update objects that have a hs_object_id. We still use the from_id_field_value to identify the object
+                const enrichedPayloads = await this.enrichPayloadsWithRecordIds(payloads, fromObjectType, fromIdFieldName)
+
+                // Records to be updated will have a recordId. We check this with the from_record_id field
+                // Even though we have the recordId, the code below usses the from_id_field_value as an identifier for the record
                 enrichedPayloads
-                .filter(({ object_details }) => object_details.exists_on_hubspot)
+                .filter(({ object_details }) => object_details.from_record_id)
                 .forEach(({ object_details: { from_id_field_value }, properties }) => {
                     body.inputs.push({
                         idProperty: fromIdFieldName,
@@ -490,12 +444,13 @@ export class HubspotClient {
                 const body: BatchObjAddReqBody = {
                     inputs: []
                 }
-                
-                const enrichedPayloads = await this.enrichPayloadsWithHubspotIds(payloads, fromObjectType, fromIdFieldName)
         
-                // Only update objects that don't have a hs_object_id. We still use the from_id_field_value to create the object
+                const enrichedPayloads = await this.enrichPayloadsWithRecordIds(payloads, fromObjectType, fromIdFieldName)
+
+                // Records that need to be be added won't have a recordId. We check this with the from_record_id field
+                // The code below usses the from_id_field_value as an identifier for the record
                 enrichedPayloads
-                .filter(({ object_details }) => !object_details.exists_on_hubspot)
+                .filter(({ object_details }) => !object_details.from_record_id)
                 .forEach(({ object_details: { from_id_field_value }, properties }) => {
                     body.inputs.push({
                         idProperty: fromIdFieldName,
@@ -506,5 +461,74 @@ export class HubspotClient {
                 return await this.batchObjectRequest('create', fromObjectType, body)
             }
         }
+    }
+
+
+
+
+
+
+    getAssociationType(associationLabel: string): AssociationType {
+        const [associationCategory, associationTypeId] = associationLabel.split(':');
+        return { associationCategory, associationTypeId } as AssociationType
+    }
+
+    async batchAssociationsRequest(body: BatchAssociationsRequestBody, objectType: string, toObjectType: string){
+        if(body.inputs.length === 0){
+            return null
+        }
+        
+        return this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v4/associations/${objectType}/${toObjectType}/batch/create`, {
+            method: 'POST',
+            json: body
+        })
+    }
+
+    async ensureAssociations(payloads: Payload[]) {
+        const [{objectType, toObjectType, associationLabel}] = payloads
+        
+        if(!objectType || !toObjectType || !associationLabel){
+            throw new IntegrationError('Missing required Association fields. Associations require "To Object Type", "To ID Field Name" and "Association Label" fields to be set.','REQUIRED_ASSOCIATION_FIELDS_MISSING',400)
+        }
+        
+        const {associationCategory, associationTypeId} = this.getAssociationType(associationLabel)
+
+        const requestBody: BatchAssociationsRequestBody = {
+            inputs: payloads.filter(p => p.recordID && p.toRecordID).map(p => { 
+                return {
+                    types: [
+                        {
+                            associationCategory,
+                            associationTypeId
+                        }
+                    ],
+                    from: {
+                        id: p.recordID as string
+                    },
+                    to: {
+                        id: p.toRecordID as string
+                    }
+                }
+            }) ?? []
+        }
+
+        return this.batchAssociationsRequest(requestBody, objectType, toObjectType)
+    }
+
+
+    async buildToRecordRequest(payloads: Payload[]) {   
+        const { 
+            object_details: { 
+                from_object_type: fromObjectType, 
+                from_id_field_name: fromIdFieldName 
+            } 
+        } = payloads[0]
+        
+        const payloadsWithRecordIds = await this.enrichPayloadsWithRecordIds(payloads, fromObjectType, fromIdFieldName)
+
+        payloadsWithRecordIds.forEach(payload => {  
+            
+        })
+
     }
 }
