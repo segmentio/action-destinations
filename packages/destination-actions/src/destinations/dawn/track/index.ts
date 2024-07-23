@@ -54,11 +54,21 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Use Dawn AI Batching',
+      description: 'When enabled, the action will use batch requests to the Dawn AI API',
+      required: true,
+      default: false
     }
   },
 
   perform: async (request, { settings, payload }) => {
     return processData(request, settings, [payload])
+  },
+  performBatch: async (request, { settings, payload }) => {
+    return processData(request, settings, payload)
   }
 }
 
