@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { generateFile } from '../operations'
+import { generateFile, validate } from '../operations'
 import { S3CSVClient } from './s3'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
@@ -52,7 +52,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
           description: 'Name of column for timestamp for when the user was added or removed from the Audience',
           type: 'string'
         },
-        messageId: {
+        message_id: {
           label: 'Message ID',
           description: 'Name of column for the unique identifier for the message.',
           type: 'string'
@@ -241,10 +241,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 }
 
 async function processData(payloads: Payload[], settings: Settings, audienceSettings?: AudienceSettings) {
+  validate(payloads, audienceSettings as AudienceSettings)
   const fileContent = generateFile(payloads, audienceSettings as AudienceSettings)
-
   const s3Client = new S3CSVClient(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
-
   await s3Client.uploadS3(settings, audienceSettings as AudienceSettings, fileContent)
 }
 
