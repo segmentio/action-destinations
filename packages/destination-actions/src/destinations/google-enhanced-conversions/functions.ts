@@ -26,8 +26,8 @@ import type { Payload as UserListPayload } from './userList/generated-types'
 import { sha256SmartHash } from '@segment/actions-core'
 import { RefreshTokenResponse } from '.'
 
-export const API_VERSION = 'v16'
-export const CANARY_API_VERSION = 'v16'
+export const API_VERSION = 'v15'
+export const CANARY_API_VERSION = 'v15'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 
 export class GoogleAdsError extends HTTPError {
