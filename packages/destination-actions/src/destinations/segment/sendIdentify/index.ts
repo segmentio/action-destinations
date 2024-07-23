@@ -21,7 +21,8 @@ import {
   traits,
   message_id,
   consent,
-  validateConsentObject
+  validateConsentObject,
+  address
 } from '../segment-properties'
 import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
@@ -49,7 +50,8 @@ const action: ActionDefinition<Settings, Payload> = {
     group_id,
     traits,
     message_id,
-    consent
+    consent,
+    address
   },
   perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
@@ -79,7 +81,8 @@ const action: ActionDefinition<Settings, Payload> = {
         groupId: payload?.group_id
       },
       traits: {
-        ...payload?.traits
+        ...payload?.traits,
+        ...(payload.address ? { address: payload.address } : {})
       },
       type: 'identify'
     }
