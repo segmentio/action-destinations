@@ -70,6 +70,9 @@ type GenericActionHookBundle = {
   }
 }
 
+// Utility type to check if T is an array
+type IsArray<T> = T extends (infer U)[] ? U : never
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ActionDefinition<
   Settings,
@@ -82,16 +85,27 @@ export interface ActionDefinition<
    * This is likely going to change as we productionalize the data model and definition object
    */
   dynamicFields?: {
-    [K in keyof Payload]?: Payload[K] extends object
+    [K in keyof Payload]?: IsArray<Payload[K]> extends never
+      ? Payload[K] extends object
+        ? {
+            [ObjectProperty in keyof Payload[K] | '__keys__' | '__values__']?: RequestFn<
+              Settings,
+              Payload,
+              DynamicFieldResponse,
+              AudienceSettings
+            >
+          }
+        : RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+      : IsArray<Payload[K]> extends object
       ? {
-          [ObjectProperty in keyof Payload[K] | '__keys__' | '__values__']?: RequestFn<
+          [ObjectProperty in keyof IsArray<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
             Settings,
-            Payload[K],
+            Payload,
             DynamicFieldResponse,
             AudienceSettings
           >
         }
-      : RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+      : never
   }
 
   /** The operation to perform when this action is triggered */
@@ -332,9 +346,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return results
   }
 
-  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<Result[]> {
-    const results: Result[] = [{ output: 'Action Executed' }]
-
+  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<void> {
     if (!this.hasBatchSupport) {
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
@@ -372,7 +384,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (payloads.length === 0) {
-      return results
+      return
     }
 
     if (this.definition.performBatch) {
@@ -396,13 +408,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         syncMode: isSyncMode(syncMode) ? syncMode : undefined,
         matchingKey: matchingKey ? String(matchingKey) : undefined
       }
-      const output = await this.performRequest(this.definition.performBatch, data)
-      results[0].data = output as JSONObject
-
-      return results
+      await this.performRequest(this.definition.performBatch, data)
     }
-
-    return results
   }
 
   /*

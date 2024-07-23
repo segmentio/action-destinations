@@ -139,8 +139,8 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         eventSource: 'segment',
         occurredAt: payload.occurredAt,
+        version: '2',
         payload: {
-          version: '2',
           sourceEventId: payload.eventId,
           eventName: payload.name,
           userId: payload.userId,
