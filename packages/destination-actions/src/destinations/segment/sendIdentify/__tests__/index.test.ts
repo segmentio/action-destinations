@@ -43,7 +43,13 @@ describe('Segment.sendIdentify', () => {
       type: 'identify',
       traits: {
         name: 'Test User',
-        email: 'test-user@test-company.com'
+        email: 'test-user@test-company.com',
+        address: {
+          city: 'City_1',
+          state: 'Haryana',
+          country: 'India',
+          postalCode: '183921'
+        }
       },
       userId: 'test-user-ufi5bgkko5',
       anonymousId: 'arky4h2sh7k'
@@ -51,7 +57,23 @@ describe('Segment.sendIdentify', () => {
 
     const responses = await testDestination.testAction('sendIdentify', {
       event,
-      mapping: defaultIdentifyMapping,
+      mapping: {
+        ...defaultIdentifyMapping,
+        address: {
+          state: {
+            '@path': '$.traits.address.state'
+          },
+          city: {
+            '@path': '$.traits.address.city'
+          },
+          country: {
+            '@path': '$.traits.address.country'
+          },
+          postalCode: {
+            '@path': '$.traits.address.postalCode'
+          }
+        }
+      },
       settings: {
         source_write_key: 'test-source-write-key'
       }
@@ -72,5 +94,6 @@ describe('Segment.sendIdentify', () => {
         }
       ]
     })
+    expect(results[2].data).toMatchSnapshot()
   })
 })

@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Segment.sendIdentify Should return transformed event 1`] = `
+Object {
+  "batch": Array [
+    Object {
+      "anonymousId": "arky4h2sh7k",
+      "context": Object {
+        "app": undefined,
+        "campaign": undefined,
+        "consent": Object {},
+        "device": undefined,
+        "groupId": undefined,
+        "ip": undefined,
+        "locale": undefined,
+        "location": undefined,
+        "network": undefined,
+        "os": undefined,
+        "page": undefined,
+        "screen": undefined,
+        "timezone": undefined,
+        "userAgent": undefined,
+      },
+      "messageId": undefined,
+      "timestamp": undefined,
+      "traits": Object {
+        "address": Object {
+          "city": "City_1",
+          "country": "India",
+          "postalCode": "183921",
+          "state": "Haryana",
+        },
+        "email": "test-user@test-company.com",
+        "name": "Test User",
+      },
+      "type": "identify",
+      "userId": "test-user-ufi5bgkko5",
+    },
+  ],
+}
+`;
