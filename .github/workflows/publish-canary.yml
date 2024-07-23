@@ -2,8 +2,8 @@ name: Publish Canary
 
 on:
   push:
-    branches:
-      - staging
+    tags:
+      - canary-*
 
 jobs:
   build-and-publish:
