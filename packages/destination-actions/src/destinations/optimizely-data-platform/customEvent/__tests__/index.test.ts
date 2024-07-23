@@ -63,10 +63,111 @@ describe('OptimizelyDataPlatform.trackEvent', () => {
       expect(response[0].options.body).toMatchSnapshot()
     })
 
-    it('Should handle 401 error', async () => {
+    it('Should handle 400 error (bad body)', async () => {
       nock('https://function.zaius.app/twilio_segment').post('/batch_custom_event').reply(401)
 
       await expect(testDestination.testAction('customEvent', requestData)).rejects.toThrowError()
+    })
+
+    it('Should handle 401 error (no auth)', async () => {
+      nock('https://function.zaius.app/twilio_segment').post('/batch_custom_event').reply(401)
+
+      await expect(testDestination.testAction('customEvent', requestData)).rejects.toThrowError()
+    })
+
+    it('Should handle 429 error (rate limit)', async () => {
+      nock('https://function.zaius.app/twilio_segment').post('/batch_custom_event').reply(429)
+
+      await expect(testDestination.testAction('customEvent', requestData)).rejects.toThrowError()
+    })
+  })
+
+  describe('performBatch', () => {
+    const productEvents = [
+      createTestEvent({
+        type: 'track',
+        event: 'purchase',
+        context: {
+          traits: {
+            email: 'test.email@test.com'
+          }
+        },
+        properties: {
+          order_id: '1234',
+          total: 20,
+          products: [
+            { product_id: '12345', quantity: 2 },
+            { product_id: '67890', quantity: 5 }
+          ]
+        }
+      }),
+      createTestEvent({
+        type: 'track',
+        event: 'purchase',
+        context: {
+          traits: {
+            email: 'test.email1@test.com'
+          }
+        },
+        properties: {
+          order_id: '6789',
+          total: 20,
+          products: [
+            { product_id: '6789', quantity: 2 },
+            { product_id: '10243', quantity: 5 }
+          ]
+        }
+      })
+    ]
+
+    const requestData = {
+      events: productEvents,
+      settings: {
+        apiKey: 'abc123',
+        region: 'US'
+      },
+      mapping: {
+        user_identifiers: {
+          anonymousId: 'anonId1234',
+          userId: 'user1234'
+        },
+        event_type: 'whatever',
+        event_action: 'purchase',
+        products: [
+          { product_id: '12345', qty: 2 },
+          { product_id: '67890', qty: 5 }
+        ],
+        order_id: '1234',
+        total: 20,
+        timestamp: '2024-03-01T18:11:27.649Z'
+      }
+    }
+
+    it('Should fire custom event', async () => {
+      nock('https://function.zaius.app/twilio_segment').post('/batch_custom_event').reply(201)
+
+      const response = await testDestination.testBatchAction('customEvent', requestData)
+
+      expect(response[0].status).toBe(201)
+      expect(response[0].options.body).toMatchSnapshot()
+    })
+
+    it('Should handle 400 error (bad body)', async () => {
+      nock('https://function.zaius.app/twilio_segment').post('/batch_custom_event').reply(401)
+
+      await expect(testDestination.testBatchAction('customEvent', requestData)).rejects.toThrowError()
+    })
+
+    it('Should handle 401 error (no auth)', async () => {
+      nock('https://function.zaius.app/twilio_segment').post('/batch_custom_event').reply(401)
+
+      await expect(testDestination.testBatchAction('customEvent', requestData)).rejects.toThrowError()
+    })
+
+    it('Should handle 429 error (rate limit)', async () => {
+      nock('https://function.zaius.app/twilio_segment').post('/batch_custom_event').reply(429)
+
+      await expect(testDestination.testBatchAction('customEvent', requestData)).rejects.toThrowError()
     })
   })
 })
