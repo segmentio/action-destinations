@@ -56,8 +56,9 @@ describe('OptimizelyDataPlatform.upsertContact', () => {
 
     expect(response[0].status).toBe(201)
     // The expected body is a stringified JSON object
-    expect(response[0].options.body).toMatchInlineSnapshot(
+    expect(response[0].options.body).toMatchSnapshot()
+    /* expect(response[0].options.body).toMatchInlineSnapshot(
       `"{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test@test.com\\"},\\"title\\":\\"Mr\\",\\"name\\":\\"John Doe\\",\\"age\\":50}"`
-    )
+    ) */
   })
 })

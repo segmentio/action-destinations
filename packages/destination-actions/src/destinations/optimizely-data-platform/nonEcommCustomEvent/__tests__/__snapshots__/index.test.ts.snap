@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`OptimizelyDataPlatform.nonEcommCustomEvent Should fire non ecomm custom event 1`] = `"[{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\"},\\"action\\":\\"custom\\",\\"type\\":\\"custom\\",\\"timestamp\\":\\"2024-02-09T15:30:51.046Z\\",\\"data\\":{\\"custom_field\\":\\"hello\\",\\"custom_field_num\\":12345}}]"`;

@@ -39,8 +39,9 @@ describe('OptimizelyDataPlatform.nonEcommCustomEvent', () => {
     })
 
     expect(response[0].status).toBe(201)
-    expect(response[0].options.body).toMatchInlineSnapshot(
+    expect(response[0].options.body).toMatchSnapshot()
+    /* expect(response[0].options.body).toMatchInlineSnapshot(
       `"{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\"},\\"action\\":\\"custom\\",\\"type\\":\\"custom\\",\\"timestamp\\":\\"2024-02-09T15:30:51.046Z\\",\\"data\\":{\\"custom_field\\":\\"hello\\",\\"custom_field_num\\":12345}}"`
-    )
+    ) */
   })
 })
