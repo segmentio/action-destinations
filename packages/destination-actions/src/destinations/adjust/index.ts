@@ -7,7 +7,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Adjust (Actions)',
   slug: 'actions-adjust',
   mode: 'cloud',
-
+  description: 'Send events to Adjust.',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -24,22 +24,15 @@ const destination: DestinationDefinition<Settings> = {
       },
       default_app_token: {
         label: 'Default App Token',
-        description: 'The app token for your Adjust account. Can be overridden in the event mapping.',
+        description: 'The app token for your Adjust account. This can be overridden in the event mapping.',
         type: 'string',
         required: false
       },
       default_event_token: {
         label: 'Default Event Token',
-        description: 'The default event token. Can be overridden in the event mapping.',
+        description: 'The default event token. This can be overridden in the event mapping.',
         type: 'string',
         required: false
-      },
-      send_event_creation_time: {
-        label: 'Send Event Creation Time',
-        description: 'Send the event creation time to Adjust.',
-        type: 'boolean',
-        required: false,
-        default: false
       }
     }
   },

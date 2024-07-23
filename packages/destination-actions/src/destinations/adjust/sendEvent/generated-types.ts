@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Timestamp for when the event happened. Required if send_event_creation_time in Settings is true.
+   * Timestamp for when the event happened.
    */
   timestamp?: string | number
   /**
@@ -26,15 +26,15 @@ export interface Payload {
    */
   device_type: string
   /**
-   * The name of the library. Suggestions: "analytics-ios" or "analytics-android".
+   * The name of the Segment library used to trigger the event. E.g. "analytics-ios" or "analytics-android".
    */
   library_name?: string
   /**
-   * The revenue amount.
+   * The revenue amount of the event. E.g. 75.5 for $75.50. Currency can be set with the "Currency field".
    */
   revenue?: number
   /**
-   * The currency of the revenue. Only set if revenue is also set.
+   * The revenue currency. Only set if revenue is also set. E.g. "USD" or "EUR".
    */
   currency?: string
 }

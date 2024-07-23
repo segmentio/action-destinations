@@ -1,17 +1,24 @@
 import { RequestClient } from '@segment/actions-core/create-request-client'
-import { ModifiedResponse } from '@segment/actions-core/types'
-
+import { IntegrationError } from '@segment/actions-core'
 import { AdjustPayload } from './types'
 import { Settings } from './generated-types'
 import { Payload } from './sendEvent/generated-types'
 
 export function validatePayload(payload: Payload, settings: Settings): AdjustPayload {
   if (!payload.app_token && !settings.default_app_token) {
-    throw new Error('Either app_token in the mapping, or default_app_token in settings, must be provided.')
+    throw new IntegrationError(
+      'One of app_token field or default_app_token setting fields must have a value.',
+      'APP_TOKEN_VALIDATION_FAILED',
+      400
+    )
   }
 
   if (!payload.event_token && !settings.default_event_token) {
-    throw new Error('Either event_token in the mapping, or default_event_token in settings, must be provided.')
+    throw new IntegrationError(
+      'One of event_token field or default_event_token setting fields must have a value.',
+      'EVENT_TOKEN_VALIDATION_FAILED',
+      400
+    )
   }
 
   const adjustPayload: AdjustPayload = {
@@ -19,14 +26,11 @@ export function validatePayload(payload: Payload, settings: Settings): AdjustPay
     event_token: String(payload.event_token || settings.default_event_token),
     environment: settings.environment,
     s2s: 1,
-    callback_params: JSON.stringify(payload)
+    callback_params: JSON.stringify(payload),
+    created_at_unix: payload.timestamp
+      ? parseInt((new Date(String(payload.timestamp)).getTime() / 1000).toFixed(0))
+      : undefined
   }
-
-  if (settings.send_event_creation_time && !payload.timestamp) {
-    throw new Error('Event timestamp is required when send_event_creation_time is enabled.')
-  }
-
-  adjustPayload.created_at_unix = parseInt((new Date(String(payload.timestamp)).getTime() / 1000).toFixed(0))
 
   return adjustPayload
 }
@@ -37,11 +41,8 @@ export function validatePayload(payload: Payload, settings: Settings): AdjustPay
  * @param events The events.
  * @returns An array of responses.
  */
-export async function sendEvents(
-  request: RequestClient,
-  events: AdjustPayload[]
-): Promise<ModifiedResponse<unknown>[]> {
-  const responses: Array<ModifiedResponse<unknown>> = await Promise.all(
+export async function sendEvents(request: RequestClient, events: AdjustPayload[]) {
+  return await Promise.all(
     events.map((event) =>
       request('https://s2s.adjust.com/event', {
         method: 'POST',
@@ -49,6 +50,4 @@ export async function sendEvents(
       })
     )
   )
-
-  return responses
 }

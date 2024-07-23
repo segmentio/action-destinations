@@ -1,5 +1,4 @@
 import type { ActionDefinition } from '@segment/actions-core'
-
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { sendEvents, validatePayload } from '../functions'
@@ -7,10 +6,11 @@ import { sendEvents, validatePayload } from '../functions'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event',
   description: 'Sends an Event to Adjust.',
+  defaultSubscription: 'type = "track" and event = "Conversion Completed"',
   fields: {
     timestamp: {
       label: 'Timestamp',
-      description: 'Timestamp for when the event happened. Required if send_event_creation_time in Settings is true.',
+      description: 'Timestamp for when the event happened.',
       type: 'datetime',
       default: {
         '@path': '$.timestamp'
@@ -58,7 +58,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     library_name: {
       label: 'Library Name',
-      description: 'The name of the library. Suggestions: "analytics-ios" or "analytics-android".',
+      description:
+        'The name of the Segment library used to trigger the event. E.g. "analytics-ios" or "analytics-android".',
       type: 'string',
       default: {
         '@path': '$.context.library.name'
@@ -67,15 +68,18 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     revenue: {
       label: 'Revenue',
-      description: 'The revenue amount.',
+      description:
+        'The revenue amount of the event. E.g. 75.5 for $75.50. Currency can be set with the "Currency field".',
       type: 'number',
-      required: false
+      required: false,
+      default: { '@path': '$.properties.revenue' }
     },
     currency: {
       label: 'Currency',
-      description: 'The currency of the revenue. Only set if revenue is also set.',
+      description: 'The revenue currency. Only set if revenue is also set. E.g. "USD" or "EUR".',
       type: 'string',
-      required: false
+      required: false,
+      default: { '@path': '$.properties.currency' }
     }
   },
   perform: (request, data) => {
