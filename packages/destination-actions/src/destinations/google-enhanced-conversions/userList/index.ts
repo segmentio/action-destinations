@@ -130,6 +130,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true,
       unsafe_hidden: true
     },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'The number of records to send in each batch.',
+      type: 'integer',
+      default: 10000,
+      unsafe_hidden: true
+    },
     event_name: {
       label: 'Event Name',
       description: 'The name of the current Segment event.',

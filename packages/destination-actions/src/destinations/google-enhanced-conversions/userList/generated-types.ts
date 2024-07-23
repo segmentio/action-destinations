@@ -50,6 +50,10 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
+   * The number of records to send in each batch.
+   */
+  batch_size?: number
+  /**
    * The name of the current Segment event.
    */
   event_name: string

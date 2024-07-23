@@ -429,9 +429,9 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
   // Map user data to Google Ads API format
   for (const payload of payloads) {
     if (payload.event_name == 'Audience Entered' || syncMode == 'add') {
-      addUserIdentifiers.push(identifierFunctions[idType](payload))
+      addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
     } else if (payload.event_name == 'Audience Exited' || syncMode == 'delete') {
-      removeUserIdentifiers.push(identifierFunctions[idType](payload))
+      removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
     }
   }
   return [addUserIdentifiers, removeUserIdentifiers]
@@ -455,7 +455,11 @@ const createOfflineUserJob = async (
     job: {
       type: 'CUSTOMER_MATCH_USER_LIST',
       customerMatchUserListMetadata: {
-        userList: `customers/${settings.customerId}/userLists/${external_audience_id}`
+        userList: `customers/${settings.customerId}/userLists/${external_audience_id}`,
+        consent: {
+          adUserData: payload.ad_user_data_consent_state,
+          adPersonalization: payload.ad_personalization_consent_state
+        }
       }
     }
   }
@@ -482,7 +486,7 @@ const createOfflineUserJob = async (
 
 const addOperations = async (
   request: RequestClient,
-  userIdentifiers: [{}],
+  userIdentifiers: any,
   resourceName: string,
   statsContext: StatsContext | undefined
 ) => {
@@ -558,11 +562,11 @@ export const handleUpdate = async (
 
   // Add operations to the offline user data job
   if (adduserIdentifiers.length > 0) {
-    await addOperations(request, [{ create: { userIdentifiers: adduserIdentifiers } }], resourceName, statsContext)
+    await addOperations(request, adduserIdentifiers, resourceName, statsContext)
   }
 
   if (removeUserIdentifiers.length > 0) {
-    await addOperations(request, [{ remove: { userIdentifiers: removeUserIdentifiers } }], resourceName, statsContext)
+    await addOperations(request, removeUserIdentifiers, resourceName, statsContext)
   }
 
   // Run the offline user data job
