@@ -13,16 +13,45 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'When saving this mapping, Segment will either create a new audience in Facebook or connect to an existing one. To create a new audience, enter the name of the audience. To connect to an existing audience, select the audience ID from the dropdown.',
       inputFields: {
+        operation: {
+          type: 'string',
+          label: 'Create a new custom audience or connect to an existing one?',
+          description:
+            'Choose to either create a new custom audience or use an existing one. If you opt to create a new audience, we will display the required fields for audience creation. If you opt to use an existing audience, a drop-down menu will appear, allowing you to select from all the custom audiences in your ad account.',
+          choices: [
+            { label: 'Create New Audience', value: 'create' },
+            { label: 'Connect to Existing Audience', value: 'existing' }
+          ],
+          default: 'create'
+        },
         audienceName: {
           type: 'string',
           label: 'Audience Creation Name',
           description: 'The name of the audience in Facebook.',
-          default: 'TODO: Model Name by default'
+          default: 'TODO: Model Name by default',
+          depends_on: {
+            conditions: [
+              {
+                fieldKey: 'operation',
+                operator: 'is',
+                value: 'create'
+              }
+            ]
+          }
         },
         existingAudienceId: {
           type: 'string',
           label: 'Existing Audience ID',
           description: 'The ID of the audience in Facebook.',
+          depends_on: {
+            conditions: [
+              {
+                fieldKey: 'operation',
+                operator: 'is',
+                value: 'existing'
+              }
+            ]
+          },
           dynamic: async (request, { settings }) => {
             const fbClient = new FacebookClient(request, settings.retlAdAccountId)
             const { choices, error } = await fbClient.getAllAudiences()
