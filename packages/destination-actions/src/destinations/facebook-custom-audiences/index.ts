@@ -16,7 +16,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      adAccountId
+      retlAdAccountId: adAccountId
     },
     refreshAccessToken: async () => {
       return { accessToken: 'TODO: Implement this' }
@@ -30,7 +30,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   audienceFields: {
-    adAccountId,
+    engageAdAccountId: adAccountId,
     audienceDescription: {
       type: 'string',
       label: 'Description',
@@ -45,7 +45,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
-      const adAccountId = createAudienceInput.audienceSettings?.adAccountId
+      const adAccountId = createAudienceInput.audienceSettings?.engageAdAccountId
       const audienceDescription = createAudienceInput.audienceSettings?.audienceDescription
 
       if (!audienceName) {
