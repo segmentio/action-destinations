@@ -81,7 +81,7 @@ describe('forwardProfile', () => {
             upsertProfiles(
               subAdvertiserId: 1,
               externalProvider: \\"segmentio\\",
-              profiles: [{email:\\"admin@stackadapt.com\\",user_id:\\"user-id\\",audience_id:\\"aud_123\\",audience_name:\\"first_time_buyer\\",action:\\"enter\\"}]
+              profiles: [{email:\\"admin@stackadapt.com\\",userId:\\"user-id\\",audienceId:\\"aud_123\\",audienceName:\\"first_time_buyer\\",action:\\"enter\\"}]
             ) {
               success
             }
@@ -112,7 +112,7 @@ describe('forwardProfile', () => {
             upsertProfiles(
               subAdvertiserId: 1,
               externalProvider: \\"segmentio\\",
-              profiles: [{email:\\"admin@stackadapt.com\\",user_id:\\"user-id\\",audience_id:\\"aud_123\\",audience_name:\\"first_time_buyer\\",action:\\"enter\\"},{email:\\"email2@stackadapt.com\\",user_id:\\"user-id2\\"}]
+              profiles: [{email:\\"admin@stackadapt.com\\",userId:\\"user-id\\",audienceId:\\"aud_123\\",audienceName:\\"first_time_buyer\\",action:\\"enter\\"},{email:\\"email2@stackadapt.com\\",userId:\\"user-id2\\"}]
             ) {
               success
             }
