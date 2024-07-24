@@ -55,6 +55,15 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties'
       }
     },
+    context: {
+      label: 'Context',
+      type: 'object',
+      description: 'Context properties to send with the event',
+      required: false,
+      default: {
+        '@path': '$.context'
+      }
+    },
     enable_batching: {
       type: 'boolean',
       label: 'Use Dawn AI Batching',
