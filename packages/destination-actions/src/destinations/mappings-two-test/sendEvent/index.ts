@@ -19,7 +19,8 @@ const action: ActionDefinition<Settings, Payload> = {
     test_field: {
       label: 'Test Field',
       description: 'A test string field',
-      type: 'string'
+      type: 'string',
+      category: 'identifier'
     },
     dynamic_object: {
       label: 'Dynamic Object',
@@ -27,7 +28,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: true,
       defaultObjectUI: 'keyvalue:only',
-      dynamic: true
+      dynamic: true,
+      category: 'identifier'
     },
     dynamic_structured_object: {
       label: 'Choose a pet or plant',

@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 
 import sendEvent from './sendEvent'
 import kitchenSink from './kitchenSink'
+import inputMethods from './inputMethods'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Mappings Two Test',
@@ -27,7 +28,8 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     sendEvent,
-    kitchenSink
+    kitchenSink,
+    inputMethods
   }
 }
 
