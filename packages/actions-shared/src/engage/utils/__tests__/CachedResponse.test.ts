@@ -24,18 +24,32 @@ describe('CachedValueFactory', () => {
       CachedValueFactory.fromString('3:-:400:-:Bad Request:-:400')
     }).toThrowError('Invalid cached value')
   })
+
+  test('serialize and deserialize CachedValue.', () => {
+    const cachedValue = new CachedValue(200)
+    const serialized = cachedValue.serialize()
+    const deserialized = CachedValueFactory.fromString(serialized)
+    expect(deserialized).toEqual(cachedValue)
+  })
+
+  test('serialize and deserialize CachedError.', () => {
+    const cachedError = new CachedError(400, 'Bad Request', '400')
+    const serialized = cachedError.serialize()
+    const deserialized = CachedValueFactory.fromString(serialized)
+    expect(deserialized).toEqual(cachedError)
+  })
 })
 
 describe('CachedValue', () => {
   test('should create string representation of CachedValue seperated by seperator :-:.', () => {
     const cachedValue = new CachedValue(200)
-    expect(cachedValue.toString()).toEqual('0:-:200')
+    expect(cachedValue.serialize()).toEqual('0:-:200')
   })
 })
 
 describe('CachedError', () => {
   test('should create string representation of CachedError seperated by seperator :-:.', () => {
     const cachedError = new CachedError(400, 'Bad Request', '400')
-    expect(cachedError.toString()).toEqual('1:-:400:-:Bad Request:-:400')
+    expect(cachedError.serialize()).toEqual('1:-:400:-:Bad Request:-:400')
   })
 })

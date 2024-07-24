@@ -107,7 +107,7 @@ export abstract class MessageSendPerformer<
     if (!messageId || !recipientId || !this.engageDestinationCache) {
       return
     }
-    await this.engageDestinationCache.setByKey(messageId + recipientId.toLowerCase(), JSON.stringify(value))
+    await this.engageDestinationCache.setByKey(messageId + recipientId.toLowerCase(), value)
   }
 
   /**
@@ -184,11 +184,11 @@ export abstract class MessageSendPerformer<
           const errorDetails = getErrorDetails(error)
           if (errorDetails?.status) {
             const cachedError = new CachedError(errorDetails.status, errorDetails.message, errorDetails.code)
-            await this.putCache(cachedError.toString(), messageId, recipientId)
+            await this.putCache(cachedError.serialize(), messageId, recipientId)
           }
         } else if (!error && result) {
           const cachedResult = new CachedValue(result.status)
-          await this.putCache(cachedResult.toString(), messageId, recipientId)
+          await this.putCache(cachedResult.serialize(), messageId, recipientId)
         }
       } catch (cacheError) {
         this.logError(`Failed to cache response for messageId: ${messageId}, recipientId: ${recipientId}`, cacheError)

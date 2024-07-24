@@ -3,7 +3,7 @@ export enum CachedResponseType {
   Error = 1
 }
 
-export class CachedValueError extends Error {
+export class CachedValueSerializationError extends Error {
   constructor(message: string) {
     super(message)
     this.name = 'CachedValueError'
@@ -20,7 +20,7 @@ export class CachedValue {
     this.type = CachedResponseType.Success
   }
 
-  toString(): string {
+  serialize(): string {
     return `${this.type}${this.seperator}${this.status}`
   }
 }
@@ -35,8 +35,8 @@ export class CachedError extends CachedValue {
     this.message = message
   }
 
-  toString(): string {
-    return `${super.toString()}${this.seperator}${this.message}${this.seperator}${this.code}`
+  serialize(): string {
+    return `${super.serialize()}${this.seperator}${this.message}${this.seperator}${this.code}`
   }
 }
 
@@ -44,19 +44,19 @@ export class CachedValueFactory {
   public static fromString(value: string): CachedValue | CachedError {
     const parts = value.split(':-:')
     if (parts.length < 2) {
-      throw new CachedValueError('Invalid cached value')
+      throw new CachedValueSerializationError(`Invalid cached value ${value}`)
     }
     const [type, status] = parts
     if (CachedResponseType.Success === +type) {
       return new CachedValue(+status)
     } else if (CachedResponseType.Error === +type) {
       if (parts.length < 4) {
-        throw new CachedValueError('Invalid cached value')
+        throw new CachedValueSerializationError(`Invalid cached value ${value}`)
       }
       const [message, code] = parts.slice(2)
       return new CachedError(+status, message, code)
     } else {
-      throw new CachedValueError('Invalid cached value')
+      throw new CachedValueSerializationError(`Invalid cached value ${value}`)
     }
   }
 }
