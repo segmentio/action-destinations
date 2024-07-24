@@ -24,7 +24,6 @@ import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
 import { RefreshTokenResponse } from '.'
-// import { sha256SmartHashFunction } from '@segment/actions-core'
 
 export const API_VERSION = 'v15'
 export const CANARY_API_VERSION = 'v15'
