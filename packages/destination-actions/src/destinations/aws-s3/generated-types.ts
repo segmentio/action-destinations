@@ -26,7 +26,8 @@ export interface AudienceSettings {
    */
   s3_aws_folder_name?: string
   /**
-   * Prefix to append to the name of the uploaded file. A timestamp and lower cased audience name will be appended to the filename to ensure uniqueness.
+   * Prefix to append to the name of the uploaded file. A lower cased audience name and timestamp will be appended by default to the filename to ensure uniqueness.
+   *                     Format: <PREFIX>_<AUDIENCE NAME>_<TIMESTAMP>.csv
    */
   filename?: string
   /**

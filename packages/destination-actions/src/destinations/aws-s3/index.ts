@@ -22,7 +22,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     filename: {
       label: 'Filename prefix',
-      description: `Prefix to append to the name of the uploaded file. A timestamp and lower cased audience name will be appended to the filename to ensure uniqueness.`,
+      description: `Prefix to append to the name of the uploaded file. A lower cased audience name and timestamp will be appended by default to the filename to ensure uniqueness.
+                    Format: <PREFIX>_<AUDIENCE NAME>_<TIMESTAMP>.csv`,
       type: 'string',
       required: false
     },

@@ -57,7 +57,7 @@ export class S3CSVClient {
     }
   }
 
-  async uploadS3(settings: Settings, audienceSettings: AudienceSettings, fileContent: string) {
+  async uploadS3(settings: Settings, audienceSettings: AudienceSettings, fileContent: string, audienceName: string) {
     let filename = audienceSettings.filename ?? ''
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
@@ -66,7 +66,8 @@ export class S3CSVClient {
       filename = filename.replace('.csv', `_${dateSuffix}.csv`)
     } else {
       // Append the date suffix followed by .csv
-      filename = filename ? `${filename}_${dateSuffix}.csv` : `${dateSuffix}.csv`
+      audienceName = audienceName ? audienceName.toLowerCase() : ''
+      filename = filename ? `${filename}_${audienceName}_${dateSuffix}.csv` : `${audienceName}_${dateSuffix}.csv`
     }
 
     const bucketName = settings.s3_aws_bucket_name
