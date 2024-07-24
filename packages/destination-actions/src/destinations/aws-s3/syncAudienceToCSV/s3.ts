@@ -70,7 +70,11 @@ export class S3CSVClient {
     }
 
     const bucketName = settings.s3_aws_bucket_name
-    const folderName = audienceSettings.s3_aws_folder_name || ''
+    const folderName = ['', null, undefined].includes(audienceSettings?.s3_aws_folder_name)
+      ? ''
+      : audienceSettings?.s3_aws_folder_name?.endsWith('/')
+      ? audienceSettings?.s3_aws_folder_name
+      : `${audienceSettings?.s3_aws_folder_name}/`
     const credentials = await this.assumeRole()
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const s3Client = new S3Client({

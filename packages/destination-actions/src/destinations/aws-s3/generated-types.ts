@@ -22,7 +22,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Name of the S3 Subfolder where the files will be uploaded to. "/" must exist at the end of the folder name.
+   * Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/
    */
   s3_aws_folder_name?: string
   /**

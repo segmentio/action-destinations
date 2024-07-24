@@ -16,7 +16,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     s3_aws_folder_name: {
       label: 'AWS Subfolder Name',
       description:
-        'Name of the S3 Subfolder where the files will be uploaded to. "/" must exist at the end of the folder name.',
+        'Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/',
       type: 'string',
       required: false
     },
