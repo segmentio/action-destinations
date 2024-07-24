@@ -8,7 +8,13 @@ import { getProfileApiEndpoint, Region } from './getProfileApiEndpoint'
 import { track } from './track'
 import { IntegrationError, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
 import { getErrorDetails } from '.'
-import { CachedError, CachedResponseType, CachedValue, CachedValueFactory } from './CachedResponse'
+import {
+  CachedError,
+  CachedResponseType,
+  CachedValue,
+  CachedValueFactory,
+  CachedValueSerializationError
+} from './CachedResponse'
 
 export enum SendabilityStatus {
   /**
@@ -120,12 +126,15 @@ export abstract class MessageSendPerformer<
   @track()
   async readCache(messageId?: string, recipientId?: string) {
     if (!messageId || !recipientId || !this.engageDestinationCache) {
+      this.logInfo('Cache not found', { messageId, recipientId })
       return
     }
     const cached = await this.engageDestinationCache.getByKey(messageId + recipientId.toLowerCase())
     if (!cached) {
+      this.logInfo('Cache not found', { messageId, recipientId })
       return
     }
+    this.logInfo('Cache found', { messageId, recipientId })
     return cached
   }
 
@@ -150,7 +159,16 @@ export abstract class MessageSendPerformer<
         cachedResponse = CachedValueFactory.fromString(rawCachedResponse)
       }
     } catch (error) {
-      this.logError(`Failed to read cache for messageId: ${messageId}, recipientId: ${recipientId}`, error)
+      if (!(error instanceof CachedValueSerializationError)) {
+        this.logError(`Unexpected error reading cache for messageId: ${messageId}, recipientId: ${recipientId}`, {
+          error
+        })
+        throw error
+      }
+      this.logError(`Failed to read cache for messageId: ${messageId}, recipientId: ${recipientId}`, {
+        error,
+        message: error.message
+      })
     }
 
     if (cachedResponse?.type === CachedResponseType.Error && 'message' in cachedResponse) {
