@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
-    "@segment/actions-core": "3.116.1-channels-1094.115",
+    "@segment/actions-core": "3.116.1-channels-1094.131",
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
     "escape-goat": "^3",

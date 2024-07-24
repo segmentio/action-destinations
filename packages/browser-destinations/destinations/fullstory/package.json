@@ -16,7 +16,7 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@fullstory/browser": "^2.0.3",
-    "@segment/actions-core": "3.116.1-channels-1094.115",
+    "@segment/actions-core": "3.116.1-channels-1094.131",
     "@segment/browser-destination-runtime": "^1.53.0"
   },
   "peerDependencies": {
