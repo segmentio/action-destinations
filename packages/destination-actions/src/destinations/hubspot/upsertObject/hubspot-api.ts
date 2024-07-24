@@ -1,11 +1,19 @@
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
-import { SUPPORTED_HUBSPOT_OBJECT_TYPES } from './constants'
+import { SUPPORTED_HUBSPOT_OBJECT_TYPES, MAX_HUBSPOT_BATCH_SIZE } from './constants'
 import type { Payload } from './generated-types'
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 
+interface Association {
+    to_object_type: string,
+    association_label: string,
+    to_id_field_name: string,
+    to_id_field_value: string,
+    to_record_id?: string,
+    from_record_id?: string
+}
 
 interface ReadPropertiesResultItem {
     name: string,
@@ -374,8 +382,7 @@ export class HubspotClient {
         });
     }
 
-    async enrichPayloadsWithRecordIds(payloads: Payload[], fromObjectType: string, fromIdFieldName: string): Promise<Payload[]> {    
-        
+    async enrichPayloadsWithFromRecordIds(payloads: Payload[], fromObjectType: string, fromIdFieldName: string): Promise<Payload[]> {    
         const response = await this.batchObjectRequest('read', fromObjectType, {
             properties: [fromIdFieldName],
             idProperty: fromIdFieldName,
@@ -423,7 +430,7 @@ export class HubspotClient {
                     inputs: []
                 }
             
-                const enrichedPayloads = await this.enrichPayloadsWithRecordIds(payloads, fromObjectType, fromIdFieldName)
+                const enrichedPayloads = await this.enrichPayloadsWithFromRecordIds(payloads, fromObjectType, fromIdFieldName)
 
                 // Records to be updated will have a recordId. We check this with the from_record_id field
                 // Even though we have the recordId, the code below usses the from_id_field_value as an identifier for the record
@@ -445,7 +452,7 @@ export class HubspotClient {
                     inputs: []
                 }
         
-                const enrichedPayloads = await this.enrichPayloadsWithRecordIds(payloads, fromObjectType, fromIdFieldName)
+                const enrichedPayloads = await this.enrichPayloadsWithFromRecordIds(payloads, fromObjectType, fromIdFieldName)
 
                 // Records that need to be be added won't have a recordId. We check this with the from_record_id field
                 // The code below usses the from_id_field_value as an identifier for the record
@@ -473,29 +480,22 @@ export class HubspotClient {
         return { associationCategory, associationTypeId } as AssociationType
     }
 
-    async batchAssociationsRequest(body: BatchAssociationsRequestBody, objectType: string, toObjectType: string){
-        if(body.inputs.length === 0){
-            return null
-        }
-        
+    async batchAssociationsRequest(body: BatchAssociationsRequestBody, objectType: string, toObjectType: string){        
         return this.request<BatchReadResponse>(`${HUBSPOT_BASE_URL}/crm/v4/associations/${objectType}/${toObjectType}/batch/create`, {
             method: 'POST',
             json: body
         })
     }
 
-    async ensureAssociations(payloads: Payload[]) {
-        const [{objectType, toObjectType, associationLabel}] = payloads
-        
-        if(!objectType || !toObjectType || !associationLabel){
-            throw new IntegrationError('Missing required Association fields. Associations require "To Object Type", "To ID Field Name" and "Association Label" fields to be set.','REQUIRED_ASSOCIATION_FIELDS_MISSING',400)
-        }
-        
-        const {associationCategory, associationTypeId} = this.getAssociationType(associationLabel)
-
-        const requestBody: BatchAssociationsRequestBody = {
-            inputs: payloads.filter(p => p.recordID && p.toRecordID).map(p => { 
-                return {
+    async ensureAssociations(associations: Association[], fromObjectType: string) {
+        const groupedAssociations: Association[][] = this.groupAssociations(associations, ['to_object_type'])
+     
+        const requests = groupedAssociations.map(async (group) => {
+            const toObjectType = group[0].to_object_type;
+         
+            const inputs = group.map(association => {
+                const { associationCategory, associationTypeId } = this.getAssociationType(association.association_label);
+                const input = {
                     types: [
                         {
                             associationCategory,
@@ -503,32 +503,133 @@ export class HubspotClient {
                         }
                     ],
                     from: {
-                        id: p.recordID as string
+                        id: association.from_record_id ?? ''
                     },
                     to: {
-                        id: p.toRecordID as string
+                        id: association.to_record_id ?? ''
                     }
                 }
-            }) ?? []
-        }
-
-        return this.batchAssociationsRequest(requestBody, objectType, toObjectType)
+                return input
+            })
+            return this.batchAssociationsRequest({ inputs }, fromObjectType, toObjectType);
+        })
+    
+        const responses = await Promise.all(requests)
+        console.log(JSON.stringify(responses, null, 2))
     }
 
+    async enrichAssociationsWithToRecordIds(groupedAssociations: Association[][]): Promise<Association[][]> {    
+        
+        const responses = await Promise.all(
+            groupedAssociations.map(async associations => {
+                return await this.batchObjectRequest('read', associations[0].to_object_type, {
+                    properties: [associations[0].to_id_field_name],
+                    idProperty: associations[0].to_id_field_name,
+                    inputs: associations.map(association => { 
+                        return {
+                            id: association.to_id_field_value
+                        }
+                    })             
+                } as BatchObjReadReqBody);
+            })
+        )
 
-    async buildToRecordRequest(payloads: Payload[]) {   
+        responses.forEach((response, index) => {
+            const associations = groupedAssociations[index]
+            response?.data?.results.forEach(result => {
+                associations
+                    .filter(association => association.to_id_field_value == result.properties[association.to_id_field_name] as string)
+                    .forEach(association => association.to_record_id = result.id )
+            })
+        })
+
+        return groupedAssociations
+    }
+
+    async enrichAssociationsWithFromRecordIds(payloads: Payload[]): Promise<Association[]>{
         const { 
             object_details: { 
                 from_object_type: fromObjectType, 
                 from_id_field_name: fromIdFieldName 
-            } 
+            }
         } = payloads[0]
         
-        const payloadsWithRecordIds = await this.enrichPayloadsWithRecordIds(payloads, fromObjectType, fromIdFieldName)
+        const payloadsWithRecordIds = await this.enrichPayloadsWithFromRecordIds(payloads, fromObjectType, fromIdFieldName)
 
+        const allAssociations: Association[] = []
+        
         payloadsWithRecordIds.forEach(payload => {  
-            
+            const associations = payload.associations ?? []
+            associations.forEach(association => {
+                association.from_record_id = payload.object_details?.from_record_id ?? undefined
+                
+                if(association.from_record_id){
+                    allAssociations.push(association)
+                }
+            })
         })
 
+        return allAssociations
+    }
+
+    // groupAssociations(associations: Association[]): Association[][] {
+    //     const groupedAssociations: Association[][] = [];
+  
+    //     const groups: { [key: string]: Association[] } = associations.reduce((acc, association) => {
+    //       const key = `${association.to_object_type}_${association.association_label}_${association.to_id_field_name}`;
+    //       if (!acc[key]) {
+    //         acc[key] = [];
+    //       }
+    //       acc[key].push(association);
+    //       return acc;
+    //     }, {} as { [key: string]: Association[] });
+        
+    //     for (const key in groups) {
+    //       const items = groups[key];
+    //       for (let i = 0; i < items.length; i += MAX_HUBSPOT_BATCH_SIZE) {
+    //         groupedAssociations.push(items.slice(i, i + MAX_HUBSPOT_BATCH_SIZE));
+    //       }
+    //     }
+
+    //     return groupedAssociations
+    // }
+
+    groupAssociations (associations: Association[], groupBy: (keyof Association)[]): Association[][] {
+        const groupedAssociations: Association[][] = [];
+      
+        const groups: { [key: string]: Association[] } = associations.reduce((acc, association) => {
+          const key = groupBy.map(prop => association[prop]).join('_');
+          if (!acc[key]) {
+            acc[key] = [];
+          }
+          acc[key].push(association);
+          return acc;
+        }, {} as { [key: string]: Association[] });
+      
+        for (const key in groups) {
+          const items = groups[key];
+          for (let i = 0; i < items.length; i += MAX_HUBSPOT_BATCH_SIZE) {
+            groupedAssociations.push(items.slice(i, i + MAX_HUBSPOT_BATCH_SIZE));
+          }
+        }
+      
+        return groupedAssociations;
+    }
+
+    async buildToRecordRequest(payloads: Payload[]) {   
+       
+        const fromObjectType = payloads[0].object_details.from_object_type
+
+        const allAssociations: Association[] = await this.enrichAssociationsWithFromRecordIds(payloads)
+
+        const groupedAssociations: Association[][] = this.groupAssociations(allAssociations, ['to_object_type', 'association_label', 'to_id_field_name'])
+
+        const associationsWithToRecordIds: Association[][] = await this.enrichAssociationsWithToRecordIds(groupedAssociations)
+
+        const association_sync_mode = payloads[0].association_sync_mode
+       
+        if(association_sync_mode === 'do_not_create'){
+            await this.ensureAssociations(associationsWithToRecordIds.flat().filter(association => association.to_record_id) , fromObjectType)
+        } 
     }
 }

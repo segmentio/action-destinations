@@ -15,3 +15,5 @@ export const SUPPORTED_HUBSPOT_OBJECT_TYPES = [
     { label: 'Postal Mail', value: 'postal_mail' },
     { label: 'Tasks', value: 'tasks' }
 ]
+
+export const MAX_HUBSPOT_BATCH_SIZE = 100

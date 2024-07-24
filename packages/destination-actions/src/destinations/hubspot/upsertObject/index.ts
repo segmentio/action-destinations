@@ -123,11 +123,8 @@ const action: ActionDefinition<Settings, Payload> = {
     await hubspotClient.ensureFromRecords([payload], syncMode)
 
 
-
+    await hubspotClient.buildToRecordRequest(payloads)
     
-
-    console.log(JSON.stringify(payloads))
-
     //await hubspotClient.ensureObjects([payload], true)
     //await hubspotClient.ensureAssociations([payload])
   },

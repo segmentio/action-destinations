@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core'
+import { MAX_HUBSPOT_BATCH_SIZE } from './constants'
 
 export const commonFields: Record<string, InputField> = {
     object_details: {
@@ -57,6 +58,16 @@ export const commonFields: Record<string, InputField> = {
         default: {
             '@path': 'properties'
         }
+    },
+    association_sync_mode: {
+        label: 'Associated Record Sync Mode',
+        description: 'Specify if Segment create associated records in Hubspot. Records will only be created if the record requires a single identifier field and does not require property fields to be set upon creation.',
+        type: 'string',
+        default: 'create',
+        choices: [
+          { label: 'Create', value: 'create' },
+          { label: "Do not create", value: 'do_not_create' }
+        ]
     },
     associations: {
         label: 'Associations',
@@ -127,6 +138,6 @@ export const commonFields: Record<string, InputField> = {
         type: 'number',
         required: true,
         unsafe_hidden: true,
-        default: 100
+        default: MAX_HUBSPOT_BATCH_SIZE
     }
 }
