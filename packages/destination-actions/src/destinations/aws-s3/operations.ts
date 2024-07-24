@@ -43,6 +43,7 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): 
     const action = payload.propertiesOrTraits[payload.audienceName]
 
     const row: string[] = []
+
     if (![undefined, null, ''].includes(columnsField.audience_name)) {
       row.push(encodeString(String(payload.audienceName ?? '')))
     }
