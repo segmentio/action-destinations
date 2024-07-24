@@ -74,7 +74,7 @@ export interface HookBundle {
       /**
        * Customer match upload key types.
        */
-      external_id_type?: string
+      external_id_type: string
       /**
        * A string that uniquely identifies a mobile application from which the data was collected. Required if external ID type is mobile advertising ID
        */
@@ -82,21 +82,17 @@ export interface HookBundle {
     }
     outputs?: {
       /**
-       * The ID of the created Google Customer Match User list that users will be synced to.
+       * The ID of the Google Customer Match User list that users will be synced to.
        */
       id?: string
       /**
-       * The name of the created Google Customer Match User list that users will be synced to.
+       * The name of the Google Customer Match User list that users will be synced to.
        */
       name?: string
       /**
        * Customer match upload key types.
        */
       external_id_type?: string
-      /**
-       * A string that uniquely identifies a mobile application from which the data was collected. Required if external ID type is mobile advertising ID
-       */
-      app_id?: string
     }
   }
 }
