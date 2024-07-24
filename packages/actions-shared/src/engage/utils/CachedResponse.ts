@@ -6,7 +6,7 @@ export enum CachedResponseType {
 export class CachedValueSerializationError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'CachedValueError'
+    this.name = 'CachedValueSerializationError'
   }
 }
 
