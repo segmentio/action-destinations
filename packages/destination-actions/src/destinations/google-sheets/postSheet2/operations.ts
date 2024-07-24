@@ -65,9 +65,16 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
  * Processes the response of the Google Sheets GET call and parses the events into separate operation buckets.
  * @param response result of the Google Sheets API get call
  * @param events data to be written to the spreadsheet
+ * @param mappingSettings
+ * @param syncMode
  * @returns
  */
-function processGetSpreadsheetResponse(response: GetResponse, events: Payload[], mappingSettings: MappingSettings) {
+function processGetSpreadsheetResponse(
+  response: GetResponse,
+  events: Payload[],
+  mappingSettings: MappingSettings,
+  syncMode: string
+) {
   const numColumns = mappingSettings.columns.length
   const numRows = response.values?.length
 
@@ -81,13 +88,21 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[],
   // Use a hashmap to efficiently find if the event already exists in the spreadsheet (update) or not (append).
   const eventMap = new Map(events.map((e) => [e.record_identifier, e]))
 
+  // The operation type used to come from RETL as an event, and it was either "new" or "updated".
+  // Now it comes from Sync Mode, and it can be "upsert", "add" or "update".
+  // If the operation type is "upsert" or "add", we should append the event to the sheet.
+  // If the operation type is "update", we should update the event in the sheet.
+  // Delete is not supported.
+
   if (response.values && response.values.length > 0) {
     for (let i = 0; i < response.values.length; i++) {
       const targetIdentifier = response.values[i][0]
       if (eventMap.has(targetIdentifier)) {
         // The event being processed already exists in the spreadsheet.
+        // In here we will determine if we should update the event or not.
+        // SyncModes that are not "upsert" or "update" will not update the event.
         const targetEvent = eventMap.get(targetIdentifier) as Payload
-        if (targetEvent.operation_type != 'deleted') {
+        if (syncMode == 'upsert' || syncMode == 'update') {
           updateBatch.push({
             identifier: targetIdentifier,
             event: targetEvent.fields as Fields,
@@ -100,9 +115,9 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[],
   }
 
   // At this point, eventMap contains all the rows we couldn't find in the spreadsheet.
+  // If the sync mode is "upsert" or "add", we should append the event to the sheet.
   eventMap.forEach((value, key) => {
-    // If delete, just drop event
-    if (value.operation_type != 'deleted') {
+    if (syncMode == 'upsert' || syncMode == 'add') {
       appendBatch.push({
         identifier: key,
         event: value.fields as Fields
@@ -203,8 +218,9 @@ async function processAppendBatch(mappingSettings: MappingSettings, appendBatch:
  * Takes an array of events and dynamically decides whether to append, update or delete rows from the spreadsheet.
  * @param request request object used to perform HTTP calls
  * @param events array of events to commit to the spreadsheet
+ * @param syncMode
  */
-async function processData(request: RequestClient, events: Payload[]) {
+async function processData(request: RequestClient, events: Payload[], syncMode: string) {
   // These are assumed to be constant across all events
   const mappingSettings = {
     spreadsheetId: events[0].spreadsheet_id,
@@ -219,7 +235,7 @@ async function processData(request: RequestClient, events: Payload[]) {
   const response = await gs.get(mappingSettings, `A${DATA_ROW_OFFSET}:A`)
 
   // Use the retrieved row identifiers along with the incoming events to decide which ones should be appended or updated.
-  const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events, mappingSettings)
+  const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events, mappingSettings, syncMode)
 
   const promises = [
     processUpdateBatch(mappingSettings, updateBatch, gs),

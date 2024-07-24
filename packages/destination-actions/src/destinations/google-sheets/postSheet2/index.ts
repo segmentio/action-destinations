@@ -8,6 +8,27 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Sheet (Simplified)',
   description: 'Write values to a Google Sheets spreadsheet.',
   defaultSubscription: 'event = "updated" or event = "new"',
+  syncMode: {
+    description: 'Define how the records from your destination will be synced.',
+    label: 'How to sync records',
+    default: 'upsert',
+    choices: [
+      {
+        label:
+          'If a record with the specified identifier is found, it will be updated. If not, a new row will be created.',
+        value: 'upsert'
+      },
+      {
+        label: "Add a new record when the specified identifier doesn't exist. If it does, it will be skipped.",
+        value: 'add'
+      },
+      {
+        label:
+          "Update a record if a match with the specified identifier is found. Do nothing if the row doesn't exist.",
+        value: 'update'
+      }
+    ]
+  },
   // TODO: Hide record_identifier and operation_type
   fields: {
     record_identifier: {
@@ -16,15 +37,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       default: { '@path': '$.__segment_id' }
-    },
-    operation_type: {
-      label: 'Operation Type',
-      description:
-        "Describes the nature of the operation being performed. Only supported values are 'new' and 'updated'.",
-      type: 'string',
-      unsafe_hidden: true,
-      required: true,
-      default: { '@path': '$.event' }
     },
     spreadsheet_id: {
       label: 'Spreadsheet ID',
@@ -77,11 +89,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true
     }
   },
-  perform: (request, { payload }) => {
-    return processData(request, [payload])
+  perform: (request, { payload, syncMode }) => {
+    return processData(request, [payload], syncMode)
   },
-  performBatch: (request, { payload }) => {
-    return processData(request, payload)
+  performBatch: (request, { payload, syncMode }) => {
+    return processData(request, payload, syncMode)
   }
 }
 
