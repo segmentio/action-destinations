@@ -435,6 +435,19 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       return $.html()
     }
 
+    // Remove unsubscribe link from email profile if no substution tag is found this will keep subscription tracking on
+    // so Sendgrid can keep track of unsubscriptions from the email header. This allows customers that use their own unsubscribe
+    // links to be able to set up a webhook to track unsubscribe events and sync it with their own subscription management system.
+    if ($(unsubscribeLinkRef).length === 0) {
+      _this.logger.info(`Unsubscribe tag is missing`)
+      emailProfile.unsubscribeLink = ''
+    }
+
+    if ($(preferencesLinkRef).length === 0) {
+      _this.logger.info(`Preferences tag missing`)
+      emailProfile.preferencesLink = ''
+    }
+
     if (groupId) {
       const group = emailProfile.groups?.find((grp) => grp.id === groupId)
       const groupUnsubscribeLink = group?.groupUnsubscribeLink

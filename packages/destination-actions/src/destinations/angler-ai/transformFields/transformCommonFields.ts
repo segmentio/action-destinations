@@ -7,7 +7,7 @@ export function transformCommonFields(payload: Payload) {
     ip_address: payload.ipAddress,
     user_agent: payload.userAgent,
     timestamp: payload.timestamp,
-    fpb: payload.identifiers.fbp,
+    fbp: payload.identifiers.fbp,
     fbc: payload.identifiers.fbc,
     ga: payload.identifiers.ga,
     identifiers: Object.keys(payload.identifiers).reduce((acc: { name: string; value: string }[], key) => {

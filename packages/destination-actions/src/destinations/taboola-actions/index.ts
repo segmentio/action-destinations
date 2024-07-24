@@ -6,7 +6,7 @@ import { TaboolaClient } from './syncAudience/client'
 import syncAudience from './syncAudience'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'Taboola (actions)',
+  name: 'Taboola (Actions)',
   slug: 'actions-taboola-actions',
   mode: 'cloud',
 
