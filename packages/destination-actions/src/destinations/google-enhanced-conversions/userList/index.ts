@@ -130,6 +130,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true,
       unsafe_hidden: true
     },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'The number of records to send in each batch.',
+      type: 'integer',
+      default: 10000,
+      unsafe_hidden: true
+    },
     event_name: {
       label: 'Event Name',
       description: 'The name of the current Segment event.',
@@ -166,7 +173,8 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           label: 'External ID Type',
           description: 'Customer match upload key types.',
-          required: false,
+          required: true,
+          default: 'CONTACT_INFO',
           choices: [
             { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
             { label: 'CRM ID', value: 'CRM_ID' },
@@ -194,26 +202,19 @@ const action: ActionDefinition<Settings, Payload> = {
         id: {
           type: 'string',
           label: 'ID',
-          description: 'The ID of the created Google Customer Match User list that users will be synced to.',
+          description: 'The ID of the Google Customer Match User list that users will be synced to.',
           required: false
         },
         name: {
           type: 'string',
           label: 'List Name',
-          description: 'The name of the created Google Customer Match User list that users will be synced to.',
+          description: 'The name of the Google Customer Match User list that users will be synced to.',
           required: false
         },
         external_id_type: {
           type: 'string',
           label: 'External ID Type',
           description: 'Customer match upload key types.',
-          required: false
-        },
-        app_id: {
-          label: 'App ID',
-          description:
-            'A string that uniquely identifies a mobile application from which the data was collected. Required if external ID type is mobile advertising ID',
-          type: 'string',
           required: false
         }
       },
@@ -228,8 +229,7 @@ const action: ActionDefinition<Settings, Payload> = {
               savedData: {
                 id: hookInputs.list_id,
                 name: response.results[0].userList.name,
-                external_id_type: hookInputs.external_id_type,
-                app_id: hookInputs.app_id
+                external_id_type: hookInputs.external_id_type
               }
             }
           } catch (e) {
@@ -260,8 +260,7 @@ const action: ActionDefinition<Settings, Payload> = {
             savedData: {
               id: listId,
               name: hookInputs.list_name,
-              external_id_type: hookInputs.external_id_type,
-              app_id: hookInputs.app_id
+              external_id_type: hookInputs.external_id_type
             }
           }
         } catch (e) {
