@@ -2,23 +2,23 @@
 
 export interface Payload {
   /**
-   * Segment Audience Id (aud_...). Maps to "Id" of a Segment node in Delivr AI Audience Segment
+   * Segment Audience Id (aud_...). Maps to "Id" of a Segment node in Delivr AI Audience Segment.
    */
   segment_audience_id?: string
   /**
-   * Email address of a user
+   * Email address of a user.
    */
   email: string
   /**
-   * Phone number of a user
+   * Phone number of a user.
    */
   phone?: string
   /**
-   * User's mobile advertising Id
+   * User's mobile advertising Id.
    */
   advertising_id?: string
   /**
-   * Segment Audience Key. Maps to the "Name" of the Segment node in Delivr AI Audience Segmentation
+   * Segment Audience Key. Maps to the "Name" of the Segment node in Delivr AI Audience Segmentation.
    */
   segment_audience_key: string
   /**

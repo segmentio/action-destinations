@@ -1,9 +1,8 @@
 import { createHash } from 'crypto'
 import { Payload } from './updateSegment/generated-types'
 import { DelivrAIPayload } from './types'
-import {  RequestClient  } from '@segment/actions-core'
-import {DELIVRAI_BASE_URL , DELIVRAI_GET_TOKEN} from './constants';
-
+import { RequestClient } from '@segment/actions-core'
+import { DELIVRAI_BASE_URL, DELIVRAI_GET_TOKEN } from './constants'
 
 /**
  * Creates a SHA256 hash from the input
@@ -21,16 +20,17 @@ export function create_hash(input: string | undefined): string | undefined {
  * @param client_secret
  * @returns The JWT token
  */
-export async function generate_jwt(client_identifier: string ,request: RequestClient,) {
+export async function generate_jwt(client_identifier: string, request: RequestClient) {
   const url = `${DELIVRAI_BASE_URL}${DELIVRAI_GET_TOKEN}?client_identifier=${client_identifier}`
   return await request(url, {
     method: 'GET'
-  }).then((response) => {
-      return response
-  }).catch((error) => {
-    return error.response?.code;
   })
- 
+    .then((response) => {
+      return response
+    })
+    .catch((error) => {
+      return error.response?.code
+    })
 }
 
 /**
@@ -46,7 +46,6 @@ export async function generate_jwt(client_identifier: string ,request: RequestCl
  * @returns {DelivrAIPayload} The Delivr AI payload.
  */
 
-
 export function validate_phone(phone: string) {
   /*
   Phone must match E.164 format: a number up to 15 digits in length starting with a ‘+’
@@ -61,7 +60,7 @@ export function validate_phone(phone: string) {
     return ''
   }
 }
-export function gen_update_segment_payload(payloads: Payload[]  , client_identifier_id:string): DelivrAIPayload {
+export function gen_update_segment_payload(payloads: Payload[], client_identifier_id: string): DelivrAIPayload {
   const data_groups: {
     [hashed_email: string]: {
       exp: string
@@ -71,12 +70,12 @@ export function gen_update_segment_payload(payloads: Payload[]  , client_identif
   } = {}
   const data = []
   //
-  let audience_key = '';
+  let audience_key = ''
   for (const event of payloads) {
     let hashed_email: string | undefined = ''
     if (event.email) {
       hashed_email = create_hash(event.email.toLowerCase())
-    } 
+    }
     let idfa: string | undefined = ''
     let gpsaid: string | undefined = ''
     if (event.advertising_id) {
@@ -97,7 +96,7 @@ export function gen_update_segment_payload(payloads: Payload[]  , client_identif
           gpsaid = event.advertising_id
         }
       }
-     }
+    }
     let hashed_phone: string | undefined = ''
     if (event.phone) {
       const phone = validate_phone(event.phone)
@@ -111,7 +110,7 @@ export function gen_update_segment_payload(payloads: Payload[]  , client_identif
     const ts = Math.floor(new Date().getTime() / 1000)
     let exp
     const seg_id = event.segment_audience_id
-    audience_key = seg_id;
+    audience_key = seg_id
     const group_key = `${hashed_email}|${idfa}|${gpsaid}|${hashed_phone}`
     if (!(group_key in data_groups)) {
       data_groups[group_key] = []
@@ -123,16 +122,16 @@ export function gen_update_segment_payload(payloads: Payload[]  , client_identif
       ts: String(ts)
     })
   }
-  
+
   for (const [key] of Object.entries(data_groups)) {
     const [hashed_email, idfa, gpsaid, hashed_phone] = key.split('|')
-    data.push({email : hashed_email,advertising_id_ios :  idfa,advertising_id_android :  gpsaid,phone :hashed_phone})
+    data.push({ email: hashed_email, advertising_id_ios: idfa, advertising_id_android: gpsaid, phone: hashed_phone })
   }
 
   const delivr_ai_payload: DelivrAIPayload = {
-    audience_key : audience_key,
+    audience_key: audience_key,
     data: data,
-    client_identifier_id:client_identifier_id
+    client_identifier_id: client_identifier_id
   }
 
   return delivr_ai_payload
