@@ -35,7 +35,7 @@ export interface Payload {
   /**
    * Specify if Segment create associated records in Hubspot. Records can only be created if they have a single unique identifier field and do not require additional fields to be set upon creation.
    */
-  association_sync_mode?: string
+  association_sync_mode: string
   /**
    * Associations to create between the record and other records.
    */

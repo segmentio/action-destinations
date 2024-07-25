@@ -63,10 +63,11 @@ export const commonFields: Record<string, InputField> = {
         label: 'Associated Record Sync Mode',
         description: 'Specify if Segment create associated records in Hubspot. Records will only be created if the record requires a single identifier field and does not require property fields to be set upon creation.',
         type: 'string',
-        default: 'create',
+        default: 'upsert',
+        required: true,
         choices: [
-          { label: 'Create', value: 'create' },
-          { label: "Do not create", value: 'do_not_create' }
+          { label: 'Create', value: 'upsert' },
+          { label: "Do not create", value: 'read' }
         ]
     },
     associations: {

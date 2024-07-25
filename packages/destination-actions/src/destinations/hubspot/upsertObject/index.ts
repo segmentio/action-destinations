@@ -1,9 +1,10 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { HubspotClient } from './hubspot-api'
+import { HubspotClient, AssociationSyncMode } from './hubspot-api'
 //import { RequestClient} from '@segment/actions-core'
 import { commonFields } from './common-fields'
+import { dynamicReadAssociationLabels, dynamicReadIdFields, dynamicReadObjectTypes, dynamicReadPropertyGroups } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Object',
@@ -95,18 +96,20 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { payload, syncMode }) => {
 
-    syncMode = 'add'
-
-    console.log(syncMode)
-
     const payloads = [payload]
 
-    const hubspotClient = new HubspotClient(request, syncMode as string)
+    const hubspotClient = new HubspotClient(
+      request, 
+      payload.object_details.from_object_type, 
+      payload.object_details.from_id_field_name,
+      'upsert', 
+      payload.association_sync_mode as AssociationSyncMode)
     
-    //const x = await hubspotClient.dynamicReadObjectTypes()
-    // const x = await hubspotClient.dynamicReadIdFields('meetings')
-    // const x = await hubspotClient.dynamicReadAssociationLabels('meetings', 'contacts')
-    // const x = await hubspotClient.dynamicReadPropertyGroups('meetings')
+    // const x = await dynamicReadObjectTypes(request)
+    // const x = await dynamicReadIdFields(request, 'meetings')
+    // const x = await dynamicReadAssociationLabels(request, 'meetings', 'contacts')
+    // const x = await dynamicReadPropertyGroups(request, 'meetings')
+    
     //const x = await hubspotClient.readProperties('contacts')
     // const x = hubspotClient.findUniqueFromProps(payloads)
 
@@ -118,12 +121,11 @@ const action: ActionDefinition<Settings, Payload> = {
     const propsToCreate = hubspotClient.createListPropsToCreate(uniqueProps, contactProps)
     //console.log(propsToCreate) 
     
-    await hubspotClient.ensureProperties('companies', 'Companyinformation', propsToCreate )
+    await hubspotClient.ensurePropertiesInObjSchema('companies', 'Companyinformation', propsToCreate )
 
-    await hubspotClient.ensureFromRecords([payload], syncMode)
+    const existingFromRecords = await hubspotClient.ensureFromRecordsExistInHubspot([payload], 'upsert')
 
-
-    await hubspotClient.buildToRecordRequest(payloads)
+    await hubspotClient.buildToRecordRequest(existingFromRecords)
     
     //await hubspotClient.ensureObjects([payload], true)
     //await hubspotClient.ensureAssociations([payload])
