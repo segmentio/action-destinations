@@ -103,6 +103,7 @@ const audienceDestination: AudienceDestinationDefinition<JSONObject> = {
       type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
+    // Mocked createAudience Handler
     async createAudience(_request, createAudienceInput) {
       const settings: any = createAudienceInput.settings
 
@@ -120,6 +121,7 @@ const audienceDestination: AudienceDestinationDefinition<JSONObject> = {
         }, 3)
       })
     },
+    // Mocked getAudience Handler
     async getAudience(_request, getAudienceInput) {
       const settings: any = getAudienceInput.settings
 
