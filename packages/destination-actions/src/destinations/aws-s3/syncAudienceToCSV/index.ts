@@ -244,7 +244,7 @@ async function processData(payloads: Payload[], settings: Settings, audienceSett
   validate(payloads, audienceSettings as AudienceSettings)
   const fileContent = generateFile(payloads, audienceSettings as AudienceSettings)
   const s3Client = new S3CSVClient(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
-  await s3Client.uploadS3(settings, audienceSettings as AudienceSettings, fileContent)
+  await s3Client.uploadS3(settings, audienceSettings as AudienceSettings, fileContent, payloads[0].audienceName)
 }
 
 export default action

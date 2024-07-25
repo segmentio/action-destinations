@@ -57,7 +57,7 @@ export class S3CSVClient {
     }
   }
 
-  async uploadS3(settings: Settings, audienceSettings: AudienceSettings, fileContent: string) {
+  async uploadS3(settings: Settings, audienceSettings: AudienceSettings, fileContent: string, audienceName: string) {
     let filename = audienceSettings.filename ?? ''
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
@@ -66,11 +66,16 @@ export class S3CSVClient {
       filename = filename.replace('.csv', `_${dateSuffix}.csv`)
     } else {
       // Append the date suffix followed by .csv
-      filename = filename ? `${filename}_${dateSuffix}.csv` : `${dateSuffix}.csv`
+      audienceName = audienceName ? audienceName.toLowerCase() : ''
+      filename = filename ? `${filename}_${audienceName}_${dateSuffix}.csv` : `${audienceName}_${dateSuffix}.csv`
     }
 
     const bucketName = settings.s3_aws_bucket_name
-    const folderName = audienceSettings.s3_aws_folder_name || ''
+    const folderName = ['', null, undefined].includes(audienceSettings?.s3_aws_folder_name)
+      ? ''
+      : audienceSettings?.s3_aws_folder_name?.endsWith('/')
+      ? audienceSettings?.s3_aws_folder_name
+      : `${audienceSettings?.s3_aws_folder_name}/`
     const credentials = await this.assumeRole()
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const s3Client = new S3Client({
