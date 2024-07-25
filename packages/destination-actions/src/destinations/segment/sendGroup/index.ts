@@ -20,7 +20,6 @@ import {
   timezone,
   traits,
   message_id,
-  enable_batching,
   consent,
   validateConsentObject
 } from '../segment-properties'
@@ -49,61 +48,45 @@ const action: ActionDefinition<Settings, Payload> = {
     timezone,
     traits,
     message_id,
-    enable_batching,
     consent
   },
   perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
+    const isValidConsentObject = validateConsentObject(payload?.consent)
 
-    const groupPayload: Object = convertPayload(payload)
+    const groupPayload: Object = {
+      userId: payload?.user_id,
+      anonymousId: payload?.anonymous_id,
+      groupId: payload?.group_id,
+      timestamp: payload?.timestamp,
+      messageId: payload?.message_id,
+      context: {
+        app: payload?.application,
+        campaign: payload?.campaign_parameters,
+        consent: isValidConsentObject ? { ...payload?.consent } : {},
+        device: payload?.device,
+        ip: payload?.ip_address,
+        locale: payload?.locale,
+        location: payload?.location,
+        network: payload?.network,
+        os: payload?.operating_system,
+        page: payload?.page,
+        screen: payload?.screen,
+        userAgent: payload?.user_agent,
+        timezone: payload?.timezone
+      },
+      traits: {
+        ...payload?.traits
+      },
+      type: 'group'
+    }
 
     // Returns transformed payload without snding it to TAPI endpoint.
     // The payload will be sent to Segment's tracking API internally.
     statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendGroup'])
     return { batch: [groupPayload] }
-  },
-  performBatch: (_request, { payload, statsContext }) => {
-    const groupPayload = payload.map((data) => {
-      if (!data.anonymous_id && !data.user_id) {
-        throw MissingUserOrAnonymousIdThrowableError
-      }
-      return convertPayload(data)
-    })
-
-    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendBatchGroup'])
-    return { batch: groupPayload }
-  }
-}
-
-function convertPayload(data: Payload) {
-  const isValidateConsentObject = validateConsentObject(data.consent)
-  return {
-    userId: data?.user_id,
-    anonymousId: data?.anonymous_id,
-    groupId: data?.group_id,
-    timestamp: data?.timestamp,
-    messageId: data?.message_id,
-    context: {
-      app: data?.application,
-      campaign: data?.campaign_parameters,
-      consent: isValidateConsentObject ? { ...data?.consent } : {},
-      device: data?.device,
-      ip: data?.ip_address,
-      locale: data?.locale,
-      location: data?.location,
-      network: data?.network,
-      os: data?.operating_system,
-      page: data?.page,
-      screen: data?.screen,
-      userAgent: data?.user_agent,
-      timezone: data?.timezone
-    },
-    traits: {
-      ...data?.traits
-    },
-    type: 'group'
   }
 }
 
