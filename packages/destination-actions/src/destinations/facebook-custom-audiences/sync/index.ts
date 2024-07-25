@@ -261,7 +261,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload, hookOutputs, syncMode }) => {
     console.log('test perform')
-    const fbClient = new FacebookClient(request, settings.adAccountId)
+    const fbClient = new FacebookClient(request, settings.retlAdAccountId)
 
     console.log('settings', settings)
     console.log('hookOutputs', hookOutputs)
@@ -280,7 +280,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, { settings, payload, hookOutputs, syncMode }) => {
     console.log('test performBatch')
-    const fbClient = new FacebookClient(request, settings.adAccountId)
+    const fbClient = new FacebookClient(request, settings.retlAdAccountId)
 
     if (syncMode === 'add' || syncMode === 'update' || syncMode === 'upsert') {
       return await fbClient.syncAudience({

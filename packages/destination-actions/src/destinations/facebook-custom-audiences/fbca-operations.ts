@@ -120,7 +120,7 @@ export default class FacebookClient {
 
     payloads.forEach((payload) => {
       console.log('payload', payload)
-      const row = []
+      const row: string[] = []
       schema.forEach((key) => {
         console.log('key', key)
         const value = payload[key.toLowerCase() as keyof Payload]
