@@ -1,6 +1,5 @@
 import { DynamicFieldItem, DynamicFieldError, RequestClient } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
-import { audienceId } from '../talon-one/t1-properties'
 import { createHash } from 'crypto'
 
 const FACEBOOK_API_VERSION = 'v20.0'
@@ -89,17 +88,13 @@ export default class FacebookClient {
         data: data
       }
     }
-    console.log('params', JSON.stringify(params))
-
-    console.log('audienceId', input.audienceId)
 
     try {
-      return await this.request(`${BASE_URL}${audienceId}/users`, {
+      return await this.request(`${BASE_URL}${input.audienceId}/users`, {
         method: 'post',
         json: params
       })
     } catch (e) {
-      console.log('error', e)
       return
     }
   }

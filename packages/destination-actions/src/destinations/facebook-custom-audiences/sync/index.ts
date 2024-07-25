@@ -260,12 +260,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, hookOutputs, syncMode }) => {
-    console.log('test perform')
     const fbClient = new FacebookClient(request, settings.retlAdAccountId)
-
-    console.log('settings', settings)
-    console.log('hookOutputs', hookOutputs)
-    console.log('syncMode', syncMode)
 
     if (syncMode === 'add' || syncMode === 'update' || syncMode === 'upsert') {
       return await fbClient.syncAudience({
