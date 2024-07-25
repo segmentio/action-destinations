@@ -83,7 +83,25 @@ const action: ActionDefinition<Settings, Payload> = {
       performHook: async (request, { settings, hookInputs }) => {
         const fbClient = new FacebookClient(request, settings.retlAdAccountId)
 
-        if (hookInputs.existingAudienceId) {
+        if (hookInputs.operation === 'create' && !hookInputs.audienceName) {
+          return {
+            error: {
+              message: 'Missing audience name value',
+              code: 'MISSING_REQUIRED_FIELD'
+            }
+          }
+        }
+
+        if (hookInputs.operation === 'existing' && !hookInputs.existingAudienceId) {
+          return {
+            error: {
+              message: 'Missing audience ID value',
+              code: 'MISSING_REQUIRED_FIELD'
+            }
+          }
+        }
+
+        if (hookInputs.operation === 'existing' && hookInputs.existingAudienceId) {
           const { data, error } = await fbClient.getSingleAudience(hookInputs.existingAudienceId)
 
           if (error) {
@@ -103,13 +121,23 @@ const action: ActionDefinition<Settings, Payload> = {
             }
           }
         }
-        const { data } = await fbClient.createAudience(hookInputs.audienceName)
+
+        if (hookInputs.operation === 'create' && hookInputs.audienceName) {
+          const { data } = await fbClient.createAudience(hookInputs.audienceName)
+
+          return {
+            successMessage: `Audience created with ID: ${data.id}`,
+            savedData: {
+              audienceId: data.id,
+              audienceName: hookInputs.audienceName
+            }
+          }
+        }
 
         return {
-          successMessage: `Audience created with ID: ${data.id}`,
-          savedData: {
-            audienceId: data.id,
-            audienceName: hookInputs.audienceName
+          error: {
+            message: 'Invalid operation',
+            code: 'INVALID_OPERATION'
           }
         }
       }
