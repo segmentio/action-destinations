@@ -78,7 +78,7 @@ export default class FacebookClient {
     }
   }
 
-  syncAudience = async (input: { audienceId: string; payload: Payload[] }) => {
+  syncAudience = async (input: { audienceId: string; payload: Payload[]; deleteUsers?: boolean }) => {
     const schema = this.generateSchema(input.payload)
     const data = this.generateData(schema, input.payload)
 
@@ -91,7 +91,7 @@ export default class FacebookClient {
 
     try {
       return await this.request(`${BASE_URL}${input.audienceId}/users`, {
-        method: 'post',
+        method: input.deleteUsers === true ? 'delete' : 'post',
         json: params
       })
     } catch (e) {

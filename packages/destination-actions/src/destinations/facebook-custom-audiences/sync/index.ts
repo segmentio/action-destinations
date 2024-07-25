@@ -262,29 +262,23 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload, hookOutputs, syncMode }) => {
     const fbClient = new FacebookClient(request, settings.retlAdAccountId)
 
-    if (syncMode === 'add' || syncMode === 'update' || syncMode === 'upsert') {
+    if (syncMode) {
       return await fbClient.syncAudience({
         audienceId: hookOutputs?.retlOnMappingSave.audienceId,
-        payload: [payload]
+        payload: [payload],
+        deleteUsers: syncMode === 'delete' ? true : false
       })
-    }
-
-    if (syncMode === 'delete') {
-      // TODO DELETE OPERATION
     }
   },
   performBatch: async (request, { settings, payload, hookOutputs, syncMode }) => {
     const fbClient = new FacebookClient(request, settings.retlAdAccountId)
 
-    if (syncMode === 'add' || syncMode === 'update' || syncMode === 'upsert') {
+    if (syncMode) {
       return await fbClient.syncAudience({
         audienceId: hookOutputs?.retlOnMappingSave.audienceId,
-        payload
+        payload,
+        deleteUsers: syncMode === 'delete' ? true : false
       })
-    }
-
-    if (syncMode === 'delete') {
-      // TODO DELETE OPERATION
     }
   }
 }
