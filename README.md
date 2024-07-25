@@ -1,3 +1,7 @@
+>[!NOTE]  
+>This integration is a WIP
+>Following [this documentation](https://segment.com/docs/partners/destinations/build/)
+
 <p align="center"><a href="https://segment.com"><img src="https://github-production-user-asset-6210df.s3.amazonaws.com/316711/254403783-df7b9cdd-1e45-48a8-a255-e1cc087e2196.svg" width="100"/></a></p>
 
 # Action Destinations
