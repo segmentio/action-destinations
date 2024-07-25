@@ -16,13 +16,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     s3_aws_folder_name: {
       label: 'AWS Subfolder Name',
       description:
-        'Name of the S3 Subfolder where the files will be uploaded to. "/" must exist at the end of the folder name.',
+        'Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/',
       type: 'string',
       required: false
     },
     filename: {
       label: 'Filename prefix',
-      description: `Prefix to append to the name of the uploaded file. A timestamp and lower cased audience name will be appended to the filename to ensure uniqueness.`,
+      description: `Prefix to append to the name of the uploaded file. A lower cased audience name and timestamp will be appended by default to the filename to ensure uniqueness.
+                    Format: <PREFIX>_<AUDIENCE NAME>_<TIMESTAMP>.csv`,
       type: 'string',
       required: false
     },
@@ -32,11 +33,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       required: true,
       choices: [
-        {label: 'comma', value: ','},
-        {label: 'pipe', value: '|'},
-        {label: 'tab', value: 'tab'},
-        {label: 'semicolon', value: ';'},
-        {label: 'colon', value: ':'},
+        { label: 'comma', value: ',' },
+        { label: 'pipe', value: '|' },
+        { label: 'tab', value: 'tab' },
+        { label: 'semicolon', value: ';' },
+        { label: 'colon', value: ':' }
       ],
       default: ','
     }
@@ -59,8 +60,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       s3_aws_region: {
         label: 'AWS Region Code (S3 only)',
-        description: 'Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)',
+        description:
+          'Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)',
         type: 'string',
+        required: true
+      },
+      iam_external_id: {
+        label: 'IAM External ID',
+        description: 'The External ID to your IAM role. Generate a secure string and treat it like a password.',
+        type: 'password',
         required: true
       }
     }
@@ -68,7 +76,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceConfig: {
     mode: {
       type: 'synced',
-      full_audience_sync: true
+      full_audience_sync: false
     },
     async createAudience(_, createAudienceInput) {
       const audienceSettings = createAudienceInput.audienceSettings

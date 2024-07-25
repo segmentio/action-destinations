@@ -8,7 +8,6 @@
 describe('Aws S3', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      
       expect(true).toEqual(true)
     })
   })

@@ -36,7 +36,7 @@ export interface Payload {
     /**
      * Name of column for the unique identifier for the message.
      */
-    messageId?: string
+    message_id?: string
     /**
      * Name of column for the unique identifier for the Segment Engage Space that generated the event.
      */
