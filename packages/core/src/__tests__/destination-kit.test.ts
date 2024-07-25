@@ -5,7 +5,9 @@ import {
   Logger,
   StatsClient,
   StatsContext,
-  TransactionContext
+  TransactionContext,
+  AudienceDestinationDefinition,
+  AuthenticationScheme
 } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
@@ -75,6 +77,68 @@ const destinationOAuth2: DestinationDefinition<JSONObject> = {
       }
     }
   }
+}
+
+const authentication: AuthenticationScheme<JSONObject> = {
+  scheme: 'oauth2',
+  fields: {},
+  refreshAccessToken: (_request) => {
+    return new Promise((resolve, _reject) => {
+      setTimeout(() => {
+        resolve({
+          accessToken: 'fresh-token'
+        })
+      }, 3)
+    })
+  }
+}
+
+const audienceDestination: AudienceDestinationDefinition<JSONObject> = {
+  name: 'Amazon AMC (Actions)',
+  mode: 'cloud',
+  authentication: authentication,
+  audienceFields: {},
+  audienceConfig: {
+    mode: {
+      type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
+      full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+    },
+    async createAudience(_request, createAudienceInput) {
+      const settings: any = createAudienceInput.settings
+
+      if (settings.oauth.access_token == 'fresh-token' || settings.oauth.access_token == 'valid-access-token') {
+        return new Promise((resolve, _reject) => {
+          setTimeout(() => {
+            resolve({ externalId: '123456789' })
+          }, 3)
+        })
+      }
+
+      return new Promise((_resolve, reject) => {
+        setTimeout(() => {
+          reject({ status: 401 })
+        }, 3)
+      })
+    },
+    async getAudience(_request, getAudienceInput) {
+      const settings: any = getAudienceInput.settings
+
+      if (settings.oauth.access_token == 'fresh-token' || settings.oauth.access_token == 'valid-access-token') {
+        return new Promise((resolve, _reject) => {
+          setTimeout(() => {
+            resolve({ externalId: getAudienceInput.externalId })
+          }, 3)
+        })
+      }
+
+      return new Promise((_resolve, reject) => {
+        setTimeout(() => {
+          reject({ status: 401 })
+        }, 3)
+      })
+    }
+  },
+  actions: {}
 }
 
 const destinationWithOptions: DestinationDefinition<JSONObject> = {
@@ -950,6 +1014,96 @@ describe('destination kit', () => {
         choices: [],
         error: { code: '404', message: 'No dynamic field named testStructuredObject.ghostSubfield found.' },
         nextPage: ''
+      })
+    })
+  })
+
+  describe('Audience Destination', () => {
+    beforeEach(async () => {
+      jest.restoreAllMocks()
+      jest.resetAllMocks()
+    })
+    describe('createAudience', () => {
+      test('Refreshes the access-token in case of Unauthorized(401)', async () => {
+        const createAudienceInput = {
+          audienceName: 'Test Audience',
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'expired-access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          }
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.createAudience(createAudienceInput)
+        expect(res).toEqual({ externalId: '123456789' })
+        expect(spy).toHaveBeenCalledTimes(1)
+      })
+
+      test('Will not refresh access-token if token is already valid', async () => {
+        const createAudienceInput = {
+          audienceName: 'Test Audience',
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'valid-access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          }
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.createAudience(createAudienceInput)
+        expect(res).toEqual({ externalId: '123456789' })
+        expect(spy).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('getAudience', () => {
+      test('Refreshes the access-token in case of Unauthorized(401)', async () => {
+        const createAudienceInput = {
+          externalId: '366170701270726115',
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'expired-access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          }
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.getAudience(createAudienceInput)
+        expect(res).toEqual({ externalId: '366170701270726115' })
+        expect(spy).toHaveBeenCalledTimes(1)
+      })
+
+      test('Will not refresh access-token if token is already valid', async () => {
+        const createAudienceInput = {
+          externalId: '366170701270726115',
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'valid-access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          }
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.getAudience(createAudienceInput)
+        expect(res).toEqual({ externalId: '366170701270726115' })
+        expect(spy).not.toHaveBeenCalled()
       })
     })
   })
