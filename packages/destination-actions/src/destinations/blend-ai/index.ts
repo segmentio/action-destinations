@@ -50,7 +50,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   ],
   actions: {
-    sendData
+    sendData,
+    trackEventsAction
   }
 }
 

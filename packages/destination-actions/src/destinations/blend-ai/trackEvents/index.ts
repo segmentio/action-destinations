@@ -11,16 +11,65 @@ import { BASE_URL } from '../consts'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track events',
   description: 'Send data to Blend AI for product usage insights',
+
   fields: {
+    eventName: {
+      label: 'Event Name',
+      description: 'The name of event, page or screen',
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.event' },
+          then: { '@path': '$.event' },
+          else: { '@path': '$.name' }
+        }
+      }
+    },
     eventType: {
       label: 'Event Type',
       description: 'The type of event',
-      type: 'string'
+      type: 'string',
+      default: { '@path': '$.type' }
     },
     eventProperties: {
       label: 'Event Properties',
       description: 'Properties of the event',
-      type: 'object'
+      type: 'object',
+      default: { '@path': '$.properties' }
+    },
+    userTraits: {
+      label: 'User Traits',
+      description: 'User profile details / traits',
+      type: 'object',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits' },
+          then: { '@path': '$.traits' },
+          else: { '@path': '$.context.traits' }
+        }
+      }
+    },
+    identifiers: {
+      label: 'Identifiers',
+      description: 'User identifiers',
+      type: 'object',
+      defaultObjectUI: 'keyvalue',
+      properties: {
+        anonymousId: {
+          label: 'Anonymous ID',
+          description: 'Segment anonymous ID',
+          type: 'string'
+        },
+        userId: {
+          label: 'User ID',
+          description: 'User ID',
+          type: 'string'
+        }
+      },
+      default: {
+        anonymousId: { '@path': '$.anonymousId' },
+        userId: { '@path': '$.userId' }
+      }
     }
   },
   defaultSubscription: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
