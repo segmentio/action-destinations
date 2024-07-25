@@ -78,7 +78,10 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: {
         type: payload.eventType,
-        properties: payload.eventProperties
+        properties: payload.eventProperties,
+        name: payload.eventName,
+        userTraits: payload.userTraits,
+        ...payload.identifiers
       }
     })
 }
