@@ -274,7 +274,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   performBatch: async (request, { settings, payload, hookOutputs, syncMode }) => {
-    console.log('test performBatch')
     const fbClient = new FacebookClient(request, settings.retlAdAccountId)
 
     if (syncMode === 'add' || syncMode === 'update' || syncMode === 'upsert') {

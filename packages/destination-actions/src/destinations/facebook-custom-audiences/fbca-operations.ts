@@ -101,6 +101,7 @@ export default class FacebookClient {
 
   private generateSchema = (payloads: Payload[]): string[] => {
     const schema = new Set<string>()
+
     payloads.forEach((payload) => {
       Object.keys(payload).forEach((key) => {
         schema.add(key.toUpperCase())
@@ -114,14 +115,13 @@ export default class FacebookClient {
     const data: (string | number)[][] = []
 
     payloads.forEach((payload) => {
-      console.log('payload', payload)
       const row: string[] = []
+
       schema.forEach((key) => {
-        console.log('key', key)
         const value = payload[key.toLowerCase() as keyof Payload]
-        console.log('value', value)
         row.push(this.hash(value) || '')
       })
+
       data.push(row)
     })
 
