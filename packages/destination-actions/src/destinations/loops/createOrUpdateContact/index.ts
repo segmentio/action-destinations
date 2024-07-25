@@ -52,9 +52,25 @@ const action: ActionDefinition<Settings, Payload> = {
     mailingLists: {
       label: 'Mailing Lists',
       description:
-        'An object containing key-value pairs of mailing list IDs and true/false determining if the contact should be added to or removed from each list.',
+        'An an array of objects containing key-value pairs of mailing list IDs and true/false determining if the contact should be added to or removed from each list.',
       type: 'object',
-      required: false
+      multiple: true,
+      required: false,
+      properties: {
+        list_id: {
+          label: 'List ID',
+          description: 'The ID of the mailing list.',
+          type: 'string',
+          required: true
+        },
+        value: {
+          label: 'value',
+          description:
+            'true indicates that the user is to be added to the list, false will remove the user from the list.',
+          type: 'boolean',
+          required: true
+        }
+      }
     },
     source: {
       label: 'Source',
@@ -95,11 +111,25 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { payload }) => {
     const { customAttributes, ...rest } = payload
+
+    /* Re-shape mailing list data from a list of objects to a single object for the API */
+    const formattedMailingLists: Record<string, boolean> = {}
+    if (payload.mailingLists) {
+      for (const value of Object.values(payload.mailingLists)) {
+        if (typeof value === 'object' && 'list_id' in value && 'value' in value) {
+          formattedMailingLists[(value as { list_id: string; value: boolean }).list_id] = (
+            value as { list_id: string; value: boolean }
+          ).value
+        }
+      }
+    }
+
     return request('https://app.loops.so/api/v1/contacts/update', {
       method: 'put',
       json: {
         ...(typeof customAttributes === 'object' && customAttributes),
-        ...rest
+        ...rest,
+        mailingLists: formattedMailingLists
       }
     })
   }
