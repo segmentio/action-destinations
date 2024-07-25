@@ -30,6 +30,7 @@
     "shared": "yarn workspace @segment/actions-shared",
     "subscriptions": "yarn workspace @segment/destination-subscriptions",
     "test": "nx run-many -t test",
+    "test:clear-cache": "nx clear-cache",
     "test-browser": "bash scripts/test-browser.sh",
     "test-partners": "lerna run test --stream --ignore @segment/actions-core --ignore @segment/actions-cli --ignore @segment/ajv-human-errors",
     "typecheck": "lerna run typecheck --stream",
@@ -87,8 +88,8 @@
     }
   },
   "lint-staged": {
-    "**/src/destinations/**/index.ts": [
-      "./bin/run generate:types",
+    "**/{browser-destinations,destinations}/**/*.ts": [
+      "./bin/run generate:types -p",
       "git add **/generated-types.ts"
     ],
     "!(**/templates/**)/*.ts": [

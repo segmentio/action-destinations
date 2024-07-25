@@ -1,0 +1,125 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AnglerAi's saveProductEvent destination action: all fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "client_id": "CFQcvY4UNbVp*xK",
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {
+              "amount": 29115173012766.72,
+              "currencyCode": "CFQcvY4UNbVp*xK",
+            },
+          },
+          "id": "CFQcvY4UNbVp*xK",
+          "lines": Array [
+            Object {
+              "cost": Object {
+                "totalAmount": Object {
+                  "amount": 29115173012766.72,
+                },
+              },
+              "merchandise": Object {
+                "id": "CFQcvY4UNbVp*xK",
+                "image": Object {
+                  "src": "CFQcvY4UNbVp*xK",
+                },
+                "price": Object {
+                  "amount": 29115173012766.72,
+                },
+                "product": Object {
+                  "title": "CFQcvY4UNbVp*xK",
+                  "type": "CFQcvY4UNbVp*xK",
+                  "untranslatedTitle": "CFQcvY4UNbVp*xK",
+                  "url": "CFQcvY4UNbVp*xK",
+                  "vendor": "CFQcvY4UNbVp*xK",
+                },
+                "sku": "CFQcvY4UNbVp*xK",
+                "title": "CFQcvY4UNbVp*xK",
+                "untranslatedTitle": "CFQcvY4UNbVp*xK",
+              },
+              "quantity": 29115173012766.72,
+            },
+          ],
+        },
+        "customData": Array [
+          Object {
+            "name": "testType",
+            "value": "CFQcvY4UNbVp*xK",
+          },
+        ],
+        "customer": Object {
+          "dob": "CFQcvY4UNbVp*xK",
+          "email": "bunlajis@jah.vn",
+          "firstName": "CFQcvY4UNbVp*xK",
+          "id": "CFQcvY4UNbVp*xK",
+          "lastName": "CFQcvY4UNbVp*xK",
+          "phone": "CFQcvY4UNbVp*xK",
+        },
+        "productVariant": Object {
+          "id": "CFQcvY4UNbVp*xK",
+          "image": Object {
+            "src": "CFQcvY4UNbVp*xK",
+          },
+          "price": Object {
+            "amount": 29115173012766.72,
+          },
+          "product": Object {
+            "id": "CFQcvY4UNbVp*xK",
+            "title": "CFQcvY4UNbVp*xK",
+            "type": "CFQcvY4UNbVp*xK",
+            "untranslatedTitle": "CFQcvY4UNbVp*xK",
+            "url": "CFQcvY4UNbVp*xK",
+            "vendor": "CFQcvY4UNbVp*xK",
+          },
+          "sku": "CFQcvY4UNbVp*xK",
+          "title": "CFQcvY4UNbVp*xK",
+          "untranslatedTitle": "CFQcvY4UNbVp*xK",
+        },
+      },
+      "event_id": "CFQcvY4UNbVp*xK",
+      "event_name": "product_viewed",
+      "fbc": "CFQcvY4UNbVp*xK",
+      "fpb": "CFQcvY4UNbVp*xK",
+      "ga": "CFQcvY4UNbVp*xK",
+      "identifiers": Array [],
+      "ip_address": "CFQcvY4UNbVp*xK",
+      "referrer": "CFQcvY4UNbVp*xK",
+      "timestamp": "CFQcvY4UNbVp*xK",
+      "url": "CFQcvY4UNbVp*xK",
+      "user_agent": "CFQcvY4UNbVp*xK",
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for AnglerAi's saveProductEvent destination action: required fields 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "client_id": "CFQcvY4UNbVp*xK",
+      "data": Object {
+        "cart": Object {
+          "cost": Object {
+            "totalAmount": Object {},
+          },
+        },
+        "customData": Array [],
+        "customer": Object {},
+        "productVariant": Object {
+          "image": Object {},
+          "price": Object {},
+          "product": Object {},
+        },
+      },
+      "event_id": "CFQcvY4UNbVp*xK",
+      "event_name": "product_viewed",
+      "identifiers": Array [],
+    },
+  ],
+  "src": "SEGMENT",
+}
+`;
