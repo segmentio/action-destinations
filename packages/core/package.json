@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-core",
   "description": "Core runtime for Destinations Actions.",
-  "version": "3.124.0-staging-80e58f6b9",
+  "version": "3.124.0-staging-e94253062",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/fab-5-engine",
