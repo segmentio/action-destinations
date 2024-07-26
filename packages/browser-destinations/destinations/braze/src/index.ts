@@ -85,6 +85,10 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         {
           value: '4.8',
           label: '4.8'
+        },
+        {
+          value: '4.10',
+          label: '4.10
         }
       ],
       default: defaultVersion,
