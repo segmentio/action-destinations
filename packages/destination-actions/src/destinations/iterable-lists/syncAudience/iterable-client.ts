@@ -71,7 +71,7 @@ export class IterableListsClient {
         this.request(`${CONSTANTS.API_BASE_URL}/lists/subscribe`, {
           method: 'post',
           json: {
-            listId: listId,
+            listId: Number(listId),
             subscribers,
             updateExistingUsersOnly: this.updateExistingUsersOnly
           }
@@ -84,7 +84,7 @@ export class IterableListsClient {
         this.request(`${CONSTANTS.API_BASE_URL}/lists/unsubscribe`, {
           method: 'post',
           json: {
-            listId: listId,
+            listId: Number(listId),
             subscribers,
             campaignId: typeof this.campaignId === 'number' ? this.campaignId : undefined,
             channelUnsubscribe: this.updateExistingUsersOnly
