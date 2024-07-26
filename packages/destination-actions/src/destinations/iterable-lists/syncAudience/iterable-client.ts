@@ -35,7 +35,7 @@ export class IterableListsClient {
 
         const subscriber = {
           email: payload?.email ?? undefined,
-          dataFields: payload?.dataFields?.reduce((acc: { [key: string]: any }, item: string) => {
+          dataFields: payload?.dataFields?.reduce((acc: { [key: string]: unknown }, item: string) => {
             acc[item] = payload.traitsOrProperties[item];
             return acc
           }, {}),
