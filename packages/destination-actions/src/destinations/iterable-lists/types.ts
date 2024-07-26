@@ -1,11 +1,24 @@
-export interface UpsertUserPayload {
-  listId?: number
-  action?: 'subscribe' | 'usubscribe'
-  email?: string
+export interface IterableSubscribePayload {
+  listId: number,
+  subscribers: Array<Subscriber>,
+  updateExistingUsersOnly?: boolean
+}
+
+export interface Subscriber {
+  email?: string,
+  dataFields?: Record<string, null | boolean | string | number | object>,
+  userId?: string,
+  preferUserId?: boolean
+}
+
+export interface IterableUnsubscribePayload {
+  listId: number,
+  subscribers: Array<Unsubscriber>,
+  campaignId?: string,
+  channelUnsubscribe?: boolean
+}
+
+export interface Unsubscriber {
+  email?: string,
   userId?: string
-  dataFields?: {
-    [k: string]: unknown
-  }
-  preferUserId: boolean
-  mergeNestedObjects: boolean
 }

@@ -1,4 +1,4 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, RequestClient } from '@segment/actions-core'
 
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -76,23 +76,19 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
   perform: async (request, { payload, settings, audienceSettings }) => {
-    if (!audienceSettings) {
-      throw new Error('Audience settings are required')
-    }
+    IterableListsClient.validate(payload)
 
-    const iterableListsClient = new IterableListsClient(request, settings)
-    const iterableListResults = await iterableListsClient.processPayload([payload])
-    return iterableListResults
+    const payloads = [payload, payload, {...payload, traitsOrProperties: {mayur_test_1: false}}]
+    await send(request, payloads, settings, audienceSettings)
   },
   performBatch: async (request, { payload, settings, audienceSettings }) => {
-    if (!audienceSettings) {
-      throw new Error('Audience settings are required')
-    }
-
-    const iterableListsClient = new IterableListsClient(request, settings)
-    const iterableListResults = await iterableListsClient.processPayload(payload)
-    return iterableListResults
+    await send(request, payload, settings, audienceSettings)
   }
+}
+
+const send = async ( request: RequestClient, payload: Payload[], settings: Settings, audienceSettings?: AudienceSettings) => {
+  const client = new IterableListsClient(request, settings, audienceSettings)
+  await client.processPayload(payload)
 }
 
 export default action
