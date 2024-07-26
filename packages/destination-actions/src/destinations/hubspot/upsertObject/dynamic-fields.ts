@@ -53,7 +53,7 @@ export async function dynamicReadIdFields(request: RequestClient, objectType: st
             choices: [],
             error: {
                 message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: getPropertyGroups',
-                code: (err as HubSpotError)?.response?.status + '' ?? '500'
+                code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
             }
         }
     }
@@ -91,7 +91,7 @@ export async function dynamicReadPropertyGroups(request: RequestClient, objectTy
             choices: [],
             error: {
                 message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: getPropertyGroups',
-                code: (err as HubSpotError)?.response?.status + '' ?? '500'
+                code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
             }
         }
     }
@@ -164,7 +164,7 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
             choices: [],
             error: {
                 message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
-                code: (err as HubSpotError)?.response?.status + '' ?? '500'
+                code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
             }
         }
     }

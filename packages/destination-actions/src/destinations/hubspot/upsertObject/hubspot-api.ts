@@ -3,6 +3,7 @@ import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { MAX_HUBSPOT_BATCH_SIZE } from './constants'
 import type { Payload } from './generated-types'
+import { prop } from 'cheerio/lib/api/attributes'
 
 interface Association {
     to_object_type: string,
@@ -179,7 +180,7 @@ export class HubspotClient {
         if(!properties || properties.length === 0) {
             return
         }
-
+        console.log(properties)
         interface RequestBody {
             inputs: Array<{
                 label: string,
@@ -330,16 +331,14 @@ export class HubspotClient {
                 groupedAssociations = this.groupAssociations(associationsDeepCopy, ['to_object_type'])
                 
                 requests = groupedAssociations.map(async associations => {
-                    
                     const { to_object_type: toObjectType } = associations[0]
-                    
                     return await this.batchObjectRequest(this.associationSyncMode, toObjectType, {
                         inputs: associations.map(association => { 
                             return {
                                 idProperty: association.to_id_field_name,
                                 id: association.to_id_field_value,
                                 properties: {
-                                    [association.to_id_field_name]: association.to_id_field_name
+                                    [association.to_id_field_name]: association.to_id_field_value
                                 }
                             }
                         })
@@ -350,10 +349,8 @@ export class HubspotClient {
             case 'read': {
                 groupedAssociations = this.groupAssociations(associationsDeepCopy, ['to_object_type', 'to_id_field_name'])
 
-                requests = groupedAssociations.map(async associations => {
-                    
+                requests = groupedAssociations.map(async associations => {  
                     const { to_object_type: toObjectType, to_id_field_name: toIdFieldName } = associations[0]
-                    
                     return await this.batchObjectRequest(this.associationSyncMode, toObjectType, {
                         idProperty: toIdFieldName,
                         properties: [toIdFieldName],
@@ -403,7 +400,6 @@ export class HubspotClient {
             })
             return payloadsDeepCopy
         }
-
         switch(this.hubspotSyncMode){
             case 'upsert': {
                 response = await this.batchObjectRequest(this.hubspotSyncMode, this.fromObjectType, {
@@ -438,10 +434,13 @@ export class HubspotClient {
                     .filter(payload => !payload.object_details.from_record_id)
 
                 response = await this.batchObjectRequest(this.hubspotSyncMode, this.fromObjectType, {
-                    inputs: nonExistingRecords.map(({ properties }) => {
+                   
+                    
+                    inputs: nonExistingRecords.map(({ properties, object_details: {from_id_field_value: fromIdFieldValue} }) => {
+                        console.log(properties)
                         return {
                           idProperty: this.fromIdFieldName,
-                          properties: properties 
+                          properties: {...properties, [this.fromIdFieldName]: fromIdFieldValue}
                         }
                     })
                 } as BatchObjCreateReqBody)

@@ -96,12 +96,12 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncMode) => {  
+const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncMode) => {    
   const { 
     object_details: { from_object_type: fromObjectType, from_id_field_name: fromIdFieldName, from_property_group: fromPropertyGroup }, 
     association_sync_mode: assocationSyncMode 
   } = payloads[0]
-  
+
   const client = new HubspotClient(
     request, 
     fromObjectType, 
@@ -118,7 +118,9 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
     const fromRecordsOnHS = await client.ensureFromRecordsOnHubspot(payloads)
 
     const associations = client.getAssociationsFromPayloads(fromRecordsOnHS)
+    console.log('associations = ' + JSON.stringify(associations))
     const toRecordsOnHS = await client.ensureToRecordsOnHubspot(associations)
+    console.log('toRecordsOnHS = ' + JSON.stringify(toRecordsOnHS))
     await client.ensureAssociations(toRecordsOnHS)
 }
 
