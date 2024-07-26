@@ -18,7 +18,7 @@ declare global {
   }
 }
 
-const defaultVersion = '4.8'
+const defaultVersion = '4.10'
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -113,7 +113,8 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         { label: 'US-08	(https://dashboard-08.braze.com)', value: 'sdk.iad-08.braze.com' },
         { label: 'US-09	(https://dashboard-09.braze.com)', value: 'sdk.iad-09.braze.com' },
         { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'sdk.fra-01.braze.eu' },
-        { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'sdk.fra-02.braze.eu' }
+        { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'sdk.fra-02.braze.eu' },
+        { label: 'IN-01 (https://dashboard-01.braze.in)', value: 'sdk.in-01.braze.in' }
       ],
       default: 'sdk.iad-01.braze.com',
       required: true
