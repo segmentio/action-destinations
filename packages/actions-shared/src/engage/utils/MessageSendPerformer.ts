@@ -127,14 +127,17 @@ export abstract class MessageSendPerformer<
   async readCache(messageId?: string, recipientId?: string) {
     if (!messageId || !recipientId || !this.engageDestinationCache) {
       this.logInfo('Cache not found', { messageId, recipientId })
+      this.statsIncr('cache_miss')
       return
     }
     const cached = await this.engageDestinationCache.getByKey(messageId + recipientId.toLowerCase())
     if (!cached) {
       this.logInfo('Cache not found', { messageId, recipientId })
+      this.statsIncr('cache_miss')
       return
     }
-    this.logInfo('Cache found', { messageId, recipientId })
+    this.logInfo('Cache found', { messageId, recipientId, cached })
+    this.statsIncr('cache_hit')
     return cached
   }
 
