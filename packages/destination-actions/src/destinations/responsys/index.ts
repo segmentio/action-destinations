@@ -4,6 +4,8 @@ import sendCustomTraits from './sendCustomTraits'
 import sendAudience from './sendAudience'
 import upsertListMember from './upsertListMember'
 
+import sendAudienceAsPet from './sendAudienceAsPet'
+
 interface RefreshTokenResponse {
   authToken: string
 }
@@ -173,9 +175,9 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: (_, { settings }) => {
       if (settings.baseUrl.startsWith('https://'.toLowerCase())) {
         return Promise.resolve('Success')
-      } else {
-        throw new IntegrationError('Responsys endpoint URL must start with https://', 'INVALID_URL', 400)
       }
+
+      throw new IntegrationError('Responsys endpoint URL must start with https://', 'INVALID_URL', 400)
     },
     refreshAccessToken: async (request, { settings }) => {
       const baseUrl = settings.baseUrl?.replace(/\/$/, '')
@@ -203,6 +205,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   actions: {
     sendAudience,
+    sendAudienceAsPet,
     sendCustomTraits,
     upsertListMember
   }

@@ -259,3 +259,17 @@ export const upsertListMembers = async (
   }
   return response
 }
+
+export const petExists = async (request: RequestClient, settings: Settings) => {
+  const path = `/rest/api/v1.3/lists/${settings.profileListName}/listExtensions`
+  const endpoint = new URL(path, settings.baseUrl)
+
+  const response = await request(endpoint.href, {
+    method: 'GET'
+  })
+
+  const results = response.data as any[]
+  return results.find(
+    (item: { profileExtension?: { objectName: string } }) => item.profileExtension?.objectName === 'computation_key'
+  )
+}
