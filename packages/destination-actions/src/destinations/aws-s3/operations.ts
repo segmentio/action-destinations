@@ -98,19 +98,28 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): 
       row.push(encodeString(String(JSON.stringify(payload.propertiesOrTraits) ?? '')))
     }
 
-    if (index === 0) {
-      payload?.additional_identifiers_and_traits_columns?.forEach((additionalColumn) => {
-        if (![undefined, null, ''].includes(additionalColumn.value)) {
-          headers.push(additionalColumn.value)
-        }
-      })
-    }
+    // if (index === 0) {
+    //   payload?.additional_identifiers_and_traits_columns?.forEach((additionalColumn) => {
+    //     if (![undefined, null, ''].includes(additionalColumn.value)) {
+    //       headers.push(additionalColumn.value)
+    //     }
+    //   })
+    // }
 
-    payload?.additional_identifiers_and_traits_columns?.forEach((additionalColumn) => {
-      if (![undefined, null, ''].includes(additionalColumn.value)) {
-        row.push(encodeString(String(JSON.stringify(payload.propertiesOrTraits[additionalColumn.key]) ?? '')))
+    // payload?.additional_identifiers_and_traits_columns?.forEach((additionalColumn) => {
+    //   if (![undefined, null, ''].includes(additionalColumn.value)) {
+    //     row.push(encodeString(String(JSON.stringify(payload.propertiesOrTraits[additionalColumn.key]) ?? '')))
+    //   }
+    // })
+
+    if (payload.additional_identifiers_and_traits_columns) {
+      for (const key in payload.additional_identifiers_and_traits_columns) {
+        if (Object.prototype.hasOwnProperty.call(payload.additional_identifiers_and_traits_columns, key)) {
+          headers.push(key)
+          row.push(encodeString(String(payload.additional_identifiers_and_traits_columns[key])))
+        }
       }
-    })
+    }
 
     const isLastRow = arr.length === index + 1
     const rowString = `${row.join(audienceSettings.delimiter === 'tab' ? '\t' : audienceSettings.delimiter)}${
@@ -144,11 +153,20 @@ function validate(payloads: Payload[], audienceSettings: AudienceSettings) {
   })
 
   // ensure additional identifier column names do not contain delimiter
-  additionalIdentifierColumns?.forEach((column) => {
-    if (column.value.includes(delimiter)) {
-      throw new Error(`Column name ${column.value} cannot contain delimiter: ${delimiter}`)
-    }
-  })
+  // additionalIdentifierColumns?.forEach((column) => {
+  //   if (column.value.includes(delimiter)) {
+  //     throw new Error(`Column name ${column.value} cannot contain delimiter: ${delimiter}`)
+  //   }
+  // })
+
+  // ensure additional identifier column names do not contain delimiter
+  if (additionalIdentifierColumns) {
+    Object.entries(additionalIdentifierColumns).forEach(([key, value]) => {
+      if (typeof value === 'string' && value.includes(delimiter)) {
+        throw new Error(`Column name ${key} cannot contain delimiter: ${delimiter}`)
+      }
+    })
+  }
 }
 
 export { generateFile, validate }

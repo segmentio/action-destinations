@@ -186,23 +186,23 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'Additional Identifier and Trait Columns',
       description: 'Additional user identifiers and traits to include as separate columns in the CSV file.',
       type: 'object',
-      multiple: true,
+      // multiple: true,
       required: false,
-      defaultObjectUI: 'keyvalue:only',
-      properties: {
-        key: {
-          label: 'Trait or Identifier Name',
-          description: 'Name of the trait or identifier in the identify() traits object or track() properties object.',
-          type: 'string',
-          required: true
-        },
-        value: {
-          label: 'Column Name',
-          description: 'Name of the column to write to the CSV file.',
-          type: 'string',
-          required: true
-        }
-      }
+      defaultObjectUI: 'keyvalue:only' //,
+      // properties: {
+      //   key: {
+      //     label: 'Trait or Identifier Name',
+      //     description: 'Name of the trait or identifier in the identify() traits object or track() properties object.',
+      //     type: 'string',
+      //     required: true
+      //   },
+      //   value: {
+      //     label: 'Column Name',
+      //     description: 'Name of the column to write to the CSV file.',
+      //     type: 'string',
+      //     required: true
+      //   }
+      // }
     },
     enable_batching: {
       type: 'boolean',
