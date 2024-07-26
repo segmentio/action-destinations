@@ -77,9 +77,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   },
   perform: async (request, { payload, settings, audienceSettings }) => {
     IterableListsClient.validate(payload)
-
-    const payloads = [payload, payload, {...payload, traitsOrProperties: {mayur_test_1: false}}]
-    await send(request, payloads, settings, audienceSettings)
+    await send(request, [payload], settings, audienceSettings)
   },
   performBatch: async (request, { payload, settings, audienceSettings }) => {
     await send(request, payload, settings, audienceSettings)
