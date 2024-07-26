@@ -35,7 +35,7 @@ export const commonFields: Record<string, InputField> = {
                 description: 'Segment can new create properties on the object if needed. To enable this select the property group for Segment to add new properties to. To disable leave this field blank.',
                 type: 'string',
                 required: false,
-                default: '',
+                default: undefined,
                 dynamic: true
             },
             from_record_id: {

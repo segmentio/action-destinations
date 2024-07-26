@@ -1,7 +1,7 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { HubspotClient, AssociationSyncMode } from './hubspot-api'
+import { HubspotClient, AssociationSyncMode, SyncMode } from './hubspot-api'
 //import { RequestClient} from '@segment/actions-core'
 import { commonFields } from './common-fields'
 import { dynamicReadAssociationLabels, dynamicReadIdFields, dynamicReadObjectTypes, dynamicReadPropertyGroups } from './dynamic-fields'
@@ -25,8 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     object_details: {
       from_object_type: async (request ) => {
-        const client = new HubspotClient(request)
-        return await client.dynamicReadObjectTypes()
+        return await dynamicReadObjectTypes(request)
       },
       from_id_field_name: async (request, { payload }) => {
         const fromObjectType = payload?.object_details?.from_object_type
@@ -35,8 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
           throw new Error("Select from 'From Object Type' first")
         }
         
-        const client = new HubspotClient(request)
-        return await client.dynamicReadIdFields(fromObjectType) 
+        return await dynamicReadIdFields(request, fromObjectType) 
       },
       from_property_group: async (request, { payload }) => {
         const fromObjectType = payload?.object_details?.from_object_type
@@ -45,14 +43,12 @@ const action: ActionDefinition<Settings, Payload> = {
           throw new Error("Select from 'From Object Type' first")
         }
         
-        const client = new HubspotClient(request)
-        return await client.dynamicReadPropertyGroups(fromObjectType) 
+        return await dynamicReadPropertyGroups(request, fromObjectType) 
       } 
     },
     associations: {
       to_object_type: async (request) => {
-        const client = new HubspotClient(request)
-        return await client.dynamicReadObjectTypes()
+        return await dynamicReadObjectTypes(request)
       },
       association_label: async (request, { dynamicFieldContext, payload }) => {
         const selectedIndex = dynamicFieldContext?.selectedArrayIndex
@@ -72,8 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
           throw new Error("Select from 'To Object Type' first")
         }
 
-        const client = new HubspotClient(request)
-        return await client.dynamicReadAssociationLabels(fromObjectType, toObjectType) 
+        return await dynamicReadAssociationLabels(request, fromObjectType, toObjectType) 
       },
       to_id_field_name: async (request, { dynamicFieldContext, payload }) => {
         
@@ -89,54 +84,42 @@ const action: ActionDefinition<Settings, Payload> = {
           throw new Error("Select from 'To Object Type' first")
         }
 
-        const client = new HubspotClient(request)
-        return await client.dynamicReadIdFields(toObjectType) 
+        return await dynamicReadIdFields(request, toObjectType) 
       }
     }
   },
   perform: async (request, { payload, syncMode }) => {
-
-    const payloads = [payload]
-
-    const hubspotClient = new HubspotClient(
-      request, 
-      payload.object_details.from_object_type, 
-      payload.object_details.from_id_field_name,
-      'upsert', 
-      payload.association_sync_mode as AssociationSyncMode)
-    
-    // const x = await dynamicReadObjectTypes(request)
-    // const x = await dynamicReadIdFields(request, 'meetings')
-    // const x = await dynamicReadAssociationLabels(request, 'meetings', 'contacts')
-    // const x = await dynamicReadPropertyGroups(request, 'meetings')
-    
-    //const x = await hubspotClient.readProperties('contacts')
-    // const x = hubspotClient.findUniqueFromProps(payloads)
-
-    //console.log(JSON.stringify(payloads, null, 2))  
-    const uniqueProps = hubspotClient.findUniquePayloadsProps(payloads)
-    //console.log(uniqueProps) 
-    const contactProps = await hubspotClient.readProperties('companies')
-    //console.log(contactProps) 
-    const propsToCreate = hubspotClient.createListPropsToCreate(uniqueProps, contactProps)
-    //console.log(propsToCreate) 
-    
-    await hubspotClient.ensurePropertiesInObjSchema('companies', 'Companyinformation', propsToCreate )
-
-    const existingFromRecords = await hubspotClient.ensureFromRecordsExistInHubspot([payload], 'upsert')
-
-    await hubspotClient.buildToRecordRequest(existingFromRecords)
-    
-    //await hubspotClient.ensureObjects([payload], true)
-    //await hubspotClient.ensureAssociations([payload])
+    await send(request, [payload], syncMode as SyncMode)
   },
-  performBatch: async (request, { payload: payloads, syncMode }) => {
-    // const hubspotClient = new HubspotClient(request, syncMode as string)
-    // await hubspotClient.ensureProperties(payloads)
-   // await hubspotClient.ensureFromRecords(payloads)
-    //await hubspotClient.ensureObjects(payloads, true)
-    //await hubspotClient.ensureAssociations(payloads)
+  performBatch: async (request, { payload, syncMode }) => {
+    await send(request, payload, syncMode as SyncMode)
   }
+}
+
+const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncMode) => {  
+  const { 
+    object_details: { from_object_type: fromObjectType, from_id_field_name: fromIdFieldName, from_property_group: fromPropertyGroup }, 
+    association_sync_mode: assocationSyncMode 
+  } = payloads[0]
+  
+  const client = new HubspotClient(
+    request, 
+    fromObjectType, 
+    fromIdFieldName,
+    syncMode, 
+    assocationSyncMode as AssociationSyncMode, 
+    fromPropertyGroup)
+
+    const uniquePayloadsProperties = client.uniquePayloadsProperties(payloads)
+    const propertiesFromHSchema = await client.propertiesFromHSchema()
+    const propertiesToCreate = client.propertiesToCreateInHSSchema(uniquePayloadsProperties, propertiesFromHSchema)
+    await client.ensurePropertiesInHSSchema(propertiesToCreate)
+
+    const fromRecordsOnHS = await client.ensureFromRecordsOnHubspot(payloads)
+
+    const associations = client.getAssociationsFromPayloads(fromRecordsOnHS)
+    const toRecordsOnHS = await client.ensureToRecordsOnHubspot(associations)
+    await client.ensureAssociations(toRecordsOnHS)
 }
 
 export default action
