@@ -68,8 +68,7 @@ export class IterableListsClient {
     
     subscribersGroup.forEach((subscribers, listId) => {
       subcribeRequests.push(
-//        this.request(`${CONSTANTS.API_BASE_URL}/lists/subscribe`, {
-        this.request(`https://webhook.site/e2116ce8-9737-47b0-880b-936a9dee363f`, {
+        this.request(`${CONSTANTS.API_BASE_URL}/lists/subscribe`, {
           method: 'post',
           json: {
             listId: listId,
@@ -82,8 +81,7 @@ export class IterableListsClient {
 
     unsubscribersGroup.forEach((subscribers, listId) => {
       unSubcribeRequests.push(
-//        this.request(`${CONSTANTS.API_BASE_URL}/lists/unsubscribe`, {
-        this.request(`https://webhook.site/e2116ce8-9737-47b0-880b-936a9dee363f`, {
+        this.request(`${CONSTANTS.API_BASE_URL}/lists/unsubscribe`, {
           method: 'post',
           json: {
             listId: listId,
