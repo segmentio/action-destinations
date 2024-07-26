@@ -2,7 +2,6 @@ import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HubspotClient, AssociationSyncMode, SyncMode } from './hubspot-api'
-//import { RequestClient} from '@segment/actions-core'
 import { commonFields } from './common-fields'
 import { dynamicReadAssociationLabels, dynamicReadIdFields, dynamicReadObjectTypes, dynamicReadPropertyGroups } from './dynamic-fields'
 
@@ -114,13 +113,9 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
     const propertiesFromHSchema = await client.propertiesFromHSchema()
     const propertiesToCreate = client.propertiesToCreateInHSSchema(uniquePayloadsProperties, propertiesFromHSchema)
     await client.ensurePropertiesInHSSchema(propertiesToCreate)
-
     const fromRecordsOnHS = await client.ensureFromRecordsOnHubspot(payloads)
-
     const associations = client.getAssociationsFromPayloads(fromRecordsOnHS)
-    console.log('associations = ' + JSON.stringify(associations))
     const toRecordsOnHS = await client.ensureToRecordsOnHubspot(associations)
-    console.log('toRecordsOnHS = ' + JSON.stringify(toRecordsOnHS))
     await client.ensureAssociations(toRecordsOnHS)
 }
 

@@ -3,7 +3,6 @@ import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { MAX_HUBSPOT_BATCH_SIZE } from './constants'
 import type { Payload } from './generated-types'
-import { prop } from 'cheerio/lib/api/attributes'
 
 interface Association {
     to_object_type: string,
@@ -104,7 +103,7 @@ export class HubspotClient {
             this.fromIdFieldName = fromIdFieldName
             this.hubspotSyncMode = this.mapHubspotSyncMode(syncMode)
             this.fromPropertyGroup = fromPropertyGroup
-        }
+    }
 
     mapHubspotSyncMode(syncMode: SyncMode): HubspotSyncMode {
         switch (syncMode) {
@@ -180,7 +179,6 @@ export class HubspotClient {
         if(!properties || properties.length === 0) {
             return
         }
-        console.log(properties)
         interface RequestBody {
             inputs: Array<{
                 label: string,
@@ -274,26 +272,6 @@ export class HubspotClient {
         return groupedAssociations;
     }
 
-    async enrichPayloadsWithFromRecordIds(payloads: Payload[]): Promise<Payload[]> {    
-        const updatedPayloads = JSON.parse(JSON.stringify(payloads)) as Payload[]
-        
-        const response = await this.batchObjectRequest('read', this.fromObjectType, {
-            properties: [this.fromIdFieldName],
-            idProperty: this.fromIdFieldName,
-            inputs: updatedPayloads.map(payload => { 
-                return {id: payload.object_details.from_id_field_value}
-            })             
-        } as BatchObjReadReqBody)
-
-        response?.data.results.forEach(result => {
-            updatedPayloads
-                .filter(payload => payload.object_details.from_id_field_value == result.properties[this.fromIdFieldName] as string)
-                .forEach(payload => payload.object_details.from_record_id = result.id )
-        })
-
-        return updatedPayloads
-    }
-
     getAssociationsFromPayloads(payloads: Payload[]): Association[]{        
         const payloadsDeepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[] 
         
@@ -302,6 +280,7 @@ export class HubspotClient {
         payloadsDeepCopy.forEach(payload => {  
             const associations = payload.associations ?? []
             associations.forEach(association => {
+                association.from_record_id = payload.object_details.from_record_id
                 allAssociations.push(association)
             })
         })
@@ -386,20 +365,26 @@ export class HubspotClient {
         }
     }
 
+    insertRecordIds(payloads: Payload[], response: ModifiedResponse<BatchObjResponse>): Payload[] {
+        const payloadsDeepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[]
+        response?.data?.results.forEach(result => {
+            
+            payloadsDeepCopy
+                .filter(p => {
+                    return p.object_details.from_id_field_value == result.properties[p.object_details.from_id_field_name] as string
+                })
+                .forEach(p => {
+                    return p.object_details.from_record_id = result.id
+                })
+        })
+        return payloadsDeepCopy
+    }
+
     async ensureFromRecordsOnHubspot(payloads: Payload[]): Promise<Payload[]> {
+
         const payloadsDeepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[]
         let response: ModifiedResponse<BatchObjResponse>
 
-        function insertRecordIds(payloads: Payload[], response: ModifiedResponse<BatchObjResponse>): Payload[] {
-            const payloadsDeepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[]
-            
-            response?.data?.results.forEach(result => {
-                payloadsDeepCopy
-                    .filter(p => p.object_details.from_id_field_name == result.properties[p.object_details.from_id_field_name] as string)
-                    .forEach(p => p.object_details.from_id_field_value = result.id )
-            })
-            return payloadsDeepCopy
-        }
         switch(this.hubspotSyncMode){
             case 'upsert': {
                 response = await this.batchObjectRequest(this.hubspotSyncMode, this.fromObjectType, {
@@ -407,16 +392,23 @@ export class HubspotClient {
                         return {
                           idProperty: this.fromIdFieldName,
                           id: from_id_field_value,
-                          properties: properties 
+                          properties: {...properties, [this.fromIdFieldName]: from_id_field_value} 
                         }
                     })
                 } as BatchObjUpsertReqBody)
                 
-                return insertRecordIds(payloadsDeepCopy, response).filter(payload => payload.object_details.from_id_field_value)
+                return this.insertRecordIds(payloadsDeepCopy, response).filter(payload => payload.object_details.from_id_field_value)
             }
             case 'update': {
-                const existingRecords = (await this.enrichPayloadsWithFromRecordIds(payloadsDeepCopy))
-                    .filter(payload => payload.object_details.from_record_id)
+                const readResponse = await this.batchObjectRequest('read', this.fromObjectType, {
+                    properties: [this.fromIdFieldName],
+                    idProperty: this.fromIdFieldName,
+                    inputs: payloadsDeepCopy.map(payload => { 
+                        return {id: payload.object_details.from_id_field_value}
+                    })             
+                } as BatchObjReadReqBody)
+
+                const existingRecords = this.insertRecordIds(payloadsDeepCopy, readResponse).filter(payload => payload.object_details.from_record_id)
 
                 response = await this.batchObjectRequest(this.hubspotSyncMode, this.fromObjectType, {
                     inputs: existingRecords.map(({ object_details: { from_id_field_value }, properties }) => {
@@ -427,24 +419,29 @@ export class HubspotClient {
                         }
                     })
                 } as BatchObjUpsertReqBody)
-                return insertRecordIds(existingRecords, response).filter(payload => payload.object_details.from_id_field_value)
+
+                return this.insertRecordIds(existingRecords, response).filter(payload => payload.object_details.from_id_field_value)
             }
             case 'create': { 
-                const nonExistingRecords = (await this.enrichPayloadsWithFromRecordIds(payloadsDeepCopy))
-                    .filter(payload => !payload.object_details.from_record_id)
+                const readResponse = await this.batchObjectRequest('read', this.fromObjectType, {
+                    properties: [this.fromIdFieldName],
+                    idProperty: this.fromIdFieldName,
+                    inputs: payloadsDeepCopy.map(payload => { 
+                        return {id: payload.object_details.from_id_field_value}
+                    })             
+                } as BatchObjReadReqBody)
 
-                response = await this.batchObjectRequest(this.hubspotSyncMode, this.fromObjectType, {
-                   
-                    
+                const nonExistingRecords = this.insertRecordIds(payloadsDeepCopy, readResponse).filter(payload => !payload.object_details.from_record_id)
+
+                response = await this.batchObjectRequest(this.hubspotSyncMode, this.fromObjectType, {       
                     inputs: nonExistingRecords.map(({ properties, object_details: {from_id_field_value: fromIdFieldValue} }) => {
-                        console.log(properties)
                         return {
                           idProperty: this.fromIdFieldName,
                           properties: {...properties, [this.fromIdFieldName]: fromIdFieldValue}
                         }
                     })
                 } as BatchObjCreateReqBody)
-                return insertRecordIds(nonExistingRecords, response).filter(payload => payload.object_details.from_id_field_value)
+                return this.insertRecordIds(nonExistingRecords, response).filter(payload => payload.object_details.from_id_field_value)
             }
         }
     }
@@ -456,7 +453,7 @@ export class HubspotClient {
         })
     }
 
-    async ensureAssociations(associations: Association[]) {
+    async ensureAssociations(associations: Association[]) {        
         const associationsDeepCopy = JSON.parse(JSON.stringify(associations))
         
         const groupedAssociations: Association[][] = this.groupAssociations(associationsDeepCopy, ['to_object_type'])
@@ -491,14 +488,5 @@ export class HubspotClient {
         })
     
         await Promise.all(requests)
-    }
-
-    async ensureAssociationsOnHubspot(payloads: Payload[]) {   
-           
-        const associations: Association[] = this.getAssociationsFromPayloads(payloads)
-
-        const toRecordsOnHubsot = await this.ensureToRecordsOnHubspot(associations)
-
-        await this.ensureAssociations(toRecordsOnHubsot)
     }
 }
