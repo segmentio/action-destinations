@@ -367,6 +367,8 @@ const formatEmail = (email: string): string => {
   return sha256SmartHash(normalizedEmail)
 }
 
+// Standardize phone number to E.164 format, This format represents a phone number as a number up to fifteen digits
+// in length starting with a + sign, for example, +12125650000 or +442070313000.
 function formatToE164(phoneNumber: string, defaultCountryCode: string): string {
   // Remove any non-numeric characters
   const numericPhoneNumber = phoneNumber.replace(/\D/g, '')
