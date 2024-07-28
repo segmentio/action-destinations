@@ -109,10 +109,12 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
     assocationSyncMode as AssociationSyncMode, 
     fromPropertyGroup)
 
-    const uniquePayloadsProperties = client.uniquePayloadsProperties(payloads)
-    const propertiesFromHSchema = await client.propertiesFromHSchema()
-    const propertiesToCreate = client.propertiesToCreateInHSSchema(uniquePayloadsProperties, propertiesFromHSchema)
-    await client.ensurePropertiesInHSSchema(propertiesToCreate)
+    if(fromPropertyGroup){
+      const uniquePayloadsProperties = client.uniquePayloadsProperties(payloads)
+      const propertiesFromHSchema = await client.propertiesFromHSchema()
+      const propertiesToCreate = client.propertiesToCreateInHSSchema(uniquePayloadsProperties, propertiesFromHSchema)
+      await client.ensurePropertiesInHSSchema(propertiesToCreate)
+    }
     const fromRecordsOnHS = await client.ensureFromRecordsOnHubspot(payloads)
     const associations = client.getAssociationsFromPayloads(fromRecordsOnHS)
     const toRecordsOnHS = await client.ensureToRecordsOnHubspot(associations)
