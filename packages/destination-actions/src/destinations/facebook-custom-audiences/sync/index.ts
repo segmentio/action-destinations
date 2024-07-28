@@ -154,9 +154,6 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   fields: {
-    // !Very important: the keys in this object are purposefully named as the lower case version of the
-    // schema that facebook expects when syncing data to audiences. For example, the Date Of Birth Year field
-    // is represented as DOBY in the schema that facebook expects.
     email: {
       type: 'string',
       label: 'Email',
@@ -167,62 +164,59 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Phone',
       description: 'The phone number of the user.'
     },
-    gen: {
+    gender: {
       type: 'string',
       label: 'Gender',
       description: 'The gender of the user.'
     },
-    dob: {
-      // object with year, month, day properties
+    birth: {
       type: 'object',
       label: 'Date of Birth',
       description: 'The date of birth of the user.',
       properties: {
-        doby: {
-          type: 'number',
+        year: {
+          type: 'string',
           label: 'Year'
         },
-        dobm: {
-          type: 'number',
+        month: {
+          type: 'string',
           label: 'Month'
         },
-        dobd: {
-          type: 'number',
+        day: {
+          type: 'string',
           label: 'Day'
         }
       }
     },
     name: {
-      // object with first, last, first_initial properties
       type: 'object',
       label: 'Name',
       description: 'The name of the user.',
       properties: {
-        fn: {
+        first: {
           type: 'string',
           label: 'First Name'
         },
-        ln: {
+        last: {
           type: 'string',
           label: 'Last Name'
         },
-        fi: {
+        firstInitial: {
           type: 'string',
           label: 'First Initial'
         }
       }
     },
     address: {
-      // object with city, state, postal_code, country properties
       type: 'object',
       label: 'Address',
       description: 'The address of the user.',
       properties: {
-        ct: {
+        city: {
           type: 'string',
           label: 'City'
         },
-        st: {
+        state: {
           type: 'string',
           label: 'State'
         },
@@ -236,23 +230,23 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    madid: {
+    mobileAdId: {
       type: 'string',
       label: 'Mobile Advertising ID',
       description: 'The mobile advertising ID of the user.'
     },
-    extern_id: {
+    externalId: {
       type: 'string',
       label: 'External ID',
       description: 'The external ID of the user.'
     },
-    app_ids: {
+    appIds: {
       type: 'string',
       multiple: true,
       label: 'App IDs',
       description: 'The app IDs of the user.'
     },
-    page_ids: {
+    pageIds: {
       type: 'string',
       multiple: true,
       label: 'Page IDs',
@@ -265,7 +259,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (syncMode) {
       return await fbClient.syncAudience({
         audienceId: hookOutputs?.retlOnMappingSave.audienceId,
-        payload: [payload],
+        payloads: [payload],
         deleteUsers: syncMode === 'delete' ? true : false
       })
     }
@@ -276,7 +270,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (syncMode) {
       return await fbClient.syncAudience({
         audienceId: hookOutputs?.retlOnMappingSave.audienceId,
-        payload,
+        payloads: payload,
         deleteUsers: syncMode === 'delete' ? true : false
       })
     }

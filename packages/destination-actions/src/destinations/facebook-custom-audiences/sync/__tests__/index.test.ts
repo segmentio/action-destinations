@@ -36,7 +36,7 @@ describe('FacebookCustomAudiences.sync', () => {
     })
 
     it('should sync a single user', async () => {
-      nock(`${BASE_URL}`).post(`/${retlSettings.retlAdAccountId}/users`).reply(200)
+      nock(`${BASE_URL}`).post(`/${retlSettings.retlAdAccountId}/users`).reply(200, { test: 'test' })
 
       const responses = await testDestination.testAction('sync', {
         event,
@@ -59,6 +59,7 @@ describe('FacebookCustomAudiences.sync', () => {
         }
       })
 
+      console.log('responses', responses)
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
 

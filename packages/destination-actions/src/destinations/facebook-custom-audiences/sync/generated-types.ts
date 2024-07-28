@@ -1,6 +1,60 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
-export interface Payload {}
+export interface Payload {
+  /**
+   * The email address of the user.
+   */
+  email?: string
+  /**
+   * The phone number of the user.
+   */
+  phone?: string
+  /**
+   * The gender of the user.
+   */
+  gender?: string
+  /**
+   * The date of birth of the user.
+   */
+  birth?: {
+    year?: number
+    month?: number
+    day?: number
+  }
+  /**
+   * The name of the user.
+   */
+  name?: {
+    first?: string
+    last?: string
+    firstInitial?: string
+  }
+  /**
+   * The address of the user.
+   */
+  address?: {
+    city?: string
+    state?: string
+    zip?: string
+    country?: string
+  }
+  /**
+   * The mobile advertising ID of the user.
+   */
+  mobileAdId?: string
+  /**
+   * The external ID of the user.
+   */
+  externalId?: string
+  /**
+   * The app IDs of the user.
+   */
+  appIds?: string[]
+  /**
+   * The page IDs of the user.
+   */
+  pageIds?: string[]
+}
 // Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
 
 export interface HookBundle {
