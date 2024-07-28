@@ -27,6 +27,26 @@ export const SCHEMA_PROPERTIES = [
   'COUNTRY'
 ]
 
+// A list of the segment equivalent to each Facebook schema property
+// It is important that each segment schema property is in the same order as the Facebook schema properties
+export const SEGMENT_SCHEMA_PROPERTIES = [
+  'externalId',
+  'email',
+  'phone',
+  'gender',
+  'year',
+  'month',
+  'day',
+  'last',
+  'first',
+  'firstInitial',
+  'city',
+  'state',
+  'zip',
+  'mobileAdId',
+  'country'
+]
+
 export const segmentSchemaKeyToArrayIndex = new Map<string, number>(
-  SCHEMA_PROPERTIES.map((property, index) => [property, index])
+  SEGMENT_SCHEMA_PROPERTIES.map((property, index) => [property, index])
 )

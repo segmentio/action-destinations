@@ -1,8 +1,7 @@
-import { DynamicFieldItem, DynamicFieldError, RequestClient } from '@segment/actions-core'
+import { DynamicFieldItem, DynamicFieldError, RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
 import { createHash } from 'crypto'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES } from './fbca-properties'
-import { IntegrationError } from '@segment/actions-core/*'
 
 const FACEBOOK_API_VERSION = 'v20.0'
 // exported for unit testing
@@ -30,6 +29,48 @@ interface FacebookResponseError {
     type: string
     code: number
   }
+}
+
+// exported for unit testing. Also why these are not members of the class
+export const generateData = (payloads: Payload[]): (string | number)[][] => {
+  const data: (string | number)[][] = new Array(payloads.length)
+
+  payloads.forEach((payload, index) => {
+    const row: (string | number)[] = new Array(SCHEMA_PROPERTIES.length).fill('')
+
+    Object.entries(payload).forEach(([key, value]) => {
+      if (typeof value === 'object') {
+        Object.entries(value).forEach(([nestedKey, value]) => {
+          appendToDataRow(nestedKey, value as string | number, row)
+        })
+      } else {
+        appendToDataRow(key, value as string | number, row)
+      }
+    })
+
+    data[index] = row
+  })
+
+  return data
+}
+
+const appendToDataRow = (key: string, value: string | number, row: (string | number)[]) => {
+  const index = segmentSchemaKeyToArrayIndex.get(key)
+
+  if (index === undefined) {
+    throw new IntegrationError(`Invalid schema key: ${key}`, 'INVALID_SCHEMA_KEY', 500)
+  }
+
+  if (typeof value === 'number') {
+    row[index] = value
+    return
+  }
+
+  row[index] = hash(value)
+}
+
+const hash = (value: string): string => {
+  return createHash('sha256').update(value).digest('hex')
 }
 
 export default class FacebookClient {
@@ -81,7 +122,7 @@ export default class FacebookClient {
   }
 
   syncAudience = async (input: { audienceId: string; payloads: Payload[]; deleteUsers?: boolean }) => {
-    const data = this.generateData(input.payloads)
+    const data = generateData(input.payloads)
     console.log('data', data)
 
     const params = {
@@ -99,47 +140,6 @@ export default class FacebookClient {
     } catch (e) {
       return
     }
-  }
-
-  private generateData = (payloads: Payload[]): (string | number)[][] => {
-    const data: (string | number)[][] = new Array(payloads.length)
-
-    payloads.forEach((payload, index) => {
-      const row: (string | number)[] = new Array(SCHEMA_PROPERTIES.length)
-
-      Object.entries(payload).forEach(([key, value]) => {
-        if (typeof value === 'object') {
-          Object.entries(value).forEach(([nestedKey, value]) => {
-            this.appendToDataRow(nestedKey, value as string | number, row)
-          })
-        } else {
-          this.appendToDataRow(key, value as string | number, row)
-        }
-      })
-
-      data[index] = row
-    })
-
-    return data
-  }
-
-  private appendToDataRow = (key: string, value: string | number, row: (string | number)[]) => {
-    const index = segmentSchemaKeyToArrayIndex.get(key)
-
-    if (index === undefined) {
-      throw new IntegrationError(`Invalid schema key: ${key}`, 'INVALID_SCHEMA_KEY', 500)
-    }
-
-    if (typeof value === 'number') {
-      row[index] = value
-      return
-    }
-
-    row[index] = this.hash(value)
-  }
-
-  private hash = (value: string): string => {
-    return createHash('sha256').update(value).digest('hex')
   }
 
   private formatAdAccount(adAccountId: string) {
