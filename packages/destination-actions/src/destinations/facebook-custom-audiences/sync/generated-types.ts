@@ -17,9 +17,9 @@ export interface Payload {
    * The date of birth of the user.
    */
   birth?: {
-    year?: number
-    month?: number
-    day?: number
+    year?: string
+    month?: string
+    day?: string
   }
   /**
    * The name of the user.

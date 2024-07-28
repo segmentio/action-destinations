@@ -123,7 +123,6 @@ export default class FacebookClient {
 
   syncAudience = async (input: { audienceId: string; payloads: Payload[]; deleteUsers?: boolean }) => {
     const data = generateData(input.payloads)
-    console.log('data', data)
 
     const params = {
       payload: {
