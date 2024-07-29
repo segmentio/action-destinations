@@ -55,6 +55,18 @@ const destination: DestinationDefinition<Settings> = {
         description: 'VWO Fullstack SDK Key. It is mandatory when using the VWO Fullstack suite.',
         type: 'string',
         required: false
+      },
+      region: {
+        label: 'Region',
+        description: 'Optimizely Region to sync data to. Default is US',
+        type: 'string',
+        required: true,
+        choices: [
+          { label: 'US', value: 'US' },
+          { label: 'Europe', value: 'EU' },
+          { label: 'Asia', value: 'AS' }
+        ],
+        default: 'US'
       }
     },
     testAuthentication: (_request, { settings }) => {
