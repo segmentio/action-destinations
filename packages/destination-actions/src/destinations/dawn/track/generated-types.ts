@@ -15,4 +15,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * When enabled, the action will use batch requests to the Dawn AI API
+   */
+  enable_batching: boolean
 }
