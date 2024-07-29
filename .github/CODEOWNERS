@@ -16,10 +16,6 @@ ajv-human-errors/ @segmentio/build-experience-team @segmentio/strategic-connecti
 
 browser-destinations/ @segmentio/libraries-web-team @segmentio/strategic-connections-team @segmentio/build-experience-team
 
-# CLI private libs
-
-cli-internal/ @segmentio/build-experience-team @segmentio/strategic-connections-team
-
 # CLI binary
 
 cli/ @segmentio/build-experience-team @segmentio/strategic-connections-team
