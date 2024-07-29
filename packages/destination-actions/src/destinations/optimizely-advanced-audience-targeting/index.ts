@@ -1,6 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
 import syncAudience from './syncAudience'
 import { getHost } from './utils'
 
