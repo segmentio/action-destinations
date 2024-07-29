@@ -171,6 +171,7 @@ register('6683e1d5e37fd84efcf3bbef', './first-party-dv360')
 register('668d1cb2a1dcc5ad33228d92', './angler-ai')
 register('6698df634212816c561d3e6a', './aws-s3')
 register('669f91bb3f2189462dddb691', './adjust')
+register('66a7c28810bbaf446695d27d', './iterable-lists')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
