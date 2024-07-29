@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendData from './sendData'
-import trackEventsAction from './trackEvents'
+import trackEvents from './trackEvents'
 import { defaultValues } from '@segment/actions-core'
 import { BASE_URL } from './consts'
 
@@ -35,23 +35,16 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets: [
     {
-      name: 'Send Data to Blend - Depracated',
-      subscribe: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
-      partnerAction: 'sendData',
-      mapping: defaultValues(sendData.fields),
-      type: 'automatic'
-    },
-    {
       name: 'Send Data to Blend',
       subscribe: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
       partnerAction: 'trackEvents',
-      mapping: defaultValues(trackEventsAction.fields),
+      mapping: defaultValues(trackEvents.fields),
       type: 'automatic'
     }
   ],
   actions: {
     sendData,
-    trackEventsAction
+    trackEvents
   }
 }
 
