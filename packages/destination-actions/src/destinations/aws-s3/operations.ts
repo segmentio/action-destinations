@@ -23,8 +23,7 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): 
   const headers: string[] = []
   const columnsField = payloads[0].columns
 
-  const headerString = `${headers.join(audienceSettings.delimiter === 'tab' ? '\t' : audienceSettings.delimiter)}\n`
-  const rows: string[] = [headerString]
+  const rows: string[] = []
 
   payloads.forEach((payload, index, arr) => {
     const action = payload.propertiesOrTraits[payload.audienceName]
@@ -98,26 +97,12 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): 
       row.push(encodeString(String(JSON.stringify(payload.propertiesOrTraits) ?? '')))
     }
 
-    // if (index === 0) {
-    //   payload?.additional_identifiers_and_traits_columns?.forEach((additionalColumn) => {
-    //     if (![undefined, null, ''].includes(additionalColumn.value)) {
-    //       headers.push(additionalColumn.value)
-    //     }
-    //   })
-    // }
-
-    // payload?.additional_identifiers_and_traits_columns?.forEach((additionalColumn) => {
-    //   if (![undefined, null, ''].includes(additionalColumn.value)) {
-    //     row.push(encodeString(String(JSON.stringify(payload.propertiesOrTraits[additionalColumn.key]) ?? '')))
-    //   }
-    // })
-
     if (payload.additional_identifiers_and_traits_columns) {
-      for (const key in payload.additional_identifiers_and_traits_columns) {
-        if (Object.prototype.hasOwnProperty.call(payload.additional_identifiers_and_traits_columns, key)) {
-          headers.push(key)
-          row.push(encodeString(String(payload.additional_identifiers_and_traits_columns[key])))
+      for (const [key, value] of Object.entries(payload.additional_identifiers_and_traits_columns)) {
+        if (index === 0) {
+          headers.push(String(value))
         }
+        row.push(encodeString(String(payload.propertiesOrTraits[String(key)] ?? '')))
       }
     }
 
@@ -132,7 +117,6 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): 
     }
     rows.push(rowString)
   })
-
   return rows.join('')
 }
 

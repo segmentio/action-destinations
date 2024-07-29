@@ -95,7 +95,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Additional user identifiers and traits to include as separate columns in the CSV file.
+   * Additional user identifiers and traits to include as separate columns in the CSV file. Each item should contain a key and a value. The key is the trait or identifier name from the payload, and the value is the column name to be written to the CSV file.
    */
   additional_identifiers_and_traits_columns?: {
     [k: string]: unknown
