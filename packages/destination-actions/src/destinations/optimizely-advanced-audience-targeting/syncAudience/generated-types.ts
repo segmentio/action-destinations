@@ -21,4 +21,12 @@ export interface Payload {
    * Timestamp indicates when the user was added or removed from the Audience
    */
   timestamp: string
+  /**
+   * Enable batching of event data to Optimizely.
+   */
+  enable_batching?: boolean
+  /**
+   * Number of events to batch before sending to Optimizely.
+   */
+  batch_size?: number
 }
