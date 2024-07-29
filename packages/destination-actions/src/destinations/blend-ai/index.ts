@@ -1,9 +1,9 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendData from './sendData'
+import trackEventsAction from './trackEvents'
 import { defaultValues } from '@segment/actions-core'
-
-const baseUrl = 'https://segment-api.blnd.ai/'
+import { BASE_URL } from './consts'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Blend Ai',
@@ -19,35 +19,39 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request) => {
-      return request(baseUrl + 'authenticate')
-    }
+    testAuthentication: (request) => request(BASE_URL + 'authenticate')
   },
-  onDelete: async (request, { payload }) => {
-    return request(baseUrl + 'delete', {
+  onDelete: async (request, { payload }) =>
+    request(BASE_URL + 'delete', {
       method: 'post',
-      json: {
-        external_ids: [payload.userId]
-      }
-    })
-  },
+      json: { external_ids: [payload.userId] }
+    }),
   extendRequest: ({ settings }) => {
     return {
       method: 'POST',
+      headers: { Authorization: `Bearer ${settings.apiKey}` },
       json: { apiKey: settings.apiKey }
     }
   },
   presets: [
     {
-      name: 'Send Data to Blend',
+      name: 'Send Data to Blend - Depracated',
       subscribe: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
       partnerAction: 'sendData',
       mapping: defaultValues(sendData.fields),
       type: 'automatic'
+    },
+    {
+      name: 'Send Data to Blend',
+      subscribe: 'type = "identify" or type = "page" or type = "screen" or type = "track"',
+      partnerAction: 'trackEvents',
+      mapping: defaultValues(trackEventsAction.fields),
+      type: 'automatic'
     }
   ],
   actions: {
-    sendData
+    sendData,
+    trackEventsAction
   }
 }
 
