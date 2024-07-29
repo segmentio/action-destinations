@@ -58,7 +58,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       region: {
         label: 'Region',
-        description: 'Optimizely Region to sync data to. Default is US',
+        description: 'VWO Region to sync data to. Default is US',
         type: 'string',
         required: true,
         choices: [
