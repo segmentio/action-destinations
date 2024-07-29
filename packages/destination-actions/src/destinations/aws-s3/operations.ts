@@ -1,5 +1,6 @@
 import { ExecuteInput } from '@segment/actions-core'
 import type { Payload } from './syncAudienceToCSV/generated-types'
+
 import type { AudienceSettings } from './generated-types'
 
 // Type definitions
