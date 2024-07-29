@@ -1,7 +1,7 @@
 {
   "name": "@segment/browser-destinations",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "license": "MIT",
@@ -84,7 +84,7 @@
   "size-limit": [
     {
       "path": "dist/web/*/*.js",
-      "limit": "152 KB"
+      "limit": "169 KB"
     }
   ]
 }

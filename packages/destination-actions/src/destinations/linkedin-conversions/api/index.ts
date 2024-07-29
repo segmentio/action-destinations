@@ -376,6 +376,10 @@ export class LinkedInConversions {
     }
   }
 
+  private normalizeEmail = (email: string): string => {
+    return email.toLowerCase()
+  }
+
   private hashValue = (val: string): string => {
     const hash = createHash('sha256')
     hash.update(val)
@@ -386,7 +390,7 @@ export class LinkedInConversions {
     const userIds: UserID[] = []
 
     if (payload.email) {
-      const hashedEmail = this.hashValue(payload.email)
+      const hashedEmail = this.hashValue(this.normalizeEmail(payload.email))
       userIds.push({
         idType: 'SHA256_EMAIL',
         idValue: hashedEmail

@@ -1,13 +1,26 @@
 export interface TikTokPixel {
   page: () => void
+  instance: (pixel_code: string) => TikTokPixel
   identify: ({
     email,
     phone_number,
-    external_id
+    external_id,
+    first_name,
+    last_name,
+    city,
+    state,
+    country,
+    zip_code
   }: {
     email: string | undefined
     phone_number: string | undefined
     external_id: string | undefined
+    first_name: string | undefined
+    last_name: string | undefined
+    city: string | undefined
+    state: string | undefined
+    country: string | undefined
+    zip_code: string | undefined
   }) => void
   track: (
     event: string,

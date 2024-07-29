@@ -10,7 +10,8 @@ import {
   validateLookup,
   enable_batching,
   recordMatcherOperator,
-  batch_size
+  batch_size,
+  hideIfDeleteOperation
 } from '../sf-properties'
 import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 
@@ -37,7 +38,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.last_name' },
           else: { '@path': '$.properties.last_name' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     first_name: {
       label: 'First Name',
@@ -49,13 +51,15 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.first_name' },
           else: { '@path': '$.properties.first_name' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     account_id: {
       label: 'Account ID',
       description:
         'The ID of the account that this contact is associated with. This is the Salesforce-generated ID assigned to the account during creation (i.e. 0018c00002CDThnAAH).',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     email: {
       label: 'Email',
@@ -67,7 +71,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.properties.email' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     mailing_city: {
       label: 'Mailing City',
@@ -79,7 +84,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.city' },
           else: { '@path': '$.properties.address.city' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     mailing_postal_code: {
       label: 'Mailing Postal Code',
@@ -91,7 +97,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.postal_code' },
           else: { '@path': '$.properties.address.postal_code' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     mailing_country: {
       label: 'Mailing Country',
@@ -103,7 +110,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.country' },
           else: { '@path': '$.properties.address.country' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     mailing_street: {
       label: 'Mailing Street',
@@ -115,7 +123,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.street' },
           else: { '@path': '$.properties.address.street' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     mailing_state: {
       label: 'Mailing State',
@@ -127,7 +136,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.state' },
           else: { '@path': '$.properties.address.state' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     customFields: customFields
   },
