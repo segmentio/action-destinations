@@ -82,9 +82,9 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       required: false,
       unsafe_hidden: true,
-      // There was no documented max value for this, however 5k would be large enough for most
+      // There was no documented max value for this, however 1500 would be large enough for most
       // bulk use cases and improve throughput for some data flows. This can be adjusted as needed.
-      default: 5_000
+      default: 1500
     }
   },
   perform: (request, { payload }) => {
