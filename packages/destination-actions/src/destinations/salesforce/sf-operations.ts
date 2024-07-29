@@ -42,7 +42,7 @@ export const generateSalesforceRequest = async (settings: Settings, request: Req
 
   const passwordRequestClient = createRequestClient({
     headers: {
-      Authorization: `Bearer ${accessToken}`
+      Authorization: `OAuth ${accessToken}`
     }
   })
 
