@@ -166,8 +166,8 @@ export async function getProfiles(
     const response = await request(`${API_URL}/profiles/?filter=any(${filterId})`, {
       method: 'GET'
     })
-    const data: GetProfileResponse = await response.json()
-    profileIds.push(...data.data.map((profile: Profile) => profile.id))
+    const res: GetProfileResponse = await response.json()
+    profileIds.push(...res.data.map((profile: Profile) => profile.id))
   }
 
   if (emails?.length) {
@@ -175,8 +175,8 @@ export async function getProfiles(
     const response = await request(`${API_URL}/profiles/?filter=any(${filterEmail})`, {
       method: 'GET'
     })
-    const data: GetProfileResponse = await response.json()
-    profileIds.push(...data.data.map((profile: Profile) => profile.id))
+    const res: GetProfileResponse = await response.json()
+    profileIds.push(...res.data.map((profile: Profile) => profile.id))
   }
 
   if (phoneNumbers?.length) {
@@ -184,8 +184,8 @@ export async function getProfiles(
     const response = await request(`${API_URL}/profiles/?filter=any(${filterPhone})`, {
       method: 'GET'
     })
-    const data: GetProfileResponse = await response.json()
-    profileIds.push(...data.data.map((profile: Profile) => profile.id))
+    const res: GetProfileResponse = await response.json()
+    profileIds.push(...res.data.map((profile: Profile) => profile.id))
   }
 
   return Array.from(new Set(profileIds))

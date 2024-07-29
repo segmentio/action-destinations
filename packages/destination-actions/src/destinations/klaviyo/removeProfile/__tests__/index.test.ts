@@ -5,12 +5,6 @@ import { API_URL } from '../../config'
 import { AggregateAjvError } from '@segment/ajv-human-errors'
 import * as Functions from '../../functions'
 
-jest.mock('../../functions', () => ({
-  ...jest.requireActual('../../functions'),
-  getProfiles: jest.fn(),
-  removeProfileFromList: jest.fn(() => Promise.resolve({ success: true }))
-}))
-
 const testDestination = createTestIntegration(Definition)
 
 const apiKey = 'fake-api-key'
@@ -58,7 +52,7 @@ describe('Remove Profile', () => {
 
     const email = 'test@example.com'
     nock(`${API_URL}/profiles`)
-      .get(`/?filter=equals(email,"${email}")`)
+      .get(`/?filter=any(email,["${email}"])`)
       .reply(200, {
         data: [{ id: 'XYZABC' }]
       })
@@ -103,7 +97,7 @@ describe('Remove Profile', () => {
 
     const external_id = 'testing_123'
     nock(`${API_URL}/profiles`)
-      .get(`/?filter=equals(external_id,"${external_id}")`)
+      .get(`/?filter=any(external_id,["${external_id}"])`)
       .reply(200, {
         data: [{ id: 'XYZABC' }]
       })
@@ -150,7 +144,7 @@ describe('Remove Profile', () => {
 
     const phone_number = '+15005435907'
     nock(`${API_URL}/profiles`)
-      .get(`/?filter=equals(phone_number,"${phone_number}")`)
+      .get(`/?filter=any(phone_number,["${phone_number}"])`)
       .reply(200, {
         data: [{ id: 'XYZABC' }]
       })
@@ -174,12 +168,12 @@ describe('Remove Profile', () => {
         }
       },
       properties: {
-        ephone_number: '+15005435907'
+        phone_number: '+15005435907'
       }
     })
     const mapping = {
       list_id: listId,
-      external_id: 'testing_123'
+      phone_number: '+15005435907'
     }
 
     await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).resolves.not.toThrowError()
@@ -296,11 +290,8 @@ describe('Remove Profile Batch', () => {
       }
     }
 
-    nock(`${API_URL}`)
-      .get('/profiles/')
-      .query({
-        filter: 'any(phone_number,["+15005435907","+15005435908"])'
-      })
+    nock(`${API_URL}/profiles`)
+      .get(`/?filter=any(phone_number,["+15005435907","+15005435908"])`)
       .reply(200, {
         data: [{ id: 'XYZABC' }, { id: 'XYZABD' }]
       })
@@ -366,11 +357,9 @@ describe('Remove Profile Batch', () => {
         data: [{ id: 'XYZABC' }]
       })
 
-    nock(`${API_URL}`)
-      .get('/profiles/')
-      .query({
-        filter: 'any(phone_number,["+15005435907"])'
-      })
+    const phone_number = '+15005435907'
+    nock(`${API_URL}/profiles`)
+      .get(`/?filter=any(phone_number,["${phone_number}"])`)
       .reply(200, {
         data: [{ id: 'XYZABC' }]
       })
@@ -440,6 +429,9 @@ describe('Remove Profile Batch', () => {
   })
 
   it('should handle an empty payload', async () => {
+    const getProfilesMock = jest.spyOn(Functions, 'getProfiles').mockImplementation(jest.fn())
+    const removeProfileFromListMock = jest.spyOn(Functions, 'removeProfileFromList').mockImplementation()
+
     await testDestination.testBatchAction('removeProfile', {
       settings,
       events: []
@@ -447,5 +439,8 @@ describe('Remove Profile Batch', () => {
 
     expect(Functions.getProfiles).not.toHaveBeenCalled()
     expect(Functions.removeProfileFromList).not.toHaveBeenCalled()
+
+    getProfilesMock.mockRestore()
+    removeProfileFromListMock.mockRestore()
   })
 })
