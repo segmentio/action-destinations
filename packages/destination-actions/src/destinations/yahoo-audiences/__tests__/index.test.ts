@@ -18,11 +18,10 @@ const createAudienceInput = {
     customer_desc: CUST_DESC
   },
   audienceName: '',
-  audienceSettings: {
-    personas: {
-      computation_key: AUDIENCE_KEY,
-      computation_id: AUDIENCE_ID
-    }
+  audienceSettings: {},
+  personas: {
+    computation_key: AUDIENCE_KEY,
+    computation_id: AUDIENCE_ID
   }
 }
 
