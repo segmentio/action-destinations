@@ -16,8 +16,6 @@ const getAudienceInput = {
   audienceSettings: {}
 }
 
-
-
 describe('Taboola (actions)', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
@@ -33,7 +31,6 @@ describe('Taboola (actions)', () => {
 
   describe('createAudience', () => {
     it('should fail if no audience name is set', async () => {
-
       const createAudienceInput1 = {
         settings: {
           client_id: 'test_client_id',
@@ -43,7 +40,7 @@ describe('Taboola (actions)', () => {
         audienceSettings: {
           ttl_in_hours: 1024,
           exclude_from_campaigns: false,
-          account_id:accountId
+          account_id: accountId
         }
       }
 
@@ -53,7 +50,6 @@ describe('Taboola (actions)', () => {
     })
 
     it('should fail if no account ID is set', async () => {
-
       const createAudienceInput2 = {
         settings: {
           client_id: 'test_client_id',
@@ -63,7 +59,7 @@ describe('Taboola (actions)', () => {
         audienceSettings: {
           ttl_in_hours: 1024,
           exclude_from_campaigns: false,
-          account_id:''
+          account_id: ''
         }
       }
 
@@ -85,7 +81,7 @@ describe('Taboola (actions)', () => {
         audienceSettings: {
           ttl_in_hours: 1024,
           exclude_from_campaigns: false,
-          account_id:accountId
+          account_id: accountId
         }
       }
       const r = await testDestination.createAudience(createAudienceInput3)

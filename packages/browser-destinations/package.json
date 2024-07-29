@@ -24,6 +24,7 @@
     "size": "size-limit"
   },
   "dependencies": {
+    "@segment/actions-core": "3.116.1-channels-1094.131",
     "tslib": "^2.3.1",
     "vm-browserify": "^1.1.2"
   },

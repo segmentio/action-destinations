@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RequestClient } from '@segment/actions-core/create-request-client'
-import { ExecuteInput } from '@segment/actions-core/destination-kit'
+import { EngageDestinationCache, ExecuteInput } from '@segment/actions-core/destination-kit'
 import { MaybePromise } from '@segment/actions-core/destination-kit/types'
 import { EngageLogger } from './EngageLogger'
 import { EngageStats } from './EngageStats'
@@ -19,7 +19,7 @@ import truncate from 'lodash/truncate'
 export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TReturn = any> {
   readonly logger: EngageLogger = new EngageLogger(this)
   readonly statsClient: EngageStats = new EngageStats(this)
-  readonly dataFeedCache = this.executeInput.dataFeedCache
+  readonly engageDestinationCache: EngageDestinationCache | undefined
   readonly currentOperation: OperationContext | undefined
 
   readonly payload: TPayload
@@ -28,6 +28,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
   constructor(readonly requestClient: RequestClient, readonly executeInput: ExecuteInput<TSettings, TPayload>) {
     this.payload = executeInput.payload
     this.settings = executeInput.settings
+    this.engageDestinationCache = executeInput.engageDestinationCache
   }
 
   beforePerform?(): void | Promise<void>
