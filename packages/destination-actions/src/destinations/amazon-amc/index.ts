@@ -189,7 +189,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           cpmCents: cpm_cents
         })
       }
-
+      // dummy
       // @ts-ignore - TS doesn't know about the oauth property
       const authSettings = getAuthSettings(settings)
       const authToken = await getAuthToken(request, createAudienceInput.settings, authSettings)
