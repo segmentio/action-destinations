@@ -95,6 +95,7 @@ export type AudienceResult = {
 }
 
 export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
+//dummt comment
 export type Personas = { computation_id: 'string'; computation_key: 'string' } & { [key: string]: any }
 
 export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
