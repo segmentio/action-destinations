@@ -1,7 +1,8 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { IntegrationError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import FacebookClient from '../fbca-operations'
+import { batch_size, enable_batching } from '../fbca-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -251,7 +252,9 @@ const action: ActionDefinition<Settings, Payload> = {
       multiple: true,
       label: 'Page IDs',
       description: 'The page IDs of the user.'
-    }
+    },
+    enable_batching,
+    batch_size
   },
   perform: async (request, { settings, payload, hookOutputs, syncMode }) => {
     const fbClient = new FacebookClient(request, settings.retlAdAccountId)
@@ -263,6 +266,8 @@ const action: ActionDefinition<Settings, Payload> = {
         deleteUsers: syncMode === 'delete' ? true : false
       })
     }
+
+    throw new IntegrationError('Sync mode is required for perform', 'MISSING_REQUIRED_FIELD', 400)
   },
   performBatch: async (request, { settings, payload, hookOutputs, syncMode }) => {
     const fbClient = new FacebookClient(request, settings.retlAdAccountId)
@@ -274,6 +279,8 @@ const action: ActionDefinition<Settings, Payload> = {
         deleteUsers: syncMode === 'delete' ? true : false
       })
     }
+
+    throw new IntegrationError('Sync mode is required for performBatch', 'MISSING_REQUIRED_FIELD', 400)
   }
 }
 
