@@ -3053,10 +3053,10 @@
     dayjs "^1.10.7"
     ts-custom-error "^3.2.0"
 
-"@segment/actions-shared@1.105.1-channels-1094.57":
-  version "1.105.1-channels-1094.57"
-  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.105.1-channels-1094.57.tgz#b6f49c9cf7844fed49915fba22efbd91ce432662"
-  integrity sha512-vAgLS0UaYo/wKkKctZWuRmQ6CBtn1TyIMLd96qdyYswbb0CRdEsJUZcZYIlW4bPI/FuKKqpz6fcnKlVSbWDkTQ==
+"@segment/actions-shared@1.105.1-channels-1200.59":
+  version "1.105.1-channels-1200.59"
+  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.105.1-channels-1200.59.tgz#8be12e1eaf70f95c913eac94d65bf0d1acac2932"
+  integrity sha512-MunC3Vh1m3yTFl24Znwl9OY8Vu7fdh9AsjDrkd5F6TSZrjy5/MPfK6QISA5s42gTtQmuG1ADC5Yhw7LKiRrurA==
   dependencies:
     "@amplitude/ua-parser-js" "^0.7.25"
     "@segment/actions-core" "3.116.1-channels-1094.131"
