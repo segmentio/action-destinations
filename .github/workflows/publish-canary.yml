@@ -33,8 +33,6 @@ jobs:
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile --ignore-optional
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build
         run: NODE_ENV=production yarn build
