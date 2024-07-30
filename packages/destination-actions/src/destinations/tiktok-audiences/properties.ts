@@ -8,20 +8,6 @@ export const selected_advertiser_id: InputField = {
   required: true
 }
 
-export const id_type: InputField = {
-  label: 'ID Type',
-  description:
-    'Encryption type to be used for populating the audience. This field is set only when Segment creates a new audience.',
-  type: 'string',
-  choices: [
-    { label: 'Email', value: 'EMAIL_SHA256' },
-    { label: 'Google Advertising ID', value: 'GAID_SHA256' },
-    { label: 'Android Advertising ID', value: 'AAID_SHA256' },
-    { label: 'iOS Advertising ID', value: 'IDFA_SHA256' }
-  ],
-  required: true
-}
-
 export const audience_id: InputField = {
   label: 'Audience ID',
   description:
