@@ -46,7 +46,10 @@ describe('Facebook Custom Audiences', () => {
             first: 'Henry',
             last: 'Aaron'
           },
-          externalId: '5'
+          externalId: '5',
+          // Batching fields should be ignored when generating data
+          enable_batching: true,
+          batch_size: 10000
         }
       ]
 
@@ -81,7 +84,9 @@ describe('Facebook Custom Audiences', () => {
           first: 'Henry',
           last: 'Aaron'
         },
-        externalId: '5'
+        externalId: '5',
+        enable_batching: true,
+        batch_size: 10000
       }
 
       payloads[1] = {
@@ -102,7 +107,9 @@ describe('Facebook Custom Audiences', () => {
           state: 'CA',
           zip: '92000',
           country: 'US'
-        }
+        },
+        enable_batching: true,
+        batch_size: 10000
       }
 
       expect(generateData(payloads)).toEqual([

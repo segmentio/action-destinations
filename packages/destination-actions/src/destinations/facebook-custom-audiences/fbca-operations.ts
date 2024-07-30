@@ -1,4 +1,4 @@
-import { DynamicFieldItem, DynamicFieldError, RequestClient, IntegrationError } from '@segment/actions-core'
+import { DynamicFieldItem, DynamicFieldError, RequestClient } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
 import { createHash } from 'crypto'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES } from './fbca-properties'
@@ -58,7 +58,8 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
   const index = segmentSchemaKeyToArrayIndex.get(key)
 
   if (index === undefined) {
-    throw new IntegrationError(`Invalid schema key: ${key}`, 'INVALID_SCHEMA_KEY', 500)
+    // ignore batch related keys
+    return
   }
 
   if (typeof value === 'number') {
