@@ -2,6 +2,7 @@ import { DynamicFieldItem, DynamicFieldError, RequestClient, StatsContext } from
 import { Payload } from './sync/generated-types'
 import { createHash } from 'crypto'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES } from './fbca-properties'
+import { Logger } from '@segment/actions-core/destination-kit'
 
 const FACEBOOK_API_VERSION = 'v20.0'
 // exported for unit testing
@@ -83,11 +84,13 @@ export default class FacebookClient {
   request: RequestClient
   adAccountId: string
   stats?: StatsContext
+  logger?: Logger
 
-  constructor(request: RequestClient, adAccountId: string, stats?: StatsContext) {
+  constructor(request: RequestClient, adAccountId: string, stats?: StatsContext, logger?: Logger) {
     this.request = request
     this.adAccountId = this.formatAdAccount(adAccountId)
     this.stats = stats
+    this.logger = logger
   }
 
   createAudience = async (name: string) => {
@@ -151,6 +154,10 @@ export default class FacebookClient {
       this.stats?.statsClient.incr('syncAudience', totalPayload, this.stats?.tags)
       this.stats?.statsClient.incr('syncAudience.sent', totalSent, this.stats?.tags)
       this.stats?.statsClient.incr('syncAudience.invalid', totalInvalid, this.stats?.tags)
+
+      this.logger?.error(`Facebook Custom Audiences: Total Payload: ${totalPayload}`)
+      this.logger?.error(`Facebook Custom Audiences: Total Sent: ${totalSent}`)
+      this.logger?.error(`Facebook Custom Audiences: Total Invalid: ${totalInvalid}`)
 
       return res
     } catch (e) {
