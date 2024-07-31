@@ -23,8 +23,7 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): 
   const headers: string[] = []
   const columnsField = payloads[0].columns
 
-  const headerString = `${headers.join(audienceSettings.delimiter === 'tab' ? '\t' : audienceSettings.delimiter)}\n`
-  const rows: string[] = [headerString]
+  const rows: string[] = []
 
   payloads.forEach((payload, index, arr) => {
     const action = payload.propertiesOrTraits[payload.audienceName]
@@ -98,19 +97,14 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): 
       row.push(encodeString(String(JSON.stringify(payload.propertiesOrTraits) ?? '')))
     }
 
-    if (index === 0) {
-      payload?.additional_identifiers_and_traits_columns?.forEach((additionalColumn) => {
-        if (![undefined, null, ''].includes(additionalColumn.value)) {
-          headers.push(additionalColumn.value)
+    if (payload.additional_identifiers_and_traits_columns) {
+      for (const [key, value] of Object.entries(payload.additional_identifiers_and_traits_columns)) {
+        if (index === 0) {
+          headers.push(String(value))
         }
-      })
-    }
-
-    payload?.additional_identifiers_and_traits_columns?.forEach((additionalColumn) => {
-      if (![undefined, null, ''].includes(additionalColumn.value)) {
-        row.push(encodeString(String(JSON.stringify(payload.propertiesOrTraits[additionalColumn.key]) ?? '')))
+        row.push(encodeString(String(payload.propertiesOrTraits[String(key)] ?? '')))
       }
-    })
+    }
 
     const isLastRow = arr.length === index + 1
     const rowString = `${row.join(audienceSettings.delimiter === 'tab' ? '\t' : audienceSettings.delimiter)}${
@@ -123,7 +117,6 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): 
     }
     rows.push(rowString)
   })
-
   return rows.join('')
 }
 
@@ -144,11 +137,20 @@ function validate(payloads: Payload[], audienceSettings: AudienceSettings) {
   })
 
   // ensure additional identifier column names do not contain delimiter
-  additionalIdentifierColumns?.forEach((column) => {
-    if (column.value.includes(delimiter)) {
-      throw new Error(`Column name ${column.value} cannot contain delimiter: ${delimiter}`)
-    }
-  })
+  // additionalIdentifierColumns?.forEach((column) => {
+  //   if (column.value.includes(delimiter)) {
+  //     throw new Error(`Column name ${column.value} cannot contain delimiter: ${delimiter}`)
+  //   }
+  // })
+
+  // ensure additional identifier column names do not contain delimiter
+  if (additionalIdentifierColumns) {
+    Object.entries(additionalIdentifierColumns).forEach(([key, value]) => {
+      if (typeof value === 'string' && value.includes(delimiter)) {
+        throw new Error(`Column name ${key} cannot contain delimiter: ${delimiter}`)
+      }
+    })
+  }
 }
 
 export { generateFile, validate }
