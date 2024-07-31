@@ -162,6 +162,7 @@ export default class FacebookClient {
       return res
     } catch (e) {
       this.logger?.error(`Facebook Custom Audiences: Error: ${JSON.stringify(e)}`)
+      this.logger?.error(`Facebook Custom Audiences: sample data: ${JSON.stringify(data[0])}`)
       throw e
     }
   }
