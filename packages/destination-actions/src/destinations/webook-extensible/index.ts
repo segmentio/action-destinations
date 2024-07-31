@@ -1,4 +1,4 @@
-weimport type { DestinationDefinition } from '@segment/actions-core'
+import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { createHmac } from 'crypto'
 
