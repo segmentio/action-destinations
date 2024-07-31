@@ -24,21 +24,21 @@ export class EngageStats extends OperationStats {
     if (actionPerformer.executeInput.statsContext)
       actionPerformer.executeInput.statsContext.tags = this.mergeTags(
         actionPerformer.executeInput.statsContext.tags,
-        this.getCommonTags()
+        this.getCommonTags(actionPerformer)
       )
   }
 
-  getCommonTags() {
+  getCommonTags(actionPerformer: EngageActionPerformer) {
     const res = [
-      `space_id:${this.actionPerformer.settings.spaceId}`,
-      `projectid:${this.actionPerformer.settings.sourceId}`,
-      `computation_id:${this.actionPerformer.payload.segmentComputationId}`,
-      `settings_region:${this.actionPerformer.settings.region}`,
-      `channel:${this.actionPerformer.getChannelType()}`
+      `space_id:${actionPerformer.settings.spaceId}`,
+      `projectid:${actionPerformer.settings.sourceId}`,
+      `computation_id:${actionPerformer.payload.segmentComputationId}`,
+      `settings_region:${actionPerformer.settings.region}`,
+      `channel:${actionPerformer.getChannelType()}`
     ]
     const correlation_id =
-      this.actionPerformer.payload.customArgs?.correlation_id ||
-      this.actionPerformer.payload.customArgs?.__segment_internal_correlation_id__
+      actionPerformer.payload.customArgs?.correlation_id ||
+      actionPerformer.payload.customArgs?.__segment_internal_correlation_id__
     if (correlation_id) res.push(`correlation_id:${correlation_id}`)
     return res
   }

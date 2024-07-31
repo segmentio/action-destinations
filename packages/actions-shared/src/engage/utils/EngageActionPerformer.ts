@@ -17,8 +17,8 @@ import truncate from 'lodash/truncate'
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
  */
 export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TReturn = any> {
-  readonly logger: EngageLogger = new EngageLogger(this)
-  readonly statsClient: EngageStats = new EngageStats(this)
+  readonly logger: EngageLogger
+  readonly statsClient: EngageStats
   readonly engageDestinationCache: EngageDestinationCache | undefined
   readonly currentOperation: OperationContext | undefined
 
@@ -29,6 +29,8 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     this.payload = executeInput.payload
     this.settings = executeInput.settings
     this.engageDestinationCache = executeInput.engageDestinationCache
+    this.logger = new EngageLogger(this)
+    this.statsClient = new EngageStats(this)
   }
 
   beforePerform?(): void | Promise<void>
