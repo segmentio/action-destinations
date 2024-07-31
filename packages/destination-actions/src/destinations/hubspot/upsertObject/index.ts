@@ -7,7 +7,8 @@ import {
   dynamicReadAssociationLabels,
   dynamicReadIdFields,
   dynamicReadObjectTypes,
-  dynamicReadPropertyGroups
+  dynamicReadPropertyGroups,
+  dynamicReadProperties
 } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -51,6 +52,17 @@ const action: ActionDefinition<Settings, Payload> = {
         return await dynamicReadPropertyGroups(request, fromObjectType)
       }
     },
+    properties: {
+      __values__: async (request, { payload }) => {
+        const fromObjectType = payload?.object_details?.from_object_type
+
+        if (!fromObjectType) {
+          throw new Error("Select from 'From Object Type' first")
+        }
+
+        return await dynamicReadProperties(request, fromObjectType)
+      }
+    },
     associations: {
       to_object_type: async (request) => {
         return await dynamicReadObjectTypes(request)
@@ -66,7 +78,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const toObjectType = payload?.associations?.[selectedIndex]?.to_object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'Object Type' first")
+          throw new Error("Select from 'From Object Type' first")
         }
 
         if (!toObjectType) {

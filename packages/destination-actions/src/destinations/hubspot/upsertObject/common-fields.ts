@@ -55,10 +55,8 @@ export const commonFields: Record<string, InputField> = {
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue',
-    additionalProperties: true,
-    default: {
-      '@path': 'properties'
-    }
+    dynamic: true,
+    additionalProperties: true
   },
   association_sync_mode: {
     label: 'Associated Record Sync Mode',
