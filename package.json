@@ -23,7 +23,6 @@
     "clean": "sh scripts/clean.sh",
     "clean": "sh scripts/clean.sh",
     "cli": "yarn workspace @segment/actions-cli",
-    "cli-internal": "yarn workspace @segment/actions-cli-internal",
     "cloud": "yarn workspace @segment/action-destinations",
     "core": "yarn workspace @segment/actions-core",
     "lint": "ls -d ./packages/* | xargs -I {} eslint '{}/**/*.ts' --cache",
