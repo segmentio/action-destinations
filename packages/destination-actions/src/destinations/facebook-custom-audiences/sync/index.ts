@@ -261,7 +261,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (syncMode) {
       return await fbClient.syncAudience({
-        audienceId: hookOutputs?.retlOnMappingSave.audienceId,
+        audienceId: hookOutputs?.retlOnMappingSave.outputs.audienceId,
         payloads: [payload],
         deleteUsers: syncMode === 'delete' ? true : false
       })
@@ -274,7 +274,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (syncMode) {
       return await fbClient.syncAudience({
-        audienceId: hookOutputs?.retlOnMappingSave.audienceId,
+        audienceId: hookOutputs?.retlOnMappingSave.outputs.audienceId,
         payloads: payload,
         deleteUsers: syncMode === 'delete' ? true : false
       })
