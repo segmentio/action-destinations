@@ -60,7 +60,6 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Region',
         description: 'VWO Region to sync data to. Default is US',
         type: 'string',
-        required: true,
         choices: [
           { label: 'US', value: 'US' },
           { label: 'Europe', value: 'EU' },
