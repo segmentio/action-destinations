@@ -224,7 +224,7 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
   }
 }
 
-export async function dynamicReadProperties(request: RequestClient, objectType: string){
+export async function dynamicReadProperties(request: RequestClient, objectType: string, sensitive: boolean){
   interface ResultItem {
     label: string
     name: string
@@ -238,7 +238,8 @@ export async function dynamicReadProperties(request: RequestClient, objectType: 
   }
   
   try {
-    const response: ResponseType = await request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${objectType}`, {
+    const url = `${HUBSPOT_BASE_URL}/crm/v3/properties/${objectType}${sensitive ? '?dataSensitivity=sensitive' : ''}`
+    const response: ResponseType = await request(url, {
       method: 'GET',
       skipResponseCloning: true
     })

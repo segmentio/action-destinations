@@ -58,6 +58,15 @@ export const commonFields: Record<string, InputField> = {
     dynamic: true,
     additionalProperties: true
   },
+  sensitiveProperties: {
+    label: 'Sensitive Properties',
+    description: 'Sensitive Properties to set on the record.',
+    type: 'object',
+    required: false,
+    defaultObjectUI: 'keyvalue',
+    dynamic: true,
+    additionalProperties: true
+  },
   association_sync_mode: {
     label: 'Associated Record Sync Mode',
     description:

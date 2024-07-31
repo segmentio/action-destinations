@@ -60,7 +60,18 @@ const action: ActionDefinition<Settings, Payload> = {
           throw new Error("Select from 'From Object Type' first")
         }
 
-        return await dynamicReadProperties(request, fromObjectType)
+        return await dynamicReadProperties(request, fromObjectType, false)
+      }
+    },
+    sensitiveProperties: {
+      __values__: async (request, { payload }) => {
+        const fromObjectType = payload?.object_details?.from_object_type
+
+        if (!fromObjectType) {
+          throw new Error("Select from 'From Object Type' first")
+        }
+
+        return await dynamicReadProperties(request, fromObjectType, true)
       }
     },
     associations: {
@@ -132,9 +143,9 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
   )
 
   if (fromPropertyGroup) {
-    const uniquePayloadsProperties = client.uniquePayloadsProperties(payloads)
+    const { uniqueProperties, uniqueSensitiveProperties } = client.uniquePayloadsProperties(payloads)
     const propertiesFromHSchema = await client.propertiesFromHSchema()
-    const propertiesToCreate = client.propertiesToCreateInHSSchema(uniquePayloadsProperties, propertiesFromHSchema)
+    const propertiesToCreate = client.propertiesToCreateInHSSchema(uniqueProperties, propertiesFromHSchema)
     await client.ensurePropertiesInHSSchema(propertiesToCreate)
   }
   const fromRecordsOnHS = await client.ensureFromRecordsOnHubspot(payloads)

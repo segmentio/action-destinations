@@ -129,7 +129,7 @@ export class HubspotClient {
 
     try {
       const response: ResponseType = await this.request(
-        `${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}`,
+        `${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}`,  // ?dataSensitivity=sensitive
         {
           method: 'GET',
           skipResponseCloning: true
@@ -155,13 +155,12 @@ export class HubspotClient {
     }
   }
 
-  uniquePayloadsProperties(payloads: Payload[]): PayloadPropertyItem[] {
-    return Object.values(
+  uniquePayloadsProperties(payloads: Payload[]): { uniqueProperties: PayloadPropertyItem[], uniqueSensitiveProperties: PayloadPropertyItem[] } {
+    const uniqueProperties = Object.values(
       payloads.reduce((acc, payload) => {
         if (payload.properties) {
           Object.keys(payload.properties).forEach((propName) => {
             if (payload.properties) {
-              // to keep linter happy
               acc[propName] = {
                 name: propName,
                 type: typeof payload.properties[propName]
@@ -172,6 +171,27 @@ export class HubspotClient {
         return acc
       }, {} as { [name: string]: PayloadPropertyItem })
     )
+
+    const uniqueSensitiveProperties = Object.values(
+      payloads.reduce((acc, payload) => {
+        if (payload.sensitiveProperties) {
+          Object.keys(payload.sensitiveProperties).forEach((propName) => {
+            if (payload.sensitiveProperties) {
+              acc[propName] = {
+                name: propName,
+                type: typeof payload.sensitiveProperties[propName]
+              }
+            }
+          })
+        }
+        return acc
+      }, {} as { [name: string]: PayloadPropertyItem })
+    )
+
+    return {
+      uniqueProperties,
+      uniqueSensitiveProperties
+    }
   }
 
   propertiesToCreateInHSSchema(
