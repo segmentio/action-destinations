@@ -34,7 +34,6 @@ import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './p
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
 import { HTTPError } from '..'
-import isEmpty from 'lodash/isEmpty'
 
 export type {
   BaseActionDefinition,
@@ -95,7 +94,7 @@ export type AudienceResult = {
 }
 
 export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
-export type Personas = { computation_id: 'string'; computation_key: 'string' } & { [key: string]: any }
+export type Personas = { computation_id: 'string'; computation_key: 'string'; [key: string]: any }
 
 export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
   settings: Settings
@@ -431,7 +430,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       throw new Error('Unexpected call to createAudience')
     }
     //validate audienceField Input
-    if (!isEmpty(createAudienceInput.audienceSettings)) {
+    if (createAudienceInput.audienceSettings && Object.keys(createAudienceInput.audienceSettings).length > 0) {
       validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceDefinition.audienceFields))
     }
     const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
