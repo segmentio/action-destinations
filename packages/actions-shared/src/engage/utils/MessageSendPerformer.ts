@@ -372,10 +372,37 @@ export abstract class MessageSendPerformer<
    */
   abstract sendToRecepient(recepient: ExtId<TPayload>): any
 
+  getCommonTags() {
+    const settings = this.settings
+    const payload = this.payload // as Record<string, any>
+    const res = [
+      `space_id:${settings.spaceId}`,
+      `projectid:${settings.sourceId}`,
+      `settings_region:${settings.region}`,
+      `channel:${this.getChannelType()}`
+    ]
+    const correlation_id = payload.customArgs?.correlation_id || payload.customArgs?.__segment_internal_correlation_id__
+    if (correlation_id) res.push(`correlation_id:${correlation_id}`)
+
+    const computation_id = (payload as any).segmentComputationId
+    if (computation_id) res.push(`computation_id:${computation_id}`)
+
+    return res
+  }
+
   /**
    * populate the logDetails object with the data that should be logged for every message
    */
   beforePerform() {
+    super.beforePerform?.()
+
+    //adding common tags to the the tags that will be added to every single metric added via this.stats*
+    if (this.executeInput.statsContext)
+      this.executeInput.statsContext.tags = this.statsClient.mergeTags(
+        this.executeInput.statsContext.tags,
+        this.getCommonTags()
+      )
+
     if (!this.settings.region && this.getDefaultSettingsRegion) {
       this.settings.region = this.getDefaultSettingsRegion()
     }

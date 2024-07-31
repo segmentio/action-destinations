@@ -19,28 +19,6 @@ export class EngageStats extends OperationStats {
 
   constructor(public actionPerformer: EngageActionPerformer) {
     super()
-
-    //adding common tags to the the tags that will be added to every single metric added via this.stats*
-    if (actionPerformer.executeInput.statsContext)
-      actionPerformer.executeInput.statsContext.tags = this.mergeTags(
-        actionPerformer.executeInput.statsContext.tags,
-        this.getCommonTags(actionPerformer)
-      )
-  }
-
-  getCommonTags(actionPerformer: EngageActionPerformer) {
-    const res = [
-      `space_id:${actionPerformer.settings.spaceId}`,
-      `projectid:${actionPerformer.settings.sourceId}`,
-      `computation_id:${actionPerformer.payload.segmentComputationId}`,
-      `settings_region:${actionPerformer.settings.region}`,
-      `channel:${actionPerformer.getChannelType()}`
-    ]
-    const correlation_id =
-      actionPerformer.payload.customArgs?.correlation_id ||
-      actionPerformer.payload.customArgs?.__segment_internal_correlation_id__
-    if (correlation_id) res.push(`correlation_id:${correlation_id}`)
-    return res
   }
 
   onTry(ctx: OperationStatsContext): () => void {
