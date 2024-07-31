@@ -6,7 +6,7 @@ import send from './send'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Webhook',
-  slug: 'extensible-webhook',
+  slug: 'webhook-extensible',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
