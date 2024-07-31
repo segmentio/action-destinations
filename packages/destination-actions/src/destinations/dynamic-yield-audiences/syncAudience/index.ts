@@ -123,12 +123,14 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
 
     const audienceName = audienceSettings?.audience_name
-    const identifierType = (audienceSettings?.identifier_type).toLowerCase().replace(/_/g, '')
+    const identifierType = audienceSettings?.identifier_type ?? ''
+    const normalizedIdentifierType = identifierType.toLowerCase().replace(/_/g, '')
     const audienceValue = payload.traits_or_props[payload.segment_audience_key]
+    let sendNormalizeIdType = true
 
     let primaryIdentifier: string | undefined
 
-    switch (identifierType) {
+    switch (normalizedIdentifierType) {
       case 'email':
         primaryIdentifier = payload.email ?? undefined
         break
@@ -138,13 +140,17 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       case 'anonymousid':
         primaryIdentifier = payload.anonymousId ?? undefined
         break
-      default:
+      default: {
         primaryIdentifier = (payload.traits_or_props[identifierType] as string) ?? undefined
+        sendNormalizeIdType = false
+      }
     }
 
     if (!primaryIdentifier) {
       throw new IntegrationError('Primary Identifier not found', 'MISSING_REQUIRED_FIELD', 400)
     }
+
+    const idTypeToSend = sendNormalizeIdType ? normalizedIdentifierType : identifierType
 
     const URL = getUpsertURL(settings.dataCenter)
 
@@ -155,7 +161,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       account: {
         account_settings: {
           section_id: settings.sectionId,
-          identifier_type: identifierType,
+          identifier_type: idTypeToSend,
           accessKey: settings.accessKey
         }
       },
@@ -163,9 +169,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         {
           user_identities: [
             {
-              type: identifierType,
-              encoding: identifierType === 'email' ? '"sha-256"' : 'raw',
-              value: identifierType === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
+              type: idTypeToSend,
+              encoding: idTypeToSend === 'email' ? '"sha-256"' : 'raw',
+              value: idTypeToSend === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
             }
           ],
           audiences: [

@@ -1,4 +1,5 @@
 import { IntegrationError } from '../errors'
+import { ActionDefinition } from '../destination-kit/action'
 import {
   StateContext,
   Destination,
@@ -243,6 +244,15 @@ const destinationWithIdentifier: DestinationDefinition<JSONObject> = {
   }
 }
 
+interface Payload {
+  testDynamicField: string
+  testUnstructuredObject: Record<string, string>
+  testStructuredObject: {
+    testDynamicSubfield: string
+  }
+  testObjectArrays: Array<{ testDynamicSubfield: string }>
+}
+
 const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
   name: 'Actions Dynamic Fields',
   mode: 'cloud',
@@ -342,7 +352,7 @@ const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
       perform: (_request, { syncMode }) => {
         return ['this is a test', syncMode]
       }
-    }
+    } as ActionDefinition<JSONObject, Payload>
   }
 }
 
@@ -554,8 +564,7 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
-          output: 'Action Executed',
-          data: ['this is a test', 'add']
+          output: 'successfully processed batch of events'
         }
       ])
     })
@@ -605,8 +614,7 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
-          output: 'Action Executed',
-          data: ['this is a test', 'userId']
+          output: 'successfully processed batch of events'
         }
       ])
     })
