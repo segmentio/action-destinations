@@ -68,7 +68,8 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     }
-    const host = hosts[settings.region] || 'https://dev.visualwebsiteoptimizer.com'
+    const region = settings.region || "US"
+    const host = hosts[region]
     const endpoint = `${host}/events/t?en=vwo_integration&a=${settings.vwoAccountId}`
 
     return request(endpoint, {

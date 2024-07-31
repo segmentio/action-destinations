@@ -12,5 +12,5 @@ export interface Settings {
   /**
    * VWO Region to sync data to. Default is US
    */
-  region: string
+  region?: string
 }

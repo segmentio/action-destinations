@@ -83,7 +83,8 @@ const action: ActionDefinition<Settings, Payload> = {
       settings.vwoAccountId
     )
     structuredPayload.d.event.props.vwoMeta['ogName'] = payload.name
-    const host = hosts[settings.region] || 'https://dev.visualwebsiteoptimizer.com'
+    const region = settings.region || "US"
+    const host = hosts[region]
     const endpoint = `${host}/events/t?en=${sanitisedEventName}&a=${settings.vwoAccountId}`
     return request(endpoint, {
       method: 'POST',
