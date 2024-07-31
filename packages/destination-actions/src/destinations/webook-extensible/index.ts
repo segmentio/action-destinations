@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+weimport type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { createHmac } from 'crypto'
 
@@ -6,7 +6,7 @@ import send from './send'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Webhook',
-  slug: 'actions-webhook',
+  slug: 'extensible-webhook',
   mode: 'cloud',
   authentication: {
     scheme: 'custom',
