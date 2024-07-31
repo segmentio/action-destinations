@@ -119,31 +119,77 @@ export class HubspotClient {
     }
   }
 
-  async propertiesFromHSchema(): Promise<ReadPropertiesResultItem[]> {
+  async propertiesFromHSchema(fetchProperties: boolean, fetchSensitiveProperties: boolean): Promise<{properties: ReadPropertiesResultItem[], sensitiveProperties: ReadPropertiesResultItem[]}> {
     interface ResponseType {
       data: {
         status: string
         results: ReadPropertiesResultItem[]
       }
     }
+  
+    const requests: Promise<ResponseType>[] = []
 
-    try {
-      const response: ResponseType = await this.request(
-        `${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}`,  // ?dataSensitivity=sensitive
-        {
-          method: 'GET',
-          skipResponseCloning: true
-        }
+    if (fetchProperties) {
+      requests.push(
+        this.request(
+          `${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}`,
+          {
+            method: 'GET',
+            skipResponseCloning: true
+          }
+        )
       )
+    }
+  
+    if (fetchSensitiveProperties) {
+      requests.push(
+        this.request(
+          `${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}?dataSensitivity=sensitive`,
+          {
+            method: 'GET',
+            skipResponseCloning: true
+          }
+        )
+      )
+    }
+  
+    try {
+      const responses = await Promise.all(requests)
 
-      return response.data.results.map((item: ReadPropertiesResultItem) => {
-        return {
+      const result: {
+        properties: ReadPropertiesResultItem[],
+        sensitiveProperties: ReadPropertiesResultItem[]
+      } = {
+        properties: [],
+        sensitiveProperties: []
+      }
+  
+      if (fetchProperties && requests.length > 0) {
+        
+        const propertiesResponse = responses.shift() // Remove and get the first response
+
+        result.properties = (propertiesResponse?.data.results.map((item: ReadPropertiesResultItem) => ({
           name: item.name,
           type: item.type,
           fieldType: item.fieldType,
           hasUniqueValue: item.hasUniqueValue
-        }
-      }) as ReadPropertiesResultItem[]
+        })) as ReadPropertiesResultItem[]) ?? []
+      }
+  
+      if (fetchSensitiveProperties && requests.length > 0) {
+       
+        const sensitivePropertiesResponse = responses.shift() // Remove and get the next response
+        
+        result.sensitiveProperties = (sensitivePropertiesResponse?.data.results.map((item: ReadPropertiesResultItem) => ({
+          name: item.name,
+          type: item.type,
+          fieldType: item.fieldType,
+          hasUniqueValue: item.hasUniqueValue
+        })) as ReadPropertiesResultItem[]) ?? []
+      }
+
+      return result
+
     } catch (err) {
       throw new IntegrationError(
         `readProperties() failed: ${
@@ -201,78 +247,85 @@ export class HubspotClient {
     return uniquePayloadProperties.filter((prop) => !hubspotProperties.find((p) => p.name === prop.name))
   }
 
-  async ensurePropertiesInHSSchema(properties: PayloadPropertyItem[]) {
+  async ensurePropertiesInHSSchema(properties: PayloadPropertyItem[], sensitiveProperties: PayloadPropertyItem[]) {
     if (!this.fromPropertyGroup) {
       throw new PayloadValidationError(
         '"Property Group" is a required field when creating properties on an Object Schema in Hubspot'
       )
     }
 
-    if (!properties || properties.length === 0) {
+    if ( (!properties || properties.length === 0) && (!sensitiveProperties || sensitiveProperties.length === 0) ) {
       return
     }
+
+    interface Input {
+      name: string
+      label: string
+      groupName: string
+      type: string
+      dataSensitivity: 'sensitive' | undefined
+      fieldType: string
+      options?: Array<{ label: string; value: string; hidden: boolean; description: string; displayOrder: number }>
+    }
     interface RequestBody {
-      inputs: Array<{
-        label: string
-        type: 'string' | 'number' | 'enumeration'
-        groupName: string
-        name: string
-        fieldType: 'text' | 'number' | 'booleancheckbox'
-        options?: Array<{
-          label: string
-          value: string
-          hidden: boolean
-          description: string
-          displayOrder: 1 | 2
-        }>
-      }>
+      inputs: Array<Input>
     }
 
-    const json = {
-      inputs: properties.map((prop) => {
-        switch (prop.type) {
-          case 'string':
+    const generateInputMapping =  (prop: PayloadPropertyItem, sensitive: boolean): Input => {
+    
+      switch (prop.type) {
+        case 'number':
+          return {
+            name: prop.name,
+            label: prop.name,
+            groupName: this.fromPropertyGroup as string,
+            type: 'number',
+            dataSensitivity: sensitive === true ? 'sensitive' : undefined,
+            fieldType: 'number'
+          }
+        case 'boolean':
+          return {
+            name: prop.name,
+            label: prop.name,
+            groupName: this.fromPropertyGroup as string,
+            type: 'enumeration',
+            dataSensitivity: sensitive === true ? 'sensitive' : undefined,
+            fieldType: 'booleancheckbox',
+            options: [
+              {
+                label: 'true',
+                value: 'true',
+                hidden: false,
+                description: 'True',
+                displayOrder: 1
+              },
+              {
+                label: 'false',
+                value: 'false',
+                hidden: false,
+                description: 'False',
+                displayOrder: 2
+              }
+            ]
+          }
+        case 'string':
+          default: 
             return {
               name: prop.name,
               label: prop.name,
-              groupName: this.fromPropertyGroup,
+              groupName: this.fromPropertyGroup as string,
               type: 'string',
+              dataSensitivity: sensitive === true ? 'sensitive' : undefined,
               fieldType: 'text'
             }
-          case 'number':
-            return {
-              name: prop.name,
-              label: prop.name,
-              groupName: this.fromPropertyGroup,
-              type: 'number',
-              fieldType: 'number'
-            }
-          case 'boolean':
-            return {
-              name: prop.name,
-              label: prop.name,
-              groupName: this.fromPropertyGroup,
-              type: 'enumeration',
-              fieldType: 'booleancheckbox',
-              options: [
-                {
-                  label: 'true',
-                  value: 'true',
-                  hidden: false,
-                  description: 'True',
-                  displayOrder: 1
-                },
-                {
-                  label: 'false',
-                  value: 'false',
-                  hidden: false,
-                  description: 'False',
-                  displayOrder: 2
-                }
-              ]
-            }
-        }
-      })
+      }    
+    }
+
+    const json: RequestBody = {
+      inputs: [
+        ...properties.map(prop => generateInputMapping(prop, false)),
+        ...sensitiveProperties.map(prop => generateInputMapping(prop, true))
+      ]
     } as RequestBody
 
     await this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}/batch/create`, {
