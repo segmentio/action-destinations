@@ -442,7 +442,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     const onFailedAttempt = async (error: ResponseError & HTTPError) => {
-      settings = await this.runFailedAttempt(error, settings)
+      settings = await this.refreshAndUpdateTokenInSettings(error, settings)
     }
     return await retry(run, { retries: 2, onFailedAttempt })
   }
@@ -468,7 +468,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     const onFailedAttempt = async (error: ResponseError & HTTPError) => {
-      settings = await this.runFailedAttempt(error, settings)
+      settings = await this.refreshAndUpdateTokenInSettings(error, settings)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -768,7 +768,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     const onFailedAttempt = async (error: ResponseError & HTTPError) => {
-      settings = await this.runFailedAttempt(error, settings, options)
+      settings = await this.refreshAndUpdateTokenInSettings(error, settings, options)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -796,7 +796,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onFailedAttempt = async (error: any) => {
-      settings = await this.runFailedAttempt(error, settings)
+      settings = await this.refreshAndUpdateTokenInSettings(error, settings)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -825,7 +825,11 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     return otherSettings as unknown as Settings
   }
   // Refreshes the token and update it in setting in case of 401(Unauthorized).
-  async runFailedAttempt(error: ResponseError & HTTPError, settings: JSONObject, options?: OnEventOptions) {
+  async refreshAndUpdateTokenInSettings(
+    error: ResponseError & HTTPError,
+    settings: JSONObject,
+    options?: OnEventOptions
+  ) {
     const statusCode = error?.status ?? error?.response?.status ?? 500
     // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
     if (

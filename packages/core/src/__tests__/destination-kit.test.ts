@@ -1,3 +1,4 @@
+import { IntegrationError } from '../errors'
 import {
   StateContext,
   Destination,
@@ -11,6 +12,7 @@ import {
 } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
+const WRONG_AUDIENCE_ID = '1234567890'
 
 const destinationCustomAuth: DestinationDefinition<JSONObject> = {
   name: 'Actions Google Analytic 4',
@@ -84,11 +86,9 @@ const authentication: AuthenticationScheme<JSONObject> = {
   fields: {},
   refreshAccessToken: (_request) => {
     return new Promise((resolve, _reject) => {
-      setTimeout(() => {
-        resolve({
-          accessToken: 'fresh-token'
-        })
-      }, 3)
+      resolve({
+        accessToken: 'fresh-token'
+      })
     })
   }
 }
@@ -103,40 +103,45 @@ const audienceDestination: AudienceDestinationDefinition<JSONObject> = {
       type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
+
     // Mocked createAudience Handler
     async createAudience(_request, createAudienceInput) {
       const settings: any = createAudienceInput.settings
+      const audienceSettings: any = createAudienceInput.audienceSettings
 
-      if (settings.oauth.access_token == 'fresh-token' || settings.oauth.access_token == 'valid-access-token') {
-        return new Promise((resolve, _reject) => {
-          setTimeout(() => {
-            resolve({ externalId: '123456789' })
-          }, 3)
+      // it could be due to invalid input or Bad Request
+      if (!audienceSettings?.advertiserId)
+        throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
+
+      // invalid access token
+      if (settings.oauth.access_token == 'invalid-access-token' || settings.oauth.clientId == 'invalid_client_id') {
+        return new Promise((_resolve, reject) => {
+          reject(new IntegrationError('Unauthorized', 'UNAUTHORIZED', 401))
         })
       }
 
-      return new Promise((_resolve, reject) => {
-        setTimeout(() => {
-          reject({ status: 401 })
-        }, 3)
+      return new Promise((resolve, _reject) => {
+        resolve({ externalId: '123456789' })
       })
     },
+
     // Mocked getAudience Handler
     async getAudience(_request, getAudienceInput) {
       const settings: any = getAudienceInput.settings
+      const audience_id = getAudienceInput.externalId
 
-      if (settings.oauth.access_token == 'fresh-token' || settings.oauth.access_token == 'valid-access-token') {
-        return new Promise((resolve, _reject) => {
-          setTimeout(() => {
-            resolve({ externalId: getAudienceInput.externalId })
-          }, 3)
+      if (audience_id == WRONG_AUDIENCE_ID) {
+        throw new IntegrationError('audienceId not found', 'AUDIENCEID_NOT_FOUND', 400)
+      }
+
+      if (settings.oauth.access_token == 'invalid-access-token' || settings.oauth.clientId == 'invalid_client_id') {
+        return new Promise((_resolve, reject) => {
+          reject(new IntegrationError('Unauthorized', 'UNAUTHORIZED', 401))
         })
       }
 
-      return new Promise((_resolve, reject) => {
-        setTimeout(() => {
-          reject({ status: 401 })
-        }, 3)
+      return new Promise((resolve, _reject) => {
+        resolve({ externalId: audience_id })
       })
     }
   },
@@ -1033,10 +1038,13 @@ describe('destination kit', () => {
             oauth: {
               clientId: 'valid-client-id',
               clientSecret: 'valid-client-secret',
-              access_token: 'expired-access-token',
+              access_token: 'invalid-access-token',
               refresh_token: 'refresh-token',
               token_type: 'bearer'
             }
+          },
+          audienceSettings: {
+            advertiserId: '12334745462532'
           }
         }
         const destinationTest = new Destination(audienceDestination)
@@ -1044,6 +1052,26 @@ describe('destination kit', () => {
         const res = await destinationTest.createAudience(createAudienceInput)
         expect(res).toEqual({ externalId: '123456789' })
         expect(spy).toHaveBeenCalledTimes(1)
+      })
+
+      test('Will not refresh access-token in case of any non 401 error', async () => {
+        const createAudienceInput = {
+          audienceName: 'Test Audience',
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          },
+          audienceSettings: {}
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        await expect(destinationTest.createAudience(createAudienceInput)).rejects.toThrowError()
+        expect(spy).not.toHaveBeenCalled()
       })
 
       test('Will not refresh access-token if token is already valid', async () => {
@@ -1057,25 +1085,74 @@ describe('destination kit', () => {
               refresh_token: 'refresh-token',
               token_type: 'bearer'
             }
+          },
+          audienceSettings: {
+            advertiserId: '12334745462532'
           }
         }
+
         const destinationTest = new Destination(audienceDestination)
         const spy = jest.spyOn(authentication, 'refreshAccessToken')
         const res = await destinationTest.createAudience(createAudienceInput)
         expect(res).toEqual({ externalId: '123456789' })
         expect(spy).not.toHaveBeenCalled()
       })
+
+      test('Will not refresh the access-token for non-Oauth authentication scheme', async () => {
+        const createAudienceInput = {
+          audienceName: 'Test Audience',
+          settings: {
+            oauth: {
+              clientId: 'invalid_client_id',
+              clientSecret: 'valid-client-secret'
+            }
+          },
+          audienceSettings: {
+            advertiserId: '12334745462532'
+          }
+        }
+        // Non-Oauth authentication scheme
+        audienceDestination.authentication = {
+          scheme: 'custom',
+          fields: {}
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        await expect(destinationTest.createAudience(createAudienceInput)).rejects.toThrowError()
+        expect(spy).not.toHaveBeenCalled()
+      })
     })
 
     describe('getAudience', () => {
       test('Refreshes the access-token in case of Unauthorized(401)', async () => {
-        const createAudienceInput = {
+        const getAudienceInput = {
           externalId: '366170701270726115',
           settings: {
             oauth: {
               clientId: 'valid-client-id',
               clientSecret: 'valid-client-secret',
-              access_token: 'expired-access-token',
+              access_token: 'invalid-access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          }
+        }
+        audienceDestination.authentication = authentication
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.getAudience(getAudienceInput)
+        expect(res).toEqual({ externalId: '366170701270726115' })
+        expect(spy).toHaveBeenCalledTimes(1)
+      })
+
+      test('Will not refresh access-token in case of any non 401 error', async () => {
+        const getAudienceInput = {
+          externalId: WRONG_AUDIENCE_ID,
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'valid-access-token',
               refresh_token: 'refresh-token',
               token_type: 'bearer'
             }
@@ -1083,13 +1160,12 @@ describe('destination kit', () => {
         }
         const destinationTest = new Destination(audienceDestination)
         const spy = jest.spyOn(authentication, 'refreshAccessToken')
-        const res = await destinationTest.getAudience(createAudienceInput)
-        expect(res).toEqual({ externalId: '366170701270726115' })
-        expect(spy).toHaveBeenCalledTimes(1)
+        await expect(destinationTest.getAudience(getAudienceInput)).rejects.toThrowError()
+        expect(spy).not.toHaveBeenCalled()
       })
 
       test('Will not refresh access-token if token is already valid', async () => {
-        const createAudienceInput = {
+        const getAudienceInput = {
           externalId: '366170701270726115',
           settings: {
             oauth: {
@@ -1103,8 +1179,30 @@ describe('destination kit', () => {
         }
         const destinationTest = new Destination(audienceDestination)
         const spy = jest.spyOn(authentication, 'refreshAccessToken')
-        const res = await destinationTest.getAudience(createAudienceInput)
+        const res = await destinationTest.getAudience(getAudienceInput)
         expect(res).toEqual({ externalId: '366170701270726115' })
+        expect(spy).not.toHaveBeenCalled()
+      })
+
+      test('Will not refresh the access-token for non-Oauth authentication scheme', async () => {
+        const getAudienceInput = {
+          externalId: '366170701270726115',
+          settings: {
+            oauth: {
+              clientId: 'invalid_client_id',
+              clientSecret: 'valid-client-secret'
+            }
+          }
+        }
+
+        // Non-Oauth authentication scheme
+        audienceDestination.authentication = {
+          scheme: 'custom',
+          fields: {}
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        await expect(destinationTest.getAudience(getAudienceInput)).rejects.toThrowError()
         expect(spy).not.toHaveBeenCalled()
       })
     })
