@@ -135,7 +135,7 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
 
   const client = new HubspotClient(
     request,
-    'contacts',
+    fromObjectType,
     fromIdFieldName,
     syncMode,
     assocationSyncMode as AssociationSyncMode,
@@ -144,10 +144,15 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
 
   if (fromPropertyGroup) {
     const { uniqueProperties, uniqueSensitiveProperties } = client.uniquePayloadsProperties(payloads)
-    const {properties: propertiesFromHSchema, sensitiveProperties: sensitivePropertiesFromHSchema} = await client.propertiesFromHSchema(uniqueProperties.length>0, uniqueSensitiveProperties.length>0)
+    const { properties: propertiesFromHSchema, sensitiveProperties: sensitivePropertiesFromHSchema } =
+      await client.propertiesFromHSchema(uniqueProperties.length > 0, uniqueSensitiveProperties.length > 0)
 
-    const propertiesToCreate = propertiesFromHSchema ? client.propertiesToCreateInHSSchema(uniqueProperties, propertiesFromHSchema) : []
-    const sensitivePropertiesToCreate = sensitivePropertiesFromHSchema ? client.propertiesToCreateInHSSchema(uniqueSensitiveProperties, sensitivePropertiesFromHSchema): []
+    const propertiesToCreate = propertiesFromHSchema
+      ? client.propertiesToCreateInHSSchema(uniqueProperties, propertiesFromHSchema)
+      : []
+    const sensitivePropertiesToCreate = sensitivePropertiesFromHSchema
+      ? client.propertiesToCreateInHSSchema(uniqueSensitiveProperties, sensitivePropertiesFromHSchema)
+      : []
 
     await client.ensurePropertiesInHSSchema(propertiesToCreate, sensitivePropertiesToCreate)
   }
