@@ -132,14 +132,10 @@ export default class FacebookClient {
       }
     }
 
-    try {
-      return await this.request(`${BASE_URL}${input.audienceId}/users`, {
-        method: input.deleteUsers === true ? 'delete' : 'post',
-        json: params
-      })
-    } catch (e) {
-      return
-    }
+    return await this.request(`${BASE_URL}${input.audienceId}/users`, {
+      method: input.deleteUsers === true ? 'delete' : 'post',
+      json: params
+    })
   }
 
   private formatAdAccount(adAccountId: string) {
