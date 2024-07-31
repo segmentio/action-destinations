@@ -256,8 +256,8 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching,
     batch_size
   },
-  perform: async (request, { settings, payload, hookOutputs, syncMode }) => {
-    const fbClient = new FacebookClient(request, settings.retlAdAccountId)
+  perform: async (request, { settings, payload, hookOutputs, syncMode, statsContext }) => {
+    const fbClient = new FacebookClient(request, settings.retlAdAccountId, statsContext)
 
     if (syncMode) {
       return await fbClient.syncAudience({
@@ -269,8 +269,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     throw new IntegrationError('Sync mode is required for perform', 'MISSING_REQUIRED_FIELD', 400)
   },
-  performBatch: async (request, { settings, payload, hookOutputs, syncMode }) => {
-    const fbClient = new FacebookClient(request, settings.retlAdAccountId)
+  performBatch: async (request, { settings, payload, hookOutputs, syncMode, statsContext }) => {
+    const fbClient = new FacebookClient(request, settings.retlAdAccountId, statsContext)
 
     if (syncMode) {
       return await fbClient.syncAudience({

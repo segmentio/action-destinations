@@ -1,4 +1,4 @@
-import { DynamicFieldItem, DynamicFieldError, RequestClient } from '@segment/actions-core'
+import { DynamicFieldItem, DynamicFieldError, RequestClient, StatsContext } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
 import { createHash } from 'crypto'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES } from './fbca-properties'
@@ -21,6 +21,11 @@ interface GetAllAudienceResponse {
 interface GetSingleAudienceResponse {
   name: string
   id: string
+}
+
+interface SyncAudienceResponse {
+  num_received: number
+  num_invalid_entries: number
 }
 
 interface FacebookResponseError {
@@ -77,10 +82,12 @@ const hash = (value: string): string => {
 export default class FacebookClient {
   request: RequestClient
   adAccountId: string
+  stats?: StatsContext
 
-  constructor(request: RequestClient, adAccountId: string) {
+  constructor(request: RequestClient, adAccountId: string, stats?: StatsContext) {
     this.request = request
     this.adAccountId = this.formatAdAccount(adAccountId)
+    this.stats = stats
   }
 
   createAudience = async (name: string) => {
@@ -133,10 +140,19 @@ export default class FacebookClient {
     }
 
     try {
-      return await this.request(`${BASE_URL}${input.audienceId}/users`, {
+      const res = await this.request<SyncAudienceResponse>(`${BASE_URL}${input.audienceId}/users`, {
         method: input.deleteUsers === true ? 'delete' : 'post',
         json: params
       })
+
+      const totalPayload = input.payloads.length
+      const totalSent = res.data.num_received
+      const totalInvalid = res.data.num_invalid_entries
+      this.stats?.statsClient.incr('syncAudience', totalPayload, this.stats?.tags)
+      this.stats?.statsClient.incr('syncAudience.sent', totalSent, this.stats?.tags)
+      this.stats?.statsClient.incr('syncAudience.invalid', totalInvalid, this.stats?.tags)
+
+      return res
     } catch (e) {
       return
     }
