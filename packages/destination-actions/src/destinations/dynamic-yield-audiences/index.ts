@@ -1,7 +1,7 @@
 import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
-import { getCreateAudienceURL, hashAndEncodeToInt } from './helpers'
+import { getCreateAudienceURL, hashAndEncodeToInt, getDataCenter, getSectionId } from './helpers'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 
 type PersonasSettings = {
@@ -38,18 +38,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         type: 'string',
         required: true
       },
-      dataCenter: {
-        label: 'Data Center',
-        description: 'Dynamic Yield Data Center',
-        type: 'string',
-        required: true,
-        choices: [
-          { label: 'DEV', value: 'DEV' }, // To be hidden by feature flag later
-          { label: 'US', value: 'US' },
-          { label: 'EU', value: 'EU' }
-        ],
-        default: 'DEV'
-      },
       accessKey: {
         label: 'Access Key',
         description: 'Description to be added',
@@ -61,7 +49,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   extendRequest({ settings }) {
     let secret = undefined
 
-    switch (settings.dataCenter) {
+    const dataCenter = getDataCenter(settings.sectionId)
+
+    switch (dataCenter) {
       case 'US':
         secret = process.env.ACTIONS_DYNAMIC_YIELD_AUDIENCES_US_CLIENT_SECRET
         break
@@ -118,7 +108,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         timestamp_ms: new Date().getTime(),
         account: {
           account_settings: {
-            section_id: settings.sectionId,
+            section_id: getSectionId(settings.sectionId),
             api_key: settings.accessKey
           }
         },
@@ -127,7 +117,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         action: 'add'
       }
 
-      const response = await request(getCreateAudienceURL(settings.dataCenter), {
+      const dataCenter = getDataCenter(settings.sectionId)
+
+      const response = await request(getCreateAudienceURL(dataCenter), {
         method: 'POST',
         json
       })
