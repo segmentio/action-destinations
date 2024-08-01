@@ -126,7 +126,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     const identifierType = audienceSettings?.identifier_type ?? ''
     const normalizedIdentifierType = identifierType.toLowerCase().replace(/_/g, '')
     const audienceValue = payload.traits_or_props[payload.segment_audience_key]
-    let sendNormalizeIdType = true
+    let sendNormalizeIdType = false
 
     let primaryIdentifier: string | undefined
 
@@ -154,7 +154,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
     const sectionId = getSectionId(settings.sectionId)
 
-    const dataCenter = getDataCenter(sectionId)  
+    const dataCenter = getDataCenter(sectionId)
 
     const URL = getUpsertURL(dataCenter)
 
