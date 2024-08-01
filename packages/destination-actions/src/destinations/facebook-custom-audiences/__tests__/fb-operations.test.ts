@@ -104,12 +104,10 @@ describe('Facebook Custom Audiences', () => {
           last: 'Gwynn',
           firstInitial: 'T'
         },
-        address: {
-          city: 'San Diego',
-          state: 'CA',
-          zip: '92000',
-          country: 'US'
-        },
+        city: 'San Diego',
+        state: 'CA',
+        zip: '92000',
+        country: 'US',
         enable_batching: true,
         batch_size: 10000
       }

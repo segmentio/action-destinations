@@ -208,28 +208,25 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    address: {
-      type: 'object',
-      label: 'Address',
-      description: 'The address of the user.',
-      properties: {
-        city: {
-          type: 'string',
-          label: 'City'
-        },
-        state: {
-          type: 'string',
-          label: 'State'
-        },
-        zip: {
-          type: 'string',
-          label: 'Postal Code'
-        },
-        country: {
-          type: 'string',
-          label: 'Country'
-        }
-      }
+    city: {
+      type: 'string',
+      label: 'City',
+      description: 'The city of the user'
+    },
+    state: {
+      type: 'string',
+      label: 'State',
+      description: 'The state of the user.'
+    },
+    zip: {
+      type: 'string',
+      label: 'Postal Code',
+      description: 'The postal code of the user.'
+    },
+    country: {
+      type: 'string',
+      label: 'Country',
+      description: 'The country of the user.'
     },
     mobileAdId: {
       type: 'string',

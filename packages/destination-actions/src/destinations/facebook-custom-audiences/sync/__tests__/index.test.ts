@@ -78,12 +78,10 @@ describe('FacebookCustomAudiences.sync', () => {
         mapping: {
           __segment_internal_sync_mode: 'add',
           phone: { '@path': '$.properties.phone' },
-          address: {
-            city: { '@path': '$.properties.city' },
-            state: { '@path': '$.properties.state' },
-            zip: { '@path': '$.properties.zip_code' },
-            country: 'US'
-          },
+          city: { '@path': '$.properties.city' },
+          state: { '@path': '$.properties.state' },
+          zip: { '@path': '$.properties.zip_code' },
+          country: 'US',
           externalId: { '@path': '$.properties.id' },
           retlOnMappingSave: {
             inputs: {},
