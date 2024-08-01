@@ -7,7 +7,7 @@ import sendScreen from './sendScreen'
 import sendPage from './sendPage'
 import sendTrack from './sendTrack'
 
-import { SEGMENT_ENDPOINTS, DEFAULT_SEGMENT_ENDPOINT } from './properties'
+import { SEGMENT_ENDPOINTS, DEFAULT_SEGMENT_ENDPOINT, DEFAULT_SEGMENT_ENVIRONMENT, STAGE_ENDPOINTS } from './properties'
 
 const destination: DestinationDefinition<Settings> = {
   //Needs to be updated when name & slug are finalized
@@ -27,8 +27,12 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: async (request, { settings }) => {
       const { source_write_key } = settings
+      const ENV = process.env['NODE_ENV'] || DEFAULT_SEGMENT_ENVIRONMENT
       const AWS_REGION = process.env['AWS_REGION'] || DEFAULT_SEGMENT_ENDPOINT
-      return request(`${SEGMENT_ENDPOINTS[AWS_REGION].cdn}/projects/${source_write_key}/settings`)
+      if (ENV == 'staging') {
+        return request(`${STAGE_ENDPOINTS[AWS_REGION].cdn}/projects/${source_write_key}/settings`)
+      }
+      return request(`${STAGE_ENDPOINTS[AWS_REGION].cdn}/projects/${source_write_key}/settings`)
     }
   },
   extendRequest({ settings }) {

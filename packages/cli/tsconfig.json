@@ -21,8 +21,6 @@
     "paths": {
       "@segment/actions-cli": ["../cli/src"],
       "@segment/actions-cli/*": ["../cli/src/*"],
-      "@segment/actions-cli-internal": ["../cli-internal/src"],
-      "@segment/actions-cli-internal/*": ["../cli-internal/src/*"],
       "@segment/actions-core": ["../core/src"],
       "@segment/actions-core/*": ["../core/src/*"],
       "@segment/action-destinations": ["../destination-actions/src"],

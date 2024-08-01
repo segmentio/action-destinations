@@ -17,4 +17,18 @@ export const SEGMENT_ENDPOINTS: { [key: string]: SegmentEndpoint } = {
   }
 }
 
+export const STAGE_ENDPOINTS: { [key: string]: SegmentEndpoint } = {
+  'us-west-2': {
+    label: 'North America',
+    url: 'https://api.segment.build/v1',
+    cdn: 'https://cdn.segment.build/v1'
+  },
+  'eu-west-1': {
+    label: 'Europe',
+    url: 'https://events.eu1.segmentapis.build/v1',
+    cdn: 'https://cdn.segment.build/v1'
+  }
+}
+
 export const DEFAULT_SEGMENT_ENDPOINT = 'us-west-2'
+export const DEFAULT_SEGMENT_ENVIRONMENT = 'production'
