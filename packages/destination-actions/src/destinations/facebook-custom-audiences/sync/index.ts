@@ -208,28 +208,25 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    address: {
-      type: 'object',
-      label: 'Address',
-      description: 'The address of the user.',
-      properties: {
-        city: {
-          type: 'string',
-          label: 'City'
-        },
-        state: {
-          type: 'string',
-          label: 'State'
-        },
-        zip: {
-          type: 'string',
-          label: 'Postal Code'
-        },
-        country: {
-          type: 'string',
-          label: 'Country'
-        }
-      }
+    city: {
+      type: 'string',
+      label: 'City',
+      description: 'The city of the user'
+    },
+    state: {
+      type: 'string',
+      label: 'State',
+      description: 'The state of the user.'
+    },
+    zip: {
+      type: 'string',
+      label: 'Postal Code',
+      description: 'The postal code of the user.'
+    },
+    country: {
+      type: 'string',
+      label: 'Country',
+      description: 'The country of the user.'
     },
     mobileAdId: {
       type: 'string',
@@ -256,8 +253,8 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching,
     batch_size
   },
-  perform: async (request, { settings, payload, hookOutputs, syncMode, statsContext, logger }) => {
-    const fbClient = new FacebookClient(request, settings.retlAdAccountId, statsContext, logger)
+  perform: async (request, { settings, payload, hookOutputs, syncMode }) => {
+    const fbClient = new FacebookClient(request, settings.retlAdAccountId)
 
     if (syncMode) {
       return await fbClient.syncAudience({
@@ -269,8 +266,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     throw new IntegrationError('Sync mode is required for perform', 'MISSING_REQUIRED_FIELD', 400)
   },
-  performBatch: async (request, { settings, payload, hookOutputs, syncMode, statsContext, logger }) => {
-    const fbClient = new FacebookClient(request, settings.retlAdAccountId, statsContext, logger)
+  performBatch: async (request, { settings, payload, hookOutputs, syncMode }) => {
+    const fbClient = new FacebookClient(request, settings.retlAdAccountId)
 
     if (syncMode) {
       return await fbClient.syncAudience({

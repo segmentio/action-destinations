@@ -1,8 +1,7 @@
-import { DynamicFieldItem, DynamicFieldError, RequestClient, StatsContext } from '@segment/actions-core'
+import { DynamicFieldItem, DynamicFieldError, RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
 import { createHash } from 'crypto'
-import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES } from './fbca-properties'
-import { Logger } from '@segment/actions-core/destination-kit'
+import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
 
 const FACEBOOK_API_VERSION = 'v20.0'
 // exported for unit testing
@@ -22,11 +21,6 @@ interface GetAllAudienceResponse {
 interface GetSingleAudienceResponse {
   name: string
   id: string
-}
-
-interface SyncAudienceResponse {
-  num_received: number
-  num_invalid_entries: number
 }
 
 interface FacebookResponseError {
@@ -68,12 +62,19 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
     return
   }
 
-  if (typeof value === 'number') {
+  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key)) {
     row[index] = value
     return
   }
 
-  row[index] = hash(value)
+  const normalizationFunction = normalizationFunctions.get(key)
+
+  if (!normalizationFunction) {
+    throw new IntegrationError(`Normalization function not found for key: ${key}`, `cannot normalize ${key}`, 500)
+  }
+
+  const normalizedValue = normalizationFunction(value)
+  row[index] = hash(normalizedValue)
 }
 
 const hash = (value: string): string => {
@@ -83,14 +84,10 @@ const hash = (value: string): string => {
 export default class FacebookClient {
   request: RequestClient
   adAccountId: string
-  stats?: StatsContext
-  logger?: Logger
 
-  constructor(request: RequestClient, adAccountId: string, stats?: StatsContext, logger?: Logger) {
+  constructor(request: RequestClient, adAccountId: string) {
     this.request = request
     this.adAccountId = this.formatAdAccount(adAccountId)
-    this.stats = stats
-    this.logger = logger
   }
 
   createAudience = async (name: string) => {
@@ -142,29 +139,10 @@ export default class FacebookClient {
       }
     }
 
-    try {
-      const res = await this.request<SyncAudienceResponse>(`${BASE_URL}${input.audienceId}/users`, {
-        method: input.deleteUsers === true ? 'delete' : 'post',
-        json: params
-      })
-
-      const totalPayload = input.payloads.length
-      const totalSent = res.data.num_received
-      const totalInvalid = res.data.num_invalid_entries
-      this.stats?.statsClient.incr('syncAudience', totalPayload, this.stats?.tags)
-      this.stats?.statsClient.incr('syncAudience.sent', totalSent, this.stats?.tags)
-      this.stats?.statsClient.incr('syncAudience.invalid', totalInvalid, this.stats?.tags)
-
-      this.logger?.error(`Facebook Custom Audiences: Total Payload: ${totalPayload}`)
-      this.logger?.error(`Facebook Custom Audiences: Total Sent: ${totalSent}`)
-      this.logger?.error(`Facebook Custom Audiences: Total Invalid: ${totalInvalid}`)
-
-      return res
-    } catch (e) {
-      this.logger?.error(`Facebook Custom Audiences: Error: ${JSON.stringify(e)}`)
-      this.logger?.error(`Facebook Custom Audiences: sample data: ${JSON.stringify(data[0])}`)
-      throw e
-    }
+    return await this.request(`${BASE_URL}${input.audienceId}/users`, {
+      method: input.deleteUsers === true ? 'delete' : 'post',
+      json: params
+    })
   }
 
   private formatAdAccount(adAccountId: string) {

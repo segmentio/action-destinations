@@ -30,14 +30,21 @@ export interface Payload {
     firstInitial?: string
   }
   /**
-   * The address of the user.
+   * The city of the user
    */
-  address?: {
-    city?: string
-    state?: string
-    zip?: string
-    country?: string
-  }
+  city?: string
+  /**
+   * The state of the user.
+   */
+  state?: string
+  /**
+   * The postal code of the user.
+   */
+  zip?: string
+  /**
+   * The country of the user.
+   */
+  country?: string
   /**
    * The mobile advertising ID of the user.
    */
