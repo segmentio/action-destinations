@@ -7,7 +7,7 @@ import sendScreen from './sendScreen'
 import sendPage from './sendPage'
 import sendTrack from './sendTrack'
 
-import { SEGMENT_ENDPOINTS, DEFAULT_SEGMENT_ENDPOINT, DEFAULT_SEGMENT_ENVIRONMENT, STAGE_ENDPOINTS } from './properties'
+import { DEFAULT_SEGMENT_ENDPOINT, DEFAULT_SEGMENT_ENVIRONMENT, STAGE_ENDPOINTS } from './properties'
 
 const destination: DestinationDefinition<Settings> = {
   //Needs to be updated when name & slug are finalized
