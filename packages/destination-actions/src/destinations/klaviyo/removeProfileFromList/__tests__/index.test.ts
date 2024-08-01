@@ -39,7 +39,7 @@ describe('Remove List from Profile', () => {
     )
   })
 
-  it('should remove profile from list if successful with email address only', async () => {
+  it('should remove profile from list successfully with email address only', async () => {
     const requestBody = {
       data: [
         {
@@ -84,7 +84,7 @@ describe('Remove List from Profile', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should remove profile from list if successful with External Id only', async () => {
+  it('should remove profile from list successfully with External Id only', async () => {
     const requestBody = {
       data: [
         {
@@ -133,7 +133,7 @@ describe('Remove List from Profile', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should remove profile from list if successful with Phone Number only', async () => {
+  it('should remove profile from list successfully with Phone Number only', async () => {
     const requestBody = {
       data: [
         {

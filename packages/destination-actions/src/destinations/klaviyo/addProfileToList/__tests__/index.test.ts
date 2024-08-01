@@ -86,7 +86,7 @@ describe('Add Profile To List', () => {
     ).rejects.toThrowError(AggregateAjvError)
   })
 
-  it('should add profile to list if successful with email only', async () => {
+  it('should add profile to list successfully with email only', async () => {
     nock(`${API_URL}`)
       .post('/profiles/', profileData)
       .reply(200, {
@@ -122,7 +122,7 @@ describe('Add Profile To List', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should add profile to list if successful with external id only', async () => {
+  it('should add profile to list successfully with external id only', async () => {
     nock(`${API_URL}`)
       .post('/profiles/', { data: { type: 'profile', attributes: { external_id: 'testing_123' } } })
       .reply(200, {
@@ -157,7 +157,7 @@ describe('Add Profile To List', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should add profile to list if successful with phone number only', async () => {
+  it('should add profile to list successfully with phone number only', async () => {
     nock(`${API_URL}`)
       .post('/profiles/', { data: { type: 'profile', attributes: { phone_number: '+15005435907' } } })
       .reply(200, {
@@ -192,7 +192,7 @@ describe('Add Profile To List', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should add profile to list if successful with both email and external id', async () => {
+  it('should add profile to list successfully with both email and external id', async () => {
     nock(`${API_URL}`)
       .post('/profiles/', {
         data: { type: 'profile', attributes: { email: 'demo@segment.com', external_id: 'testing_123' } }
@@ -235,7 +235,7 @@ describe('Add Profile To List', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should add profile to list if successful with both email, phone number and external id', async () => {
+  it('should add profile to list successfully with email, phone number and external id', async () => {
     nock(`${API_URL}`)
       .post('/profiles/', {
         data: {
@@ -283,7 +283,7 @@ describe('Add Profile To List', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should add profile to list if successful with email, external id and profile properties', async () => {
+  it('should add profile to list successfully with email, external id and profile properties', async () => {
     nock(`${API_URL}`)
       .post('/profiles/', {
         data: {
