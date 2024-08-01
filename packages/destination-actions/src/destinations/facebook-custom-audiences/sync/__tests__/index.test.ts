@@ -4,7 +4,7 @@ import { BASE_URL } from '../../fbca-operations'
 import nock from 'nock'
 import { SCHEMA_PROPERTIES } from '../../fbca-properties'
 import { createHash } from 'crypto'
-
+import { normalizationFunctions } from '../../fbca-properties'
 // clone of the hash function in fbca-operations.ts since it's a private method
 const hash = (value: string): string => {
   return createHash('sha256').update(value).digest('hex')
@@ -50,9 +50,9 @@ describe('FacebookCustomAudiences.sync', () => {
             schema: SCHEMA_PROPERTIES,
             data: [
               [
-                hash((event.properties?.id as string) || ''), // external_id
+                event.properties?.id, // external_id
                 EMPTY, // email
-                hash((event.properties?.phone as string) || ''), // phone
+                hash(normalizationFunctions.get('phone')!((event.properties?.phone as string) || '')),
                 EMPTY, // gender
                 EMPTY, // year
                 EMPTY, // month
@@ -60,11 +60,11 @@ describe('FacebookCustomAudiences.sync', () => {
                 EMPTY, // last_name
                 EMPTY, // first_name
                 EMPTY, // first_initial
-                hash((event.properties?.city as string) || ''), // city
-                hash((event.properties?.state as string) || ''), // state
-                hash((event.properties?.zip_code as string) || ''), // zip
+                hash(normalizationFunctions.get('city')!((event.properties?.city as string) || '')),
+                hash(normalizationFunctions.get('state')!((event.properties?.state as string) || '')),
+                hash(normalizationFunctions.get('zip')!((event.properties?.zip_code as string) || '')),
                 EMPTY, // mobile_advertiser_id,
-                hash('US') // country
+                hash(normalizationFunctions.get('country')!('US'))
               ]
             ]
           }
@@ -114,7 +114,7 @@ describe('FacebookCustomAudiences.sync', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"payload\\":{\\"schema\\":[\\"EXTERN_ID\\",\\"EMAIL\\",\\"PHONE\\",\\"GEN\\",\\"DOBY\\",\\"DOBM\\",\\"DOBD\\",\\"LN\\",\\"FN\\",\\"FI\\",\\"CT\\",\\"ST\\",\\"ZIP\\",\\"MADID\\",\\"COUNTRY\\"],\\"data\\":[[\\"03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4\\",\\"\\",\\"89a0af94167fe6b92b614c681cc5599cd23ff45f7e9cc7929ed5fabe26842468\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"5aa34886f7f3741de8460690b636f4c8b7c2044df88e2e8adbb4f7e6f8534931\\",\\"4b650e5c4785025dee7bd65e3c5c527356717d7a1c0bfef5b4ada8ca1e9cbe17\\",\\"ad16c1a6866c5887c5b59c1803cb1fc09769f1b403b6f1d9d0f10ad6ab4d5d50\\",\\"\\",\\"9b202ecbc6d45c6d8901d989a918878397a3eb9d00e8f48022fc051b19d21a1d\\"]]}}"`
+        `"{\\"payload\\":{\\"schema\\":[\\"EXTERN_ID\\",\\"EMAIL\\",\\"PHONE\\",\\"GEN\\",\\"DOBY\\",\\"DOBM\\",\\"DOBD\\",\\"LN\\",\\"FN\\",\\"FI\\",\\"CT\\",\\"ST\\",\\"ZIP\\",\\"MADID\\",\\"COUNTRY\\"],\\"data\\":[[\\"1234\\",\\"\\",\\"a5ad7e6d5225ad00c5f05ddb6bb3b1597a843cc92f6cf188490ffcb88a1ef4ef\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"1a6bd4d9d79dc0a79b53795c70d3349fa9e38968a3fbefbfe8783efb1d2b6aac\\",\\"6959097001d10501ac7d54c0bdb8db61420f658f2922cc26e46d536119a31126\\",\\"ad16c1a6866c5887c5b59c1803cb1fc09769f1b403b6f1d9d0f10ad6ab4d5d50\\",\\"\\",\\"79adb2a2fce5c6ba215fe5f27f532d4e7edbac4b6a5e09e1ef3a08084a904621\\"]]}}"`
       )
     })
 
