@@ -70,9 +70,6 @@ export const segmentSchemaKeyToArrayIndex = new Map<string, number>(
   SEGMENT_SCHEMA_PROPERTIES.map((property, index) => [property, index])
 )
 
-const normalizeEmail = (value: string): string => {
-  return value.trim().toLowerCase()
-}
 const normalizePhone = (value: string): string => {
   const removedNonNumveric = value.replace(/\D/g, '')
 
@@ -87,12 +84,9 @@ const normalizeGender = (value: string): string => {
   return value
 }
 
-const normalizeYear = (value: string): string => {
-  return value.trim()
-}
 const normalizeMonth = (value: string): string => {
   const normalizedValue = value.replace(/\s/g, '').trim()
-  console.log('normalizedValue', normalizedValue)
+
   if (normalizedValue.length === 2 && typeof Number(normalizedValue) === 'number') {
     return normalizedValue
   }
@@ -124,18 +118,10 @@ const normalizeMonth = (value: string): string => {
 
   return `${monthIndex + 1}`
 }
-const normalizeDay = (value: string): string => {
-  return value
-}
-const normalizeLast = (value: string): string => {
+const normalizeName = (value: string): string => {
   return value.trim().toLowerCase().replace(/\p{P}/gu, '')
 }
-const normalizeFirst = (value: string): string => {
-  return value.trim().toLowerCase().replace(/\p{P}/gu, '')
-}
-const normalizeFirstInitial = (value: string): string => {
-  return value.trim().toLowerCase()
-}
+
 const normalizeCity = (value: string): string => {
   return value
     .trim()
@@ -168,15 +154,15 @@ const normalizeCountry = (value: string): string => {
 }
 
 export const normalizationFunctions = new Map<string, (value: string) => string>([
-  ['email', normalizeEmail],
+  ['email', (value: string) => value.trim().toLowerCase()],
   ['phone', normalizePhone],
   ['gender', normalizeGender],
-  ['year', normalizeYear],
+  ['year', (value: string) => value.trim()],
   ['month', normalizeMonth],
-  ['day', normalizeDay],
-  ['last', normalizeLast],
-  ['first', normalizeFirst],
-  ['firstInitial', normalizeFirstInitial],
+  ['day', (value: string) => value.trim()],
+  ['last', normalizeName],
+  ['first', normalizeName],
+  ['firstInitial', (value: string) => value.trim().toLowerCase()],
   ['city', normalizeCity],
   ['state', normalizeState],
   ['zip', normalizeZip],

@@ -141,11 +141,11 @@ describe('Facebook Custom Audiences', () => {
           hash(normalizationFunctions.get('last')!(payloads[1].name?.last || '')),
           hash(normalizationFunctions.get('first')!(payloads[1].name?.first || '')),
           hash(normalizationFunctions.get('firstInitial')!(payloads[1].name?.firstInitial || '')),
-          hash(normalizationFunctions.get('city')!(payloads[1].address?.city || '')),
-          hash(normalizationFunctions.get('state')!(payloads[1].address?.state || '')),
-          hash(normalizationFunctions.get('zip')!(payloads[1].address?.zip || '')),
+          hash(normalizationFunctions.get('city')!(payloads[1].city || '')),
+          hash(normalizationFunctions.get('state')!(payloads[1].state || '')),
+          hash(normalizationFunctions.get('zip')!(payloads[1].zip || '')),
           EMPTY, // mobile_advertiser_id,
-          hash(normalizationFunctions.get('country')!(payloads[1].address?.country || ''))
+          hash(normalizationFunctions.get('country')!(payloads[1].country || ''))
         ]
       ])
     })
@@ -190,7 +190,6 @@ describe('Facebook Custom Audiences', () => {
       [' 12 ', '12']
     ]
 
-    const days = [[]]
     const names = [
       ['John', 'john'],
       ["    Na'than-Boile    ", 'nathanboile'],
@@ -227,7 +226,6 @@ describe('Facebook Custom Audiences', () => {
       ['gender', genders],
       ['year', years],
       ['month', months],
-      ['day', days],
       ['first', names],
       ['last', names],
       ['firstInitial', firstInitials],
