@@ -20,9 +20,11 @@ interface ReadPropertiesResultItem {
   hasUniqueValue: boolean
 }
 
+type HubspotStringType = 'date' | 'datetime' | 'string'
 export interface PayloadPropertyItem {
   name: string
-  type: string | number | boolean | null
+  type: string | number | boolean | object | null
+  format: HubspotStringType
 }
 
 enum AssociationCategory {
@@ -119,77 +121,73 @@ export class HubspotClient {
     }
   }
 
-  async propertiesFromHSchema(fetchProperties: boolean, fetchSensitiveProperties: boolean): Promise<{properties: ReadPropertiesResultItem[], sensitiveProperties: ReadPropertiesResultItem[]}> {
+  async propertiesFromHSchema(
+    fetchProperties: boolean,
+    fetchSensitiveProperties: boolean
+  ): Promise<{ properties: ReadPropertiesResultItem[]; sensitiveProperties: ReadPropertiesResultItem[] }> {
     interface ResponseType {
       data: {
         status: string
         results: ReadPropertiesResultItem[]
       }
     }
-  
+
     const requests: Promise<ResponseType>[] = []
 
     if (fetchProperties) {
       requests.push(
-        this.request(
-          `${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}`,
-          {
-            method: 'GET',
-            skipResponseCloning: true
-          }
-        )
+        this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}`, {
+          method: 'GET',
+          skipResponseCloning: true
+        })
       )
     }
-  
+
     if (fetchSensitiveProperties) {
       requests.push(
-        this.request(
-          `${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}?dataSensitivity=sensitive`,
-          {
-            method: 'GET',
-            skipResponseCloning: true
-          }
-        )
+        this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}?dataSensitivity=sensitive`, {
+          method: 'GET',
+          skipResponseCloning: true
+        })
       )
     }
-  
+
     try {
       const responses = await Promise.all(requests)
 
       const result: {
-        properties: ReadPropertiesResultItem[],
+        properties: ReadPropertiesResultItem[]
         sensitiveProperties: ReadPropertiesResultItem[]
       } = {
         properties: [],
         sensitiveProperties: []
       }
-  
+
       if (fetchProperties && requests.length > 0) {
-        
         const propertiesResponse = responses.shift() // Remove and get the first response
 
-        result.properties = (propertiesResponse?.data.results.map((item: ReadPropertiesResultItem) => ({
-          name: item.name,
-          type: item.type,
-          fieldType: item.fieldType,
-          hasUniqueValue: item.hasUniqueValue
-        })) as ReadPropertiesResultItem[]) ?? []
+        result.properties =
+          (propertiesResponse?.data.results.map((item: ReadPropertiesResultItem) => ({
+            name: item.name,
+            type: item.type,
+            fieldType: item.fieldType,
+            hasUniqueValue: item.hasUniqueValue
+          })) as ReadPropertiesResultItem[]) ?? []
       }
-  
+
       if (fetchSensitiveProperties && requests.length > 0) {
-       
         const sensitivePropertiesResponse = responses.shift() // Remove and get the next response
-        
-        result.sensitiveProperties = (sensitivePropertiesResponse?.data.results.map((item: ReadPropertiesResultItem) => ({
-          name: item.name,
-          type: item.type,
-          fieldType: item.fieldType,
-          hasUniqueValue: item.hasUniqueValue
-        })) as ReadPropertiesResultItem[]) ?? []
+
+        result.sensitiveProperties =
+          (sensitivePropertiesResponse?.data.results.map((item: ReadPropertiesResultItem) => ({
+            name: item.name,
+            type: item.type,
+            fieldType: item.fieldType,
+            hasUniqueValue: item.hasUniqueValue
+          })) as ReadPropertiesResultItem[]) ?? []
       }
 
       return result
-
     } catch (err) {
       throw new IntegrationError(
         `readProperties() failed: ${
@@ -201,15 +199,51 @@ export class HubspotClient {
     }
   }
 
-  uniquePayloadsProperties(payloads: Payload[]): { uniqueProperties: PayloadPropertyItem[], uniqueSensitiveProperties: PayloadPropertyItem[] } {
+  hubspotStringType(str: string): HubspotStringType {
+    const date = new Date(str)
+
+    if (isNaN(date.getTime())) {
+      return 'string'
+    }
+
+    const year = date.getUTCFullYear()
+    const month = date.getUTCMonth()
+    const day = date.getUTCDate()
+    const hours = date.getUTCHours()
+    const minutes = date.getUTCMinutes()
+    const seconds = date.getUTCSeconds()
+    const milliseconds = date.getUTCMilliseconds()
+
+    // Check if it's a date at midnight
+    if (hours === 0 && minutes === 0 && seconds === 0 && milliseconds === 0) {
+      // Reconstruct the date at UTC midnight
+      const reconstructedDate = new Date(Date.UTC(year, month, day))
+      if (reconstructedDate.getTime() === date.getTime()) {
+        return 'date'
+      } else {
+        return 'datetime'
+      }
+    }
+
+    return 'datetime'
+  }
+
+  uniquePayloadsProperties(payloads: Payload[]): {
+    uniqueProperties: PayloadPropertyItem[]
+    uniqueSensitiveProperties: PayloadPropertyItem[]
+  } {
     const uniqueProperties = Object.values(
       payloads.reduce((acc, payload) => {
         if (payload.properties) {
           Object.keys(payload.properties).forEach((propName) => {
             if (payload.properties) {
+              const value = payload.properties[propName]
+              const type = typeof payload.properties[propName]
+              const format = type === 'string' ? this.hubspotStringType(value as string) : 'string'
               acc[propName] = {
                 name: propName,
-                type: typeof payload.properties[propName]
+                type,
+                format
               }
             }
           })
@@ -223,9 +257,13 @@ export class HubspotClient {
         if (payload.sensitiveProperties) {
           Object.keys(payload.sensitiveProperties).forEach((propName) => {
             if (payload.sensitiveProperties) {
+              const value = payload.sensitiveProperties[propName]
+              const type = typeof payload.sensitiveProperties[propName]
+              const format = type === 'string' ? this.hubspotStringType(value as string) : 'string'
               acc[propName] = {
                 name: propName,
-                type: typeof payload.sensitiveProperties[propName]
+                type,
+                format
               }
             }
           })
@@ -247,6 +285,27 @@ export class HubspotClient {
     return uniquePayloadProperties.filter((prop) => !hubspotProperties.find((p) => p.name === prop.name))
   }
 
+  flattenObjectProperties(payloads: Payload[]): Payload[] {
+    const deepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[]
+    deepCopy.forEach((payload) => {
+      if (payload.properties) {
+        Object.keys(payload.properties).forEach((prop) => {
+          if (payload.properties && typeof payload.properties[prop] === 'object') {
+            payload.properties[prop] = JSON.stringify(payload.properties[prop], null, 2)
+          }
+        })
+      }
+      if (payload.sensitiveProperties) {
+        Object.keys(payload.sensitiveProperties).forEach((prop) => {
+          if (payload.sensitiveProperties && typeof payload.sensitiveProperties[prop] === 'object') {
+            payload.sensitiveProperties[prop] = JSON.stringify(payload.sensitiveProperties[prop], null, 2)
+          }
+        })
+      }
+    })
+    return deepCopy
+  }
+
   async ensurePropertiesInHSSchema(properties: PayloadPropertyItem[], sensitiveProperties: PayloadPropertyItem[]) {
     if (!this.fromPropertyGroup) {
       throw new PayloadValidationError(
@@ -254,7 +313,7 @@ export class HubspotClient {
       )
     }
 
-    if ( (!properties || properties.length === 0) && (!sensitiveProperties || sensitiveProperties.length === 0) ) {
+    if ((!properties || properties.length === 0) && (!sensitiveProperties || sensitiveProperties.length === 0)) {
       return
     }
 
@@ -271,8 +330,7 @@ export class HubspotClient {
       inputs: Array<Input>
     }
 
-    const generateInputMapping =  (prop: PayloadPropertyItem, sensitive: boolean): Input => {
-    
+    const generateInputMapping = (prop: PayloadPropertyItem, sensitive: boolean): Input => {
       switch (prop.type) {
         case 'number':
           return {
@@ -282,6 +340,15 @@ export class HubspotClient {
             type: 'number',
             dataSensitivity: sensitive === true ? 'sensitive' : undefined,
             fieldType: 'number'
+          }
+        case 'object':
+          return {
+            name: prop.name,
+            label: prop.name,
+            groupName: this.fromPropertyGroup as string,
+            type: 'string',
+            dataSensitivity: sensitive === true ? 'sensitive' : undefined,
+            fieldType: 'text'
           }
         case 'boolean':
           return {
@@ -309,22 +376,43 @@ export class HubspotClient {
             ]
           }
         case 'string':
-          default: 
-            return {
-              name: prop.name,
-              label: prop.name,
-              groupName: this.fromPropertyGroup as string,
-              type: 'string',
-              dataSensitivity: sensitive === true ? 'sensitive' : undefined,
-              fieldType: 'text'
-            }
-      }    
+          switch (prop.format) {
+            case 'string':
+              return {
+                name: prop.name,
+                label: prop.name,
+                groupName: this.fromPropertyGroup as string,
+                type: 'string',
+                dataSensitivity: sensitive === true ? 'sensitive' : undefined,
+                fieldType: 'text'
+              }
+            case 'date':
+              return {
+                name: prop.name,
+                label: prop.name,
+                groupName: this.fromPropertyGroup as string,
+                type: 'date',
+                dataSensitivity: sensitive === true ? 'sensitive' : undefined,
+                fieldType: 'date'
+              }
+            case 'datetime':
+              return {
+                name: prop.name,
+                label: prop.name,
+                groupName: this.fromPropertyGroup as string,
+                type: 'datetime',
+                dataSensitivity: sensitive === true ? 'sensitive' : undefined,
+                fieldType: 'date'
+              }
+          }
+      }
+      throw new PayloadValidationError('Invalid property type')
     }
 
     const json: RequestBody = {
       inputs: [
-        ...properties.map(prop => generateInputMapping(prop, false)),
-        ...sensitiveProperties.map(prop => generateInputMapping(prop, true))
+        ...properties.map((prop) => generateInputMapping(prop, false)),
+        ...sensitiveProperties.map((prop) => generateInputMapping(prop, true))
       ]
     } as RequestBody
 
@@ -470,19 +558,22 @@ export class HubspotClient {
   }
 
   async ensureFromRecordsOnHubspot(payloads: Payload[]): Promise<Payload[]> {
-    const payloadsDeepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[]
+    const payloadsDeepCopy = this.flattenObjectProperties(payloads)
+
     let response: ModifiedResponse<BatchObjResponse>
 
     switch (this.hubspotSyncMode) {
       case 'upsert': {
         response = await this.batchObjectRequest(this.hubspotSyncMode, this.fromObjectType, {
-          inputs: payloadsDeepCopy.map(({ object_details: { from_id_field_value }, properties }) => {
-            return {
-              idProperty: this.fromIdFieldName,
-              id: from_id_field_value,
-              properties: { ...properties, [this.fromIdFieldName]: from_id_field_value }
+          inputs: payloadsDeepCopy.map(
+            ({ object_details: { from_id_field_value }, properties, sensitiveProperties }) => {
+              return {
+                idProperty: this.fromIdFieldName,
+                id: from_id_field_value,
+                properties: { ...properties, ...sensitiveProperties, [this.fromIdFieldName]: from_id_field_value }
+              }
             }
-          })
+          )
         } as BatchObjUpsertReqBody)
 
         return this.insertRecordIds(payloadsDeepCopy, response).filter(
@@ -503,13 +594,15 @@ export class HubspotClient {
         )
 
         response = await this.batchObjectRequest(this.hubspotSyncMode, this.fromObjectType, {
-          inputs: existingRecords.map(({ object_details: { from_id_field_value }, properties }) => {
-            return {
-              idProperty: this.fromIdFieldName,
-              id: from_id_field_value,
-              properties: properties
+          inputs: existingRecords.map(
+            ({ object_details: { from_id_field_value }, properties, sensitiveProperties }) => {
+              return {
+                idProperty: this.fromIdFieldName,
+                id: from_id_field_value,
+                properties: { ...properties, ...sensitiveProperties }
+              }
             }
-          })
+          )
         } as BatchObjUpsertReqBody)
 
         return this.insertRecordIds(existingRecords, response).filter(
@@ -531,10 +624,10 @@ export class HubspotClient {
 
         response = await this.batchObjectRequest(this.hubspotSyncMode, this.fromObjectType, {
           inputs: nonExistingRecords.map(
-            ({ properties, object_details: { from_id_field_value: fromIdFieldValue } }) => {
+            ({ object_details: { from_id_field_value: fromIdFieldValue }, properties, sensitiveProperties }) => {
               return {
                 idProperty: this.fromIdFieldName,
-                properties: { ...properties, [this.fromIdFieldName]: fromIdFieldValue }
+                properties: { ...properties, ...sensitiveProperties, [this.fromIdFieldName]: fromIdFieldValue }
               }
             }
           )

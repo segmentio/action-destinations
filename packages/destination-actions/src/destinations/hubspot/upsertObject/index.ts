@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     properties: {
-      __values__: async (request, { payload }) => {
+      __keys__: async (request, { payload }) => {
         const fromObjectType = payload?.object_details?.from_object_type
 
         if (!fromObjectType) {
@@ -64,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     sensitiveProperties: {
-      __values__: async (request, { payload }) => {
+      __keys__: async (request, { payload }) => {
         const fromObjectType = payload?.object_details?.from_object_type
 
         if (!fromObjectType) {
@@ -146,14 +146,11 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
     const { uniqueProperties, uniqueSensitiveProperties } = client.uniquePayloadsProperties(payloads)
     const { properties: propertiesFromHSchema, sensitiveProperties: sensitivePropertiesFromHSchema } =
       await client.propertiesFromHSchema(uniqueProperties.length > 0, uniqueSensitiveProperties.length > 0)
-
-    const propertiesToCreate = propertiesFromHSchema
-      ? client.propertiesToCreateInHSSchema(uniqueProperties, propertiesFromHSchema)
-      : []
-    const sensitivePropertiesToCreate = sensitivePropertiesFromHSchema
-      ? client.propertiesToCreateInHSSchema(uniqueSensitiveProperties, sensitivePropertiesFromHSchema)
-      : []
-
+    const propertiesToCreate = client.propertiesToCreateInHSSchema(uniqueProperties, propertiesFromHSchema)
+    const sensitivePropertiesToCreate = client.propertiesToCreateInHSSchema(
+      uniqueSensitiveProperties,
+      sensitivePropertiesFromHSchema
+    )
     await client.ensurePropertiesInHSSchema(propertiesToCreate, sensitivePropertiesToCreate)
   }
   const fromRecordsOnHS = await client.ensureFromRecordsOnHubspot(payloads)
