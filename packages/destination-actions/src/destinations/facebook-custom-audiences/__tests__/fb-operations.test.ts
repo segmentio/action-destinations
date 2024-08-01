@@ -4,6 +4,7 @@ import { Settings } from '../generated-types'
 import nock from 'nock'
 import { Payload } from '../sync/generated-types'
 import { createHash } from 'crypto'
+import { normalizationFunctions } from '../fbca-properties'
 
 const requestClient = createRequestClient()
 const settings: Settings = {
@@ -55,15 +56,15 @@ describe('Facebook Custom Audiences', () => {
 
       expect(generateData(payloads)).toEqual([
         [
-          hash(payloads[0].externalId || ''), // external_id
-          hash(payloads[0].email || ''), // email
-          hash(payloads[0].phone || ''), // phone
+          '5', // external_id is not hashed or normalized
+          hash(normalizationFunctions.get('email')!(payloads[0].email || '')), // email
+          hash(normalizationFunctions.get('phone')!(payloads[0].phone || '')), // phone
           EMPTY, // gender
           EMPTY, // year
           EMPTY, // month
           EMPTY, // day
-          hash(payloads[0].name?.last || ''), // last_name
-          hash(payloads[0].name?.first || ''), // first_name
+          hash(normalizationFunctions.get('last')!(payloads[0].name?.last || '')), // last_name
+          hash(normalizationFunctions.get('first')!(payloads[0].name?.first || '')), // first_name
           EMPTY, // first_initial
           EMPTY, // city
           EMPTY, // state
@@ -90,6 +91,7 @@ describe('Facebook Custom Audiences', () => {
       }
 
       payloads[1] = {
+        externalId: '6',
         email: 'tony@padres.com',
         gender: 'male',
         birth: {
@@ -114,15 +116,15 @@ describe('Facebook Custom Audiences', () => {
 
       expect(generateData(payloads)).toEqual([
         [
-          hash(payloads[0].externalId || ''), // external_id
-          hash(payloads[0].email || ''), // email
-          hash(payloads[0].phone || ''), // phone
+          '5', // external_id
+          hash(normalizationFunctions.get('email')!(payloads[0].email || '')),
+          hash(normalizationFunctions.get('phone')!(payloads[0].phone || '')),
           EMPTY, // gender
           EMPTY, // year
           EMPTY, // month
           EMPTY, // day
-          hash(payloads[0].name?.last || ''), // last_name
-          hash(payloads[0].name?.first || ''), // first_name
+          hash(normalizationFunctions.get('last')!(payloads[0].name?.last || '')),
+          hash(normalizationFunctions.get('first')!(payloads[0].name?.first || '')),
           EMPTY, // first_initial
           EMPTY, // city
           EMPTY, // state
@@ -131,23 +133,130 @@ describe('Facebook Custom Audiences', () => {
           EMPTY // country
         ],
         [
-          EMPTY, // external_id
-          hash(payloads[1].email || ''), // email
+          '6', // external_id
+          hash(normalizationFunctions.get('email')!(payloads[1].email || '')),
           EMPTY, // phone
-          hash(payloads[1].gender || ''), // gender
-          hash(payloads[1].birth?.year || ''), // year
-          hash(payloads[1].birth?.month || ''), // month
-          hash(payloads[1].birth?.day || ''), // day
-          hash(payloads[1].name?.last || ''), // last_name
-          hash(payloads[1].name?.first || ''), // first_name
-          hash(payloads[1].name?.firstInitial || ''), // first_initial
-          hash(payloads[1].address?.city || ''), // city
-          hash(payloads[1].address?.state || ''), // state
-          hash(payloads[1].address?.zip || ''), // zip
+          hash(normalizationFunctions.get('gender')!(payloads[1].gender || '')),
+          hash(normalizationFunctions.get('year')!(payloads[1].birth?.year || '')),
+          hash(normalizationFunctions.get('month')!(payloads[1].birth?.month || '')),
+          hash(normalizationFunctions.get('day')!(payloads[1].birth?.day || '')),
+          hash(normalizationFunctions.get('last')!(payloads[1].name?.last || '')),
+          hash(normalizationFunctions.get('first')!(payloads[1].name?.first || '')),
+          hash(normalizationFunctions.get('firstInitial')!(payloads[1].name?.firstInitial || '')),
+          hash(normalizationFunctions.get('city')!(payloads[1].address?.city || '')),
+          hash(normalizationFunctions.get('state')!(payloads[1].address?.state || '')),
+          hash(normalizationFunctions.get('zip')!(payloads[1].address?.zip || '')),
           EMPTY, // mobile_advertiser_id,
-          hash(payloads[1].address?.country || '') // country
+          hash(normalizationFunctions.get('country')!(payloads[1].address?.country || ''))
         ]
       ])
+    })
+  })
+
+  describe('data normalization', () => {
+    // Test cases derived from a CSV provided by Facebook
+    // https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#example_sha256
+
+    const emails = [
+      ['NICK@EMAIL.com', 'nick@email.com'],
+      ['     John_Smith@gmail.com    ', 'john_smith@gmail.com'],
+      ['someone@domain.com', 'someone@domain.com'],
+      ['    SomeOne@domain.com  ', 'someone@domain.com']
+    ]
+
+    const phones = [
+      ['+1 (616) 954-78 88', '16169547888'],
+      ['1(650)123-4567', '16501234567'],
+      ['+001 (616) 954-78 88', '16169547888'],
+      ['01(650)123-4567', '16501234567'],
+      ['4792813113', '4792813113'],
+      ['3227352263', '3227352263']
+    ]
+
+    const genders = [
+      ['male', 'm'],
+      ['Male', 'm'],
+      ['Boy', 'm'],
+      ['M', 'm'],
+      ['m', 'm'],
+      ['Girl', 'f'],
+      ['        Woman         ', 'f'],
+      ['Female', 'f'],
+      ['female', 'f']
+    ]
+
+    const years = [[' 2000 ', '2000']]
+    const months = [
+      [' January', '01'],
+      ['October', '10'],
+      [' 12 ', '12']
+    ]
+
+    const days = [[]]
+    const names = [
+      ['John', 'john'],
+      ["    Na'than-Boile    ", 'nathanboile'],
+      ['정', '정'],
+      ['Valéry', 'valéry'],
+      ['Doe', 'doe'],
+      ['    Doe-Doe    ', 'doedoe']
+    ]
+
+    const firstInitials = [['J', 'j', ' a ', 'a']]
+    const cities = [
+      ['London', 'london'],
+      ['Menlo Park', 'menlopark'],
+      ['    Menlo-Park  ', 'menlopark']
+    ]
+    const states = [
+      ['    California.   ', 'california'],
+      ['CA', 'ca'],
+      ['  TE', 'te'],
+      ['    C/a/lifo,rnia.  ', 'california']
+    ]
+    const zips = [
+      ['37221', '37221'],
+      ['37221-3312', '37221']
+    ]
+    const countries = [
+      ['       United States       ', 'unitedstates'],
+      ['       US       ', 'us']
+    ]
+
+    const dataTypes = new Map([
+      ['email', emails],
+      ['phone', phones],
+      ['gender', genders],
+      ['year', years],
+      ['month', months],
+      ['day', days],
+      ['first', names],
+      ['last', names],
+      ['firstInitial', firstInitials],
+      ['city', cities],
+      ['state', states],
+      ['zip', zips],
+      ['country', countries]
+    ])
+
+    dataTypes.forEach((testExamples, dataType) => {
+      describe(`should normalize ${dataType}`, () => {
+        const normalizationFunction = normalizationFunctions.get(dataType)
+
+        if (!normalizationFunction || typeof normalizationFunction !== 'function') {
+          throw new Error(`Normalization function not found for ${dataType}`)
+        }
+
+        testExamples.forEach(([input, expected]) => {
+          it(`should normalize ${input} to ${expected}`, async () => {
+            try {
+              expect(normalizationFunction(input)).toBe(expected)
+            } catch (e) {
+              throw new Error(`Failed for ${dataType} with input ${input}: ${e}`)
+            }
+          })
+        })
+      })
     })
   })
 })

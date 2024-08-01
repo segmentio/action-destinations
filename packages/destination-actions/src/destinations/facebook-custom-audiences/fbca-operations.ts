@@ -1,7 +1,7 @@
-import { DynamicFieldItem, DynamicFieldError, RequestClient } from '@segment/actions-core'
+import { DynamicFieldItem, DynamicFieldError, RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
 import { createHash } from 'crypto'
-import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES } from './fbca-properties'
+import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
 
 const FACEBOOK_API_VERSION = 'v20.0'
 // exported for unit testing
@@ -62,12 +62,19 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
     return
   }
 
-  if (typeof value === 'number') {
+  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key)) {
     row[index] = value
     return
   }
 
-  row[index] = hash(value)
+  const normalizationFunction = normalizationFunctions.get(key)
+
+  if (!normalizationFunction) {
+    throw new IntegrationError(`Normalization function not found for key: ${key}`, `cannot normalize ${key}`, 500)
+  }
+
+  const normalizedValue = normalizationFunction(value)
+  row[index] = hash(normalizedValue)
 }
 
 const hash = (value: string): string => {

@@ -1,4 +1,5 @@
 import { GlobalSetting, InputField } from '@segment/actions-core'
+import { US_STATE_CODES } from './constants'
 
 export const adAccountId: GlobalSetting = {
   type: 'string',
@@ -68,3 +69,116 @@ export const SEGMENT_SCHEMA_PROPERTIES = [
 export const segmentSchemaKeyToArrayIndex = new Map<string, number>(
   SEGMENT_SCHEMA_PROPERTIES.map((property, index) => [property, index])
 )
+
+const normalizeEmail = (value: string): string => {
+  return value.trim().toLowerCase()
+}
+const normalizePhone = (value: string): string => {
+  const removedNonNumveric = value.replace(/\D/g, '')
+
+  return removedNonNumveric.replace(/^0+/, '')
+}
+const normalizeGender = (value: string): string => {
+  const lowerCaseValue = value.toLowerCase().trim()
+
+  if (['male', 'boy', 'm'].includes(lowerCaseValue)) return 'm'
+  if (['female', 'woman', 'girl', 'f'].includes(lowerCaseValue)) return 'f'
+
+  return value
+}
+
+const normalizeYear = (value: string): string => {
+  return value.trim()
+}
+const normalizeMonth = (value: string): string => {
+  const normalizedValue = value.replace(/\s/g, '').trim()
+  console.log('normalizedValue', normalizedValue)
+  if (normalizedValue.length === 2 && typeof Number(normalizedValue) === 'number') {
+    return normalizedValue
+  }
+
+  const lowerCaseValue = value.trim().toLowerCase()
+  const months = [
+    'january',
+    'february',
+    'march',
+    'april',
+    'may',
+    'june',
+    'july',
+    'august',
+    'september',
+    'october',
+    'november',
+    'december'
+  ]
+  const monthIndex = months.indexOf(lowerCaseValue)
+
+  if (monthIndex === -1) {
+    return value
+  }
+
+  if (monthIndex < 9) {
+    return `0${monthIndex + 1}`
+  }
+
+  return `${monthIndex + 1}`
+}
+const normalizeDay = (value: string): string => {
+  return value
+}
+const normalizeLast = (value: string): string => {
+  return value.trim().toLowerCase().replace(/\p{P}/gu, '')
+}
+const normalizeFirst = (value: string): string => {
+  return value.trim().toLowerCase().replace(/\p{P}/gu, '')
+}
+const normalizeFirstInitial = (value: string): string => {
+  return value.trim().toLowerCase()
+}
+const normalizeCity = (value: string): string => {
+  return value
+    .trim()
+    .replace(/[\s\W_]/g, '')
+    .toLowerCase()
+}
+const normalizeState = (value: string): string => {
+  if (US_STATE_CODES.has(value.toLowerCase().trim())) {
+    return US_STATE_CODES.get(value.toLowerCase().trim())!
+  }
+
+  return value
+    .trim()
+    .replace(/[\s\W_]/g, '')
+    .toLowerCase()
+}
+const normalizeZip = (value: string): string => {
+  if (value.includes('-')) {
+    return value.split('-')[0]
+  }
+
+  return value.trim().replace(/\s/g, '').toLowerCase()
+}
+
+const normalizeCountry = (value: string): string => {
+  return value
+    .trim()
+    .replace(/[\s\W_]/g, '')
+    .toLowerCase()
+}
+
+export const normalizationFunctions = new Map<string, (value: string) => string>([
+  ['email', normalizeEmail],
+  ['phone', normalizePhone],
+  ['gender', normalizeGender],
+  ['year', normalizeYear],
+  ['month', normalizeMonth],
+  ['day', normalizeDay],
+  ['last', normalizeLast],
+  ['first', normalizeFirst],
+  ['firstInitial', normalizeFirstInitial],
+  ['city', normalizeCity],
+  ['state', normalizeState],
+  ['zip', normalizeZip],
+  ['country', normalizeCountry]
+])
