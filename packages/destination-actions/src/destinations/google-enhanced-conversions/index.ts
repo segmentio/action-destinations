@@ -7,6 +7,7 @@ import uploadConversionAdjustment from './uploadConversionAdjustment'
 import { CreateAudienceInput, GetAudienceInput, UserListResponse } from './types'
 import { createGoogleAudience, getGoogleAudience } from './functions'
 import uploadCallConversion2 from './uploadCallConversion2'
+import uploadClickConversion2 from './uploadClickConversion2'
 
 import userList from './userList'
 
@@ -144,7 +145,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
     uploadCallConversion,
     uploadConversionAdjustment,
     userList,
-    uploadCallConversion2
+    uploadCallConversion2,
+    uploadClickConversion2
   }
 }
 
