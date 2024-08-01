@@ -285,23 +285,36 @@ export class HubspotClient {
     return uniquePayloadProperties.filter((prop) => !hubspotProperties.find((p) => p.name === prop.name))
   }
 
-  flattenObjectProperties(payloads: Payload[]): Payload[] {
+  cleanProperties(payloads: Payload[]): Payload[] {
     const deepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[]
+    
     deepCopy.forEach((payload) => {
+      
       if (payload.properties) {
-        Object.keys(payload.properties).forEach((prop) => {
+
+        payload.properties = Object.keys(payload.properties).reduce((acc, prop) => {
+          const lowerCasedProp = prop.toLowerCase();
           if (payload.properties && typeof payload.properties[prop] === 'object') {
-            payload.properties[prop] = JSON.stringify(payload.properties[prop], null, 2)
+            acc[lowerCasedProp] = JSON.stringify(payload.properties[prop], null, 2)
+          } else {
+            acc[lowerCasedProp] = payload.properties ? payload.properties[prop] : undefined
           }
-        })
+          return acc;
+        }, {} as { [key: string]: unknown })
       }
+    
       if (payload.sensitiveProperties) {
-        Object.keys(payload.sensitiveProperties).forEach((prop) => {
+        payload.sensitiveProperties = Object.keys(payload.sensitiveProperties).reduce((acc, prop) => {
+          const lowerCasedProp = prop.toLowerCase();
           if (payload.sensitiveProperties && typeof payload.sensitiveProperties[prop] === 'object') {
-            payload.sensitiveProperties[prop] = JSON.stringify(payload.sensitiveProperties[prop], null, 2)
+            acc[lowerCasedProp] = JSON.stringify(payload.sensitiveProperties[prop], null, 2)
+          } else {
+            acc[lowerCasedProp] = payload.sensitiveProperties ? payload.sensitiveProperties[prop] : undefined
           }
-        })
+          return acc;
+        }, {} as { [key: string]: unknown })
       }
+
     })
     return deepCopy
   }
@@ -558,7 +571,7 @@ export class HubspotClient {
   }
 
   async ensureFromRecordsOnHubspot(payloads: Payload[]): Promise<Payload[]> {
-    const payloadsDeepCopy = this.flattenObjectProperties(payloads)
+    const payloadsDeepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[]
 
     let response: ModifiedResponse<BatchObjResponse>
 
