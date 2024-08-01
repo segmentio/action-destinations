@@ -12,6 +12,7 @@ const settings: Settings = {
 }
 const EMPTY = ''
 
+// no-op change to force new actions version
 // clone of the hash function in fbca-operations.ts since it's a private method
 const hash = (value: string): string => {
   return createHash('sha256').update(value).digest('hex')
