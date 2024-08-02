@@ -20,13 +20,13 @@ import { PartialErrorResponse, ConversionAdjustmentRequestObjectInterface, UserI
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Upload Conversion Adjustment (Simplified)',
-  description: 'Upload a conversion adjustment to the Google Ads API.',
+  title: 'Conversion Adjustment',
+  description: 'Send a conversion adjustment to the Google Ads API.',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
     label: 'How to sync records',
     default: 'add',
-    choices: [{ label: 'Adds record to mappings', value: 'add' }]
+    choices: [{ label: 'Insert Records', value: 'add' }]
   },
   fields: {
     conversion_action: {
