@@ -27,13 +27,13 @@ import {
 } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Upload Click Conversion (Simplified)',
-  description: 'Upload an offline click conversion to the Google Ads API.',
+  title: 'Click Conversion',
+  description: 'Send an offline click conversion to the Google Ads API.',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
     label: 'How to sync records',
     default: 'add',
-    choices: [{ label: 'Adds record to mappings', value: 'add' }]
+    choices: [{ label: 'Insert Records', value: 'add' }]
   },
   fields: {
     conversion_action: {
@@ -338,7 +338,7 @@ const action: ActionDefinition<Settings, Payload> = {
       handleGoogleErrors(response)
       return response
     } else {
-      return new IntegrationError(`Unsupported Sync Mode "\`${syncMode}\`"`, 'INTEGRATION_ERROR', 400)
+      throw new IntegrationError(`Unsupported Sync Mode "${syncMode}"`, 'INTEGRATION_ERROR', 400)
     }
   }
 }
