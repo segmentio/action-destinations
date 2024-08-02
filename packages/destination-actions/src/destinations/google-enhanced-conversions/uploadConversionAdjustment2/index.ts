@@ -346,7 +346,7 @@ const action: ActionDefinition<Settings, Payload> = {
       handleGoogleErrors(response)
       return response
     } else {
-      return new IntegrationError(`Unsupported Sync Mode "\`${syncMode}\`"`, 'INTEGRATION_ERROR', 400)
+      throw new IntegrationError(`Unsupported Sync Mode "${syncMode}"`, 'INTEGRATION_ERROR', 400)
     }
   }
 }
