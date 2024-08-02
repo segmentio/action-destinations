@@ -1,20 +1,34 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { RedditConversionsTestAuthenticationError } from './types'
-import reportConversionEvent from './reportConversionEvent'
+import custom from './custom'
+import pageVisit from './pageVisit'
+
+import viewContent from './viewContent'
+
+import search from './search'
+
+import addToCart from './addToCart'
+
+import addToWishlist from './addToWishlist'
+
+import purchase from './purchase'
+
+import lead from './lead'
+
+import signUp from './signUp'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Reddit Conversions Api',
   slug: 'actions-reddit-conversions-api',
   mode: 'cloud',
-
+  description: 'Send Segment events to Reddit Conversions API.',
   authentication: {
     scheme: 'custom',
     fields: {
       ad_account_id: {
         label: 'Ad Account ID',
-        description:
-          'Unique identifier of an ad account. This can be found in the Reddit UI.',
+        description: 'Unique identifier of an ad account. This can be found in the Reddit UI.',
         type: 'string',
         required: true
       },
@@ -28,40 +42,39 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: async (request, { settings }) => {
       try {
-        return await request(
-          `https://ads-api.reddit.com/api/v2.0/conversions/events/${settings.ad_account_id}`,
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${settings.conversion_token}`
-            },
-            json: {
-              test_mode: true,
-              events: [
-                {
-                  event_at: new Date().toISOString(),
-                  user: {
-                    email: 'test@example.com',
-                    external_id: 'identity-test',
-                    ip_address: '127.0.0.1',
-                    user_agent: 'Mozilla/5.0'
-                  },
-                  event_type: {
-                    tracking_type: 'PageVisit'
-                  },
-                  event_metadata: {
-                    currency: 'USD',
-                    value_decimal: 1
-                  }
+        return await request(`https://ads-api.reddit.com/api/v2.0/conversions/events/${settings.ad_account_id}`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${settings.conversion_token}`
+          },
+          json: {
+            test_mode: true,
+            events: [
+              {
+                event_at: new Date().toISOString(),
+                user: {
+                  email: 'test@example.com',
+                  external_id: 'identity-test',
+                  ip_address: '127.0.0.1',
+                  user_agent: 'Mozilla/5.0'
+                },
+                event_type: {
+                  tracking_type: 'PageVisit'
+                },
+                event_metadata: {
+                  currency: 'USD',
+                  value_decimal: 1
                 }
-              ]
-            }
+              }
+            ]
           }
-        )
+        })
       } catch (err) {
         const error = err as RedditConversionsTestAuthenticationError
         if (error.response && error.response.status === 401) {
-          throw new Error('Unauthorized: Invalid Conversion Token, please verify you have entered the correct Conversion Token.')
+          throw new Error(
+            'Unauthorized: Invalid Conversion Token, please verify you have entered the correct Conversion Token.'
+          )
         } else if (error.response && error.response.status === 403) {
           throw new Error('Forbidden: Invalid Ad Account ID, please verify you have entered the correct Ad Account ID.')
         }
@@ -78,21 +91,31 @@ const destination: DestinationDefinition<Settings> = {
 
   presets: [
     {
+      name: 'Custom',
+      subscribe: 'type = "page"',
+      partnerAction: 'custom',
+      mapping: {
+        ...defaultValues(custom.fields),
+        event_type: { tracking_type: 'Custom' }
+      },
+      type: 'automatic'
+    },
+    {
       name: 'Page Visit',
       subscribe: 'type = "page"',
-      partnerAction: 'reportConversionEvent',
+      partnerAction: 'pageVisit',
       mapping: {
-        ...defaultValues(reportConversionEvent.fields),
+        ...defaultValues(pageVisit.fields),
         event_type: { tracking_type: 'PageVisit' }
       },
       type: 'automatic'
     },
     {
       name: 'View Content',
-      subscribe: 'type = "track" AND event = "Product Viewed"',
-      partnerAction: 'reportConversionEvent',
+      subscribe: 'type = "track" AND event = "Product Category Viewed"',
+      partnerAction: 'viewContent',
       mapping: {
-        ...defaultValues(reportConversionEvent.fields),
+        ...defaultValues(viewContent.fields),
         event_type: { tracking_type: 'ViewContent' }
       },
       type: 'automatic'
@@ -100,9 +123,9 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Search',
       subscribe: 'type = "track" AND event = "Products Searched"',
-      partnerAction: 'reportConversionEvent',
+      partnerAction: 'search',
       mapping: {
-        ...defaultValues(reportConversionEvent.fields),
+        ...defaultValues(search.fields),
         event_type: { tracking_type: 'Search' }
       },
       type: 'automatic'
@@ -110,29 +133,29 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Add to Cart',
       subscribe: 'type = "track" AND event = "Product Added"',
-      partnerAction: 'reportConversionEvent',
+      partnerAction: 'addToCart',
       mapping: {
-        ...defaultValues(reportConversionEvent.fields),
+        ...defaultValues(addToCart.fields),
         event_type: { tracking_type: 'AddToCart' }
       },
       type: 'automatic'
     },
     {
       name: 'Add to Wishlist',
-      subscribe: 'type = "track" AND event = "Product Added to Wishlist"',
-      partnerAction: 'reportConversionEvent',
+      subscribe: 'type = "track" AND event = "Products Searched"', //check for this
+      partnerAction: 'addToWishlist',
       mapping: {
-        ...defaultValues(reportConversionEvent.fields),
+        ...defaultValues(addToWishlist.fields),
         event_type: { tracking_type: 'AddToWishlist' }
       },
       type: 'automatic'
     },
     {
       name: 'Purchase',
-      subscribe: 'type = "track" AND event = "Order Completed"',
-      partnerAction: 'reportConversionEvent',
+      subscribe: 'type = "track" AND event = "Checkout"',
+      partnerAction: 'purchase',
       mapping: {
-        ...defaultValues(reportConversionEvent.fields),
+        ...defaultValues(purchase.fields),
         event_type: { tracking_type: 'Purchase' }
       },
       type: 'automatic'
@@ -140,9 +163,9 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Lead',
       subscribe: 'type = "track" AND event = "Generate Lead"',
-      partnerAction: 'reportConversionEvent',
+      partnerAction: 'lead',
       mapping: {
-        ...defaultValues(reportConversionEvent.fields),
+        ...defaultValues(lead.fields),
         event_type: { tracking_type: 'Lead' }
       },
       type: 'automatic'
@@ -150,17 +173,25 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Sign Up',
       subscribe: 'type = "track" AND event = "Signed Up"',
-      partnerAction: 'reportConversionEvent',
+      partnerAction: 'signUp',
       mapping: {
-        ...defaultValues(reportConversionEvent.fields),
+        ...defaultValues(signUp.fields),
         event_type: { tracking_type: 'SignUp' }
       },
       type: 'automatic'
-    }
+    },
   ],
 
   actions: {
-    reportConversionEvent
+    custom,
+    pageVisit,
+    viewContent,
+    search,
+    addToCart,
+    addToWishlist,
+    purchase,
+    lead,
+    signUp
   }
 }
 
