@@ -19,13 +19,13 @@ import { CallConversionRequestObjectInterface, PartialErrorResponse } from '../t
 import { ModifiedResponse } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Upload Call Conversion',
-  description: 'Upload an offline call conversion to the Google Ads API.',
+  title: 'Call Conversion',
+  description: 'Send an offline call conversion to the Google Ads API.',
   syncMode: {
     description: 'Define how the records from your destination will be synced to the destination',
     label: 'How to sync records',
     default: 'add',
-    choices: [{ label: 'Adds record to destination', value: 'add' }]
+    choices: [{ label: 'Insert Records', value: 'add' }]
   },
   fields: {
     conversion_action: {
