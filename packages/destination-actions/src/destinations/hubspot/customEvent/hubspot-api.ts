@@ -101,4 +101,29 @@ export class HubspotClient {
 
     return schemas
   }
+
+  async eventSchemasToCreate() : Promise<EventSchemas> {
+    const existingSchemas = await this.hsEventSchemas()
+    const schemasToCreate: EventSchemas = {}
+
+    this.eventNames().forEach(eventName => {
+      if (!existingSchemas[eventName]) {
+        schemasToCreate[eventName] = this.eventSchemas()[eventName]
+      } else {
+        const existingProperties = existingSchemas[eventName]
+        const newProperties = this.eventSchemas()[eventName]
+
+        Object.entries(newProperties).forEach(([property, type]) => {
+          if (!existingProperties[property]) {
+            if (!schemasToCreate[eventName]) {
+              schemasToCreate[eventName] = {}
+            }
+            schemasToCreate[eventName][property] = type
+          }
+        })
+      }
+    })
+
+    return schemasToCreate
+  }
 }
