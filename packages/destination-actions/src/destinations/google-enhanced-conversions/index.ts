@@ -1,11 +1,15 @@
-import { DestinationDefinition } from '@segment/actions-core'
+import { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
 import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
+import { CreateAudienceInput, GetAudienceInput, UserListResponse } from './types'
+import { createGoogleAudience, getGoogleAudience } from './functions'
 
-interface RefreshTokenResponse {
+import userList from './userList'
+
+export interface RefreshTokenResponse {
   access_token: string
   scope: string
   expires_in: number
@@ -18,7 +22,7 @@ interface UserInfoResponse {
 }
 */
 
-const destination: DestinationDefinition<Settings> = {
+const destination: AudienceDestinationDefinition<Settings> = {
   // NOTE: We need to match the name with the creation name in DB.
   // This is not the value used in the UI.
   name: 'Google Ads Conversions',
@@ -71,11 +75,74 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+  audienceFields: {
+    external_id_type: {
+      type: 'string',
+      label: 'External ID Type',
+      description: 'Customer match upload key types.',
+      required: true,
+      choices: [
+        { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
+        { label: 'CRM ID', value: 'CRM_ID' },
+        { label: 'MOBILE ADVERTISING ID', value: 'MOBILE_ADVERTISING_ID' }
+      ]
+    },
+    app_id: {
+      label: 'App ID',
+      description:
+        'A string that uniquely identifies a mobile application from which the data was collected. Required if external ID type is mobile advertising ID',
+      type: 'string',
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'external_id_type',
+            operator: 'is',
+            value: 'MOBILE_ADVERTISING_ID'
+          }
+        ]
+      }
+    }
+  },
+  audienceConfig: {
+    mode: {
+      type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
+      full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+    },
+    async createAudience(request, createAudienceInput: CreateAudienceInput) {
+      const auth = createAudienceInput.settings.oauth
+      const userListId = await createGoogleAudience(
+        request,
+        createAudienceInput,
+        auth,
+        createAudienceInput.statsContext
+      )
+
+      return {
+        externalId: userListId
+      }
+    },
+
+    async getAudience(request, getAudienceInput: GetAudienceInput) {
+      const response: UserListResponse = await getGoogleAudience(
+        request,
+        getAudienceInput.settings,
+        getAudienceInput.externalId,
+        getAudienceInput.settings.oauth,
+        getAudienceInput.statsContext
+      )
+
+      return {
+        externalId: response.results[0].userList.id
+      }
+    }
+  },
   actions: {
     postConversion,
     uploadClickConversion,
     uploadCallConversion,
-    uploadConversionAdjustment
+    uploadConversionAdjustment,
+    userList
   }
 }
 
