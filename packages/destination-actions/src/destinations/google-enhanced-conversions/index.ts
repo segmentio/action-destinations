@@ -9,6 +9,7 @@ import { createGoogleAudience, getGoogleAudience } from './functions'
 import uploadCallConversion2 from './uploadCallConversion2'
 import userList from './userList'
 import uploadClickConversion2 from './uploadClickConversion2'
+import uploadConversionAdjustment2 from './uploadConversionAdjustment2'
 
 export interface RefreshTokenResponse {
   access_token: string
@@ -143,6 +144,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
     uploadClickConversion,
     uploadCallConversion,
     uploadConversionAdjustment,
+    uploadConversionAdjustment2,
     uploadClickConversion2,
     uploadCallConversion2,
     userList
