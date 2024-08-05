@@ -228,7 +228,34 @@ export interface Payload {
    */
   message_id?: string
   /**
-   * This is always disabled pending a full removal. When enabled, the action will send batch data. Segment accepts batches of up to 225 events.
+   * Segment event consent category preferences.
    */
-  enable_batching?: boolean
+  consent?: {
+    [k: string]: unknown
+  }
+  /**
+   * Dictionary of information about the user’s current Address.
+   */
+  address?: {
+    /**
+     * The user's street address
+     */
+    street?: string
+    /**
+     * The user's city
+     */
+    city?: string
+    /**
+     * The user's State
+     */
+    state?: string
+    /**
+     * The user's country
+     */
+    country?: string
+    /**
+     * The user's Postal Code
+     */
+    postalCode?: string
+  }
 }

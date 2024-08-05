@@ -137,6 +137,7 @@ export interface Payload {
      * The ID of the promotion associated with the event.
      */
     promotion_id?: string
+    [k: string]: unknown
   }[]
   /**
    * The user properties to send to Google Analytics 4. You must create user-scoped dimensions to ensure custom properties are picked up by Google. See Google’s [Custom user properties](https://support.google.com/analytics/answer/9269570) to learn how to set and register user properties.

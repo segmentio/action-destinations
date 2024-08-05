@@ -1,4 +1,4 @@
-export interface CartItem {
+export interface CartItemInterface {
   productId?: string
   quantity?: number
   unitPrice?: number
@@ -10,6 +10,88 @@ export interface ConversionCustomVariable {
     id: string
     name: string
   }
+}
+
+export interface GclidDateTimePairInterface {
+  gclid: string | undefined
+  conversionDateTime: string | undefined
+}
+
+export interface UserIdentifierInterface {
+  hashedEmail?: string
+  hashedPhoneNumber?: string
+  addressInfo?: AddressInfoInterface
+}
+
+export interface AddressInfoInterface {
+  hashedFirstName: string | undefined
+  hashedLastName: string | undefined
+  hashedStreetAddress: string | undefined
+  city: string | undefined
+  state: string | undefined
+  postalCode: string | undefined
+  countryCode: string | undefined
+}
+
+export interface RestatementValueInterface {
+  adjustedValue: number | undefined
+  currencyCode: string | undefined
+}
+
+export interface CartDataInterface {
+  merchantId: string | undefined
+  feedCountryCode: string | undefined
+  feedLanguageCode: string | undefined
+  localTransactionCost: number | undefined
+  items: CartItemInterface[]
+}
+
+export interface ConsentInterface {
+  adUserData?: string
+  adPersonalization?: string
+}
+
+export interface CustomVariableInterface {
+  conversionCustomVariable: string
+  value: string
+}
+
+export interface CallConversionRequestObjectInterface {
+  conversionAction: string
+  callerId: string
+  callStartDateTime: string | undefined
+  consent?: ConsentInterface
+  conversionDateTime: string | undefined
+  conversionValue: number | undefined
+  currencyCode: string | undefined
+  customVariables?: CustomVariableInterface[]
+}
+
+export interface ConversionAdjustmentRequestObjectInterface {
+  adjustmentType: string
+  adjustmentDateTime: string | undefined
+  conversionAction: string
+  orderId: string | undefined
+  gclidDateTimePair: GclidDateTimePairInterface | undefined
+  userIdentifiers: UserIdentifierInterface[]
+  userAgent: string | undefined
+  restatementValue?: RestatementValueInterface
+}
+
+export interface ClickConversionRequestObjectInterface {
+  cartData: CartDataInterface | undefined
+  consent?: ConsentInterface
+  conversionAction: string
+  conversionDateTime: string | undefined
+  conversionEnvironment: string | undefined
+  conversionValue: number | undefined
+  currencyCode: string | undefined
+  customVariables?: CustomVariableInterface[]
+  gclid: string | undefined
+  gbraid: string | undefined
+  wbraid: string | undefined
+  orderId: string | undefined
+  userIdentifiers: UserIdentifierInterface[]
 }
 
 export interface ConversionActionId {

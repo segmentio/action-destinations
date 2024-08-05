@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { createCustomAttrbute, fetchAllAttributes } from './utils'
 import { PersonalizeAttributes } from './types'
-import { PERSONALIZE_EDGE_API_URL } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Attributes Sync',
@@ -23,33 +22,49 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'ID for the user',
       required: false
+    },
+    createAttributes: {
+      label: 'Create Attributes',
+      type: 'boolean',
+      description: 'Inidicates if Attributes should be created in Contentstack',
+      required: false,
+      default: { '@path': '$.integrations.Contentstack.createAttributes' }
     }
   },
-  perform: async (request, { payload }) => {
-    const personalizeAttributesData = (await fetchAllAttributes(request)).map(
-      (attribute: PersonalizeAttributes) => attribute?.key
-    )
+  perform: async (request, { payload, settings }) => {
+    const { createAttributes } = payload
+    if (createAttributes) {
+      const personalizeAttributesData = (await fetchAllAttributes(request, settings.personalizeApiBaseUrl)).map(
+        (attribute: PersonalizeAttributes) => attribute?.key
+      )
 
-    const attributesToCreate = Object.keys(payload.traits || {}).filter(
-      (trait: string) => !personalizeAttributesData.includes(trait)
-    )
+      const attributesToCreate = Object.keys(payload.traits || {}).filter(
+        (trait: string) => !personalizeAttributesData.includes(trait)
+      )
 
-    if (attributesToCreate?.length) {
-      const firstAttributeRes = await createCustomAttrbute(request, attributesToCreate[0])
-      if (firstAttributeRes.status === 401) return firstAttributeRes
+      if (attributesToCreate?.length) {
+        const firstAttributeRes = await createCustomAttrbute(
+          request,
+          attributesToCreate[0],
+          settings.personalizeApiBaseUrl
+        )
+        if (firstAttributeRes.status === 401) return firstAttributeRes
 
-      const otherAttributes = attributesToCreate.slice(1)
+        const otherAttributes = attributesToCreate.slice(1)
 
-      await Promise.allSettled(otherAttributes.map((trait: string) => createCustomAttrbute(request, trait)))
-
-      return request(`${PERSONALIZE_EDGE_API_URL}/user-attributes`, {
-        method: 'patch',
-        json: payload.traits,
-        headers: {
-          'x-cs-eclipse-user-uid': payload.userId ?? ''
-        }
-      })
+        await Promise.allSettled(
+          otherAttributes.map((trait: string) => createCustomAttrbute(request, trait, settings.personalizeApiBaseUrl))
+        )
+      }
     }
+
+    return request(`${settings.personalizeEdgeApiBaseUrl}/user-attributes`, {
+      method: 'patch',
+      json: payload.traits,
+      headers: {
+        'x-cs-eclipse-user-uid': payload.userId ?? ''
+      }
+    })
   }
 }
 

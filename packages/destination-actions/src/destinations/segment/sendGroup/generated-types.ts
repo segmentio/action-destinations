@@ -228,7 +228,9 @@ export interface Payload {
    */
   message_id?: string
   /**
-   * This is always disabled pending a full removal. When enabled, the action will send batch data. Segment accepts batches of up to 225 events.
+   * Segment event consent category preferences.
    */
-  enable_batching?: boolean
+  consent?: {
+    [k: string]: unknown
+  }
 }

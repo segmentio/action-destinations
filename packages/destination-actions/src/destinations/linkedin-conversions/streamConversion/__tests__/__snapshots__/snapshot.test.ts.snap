@@ -33,8 +33,8 @@ Object {
   "user": Object {
     "userIds": Array [
       Object {
-        "type": "SHA256_EMAIL",
-        "value": "e290e11fef012fc831059c96e9186cda491dd0b259641815f23463cb4c54b7e1",
+        "idType": "SHA256_EMAIL",
+        "idValue": "e290e11fef012fc831059c96e9186cda491dd0b259641815f23463cb4c54b7e1",
       },
     ],
   },

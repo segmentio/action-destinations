@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError, DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
@@ -150,7 +150,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const endpoint = getRegionalEndpoint('trackPurchase', settings.dataCenterLocation as DataCenterLocation)
     return request(endpoint, {
       method: 'post',
-      json: trackPurchaseRequest
+      json: trackPurchaseRequest,
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     })
   }
 }
