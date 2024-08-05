@@ -442,7 +442,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     const onFailedAttempt = async (error: ResponseError & HTTPError) => {
-      settings = await this.refreshAndUpdateTokenInSettings(error, settings)
+      settings = await this.handleAuthError(error, settings)
     }
     return await retry(run, { retries: 2, onFailedAttempt })
   }
@@ -468,7 +468,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     const onFailedAttempt = async (error: ResponseError & HTTPError) => {
-      settings = await this.refreshAndUpdateTokenInSettings(error, settings)
+      settings = await this.handleAuthError(error, settings)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -770,7 +770,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     const onFailedAttempt = async (error: ResponseError & HTTPError) => {
-      settings = await this.refreshAndUpdateTokenInSettings(error, settings, options)
+      settings = await this.handleAuthError(error, settings, options)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -798,7 +798,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onFailedAttempt = async (error: any) => {
-      settings = await this.refreshAndUpdateTokenInSettings(error, settings)
+      settings = await this.handleAuthError(error, settings)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -826,22 +826,45 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const { subcription, subscriptions, oauth, ...otherSettings } = settings
     return otherSettings as unknown as Settings
   }
-  // Refreshes the token and update it in setting in case of 401(Unauthorized).
-  async refreshAndUpdateTokenInSettings(
-    error: ResponseError & HTTPError,
-    settings: JSONObject,
-    options?: OnEventOptions
-  ) {
-    const statusCode = error?.status ?? error?.response?.status ?? 500
-    // Throw original error if it is unrelated to invalid access tokens and not an oauth2 scheme
-    if (
-      !(
-        statusCode === 401 &&
-        (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
-      )
-    ) {
+
+  /**
+   * Handles the failed attempt by checking if reauthentication is needed and updating the token if necessary.
+   * @param {ResponseError & HTTPError} error - The error object from the failed attempt.
+   * @param {JSONObject} settings - The current settings object.
+   * @returns {Promise<JSONObject>} - The updated settings object.
+   * @throws {ResponseError & HTTPError} - If reauthentication is not needed or token refresh fails.
+   */
+  async handleAuthError(error: ResponseError & HTTPError, settings: JSONObject, options?: OnEventOptions) {
+    if (this.needsReauthentication(error)) {
+      const newTokens = await this.refreshTokenAndGetNewToken(settings)
+      settings = await this.updateTokensInSettings(settings, newTokens, options)
+    } else {
       throw error
     }
+    return settings
+  }
+
+  /**
+   * Determines if reauthentication is needed based on the error status.
+   * @param {ResponseError & HTTPError} error - The error object containing response details.
+   * @returns {boolean} - True if reauthentication is needed, otherwise false.
+   */
+  needsReauthentication(error: ResponseError & HTTPError): boolean {
+    const statusCode = error?.status ?? error?.response?.status ?? 500
+    return (
+      statusCode === 401 &&
+      (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+    )
+  }
+
+  /**
+   * Refreshes the token and retrieves new tokens.
+   * @param {JSONObject} settings - The current settings object.
+   * @param {OnEventOptions} [options] - Optional event options for synchronizing token refresh.
+   * @returns {Promise<RefreshAccessTokenResult>} - The new tokens object.
+   * @throws {InvalidAuthenticationError} - If token refresh fails.
+   */
+  async refreshTokenAndGetNewToken(settings: JSONObject, options?: OnEventOptions): Promise<RefreshAccessTokenResult> {
     const destinationSettings = this.getDestinationSettings(settings)
     const oauthSettings = getOAuth2Data(settings)
     const newTokens = await this.refreshAccessToken(
@@ -849,11 +872,26 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       oauthSettings,
       options?.synchronizeRefreshAccessToken
     )
+
     if (!newTokens) {
       throw new InvalidAuthenticationError('Failed to refresh access token', ErrorCodes.OAUTH_REFRESH_FAILED)
     }
 
-    // Update `settings` with new tokens
+    return newTokens
+  }
+
+  /**
+   * Updates the settings object with new tokens.
+   * @param {JSONObject} settings - The current settings object.
+   * @param {RefreshAccessTokenResult} newTokens - The new tokens object.
+   * @param {OnEventOptions} [options] - Optional event options for handling token refresh.
+   * @returns {Promise<JSONObject>} - The updated settings object.
+   */
+  async updateTokensInSettings(
+    settings: JSONObject,
+    newTokens: RefreshAccessTokenResult,
+    options?: OnEventOptions
+  ): Promise<JSONObject> {
     await options?.onTokenRefresh?.(newTokens)
     return updateOAuthSettings(settings, newTokens)
   }
