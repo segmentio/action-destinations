@@ -1,4 +1,7 @@
-import { DynamicFieldItem, DynamicFieldError, RequestClient } from '@segment/actions-core'
+import { DynamicFieldItem, DynamicFieldError, RequestClient, IntegrationError } from '@segment/actions-core'
+import { Payload } from './sync/generated-types'
+import { createHash } from 'crypto'
+import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
 
 const FACEBOOK_API_VERSION = 'v20.0'
 // exported for unit testing
@@ -26,6 +29,56 @@ interface FacebookResponseError {
     type: string
     code: number
   }
+}
+
+// exported for unit testing. Also why these are not members of the class
+export const generateData = (payloads: Payload[]): (string | number)[][] => {
+  const data: (string | number)[][] = new Array(payloads.length)
+
+  payloads.forEach((payload, index) => {
+    const row: (string | number)[] = new Array(SCHEMA_PROPERTIES.length).fill('')
+
+    Object.entries(payload).forEach(([key, value]) => {
+      if (typeof value === 'object') {
+        Object.entries(value).forEach(([nestedKey, value]) => {
+          appendToDataRow(nestedKey, value as string | number, row)
+        })
+      } else {
+        appendToDataRow(key, value as string | number, row)
+      }
+    })
+
+    data[index] = row
+  })
+
+  return data
+}
+
+const appendToDataRow = (key: string, value: string | number, row: (string | number)[]) => {
+  const index = segmentSchemaKeyToArrayIndex.get(key)
+
+  if (index === undefined) {
+    // ignore batch related keys
+    return
+  }
+
+  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key)) {
+    row[index] = value
+    return
+  }
+
+  const normalizationFunction = normalizationFunctions.get(key)
+
+  if (!normalizationFunction) {
+    throw new IntegrationError(`Normalization function not found for key: ${key}`, `cannot normalize ${key}`, 500)
+  }
+
+  const normalizedValue = normalizationFunction(value)
+  row[index] = hash(normalizedValue)
+}
+
+const hash = (value: string): string => {
+  return createHash('sha256').update(value).digest('hex')
 }
 
 export default class FacebookClient {
@@ -74,6 +127,22 @@ export default class FacebookClient {
       choices,
       error: undefined
     }
+  }
+
+  syncAudience = async (input: { audienceId: string; payloads: Payload[]; deleteUsers?: boolean }) => {
+    const data = generateData(input.payloads)
+
+    const params = {
+      payload: {
+        schema: SCHEMA_PROPERTIES,
+        data: data
+      }
+    }
+
+    return await this.request(`${BASE_URL}${input.audienceId}/users`, {
+      method: input.deleteUsers === true ? 'delete' : 'post',
+      json: params
+    })
   }
 
   private formatAdAccount(adAccountId: string) {
