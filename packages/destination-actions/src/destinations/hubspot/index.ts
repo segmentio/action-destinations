@@ -7,6 +7,7 @@ import upsertCompany from './upsertCompany'
 import upsertCustomObjectRecord from './upsertCustomObjectRecord'
 import upsertObject from './upsertObject'
 import { HUBSPOT_BASE_URL } from './properties'
+import customEvent from './customEvent'
 interface RefreshTokenResponse {
   access_token: string
 }
@@ -48,7 +49,7 @@ const destination: DestinationDefinition<Settings> = {
     return {
       skipResponseCloning: true,
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer pat-na1-ee93f087-9315-4a56-b55b-55289c0e8192`
       }
     }
   },
@@ -58,7 +59,8 @@ const destination: DestinationDefinition<Settings> = {
     upsertContact,
     upsertCompany,
     upsertCustomObjectRecord,
-    upsertObject
+    upsertObject,
+    customEvent
   }
 }
 
