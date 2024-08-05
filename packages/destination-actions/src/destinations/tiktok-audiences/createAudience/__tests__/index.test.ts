@@ -23,7 +23,6 @@ const event = createTestEvent({
 const createAudienceRequestBody = {
   custom_audience_name: 'personas_test_audience',
   advertiser_id: '123',
-  id_type: 'EMAIL_SHA256',
   action: 'create'
 }
 
@@ -43,8 +42,7 @@ describe('TiktokAudiences.createAudience', () => {
         auth,
         mapping: {
           selected_advertiser_id: '123',
-          custom_audience_name: 'personas_test_audience',
-          id_type: 'EMAIL_SHA256'
+          custom_audience_name: 'personas_test_audience'
         }
       })
     ).resolves.not.toThrowError()
