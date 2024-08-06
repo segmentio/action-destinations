@@ -1,7 +1,7 @@
 import { DynamicFieldItem, DynamicFieldError, RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
-import { createHash } from 'crypto'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
+import { sha256SmartHash } from '@segment/actions-core'
 
 const FACEBOOK_API_VERSION = 'v20.0'
 // exported for unit testing
@@ -74,11 +74,7 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
   }
 
   const normalizedValue = normalizationFunction(value)
-  row[index] = hash(normalizedValue)
-}
-
-const hash = (value: string): string => {
-  return createHash('sha256').update(value).digest('hex')
+  row[index] = sha256SmartHash(normalizedValue)
 }
 
 export default class FacebookClient {
