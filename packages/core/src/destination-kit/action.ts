@@ -86,7 +86,7 @@ export interface ActionDefinition<
    */
   dynamicFields?: {
     [K in keyof Payload]?: IsArray<Payload[K]> extends never
-      ? Payload[K] extends object
+      ? Payload[K] extends object | undefined
         ? {
             [ObjectProperty in keyof Payload[K] | '__keys__' | '__values__']?: RequestFn<
               Settings,
@@ -346,9 +346,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return results
   }
 
-  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<Result[]> {
-    const results: Result[] = [{ output: 'Action Executed' }]
-
+  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<void> {
     if (!this.hasBatchSupport) {
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
@@ -386,7 +384,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (payloads.length === 0) {
-      return results
+      return
     }
 
     if (this.definition.performBatch) {
@@ -410,13 +408,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         syncMode: isSyncMode(syncMode) ? syncMode : undefined,
         matchingKey: matchingKey ? String(matchingKey) : undefined
       }
-      const output = await this.performRequest(this.definition.performBatch, data)
-      results[0].data = output as JSONObject
-
-      return results
+      await this.performRequest(this.definition.performBatch, data)
     }
-
-    return results
   }
 
   /*
