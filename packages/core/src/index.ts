@@ -24,7 +24,8 @@ export {
   isPathDirective,
   isReplaceDirective,
   isTemplateDirective,
-  isJSONDirective
+  isJSONDirective,
+  isExcludeWhenNullDirective
 } from './mapping-kit/value-keys'
 export { createTestEvent } from './create-test-event'
 export { createTestIntegration } from './create-test-integration'
