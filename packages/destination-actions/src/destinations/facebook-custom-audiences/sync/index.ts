@@ -153,6 +153,12 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   fields: {
+    externalId: {
+      type: 'string',
+      required: true,
+      label: 'External ID',
+      description: 'The external ID of the user.'
+    },
     email: {
       type: 'string',
       label: 'Email',
@@ -230,11 +236,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       label: 'Mobile Advertising ID',
       description: 'The mobile advertising ID of the user.'
-    },
-    externalId: {
-      type: 'string',
-      label: 'External ID',
-      description: 'The external ID of the user.'
     },
     appIds: {
       type: 'string',
