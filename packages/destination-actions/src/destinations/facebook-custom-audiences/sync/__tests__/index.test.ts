@@ -76,7 +76,7 @@ describe('FacebookCustomAudiences.sync', () => {
         settings: retlSettings,
         auth,
         mapping: {
-          __segment_internal_sync_mode: 'add',
+          __segment_internal_sync_mode: 'upsert',
           phone: { '@path': '$.properties.phone' },
           city: { '@path': '$.properties.city' },
           state: { '@path': '$.properties.state' },

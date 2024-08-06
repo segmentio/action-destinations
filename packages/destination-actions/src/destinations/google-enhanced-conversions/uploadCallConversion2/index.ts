@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Call Conversion',
   description: 'Send an offline call conversion to the Google Ads API.',
   syncMode: {
-    description: 'Define how the records from your destination will be synced to the destination',
+    description: 'Define how the records from your destination will be synced.',
     label: 'How to sync records',
     default: 'add',
     choices: [{ label: 'Insert Records', value: 'add' }]

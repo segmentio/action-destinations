@@ -66,18 +66,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Advertiser ID',
       description:
         'The advertiser ID to use when syncing audiences. Required if you wish to create or update an audience.'
-    },
-    idType: {
-      type: 'string',
-      label: 'ID Type',
-      description:
-        'Encryption type to be used for populating the audience. This field is required and only set when Segment creates a new audience.',
-      choices: [
-        { label: 'Email', value: 'EMAIL_SHA256' },
-        { label: 'Google Advertising ID', value: 'GAID_SHA256' },
-        { label: 'Android Advertising ID', value: 'AAID_SHA256' },
-        { label: 'iOS Advertising ID', value: 'IDFA_SHA256' }
-      ]
     }
   },
   audienceConfig: {

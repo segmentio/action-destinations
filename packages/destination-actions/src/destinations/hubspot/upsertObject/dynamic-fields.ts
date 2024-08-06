@@ -45,13 +45,24 @@ export async function dynamicReadIdFields(request: RequestClient, objectType: st
               value: field.name
             }
           })
+          .sort((a, b) => {
+            const labelA = a.label.toLowerCase()
+            const labelB = b.label.toLowerCase()
+            if (labelA < labelB) {
+              return -1
+            }
+            if (labelA > labelB) {
+              return 1
+            }
+            return 0
+          })
       ]
     }
   } catch (err) {
     return {
       choices: [],
       error: {
-        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: getPropertyGroups',
+        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadIdFields',
         code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
       }
     }
@@ -88,12 +99,23 @@ export async function dynamicReadPropertyGroups(
           label: result.label,
           value: result.name
         }))
+        .sort((a, b) => {
+          const labelA = a.label.toLowerCase()
+          const labelB = b.label.toLowerCase()
+          if (labelA < labelB) {
+            return -1
+          }
+          if (labelA > labelB) {
+            return 1
+          }
+          return 0
+        })
     }
   } catch (err) {
     return {
       choices: [],
       error: {
-        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: getPropertyGroups',
+        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadPropertyGroups',
         code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
       }
     }
@@ -126,18 +148,30 @@ export async function dynamicReadAssociationLabels(
     )
 
     return {
-      choices: response?.data?.results?.map((res) => ({
-        label: !res.label
-          ? `${fromObjectType} to ${toObjectType} (Type ${res.typeId})`
-          : `${fromObjectType} to ${toObjectType} ${res.label}`,
-        value: `${res.category}:${res.typeId}`
-      }))
+      choices: response?.data?.results
+        ?.map((res) => ({
+          label: !res.label
+            ? `${fromObjectType} to ${toObjectType} (Type ${res.typeId})`
+            : `${fromObjectType} to ${toObjectType} ${res.label}`,
+          value: `${res.category}:${res.typeId}`
+        }))
+        .sort((a, b) => {
+          const labelA = a.label.toLowerCase()
+          const labelB = b.label.toLowerCase()
+          if (labelA < labelB) {
+            return -1
+          }
+          if (labelA > labelB) {
+            return 1
+          }
+          return 0
+        })
     }
   } catch (err) {
     return {
       choices: [],
       error: {
-        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
+        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadAssociationLabels',
         code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
       }
     }
@@ -163,10 +197,20 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
       method: 'GET',
       skipResponseCloning: true
     })
-    const choices = response.data.results.map((schema) => ({
-      label: `${schema.labels.plural} (Custom)`,
-      value: schema.fullyQualifiedName
-    }))
+    const choices = response.data.results
+      .map((schema) => ({
+        label: `${schema.labels.plural} (Custom)`,
+        value: schema.fullyQualifiedName
+      }))
+      .sort((a, b) => {
+        if (a.label < b.label) {
+          return -1
+        }
+        if (a.label > b.label) {
+          return 1
+        }
+        return 0
+      })
     return {
       choices: [...choices, ...defaultChoices]
     }
@@ -174,7 +218,61 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
     return {
       choices: [],
       error: {
-        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
+        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadObjectTypes',
+        code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+      }
+    }
+  }
+}
+
+export async function dynamicReadProperties(request: RequestClient, objectType: string, sensitive: boolean) {
+  interface ResultItem {
+    label: string
+    name: string
+    hasUniqueValue: boolean
+  }
+
+  interface ResponseType {
+    data: {
+      results: ResultItem[]
+    }
+  }
+
+  try {
+    const url = `${HUBSPOT_BASE_URL}/crm/v3/properties/${objectType}${sensitive ? '?dataSensitivity=sensitive' : ''}`
+    const response: ResponseType = await request(url, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
+
+    return {
+      choices: [
+        ...response.data.results
+          .filter((field: ResultItem) => !field.hasUniqueValue)
+          .map((field: ResultItem) => {
+            return {
+              label: field.label,
+              value: field.name
+            }
+          })
+          .sort((a, b) => {
+            const labelA = a.label.toLowerCase()
+            const labelB = b.label.toLowerCase()
+            if (labelA < labelB) {
+              return -1
+            }
+            if (labelA > labelB) {
+              return 1
+            }
+            return 0
+          })
+      ]
+    }
+  } catch (err) {
+    return {
+      choices: [],
+      error: {
+        message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadProperties',
         code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
       }
     }

@@ -148,8 +148,6 @@ const action: ActionDefinition<Settings, Payload> = {
     description: 'The sync mode to use when syncing data to Facebook.',
     default: 'upsert',
     choices: [
-      { value: 'add', label: 'Add' },
-      { value: 'update', label: 'Update' },
       { value: 'upsert', label: 'Upsert' },
       { value: 'delete', label: 'Delete' }
     ]
@@ -256,7 +254,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload, hookOutputs, syncMode }) => {
     const fbClient = new FacebookClient(request, settings.retlAdAccountId)
 
-    if (syncMode) {
+    if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
       return await fbClient.syncAudience({
         audienceId: hookOutputs?.retlOnMappingSave.outputs.audienceId,
         payloads: [payload],
@@ -269,7 +267,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { settings, payload, hookOutputs, syncMode }) => {
     const fbClient = new FacebookClient(request, settings.retlAdAccountId)
 
-    if (syncMode) {
+    if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
       return await fbClient.syncAudience({
         audienceId: hookOutputs?.retlOnMappingSave.outputs.audienceId,
         payloads: payload,
