@@ -9,6 +9,7 @@ import {
   dynamicReadIdFields,
   dynamicReadProperties
 } from './dynamic-fields'
+import { properties } from 'src/destinations/klaviyo/properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
@@ -55,8 +56,10 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload, syncMode }) => {
     const payloads = [
       payload,
-      { ...payload, event_name: 'pe23132826_custom_joe_event_1' },
-      { ...payload, event_name: 'test6', properties: { teststr: 'test', testbool:true, testnum: 1234 } }
+      { ...payload, event_name: 'pe23132826_custom_joe_event_999' },
+      { ...payload, event_name: 'test25', properties: {newstrprop:"hello", newprop:1234} },
+      { ...payload, event_name: 'test26', properties: {newstrprop:"hello"} },
+      { ...payload, event_name: 'test17', properties: { teststr: 'test', testbool:true, testnum: 1234, testdate: '2024-08-06T13:30:35.506Z', testdateonly: '2024-08-06T00:00:00.000Z', propjson: {"i_am": "json"}, proparray: [{"i_am": "array"},{"i_am": "array"}] } }
     ]
 
     await send(request, payloads, syncMode as SyncMode)
@@ -79,9 +82,15 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
 
   const hubspotClient = new HubspotClient(request, syncMode, payloads)
 
-  const x = await hubspotClient.eventSchemasToCreate()
+  // const x = await hubspotClient.eventSchemasToCreate()
 
-  const y = await hubspotClient.createEventSchemas(x.schemasToCreate)
+  const x = await hubspotClient.schemasToCreateOrUpdate()
+
+  console.log(JSON.stringify(x.schemasToUpdate, null, 2))
+
+  //const y = await hubspotClient.updateEventSchemas(x.schemasToUpdate)
+
+  //const y = await hubspotClient.createEventSchemas(x.schemasToCreate)
 }
 
 export default action

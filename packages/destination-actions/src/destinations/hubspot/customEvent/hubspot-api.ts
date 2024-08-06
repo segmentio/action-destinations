@@ -1,20 +1,59 @@
-import { RequestClient } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
-import { PayloadValidationError } from '@segment/actions-core/*'
 
 export type SyncMode = 'upsert' | 'add' | 'update'
 
-interface EventSchemas {
-  [eventName: string]: {
-    [property: string]: {
-      type: string,
-      format?: string
-    }
+type SegmentPropertyTypes = 'number' | 'object' | 'boolean' | 'string'
+type HubspotPropertyTypes = 'string' | 'number' | 'enumeration'
+type StringFormat = 'date' | 'datetime' | 'string'
+
+interface SegmentProperty {
+  type: SegmentPropertyTypes
+  stringFormat?: StringFormat
+}
+
+interface SegmentEventSchema {
+  eventName: string
+  properties: {
+    [key: string]: SegmentProperty
   }
 }
 
-type HubspotStringType = 'date' | 'datetime' | 'string'
+interface SegmentEventSchemaWithFQN extends SegmentEventSchema {
+  fullyQualifiedName: string,
+  name: string
+}
+
+interface HubspotProperty {
+  type: HubspotPropertyTypes
+}
+
+interface HubspotEventSchema {
+  eventName: string
+  properties: {
+    [key: string]: HubspotProperty
+  }
+  fullyQualifiedName: string
+  name: string
+}
+
+interface ResultItem {
+  labels: {
+    singular: string | null
+    plural: string | null
+  }
+  archived: boolean
+  fullyQualifiedName: string
+  name: string
+  properties: Array<{
+    archived: boolean
+    label: string
+    name: string
+    type: string
+    displayOrder: number
+  }>
+}
 
 export class HubspotClient {
   request: RequestClient
@@ -29,108 +68,7 @@ export class HubspotClient {
     this.objectType = payloads[0].record_details.object_type
   }
 
-  eventSchemas(): EventSchemas {
-    const schemas: EventSchemas = {}
-
-    this.payloads.forEach((payload) => {
-      const { event_name, properties } = payload
-
-      if (!schemas[event_name]) {
-        schemas[event_name] = {}
-      }
-
-      if (properties) {
-        Object.entries(properties).forEach(([property, value]) => {
-          schemas[event_name][property] = { type: typeof value, format: typeof value === 'string' ? this.hubspotStringType(value) : undefined }
-        })
-      }
-    })
-    return schemas
-  }
-
-  eventNames(): string[] {
-    return Object.keys(this.eventSchemas())
-  }
-
-  async hsEventSchemas(): Promise<EventSchemas> {
-    interface ResponseType {
-      data: {
-        results: ResultItem[]
-      }
-    }
-
-    interface ResultItem {
-      labels: {
-        singular: string | null
-        plural: string | null
-      }
-      archived: boolean
-      fullyQualifiedName: string
-      properties: Array<{
-        archived: boolean
-        label: string
-        name: string
-        type: string
-        displayOrder: number
-      }>
-    }
-
-    const response: ResponseType = await this.request(
-      `${HUBSPOT_BASE_URL}/events/v3/event-definitions/?includeProperties=true`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
-
-    const schemas: EventSchemas = {}
-
-    const eventNames = this.eventNames()
-
-    response.data.results
-      .filter((result) => eventNames.includes(result.fullyQualifiedName))
-      .forEach((result: ResultItem) => {
-        const eventName = result.fullyQualifiedName
-
-        if (!schemas[eventName]) {
-          schemas[eventName] = {}
-        }
-
-        result.properties.forEach((property) => {
-          if (!property.archived) {
-            schemas[eventName][property.name] = { type: property.type, format: undefined }
-          }
-        })
-      })
-
-    return schemas
-  }
-
-  async eventSchemasToCreate(): Promise<{ schemasToCreate: EventSchemas, schemasToUpdate: EventSchemas }> {
-    const hsEventSchemas = await this.hsEventSchemas()
-    const eventSchemas = this.eventSchemas()
-    const schemasToCreate: EventSchemas = {}
-    const schemasToUpdate: EventSchemas = {}
-  
-    Object.keys(eventSchemas).forEach((eventName) => {
-      if (!hsEventSchemas[eventName]) {
-        schemasToCreate[eventName] = JSON.parse(JSON.stringify(eventSchemas[eventName]))
-      } else {
-        Object.entries(eventSchemas[eventName]).forEach(([property, type]) => {
-          if (!hsEventSchemas[eventName][property]) {
-            if (!schemasToUpdate[eventName]) {
-              schemasToUpdate[eventName] = {};
-            }
-            schemasToUpdate[eventName][property] = type
-          }
-        });
-      }
-    });
-  
-    return { schemasToCreate, schemasToUpdate }
-  }
-  
-  hubspotStringType(str: string): HubspotStringType {
+  stringFormat(str: string): StringFormat {
     const date = new Date(str)
 
     if (isNaN(date.getTime())) {
@@ -159,38 +97,139 @@ export class HubspotClient {
     return 'datetime'
   }
 
-  async createEventSchemas(schemasToCreate: EventSchemas): Promise<void> {
-    
-    interface HSCustomEventSchama {
-      label: string,
-      name: string,
-      description: string, 
-      primaryObject: string,
+  sanitizedEventName(eventName: string): string {
+    return eventName.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+  }
+
+  segmentSchemas(): SegmentEventSchema[] {
+    const schemas: SegmentEventSchema[] = []
+
+    this.payloads.forEach((payload) => {
+      const { event_name, properties } = payload
+      const sanitizedEventName = this.sanitizedEventName(event_name)
+
+      let schema = schemas.find((s) => s.eventName === sanitizedEventName) 
+      if(schema === undefined) {
+        schema = { eventName: sanitizedEventName, properties: {} }
+        schemas.push(schema)
+      }
+
+      if (properties) {
+        Object.entries(properties).forEach(([property, value]) => {
+          if(value!==null) {            
+            schema.properties[property] = { 
+              type: typeof value as SegmentPropertyTypes, 
+              stringFormat: typeof value === 'string' ? this.stringFormat(value) : undefined
+            }
+          }
+        })
+      }
+    })
+    return schemas
+  }
+
+  async hubspotSchemas(): Promise<HubspotEventSchema[]> {
+    interface ResponseType {
+      data: {
+        results: ResultItem[]
+      }
+    }
+
+    const response: ResponseType = await this.request(
+      `${HUBSPOT_BASE_URL}/events/v3/event-definitions/?includeProperties=true`,
+      {
+        method: 'GET',
+        skipResponseCloning: true
+      }
+    )
+
+    const segmentSchemas = this.segmentSchemas()
+    const hubspotSchemas: HubspotEventSchema[] = []
+
+    response.data.results.forEach((result: ResultItem) => {
+      const { fullyQualifiedName, name } = result
+      const segmentSchema = segmentSchemas.find((schema) => schema.eventName === fullyQualifiedName || schema.eventName === name)
+      
+      if(segmentSchema) {
+        const hubspotSchema: HubspotEventSchema = {
+          eventName: segmentSchema.eventName,
+          fullyQualifiedName: result.fullyQualifiedName,
+          name: result.name,
+          properties: result.properties.reduce<{[key: string]:HubspotProperty}>((acc, prop) => {
+            acc[prop.name] = {
+              type: prop.type as HubspotPropertyTypes
+            };
+            return acc
+          }, {})
+        }
+
+        hubspotSchemas.push(hubspotSchema)
+      }
+    })
+
+    return hubspotSchemas
+  }
+
+  async schemasToCreateOrUpdate(): Promise<{ schemasToCreate: SegmentEventSchema[], schemasToUpdate: SegmentEventSchemaWithFQN[] }> {
+    const hubspotSchemas = await this.hubspotSchemas()
+    const segmentSchemas = this.segmentSchemas()
+    const schemasToCreate: SegmentEventSchema[] = []
+    const schemasToUpdate: SegmentEventSchemaWithFQN[] = []
+  
+    segmentSchemas.forEach((segmentSchema) => {
+      const hubspotSchema = hubspotSchemas.find((schema) => schema.eventName === segmentSchema.eventName)
+  
+      if (!hubspotSchema) {
+        // schema doesn't exist in Hubspot, so we'll create it
+        schemasToCreate.push(segmentSchema)
+      } else {
+        // schema does exist in Hubspot, so figure out if any props need to be created
+        const propertiesToCreate = Object.entries(segmentSchema.properties).filter(([name]) => {
+          return !hubspotSchema.properties[name]
+        })
+        
+        if(propertiesToCreate.length > 0) {
+          const schemaToUpdate: SegmentEventSchemaWithFQN = {
+            ...segmentSchema,
+            fullyQualifiedName: hubspotSchema.fullyQualifiedName,
+            name: hubspotSchema.name
+          }
+          schemasToUpdate.push(schemaToUpdate)
+        }
+      }
+    })
+
+    return { schemasToCreate, schemasToUpdate }
+  }
+  
+  async createEventSchemas(schemasToCreate: SegmentEventSchema[]) {
+    interface HSCustomEventSchema {
+      label: string;
+      name: string;
+      description: string;
+      primaryObject: string;
       propertyDefinitions: Array<{
-        name: string,
-        label: string,
-        type: string,
-        description: string,
+        name: string;
+        label: string;
+        type: string;
+        description: string;
         options?: Array<{
-          label: string,
-          value: string | number,
-          description: string,
-          hidden: boolean,
-          displayOrder: number
+          label: string;
+          value: boolean;
+          description: string;
+          hidden: boolean;
+          displayOrder: number;
         }>
       }>
     }
-    
-    const requests = []
-    
-    for (const [eventName, properties] of Object.entries(schemasToCreate)) {
-      const json: HSCustomEventSchama = {
-        label: eventName,
-        name: eventName,
-        description: `${eventName} - (created by Segment)`,
+  
+    const requests = schemasToCreate.map(async (schema) => {
+      const json: HSCustomEventSchema = {
+        label: schema.eventName,
+        name: schema.eventName,
+        description: `${schema.eventName} - (created by Segment)`,
         primaryObject: this.objectType,
-        propertyDefinitions: Object.entries(properties)
-        .map(([name, { type, format }]) => {
+        propertyDefinitions: Object.entries(schema.properties).map(([name, { type, stringFormat }]) => {
           switch (type) {
             case 'number':
               return {
@@ -198,14 +237,14 @@ export class HubspotClient {
                 label: name,
                 type: 'number',
                 description: `${name} - (created by Segment)`
-              }
+              };
             case 'object':
               return {
                 name: name,
                 label: name,
                 type: 'string',
                 description: `${name} - (created by Segment)`
-              }
+              };
             case 'boolean':
               return {
                 name: name,
@@ -215,57 +254,85 @@ export class HubspotClient {
                 options: [
                   {
                     label: 'true',
-                    value: 'true',
+                    value: true,
                     hidden: false,
                     description: 'True',
                     displayOrder: 1
                   },
                   {
                     label: 'false',
-                    value: 'false',
+                    value: false,
                     hidden: false,
                     description: 'False',
                     displayOrder: 2
                   }
                 ]
-              }
+              };
             case 'string':
-              switch (format as string) {
+              switch (stringFormat as StringFormat) {
                 case 'string':
                   return {
                     name: name,
                     label: name,
                     type: 'string',
                     description: `${name} - (created by Segment)`,
-                  }
+                  };
                 case 'date':
-                  return {
-                    name: name,
-                    label: name,
-                    type: 'date',
-                    description: `${name} - (created by Segment)`,
-                  }
                 case 'datetime':
                   return {
                     name: name,
                     label: name,
                     type: 'datetime',
                     description: `${name} - (created by Segment)`,
-                  }
+                  };
+                case undefined:
+                default:
+                  throw new PayloadValidationError(`Property ${name} in event ${schema.eventName} has an unsupported type: ${type}`);
               }
+            default:
+              throw new PayloadValidationError(`Property ${name} in event ${schema.eventName} has an unsupported type: ${type}`);
           }
         })
-      }
-
-      requests.push(await this.request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions`, {
+      };
+  
+      return this.request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions`, {
         method: 'POST',
         json
-      }))
-      
-      const responses = await Promise.all(requests)
+      })
+    })
 
-      console.log(responses)
+    await Promise.all(requests)
+  }
 
+  
+
+  async updateEventSchemas(schemasToUpdate: SegmentEventSchemaWithFQN[]) {
+    interface HSCustomProperty {
+          name: string,
+          label: string,
+          type: HubspotPropertyTypes,
+          description: string
     }
+    
+    const requests = schemasToUpdate.map(async (schema) => {
+      
+      Object.entries(schema.properties).forEach(([name, { type, stringFormat }]) => {
+        
+        const json: HSCustomProperty = {
+          name: name,
+          label: name,
+          type: type === 'string' ? stringFormat : type,
+          description: `${name} - (created by Segment)`
+        }
+
+        return this.request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions/${schema.fullyQualifiedName}/properties`, {
+          method: 'POST',
+          json
+        })
+
+      }
+
+    })
+     
   }
 }
