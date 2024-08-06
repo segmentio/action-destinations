@@ -25,7 +25,6 @@ export class IterableListsClient {
   }
 
   async processPayload(payloads: Payload[]) {
-    
     const subscribersGroup: Map<string, Subscriber[]> = new Map()
     const unsubscribersGroup: Map<string, Unsubscriber[]> = new Map()
 
@@ -36,7 +35,7 @@ export class IterableListsClient {
         const subscriber = {
           email: payload?.email ?? undefined,
           dataFields: payload?.dataFields?.reduce((acc: { [key: string]: unknown }, item: string) => {
-            acc[item] = payload.traitsOrProperties[item]
+            acc[item] = payload.traitsOrProperties[item];
             return acc
           }, {}),
           userId: payload?.userId ?? undefined,
@@ -65,6 +64,7 @@ export class IterableListsClient {
 
     const subcribeRequests = []
     const unSubcribeRequests = []
+
     subscribersGroup.forEach((subscribers, listId) => {
       subcribeRequests.push(
         this.request(`${CONSTANTS.API_BASE_URL}/lists/subscribe`, {
@@ -92,7 +92,7 @@ export class IterableListsClient {
       )
     })
 
-    return await Promise.all([...unsubscribersGroup, ...subscribersGroup])
+    return await Promise.all([...unsubscribersGroup,...subscribersGroup])
   }
 
   static validate(payload: Payload) {
@@ -100,4 +100,5 @@ export class IterableListsClient {
       throw new PayloadValidationError('Either Email or User ID fields must be populated.')
     }
   }
+
 }

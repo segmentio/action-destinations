@@ -84,12 +84,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   }
 }
 
-const send = async (
-  request: RequestClient,
-  payload: Payload[],
-  settings: Settings,
-  audienceSettings?: AudienceSettings
-) => {
+const send = async ( request: RequestClient, payload: Payload[], settings: Settings, audienceSettings?: AudienceSettings) => {
   const client = new IterableListsClient(request, settings, audienceSettings)
   await client.processPayload(payload)
 }

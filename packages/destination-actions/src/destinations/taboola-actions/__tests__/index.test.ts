@@ -43,7 +43,7 @@ describe('Taboola (actions)', () => {
         audienceSettings: {
           ttl_in_hours: 1024,
           exclude_from_campaigns: false,
-          account_id: accountId
+          account_id:accountId
         }
       }
 
@@ -63,7 +63,7 @@ describe('Taboola (actions)', () => {
         audienceSettings: {
           ttl_in_hours: 1024,
           exclude_from_campaigns: false,
-          account_id: ''
+          account_id:''
         }
       }
 
