@@ -6,10 +6,6 @@ export interface Settings {
    */
   sectionId: string
   /**
-   * Dynamic Yield Data Center
-   */
-  dataCenter: string
-  /**
    * Description to be added
    */
   accessKey: string
