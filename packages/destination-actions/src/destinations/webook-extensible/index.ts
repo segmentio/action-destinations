@@ -5,7 +5,7 @@ import { createHmac } from 'crypto'
 import send from './send'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Webhook',
+  name: 'Extensible Webhook',
   slug: 'actions-webhook-extensible',
   mode: 'cloud',
   authentication: {
