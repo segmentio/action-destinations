@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const payloads = [
       payload,
       { ...payload, event_name: 'pe23132826_custom_joe_event_1' },
-      { ...payload, event_name: 'test3', properties: { test: 'test' } }
+      { ...payload, event_name: 'test6', properties: { teststr: 'test', testbool:true, testnum: 1234 } }
     ]
 
     await send(request, payloads, syncMode as SyncMode)
@@ -79,8 +79,9 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
 
   const hubspotClient = new HubspotClient(request, syncMode, payloads)
 
-  const x = await hubspotClient.hsEventSchemas()
-  console.log(JSON.stringify(x, null, 2))
+  const x = await hubspotClient.eventSchemasToCreate()
+
+  const y = await hubspotClient.createEventSchemas(x.schemasToCreate)
 }
 
 export default action
