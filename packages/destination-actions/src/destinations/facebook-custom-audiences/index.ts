@@ -17,9 +17,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     scheme: 'oauth2',
     fields: {
       retlAdAccountId: adAccountId
-    },
-    refreshAccessToken: async () => {
-      return { accessToken: 'TODO: Implement this' }
     }
   },
   extendRequest({ auth }) {
