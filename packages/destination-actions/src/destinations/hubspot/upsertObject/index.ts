@@ -155,7 +155,6 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
     )
     await client.ensurePropertiesInHSSchema(propertiesToCreate, sensitivePropertiesToCreate)
   }
-
   const fromRecordsOnHS = await client.ensureFromRecordsOnHubspot(cleanedPayloads)
   const associations = client.getAssociationsFromPayloads(fromRecordsOnHS)
   const toRecordsOnHS = await client.ensureToRecordsOnHubspot(associations)

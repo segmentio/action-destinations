@@ -287,7 +287,6 @@ export class HubspotClient {
 
   cleanProperties(payloads: Payload[]): Payload[] {
     const deepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[]
-
     deepCopy.forEach((payload) => {
       if (payload.properties) {
         payload.properties = Object.keys(payload.properties).reduce((acc, prop) => {
@@ -300,7 +299,6 @@ export class HubspotClient {
           return acc
         }, {} as { [key: string]: unknown })
       }
-
       if (payload.sensitiveProperties) {
         payload.sensitiveProperties = Object.keys(payload.sensitiveProperties).reduce((acc, prop) => {
           const lowerCasedProp = prop.toLowerCase()

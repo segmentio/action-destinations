@@ -19,9 +19,13 @@ export class IterableListsClient {
     }
     this.request = request
     this.apiKey = settings.apiKey
-    this.updateExistingUsersOnly = typeof audienceSettings.updateExistingUsersOnly === 'boolean' ? audienceSettings.updateExistingUsersOnly : undefined, 
-    this.globalUnsubscribe = typeof audienceSettings.globalUnsubscribe === 'boolean' ? audienceSettings.globalUnsubscribe : undefined,
-    this.campaignId = audienceSettings.campaignId ? Number(audienceSettings.campaignId) : undefined
+    ;(this.updateExistingUsersOnly =
+      typeof audienceSettings.updateExistingUsersOnly === 'boolean'
+        ? audienceSettings.updateExistingUsersOnly
+        : undefined),
+      (this.globalUnsubscribe =
+        typeof audienceSettings.globalUnsubscribe === 'boolean' ? audienceSettings.globalUnsubscribe : undefined),
+      (this.campaignId = audienceSettings.campaignId ? Number(audienceSettings.campaignId) : undefined)
   }
 
   async processPayload(payloads: Payload[]) {
@@ -31,11 +35,10 @@ export class IterableListsClient {
     payloads.map((payload) => {
       const listId = payload.segmentAudienceId
       if (payload.traitsOrProperties[payload.segmentAudienceKey] === true) {
-
         const subscriber = {
           email: payload?.email ?? undefined,
           dataFields: payload?.dataFields?.reduce((acc: { [key: string]: unknown }, item: string) => {
-            acc[item] = payload.traitsOrProperties[item];
+            acc[item] = payload.traitsOrProperties[item]
             return acc
           }, {}),
           userId: payload?.userId ?? undefined,
@@ -48,7 +51,6 @@ export class IterableListsClient {
           subscribersGroup.set(listId, [subscriber])
         }
       } else {
-
         const subscriber = {
           email: payload?.email ?? undefined,
           userId: payload?.userId ?? undefined
@@ -92,7 +94,7 @@ export class IterableListsClient {
       )
     })
 
-    return await Promise.all([...unsubscribersGroup,...subscribersGroup])
+    return await Promise.all([...unsubscribersGroup, ...subscribersGroup])
   }
 
   static validate(payload: Payload) {
@@ -100,5 +102,4 @@ export class IterableListsClient {
       throw new PayloadValidationError('Either Email or User ID fields must be populated.')
     }
   }
-
 }
