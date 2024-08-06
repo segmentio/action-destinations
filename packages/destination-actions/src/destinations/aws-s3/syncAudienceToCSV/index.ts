@@ -188,6 +188,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         'Additional user identifiers and traits to include as separate columns in the CSV file. Each item should contain a key and a value. The key is the trait or identifier name from the payload, and the value is the column name to be written to the CSV file.',
       type: 'object',
       required: false,
+      disabledInputMethods: ['enrichment', 'function', 'variable'],
       defaultObjectUI: 'keyvalue:only'
     },
     enable_batching: {
