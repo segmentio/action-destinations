@@ -33,6 +33,12 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * Sensitive Properties to set on the record.
+   */
+  sensitiveProperties?: {
+    [k: string]: unknown
+  }
+  /**
    * Specify if Segment create associated records in Hubspot. Records will only be created if the record requires a single identifier field and does not require property fields to be set upon creation.
    */
   association_sync_mode: string

@@ -7,7 +7,8 @@ import {
   dynamicReadAssociationLabels,
   dynamicReadIdFields,
   dynamicReadObjectTypes,
-  dynamicReadPropertyGroups
+  dynamicReadPropertyGroups,
+  dynamicReadProperties
 } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -51,6 +52,28 @@ const action: ActionDefinition<Settings, Payload> = {
         return await dynamicReadPropertyGroups(request, fromObjectType)
       }
     },
+    properties: {
+      __keys__: async (request, { payload }) => {
+        const fromObjectType = payload?.object_details?.from_object_type
+
+        if (!fromObjectType) {
+          throw new Error("Select from 'From Object Type' first")
+        }
+
+        return await dynamicReadProperties(request, fromObjectType, false)
+      }
+    },
+    sensitiveProperties: {
+      __keys__: async (request, { payload }) => {
+        const fromObjectType = payload?.object_details?.from_object_type
+
+        if (!fromObjectType) {
+          throw new Error("Select from 'From Object Type' first")
+        }
+
+        return await dynamicReadProperties(request, fromObjectType, true)
+      }
+    },
     associations: {
       to_object_type: async (request) => {
         return await dynamicReadObjectTypes(request)
@@ -66,7 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const toObjectType = payload?.associations?.[selectedIndex]?.to_object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'Object Type' first")
+          throw new Error("Select from 'From Object Type' first")
         }
 
         if (!toObjectType) {
@@ -119,13 +142,21 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
     fromPropertyGroup
   )
 
+  const cleanedPayloads = client.cleanProperties(payloads)
+
   if (fromPropertyGroup) {
-    const uniquePayloadsProperties = client.uniquePayloadsProperties(payloads)
-    const propertiesFromHSchema = await client.propertiesFromHSchema()
-    const propertiesToCreate = client.propertiesToCreateInHSSchema(uniquePayloadsProperties, propertiesFromHSchema)
-    await client.ensurePropertiesInHSSchema(propertiesToCreate)
+    const { uniqueProperties, uniqueSensitiveProperties } = client.uniquePayloadsProperties(cleanedPayloads)
+    const { properties: propertiesFromHSchema, sensitiveProperties: sensitivePropertiesFromHSchema } =
+      await client.propertiesFromHSchema(uniqueProperties.length > 0, uniqueSensitiveProperties.length > 0)
+    const propertiesToCreate = client.propertiesToCreateInHSSchema(uniqueProperties, propertiesFromHSchema)
+    const sensitivePropertiesToCreate = client.propertiesToCreateInHSSchema(
+      uniqueSensitiveProperties,
+      sensitivePropertiesFromHSchema
+    )
+    await client.ensurePropertiesInHSSchema(propertiesToCreate, sensitivePropertiesToCreate)
   }
-  const fromRecordsOnHS = await client.ensureFromRecordsOnHubspot(payloads)
+  
+  const fromRecordsOnHS = await client.ensureFromRecordsOnHubspot(cleanedPayloads)
   const associations = client.getAssociationsFromPayloads(fromRecordsOnHS)
   const toRecordsOnHS = await client.ensureToRecordsOnHubspot(associations)
   await client.ensureAssociations(toRecordsOnHS)
