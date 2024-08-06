@@ -36,7 +36,6 @@ describe('FacebookCustomAudiences.sync', () => {
         zip_code: '92000',
         address: '123 Main St',
         email: '816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343', // pre-hashed email: nick@email.com
-        app_ids: [],
         appleIDFA: '2024'
       }
     })
@@ -64,7 +63,8 @@ describe('FacebookCustomAudiences.sync', () => {
                 '2024', // mobile_advertiser_id,
                 sha256SmartHash(normalizationFunctions.get('country')!('US'))
               ]
-            ]
+            ],
+            app_ids: ['2024']
           }
         })
         .reply(200, { test: 'test' })
@@ -82,7 +82,7 @@ describe('FacebookCustomAudiences.sync', () => {
           zip: { '@path': '$.properties.zip_code' },
           country: 'US',
           externalId: { '@path': '$.properties.id' },
-          appIds: { '@path': '$.properties.app_ids' },
+          appId: { '@path': '$.properties.appleIDFA' },
           mobileAdId: { '@path': '$.properties.appleIDFA' },
           retlOnMappingSave: {
             inputs: {},
@@ -113,7 +113,7 @@ describe('FacebookCustomAudiences.sync', () => {
       `)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"payload\\":{\\"schema\\":[\\"EXTERN_ID\\",\\"EMAIL\\",\\"PHONE\\",\\"GEN\\",\\"DOBY\\",\\"DOBM\\",\\"DOBD\\",\\"LN\\",\\"FN\\",\\"FI\\",\\"CT\\",\\"ST\\",\\"ZIP\\",\\"MADID\\",\\"COUNTRY\\"],\\"data\\":[[\\"1234\\",\\"816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343\\",\\"a5ad7e6d5225ad00c5f05ddb6bb3b1597a843cc92f6cf188490ffcb88a1ef4ef\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"1a6bd4d9d79dc0a79b53795c70d3349fa9e38968a3fbefbfe8783efb1d2b6aac\\",\\"6959097001d10501ac7d54c0bdb8db61420f658f2922cc26e46d536119a31126\\",\\"ad16c1a6866c5887c5b59c1803cb1fc09769f1b403b6f1d9d0f10ad6ab4d5d50\\",\\"2024\\",\\"79adb2a2fce5c6ba215fe5f27f532d4e7edbac4b6a5e09e1ef3a08084a904621\\"]]}}"`
+        `"{\\"payload\\":{\\"schema\\":[\\"EXTERN_ID\\",\\"EMAIL\\",\\"PHONE\\",\\"GEN\\",\\"DOBY\\",\\"DOBM\\",\\"DOBD\\",\\"LN\\",\\"FN\\",\\"FI\\",\\"CT\\",\\"ST\\",\\"ZIP\\",\\"MADID\\",\\"COUNTRY\\"],\\"data\\":[[\\"1234\\",\\"816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343\\",\\"a5ad7e6d5225ad00c5f05ddb6bb3b1597a843cc92f6cf188490ffcb88a1ef4ef\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"1a6bd4d9d79dc0a79b53795c70d3349fa9e38968a3fbefbfe8783efb1d2b6aac\\",\\"6959097001d10501ac7d54c0bdb8db61420f658f2922cc26e46d536119a31126\\",\\"ad16c1a6866c5887c5b59c1803cb1fc09769f1b403b6f1d9d0f10ad6ab4d5d50\\",\\"2024\\",\\"79adb2a2fce5c6ba215fe5f27f532d4e7edbac4b6a5e09e1ef3a08084a904621\\"]],\\"app_ids\\":[\\"2024\\"]}}"`
       )
     })
 

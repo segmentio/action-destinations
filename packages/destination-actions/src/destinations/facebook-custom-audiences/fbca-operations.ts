@@ -31,6 +31,15 @@ interface FacebookResponseError {
   }
 }
 
+interface FacebookSyncRequestParams {
+  payload: {
+    schema: string[]
+    data: (string | number)[][]
+    app_ids?: string[]
+    page_ids?: string[]
+  }
+}
+
 // exported for unit testing. Also why these are not members of the class
 export const generateData = (payloads: Payload[]): (string | number)[][] => {
   const data: (string | number)[][] = new Array(payloads.length)
@@ -129,11 +138,41 @@ export default class FacebookClient {
   syncAudience = async (input: { audienceId: string; payloads: Payload[]; deleteUsers?: boolean }) => {
     const data = generateData(input.payloads)
 
-    const params = {
+    const app_ids: string[] = []
+    let app_ids_items = 0
+    input.payloads.forEach((payload) => {
+      if (payload.appId !== undefined) {
+        app_ids_items++
+        app_ids.push(payload.appId)
+      } else {
+        app_ids.push('')
+      }
+    })
+
+    const page_ids: string[] = []
+    let page_ids_items = 0
+    input.payloads.forEach((payload) => {
+      if (payload.pageId !== undefined) {
+        page_ids_items++
+        page_ids.push(payload.pageId)
+      } else {
+        page_ids.push('')
+      }
+    })
+
+    const params: FacebookSyncRequestParams = {
       payload: {
         schema: SCHEMA_PROPERTIES,
         data: data
       }
+    }
+
+    if (app_ids_items > 0) {
+      params.payload.app_ids = app_ids
+    }
+
+    if (page_ids_items > 0) {
+      params.payload.page_ids = page_ids
     }
 
     return await this.request(`${BASE_URL}${input.audienceId}/users`, {

@@ -244,17 +244,15 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'User’s Apple IDFA, Android Ad ID, or Facebook app scoped ID. Keep hyphens (ex: AB1234CD-E123-12FG-J123)'
     },
-    appIds: {
+    appId: {
       type: 'string',
-      multiple: true,
-      label: 'App IDs',
-      description: 'The app IDs of the user.'
+      label: 'App ID',
+      description: 'The app ID of the user.'
     },
-    pageIds: {
+    pageId: {
       type: 'string',
-      multiple: true,
-      label: 'Page IDs',
-      description: 'The page IDs of the user.'
+      label: 'Page ID',
+      description: 'The page ID of the user.'
     },
     enable_batching,
     batch_size

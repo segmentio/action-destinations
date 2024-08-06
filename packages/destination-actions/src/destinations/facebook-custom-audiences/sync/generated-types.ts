@@ -54,13 +54,13 @@ export interface Payload {
    */
   mobileAdId?: string
   /**
-   * The app IDs of the user.
+   * The app ID of the user.
    */
-  appIds?: string[]
+  appId?: string
   /**
-   * The page IDs of the user.
+   * The page ID of the user.
    */
-  pageIds?: string[]
+  pageId?: string
   /**
    * Enable batching of requests.
    */
