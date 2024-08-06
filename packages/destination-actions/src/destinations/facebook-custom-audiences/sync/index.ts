@@ -169,10 +169,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Phone',
       description: 'The phone number of the user.'
     },
-    gender: {
+    country: {
       type: 'string',
-      label: 'Gender',
-      description: 'The gender of the user.'
+      label: 'Country',
+      description: 'The country of the user.'
     },
     birth: {
       type: 'object',
@@ -227,10 +227,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Postal Code',
       description: 'The postal code of the user.'
     },
-    country: {
+    gender: {
       type: 'string',
-      label: 'Country',
-      description: 'The country of the user.'
+      label: 'Gender',
+      description: 'The gender of the user.'
     },
     mobileAdId: {
       type: 'string',
