@@ -1,7 +1,7 @@
 import { DynamicFieldItem, DynamicFieldError, RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
-import { sha256SmartHash } from '@segment/actions-core'
+import { SmartHashing } from '@segment/actions-core'
 
 const FACEBOOK_API_VERSION = 'v20.0'
 // exported for unit testing
@@ -68,13 +68,19 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
   }
 
   const normalizationFunction = normalizationFunctions.get(key)
+  const smartHash = new SmartHashing('sha256')
+
+  if (smartHash.isAlreadyHashed(value)) {
+    row[index] = value
+    return
+  }
 
   if (!normalizationFunction) {
     throw new IntegrationError(`Normalization function not found for key: ${key}`, `cannot normalize ${key}`, 500)
   }
 
   const normalizedValue = normalizationFunction(value)
-  row[index] = sha256SmartHash(normalizedValue)
+  row[index] = smartHash.hash(normalizedValue)
 }
 
 export default class FacebookClient {
