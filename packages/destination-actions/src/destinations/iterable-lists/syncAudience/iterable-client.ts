@@ -19,22 +19,20 @@ export class IterableListsClient {
     }
     this.request = request
     this.apiKey = settings.apiKey
-    ;(this.updateExistingUsersOnly =
-      typeof audienceSettings.updateExistingUsersOnly === 'boolean'
-        ? audienceSettings.updateExistingUsersOnly
-        : undefined),
-      (this.globalUnsubscribe =
-        typeof audienceSettings.globalUnsubscribe === 'boolean' ? audienceSettings.globalUnsubscribe : undefined),
-      (this.campaignId = audienceSettings.campaignId ? Number(audienceSettings.campaignId) : undefined)
+    this.updateExistingUsersOnly = typeof audienceSettings.updateExistingUsersOnly === 'boolean' ? audienceSettings.updateExistingUsersOnly : undefined, 
+    this.globalUnsubscribe = typeof audienceSettings.globalUnsubscribe === 'boolean' ? audienceSettings.globalUnsubscribe : undefined,
+    this.campaignId = audienceSettings.campaignId ? Number(audienceSettings.campaignId) : undefined
   }
 
   async processPayload(payloads: Payload[]) {
+    
     const subscribersGroup: Map<string, Subscriber[]> = new Map()
     const unsubscribersGroup: Map<string, Unsubscriber[]> = new Map()
 
     payloads.map((payload) => {
       const listId = payload.segmentAudienceId
       if (payload.traitsOrProperties[payload.segmentAudienceKey] === true) {
+
         const subscriber = {
           email: payload?.email ?? undefined,
           dataFields: payload?.dataFields?.reduce((acc: { [key: string]: unknown }, item: string) => {
@@ -51,6 +49,7 @@ export class IterableListsClient {
           subscribersGroup.set(listId, [subscriber])
         }
       } else {
+
         const subscriber = {
           email: payload?.email ?? undefined,
           userId: payload?.userId ?? undefined
@@ -66,7 +65,6 @@ export class IterableListsClient {
 
     const subcribeRequests = []
     const unSubcribeRequests = []
-
     subscribersGroup.forEach((subscribers, listId) => {
       subcribeRequests.push(
         this.request(`${CONSTANTS.API_BASE_URL}/lists/subscribe`, {
