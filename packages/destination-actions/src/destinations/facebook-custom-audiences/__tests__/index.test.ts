@@ -33,7 +33,7 @@ describe('Facebook Custom Audiences', () => {
 
     it('should fail if no ad account ID is set', async () => {
       createAudienceInput.audienceName = 'The Void'
-      createAudienceInput.audienceSettings.engageAdAccountId = 0
+      createAudienceInput.audienceSettings.engageAdAccountId = ''
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
     })
 
