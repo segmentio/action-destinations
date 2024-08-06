@@ -75,7 +75,7 @@ describe('Facebook Custom Audiences', () => {
 
       payloads[0] = {
         email: 'haaron@braves.com',
-        phone: '555-555-5555',
+        phone: '89a0af94167fe6b92b614c681cc5599cd23ff45f7e9cc7929ed5fabe26842468', // pre-hashed phone: 555-555-5555
         name: {
           first: 'Henry',
           last: 'Aaron'
@@ -111,7 +111,7 @@ describe('Facebook Custom Audiences', () => {
         [
           '5', // external_id
           sha256SmartHash(normalizationFunctions.get('email')!(payloads[0].email || '')),
-          sha256SmartHash(normalizationFunctions.get('phone')!(payloads[0].phone || '')),
+          '89a0af94167fe6b92b614c681cc5599cd23ff45f7e9cc7929ed5fabe26842468',
           EMPTY, // gender
           EMPTY, // year
           EMPTY, // month
