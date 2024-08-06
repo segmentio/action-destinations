@@ -178,22 +178,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       if (ttl) {
-        const timeToLive = Number(ttl)
-        if (!timeToLive) {
-          throw new IntegrationError('TTL:-String can not be converted to Number', 'INVALID_TTL_VALUE', 400)
-        }
-        payload.metadata.ttl = timeToLive
+        payload.metadata.ttl = ttl
       }
 
       if (cpm_cents && currency) {
-        const cpmCents = Number(cpm_cents)
-        if (!cpmCents) {
-          throw new IntegrationError('CPM_CENTS:-String can not be converted to Number', 'INVALID_CPMCENTS_VALUE', 400)
-        }
         payload.metadata.audienceFees = []
         payload.metadata?.audienceFees.push({
           currency,
-          cpmCents: cpmCents
+          cpmCents: cpm_cents
         })
       }
 
