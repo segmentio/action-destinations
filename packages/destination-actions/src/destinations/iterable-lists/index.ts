@@ -59,8 +59,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const settings = createAudienceInput.settings
-      // @ts-ignore type is not defined, and we will define it later
-      const personasSettings = audienceSettings.personas
+      const personasSettings = createAudienceInput.personas
       if (!personasSettings) {
         throw new IntegrationError('Missing computation parameters: Key', 'MISSING_REQUIRED_FIELD', 422)
       }
