@@ -62,19 +62,14 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
     return
   }
 
-  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key)) {
+  const smartHash = new SmartHashing('sha256')
+
+  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key) || smartHash.isAlreadyHashed(value)) {
     row[index] = value
     return
   }
 
   const normalizationFunction = normalizationFunctions.get(key)
-  const smartHash = new SmartHashing('sha256')
-
-  if (smartHash.isAlreadyHashed(value)) {
-    row[index] = value
-    return
-  }
-
   if (!normalizationFunction) {
     throw new IntegrationError(`Normalization function not found for key: ${key}`, `cannot normalize ${key}`, 500)
   }
