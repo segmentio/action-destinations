@@ -342,7 +342,7 @@ export default class Salesforce {
     operation: string
   ): Promise<ModifiedResponse<unknown>> {
     // construct the CSV data to catch errors before creating a bulk job
-    const csv = buildCSVData(payloads, idField)
+    const csv = buildCSVData(payloads, idField, operation)
     const jobId = await this.createBulkJob(sobject, idField, operation)
     try {
       await this.uploadBulkCSV(jobId, csv)
