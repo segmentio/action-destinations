@@ -182,7 +182,10 @@ export const buildCSVData = (
   const headerMap = buildHeaderMap(payloads)
   let csv = buildHeaders(headerMap)
 
-  csv = csv.substring(0, csv.length - 1)
+  if (operation === 'create') {
+    // Remove the trailing comma, since there is no unique ID to append
+    csv = csv.substring(0, csv.length - 1)
+  }
 
   csv += `${uniqueIdName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length, operation)
 
