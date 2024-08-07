@@ -4,7 +4,6 @@ import type { Settings, AudienceSettings } from './generated-types'
 import {
   AudiencePayload,
   extractNumberAndSubstituteWithStringValue,
-  getAuthSettings,
   getAuthToken,
   REGEX_ADVERTISERID,
   REGEX_AUDIENCEID
@@ -198,10 +197,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
       }
 
-      // @ts-ignore - TS doesn't know about the oauth property
-      const authSettings = getAuthSettings(settings)
-      const authToken = await getAuthToken(request, createAudienceInput.settings, authSettings)
-
       let payloadString = JSON.stringify(payload)
       // Regular expression to find a advertiserId numeric string and replace the quoted advertiserId string with an unquoted number
       // AdvertiserId is very big number string and can not be assigned or converted to number directly as it changes the value due to integer overflow.
@@ -211,8 +206,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         method: 'POST',
         body: payloadString,
         headers: {
-          'Content-Type': 'application/vnd.amcaudiences.v1+json',
-          authorization: `Bearer ${authToken}`
+          'Content-Type': 'application/vnd.amcaudiences.v1+json'
         }
       })
 
@@ -229,18 +223,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audience_id = getAudienceInput.externalId
       const { settings } = getAudienceInput
       const endpoint = settings.region
-
       if (!audience_id) {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
-      // @ts-ignore - TS doesn't know about the oauth property
-      const authSettings = getAuthSettings(settings)
-      const authToken = await getAuthToken(request, settings, authSettings)
       const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
-        method: 'GET',
-        headers: {
-          authorization: `Bearer ${authToken}`
-        }
+        method: 'GET'
       })
       const res = await response.text()
       // Regular expression to find a audienceId number and replace the audienceId with quoted string
