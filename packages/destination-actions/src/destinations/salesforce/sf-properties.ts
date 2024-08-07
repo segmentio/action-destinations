@@ -147,41 +147,6 @@ export const traits: InputField = {
   }
 }
 
-export const traits2: InputField = {
-  label: 'Record Matchers',
-  description: `The fields used to find Salesforce records for updates. **This is required if the operation is Delete, Update or Upsert.**
-
-  Any field can function as a matcher, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
-
-  If multiple records are found, no changes will be made. **Please use fields that result in unique records.**
-
-  ---
-
-  `,
-  type: 'object',
-  defaultObjectUI: 'keyvalue:only',
-  depends_on: {
-    match: 'any',
-    conditions: [
-      {
-        type: 'syncMode',
-        operator: 'is',
-        value: 'update'
-      },
-      {
-        type: 'syncMode',
-        operator: 'is',
-        value: 'upsert'
-      },
-      {
-        type: 'syncMode',
-        operator: 'is',
-        value: 'delete'
-      }
-    ]
-  }
-}
-
 export const customFields: InputField = {
   label: 'Other Fields',
   description: `
@@ -288,17 +253,7 @@ export const hideIfDeleteSyncMode: DependsOnConditions = {
   conditions: [
     {
       type: 'syncMode',
-      operator: 'is',
-      value: 'update'
-    },
-    {
-      type: 'syncMode',
-      operator: 'is',
-      value: 'upsert'
-    },
-    {
-      type: 'syncMode',
-      operator: 'is',
+      operator: 'is_not',
       value: 'delete'
     }
   ]
