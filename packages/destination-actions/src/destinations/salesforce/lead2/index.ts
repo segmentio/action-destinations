@@ -33,8 +33,8 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   fields: {
     recordMatcherOperator2,
-    enable_batching2,
-    batch_size2,
+    enable_batching: enable_batching2,
+    batch_size: batch_size2,
     traits2,
     bulkUpsertExternalId2,
     bulkUpdateRecordId2,

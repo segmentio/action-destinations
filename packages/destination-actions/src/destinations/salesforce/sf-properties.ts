@@ -305,7 +305,7 @@ export const bulkUpsertExternalId2: InputField = {
         value: 'upsert'
       },
       {
-        fieldKey: 'enable_batching2',
+        fieldKey: 'enable_batching',
         operator: 'is',
         value: true
       }
@@ -326,7 +326,7 @@ export const bulkUpdateRecordId2: InputField = {
         value: 'update'
       },
       {
-        fieldKey: 'enable_batching2',
+        fieldKey: 'enable_batching',
         operator: 'is',
         value: true
       }
