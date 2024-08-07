@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
+import { validatePhoneNumber } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -92,6 +93,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
+    }
+
+    if (phone_number && !validatePhoneNumber(phone_number)) {
+      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
     }
 
     const eventData = {
