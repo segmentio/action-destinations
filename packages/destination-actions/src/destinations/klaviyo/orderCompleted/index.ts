@@ -37,10 +37,6 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
     return
   }
 
-  if (!payload.event_name || payload.event_name === undefined) {
-    payload.event_name = 'Order Completed'
-  }
-
   delete orderEventData.data.attributes.properties?.products
   const productPromises = payload.products.map((product) => {
     const productEventData = {
@@ -163,6 +159,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
+    }
+
+    if (!payload.event_name || payload.event_name === undefined || payload.event_name == '') {
+      payload.event_name = 'Order Completed'
     }
 
     const eventData = createEventData(payload)
