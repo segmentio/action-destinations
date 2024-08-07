@@ -14,6 +14,17 @@ interface SegmentProperty {
   stringFormat?: StringFormat
 }
 
+type SchemaMatch = 'full_match' | 'properties_missing' | 'no_match' | 'mismatch'
+
+interface SchemaDiff {
+  match: SchemaMatch,
+  fullyQualifiedName?: string,
+  name?: string,
+  missingProperties?: {
+    [key: string]: SegmentProperty
+  }
+}
+
 interface SegmentEventSchema {
   eventName: string
   properties: {
@@ -198,6 +209,144 @@ export class HubspotClient {
     return { eventName: sanitizedEventName, primaryObject: payload.record_details.object_type, properties: props }   
   }
 
+  async compareSchemaToCache(schema: SegmentEventSchema): Promise<SchemaDiff> {
+    // code to fetch from hubspot and compare schema
+    
+    const schemaDiff: SchemaDiff = {
+      match: 'no_match'
+    }
+
+    return Promise.resolve(schemaDiff)
+  }
+
+  async compareSchemaToHubspot(schema: SegmentEventSchema): Promise<SchemaDiff> {
+    
+    interface ResponseType {
+      data: ResultItem
+    }
+
+    interface ResultItem {
+      labels: {
+        singular: string | null
+        plural: string | null
+      }
+      archived: boolean
+      fullyQualifiedName: string
+      name: string
+      properties: Array<{
+        archived: boolean
+        label: string
+        name: string
+        type: string
+        displayOrder: number
+      }>
+    }
+
+    try{
+      const url = `${HUBSPOT_BASE_URL}/events/v3/event-definitions/${schema.eventName}/?includeProperties=true`
+      const response: ResponseType = await this.request(
+        url,
+        {
+          method: 'GET',
+          skipResponseCloning: true
+        }
+      )
+
+      const { fullyQualifiedName, name, properties, archived } = response.data
+      
+      if(archived){
+        return {
+          match: 'mismatch'
+        } as SchemaDiff
+      }
+
+      const missingProperties = properties.reduce<{[key: string]:HubspotProperty}>((acc, prop) => {
+        acc[prop.name] = {
+          type: prop.type as HubspotPropertyTypes
+        };
+        return acc
+      }, {})
+
+      return {
+        match: Object.keys(missingProperties).length === 0 ? 'full_match' : 'properties_missing',
+        fullyQualifiedName,
+        name,
+        missingProperties
+      } as SchemaDiff
+
+    } 
+    catch {
+      return {
+        match: 'no_match'
+      } as SchemaDiff
+    }
+  }
+
+  async saveSchemaToCache(fullyQualifiedName: string, name: string, schema: SegmentEventSchema) {
+    console.log(`saved schema to cache: ${fullyQualifiedName} ${name} ${JSON.stringify(schema)}`)
+    return 
+  }
+
+  async sendEvent(fullyQualifiedName: string, payload: Payload) {
+    const { record_details, properties, occurred_at: occurredAt } = payload
+    const eventName = fullyQualifiedName
+    const url = `${HUBSPOT_BASE_URL}/events/v3/send`
+    
+    const json = {
+      eventName,
+      objectId: record_details.record_id_value,
+      occurredAt,
+      properties: properties ? this.sanitizeProperties(properties) : undefined
+    }
+
+    await this.request(url, {
+      method: 'POST',
+      json
+    })
+  }
+
+  async send(payload: Payload) {
+    const schema = this.segmentSchema(payload)
+    const cacheSchemaDiff = await this.compareSchemaToCache(schema)
+
+    switch(cacheSchemaDiff.match){
+
+      case 'full_match':
+        await this.sendEvent(cacheSchemaDiff.fullyQualifiedName, payload) 
+        break
+
+      case 'mismatch':
+        throw new IntegrationError("Some sort of mismatch error happened. Unable to recover.", "CACHE_SCHEMA_MISMATCH", 400)
+
+      case 'no_match':
+      case 'properties_missing':
+        const hubspotSchemaDiff = await this.compareSchemaToHubspot(schema) 
+        switch(hubspotSchemaDiff.match){
+          case 'full_match':
+            await this.saveSchemaToCache(hubspotSchemaDiff.fullyQualifiedName, hubspotSchemaDiff.name, schema)
+            await this.sendEvent(cacheSchemaDiff.fullyQualifiedName, payload) 
+            break
+          case 'mismatch':
+            throw new IntegrationError("Some sort of mismatch error happened. Unable to recover.", "HUBSPOT_SCHEMA_MISMATCH", 400)
+          case 'no_match':
+            const newHubstpoSchema = await this.createHubspotSchema(schema)
+            await this.saveSchemaToCache(newHubstpoSchema.fullyQualifiedName, newHubstpoSchema.name, schema)
+            await this.sendEvent(cacheSchemaDiff.fullyQualifiedName, payload) 
+            break
+          case 'properties_missing':
+            await this.updateHubspotSchema(hubspotSchemaDiff.fullyQualifiedName, hubspotSchemaDiff.name, hubspotSchemaDiff.missingProperties)
+            await this.saveSchemaToCache(hubspotSchemaDiff.fullyQualifiedName, hubspotSchemaDiff.name, hubspotSchemaDiff.missingProperties)
+            await this.sendEvent(cacheSchemaDiff.fullyQualifiedName, payload) 
+            break
+        }
+        break
+    }
+  }
+
+
+
+
+
   async hubspotSchema(payload: Payload): Promise<HubspotEventSchema | undefined> {
     interface ResponseType {
       data: ResultItem
@@ -254,41 +403,41 @@ export class HubspotClient {
     }
   }
 
-  async ensureSchema(payload: Payload): Promise<boolean> {
-    const segmentSchema = this.segmentSchema(payload)
-    const hubspotSchema = await this.hubspotSchema(payload)
+  // async ensureSchema(payload: Payload): Promise<boolean> {
+  //   const segmentSchema = this.segmentSchema(payload)
+  //   const hubspotSchema = await this.hubspotSchema(payload)
 
-    if (hubspotSchema === undefined) {
+  //   if (hubspotSchema === undefined) {
       
-      await this.createSchema(segmentSchema)
-      return true
+  //     await this.createSchema(segmentSchema)
+  //     return true
     
-    } else {
+  //   } else {
       
-      const propertiesToCreate = Object.entries(segmentSchema.properties)
-        .filter(([name]) => {
-          return !hubspotSchema.properties[name]
-        })
-        .reduce<{[key: string]: SegmentProperty}>((acc, [name, value]) => {
-          acc[name] = value
-          return acc
-        }, {})
+  //     const propertiesToCreate = Object.entries(segmentSchema.properties)
+  //       .filter(([name]) => {
+  //         return !hubspotSchema.properties[name]
+  //       })
+  //       .reduce<{[key: string]: SegmentProperty}>((acc, [name, value]) => {
+  //         acc[name] = value
+  //         return acc
+  //       }, {})
 
-      if(Object.keys(propertiesToCreate).length > 0) {
-        const schemaToUpdate: SegmentEventSchemaWithFQN = {
-          eventName: segmentSchema.eventName,
-          properties: propertiesToCreate,
-          fullyQualifiedName: hubspotSchema.fullyQualifiedName,
-          name: hubspotSchema.name
-        }
-        await this.updateSchema(schemaToUpdate)
-        return true
+  //     if(Object.keys(propertiesToCreate).length > 0) {
+  //       const schemaToUpdate: SegmentEventSchemaWithFQN = {
+  //         eventName: segmentSchema.eventName,
+  //         properties: propertiesToCreate,
+  //         fullyQualifiedName: hubspotSchema.fullyQualifiedName,
+  //         name: hubspotSchema.name
+  //       }
+  //       await this.updateSchema(schemaToUpdate)
+  //       return true
 
-      } else {
-        return true
-      }
-    }
-  }
+  //     } else {
+  //       return true
+  //     }
+  //   }
+  // }
 
   async createSchema(schema: SegmentEventSchema) {
     interface HSCustomEventSchema {
@@ -380,7 +529,6 @@ export class HubspotClient {
           }
         }
       }
-      
     } catch (error) {
       const responseError = error as ErrorResponse
       throw new IntegrationError(
@@ -391,23 +539,23 @@ export class HubspotClient {
     }
   }
 
-  async sendEvent(payload: Payload) {
-    const { event_name, record_details, properties, occurred_at: occurredAt } = payload
-    const eventName = this.sanitizedEventName(event_name)
-    const url = `${HUBSPOT_BASE_URL}/events/v3/send`
+  // async sendEvent(payload: Payload) {
+  //   const { event_name, record_details, properties, occurred_at: occurredAt } = payload
+  //   const eventName = this.sanitizedEventName(event_name)
+  //   const url = `${HUBSPOT_BASE_URL}/events/v3/send`
     
-    const json = {
-      eventName,
-      objectId: record_details.record_id_value,
-      occurredAt,
-      properties: properties ? this.sanitizeProperties(properties) : undefined
-    }
+  //   const json = {
+  //     eventName,
+  //     objectId: record_details.record_id_value,
+  //     occurredAt,
+  //     properties: properties ? this.sanitizeProperties(properties) : undefined
+  //   }
 
-    console.log(json)
+  //   console.log(json)
 
-    await this.request(url, {
-      method: 'POST',
-      json
-    })
-  }
+  //   await this.request(url, {
+  //     method: 'POST',
+  //     json
+  //   })
+  // }
 }
