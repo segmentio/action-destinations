@@ -297,7 +297,7 @@ export const bulkUpsertExternalId2: InputField = {
     }
   },
   depends_on: {
-    match: 'any',
+    match: 'all',
     conditions: [
       {
         type: 'syncMode',

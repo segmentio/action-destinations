@@ -17,7 +17,7 @@ import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 const OBJECT_NAME = 'Lead'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Lead',
+  title: 'Lead V2',
   description: 'Create, update, or upsert leads in Salesforce.',
   defaultSubscription: 'type = "identify"',
   syncMode: {
