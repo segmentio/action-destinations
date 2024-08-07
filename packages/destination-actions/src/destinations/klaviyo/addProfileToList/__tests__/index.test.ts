@@ -86,6 +86,26 @@ describe('Add Profile To List', () => {
     ).rejects.toThrowError(AggregateAjvError)
   })
 
+  it('should throw an error for invalid phone number format', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      properties: {
+        phone: 'invalid-phone-number'
+      }
+    })
+    const mapping = {
+      list_id: listId,
+      phone_number: {
+        '@path': '$.properties.phone'
+      }
+    }
+
+    await expect(testDestination.testAction('addProfileToList', { event, mapping, settings })).rejects.toThrowError(
+      'invalid-phone-number is not a valid E.164 phone number.'
+    )
+  })
+
   it('should add profile to list successfully with email only', async () => {
     nock(`${API_URL}`)
       .post('/profiles/', profileData)
@@ -395,6 +415,50 @@ describe('Add Profile To List Batch', () => {
       list_id: listId,
       email: {
         '@path': '$.context.traits.email'
+      }
+    }
+
+    nock(API_URL).post('/profile-bulk-import-jobs/').reply(200, { success: true })
+
+    await testDestination.testBatchAction('addProfileToList', {
+      settings,
+      events,
+      mapping,
+      useDefaultMappings: true
+    })
+
+    // Check if createImportJobPayload was called with only the valid profile
+    expect(Functions.createImportJobPayload).toHaveBeenCalledWith(
+      [
+        {
+          batch_size: 10000,
+          list_id: listId,
+          email: 'valid@example.com',
+          enable_batching: true,
+          location: {}
+        }
+      ],
+      listId
+    )
+  })
+
+  it('should filter out invalid phone numbers', async () => {
+    const events = [
+      createTestEvent({
+        context: { personas: { list_id: '123' }, traits: { email: 'valid@example.com' } }
+      }),
+      createTestEvent({
+        context: { personas: {}, traits: { phone: 'invalid-phone-number' } }
+      })
+    ]
+
+    const mapping = {
+      list_id: listId,
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      phone_number: {
+        '@path': '$.context.traits.phone'
       }
     }
 

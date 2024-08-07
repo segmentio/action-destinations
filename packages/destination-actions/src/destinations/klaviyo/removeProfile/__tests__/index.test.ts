@@ -39,6 +39,29 @@ describe('Remove Profile', () => {
     )
   })
 
+  it('should throw an error for invalid phone number format', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      context: {
+        traits: {
+          phone: 'invalid-phone-number'
+        }
+      },
+      properties: {}
+    })
+
+    const mapping = {
+      list_id: listId,
+      phone_number: {
+        '@path': '$.context.traits.phone'
+      }
+    }
+
+    await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).rejects.toThrowError(
+      'invalid-phone-number is not a valid E.164 phone number.'
+    )
+  })
+
   it('should remove profile from list successfully with email address only', async () => {
     const mapping = { list_id: listId, email: 'test@example.com' }
     const requestBody = {
@@ -187,6 +210,59 @@ describe('Remove Profile Batch', () => {
   })
   afterEach(() => {
     jest.resetAllMocks()
+  })
+
+  it('should filter out profiles with invalid phone numbers', async () => {
+    const getProfilesMock = jest
+      .spyOn(Functions, 'getProfiles')
+      .mockImplementation(jest.fn())
+      .mockReturnValue(Promise.resolve(['XYZABC']))
+
+    const events = [
+      createTestEvent({
+        properties: {
+          email: 'user1@example.com'
+        }
+      }),
+      createTestEvent({
+        properties: {
+          phone: 'invalid-phone-number'
+        }
+      })
+    ]
+
+    const mapping = {
+      list_id: listId,
+      email: {
+        '@path': '$.properties.email'
+      },
+      phone_number: {
+        '@path': '$.properties.phone'
+      }
+    }
+
+    const requestBody = {
+      data: [
+        {
+          type: 'profile',
+          id: 'XYZABC'
+        }
+      ]
+    }
+
+    nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200)
+
+    await expect(
+      testDestination.testBatchAction('removeProfile', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
+
+    // Verify that the profile with invalid phone number was filtered out
+    expect(getProfilesMock).toHaveBeenCalledWith(expect.anything(), ['user1@example.com'], [], [])
+    getProfilesMock.mockRestore()
   })
 
   it('should remove multiple profiles with valid emails', async () => {

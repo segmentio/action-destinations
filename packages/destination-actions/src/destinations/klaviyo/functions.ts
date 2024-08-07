@@ -402,3 +402,9 @@ export async function processProfilesByGroup(request: RequestClient, groupedProf
   )
   return importResponses
 }
+
+export function validatePhoneNumber(phone?: string): boolean {
+  if (!phone) return true
+  const e164Regex = /^\+[1-9]\d{1,14}$/
+  return e164Regex.test(phone)
+}

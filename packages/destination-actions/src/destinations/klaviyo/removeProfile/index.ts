@@ -2,7 +2,7 @@ import { ActionDefinition, DynamicFieldResponse, PayloadValidationError } from '
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
-import { getListIdDynamicData, getProfiles, removeProfileFromList } from '../functions'
+import { getListIdDynamicData, getProfiles, removeProfileFromList, validatePhoneNumber } from '../functions'
 import { enable_batching } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -47,6 +47,9 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }
+    if (phone_number && !validatePhoneNumber(phone_number)) {
+      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
+    }
     const profileIds = await getProfiles(
       request,
       email ? [email] : undefined,
@@ -56,8 +59,13 @@ const action: ActionDefinition<Settings, Payload> = {
     return await removeProfileFromList(request, profileIds, list_id)
   },
   performBatch: async (request, { payload }) => {
-    // Filtering out profiles that do not contain either an email, phone_number or external_id.
-    const filteredPayload = payload.filter((profile) => profile.email || profile.external_id || profile.phone_number)
+    // Filtering out profiles that do not contain either an email, valid phone_number or external_id.
+    const filteredPayload = payload.filter((profile) => {
+      if (profile.phone_number && !validatePhoneNumber(profile.phone_number)) {
+        return false
+      }
+      return profile.email || profile.external_id || profile.phone_number
+    })
     const listId = filteredPayload[0]?.list_id
     const emails = filteredPayload.map((profile) => profile.email).filter((email) => email) as string[]
     const externalIds = filteredPayload
