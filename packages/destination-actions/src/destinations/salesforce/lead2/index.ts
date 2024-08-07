@@ -32,12 +32,12 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   fields: {
-    recordMatcherOperator: recordMatcherOperator2,
-    enable_batching: enable_batching2,
-    batch_size: batch_size2,
-    traits: traits2,
-    bulkUpsertExternalId: bulkUpsertExternalId2,
-    bulkUpdateRecordId: bulkUpdateRecordId2,
+    recordMatcherOperator2,
+    enable_batching2,
+    batch_size2,
+    traits2,
+    bulkUpsertExternalId2,
+    bulkUpdateRecordId2,
     company: {
       label: 'Company',
       description: "The lead's company. **This is required to create a lead.**",
@@ -155,7 +155,7 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       depends_on: hideIfDeleteSyncMode
     },
-    customFields: customFields2
+    customFields2
   },
   perform: async (request, { settings, payload, syncMode }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
