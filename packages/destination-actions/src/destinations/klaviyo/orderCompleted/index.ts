@@ -37,6 +37,10 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
     return
   }
 
+  if (!payload.event_name || payload.event_name === undefined) {
+    payload.event_name = 'Order Completed'
+  }
+
   delete orderEventData.data.attributes.properties?.products
   const productPromises = payload.products.map((product) => {
     const productEventData = {
