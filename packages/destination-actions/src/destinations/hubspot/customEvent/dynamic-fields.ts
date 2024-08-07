@@ -65,7 +65,7 @@ export async function dynamicReadEventNames(request: RequestClient) {
 export async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: { singular: string; plural: string }
-    fullyQualifiedName: string
+    name: string
   }
 
   interface ResponseType {
@@ -83,7 +83,7 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
     })
     const choices = response.data.results.map((schema) => ({
       label: `${schema.labels.plural} (Custom)`,
-      value: schema.fullyQualifiedName
+      value: schema.name
     }))
     return {
       choices: [...choices, ...defaultChoices].sort((a, b) => {

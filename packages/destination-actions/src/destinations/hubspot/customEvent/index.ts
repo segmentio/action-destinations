@@ -3,13 +3,13 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HubspotClient, SyncMode } from './hubspot-api'
 import { commonFields } from './common-fields'
+
 import {
   dynamicReadEventNames,
   dynamicReadObjectTypes,
   dynamicReadIdFields,
   dynamicReadProperties
 } from './dynamic-fields'
-import { properties } from 'src/destinations/klaviyo/properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
@@ -54,43 +54,35 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, syncMode }) => {
-    const payloads = [
-      payload,
-      { ...payload, event_name: 'pe23132826_custom_joe_event_999' },
-      { ...payload, event_name: 'test25', properties: {newstrprop:"hello", newprop:1234} },
-      { ...payload, event_name: 'test26', properties: {newstrprop:"hello"} },
-      { ...payload, event_name: 'test17', properties: { teststr: 'test', testbool:true, testnum: 1234, testdate: '2024-08-06T13:30:35.506Z', testdateonly: '2024-08-06T00:00:00.000Z', propjson: {"i_am": "json"}, proparray: [{"i_am": "array"},{"i_am": "array"}] } }
-    ]
 
-    await send(request, payloads, syncMode as SyncMode)
-  },
-  performBatch: async (request, { payload, syncMode }) => {
+    payload.record_details= {object_type: 'deal', object_id_field_name: 'deal_id', record_id_value: '1234'}
+    payload.event_name = 'x_100027'
+    payload.properties = { ubuntu4: 'test2', barkybary1443: 1234, dgdsesfddc: '2024-08-06T13:30:35.506Z', testdateonly: '2024-08-06T00:00:00.000Z', propjson: {"i_am": "json"}, proparray: [{"i_am": "array"},{"i_am": "array"}] } 
+
     await send(request, payload, syncMode as SyncMode)
   }
 }
 
-const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncMode) => {
+const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode) => {
+  
+  const hubspotClient = new HubspotClient(request, syncMode)
+  await hubspotClient.ensureSchema(payload)
+ 
+
+
   //const x = await dynamicReadProperties(request, 'pe23132826_company_updated')
 
   //const x = await dynamicReadEventNames(request)
 
-  //const x = await dynamicReadObjectTypes(request)
+  // const objtypes = await dynamicReadObjectTypes(request)
+
+  // console.log(JSON.stringify(objtypes, null, 2))
 
   //const x = await dynamicReadIdFields(request, 'p23132826_zoo_animals')
 
   //console.log(JSON.stringify(x, null, 2))
 
-  const hubspotClient = new HubspotClient(request, syncMode, payloads)
 
-  // const x = await hubspotClient.eventSchemasToCreate()
-
-  const x = await hubspotClient.schemasToCreateOrUpdate()
-
-  console.log(JSON.stringify(x.schemasToUpdate, null, 2))
-
-  //const y = await hubspotClient.updateEventSchemas(x.schemasToUpdate)
-
-  //const y = await hubspotClient.createEventSchemas(x.schemasToCreate)
 }
 
 export default action
