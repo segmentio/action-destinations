@@ -38,6 +38,7 @@ describe('Salesforce Utils', () => {
 
       expect(csv).toEqual(expected)
     })
+
     it('should correctly build a CSV from payloads with incomplete data', async () => {
       const incompletePayloads: GenericPayload[] = [
         {
