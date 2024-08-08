@@ -261,7 +261,7 @@ export default class Salesforce {
       return await this.bulkUpsert(payloads, sobject)
     } else if (syncMode === 'update') {
       return await this.bulkUpdate(payloads, sobject)
-    } else if (syncMode === 'create') {
+    } else if (syncMode === 'add') {
       return await this.bulkInsert(payloads, sobject)
     }
   }
