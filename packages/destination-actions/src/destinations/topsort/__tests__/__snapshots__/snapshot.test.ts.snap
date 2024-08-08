@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-topsort destination: click action - all fields 1`] = `
+Object {
+  "clicks": Array [
+    Object {
+      "id": "HcQS#[XM",
+      "occurredAt": "2021-02-01T00:00:00.000Z",
+      "opaqueUserId": "HcQS#[XM",
+      "resolvedBidId": "HcQS#[XM",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-topsort destination: click action - required fields 1`] = `
+Object {
+  "clicks": Array [
+    Object {
+      "id": "HcQS#[XM",
+      "occurredAt": "2021-02-01T00:00:00.000Z",
+      "opaqueUserId": "HcQS#[XM",
+      "resolvedBidId": "HcQS#[XM",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-topsort destination: impression action - all fields 1`] = `
+Object {
+  "impressions": Array [
+    Object {
+      "id": "ctHe]wEXIIMemt",
+      "occurredAt": "2021-02-01T00:00:00.000Z",
+      "opaqueUserId": "ctHe]wEXIIMemt",
+      "resolvedBidId": "ctHe]wEXIIMemt",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-topsort destination: impression action - required fields 1`] = `
+Object {
+  "impressions": Array [
+    Object {
+      "id": "ctHe]wEXIIMemt",
+      "occurredAt": "2021-02-01T00:00:00.000Z",
+      "opaqueUserId": "ctHe]wEXIIMemt",
+      "resolvedBidId": "ctHe]wEXIIMemt",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-topsort destination: purchase action - all fields 1`] = `
+Object {
+  "purchases": Array [
+    Object {
+      "id": "mN$[$E^aVGrIuacel",
+      "items": Array [
+        Object {
+          "productId": "mN$[$E^aVGrIuacel",
+          "quantity": 4817494787227648,
+          "unitPrice": 48174947872276.48,
+        },
+      ],
+      "occurredAt": "2021-02-01T00:00:00.000Z",
+      "opaqueUserId": "mN$[$E^aVGrIuacel",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-topsort destination: purchase action - required fields 1`] = `
+Object {
+  "purchases": Array [
+    Object {
+      "id": "mN$[$E^aVGrIuacel",
+      "items": Array [
+        Object {
+          "productId": "mN$[$E^aVGrIuacel",
+        },
+      ],
+      "occurredAt": "2021-02-01T00:00:00.000Z",
+      "opaqueUserId": "mN$[$E^aVGrIuacel",
+    },
+  ],
+}
+`;
