@@ -2,19 +2,23 @@
 
 export interface Payload {
   /**
-   * The email address of the user.
+   * Your company’s custom identifier for this user. This can be any unique ID, such as loyalty membership IDs, user IDs, and external cookie IDs.
+   */
+  externalId: string
+  /**
+   * User’s email (ex: foo@bar.com)
    */
   email?: string
   /**
-   * The phone number of the user.
+   * User’s phone number, including country code. Punctuation and spaces are ok (ex: 1-234-567-8910 or +44 844 412 4653)
    */
   phone?: string
   /**
-   * The gender of the user.
+   * User’s country. Use 2-letter country codes in ISO 3166-1 alpha-2 format.
    */
-  gender?: string
+  country?: string
   /**
-   * The date of birth of the user.
+   * User’s date of birth. Include as many fields as possible for better match rates (ex: year = YYYY, month = MM, day = DD)
    */
   birth?: {
     year?: string
@@ -22,7 +26,7 @@ export interface Payload {
     day?: string
   }
   /**
-   * The name of the user.
+   * User’s name. Include as many fields as possible for better match rates. Use a-z only. No punctuation. Special characters in UTF-8 format
    */
   name?: {
     first?: string
@@ -30,37 +34,33 @@ export interface Payload {
     firstInitial?: string
   }
   /**
-   * The city of the user
+   * User’s city. Use a-z only. No punctuation. No special characters.
    */
   city?: string
   /**
-   * The state of the user.
+   * User’s state. Use the 2-character ANSI abbreviation code, Normalize states outside the US with no punctuation and no special characters.
    */
   state?: string
   /**
-   * The postal code of the user.
+   * User’s postal code. For the US, use only the first 5 digits. For the UK, use the Area/District/Sector format.
    */
   zip?: string
   /**
-   * The country of the user.
+   * User’s gender (m for male, f for female)
    */
-  country?: string
+  gender?: string
   /**
-   * The mobile advertising ID of the user.
+   * User’s Apple IDFA, Android Ad ID, or Facebook app scoped ID. Keep hyphens (ex: AB1234CD-E123-12FG-J123)
    */
   mobileAdId?: string
   /**
-   * The external ID of the user.
+   * The app ID of the user.
    */
-  externalId?: string
+  appId?: string
   /**
-   * The app IDs of the user.
+   * The page ID of the user.
    */
-  appIds?: string[]
-  /**
-   * The page IDs of the user.
-   */
-  pageIds?: string[]
+  pageId?: string
   /**
    * Enable batching of requests.
    */
