@@ -19,7 +19,6 @@ describe('Segment', () => {
 
     it('should fail on authentication failure', async () => {
       nock(segmentEndpoint).get(/.*/).reply(401, {})
-
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError(
         new Error('Credentials are invalid: 401 Unauthorized')
       )
