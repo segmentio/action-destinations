@@ -4,7 +4,6 @@ import type { Payload } from './generated-types'
 import {
   bulkUpsertExternalId,
   bulkUpdateRecordId,
-  operation,
   traits,
   customFields,
   validateLookup,
@@ -14,13 +13,23 @@ import {
 } from '../sf-properties'
 import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 import { PayloadValidationError } from '@segment/actions-core'
-const OPERATIONS_WITH_CUSTOM_FIELDS = ['create', 'update', 'upsert']
+const OPERATIONS_WITH_CUSTOM_FIELDS = ['add', 'update', 'upsert']
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object',
   description: 'Create, update, or upsert records in any custom or standard object in Salesforce.',
+  syncMode: {
+    description: 'Define how the records from your destination will be synced.',
+    label: 'How to sync records',
+    default: 'add',
+    choices: [
+      { label: 'Insert Records', value: 'add' },
+      { label: 'Update Records', value: 'update' },
+      { label: 'Upsert Records', value: 'upsert' },
+      { label: 'Delete Records', value: 'delete' }
+    ]
+  },
   fields: {
-    operation: operation,
     recordMatcherOperator: recordMatcherOperator,
     enable_batching: enable_batching,
     batch_size: batch_size,
@@ -47,39 +56,47 @@ const action: ActionDefinition<Settings, Payload> = {
       return sf.customObjectName()
     }
   },
-  perform: async (request, { settings, payload }) => {
-    if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(payload.operation) && !payload.customFields) {
+  perform: async (request, { settings, payload, syncMode }) => {
+    if (!syncMode) {
+      throw new PayloadValidationError('Sync mode is required for this operation.')
+    }
+
+    if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(syncMode) && !payload.customFields) {
       throw new PayloadValidationError('Custom fields are required for this operation.')
     }
 
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    if (payload.operation === 'create') {
+    if (syncMode === 'add') {
       return await sf.createRecord(payload, payload.customObjectName)
     }
 
     validateLookup(payload)
 
-    if (payload.operation === 'update') {
+    if (syncMode === 'update') {
       return await sf.updateRecord(payload, payload.customObjectName)
     }
 
-    if (payload.operation === 'upsert') {
+    if (syncMode === 'upsert') {
       return await sf.upsertRecord(payload, payload.customObjectName)
     }
 
-    if (payload.operation === 'delete') {
+    if (syncMode === 'delete') {
       return await sf.deleteRecord(payload, payload.customObjectName)
     }
   },
-  performBatch: async (request, { settings, payload }) => {
-    if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(payload[0].operation) && !payload[0].customFields) {
+  performBatch: async (request, { settings, payload, syncMode }) => {
+    if (!syncMode) {
+      throw new PayloadValidationError('Sync mode is required for this operation.')
+    }
+
+    if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(syncMode) && !payload[0].customFields) {
       throw new PayloadValidationError('Custom fields are required for this operation.')
     }
 
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    return sf.bulkHandler(payload, payload[0].customObjectName)
+    return sf.bulkHandlerWithSyncMode(payload, payload[0].customObjectName, syncMode)
   }
 }
 
