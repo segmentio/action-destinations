@@ -42,6 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, syncMode }) => {
+    
     if (!payload.record_details.object_id && !payload.record_details.email && !payload.record_details.utk) {
       throw new PayloadValidationError('At least one of object_id, email or utk is required')
     }

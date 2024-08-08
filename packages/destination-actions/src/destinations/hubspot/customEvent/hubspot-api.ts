@@ -85,8 +85,12 @@ export class HubspotClient {
     return 'datetime'
   }
 
-  sanitizedEventName(eventName: string): string {
-    return eventName.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+  sanitizeEventName(str: string): string {
+    return str.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+  }
+
+  sanitizePropertyName(str: string): string {
+    return str.toLowerCase().replace(/[^a-z0-9_]/g, '_')
   }
 
   sanitizeProperties(properties: { [k: string]: unknown }): { [k: string]: string | number | boolean } {
@@ -94,7 +98,13 @@ export class HubspotClient {
 
     Object.keys(properties).forEach((key) => {
       const value = properties[key]
-      result[key] =
+      const propName = this.sanitizePropertyName(key)
+
+      if(!/^[a-z]/.test(propName)) {
+        throw new PayloadValidationError(`Property ${key} in event has an invalid name. Property names must start with a letter.`)
+      }
+
+      result[propName] =
         typeof value === 'object' && value !== null ? JSON.stringify(value) : (value as string | number | boolean)
     })
 
@@ -173,7 +183,7 @@ export class HubspotClient {
 
   segmentSchema(payload: Payload): SegmentEventSchema {
     const { event_name, properties } = payload
-    const sanitizedEventName = this.sanitizedEventName(event_name)
+    const sanitizedEventName = this.sanitizeEventName(event_name)
     const props: { [key: string]: SegmentProperty } = {}
 
     if (properties) {
@@ -296,6 +306,9 @@ export class HubspotClient {
   }
 
   async send(payload: Payload) {
+
+    payload.properties = this.sanitizeProperties(payload.properties ?? {})
+
     const schema = this.segmentSchema(payload)
     const cacheSchemaDiff = await this.compareSchemaToCache(schema)
 
@@ -326,7 +339,7 @@ export class HubspotClient {
           case 'no_match': {
             if (this.syncMode === 'update') {
               throw new IntegrationError(
-                `The 'Sync Mode' setting is set to 'update,' which is stopping Segment from creating a new Custom Event Schema in the HubSpot`,
+                `The 'Sync Mode' setting is set to 'update' which is stopping Segment from creating a new Custom Event Schema in the HubSpot`,
                 'HUBSPOT_SCHEMA_MISSING',
                 400
               )
@@ -343,7 +356,7 @@ export class HubspotClient {
           case 'properties_missing': {
             if (this.syncMode === 'add') {
               throw new IntegrationError(
-                `The 'Sync Mode' setting is set to 'add,' which is stopping Segment from creating a new properties on the Event Schema in the HubSpot`,
+                `The 'Sync Mode' setting is set to 'add' which is stopping Segment from creating a new properties on the Event Schema in the HubSpot`,
                 'HUBSPOT_SCHEMA_PROPERTIES_MISSING',
                 400
               )
