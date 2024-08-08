@@ -167,3 +167,19 @@ export const products: InputField = {
     ]
   }
 }
+
+export const enable_batching: InputField = {
+  label: 'Enable Batching',
+  description: 'Enable batching of event data to Optimizely.',
+  type: 'boolean',
+  default: true,
+  unsafe_hidden: true
+}
+
+export const batch_size: InputField = {
+  label: 'Batch Size',
+  description: 'Number of events to batch before sending to Optimizely.',
+  type: 'integer',
+  default: 100,
+  unsafe_hidden: true
+}

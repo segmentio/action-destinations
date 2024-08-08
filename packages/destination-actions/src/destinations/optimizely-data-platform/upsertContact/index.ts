@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_identifiers } from '../fields'
+import { batch_size, enable_batching, user_identifiers } from '../fields'
 import { hosts, getDOBDetails } from '../utils'
 import { RequestClient } from '@segment/actions-core'
 
@@ -38,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
     'Send user profile data from Segment to Optimizely Data Platform. Creates or updates a user profile in Optimzely Data Platform',
   defaultSubscription: 'type = "identify"',
   fields: {
-    user_identifiers: user_identifiers,
+    user_identifiers,
     company: {
       label: 'Company Name',
       type: 'string',
@@ -143,7 +143,9 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       defaultObjectUI: 'keyvalue',
       description: 'Additional user profile details'
-    }
+    },
+    enable_batching,
+    batch_size
   },
   perform: (request, { payload, settings }) => {
     return sendRequest(request, [payload], settings)

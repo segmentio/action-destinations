@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_identifiers, event_type, event_action, data, timestamp } from '../fields'
+import { user_identifiers, event_type, event_action, data, timestamp, enable_batching, batch_size } from '../fields'
 import { hosts } from '../utils'
 import { RequestClient } from '@segment/actions-core'
 
@@ -28,11 +28,13 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
   description: 'Send Segment custom track() events to Optimizely Data Platform',
   fields: {
-    user_identifiers: user_identifiers,
-    event_type: { ...event_type },
-    event_action: { ...event_action },
-    data: { ...data },
-    timestamp: { ...timestamp }
+    user_identifiers,
+    event_type,
+    event_action,
+    data,
+    timestamp,
+    enable_batching,
+    batch_size
   },
   perform: (request, { payload, settings }) => {
     return sendRequest(request, [payload], settings)
