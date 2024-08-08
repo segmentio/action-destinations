@@ -5,7 +5,6 @@ import {
   bulkUpsertExternalId,
   bulkUpdateRecordId,
   customFields,
-  operation,
   traits,
   validateLookup,
   enable_batching,
@@ -20,8 +19,18 @@ const OBJECT_NAME = 'Case'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Case',
   description: 'Create, update, or upsert cases in Salesforce.',
+  syncMode: {
+    description: 'Define how the records from your destination will be synced.',
+    label: 'How to sync records',
+    default: 'add',
+    choices: [
+      { label: 'Insert Records', value: 'add' },
+      { label: 'Update Records', value: 'update' },
+      { label: 'Upsert Records', value: 'upsert' },
+      { label: 'Delete Records', value: 'delete' }
+    ]
+  },
   fields: {
-    operation: operation,
     recordMatcherOperator: recordMatcherOperator,
     enable_batching: enable_batching,
     batch_size: batch_size,
@@ -36,31 +45,31 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customFields: customFields
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, syncMode }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    if (payload.operation === 'create') {
+    if (syncMode === 'add') {
       return await sf.createRecord(payload, OBJECT_NAME)
     }
 
     validateLookup(payload)
 
-    if (payload.operation === 'update') {
+    if (syncMode === 'update') {
       return await sf.updateRecord(payload, OBJECT_NAME)
     }
 
-    if (payload.operation === 'upsert') {
+    if (syncMode === 'upsert') {
       return await sf.upsertRecord(payload, OBJECT_NAME)
     }
 
-    if (payload.operation === 'delete') {
+    if (syncMode === 'delete') {
       return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, syncMode }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    return sf.bulkHandler(payload, OBJECT_NAME)
+    return sf.bulkHandlerWithSyncMode(payload, OBJECT_NAME, syncMode)
   }
 }
 

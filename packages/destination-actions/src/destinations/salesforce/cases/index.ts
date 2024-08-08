@@ -39,7 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    if (payload.operation === 'create') {
+    if (payload.operation === 'add') {
       return await sf.createRecord(payload, OBJECT_NAME)
     }
 
