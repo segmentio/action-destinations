@@ -37,7 +37,13 @@ export const commonFields: Record<string, InputField> = {
         type: 'string',
         required: false,
         format: 'email',
-        default: { '@path': '$.properties.email' }
+        default: {
+          '@if': {
+            exists: { '@path': '$.properties.email' },
+            then: { '@path': '$.properties.email' },
+            else: { '@path': '$.context.traits.email' }
+          }
+        }
       },
       utk: {
         label: 'User Token / UTK',
