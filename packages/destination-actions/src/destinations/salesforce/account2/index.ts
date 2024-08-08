@@ -5,7 +5,6 @@ import {
   bulkUpsertExternalId,
   bulkUpdateRecordId,
   customFields,
-  operation,
   traits,
   validateLookup,
   enable_batching,
@@ -21,8 +20,18 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Account',
   description: 'Create, update, or upsert accounts in Salesforce.',
   defaultSubscription: 'type = "group"',
+  syncMode: {
+    description: 'Define how the records from your destination will be synced.',
+    label: 'How to sync records',
+    default: 'add',
+    choices: [
+      { label: 'Insert Records', value: 'add' },
+      { label: 'Update Records', value: 'update' },
+      { label: 'Upsert Records', value: 'upsert' },
+      { label: 'Delete Records. Not available when using batching. Requests will result in errors.', value: 'delete' }
+    ]
+  },
   fields: {
-    operation: operation,
     enable_batching: enable_batching,
     batch_size: batch_size,
     recordMatcherOperator: recordMatcherOperator,
@@ -197,10 +206,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customFields: customFields
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, syncMode }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    if (payload.operation === 'create') {
+    if (syncMode === 'add') {
       if (!payload.name) {
         throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
       }
@@ -209,31 +218,31 @@ const action: ActionDefinition<Settings, Payload> = {
 
     validateLookup(payload)
 
-    if (payload.operation === 'update') {
+    if (syncMode === 'update') {
       return await sf.updateRecord(payload, OBJECT_NAME)
     }
 
-    if (payload.operation === 'upsert') {
+    if (syncMode === 'upsert') {
       if (!payload.name) {
         throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
       }
       return await sf.upsertRecord(payload, OBJECT_NAME)
     }
 
-    if (payload.operation === 'delete') {
+    if (syncMode === 'delete') {
       return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, syncMode }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    if (payload[0].operation === 'upsert') {
+    if (syncMode === 'upsert') {
       if (!payload[0].name) {
         throw new IntegrationError('Missing name value', 'Misconfigured required field', 400)
       }
     }
 
-    return sf.bulkHandler(payload, OBJECT_NAME)
+    return sf.bulkHandlerWithSyncMode(payload, OBJECT_NAME, syncMode)
   }
 }
 
