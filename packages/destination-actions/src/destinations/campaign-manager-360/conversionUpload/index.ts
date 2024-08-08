@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { validatePayloads } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Upload',
@@ -22,13 +23,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Floodlight Activity ID',
       description: 'The Floodlight activity ID associated with the conversion.',
       type: 'string',
-      required: true
+      required: false
     },
     floodlightConfigurationId: {
       label: 'Floodlight Configuration ID',
       description: 'The Floodlight configuration ID associated with the conversion.',
       type: 'string',
-      required: true
+      required: false
     },
     ordinal: {
       label: 'Ordinal',
@@ -61,12 +62,35 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: (request, data) => {
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+  perform: async (request, { settings, payload }) => {
+    const conversionsBatchInsertRequest = validatePayloads([payload], settings)
+    const response = await request(
+      `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/conversions/batchinsert`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Host: 'dfareporting.googleapis.com'
+        },
+        json: conversionsBatchInsertRequest
+      }
+    )
+    return response
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const conversionsBatchInsertRequest = validatePayloads(payload, settings)
+    const response = await request(
+      `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/conversions/batchinsert`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Host: 'dfareporting.googleapis.com'
+        },
+        json: conversionsBatchInsertRequest
+      }
+    )
+    return response
   }
 }
 
