@@ -11,6 +11,8 @@ import { authenticateWithPassword } from './sf-operations'
 
 import lead2 from './lead2'
 
+import customObject2 from './customObject2'
+
 import cases2 from './cases2'
 
 interface RefreshTokenResponse {
@@ -124,6 +126,7 @@ const destination: DestinationDefinition<Settings> = {
     opportunity,
     account,
     lead2,
+    customObject2,
     cases2
   }
 }

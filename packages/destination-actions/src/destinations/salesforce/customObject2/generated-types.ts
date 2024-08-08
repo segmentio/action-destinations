@@ -45,6 +45,10 @@ export interface Payload {
    */
   bulkUpdateRecordId?: string
   /**
+   * The API name of the Salesforce object that records will be added or updated within. This can be a standard or custom object. Custom objects must be predefined in your Salesforce account and should end with "__c".
+   */
+  customObjectName: string
+  /**
    *
    *   Additional fields to send to Salesforce. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
    *
@@ -57,40 +61,4 @@ export interface Payload {
   customFields?: {
     [k: string]: unknown
   }
-  /**
-   * The lead's company. **This is required to create a lead.**
-   */
-  company?: string
-  /**
-   * The lead's last name. **This is required to create a lead.**
-   */
-  last_name?: string
-  /**
-   * The lead's first name.
-   */
-  first_name?: string
-  /**
-   * The lead's email address.
-   */
-  email?: string
-  /**
-   * City for the lead's address.
-   */
-  city?: string
-  /**
-   * Postal code for the lead's address.
-   */
-  postal_code?: string
-  /**
-   * Country for the lead's address.
-   */
-  country?: string
-  /**
-   * Street number and name for the lead's address.
-   */
-  street?: string
-  /**
-   * State for the lead's address.
-   */
-  state?: string
 }
