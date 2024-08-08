@@ -106,7 +106,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    return sf.bulkHandler(payload, OBJECT_NAME)
+    return sf.bulkHandlerWithSyncMode(payload, OBJECT_NAME, syncMode)
   }
 }
 

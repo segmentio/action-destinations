@@ -386,5 +386,103 @@ describe('Salesforce', () => {
         `"{\\"CloseDate\\":\\"2022-02-18T22:26:24.997Z\\",\\"Name\\":\\"Opportunity Test Name updated\\",\\"StageName\\":\\"Opportunity stage name\\"}"`
       )
     })
+
+    describe('batching', () => {
+      it('should fail if delete is set as syncMode', async () => {
+        const event = createTestEvent({
+          type: 'track',
+          event: 'Create Opportunity',
+          properties: {
+            close_date: '2022-02-18T22:26:24.997Z',
+            name: 'Opportunity Test Name',
+            stage_name: 'Opportunity stage name'
+          }
+        })
+
+        await expect(async () => {
+          await testDestination.testBatchAction('opportunity2', {
+            events: [event],
+            settings,
+            mapping: {
+              enable_batching: true,
+              __segment_internal_sync_mode: 'delete',
+              close_date: {
+                '@path': '$.properties.close_date'
+              },
+              name: {
+                '@path': '$.properties.name'
+              },
+              stage_name: {
+                '@path': '$.properties.stage_name'
+              }
+            },
+            auth
+          })
+        }).rejects.toThrowErrorMatchingInlineSnapshot(
+          `"Unsupported operation: Bulk API does not support the delete operation"`
+        )
+      })
+    })
+
+    it('should fail if syncMode is undefined', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Opportunity',
+        properties: {
+          close_date: '2022-02-18T22:26:24.997Z',
+          name: 'Opportunity Test Name',
+          stage_name: 'Opportunity stage name'
+        }
+      })
+
+      await expect(async () => {
+        await testDestination.testBatchAction('opportunity2', {
+          events: [event],
+          settings,
+          mapping: {
+            enable_batching: true,
+            close_date: {
+              '@path': '$.properties.close_date'
+            },
+            name: {
+              '@path': '$.properties.name'
+            },
+            stage_name: {
+              '@path': '$.properties.stage_name'
+            }
+          },
+          auth
+        })
+      }).rejects.toThrowErrorMatchingInlineSnapshot(`"syncMode is required"`)
+    })
+
+    it('should fail if the operation does not have name field and sync mode is upsert', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Opportunity',
+        properties: {}
+      })
+
+      await expect(async () => {
+        await testDestination.testBatchAction('opportunity2', {
+          events: [event],
+          settings,
+          mapping: {
+            enable_batching: true,
+            __segment_internal_sync_mode: 'upsert',
+            close_date: {
+              '@path': '$.properties.close_date'
+            },
+            name: {
+              '@path': '$.properties.name'
+            },
+            stage_name: {
+              '@path': '$.properties.stage_name'
+            }
+          },
+          auth
+        })
+      }).rejects.toThrowErrorMatchingInlineSnapshot(`"Missing close_date, name or stage_name value"`)
+    })
   })
 })
