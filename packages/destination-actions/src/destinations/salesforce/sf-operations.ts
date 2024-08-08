@@ -240,6 +240,32 @@ export default class Salesforce {
     }
   }
 
+  bulkHandlerWithSyncMode = async (payloads: GenericPayload[], sobject: string, syncMode: string | undefined) => {
+    if (!payloads[0].enable_batching) {
+      throwBulkMismatchError()
+    }
+
+    if (syncMode === undefined) {
+      throw new IntegrationError('syncMode is required', 'Undefined syncMode', 400)
+    }
+
+    if (syncMode === 'delete') {
+      throw new IntegrationError(
+        `Unsupported operation: Bulk API does not support the delete operation`,
+        'Unsupported operation',
+        400
+      )
+    }
+
+    if (syncMode === 'upsert') {
+      return await this.bulkUpsert(payloads, sobject)
+    } else if (syncMode === 'update') {
+      return await this.bulkUpdate(payloads, sobject)
+    } else if (syncMode === 'add') {
+      return await this.bulkInsert(payloads, sobject)
+    }
+  }
+
   customObjectName = async (): Promise<DynamicFieldResponse> => {
     try {
       const result = await this.request<SObjectsResponseData>(
