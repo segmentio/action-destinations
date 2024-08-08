@@ -27,7 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
       { label: 'Insert Records', value: 'add' },
       { label: 'Update Records', value: 'update' },
       { label: 'Upsert Records', value: 'upsert' },
-      { label: 'Delete Records', value: 'delete' }
+      { label: 'Delete Records. Not available when using batching. Requests will result in errors.', value: 'delete' }
     ]
   },
   fields: {
