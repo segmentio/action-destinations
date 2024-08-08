@@ -2,15 +2,15 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 import {
-  bulkUpsertExternalId,
-  bulkUpdateRecordId,
-  customFields,
-  traits,
-  validateLookup,
-  enable_batching,
-  recordMatcherOperator,
-  batch_size,
-  hideIfDeleteOperation
+  bulkUpsertExternalId2,
+  bulkUpdateRecordId2,
+  customFields2,
+  traits2,
+  validateLookup2,
+  enable_batching2,
+  recordMatcherOperator2,
+  batch_size2,
+  hideIfDeleteSyncMode
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -31,44 +31,44 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   fields: {
-    recordMatcherOperator: recordMatcherOperator,
-    enable_batching: enable_batching,
-    batch_size: batch_size,
-    traits: traits,
-    bulkUpsertExternalId: bulkUpsertExternalId,
-    bulkUpdateRecordId: bulkUpdateRecordId,
+    recordMatcherOperator: recordMatcherOperator2,
+    enable_batching: enable_batching2,
+    batch_size: batch_size2,
+    traits: traits2,
+    bulkUpsertExternalId: bulkUpsertExternalId2,
+    bulkUpdateRecordId: bulkUpdateRecordId2,
     close_date: {
       label: 'Close Date',
       description:
         'Date when the opportunity is expected to close. Use yyyy-MM-dd format. **This is required to create an opportunity.**',
       type: 'string',
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     name: {
       label: 'Name',
       description: 'A name for the opportunity. **This is required to create an opportunity.**',
       type: 'string',
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     stage_name: {
       label: 'Stage Name',
       description: 'Current stage of the opportunity. **This is required to create an opportunity.**',
       type: 'string',
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     amount: {
       label: 'Amount',
       description: 'Estimated total sale amount.',
       type: 'string',
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     description: {
       label: 'Description',
       description: 'A text description of the opportunity.',
       type: 'string',
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
-    customFields: customFields
+    customFields: customFields2
   },
   perform: async (request, { settings, payload, syncMode }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
@@ -80,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.createRecord(payload, OBJECT_NAME)
     }
 
-    validateLookup(payload)
+    validateLookup2(syncMode, payload)
 
     if (syncMode === 'update') {
       return await sf.updateRecord(payload, OBJECT_NAME)
