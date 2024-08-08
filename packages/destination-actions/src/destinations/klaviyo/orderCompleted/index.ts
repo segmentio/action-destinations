@@ -19,7 +19,7 @@ const createEventData = (payload: Payload) => ({
         data: {
           type: 'metric',
           attributes: {
-            name: 'Order Completed'
+            name: payload.event_name
           }
         }
       },
@@ -50,7 +50,7 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
             data: {
               type: 'metric',
               attributes: {
-                name: 'Ordered Product'
+                name: payload.event_name
               }
             }
           },
@@ -146,6 +146,12 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'List of products purchased in the order.',
       multiple: true,
       type: 'object'
+    },
+    event_name: {
+      label: 'Event Name',
+      description: 'Name of the event. This will be used as the metric name in Klaviyo.',
+      default: 'Order Completed',
+      type: 'string'
     }
   },
 
@@ -158,6 +164,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (phone_number && !validatePhoneNumber(phone_number)) {
       throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
+    }
+
+    if (!payload.event_name) {
+      payload.event_name = 'Order Completed'
     }
 
     const eventData = createEventData(payload)

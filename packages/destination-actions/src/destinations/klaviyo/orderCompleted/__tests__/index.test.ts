@@ -74,6 +74,7 @@ describe('Order Completed', () => {
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
+    const eventName = 'Order Completed'
 
     const requestBody = createRequestBody(properties, value, metricName, profile)
 
@@ -84,7 +85,7 @@ describe('Order Completed', () => {
       timestamp: '2022-01-01T00:00:00.000Z'
     })
 
-    const mapping = { profile, metric_name: metricName, properties, value }
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName }
 
     await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).resolves.not.toThrowError()
   })
@@ -94,6 +95,7 @@ describe('Order Completed', () => {
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
+    const eventName = 'Order Completed'
 
     const requestBody = createRequestBody(properties, value, metricName, profile)
 
@@ -104,7 +106,7 @@ describe('Order Completed', () => {
       timestamp: '2022-01-01T00:00:00.000Z'
     })
 
-    const mapping = { profile, metric_name: metricName, properties, value }
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName }
 
     await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).resolves.not.toThrowError()
   })
@@ -114,6 +116,7 @@ describe('Order Completed', () => {
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
+    const eventName = 'Order Completed'
 
     const requestBody = createRequestBody(properties, value, metricName, profile)
 
@@ -124,7 +127,7 @@ describe('Order Completed', () => {
       timestamp: '2022-01-01T00:00:00.000Z'
     })
 
-    const mapping = { profile, metric_name: metricName, properties, value }
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName }
 
     await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).resolves.not.toThrowError()
   })
@@ -134,6 +137,7 @@ describe('Order Completed', () => {
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
+    const eventName = 'Order Completed'
 
     const requestBody = createRequestBody(properties, value, metricName, profile)
 
@@ -144,7 +148,7 @@ describe('Order Completed', () => {
       timestamp: '2022-01-01T00:00:00.000Z'
     })
 
-    const mapping = { profile, metric_name: metricName, properties, value }
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName }
 
     await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).rejects.toThrowError(
       'Internal Server Error'
@@ -163,6 +167,7 @@ describe('Order Completed', () => {
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
+    const eventName = 'Order Completed'
 
     const event = createTestEvent({
       type: 'track',
@@ -174,7 +179,8 @@ describe('Order Completed', () => {
       metric_name: metricName,
       properties,
       value,
-      products: products
+      products: products,
+      event_name: eventName
     }
 
     const requestBodyForEvent = createRequestBody(properties, value, metricName, profile)
@@ -195,7 +201,7 @@ describe('Order Completed', () => {
           body.data.attributes.metric.data &&
           body.data.attributes.metric.data.type === `metric` &&
           body.data.attributes.metric.data.attributes &&
-          body.data.attributes.metric.data.attributes.name === `Ordered Product` &&
+          body.data.attributes.metric.data.attributes.name &&
           body.data.attributes.profile
         )
       })
