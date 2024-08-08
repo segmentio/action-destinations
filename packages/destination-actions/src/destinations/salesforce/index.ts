@@ -14,6 +14,7 @@ import cases2 from './cases2'
 import customObject2 from './customObject2'
 import account2 from './account2'
 import opportunity2 from './opportunity2'
+import contact2 from './contact2'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -106,7 +107,8 @@ const destination: DestinationDefinition<Settings> = {
     cases2,
     customObject2,
     account2,
-    opportunity2
+    opportunity2,
+    contact2
   }
 }
 
