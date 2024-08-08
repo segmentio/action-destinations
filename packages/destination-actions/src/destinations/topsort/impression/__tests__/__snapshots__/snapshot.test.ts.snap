@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Topsort's impression destination action: all fields 1`] = `
+Object {
+  "impressions": Array [
+    Object {
+      "id": "13(ufD",
+      "occurredAt": "2021-02-01T00:00:00.000Z",
+      "opaqueUserId": "13(ufD",
+      "resolvedBidId": "13(ufD",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Topsort's impression destination action: required fields 1`] = `
+Object {
+  "impressions": Array [
+    Object {
+      "id": "13(ufD",
+      "occurredAt": "2021-02-01T00:00:00.000Z",
+      "opaqueUserId": "13(ufD",
+      "resolvedBidId": "13(ufD",
+    },
+  ],
+}
+`;
