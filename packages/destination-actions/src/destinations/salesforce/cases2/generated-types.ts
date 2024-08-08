@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * The Salesforce operation performed. The available operations are Create, Delete, Update or Upsert records in Salesforce.
-   */
-  operation: string
-  /**
    * This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the "OR" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to "AND".
    */
   recordMatcherOperator?: string
