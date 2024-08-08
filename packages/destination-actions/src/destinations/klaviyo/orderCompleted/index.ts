@@ -161,7 +161,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
     }
 
-    if (!payload.event_name || payload.event_name === undefined || payload.event_name == '') {
+    if (!payload.event_name) {
       payload.event_name = 'Order Completed'
     }
 
