@@ -1,15 +1,10 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HubspotClient, SyncMode } from './hubspot-api'
 import { commonFields } from './common-fields'
 
-import {
-  dynamicReadEventNames,
-  dynamicReadObjectTypes,
-  dynamicReadIdFields,
-  dynamicReadProperties
-} from './dynamic-fields'
+import { dynamicReadEventNames, dynamicReadObjectTypes, dynamicReadProperties } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
@@ -34,13 +29,6 @@ const action: ActionDefinition<Settings, Payload> = {
     record_details: {
       object_type: async (request) => {
         return await dynamicReadObjectTypes(request)
-      },
-      object_id_field_name: async (request, { payload }) => {
-        const objectType = payload?.record_details?.object_type
-        if (!objectType) {
-          throw new Error("Select from 'Object Type' first")
-        }
-        return await dynamicReadIdFields(request, objectType)
       }
     },
     properties: {
@@ -54,35 +42,23 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, syncMode }) => {
+    console.log(await dynamicReadEventNames(request))
 
-    payload.record_details= {object_type: 'deal', object_id_field_name: 'deal_id', record_id_value: '1234'}
-    payload.event_name = 'x_100027'
-    payload.properties = { ubuntu4: 'test2', barkybary1443: 1234, dgdsesfddc: '2024-08-06T13:30:35.506Z', testdateonly: '2024-08-06T00:00:00.000Z', propjson: {"i_am": "json"}, proparray: [{"i_am": "array"},{"i_am": "array"}] } 
+    if (!payload.record_details.object_id && !payload.record_details.email && !payload.record_details.utk) {
+      throw new PayloadValidationError('At least one of object_id, email or utk is required')
+    }
 
-    await send(request, payload, syncMode as SyncMode)
+    if (payload.record_details.email && payload.record_details.object_type !== 'contact') {
+      throw new PayloadValidationError('Email can only be used to associate an event with a Contacts object')
+    }
+
+    if (payload.record_details.utk && payload.record_details.object_type !== 'contact') {
+      throw new PayloadValidationError('User Token can only be used to associate an event with a Contacts object')
+    }
+
+    const hubspotClient = new HubspotClient(request, syncMode as SyncMode)
+    await hubspotClient.send(payload)
   }
-}
-
-const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode) => {
-  
-  const hubspotClient = new HubspotClient(request, syncMode)
-  await hubspotClient.ensureSchema(payload)
- 
-
-
-  //const x = await dynamicReadProperties(request, 'pe23132826_company_updated')
-
-  //const x = await dynamicReadEventNames(request)
-
-  // const objtypes = await dynamicReadObjectTypes(request)
-
-  // console.log(JSON.stringify(objtypes, null, 2))
-
-  //const x = await dynamicReadIdFields(request, 'p23132826_zoo_animals')
-
-  //console.log(JSON.stringify(x, null, 2))
-
-
 }
 
 export default action

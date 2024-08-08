@@ -1,5 +1,4 @@
 import { InputField } from '@segment/actions-core'
-import { MAX_HUBSPOT_BATCH_SIZE } from './constants'
 
 export const commonFields: Record<string, InputField> = {
   event_name: {
@@ -24,18 +23,27 @@ export const commonFields: Record<string, InputField> = {
         required: true,
         dynamic: true
       },
-      object_id_field_name: {
-        label: 'Object ID Field Name',
-        description: 'The name of the ID field for the record.',
+      object_id: {
+        label: 'Object ID',
+        description:
+          'The Object ID of the object to associate the event with. For example a contact id or a visitor id value. Works for Contacts, Companies, Deals, Tickets and Custom Objects.',
         type: 'string',
-        required: true,
-        dynamic: true
+        required: false
       },
-      record_id_value: {
-        label: 'Record ID Value',
-        description: 'The ID value for the record.',
+      email: {
+        label: 'Email Address',
+        description:
+          'The email address of the Contact to associate the event with. This field only works for Contact objects.',
         type: 'string',
-        required: true
+        required: false,
+        format: 'email',
+        default: { '@path': '$.properties.email' }
+      },
+      utk: {
+        label: 'User Token / UTK',
+        description: 'The user token of the Contact to associate the event with.',
+        type: 'string',
+        required: false
       }
     }
   },
@@ -56,20 +64,5 @@ export const commonFields: Record<string, InputField> = {
     default: {
       '@path': '$.timestamp'
     }
-  },
-  enable_batching: {
-    type: 'boolean',
-    label: 'Batch Data to Hubspot by default',
-    description: 'By default Segment batches events to Hubspot.',
-    default: true,
-    unsafe_hidden: true
-  },
-  batch_size: {
-    label: 'Batch Size',
-    description: 'Maximum number of events to include in each batch.',
-    type: 'number',
-    required: true,
-    unsafe_hidden: true,
-    default: MAX_HUBSPOT_BATCH_SIZE
   }
 }

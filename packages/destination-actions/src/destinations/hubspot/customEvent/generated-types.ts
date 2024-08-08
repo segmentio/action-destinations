@@ -14,13 +14,17 @@ export interface Payload {
      */
     object_type: string
     /**
-     * The name of the ID field for the record.
+     * The Object ID of the object to associate the event with. For example a contact id or a visitor id value. Works for Contacts, Companies, Deals, Tickets and Custom Objects.
      */
-    object_id_field_name: string
+    object_id?: string
     /**
-     * The ID value for the record.
+     * The email address of the Contact to associate the event with. This field only works for Contact objects.
      */
-    record_id_value: string
+    email?: string
+    /**
+     * The user token of the Contact to associate the event with.
+     */
+    utk?: string
   }
   /**
    * Properties to send with the event.
@@ -32,12 +36,4 @@ export interface Payload {
    * The time when this event occurred.
    */
   occurred_at?: string | number
-  /**
-   * By default Segment batches events to Hubspot.
-   */
-  enable_batching?: boolean
-  /**
-   * Maximum number of events to include in each batch.
-   */
-  batch_size: number
 }
