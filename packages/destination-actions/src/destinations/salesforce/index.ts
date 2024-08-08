@@ -11,6 +11,8 @@ import { authenticateWithPassword } from './sf-operations'
 
 import lead2 from './lead2'
 
+import opportunity2 from './opportunity2'
+
 import account2 from './account2'
 
 import customObject2 from './customObject2'
@@ -128,6 +130,7 @@ const destination: DestinationDefinition<Settings> = {
     opportunity,
     account,
     lead2,
+    opportunity2,
     customObject2,
     cases2,
     account2
