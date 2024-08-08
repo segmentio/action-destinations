@@ -3,7 +3,8 @@ import {
   PayloadValidationError,
   ModifiedResponse,
   RequestClient,
-  DynamicFieldResponse
+  DynamicFieldResponse,
+  RequestFn
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -16,7 +17,7 @@ import {
 import {
   formatCustomVariables,
   hash,
-  getCustomVariables,
+  memoizedGetCustomVariables,
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
@@ -24,6 +25,7 @@ import {
   getConversionActionDynamicData,
   isHashedInformation
 } from '../functions'
+import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Click Conversion',
@@ -218,6 +220,21 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'DENIED', value: 'DENIED' },
         { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
       ]
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Google Enhanced Conversions',
+      description:
+        'If true, Segment will batch events before sending to Google’s APIs. Google accepts batches of up to 2000 events.',
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch.',
+      type: 'number',
+      required: true,
+      unsafe_hidden: true,
+      default: GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE
     }
   },
 
@@ -230,107 +247,126 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { auth, settings, payload, features, statsContext }) => {
-    /* Enforcing this here since Customer ID is required for the Google Ads API
+    return await uploadClickConversionAction(request, { auth, settings, payload: [payload], features, statsContext })
+  },
+  performBatch: async (request, { auth, settings, payload, features, statsContext }) => {
+    return await uploadClickConversionAction(request, { auth, settings, payload, features, statsContext })
+  }
+}
+
+const uploadClickConversionAction: RequestFn<Settings, Payload[]> = async (
+  request,
+  { auth, settings, payload, features, statsContext }
+) => {
+  /* Enforcing this here since Customer ID is required for the Google Ads API
     but not for the Enhanced Conversions API. */
-    if (!settings.customerId) {
-      throw new PayloadValidationError(
-        'Customer ID is required for this action. Please set it in destination settings.'
-      )
-    }
-    settings.customerId = settings.customerId.replace(/-/g, '')
+  if (!settings.customerId) {
+    throw new PayloadValidationError('Customer ID is required for this action. Please set it in destination settings.')
+  }
 
-    let cartItems: CartItemInterface[] = []
-    if (payload.items) {
-      cartItems = payload.items.map((product) => {
-        return {
-          productId: product.product_id,
-          quantity: product.quantity,
-          unitPrice: product.price
-        } as CartItemInterface
-      })
-    }
+  const customerId = settings.customerId.replace(/-/g, '')
 
-    const request_object: ClickConversionRequestObjectInterface = {
-      conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
-      conversionDateTime: convertTimestamp(payload.conversion_timestamp),
-      gclid: payload.gclid,
-      gbraid: payload.gbraid,
-      wbraid: payload.wbraid,
-      orderId: payload.order_id,
-      conversionValue: payload.value,
-      currencyCode: payload.currency,
-      conversionEnvironment: payload.conversion_environment,
-      cartData: {
-        merchantId: payload.merchant_id,
-        feedCountryCode: payload.merchant_country_code,
-        feedLanguageCode: payload.merchant_language_code,
-        localTransactionCost: payload.local_cost,
-        items: cartItems
-      },
-      userIdentifiers: []
-    }
-    // Add Consent Signals 'adUserData' if it is defined
-    if (payload.ad_user_data_consent_state) {
-      request_object['consent'] = {
-        adUserData: payload.ad_user_data_consent_state
+  const getCustomVariables = memoizedGetCustomVariables()
+
+  const request_objects: ClickConversionRequestObjectInterface[] = await Promise.all(
+    payload.map(async (payload) => {
+      let cartItems: CartItemInterface[] = []
+      if (payload.items) {
+        cartItems = payload.items.map((product) => {
+          return {
+            productId: product.product_id,
+            quantity: product.quantity,
+            unitPrice: product.price
+          } as CartItemInterface
+        })
       }
-    }
 
-    // Add Consent Signals 'adPersonalization' if it is defined
-    if (payload.ad_personalization_consent_state) {
-      request_object['consent'] = {
-        ...request_object['consent'],
-        adPersonalization: payload.ad_personalization_consent_state
-      }
-    }
-
-    // Retrieves all of the custom variables that the customer has created in their Google Ads account
-    if (payload.custom_variables) {
-      const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
-      if (customVariableIds?.data?.length) {
-        request_object.customVariables = formatCustomVariables(
-          payload.custom_variables,
-          customVariableIds.data[0].results
-        )
-      }
-    }
-
-    if (payload.email_address) {
-      const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
-
-      request_object.userIdentifiers.push({
-        hashedEmail: validatedEmail
-      } as UserIdentifierInterface)
-    }
-
-    if (payload.phone_number) {
-      // remove '+' from phone number if received in payload duplicacy and add '+'
-      const phoneNumber = '+' + payload.phone_number.split('+').join('')
-
-      request_object.userIdentifiers.push({
-        hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(phoneNumber)
-      } as UserIdentifierInterface)
-    }
-
-    const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-        settings.customerId
-      }:uploadClickConversions`,
-      {
-        method: 'post',
-        headers: {
-          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      const request_object: ClickConversionRequestObjectInterface = {
+        conversionAction: `customers/${customerId}/conversionActions/${payload.conversion_action}`,
+        conversionDateTime: convertTimestamp(payload.conversion_timestamp),
+        gclid: payload.gclid,
+        gbraid: payload.gbraid,
+        wbraid: payload.wbraid,
+        orderId: payload.order_id,
+        conversionValue: payload.value,
+        currencyCode: payload.currency,
+        conversionEnvironment: payload.conversion_environment,
+        cartData: {
+          merchantId: payload.merchant_id,
+          feedCountryCode: payload.merchant_country_code,
+          feedLanguageCode: payload.merchant_language_code,
+          localTransactionCost: payload.local_cost,
+          items: cartItems
         },
-        json: {
-          conversions: [request_object],
-          partialFailure: true
+        userIdentifiers: []
+      }
+
+      // Add Consent Signals 'adUserData' if it is defined
+      if (payload.ad_user_data_consent_state) {
+        request_object['consent'] = {
+          adUserData: payload.ad_user_data_consent_state
         }
       }
-    )
 
-    handleGoogleErrors(response)
-    return response
-  }
+      // Add Consent Signals 'adPersonalization' if it is defined
+      if (payload.ad_personalization_consent_state) {
+        request_object['consent'] = {
+          ...request_object['consent'],
+          adPersonalization: payload.ad_personalization_consent_state
+        }
+      }
+
+      // Retrieves all of the custom variables that the customer has created in their Google Ads account
+      if (payload.custom_variables) {
+        const customVariableIds = await getCustomVariables(customerId, auth, request, features, statsContext)
+        if (customVariableIds?.data?.length) {
+          request_object.customVariables = formatCustomVariables(
+            payload.custom_variables,
+            customVariableIds.data[0].results
+          )
+        }
+      }
+
+      if (payload.email_address) {
+        const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+
+        request_object.userIdentifiers.push({
+          hashedEmail: validatedEmail
+        } as UserIdentifierInterface)
+      }
+
+      if (payload.phone_number) {
+        // remove '+' from phone number if received in payload duplicacy and add '+'
+        const phoneNumber = '+' + payload.phone_number.split('+').join('')
+
+        request_object.userIdentifiers.push({
+          hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(phoneNumber)
+        } as UserIdentifierInterface)
+      }
+
+      return request_object
+    })
+  )
+
+  const response: ModifiedResponse<PartialErrorResponse> = await request(
+    `https://googleads.googleapis.com/${getApiVersion(
+      features,
+      statsContext
+    )}/customers/${customerId}:uploadClickConversions`,
+    {
+      method: 'post',
+      headers: {
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      },
+      json: {
+        conversions: request_objects,
+        partialFailure: true
+      }
+    }
+  )
+
+  handleGoogleErrors(response)
+  return response
 }
 
 export default action
