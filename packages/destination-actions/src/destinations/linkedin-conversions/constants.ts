@@ -58,13 +58,24 @@ export const SUPPORTED_LOOKBACK_WINDOW_CHOICES: Choice[] = [
 export const DEFAULT_POST_CLICK_LOOKBACK_WINDOW = 30
 export const DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW = 7
 
-export const DEPENDS_ON_CONVERSION_RULE_ID: DependsOnConditions = {
+export const HIDE_IF_OPERATION_NOT_CREATE: DependsOnConditions = {
   match: 'all',
   conditions: [
     {
-      fieldKey: 'conversionRuleId',
-      operator: 'is_not',
-      value: undefined
+      fieldKey: 'operation',
+      operator: 'is',
+      value: 'create'
+    }
+  ]
+}
+
+export const HIDE_IF_OPERATION_NOT_USE_EXISTING: DependsOnConditions = {
+  match: 'all',
+  conditions: [
+    {
+      fieldKey: 'operation',
+      operator: 'is',
+      value: 'use_existing'
     }
   ]
 }
