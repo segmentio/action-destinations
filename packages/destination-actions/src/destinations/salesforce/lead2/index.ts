@@ -193,7 +193,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    return sf.bulkHandler(payload, OBJECT_NAME)
+    return sf.bulkHandler(payload, OBJECT_NAME, syncMode)
   }
 }
 

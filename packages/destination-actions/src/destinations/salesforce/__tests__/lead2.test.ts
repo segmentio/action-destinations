@@ -479,5 +479,32 @@ describe('Salesforce', () => {
         `"{\\"LastName\\":\\"Squarepants\\",\\"Company\\":\\"Krusty Krab LLC\\",\\"Street\\":\\"Pineapple St\\",\\"PostalCode\\":\\"12345\\",\\"City\\":\\"Bikini Bottom\\",\\"Email\\":\\"sponge@seamail.com\\"}"`
       )
     })
+
+    describe('batching', () => {
+      it('should fail if delete is set as syncMode', async () => {
+        const event = createTestEvent({
+          type: 'track',
+          event: 'Delete',
+          userId: '123'
+        })
+
+        await expect(async () => {
+          await testDestination.testBatchAction('lead2', {
+            events: [event],
+            settings,
+            auth,
+            mapping: {
+              __segment_internal_sync_mode: 'delete',
+              enable_batching: true,
+              traits: {
+                Id: { '@path': '$.userId' }
+              }
+            }
+          })
+        }).rejects.toThrowErrorMatchingInlineSnapshot(
+          `"Unsupported operation: Bulk API does not support the delete operation"`
+        )
+      })
+    })
   })
 })

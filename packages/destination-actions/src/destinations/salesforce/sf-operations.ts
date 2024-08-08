@@ -218,25 +218,28 @@ export default class Salesforce {
     return await this.baseDelete(recordId, sobject)
   }
 
-  bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
+  bulkHandler = async (payloads: GenericPayload[], sobject: string, syncMode: string | undefined) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
     }
 
-    if (payloads[0].operation === 'upsert') {
-      return await this.bulkUpsert(payloads, sobject)
-    } else if (payloads[0].operation === 'update') {
-      return await this.bulkUpdate(payloads, sobject)
-    } else if (payloads[0].operation === 'create') {
-      return await this.bulkInsert(payloads, sobject)
-    }
+    // To support both legacy and 2.0 actions, attempt to read syncMode first and then fallback to payloads[0].operation.
+    const syncOperation = syncMode ?? payloads[0].operation
 
-    if (payloads[0].operation === 'delete') {
+    if (syncOperation === 'delete') {
       throw new IntegrationError(
         `Unsupported operation: Bulk API does not support the delete operation`,
         'Unsupported operation',
         400
       )
+    }
+
+    if (syncOperation === 'upsert') {
+      return await this.bulkUpsert(payloads, sobject)
+    } else if (syncOperation === 'update') {
+      return await this.bulkUpdate(payloads, sobject)
+    } else if (syncOperation === 'create') {
+      return await this.bulkInsert(payloads, sobject)
     }
   }
 
