@@ -1,4 +1,4 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -87,7 +87,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, { settings, payload, syncMode }) => {
     if (!syncMode) {
-      throw new PayloadValidationError('Sync mode is required for this operation.')
+      throw new IntegrationError('syncMode is required', 'Undefined syncMode', 400)
     }
 
     if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(syncMode) && !payload[0].customFields) {

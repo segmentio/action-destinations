@@ -230,5 +230,89 @@ describe('Salesforce', () => {
         ])
       )
     })
+
+    describe('batching', () => {
+      it('should fail if delete is set as syncMode', async () => {
+        const event = createTestEvent({
+          type: 'track',
+          event: 'Create Custom Object',
+          properties: {
+            email: 'sponge@seamail.com',
+            company: 'Krusty Krab',
+            last_name: 'Squarepants'
+          }
+        })
+
+        await expect(async () => {
+          await testDestination.testBatchAction('customObject2', {
+            events: [event],
+            settings,
+            mapping: {
+              enable_batching: true,
+              __segment_internal_sync_mode: 'delete',
+              customObjectName: 'TestCustom__c',
+              customFields: {
+                '@path': '$.properties'
+              }
+            },
+            auth
+          })
+        }).rejects.toThrowErrorMatchingInlineSnapshot(
+          `"Unsupported operation: Bulk API does not support the delete operation"`
+        )
+      })
+    })
+
+    it('should fail if syncMode is undefined', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Custom Object',
+        properties: {
+          email: 'sponge@seamail.com',
+          company: 'Krusty Krab',
+          last_name: 'Squarepants'
+        }
+      })
+
+      await expect(async () => {
+        await testDestination.testBatchAction('customObject2', {
+          events: [event],
+          settings,
+          mapping: {
+            enable_batching: true,
+            customObjectName: 'TestCustom__c',
+            customFields: {
+              '@path': '$.properties'
+            }
+          },
+          auth
+        })
+      }).rejects.toThrowErrorMatchingInlineSnapshot(`"syncMode is required"`)
+    })
+
+    it('should fail if the operation does not have custom fields', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Custom Object',
+        properties: {
+          email: 'sponge@seamail.com',
+          company: 'Krusty Krab',
+          last_name: 'Squarepants'
+        }
+      })
+
+      await expect(async () => {
+        await testDestination.testBatchAction('customObject2', {
+          events: [event],
+          settings,
+          mapping: {
+            enable_batching: true,
+            customObjectName: 'TestCustom__c',
+            __segment_internal_sync_mode: 'add'
+          },
+          auth
+        })
+      }).rejects.toThrowErrorMatchingInlineSnapshot(`"Custom fields are required for this operation."`)
+    })
   })
 })
