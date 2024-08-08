@@ -415,5 +415,81 @@ describe('Salesforce', () => {
         `"{\\"Name\\":\\"John Updated TA\\",\\"Phone\\":\\"6786786789\\",\\"Description\\":\\"John Test Acccount\\",\\"Website\\":\\"https://google.com\\"}"`
       )
     })
+
+    describe('batching', () => {
+      it('should fail if delete is set as syncMode', async () => {
+        const event = createTestEvent({
+          type: 'track',
+          event: 'Create Account',
+          properties: {
+            name: "John's Test Acccount"
+          }
+        })
+
+        await expect(async () => {
+          await testDestination.testBatchAction('account2', {
+            events: [event],
+            settings,
+            auth,
+            mapping: {
+              enable_batching: true,
+              __segment_internal_sync_mode: 'delete',
+              name: {
+                '@path': '$.properties.name'
+              }
+            }
+          })
+        }).rejects.toThrowErrorMatchingInlineSnapshot(
+          `"Unsupported operation: Bulk API does not support the delete operation"`
+        )
+      })
+    })
+
+    it('should fail if syncMode is undefined', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Account',
+        properties: {
+          name: "John's Test Acccount"
+        }
+      })
+
+      await expect(async () => {
+        await testDestination.testBatchAction('account2', {
+          events: [event],
+          settings,
+          auth,
+          mapping: {
+            enable_batching: true,
+            name: {
+              '@path': '$.properties.name'
+            }
+          }
+        })
+      }).rejects.toThrowErrorMatchingInlineSnapshot(`"syncMode is required"`)
+    })
+
+    it('should fail if the operation does not have a name and sync mode is upsert', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Create Account',
+        properties: {}
+      })
+
+      await expect(async () => {
+        await testDestination.testBatchAction('account2', {
+          events: [event],
+          settings,
+          auth,
+          mapping: {
+            enable_batching: true,
+            __segment_internal_sync_mode: 'upsert',
+            name: {
+              '@path': '$.properties.name'
+            }
+          }
+        })
+      }).rejects.toThrowErrorMatchingInlineSnapshot(`"Missing name value"`)
+    })
   })
 })
