@@ -12,11 +12,11 @@ export interface Payload {
   /**
    * The Floodlight activity ID associated with the conversion.
    */
-  floodlightActivityId: string
+  floodlightActivityId?: string
   /**
    * The Floodlight configuration ID associated with the conversion.
    */
-  floodlightConfigurationId: string
+  floodlightConfigurationId?: string
   /**
    * The ordinal value of the conversion.
    */
