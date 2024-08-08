@@ -2,15 +2,15 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 import {
-  bulkUpsertExternalId,
-  bulkUpdateRecordId,
-  customFields,
-  traits,
-  validateLookup,
-  enable_batching,
-  recordMatcherOperator,
-  batch_size,
-  hideIfDeleteOperation
+  bulkUpsertExternalId2,
+  bulkUpdateRecordId2,
+  customFields2,
+  traits2,
+  validateLookup2,
+  enable_batching2,
+  recordMatcherOperator2,
+  batch_size2,
+  hideIfDeleteSyncMode
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -32,12 +32,12 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   fields: {
-    enable_batching: enable_batching,
-    batch_size: batch_size,
-    recordMatcherOperator: recordMatcherOperator,
-    traits: traits,
-    bulkUpsertExternalId: bulkUpsertExternalId,
-    bulkUpdateRecordId: bulkUpdateRecordId,
+    enable_batching: enable_batching2,
+    batch_size: batch_size2,
+    recordMatcherOperator: recordMatcherOperator2,
+    traits: traits2,
+    bulkUpsertExternalId: bulkUpsertExternalId2,
+    bulkUpdateRecordId: bulkUpdateRecordId2,
     name: {
       label: 'Name',
       description: 'Name of the account. **This is required to create an account.**',
@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.traits.name'
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     account_number: {
       label: 'Account Number',
@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.groupId'
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     number_of_employees: {
       label: 'Number of employees',
@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.employees' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     billing_city: {
       label: 'Billing City',
@@ -81,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.address.city' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     billing_postal_code: {
       label: 'Billing Postal Code',
@@ -94,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.address.postal_code' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     billing_country: {
       label: 'Billing Country',
@@ -107,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.address.country' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     billing_street: {
       label: 'Billing Street',
@@ -120,7 +120,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.address.street' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     billing_state: {
       label: 'Billing State',
@@ -133,37 +133,37 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.address.state' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     shipping_city: {
       label: 'Shipping City',
       description: 'City for the shipping address of the account.',
       type: 'string',
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     shipping_postal_code: {
       label: 'Shipping Postal Code',
       description: 'Postal code for the shipping address of the account.',
       type: 'string',
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     shipping_country: {
       label: 'Shipping Country',
       description: 'Country for the shipping address of the account.',
       type: 'string',
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     shipping_street: {
       label: 'Shipping Street',
       description: 'Street address for the shipping address of the account.',
       type: 'string',
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     shipping_state: {
       label: 'Shipping State',
       description: 'State for the shipping address of the account.',
       type: 'string',
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     phone: {
       label: 'Phone',
@@ -176,7 +176,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.phone' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     description: {
       label: 'Description',
@@ -189,7 +189,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.description' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     website: {
       label: 'Website',
@@ -202,9 +202,9 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.website' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
-    customFields: customFields
+    customFields: customFields2
   },
   perform: async (request, { settings, payload, syncMode }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
@@ -216,7 +216,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.createRecord(payload, OBJECT_NAME)
     }
 
-    validateLookup(payload)
+    validateLookup2(syncMode, payload)
 
     if (syncMode === 'update') {
       return await sf.updateRecord(payload, OBJECT_NAME)
