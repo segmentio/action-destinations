@@ -14,7 +14,7 @@ type Cluster = { cluster: ClusterItem[] } | null
 
 interface TaboolaPayload {
   operation: 'ADD' | 'REMOVE'
-  audience_id: string
+  audience_id: number
   identities: Cluster[]
 }
 
@@ -41,17 +41,19 @@ export class TaboolaClient {
     }
   }
 
-  static async refreshAccessToken(request: RequestClient, { settings }: { settings: Settings }) {
+  static async refreshAccessToken(request: RequestClient, settings: Settings) {
     const res = await request<RefreshTokenResponse>('https://backstage.taboola.com/backstage/oauth/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: new URLSearchParams({
-        client_id: settings.client_id,
-        client_secret: settings.client_secret,
-        grant_type: 'client_credentials'
-      })
+      body: String(
+        new URLSearchParams({
+          client_id: settings.client_id,
+          client_secret: settings.client_secret,
+          grant_type: 'client_credentials'
+        })
+      )
     })
     return { accessToken: res.data.access_token }
   }
@@ -92,7 +94,7 @@ export class TaboolaClient {
                 method: 'POST',
                 json: {
                   operation: action as 'ADD' | 'REMOVE',
-                  audience_id: external_audience_id,
+                  audience_id: Number(external_audience_id),
                   identities
                 } as TaboolaPayload
               }

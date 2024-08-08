@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 
-const baseUrl = 'https://segment-api.blnd.ai/'
+const baseUrl = 'https://api.blnd.ai/'
 const testDestination = createTestIntegration(Definition)
 
 describe('Blend AI', () => {

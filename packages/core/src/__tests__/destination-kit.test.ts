@@ -1,3 +1,5 @@
+import { IntegrationError } from '../errors'
+import { ActionDefinition } from '../destination-kit/action'
 import {
   StateContext,
   Destination,
@@ -5,10 +7,13 @@ import {
   Logger,
   StatsClient,
   StatsContext,
-  TransactionContext
+  TransactionContext,
+  AudienceDestinationDefinition,
+  AuthenticationScheme
 } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
+const WRONG_AUDIENCE_ID = '1234567890'
 
 const destinationCustomAuth: DestinationDefinition<JSONObject> = {
   name: 'Actions Google Analytic 4',
@@ -75,6 +80,73 @@ const destinationOAuth2: DestinationDefinition<JSONObject> = {
       }
     }
   }
+}
+
+const authentication: AuthenticationScheme<JSONObject> = {
+  scheme: 'oauth2',
+  fields: {},
+  refreshAccessToken: (_request) => {
+    return new Promise((resolve, _reject) => {
+      resolve({
+        accessToken: 'fresh-token'
+      })
+    })
+  }
+}
+
+const audienceDestination: AudienceDestinationDefinition<JSONObject> = {
+  name: 'Amazon AMC (Actions)',
+  mode: 'cloud',
+  authentication: authentication,
+  audienceFields: {},
+  audienceConfig: {
+    mode: {
+      type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
+      full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+    },
+
+    // Mocked createAudience Handler
+    async createAudience(_request, createAudienceInput) {
+      const settings: any = createAudienceInput.settings
+      const audienceSettings: any = createAudienceInput.audienceSettings
+
+      // it could be due to invalid input or Bad Request
+      if (!audienceSettings?.advertiserId)
+        throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
+
+      // invalid access token
+      if (settings.oauth.access_token == 'invalid-access-token' || settings.oauth.clientId == 'invalid_client_id') {
+        return new Promise((_resolve, reject) => {
+          reject(new IntegrationError('Unauthorized', 'UNAUTHORIZED', 401))
+        })
+      }
+
+      return new Promise((resolve, _reject) => {
+        resolve({ externalId: '123456789' })
+      })
+    },
+
+    // Mocked getAudience Handler
+    async getAudience(_request, getAudienceInput) {
+      const settings: any = getAudienceInput.settings
+      const audience_id = getAudienceInput.externalId
+
+      if (audience_id == WRONG_AUDIENCE_ID) {
+        throw new IntegrationError('audienceId not found', 'AUDIENCEID_NOT_FOUND', 400)
+      }
+
+      if (settings.oauth.access_token == 'invalid-access-token' || settings.oauth.clientId == 'invalid_client_id') {
+        return new Promise((_resolve, reject) => {
+          reject(new IntegrationError('Unauthorized', 'UNAUTHORIZED', 401))
+        })
+      }
+
+      return new Promise((resolve, _reject) => {
+        resolve({ externalId: audience_id })
+      })
+    }
+  },
+  actions: {}
 }
 
 const destinationWithOptions: DestinationDefinition<JSONObject> = {
@@ -145,6 +217,42 @@ const destinationWithSyncMode: DestinationDefinition<JSONObject> = {
   }
 }
 
+const destinationWithIdentifier: DestinationDefinition<JSONObject> = {
+  name: 'Actions Google Analytics 4',
+  mode: 'cloud',
+  actions: {
+    customEvent: {
+      title: 'Send a Custom Event',
+      description: 'Send events to a custom event in API',
+      defaultSubscription: 'type = "track"',
+      fields: {
+        userId: {
+          label: 'User ID',
+          description: 'The user ID',
+          type: 'string',
+          required: true,
+          category: 'identifier'
+        }
+      },
+      perform: (_request, { matchingKey }) => {
+        return ['this is a test', matchingKey]
+      },
+      performBatch: (_request, { matchingKey }) => {
+        return ['this is a test', matchingKey]
+      }
+    }
+  }
+}
+
+interface Payload {
+  testDynamicField: string
+  testUnstructuredObject: Record<string, string>
+  testStructuredObject: {
+    testDynamicSubfield: string
+  }
+  testObjectArrays: Array<{ testDynamicSubfield: string }>
+}
+
 const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
   name: 'Actions Dynamic Fields',
   mode: 'cloud',
@@ -180,6 +288,21 @@ const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
               dynamic: true
             }
           }
+        },
+        testObjectArrays: {
+          label: 'Structured Array of Object',
+          description: 'A structured array of object',
+          type: 'object',
+          multiple: true,
+          properties: {
+            testDynamicSubfield: {
+              label: 'Test Field',
+              description: 'A test field',
+              type: 'string',
+              required: true,
+              dynamic: true
+            }
+          }
         }
       },
       dynamicFields: {
@@ -196,9 +319,11 @@ const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
               nextPage: ''
             }
           },
-          __values__: async () => {
+          __values__: async (_, input) => {
+            const { dynamicFieldContext } = input
+
             return {
-              choices: [{ label: 'Im a value', value: '2️⃣' }],
+              choices: [{ label: `Im a value for ${dynamicFieldContext?.selectedKey}`, value: '2️⃣' }],
               nextPage: ''
             }
           }
@@ -210,12 +335,24 @@ const destinationWithDynamicFields: DestinationDefinition<JSONObject> = {
               nextPage: ''
             }
           }
+        },
+        testObjectArrays: {
+          testDynamicSubfield: async (_, input) => {
+            const { dynamicFieldContext } = input
+
+            return {
+              choices: [
+                { label: `Im a subfield for element ${dynamicFieldContext?.selectedArrayIndex}`, value: 'nah' }
+              ],
+              nextPage: ''
+            }
+          }
         }
       },
       perform: (_request, { syncMode }) => {
         return ['this is a test', syncMode]
       }
-    }
+    } as ActionDefinition<JSONObject, Payload>
   }
 }
 
@@ -427,8 +564,57 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
+          output: 'successfully processed batch of events'
+        }
+      ])
+    })
+
+    test('should inject the matchingKey value in the perform handler', async () => {
+      const destinationTest = new Destination(destinationWithIdentifier)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_matching_key: 'userId',
+            userId: 'this-is-a-user-id'
+          }
+        }
+      }
+
+      const res = await destinationTest.onEvent(testEvent, testSettings)
+
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        {
           output: 'Action Executed',
-          data: ['this is a test', 'add']
+          data: ['this is a test', 'userId']
+        }
+      ])
+    })
+
+    test('should inject the matchingKey value in the performBatch handler', async () => {
+      const destinationTest = new Destination(destinationWithIdentifier)
+      const testEvent: SegmentEvent = { type: 'track' }
+      const testSettings = {
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: {
+            __segment_internal_matching_key: 'userId',
+            userId: 'this-is-a-user-id'
+          }
+        }
+      }
+
+      const res = await destinationTest.onBatch([testEvent], testSettings)
+
+      expect(res).toEqual([
+        {
+          output: 'successfully processed batch of events'
         }
       ])
     })
@@ -794,11 +980,19 @@ describe('destination kit', () => {
 
     test('fetches values for unstructured objects', async () => {
       const destinationTest = new Destination(destinationWithDynamicFields)
-      const res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.__values__', {
+      ;('testUnstructuredObject.__values__')
+      let res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.keyOne', {
         settings: {},
         payload: {}
       })
-      expect(res).toEqual({ choices: [{ label: 'Im a value', value: '2️⃣' }], nextPage: '' })
+      expect(res).toEqual({ choices: [{ label: 'Im a value for keyOne', value: '2️⃣' }], nextPage: '' })
+
+      res = await destinationTest.executeDynamicField('customEvent', 'testUnstructuredObject.keyTwo', {
+        settings: {},
+        payload: {}
+      })
+
+      expect(res).toEqual({ choices: [{ label: 'Im a value for keyTwo', value: '2️⃣' }], nextPage: '' })
     })
 
     test('fetches values for structured object subfields', async () => {
@@ -808,6 +1002,21 @@ describe('destination kit', () => {
         payload: {}
       })
       expect(res).toEqual({ choices: [{ label: 'Im a subfield', value: 'nah' }], nextPage: '' })
+    })
+
+    test('fetches values for structured array of object', async () => {
+      const destinationTest = new Destination(destinationWithDynamicFields)
+      let res = await destinationTest.executeDynamicField('customEvent', 'testObjectArrays.[0].testDynamicSubfield', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a subfield for element 0', value: 'nah' }], nextPage: '' })
+
+      res = await destinationTest.executeDynamicField('customEvent', 'testObjectArrays.[113].testDynamicSubfield', {
+        settings: {},
+        payload: {}
+      })
+      expect(res).toEqual({ choices: [{ label: 'Im a subfield for element 113', value: 'nah' }], nextPage: '' })
     })
 
     test('returns 404 for invalid subfields', async () => {
@@ -820,6 +1029,189 @@ describe('destination kit', () => {
         choices: [],
         error: { code: '404', message: 'No dynamic field named testStructuredObject.ghostSubfield found.' },
         nextPage: ''
+      })
+    })
+  })
+
+  describe('Audience Destination', () => {
+    beforeEach(async () => {
+      jest.restoreAllMocks()
+      jest.resetAllMocks()
+    })
+    describe('createAudience', () => {
+      test('Refreshes the access-token in case of Unauthorized(401)', async () => {
+        const createAudienceInput = {
+          audienceName: 'Test Audience',
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'invalid-access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          },
+          audienceSettings: {
+            advertiserId: '12334745462532'
+          }
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.createAudience(createAudienceInput)
+        expect(res).toEqual({ externalId: '123456789' })
+        expect(spy).toHaveBeenCalledTimes(1)
+      })
+
+      test('Will not refresh access-token in case of any non 401 error', async () => {
+        const createAudienceInput = {
+          audienceName: 'Test Audience',
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          },
+          audienceSettings: {}
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        await expect(destinationTest.createAudience(createAudienceInput)).rejects.toThrowError()
+        expect(spy).not.toHaveBeenCalled()
+      })
+
+      test('Will not refresh access-token if token is already valid', async () => {
+        const createAudienceInput = {
+          audienceName: 'Test Audience',
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'valid-access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          },
+          audienceSettings: {
+            advertiserId: '12334745462532'
+          }
+        }
+
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.createAudience(createAudienceInput)
+        expect(res).toEqual({ externalId: '123456789' })
+        expect(spy).not.toHaveBeenCalled()
+      })
+
+      test('Will not refresh the access-token for non-Oauth authentication scheme', async () => {
+        const createAudienceInput = {
+          audienceName: 'Test Audience',
+          settings: {
+            oauth: {
+              clientId: 'invalid_client_id',
+              clientSecret: 'valid-client-secret'
+            }
+          },
+          audienceSettings: {
+            advertiserId: '12334745462532'
+          }
+        }
+        // Non-Oauth authentication scheme
+        audienceDestination.authentication = {
+          scheme: 'custom',
+          fields: {}
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        await expect(destinationTest.createAudience(createAudienceInput)).rejects.toThrowError()
+        expect(spy).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('getAudience', () => {
+      test('Refreshes the access-token in case of Unauthorized(401)', async () => {
+        const getAudienceInput = {
+          externalId: '366170701270726115',
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'invalid-access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          }
+        }
+        audienceDestination.authentication = authentication
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.getAudience(getAudienceInput)
+        expect(res).toEqual({ externalId: '366170701270726115' })
+        expect(spy).toHaveBeenCalledTimes(1)
+      })
+
+      test('Will not refresh access-token in case of any non 401 error', async () => {
+        const getAudienceInput = {
+          externalId: WRONG_AUDIENCE_ID,
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'valid-access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          }
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        await expect(destinationTest.getAudience(getAudienceInput)).rejects.toThrowError()
+        expect(spy).not.toHaveBeenCalled()
+      })
+
+      test('Will not refresh access-token if token is already valid', async () => {
+        const getAudienceInput = {
+          externalId: '366170701270726115',
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'valid-access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          }
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.getAudience(getAudienceInput)
+        expect(res).toEqual({ externalId: '366170701270726115' })
+        expect(spy).not.toHaveBeenCalled()
+      })
+
+      test('Will not refresh the access-token for non-Oauth authentication scheme', async () => {
+        const getAudienceInput = {
+          externalId: '366170701270726115',
+          settings: {
+            oauth: {
+              clientId: 'invalid_client_id',
+              clientSecret: 'valid-client-secret'
+            }
+          }
+        }
+
+        // Non-Oauth authentication scheme
+        audienceDestination.authentication = {
+          scheme: 'custom',
+          fields: {}
+        }
+        const destinationTest = new Destination(audienceDestination)
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        await expect(destinationTest.getAudience(getAudienceInput)).rejects.toThrowError()
+        expect(spy).not.toHaveBeenCalled()
       })
     })
   })

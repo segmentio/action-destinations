@@ -15,6 +15,7 @@ const event = createTestEvent({
   context: {
     traits: {
       email: 'testing@testing.com',
+      upperCaseEmail: 'WHYAREYOUYELLING@EMAIL.com',
       first_name: 'mike',
       last_name: 'smith',
       title: 'software engineer',
@@ -199,6 +200,42 @@ describe('LinkedinConversions.streamConversion', () => {
         }
       })
     ).rejects.toThrowError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
+  })
+
+  it('should normalize the user ID email field such that uppercase letters are converted to lowercase', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '691f95429e014a31230a8963ea28daff1da1c2e4d95f9723a4ea36c548ed2e58'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.upperCaseEmail' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          }
+        }
+      })
+    ).resolves.not.toThrowError()
   })
 
   it('should throw an error if the userInfo object is defined without both a first or last name', async () => {

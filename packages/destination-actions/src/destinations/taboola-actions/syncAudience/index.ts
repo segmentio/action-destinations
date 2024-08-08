@@ -7,6 +7,7 @@ import { TaboolaClient } from './client'
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience',
   description: 'Sync a Segment Engage Audience to Taboola.',
+  defaultSubscription: 'type = "track"',
   fields: {
     external_audience_id: {
       label: 'External Audience ID',
@@ -78,12 +79,17 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     },
     device_id: {
       label: 'Mobile Device ID',
-      description: 'Mobile Device ID.',
+      description:
+        "To send iOS and Android Device IDs include them as 'ios_id' and 'android_id' via the 'Customized Setup' option when connecting your Audience.",
       type: 'string',
       required: false,
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       default: {
-        '@path': '$.context.device.id'
+        '@if': {
+          exists: { '@path': '$.properties.ios_id' },
+          then: { '@path': '$.properties.ios_id' },
+          else: { '@path': '$.properties.android_id' }
+        }
       }
     },
     batch_size: {
