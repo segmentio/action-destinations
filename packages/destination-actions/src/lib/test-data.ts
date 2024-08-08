@@ -116,6 +116,12 @@ export function generateTestData(
 
     const { properties } = field
 
+    // Add this here so that chance just returns a consistent date time
+    // Without this, chance returns different values here vs in the CI (github actions)
+    if (field.format == 'date-time') {
+      field.type = 'datetime'
+    }
+
     if (properties) {
       let subData: any = {}
       let propertyFields = Object.keys(properties)
