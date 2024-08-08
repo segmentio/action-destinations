@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for DawnAnalytics's identifyUser destination action: all fields 1`] = `
+Array [
+  Object {
+    "traits": Object {
+      "testType": "bdywr(0Qj#^4AvoCsy",
+    },
+    "user_id": "bdywr(0Qj#^4AvoCsy",
+  },
+]
+`;
+
+exports[`Testing snapshot for DawnAnalytics's identifyUser destination action: required fields 1`] = `
+Array [
+  Object {
+    "traits": Object {},
+    "user_id": "bdywr(0Qj#^4AvoCsy",
+  },
+]
+`;
