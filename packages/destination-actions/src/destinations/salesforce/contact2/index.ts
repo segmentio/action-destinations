@@ -2,15 +2,15 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
-  bulkUpsertExternalId,
-  bulkUpdateRecordId,
-  customFields,
-  traits,
-  validateLookup,
-  enable_batching,
-  recordMatcherOperator,
-  batch_size,
-  hideIfDeleteOperation
+  bulkUpsertExternalId2,
+  bulkUpdateRecordId2,
+  customFields2,
+  traits2,
+  validateLookup2,
+  enable_batching2,
+  recordMatcherOperator2,
+  batch_size2,
+  hideIfDeleteSyncMode
 } from '../sf-properties'
 import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 
@@ -31,12 +31,12 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   fields: {
-    recordMatcherOperator: recordMatcherOperator,
-    enable_batching: enable_batching,
-    batch_size: batch_size,
-    traits: traits,
-    bulkUpsertExternalId: bulkUpsertExternalId,
-    bulkUpdateRecordId: bulkUpdateRecordId,
+    recordMatcherOperator: recordMatcherOperator2,
+    enable_batching: enable_batching2,
+    batch_size: batch_size2,
+    traits: traits2,
+    bulkUpsertExternalId: bulkUpsertExternalId2,
+    bulkUpdateRecordId: bulkUpdateRecordId2,
     last_name: {
       label: 'Last Name',
       description: "The contact's last name up to 80 characters. **This is required to create a contact.**",
@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.last_name' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     first_name: {
       label: 'First Name',
@@ -61,14 +61,14 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.first_name' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     account_id: {
       label: 'Account ID',
       description:
         'The ID of the account that this contact is associated with. This is the Salesforce-generated ID assigned to the account during creation (i.e. 0018c00002CDThnAAH).',
       type: 'string',
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     email: {
       label: 'Email',
@@ -81,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.email' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     mailing_city: {
       label: 'Mailing City',
@@ -94,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.address.city' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     mailing_postal_code: {
       label: 'Mailing Postal Code',
@@ -107,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.address.postal_code' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     mailing_country: {
       label: 'Mailing Country',
@@ -120,7 +120,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.address.country' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     mailing_street: {
       label: 'Mailing Street',
@@ -133,7 +133,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.address.street' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
     mailing_state: {
       label: 'Mailing State',
@@ -146,9 +146,9 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.address.state' }
         }
       },
-      depends_on: hideIfDeleteOperation
+      depends_on: hideIfDeleteSyncMode
     },
-    customFields: customFields
+    customFields: customFields2
   },
   perform: async (request, { settings, payload, syncMode }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
@@ -160,7 +160,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.createRecord(payload, OBJECT_NAME)
     }
 
-    validateLookup(payload)
+    validateLookup2(syncMode, payload)
 
     if (syncMode === 'update') {
       return await sf.updateRecord(payload, OBJECT_NAME)
