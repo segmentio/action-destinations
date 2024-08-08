@@ -218,15 +218,38 @@ export default class Salesforce {
     return await this.baseDelete(recordId, sobject)
   }
 
-  bulkHandler = async (payloads: GenericPayload[], sobject: string, syncMode: string | undefined) => {
+  bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
     }
 
-    // To support both legacy and 2.0 actions, attempt to read syncMode first and then fallback to payloads[0].operation.
-    const syncOperation = syncMode ?? payloads[0].operation
+    if (payloads[0].operation === 'upsert') {
+      return await this.bulkUpsert(payloads, sobject)
+    } else if (payloads[0].operation === 'update') {
+      return await this.bulkUpdate(payloads, sobject)
+    } else if (payloads[0].operation === 'create') {
+      return await this.bulkInsert(payloads, sobject)
+    }
 
-    if (syncOperation === 'delete') {
+    if (payloads[0].operation === 'delete') {
+      throw new IntegrationError(
+        `Unsupported operation: Bulk API does not support the delete operation`,
+        'Unsupported operation',
+        400
+      )
+    }
+  }
+
+  bulkHandlerWithSyncMode = async (payloads: GenericPayload[], sobject: string, syncMode: string | undefined) => {
+    if (!payloads[0].enable_batching) {
+      throwBulkMismatchError()
+    }
+
+    if (syncMode === undefined) {
+      throw new IntegrationError('syncMode is required', 'Undefined syncMode', 400)
+    }
+
+    if (syncMode === 'delete') {
       throw new IntegrationError(
         `Unsupported operation: Bulk API does not support the delete operation`,
         'Unsupported operation',
@@ -234,11 +257,11 @@ export default class Salesforce {
       )
     }
 
-    if (syncOperation === 'upsert') {
+    if (syncMode === 'upsert') {
       return await this.bulkUpsert(payloads, sobject)
-    } else if (syncOperation === 'update') {
+    } else if (syncMode === 'update') {
       return await this.bulkUpdate(payloads, sobject)
-    } else if (syncOperation === 'create') {
+    } else if (syncMode === 'create') {
       return await this.bulkInsert(payloads, sobject)
     }
   }

@@ -506,5 +506,27 @@ describe('Salesforce', () => {
         )
       })
     })
+
+    it('should fail if syncMode is undefined', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Delete',
+        userId: '123'
+      })
+
+      await expect(async () => {
+        await testDestination.testBatchAction('lead2', {
+          events: [event],
+          settings,
+          auth,
+          mapping: {
+            enable_batching: true,
+            traits: {
+              Id: { '@path': '$.userId' }
+            }
+          }
+        })
+      }).rejects.toThrowErrorMatchingInlineSnapshot(`"syncMode is required"`)
+    })
   })
 })
