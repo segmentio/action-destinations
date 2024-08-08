@@ -463,5 +463,103 @@ describe('Salesforce', () => {
         `"{\\"LastName\\":\\"Squarepants\\",\\"Email\\":\\"sponge@seamail.com\\",\\"MailingStreet\\":\\"Pineapple St\\",\\"MailingPostalCode\\":\\"12345\\",\\"MailingCity\\":\\"Bikini Bottom\\"}"`
       )
     })
+
+    describe('batching', () => {
+      it('should fail if delete is set as syncMode', async () => {
+        const event = createTestEvent({
+          type: 'track',
+          event: 'Create Contact',
+          properties: {
+            email: 'sponge@seamail.com',
+            last_name: 'Squarepants'
+          }
+        })
+
+        await expect(async () => {
+          await testDestination.testBatchAction('contact2', {
+            events: [event],
+            settings,
+            auth,
+            mapping: {
+              enable_batching: true,
+              __segment_internal_sync_mode: 'delete',
+              email: {
+                '@path': '$.properties.email'
+              },
+              company: {
+                '@path': '$.properties.company'
+              },
+              last_name: {
+                '@path': '$.properties.last_name'
+              }
+            }
+          })
+        }).rejects.toThrowErrorMatchingInlineSnapshot(
+          `"Unsupported operation: Bulk API does not support the delete operation"`
+        )
+      })
+
+      it('should fail if syncMode is undefined', async () => {
+        const event = createTestEvent({
+          type: 'track',
+          event: 'Create Contact',
+          properties: {
+            email: 'sponge@seamail.com',
+            last_name: 'Squarepants'
+          }
+        })
+
+        await expect(async () => {
+          await testDestination.testBatchAction('contact2', {
+            events: [event],
+            settings,
+            auth,
+            mapping: {
+              enable_batching: true,
+              email: {
+                '@path': '$.properties.email'
+              },
+              company: {
+                '@path': '$.properties.company'
+              },
+              last_name: {
+                '@path': '$.properties.last_name'
+              }
+            }
+          })
+        }).rejects.toThrowErrorMatchingInlineSnapshot(`"syncMode is required"`)
+      })
+
+      it('should fail if sync mode is upsert and no last_name is provided', async () => {
+        const event = createTestEvent({
+          type: 'track',
+          event: 'Create Contact',
+          properties: {
+            email: 'sponge@seamail.com'
+          }
+        })
+
+        await expect(async () => {
+          await testDestination.testBatchAction('contact2', {
+            events: [event],
+            settings,
+            auth,
+            mapping: {
+              enable_batching: true,
+              __segment_internal_sync_mode: 'upsert',
+              email: {
+                '@path': '$.properties.email'
+              },
+              company: {
+                '@path': '$.properties.company'
+              },
+              last_name: {
+                '@path': '$.properties.last_name'
+              }
+            }
+          })
+        }).rejects.toThrowErrorMatchingInlineSnapshot(`"Missing last_name value"`)
+      })
+    })
   })
 })
