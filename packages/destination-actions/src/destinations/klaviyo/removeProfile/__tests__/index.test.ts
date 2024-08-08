@@ -5,12 +5,6 @@ import { API_URL } from '../../config'
 import { AggregateAjvError } from '@segment/ajv-human-errors'
 import * as Functions from '../../functions'
 
-jest.mock('../../functions', () => ({
-  ...jest.requireActual('../../functions'),
-  getProfiles: jest.fn(),
-  removeProfileFromList: jest.fn(() => Promise.resolve({ success: true }))
-}))
-
 const testDestination = createTestIntegration(Definition)
 
 const apiKey = 'fake-api-key'
@@ -34,7 +28,7 @@ const requestBody = {
 }
 
 describe('Remove Profile', () => {
-  it('should throw error if no external_id/email is provided', async () => {
+  it('should throw error if no external_id/email or phone_number is provided', async () => {
     const event = createTestEvent({
       type: 'track',
       properties: {}
@@ -45,7 +39,30 @@ describe('Remove Profile', () => {
     )
   })
 
-  it('should remove profile from list if successful with email address only', async () => {
+  it('should throw an error for invalid phone number format', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      context: {
+        traits: {
+          phone: 'invalid-phone-number'
+        }
+      },
+      properties: {}
+    })
+
+    const mapping = {
+      list_id: listId,
+      phone_number: {
+        '@path': '$.context.traits.phone'
+      }
+    }
+
+    await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).rejects.toThrowError(
+      'invalid-phone-number is not a valid E.164 phone number.'
+    )
+  })
+
+  it('should remove profile from list successfully with email address only', async () => {
     const mapping = { list_id: listId, email: 'test@example.com' }
     const requestBody = {
       data: [
@@ -58,7 +75,7 @@ describe('Remove Profile', () => {
 
     const email = 'test@example.com'
     nock(`${API_URL}/profiles`)
-      .get(`/?filter=equals(email,"${email}")`)
+      .get(`/?filter=any(email,["${email}"])`)
       .reply(200, {
         data: [{ id: 'XYZABC' }]
       })
@@ -91,7 +108,7 @@ describe('Remove Profile', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should remove profile from list if successful with External Id only', async () => {
+  it('should remove profile from list successfully with External Id only', async () => {
     const requestBody = {
       data: [
         {
@@ -103,7 +120,7 @@ describe('Remove Profile', () => {
 
     const external_id = 'testing_123'
     nock(`${API_URL}/profiles`)
-      .get(`/?filter=equals(external_id,"${external_id}")`)
+      .get(`/?filter=any(external_id,["${external_id}"])`)
       .reply(200, {
         data: [{ id: 'XYZABC' }]
       })
@@ -137,6 +154,53 @@ describe('Remove Profile', () => {
 
     await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).resolves.not.toThrowError()
   })
+
+  it('should remove profile from list successfully with Phone Number only', async () => {
+    const requestBody = {
+      data: [
+        {
+          type: 'profile',
+          id: 'XYZABC'
+        }
+      ]
+    }
+
+    const phone_number = '+15005435907'
+    nock(`${API_URL}/profiles`)
+      .get(`/?filter=any(phone_number,["${phone_number}"])`)
+      .reply(200, {
+        data: [{ id: 'XYZABC' }]
+      })
+
+    nock(`${API_URL}/lists/${listId}`)
+      .delete('/relationships/profiles/', requestBody)
+      .reply(200, {
+        data: [
+          {
+            id: 'XYZABC'
+          }
+        ]
+      })
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      context: {
+        personas: {
+          external_audience_id: listId
+        }
+      },
+      properties: {
+        phone_number: '+15005435907'
+      }
+    })
+    const mapping = {
+      list_id: listId,
+      phone_number: '+15005435907'
+    }
+
+    await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).resolves.not.toThrowError()
+  })
 })
 
 describe('Remove Profile Batch', () => {
@@ -146,6 +210,59 @@ describe('Remove Profile Batch', () => {
   })
   afterEach(() => {
     jest.resetAllMocks()
+  })
+
+  it('should filter out profiles with invalid phone numbers', async () => {
+    const getProfilesMock = jest
+      .spyOn(Functions, 'getProfiles')
+      .mockImplementation(jest.fn())
+      .mockReturnValue(Promise.resolve(['XYZABC']))
+
+    const events = [
+      createTestEvent({
+        properties: {
+          email: 'user1@example.com'
+        }
+      }),
+      createTestEvent({
+        properties: {
+          phone: 'invalid-phone-number'
+        }
+      })
+    ]
+
+    const mapping = {
+      list_id: listId,
+      email: {
+        '@path': '$.properties.email'
+      },
+      phone_number: {
+        '@path': '$.properties.phone'
+      }
+    }
+
+    const requestBody = {
+      data: [
+        {
+          type: 'profile',
+          id: 'XYZABC'
+        }
+      ]
+    }
+
+    nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200)
+
+    await expect(
+      testDestination.testBatchAction('removeProfile', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
+
+    // Verify that the profile with invalid phone number was filtered out
+    expect(getProfilesMock).toHaveBeenCalledWith(expect.anything(), ['user1@example.com'], [], [])
+    getProfilesMock.mockRestore()
   })
 
   it('should remove multiple profiles with valid emails', async () => {
@@ -229,7 +346,44 @@ describe('Remove Profile Batch', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should remove profiles with valid emails and external IDs', async () => {
+  it('should remove multiple profiles with valid phone numbers', async () => {
+    const events = [
+      createTestEvent({
+        properties: {
+          phone: '+15005435907'
+        }
+      }),
+      createTestEvent({
+        properties: {
+          phone: '+15005435908'
+        }
+      })
+    ]
+    const mapping = {
+      list_id: listId,
+      phone_number: {
+        '@path': '$.properties.phone'
+      }
+    }
+
+    nock(`${API_URL}/profiles`)
+      .get(`/?filter=any(phone_number,["+15005435907","+15005435908"])`)
+      .reply(200, {
+        data: [{ id: 'XYZABC' }, { id: 'XYZABD' }]
+      })
+
+    nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200)
+
+    await expect(
+      testDestination.testBatchAction('removeProfile', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should remove profiles with valid emails, phone numbers and external IDs', async () => {
     const events = [
       createTestEvent({
         properties: {
@@ -239,6 +393,11 @@ describe('Remove Profile Batch', () => {
       createTestEvent({
         properties: {
           external_id: 'externalId2'
+        }
+      }),
+      createTestEvent({
+        properties: {
+          phone: '+15005435907'
         }
       })
     ]
@@ -250,6 +409,9 @@ describe('Remove Profile Batch', () => {
       },
       email: {
         '@path': '$.properties.email'
+      },
+      phone_number: {
+        '@path': '$.properties.phone'
       }
     }
 
@@ -271,6 +433,13 @@ describe('Remove Profile Batch', () => {
         data: [{ id: 'XYZABC' }]
       })
 
+    const phone_number = '+15005435907'
+    nock(`${API_URL}/profiles`)
+      .get(`/?filter=any(phone_number,["${phone_number}"])`)
+      .reply(200, {
+        data: [{ id: 'XYZABC' }]
+      })
+
     nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200)
 
     await expect(
@@ -282,7 +451,7 @@ describe('Remove Profile Batch', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should filter out profiles without email or external ID', async () => {
+  it('should filter out profiles without email, phone number or external ID', async () => {
     const events = [
       createTestEvent({
         properties: {
@@ -336,6 +505,9 @@ describe('Remove Profile Batch', () => {
   })
 
   it('should handle an empty payload', async () => {
+    const getProfilesMock = jest.spyOn(Functions, 'getProfiles').mockImplementation(jest.fn())
+    const removeProfileFromListMock = jest.spyOn(Functions, 'removeProfileFromList').mockImplementation()
+
     await testDestination.testBatchAction('removeProfile', {
       settings,
       events: []
@@ -343,5 +515,8 @@ describe('Remove Profile Batch', () => {
 
     expect(Functions.getProfiles).not.toHaveBeenCalled()
     expect(Functions.removeProfileFromList).not.toHaveBeenCalled()
+
+    getProfilesMock.mockRestore()
+    removeProfileFromListMock.mockRestore()
   })
 })

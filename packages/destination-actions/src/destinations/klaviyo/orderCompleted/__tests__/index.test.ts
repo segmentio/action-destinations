@@ -51,6 +51,24 @@ describe('Order Completed', () => {
     )
   })
 
+  it('should throw an error for invalid phone number format', async () => {
+    const profile = { email: 'test@example.com', phone_number: 'invalid-phone-number' }
+    const properties = { key: 'value' }
+    const metricName = 'Order Completed'
+    const value = 10
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: '2022-01-01T00:00:00.000Z'
+    })
+
+    const mapping = { profile, metric_name: metricName, properties, value }
+
+    await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).rejects.toThrowError(
+      'invalid-phone-number is not a valid E.164 phone number.'
+    )
+  })
+
   it('should successfully track event with external Id', async () => {
     const profile = { external_id: '3xt3rnal1d' }
     const properties = { key: 'value' }
@@ -92,7 +110,7 @@ describe('Order Completed', () => {
   })
 
   it('should successfully track event if proper parameters are provided', async () => {
-    const profile = { email: 'test@example.com', phone_number: '1234567890' }
+    const profile = { email: 'test@example.com', phone_number: '+14155552671' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
@@ -112,7 +130,7 @@ describe('Order Completed', () => {
   })
 
   it('should throw an error if the API request fails', async () => {
-    const profile = { email: 'test@example.com', phone_number: '1234567890' }
+    const profile = { email: 'test@example.com', phone_number: '+14155552671' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
@@ -141,7 +159,7 @@ describe('Order Completed', () => {
       }
     ]
 
-    const profile = { email: 'test@example.com', phone_number: '1234567890' }
+    const profile = { email: 'test@example.com', phone_number: '+14155552671' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
