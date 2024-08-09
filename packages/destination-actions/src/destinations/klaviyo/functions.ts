@@ -80,6 +80,7 @@ export async function createProfile(
   request: RequestClient,
   email: string | undefined,
   external_id: string | undefined,
+  phone_number: string | undefined,
   additionalAttributes: AdditionalAttributes
 ) {
   try {
@@ -89,6 +90,7 @@ export async function createProfile(
         attributes: {
           email,
           external_id,
+          phone_number,
           ...additionalAttributes
         }
       }
@@ -154,7 +156,8 @@ export const sendImportJobRequest = async (request: RequestClient, importJobPayl
 export async function getProfiles(
   request: RequestClient,
   emails: string[] | undefined,
-  external_ids: string[] | undefined
+  external_ids: string[] | undefined,
+  phoneNumbers: string[] | undefined
 ): Promise<string[]> {
   const profileIds: string[] = []
 
@@ -163,8 +166,8 @@ export async function getProfiles(
     const response = await request(`${API_URL}/profiles/?filter=any(${filterId})`, {
       method: 'GET'
     })
-    const data: GetProfileResponse = await response.json()
-    profileIds.push(...data.data.map((profile: Profile) => profile.id))
+    const res: GetProfileResponse = await response.json()
+    profileIds.push(...res.data.map((profile: Profile) => profile.id))
   }
 
   if (emails?.length) {
@@ -172,8 +175,17 @@ export async function getProfiles(
     const response = await request(`${API_URL}/profiles/?filter=any(${filterEmail})`, {
       method: 'GET'
     })
-    const data: GetProfileResponse = await response.json()
-    profileIds.push(...data.data.map((profile: Profile) => profile.id))
+    const res: GetProfileResponse = await response.json()
+    profileIds.push(...res.data.map((profile: Profile) => profile.id))
+  }
+
+  if (phoneNumbers?.length) {
+    const filterPhone = `phone_number,["${phoneNumbers.join('","')}"]`
+    const response = await request(`${API_URL}/profiles/?filter=any(${filterPhone})`, {
+      method: 'GET'
+    })
+    const res: GetProfileResponse = await response.json()
+    profileIds.push(...res.data.map((profile: Profile) => profile.id))
   }
 
   return Array.from(new Set(profileIds))
@@ -389,4 +401,10 @@ export async function processProfilesByGroup(request: RequestClient, groupedProf
     })
   )
   return importResponses
+}
+
+export function validatePhoneNumber(phone?: string): boolean {
+  if (!phone) return true
+  const e164Regex = /^\+[1-9]\d{1,14}$/
+  return e164Regex.test(phone)
 }
