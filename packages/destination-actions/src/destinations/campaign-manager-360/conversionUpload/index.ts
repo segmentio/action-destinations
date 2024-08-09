@@ -19,15 +19,16 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false
     },
-    floodlightActivityId: {
-      label: 'Floodlight Activity ID',
-      description: 'The Floodlight activity ID associated with the conversion.',
-      type: 'string',
-      required: false
-    },
     floodlightConfigurationId: {
       label: 'Floodlight Configuration ID',
       description: 'The Floodlight configuration ID associated with the conversion.',
+      type: 'string',
+      required: false,
+      dynamic: true
+    },
+    floodlightActivityId: {
+      label: 'Floodlight Activity ID',
+      description: 'The Floodlight activity ID associated with the conversion.',
       type: 'string',
       required: false
     },
@@ -62,6 +63,44 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
+
+  dynamicFields: {
+    floodlightConfigurationId: async (request, { settings }) => {
+      try {
+        const bearerToken = await refreshGoogleAccessToken(request, settings)
+        const response = await request(
+          `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/floodlightConfigurations`,
+          {
+            headers: {
+              Authorization: `Bearer ${bearerToken}`
+            }
+          }
+        )
+
+        console.log(response)
+        return {
+          choices: [
+            {
+              value: '12345',
+              label: 'Floodlight Configuration 12345'
+            }
+          ]
+        }
+      } catch (error) {
+        console.error(error)
+        return {
+          choices: [],
+          nextPage: '',
+          error: {
+            message:
+              'Error fetching Floodlight Configurations. Please provide the Floodlight Configuration ID manually.',
+            code: '500'
+          }
+        }
+      }
+    }
+  },
+
   perform: async (request, { settings, payload }) => {
     const conversionsBatchInsertRequest = validateConversionPayloads([payload], settings)
     const bearerToken = await refreshGoogleAccessToken(request, settings)
