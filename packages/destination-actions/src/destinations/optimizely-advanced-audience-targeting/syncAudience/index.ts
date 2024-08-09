@@ -67,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Enable batching of event data to Optimizely.',
       type: 'boolean',
       default: true,
-      unsafe_hidden: true
+      unsafe_hidden: false
     },
     batch_size: {
       label: 'Batch Size',
