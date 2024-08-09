@@ -4,6 +4,13 @@ comment:
   require_changes: true
 
 codecov:
-  require_ci_to_pass: true
+  require_ci_to_pass: true # Require CI to pass before uploading coverage
   notify:
     wait_for_ci: true
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto # Default value. The target is calculated based on the coverage of the base branch
+        threshold: 5% # The limit for the coverage to drop by and still be considered a success.
