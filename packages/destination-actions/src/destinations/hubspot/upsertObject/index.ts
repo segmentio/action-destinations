@@ -12,9 +12,9 @@ import {
 } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Upsert Object',
+  title: 'Custom Object',
   description:
-    'Upsert a record of any Object type to HubSpot and optionally assocate it with another record of any Object type.',
+    'Add, create or update records of any Object type to HubSpot, and optionally assocate that record with other records of any Object type.',
   syncMode: {
     description: 'Specify how Segment should update Records in Hubspot',
     label: 'Sync Mode',
