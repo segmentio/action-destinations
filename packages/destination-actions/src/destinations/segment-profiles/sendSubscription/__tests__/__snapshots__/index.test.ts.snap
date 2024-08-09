@@ -62,9 +62,6 @@ Object {
         ],
         "messaging_subscriptions_retl": true,
       },
-      "integrations": Object {
-        "All": false,
-      },
       "messageId": undefined,
       "timestamp": "2023-10-10T07:24:07.036Z",
       "traits": Object {
@@ -112,9 +109,6 @@ Object {
           },
         ],
         "messaging_subscriptions_retl": true,
-      },
-      "integrations": Object {
-        "All": false,
       },
       "messageId": undefined,
       "timestamp": "2023-10-10T07:24:07.036Z",
