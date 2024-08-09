@@ -15,6 +15,9 @@ Object {
           },
         },
         "groupId": "mV[ZQcEVgZO$MX",
+        "integrations": Object {
+          "All": false,
+        },
         "messageId": "mV[ZQcEVgZO$MX",
         "timestamp": "2021-02-01T00:00:00.000Z",
         "traits": Object {
@@ -44,6 +47,9 @@ Object {
           },
         },
         "groupId": "mV[ZQcEVgZO$MX",
+        "integrations": Object {
+          "All": false,
+        },
         "messageId": "mV[ZQcEVgZO$MX",
         "timestamp": undefined,
         "traits": Object {},

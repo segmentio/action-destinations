@@ -15,6 +15,9 @@ Object {
           },
         },
         "groupId": "cZE8HyAL0!BF#)WQb^",
+        "integrations": Object {
+          "All": false,
+        },
         "messageId": "cZE8HyAL0!BF#)WQb^",
         "timestamp": "2021-02-01T00:00:00.000Z",
         "traits": Object {
@@ -44,6 +47,9 @@ Object {
           },
         },
         "groupId": "cZE8HyAL0!BF#)WQb^",
+        "integrations": Object {
+          "All": false,
+        },
         "messageId": "cZE8HyAL0!BF#)WQb^",
         "timestamp": undefined,
         "traits": Object {},
@@ -71,6 +77,9 @@ Object {
           },
         },
         "groupId": "hIC1OAmWa[Q!&d%o",
+        "integrations": Object {
+          "All": false,
+        },
         "messageId": "hIC1OAmWa[Q!&d%o",
         "timestamp": "2021-02-01T00:00:00.000Z",
         "traits": Object {
@@ -100,6 +109,9 @@ Object {
           },
         },
         "groupId": "hIC1OAmWa[Q!&d%o",
+        "integrations": Object {
+          "All": false,
+        },
         "messageId": "hIC1OAmWa[Q!&d%o",
         "timestamp": undefined,
         "traits": Object {},
@@ -147,6 +159,9 @@ Object {
             },
           ],
           "messaging_subscriptions_retl": true,
+        },
+        "integrations": Object {
+          "All": false,
         },
         "messageId": undefined,
         "timestamp": undefined,
@@ -196,6 +211,9 @@ Object {
           ],
           "messaging_subscriptions_retl": true,
         },
+        "integrations": Object {
+          "All": false,
+        },
         "messageId": undefined,
         "timestamp": undefined,
         "traits": Object {},
@@ -223,6 +241,9 @@ Object {
           },
         },
         "event": "[2uovRzxThJj",
+        "integrations": Object {
+          "All": false,
+        },
         "messageId": "[2uovRzxThJj",
         "properties": Object {
           "testType": "[2uovRzxThJj",
@@ -252,6 +273,9 @@ Object {
           },
         },
         "event": "[2uovRzxThJj",
+        "integrations": Object {
+          "All": false,
+        },
         "messageId": "[2uovRzxThJj",
         "properties": Object {},
         "timestamp": undefined,

@@ -43,11 +43,11 @@ const action: ActionDefinition<Settings, Payload> = {
         ...payload?.traits
       },
       timestamp: payload?.timestamp,
-      // integrations: {
-      //   // Setting 'integrations.All' to false will ensure that we don't send events
-      //   // to any destinations which is connected to the Segment Profiles space.
-      //   All: false
-      // },
+      integrations: {
+        // Setting 'integrations.All' to false will ensure that we don't send events
+        // to any destinations which is connected to the Segment Profiles space.
+        All: false
+      },
       type: 'group',
       context: {
         consent: isValidConsentObject ? { ...payload?.consent } : {}

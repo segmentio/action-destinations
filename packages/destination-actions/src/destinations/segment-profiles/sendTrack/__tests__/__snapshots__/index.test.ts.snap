@@ -9,6 +9,9 @@ Object {
         "consent": Object {},
       },
       "event": "Test Event",
+      "integrations": Object {
+        "All": false,
+      },
       "messageId": undefined,
       "properties": Object {
         "plan": "Business",

@@ -46,11 +46,11 @@ const action: ActionDefinition<Settings, Payload> = {
           timestamp: payload?.timestamp,
           event: payload?.event_name,
           messageId: payload?.message_id,
-          // integrations: {
-          //   // Setting 'integrations.All' to false will ensure that we don't send events
-          //   // to any destinations which is connected to the Segment Profiles space.
-          //   All: false
-          // },
+          integrations: {
+            // Setting 'integrations.All' to false will ensure that we don't send events
+            // to any destinations which is connected to the Segment Profiles space.
+            All: false
+          },
           properties: {
             ...payload?.properties
           },
