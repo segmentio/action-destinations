@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue',
       additionalProperties: true,
       properties: {
-        user_id: {
+        userId: {
           label: 'User ID',
           description: 'Your unique ID for your user',
           type: 'string',
@@ -83,7 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        user_id: { '@path': '$.userId' }
+        userId: { '@path': '$.userId' }
       }
     },
     traits: {
