@@ -13,7 +13,10 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: true,
       defaultObjectUI: 'keyvalue',
-      additionalProperties: true
+      additionalProperties: true,
+      default: {
+        groupId: { '@path': '$.context.groupId' }
+      }
     },
     company_name: {
       label: 'Company name',
@@ -44,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       additionalProperties: true,
       properties: {
-        user_id: {
+        userId: {
           label: 'User ID',
           description: 'Your unique ID for your user',
           type: 'string',
@@ -52,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        user_id: { '@path': '$.userId' }
+        userId: { '@path': '$.userId' }
       }
     },
     user_name: {

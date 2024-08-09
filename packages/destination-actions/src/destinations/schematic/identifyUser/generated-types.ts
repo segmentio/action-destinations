@@ -28,7 +28,7 @@ export interface Payload {
     /**
      * Your unique ID for your user
      */
-    user_id?: string
+    userId?: string
     [k: string]: unknown
   }
   /**
