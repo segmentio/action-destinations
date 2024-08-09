@@ -29,14 +29,14 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Impression',
       subscribe: 'type = "track" and event = "Product Viewed"',
-      partnerAction: 'search',
+      partnerAction: 'impression',
       mapping: defaultValues(impression.fields),
       type: 'automatic'
     },
     {
       name: 'Click',
       subscribe: 'type = "track" and event = "Product Clicked"',
-      partnerAction: 'pageView',
+      partnerAction: 'click',
       mapping: defaultValues(click.fields),
       type: 'automatic'
     },
