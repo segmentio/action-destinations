@@ -17,7 +17,7 @@ import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 const OBJECT_NAME = 'Contact'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Contact',
+  title: 'Contact.',
   description: 'Create, update, or upsert contacts in Salesforce.',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
