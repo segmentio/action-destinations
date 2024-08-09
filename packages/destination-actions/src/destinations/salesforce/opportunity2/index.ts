@@ -17,7 +17,7 @@ import type { Payload } from './generated-types'
 const OBJECT_NAME = 'Opportunity'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Opportunity.',
+  title: 'Opportunity',
   description: 'Create, update, or upsert opportunities in Salesforce.',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',

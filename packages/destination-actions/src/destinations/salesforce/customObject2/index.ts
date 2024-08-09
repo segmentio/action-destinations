@@ -16,7 +16,7 @@ import { PayloadValidationError } from '@segment/actions-core'
 const OPERATIONS_WITH_CUSTOM_FIELDS = ['add', 'update', 'upsert']
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Custom Object.',
+  title: 'Custom Object',
   description: 'Create, update, or upsert records in any custom or standard object in Salesforce.',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',

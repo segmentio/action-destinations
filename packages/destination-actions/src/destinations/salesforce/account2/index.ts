@@ -17,7 +17,7 @@ import type { Payload } from './generated-types'
 const OBJECT_NAME = 'Account'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Account.',
+  title: 'Account',
   description: 'Create, update, or upsert accounts in Salesforce.',
   defaultSubscription: 'type = "group"',
   syncMode: {
