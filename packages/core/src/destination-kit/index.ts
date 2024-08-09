@@ -798,7 +798,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onFailedAttempt = async (error: any) => {
-      settings = await this.handleAuthError(error, settings)
+      settings = await this.handleAuthError(error, settings, options)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -836,7 +836,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
    */
   async handleAuthError(error: ResponseError & HTTPError, settings: JSONObject, options?: OnEventOptions) {
     if (this.needsReauthentication(error)) {
-      const newTokens = await this.refreshTokenAndGetNewToken(settings)
+      const newTokens = await this.refreshTokenAndGetNewToken(settings, options)
       settings = await this.updateTokensInSettings(settings, newTokens, options)
     } else {
       throw error
