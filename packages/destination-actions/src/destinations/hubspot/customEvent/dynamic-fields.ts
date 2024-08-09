@@ -39,17 +39,7 @@ export async function dynamicReadEventNames(request: RequestClient) {
             value: event.fullyQualifiedName
           }
         })
-        .sort((a, b) => {
-          const labelA = a.label.toLowerCase()
-          const labelB = b.label.toLowerCase()
-          if (labelA < labelB) {
-            return -1
-          }
-          if (labelA > labelB) {
-            return 1
-          }
-          return 0
-        })
+        .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))
     }
   } catch (err) {
     return {
@@ -86,15 +76,8 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
       value: schema.name
     }))
     return {
-      choices: [...choices, ...defaultChoices].sort((a, b) => {
-        if (a.label < b.label) {
-          return -1
-        }
-        if (a.label > b.label) {
-          return 1
-        }
-        return 0
-      })
+      choices: [...choices, ...defaultChoices]
+      .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))
     }
   } catch (err) {
     return {
@@ -153,7 +136,7 @@ export async function dynamicReadProperties(request: RequestClient, eventName: s
             }
             return event.properties
               .filter((property) => !property.archived)
-              .sort((a, b) => a.displayOrder - b.displayOrder)
+              .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))
               .map((property) => {
                 return {
                   label: `${property.label} - ${property.type}`,
