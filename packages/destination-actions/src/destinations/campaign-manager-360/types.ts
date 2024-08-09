@@ -26,3 +26,9 @@ export interface CampaignManager360ConversionCustomVariable {
   key: string
   value: string
 }
+
+export interface CampaignManager360Settings {
+  clientId: string
+  clientSecret: string
+  refreshToken: string
+}

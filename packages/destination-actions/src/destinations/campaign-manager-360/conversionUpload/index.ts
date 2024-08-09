@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { validatePayloads } from './functions'
+import { refreshGoogleAccessToken, validateConversionPayloads } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Upload',
@@ -63,12 +63,15 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    const conversionsBatchInsertRequest = validatePayloads([payload], settings)
+    const conversionsBatchInsertRequest = validateConversionPayloads([payload], settings)
+    const bearerToken = await refreshGoogleAccessToken(request, settings)
+
     const response = await request(
       `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/conversions/batchinsert`,
       {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${bearerToken}`,
           'Content-Type': 'application/json',
           Host: 'dfareporting.googleapis.com'
         },
@@ -78,12 +81,15 @@ const action: ActionDefinition<Settings, Payload> = {
     return response
   },
   performBatch: async (request, { settings, payload }) => {
-    const conversionsBatchInsertRequest = validatePayloads(payload, settings)
+    const conversionsBatchInsertRequest = validateConversionPayloads(payload, settings)
+    const bearerToken = await refreshGoogleAccessToken(request, settings)
+
     const response = await request(
       `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/conversions/batchinsert`,
       {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${bearerToken}`,
           'Content-Type': 'application/json',
           Host: 'dfareporting.googleapis.com'
         },
