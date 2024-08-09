@@ -1,5 +1,10 @@
-import { omit } from '@segment/actions-core'
-import { IntegrationError, RequestClient, removeUndefined } from '@segment/actions-core'
+import { omit, IntegrationError, RequestClient, removeUndefined, HTTPError } from '@segment/actions-core'
+import {
+  MultiStatusResponse,
+  ActionDestinationResponse,
+  ActionDestinationSuccessResponse,
+  ActionDestinationErrorResponse
+} from '@segment/actions-core'
 import dayjs from 'dayjs'
 import { Settings } from './generated-types'
 import action from './trackPurchase'
@@ -9,6 +14,18 @@ import { Payload as UpdateUserProfilePayload } from './updateUserProfile/generat
 import { getUserAlias } from './userAlias'
 type DateInput = string | Date | number | null | undefined
 type DateOutput = string | undefined | null
+
+type BrazeTrackUsersAPIResponse = {
+  events_processed: number
+  message: string
+  errors?: [
+    {
+      type: string
+      input_array: string
+      index: number
+    }
+  ]
+}
 
 function toISO8601(date: DateInput): DateOutput {
   if (date === null || date === undefined) {
@@ -91,41 +108,121 @@ export function sendTrackEvent(request: RequestClient, settings: Settings, paylo
   })
 }
 
-export function sendBatchedTrackEvent(request: RequestClient, settings: Settings, payloads: TrackEventPayload[]) {
-  const payload = payloads.map((payload) => {
-    const { braze_id, external_id, email } = payload
-    // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
-    const user_alias = getUserAlias(payload.user_alias)
+export async function sendBatchedTrackEvent(request: RequestClient, settings: Settings, payloads: TrackEventPayload[]) {
+  const multiStatusResponse = new MultiStatusResponse(payloads.length)
 
-    // Disable errors until Actions Framework has a multistatus support
-    // if (!braze_id && !user_alias && !external_id) {
-    //   throw new IntegrationError(
-    //     'One of "external_id" or "user_alias" or "braze_id" is required.',
-    //     'Missing required fields',
-    //     400
-    //   )
-    // }
+  const validatedPayloads: object[] = multiStatusResponse.filterInvalidPayloads<TrackEventPayload, object>(
+    payloads,
+    {
+      status: 400,
+      errormessage: 'One of "external_id" or "user_alias" or "braze_id" is required.',
+      errortype: 'VALIDATION_ERROR',
+      errorreporter: 'INTEGRATIONS'
+    },
+    (payload) => {
+      const { braze_id, external_id } = payload
 
-    return {
-      braze_id,
-      external_id,
-      email,
-      user_alias,
-      app_id: settings.app_id,
-      name: payload.name,
-      time: toISO8601(payload.time),
-      properties: payload.properties,
-      _update_existing_only: payload._update_existing_only
+      // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
+      const user_alias = getUserAlias(payload.user_alias)
+
+      return !!(braze_id || user_alias || external_id)
+    },
+    (payload) => {
+      const { braze_id, external_id, email } = payload
+
+      // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
+      const user_alias = getUserAlias(payload.user_alias)
+
+      return {
+        braze_id,
+        external_id,
+        email,
+        user_alias,
+        app_id: settings.app_id,
+        name: payload.name,
+        time: toISO8601(payload.time),
+        properties: payload.properties,
+        _update_existing_only: payload._update_existing_only
+      }
     }
-  })
+  )
 
-  return request(`${settings.endpoint}/users/track`, {
-    method: 'post',
-    ...(payload.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
-    json: {
-      events: payload
+  try {
+    const apiResponse = request<BrazeTrackUsersAPIResponse>(`${settings.endpoint}/users/track`, {
+      method: 'post',
+      ...(validatedPayloads.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
+      json: {
+        events: validatedPayloads
+      }
+    })
+
+    await multiStatusResponse.mergeAPIResponse<BrazeTrackUsersAPIResponse>(apiResponse, (response) => {
+      // Braze returns a 201 status code for successful or soft-failures
+      // https://www.braze.com/docs/api/endpoints/user_data/post_user_track/#responses
+      if (response.status === 201) {
+        // Braze returns the count of events processed along with an array of individual error messages and indices
+        // We will assume all responses to be successful to begin with
+        const destinationResponse: ActionDestinationResponse[] = validatedPayloads.map(
+          (payload): ActionDestinationSuccessResponse => ({
+            status: 201,
+            sent: payload,
+            body: response.data.message
+          })
+        )
+
+        // Braze optionally returns an array of errors for each event that failed
+        // Since there are no individual status codes, we will consider them as 400
+        if (response.data.errors && Array.isArray(response.data.errors)) {
+          response.data.errors.forEach((brazeError) => {
+            // Extract the index of the failed event
+            const index = brazeError.index
+
+            destinationResponse[index] = {
+              status: 400,
+              sent: validatedPayloads[index],
+              body: response.data.message,
+              errormessage: response.data.message,
+              errortype: brazeError.type,
+              errorreporter: 'DESTINATION'
+            }
+          })
+        }
+
+        return destinationResponse
+      }
+
+      // For responses other than 201, we consider them as failures
+      return validatedPayloads.map(
+        (payload): ActionDestinationErrorResponse => ({
+          status: response.status,
+          sent: payload,
+          body: response.data.message,
+          errormessage: response.data.message,
+          errortype: response.statusText,
+          errorreporter: 'DESTINATION'
+        })
+      )
+    })
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      return validatedPayloads.map(
+        (payload): ActionDestinationErrorResponse => ({
+          status: error.response.status,
+          sent: payload,
+          body: error.message,
+          errormessage: error.message,
+          errortype: error.response.statusText,
+          errorreporter: 'DESTINATION'
+        })
+      )
     }
-  })
+
+    // For an unknown error type, we re-throw the error
+    throw error
+  }
+
+  // Returning the MultiStatus Object
+  return multiStatusResponse
 }
 
 export function sendTrackPurchase(request: RequestClient, settings: Settings, payload: TrackPurchasePayload) {
