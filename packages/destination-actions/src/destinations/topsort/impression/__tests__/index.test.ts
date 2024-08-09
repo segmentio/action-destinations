@@ -26,9 +26,6 @@ describe('Topsort.impression', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.headers).toMatchSnapshot()
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].options.headers).toMatchSnapshot()
     expect(responses[0].options.json).toMatchObject({
       impressions: expect.arrayContaining([
         expect.objectContaining({
