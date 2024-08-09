@@ -1,0 +1,10 @@
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface Payload {
+  /**
+   * JSON object containing additional attributes associated with the user.
+   */
+  attributes: {
+    [k: string]: unknown
+  }
+}
