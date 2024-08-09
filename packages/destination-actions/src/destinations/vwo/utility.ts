@@ -3,6 +3,12 @@ import * as crypto from 'crypto'
 
 const VWO_NAMESPACE = '11e13cd7-6c48-53ec-8679-7e9c752273c5'
 
+export const hosts: { [key: string]: string } = {
+  US: 'https://dev.visualwebsiteoptimizer.com',
+  EU: 'https://dev.visualwebsiteoptimizer.com/eu01',
+  AS: 'https://dev.visualwebsiteoptimizer.com/as01'
+}
+
 function uuidv5(name: string, namespace: string): string {
   const namespaceBuffer = Buffer.from(namespace.replace(/-/g, ''), 'hex')
   const nameBuffer = Buffer.from(name)
