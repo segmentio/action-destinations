@@ -254,6 +254,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
+  ////ADD CONVERSION_ID FIELD
+
 
 
   perform: async (request, { settings, payload }) => {
@@ -278,9 +280,11 @@ function createRedditPayload(payload: Payload) {
     {
       event_at: payload.event_at,
       event_type: {
-        tracking_type: payload.event_type.tracking_type,
+        tracking_type: payload.event_type.tracking_type, //FORCE IT TO CUSTOM
+        custom_event_name: payload.event_type.custom_event_name //THIS IS THE NAME THEY WILL CHOOSE
       },
       click_id: payload.click_id,
+      //CREATE THE FULL PAYLOAD
     }
   ]
 }

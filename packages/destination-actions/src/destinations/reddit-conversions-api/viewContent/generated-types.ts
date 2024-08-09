@@ -23,7 +23,7 @@ export interface Payload {
    */
   click_id?: string
   /**
-   * The metadata associated with the conversion event. Only one of "value" or "value_decimal" should be included.
+   * The metadata associated with the conversion event.
    */
   event_metadata?: {
     /**
@@ -106,7 +106,7 @@ export interface Payload {
      */
     modes?: string
     /**
-     * Region Code of the user. We support ISO 3166-2 region code or just the region code without country prefix, e.g. CA.
+     * Region Code of the user. We support ISO 3166-2 region code, ex: "US-CA, US-NY, etc." or just the region code without country prefix, e.g. "CA, NY, etc.".
      */
     region?: string
   }

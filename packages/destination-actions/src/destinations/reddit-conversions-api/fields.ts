@@ -59,7 +59,7 @@ export const click_id: InputField = {
 
 export const event_metadata: InputField = {
     label: 'Event Metadata',
-    description: 'The metadata associated with the conversion event. Only one of "value" or "value_decimal" should be included.',
+    description: 'The metadata associated with the conversion event.',
     type: 'object',
     required: false,
     properties: {
@@ -137,7 +137,7 @@ export const user: InputField = {
     required: true,
     properties: {
         advertising_id: {
-            label: 'Advertising ID',
+            label: 'Advertising ID', // NEEDS TO BE HASHED (SHA-256)
             description: 'The mobile advertising ID for the user. This can be the iOS IDFA, Android AAID.',
             type: 'string'
         },
@@ -147,17 +147,17 @@ export const user: InputField = {
             type: 'string'
         },
         email: {
-            label: 'Email',
+            label: 'Email', // NEEDS TO BE HASHED (SHA-256)
             description: 'The email address of the user.',
             type: 'string'
         },
         external_id: {
-            label: 'External ID',
+            label: 'External ID', // NEEDS TO BE HASHED (SHA-256)
             description: 'An advertiser-assigned persistent identifier for the user.',
             type: 'string'
         },
         ip_address: {
-            label: 'IP Address',
+            label: 'IP Address', // NEEDS TO BE HASHED (SHA-256)
             description: 'The IP address of the user.',
             type: 'string'
         },
@@ -229,7 +229,7 @@ export const data_processing_options: InputField = {
         },
         region: {
             label: 'Region',
-            description: 'Region Code of the user. We support ISO 3166-2 region code or just the region code without country prefix, e.g. CA.',
+            description: 'Region Code of the user. We support ISO 3166-2 region code, ex: "US-CA, US-NY, etc." or just the region code without country prefix, e.g. "CA, NY, etc.".',
             type: 'string'
         }
     }
@@ -253,3 +253,5 @@ export const screen_dimensions: InputField = {
         }
     }
 }
+
+//CREATE CONVERSION_ID FIELD
