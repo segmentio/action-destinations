@@ -15,19 +15,3 @@ Headers {
   },
 }
 `;
-
-exports[`Topsort.impression should be successful with default mappings and resolvedBidId 2`] = `
-Headers {
-  Symbol(map): Object {
-    "authorization": Array [
-      "Bearer bar",
-    ],
-    "content-type": Array [
-      "application/json",
-    ],
-    "user-agent": Array [
-      "Segment (Actions)",
-    ],
-  },
-}
-`;
