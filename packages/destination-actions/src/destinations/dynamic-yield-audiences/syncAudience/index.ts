@@ -152,9 +152,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
     const idTypeToSend = sendNormalizeIdType ? normalizedIdentifierType : identifierType
 
-    const sectionId = getSectionId(settings.sectionId)
-
-    const dataCenter = getDataCenter(sectionId)
+    // Receives the sectionId plain with the dev prefix if provided
+    const dataCenter = getDataCenter(settings.sectionId)
 
     const URL = getUpsertURL(dataCenter)
 
@@ -164,9 +163,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       timestamp_ms: new Date(payload.timestamp).getTime(),
       account: {
         account_settings: {
-          section_id: sectionId,
-          identifier_type: idTypeToSend,
-          accessKey: settings.accessKey
+          sectionId: getSectionId(settings.sectionId),
+          identifier: idTypeToSend,
+          connectionKey: settings.accessKey
         }
       },
       user_profiles: [

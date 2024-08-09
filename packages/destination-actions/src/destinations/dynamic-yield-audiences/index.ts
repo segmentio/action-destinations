@@ -108,8 +108,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         timestamp_ms: new Date().getTime(),
         account: {
           account_settings: {
-            section_id: getSectionId(settings.sectionId),
-            api_key: settings.accessKey
+            sectionId: getSectionId(settings.sectionId),
+            connectionKey: settings.accessKey
           }
         },
         audience_id: audience_id, // must be sent as an integer
