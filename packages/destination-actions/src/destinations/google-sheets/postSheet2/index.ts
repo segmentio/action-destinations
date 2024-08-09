@@ -1,8 +1,8 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { processData } from './operations'
+import { processData } from './operations2'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Post Sheet (Simplified)',
@@ -90,9 +90,15 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload, syncMode }) => {
+    if (!syncMode) {
+      throw new IntegrationError('Sync mode is required for this action.', 'INVALID_REQUEST_DATA', 400)
+    }
     return processData(request, [payload], syncMode)
   },
   performBatch: (request, { payload, syncMode }) => {
+    if (!syncMode) {
+      throw new IntegrationError('Sync mode is required for this action.', 'INVALID_REQUEST_DATA', 400)
+    }
     return processData(request, payload, syncMode)
   }
 }
