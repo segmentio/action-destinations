@@ -9,6 +9,8 @@ import contact from './contact'
 import account from './account'
 import { authenticateWithPassword } from './sf-operations'
 
+import opportunity2 from './opportunity2'
+
 interface RefreshTokenResponse {
   access_token: string
 }
@@ -95,7 +97,8 @@ const destination: DestinationDefinition<Settings> = {
     cases,
     contact,
     opportunity,
-    account
+    account,
+    opportunity2
   }
 }
 
