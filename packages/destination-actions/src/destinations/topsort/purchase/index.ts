@@ -6,7 +6,7 @@ import { TopsortAPIClient } from '../client'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase',
   defaultSubscription: 'type = "track" and event = "Order Completed"',
-  description: 'A purchase is sent to Topsort once a consumer places an order.',
+  description: 'Send purchase events to Topsort when a consumer places an order.',
   fields: {
     id: {
       label: 'Event ID',
