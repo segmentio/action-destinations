@@ -12,6 +12,68 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for Braze's createAlias destination action: it should work with a single batched events 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer my-api-key",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's createAlias destination action: it should work with a single batched events 2`] = `
+Object {
+  "user_aliases": Array [
+    Object {
+      "alias_label": "foo",
+      "alias_name": "bar",
+      "external_id": "user123",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's createAlias destination action: it should work with batched events 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer my-api-key",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-braze-batch": Array [
+      "true",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's createAlias destination action: it should work with batched events 2`] = `
+Object {
+  "user_aliases": Array [
+    Object {
+      "alias_label": "foo",
+      "alias_name": "bar",
+    },
+    Object {
+      "alias_label": "boo",
+      "alias_name": "baz",
+      "external_id": "user2",
+    },
+    Object {
+      "alias_label": "foe",
+      "alias_name": "fum",
+      "external_id": "user3",
+    },
+  ],
+}
+`;
+
 exports[`Testing snapshot for Braze's createAlias destination action: required fields 1`] = `
 Object {
   "user_aliases": Array [
@@ -19,6 +81,17 @@ Object {
       "alias_label": "#HMCBuX*",
       "alias_name": "#HMCBuX*",
       "external_id": "#HMCBuX*",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's createAlias destination action: without external_id 1`] = `
+Object {
+  "user_aliases": Array [
+    Object {
+      "alias_label": "email",
+      "alias_name": "email@gmail.com",
     },
   ],
 }
