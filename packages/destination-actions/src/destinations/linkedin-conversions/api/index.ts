@@ -474,8 +474,6 @@ export class LinkedInConversions {
   }
 
   async batchConversionAdd(payloads: Payload[]): Promise<ModifiedResponse> {
-    console.log('sending batch conversion add request')
-
     try {
       return this.request(`${BASE_URL}/conversionEvents`, {
         method: 'post',
