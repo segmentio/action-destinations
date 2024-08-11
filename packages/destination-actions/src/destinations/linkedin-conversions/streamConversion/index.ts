@@ -304,6 +304,22 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     } catch (error) {
       throw handleRequestError(error)
     }
+  },
+  performBatch: async (request, { payload: payloads, hookOutputs }) => {
+    const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
+    const conversionRuleId = hookOutputs?.onMappingSave?.outputs?.id
+
+    if (!conversionRuleId) {
+      throw new PayloadValidationError('Conversion Rule ID is required.')
+    }
+
+    linkedinApiClient.setConversionRuleId(conversionRuleId)
+
+    try {
+      return linkedinApiClient.batchConversionAdd(payloads)
+    } catch (error) {
+      throw handleRequestError(error)
+    }
   }
 }
 
