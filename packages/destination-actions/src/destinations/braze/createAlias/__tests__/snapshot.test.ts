@@ -78,37 +78,23 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   })
 
   it('without external_id', async () => {
-    const event = createTestEvent({
-      type: 'track',
-      event: 'Create Alias',
-      userId: null,
-      properties: {
-        alias_name: 'email@gmail.com',
-        alias_label: 'email'
-      }
-    })
-
-    const mapping = {
-      external_id: {
-        '@path': '$.userId'
-      },
-      alias_name: {
-        '@path': '$.properties.alias_name'
-      },
-      alias_label: {
-        '@path': '$.properties.alias_label'
-      },
-      enable_batching: false
-    }
+    const action = destination.actions[actionSlug]
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+    delete eventData.external_id // remove external_id
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
+    const event = createTestEvent({
+      properties: eventData
+    })
+
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping,
-      settings
+      mapping: event.properties,
+      settings: settingsData,
+      auth: undefined
     })
 
     const request = responses[0].request

@@ -90,8 +90,8 @@ exports[`Testing snapshot for Braze's createAlias destination action: without ex
 Object {
   "user_aliases": Array [
     Object {
-      "alias_label": "email",
-      "alias_name": "email@gmail.com",
+      "alias_label": "#HMCBuX*",
+      "alias_name": "#HMCBuX*",
     },
   ],
 }
