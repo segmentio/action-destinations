@@ -3,6 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HubspotClient, AssociationSyncMode, SyncMode } from './hubspot-api'
 import { commonFields } from './common-fields'
+import { SchemaMatch } from './hubspot-api'
+
 import {
   dynamicReadAssociationLabels,
   dynamicReadIdFields,
@@ -10,11 +12,12 @@ import {
   dynamicReadPropertyGroups,
   dynamicReadProperties
 } from './dynamic-fields'
+import { IntegrationError } from '@segment/actions-core/*'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Upsert Object',
+  title: 'Custom Object',
   description:
-    'Upsert a record of any Object type to HubSpot and optionally assocate it with another record of any Object type.',
+    'Add, create or update records of any Object type to HubSpot, and optionally assocate that record with other records of any Object type.',
   syncMode: {
     description: 'Specify how Segment should update Records in Hubspot',
     label: 'Sync Mode',
@@ -63,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
         return await dynamicReadProperties(request, fromObjectType, false)
       }
     },
-    sensitiveProperties: {
+    sensitive_properties: {
       __keys__: async (request, { payload }) => {
         const fromObjectType = payload?.object_details?.from_object_type
 
@@ -126,40 +129,58 @@ const action: ActionDefinition<Settings, Payload> = {
 const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncMode) => {
   const {
     object_details: {
-      from_object_type: fromObjectType,
-      from_id_field_name: fromIdFieldName,
-      from_property_group: fromPropertyGroup
+      object_type: objectType,
+      id_field_name: idFieldName,
+      property_group: propertyGroup
     },
     association_sync_mode: assocationSyncMode
   } = payloads[0]
 
   const client = new HubspotClient(
     request,
-    fromObjectType,
-    fromIdFieldName,
+    objectType,
+    idFieldName,
     syncMode,
     assocationSyncMode as AssociationSyncMode,
-    fromPropertyGroup
+    propertyGroup
   )
 
-  const cleanedPayloads = client.cleanProperties(payloads)
-
-  if (fromPropertyGroup) {
-    const { uniqueProperties, uniqueSensitiveProperties } = client.uniquePayloadsProperties(cleanedPayloads)
-    const { properties: propertiesFromHSchema, sensitiveProperties: sensitivePropertiesFromHSchema } =
-      await client.propertiesFromHSchema(uniqueProperties.length > 0, uniqueSensitiveProperties.length > 0)
-    const propertiesToCreate = client.propertiesToCreateInHSSchema(uniqueProperties, propertiesFromHSchema)
-    const sensitivePropertiesToCreate = client.propertiesToCreateInHSSchema(
-      uniqueSensitiveProperties,
-      sensitivePropertiesFromHSchema
-    )
-    await client.ensurePropertiesInHSSchema(propertiesToCreate, sensitivePropertiesToCreate)
-  }
+  console.log("-2")
+  const ploads = client.cleanProps(payloads)
+  console.log("-1")
+  const schema = client.schema(ploads)
   
-  const fromRecordsOnHS = await client.ensureFromRecordsOnHubspot(cleanedPayloads)
-  const associations = client.getAssociationsFromPayloads(fromRecordsOnHS)
-  const toRecordsOnHS = await client.ensureToRecordsOnHubspot(associations)
-  await client.ensureAssociations(toRecordsOnHS)
+  console.log("0")
+
+  const diffCache = await client.schemaDiffCache(schema)
+
+  console.log("1")
+
+  const diffHS = await client.schemaDiffHubspot(schema)
+  console.log(diffHS)
+//  console.log(diffHS)
+
+  switch(diffHS.match){
+
+    case SchemaMatch.FullMatch: {
+      console.log("3")
+      const e = await client.sendEvents(ploads)
+      break
+    }
+    case SchemaMatch.PropertiesMissing: {
+      console.log("4")
+      await client.createProperties(diffHS)
+      const e = await client.sendEvents(ploads)
+      break
+    }
+    case SchemaMatch.NoMatch: {
+      console.log("5")
+      throw new IntegrationError('Object missing', 'Object missing', 400)
+    }
+  }  
+  console.log("6")
+  const a = await client.associationPayloads(ploads, ['object_type', 'id_field_name'])
+  console.log(a)
 }
 
 export default action
