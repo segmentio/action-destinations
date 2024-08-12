@@ -77,6 +77,7 @@ function setTestData(seedName: string, type: string, fieldName?: string, format?
 
   if (fieldName === 'email') val = chance.email()
   if (fieldName === 'currency') val = chance.currency().code
+  if (fieldName === 'phone_number') val = '+' + chance.phone({ formatted: false })
 
   return val
 }
