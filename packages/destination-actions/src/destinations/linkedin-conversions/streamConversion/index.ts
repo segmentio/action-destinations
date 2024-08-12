@@ -282,7 +282,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     },
     enable_batching: {
       label: 'Enable Batching',
-      description: 'Enable batching of requests.',
+      description: 'Enable batching of requests. non-functional change to trigger re-publish',
       type: 'boolean',
       default: true,
       unsafe_hidden: true
