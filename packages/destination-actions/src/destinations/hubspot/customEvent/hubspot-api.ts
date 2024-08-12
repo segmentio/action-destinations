@@ -1,7 +1,6 @@
-import { RequestClient, PayloadValidationError, IntegrationError } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, IntegrationError, RetryableError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
-import { RetryableError } from '@segment/actions-core/*'
 
 export type SyncMode = 'upsert' | 'add' | 'update'
 
