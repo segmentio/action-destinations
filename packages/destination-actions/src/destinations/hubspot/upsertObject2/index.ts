@@ -32,11 +32,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     object_details: {
-      from_object_type: async (request) => {
+      object_type: async (request) => {
         return await dynamicReadObjectTypes(request)
       },
-      from_id_field_name: async (request, { payload }) => {
-        const fromObjectType = payload?.object_details?.from_object_type
+      id_field_name: async (request, { payload }) => {
+        const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
           throw new Error("Select from 'From Object Type' first")
@@ -44,8 +44,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
         return await dynamicReadIdFields(request, fromObjectType)
       },
-      from_property_group: async (request, { payload }) => {
-        const fromObjectType = payload?.object_details?.from_object_type
+      property_group: async (request, { payload }) => {
+        const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
           throw new Error("Select from 'From Object Type' first")
@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     properties: {
       __keys__: async (request, { payload }) => {
-        const fromObjectType = payload?.object_details?.from_object_type
+        const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
           throw new Error("Select from 'From Object Type' first")
@@ -67,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     sensitive_properties: {
       __keys__: async (request, { payload }) => {
-        const fromObjectType = payload?.object_details?.from_object_type
+        const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
           throw new Error("Select from 'From Object Type' first")
@@ -77,7 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     associations: {
-      to_object_type: async (request) => {
+      object_type: async (request) => {
         return await dynamicReadObjectTypes(request)
       },
       association_label: async (request, { dynamicFieldContext, payload }) => {
@@ -87,8 +87,8 @@ const action: ActionDefinition<Settings, Payload> = {
           throw new Error('Selected array index is missing')
         }
 
-        const fromObjectType = payload?.object_details?.from_object_type
-        const toObjectType = payload?.associations?.[selectedIndex]?.to_object_type
+        const fromObjectType = payload?.object_details?.object_type
+        const toObjectType = payload?.associations?.[selectedIndex]?.object_type
 
         if (!fromObjectType) {
           throw new Error("Select from 'From Object Type' first")
@@ -100,14 +100,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
         return await dynamicReadAssociationLabels(request, fromObjectType, toObjectType)
       },
-      to_id_field_name: async (request, { dynamicFieldContext, payload }) => {
+      id_field_name: async (request, { dynamicFieldContext, payload }) => {
         const selectedIndex = dynamicFieldContext?.selectedArrayIndex
 
         if (selectedIndex === undefined) {
           throw new Error('Selected array index is missing')
         }
 
-        const toObjectType = payload?.associations?.[selectedIndex]?.to_object_type
+        const toObjectType = payload?.associations?.[selectedIndex]?.object_type
 
         if (!toObjectType) {
           throw new Error("Select from 'To Object Type' first")
