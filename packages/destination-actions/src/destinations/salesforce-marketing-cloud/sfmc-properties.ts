@@ -92,5 +92,5 @@ export const batch_size: InputField = {
    * See: https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/postDataExtensionRowsetByKey.html
    * And: inc-sev3-6609-sfmc-timeouts-in-bulk-batching-2023-10-23
    *  */
-  default: 50
+  default: 10
 }
