@@ -161,11 +161,22 @@ export const traits2: InputField = {
   type: 'object',
   defaultObjectUI: 'keyvalue:only',
   depends_on: {
+    match: 'any',
     conditions: [
       {
-        fieldKey: '__segment_internal_sync_mode',
+        fieldKey: 'syncMode',
         operator: 'is',
-        value: ['update', 'upsert', 'delete']
+        value: 'update'
+      },
+      {
+        fieldKey: 'syncMode',
+        operator: 'is',
+        value: 'upsert'
+      },
+      {
+        fieldKey: 'syncMode',
+        operator: 'is',
+        value: 'delete'
       }
     ]
   }
