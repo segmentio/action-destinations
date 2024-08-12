@@ -1,4 +1,4 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HubspotClient, AssociationSyncMode, SyncMode } from './hubspot-api'
@@ -12,7 +12,6 @@ import {
   dynamicReadPropertyGroups,
   dynamicReadProperties
 } from './dynamic-fields'
-import { IntegrationError } from '@segment/actions-core/*'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object',
@@ -130,7 +129,6 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
   const {
     object_details: {
       object_type: objectType,
-      id_field_name: idFieldName,
       property_group: propertyGroup
     },
     association_sync_mode: assocationSyncMode
@@ -139,48 +137,49 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
   const client = new HubspotClient(
     request,
     objectType,
-    idFieldName,
     syncMode,
     assocationSyncMode as AssociationSyncMode,
     propertyGroup
   )
 
-  console.log("-2")
-  const ploads = client.cleanProps(payloads)
-  console.log("-1")
-  const schema = client.schema(ploads)
-  
-  console.log("0")
+  const cleanedPayloads = client.cleanProps(payloads)
+  const schema = client.schema(cleanedPayloads)
+  const schemaDiffCache = await client.schemaDiffCache(schema)
 
-  const diffCache = await client.schemaDiffCache(schema)
-
-  console.log("1")
-
-  const diffHS = await client.schemaDiffHubspot(schema)
-  console.log(diffHS)
-//  console.log(diffHS)
-
-  switch(diffHS.match){
-
+  switch(schemaDiffCache.match){
     case SchemaMatch.FullMatch: {
-      console.log("3")
-      const e = await client.sendEvents(ploads)
-      break
+      const fromRecordPayloads = await client.sendFromRecords(cleanedPayloads)
+      const associationPayloads = client.createAssociationPayloads(fromRecordPayloads)
+      const associatedRecords = await client.sendAssociatedRecords(associationPayloads)
+      await client.sendAssociations(associatedRecords)
+      return
     }
-    case SchemaMatch.PropertiesMissing: {
-      console.log("4")
-      await client.createProperties(diffHS)
-      const e = await client.sendEvents(ploads)
-      break
-    }
+    case SchemaMatch.PropertiesMissing: 
     case SchemaMatch.NoMatch: {
-      console.log("5")
-      throw new IntegrationError('Object missing', 'Object missing', 400)
+
+      const schemaDiffHubspot = await client.schemaDiffHubspot(schema)
+
+      switch(schemaDiffHubspot.match){
+        case SchemaMatch.FullMatch: {
+          await client.saveSchemaToCache(schema)
+          break 
+        }
+        case SchemaMatch.PropertiesMissing: {
+          await client.createProperties(schemaDiffHubspot)
+          await client.saveSchemaToCache(schema)
+          break
+        }
+        case SchemaMatch.NoMatch: {
+          throw new IntegrationError('Object Type missing', 'Object Type missing', 400)
+        }
+      }  
+
+      const fromRecordPayloads = await client.sendFromRecords(cleanedPayloads)
+      const associationPayloads = client.createAssociationPayloads(fromRecordPayloads)
+      const associatedRecords = await client.sendAssociatedRecords(associationPayloads)
+      await client.sendAssociations(associatedRecords)
     }
-  }  
-  console.log("6")
-  const a = await client.associationPayloads(ploads, ['object_type', 'id_field_name'])
-  console.log(a)
+  }
 }
 
 export default action

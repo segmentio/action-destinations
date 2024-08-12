@@ -3,6 +3,9 @@ import { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { MAX_HUBSPOT_BATCH_SIZE } from './constants'
 
+
+// #region Types and Interfaces
+
 const OBJECT_NOT_FOUND_ERROR_RESPONSE = 'Unable to infer object type'
 
 export const SyncMode = {
@@ -13,7 +16,12 @@ export const SyncMode = {
 
 export type SyncMode = (typeof SyncMode)[keyof typeof SyncMode]
 
-export type AssociationSyncMode = 'upsert' | 'read'
+export const AssociationSyncMode = { 
+  Upsert: 'upsert', 
+  Read: 'read' 
+} as const
+
+export type AssociationSyncMode = (typeof AssociationSyncMode)[keyof typeof AssociationSyncMode]
 
 export const BatchRequestType = { 
   Upsert: 'upsert', 
@@ -61,6 +69,13 @@ export const SchemaMatch = {
 } as const
 
 export type SchemaMatch = typeof SchemaMatch[keyof typeof SchemaMatch];
+
+export const ReadType = {
+   ReturnRecordsWithIds: 'return_records_with_ids', 
+   ReturnRecordsWithoutIds: 'return_records_without_ids' 
+} as const
+
+export type ReadType = (typeof ReadType)[keyof typeof ReadType]
 
 export interface Prop {
   name: string
@@ -129,26 +144,71 @@ interface RespJSON {
   }>
 }
 
-export interface ExtendedPayload extends Payload {
-  object_details: Payload['object_details'] & {
-    /**
-     * The record ID for the object.
-     */
+export interface OmitPayload extends Omit<Payload, 'enable_batching' | 'batch_size' | 'association_sync_mode'> {}
+
+export interface PayloadWithFromId extends OmitPayload {
+  object_details: OmitPayload['object_details'] & {
+    record_id: string
+  },
+  associations?: Array<{
+    object_type: string
+    association_label: string
+    id_field_name: string
+    id_field_value: string
+    from_record_id: string 
+  }>
+}
+
+export interface AssociationPayload extends OmitPayload {
+  object_details: OmitPayload['object_details'] & {
+    from_record_id: string
+  },
+  association_details: {
+    association_label: string
+  }
+}
+
+export interface AssociationPayloadWithId extends AssociationPayload {
+  object_details: AssociationPayload['object_details'] & {
     record_id: string
   }
 }
 
-interface AssociationPayload {
-  object_type: string
-  association_label: string
-  id_field_name: string
-  id_field_value: string
+type Groupable<T> = T & { object_details: { [key: string]: string } }
+
+interface AssociationType {
+  associationCategory: AssociationCategory
+  associationTypeId: string
 }
+
+enum AssociationCategory {
+  HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
+  USER_DEFINED = 'USER_DEFINED',
+  INTEGRATOR_DEFINED = 'INTEGRATOR_DEFINED'
+}
+
+interface BatchAssociationsRequestBody {
+  inputs: {
+    types: AssociationType[]
+    from: {
+      id: string
+    }
+    to: {
+      id: string
+    }
+  }[]
+}
+
+interface GroupableFields {
+  object_type: string
+  id_field_name: string
+}
+
+// #endregion
 
 export class HubspotClient {
   request: RequestClient
   objectType: string
-  idFieldName: string
   syncMode: SyncMode
   associationSyncMode: AssociationSyncMode
   propertyGroup?: string
@@ -156,18 +216,18 @@ export class HubspotClient {
   constructor(
     request: RequestClient,
     objectType: string,
-    idFieldName: string,
     syncMode: SyncMode,
     associationSyncMode: AssociationSyncMode,
     propertyGroup: string | undefined
   ) {
     this.request = request
     this.objectType = objectType
-    this.idFieldName = idFieldName
     this.syncMode = syncMode
     this.associationSyncMode = associationSyncMode
     this.propertyGroup = propertyGroup
   }
+
+  // #region Schema functions
 
   cleanProp(str: string): string {
 
@@ -290,7 +350,7 @@ export class HubspotClient {
     return {
       object_details: { 
         object_type: this.objectType,
-        id_field_name: this.idFieldName
+        id_field_name: payloads[0].object_details.id_field_name
       },
       properties,
       sensitiveProperties
@@ -302,7 +362,7 @@ export class HubspotClient {
     // no op function until caching implemented
     let data = JSON.stringify(`${schema}`)
     data = data.replace(data, '')
-    console.log(`compared schema to cache: ${data}`)
+    console.log(`${data}`)
 
     const schemaDiff: SchemaDiff = {
       match: 'no_match',
@@ -315,6 +375,13 @@ export class HubspotClient {
     }
 
     return Promise.resolve(schemaDiff)
+  }
+
+  async saveSchemaToCache(schema: Schema) {
+    // no op function until caching implemented
+    let data = JSON.stringify(`${schema}`)
+    data = data.replace(data, '')
+    console.log(`${data}`)
   }
 
   propsAndMatchType(response: ResponseType, properties: Prop[]): {missingProps: Prop[], match: SchemaMatch} {    
@@ -530,6 +597,8 @@ export class HubspotClient {
     })
   }
 
+  // #endregion
+
   async batchObjectRequest(
     action: BatchRequestType,
     objectType: string,
@@ -540,25 +609,10 @@ export class HubspotClient {
       json: data
     })
   }
+  
+  // #region From Object functions
 
-  addRecordIds(payloads: Payload[], response: ModifiedResponse<RespJSON>): (ExtendedPayload | Payload)[] {
-
-    response?.data?.results.forEach((result) => {
-      payloads
-        .filter((p) => {
-          return (
-            p.object_details.id_field_value == (result.properties[p.object_details.id_field_name] as string)
-          )
-        })
-        .forEach((p) => {
-          return ((p as ExtendedPayload).object_details.record_id = result.id)
-        })
-    })
-
-    return payloads as (ExtendedPayload | Payload)[]
-  }
-
-  async sendEvents(payloads: Payload[]): Promise<ExtendedPayload[]> {
+  async sendFromRecords(payloads: Payload[]): Promise<PayloadWithFromId[]> {
     switch (this.syncMode) {
 
       case SyncMode.Upsert: {
@@ -575,42 +629,53 @@ export class HubspotClient {
     }
   }
 
-  async upsertRecords(payloads: Payload[], objectType: string): Promise<ExtendedPayload[]> {
-    const response = await this.batchObjectRequest(BatchRequestType.Upsert, objectType, {
-      inputs: payloads.map(
-        ({ object_details: { id_field_value }, properties, sensitive_properties }) => {
-          return {
-            idProperty: this.idFieldName,
-            id: id_field_value,
-            properties: { ...properties, ...sensitive_properties, [this.idFieldName]: id_field_value }
-          }
-        }
-      )
-    } as UpsertJSON)
-
-    return this.addRecordIds(payloads, response).filter(
-      (payload) => (payload as ExtendedPayload).object_details.record_id
-    ) as ExtendedPayload[]
-  }
-
-  async updateRecords(payloads: Payload[], objectType: string): Promise<ExtendedPayload[]> {
+  async readRecords(payloads: Payload[], objectType: string, readType: ReadType): Promise<PayloadWithFromId[] | Payload[]> {
+    const idFieldName = payloads[0].object_details.id_field_name
+    
     const readResponse = await this.batchObjectRequest(BatchRequestType.Read, objectType, {
-      properties: [this.idFieldName],
-      idProperty: this.idFieldName,
+      properties: [idFieldName],
+      idProperty: idFieldName,
       inputs: payloads.map((payload) => {
         return { id: payload.object_details.id_field_value }
       })
     } as ReadJSON)
 
-    const existingRecords = this.addRecordIds(payloads, readResponse).filter(
-      (payload) => (payload as ExtendedPayload).object_details.record_id
-    )
+    switch(readType) {
+      case ReadType.ReturnRecordsWithIds:
+        return this.returnRecordsWithIds(payloads, readResponse)
+      case ReadType.ReturnRecordsWithoutIds:
+        return this.returnRecordsWithoutIds(payloads, readResponse)  
+    }
+  }
+
+  async upsertRecords(payloads: Payload[], objectType: string): Promise<PayloadWithFromId[]> {
+    
+    const response = await this.batchObjectRequest(BatchRequestType.Upsert, objectType, {
+      inputs: payloads.map(
+        ({ object_details: { id_field_value }, properties, sensitive_properties }) => {
+          const idFieldName = payloads[0].object_details.id_field_name
+          return {
+            idProperty: idFieldName,
+            id: id_field_value,
+            properties: { ...properties, ...sensitive_properties, [idFieldName]: id_field_value }
+          }
+        }
+      )
+    } as UpsertJSON)
+
+    return this.returnRecordsWithIds(payloads, response)
+  }
+
+  async updateRecords(payloads: Payload[], objectType: string): Promise<PayloadWithFromId[]> {
+    
+    const existingRecords = await this.readRecords(payloads, objectType, ReadType.ReturnRecordsWithIds) as unknown as Payload[]
 
     const response = await this.batchObjectRequest(BatchRequestType.Update, this.objectType, {
       inputs: existingRecords.map(
         ({ object_details: { id_field_value }, properties, sensitive_properties }) => {
+          const idFieldName = payloads[0].object_details.id_field_name
           return {
-            idProperty: this.idFieldName,
+            idProperty: idFieldName,
             id: id_field_value,
             properties: { ...properties, ...sensitive_properties }
           }
@@ -618,56 +683,96 @@ export class HubspotClient {
       )
     } as UpsertJSON)
 
-    return this.addRecordIds(existingRecords, response).filter(
-      (payload) => (payload as ExtendedPayload).object_details.record_id
-    ) as ExtendedPayload[]
+    return this.returnRecordsWithIds(existingRecords, response)
   }
 
-  async addRecords(payloads: Payload[], objectType: string): Promise<ExtendedPayload[]> {
+  async addRecords(payloads: Payload[], objectType: string): Promise<PayloadWithFromId[]> {
 
-    const readResponse = await this.batchObjectRequest(BatchRequestType.Read, objectType, {
-      properties: [this.idFieldName],
-      idProperty: this.idFieldName,
-      inputs: payloads.map((payload) => {
-        return { id: payload.object_details.id_field_value }
-      })
-    } as ReadJSON)
-
-    const recordsToCreate = this.addRecordIds(payloads, readResponse).filter(
-      (payload) => !(payload as ExtendedPayload).object_details.record_id
-    )
+    const recordsToCreate = await this.readRecords(payloads, objectType, ReadType.ReturnRecordsWithoutIds) as Payload[]
 
     const response: ModifiedResponse<RespJSON> = await this.batchObjectRequest(BatchRequestType.Create, this.objectType, {
       inputs: recordsToCreate.map(
         ({ object_details: { id_field_value: fromIdFieldValue }, properties, sensitive_properties }) => {
+          const idFieldName = payloads[0].object_details.id_field_name
           return {
-            idProperty: this.idFieldName,
-            properties: { ...properties, ...sensitive_properties, [this.idFieldName]: fromIdFieldValue }
+            idProperty: idFieldName,
+            properties: { ...properties, ...sensitive_properties, [idFieldName]: fromIdFieldValue }
           }
         }
       )
     } as CreateJSON)
 
-    return this.addRecordIds(recordsToCreate, response).filter(
-      (payload) => (payload as ExtendedPayload).object_details.record_id
-    ) as ExtendedPayload[]
+    return this.returnRecordsWithIds(recordsToCreate, response)
   }
 
-  associationPayloads(payloads: Payload[], groupBy: ['object_type'] | ['object_type', 'id_field_name']): AssociationPayload[][] {
+  returnRecordsWithIds(payloads: Payload[], response: ModifiedResponse<RespJSON>): PayloadWithFromId[] {
 
-    const associationPayloads: AssociationPayload[] = payloads.flatMap(payload => Array.isArray(payload.associations) ? payload.associations : []) as AssociationPayload[]
+    response?.data?.results.forEach((result) => {
+      payloads
+        .filter((p) => {
+          return (
+            p.object_details.id_field_value == (result.properties[p.object_details.id_field_name] as string)
+          )
+        })
+        .forEach((p) => {
+          const pw = { ...p, object_details: { ...p.object_details, record_id: result.id } } as PayloadWithFromId
+          if (pw.associations) {
+            pw.associations.forEach((association) => {
+              association.from_record_id = result.id
+            })
+          }
+        })
+    })
 
+    return payloads as unknown as PayloadWithFromId[]
+  }
+
+  returnRecordsWithoutIds(payloads: Payload[], response: ModifiedResponse<RespJSON>): Payload[] {
+    const missingRecords = payloads.filter((payload) => {
+      return !response.data.results.some((result) => {
+        return result.properties[payload.object_details.id_field_name] === payload.object_details.id_field_value
+      })
+    })
+
+    return missingRecords
+  }
+
+  // #endregion
+
+
+  // #region Associated Record functions
+
+  createAssociationPayloads(payloads: PayloadWithFromId[]): AssociationPayload[][] {   
+    const associationPayloads: AssociationPayload[] = payloads.flatMap(payload =>
+      Array.isArray(payload.associations)
+        ? payload.associations.map(association => ({
+            object_details: {
+              object_type: association.object_type,
+              id_field_name: association.id_field_name,
+              id_field_value: association.id_field_value,
+              from_record_id: association.from_record_id
+            },
+            association_details: {
+              association_label: association.association_label
+            }
+          }))
+        : []
+    )
+
+    return this.groupPayloads(associationPayloads, ['object_type', 'id_field_name'])
+  }
+
+  groupPayloads(associations: AssociationPayload[], groupBy: (keyof GroupableFields)[]): AssociationPayload[][] {
     const groupedPayloads: AssociationPayload[][] = []
 
-    const groups: { [key: string]: AssociationPayload[] } = associationPayloads.reduce((acc, payload) => {
-      const key = groupBy.map((prop) => payload[prop]).join('_')
-        if (!acc[key]) {
-          acc[key] = []
-        }
-        acc[key].push(payload)
-        return acc
-      }, {} as { [key: string]: AssociationPayload[]   
-    })
+    const groups: { [key: string]: AssociationPayload[] } = associations.reduce((acc, payload) => {
+      const key = groupBy.map((prop) => payload.object_details[prop]).join('_')
+      if (!acc[key]) {
+        acc[key] = []
+      }
+      acc[key].push(payload)
+      return acc
+    }, {} as { [key: string]: AssociationPayload[] })
 
     for (const key in groups) {
       const items = groups[key]
@@ -679,4 +784,120 @@ export class HubspotClient {
     return groupedPayloads
   }
 
+  async sendAssociatedRecords(payloads: AssociationPayload[][]): Promise<AssociationPayloadWithId[]> {
+    switch (this.associationSyncMode) {
+      case AssociationSyncMode.Upsert: {
+        return await this.upsertAssociatedRecords(payloads)
+      }
+      case AssociationSyncMode.Read: {
+        return await this.readAssociatedRecords(payloads)
+      }
+    }
+  }
+
+  async readAssociatedRecords(groupedPayloads: AssociationPayload[][]): Promise<AssociationPayloadWithId[]> {
+    
+    const requests = groupedPayloads.map(async (payloads) => {
+      const { object_type: objectType } = payloads[0].object_details
+      
+      return await this.batchObjectRequest(AssociationSyncMode.Read, objectType, {
+          idProperty: payloads[0].object_details.id_field_name,
+          properties: [payloads[0].object_details.id_field_name],
+          inputs: payloads.map((payload) => {
+            return {
+              id: payload.object_details.id_field_value
+            }
+          })
+      })
+    })
+
+    const responses = await Promise.all(requests)
+
+    return this.returnAssociatedRecordsWithIds(groupedPayloads, responses)
+  }
+
+  async upsertAssociatedRecords(groupedPayloads: AssociationPayload[][]): Promise<AssociationPayloadWithId[]> {
+
+    const requests = groupedPayloads.map(async (payloads) => {
+      const { object_type: objectType } = payloads[0].object_details
+      
+      return await this.batchObjectRequest(AssociationSyncMode.Upsert, objectType, {
+        inputs: payloads.map((payload) => {
+          return {
+            idProperty: payload.object_details.id_field_name,
+            id: payload.object_details.id_field_value,
+            properties: {
+              [payload.object_details.id_field_name]: payload.object_details.id_field_value
+            }
+          }
+        })
+      })
+    })
+
+    const responses = await Promise.all(requests)
+
+    return this.returnAssociatedRecordsWithIds(groupedPayloads, responses)
+  }
+
+  returnAssociatedRecordsWithIds(groupedPayloads: AssociationPayload[][], responses: ModifiedResponse<RespJSON>[]): AssociationPayloadWithId[] {
+    responses.forEach((response, index) => {
+      const payloads = groupedPayloads[index]
+      response?.data?.results.forEach((result) => {
+        payloads
+          .filter((payload) => payload.object_details.id_field_value == (result.properties[payload.object_details.id_field_name] as string))
+          .forEach((payload) => ((payload as AssociationPayloadWithId).object_details.record_id = result.id))
+      })
+    }) 
+
+    return groupedPayloads.flat() as AssociationPayloadWithId[] 
+  }
+
+  // #region Association functions
+
+  async batchAssociationsRequest(body: BatchAssociationsRequestBody, toObjectType: string) {
+    return this.request(`${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/create`, {
+      method: 'POST',
+      json: body
+    })
+  }
+
+  async sendAssociations(payloads: AssociationPayloadWithId[]) {
+   
+    const groupedPayloads: AssociationPayloadWithId[][] = this.groupPayloads(payloads as AssociationPayload[], ['object_type']) as AssociationPayloadWithId[][]
+
+    function getAssociationType(associationLabel: string): AssociationType {
+      const [associationCategory, associationTypeId] = associationLabel.split(':')
+      return { associationCategory, associationTypeId } as AssociationType
+    }
+
+    const requests = groupedPayloads.map(async (payloads) => {
+      const toObjectType = payloads[0].object_details.object_type
+
+      const inputs = payloads.map((payload) => {
+        const { associationCategory, associationTypeId } = getAssociationType(payload.association_details.association_label) 
+        const input = {
+          types: [
+            {
+              associationCategory,
+              associationTypeId
+            }
+          ],
+          from: {
+            id: payload.object_details.from_record_id
+          },
+          to: {
+            id: payload.object_details.record_id
+          }
+        }
+        return input
+      })
+      return this.batchAssociationsRequest({ inputs }, toObjectType)
+    })
+
+    await Promise.all(requests)
+  }
+
+  // #endregion
+
+  // #endregion
 }
