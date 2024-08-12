@@ -285,16 +285,14 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       description: 'Enable batching of requests.',
       type: 'boolean',
       default: true,
-      unsafe_hidden: true,
-      required: true
+      unsafe_hidden: true
     },
     batch_size: {
       label: 'Batch Size',
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       default: 5000,
-      unsafe_hidden: true,
-      required: true
+      unsafe_hidden: true
     }
   },
   perform: async (request, { payload, hookOutputs }) => {
