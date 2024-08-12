@@ -97,7 +97,9 @@ describe('LinkedinConversions.streamConversion', () => {
             outputs: {
               id: payload.conversionId
             }
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).resolves.not.toThrowError()
@@ -155,7 +157,9 @@ describe('LinkedinConversions.streamConversion', () => {
             outputs: {
               id: payload.conversionId
             }
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).resolves.not.toThrowError()
@@ -240,7 +244,9 @@ describe('LinkedinConversions.streamConversion', () => {
             outputs: {
               id: payload.conversionId
             }
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).resolves.not.toThrowError()
@@ -278,7 +284,9 @@ describe('LinkedinConversions.streamConversion', () => {
             outputs: {
               id: payload.conversionId
             }
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).resolves.not.toThrowError()
@@ -293,7 +301,9 @@ describe('LinkedinConversions.streamConversion', () => {
           user: {
             '@path': '$.context.traits.user'
           },
-          conversionHappenedAt: '50000000000'
+          conversionHappenedAt: '50000000000',
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).rejects.toThrowError('Timestamp should be within the past 90 days.')
@@ -307,7 +317,9 @@ describe('LinkedinConversions.streamConversion', () => {
         mapping: {
           conversionHappenedAt: {
             '@path': '$.timestamp'
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).rejects.toThrowError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
@@ -343,7 +355,9 @@ describe('LinkedinConversions.streamConversion', () => {
             outputs: {
               id: payload.conversionId
             }
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).resolves.not.toThrowError()
@@ -361,7 +375,9 @@ describe('LinkedinConversions.streamConversion', () => {
           email: { '@path': '$.context.traits.email' },
           conversionHappenedAt: {
             '@path': '$.timestamp'
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).rejects.toThrowError(
@@ -381,7 +397,9 @@ describe('LinkedinConversions.streamConversion', () => {
           email: { '@path': '$.context.traits.email' },
           conversionHappenedAt: {
             '@path': '$.timestamp'
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).rejects.toThrowError("User Info is missing the required field 'firstName'.")
@@ -399,7 +417,9 @@ describe('LinkedinConversions.streamConversion', () => {
           email: { '@path': '$.context.traits.email' },
           conversionHappenedAt: {
             '@path': '$.timestamp'
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).rejects.toThrowError("User Info is missing the required field 'lastName'.")
@@ -484,7 +504,9 @@ describe('LinkedinConversions.timestamp', () => {
             outputs: {
               id: payload.conversionId
             }
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).resolves.not.toThrowError()
@@ -509,7 +531,9 @@ describe('LinkedinConversions.timestamp', () => {
             outputs: {
               id: payload.conversionId
             }
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).resolves.not.toThrowError()

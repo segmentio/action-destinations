@@ -474,39 +474,34 @@ export class LinkedInConversions {
   }
 
   async batchConversionAdd(payloads: Payload[]): Promise<ModifiedResponse> {
-    try {
-      return this.request(`${BASE_URL}/conversionEvents`, {
-        method: 'post',
-        headers: {
-          'X-RestLi-Method': 'BATCH_CREATE'
-        },
-        json: {
-          elements: [
-            ...payloads.map((payload) => {
-              const conversionTime = isNotEpochTimestampInMilliseconds(payload.conversionHappenedAt)
-                ? convertToEpochMillis(payload.conversionHappenedAt)
-                : Number(payload.conversionHappenedAt)
-              validate(payload, conversionTime)
+    return this.request(`${BASE_URL}/conversionEvents`, {
+      method: 'post',
+      headers: {
+        'X-RestLi-Method': 'BATCH_CREATE'
+      },
+      json: {
+        elements: [
+          ...payloads.map((payload) => {
+            const conversionTime = isNotEpochTimestampInMilliseconds(payload.conversionHappenedAt)
+              ? convertToEpochMillis(payload.conversionHappenedAt)
+              : Number(payload.conversionHappenedAt)
+            validate(payload, conversionTime)
 
-              const userIds = this.buildUserIdsArray(payload)
-              return {
-                conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
-                conversionHappenedAt: conversionTime,
-                conversionValue: payload.conversionValue,
-                eventId: payload.eventId,
-                user: {
-                  userIds,
-                  userInfo: payload.userInfo
-                }
+            const userIds = this.buildUserIdsArray(payload)
+            return {
+              conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
+              conversionHappenedAt: conversionTime,
+              conversionValue: payload.conversionValue,
+              eventId: payload.eventId,
+              user: {
+                userIds,
+                userInfo: payload.userInfo
               }
-            })
-          ]
-        }
-      })
-    } catch (e) {
-      console.log(e)
-      throw e
-    }
+            }
+          })
+        ]
+      }
+    })
   }
 
   async bulkAssociateCampaignToConversion(campaignIds?: string[]): Promise<ModifiedResponse | void> {
