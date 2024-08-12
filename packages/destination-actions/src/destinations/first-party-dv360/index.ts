@@ -3,7 +3,6 @@ import type { AudienceSettings, Settings } from './generated-types'
 
 import addToList from './addToList'
 import { createAudienceRequest, getAudienceRequest } from './functions'
-import { handleRequestError } from '../display-video-360/errors'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'First Party Dv360',
@@ -102,25 +101,21 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing audience type value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      try {
-        // Make API request to create the audience
-        const response = await createAudienceRequest(_request, {
-          advertiserId,
-          audienceName,
-          description,
-          membershipDurationDays,
-          audienceType,
-          token
-        })
+      // Make API request to create the audience
+      const response = await createAudienceRequest(_request, {
+        advertiserId,
+        audienceName,
+        description,
+        membershipDurationDays,
+        audienceType,
+        token
+      })
 
-        // Parse and return the externalId
-        const r = await response.json()
-        statsClient?.incr(`${statsName}.success`, 1, statsTags)
-        return {
-          externalId: r.firstAndThirdPartyAudienceId
-        }
-      } catch (error) {
-        throw handleRequestError(error, statsName, statsContext)
+      // Parse and return the externalId
+      const r = await response.json()
+      statsClient?.incr(`${statsName}.success`, 1, statsTags)
+      return {
+        externalId: r.firstAndThirdPartyAudienceId
       }
     },
 
@@ -143,27 +138,21 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing required advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      try {
-        // Make API request to get audience details
-        console.log(advertiserId, audienceId, token)
-        const response = await getAudienceRequest(_request, { advertiserId, audienceId, token })
+      // Make API request to get audience details
+      const response = await getAudienceRequest(_request, { advertiserId, audienceId, token })
 
-        if (!response.ok) {
-          // Handle non-OK responses
-          statsTags?.push('error:api-request-failed')
-          statsClient?.incr(`${statsName}.error`, 1, statsTags)
-          throw new IntegrationError('Failed to retrieve audience details', 'API_REQUEST_FAILED', response.status)
-        }
+      if (!response.ok) {
+        // Handle non-OK responses
+        statsTags?.push('error:api-request-failed')
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
+        throw new IntegrationError('Failed to retrieve audience details', 'API_REQUEST_FAILED', response.status)
+      }
 
-        // Parse and return the response
-        const audienceData = await response.json()
-        statsClient?.incr(`${statsName}.success`, 1, statsTags)
-        return {
-          externalId: audienceData.firstAndThirdPartyAudienceId
-        }
-      } catch (error) {
-        //fix the erros
-        throw handleRequestError(error, statsName, statsContext)
+      // Parse and return the response
+      const audienceData = await response.json()
+      statsClient?.incr(`${statsName}.success`, 1, statsTags)
+      return {
+        externalId: audienceData.firstAndThirdPartyAudienceId
       }
     }
   },
