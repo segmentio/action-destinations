@@ -8,9 +8,14 @@ codecov:
   notify:
     wait_for_ci: true
 
+# https://about.codecov.io/blog/the-5-levels-of-code-coverage-how-to-build-a-testing-culture-in-your-organization/
+# Setting this configuration as recommended for beginners in the above blog post.
+# We can introduce more strict settings as we progress.
 coverage:
   status:
     project:
       default:
-        target: auto # Default value. The target is calculated based on the coverage of the base branch
-        threshold: 5% # The limit for the coverage to drop by and still be considered a success.
+        informational: false
+    patch:
+      default:
+        informational: false
