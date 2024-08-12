@@ -57,9 +57,9 @@ describe('Remove List from Profile', () => {
       }
     }
 
-    await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).rejects.toThrowError(
-      'invalid-phone-number is not a valid E.164 phone number.'
-    )
+    await expect(
+      testDestination.testAction('removeProfileFromList', { event, mapping, settings })
+    ).rejects.toThrowError('invalid-phone-number is not a valid E.164 phone number.')
   })
 
   it('should remove profile from list successfully with email address only', async () => {
@@ -256,7 +256,7 @@ describe('Remove List from Profile Batch', () => {
     nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200)
 
     await expect(
-      testDestination.testBatchAction('removeProfile', {
+      testDestination.testBatchAction('removeProfileFromList', {
         settings,
         events,
         mapping
