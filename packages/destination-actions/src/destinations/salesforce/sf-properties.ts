@@ -167,16 +167,6 @@ export const traits2: InputField = {
         fieldKey: 'syncMode',
         operator: 'is',
         value: 'update'
-      },
-      {
-        fieldKey: 'syncMode',
-        operator: 'is',
-        value: 'upsert'
-      },
-      {
-        fieldKey: 'syncMode',
-        operator: 'is',
-        value: 'delete'
       }
     ]
   }
