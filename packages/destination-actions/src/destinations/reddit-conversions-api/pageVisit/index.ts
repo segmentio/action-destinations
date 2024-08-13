@@ -1,10 +1,16 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { event_at, event_type, click_id, products, user, data_processing_options, screen_dimensions, event_metadata } from '../fields'
-
-
-//const { event_at, event_type, click_id } = fields.properties;
+import {
+  event_at,
+  event_type,
+  click_id,
+  products,
+  user,
+  data_processing_options,
+  screen_dimensions,
+  event_metadata
+} from '../fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page Visit',
@@ -42,18 +48,26 @@ function createRedditPayload(payload: Payload) {
   const advertisingIdKey = payload.user.device_type === 'Apple' ? 'idfa' : 'aaid'
   const cleanedPayload = {
     event_at: payload.event_at,
-    event_type: payload.event_type ? cleanObject({
-      tracking_type: payload.event_type.tracking_type
-    }) : undefined,
+    event_type: payload.event_type
+      ? cleanObject({
+          tracking_type: payload.event_type.tracking_type
+        })
+      : undefined,
     click_id: payload.click_id,
     // NOTE: ADD CONVERSION ID WITHIN EVENT METADATA AFTER WE IMPLEMENT THE JS PIXEL
-    event_metadata: payload.event_metadata ? cleanObject({
-      products: payload.products ? payload.products.map(product => cleanObject({
-        category: product.category,
-        id: product.id,
-        name: product.name
-      })) : undefined
-    }) : undefined,
+    event_metadata: payload.event_metadata
+      ? cleanObject({
+          products: payload.products
+            ? payload.products.map((product) =>
+                cleanObject({
+                  category: product.category,
+                  id: product.id,
+                  name: product.name
+                })
+              )
+            : undefined
+        })
+      : undefined,
     user: cleanObject({
       [advertisingIdKey]: payload.user.advertising_id,
       email: payload.user.email,
@@ -62,15 +76,19 @@ function createRedditPayload(payload: Payload) {
       opt_out: payload.user.opt_out,
       user_agent: payload.user.user_agent,
       uuid: payload.user.uuid,
-      data_processing_options: payload.data_processing_options ? cleanObject({
-        country: payload.data_processing_options.country,
-        modes: payload.data_processing_options.modes,
-        region: payload.data_processing_options.region
-      }) : undefined,
-      screen_dimensions: payload.screen_dimensions ? cleanObject({
-        height: payload.screen_dimensions.height,
-        width: payload.screen_dimensions.width
-      }) : undefined
+      data_processing_options: payload.data_processing_options
+        ? cleanObject({
+            country: payload.data_processing_options.country,
+            modes: payload.data_processing_options.modes,
+            region: payload.data_processing_options.region
+          })
+        : undefined,
+      screen_dimensions: payload.screen_dimensions
+        ? cleanObject({
+            height: payload.screen_dimensions.height,
+            width: payload.screen_dimensions.width
+          })
+        : undefined
     })
   }
 
