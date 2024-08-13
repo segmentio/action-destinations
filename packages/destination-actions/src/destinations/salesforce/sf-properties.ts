@@ -159,16 +159,7 @@ export const traits2: InputField = {
 
   `,
   type: 'object',
-  defaultObjectUI: 'keyvalue:only',
-  depends_on: {
-    conditions: [
-      {
-        fieldKey: 'syncMode',
-        operator: 'is',
-        value: 'update'
-      }
-    ]
-  }
+  defaultObjectUI: 'keyvalue:only'
 }
 
 export const customFields: InputField = {
