@@ -4,6 +4,8 @@ import type { Settings } from './generated-types'
 import conversionUpload from './conversionUpload'
 import { CampaignManager360RefreshTokenResponse } from './types'
 
+import conversionAdjustmentUpload from './conversionAdjustmentUpload'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Campaign Manager 360',
   slug: 'campaign-manager-360',
@@ -61,7 +63,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    conversionUpload
+    conversionUpload,
+    conversionAdjustmentUpload
   }
 }
 

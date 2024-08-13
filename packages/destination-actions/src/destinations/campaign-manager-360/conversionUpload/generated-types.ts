@@ -10,13 +10,13 @@ export interface Payload {
    */
   dclid?: string
   /**
-   * The Floodlight activity ID associated with the conversion.
-   */
-  floodlightActivityId?: string
-  /**
    * The Floodlight configuration ID associated with the conversion.
    */
   floodlightConfigurationId?: string
+  /**
+   * The Floodlight activity ID associated with the conversion.
+   */
+  floodlightActivityId?: string
   /**
    * The ordinal value of the conversion.
    */
