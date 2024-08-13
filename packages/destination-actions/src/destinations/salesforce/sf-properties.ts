@@ -159,7 +159,26 @@ export const traits2: InputField = {
 
   `,
   type: 'object',
-  defaultObjectUI: 'keyvalue:only'
+  defaultObjectUI: 'keyvalue:only',
+  depends_on: {
+    conditions: [
+      {
+        type: 'syncMode',
+        operator: 'is',
+        value: 'update'
+      },
+      {
+        type: 'syncMode',
+        operator: 'is',
+        value: 'upsert'
+      },
+      {
+        type: 'syncMode',
+        operator: 'is',
+        value: 'delete'
+      }
+    ]
+  }
 }
 
 export const customFields: InputField = {
