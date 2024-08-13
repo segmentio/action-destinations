@@ -37,3 +37,15 @@ export function getUpsertURL(dataCenter: string): string {
 export function getCreateAudienceURL(dataCenter: string): string {
   return `https://cdp-extensions-api.${getDomain(dataCenter)}.dynamicyield.com/cdp/segment/audiences/subscription`
 }
+
+export function getDataCenter(sectionId: string) {
+  return sectionId.toLocaleLowerCase().startsWith('9')
+    ? 'EU'
+    : sectionId.toLocaleLowerCase().startsWith('8')
+    ? 'US'
+    : 'DEV'
+}
+
+export function getSectionId(sectionId: string) {
+  return sectionId.toLocaleLowerCase().replace('dev', '')
+}

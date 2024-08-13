@@ -49,7 +49,7 @@ describe('IterableLists.syncAudience', () => {
         context: {
           personas: {
             audience_settings: {
-              computation_key: 'the_super_mario_bros_super_audience_2',
+              computation_key: 'test',
               external_audience_id: '4269566'
             }
           }
@@ -64,7 +64,7 @@ describe('IterableLists.syncAudience', () => {
         context: {
           personas: {
             audience_settings: {
-              computation_key: 'the_super_mario_bros_super_audience_2',
+              computation_key: 'test',
               external_audience_id: '4269566'
             }
           }

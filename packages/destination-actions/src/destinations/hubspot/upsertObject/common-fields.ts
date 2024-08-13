@@ -10,27 +10,27 @@ export const commonFields: Record<string, InputField> = {
     defaultObjectUI: 'keyvalue:only',
     additionalProperties: false,
     properties: {
-      from_object_type: {
+      object_type: {
         label: 'Object Type',
         description: 'The type of Hubspot Object to add/update a record for.',
         type: 'string',
         required: true,
         dynamic: true
       },
-      from_id_field_name: {
+      id_field_name: {
         label: 'Object ID Field Name',
         description: 'The name of the ID field for the record.',
         type: 'string',
         required: true,
         dynamic: true
       },
-      from_id_field_value: {
+      id_field_value: {
         label: 'Object ID Field Value',
         description: 'The ID value for the record.',
         type: 'string',
         required: true
       },
-      from_property_group: {
+      property_group: {
         label: 'Property Group',
         description:
           'Segment can new create properties on the object if needed. To enable this select the property group for Segment to add new properties to. To disable leave this field blank.',
@@ -38,14 +38,6 @@ export const commonFields: Record<string, InputField> = {
         required: false,
         default: undefined,
         dynamic: true
-      },
-      from_record_id: {
-        label: 'From Object Record ID - Hidden field',
-        description: 'The Hubspot Record ID of the To record. Used when associating to other records',
-        type: 'string',
-        unsafe_hidden: true,
-        required: false,
-        default: undefined
       }
     }
   },
@@ -55,10 +47,17 @@ export const commonFields: Record<string, InputField> = {
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue',
-    additionalProperties: true,
-    default: {
-      '@path': 'properties'
-    }
+    dynamic: true,
+    additionalProperties: true
+  },
+  sensitive_properties: {
+    label: 'Sensitive Properties',
+    description: 'Sensitive Properties to set on the record.',
+    type: 'object',
+    required: false,
+    defaultObjectUI: 'keyvalue',
+    dynamic: true,
+    additionalProperties: true
   },
   association_sync_mode: {
     label: 'Associated Record Sync Mode',
@@ -81,7 +80,7 @@ export const commonFields: Record<string, InputField> = {
     defaultObjectUI: 'arrayeditor',
     additionalProperties: false,
     properties: {
-      to_object_type: {
+      object_type: {
         label: 'To Object Type',
         description: 'The type of associated Hubspot Object.',
         type: 'string',
@@ -95,7 +94,7 @@ export const commonFields: Record<string, InputField> = {
         required: true,
         dynamic: true
       },
-      to_id_field_name: {
+      id_field_name: {
         label: 'To Object ID Field Name',
         description:
           'The name of the unique field Segment will use as an identifier when associating the record to another record. The unique field name must already exist on the Object in Hubspot.',
@@ -103,27 +102,11 @@ export const commonFields: Record<string, InputField> = {
         required: true,
         dynamic: true
       },
-      to_id_field_value: {
+      id_field_value: {
         label: 'To Object ID Field Value',
         description: 'The value of the identifier for the record to be associated with',
         type: 'string',
         required: true
-      },
-      to_record_id: {
-        label: 'To Object Record ID - Hidden field',
-        description: 'The Hubspot Record ID of the record to be associated with',
-        type: 'string',
-        unsafe_hidden: true,
-        required: false,
-        default: undefined
-      },
-      from_record_id: {
-        label: 'From Object Record ID - Hidden field',
-        description: 'The Hubspot Record ID of the From record. Used when associating to the To record.',
-        type: 'string',
-        unsafe_hidden: true,
-        required: false,
-        default: undefined
       }
     }
   },
