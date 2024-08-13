@@ -3,7 +3,7 @@ import FacebookClient, { BASE_URL, generateData } from '../fbca-operations'
 import { Settings } from '../generated-types'
 import nock from 'nock'
 import { Payload } from '../sync/generated-types'
-import { createHash } from 'crypto'
+import { sha256SmartHash } from '@segment/actions-core'
 import { normalizationFunctions } from '../fbca-properties'
 
 const requestClient = createRequestClient()
@@ -11,11 +11,6 @@ const settings: Settings = {
   retlAdAccountId: 'act_123456'
 }
 const EMPTY = ''
-
-// clone of the hash function in fbca-operations.ts since it's a private method
-const hash = (value: string): string => {
-  return createHash('sha256').update(value).digest('hex')
-}
 
 describe('Facebook Custom Audiences', () => {
   const facebookClient = new FacebookClient(requestClient, settings.retlAdAccountId)
@@ -57,14 +52,14 @@ describe('Facebook Custom Audiences', () => {
       expect(generateData(payloads)).toEqual([
         [
           '5', // external_id is not hashed or normalized
-          hash(normalizationFunctions.get('email')!(payloads[0].email || '')), // email
-          hash(normalizationFunctions.get('phone')!(payloads[0].phone || '')), // phone
+          sha256SmartHash(normalizationFunctions.get('email')!(payloads[0].email || '')), // email
+          sha256SmartHash(normalizationFunctions.get('phone')!(payloads[0].phone || '')), // phone
           EMPTY, // gender
           EMPTY, // year
           EMPTY, // month
           EMPTY, // day
-          hash(normalizationFunctions.get('last')!(payloads[0].name?.last || '')), // last_name
-          hash(normalizationFunctions.get('first')!(payloads[0].name?.first || '')), // first_name
+          sha256SmartHash(normalizationFunctions.get('last')!(payloads[0].name?.last || '')), // last_name
+          sha256SmartHash(normalizationFunctions.get('first')!(payloads[0].name?.first || '')), // first_name
           EMPTY, // first_initial
           EMPTY, // city
           EMPTY, // state
@@ -80,7 +75,7 @@ describe('Facebook Custom Audiences', () => {
 
       payloads[0] = {
         email: 'haaron@braves.com',
-        phone: '555-555-5555',
+        phone: '89a0af94167fe6b92b614c681cc5599cd23ff45f7e9cc7929ed5fabe26842468', // pre-hashed phone: 555-555-5555
         name: {
           first: 'Henry',
           last: 'Aaron'
@@ -115,14 +110,14 @@ describe('Facebook Custom Audiences', () => {
       expect(generateData(payloads)).toEqual([
         [
           '5', // external_id
-          hash(normalizationFunctions.get('email')!(payloads[0].email || '')),
-          hash(normalizationFunctions.get('phone')!(payloads[0].phone || '')),
+          sha256SmartHash(normalizationFunctions.get('email')!(payloads[0].email || '')),
+          '89a0af94167fe6b92b614c681cc5599cd23ff45f7e9cc7929ed5fabe26842468',
           EMPTY, // gender
           EMPTY, // year
           EMPTY, // month
           EMPTY, // day
-          hash(normalizationFunctions.get('last')!(payloads[0].name?.last || '')),
-          hash(normalizationFunctions.get('first')!(payloads[0].name?.first || '')),
+          sha256SmartHash(normalizationFunctions.get('last')!(payloads[0].name?.last || '')),
+          sha256SmartHash(normalizationFunctions.get('first')!(payloads[0].name?.first || '')),
           EMPTY, // first_initial
           EMPTY, // city
           EMPTY, // state
@@ -132,20 +127,20 @@ describe('Facebook Custom Audiences', () => {
         ],
         [
           '6', // external_id
-          hash(normalizationFunctions.get('email')!(payloads[1].email || '')),
+          sha256SmartHash(normalizationFunctions.get('email')!(payloads[1].email || '')),
           EMPTY, // phone
-          hash(normalizationFunctions.get('gender')!(payloads[1].gender || '')),
-          hash(normalizationFunctions.get('year')!(payloads[1].birth?.year || '')),
-          hash(normalizationFunctions.get('month')!(payloads[1].birth?.month || '')),
-          hash(normalizationFunctions.get('day')!(payloads[1].birth?.day || '')),
-          hash(normalizationFunctions.get('last')!(payloads[1].name?.last || '')),
-          hash(normalizationFunctions.get('first')!(payloads[1].name?.first || '')),
-          hash(normalizationFunctions.get('firstInitial')!(payloads[1].name?.firstInitial || '')),
-          hash(normalizationFunctions.get('city')!(payloads[1].city || '')),
-          hash(normalizationFunctions.get('state')!(payloads[1].state || '')),
-          hash(normalizationFunctions.get('zip')!(payloads[1].zip || '')),
+          sha256SmartHash(normalizationFunctions.get('gender')!(payloads[1].gender || '')),
+          sha256SmartHash(normalizationFunctions.get('year')!(payloads[1].birth?.year || '')),
+          sha256SmartHash(normalizationFunctions.get('month')!(payloads[1].birth?.month || '')),
+          sha256SmartHash(normalizationFunctions.get('day')!(payloads[1].birth?.day || '')),
+          sha256SmartHash(normalizationFunctions.get('last')!(payloads[1].name?.last || '')),
+          sha256SmartHash(normalizationFunctions.get('first')!(payloads[1].name?.first || '')),
+          sha256SmartHash(normalizationFunctions.get('firstInitial')!(payloads[1].name?.firstInitial || '')),
+          sha256SmartHash(normalizationFunctions.get('city')!(payloads[1].city || '')),
+          sha256SmartHash(normalizationFunctions.get('state')!(payloads[1].state || '')),
+          sha256SmartHash(normalizationFunctions.get('zip')!(payloads[1].zip || '')),
           EMPTY, // mobile_advertiser_id,
-          hash(normalizationFunctions.get('country')!(payloads[1].country || ''))
+          sha256SmartHash(normalizationFunctions.get('country')!(payloads[1].country || ''))
         ]
       ])
     })
