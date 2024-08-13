@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { timestamp, email_action_identifiers } from '../fields'
+import { timestamp, email_action_identifiers, enable_batching, batch_size } from '../fields'
 import { hosts } from '../utils'
 import { RequestClient } from '@segment/actions-core'
 
@@ -63,20 +63,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     timestamp,
-    enable_batching: {
-      label: 'Enable Batching',
-      description: 'Enable batching of event data to Optimizely.',
-      type: 'boolean',
-      default: true,
-      unsafe_hidden: true
-    },
-    batch_size: {
-      label: 'Batch Size',
-      description: 'Number of events to batch before sending to Optimizely.',
-      type: 'integer',
-      default: 100,
-      unsafe_hidden: true
-    }
+    enable_batching,
+    batch_size
   },
   perform: (request, { payload, settings }) => {
     return sendRequest(request, [payload], settings)

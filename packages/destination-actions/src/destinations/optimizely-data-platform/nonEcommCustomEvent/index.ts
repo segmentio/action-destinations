@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_identifiers, event_type, event_action, data, timestamp } from '../fields'
+import { user_identifiers, event_type, event_action, data, timestamp, enable_batching, batch_size } from '../fields'
 import { hosts } from '../utils'
 import { RequestClient } from '@segment/actions-core'
 
@@ -32,7 +32,9 @@ const action: ActionDefinition<Settings, Payload> = {
     event_type,
     event_action,
     data,
-    timestamp
+    timestamp,
+    enable_batching,
+    batch_size
   },
   perform: (request, { payload, settings }) => {
     return sendRequest(request, [payload], settings)
