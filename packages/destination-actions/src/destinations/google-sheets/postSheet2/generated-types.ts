@@ -36,4 +36,8 @@ export interface Payload {
    * Set as true to ensure Segment sends data to Google Sheets in batches. Please do not set to false.
    */
   enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
