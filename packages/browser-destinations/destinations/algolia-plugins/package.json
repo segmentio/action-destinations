@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-algolia-plugins",
-  "version": "1.34.1-staging-4d6e3ef2f.0",
+  "version": "1.34.1-staging-062957db4.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,7 +15,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "1.56.1-staging-4d6e3ef2f.0"
+    "@segment/browser-destination-runtime": "1.56.1-staging-062957db4.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
