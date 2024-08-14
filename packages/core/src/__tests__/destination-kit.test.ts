@@ -1032,8 +1032,7 @@ describe('destination kit', () => {
       })
     })
   })
-
-  describe('Audience Destination', () => {
+  describe('Reauthentication Flow', () => {
     beforeEach(async () => {
       jest.restoreAllMocks()
       jest.resetAllMocks()
