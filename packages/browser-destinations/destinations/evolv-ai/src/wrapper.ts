@@ -12,5 +12,6 @@ export const evolvWrapper = {
     getEvents: (args: string): Event[] => window.evolv.context.get(args) as Event[],
     getAllocations: (): Allocation[] =>
       (window.evolv.context.get('experiments') as { allocations: Allocation[] }).allocations
-  }
+  },
+  setUid: (uid: string) => window.evolv.setUid(uid)
 }

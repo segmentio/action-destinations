@@ -120,10 +120,10 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
       const scriptOptions: { [key: string]: string } = {}
       scriptOptions['data-evolv-environment'] = settings.environment
       scriptOptions['data-evolv-pushstate'] = 'true'
-      if (settings.useSegmentId && window.analytics) {
+      if (settings.useSegmentId) {
         try {
           // @ts-ignore - complex window call
-          scriptOptions['data-evolv-uid'] = window.analytics.user().anonymousId()
+          scriptOptions['data-evolv-lazy-uid'] = 'true'
         } catch (e) {
           console.warn('unable to initialize Evolv AI user id from segment')
         }

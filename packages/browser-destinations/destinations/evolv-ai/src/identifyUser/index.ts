@@ -4,7 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { formatAttributes } from '../utility'
 import { __createBinding } from 'tslib'
-import { setValues } from '../proxy'
+import { setUser, setValues } from '../proxy'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, Evolv, Payload> = {
@@ -21,11 +21,33 @@ const action: BrowserActionDefinition<Settings, Evolv, Payload> = {
       default: {
         '@path': '$.traits'
       }
+    },
+    userId: {
+      type: 'string',
+      required: false,
+      description: 'Unique identifier for the user',
+      label: 'User ID',
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    anonymousId: {
+      type: 'string',
+      required: false,
+      description: 'Anonymous identifier for the user',
+      label: 'Anonymous ID',
+      default: {
+        '@path': '$.anonymousId'
+      }
     }
   },
   perform: (_, event) => {
-    const { attributes } = event.payload
+    const { attributes, anonymousId } = event.payload
     const formattedAttributes = formatAttributes(attributes)
+
+    if (anonymousId) {
+      setUser(anonymousId)
+    }
 
     setValues(formattedAttributes)
   }

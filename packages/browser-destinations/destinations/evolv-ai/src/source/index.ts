@@ -32,27 +32,39 @@ export function listenForEvolvConfirmation(
 ) {
   const tracking = eventTracking(uniqueConfirmationsPerSession)
 
-  eventTypes.forEach(function (eventType) {
-    function emitAllocations(allocation: Allocation) {
-      try {
-        if (!tracking.hasSent(eventType, allocation)) {
-          emit(eventType, allocation)
-            .then(() => tracking.markAsSent(eventType, allocation))
-            .catch(() => true)
+  function listenToEvents() {
+    eventTypes.forEach(function (eventType) {
+      function emitAllocations(allocation: Allocation) {
+        try {
+          if (!tracking.hasSent(eventType, allocation)) {
+            emit(eventType, allocation)
+              .then(() => tracking.markAsSent(eventType, allocation))
+              .catch(() => true)
+          }
+        } catch (e) {
+          console.info('Evolv: Analytics not sent', e)
         }
-      } catch (e) {
-        console.info('Evolv: Analytics not sent', e)
       }
-    }
 
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      window.evolv.client.on(eventType, () => {
-        const allocations = extractAllocations(eventType)
-        allocations.forEach(emitAllocations)
-      })
-    } catch (e) {
-      console.warn('Evolv not properly initialized (check to make sure uid is available)', e)
-    }
-  })
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        window.evolv.client.on(eventType, () => {
+          const allocations = extractAllocations(eventType)
+          allocations.forEach(emitAllocations)
+        })
+      } catch (e) {
+        console.warn('Evolv not properly initialized (check to make sure uid is available)', e)
+      }
+    })
+  }
+
+  const interval = setInterval(() => {
+    if (!window.evolv?.client) return
+
+    clearInterval(interval)
+    listenToEvents()
+  }, 20)
+  setTimeout(() => {
+    clearInterval(interval)
+  }, 5000)
 }
