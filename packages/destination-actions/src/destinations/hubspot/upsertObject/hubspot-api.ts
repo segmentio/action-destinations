@@ -1,59 +1,141 @@
-import { RequestClient, IntegrationError, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
-import { HubSpotError } from '../errors'
+import { RequestClient, PayloadValidationError, IntegrationError, ModifiedResponse } from '@segment/actions-core'
+import { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { MAX_HUBSPOT_BATCH_SIZE } from './constants'
-import type { Payload } from './generated-types'
 
-interface Association {
-  to_object_type: string
-  association_label: string
-  to_id_field_name: string
-  to_id_field_value: string
-  to_record_id?: string
-  from_record_id?: string
+// #region Types and Interfaces
+
+const OBJECT_NOT_FOUND_ERROR_RESPONSE = 'Unable to infer object type'
+
+export const SyncMode = {
+  Upsert: 'upsert',
+  Add: 'add',
+  Update: 'update'
+} as const
+
+export type SyncMode = typeof SyncMode[keyof typeof SyncMode]
+
+export const AssociationSyncMode = {
+  Upsert: 'upsert',
+  Read: 'read'
+} as const
+
+export type AssociationSyncMode = typeof AssociationSyncMode[keyof typeof AssociationSyncMode]
+
+const BatchRequestType = {
+  Upsert: 'upsert',
+  Create: 'create',
+  Update: 'update',
+  Read: 'read'
+} as const
+
+type BatchRequestType = typeof BatchRequestType[keyof typeof BatchRequestType]
+
+const HSPropTypeFieldType = {
+  StringText: 'string:text',
+  NumberNumber: 'number:number',
+  DateTimeDate: 'datetime:date',
+  DateDate: 'date:date',
+  EnumerationBooleanCheckbox: 'enumeration:booleancheckbox'
+} as const
+
+type HSPropTypeFieldType = typeof HSPropTypeFieldType[keyof typeof HSPropTypeFieldType]
+
+const HSPropType = {
+  Date: 'date',
+  String: 'string',
+  DateTime: 'datetime',
+  Number: 'number',
+  Enumeration: 'enumeration'
+} as const
+
+type HSPropType = typeof HSPropType[keyof typeof HSPropType]
+
+const HSPropFieldType = {
+  Text: 'text',
+  Number: 'number',
+  Date: 'date',
+  BooleanCheckbox: 'booleancheckbox'
+} as const
+
+type HSPropFieldType = typeof HSPropFieldType[keyof typeof HSPropFieldType]
+
+export const SchemaMatch = {
+  FullMatch: 'full_match',
+  PropertiesMissing: 'properties_missing',
+  NoMatch: 'no_match',
+  Mismatch: 'mismatch'
+} as const
+
+export type SchemaMatch = typeof SchemaMatch[keyof typeof SchemaMatch]
+
+const ReadType = {
+  ReturnRecordsWithIds: 'return_records_with_ids',
+  ReturnRecordsWithoutIds: 'return_records_without_ids'
+} as const
+
+type ReadType = typeof ReadType[keyof typeof ReadType]
+
+interface Prop {
+  name: string
+  type: HSPropType
+  fieldType: HSPropFieldType
+  typeFieldType: HSPropTypeFieldType
 }
 
-interface ReadPropertiesResultItem {
+interface Schema {
+  object_details: {
+    object_type: string
+    id_field_name: string
+  }
+  properties: Prop[]
+  sensitiveProperties: Prop[]
+}
+
+interface SchemaDiff {
+  match: SchemaMatch
+  object_details: {
+    object_type: string
+    id_field_name: string
+  }
+  missingProperties: Prop[]
+  missingSensitiveProperties: Prop[]
+}
+
+interface ResponseType {
+  status: 'fulfilled' | 'rejected'
+  value?: { data: { results: Result[] } }
+  reason?: { message: string }
+}
+
+interface Result {
   name: string
-  type: string
-  fieldType: string
+  type: HSPropType
+  fieldType: HSPropFieldType
   hasUniqueValue: boolean
 }
 
-type HubspotStringType = 'date' | 'datetime' | 'string'
-export interface PayloadPropertyItem {
-  name: string
-  type: string | number | boolean | object | null
-  format: HubspotStringType
-}
-
-enum AssociationCategory {
-  HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
-  USER_DEFINED = 'USER_DEFINED',
-  INTEGRATOR_DEFINED = 'INTEGRATOR_DEFINED'
-}
-
-interface BatchObjReadReqBody {
+interface ReadJSON {
   idProperty: string
   properties: string[]
   inputs: Array<{ id: string }>
 }
 
-interface BatchObjUpsertReqBody {
+interface UpsertJSON {
   inputs: Array<{
     idProperty: string
     id: string
     properties: Record<string, string>
   }>
 }
-interface BatchObjCreateReqBody {
+interface CreateJSON {
   inputs: Array<{
     idProperty: string
     properties: Record<string, string>
   }>
 }
 
-interface BatchObjResponse {
+interface RespJSON {
   status: string
   results: Array<{
     id: string
@@ -61,9 +143,45 @@ interface BatchObjResponse {
   }>
 }
 
+interface OmitPayload extends Omit<Payload, 'enable_batching' | 'batch_size' | 'association_sync_mode'> {}
+
+interface PayloadWithFromId extends OmitPayload {
+  object_details: OmitPayload['object_details'] & {
+    record_id: string
+  }
+  associations?: Array<{
+    object_type: string
+    association_label: string
+    id_field_name: string
+    id_field_value: string
+    from_record_id: string
+  }>
+}
+
+interface AssociationPayload extends OmitPayload {
+  object_details: OmitPayload['object_details'] & {
+    from_record_id: string
+  }
+  association_details: {
+    association_label: string
+  }
+}
+
+interface AssociationPayloadWithId extends AssociationPayload {
+  object_details: AssociationPayload['object_details'] & {
+    record_id: string
+  }
+}
+
 interface AssociationType {
   associationCategory: AssociationCategory
   associationTypeId: string
+}
+
+enum AssociationCategory {
+  HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
+  USER_DEFINED = 'USER_DEFINED',
+  INTEGRATOR_DEFINED = 'INTEGRATOR_DEFINED'
 }
 
 interface BatchAssociationsRequestBody {
@@ -78,255 +196,317 @@ interface BatchAssociationsRequestBody {
   }[]
 }
 
-export type AssociationSyncMode = 'upsert' | 'read'
+interface GroupableFields {
+  object_type: string
+  id_field_name: string
+}
 
-export type SyncMode = 'upsert' | 'add' | 'update'
-
-export type HubspotSyncMode = 'upsert' | 'create' | 'update'
+// #endregion
 
 export class HubspotClient {
   request: RequestClient
-  fromObjectType: string
-  fromIdFieldName: string
+  objectType: string
+  syncMode: SyncMode
   associationSyncMode: AssociationSyncMode
-  hubspotSyncMode: HubspotSyncMode
-  fromPropertyGroup?: string
+  propertyGroup?: string
 
   constructor(
     request: RequestClient,
-    fromObjectType: string,
-    fromIdFieldName: string,
+    objectType: string,
     syncMode: SyncMode,
     associationSyncMode: AssociationSyncMode,
-    fromPropertyGroup: string | undefined
+    propertyGroup: string | undefined
   ) {
     this.request = request
+    this.objectType = objectType
+    this.syncMode = syncMode
     this.associationSyncMode = associationSyncMode
-    this.fromObjectType = fromObjectType
-    this.fromIdFieldName = fromIdFieldName
-    this.hubspotSyncMode = this.mapHubspotSyncMode(syncMode)
-    this.fromPropertyGroup = fromPropertyGroup
+    this.propertyGroup = propertyGroup
   }
 
-  mapHubspotSyncMode(syncMode: SyncMode): HubspotSyncMode {
-    switch (syncMode) {
-      case 'upsert':
-        return 'upsert'
-      case 'add':
-        return 'create'
-      case 'update':
-        return 'update'
+  // #region Schema functions
+
+  cleanProp(str: string): string {
+    str = str.toLowerCase().replace(/[^a-z0-9_]/g, '_')
+
+    if (!/^[a-z]/.test(str)) {
+      throw new PayloadValidationError(
+        `Property ${str} in event has an invalid name. Property names must start with a letter.`
+      )
+    }
+
+    return str
+  }
+
+  cleanObj(obj: { [k: string]: unknown } | undefined): { [k: string]: string | number | boolean } | undefined {
+    const cleanObj: { [k: string]: string | number | boolean } = {}
+
+    if (obj === undefined) {
+      return undefined
+    }
+
+    Object.keys(obj).forEach((key) => {
+      const value = obj[key]
+      const cleanKey = this.cleanProp(key)
+      cleanObj[cleanKey] =
+        typeof value === 'object' && value !== null ? JSON.stringify(value) : (value as string | number | boolean)
+    })
+
+    return cleanObj
+  }
+
+  cleanProps(payloads: Payload[]): Payload[] {
+    const copy = JSON.parse(JSON.stringify(payloads)) as Payload[]
+    copy.forEach((payload) => {
+      payload.properties = this.cleanObj(payload.properties)
+      payload.sensitive_properties = this.cleanObj(payload.sensitive_properties)
+    })
+    return copy
+  }
+
+  format(value: unknown): { type: HSPropType; fieldType: HSPropFieldType } {
+    switch (typeof value) {
+      case 'object':
+        return { type: HSPropType.String, fieldType: HSPropFieldType.Text }
+      case 'number':
+        return { type: HSPropType.Number, fieldType: HSPropFieldType.Number }
+      case 'boolean':
+        return { type: HSPropType.Enumeration, fieldType: HSPropFieldType.BooleanCheckbox }
+      case 'string': {
+        const date = new Date(value as string)
+
+        if (isNaN(date.getTime())) {
+          return { type: HSPropType.String, fieldType: HSPropFieldType.Text }
+        } else {
+          const year = date.getUTCFullYear()
+          const month = date.getUTCMonth()
+          const day = date.getUTCDate()
+          const hours = date.getUTCHours()
+          const minutes = date.getUTCMinutes()
+          const seconds = date.getUTCSeconds()
+          const milliseconds = date.getUTCMilliseconds()
+
+          // Check if it's a date at midnight
+          if (hours === 0 && minutes === 0 && seconds === 0 && milliseconds === 0) {
+            // Reconstruct the date at UTC midnight
+            const reconstructedDate = new Date(Date.UTC(year, month, day))
+            if (reconstructedDate.getTime() === date.getTime()) {
+              return { type: HSPropType.Date, fieldType: HSPropFieldType.Date }
+            }
+          }
+          return { type: HSPropType.DateTime, fieldType: HSPropFieldType.Date }
+        }
+      }
+      case undefined:
       default:
-        throw new Error('Invalid sync mode')
+        throw new IntegrationError(
+          'Property must be an object, boolean, string or number',
+          'HUBSPOT_PROPERTY_VALUE_UNDEFINED',
+          400
+        )
     }
   }
 
-  async propertiesFromHSchema(
-    fetchProperties: boolean,
-    fetchSensitiveProperties: boolean
-  ): Promise<{ properties: ReadPropertiesResultItem[]; sensitiveProperties: ReadPropertiesResultItem[] }> {
-    interface ResponseType {
-      data: {
-        status: string
-        results: ReadPropertiesResultItem[]
-      }
+  formatHS(type: HSPropType, fieldType: HSPropFieldType): HSPropTypeFieldType {
+    if (type === 'date' && fieldType === 'date') {
+      return HSPropTypeFieldType.DateDate
+    } else if (type === 'string' && fieldType === 'text') {
+      return HSPropTypeFieldType.StringText
+    } else if (type === 'number' && fieldType === 'number') {
+      return HSPropTypeFieldType.NumberNumber
+    } else if (type === 'datetime' && fieldType === 'date') {
+      return HSPropTypeFieldType.DateTimeDate
+    } else if (type === 'enumeration' && fieldType === 'booleancheckbox') {
+      return HSPropTypeFieldType.EnumerationBooleanCheckbox
     }
-
-    const requests: Promise<ResponseType>[] = []
-
-    if (fetchProperties) {
-      requests.push(
-        this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}`, {
-          method: 'GET',
-          skipResponseCloning: true
-        })
-      )
-    }
-
-    if (fetchSensitiveProperties) {
-      requests.push(
-        this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}?dataSensitivity=sensitive`, {
-          method: 'GET',
-          skipResponseCloning: true
-        })
-      )
-    }
-
-    try {
-      const responses = await Promise.all(requests)
-
-      const result: {
-        properties: ReadPropertiesResultItem[]
-        sensitiveProperties: ReadPropertiesResultItem[]
-      } = {
-        properties: [],
-        sensitiveProperties: []
-      }
-
-      if (fetchProperties && requests.length > 0) {
-        const propertiesResponse = responses.shift() // Remove and get the first response
-
-        result.properties =
-          (propertiesResponse?.data.results.map((item: ReadPropertiesResultItem) => ({
-            name: item.name,
-            type: item.type,
-            fieldType: item.fieldType,
-            hasUniqueValue: item.hasUniqueValue
-          })) as ReadPropertiesResultItem[]) ?? []
-      }
-
-      if (fetchSensitiveProperties && requests.length > 0) {
-        const sensitivePropertiesResponse = responses.shift() // Remove and get the next response
-
-        result.sensitiveProperties =
-          (sensitivePropertiesResponse?.data.results.map((item: ReadPropertiesResultItem) => ({
-            name: item.name,
-            type: item.type,
-            fieldType: item.fieldType,
-            hasUniqueValue: item.hasUniqueValue
-          })) as ReadPropertiesResultItem[]) ?? []
-      }
-
-      return result
-    } catch (err) {
-      throw new IntegrationError(
-        `readProperties() failed: ${
-          (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: readProperties() failed'
-        }`,
-        'HUBSPOT_READ_PROPERTIES_FAILED',
-        400
-      )
-    }
+    throw new IntegrationError('Property type not supported', 'HUBSPOT_PROPERTY_TYPE_NOT_SUPPORTED', 400)
   }
 
-  hubspotStringType(str: string): HubspotStringType {
-    const date = new Date(str)
-
-    if (isNaN(date.getTime())) {
-      return 'string'
-    }
-
-    const year = date.getUTCFullYear()
-    const month = date.getUTCMonth()
-    const day = date.getUTCDate()
-    const hours = date.getUTCHours()
-    const minutes = date.getUTCMinutes()
-    const seconds = date.getUTCSeconds()
-    const milliseconds = date.getUTCMilliseconds()
-
-    // Check if it's a date at midnight
-    if (hours === 0 && minutes === 0 && seconds === 0 && milliseconds === 0) {
-      // Reconstruct the date at UTC midnight
-      const reconstructedDate = new Date(Date.UTC(year, month, day))
-      if (reconstructedDate.getTime() === date.getTime()) {
-        return 'date'
-      } else {
-        return 'datetime'
-      }
-    }
-
-    return 'datetime'
-  }
-
-  uniquePayloadsProperties(payloads: Payload[]): {
-    uniqueProperties: PayloadPropertyItem[]
-    uniqueSensitiveProperties: PayloadPropertyItem[]
-  } {
-    const uniqueProperties = Object.values(
-      payloads.reduce((acc, payload) => {
-        if (payload.properties) {
-          Object.keys(payload.properties).forEach((propName) => {
-            if (payload.properties) {
-              const value = payload.properties[propName]
-              const type = typeof payload.properties[propName]
-              const format = type === 'string' ? this.hubspotStringType(value as string) : 'string'
+  schema(payloads: Payload[]): Schema {
+    const extractProperties = (propertyType: 'properties' | 'sensitive_properties'): Prop[] => {
+      return Object.values(
+        payloads.reduce((acc, payload) => {
+          const properties = payload[propertyType]
+          if (properties) {
+            Object.entries(properties).forEach(([propName, value]) => {
+              const typeData = this.format(value)
               acc[propName] = {
                 name: propName,
-                type,
-                format
+                type: typeData.type,
+                fieldType: typeData.fieldType,
+                typeFieldType: this.formatHS(typeData.type, typeData.fieldType)
               }
-            }
-          })
-        }
-        return acc
-      }, {} as { [name: string]: PayloadPropertyItem })
-    )
+            })
+          }
+          return acc
+        }, {} as { [name: string]: Prop })
+      )
+    }
 
-    const uniqueSensitiveProperties = Object.values(
-      payloads.reduce((acc, payload) => {
-        if (payload.sensitiveProperties) {
-          Object.keys(payload.sensitiveProperties).forEach((propName) => {
-            if (payload.sensitiveProperties) {
-              const value = payload.sensitiveProperties[propName]
-              const type = typeof payload.sensitiveProperties[propName]
-              const format = type === 'string' ? this.hubspotStringType(value as string) : 'string'
-              acc[propName] = {
-                name: propName,
-                type,
-                format
-              }
-            }
-          })
-        }
-        return acc
-      }, {} as { [name: string]: PayloadPropertyItem })
-    )
+    const properties = extractProperties('properties')
+    const sensitiveProperties = extractProperties('sensitive_properties')
 
     return {
-      uniqueProperties,
-      uniqueSensitiveProperties
+      object_details: {
+        object_type: this.objectType,
+        id_field_name: payloads[0].object_details.id_field_name
+      },
+      properties,
+      sensitiveProperties
     }
   }
 
-  propertiesToCreateInHSSchema(
-    uniquePayloadProperties: PayloadPropertyItem[],
-    hubspotProperties: ReadPropertiesResultItem[]
-  ): PayloadPropertyItem[] {
-    return uniquePayloadProperties.filter((prop) => !hubspotProperties.find((p) => p.name === prop.name))
+  async schemaDiffCache(schema: Schema): Promise<SchemaDiff> {
+    // no op function until caching implemented
+    let data = JSON.stringify(`${schema}`)
+    data = data.replace(data, '')
+    console.log(`${data}`)
+
+    const schemaDiff: SchemaDiff = {
+      match: 'no_match',
+      object_details: {
+        object_type: schema.object_details.object_type,
+        id_field_name: schema.object_details.id_field_name
+      },
+      missingProperties: [],
+      missingSensitiveProperties: []
+    }
+
+    return Promise.resolve(schemaDiff)
   }
 
-  cleanProperties(payloads: Payload[]): Payload[] {
-    const deepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[]
-    
-    deepCopy.forEach((payload) => {
-      
-      if (payload.properties) {
-
-        payload.properties = Object.keys(payload.properties).reduce((acc, prop) => {
-          const lowerCasedProp = prop.toLowerCase();
-          if (payload.properties && typeof payload.properties[prop] === 'object') {
-            acc[lowerCasedProp] = JSON.stringify(payload.properties[prop], null, 2)
-          } else {
-            acc[lowerCasedProp] = payload.properties ? payload.properties[prop] : undefined
-          }
-          return acc;
-        }, {} as { [key: string]: unknown })
-      }
-    
-      if (payload.sensitiveProperties) {
-        payload.sensitiveProperties = Object.keys(payload.sensitiveProperties).reduce((acc, prop) => {
-          const lowerCasedProp = prop.toLowerCase();
-          if (payload.sensitiveProperties && typeof payload.sensitiveProperties[prop] === 'object') {
-            acc[lowerCasedProp] = JSON.stringify(payload.sensitiveProperties[prop], null, 2)
-          } else {
-            acc[lowerCasedProp] = payload.sensitiveProperties ? payload.sensitiveProperties[prop] : undefined
-          }
-          return acc;
-        }, {} as { [key: string]: unknown })
-      }
-
-    })
-    return deepCopy
+  async saveSchemaToCache(schema: Schema) {
+    // no op function until caching implemented
+    let data = JSON.stringify(`${schema}`)
+    data = data.replace(data, '')
+    console.log(`${data}`)
   }
 
-  async ensurePropertiesInHSSchema(properties: PayloadPropertyItem[], sensitiveProperties: PayloadPropertyItem[]) {
-    if (!this.fromPropertyGroup) {
+  determineMissingPropsAndMatchType(
+    response: ResponseType,
+    properties: Prop[]
+  ): { missingProps: Prop[]; match: SchemaMatch } {
+    switch (response.status) {
+      case 'fulfilled': {
+        const results = response.value?.data.results ?? []
+        const missingProps: Prop[] = []
+
+        properties.forEach((prop) => {
+          const match = results.find((item: Result) => {
+            return item.name === prop.name
+          })
+
+          if (match && (match.fieldType !== prop.fieldType || match.type !== prop.type)) {
+            throw new IntegrationError(
+              `Payload property with name ${prop.name} has a different type to the property in HubSpot. Expected: type = ${prop.type} fieldType = ${prop.fieldType}. Received: type = ${match.type} fieldType = ${match.fieldType}`,
+              'HUBSPOT_PROPERTY_TYPE_MISMATCH',
+              400
+            )
+          }
+
+          if (!match) {
+            missingProps.push({
+              name: prop.name,
+              type: prop.type,
+              fieldType: prop.fieldType,
+              typeFieldType: prop.typeFieldType
+            })
+          }
+        })
+        return {
+          missingProps,
+          match: missingProps.length === 0 ? SchemaMatch.FullMatch : SchemaMatch.PropertiesMissing
+        }
+      }
+
+      case 'rejected': {
+        if (response.reason?.message.startsWith(OBJECT_NOT_FOUND_ERROR_RESPONSE)) {
+          return { missingProps: [], match: SchemaMatch.NoMatch }
+        } else {
+          throw new IntegrationError(
+            `Error fetching Hubspot property data: ${response.reason?.message}`,
+            'HUBSPOT_PROPERTY_FETCH_ERROR',
+            400
+          )
+        }
+      }
+    }
+  }
+
+  async schemaDiffHubspot(schema: Schema): Promise<SchemaDiff> {
+    const requests = []
+    const hasProps = schema.properties.length
+    const hasSensitiveProps = schema.sensitiveProperties.length
+
+    if (hasProps) {
+      requests.push(
+        this.request<ResponseType>(`${HUBSPOT_BASE_URL}/crm/v3/properties/${this.objectType}`, {
+          method: 'GET',
+          skipResponseCloning: true
+        })
+      )
+    }
+
+    if (hasSensitiveProps) {
+      requests.push(
+        this.request<ResponseType>(
+          `${HUBSPOT_BASE_URL}/crm/v3/properties/${this.objectType}?dataSensitivity=sensitive`,
+          {
+            method: 'GET',
+            skipResponseCloning: true
+          }
+        )
+      )
+    }
+
+    const responses = await Promise.allSettled(requests)
+
+    const schemaDiff = {
+      object_details: {
+        object_type: schema.object_details.object_type,
+        id_field_name: schema.object_details.id_field_name
+      }
+    } as SchemaDiff
+
+    if (hasProps && requests.length > 0) {
+      const response = responses.shift()
+      const { missingProps, match } = this.determineMissingPropsAndMatchType(
+        response as ResponseType,
+        schema.properties
+      )
+      schemaDiff.missingProperties = missingProps
+      schemaDiff.match = match
+    }
+
+    if (hasSensitiveProps && requests.length > 0) {
+      const response = responses.shift()
+      const { missingProps, match } = this.determineMissingPropsAndMatchType(
+        response as ResponseType,
+        schema.sensitiveProperties
+      )
+      schemaDiff.missingSensitiveProperties = missingProps
+
+      if (schemaDiff.match === SchemaMatch.NoMatch && schemaDiff.match !== SchemaMatch.NoMatch) {
+        // this should never happen. If it does, throw an error
+        throw new IntegrationError('Unable to fetch property data from Hubspot', 'HUBSPOT_PROPERTIES_ERROR', 400)
+      }
+
+      if (schemaDiff.match === SchemaMatch.FullMatch) {
+        schemaDiff.match = match
+      }
+    }
+
+    return schemaDiff
+  }
+
+  async createProperties(schemaDiff: SchemaDiff) {
+    if (!this.propertyGroup) {
       throw new PayloadValidationError(
         '"Property Group" is a required field when creating properties on an Object Schema in Hubspot'
       )
     }
 
-    if ((!properties || properties.length === 0) && (!sensitiveProperties || sensitiveProperties.length === 0)) {
+    if (schemaDiff.missingProperties.length === 0 || schemaDiff.missingSensitiveProperties.length === 0) {
       return
     }
 
@@ -343,31 +523,33 @@ export class HubspotClient {
       inputs: Array<Input>
     }
 
-    const generateInputMapping = (prop: PayloadPropertyItem, sensitive: boolean): Input => {
-      switch (prop.type) {
-        case 'number':
+    const { missingProperties: props, missingSensitiveProperties: sensitiveProps } = schemaDiff
+
+    const input = (prop: Prop, sensitive: boolean): Input => {
+      switch (prop.typeFieldType) {
+        case HSPropTypeFieldType.NumberNumber:
           return {
             name: prop.name,
             label: prop.name,
-            groupName: this.fromPropertyGroup as string,
+            groupName: this.propertyGroup as string,
             type: 'number',
             dataSensitivity: sensitive === true ? 'sensitive' : undefined,
             fieldType: 'number'
           }
-        case 'object':
+        case HSPropTypeFieldType.StringText:
           return {
             name: prop.name,
             label: prop.name,
-            groupName: this.fromPropertyGroup as string,
+            groupName: this.propertyGroup as string,
             type: 'string',
             dataSensitivity: sensitive === true ? 'sensitive' : undefined,
             fieldType: 'text'
           }
-        case 'boolean':
+        case HSPropTypeFieldType.EnumerationBooleanCheckbox:
           return {
             name: prop.name,
             label: prop.name,
-            groupName: this.fromPropertyGroup as string,
+            groupName: this.propertyGroup as string,
             type: 'enumeration',
             dataSensitivity: sensitive === true ? 'sensitive' : undefined,
             fieldType: 'booleancheckbox',
@@ -388,292 +570,326 @@ export class HubspotClient {
               }
             ]
           }
-        case 'string':
-          switch (prop.format) {
-            case 'string':
-              return {
-                name: prop.name,
-                label: prop.name,
-                groupName: this.fromPropertyGroup as string,
-                type: 'string',
-                dataSensitivity: sensitive === true ? 'sensitive' : undefined,
-                fieldType: 'text'
-              }
-            case 'date':
-              return {
-                name: prop.name,
-                label: prop.name,
-                groupName: this.fromPropertyGroup as string,
-                type: 'date',
-                dataSensitivity: sensitive === true ? 'sensitive' : undefined,
-                fieldType: 'date'
-              }
-            case 'datetime':
-              return {
-                name: prop.name,
-                label: prop.name,
-                groupName: this.fromPropertyGroup as string,
-                type: 'datetime',
-                dataSensitivity: sensitive === true ? 'sensitive' : undefined,
-                fieldType: 'date'
-              }
+        case HSPropTypeFieldType.DateTimeDate:
+          return {
+            name: prop.name,
+            label: prop.name,
+            groupName: this.propertyGroup as string,
+            type: 'datetime',
+            dataSensitivity: sensitive === true ? 'sensitive' : undefined,
+            fieldType: 'date'
+          }
+        case HSPropTypeFieldType.DateDate:
+          return {
+            name: prop.name,
+            label: prop.name,
+            groupName: this.propertyGroup as string,
+            type: 'date',
+            dataSensitivity: sensitive === true ? 'sensitive' : undefined,
+            fieldType: 'date'
           }
       }
-      throw new PayloadValidationError('Invalid property type')
     }
 
     const json: RequestBody = {
-      inputs: [
-        ...properties.map((prop) => generateInputMapping(prop, false)),
-        ...sensitiveProperties.map((prop) => generateInputMapping(prop, true))
-      ]
+      inputs: [...props.map((p) => input(p, false)), ...sensitiveProps.map((p) => input(p, true))]
     } as RequestBody
 
-    await this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${this.fromObjectType}/batch/create`, {
+    await this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${this.objectType}/batch/create`, {
       method: 'POST',
       skipResponseCloning: true,
       json
     })
   }
 
-  groupAssociations(associations: Association[], groupBy: (keyof Association)[]): Association[][] {
-    const groupedAssociations: Association[][] = []
+  // #endregion
 
-    const groups: { [key: string]: Association[] } = associations.reduce((acc, association) => {
-      const key = groupBy.map((prop) => association[prop]).join('_')
-      if (!acc[key]) {
-        acc[key] = []
-      }
-      acc[key].push(association)
-      return acc
-    }, {} as { [key: string]: Association[] })
-
-    for (const key in groups) {
-      const items = groups[key]
-      for (let i = 0; i < items.length; i += MAX_HUBSPOT_BATCH_SIZE) {
-        groupedAssociations.push(items.slice(i, i + MAX_HUBSPOT_BATCH_SIZE))
-      }
-    }
-
-    return groupedAssociations
-  }
-
-  getAssociationsFromPayloads(payloads: Payload[]): Association[] {
-    const payloadsDeepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[]
-
-    const allAssociations: Association[] = []
-
-    payloadsDeepCopy.forEach((payload) => {
-      const associations = payload.associations ?? []
-      associations.forEach((association) => {
-        association.from_record_id = payload.object_details.from_record_id
-        allAssociations.push(association)
-      })
-    })
-
-    return allAssociations
-  }
-
-  async batchObjectRequest(
-    action: HubspotSyncMode | AssociationSyncMode,
-    objectType: string,
-    data: BatchObjReadReqBody | BatchObjUpsertReqBody | BatchObjCreateReqBody
-  ) {
-    return this.request<BatchObjResponse>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
+  async batchObjectRequest(action: BatchRequestType, objectType: string, data: ReadJSON | UpsertJSON | CreateJSON) {
+    return this.request<RespJSON>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
       method: 'POST',
       json: data
     })
   }
 
-  async ensureToRecordsOnHubspot(associations: Association[]): Promise<Association[]> {
-    const associationsDeepCopy = JSON.parse(JSON.stringify(associations))
+  // #region From Object functions
 
-    let requests: Promise<ModifiedResponse<BatchObjResponse>>[]
-    let groupedAssociations: Association[][]
-
-    switch (this.associationSyncMode) {
-      case 'upsert': {
-        groupedAssociations = this.groupAssociations(associationsDeepCopy, ['to_object_type'])
-
-        requests = groupedAssociations.map(async (associations) => {
-          const { to_object_type: toObjectType } = associations[0]
-          return await this.batchObjectRequest(this.associationSyncMode, toObjectType, {
-            inputs: associations.map((association) => {
-              return {
-                idProperty: association.to_id_field_name,
-                id: association.to_id_field_value,
-                properties: {
-                  [association.to_id_field_name]: association.to_id_field_value
-                }
-              }
-            })
-          } as BatchObjUpsertReqBody)
-        })
-        break
+  async sendFromRecords(payloads: Payload[]): Promise<PayloadWithFromId[]> {
+    switch (this.syncMode) {
+      case SyncMode.Upsert: {
+        return await this.upsertRecords(payloads, this.objectType)
       }
-      case 'read': {
-        groupedAssociations = this.groupAssociations(associationsDeepCopy, ['to_object_type', 'to_id_field_name'])
 
-        requests = groupedAssociations.map(async (associations) => {
-          const { to_object_type: toObjectType, to_id_field_name: toIdFieldName } = associations[0]
-          return await this.batchObjectRequest(this.associationSyncMode, toObjectType, {
-            idProperty: toIdFieldName,
-            properties: [toIdFieldName],
-            inputs: associations.map((association) => {
-              return {
-                id: association.to_id_field_value
-              }
-            })
-          } as BatchObjReadReqBody)
-        })
-        break
+      case SyncMode.Update: {
+        return await this.updateRecords(payloads, this.objectType)
+      }
+
+      case SyncMode.Add: {
+        return await this.addRecords(payloads, this.objectType)
       }
     }
+  }
 
-    const responses = await Promise.all(requests)
+  async readRecords(
+    payloads: Payload[],
+    objectType: string,
+    readType: ReadType
+  ): Promise<PayloadWithFromId[] | Payload[]> {
+    const idFieldName = payloads[0].object_details.id_field_name
 
-    responses.forEach((response, index) => {
-      const associations = groupedAssociations[index]
-      response?.data?.results.forEach((result) => {
-        associations
-          .filter(
-            (association) =>
-              association.to_id_field_value == (result.properties[association.to_id_field_name] as string)
-          )
-          .forEach((association) => (association.to_record_id = result.id))
+    const readResponse = await this.batchObjectRequest(BatchRequestType.Read, objectType, {
+      properties: [idFieldName],
+      idProperty: idFieldName,
+      inputs: payloads.map((payload) => {
+        return { id: payload.object_details.id_field_value }
+      })
+    } as ReadJSON)
+
+    switch (readType) {
+      case ReadType.ReturnRecordsWithIds:
+        return this.returnRecordsWithIds(payloads, readResponse)
+      case ReadType.ReturnRecordsWithoutIds:
+        return this.returnRecordsWithoutIds(payloads, readResponse)
+    }
+  }
+
+  async upsertRecords(payloads: Payload[], objectType: string): Promise<PayloadWithFromId[]> {
+    const response = await this.batchObjectRequest(BatchRequestType.Upsert, objectType, {
+      inputs: payloads.map(({ object_details: { id_field_value }, properties, sensitive_properties }) => {
+        const idFieldName = payloads[0].object_details.id_field_name
+        return {
+          idProperty: idFieldName,
+          id: id_field_value,
+          properties: { ...properties, ...sensitive_properties, [idFieldName]: id_field_value }
+        }
+      })
+    } as UpsertJSON)
+
+    return this.returnRecordsWithIds(payloads, response)
+  }
+
+  async updateRecords(payloads: Payload[], objectType: string): Promise<PayloadWithFromId[]> {
+    const existingRecords = (await this.readRecords(
+      payloads,
+      objectType,
+      ReadType.ReturnRecordsWithIds
+    )) as unknown as Payload[]
+
+    const response = await this.batchObjectRequest(BatchRequestType.Update, this.objectType, {
+      inputs: existingRecords.map(({ object_details: { id_field_value }, properties, sensitive_properties }) => {
+        const idFieldName = payloads[0].object_details.id_field_name
+        return {
+          idProperty: idFieldName,
+          id: id_field_value,
+          properties: { ...properties, ...sensitive_properties }
+        }
+      })
+    } as UpsertJSON)
+
+    return this.returnRecordsWithIds(existingRecords, response)
+  }
+
+  async addRecords(payloads: Payload[], objectType: string): Promise<PayloadWithFromId[]> {
+    const recordsToCreate = (await this.readRecords(
+      payloads,
+      objectType,
+      ReadType.ReturnRecordsWithoutIds
+    )) as Payload[]
+
+    const response: ModifiedResponse<RespJSON> = await this.batchObjectRequest(
+      BatchRequestType.Create,
+      this.objectType,
+      {
+        inputs: recordsToCreate.map(
+          ({ object_details: { id_field_value: fromIdFieldValue }, properties, sensitive_properties }) => {
+            const idFieldName = payloads[0].object_details.id_field_name
+            return {
+              idProperty: idFieldName,
+              properties: { ...properties, ...sensitive_properties, [idFieldName]: fromIdFieldValue }
+            }
+          }
+        )
+      } as CreateJSON
+    )
+
+    return this.returnRecordsWithIds(recordsToCreate, response)
+  }
+
+  returnRecordsWithIds(payloads: Payload[], response: ModifiedResponse<RespJSON>): PayloadWithFromId[] {
+    response?.data?.results.forEach((result) => {
+      payloads
+        .filter((p) => {
+          return p.object_details.id_field_value == (result.properties[p.object_details.id_field_name] as string)
+        })
+        .forEach((p) => {
+          const pw = { ...p, object_details: { ...p.object_details, record_id: result.id } } as PayloadWithFromId
+          if (pw.associations) {
+            pw.associations.forEach((association) => {
+              association.from_record_id = result.id
+            })
+          }
+        })
+    })
+
+    return payloads as unknown as PayloadWithFromId[]
+  }
+
+  returnRecordsWithoutIds(payloads: Payload[], response: ModifiedResponse<RespJSON>): Payload[] {
+    const missingRecords = payloads.filter((payload) => {
+      return !response.data.results.some((result) => {
+        return result.properties[payload.object_details.id_field_name] === payload.object_details.id_field_value
       })
     })
 
+    return missingRecords
+  }
+
+  // #endregion
+
+  // #region Associated Record functions
+
+  createAssociationPayloads(payloads: PayloadWithFromId[]): AssociationPayload[][] {
+    const associationPayloads: AssociationPayload[] = payloads.flatMap((payload) =>
+      Array.isArray(payload.associations)
+        ? payload.associations.map((association) => ({
+            object_details: {
+              object_type: association.object_type,
+              id_field_name: association.id_field_name,
+              id_field_value: association.id_field_value,
+              from_record_id: association.from_record_id
+            },
+            association_details: {
+              association_label: association.association_label
+            }
+          }))
+        : []
+    )
+
+    return this.groupPayloads(associationPayloads, ['object_type', 'id_field_name'])
+  }
+
+  groupPayloads(associations: AssociationPayload[], groupBy: (keyof GroupableFields)[]): AssociationPayload[][] {
+    const groupedPayloads: AssociationPayload[][] = []
+
+    const groups: { [key: string]: AssociationPayload[] } = associations.reduce((acc, payload) => {
+      const key = groupBy.map((prop) => payload.object_details[prop]).join('_')
+      if (!acc[key]) {
+        acc[key] = []
+      }
+      acc[key].push(payload)
+      return acc
+    }, {} as { [key: string]: AssociationPayload[] })
+
+    for (const key in groups) {
+      const items = groups[key]
+      for (let i = 0; i < items.length; i += MAX_HUBSPOT_BATCH_SIZE) {
+        groupedPayloads.push(items.slice(i, i + MAX_HUBSPOT_BATCH_SIZE))
+      }
+    }
+
+    return groupedPayloads
+  }
+
+  async sendAssociatedRecords(payloads: AssociationPayload[][]): Promise<AssociationPayloadWithId[]> {
     switch (this.associationSyncMode) {
-      case 'upsert': {
-        return groupedAssociations.flat().filter((association) => association.to_record_id)
+      case AssociationSyncMode.Upsert: {
+        return await this.upsertAssociatedRecords(payloads)
       }
-      case 'read': {
-        return groupedAssociations.flat()
+      case AssociationSyncMode.Read: {
+        return await this.readAssociatedRecords(payloads)
       }
     }
   }
 
-  insertRecordIds(payloads: Payload[], response: ModifiedResponse<BatchObjResponse>): Payload[] {
-    const payloadsDeepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[]
-    response?.data?.results.forEach((result) => {
-      payloadsDeepCopy
-        .filter((p) => {
-          return (
-            p.object_details.from_id_field_value == (result.properties[p.object_details.from_id_field_name] as string)
-          )
+  async readAssociatedRecords(groupedPayloads: AssociationPayload[][]): Promise<AssociationPayloadWithId[]> {
+    const requests = groupedPayloads.map(async (payloads) => {
+      const { object_type: objectType } = payloads[0].object_details
+
+      return await this.batchObjectRequest(AssociationSyncMode.Read, objectType, {
+        idProperty: payloads[0].object_details.id_field_name,
+        properties: [payloads[0].object_details.id_field_name],
+        inputs: payloads.map((payload) => {
+          return {
+            id: payload.object_details.id_field_value
+          }
         })
-        .forEach((p) => {
-          return (p.object_details.from_record_id = result.id)
-        })
+      })
     })
-    return payloadsDeepCopy
+
+    const responses = await Promise.all(requests)
+
+    return this.returnAssociatedRecordsWithIds(groupedPayloads, responses)
   }
 
-  async ensureFromRecordsOnHubspot(payloads: Payload[]): Promise<Payload[]> {
-    const payloadsDeepCopy = JSON.parse(JSON.stringify(payloads)) as Payload[]
+  async upsertAssociatedRecords(groupedPayloads: AssociationPayload[][]): Promise<AssociationPayloadWithId[]> {
+    const requests = groupedPayloads.map(async (payloads) => {
+      const { object_type: objectType } = payloads[0].object_details
 
-    let response: ModifiedResponse<BatchObjResponse>
-
-    switch (this.hubspotSyncMode) {
-      case 'upsert': {
-        response = await this.batchObjectRequest(this.hubspotSyncMode, this.fromObjectType, {
-          inputs: payloadsDeepCopy.map(
-            ({ object_details: { from_id_field_value }, properties, sensitiveProperties }) => {
-              return {
-                idProperty: this.fromIdFieldName,
-                id: from_id_field_value,
-                properties: { ...properties, ...sensitiveProperties, [this.fromIdFieldName]: from_id_field_value }
-              }
+      return await this.batchObjectRequest(AssociationSyncMode.Upsert, objectType, {
+        inputs: payloads.map((payload) => {
+          return {
+            idProperty: payload.object_details.id_field_name,
+            id: payload.object_details.id_field_value,
+            properties: {
+              [payload.object_details.id_field_name]: payload.object_details.id_field_value
             }
-          )
-        } as BatchObjUpsertReqBody)
+          }
+        })
+      })
+    })
 
-        return this.insertRecordIds(payloadsDeepCopy, response).filter(
-          (payload) => payload.object_details.from_id_field_value
-        )
-      }
-      case 'update': {
-        const readResponse = await this.batchObjectRequest('read', this.fromObjectType, {
-          properties: [this.fromIdFieldName],
-          idProperty: this.fromIdFieldName,
-          inputs: payloadsDeepCopy.map((payload) => {
-            return { id: payload.object_details.from_id_field_value }
-          })
-        } as BatchObjReadReqBody)
+    const responses = await Promise.all(requests)
 
-        const existingRecords = this.insertRecordIds(payloadsDeepCopy, readResponse).filter(
-          (payload) => payload.object_details.from_record_id
-        )
-
-        response = await this.batchObjectRequest(this.hubspotSyncMode, this.fromObjectType, {
-          inputs: existingRecords.map(
-            ({ object_details: { from_id_field_value }, properties, sensitiveProperties }) => {
-              return {
-                idProperty: this.fromIdFieldName,
-                id: from_id_field_value,
-                properties: { ...properties, ...sensitiveProperties }
-              }
-            }
-          )
-        } as BatchObjUpsertReqBody)
-
-        return this.insertRecordIds(existingRecords, response).filter(
-          (payload) => payload.object_details.from_id_field_value
-        )
-      }
-      case 'create': {
-        const readResponse = await this.batchObjectRequest('read', this.fromObjectType, {
-          properties: [this.fromIdFieldName],
-          idProperty: this.fromIdFieldName,
-          inputs: payloadsDeepCopy.map((payload) => {
-            return { id: payload.object_details.from_id_field_value }
-          })
-        } as BatchObjReadReqBody)
-
-        const nonExistingRecords = this.insertRecordIds(payloadsDeepCopy, readResponse).filter(
-          (payload) => !payload.object_details.from_record_id
-        )
-
-        response = await this.batchObjectRequest(this.hubspotSyncMode, this.fromObjectType, {
-          inputs: nonExistingRecords.map(
-            ({ object_details: { from_id_field_value: fromIdFieldValue }, properties, sensitiveProperties }) => {
-              return {
-                idProperty: this.fromIdFieldName,
-                properties: { ...properties, ...sensitiveProperties, [this.fromIdFieldName]: fromIdFieldValue }
-              }
-            }
-          )
-        } as BatchObjCreateReqBody)
-        return this.insertRecordIds(nonExistingRecords, response).filter(
-          (payload) => payload.object_details.from_id_field_value
-        )
-      }
-    }
+    return this.returnAssociatedRecordsWithIds(groupedPayloads, responses)
   }
+
+  returnAssociatedRecordsWithIds(
+    groupedPayloads: AssociationPayload[][],
+    responses: ModifiedResponse<RespJSON>[]
+  ): AssociationPayloadWithId[] {
+    responses.forEach((response, index) => {
+      const payloads = groupedPayloads[index]
+      response?.data?.results.forEach((result) => {
+        payloads
+          .filter(
+            (payload) =>
+              payload.object_details.id_field_value ==
+              (result.properties[payload.object_details.id_field_name] as string)
+          )
+          .forEach((payload) => ((payload as AssociationPayloadWithId).object_details.record_id = result.id))
+      })
+    })
+
+    return groupedPayloads
+      .flat()
+      .filter((payload) => (payload as AssociationPayloadWithId).object_details.record_id) as AssociationPayloadWithId[]
+  }
+
+  // #region Association functions
 
   async batchAssociationsRequest(body: BatchAssociationsRequestBody, toObjectType: string) {
-    return this.request(`${HUBSPOT_BASE_URL}/crm/v4/associations/${this.fromObjectType}/${toObjectType}/batch/create`, {
+    return this.request(`${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/create`, {
       method: 'POST',
       json: body
     })
   }
 
-  async ensureAssociations(associations: Association[]) {
-    const associationsDeepCopy = JSON.parse(JSON.stringify(associations))
-
-    const groupedAssociations: Association[][] = this.groupAssociations(associationsDeepCopy, ['to_object_type'])
+  async sendAssociations(payloads: AssociationPayloadWithId[]) {
+    const groupedPayloads: AssociationPayloadWithId[][] = this.groupPayloads(payloads as AssociationPayload[], [
+      'object_type'
+    ]) as AssociationPayloadWithId[][]
 
     function getAssociationType(associationLabel: string): AssociationType {
       const [associationCategory, associationTypeId] = associationLabel.split(':')
       return { associationCategory, associationTypeId } as AssociationType
     }
 
-    const requests = groupedAssociations.map(async (group) => {
-      const toObjectType = group[0].to_object_type
+    const requests = groupedPayloads.map(async (payloads) => {
+      const toObjectType = payloads[0].object_details.object_type
 
-      const inputs = group.map((association) => {
-        const { associationCategory, associationTypeId } = getAssociationType(association.association_label)
+      const inputs = payloads.map((payload) => {
+        const { associationCategory, associationTypeId } = getAssociationType(
+          payload.association_details.association_label
+        )
         const input = {
           types: [
             {
@@ -682,10 +898,10 @@ export class HubspotClient {
             }
           ],
           from: {
-            id: association.from_record_id ?? ''
+            id: payload.object_details.from_record_id
           },
           to: {
-            id: association.to_record_id ?? ''
+            id: payload.object_details.record_id
           }
         }
         return input
@@ -695,4 +911,8 @@ export class HubspotClient {
 
     await Promise.all(requests)
   }
+
+  // #endregion
+
+  // #endregion
 }

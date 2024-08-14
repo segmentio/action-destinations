@@ -5,7 +5,7 @@ import {
   bulkUpdateRecordId,
   bulkUpsertExternalId,
   customFields,
-  traits,
+  traits2,
   validateLookup,
   enable_batching,
   recordMatcherOperator,
@@ -35,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
     recordMatcherOperator: recordMatcherOperator,
     enable_batching: enable_batching,
     batch_size: batch_size,
-    traits: traits,
+    traits: traits2,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
     company: {
