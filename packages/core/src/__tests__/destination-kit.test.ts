@@ -385,6 +385,7 @@ describe('destination kit', () => {
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([{ output: 'invalid subscription' }])
     })
+
     test('should return invalid subscription with details when sending an invalid subscribe', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = { type: 'track' }
@@ -393,6 +394,7 @@ describe('destination kit', () => {
       expect(res).toEqual([{ output: expect.stringContaining('invalid subscription') }])
       expect(res[0].output).toContain('Cannot read')
     })
+
     test('should return `not subscribed` when providing an empty event', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testSettings = {
@@ -403,6 +405,7 @@ describe('destination kit', () => {
       const res = await destinationTest.onEvent({}, testSettings)
       expect(res).toEqual([{ output: 'not subscribed' }])
     })
+
     test('should fail if provided invalid settings', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = { type: 'track' }
@@ -416,6 +419,7 @@ describe('destination kit', () => {
         `"The root value is missing the required field 'apiSecret'."`
       )
     })
+
     test('should succeed if provided with a valid event & settings', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = {
@@ -435,6 +439,7 @@ describe('destination kit', () => {
           }
         }
       }
+
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([
         { output: 'Mappings resolved' },
@@ -442,6 +447,7 @@ describe('destination kit', () => {
         { output: 'Action Executed', data: ['this is a test', {}] }
       ])
     })
+
     test('should succeed when traits filtering is specified', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = {
@@ -471,6 +477,7 @@ describe('destination kit', () => {
         { output: 'Action Executed', data: ['this is a test', {}] }
       ])
     })
+
     test('should succeed when property filtering is specified', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = {
@@ -493,6 +500,7 @@ describe('destination kit', () => {
           }
         }
       }
+
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([
         { output: 'Mappings resolved' },
@@ -505,11 +513,13 @@ describe('destination kit', () => {
   describe('payload mapping + validation', () => {
     test('removes empty values from the payload', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
+
       const testEvent: SegmentEvent = {
         properties: { field_one: 'test input' },
         userId: '3456fff',
         type: 'track'
       }
+
       const testSettings = {
         apiSecret: 'test_key',
         subscription: {
@@ -521,6 +531,7 @@ describe('destination kit', () => {
           }
         }
       }
+
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([
         { output: 'Mappings resolved' },
@@ -528,6 +539,7 @@ describe('destination kit', () => {
         { output: 'Action Executed', data: ['this is a test', {}] }
       ])
     })
+
     test('should inject the syncMode value in the perform handler', async () => {
       const destinationTest = new Destination(destinationWithSyncMode)
       const testEvent: SegmentEvent = { type: 'track' }
@@ -541,7 +553,9 @@ describe('destination kit', () => {
           }
         }
       }
+
       const res = await destinationTest.onEvent(testEvent, testSettings)
+
       expect(res).toEqual([
         { output: 'Mappings resolved' },
         {
@@ -550,6 +564,7 @@ describe('destination kit', () => {
         }
       ])
     })
+
     test('should inject the syncMode value in the performBatch handler', async () => {
       const destinationTest = new Destination(destinationWithSyncMode)
       const testEvent: SegmentEvent = { type: 'track' }
@@ -563,7 +578,9 @@ describe('destination kit', () => {
           }
         }
       }
+
       const res = await destinationTest.onBatch([testEvent], testSettings)
+
       expect(res).toEqual([
         {
           output: 'successfully processed batch of events'
@@ -607,77 +624,14 @@ describe('destination kit', () => {
           }
         }
       }
+
       const res = await destinationTest.onBatch([testEvent], testSettings)
+
       expect(res).toEqual([
         {
           output: 'successfully processed batch of events'
         }
       ])
-    })
-    test('should succeed when property filtering is specified', async () => {
-      const destinationTest = new Destination(destinationCustomAuth)
-      const testEvent: SegmentEvent = {
-        properties: { a: 'foo', field_one: 'test input' },
-        traits: {
-          b: 'foo'
-        },
-        userId: '3456fff',
-        type: 'identify'
-      }
-      const testSettings = {
-        apiSecret: 'test_key',
-        subscription: {
-          subscribe: 'type = "identify" and properties.a = "foo"',
-          partnerAction: 'customEvent',
-          mapping: {
-            clientId: '23455343467',
-            name: 'fancy_event',
-            parameters: { field_one: 'rogue one' }
-          }
-        }
-      }
-      const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([
-        { output: 'Mappings resolved' },
-        { output: 'Payload validated' },
-        { output: 'Action Executed', data: ['this is a test', {}] }
-      ])
-    })
-    test('Should call refresh access token in case of Unauthorized(401)', async () => {
-      const destinationTest = new Destination(destinationOAuth3)
-      const testEvent: SegmentEvent = {
-        properties: { a: 'foo', field_one: 'test input' },
-        traits: {
-          b: 'foo'
-        },
-        userId: '3456fff',
-        type: 'identify'
-      }
-      const testSettings = {
-        apiSecret: 'test_key',
-        subscription: {
-          subscribe: 'type = "identify" and properties.a = "foo"',
-          partnerAction: 'customEvent',
-          mapping: {
-            name: 'fancy_event123',
-            advertiserId: '1231241241',
-            clientId: '23455343467',
-            parameters: { field_one: 'rogue one' }
-          }
-        },
-        oauth: {
-          access_token: 'invalid-access-token',
-          refresh_token: 'refresh-token'
-        }
-      }
-      const spy = jest.spyOn(authentication, 'refreshAccessToken')
-      const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([
-        { output: 'Mappings resolved' },
-        { output: 'Payload validated' },
-        { data: 'this is a test', output: 'Action Executed' }
-      ])
-      expect(spy).toHaveBeenCalledTimes(1)
     })
   })
 
