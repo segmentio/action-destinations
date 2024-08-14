@@ -1,7 +1,7 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getUpsertURL, hashAndEncode } from '../helpers'
+import { getUpsertURL, hashAndEncode, getDataCenter, getSectionId } from '../helpers'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience',
@@ -126,7 +126,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     const identifierType = audienceSettings?.identifier_type ?? ''
     const normalizedIdentifierType = identifierType.toLowerCase().replace(/_/g, '')
     const audienceValue = payload.traits_or_props[payload.segment_audience_key]
-    let sendNormalizeIdType = true
+    let sendNormalizeIdType = false
 
     let primaryIdentifier: string | undefined
 
@@ -152,7 +152,11 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
 
     const idTypeToSend = sendNormalizeIdType ? normalizedIdentifierType : identifierType
 
-    const URL = getUpsertURL(settings.dataCenter)
+    const sectionId = getSectionId(settings.sectionId)
+
+    const dataCenter = getDataCenter(sectionId)
+
+    const URL = getUpsertURL(dataCenter)
 
     const json = {
       type: 'audience_membership_change_request',
@@ -160,7 +164,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       timestamp_ms: new Date(payload.timestamp).getTime(),
       account: {
         account_settings: {
-          section_id: settings.sectionId,
+          section_id: sectionId,
           identifier_type: idTypeToSend,
           accessKey: settings.accessKey
         }

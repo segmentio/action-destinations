@@ -95,18 +95,11 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Additional user identifiers and traits to include as separate columns in the CSV file.
+   * Additional user identifiers and traits to include as separate columns in the CSV file. Each item should contain a key and a value. The key is the trait or identifier name from the payload, and the value is the column name to be written to the CSV file.
    */
   additional_identifiers_and_traits_columns?: {
-    /**
-     * Name of the trait or identifier in the identify() traits object or track() properties object.
-     */
-    key: string
-    /**
-     * Name of the column to write to the CSV file.
-     */
-    value: string
-  }[]
+    [k: string]: unknown
+  }
   /**
    * Receive events in a batch payload. This is required for LiveRamp audiences ingestion.
    */
