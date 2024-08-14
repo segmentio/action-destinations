@@ -14,6 +14,10 @@ export interface Payload {
    */
   phone?: string
   /**
+   * User's mobile device type
+   */
+  device_type?: string
+  /**
    * User's mobile advertising Id.
    */
   advertising_id?: string
@@ -28,9 +32,5 @@ export interface Payload {
   /**
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
-  batch_size?: number,
- /**
-   * User's mobile device type
-   */
-  device_type?: string
+  batch_size?: number
 }

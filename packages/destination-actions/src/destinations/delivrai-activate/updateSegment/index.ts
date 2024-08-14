@@ -48,6 +48,16 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    device_type: {
+      label: 'User Mobile Device Type', // This field is required to determine the type of the advertising Id: IDFA or GAID
+      description: "User's mobile device type",
+      type: 'string',
+      unsafe_hidden: false,
+      required: false,
+      default: {
+        '@path': '$.context.device.type'
+      }
+    },
     advertising_id: {
       label: 'User Mobile Advertising ID',
       description: "User's mobile advertising Id.",
