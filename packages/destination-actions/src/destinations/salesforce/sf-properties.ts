@@ -161,7 +161,6 @@ export const traits2: InputField = {
   type: 'object',
   defaultObjectUI: 'keyvalue:only',
   depends_on: {
-    match: 'any',
     conditions: [
       {
         type: 'syncMode',
