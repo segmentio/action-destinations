@@ -502,384 +502,6 @@ describe('destination kit', () => {
     })
   })
 
-  describe('Reauthentication Flow', () => {
-    beforeEach(async () => {
-      jest.restoreAllMocks()
-      jest.resetAllMocks()
-    })
-    describe('On Delete', () => {
-      test('Refreshes the access-token in case of Unauthorized(401) and update it in Cache', async () => {
-        const destinationTest = new Destination(destinationOAuth3)
-        const testEvent: SegmentEvent = {
-          traits: { a: 'foo' },
-          userId: '3456fff',
-          type: 'identify'
-        }
-        const testSettings = {
-          apiSecret: 'test_key',
-          subscription: {
-            subscribe: 'type = "identify"',
-            partnerAction: 'customEvent',
-            mapping: {
-              name: 'fancy_event123',
-              advertiserId: '1231241241'
-            }
-          },
-          oauth: {
-            access_token: 'invalid-access-token',
-            refresh_token: 'refresh-token'
-          }
-        }
-        const eventOptions = {
-          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
-            jest.fn(() => Promise.resolve())
-          },
-          synchronizeRefreshAccessToken: async () => {
-            jest.fn(() => Promise.resolve())
-          }
-        }
-        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
-        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
-        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
-        const res = await destinationTest.onDelete?.(testEvent, testSettings, eventOptions)
-        expect(res).toEqual({ output: 'Deleted' })
-        expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
-        expect(UpdateTokenSpy).toHaveBeenCalledTimes(1)
-        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(1)
-      })
-
-      test('Will not refresh access-token in case of any non 401 error', async () => {
-        const destinationTest = new Destination(destinationOAuth3)
-        const testEvent: SegmentEvent = {
-          properties: { a: 'foo', field_one: 'test input' },
-          traits: {
-            b: 'foo'
-          },
-          type: 'identify'
-        }
-        const testSettings = {
-          apiSecret: 'test_key',
-          subscription: {
-            subscribe: 'type = "identify" and properties.a = "foo"',
-            partnerAction: 'customEvent',
-            mapping: {
-              clientId: '23455343467',
-              name: 'fancy_event'
-            }
-          },
-          oauth: {
-            access_token: 'valid-access-token',
-            refresh_token: 'refresh-token'
-          }
-        }
-        const eventOptions = {
-          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
-            jest.fn(() => Promise.resolve())
-          },
-          synchronizeRefreshAccessToken: async () => {
-            jest.fn(() => Promise.resolve())
-          }
-        }
-        const spy = jest.spyOn(authentication, 'refreshAccessToken')
-        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
-        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
-        await expect(destinationTest.onDelete?.(testEvent, testSettings)).rejects.toThrowError()
-        expect(spy).toHaveBeenCalledTimes(0)
-        expect(UpdateTokenSpy).toHaveBeenCalledTimes(0)
-        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(0)
-      })
-      test(' Will not refresh access-token if token is already valid', async () => {
-        const destinationTest = new Destination(destinationOAuth3)
-        const testEvent: SegmentEvent = {
-          properties: { a: 'foo', field_one: 'test input' },
-          traits: {
-            b: 'foo'
-          },
-          userId: '3456fff',
-          type: 'identify'
-        }
-        const testSettings = {
-          apiSecret: 'test_key',
-          subscription: {
-            subscribe: 'type = "identify" and properties.a = "foo"',
-            partnerAction: 'customEvent',
-            mapping: {
-              name: 'fancy_event',
-              advertiserId: '1231241241'
-            }
-          },
-          oauth: {
-            access_token: 'valid-access-token',
-            refresh_token: 'refresh-token'
-          }
-        }
-        const spy = jest.spyOn(authentication, 'refreshAccessToken')
-        const res = await destinationTest.onDelete?.(testEvent, testSettings)
-        expect(res).toEqual({ output: 'Deleted' })
-        expect(spy).toHaveBeenCalledTimes(0)
-      })
-    })
-    describe('On Event', () => {
-      test('Refreshes the access-token in case of Unauthorized(401) and update it in Cache', async () => {
-        const destinationTest = new Destination(destinationOAuth3)
-        const testEvent: SegmentEvent = {
-          traits: { a: 'foo' },
-          userId: '3456fff',
-          type: 'identify'
-        }
-        const testSettings = {
-          apiSecret: 'test_key',
-          subscription: {
-            subscribe: 'type = "identify"',
-            partnerAction: 'customEvent',
-            mapping: {
-              name: 'fancy_event123',
-              advertiserId: '1231241241'
-            }
-          },
-          oauth: {
-            access_token: 'invalid-access-token',
-            refresh_token: 'refresh-token'
-          }
-        }
-
-        const eventOptions = {
-          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
-            jest.fn(() => Promise.resolve())
-          },
-          synchronizeRefreshAccessToken: async () => {
-            jest.fn(() => Promise.resolve())
-          }
-        }
-
-        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
-        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
-        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
-
-        const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
-        expect(res).toEqual([
-          { output: 'Mappings resolved' },
-          { output: 'Payload validated' },
-          { data: 'this is a test', output: 'Action Executed' }
-        ])
-        expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
-        expect(UpdateTokenSpy).toHaveBeenCalledTimes(1)
-        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(1)
-      })
-      test('Will not refresh access-token in case of any non 401 error', async () => {
-        const destinationTest = new Destination(destinationOAuth3)
-        const testEvent: SegmentEvent = {
-          properties: { a: 'foo', field_one: 'test input' },
-          traits: {
-            b: 'foo'
-          },
-          userId: '3456fff',
-          type: 'identify'
-        }
-        const testSettings = {
-          apiSecret: 'test_key',
-          subscription: {
-            subscribe: 'type = "identify" and properties.a = "foo"',
-            partnerAction: 'customEvent',
-            mapping: {
-              clientId: '23455343467',
-              name: 'fancy_event'
-            }
-          },
-          oauth: {
-            access_token: 'valid-access-token',
-            refresh_token: 'refresh-token'
-          }
-        }
-        const eventOptions = {
-          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
-            jest.fn(() => Promise.resolve())
-          },
-          synchronizeRefreshAccessToken: async () => {
-            jest.fn(() => Promise.resolve())
-          }
-        }
-
-        const spy = jest.spyOn(authentication, 'refreshAccessToken')
-        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
-        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
-        await expect(destinationTest.onEvent(testEvent, testSettings)).rejects.toThrowError()
-        expect(spy).toHaveBeenCalledTimes(0)
-        expect(UpdateTokenSpy).toHaveBeenCalledTimes(0)
-        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(0)
-      })
-
-      test(' Will not refresh access-token if token is already valid', async () => {
-        const destinationTest = new Destination(destinationOAuth3)
-        const testEvent: SegmentEvent = {
-          properties: { a: 'foo', field_one: 'test input' },
-          traits: {
-            b: 'foo'
-          },
-          userId: '3456fff',
-          type: 'identify'
-        }
-        const testSettings = {
-          apiSecret: 'test_key',
-          subscription: {
-            subscribe: 'type = "identify" and properties.a = "foo"',
-            partnerAction: 'customEvent',
-            mapping: {
-              name: 'fancy_event',
-              advertiserId: '1231241241'
-            }
-          },
-          oauth: {
-            access_token: 'valid-access-token',
-            refresh_token: 'refresh-token'
-          }
-        }
-        const spy = jest.spyOn(authentication, 'refreshAccessToken')
-        const res = await destinationTest.onEvent(testEvent, testSettings)
-        expect(res).toEqual([
-          { output: 'Mappings resolved' },
-          { output: 'Payload validated' },
-          { data: 'this is a test', output: 'Action Executed' }
-        ])
-        expect(spy).toHaveBeenCalledTimes(0)
-      })
-    })
-
-    describe('On Batch', () => {
-      test('Refreshes the access-token in case of Unauthorized(401)', async () => {
-        const destinationTest = new Destination(destinationOAuth3)
-        const testEvents: SegmentEvent[] = [
-          {
-            properties: { a: 'foo', advertiserId: 123456789 },
-            userId: '3456fff',
-            type: 'track'
-          },
-          {
-            properties: { a: 'foo', advertiserId: 987654321 },
-            userId: '3456fff',
-            type: 'track'
-          }
-        ]
-        const testSettings = {
-          apiSecret: 'test_key',
-          subscription: {
-            subscribe: 'type = "track"',
-            partnerAction: 'customEvent',
-            mapping: {
-              name: 'fancy_event123',
-              advertiserId: { '@path': '$.properties.advertiserId' }
-            }
-          },
-          oauth: {
-            access_token: 'invalid-access-token',
-            refresh_token: 'refresh-token'
-          }
-        }
-        const eventOptions = {
-          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
-            jest.fn(() => Promise.resolve())
-          },
-          synchronizeRefreshAccessToken: async () => {
-            jest.fn(() => Promise.resolve())
-          }
-        }
-
-        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
-        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
-        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
-        const res = await destinationTest.onBatch(testEvents, testSettings, eventOptions)
-        expect(res).toEqual([
-          {
-            output: 'successfully processed batch of events'
-          }
-        ])
-        expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
-        expect(UpdateTokenSpy).toHaveBeenCalledTimes(1)
-        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(1)
-      })
-
-      test('Will not refresh access-token in case of any non 401 error', async () => {
-        const destinationTest = new Destination(destinationOAuth3)
-        const testEvents: SegmentEvent[] = [
-          {
-            properties: { a: 'foo', advertiserId: WRONG_ADVERTISER_ID },
-            userId: '3456fff',
-            type: 'track'
-          }
-        ]
-        const testSettings = {
-          apiSecret: 'test_key',
-          subscription: {
-            subscribe: 'type = "track"',
-            partnerAction: 'customEvent',
-            mapping: {
-              name: 'fancy_event123',
-              advertiserId: { '@path': '$.properties.advertiserId' }
-            }
-          },
-          oauth: {
-            access_token: 'valid-access-token',
-            refresh_token: 'refresh-token'
-          }
-        }
-        const eventOptions = {
-          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
-            jest.fn(() => Promise.resolve())
-          },
-          synchronizeRefreshAccessToken: async () => {
-            jest.fn(() => Promise.resolve())
-          }
-        }
-
-        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
-        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
-        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
-        await expect(destinationTest.onBatch(testEvents, testSettings)).rejects.toThrowError()
-        expect(refreshTokenSpy).toHaveBeenCalledTimes(0)
-        expect(UpdateTokenSpy).toHaveBeenCalledTimes(0)
-        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(0)
-      })
-      test('Will not refresh access-token if token is already valid', async () => {
-        const destinationTest = new Destination(destinationOAuth3)
-        const testEvents: SegmentEvent[] = [
-          {
-            properties: { a: 'foo', advertiserId: 123456789 },
-            userId: '3456fff',
-            type: 'track'
-          },
-          {
-            properties: { a: 'foo', advertiserId: 987654321 },
-            userId: '3456fff',
-            type: 'track'
-          }
-        ]
-        const testSettings = {
-          apiSecret: 'test_key',
-          subscription: {
-            subscribe: 'type = "track"',
-            partnerAction: 'customEvent',
-            mapping: {
-              name: 'fancy_event123',
-              advertiserId: { '@path': '$.properties.advertiserId' }
-            }
-          },
-          oauth: {
-            access_token: 'valid-access-token',
-            refresh_token: 'refresh-token'
-          }
-        }
-        const spy = jest.spyOn(authentication, 'refreshAccessToken')
-        const res = await destinationTest.onBatch(testEvents, testSettings)
-        expect(res).toEqual([
-          {
-            output: 'successfully processed batch of events'
-          }
-        ])
-        expect(spy).toHaveBeenCalledTimes(0)
-      })
-    })
-  })
-
   describe('payload mapping + validation', () => {
     test('removes empty values from the payload', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
@@ -1468,6 +1090,383 @@ describe('destination kit', () => {
         choices: [],
         error: { code: '404', message: 'No dynamic field named testStructuredObject.ghostSubfield found.' },
         nextPage: ''
+      })
+    })
+  })
+  describe('Reauthentication Flow', () => {
+    beforeEach(async () => {
+      jest.restoreAllMocks()
+      jest.resetAllMocks()
+    })
+    describe('On Delete', () => {
+      test('Refreshes the access-token in case of Unauthorized(401) and update it in Cache', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvent: SegmentEvent = {
+          traits: { a: 'foo' },
+          userId: '3456fff',
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event123',
+              advertiserId: '1231241241'
+            }
+          },
+          oauth: {
+            access_token: 'invalid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          },
+          synchronizeRefreshAccessToken: async () => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
+        const res = await destinationTest.onDelete?.(testEvent, testSettings, eventOptions)
+        expect(res).toEqual({ output: 'Deleted' })
+        expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(1)
+        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(1)
+      })
+
+      test('Will not refresh access-token in case of any non 401 error', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvent: SegmentEvent = {
+          properties: { a: 'foo', field_one: 'test input' },
+          traits: {
+            b: 'foo'
+          },
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify" and properties.a = "foo"',
+            partnerAction: 'customEvent',
+            mapping: {
+              clientId: '23455343467',
+              name: 'fancy_event'
+            }
+          },
+          oauth: {
+            access_token: 'valid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          },
+          synchronizeRefreshAccessToken: async () => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
+        await expect(destinationTest.onDelete?.(testEvent, testSettings)).rejects.toThrowError()
+        expect(spy).toHaveBeenCalledTimes(0)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(0)
+        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(0)
+      })
+      test(' Will not refresh access-token if token is already valid', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvent: SegmentEvent = {
+          properties: { a: 'foo', field_one: 'test input' },
+          traits: {
+            b: 'foo'
+          },
+          userId: '3456fff',
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify" and properties.a = "foo"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event',
+              advertiserId: '1231241241'
+            }
+          },
+          oauth: {
+            access_token: 'valid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.onDelete?.(testEvent, testSettings)
+        expect(res).toEqual({ output: 'Deleted' })
+        expect(spy).toHaveBeenCalledTimes(0)
+      })
+    })
+    describe('On Event', () => {
+      test('Refreshes the access-token in case of Unauthorized(401) and update it in Cache', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvent: SegmentEvent = {
+          traits: { a: 'foo' },
+          userId: '3456fff',
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event123',
+              advertiserId: '1231241241'
+            }
+          },
+          oauth: {
+            access_token: 'invalid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          },
+          synchronizeRefreshAccessToken: async () => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+
+        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
+
+        const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
+        expect(res).toEqual([
+          { output: 'Mappings resolved' },
+          { output: 'Payload validated' },
+          { data: 'this is a test', output: 'Action Executed' }
+        ])
+        expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(1)
+        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(1)
+      })
+      test('Will not refresh access-token in case of any non 401 error', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvent: SegmentEvent = {
+          properties: { a: 'foo', field_one: 'test input' },
+          traits: {
+            b: 'foo'
+          },
+          userId: '3456fff',
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify" and properties.a = "foo"',
+            partnerAction: 'customEvent',
+            mapping: {
+              clientId: '23455343467',
+              name: 'fancy_event'
+            }
+          },
+          oauth: {
+            access_token: 'valid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          },
+          synchronizeRefreshAccessToken: async () => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
+        await expect(destinationTest.onEvent(testEvent, testSettings)).rejects.toThrowError()
+        expect(spy).toHaveBeenCalledTimes(0)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(0)
+        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(0)
+      })
+
+      test(' Will not refresh access-token if token is already valid', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvent: SegmentEvent = {
+          properties: { a: 'foo', field_one: 'test input' },
+          traits: {
+            b: 'foo'
+          },
+          userId: '3456fff',
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify" and properties.a = "foo"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event',
+              advertiserId: '1231241241'
+            }
+          },
+          oauth: {
+            access_token: 'valid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.onEvent(testEvent, testSettings)
+        expect(res).toEqual([
+          { output: 'Mappings resolved' },
+          { output: 'Payload validated' },
+          { data: 'this is a test', output: 'Action Executed' }
+        ])
+        expect(spy).toHaveBeenCalledTimes(0)
+      })
+    })
+
+    describe('On Batch', () => {
+      test('Refreshes the access-token in case of Unauthorized(401)', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvents: SegmentEvent[] = [
+          {
+            properties: { a: 'foo', advertiserId: 123456789 },
+            userId: '3456fff',
+            type: 'track'
+          },
+          {
+            properties: { a: 'foo', advertiserId: 987654321 },
+            userId: '3456fff',
+            type: 'track'
+          }
+        ]
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "track"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event123',
+              advertiserId: { '@path': '$.properties.advertiserId' }
+            }
+          },
+          oauth: {
+            access_token: 'invalid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          },
+          synchronizeRefreshAccessToken: async () => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+
+        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
+        const res = await destinationTest.onBatch(testEvents, testSettings, eventOptions)
+        expect(res).toEqual([
+          {
+            output: 'successfully processed batch of events'
+          }
+        ])
+        expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(1)
+        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(1)
+      })
+
+      test('Will not refresh access-token in case of any non 401 error', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvents: SegmentEvent[] = [
+          {
+            properties: { a: 'foo', advertiserId: WRONG_ADVERTISER_ID },
+            userId: '3456fff',
+            type: 'track'
+          }
+        ]
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "track"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event123',
+              advertiserId: { '@path': '$.properties.advertiserId' }
+            }
+          },
+          oauth: {
+            access_token: 'valid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          },
+          synchronizeRefreshAccessToken: async () => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+
+        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
+        await expect(destinationTest.onBatch(testEvents, testSettings)).rejects.toThrowError()
+        expect(refreshTokenSpy).toHaveBeenCalledTimes(0)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(0)
+        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(0)
+      })
+      test('Will not refresh access-token if token is already valid', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvents: SegmentEvent[] = [
+          {
+            properties: { a: 'foo', advertiserId: 123456789 },
+            userId: '3456fff',
+            type: 'track'
+          },
+          {
+            properties: { a: 'foo', advertiserId: 987654321 },
+            userId: '3456fff',
+            type: 'track'
+          }
+        ]
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "track"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event123',
+              advertiserId: { '@path': '$.properties.advertiserId' }
+            }
+          },
+          oauth: {
+            access_token: 'valid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.onBatch(testEvents, testSettings)
+        expect(res).toEqual([
+          {
+            output: 'successfully processed batch of events'
+          }
+        ])
+        expect(spy).toHaveBeenCalledTimes(0)
       })
     })
   })
