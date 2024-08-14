@@ -9,11 +9,13 @@ import {
   StatsContext,
   TransactionContext,
   AudienceDestinationDefinition,
-  AuthenticationScheme
+  AuthenticationScheme,
+  RefreshAccessTokenResult
 } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
 const WRONG_AUDIENCE_ID = '1234567890'
+const WRONG_ADVERTISER_ID = '12861247612'
 
 const destinationCustomAuth: DestinationDefinition<JSONObject> = {
   name: 'Actions Google Analytic 4',
@@ -81,18 +83,160 @@ const destinationOAuth2: DestinationDefinition<JSONObject> = {
     }
   }
 }
-
 const authentication: AuthenticationScheme<JSONObject> = {
   scheme: 'oauth2',
-  fields: {},
+  fields: {
+    apiSecret: {
+      label: 'API secret',
+      description: 'Api key',
+      type: 'string',
+      required: true
+    }
+  },
   refreshAccessToken: (_request) => {
     return new Promise((resolve, _reject) => {
-      resolve({
-        accessToken: 'fresh-token'
-      })
+      resolve({ accessToken: 'fresh-token' })
     })
   }
 }
+
+const destinationOAuth3: DestinationDefinition<JSONObject> = {
+  name: 'Actions Google Analytic 5',
+  mode: 'cloud',
+  authentication: authentication,
+  onDelete: async (_request, { auth, payload }) => {
+    if (auth?.accessToken == 'invalid-access-token') {
+      return new Promise((_resolve, reject) => {
+        reject(new IntegrationError('Unauthorized', 'UNAUTHORIZED', 401))
+      })
+    }
+
+    // it could be due to invalid input or Bad Request
+    if (!payload?.userId) {
+      return new Promise((_resolve, reject) => {
+        reject(new IntegrationError('Wrong AdvertiserId Value', 'BAD REQUEST', 400))
+      })
+    }
+    return new Promise((resolve, _reject) => {
+      resolve({ output: 'Deleted' })
+    })
+  },
+  actions: {
+    customEvent: {
+      title: 'Send a Custom Event',
+      description: 'Send events to a custom event in API',
+      defaultSubscription: 'type = "track"',
+      fields: {
+        advertiserId: {
+          label: 'Advertiser ID',
+          description: 'Advertiser Id',
+          type: 'string',
+          required: true
+        }
+      },
+      perform: (_request: any, { auth, payload }) => {
+        if (auth?.accessToken == 'invalid-access-token') {
+          return new Promise((_resolve, reject) => {
+            reject(new IntegrationError('Unauthorized', 'UNAUTHORIZED', 401))
+          })
+        }
+
+        // it could be due to invalid input or Bad Request
+        if (!payload?.advertiserId)
+          throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
+
+        return new Promise((resolve, _reject) => {
+          resolve('this is a test')
+        })
+      },
+      performBatch: (_request, { auth, payload }) => {
+        if (auth?.accessToken == 'invalid-access-token') {
+          return new Promise((_resolve, reject) => {
+            reject(new IntegrationError('Unauthorized', 'UNAUTHORIZED', 401))
+          })
+        }
+
+        // it could be due to invalid input in Batch API Response, Entire Batch Failed !
+        if (payload[0]?.advertiserId == WRONG_ADVERTISER_ID) {
+          return new Promise((_resolve, reject) => {
+            reject(new IntegrationError('Wrong AdvertiserId Value', 'BAD REQUEST', 400))
+          })
+        }
+
+        return new Promise((resolve, _reject) => {
+          resolve('this is a test')
+        })
+      }
+    }
+  }
+}
+
+// const audienceDestination: AudienceDestinationDefinition<JSONObject> = {
+//   name: 'Amazon AMC (Actions)',
+//   mode: 'cloud',
+//   authentication: authentication,
+//   audienceFields: {},
+//   audienceConfig: {
+//     mode: {
+//       type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
+//       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+//     },
+
+//     // Mocked createAudience Handler
+//     async createAudience(_request, createAudienceInput) {
+//       const settings: any = createAudienceInput.settings
+//       const audienceSettings: any = createAudienceInput.audienceSettings
+
+//       // it could be due to invalid input or Bad Request
+//       if (!audienceSettings?.advertiserId)
+//         throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
+
+//       // invalid access token
+//       if (settings.oauth.access_token == 'invalid-access-token' || settings.oauth.clientId == 'invalid_client_id') {
+//         return new Promise((_resolve, reject) => {
+//           reject(new IntegrationError('Unauthorized', 'UNAUTHORIZED', 401))
+//         })
+//       }
+
+//       return new Promise((resolve, _reject) => {
+//         resolve({ externalId: '123456789' })
+//       })
+//     },
+
+//     // Mocked getAudience Handler
+//     async getAudience(_request, getAudienceInput) {
+//       const settings: any = getAudienceInput.settings
+//       const audience_id = getAudienceInput.externalId
+
+//       if (audience_id == WRONG_AUDIENCE_ID) {
+//         throw new IntegrationError('audienceId not found', 'AUDIENCEID_NOT_FOUND', 400)
+//       }
+
+//       if (settings.oauth.access_token == 'invalid-access-token' || settings.oauth.clientId == 'invalid_client_id') {
+//         return new Promise((_resolve, reject) => {
+//           reject(new IntegrationError('Unauthorized', 'UNAUTHORIZED', 401))
+//         })
+//       }
+
+//       return new Promise((resolve, _reject) => {
+//         resolve({ externalId: audience_id })
+//       })
+//     }
+//   },
+//   actions: {}
+// }
+
+// const authentication: AuthenticationScheme<JSONObject> = {
+//   scheme: 'oauth2',
+//   fields: {},
+//   refreshAccessToken: (_request) => {
+//     return new Promise((resolve, _reject) => {
+//       resolve({
+//         accessToken: 'fresh-token'
+//       })
+//     })
+//   }
+// }
 
 const audienceDestination: AudienceDestinationDefinition<JSONObject> = {
   name: 'Amazon AMC (Actions)',
@@ -365,7 +509,6 @@ describe('destination kit', () => {
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([{ output: 'invalid subscription' }])
     })
-
     test('should return invalid subscription with details when sending an invalid subscribe', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = { type: 'track' }
@@ -374,7 +517,6 @@ describe('destination kit', () => {
       expect(res).toEqual([{ output: expect.stringContaining('invalid subscription') }])
       expect(res[0].output).toContain('Cannot read')
     })
-
     test('should return `not subscribed` when providing an empty event', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testSettings = {
@@ -385,7 +527,6 @@ describe('destination kit', () => {
       const res = await destinationTest.onEvent({}, testSettings)
       expect(res).toEqual([{ output: 'not subscribed' }])
     })
-
     test('should fail if provided invalid settings', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = { type: 'track' }
@@ -399,7 +540,6 @@ describe('destination kit', () => {
         `"The root value is missing the required field 'apiSecret'."`
       )
     })
-
     test('should succeed if provided with a valid event & settings', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = {
@@ -419,7 +559,6 @@ describe('destination kit', () => {
           }
         }
       }
-
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([
         { output: 'Mappings resolved' },
@@ -427,7 +566,6 @@ describe('destination kit', () => {
         { output: 'Action Executed', data: ['this is a test', {}] }
       ])
     })
-
     test('should succeed when traits filtering is specified', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = {
@@ -450,7 +588,6 @@ describe('destination kit', () => {
           }
         }
       }
-
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([
         { output: 'Mappings resolved' },
@@ -458,7 +595,6 @@ describe('destination kit', () => {
         { output: 'Action Executed', data: ['this is a test', {}] }
       ])
     })
-
     test('should succeed when property filtering is specified', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
       const testEvent: SegmentEvent = {
@@ -481,7 +617,6 @@ describe('destination kit', () => {
           }
         }
       }
-
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([
         { output: 'Mappings resolved' },
@@ -494,13 +629,11 @@ describe('destination kit', () => {
   describe('payload mapping + validation', () => {
     test('removes empty values from the payload', async () => {
       const destinationTest = new Destination(destinationCustomAuth)
-
       const testEvent: SegmentEvent = {
         properties: { field_one: 'test input' },
         userId: '3456fff',
         type: 'track'
       }
-
       const testSettings = {
         apiSecret: 'test_key',
         subscription: {
@@ -512,7 +645,6 @@ describe('destination kit', () => {
           }
         }
       }
-
       const res = await destinationTest.onEvent(testEvent, testSettings)
       expect(res).toEqual([
         { output: 'Mappings resolved' },
@@ -520,7 +652,6 @@ describe('destination kit', () => {
         { output: 'Action Executed', data: ['this is a test', {}] }
       ])
     })
-
     test('should inject the syncMode value in the perform handler', async () => {
       const destinationTest = new Destination(destinationWithSyncMode)
       const testEvent: SegmentEvent = { type: 'track' }
@@ -534,9 +665,7 @@ describe('destination kit', () => {
           }
         }
       }
-
       const res = await destinationTest.onEvent(testEvent, testSettings)
-
       expect(res).toEqual([
         { output: 'Mappings resolved' },
         {
@@ -545,7 +674,6 @@ describe('destination kit', () => {
         }
       ])
     })
-
     test('should inject the syncMode value in the performBatch handler', async () => {
       const destinationTest = new Destination(destinationWithSyncMode)
       const testEvent: SegmentEvent = { type: 'track' }
@@ -559,16 +687,13 @@ describe('destination kit', () => {
           }
         }
       }
-
       const res = await destinationTest.onBatch([testEvent], testSettings)
-
       expect(res).toEqual([
         {
           output: 'successfully processed batch of events'
         }
       ])
     })
-
     test('should inject the matchingKey value in the perform handler', async () => {
       const destinationTest = new Destination(destinationWithIdentifier)
       const testEvent: SegmentEvent = { type: 'track' }
@@ -583,9 +708,7 @@ describe('destination kit', () => {
           }
         }
       }
-
       const res = await destinationTest.onEvent(testEvent, testSettings)
-
       expect(res).toEqual([
         { output: 'Mappings resolved' },
         { output: 'Payload validated' },
@@ -595,7 +718,6 @@ describe('destination kit', () => {
         }
       ])
     })
-
     test('should inject the matchingKey value in the performBatch handler', async () => {
       const destinationTest = new Destination(destinationWithIdentifier)
       const testEvent: SegmentEvent = { type: 'track' }
@@ -609,14 +731,77 @@ describe('destination kit', () => {
           }
         }
       }
-
       const res = await destinationTest.onBatch([testEvent], testSettings)
-
       expect(res).toEqual([
         {
           output: 'successfully processed batch of events'
         }
       ])
+    })
+    test('should succeed when property filtering is specified', async () => {
+      const destinationTest = new Destination(destinationCustomAuth)
+      const testEvent: SegmentEvent = {
+        properties: { a: 'foo', field_one: 'test input' },
+        traits: {
+          b: 'foo'
+        },
+        userId: '3456fff',
+        type: 'identify'
+      }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "identify" and properties.a = "foo"',
+          partnerAction: 'customEvent',
+          mapping: {
+            clientId: '23455343467',
+            name: 'fancy_event',
+            parameters: { field_one: 'rogue one' }
+          }
+        }
+      }
+      const res = await destinationTest.onEvent(testEvent, testSettings)
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        { output: 'Action Executed', data: ['this is a test', {}] }
+      ])
+    })
+    test('Should call refresh access token in case of Unauthorized(401)', async () => {
+      const destinationTest = new Destination(destinationOAuth3)
+      const testEvent: SegmentEvent = {
+        properties: { a: 'foo', field_one: 'test input' },
+        traits: {
+          b: 'foo'
+        },
+        userId: '3456fff',
+        type: 'identify'
+      }
+      const testSettings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "identify" and properties.a = "foo"',
+          partnerAction: 'customEvent',
+          mapping: {
+            name: 'fancy_event123',
+            advertiserId: '1231241241',
+            clientId: '23455343467',
+            parameters: { field_one: 'rogue one' }
+          }
+        },
+        oauth: {
+          access_token: 'invalid-access-token',
+          refresh_token: 'refresh-token'
+        }
+      }
+      const spy = jest.spyOn(authentication, 'refreshAccessToken')
+      const res = await destinationTest.onEvent(testEvent, testSettings)
+      expect(res).toEqual([
+        { output: 'Mappings resolved' },
+        { output: 'Payload validated' },
+        { data: 'this is a test', output: 'Action Executed' }
+      ])
+      expect(spy).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -1037,6 +1222,378 @@ describe('destination kit', () => {
       jest.restoreAllMocks()
       jest.resetAllMocks()
     })
+    describe('On Delete', () => {
+      test('Refreshes the access-token in case of Unauthorized(401) and update it in Cache', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvent: SegmentEvent = {
+          traits: { a: 'foo' },
+          userId: '3456fff',
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event123',
+              advertiserId: '1231241241'
+            }
+          },
+          oauth: {
+            access_token: 'invalid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          },
+          synchronizeRefreshAccessToken: async () => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
+        const res = await destinationTest.onDelete?.(testEvent, testSettings, eventOptions)
+        expect(res).toEqual({ output: 'Deleted' })
+        expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(1)
+        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(1)
+      })
+
+      test('Will not refresh access-token in case of any non 401 error', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvent: SegmentEvent = {
+          properties: { a: 'foo', field_one: 'test input' },
+          traits: {
+            b: 'foo'
+          },
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify" and properties.a = "foo"',
+            partnerAction: 'customEvent',
+            mapping: {
+              clientId: '23455343467',
+              name: 'fancy_event'
+            }
+          },
+          oauth: {
+            access_token: 'valid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          },
+          synchronizeRefreshAccessToken: async () => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
+        await expect(destinationTest.onDelete?.(testEvent, testSettings)).rejects.toThrowError()
+        expect(spy).toHaveBeenCalledTimes(0)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(0)
+        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(0)
+      })
+      test(' Will not refresh access-token if token is already valid', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvent: SegmentEvent = {
+          properties: { a: 'foo', field_one: 'test input' },
+          traits: {
+            b: 'foo'
+          },
+          userId: '3456fff',
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify" and properties.a = "foo"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event',
+              advertiserId: '1231241241'
+            }
+          },
+          oauth: {
+            access_token: 'valid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.onDelete?.(testEvent, testSettings)
+        expect(res).toEqual({ output: 'Deleted' })
+        expect(spy).toHaveBeenCalledTimes(0)
+      })
+    })
+    describe('On Event', () => {
+      test('Refreshes the access-token in case of Unauthorized(401) and update it in Cache', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvent: SegmentEvent = {
+          traits: { a: 'foo' },
+          userId: '3456fff',
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event123',
+              advertiserId: '1231241241'
+            }
+          },
+          oauth: {
+            access_token: 'invalid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          },
+          synchronizeRefreshAccessToken: async () => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+
+        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
+
+        const res = await destinationTest.onEvent(testEvent, testSettings, eventOptions)
+        expect(res).toEqual([
+          { output: 'Mappings resolved' },
+          { output: 'Payload validated' },
+          { data: 'this is a test', output: 'Action Executed' }
+        ])
+        expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(1)
+        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(1)
+      })
+      test('Will not refresh access-token in case of any non 401 error', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvent: SegmentEvent = {
+          properties: { a: 'foo', field_one: 'test input' },
+          traits: {
+            b: 'foo'
+          },
+          userId: '3456fff',
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify" and properties.a = "foo"',
+            partnerAction: 'customEvent',
+            mapping: {
+              clientId: '23455343467',
+              name: 'fancy_event'
+            }
+          },
+          oauth: {
+            access_token: 'valid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          },
+          synchronizeRefreshAccessToken: async () => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
+        await expect(destinationTest.onEvent(testEvent, testSettings)).rejects.toThrowError()
+        expect(spy).toHaveBeenCalledTimes(0)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(0)
+        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(0)
+      })
+
+      test(' Will not refresh access-token if token is already valid', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvent: SegmentEvent = {
+          properties: { a: 'foo', field_one: 'test input' },
+          traits: {
+            b: 'foo'
+          },
+          userId: '3456fff',
+          type: 'identify'
+        }
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "identify" and properties.a = "foo"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event',
+              advertiserId: '1231241241'
+            }
+          },
+          oauth: {
+            access_token: 'valid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.onEvent(testEvent, testSettings)
+        expect(res).toEqual([
+          { output: 'Mappings resolved' },
+          { output: 'Payload validated' },
+          { data: 'this is a test', output: 'Action Executed' }
+        ])
+        expect(spy).toHaveBeenCalledTimes(0)
+      })
+    })
+
+    describe('On Batch', () => {
+      test('Refreshes the access-token in case of Unauthorized(401)', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvents: SegmentEvent[] = [
+          {
+            properties: { a: 'foo', advertiserId: 123456789 },
+            userId: '3456fff',
+            type: 'track'
+          },
+          {
+            properties: { a: 'foo', advertiserId: 987654321 },
+            userId: '3456fff',
+            type: 'track'
+          }
+        ]
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "track"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event123',
+              advertiserId: { '@path': '$.properties.advertiserId' }
+            }
+          },
+          oauth: {
+            access_token: 'invalid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          },
+          synchronizeRefreshAccessToken: async () => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+
+        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
+        const res = await destinationTest.onBatch(testEvents, testSettings, eventOptions)
+        expect(res).toEqual([
+          {
+            output: 'successfully processed batch of events'
+          }
+        ])
+        expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(1)
+        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(1)
+      })
+
+      test('Will not refresh access-token in case of any non 401 error', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvents: SegmentEvent[] = [
+          {
+            properties: { a: 'foo', advertiserId: WRONG_ADVERTISER_ID },
+            userId: '3456fff',
+            type: 'track'
+          }
+        ]
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "track"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event123',
+              advertiserId: { '@path': '$.properties.advertiserId' }
+            }
+          },
+          oauth: {
+            access_token: 'valid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const eventOptions = {
+          onTokenRefresh: async (_tokens: RefreshAccessTokenResult) => {
+            jest.fn(() => Promise.resolve())
+          },
+          synchronizeRefreshAccessToken: async () => {
+            jest.fn(() => Promise.resolve())
+          }
+        }
+
+        const refreshTokenSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const UpdateTokenSpy = jest.spyOn(eventOptions, 'onTokenRefresh')
+        const synchronizeRefreshAccessTokenSpy = jest.spyOn(eventOptions, 'synchronizeRefreshAccessToken')
+        await expect(destinationTest.onBatch(testEvents, testSettings)).rejects.toThrowError()
+        expect(refreshTokenSpy).toHaveBeenCalledTimes(0)
+        expect(UpdateTokenSpy).toHaveBeenCalledTimes(0)
+        expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(0)
+      })
+      test('Will not refresh access-token if token is already valid', async () => {
+        const destinationTest = new Destination(destinationOAuth3)
+        const testEvents: SegmentEvent[] = [
+          {
+            properties: { a: 'foo', advertiserId: 123456789 },
+            userId: '3456fff',
+            type: 'track'
+          },
+          {
+            properties: { a: 'foo', advertiserId: 987654321 },
+            userId: '3456fff',
+            type: 'track'
+          }
+        ]
+        const testSettings = {
+          apiSecret: 'test_key',
+          subscription: {
+            subscribe: 'type = "track"',
+            partnerAction: 'customEvent',
+            mapping: {
+              name: 'fancy_event123',
+              advertiserId: { '@path': '$.properties.advertiserId' }
+            }
+          },
+          oauth: {
+            access_token: 'valid-access-token',
+            refresh_token: 'refresh-token'
+          }
+        }
+        const spy = jest.spyOn(authentication, 'refreshAccessToken')
+        const res = await destinationTest.onBatch(testEvents, testSettings)
+        expect(res).toEqual([
+          {
+            output: 'successfully processed batch of events'
+          }
+        ])
+        expect(spy).toHaveBeenCalledTimes(0)
+      })
+    })
+
     describe('createAudience', () => {
       test('Refreshes the access-token in case of Unauthorized(401)', async () => {
         const createAudienceInput = {
