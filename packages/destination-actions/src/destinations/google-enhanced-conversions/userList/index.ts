@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createGoogleAudience, getGoogleAudience, getListIds, handleUpdate } from '../functions'
+import { createGoogleAudience, getGoogleAudience, getListIds, handleUpdate, verifyCustomerId } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
 
@@ -219,6 +219,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       performHook: async (request, { auth, settings, hookInputs, statsContext }) => {
+        settings.customerId = verifyCustomerId(settings.customerId)
         if (hookInputs.list_id) {
           try {
             const response: UserListResponse = await getGoogleAudience(request, settings, hookInputs.list_id, {
@@ -277,7 +278,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode }) => {
-    hookOutputs?.retlOnMappingSave?.outputs.id
+    settings.customerId = verifyCustomerId(settings.customerId)
+
     return await handleUpdate(
       request,
       settings,
@@ -290,6 +292,8 @@ const action: ActionDefinition<Settings, Payload> = {
     )
   },
   performBatch: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode }) => {
+    settings.customerId = verifyCustomerId(settings.customerId)
+
     return await handleUpdate(
       request,
       settings,
