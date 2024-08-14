@@ -1,7 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
+
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { refreshGoogleAccessToken, validateConversionPayloads } from './functions'
+import { refreshGoogleAccessToken, validateInsertConversionPayloads } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Upload',
@@ -17,6 +18,60 @@ const action: ActionDefinition<Settings, Payload> = {
     floodlightActivityId: {
       label: 'Floodlight Activity ID',
       description: 'The Floodlight activity ID associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    email: {
+      label: 'Email',
+      description: 'The email address associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    phone: {
+      label: 'Phone',
+      description: 'The phone number associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    firstName: {
+      label: 'First Name',
+      description: 'The first name associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    lastName: {
+      label: 'Last Name',
+      description: 'The last name associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    streetAddress: {
+      label: 'Street Address',
+      description: 'The street address associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    city: {
+      label: 'City',
+      description: 'The city associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    state: {
+      label: 'State',
+      description: 'The state associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    postalCode: {
+      label: 'Postal Code',
+      description: 'The postal code associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    countryCode: {
+      label: 'Country Code',
+      description: 'The country code associated with the conversion.',
       type: 'string',
       required: false
     },
@@ -115,13 +170,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false
     },
-    userIdentifiers: {
-      label: 'User Identifiers',
-      description:
-        'User identifiers associated with the conversion. The maximum number of user identifiers for each conversion is 5.',
+    impressionId: {
+      label: 'Impression ID',
+      description: 'The impression ID associated with the conversion.',
       type: 'string',
-      required: false,
-      multiple: true
+      required: false
     },
     adUserDataConsent: {
       label: 'Ad User Data Consent',
@@ -173,7 +226,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
-    const conversionsBatchInsertRequest = validateConversionPayloads([payload], settings)
+    const conversionsBatchInsertRequest = validateInsertConversionPayloads([payload], settings)
     const bearerToken = await refreshGoogleAccessToken(request, settings)
 
     const response = await request(
@@ -191,7 +244,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return response
   },
   performBatch: async (request, { settings, payload }) => {
-    const conversionsBatchInsertRequest = validateConversionPayloads(payload, settings)
+    const conversionsBatchInsertRequest = validateInsertConversionPayloads(payload, settings)
     const bearerToken = await refreshGoogleAccessToken(request, settings)
 
     const response = await request(

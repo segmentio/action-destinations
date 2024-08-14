@@ -19,6 +19,60 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false
     },
+    email: {
+      label: 'Email',
+      description: 'The email address associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    phone: {
+      label: 'Phone',
+      description: 'The phone number associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    firstName: {
+      label: 'First Name',
+      description: 'The first name associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    lastName: {
+      label: 'Last Name',
+      description: 'The last name associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    streetAddress: {
+      label: 'Street Address',
+      description: 'The street address associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    city: {
+      label: 'City',
+      description: 'The city associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    state: {
+      label: 'State',
+      description: 'The state associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    postalCode: {
+      label: 'Postal Code',
+      description: 'The postal code associated with the conversion.',
+      type: 'string',
+      required: false
+    },
+    countryCode: {
+      label: 'Country Code',
+      description: 'The country code associated with the conversion.',
+      type: 'string',
+      required: false
+    },
     gclid: {
       label: 'Google Click ID',
       description: 'The Google Click ID (gclid) associated with the conversion.',
