@@ -236,7 +236,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Size',
       description: 'Maximum number of events to include in each batch.',
       type: 'number',
-      required: true,
       unsafe_hidden: true,
       default: GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE
     }
