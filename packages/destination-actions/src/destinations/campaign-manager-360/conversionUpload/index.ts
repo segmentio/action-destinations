@@ -2,7 +2,8 @@ import type { ActionDefinition } from '@segment/actions-core'
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { refreshGoogleAccessToken, validateInsertConversionPayloads } from './functions'
+import { validateInsertConversionPayloads } from './functions'
+import { refreshGoogleAccessToken } from '../common-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Upload',
@@ -12,8 +13,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Floodlight Configuration ID',
       description: 'The Floodlight configuration ID associated with the conversion.',
       type: 'string',
-      required: false,
-      dynamic: true
+      required: false
+      // dynamic: true
     },
     floodlightActivityId: {
       label: 'Floodlight Activity ID',
@@ -99,10 +100,10 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false
     },
-    timestampMicros: {
-      label: 'Timestamp (Microseconds)',
-      description: 'The timestamp of the conversion in microseconds.',
-      type: 'number',
+    timestamp: {
+      label: 'Timestamp (ISO-8601)',
+      description: 'The timestamp of the conversion in a ISO-8601 string.',
+      type: 'string',
       required: true
     },
     value: {
@@ -188,7 +189,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  dynamicFields: {
+  /* dynamicFields: {
     floodlightConfigurationId: async (request, { settings }) => {
       try {
         const bearerToken = await refreshGoogleAccessToken(request, settings)
@@ -223,7 +224,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     }
-  },
+  }, */
 
   perform: async (request, { settings, payload }) => {
     const conversionsBatchInsertRequest = validateInsertConversionPayloads([payload], settings)

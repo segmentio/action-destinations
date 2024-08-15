@@ -62,9 +62,9 @@ export interface Payload {
    */
   mobileDeviceId?: string
   /**
-   * The timestamp of the conversion in microseconds.
+   * The timestamp of the conversion in a ISO-8601 string.
    */
-  timestampMicros: number
+  timestamp: string
   /**
    * The value of the conversion.
    */

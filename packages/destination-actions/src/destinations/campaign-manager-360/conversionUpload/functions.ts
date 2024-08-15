@@ -3,11 +3,9 @@ import { Settings } from '../generated-types'
 import {
   CampaignManager360Conversion,
   CampaignManager360ConversionsBatchInsertRequest,
-  CampaignManager360RefreshTokenResponse,
-  CampaignManager360Settings,
   CampaignManager360UserIdentifier
 } from '../types'
-import { RequestClient } from '@segment/actions-core/*'
+
 import { hash, isHashedInformation } from '../common-functions'
 
 export function validateInsertConversionPayloads(
@@ -49,7 +47,7 @@ export function validateInsertConversionPayloads(
     }
 
     // Required fields.
-    conversion.timestampMicros = payload.timestampMicros
+    conversion.timestampMicros = parseInt((new Date(String(payload.timestamp)).getTime() / 1000).toFixed(0))
     conversion.value = payload.value
     conversion.quantity = payload.quantity
     conversion.ordinal = payload.ordinal
@@ -138,26 +136,4 @@ export function validateInsertConversionPayloads(
   }
 
   return conversionsBatchInsertRequest
-}
-
-export async function refreshGoogleAccessToken(request: RequestClient, settings: unknown): Promise<string> {
-  const campaignManager360Settings = settings as CampaignManager360Settings
-  const refreshTokenResponse = await request<CampaignManager360RefreshTokenResponse>(
-    'https://www.googleapis.com/oauth2/v4/token',
-    {
-      method: 'POST',
-      body: new URLSearchParams({
-        refresh_token: campaignManager360Settings.refreshToken,
-        client_id: campaignManager360Settings.clientId,
-        client_secret: campaignManager360Settings.clientSecret,
-        grant_type: 'refresh_token'
-      })
-    }
-  )
-
-  if (!refreshTokenResponse.data.access_token) {
-    throw new Error('Failed to refresh access token.')
-  }
-
-  return refreshTokenResponse.data.access_token
 }
