@@ -48,4 +48,8 @@ export interface Payload {
   products?: {
     [k: string]: unknown
   }[]
+  /**
+   * Name of the event. This will be used as the metric name in Klaviyo.
+   */
+  event_name?: string
 }

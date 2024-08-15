@@ -24,7 +24,8 @@ export {
   isPathDirective,
   isReplaceDirective,
   isTemplateDirective,
-  isJSONDirective
+  isJSONDirective,
+  isExcludeWhenNullDirective
 } from './mapping-kit/value-keys'
 export { createTestEvent } from './create-test-event'
 export { createTestIntegration } from './create-test-integration'
@@ -43,6 +44,7 @@ export {
 export { get } from './get'
 export { omit } from './omit'
 export { removeUndefined } from './remove-undefined'
+export { sha256SmartHash, SmartHashing } from './hashing-utils'
 export { time, duration } from './time'
 
 export { realTypeOf, isObject, isArray, isString } from './real-type-of'
