@@ -14,14 +14,15 @@ describe('Cm360.conversionUpload', () => {
       timestamp,
       event: 'Test Event',
       properties: {
+        ordinal: '1',
+        quantity: '1',
+        value: '123',
         gclid: '54321',
         email: 'test@gmail.com',
         orderId: '1234',
         phone: '1234567890',
         firstName: 'Jane',
         lastName: 'Doe',
-        currency: 'USD',
-        value: '123',
         address: {
           street: '123 Street SW',
           city: 'San Diego',
@@ -44,6 +45,18 @@ describe('Cm360.conversionUpload', () => {
       mapping: {
         gclid: {
           '@path': '$.properties.gclid'
+        },
+        timestamp: {
+          '@path': '$.timestamp'
+        },
+        value: {
+          '@path': '$.properties.value'
+        },
+        quantity: {
+          '@path': '$.properties.quantity'
+        },
+        ordinal: {
+          '@path': '$.properties.ordinal'
         }
       },
       useDefaultMappings: true,
