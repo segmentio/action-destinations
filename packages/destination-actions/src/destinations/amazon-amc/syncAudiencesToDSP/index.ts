@@ -165,6 +165,8 @@ function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: Aud
   }
 }
 
+// For data format guidelines, visit: https://advertising.amazon.com/help/GCCXMZYCK4RXWS6C
+
 // General normalization utility function
 function normalize(value: string, allowedChars: RegExp, trim = true, sliceEnd = 0): string {
   let normalized = value.toLowerCase().replace(allowedChars, '')
