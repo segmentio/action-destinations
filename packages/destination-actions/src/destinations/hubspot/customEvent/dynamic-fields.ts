@@ -76,9 +76,8 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
       value: schema.name
     }))
     return {
-      choices: [...choices, ...defaultChoices].sort((a, b) =>
-        a.label.toLowerCase().localeCompare(b.label.toLowerCase())
-      )
+      choices: [...choices, ...defaultChoices]
+      .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))
     }
   } catch (err) {
     return {

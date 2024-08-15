@@ -46,13 +46,13 @@ export async function dynamicReadIdFields(request: RequestClient, objectType: st
             }
           })
           .sort((a, b) => {
-            const labelA = a.label.toLowerCase()
-            const labelB = b.label.toLowerCase()
+            const labelA = a.label.toLowerCase();
+            const labelB = b.label.toLowerCase();
             if (labelA < labelB) {
-              return -1
+                return -1
             }
             if (labelA > labelB) {
-              return 1
+                return 1
             }
             return 0
           })
@@ -100,13 +100,13 @@ export async function dynamicReadPropertyGroups(
           value: result.name
         }))
         .sort((a, b) => {
-          const labelA = a.label.toLowerCase()
-          const labelB = b.label.toLowerCase()
+          const labelA = a.label.toLowerCase();
+          const labelB = b.label.toLowerCase();
           if (labelA < labelB) {
-            return -1
+              return -1
           }
           if (labelA > labelB) {
-            return 1
+              return 1
           }
           return 0
         })
@@ -154,15 +154,14 @@ export async function dynamicReadAssociationLabels(
             ? `${fromObjectType} to ${toObjectType} (Type ${res.typeId})`
             : `${fromObjectType} to ${toObjectType} ${res.label}`,
           value: `${res.category}:${res.typeId}`
-        }))
-        .sort((a, b) => {
-          const labelA = a.label.toLowerCase()
-          const labelB = b.label.toLowerCase()
+        })).sort((a, b) => {
+          const labelA = a.label.toLowerCase();
+          const labelB = b.label.toLowerCase();
           if (labelA < labelB) {
-            return -1
+              return -1
           }
           if (labelA > labelB) {
-            return 1
+              return 1
           }
           return 0
         })
@@ -225,7 +224,7 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
   }
 }
 
-export async function dynamicReadProperties(request: RequestClient, objectType: string, sensitive: boolean) {
+export async function dynamicReadProperties(request: RequestClient, objectType: string, sensitive: boolean){
   interface ResultItem {
     label: string
     name: string
@@ -237,7 +236,7 @@ export async function dynamicReadProperties(request: RequestClient, objectType: 
       results: ResultItem[]
     }
   }
-
+  
   try {
     const url = `${HUBSPOT_BASE_URL}/crm/v3/properties/${objectType}${sensitive ? '?dataSensitivity=sensitive' : ''}`
     const response: ResponseType = await request(url, {
@@ -256,13 +255,13 @@ export async function dynamicReadProperties(request: RequestClient, objectType: 
             }
           })
           .sort((a, b) => {
-            const labelA = a.label.toLowerCase()
-            const labelB = b.label.toLowerCase()
+            const labelA = a.label.toLowerCase();
+            const labelB = b.label.toLowerCase();
             if (labelA < labelB) {
-              return -1
+                return -1
             }
             if (labelA > labelB) {
-              return 1
+                return 1
             }
             return 0
           })

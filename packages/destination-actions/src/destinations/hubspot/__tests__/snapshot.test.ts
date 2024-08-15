@@ -37,7 +37,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       })
 
       // @ts-ignore
-      event['__segment_internal_sync_mode'] = 'upsert'
+      event["__segment_internal_sync_mode"] = 'upsert'
 
       try {
         const responses = await testDestination.testAction(actionSlug, {

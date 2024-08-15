@@ -99,10 +99,8 @@ export class HubspotClient {
       const value = properties[key]
       const propName = this.sanitizePropertyName(key)
 
-      if (!/^[a-z]/.test(propName)) {
-        throw new PayloadValidationError(
-          `Property ${key} in event has an invalid name. Property names must start with a letter.`
-        )
+      if(!/^[a-z]/.test(propName)) {
+        throw new PayloadValidationError(`Property ${key} in event has an invalid name. Property names must start with a letter.`)
       }
 
       result[propName] =
@@ -201,6 +199,7 @@ export class HubspotClient {
   }
 
   async compareSchemaToCache(schema: SegmentEventSchema): Promise<SchemaDiff> {
+
     // no op function until caching implemented
     let data = JSON.stringify(`${schema}`)
     data = data.replace(data, '')
@@ -298,7 +297,7 @@ export class HubspotClient {
       occurredAt,
       properties: properties ? this.sanitizeProperties(properties) : undefined
     }
-
+    
     await this.request(url, {
       method: 'POST',
       json
@@ -306,6 +305,7 @@ export class HubspotClient {
   }
 
   async send(payload: Payload) {
+
     payload.properties = this.sanitizeProperties(payload.properties ?? {})
 
     const schema = this.segmentSchema(payload)
