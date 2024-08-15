@@ -299,7 +299,7 @@ export class HubspotClient {
       properties: properties ? this.sanitizeProperties(properties) : undefined
     }
 
-    return this.request(url, {
+    await this.request(url, {
       method: 'POST',
       json
     })
