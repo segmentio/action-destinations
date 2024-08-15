@@ -1,6 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { validateUpdateConversionPayloads } from './functions'
+import { refreshGoogleAccessToken } from '../common-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Adjustment Upload',
@@ -97,10 +99,10 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false
     },
-    timestampMicros: {
-      label: 'Timestamp (Microseconds)',
-      description: 'The timestamp of the conversion in microseconds.',
-      type: 'number',
+    timestamp: {
+      label: 'Timestamp (ISO-8601)',
+      description: 'The timestamp of the conversion in a ISO-8601 string.',
+      type: 'string',
       required: true
     },
     value: {
@@ -117,7 +119,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     ordinal: {
       label: 'Ordinal',
-      description: 'The ordinal value of the conversion.',
+      description:
+        'The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.',
       type: 'number',
       required: false
     },
@@ -154,6 +157,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false
     },
+    impressionId: {
+      label: 'Impression ID',
+      description: 'The impression ID associated with the conversion.',
+      type: 'string',
+      required: false
+    },
     userIdentifiers: {
       label: 'User Identifiers',
       description:
@@ -173,13 +182,43 @@ const action: ActionDefinition<Settings, Payload> = {
       ]
     }
   },
-  perform: (request, data) => {
-    console.log(request, data)
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+  // https://developers.google.com/doubleclick-advertisers/rest/v4/conversions/batchupdate
+  perform: async (request, { settings, payload }) => {
+    const conversionsBatchUpdateRequest = validateUpdateConversionPayloads([payload], settings)
+    const bearerToken = await refreshGoogleAccessToken(request, settings)
+
+    const response = await request(
+      `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/conversions/batchupdate`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${bearerToken}`,
+          'Content-Type': 'application/json',
+          Host: 'dfareporting.googleapis.com'
+        },
+        json: conversionsBatchUpdateRequest
+      }
+    )
+    return response
+  },
+  // https://developers.google.com/doubleclick-advertisers/rest/v4/conversions/batchupdate
+  performBatch: async (request, { settings, payload }) => {
+    const conversionsBatchUpdateRequest = validateUpdateConversionPayloads(payload, settings)
+    const bearerToken = await refreshGoogleAccessToken(request, settings)
+
+    const response = await request(
+      `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/conversions/batchupdate`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${bearerToken}`,
+          'Content-Type': 'application/json',
+          Host: 'dfareporting.googleapis.com'
+        },
+        json: conversionsBatchUpdateRequest
+      }
+    )
+    return response
   }
 }
 

@@ -74,7 +74,7 @@ export interface Payload {
    */
   quantity: number
   /**
-   * The ordinal value of the conversion.
+   * The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.
    */
   ordinal?: number
   /**

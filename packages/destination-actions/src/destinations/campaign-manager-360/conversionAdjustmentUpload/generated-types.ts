@@ -62,9 +62,9 @@ export interface Payload {
    */
   mobileDeviceId?: string
   /**
-   * The timestamp of the conversion in microseconds.
+   * The timestamp of the conversion in a ISO-8601 string.
    */
-  timestampMicros: number
+  timestamp: string
   /**
    * The value of the conversion.
    */
@@ -74,7 +74,7 @@ export interface Payload {
    */
   quantity: number
   /**
-   * The ordinal value of the conversion.
+   * The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.
    */
   ordinal?: number
   /**
@@ -97,6 +97,10 @@ export interface Payload {
    * The match ID field. A match ID is your own first-party identifier that has been synced with Google using the match ID feature in Floodlight.
    */
   matchId?: string
+  /**
+   * The impression ID associated with the conversion.
+   */
+  impressionId?: string
   /**
    * User identifiers associated with the conversion. The maximum number of user identifiers for each conversion is 5.
    */

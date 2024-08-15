@@ -1,5 +1,10 @@
+import { hash, isHashedInformation } from '../common-functions'
 import { Settings } from '../generated-types'
-import { CampaignManager360ConversionsBatchUpdateRequest } from '../types'
+import {
+  CampaignManager360Conversion,
+  CampaignManager360ConversionsBatchUpdateRequest,
+  CampaignManager360UserIdentifier
+} from '../types'
 import { Payload } from './generated-types'
 
 export function validateUpdateConversionPayloads(
@@ -25,6 +30,100 @@ export function validateUpdateConversionPayloads(
     if (!payload.floodlightConfigurationId && !settings.defaultFloodlightConfigurationId) {
       throw new Error('Missing required parameter: floodlightConfigurationId.')
     }
+
+    const conversion: CampaignManager360Conversion = {
+      floodlightActivityId: String(payload.floodlightActivityId || settings.defaultFloodlightActivityId),
+      floodlightConfigurationId: String(payload.floodlightConfigurationId || settings.defaultFloodlightConfigurationId),
+      kind: 'dfareporting#conversion'
+    }
+
+    // Required fields.
+    conversion.timestampMicros = parseInt((new Date(String(payload.timestamp)).getTime() / 1000).toFixed(0))
+    conversion.value = payload.value
+    conversion.quantity = payload.quantity
+    conversion.ordinal = payload.ordinal
+
+    if (payload.gclid) {
+      conversion.gclid = payload.gclid
+    }
+
+    if (payload.dclid) {
+      conversion.dclid = payload.dclid
+    }
+
+    // Optional fields.
+    if (payload.encryptedUserId) {
+      conversion.encryptedUserId = payload.encryptedUserId
+    }
+
+    if (payload.mobileDeviceId) {
+      conversion.mobileDeviceId = payload.mobileDeviceId
+    }
+
+    if (payload.limitAdTracking) {
+      conversion.limitAdTracking = payload.limitAdTracking
+    }
+
+    if (payload.childDirectedTreatment) {
+      conversion.childDirectedTreatment = payload.childDirectedTreatment
+    }
+
+    if (payload.nonPersonalizedAd) {
+      conversion.nonPersonalizedAd = payload.nonPersonalizedAd
+    }
+
+    if (payload.treatmentForUnderage) {
+      conversion.treatmentForUnderage = payload.treatmentForUnderage
+    }
+
+    if (payload.matchId) {
+      conversion.matchId = payload.matchId
+    }
+
+    if (payload.impressionId) {
+      conversion.impressionId = payload.impressionId
+    }
+
+    // User Identifiers.
+    const userIdentifiers: CampaignManager360UserIdentifier[] = []
+    if (payload.phone) {
+      userIdentifiers.push({
+        hashedPhoneNumber: isHashedInformation(payload.phone) ? payload.phone : hash(payload.phone)
+      } as CampaignManager360UserIdentifier)
+    }
+
+    if (payload.email) {
+      userIdentifiers.push({
+        hashedEmail: isHashedInformation(payload.email) ? payload.email : hash(payload.email)
+      } as CampaignManager360UserIdentifier)
+    }
+
+    const containsAddressInfo =
+      payload.firstName ||
+      payload.lastName ||
+      payload.city ||
+      payload.state ||
+      payload.countryCode ||
+      payload.postalCode ||
+      payload.streetAddress
+
+    if (containsAddressInfo) {
+      userIdentifiers.push({
+        addressInfo: {
+          hashedFirstName: isHashedInformation(String(payload.firstName)) ? payload.firstName : hash(payload.firstName),
+          hashedLastName: isHashedInformation(String(payload.lastName)) ? payload.lastName : hash(payload.lastName),
+          hashedStreetAddress: isHashedInformation(String(payload.streetAddress))
+            ? payload.streetAddress
+            : hash(payload.streetAddress),
+          city: payload.city,
+          state: payload.state,
+          countryCode: payload.countryCode,
+          postalCode: payload.postalCode
+        }
+      })
+    }
+
+    conversionsBatchUpdateRequest.conversions.push(conversion)
   }
 
   return conversionsBatchUpdateRequest

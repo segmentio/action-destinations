@@ -120,7 +120,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     ordinal: {
       label: 'Ordinal',
-      description: 'The ordinal value of the conversion.',
+      description:
+        'The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.',
       type: 'number',
       required: false
     },
@@ -189,6 +190,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
+  // So far, Google didn't provide an answer whether this is a good way to fetch the Floodlight Configurations.
+  // The current implementation is commented out and the Floodlight Configuration ID is not dynamic.
   /* dynamicFields: {
     floodlightConfigurationId: async (request, { settings }) => {
       try {
@@ -226,6 +229,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   }, */
 
+  // https://developers.google.com/doubleclick-advertisers/rest/v4/conversions/batchinsert
   perform: async (request, { settings, payload }) => {
     const conversionsBatchInsertRequest = validateInsertConversionPayloads([payload], settings)
     const bearerToken = await refreshGoogleAccessToken(request, settings)
@@ -244,6 +248,7 @@ const action: ActionDefinition<Settings, Payload> = {
     )
     return response
   },
+  // https://developers.google.com/doubleclick-advertisers/rest/v4/conversions/batchinsert
   performBatch: async (request, { settings, payload }) => {
     const conversionsBatchInsertRequest = validateInsertConversionPayloads(payload, settings)
     const bearerToken = await refreshGoogleAccessToken(request, settings)
