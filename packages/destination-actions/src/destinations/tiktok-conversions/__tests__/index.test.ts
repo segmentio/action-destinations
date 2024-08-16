@@ -642,11 +642,8 @@ describe('Tiktok Conversions', () => {
               email: ['eb9869a32b532840dd6aa714f7a872d21d6f650fc5aa933d9feefc64708969c7'],
               external_id: ['481f202262e9c5ccc48d24e60798fadaa5f6ff1f8369f7ab927c04c3aa682a7f'],
               ip: '0.0.0.0',
-              lead_id: undefined,
-              locale: undefined,
               phone: ['910a625c4ba147b544e6bd2f267e130ae14c591b6ba9c25cb8573322dedbebd0'],
               ttclid: '12345',
-              ttp: undefined,
               user_agent:
                 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57'
             }
