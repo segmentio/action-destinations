@@ -50,7 +50,8 @@ describe('confirmation source', () => {
         context: {
           update: jest.fn(),
           get: jest.fn()
-        }
+        },
+        setUid: jest.fn()
       }
       return Promise.resolve(window.evolv)
     })
@@ -107,7 +108,8 @@ describe('confirmation source should not process unless requested', () => {
         context: {
           update: jest.fn(),
           get: jest.fn()
-        }
+        },
+        setUid: jest.fn()
       }
       return Promise.resolve(window.evolv)
     })

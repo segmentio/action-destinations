@@ -18,12 +18,12 @@ export type Evolv = {
     emit: (event: string) => void
     on: (eventType: string, fn: () => void) => void
     getDisplayName: (key: string, eid: string) => string
-    initialize: (uid: string) => void
   }
   context: {
     update: (data: State) => void
     get: (key: string) => { allocations: Allocation[] } | Event[]
   }
+  setUid: (uid: string) => void
 }
 
 type User = {

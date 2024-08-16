@@ -38,7 +38,7 @@ function pollForEvolv() {
 
 function processQueues() {
   if (QUEUE.uid) {
-    Service.initialize(QUEUE.uid)
+    Service.setUser(QUEUE.uid)
   }
 
   QUEUE.event.forEach(Service.emit)
