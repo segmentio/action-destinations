@@ -1,7 +1,7 @@
 import type { ActionDefinition, DynamicFieldResponse, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getListIdDynamicData } from '../functions'
+import { getListIdDynamicData, validatePhoneNumber } from '../functions'
 import { PayloadValidationError } from '@segment/actions-core'
 import { formatUnsubscribeProfile, formatUnsubscribeRequestBody } from '../functions'
 import { UnsubscribeProfile } from '../types'
@@ -59,6 +59,9 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !phone_number) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
+    if (phone_number && !validatePhoneNumber(phone_number)) {
+      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
+    }
 
     const profileToUnSubscribe = formatUnsubscribeProfile(email, phone_number)
     const unSubData = formatUnsubscribeRequestBody(profileToUnSubscribe, list_id)
@@ -73,7 +76,12 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, { payload }) => {
     // remove payloads that have niether email or phone_number
-    const filteredPayload = payload.filter((profile) => profile.email || profile.phone_number)
+    const filteredPayload = payload.filter((profile) => {
+      if (profile.phone_number && !validatePhoneNumber(profile.phone_number)) {
+        return false
+      }
+      return profile.email || profile.phone_number
+    })
 
     // if there are no payloads with phone or email throw error
     if (payload.length === 0) {
