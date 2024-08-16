@@ -1,4 +1,4 @@
-import { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, HTTPError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 // This has to be 'cases' because 'case' is a Javascript reserved word
 import cases from './cases'
@@ -77,8 +77,15 @@ const destination: DestinationDefinition<Settings> = {
           client_secret: auth.clientSecret,
           grant_type: 'refresh_token'
         })
+      }).catch((error: HTTPError) => {
+        // Salesforce sometimes returns 400 when concurrently refreshing tokens using the same refresh token.
+        // https://help.salesforce.com/s/articleView?language=en_US&id=release-notes.rn_security_refresh_token_requests.htm&release=250&type=5
+        if (error.response?.status === 400 || error.response?.status === 401) {
+          throw new InvalidAuthenticationError('Invalid or expired refresh token')
+        }
+        throw error
       })
-      return { accessToken: res.data.access_token }
+      return { accessToken: res.data?.access_token }
     }
   },
   extendRequest({ auth }) {
