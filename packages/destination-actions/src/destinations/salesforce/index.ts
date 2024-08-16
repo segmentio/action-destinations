@@ -86,11 +86,14 @@ const destination: DestinationDefinition<Settings> = {
         return { accessToken: res.data?.access_token as string }
       }
 
+      // Salesforce returns a 400 error when concurrently refreshing token with same access token.
+      // https://help.salesforce.com/s/articleView?language=en_US&id=release-notes.rn_security_refresh_token_requests.htm&release=250&type=5
       if (
         res.status == 400 &&
         res.data?.error === 'invalid_grant' &&
         res.data?.error_description === 'expired authorization code'
       ) {
+        // Under heavy load/thundering herd, it might be better to retry after a while.
         throw new RetryableError('Concurrent token refresh error. This request will be retried')
       }
       throw new APIError(res.data?.error_description ?? 'Failed to refresh access token', res.status)
