@@ -21,8 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     first_name: {
       label: 'First Name',
-      description:
-        "The user's first name. If not hashed, Segment will SHA256 hash this value before sending to Google.",
+      description: "The user's first name. If not hashed, Segment will normalize and hash this value.",
       type: 'string',
       default: {
         '@if': {
@@ -34,7 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     last_name: {
       label: 'Last Name',
-      description: "The user's last name. If not hashed, Segment will SHA256 hash this value before sending to Google.",
+      description: "The user's last name. If not hashed, Segment will normalize and hash this value.",
       type: 'string',
       default: {
         '@if': {
@@ -46,8 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description:
-        "The user's email address. If not hashed, Segment will normalize this field and hash it using SHA256 before sending to Google.",
+      description: "The user's email address. If not hashed, Segment will normalize and hash this value.",
       type: 'string',
       default: {
         '@if': {
@@ -60,7 +58,7 @@ const action: ActionDefinition<Settings, Payload> = {
     phone: {
       label: 'Phone',
       description:
-        "The user's phone number. If not already hashed, Segment will format the phone number to E164 and hash it using SHA256 before sending to Google.",
+        "The user's phone number. If not hashed, Segment will convert the phone number to the E.164 format and hash this value.",
       type: 'string',
       default: {
         '@if': {
