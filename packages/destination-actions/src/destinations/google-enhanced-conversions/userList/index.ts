@@ -21,7 +21,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     first_name: {
       label: 'First Name',
-      description: "The user's first name.",
+      description:
+        "The user's first name. If not hashed, Segment will SHA256 hash this value before sending to Google.",
       type: 'string',
       default: {
         '@if': {
@@ -33,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     last_name: {
       label: 'Last Name',
-      description: "The user's last name.",
+      description: "The user's last name. If not hashed, Segment will SHA256 hash this value before sending to Google.",
       type: 'string',
       default: {
         '@if': {
@@ -45,7 +46,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: "The user's email address.",
+      description:
+        "The user's email address. If not hashed, Segment will normalize this field and hash it using SHA256 before sending to Google.",
       type: 'string',
       default: {
         '@if': {
@@ -57,7 +59,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone: {
       label: 'Phone',
-      description: "The user's phone number.",
+      description:
+        "The user's phone number. If not already hashed, Segment will format the phone number to E164 and hash it using SHA256 before sending to Google.",
       type: 'string',
       default: {
         '@if': {
@@ -69,22 +72,22 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     country_code: {
       label: 'Country Code',
-      description: "The user's country code.",
+      description: "2-letter country code in ISO-3166-1 alpha-2 of the user's address",
       type: 'string'
     },
     postal_code: {
       label: 'Postal Code',
-      description: "The user's postal code.",
+      description: "Postal code of the user's address.",
       type: 'string'
     },
     crm_id: {
       label: 'CRM ID',
-      description: 'Advertiser-assigned user ID for Customer Match upload.',
+      description: 'Advertiser-assigned user ID for Customer Match upload. Required if external ID type is CRM ID.',
       type: 'string'
     },
     mobile_advertising_id: {
       label: 'Mobile Advertising ID',
-      description: 'Mobile device ID (advertising ID/IDFA).',
+      description: 'Mobile device ID (advertising ID/IDFA). Required if external ID type is mobile advertising ID.',
       type: 'string',
       default: {
         '@path': '$.context.device.advertisingId'
