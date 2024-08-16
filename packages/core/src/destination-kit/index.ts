@@ -279,7 +279,8 @@ interface EventInput<Settings> {
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
-  readonly dataFeedCache?: DataFeedCache
+  /** Engage internal use only. DO NOT USE. */
+  readonly engageDestinationCache?: EngageDestinationCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
 }
@@ -294,7 +295,8 @@ interface BatchEventInput<Settings> {
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
-  readonly dataFeedCache?: DataFeedCache
+  /** Engage internal use only. DO NOT USE. */
+  readonly engageDestinationCache?: EngageDestinationCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
 }
@@ -310,7 +312,8 @@ interface OnEventOptions {
   features?: Features
   statsContext?: StatsContext
   logger?: Logger
-  readonly dataFeedCache?: DataFeedCache
+  /** Engage internal use only. DO NOT USE. */
+  readonly engageDestinationCache?: EngageDestinationCache
   transactionContext?: TransactionContext
   stateContext?: StateContext
   /** Handler to perform synchronization. If set, the refresh access token method will be synchronized across
@@ -364,11 +367,11 @@ export interface Logger {
   withTags(extraTags: any): void
 }
 
-export interface DataFeedCache {
-  setRequestResponse(requestId: string, response: string, expiryInSeconds: number): Promise<void>
-  getRequestResponse(requestId: string): Promise<string | null>
-  maxResponseSizeBytes: number
-  maxExpirySeconds: number
+export interface EngageDestinationCache {
+  getByKey: (key: string) => Promise<string | null>
+  readonly maxExpirySeconds: number
+  readonly maxValueSizeBytes: number
+  setByKey: (key: string, value: string, expiryInSeconds?: number) => Promise<void>
 }
 
 export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
@@ -401,8 +404,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       this.settingsSchema = fieldsToJsonSchema(this.authentication.fields)
     }
 
-    for (const action of Object.keys(destination.actions)) {
-      this.partnerAction(action, destination.actions[action])
+    for (const [name, action] of Object.entries(destination.actions)) {
+      this.partnerAction(name, action)
     }
   }
 
@@ -564,7 +567,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features,
       statsContext,
       logger,
-      dataFeedCache,
+      engageDestinationCache,
       transactionContext,
       stateContext
     }: EventInput<Settings>
@@ -588,7 +591,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features,
       statsContext,
       logger,
-      dataFeedCache,
+      engageDestinationCache,
       transactionContext,
       stateContext
     })
@@ -604,7 +607,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features,
       statsContext,
       logger,
-      dataFeedCache,
+      engageDestinationCache,
       transactionContext,
       stateContext
     }: BatchEventInput<Settings>
@@ -629,7 +632,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features,
       statsContext,
       logger,
-      dataFeedCache,
+      engageDestinationCache,
       transactionContext,
       stateContext
     })
@@ -670,7 +673,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       features: options?.features || {},
       statsContext: options?.statsContext || ({} as StatsContext),
       logger: options?.logger,
-      dataFeedCache: options?.dataFeedCache,
+      /** Engage internal use only. DO NOT USE. */
+      engageDestinationCache: options?.engageDestinationCache,
       transactionContext: options?.transactionContext,
       stateContext: options?.stateContext
     }

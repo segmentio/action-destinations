@@ -1,4 +1,4 @@
-import { StateContext, Logger, StatsContext, TransactionContext, DataFeedCache, ActionHookType } from './index'
+import { StateContext, Logger, StatsContext, TransactionContext, EngageDestinationCache, ActionHookType } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
@@ -27,7 +27,9 @@ export interface ExecuteInput<
   Settings,
   Payload,
   AudienceSettings = unknown,
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
   ActionHookInputs = any,
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
   ActionHookOutputs = any
 > {
   /** The subscription mapping definition */
@@ -52,15 +54,17 @@ export interface ExecuteInput<
   matchingKey?: string
   /** The data needed in OAuth requests */
   readonly auth?: AuthTokens
-  /**
-   * The features available in the request based on the customer's sourceID;
-   * `features`,`stats`, `logger` , `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
-   */
+  /** Engage internal use only. DO NOT USE. */
   readonly features?: Features
+  /** Engage internal use only. DO NOT USE. */
   readonly statsContext?: StatsContext
+  /** Engage internal use only. DO NOT USE. */
   readonly logger?: Logger
-  readonly dataFeedCache?: DataFeedCache
+  /** Engage internal use only. DO NOT USE. */
+  readonly engageDestinationCache?: EngageDestinationCache
+  /** Engage internal use only. DO NOT USE. */
   readonly transactionContext?: TransactionContext
+  /** Engage internal use only. DO NOT USE. */
   readonly stateContext?: StateContext
 }
 
