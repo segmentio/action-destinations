@@ -144,8 +144,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.event'
       },
-      required: true,
-      readOnly: true
+      unsafe_hidden: true
     }
   },
   hooks: {
