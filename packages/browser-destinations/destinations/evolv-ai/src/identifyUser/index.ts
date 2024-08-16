@@ -14,7 +14,7 @@ const action: BrowserActionDefinition<Settings, Evolv, Payload> = {
   platform: 'web',
   fields: {
     attributes: {
-      description: 'JSON object containing additional attributes associated with the user.',
+      description: 'Object containing additional attributes associated with the user.',
       label: 'Attributes',
       required: true,
       type: 'object',
