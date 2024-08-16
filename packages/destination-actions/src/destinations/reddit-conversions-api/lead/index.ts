@@ -9,7 +9,8 @@ import {
   user,
   data_processing_options,
   screen_dimensions,
-  event_metadata
+  event_metadata,
+  hashedUserData
 } from '../fields'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -46,6 +47,7 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
 
 function createRedditPayload(payload: Payload) {
   const advertisingIdKey = payload.user.device_type === 'Apple' ? 'idfa' : 'aaid'
+  const hashedUser = hashedUserData(payload.user)
   const cleanedPayload = {
     event_at: payload.event_at,
     event_type: payload.event_type
@@ -72,10 +74,10 @@ function createRedditPayload(payload: Payload) {
         })
       : undefined,
     user: cleanObject({
-      [advertisingIdKey]: payload.user.advertising_id,
-      email: payload.user.email,
-      external_id: payload.user.external_id,
-      ip_address: payload.user.ip_address,
+      [advertisingIdKey]: hashedUser.advertising_id,
+      email: hashedUser.email,
+      external_id: hashedUser.external_id,
+      ip_address: hashedUser.ip_address,
       opt_out: payload.user.opt_out,
       user_agent: payload.user.user_agent,
       uuid: payload.user.uuid,
