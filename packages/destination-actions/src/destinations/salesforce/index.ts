@@ -1,4 +1,4 @@
-import { DestinationDefinition, HTTPError, InvalidAuthenticationError } from '@segment/actions-core'
+import { APIError, DestinationDefinition, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 // This has to be 'cases' because 'case' is a Javascript reserved word
 import cases from './cases'
@@ -10,7 +10,9 @@ import account from './account'
 import { authenticateWithPassword } from './sf-operations'
 
 interface RefreshTokenResponse {
-  access_token: string
+  access_token?: string
+  error?: string
+  error_description?: string
 }
 
 const destination: DestinationDefinition<Settings> = {
@@ -76,16 +78,22 @@ const destination: DestinationDefinition<Settings> = {
           client_id: auth.clientId,
           client_secret: auth.clientSecret,
           grant_type: 'refresh_token'
-        })
-      }).catch((error: HTTPError) => {
-        // Salesforce sometimes returns 400 when concurrently refreshing tokens using the same refresh token.
-        // https://help.salesforce.com/s/articleView?language=en_US&id=release-notes.rn_security_refresh_token_requests.htm&release=250&type=5
-        if (error.response?.status === 400 || error.response?.status === 401) {
-          throw new InvalidAuthenticationError('Invalid or expired refresh token')
-        }
-        throw error
+        }),
+        throwHttpErrors: false
       })
-      return { accessToken: res.data?.access_token }
+
+      if (res.ok) {
+        return { accessToken: res.data?.access_token as string }
+      }
+
+      if (
+        res.status == 400 &&
+        res.data?.error === 'invalid_grant' &&
+        res.data?.error_description === 'expired authorization code'
+      ) {
+        throw new RetryableError('Concurrent token refresh error. This request will be retried')
+      }
+      throw new APIError(res.data?.error_description ?? 'Failed to refresh access token', res.status)
     }
   },
   extendRequest({ auth }) {

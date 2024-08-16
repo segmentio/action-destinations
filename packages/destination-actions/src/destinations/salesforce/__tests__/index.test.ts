@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestIntegration, HTTPError, InvalidAuthenticationError } from '@segment/actions-core'
+import { APIError, createTestIntegration, RetryableError } from '@segment/actions-core'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
@@ -56,10 +56,13 @@ describe('Salesforce (Actions)', () => {
       expect(token).toEqual({ accessToken: mockResponse.access_token })
     })
 
-    it('should rethrow 401 error as InvalidAuthenticationError', async () => {
+    it('should rethrow 400 authorization code expired as RetryableError', async () => {
       nock(`https://login.salesforce.com/services/oauth2/token`)
         .post('', new URLSearchParams(expectedRequest).toString())
-        .reply(401)
+        .reply(400, {
+          error: 'invalid_grant',
+          error_description: 'expired authorization code'
+        })
 
       await expect(
         testDestination.refreshAccessToken(settings, {
@@ -68,13 +71,16 @@ describe('Salesforce (Actions)', () => {
           clientId: 'clientId',
           clientSecret: 'clientSecret'
         })
-      ).rejects.toThrowError(InvalidAuthenticationError)
+      ).rejects.toThrowError(new RetryableError('Concurrent token refresh error. This request will be retried'))
     })
 
-    it('should rethrow 400 error as InvalidAuthenticationError', async () => {
+    it('should rethrow other errors as APIError', async () => {
       nock(`https://login.salesforce.com/services/oauth2/token`)
         .post('', new URLSearchParams(expectedRequest).toString())
-        .reply(401)
+        .reply(401, {
+          error: 'invalid_grant',
+          error_description: 'Failed to refresh access token'
+        })
 
       await expect(
         testDestination.refreshAccessToken(settings, {
@@ -83,22 +89,7 @@ describe('Salesforce (Actions)', () => {
           clientId: 'clientId',
           clientSecret: 'clientSecret'
         })
-      ).rejects.toThrowError(InvalidAuthenticationError)
-    })
-
-    it('should rethrow other errors as is', async () => {
-      nock(`https://login.salesforce.com/services/oauth2/token`)
-        .post('', new URLSearchParams(expectedRequest).toString())
-        .reply(500)
-
-      await expect(
-        testDestination.refreshAccessToken(settings, {
-          refreshToken: 'xyz321',
-          accessToken: 'abc123',
-          clientId: 'clientId',
-          clientSecret: 'clientSecret'
-        })
-      ).rejects.toThrowError(HTTPError)
+      ).rejects.toThrowError(new APIError('Failed to refresh access token', 401))
     })
   })
 })
