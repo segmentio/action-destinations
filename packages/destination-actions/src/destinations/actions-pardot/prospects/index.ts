@@ -191,7 +191,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!error.response) {
         throw err
       }
-      const statusCode = error.response.status
+      const statusCode = typeof error.response?.status === 'number' ? error.response.status : 400
       //Pardot error response is a mix of json and xml.
       //Json error response handle the error in body payload.
       if (error.response.headers.get('content-type')?.includes('application/json')) {
