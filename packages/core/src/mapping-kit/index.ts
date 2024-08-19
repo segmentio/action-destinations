@@ -260,10 +260,18 @@ registerDirective('@json', (opts, payload) => {
 
   const value = resolve(opts.value, payload)
   if (opts.mode === 'encode') {
-    return JSON.stringify(value)
+    try {
+      return JSON.stringify(value)
+    } catch (err) {
+      throw new Error(`@json: failed to stringify value: ${err}`)
+    }
   } else if (opts.mode === 'decode') {
     if (typeof value === 'string') {
-      return JSON.parse(value)
+      try {
+        return JSON.parse(value)
+      } catch (err) {
+        throw new Error(`@json: failed to parse value: ${err}`)
+      }
     }
     return value
   }
