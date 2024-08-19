@@ -200,7 +200,7 @@ const action: ActionDefinition<Settings, Payload> = {
           `Pardot responded witha error code ${data.code}: ${data.message}. This means Pardot has received the call, but consider the payload to be invalid.  To identify the exact error, please refer to ` +
             `https://developer.salesforce.com/docs/marketing/pardot/guide/error-codes.html?q=error#numerical-list-of-error-codes and search for the error code you received.`,
           'PARDOT_ERROR',
-          400
+          statusCode
         )
       }
       //XML error response handles the error in headers.
