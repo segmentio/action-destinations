@@ -74,6 +74,24 @@ describe('Salesforce (Actions)', () => {
       ).rejects.toThrowError(new RetryableError('Concurrent token refresh error. This request will be retried'))
     })
 
+    it('should rethrow token request is already being processed as RetryableError', async () => {
+      nock(`https://login.salesforce.com/services/oauth2/token`)
+        .post('', new URLSearchParams(expectedRequest).toString())
+        .reply(400, {
+          error: 'invalid_grant',
+          error_description: 'token request is already being processed'
+        })
+
+      await expect(
+        testDestination.refreshAccessToken(settings, {
+          refreshToken: 'xyz321',
+          accessToken: 'abc123',
+          clientId: 'clientId',
+          clientSecret: 'clientSecret'
+        })
+      ).rejects.toThrowError(new RetryableError('Concurrent token refresh error. This request will be retried'))
+    })
+
     it('should rethrow other errors as APIError', async () => {
       nock(`https://login.salesforce.com/services/oauth2/token`)
         .post('', new URLSearchParams(expectedRequest).toString())

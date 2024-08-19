@@ -91,7 +91,12 @@ const destination: DestinationDefinition<Settings> = {
       if (
         res.status == 400 &&
         res.data?.error === 'invalid_grant' &&
-        res.data?.error_description === 'expired authorization code'
+        res.data?.error_description &&
+        // As of Aug 2024, salesforce returns "expired authorization code" as error description. But salesforce is expected to return
+        // "token request is already being processed" from september on. So, covering both scenarios so that
+        // we don't have to update the code again.
+        // https://help.salesforce.com/s/articleView?id=release-notes.rn_security_refresh_token_error.htm&release=252&type=5
+        ['token request is already being processed', 'expired authorization code'].includes(res.data?.error_description)
       ) {
         // Under heavy load/thundering herd, it might be better to retry after a while.
         throw new RetryableError('Concurrent token refresh error. This request will be retried')
