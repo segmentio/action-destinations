@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`OptimizelyDataPlatform.emailEvent Should fire email event 1`] = `"[{\\"type\\":\\"email\\",\\"action\\":\\"opened\\",\\"campaign\\":\\"opti-test-campaign\\",\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test@test.com\\"},\\"campaign_event_value\\":null,\\"timestamp\\":\\"2024-03-01T18:11:27.649Z\\"}]"`;
-
-exports[`OptimizelyDataPlatform.emailEvent perform Should fire custom event 1`] = `"[{\\"type\\":\\"email\\",\\"action\\":\\"opened\\",\\"campaign\\":\\"opti-test-campaign\\",\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test@test.com\\"},\\"campaign_event_value\\":null,\\"timestamp\\":\\"2024-03-01T18:11:27.649Z\\"}]"`;
-
-exports[`OptimizelyDataPlatform.emailEvent performBatch Should fire custom event 1`] = `"[{\\"type\\":\\"email\\",\\"action\\":\\"opened\\",\\"campaign\\":\\"opti-test-campaign\\",\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test@test.com\\"},\\"campaign_event_value\\":null,\\"timestamp\\":\\"2024-03-01T18:11:27.649Z\\"},{\\"type\\":\\"email\\",\\"action\\":\\"opened\\",\\"campaign\\":\\"opti-test-campaign\\",\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test@test.com\\"},\\"campaign_event_value\\":null,\\"timestamp\\":\\"2024-03-01T18:11:27.649Z\\"}]"`;

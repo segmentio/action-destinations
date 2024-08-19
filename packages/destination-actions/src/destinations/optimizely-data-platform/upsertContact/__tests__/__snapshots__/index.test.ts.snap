@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`OptimizelyDataPlatform.upsertContact Should fire upsert contact profile 1`] = `"[{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test@test.com\\"},\\"title\\":\\"Mr\\",\\"name\\":\\"John Doe\\",\\"age\\":50}]"`;
-
-exports[`OptimizelyDataPlatform.upsertContact perform Should fire custom event 1`] = `"[{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test@test.com\\"},\\"title\\":\\"Mr\\",\\"name\\":\\"John Doe\\",\\"age\\":50}]"`;
-
-exports[`OptimizelyDataPlatform.upsertContact performBatch Should fire custom event 1`] = `"[{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"email\\":\\"test@test.com\\"},\\"title\\":\\"Mr\\",\\"name\\":\\"John Doe\\",\\"age\\":50}]"`;
