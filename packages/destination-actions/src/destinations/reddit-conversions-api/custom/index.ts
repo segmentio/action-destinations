@@ -328,7 +328,10 @@ function createRedditPayload(payload: Payload) {
     })
   }
 
-  return { events: cleanObject(cleanedPayload) }
+  return {
+    events: [cleanObject(cleanedPayload)],
+    partner: 'SEGMENT'
+  }
 }
 
 function cleanObject(obj: object): object {
