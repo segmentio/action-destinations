@@ -17,7 +17,7 @@ export interface TikTokConversionsData {
 }
 
 export interface TikTokConversionsPage {
-  url: string
+  url?: string
   referrer?: string
 }
 

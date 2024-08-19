@@ -147,12 +147,10 @@ function validateRequestProperties(payload: Payload) {
 }
 
 function validateRequestPage(payload: Payload) {
-  if (!payload.url) {
-    throw new Error('The "url" field is required')
-  }
+  const requestPage: TikTokConversionsPage = {}
 
-  const requestPage: TikTokConversionsPage = {
-    url: payload.url
+  if (payload.url) {
+    requestPage.url = payload.url
   }
 
   if (payload.referrer) {
