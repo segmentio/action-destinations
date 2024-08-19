@@ -63,6 +63,31 @@ describe('Iterable.trackEvent', () => {
     })
   })
 
+  it('converts a yyyy-mm-dd date into a standard Iterable format', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      userId: 'user1234',
+      properties: {
+        myDate: '2023-05-17T00:00:00.000Z'
+      }
+    })
+
+    nock('https://api.iterable.com/api').post('/events/track').reply(200, {})
+
+    const responses = await testDestination.testAction('trackEvent', {
+      event,
+      useDefaultMappings: true
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].options.json).toMatchObject({
+      userId: 'user1234',
+      dataFields: {
+        myDate: '2023-05-17'
+      }
+    })
+  })
+
   it('does not convert a non date string into a standard Iterable date format', async () => {
     const event = createTestEvent({
       type: 'track',
