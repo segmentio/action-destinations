@@ -230,13 +230,12 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Data to Google Enhanced Conversions',
       description:
         'If true, Segment will batch events before sending to Google’s APIs. Google accepts batches of up to 2000 events.',
-      default: true
+      default: false
     },
     batch_size: {
       label: 'Batch Size',
       description: 'Maximum number of events to include in each batch.',
       type: 'number',
-      required: true,
       unsafe_hidden: true,
       default: GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE
     }
