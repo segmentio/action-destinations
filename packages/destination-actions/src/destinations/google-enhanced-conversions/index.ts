@@ -5,7 +5,7 @@ import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
 import { CreateAudienceInput, GetAudienceInput, UserListResponse } from './types'
-import { createGoogleAudience, getGoogleAudience } from './functions'
+import { createGoogleAudience, getGoogleAudience, verifyCustomerId } from './functions'
 import uploadCallConversion2 from './uploadCallConversion2'
 import userList from './userList'
 import uploadClickConversion2 from './uploadClickConversion2'
@@ -112,6 +112,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput: CreateAudienceInput) {
+      createAudienceInput.settings.customerId = verifyCustomerId(createAudienceInput.settings.customerId)
       const auth = createAudienceInput.settings.oauth
       const userListId = await createGoogleAudience(
         request,
@@ -126,6 +127,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
     },
 
     async getAudience(request, getAudienceInput: GetAudienceInput) {
+      getAudienceInput.settings.customerId = verifyCustomerId(getAudienceInput.settings.customerId)
       const response: UserListResponse = await getGoogleAudience(
         request,
         getAudienceInput.settings,

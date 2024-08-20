@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createGoogleAudience, getGoogleAudience, getListIds, handleUpdate } from '../functions'
+import { createGoogleAudience, getGoogleAudience, getListIds, handleUpdate, verifyCustomerId } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
 
@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     first_name: {
       label: 'First Name',
-      description: "The user's first name.",
+      description: "The user's first name. If not hashed, Segment will normalize and hash this value.",
       type: 'string',
       default: {
         '@if': {
@@ -33,7 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     last_name: {
       label: 'Last Name',
-      description: "The user's last name.",
+      description: "The user's last name. If not hashed, Segment will normalize and hash this value.",
       type: 'string',
       default: {
         '@if': {
@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: "The user's email address.",
+      description: "The user's email address. If not hashed, Segment will normalize and hash this value.",
       type: 'string',
       default: {
         '@if': {
@@ -57,7 +57,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone: {
       label: 'Phone',
-      description: "The user's phone number.",
+      description:
+        "The user's phone number. If not hashed, Segment will convert the phone number to the E.164 format and hash this value.",
       type: 'string',
       default: {
         '@if': {
@@ -69,22 +70,22 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     country_code: {
       label: 'Country Code',
-      description: "The user's country code.",
+      description: "2-letter country code in ISO-3166-1 alpha-2 of the user's address",
       type: 'string'
     },
     postal_code: {
       label: 'Postal Code',
-      description: "The user's postal code.",
+      description: "Postal code of the user's address.",
       type: 'string'
     },
     crm_id: {
       label: 'CRM ID',
-      description: 'Advertiser-assigned user ID for Customer Match upload.',
+      description: 'Advertiser-assigned user ID for Customer Match upload. Required if external ID type is CRM ID.',
       type: 'string'
     },
     mobile_advertising_id: {
       label: 'Mobile Advertising ID',
-      description: 'Mobile device ID (advertising ID/IDFA).',
+      description: 'Mobile device ID (advertising ID/IDFA). Required if external ID type is mobile advertising ID.',
       type: 'string',
       default: {
         '@path': '$.context.device.advertisingId'
@@ -144,8 +145,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.event'
       },
-      required: true,
-      readOnly: true
+      unsafe_hidden: true
     }
   },
   hooks: {
@@ -219,6 +219,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       performHook: async (request, { auth, settings, hookInputs, statsContext }) => {
+        settings.customerId = verifyCustomerId(settings.customerId)
         if (hookInputs.list_id) {
           try {
             const response: UserListResponse = await getGoogleAudience(request, settings, hookInputs.list_id, {
@@ -277,7 +278,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode }) => {
-    hookOutputs?.retlOnMappingSave?.outputs.id
+    settings.customerId = verifyCustomerId(settings.customerId)
+
     return await handleUpdate(
       request,
       settings,
@@ -290,6 +292,8 @@ const action: ActionDefinition<Settings, Payload> = {
     )
   },
   performBatch: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode }) => {
+    settings.customerId = verifyCustomerId(settings.customerId)
+
     return await handleUpdate(
       request,
       settings,

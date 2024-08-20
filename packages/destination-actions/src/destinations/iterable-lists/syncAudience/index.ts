@@ -35,10 +35,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     dataFields: {
       label: 'Additional traits or identifiers',
       description:
-        'Specify additional traits or identifiers to sync to Iterable. You will need to ensure these traits or obects are included via Event Settings >> Customized Setup.',
+        'Comma delimited list containing names of additional traits or identifiers to sync to Iterable. You will need to ensure these traits or obects are included via Event Settings >> Customized Setup.',
       required: false,
-      type: 'string',
-      multiple: true
+      type: 'string'
     },
     traitsOrProperties: {
       label: 'Traits or Properties',
@@ -84,7 +83,12 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   }
 }
 
-const send = async ( request: RequestClient, payload: Payload[], settings: Settings, audienceSettings?: AudienceSettings) => {
+const send = async (
+  request: RequestClient,
+  payload: Payload[],
+  settings: Settings,
+  audienceSettings?: AudienceSettings
+) => {
   const client = new IterableListsClient(request, settings, audienceSettings)
   await client.processPayload(payload)
 }

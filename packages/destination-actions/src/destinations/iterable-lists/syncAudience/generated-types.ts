@@ -10,9 +10,9 @@ export interface Payload {
    */
   userId?: string
   /**
-   * Specify additional traits or identifiers to sync to Iterable. You will need to ensure these traits or obects are included via Event Settings >> Customized Setup.
+   * Comma delimited list containing names of additional traits or identifiers to sync to Iterable. You will need to ensure these traits or obects are included via Event Settings >> Customized Setup.
    */
-  dataFields?: string[]
+  dataFields?: string
   /**
    * Traits or Properties object from the identify() or track() call emitted by Engage
    */

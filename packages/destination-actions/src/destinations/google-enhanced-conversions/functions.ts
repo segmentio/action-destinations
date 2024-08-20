@@ -578,3 +578,12 @@ export const handleUpdate = async (
 
   return executedJob
 }
+
+/* Enforcing this here since Customer ID is required for the Google Ads API
+  but not for the Enhanced Conversions API. */
+export const verifyCustomerId = (customerId: string | undefined) => {
+  if (!customerId) {
+    throw new PayloadValidationError('Customer ID is required.')
+  }
+  return customerId.replace(/-/g, '')
+}

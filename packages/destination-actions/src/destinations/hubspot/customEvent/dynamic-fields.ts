@@ -5,7 +5,7 @@ import { SUPPORTED_HUBSPOT_OBJECT_TYPES } from './constants'
 
 import { DynamicFieldResponse } from '@segment/actions-core'
 
-export async function dynamicReadEventNames(request: RequestClient) {
+export async function dynamicReadEventNames(request: RequestClient): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: {
       singular: string | null
@@ -42,11 +42,13 @@ export async function dynamicReadEventNames(request: RequestClient) {
         .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))
     }
   } catch (err) {
+    const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
+
     return {
       choices: [],
       error: {
         message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadEventNames',
-        code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+        code: code
       }
     }
   }
@@ -76,21 +78,24 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
       value: schema.name
     }))
     return {
-      choices: [...choices, ...defaultChoices]
-      .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))
+      choices: [...choices, ...defaultChoices].sort((a, b) =>
+        a.label.toLowerCase().localeCompare(b.label.toLowerCase())
+      )
     }
   } catch (err) {
+    const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
+
     return {
       choices: [],
       error: {
         message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadObjectTypes',
-        code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+        code: code
       }
     }
   }
 }
 
-export async function dynamicReadProperties(request: RequestClient, eventName: string) {
+export async function dynamicReadProperties(request: RequestClient, eventName: string): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: {
       singular: string | null
@@ -148,11 +153,13 @@ export async function dynamicReadProperties(request: RequestClient, eventName: s
       ]
     }
   } catch (err) {
+    const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
+
     return {
       choices: [],
       error: {
         message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadProperties',
-        code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+        code: code
       }
     }
   }

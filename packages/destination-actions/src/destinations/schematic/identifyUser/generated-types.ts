@@ -25,10 +25,6 @@ export interface Payload {
    * Key-value pairs associated with a user (e.g. email: example@example.com)
    */
   user_keys: {
-    /**
-     * Your unique ID for your user
-     */
-    userId?: string
     [k: string]: unknown
   }
   /**

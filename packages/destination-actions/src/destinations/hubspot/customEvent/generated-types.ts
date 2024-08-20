@@ -14,9 +14,9 @@ export interface Payload {
      */
     object_type: string
     /**
-     * The Object ID of the object to associate the event with. For example a contact id or a visitor id value. Works for Contacts, Companies, Deals, Tickets and Custom Objects.
+     * The numeric Object ID of the object to associate the event with. For example a contact id or a visitor id value. Works for Contacts, Companies, Deals, Tickets and Custom Objects.
      */
-    object_id?: string
+    object_id?: number
     /**
      * The email address of the Contact to associate the event with. This field only works for Contact objects.
      */
