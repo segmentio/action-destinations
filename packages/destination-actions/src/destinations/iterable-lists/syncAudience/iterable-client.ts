@@ -37,8 +37,8 @@ export class IterableListsClient {
       if (payload.traitsOrProperties[payload.segmentAudienceKey] === true) {
         const subscriber = {
           email: payload?.email ?? undefined,
-          dataFields: payload?.dataFields?.reduce((acc: { [key: string]: unknown }, item: string) => {
-            acc[item] = payload.traitsOrProperties[item]
+          dataFields: payload?.dataFields?.split(',').reduce((acc: { [key: string]: unknown }, item: string) => {
+            acc[item.trim()] = payload.traitsOrProperties[item.trim()]
             return acc
           }, {}),
           userId: payload?.userId ?? undefined,
