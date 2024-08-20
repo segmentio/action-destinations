@@ -233,7 +233,11 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
   }
 }
 
-export async function dynamicReadProperties(request: RequestClient, objectType: string, sensitive: boolean) {
+export async function dynamicReadProperties(
+  request: RequestClient,
+  objectType: string,
+  sensitive: boolean
+): Promise<DynamicFieldResponse> {
   interface ResultItem {
     label: string
     name: string
