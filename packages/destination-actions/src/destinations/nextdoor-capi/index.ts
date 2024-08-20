@@ -18,10 +18,14 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+    testAuthentication: async (request, { settings }) => {
+      return await request('https://ads.nextdoor.com/v2/api/me', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${settings.apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      })
     }
   },
 

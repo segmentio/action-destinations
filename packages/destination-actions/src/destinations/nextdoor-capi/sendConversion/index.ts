@@ -1,6 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { hashAndEncode } from './utils'
+import { omit } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Conversion',
@@ -65,7 +67,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     client_id: {
       label: 'Nextdoor Advertiser ID',
-      description: 'Your Nextdoor Advertiser ID for self serve clients can be found in your NAM account for managed your support team can provide',
+      description:
+        'Your Nextdoor Advertiser ID for self serve clients can be found in your NAM account for managed your support team can provide',
       type: 'string',
       required: true
     },
@@ -78,7 +81,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     delivery_optimization: {
       label: 'Delivery Optimization',
-      description: 'True indicates data can be used for optimization. False indicates the data will only be used for attribution',
+      description:
+        'True indicates data can be used for optimization. False indicates the data will only be used for attribution',
       type: 'boolean',
       required: false,
       default: true
@@ -96,9 +100,7 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true,
       type: 'string',
       required: true,
-      choices: [
-        { label: 'Segment', value: 'segment' }
-      ],
+      choices: [{ label: 'Segment', value: 'segment' }],
       default: 'segment'
     },
     customer: {
@@ -106,110 +108,112 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Customer profile data used to match with Nextdoor users. At least one of the fields is required.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
+      additionalProperties: false,
       required: true,
       properties: {
         email: {
           label: 'Email',
           description: 'Customer email address',
           type: 'string',
-          required: false,
+          required: false
         },
         phone_number: {
           label: 'Phone Number',
-          description: 'Phone number format should consist of exactly ten digits, devoid of any special characters or international country codes e.g. 4129614932',
+          description:
+            'Phone number format should consist of exactly ten digits, devoid of any special characters or international country codes e.g. 4129614932',
           type: 'string',
-          required: false,
+          required: false
         },
         first_name: {
           label: 'First Name',
           description: 'Customer first name.',
           type: 'string',
-          required: false,
+          required: false
         },
         last_name: {
           label: 'Last Name',
           description: 'Customer last name.',
           type: 'string',
-          required: false,
+          required: false
         },
         date_of_birth: {
           label: 'Date of Birth',
           description: 'Customer date of birth in ISO 8601 format. For example, 1990-01-01',
           type: 'string',
-          required: false,
+          required: false
         },
         street_address: {
           label: 'Street Address',
           description: 'Customer street address.',
           type: 'string',
-          required: false,
+          required: false
         },
         city: {
           label: 'City',
           description: 'Customer city.',
           type: 'string',
-          required: false,
+          required: false
         },
         state: {
           label: 'State',
           description: 'Customer State.',
           type: 'string',
-          required: false,
+          required: false
         },
         country: {
           label: 'Customer Country',
           description: 'Customer Customer country code (2-letter country codes in ISO 3166-1 alpha-2).',
           type: 'string',
-          required: false,
+          required: false
         },
         zip_code: {
           label: 'Zip Code',
           description: 'Customer Zip code.',
           type: 'string',
-          required: false,
+          required: false
         },
         pixel_id: {
           label: 'Nextdoor Pixel Id',
           description: 'Nextdoor Pixel Id. Used for deduplication when events are sent via CAPI and front end Pixel.',
           type: 'string',
-          required: false,
+          required: false
         },
         click_id: {
           label: 'Nextdoor Click ID',
-          description: 'Next Door Click ID - ndclid parameter from the URL', 
+          description: 'Next Door Click ID - ndclid parameter from the URL',
           type: 'string',
-          required: false,
+          required: false
         },
         client_ip_address: {
           label: 'Customer IP Address',
           description: 'Customer IP Address Must be a valid IPV4 or IPV6 address.',
           type: 'string',
-          required: false,
+          required: false
         }
       },
       default: {
-        email: { 
+        email: {
           '@if': {
             exists: { '@path': '$.context.traits.email' },
             then: { '@path': '$.context.traits.email' },
             else: { '@path': '$.properties.email' }
           }
         },
-        phone_number: { 
+        phone_number: {
           '@if': {
             exists: { '@path': '$.context.traits.phone' },
             then: { '@path': '$.context.traits.phone' },
             else: { '@path': '$.properties.phone' }
           }
         },
-        first_name: { 
+        first_name: {
           '@if': {
             exists: { '@path': '$.context.traits.first_name' },
             then: { '@path': '$.context.traits.first_name' },
             else: { '@path': '$.properties.first_name' }
           }
         },
-        last_name: { 
+        last_name: {
           '@if': {
             exists: { '@path': '$.context.traits.last_name' },
             then: { '@path': '$.context.traits.last_name' },
@@ -272,19 +276,21 @@ const action: ActionDefinition<Settings, Payload> = {
             else: { '@path': '$.properties.click_id' }
           }
         },
-        client_ip_address: {'@path': '$.context.ip' }
+        client_ip_address: { '@path': '$.context.ip' }
       }
     },
     custom: {
       label: 'Custom Data',
-      description: 'Custom objects contains fields specific to advertisers that are not already covered in standard fields.',
+      description:
+        'Custom objects contains fields specific to advertisers that are not already covered in standard fields.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       required: false,
       properties: {
         order_value: {
           label: 'Order Value',
-          description: 'Required for purchase events. Total numeric value associated with the event. E.g. 99.99 denotes $99.99 USD. Currency is specified in the Currency field.',
+          description:
+            'Required for purchase events. Total numeric value associated with the event. E.g. 99.99 denotes $99.99 USD. Currency is specified in the Currency field.',
           type: 'string',
           required: false
         },
@@ -298,7 +304,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Order ID',
           description: 'The order ID for this transaction. Required for offline events.',
           type: 'string',
-          required: false,
+          required: false
         },
         delivery_category: {
           label: 'Delivery Category',
@@ -315,8 +321,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         order_value: { '@path': '$.properties.total' },
         currency: { '@path': '$.properties.currency' },
-        order_id: { '@path': '$.properties.order_id'}
-      }   
+        order_id: { '@path': '$.properties.order_id' }
+      }
     },
     product_context: {
       label: 'Product Context',
@@ -324,7 +330,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       multiple: true,
       required: false,
-      additionalProperties: true, 
+      additionalProperties: true,
       properties: {
         id: {
           label: 'Product ID',
@@ -373,13 +379,13 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'App Id',
           description: 'A unique ID for advertisers mobile app ID from App store and Google Play Store.',
           type: 'string',
-          required: false,
+          required: false
         },
         app_tracking_enabled: {
           label: 'App Tracking Enabled',
           description: 'Users opt out settings for ATT',
           type: 'boolean',
-          required: false,
+          required: false
         },
         platform: {
           label: 'App Platfrom',
@@ -388,14 +394,14 @@ const action: ActionDefinition<Settings, Payload> = {
           required: false,
           choices: [
             { label: 'iOS', value: 'ios' },
-            { label: 'Android', value: 'android' },
+            { label: 'Android', value: 'android' }
           ]
         },
         app_version: {
           label: 'App Version',
           description: 'Mobile app version',
           type: 'string',
-          required: false,
+          required: false
         }
       },
       default: {
@@ -406,28 +412,38 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, {settings, payload}) => {
-
+  perform: (request, { settings, payload }) => {
     const apiKey = settings.apiKey
 
+    const hashFields = omit(payload.customer, ['click_id', 'pixel_id']) as Record<string, string>
 
-
+    for (const [key, value] of Object.entries(hashFields)) {
+      hashFields[key] = hashAndEncode(value)
+    }
 
     const data = {
       event_name: payload.event_name,
       event_id: payload.event_id,
       event_time: payload.event_time,
+      event_timezone: payload.event_timezone,
       action_source: payload.action_source,
       client_id: payload.client_id,
       action_source_url: payload.action_source_url,
-      customer: payload.customer,
-      custom: { ...payload.custom, ...payload.product_context }
-
+      delivery_optimization: payload.delivery_optimization,
+      test_event: payload.test_event,
+      partner_id: payload.partner_id,
+      customer: { click_id: payload.customer?.click_id, pixel_id: payload.customer?.pixel_id, ...hashFields },
+      custom: { ...payload.custom, ...payload.product_context },
+      app: payload.app
     }
 
-
-    return request('https://example.com', {
+    return request('https://ads.nextdoor.com/v2/api/conversions/track', {
       method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${apiKey}`
+      },
       json: data
     })
   }
