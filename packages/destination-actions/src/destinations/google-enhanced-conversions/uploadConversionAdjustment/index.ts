@@ -1,4 +1,10 @@
-import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
+import {
+  ActionDefinition,
+  DynamicFieldResponse,
+  PayloadValidationError,
+  RequestClient,
+  RequestFn
+} from '@segment/actions-core'
 import {
   hash,
   handleGoogleErrors,
@@ -12,6 +18,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PartialErrorResponse, ConversionAdjustmentRequestObjectInterface, UserIdentifierInterface } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
+import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Conversion Adjustment',
@@ -223,6 +230,21 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.userAgent'
       }
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Google Enhanced Conversions',
+      description:
+        'If true, Segment will batch events before sending to Google’s APIs. Google accepts batches of up to 2000 events.',
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch.',
+      type: 'number',
+      required: true,
+      unsafe_hidden: true,
+      default: GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE
     }
   },
   dynamicFields: {
@@ -234,101 +256,117 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, features, statsContext }) => {
-    /* Enforcing this here since Customer ID is required for the Google Ads API
-    but not for the Enhanced Conversions API. */
-    if (!settings.customerId) {
-      throw new PayloadValidationError(
-        'Customer ID is required for this action. Please set it in destination settings.'
-      )
-    }
+    return await uploadConversionAdjustmentAction(request, { settings, payload: [payload], features, statsContext })
+  },
+  performBatch: async (request, { settings, payload, features, statsContext }) => {
+    return await uploadConversionAdjustmentAction(request, { settings, payload, features, statsContext })
+  }
+}
 
-    settings.customerId = settings.customerId.replace(/-/g, '')
+const uploadConversionAdjustmentAction: RequestFn<Settings, Payload[]> = async (
+  request,
+  { settings, payload, features, statsContext }
+) => {
+  /* Enforcing this here since Customer ID is required for the Google Ads API
+  but not for the Enhanced Conversions API. */
+  if (!settings.customerId) {
+    throw new PayloadValidationError('Customer ID is required for this action. Please set it in destination settings.')
+  }
 
-    if (!payload.adjustment_timestamp) {
-      payload.adjustment_timestamp = new Date().toISOString()
+  settings.customerId = settings.customerId.replace(/-/g, '')
+
+  const request_objects: ConversionAdjustmentRequestObjectInterface[] = payload.map((payloadItem) => {
+    if (!payloadItem.adjustment_timestamp) {
+      payloadItem.adjustment_timestamp = new Date().toISOString()
     }
 
     const request_object: ConversionAdjustmentRequestObjectInterface = {
-      conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
-      adjustmentType: payload.adjustment_type,
-      adjustmentDateTime: convertTimestamp(payload.adjustment_timestamp),
-      orderId: payload.order_id,
+      conversionAction: `customers/${settings.customerId}/conversionActions/${payloadItem.conversion_action}`,
+      adjustmentType: payloadItem.adjustment_type,
+      adjustmentDateTime: convertTimestamp(payloadItem.adjustment_timestamp),
+      orderId: payloadItem.order_id,
       gclidDateTimePair: {
-        gclid: payload.gclid,
-        conversionDateTime: convertTimestamp(payload.conversion_timestamp)
+        gclid: payloadItem.gclid,
+        conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp)
       },
       userIdentifiers: [],
-      userAgent: payload.user_agent
+      userAgent: payloadItem.user_agent
     }
 
     // Google will return an error if this value is sent with retractions.
-    if (payload.adjustment_type !== 'RETRACTION') {
+    if (payloadItem.adjustment_type !== 'RETRACTION') {
       request_object.restatementValue = {
-        adjustedValue: payload.restatement_value,
-        currencyCode: payload.restatement_currency_code
+        adjustedValue: payloadItem.restatement_value,
+        currencyCode: payloadItem.restatement_currency_code
       }
     }
 
-    if (payload.email_address) {
-      const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+    if (payloadItem.email_address) {
+      const validatedEmail: string = commonHashedEmailValidation(payloadItem.email_address)
 
       request_object.userIdentifiers.push({
         hashedEmail: validatedEmail
       } as UserIdentifierInterface)
     }
 
-    if (payload.phone_number) {
+    if (payloadItem.phone_number) {
       request_object.userIdentifiers.push({
-        hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(payload.phone_number)
+        hashedPhoneNumber: isHashedInformation(payloadItem.phone_number)
+          ? payloadItem.phone_number
+          : hash(payloadItem.phone_number)
       } as UserIdentifierInterface)
     }
 
     const containsAddressInfo =
-      payload.first_name ||
-      payload.last_name ||
-      payload.city ||
-      payload.state ||
-      payload.country ||
-      payload.postal_code ||
-      payload.street_address
+      payloadItem.first_name ||
+      payloadItem.last_name ||
+      payloadItem.city ||
+      payloadItem.state ||
+      payloadItem.country ||
+      payloadItem.postal_code ||
+      payloadItem.street_address
 
     if (containsAddressInfo) {
       request_object.userIdentifiers.push({
         addressInfo: {
-          hashedFirstName: isHashedInformation(String(payload.first_name))
-            ? payload.first_name
-            : hash(payload.first_name),
-          hashedLastName: isHashedInformation(String(payload.last_name)) ? payload.last_name : hash(payload.last_name),
-          hashedStreetAddress: isHashedInformation(String(payload.street_address))
-            ? payload.street_address
-            : hash(payload.street_address),
-          city: payload.city,
-          state: payload.state,
-          countryCode: payload.country,
-          postalCode: payload.postal_code
+          hashedFirstName: isHashedInformation(String(payloadItem.first_name))
+            ? payloadItem.first_name
+            : hash(payloadItem.first_name),
+          hashedLastName: isHashedInformation(String(payloadItem.last_name))
+            ? payloadItem.last_name
+            : hash(payloadItem.last_name),
+          hashedStreetAddress: isHashedInformation(String(payloadItem.street_address))
+            ? payloadItem.street_address
+            : hash(payloadItem.street_address),
+          city: payloadItem.city,
+          state: payloadItem.state,
+          countryCode: payloadItem.country,
+          postalCode: payloadItem.postal_code
         }
       })
     }
 
-    const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-        settings.customerId
-      }:uploadConversionAdjustments`,
-      {
-        method: 'post',
-        headers: {
-          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-        },
-        json: {
-          conversionAdjustments: [request_object],
-          partialFailure: true
-        }
-      }
-    )
+    return request_object
+  })
 
-    handleGoogleErrors(response)
-    return response
-  }
+  const response: ModifiedResponse<PartialErrorResponse> = await request(
+    `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+      settings.customerId
+    }:uploadConversionAdjustments`,
+    {
+      method: 'post',
+      headers: {
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      },
+      json: {
+        conversionAdjustments: request_objects,
+        partialFailure: true
+      }
+    }
+  )
+
+  handleGoogleErrors(response)
+  return response
 }
 
 export default action

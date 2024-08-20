@@ -1,16 +1,23 @@
-import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
+import {
+  ActionDefinition,
+  DynamicFieldResponse,
+  PayloadValidationError,
+  RequestClient,
+  RequestFn
+} from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   convertTimestamp,
   formatCustomVariables,
-  getCustomVariables,
+  memoizedGetCustomVariables,
   getApiVersion,
   handleGoogleErrors,
   getConversionActionDynamicData
 } from '../functions'
 import { CallConversionRequestObjectInterface, PartialErrorResponse } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
+import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Call Conversion',
@@ -92,6 +99,21 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'DENIED', value: 'DENIED' },
         { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
       ]
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Google Enhanced Conversions',
+      description:
+        'If true, Segment will batch events before sending to Google’s APIs. Google accepts batches of up to 2000 events.',
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch.',
+      type: 'number',
+      required: true,
+      unsafe_hidden: true,
+      default: GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE
     }
   },
 
@@ -104,66 +126,86 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { auth, settings, payload, features, statsContext }) => {
-    /* Enforcing this here since Customer ID is required for the Google Ads API
-    but not for the Enhanced Conversions API. */
-    if (!settings.customerId) {
-      throw new PayloadValidationError(
-        'Customer ID is required for this action. Please set it in destination settings.'
-      )
-    }
+    return await uploadCallConversionAction(request, { auth, settings, payload: [payload], features, statsContext })
+  },
+  performBatch: async (request, { auth, settings, payload, features, statsContext }) => {
+    return await uploadCallConversionAction(request, { auth, settings, payload, features, statsContext })
+  }
+}
 
-    settings.customerId = settings.customerId.replace(/-/g, '')
+const uploadCallConversionAction: RequestFn<Settings, Payload[]> = async (
+  request,
+  { auth, settings, payload, features, statsContext }
+) => {
+  /* Enforcing this here since Customer ID is required for the Google Ads API
+  but not for the Enhanced Conversions API. */
+  if (!settings.customerId) {
+    throw new PayloadValidationError('Customer ID is required for this action. Please set it in destination settings.')
+  }
 
-    const request_object: CallConversionRequestObjectInterface = {
-      conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
-      callerId: payload.caller_id,
-      callStartDateTime: convertTimestamp(payload.call_timestamp),
-      conversionDateTime: convertTimestamp(payload.conversion_timestamp),
-      conversionValue: payload.value,
-      currencyCode: payload.currency
-    }
+  const customerId = settings.customerId.replace(/-/g, '')
 
-    // Add Consent Signals 'adUserData' if it is defined
-    if (payload.ad_user_data_consent_state) {
-      request_object['consent'] = {
-        adUserData: payload.ad_user_data_consent_state
+  // Retrieves all of the custom variables that the customer has created in their Google Ads account
+  const getCustomVariables = memoizedGetCustomVariables()
+
+  const request_objects: CallConversionRequestObjectInterface[] = await Promise.all(
+    payload.map(async (payloadItem) => {
+      const request_object: CallConversionRequestObjectInterface = {
+        conversionAction: `customers/${customerId}/conversionActions/${payloadItem.conversion_action}`,
+        callerId: payloadItem.caller_id,
+        callStartDateTime: convertTimestamp(payloadItem.call_timestamp),
+        conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp),
+        conversionValue: payloadItem.value,
+        currencyCode: payloadItem.currency
       }
-    }
 
-    // Add Consent Signals 'adPersonalization' if it is defined
-    if (payload.ad_personalization_consent_state) {
-      request_object['consent'] = {
-        ...request_object['consent'],
-        adPersonalization: payload.ad_personalization_consent_state
-      }
-    }
-    // Retrieves all of the custom variables that the customer has created in their Google Ads account
-    if (payload.custom_variables) {
-      const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
-      request_object.customVariables = formatCustomVariables(
-        payload.custom_variables,
-        customVariableIds.data[0].results
-      )
-    }
-    const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-        settings.customerId
-      }:uploadCallConversions`,
-      {
-        method: 'post',
-        headers: {
-          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-        },
-        json: {
-          conversions: [request_object],
-          partialFailure: true
+      // Add Consent Signals 'adUserData' if it is defined
+      if (payloadItem.ad_user_data_consent_state) {
+        request_object['consent'] = {
+          adUserData: payloadItem.ad_user_data_consent_state
         }
       }
-    )
 
-    handleGoogleErrors(response)
-    return response
-  }
+      // Add Consent Signals 'adPersonalization' if it is defined
+      if (payloadItem.ad_personalization_consent_state) {
+        request_object['consent'] = {
+          ...request_object['consent'],
+          adPersonalization: payloadItem.ad_personalization_consent_state
+        }
+      }
+
+      if (payloadItem.custom_variables) {
+        const customVariableIds = await getCustomVariables(customerId, auth, request, features, statsContext)
+        if (customVariableIds?.data?.length) {
+          request_object.customVariables = formatCustomVariables(
+            payloadItem.custom_variables,
+            customVariableIds.data[0].results
+          )
+        }
+      }
+
+      return request_object
+    })
+  )
+
+  const response: ModifiedResponse<PartialErrorResponse> = await request(
+    `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+      settings.customerId
+    }:uploadCallConversions`,
+    {
+      method: 'post',
+      headers: {
+        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+      },
+      json: {
+        conversions: request_objects,
+        partialFailure: true
+      }
+    }
+  )
+
+  handleGoogleErrors(response)
+  return response
 }
 
 export default action
