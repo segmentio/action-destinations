@@ -99,5 +99,5 @@ export interface Payload {
   /**
    * Maximum number of events to include in each batch.
    */
-  batch_size: number
+  batch_size?: number
 }
