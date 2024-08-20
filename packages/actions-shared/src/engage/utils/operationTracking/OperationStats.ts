@@ -69,12 +69,29 @@ export abstract class OperationStats<TContext extends OperationStatsContext = Op
     }
   }
 
-  mergeTags(...tagSets: (string[] | undefined)[]): string[] {
-    const res: string[] = []
-    for (const tags of tagSets) {
-      if (tags) res.push(...tags)
+  /**
+   * Merge tags from multiple tag sets into datadog format [<key>:<value>]
+   * @param distinct if true, only one tag of each key will be kept. For duplicate tags the last one will be kept
+   * @param tagSets set of tags to merge
+   */
+  mergeTags(...tagSets: (string[] | undefined)[]): string[]
+  mergeTags(distinct: boolean, ...tagSets: (string[] | undefined)[]): string[]
+  mergeTags(...args: any[]): string[] {
+    const [distinct, tagSets] = (typeof args[0] == 'boolean' ? args : [true, args]) as [
+      boolean,
+      (string[] | undefined)[]
+    ]
+    const allTags = tagSets.flatMap((t) => t || []).filter((t) => t)
+
+    if (!distinct) return allTags
+
+    const tagsMap = new Map<string, string | undefined>()
+    for (const tag of allTags) {
+      const sepIndex = tag.indexOf(':')
+      const [key, value] = sepIndex >= 0 ? [tag.slice(0, sepIndex), tag.slice(sepIndex + 1)] : [tag, undefined]
+      tagsMap.set(key, value)
     }
-    return res.filter((t) => t)
+    return Array.from(tagsMap.entries()).map(([key, value]) => (value ? `${key}:${value}` : key))
   }
 
   statsOperationEvent(args: OperationStatsEventArgs) {
