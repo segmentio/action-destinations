@@ -71,6 +71,17 @@ const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
       pushEmail()
       pushTraits()
     }
+
+    const manualInit = settings.manualInit ?? false
+    if (
+      manualInit &&
+      payload.userId &&
+      typeof payload.userId === 'string' &&
+      payload.userId.length > 0 &&
+      Array.isArray(window.jimo)
+    ) {
+      window.jimoInit()
+    }
   }
 }
 

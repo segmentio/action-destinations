@@ -37,6 +37,13 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
       label: 'Refetch experiences after traits changes',
       type: 'boolean',
       default: false
+    },
+    manualInit: {
+      description:
+        'If true, Jimo SDK will be initialized only after a Segment event containing a userID has been triggered.',
+      label: 'Manual Init',
+      type: 'boolean',
+      default: false
     }
   },
   presets: [
@@ -60,7 +67,9 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
 
     await deps.loadScript(`${ENDPOINT_UNDERCITY}`)
 
-    await deps.resolveWhen(() => Array.isArray(window.jimo) === false, 100)
+    const manualInit = settings.manualInit ?? false
+
+    await deps.resolveWhen(() => Array.isArray(window.jimo) === manualInit, 100)
 
     return window.jimo as JimoSDK
   },
