@@ -172,12 +172,25 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string'
       }
     },
-    testAuthentication: (_, { settings }) => {
-      if (settings.baseUrl.startsWith('https://'.toLowerCase())) {
-        return Promise.resolve('Success')
+    testAuthentication: async (request, { settings }) => {
+      if (!settings.baseUrl.startsWith('https://'.toLowerCase())) {
+        throw new IntegrationError('Responsys endpoint URL must start with https://', 'INVALID_URL', 400)
       }
 
-      throw new IntegrationError('Responsys endpoint URL must start with https://', 'INVALID_URL', 400)
+      const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+      const endpoint = `${baseUrl}/rest/api/v1.3/auth/token`
+
+      const res = await request<RefreshTokenResponse>(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `user_name=${encodeURIComponent(settings.username)}&password=${encodeURIComponent(
+          settings.userPassword
+        )}&auth_type=password`
+      })
+
+      return Promise.resolve(res.data.authToken ? true : false)
     },
     refreshAccessToken: async (request, { settings }) => {
       const baseUrl = settings.baseUrl?.replace(/\/$/, '')
