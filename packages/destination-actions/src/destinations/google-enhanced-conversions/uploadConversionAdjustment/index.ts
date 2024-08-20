@@ -1,10 +1,4 @@
-import {
-  ActionDefinition,
-  DynamicFieldResponse,
-  PayloadValidationError,
-  RequestClient,
-  RequestFn
-} from '@segment/actions-core'
+import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import {
   hash,
   handleGoogleErrors,
@@ -256,117 +250,205 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, features, statsContext }) => {
-    return await uploadConversionAdjustmentAction(request, { settings, payload: [payload], features, statsContext })
-  },
-  performBatch: async (request, { settings, payload, features, statsContext }) => {
-    return await uploadConversionAdjustmentAction(request, { settings, payload, features, statsContext })
-  }
-}
+    /* Enforcing this here since Customer ID is required for the Google Ads API
+    but not for the Enhanced Conversions API. */
+    if (!settings.customerId) {
+      throw new PayloadValidationError(
+        'Customer ID is required for this action. Please set it in destination settings.'
+      )
+    }
 
-const uploadConversionAdjustmentAction: RequestFn<Settings, Payload[]> = async (
-  request,
-  { settings, payload, features, statsContext }
-) => {
-  /* Enforcing this here since Customer ID is required for the Google Ads API
-  but not for the Enhanced Conversions API. */
-  if (!settings.customerId) {
-    throw new PayloadValidationError('Customer ID is required for this action. Please set it in destination settings.')
-  }
+    settings.customerId = settings.customerId.replace(/-/g, '')
 
-  settings.customerId = settings.customerId.replace(/-/g, '')
-
-  const request_objects: ConversionAdjustmentRequestObjectInterface[] = payload.map((payloadItem) => {
-    if (!payloadItem.adjustment_timestamp) {
-      payloadItem.adjustment_timestamp = new Date().toISOString()
+    if (!payload.adjustment_timestamp) {
+      payload.adjustment_timestamp = new Date().toISOString()
     }
 
     const request_object: ConversionAdjustmentRequestObjectInterface = {
-      conversionAction: `customers/${settings.customerId}/conversionActions/${payloadItem.conversion_action}`,
-      adjustmentType: payloadItem.adjustment_type,
-      adjustmentDateTime: convertTimestamp(payloadItem.adjustment_timestamp),
-      orderId: payloadItem.order_id,
+      conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
+      adjustmentType: payload.adjustment_type,
+      adjustmentDateTime: convertTimestamp(payload.adjustment_timestamp),
+      orderId: payload.order_id,
       gclidDateTimePair: {
-        gclid: payloadItem.gclid,
-        conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp)
+        gclid: payload.gclid,
+        conversionDateTime: convertTimestamp(payload.conversion_timestamp)
       },
       userIdentifiers: [],
-      userAgent: payloadItem.user_agent
+      userAgent: payload.user_agent
     }
 
     // Google will return an error if this value is sent with retractions.
-    if (payloadItem.adjustment_type !== 'RETRACTION') {
+    if (payload.adjustment_type !== 'RETRACTION') {
       request_object.restatementValue = {
-        adjustedValue: payloadItem.restatement_value,
-        currencyCode: payloadItem.restatement_currency_code
+        adjustedValue: payload.restatement_value,
+        currencyCode: payload.restatement_currency_code
       }
     }
 
-    if (payloadItem.email_address) {
-      const validatedEmail: string = commonHashedEmailValidation(payloadItem.email_address)
+    if (payload.email_address) {
+      const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
 
       request_object.userIdentifiers.push({
         hashedEmail: validatedEmail
       } as UserIdentifierInterface)
     }
 
-    if (payloadItem.phone_number) {
+    if (payload.phone_number) {
       request_object.userIdentifiers.push({
-        hashedPhoneNumber: isHashedInformation(payloadItem.phone_number)
-          ? payloadItem.phone_number
-          : hash(payloadItem.phone_number)
+        hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(payload.phone_number)
       } as UserIdentifierInterface)
     }
 
     const containsAddressInfo =
-      payloadItem.first_name ||
-      payloadItem.last_name ||
-      payloadItem.city ||
-      payloadItem.state ||
-      payloadItem.country ||
-      payloadItem.postal_code ||
-      payloadItem.street_address
+      payload.first_name ||
+      payload.last_name ||
+      payload.city ||
+      payload.state ||
+      payload.country ||
+      payload.postal_code ||
+      payload.street_address
 
     if (containsAddressInfo) {
       request_object.userIdentifiers.push({
         addressInfo: {
-          hashedFirstName: isHashedInformation(String(payloadItem.first_name))
-            ? payloadItem.first_name
-            : hash(payloadItem.first_name),
-          hashedLastName: isHashedInformation(String(payloadItem.last_name))
-            ? payloadItem.last_name
-            : hash(payloadItem.last_name),
-          hashedStreetAddress: isHashedInformation(String(payloadItem.street_address))
-            ? payloadItem.street_address
-            : hash(payloadItem.street_address),
-          city: payloadItem.city,
-          state: payloadItem.state,
-          countryCode: payloadItem.country,
-          postalCode: payloadItem.postal_code
+          hashedFirstName: isHashedInformation(String(payload.first_name))
+            ? payload.first_name
+            : hash(payload.first_name),
+          hashedLastName: isHashedInformation(String(payload.last_name)) ? payload.last_name : hash(payload.last_name),
+          hashedStreetAddress: isHashedInformation(String(payload.street_address))
+            ? payload.street_address
+            : hash(payload.street_address),
+          city: payload.city,
+          state: payload.state,
+          countryCode: payload.country,
+          postalCode: payload.postal_code
         }
       })
     }
 
-    return request_object
-  })
-
-  const response: ModifiedResponse<PartialErrorResponse> = await request(
-    `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-      settings.customerId
-    }:uploadConversionAdjustments`,
-    {
-      method: 'post',
-      headers: {
-        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-      },
-      json: {
-        conversionAdjustments: request_objects,
-        partialFailure: true
+    const response: ModifiedResponse<PartialErrorResponse> = await request(
+      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadConversionAdjustments`,
+      {
+        method: 'post',
+        headers: {
+          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+        },
+        json: {
+          conversionAdjustments: [request_object],
+          partialFailure: true
+        }
       }
-    }
-  )
+    )
 
-  handleGoogleErrors(response)
-  return response
+    handleGoogleErrors(response)
+    return response
+  },
+  performBatch: async (request, { settings, payload, features, statsContext }) => {
+    /* Enforcing this here since Customer ID is required for the Google Ads API
+  but not for the Enhanced Conversions API. */
+    if (!settings.customerId) {
+      throw new PayloadValidationError(
+        'Customer ID is required for this action. Please set it in destination settings.'
+      )
+    }
+
+    settings.customerId = settings.customerId.replace(/-/g, '')
+
+    const request_objects: ConversionAdjustmentRequestObjectInterface[] = payload.map((payloadItem) => {
+      if (!payloadItem.adjustment_timestamp) {
+        payloadItem.adjustment_timestamp = new Date().toISOString()
+      }
+
+      const request_object: ConversionAdjustmentRequestObjectInterface = {
+        conversionAction: `customers/${settings.customerId}/conversionActions/${payloadItem.conversion_action}`,
+        adjustmentType: payloadItem.adjustment_type,
+        adjustmentDateTime: convertTimestamp(payloadItem.adjustment_timestamp),
+        orderId: payloadItem.order_id,
+        gclidDateTimePair: {
+          gclid: payloadItem.gclid,
+          conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp)
+        },
+        userIdentifiers: [],
+        userAgent: payloadItem.user_agent
+      }
+
+      // Google will return an error if this value is sent with retractions.
+      if (payloadItem.adjustment_type !== 'RETRACTION') {
+        request_object.restatementValue = {
+          adjustedValue: payloadItem.restatement_value,
+          currencyCode: payloadItem.restatement_currency_code
+        }
+      }
+
+      if (payloadItem.email_address) {
+        const validatedEmail: string = commonHashedEmailValidation(payloadItem.email_address)
+
+        request_object.userIdentifiers.push({
+          hashedEmail: validatedEmail
+        } as UserIdentifierInterface)
+      }
+
+      if (payloadItem.phone_number) {
+        request_object.userIdentifiers.push({
+          hashedPhoneNumber: isHashedInformation(payloadItem.phone_number)
+            ? payloadItem.phone_number
+            : hash(payloadItem.phone_number)
+        } as UserIdentifierInterface)
+      }
+
+      const containsAddressInfo =
+        payloadItem.first_name ||
+        payloadItem.last_name ||
+        payloadItem.city ||
+        payloadItem.state ||
+        payloadItem.country ||
+        payloadItem.postal_code ||
+        payloadItem.street_address
+
+      if (containsAddressInfo) {
+        request_object.userIdentifiers.push({
+          addressInfo: {
+            hashedFirstName: isHashedInformation(String(payloadItem.first_name))
+              ? payloadItem.first_name
+              : hash(payloadItem.first_name),
+            hashedLastName: isHashedInformation(String(payloadItem.last_name))
+              ? payloadItem.last_name
+              : hash(payloadItem.last_name),
+            hashedStreetAddress: isHashedInformation(String(payloadItem.street_address))
+              ? payloadItem.street_address
+              : hash(payloadItem.street_address),
+            city: payloadItem.city,
+            state: payloadItem.state,
+            countryCode: payloadItem.country,
+            postalCode: payloadItem.postal_code
+          }
+        })
+      }
+
+      return request_object
+    })
+
+    const response: ModifiedResponse<PartialErrorResponse> = await request(
+      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadConversionAdjustments`,
+      {
+        method: 'post',
+        headers: {
+          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+        },
+        json: {
+          conversionAdjustments: request_objects,
+          partialFailure: true
+        }
+      }
+    )
+
+    handleGoogleErrors(response)
+    return response
+  }
 }
 
 export default action
