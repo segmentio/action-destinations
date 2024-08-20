@@ -389,7 +389,7 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses[1].status).toBe(201)
     })
 
-    it('fails if customerId not  - basic', async () => {
+    it('fails if customerId not - basic', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
