@@ -819,26 +819,18 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
    * @throws {ResponseError & HTTPError} - If reauthentication is not needed or token refresh fails.
    */
   async handleAuthError(error: ResponseError & HTTPError, settings: JSONObject, options?: OnEventOptions) {
-    if (this.needsReauthentication(error)) {
-      const newTokens = await this.refreshTokenAndGetNewToken(settings, options)
-      settings = await this.updateTokensInSettings(settings, newTokens, options)
-    } else {
-      throw error
-    }
-    return settings
-  }
-
-  /**
-   * Determines if reauthentication is needed based on the error status.
-   * @param {ResponseError & HTTPError} error - The error object containing response details.
-   * @returns {boolean} - True if reauthentication is needed, otherwise false.
-   */
-  needsReauthentication(error: ResponseError & HTTPError): boolean {
     const statusCode = error?.status ?? error?.response?.status ?? 500
-    return (
+    const needsReauthentication =
       statusCode === 401 &&
       (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
-    )
+    if (!needsReauthentication) {
+      throw error
+    }
+    const newTokens = await this.refreshTokenAndGetNewToken(settings, options)
+    // Update new access-token in cache and in settings.
+    await options?.onTokenRefresh?.(newTokens)
+    settings = updateOAuthSettings(settings, newTokens)
+    return settings
   }
 
   /**
@@ -862,21 +854,5 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     return newTokens
-  }
-
-  /**
-   * Updates the settings object with new tokens.
-   * @param {JSONObject} settings - The current settings object.
-   * @param {RefreshAccessTokenResult} newTokens - The new tokens object.
-   * @param {OnEventOptions} [options] - Optional event options for handling token refresh.
-   * @returns {Promise<JSONObject>} - The updated settings object.
-   */
-  async updateTokensInSettings(
-    settings: JSONObject,
-    newTokens: RefreshAccessTokenResult,
-    options?: OnEventOptions
-  ): Promise<JSONObject> {
-    await options?.onTokenRefresh?.(newTokens)
-    return updateOAuthSettings(settings, newTokens)
   }
 }
