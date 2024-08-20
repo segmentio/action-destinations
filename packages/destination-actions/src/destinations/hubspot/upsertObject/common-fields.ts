@@ -15,6 +15,7 @@ export const commonFields: Record<string, InputField> = {
         description: 'The type of Hubspot Object to add/update a record for.',
         type: 'string',
         required: true,
+        allowNull: false,
         dynamic: true
       },
       id_field_name: {
@@ -22,13 +23,15 @@ export const commonFields: Record<string, InputField> = {
         description: 'The name of the ID field for the record.',
         type: 'string',
         required: true,
+        allowNull: false,
         dynamic: true
       },
       id_field_value: {
         label: 'Object ID Field Value',
         description: 'The ID value for the record.',
         type: 'string',
-        required: true
+        required: true,
+        allowNull: false
       },
       property_group: {
         label: 'Property Group',
@@ -85,14 +88,16 @@ export const commonFields: Record<string, InputField> = {
         description: 'The type of associated Hubspot Object.',
         type: 'string',
         required: true,
-        dynamic: true
+        dynamic: true,
+        allowNull: false
       },
       association_label: {
         label: 'Association Label',
         description: 'The type of Association between the two records. The Association must already exist in Hubspot.',
         type: 'string',
         required: true,
-        dynamic: true
+        dynamic: true,
+        allowNull: false
       },
       id_field_name: {
         label: 'To Object ID Field Name',
@@ -100,13 +105,15 @@ export const commonFields: Record<string, InputField> = {
           'The name of the unique field Segment will use as an identifier when associating the record to another record. The unique field name must already exist on the Object in Hubspot.',
         type: 'string',
         required: true,
-        dynamic: true
+        dynamic: true,
+        allowNull: false
       },
       id_field_value: {
         label: 'To Object ID Field Value',
         description: 'The value of the identifier for the record to be associated with',
         type: 'string',
-        required: true
+        required: true,
+        allowNull: false
       }
     }
   },
