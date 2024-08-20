@@ -23,23 +23,6 @@ export interface Payload {
    */
   click_id?: string
   /**
-   * The metadata associated with the conversion event.
-   */
-  event_metadata?: {
-    /**
-     * The currency for the value provided. This must be a three-character ISO 4217 currency code. This should only be set for revenue-related events.
-     */
-    currency?: string
-    /**
-     * The number of items in the event. This should only be set for revenue-related events.
-     */
-    item_count?: number
-    /**
-     * The value of the transaction in the base unit of the currency. For example, dollars, euros, pesos, rupees, and bitcoin for USD, EUR, MXN, INR, and BTC respectively. This should only be set for revenue-related events.
-     */
-    value_decimal?: number
-  }
-  /**
    * The products associated with the conversion event.
    */
   products?: {
@@ -122,5 +105,22 @@ export interface Payload {
      * The width of the user's screen in pixels. This must be positive and less than 32768.
      */
     width?: number
+  }
+  /**
+   * The metadata associated with the conversion event.
+   */
+  event_metadata?: {
+    /**
+     * The currency for the value provided. This must be a three-character ISO 4217 currency code. This should only be set for revenue-related events.
+     */
+    currency?: string
+    /**
+     * The number of items in the event. This should only be set for revenue-related events.
+     */
+    item_count?: number
+    /**
+     * The value of the transaction in the base unit of the currency. For example, dollars, euros, pesos, rupees, and bitcoin for USD, EUR, MXN, INR, and BTC respectively. This should only be set for revenue-related events.
+     */
+    value_decimal?: number
   }
 }

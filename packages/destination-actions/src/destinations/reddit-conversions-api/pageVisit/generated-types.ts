@@ -59,7 +59,7 @@ export interface Payload {
   /**
    * The identifying user parameters associated with the conversion event.
    */
-  user: {
+  user?: {
     /**
      * The mobile advertising ID for the user. This can be the iOS IDFA, Android AAID.
      */

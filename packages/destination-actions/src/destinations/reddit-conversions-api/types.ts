@@ -8,3 +8,53 @@ export class RedditConversionsTestAuthenticationError extends HTTPError {
         }
     }
 }
+
+export interface Product {
+    category?: string
+    id?: string
+    name?: string
+}
+
+export interface EventMetadata {
+    currency?: string
+    item_count?: number
+    value_decimal?: number
+    products?: Array<Product>
+}
+
+export interface DatapProcessingOptions {
+    country?: string
+    modes?: string[]
+    region?: string
+}
+
+export interface User {
+    idfa?: string
+    aaid?: string
+    email?: string
+    external_id?: string
+    ip_address?: string
+    opt_out?: boolean
+    user_agent?: string
+    uuid?: string
+    data_processing_options?: DatapProcessingOptions
+    screen_dimensions?: {
+        height?: number
+        width?: number
+    }
+}
+
+export interface StandardEventPayloadItem {
+    event_at: string
+    event_type: {
+        tracking_type: string
+    },
+    click_id?: string
+    event_metadata?: EventMetadata
+    user?: User
+}
+
+export interface StandardEventPayload {
+    events: StandardEventPayloadItem[],
+    partner: 'SEGMENT'
+}

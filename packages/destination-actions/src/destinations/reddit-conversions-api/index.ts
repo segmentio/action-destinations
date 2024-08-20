@@ -18,6 +18,8 @@ import lead from './lead'
 
 import signUp from './signUp'
 
+import standardEvent from './standardEvent'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Reddit Conversions Api',
   slug: 'actions-reddit-conversions-api',
@@ -179,7 +181,7 @@ const destination: DestinationDefinition<Settings> = {
         event_type: { tracking_type: 'SignUp' }
       },
       type: 'automatic'
-    },
+    }
   ],
 
   actions: {
@@ -191,7 +193,8 @@ const destination: DestinationDefinition<Settings> = {
     addToWishlist,
     purchase,
     lead,
-    signUp
+    signUp,
+    standardEvent
   }
 }
 

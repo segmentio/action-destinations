@@ -140,7 +140,7 @@ export const user: InputField = {
   label: 'User',
   description: 'The identifying user parameters associated with the conversion event.',
   type: 'object',
-  required: true,
+  required: false,
   properties: {
     advertising_id: {
       label: 'Advertising ID', // NEEDS TO BE HASHED (SHA-256)
