@@ -59,7 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const hubspotClient = new HubspotClient(request, syncMode as SyncMode)
-    await hubspotClient.send(payload)
+    return await hubspotClient.send(payload)
   }
 }
 

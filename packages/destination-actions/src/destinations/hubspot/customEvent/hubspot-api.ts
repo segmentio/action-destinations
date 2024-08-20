@@ -99,8 +99,10 @@ export class HubspotClient {
       const value = properties[key]
       const propName = this.sanitizePropertyName(key)
 
-      if(!/^[a-z]/.test(propName)) {
-        throw new PayloadValidationError(`Property ${key} in event has an invalid name. Property names must start with a letter.`)
+      if (!/^[a-z]/.test(propName)) {
+        throw new PayloadValidationError(
+          `Property ${key} in event has an invalid name. Property names must start with a letter.`
+        )
       }
 
       result[propName] =
@@ -199,7 +201,6 @@ export class HubspotClient {
   }
 
   async compareSchemaToCache(schema: SegmentEventSchema): Promise<SchemaDiff> {
-
     // no op function until caching implemented
     let data = JSON.stringify(`${schema}`)
     data = data.replace(data, '')
@@ -297,15 +298,14 @@ export class HubspotClient {
       occurredAt,
       properties: properties ? this.sanitizeProperties(properties) : undefined
     }
-    
-    await this.request(url, {
+
+    return this.request(url, {
       method: 'POST',
       json
     })
   }
 
   async send(payload: Payload) {
-
     payload.properties = this.sanitizeProperties(payload.properties ?? {})
 
     const schema = this.segmentSchema(payload)
@@ -313,8 +313,7 @@ export class HubspotClient {
 
     switch (cacheSchemaDiff.match) {
       case 'full_match':
-        await this.sendEvent(cacheSchemaDiff?.fullyQualifiedName as string, payload)
-        break
+        return await this.sendEvent(cacheSchemaDiff?.fullyQualifiedName as string, payload)
 
       case 'mismatch':
         throw new IntegrationError('Cache schema mismatch.', 'CACHE_SCHEMA_MISMATCH', 400)
@@ -328,8 +327,7 @@ export class HubspotClient {
             const fullyQualifiedName = hubspotSchemaDiff?.fullyQualifiedName as string
             const name = hubspotSchemaDiff?.name as string
             await this.saveSchemaToCache(fullyQualifiedName, name, schema)
-            await this.sendEvent(fullyQualifiedName, payload)
-            break
+            return await this.sendEvent(fullyQualifiedName, payload)
           }
 
           case 'mismatch':
@@ -348,8 +346,7 @@ export class HubspotClient {
             const fullyQualifiedName = schemaDiff?.fullyQualifiedName as string
             const name = schemaDiff?.name as string
             await this.saveSchemaToCache(fullyQualifiedName, name, schema)
-            await this.sendEvent(fullyQualifiedName, payload)
-            break
+            return await this.sendEvent(fullyQualifiedName, payload)
           }
 
           case 'properties_missing': {
@@ -365,11 +362,9 @@ export class HubspotClient {
             const name = hubspotSchemaDiff?.name as string
             await this.updateHubspotSchema(fullyQualifiedName, hubspotSchemaDiff)
             await this.saveSchemaToCache(fullyQualifiedName, name, schema)
-            await this.sendEvent(fullyQualifiedName, payload)
-            break
+            return await this.sendEvent(fullyQualifiedName, payload)
           }
         }
-        break
       }
     }
   }
