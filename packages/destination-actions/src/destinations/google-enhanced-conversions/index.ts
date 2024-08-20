@@ -129,7 +129,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
     async getAudience(request, getAudienceInput: GetAudienceInput) {
       // The connections that were created before the audience methods
       // were added will have the externalId field as segment.
-      if (getAudienceInput.externalId == 'segment') {
+      if (getAudienceInput.externalId === 'segment') {
         return {
           externalId: getAudienceInput.externalId
         }
