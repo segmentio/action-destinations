@@ -1,8 +1,36 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_identifiers } from '../fields'
+import { batch_size, enable_batching, user_identifiers } from '../fields'
 import { hosts, getDOBDetails } from '../utils'
+import { RequestClient } from '@segment/actions-core'
+
+const sendRequest = async (request: RequestClient, payloads: Payload[], settings: Settings) => {
+  const host = hosts[settings.region]
+
+  const requestBody = payloads.map((payload) => {
+    return {
+      ...payload.additional_traits,
+      user_identifiers: payload.user_identifiers,
+      title: payload.title,
+      name: payload.name,
+      first_name: payload.firstname,
+      last_name: payload.lastname,
+      age: payload.age,
+      ...getDOBDetails(payload.DOB),
+      gender: payload.gender,
+      phone: payload.phone,
+      address: payload.address,
+      company: payload.company,
+      image_url: payload.avatar
+    }
+  })
+
+  return request(`${host}/batch_upsert_contact`, {
+    method: 'post',
+    json: requestBody
+  })
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Contact',
@@ -10,7 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
     'Send user profile data from Segment to Optimizely Data Platform. Creates or updates a user profile in Optimzely Data Platform',
   defaultSubscription: 'type = "identify"',
   fields: {
-    user_identifiers: user_identifiers,
+    user_identifiers,
     company: {
       label: 'Company Name',
       type: 'string',
@@ -114,32 +142,16 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Addition User Traits',
       type: 'object',
       defaultObjectUI: 'keyvalue',
-      description: "Additional user profile details"
-    }
+      description: 'Additional user profile details'
+    },
+    enable_batching,
+    batch_size
   },
   perform: (request, { payload, settings }) => {
-    const host = hosts[settings.region]
-
-    const body = {
-      ...payload.additional_traits,
-      user_identifiers: payload.user_identifiers,
-      title: payload.title,
-      name: payload.name,
-      first_name: payload.firstname,
-      last_name: payload.lastname,
-      age: payload.age,
-      ...getDOBDetails(payload.DOB),
-      gender: payload.gender,
-      phone: payload.phone,
-      address: payload.address,
-      company: payload.company,
-      image_url: payload.avatar
-    }
-
-    return request(`${host}/upsert_contact`, {
-      method: 'post',
-      json: body
-    })
+    return sendRequest(request, [payload], settings)
+  },
+  performBatch: (request, { payload, settings }) => {
+    return sendRequest(request, payload, settings)
   }
 }
 

@@ -184,25 +184,12 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     },
     additional_identifiers_and_traits_columns: {
       label: 'Additional Identifier and Trait Columns',
-      description: 'Additional user identifiers and traits to include as separate columns in the CSV file.',
+      description:
+        'Additional user identifiers and traits to include as separate columns in the CSV file. Each item should contain a key and a value. The key is the trait or identifier name from the payload, and the value is the column name to be written to the CSV file.',
       type: 'object',
-      multiple: true,
       required: false,
-      defaultObjectUI: 'keyvalue:only',
-      properties: {
-        key: {
-          label: 'Trait or Identifier Name',
-          description: 'Name of the trait or identifier in the identify() traits object or track() properties object.',
-          type: 'string',
-          required: true
-        },
-        value: {
-          label: 'Column Name',
-          description: 'Name of the column to write to the CSV file.',
-          type: 'string',
-          required: true
-        }
-      }
+      disabledInputMethods: ['enrichment', 'function', 'variable'],
+      defaultObjectUI: 'keyvalue:only'
     },
     enable_batching: {
       type: 'boolean',
@@ -233,7 +220,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   },
 
   perform: async (_, { payload, settings, audienceSettings }) => {
-    return processData([payload], settings, audienceSettings)
+    const payloads = [payload, payload, payload]
+    return processData(payloads, settings, audienceSettings)
   },
   performBatch: (_, { payload, settings, audienceSettings }) => {
     return processData(payload, settings, audienceSettings)
