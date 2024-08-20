@@ -109,7 +109,7 @@ export function gen_update_segment_payload(payloads: Payload[], client_identifie
     }
     const ts = Math.floor(new Date().getTime() / 1000)
     let exp
-    const seg_id = event.segment_audience_id || '';
+    const seg_id = event.segment_audience_id || ''
     audience_key = seg_id
     const group_key = `${hashed_email}|${idfa}|${gpsaid}|${hashed_phone}`
     if (!(group_key in data_groups)) {

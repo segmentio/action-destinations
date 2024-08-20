@@ -6,7 +6,7 @@ import { TopsortAPIClient } from '../client'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Click',
   defaultSubscription: 'type = "track" and event = "Product Clicked"',
-description: 'Send click events to Topsort when a consumer has clicked on a promotable.',
+  description: 'Send click events to Topsort when a consumer has clicked on a promotable.',
   fields: {
     id: {
       label: 'Event ID',

@@ -3014,6 +3014,38 @@
   dependencies:
     "@types/node" "^18.11.15"
 
+"@segment/actions-core@3.116.1-channels-1094.131":
+  version "3.116.1-channels-1094.131"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.116.1-channels-1094.131.tgz#0ff5d5ef7a1b786cdc60bb2f6c524c46af2e6524"
+  integrity sha512-nEXh7hIkuvtsDeiOF6hZ/V3gbGhX8mocliSLjN64WBDfG3NJFLHviWuKuLQ7iXCml2+hdEmjg8DAbKCpSRwDfA==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/action-emitters" "^1.3.6"
+    "@segment/ajv-human-errors" "^2.13.0"
+    "@segment/destination-subscriptions" "^3.34.0"
+    "@types/node" "^18.11.15"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
+"@segment/actions-shared@1.105.1-channels-1094.57":
+  version "1.105.1-channels-1094.57"
+  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.105.1-channels-1094.57.tgz#b6f49c9cf7844fed49915fba22efbd91ce432662"
+  integrity sha512-vAgLS0UaYo/wKkKctZWuRmQ6CBtn1TyIMLd96qdyYswbb0CRdEsJUZcZYIlW4bPI/FuKKqpz6fcnKlVSbWDkTQ==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/actions-core" "3.116.1-channels-1094.131"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^10.8.4"
+    lodash "^4.17.21"
+
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sabil/-/analytics-browser-actions-sabil-1.6.0.tgz#4e1faf694e7b9b513e7309b74654abc31e789a37"

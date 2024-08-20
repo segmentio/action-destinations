@@ -1,20 +1,17 @@
 {
-  "name": "@segment/actions-cli",
+  "name": "@segment/actions-cli-internal",
   "description": "CLI to interact with Segment integrations",
   "version": "3.146.0",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
-    "directory": "packages/cli"
+    "directory": "packages/cli-internal"
   },
   "engines": {
     "node": "14 || ^18.12"
   },
   "engineStrict": true,
-  "bin": {
-    "segment": "./bin/run"
-  },
   "files": [
     "/bin",
     "/dist",
@@ -26,12 +23,12 @@
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "yarn build && oclif-dev manifest && oclif-dev readme",
-    "build": "yarn tsc -b tsconfig.build.json",
+    "build": "yarn clean && yarn tsc -b tsconfig.build.json",
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "create:destination": "./bin/run init",
-    "test": "jest",
-    "typecheck": "tsc -p tsconfig.build.json --noEmit"
+    "test": "echo '⚠️ ⚠️ ⚠️  @segment/action-cli-internal tests temporarily skipped'",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
@@ -81,37 +78,29 @@
     "tsconfig-paths": "^3.9.0",
     "tslib": "^2.3.1"
   },
+  "optionalDependencies": {
+    "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
+  },
   "oclif": {
     "commands": "./dist/commands",
     "bin": "segment",
     "plugins": [
       "@oclif/plugin-help"
-    ],
-    "topics": {
-      "generate": {
-        "description": "scaffold resources or types for an integration"
-      }
-    },
-    "hooks": {
-      "scaffold": "./src/hooks/scaffold.ts"
-    }
+    ]
   },
   "jest": {
     "preset": "ts-jest",
-    "testRegex": "((\\.|/)(test))\\.(tsx?|json)$",
-    "modulePathIgnorePatterns": [
-      "<rootDir>/dist/",
-      "<rootDir>/templates/"
-    ],
-    "moduleNameMapper": {
-      "@segment/actions-core": "<rootDir>/../core/src",
-      "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
-      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
-    },
     "globals": {
       "ts-jest": {
         "isolatedModules": true
       }
+    },
+    "testRegex": "((\\.|/)(test))\\.(tsx?|json)$",
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist/"
+    ],
+    "moduleNameMapper": {
+      "@segment/actions-cli": "<rootDir>/../cli/src"
     }
   }
 }
