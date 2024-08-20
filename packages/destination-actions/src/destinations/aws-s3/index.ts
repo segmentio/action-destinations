@@ -16,13 +16,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     s3_aws_folder_name: {
       label: 'AWS Subfolder Name',
       description:
-        'Name of the S3 Subfolder where the files will be uploaded to. "/" must exist at the end of the folder name.',
+        'Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/',
       type: 'string',
       required: false
     },
     filename: {
       label: 'Filename prefix',
-      description: `Prefix to append to the name of the uploaded file. A timestamp and lower cased audience name will be appended to the filename to ensure uniqueness.`,
+      description: `Prefix to append to the name of the uploaded file. A lower cased audience name and timestamp will be appended by default to the filename to ensure uniqueness.
+                    Format: <PREFIX>_<AUDIENCE NAME>_<TIMESTAMP>.csv`,
       type: 'string',
       required: false
     },
@@ -75,7 +76,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceConfig: {
     mode: {
       type: 'synced',
-      full_audience_sync: true
+      full_audience_sync: false
     },
     async createAudience(_, createAudienceInput) {
       const audienceSettings = createAudienceInput.audienceSettings

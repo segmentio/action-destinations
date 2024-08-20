@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { formatPayload, sanitiseEventName } from '../utility'
+import { formatPayload, sanitiseEventName, hosts } from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -83,7 +83,9 @@ const action: ActionDefinition<Settings, Payload> = {
       settings.vwoAccountId
     )
     structuredPayload.d.event.props.vwoMeta['ogName'] = payload.name
-    const endpoint = `https://dev.visualwebsiteoptimizer.com/events/t?en=${sanitisedEventName}&a=${settings.vwoAccountId}`
+    const region = settings.region || "US"
+    const host = hosts[region]
+    const endpoint = `${host}/events/t?en=${sanitisedEventName}&a=${settings.vwoAccountId}`
     return request(endpoint, {
       method: 'POST',
       headers,

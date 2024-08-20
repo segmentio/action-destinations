@@ -1,7 +1,7 @@
 import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
-import { getCreateAudienceURL, hashAndEncodeToInt } from './helpers'
+import { getCreateAudienceURL, hashAndEncodeToInt, getDataCenter, getSectionId } from './helpers'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 
 type PersonasSettings = {
@@ -10,23 +10,23 @@ type PersonasSettings = {
 }
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'Dynamic Yield Audiences',
+  name: 'Dynamic Yield by Mastercard Audiences',
   slug: 'actions-dynamic-yield-audiences',
   mode: 'cloud',
-  description: 'Sync [Segment Audiences](https://segment.com/docs/engage/audiences/) to Dynamic Yield.',
+  description: 'Sync [Segment Audiences](https://segment.com/docs/engage/audiences/) to Dynamic Yield by Mastercard.',
   audienceFields: {
     audience_name: {
       type: 'string',
       label: 'Audience Name',
       required: true,
-      description: 'Provide a name for your Audience to be displayed in Dynamic Yield.'
+      description: 'Provide a name for your Audience to be displayed in Dynamic Yield by Mastercard.'
     },
     identifier_type: {
       type: 'string',
       label: 'Identifier Type',
       required: true,
       description:
-        'The type of Identifier to send to Dynamic Yield. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield.'
+        'The type of Identifier to send to Dynamic Yield by Mastercard. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield by Mastercard.'
     }
   },
   authentication: {
@@ -34,21 +34,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     fields: {
       sectionId: {
         label: 'Section ID',
-        description: 'Dynamic Yield Section ID',
+        description: 'Dynamic Yield by Mastercard Section ID',
         type: 'string',
         required: true
-      },
-      dataCenter: {
-        label: 'Data Center',
-        description: 'Dynamic Yield Data Center',
-        type: 'string',
-        required: true,
-        choices: [
-          { label: 'DEV', value: 'DEV' }, // To be hidden by feature flag later
-          { label: 'US', value: 'US' },
-          { label: 'EU', value: 'EU' }
-        ],
-        default: 'DEV'
       },
       accessKey: {
         label: 'Access Key',
@@ -61,7 +49,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   extendRequest({ settings }) {
     let secret = undefined
 
-    switch (settings.dataCenter) {
+    const dataCenter = getDataCenter(settings.sectionId)
+
+    switch (dataCenter) {
       case 'US':
         secret = process.env.ACTIONS_DYNAMIC_YIELD_AUDIENCES_US_CLIENT_SECRET
         break
@@ -74,7 +64,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
 
     if (secret === undefined) {
-      throw new IntegrationError('Missing Dynamic Yield Audiences Client Secret', 'MISSING_REQUIRED_FIELD', 400)
+      throw new IntegrationError(
+        'Missing Dynamic Yield by Mastercard Audiences Client Secret',
+        'MISSING_REQUIRED_FIELD',
+        400
+      )
     }
 
     return {
@@ -118,8 +112,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         timestamp_ms: new Date().getTime(),
         account: {
           account_settings: {
-            section_id: settings.sectionId,
-            api_key: settings.accessKey
+            sectionId: getSectionId(settings.sectionId),
+            connectionKey: settings.accessKey
           }
         },
         audience_id: audience_id, // must be sent as an integer
@@ -127,7 +121,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         action: 'add'
       }
 
-      const response = await request(getCreateAudienceURL(settings.dataCenter), {
+      const dataCenter = getDataCenter(settings.sectionId)
+
+      const response = await request(getCreateAudienceURL(dataCenter), {
         method: 'POST',
         json
       })
@@ -135,7 +131,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       if (!responseData.id) {
         throw new IntegrationError(
-          `Failed to create Audience in Dynamic Yield - responseData.id null or undefined`,
+          `Failed to create Audience in Dynamic Yield by Mastercard - responseData.id null or undefined`,
           'DYNAMIC_YIELD_AUDIENCE_CREATION_FAILED',
           400
         )

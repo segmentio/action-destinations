@@ -14,7 +14,7 @@ Object {
       },
     },
     "keys": Object {
-      "user_id": "A7WJL)2NKFy&pmtr0",
+      "testType": "A7WJL)2NKFy&pmtr0",
     },
     "name": "A7WJL)2NKFy&pmtr0",
     "traits": Object {
@@ -35,7 +35,9 @@ Object {
         "testType": "A7WJL)2NKFy&pmtr0",
       },
     },
-    "keys": Object {},
+    "keys": Object {
+      "testType": "A7WJL)2NKFy&pmtr0",
+    },
   },
   "sent_at": "2021-02-01T00:00:00.000Z",
   "type": "identify",
