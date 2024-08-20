@@ -192,7 +192,7 @@ const action: ActionDefinition<Settings, Payload> = {
         throw err
       }
       // Determine the status code from the response, defaulting to 400 if it's not a number
-      const responseStatusCode = typeof error.response?.status === 'number' ? error.response.status : 400
+      // const responseStatusCode = typeof error.response?.status === 'number' ? error.response.status : 400
       // Used for General Status checking
       const statusCode = error.response.status
       //Pardot error response is a mix of json and xml.
