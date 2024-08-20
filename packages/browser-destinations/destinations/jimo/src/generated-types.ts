@@ -10,7 +10,7 @@ export interface Settings {
    */
   refetchExperiencesOnTraitsUpdate?: boolean
   /**
-   * If true, Jimo SDK will be initialized only after a Segment event containing a userID has been triggered.
+   * If true, Jimo SDK will be initialized only after a Segment event containing a userID has been triggered. This prevents from having anonymous profile created in Jimo.
    */
   manualInit?: boolean
 }
