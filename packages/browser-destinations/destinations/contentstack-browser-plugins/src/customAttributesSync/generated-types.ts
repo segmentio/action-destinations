@@ -10,9 +10,5 @@ export interface Payload {
   /**
    * ID for the user
    */
-  userId?: string
-  /**
-   * Inidicates if Attributes should be created in Contentstack
-   */
-  createAttributes?: boolean
+  userId: string
 }
