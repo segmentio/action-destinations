@@ -77,7 +77,7 @@ describe('delivrAIAudiences.updateSegment', () => {
           client_identifier_id: client_identifier_id
         }
       })
-
+      
       expect(responses[0].status).toBe(200)
     })
   })
