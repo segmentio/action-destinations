@@ -506,7 +506,7 @@ export class HubspotClient {
       )
     }
 
-    if (schemaDiff.missingProperties.length === 0 || schemaDiff.missingSensitiveProperties.length === 0) {
+    if (schemaDiff.missingProperties.length === 0 && schemaDiff.missingSensitiveProperties.length === 0) {
       return
     }
 
