@@ -1,7 +1,10 @@
 github_checks:
   annotations: false
-comment:
-  require_changes: true
+# Turn PR comments "off". This feature adds the code coverage summary as a
+# comment on each PR. See https://docs.codecov.io/docs/pull-request-comments
+# However, this same info is available from the Codecov checks in the PR's
+# "Checks" tab in GitHub. So, the comment is unnecessary.
+comment: false
 
 codecov:
   require_ci_to_pass: true # Require CI to pass before uploading coverage
@@ -18,4 +21,6 @@ coverage:
         informational: false
     patch:
       default:
-        informational: false
+        # Enable informational mode, which just provides info to reviewers & always passes
+        # https://docs.codecov.io/docs/commit-status#section-informational
+        informational: true
