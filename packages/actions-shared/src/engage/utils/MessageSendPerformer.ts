@@ -152,7 +152,7 @@ export abstract class MessageSendPerformer<
     const recipientId = recepient.id!
     return await this.getOrAddCache(
       `${messageId}${recipientId.toLowerCase()}`,
-      async () => (await this.sendToRecepient(recepient)) as ModifiedResponse<unknown>,
+      () => this.sendToRecepient(recepient) as Promise<ModifiedResponse<unknown>>,
       {
         parse: (cachedValue) => {
           const parsed = CachedValueFactory.fromString(cachedValue)
