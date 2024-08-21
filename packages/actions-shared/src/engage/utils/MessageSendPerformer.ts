@@ -342,7 +342,7 @@ export abstract class MessageSendPerformer<
    * @param recepient The recipient to send the message to.
    * @returns The response from the server.
    */
-  abstract async sendToRecepient(recepient: ExtId<TPayload>): Promise<any>
+  abstract sendToRecepient(recepient: ExtId<TPayload>): Promise<any>
 
   getCommonTags() {
     const settings = this.settings
