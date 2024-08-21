@@ -105,7 +105,10 @@ export abstract class MessageSendPerformer<
    */
   protected async sendToRecepientCache(recepient: ExtId<TPayload>) {
     const messageId = (this.executeInput as any)['rawData']?.messageId
-    const recipientId = recepient.id!
+    const recipientId = recepient.id
+    if (!recipientId) {
+      return
+    }
     return await this.getOrAddCache(
       `${messageId}-${recipientId.toLowerCase()}`,
       () => this.sendToRecepient(recepient) as Promise<ModifiedResponse<unknown>>,
@@ -146,8 +149,8 @@ export abstract class MessageSendPerformer<
   ): Promise<T> {
     if (!this.engageDestinationCache) return createValue()
 
-    const cache = await getOrCatch(() => this.engageDestinationCache!.getByKey(key))
-    const cachedValue = cache.value
+    const cache = getOrCatch(() => this.engageDestinationCache?.getByKey(key))
+    const cachedValue = await cache.value
     if (cachedValue) {
       const { value: parsed, error: parsingError } = getOrCatch(() => serializer.parse(cachedValue))
 
@@ -169,15 +172,16 @@ export abstract class MessageSendPerformer<
 
     this.statsIncr('cache_miss')
     this.logInfo('Cache miss', { key })
-    const { value: result, error: resultError } = await getOrCatch(() => createValue())
+    const { value: resultPromise, error: resultError } = getOrCatch(() => createValue())
+    const result = await resultPromise
     const stringified = getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
     if (stringified?.error) {
       this.logError('Error serializing cache value', { key, error: stringified.error })
       this.statsIncr('cache_serialization_error')
     } else if (stringified?.value) {
       //value is serializable - cache it
-      const { error: cacheSavingError } = await getOrCatch(() =>
-        this.engageDestinationCache!.setByKey(key, stringified.value!)
+      const { error: cacheSavingError } = getOrCatch(
+        () => stringified.value && this.engageDestinationCache?.setByKey(key, stringified.value)
       )
       if (cacheSavingError) {
         this.logError('Error saving cache', { key, error: cacheSavingError })
@@ -498,18 +502,16 @@ export abstract class MessageSendPerformer<
 
 type ValueOrError<T> = { value?: T; error?: any } //& ({ value: T } | { error: any });
 
-function getOrCatch<T>(
-  getValue: () => T
-): T extends Promise<any> ? Promise<ValueOrError<Awaited<T>>> : ValueOrError<T> {
+function getOrCatch<T>(getValue: () => T): ValueOrError<T>
+function getOrCatch<T>(getValue: () => Promise<T>): Promise<ValueOrError<T>>
+function getOrCatch<T>(getValue: () => T | Promise<T>): ValueOrError<T> | Promise<ValueOrError<T>> {
   try {
     const value = getValue()
-
     if (value instanceof Promise) {
-      return value.then((value) => ({ value })).catch((error) => ({ error })) as any
-    } else {
-      return { value } as any
+      return value.then((value) => ({ value })).catch((e) => ({ error: e }))
     }
+    return { value }
   } catch (error) {
-    return { error } as any
+    return { error }
   }
 }
