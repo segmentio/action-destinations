@@ -105,10 +105,10 @@ export abstract class MessageSendPerformer<
    */
   protected async sendToRecepientCache(recepient: ExtId<TPayload>) {
     const messageId = (this.executeInput as any)['rawData']?.messageId
-    const recipientId = recepient.id!
+    const recipientId = recepient.id
     return await this.getOrAddCache(
-      `${messageId}-${recipientId.toLowerCase()}`,
-      () => this.sendToRecepient(recepient) as Promise<ModifiedResponse<unknown>>,
+      `${messageId}-${recipientId?.toLowerCase()}`,
+      () => this.sendToRecepient(recepient),
       {
         parse: (cachedValue) => {
           const parsed = CachedValueFactory.fromString(cachedValue)
@@ -121,6 +121,7 @@ export abstract class MessageSendPerformer<
           }
         },
         stringify: (cacheable) => {
+          if (!messageId || !recipientId) return // if messageId or recipientId is not available, then don't cache
           if (cacheable.error && !isRetryableError(cacheable.error)) {
             const errorDetails = getErrorDetails(cacheable.error)
             if (errorDetails?.status) {
