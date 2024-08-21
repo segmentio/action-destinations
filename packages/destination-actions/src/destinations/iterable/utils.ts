@@ -21,23 +21,6 @@ function dateToIterableDateStringFormat(isoDateStr: string) {
   // Process full datetime strings
   const date = new Date(isoDateStr)
   if (date instanceof Date && !isNaN(date.valueOf())) {
-    const year = date.getUTCFullYear()
-    const month = date.getUTCMonth()
-    const day = date.getUTCDate()
-    const hours = date.getUTCHours()
-    const minutes = date.getUTCMinutes()
-    const seconds = date.getUTCSeconds()
-    const milliseconds = date.getUTCMilliseconds()
-
-    // Check if it's a date at midnight
-    if (hours === 0 && minutes === 0 && seconds === 0 && milliseconds === 0) {
-      // Reconstruct the date at UTC midnight
-      const reconstructedDate = new Date(Date.UTC(year, month, day))
-      if (reconstructedDate.getTime() === date.getTime()) {
-        return `${year}-${month + 1 < 10 ? `0${month + 1}` : month + 1}-${day < 10 ? `0${day}` : day}`
-      }
-    }
-
     const dateString = date.toISOString().replace('T', ' ').split('.')[0]
     return `${dateString} +00:00`
   }
