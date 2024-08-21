@@ -167,7 +167,6 @@ export abstract class MessageSendPerformer<
         // parsedValue - either value or error was parsed
         this.statsIncr('cache_hit', 1, [`cached_error:${!!parsedCache?.error}`])
         if (parsedCache?.error) throw parsedCache.error
-
         return parsedCache.value!
       } else {
         //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
@@ -180,12 +179,13 @@ export abstract class MessageSendPerformer<
     this.logInfo('cache_miss', { key })
     const { value: result, error: resultError } = await getOrCatch(() => createValue())
 
+    //before returning result - we need to try to serialize it and store it in cache
     const stringified = getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
     if (stringified.error) {
       this.logError('cache_stringify_error', { key, error: stringified.error })
       this.statsIncr('cache_stringify_error')
     } else if (stringified.value) {
-      //result stringified - cache it
+      //result stringified and contains cacheable value - cache it
       const { error: cacheSavingError } = await getOrCatch(() =>
         this.engageDestinationCache!.setByKey(key, stringified.value!)
       )
