@@ -142,48 +142,55 @@ export abstract class MessageSendPerformer<
     createValue: () => Promise<T>,
     serializer: {
       //if undefined returned, then the value will not be cached
-      stringify: (cacheable: ValueOrError<T>) => string | void | undefined
+      stringify: (cacheable: ValueOrError<T>) => string | void
       //if undefined returned, then the cache is either corrupted or expired and will be re-executed
-      parse: (cachedValue: string) => ValueOrError<T> | void | undefined
+      parse: (cachedValue: string) => ValueOrError<T> | void
     }
   ): Promise<T> {
     if (!this.engageDestinationCache) return createValue()
 
-    const cache = await getOrCatch(() => this.engageDestinationCache!.getByKey(key))
-    const cachedValue = cache.value
-    if (cachedValue) {
-      const { value: parsed, error: parsingError } = getOrCatch(() => serializer.parse(cachedValue))
+    const cacheRead = await getOrCatch(() => this.engageDestinationCache!.getByKey(key))
+    if (cacheRead.error) {
+      this.logError('cache_reading_error', { key })
+      this.statsIncr('cache_reading_error')
+    } else if (cacheRead.value) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- good luck making typescript happy here :)
+      const { value: parsedCache, error: parsingError } = getOrCatch(() => serializer.parse(cacheRead.value!))
 
       if (parsingError) {
         //exception happened while parsing the cache.
         // Log it and execute as if we don't have cache
-        this.logError('Error parsing cache', { key, cachedValue, parsingError })
+        this.logError('cache_parsing_error', { key, value: cacheRead.value, parsingError })
         this.statsIncr('cache_parsing_error')
+      } else if (parsedCache) {
+        //parsed cache successfully && cache is not expired
+        // parsedValue - either value or error was parsed
+        this.statsIncr('cache_hit', 1, [`cached_error:${!!parsedCache?.error}`])
+        if (parsedCache?.error) throw parsedCache.error
+
+        return parsedCache.value!
       } else {
-        //parsed successfully - either value or error was cached
-        this.statsIncr('cache_hit', 1, [`cached_error:${!!parsed?.error}`])
-        if (parsed?.value) {
-          return parsed.value
-        } else if (parsed?.error) {
-          throw parsed.error
-        }
+        //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
+        this.logError('cache_ignored', { key, value: cacheRead.value })
+        this.statsIncr('cache_ignored')
       }
     }
-
+    // re-executing, because cache not found or ignored or failed to read or parse
     this.statsIncr('cache_miss')
-    this.logInfo('Cache miss', { key })
+    this.logInfo('cache_miss', { key })
     const { value: result, error: resultError } = await getOrCatch(() => createValue())
+
     const stringified = getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
     if (stringified?.error) {
-      this.logError('Error serializing cache value', { key, error: stringified.error })
-      this.statsIncr('cache_serialization_error')
+      this.logError('cache_stringify_error', { key, error: stringified.error })
+      this.statsIncr('cache_stringify_error')
     } else if (stringified?.value) {
-      //value is serializable - cache it
+      //result stringified - cache it
       const { error: cacheSavingError } = await getOrCatch(() =>
         this.engageDestinationCache!.setByKey(key, stringified.value!)
       )
       if (cacheSavingError) {
-        this.logError('Error saving cache', { key, error: cacheSavingError })
+        this.logError('cache_saving_error', { key, error: cacheSavingError })
         this.statsIncr('cache_saving_error')
       }
     }
