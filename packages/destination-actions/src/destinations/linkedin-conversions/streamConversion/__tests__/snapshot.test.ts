@@ -33,7 +33,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
           outputs: {
             id: '1234'
           }
-        }
+        },
+        enable_batching: true,
+        batch_size: 5000
       },
       settings: settingsData,
       auth: undefined
@@ -92,7 +94,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
           outputs: {
             id: '1234'
           }
-        }
+        },
+        enable_batching: true,
+        batch_size: 5000
       },
       settings: settingsData,
       auth: undefined

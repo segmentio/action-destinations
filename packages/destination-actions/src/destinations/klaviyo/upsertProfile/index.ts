@@ -13,7 +13,8 @@ import {
   getList,
   createList,
   groupByListId,
-  processProfilesByGroup
+  processProfilesByGroup,
+  validatePhoneNumber
 } from '../functions'
 import { batch_size } from '../properties'
 
@@ -242,6 +243,10 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }
 
+    if (phone_number && !validatePhoneNumber(phone_number)) {
+      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
+    }
+
     const profileData: ProfileData = {
       data: {
         type: 'profile',
@@ -292,7 +297,12 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, { payload, hookOutputs }) => {
-    payload = payload.filter((profile) => profile.email || profile.external_id || profile.phone_number)
+    payload = payload.filter((profile) => {
+      if (profile.phone_number && !validatePhoneNumber(profile.phone_number)) {
+        return false
+      }
+      return profile.email || profile.phone_number || profile.external_id
+    })
 
     const profilesWithList: Payload[] = []
     const profilesWithoutList: Payload[] = []

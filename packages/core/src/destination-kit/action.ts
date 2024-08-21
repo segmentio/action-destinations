@@ -86,7 +86,7 @@ export interface ActionDefinition<
    */
   dynamicFields?: {
     [K in keyof Payload]?: IsArray<Payload[K]> extends never
-      ? Payload[K] extends object
+      ? Payload[K] extends object | undefined
         ? {
             [ObjectProperty in keyof Payload[K] | '__keys__' | '__values__']?: RequestFn<
               Settings,
