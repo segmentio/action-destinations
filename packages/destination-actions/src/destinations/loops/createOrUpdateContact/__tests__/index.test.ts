@@ -49,7 +49,7 @@ describe('Loops.createOrUpdateContact', () => {
     }
     nock('https://app.loops.so/api/v1').put('/contacts/update', testPayloadOut).reply(200, {
       success: true,
-      id: 'some-id-1'
+      id: 'someId'
     })
 
     const responses = await testDestination.testAction('createOrUpdateContact', {
@@ -61,7 +61,7 @@ describe('Loops.createOrUpdateContact', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toStrictEqual({
       success: true,
-      id: 'some-id-1'
+      id: 'someId'
     })
   })
 
