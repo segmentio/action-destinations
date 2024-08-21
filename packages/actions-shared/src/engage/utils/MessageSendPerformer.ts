@@ -181,10 +181,10 @@ export abstract class MessageSendPerformer<
     const { value: result, error: resultError } = await getOrCatch(() => createValue())
 
     const stringified = getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
-    if (stringified?.error) {
+    if (stringified.error) {
       this.logError('cache_stringify_error', { key, error: stringified.error })
       this.statsIncr('cache_stringify_error')
-    } else if (stringified?.value) {
+    } else if (stringified.value) {
       //result stringified - cache it
       const { error: cacheSavingError } = await getOrCatch(() =>
         this.engageDestinationCache!.setByKey(key, stringified.value!)
