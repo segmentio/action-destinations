@@ -93,50 +93,6 @@ export abstract class MessageSendPerformer<
   TPayload extends MessagePayloadBase
 > extends EngageActionPerformer<TSettings, TPayload> {
   /**
-   * Cache the response from the server based on messageId and recipientId.
-   * Only messages with valid messageIds, recipientIds, and successful or non
-   * retryable errors are cacheable. All other errors will be ignored.
-   *
-   * @param value The value from the server.
-   * @param messageId The messageId of the message.
-   * @param recipientId The recipientId of the message.
-   * @returns The response from the cache.
-   */
-  @track()
-  async putCache(value: string, messageId?: string, recipientId?: string) {
-    if (!messageId || !recipientId || !this.engageDestinationCache) {
-      return
-    }
-    await this.engageDestinationCache.setByKey(messageId + recipientId.toLowerCase(), value)
-    this.logInfo('putCache: Cache set', { messageId, recipientId })
-  }
-
-  /**
-   * Read the response from the cache based on messageId and recipientId.
-   *
-   * @param messageId The messageId of the message.
-   * @param recipientId The recipientId of the message.
-   * @returns The response from the cache.
-   */
-  @track()
-  async readCache(messageId?: string, recipientId?: string) {
-    if (!messageId || !recipientId || !this.engageDestinationCache) {
-      this.logInfo('Cache not found', { messageId, recipientId })
-      this.statsIncr('cache_miss')
-      return
-    }
-    const cached = await this.engageDestinationCache.getByKey(messageId + recipientId.toLowerCase())
-    if (!cached) {
-      this.logInfo('Cache not found', { messageId, recipientId })
-      this.statsIncr('cache_miss')
-      return
-    }
-    this.logInfo('Cache found', { messageId, recipientId, cached })
-    this.statsIncr('cache_hit')
-    return cached
-  }
-
-  /**
    * Internal function to process sending a recepient.
    *
    * If a cache exists, it will check to see if the messageId, and recipientId
@@ -151,7 +107,7 @@ export abstract class MessageSendPerformer<
     const messageId = (this.executeInput as any)['rawData']?.messageId
     const recipientId = recepient.id!
     return await this.getOrAddCache(
-      `${messageId}${recipientId.toLowerCase()}`,
+      `${messageId}-${recipientId.toLowerCase()}`,
       () => this.sendToRecepient(recepient) as Promise<ModifiedResponse<unknown>>,
       {
         parse: (cachedValue) => {
