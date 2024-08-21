@@ -14,10 +14,6 @@ export interface Payload {
    */
   click_id?: string
   /**
-   * A flag indicating whether the event is a test event.
-   */
-  test_mode?: boolean
-  /**
    * The products associated with the conversion event.
    */
   products?: {

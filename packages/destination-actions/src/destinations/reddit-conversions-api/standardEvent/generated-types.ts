@@ -6,17 +6,13 @@ export interface Payload {
    */
   event_at: string | number
   /**
-   * Enum: "PageVisit" "ViewContent" "Search" "AddToCart" "AddToWishlist" "Purchase" "Lead" "SignUp" "Custom". One of the standard tracking types.
+   * One of Reddit CAPI's standard conversion event types. To send a Custom event to Reddit use the Custom Event Action instead.
    */
   tracking_type: string
   /**
    * The Reddit-generated id associated with a single ad click.
    */
   click_id?: string
-  /**
-   * A flag indicating whether the event is a test event.
-   */
-  test_mode?: boolean
   /**
    * The products associated with the conversion event.
    */

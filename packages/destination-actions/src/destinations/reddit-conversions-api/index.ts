@@ -24,6 +24,13 @@ const destination: DestinationDefinition<Settings> = {
           'The conversion token for your Reddit account. This can be found by following the steps mentioned [here](https://business.reddithelp.com/helpcenter/s/article/conversion-access-token).',
         type: 'string',
         required: true
+      },
+      test_mode: {
+        label: 'Test Mode',
+        description: 'Indicates if events should be treated as test events by Reddit.',
+        type: 'boolean',
+        required: false,
+        default: false
       }
     },
     testAuthentication: async (request, { settings }) => {

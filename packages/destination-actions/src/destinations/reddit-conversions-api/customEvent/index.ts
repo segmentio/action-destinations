@@ -6,7 +6,6 @@ import {
   event_at,
   custom_event_name,
   click_id,
-  test_mode,
   products,
   user,
   data_processing_options,
@@ -22,7 +21,6 @@ const action: ActionDefinition<Settings, Payload> = {
     event_at,
     custom_event_name,
     click_id,
-    test_mode,
     products,
     user,
     data_processing_options,
@@ -31,6 +29,9 @@ const action: ActionDefinition<Settings, Payload> = {
     conversion_id
   },
   perform: async (request, { settings, payload }) => {
+    return await send(request, settings, [payload])
+  },
+  performBatch: async (request, { settings, payload }) => {
     return await send(request, settings, payload)
   }
 }

@@ -7,7 +7,8 @@ const testDestination = createTestIntegration(Definition)
 const timestamp = '2024-01-08T13:52:50.212Z'
 const settings: Settings = {
   ad_account_id: 'ad_account_id_1',
-  conversion_token: 'conversion_token_1'
+  conversion_token: 'conversion_token_1',
+  test_mode: false
 }
 
 describe('Reddit Conversions Api', () => {
@@ -25,7 +26,6 @@ describe('Reddit Conversions Api', () => {
           currency: 'USD',
           quantity: 10,
           total: 100,
-          test_mode: false,
           opt_out: false,
           uuid: 'uuid_1',
           products: [
@@ -114,7 +114,6 @@ describe('Reddit Conversions Api', () => {
           currency: 'USD',
           quantity: 10,
           total: 100,
-          test_mode: false,
           opt_out: false,
           uuid: 'uuid_1',
           products: [
@@ -199,7 +198,6 @@ describe('Reddit Conversions Api', () => {
           conversion_id: 'conversion_id_1',
           currency: 'USD',
           total: 100,
-          test_mode: false,
           opt_out: false,
           uuid: 'uuid_1',
           products: [

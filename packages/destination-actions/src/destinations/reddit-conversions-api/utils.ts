@@ -19,8 +19,8 @@ type DataProcessingOptionsType = StandardEvent['data_processing_options'] | Cust
 type UserType = StandardEvent['user'] | CustomEvent['user']
 type ScreenDimensionsType = StandardEvent['screen_dimensions'] | CustomEvent['screen_dimensions']
 
-export async function send(request: RequestClient, settings: Settings, payload: StandardEvent | CustomEvent) {
-  const data = createRedditPayload(payload)
+export async function send(request: RequestClient, settings: Settings, payload: StandardEvent[] | CustomEvent[]) {
+  const data = createRedditPayload(payload, settings)
   return request(`https://ads-api.reddit.com/api/v2.0/conversions/events/${settings.ad_account_id}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${settings.conversion_token}` },
@@ -31,37 +31,43 @@ export async function send(request: RequestClient, settings: Settings, payload: 
   })
 }
 
-function createRedditPayload(payload: StandardEvent | CustomEvent): StandardEventPayload {
-  const {
-    event_at,
-    click_id,
-    products,
-    user,
-    data_processing_options,
-    screen_dimensions,
-    event_metadata,
-    conversion_id
-  } = payload
+function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings: Settings): StandardEventPayload {
+  const payloadItems: StandardEventPayloadItem[] = []
 
-  const custom_event_name = (payload as CustomEvent).custom_event_name
-  const tracking_type = (payload as StandardEvent).tracking_type
+  payloads.forEach((payload) => {
+    const {
+      event_at,
+      click_id,
+      products,
+      user,
+      data_processing_options,
+      screen_dimensions,
+      event_metadata,
+      conversion_id
+    } = payload
 
-  const payloadItem: StandardEventPayloadItem = {
-    event_at: event_at as string,
-    event_type: {
-      // if custom_event_name is present, tracking_type is 'Custom'
-      // if custom_event_name not present then we know the event is a StandardEvent
-      tracking_type: custom_event_name ? 'Custom' : tracking_type,
-      custom_event_name: clean(custom_event_name)
-    },
-    click_id: clean(click_id),
-    event_metadata: getMetadata(event_metadata, products, conversion_id),
-    user: getUser(user, data_processing_options, screen_dimensions)
-  }
+    const custom_event_name = (payload as CustomEvent).custom_event_name
+    const tracking_type = (payload as StandardEvent).tracking_type
+
+    const payloadItem: StandardEventPayloadItem = {
+      event_at: event_at as string,
+      event_type: {
+        // if custom_event_name is present, tracking_type is 'Custom'
+        // if custom_event_name not present then we know the event is a StandardEvent
+        tracking_type: custom_event_name ? 'Custom' : tracking_type,
+        custom_event_name: clean(custom_event_name)
+      },
+      click_id: clean(click_id),
+      event_metadata: getMetadata(event_metadata, products, conversion_id),
+      user: getUser(user, data_processing_options, screen_dimensions)
+    }
+
+    payloadItems.push(payloadItem)
+  })
 
   return {
-    events: [payloadItem],
-    test_mode: payload.test_mode,
+    events: payloadItems,
+    test_mode: settings.test_mode,
     partner: 'SEGMENT'
   }
 }
