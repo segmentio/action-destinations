@@ -200,8 +200,9 @@ export abstract class MessageSendPerformer<
       this.logError('cache_stringify_error', { key, error: stringified.error })
       this.statsIncr('cache_stringify_error')
     } else if ('value' in stringified && stringified.value) {
+      const stringifiedValue = stringified.value
       //result stringified and contains cacheable value - cache it
-      const result = getOrCatch(() => this.engageDestinationCache?.setByKey(key, stringified.value))
+      const result = getOrCatch(() => this.engageDestinationCache?.setByKey(key, stringifiedValue))
       if ('error' in result && result.error) {
         this.logError('cache_saving_error', { key, error: result.error })
         this.statsIncr('cache_saving_error')
