@@ -32,7 +32,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       body: JSON.stringify(traits),
       headers: {
         'x-cs-eclipse-user-uid': userId ?? '',
-        'x-project-uid': settings.personalizeProjectId
+        'x-project-uid': settings?.personalizeProjectId ?? ''
       }
     })
   }

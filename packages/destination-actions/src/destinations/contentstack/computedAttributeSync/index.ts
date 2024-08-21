@@ -40,8 +40,8 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'patch',
       json: traits,
       headers: {
-        'x-cs-eclipse-user-uid': payload.userId ?? '',
-        'x-project-uid': settings.personalizeProjectId ?? ''
+        'x-cs-eclipse-user-uid': payload?.userId ?? '',
+        'x-project-uid': settings?.personalizeProjectId ?? ''
       }
     })
   }
