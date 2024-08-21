@@ -1,10 +1,18 @@
 import type { RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import type { Payload } from './standardEvent/generated-types'
+import type { Payload as StandardEvent} from './standardEvent/generated-types'
+import type { Payload as CustomEvent} from './customEvent/generated-types'
 import { StandardEventPayloadItem, StandardEventPayload, User, Product, EventMetadata, DatapProcessingOptions } from './types'
 import { createHash } from 'crypto'
 
-export async function send(request: RequestClient, settings: Settings, payload: Payload) {
+type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
+type ProductsType = StandardEvent['products'] | CustomEvent['products']
+type ConversionIdType = StandardEvent['conversion_id'] | CustomEvent['conversion_id']
+type DataProcessingOptionsType = StandardEvent['data_processing_options'] | CustomEvent['data_processing_options']
+type UserType = StandardEvent['user'] | CustomEvent['user']
+type ScreenDimensionsType = StandardEvent['screen_dimensions'] | CustomEvent['screen_dimensions']
+
+export async function send(request: RequestClient, settings: Settings, payload: StandardEvent | CustomEvent) {
     const data = createRedditPayload(payload)
     return request(`https://ads-api.reddit.com/api/v2.0/conversions/events/${settings.ad_account_id}`, {
         method: 'POST',
@@ -14,20 +22,28 @@ export async function send(request: RequestClient, settings: Settings, payload: 
         }
     })
 }
-  
-function createRedditPayload(payload: Payload): StandardEventPayload {
-    const { event_at, event_type, click_id, products, user, data_processing_options, screen_dimensions, event_metadata } = payload
+
+function createRedditPayload(payload: StandardEvent | CustomEvent): StandardEventPayload {
+    const { event_at, click_id, products, user, data_processing_options, screen_dimensions, event_metadata, conversion_id } = payload
+
+    const custom_event_name = (payload as CustomEvent).custom_event_name
+    const tracking_type = (payload as StandardEvent).tracking_type
+
     const payloadItem: StandardEventPayloadItem = {
       event_at: event_at as string,
       event_type: {
-        tracking_type: event_type.tracking_type
+        // if custom_event_name is present, tracking_type is 'Custom'
+        // if custom_event_name not present then we know the event is a StandardEvent
+        tracking_type: custom_event_name ? 'Custom' : tracking_type,
+        custom_event_name: clean(custom_event_name)
       },
       click_id: clean(click_id),
-      event_metadata: getMetadata(event_metadata, products),
+      event_metadata: getMetadata(event_metadata, products, conversion_id),
       user: getUser(user, data_processing_options, screen_dimensions)
     }
     return {
       events: [payloadItem],
+      test_mode: payload.test_mode,
       partner: 'SEGMENT'
     }
 }
@@ -42,7 +58,7 @@ function cleanNum(num: number | undefined): number | undefined {
     return num
 }
 
-function getProducts(products: Payload['products']): Product[] | undefined {
+function getProducts(products: ProductsType): Product[] | undefined {
   if (!products) {
     return undefined
   }
@@ -56,8 +72,8 @@ function getProducts(products: Payload['products']): Product[] | undefined {
   })
 } 
 
-function getMetadata(metadata: Payload['event_metadata'], products: Payload['products']): EventMetadata | undefined {
-  if (!metadata) {
+function getMetadata(metadata: EventMetadataType, products: ProductsType, conversion_id: ConversionIdType): EventMetadata | undefined {
+  if (!metadata && !products && !conversion_id) {
       return undefined
   }
 
@@ -65,7 +81,8 @@ function getMetadata(metadata: Payload['event_metadata'], products: Payload['pro
       currency: clean(metadata?.currency),
       item_count: cleanNum(metadata?.item_count), 
       value_decimal: cleanNum(metadata?.value_decimal),
-      products: getProducts(products)
+      products: getProducts(products),
+      conversion_id: clean(conversion_id)
   }
 }
 
@@ -75,7 +92,7 @@ function getAdId(device_type?: string, advertising_id?: string): {[key:string]: 
     return device_type === 'Apple' ? { idfa: hash(advertising_id) } : { aaid: hash(advertising_id) } 
 }
 
-function getDataProcessingOptions(dataProcessingOptions: Payload['data_processing_options']): DatapProcessingOptions | undefined {  
+function getDataProcessingOptions(dataProcessingOptions: DataProcessingOptionsType): DatapProcessingOptions | undefined {  
     if (!dataProcessingOptions) return undefined
     return {
       country: clean(dataProcessingOptions.country),
@@ -92,7 +109,7 @@ function getScreen(height?: number, width?: number): {height: number, width: num
   }
 }
 
-function getUser(user: Payload['user'], dataProcessingOptions: Payload['data_processing_options'], screenDimensions: Payload['screen_dimensions']): User | undefined {
+function getUser(user: UserType, dataProcessingOptions: DataProcessingOptionsType, screenDimensions: ScreenDimensionsType): User | undefined {
     if (!user) return
 
     return {

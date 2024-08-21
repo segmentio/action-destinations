@@ -19,6 +19,7 @@ export interface EventMetadata {
     currency?: string
     item_count?: number
     value_decimal?: number
+    conversion_id?: string
     products?: Array<Product>
 }
 
@@ -47,7 +48,8 @@ export interface User {
 export interface StandardEventPayloadItem {
     event_at: string
     event_type: {
-        tracking_type: string
+        tracking_type: string,
+        custom_event_name?: string
     },
     click_id?: string
     event_metadata?: EventMetadata
@@ -56,5 +58,6 @@ export interface StandardEventPayloadItem {
 
 export interface StandardEventPayload {
     events: StandardEventPayloadItem[],
+    test_mode?: boolean
     partner: 'SEGMENT'
 }

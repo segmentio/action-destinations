@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { send } from '../utils'
 import {
   event_at,
-  tracking_type,
+  custom_event_name,
   click_id,
   test_mode,
   products,
@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send a Standard Conversion Event to Reddit',
   fields: {
     event_at,
-    tracking_type,
+    custom_event_name,
     click_id,
     test_mode,
     products,

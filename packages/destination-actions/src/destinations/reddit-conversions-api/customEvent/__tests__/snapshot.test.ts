@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'purchase'
+const actionSlug = 'customEvent'
 const destinationSlug = 'RedditConversionsApi'
 const seedName = `${destinationSlug}#${actionSlug}`
 

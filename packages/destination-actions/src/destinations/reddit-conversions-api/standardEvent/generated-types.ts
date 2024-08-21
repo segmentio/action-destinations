@@ -6,22 +6,17 @@ export interface Payload {
    */
   event_at: string | number
   /**
-   * The type of the event
+   * Enum: "PageVisit" "ViewContent" "Search" "AddToCart" "AddToWishlist" "Purchase" "Lead" "SignUp" "Custom". One of the standard tracking types.
    */
-  event_type: {
-    /**
-     * A custom event name that can be passed when tracking_type is set to "Custom". All UTF-8 characters are accepted and custom_event_name must be at most 64 characters long.
-     */
-    custom_event_name?: string
-    /**
-     * Enum: "PageVisit" "ViewContent" "Search" "AddToCart" "AddToWishlist" "Purchase" "Lead" "SignUp" "Custom". One of the standard tracking types
-     */
-    tracking_type: string
-  }
+  tracking_type: string
   /**
    * The Reddit-generated id associated with a single ad click.
    */
   click_id?: string
+  /**
+   * A flag indicating whether the event is a test event.
+   */
+  test_mode?: boolean
   /**
    * The products associated with the conversion event.
    */
@@ -85,7 +80,7 @@ export interface Payload {
      */
     country?: string
     /**
-     * Comma delimited list of Data Processing Modes for this conversion event. Currently we only support LDU (Limited Data Use).
+     * Comma delimited list of Data Processing Modes for this conversion event. Currently only LDU (Limited Data Use) is supported.
      */
     modes?: string
     /**
@@ -123,4 +118,8 @@ export interface Payload {
      */
     value_decimal?: number
   }
+  /**
+   * The unique conversion ID that corresponds to a distinct conversion event. Conversion ID is used for deduplication and prevents the same conversion event from being processed more than once if it is sent multiple times.
+   */
+  conversion_id?: string
 }

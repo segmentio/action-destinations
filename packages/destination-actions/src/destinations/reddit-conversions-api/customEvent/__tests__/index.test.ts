@@ -4,6 +4,6 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('RedditConversionsApi.custom', () => {
+describe('RedditConversionsApi.customEvent', () => {
   // TODO: Test your action
 })

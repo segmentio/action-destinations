@@ -6,39 +6,17 @@ export interface Payload {
    */
   event_at: string | number
   /**
-   * The type of the event
+   * A custom event name that can be passed when tracking_type is set to "Custom". All UTF-8 characters are accepted and custom_event_name must be at most 64 characters long.
    */
-  event_type: {
-    /**
-     * A custom event name that can be passed when tracking_type is set to "Custom". All UTF-8 characters are accepted and custom_event_name must be at most 64 characters long.
-     */
-    custom_event_name?: string
-    /**
-     * Enum: "PageVisit" "ViewContent" "Search" "AddToCart" "AddToWishlist" "Purchase" "Lead" "SignUp" "Custom". One of the standard tracking types
-     */
-    tracking_type: string
-  }
+  custom_event_name: string
   /**
    * The Reddit-generated id associated with a single ad click.
    */
   click_id?: string
   /**
-   * The metadata associated with the conversion event.
+   * A flag indicating whether the event is a test event.
    */
-  event_metadata?: {
-    /**
-     * The currency for the value provided. This must be a three-character ISO 4217 currency code. This should only be set for revenue-related events.
-     */
-    currency?: string
-    /**
-     * The number of items in the event. This should only be set for revenue-related events.
-     */
-    item_count?: number
-    /**
-     * The value of the transaction in the base unit of the currency. For example, dollars, euros, pesos, rupees, and bitcoin for USD, EUR, MXN, INR, and BTC respectively. This should only be set for revenue-related events.
-     */
-    value_decimal?: number
-  }
+  test_mode?: boolean
   /**
    * The products associated with the conversion event.
    */
@@ -102,7 +80,7 @@ export interface Payload {
      */
     country?: string
     /**
-     * Comma delimited list of Data Processing Modes for this conversion event. Currently we only support LDU (Limited Data Use).
+     * Comma delimited list of Data Processing Modes for this conversion event. Currently only LDU (Limited Data Use) is supported.
      */
     modes?: string
     /**
@@ -123,4 +101,25 @@ export interface Payload {
      */
     width?: number
   }
+  /**
+   * The metadata associated with the conversion event.
+   */
+  event_metadata?: {
+    /**
+     * The currency for the value provided. This must be a three-character ISO 4217 currency code. This should only be set for revenue-related events.
+     */
+    currency?: string
+    /**
+     * The number of items in the event. This should only be set for revenue-related events.
+     */
+    item_count?: number
+    /**
+     * The value of the transaction in the base unit of the currency. For example, dollars, euros, pesos, rupees, and bitcoin for USD, EUR, MXN, INR, and BTC respectively. This should only be set for revenue-related events.
+     */
+    value_decimal?: number
+  }
+  /**
+   * The unique conversion ID that corresponds to a distinct conversion event. Conversion ID is used for deduplication and prevents the same conversion event from being processed more than once if it is sent multiple times.
+   */
+  conversion_id?: string
 }

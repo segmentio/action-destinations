@@ -1,24 +1,8 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { RedditConversionsTestAuthenticationError } from './types'
-import custom from './custom'
-import pageVisit from './pageVisit'
-
-import viewContent from './viewContent'
-
-import search from './search'
-
-import addToCart from './addToCart'
-
-import addToWishlist from './addToWishlist'
-
-import purchase from './purchase'
-
-import lead from './lead'
-
-import signUp from './signUp'
-
 import standardEvent from './standardEvent'
+import customEvent from './customEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Reddit Conversions Api',
@@ -93,108 +77,101 @@ const destination: DestinationDefinition<Settings> = {
 
   presets: [
     {
-      name: 'Custom',
-      subscribe: 'type = "page"',
-      partnerAction: 'custom',
-      mapping: {
-        ...defaultValues(custom.fields),
-        event_type: { tracking_type: 'Custom' }
-      },
-      type: 'automatic'
-    },
-    {
       name: 'Page Visit',
       subscribe: 'type = "page"',
-      partnerAction: 'pageVisit',
+      partnerAction: 'standardEvent',
       mapping: {
-        ...defaultValues(pageVisit.fields),
-        event_type: { tracking_type: 'PageVisit' }
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'PageVisit',
+        event_metadata: {}
       },
       type: 'automatic'
     },
     {
       name: 'View Content',
-      subscribe: 'type = "track" AND event = "Product Category Viewed"',
-      partnerAction: 'viewContent',
+      subscribe: 'type = "track" and event = "Product Viewed"',
+      partnerAction: 'standardEvent',
       mapping: {
-        ...defaultValues(viewContent.fields),
-        event_type: { tracking_type: 'ViewContent' }
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'ViewContent',
+        event_metadata: {}
       },
       type: 'automatic'
     },
     {
       name: 'Search',
-      subscribe: 'type = "track" AND event = "Products Searched"',
-      partnerAction: 'search',
+      subscribe: 'type = "track" and event = "Products Searched"',
+      partnerAction: 'standardEvent',
       mapping: {
-        ...defaultValues(search.fields),
-        event_type: { tracking_type: 'Search' }
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'Search',
+        event_metadata: {}
       },
       type: 'automatic'
     },
     {
       name: 'Add to Cart',
-      subscribe: 'type = "track" AND event = "Product Added"',
-      partnerAction: 'addToCart',
+      subscribe: 'type = "track" and event = "Product Added"',
+      partnerAction: 'standardEvent',
       mapping: {
-        ...defaultValues(addToCart.fields),
-        event_type: { tracking_type: 'AddToCart' }
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'AddToCart'
       },
       type: 'automatic'
     },
     {
       name: 'Add to Wishlist',
-      subscribe: 'type = "track" AND event = "Products Searched"', //check for this
-      partnerAction: 'addToWishlist',
+      subscribe: 'type = "track" and event = "Product Added to Wishlist"',
+      partnerAction: 'standardEvent',
       mapping: {
-        ...defaultValues(addToWishlist.fields),
-        event_type: { tracking_type: 'AddToWishlist' }
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'AddToWishlist'
       },
       type: 'automatic'
     },
     {
       name: 'Purchase',
-      subscribe: 'type = "track" AND event = "Checkout"',
-      partnerAction: 'purchase',
+      subscribe: 'type = "track" and event = "Order Completed"',
+      partnerAction: 'standardEvent',
       mapping: {
-        ...defaultValues(purchase.fields),
-        event_type: { tracking_type: 'Purchase' }
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'Purchase'
       },
       type: 'automatic'
     },
     {
       name: 'Lead',
-      subscribe: 'type = "track" AND event = "Generate Lead"',
-      partnerAction: 'lead',
+      subscribe: 'type = "track" and event = "Lead Generated"',
+      partnerAction: 'standardEvent',
       mapping: {
-        ...defaultValues(lead.fields),
-        event_type: { tracking_type: 'Lead' }
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'Lead',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          value_decimal: { '@path': '$.properties.price' }
+        }
       },
       type: 'automatic'
     },
     {
       name: 'Sign Up',
-      subscribe: 'type = "track" AND event = "Signed Up"',
-      partnerAction: 'signUp',
+      subscribe: 'type = "track" and event = "Signed Up"',
+      partnerAction: 'standardEvent',
       mapping: {
-        ...defaultValues(signUp.fields),
-        event_type: { tracking_type: 'SignUp' }
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'SignUp',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          value_decimal: { '@path': '$.properties.price' }
+        }
       },
       type: 'automatic'
     }
   ],
 
   actions: {
-    custom,
-    pageVisit,
-    viewContent,
-    search,
-    addToCart,
-    addToWishlist,
-    purchase,
-    lead,
-    signUp,
-    standardEvent
+    standardEvent,
+    customEvent
   }
 }
 
