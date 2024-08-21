@@ -6,7 +6,7 @@ import { AggregateError } from './AggregateError'
 import { MaybePromise } from '@segment/actions-core/destination-kit/types'
 import { getProfileApiEndpoint, Region } from './getProfileApiEndpoint'
 import { track } from './track'
-import { IntegrationError, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { getErrorDetails } from '.'
 import { CachedError, CachedResponseType, CachedValue, CachedValueFactory } from './CachedResponse'
 
@@ -117,7 +117,7 @@ export abstract class MessageSendPerformer<
             error.retry = false
             return { error }
           } else if (parsed.type === CachedResponseType.Success) {
-            return { value: { status: parsed.status } as ModifiedResponse<unknown> }
+            return { value: { status: parsed.status } }
           }
         },
         stringify: (cacheable) => {
