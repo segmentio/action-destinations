@@ -115,7 +115,7 @@ export interface Payload {
     value_decimal?: number
   }
   /**
-   * The unique conversion ID that corresponds to a distinct conversion event. Conversion ID is used for deduplication and prevents the same conversion event from being processed more than once if it is sent multiple times.
+   * The unique conversion ID that corresponds to a distinct conversion event.
    */
   conversion_id?: string
 }

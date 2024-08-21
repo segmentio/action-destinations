@@ -53,16 +53,10 @@ export const click_id: InputField = {
 export const conversion_id: InputField = {
   label: 'Conversion ID',
   description:
-    'The unique conversion ID that corresponds to a distinct conversion event. Conversion ID is used for deduplication and prevents the same conversion event from being processed more than once if it is sent multiple times.',
+    'The unique conversion ID that corresponds to a distinct conversion event.',
   type: 'string',
   required: false,
-  default: {
-    '@if': {
-      exists: { '@path': '$.integrations.Reddit Conversions Api.conversion_id' },
-      then: { '@path': '$.integrations.Reddit Conversions Api.conversion_id' },
-      else: { '@path': '$.properties.conversion_id' }
-    }
-  }
+  default: { '@path': '$.properties.conversion_id' }
 }
 
 export const event_metadata: InputField = {
