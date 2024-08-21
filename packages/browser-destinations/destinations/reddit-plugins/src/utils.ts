@@ -5,7 +5,7 @@ export const clickIdIntegrationFieldName = 'click_id'
 export const clickIdQuerystringName = 'rdt_cid'
 
 // The name of the key Segment will use when storing the rdt_cid locally in the browser
-export const clickIdCookieName = 'rdt_cookie'
+export const clickIdCookieName = 'rdt_cid_seg'
 
 // The field name to include for the Reddit rdt_uuid in the context.integrations.Reddit Conversions Api.rdt_uuid
 export const rdtUUIDIntegrationFieldName = 'uuid'
