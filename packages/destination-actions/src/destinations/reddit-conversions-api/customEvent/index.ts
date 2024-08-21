@@ -16,8 +16,8 @@ import {
 } from '../fields'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send Standard Event',
-  description: 'Send a Standard Conversion Event to Reddit',
+  title: 'Send Custom Event',
+  description: 'Send a Custom Conversion Event to Reddit',
   fields: {
     event_at,
     custom_event_name,
