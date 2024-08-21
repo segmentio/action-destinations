@@ -13,5 +13,6 @@ coverage
 # playwright
 playwright-report
 
-# NX
+
+# nx
 .nx
