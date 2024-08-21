@@ -3,6 +3,8 @@ import { JimoSDK } from 'src/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
+type WindowWithJimoInit = Window & Partial<{ jimoInit: () => void }>
+
 const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
   title: 'Send User Data',
   description: 'Send user ID and email to Jimo',
@@ -39,6 +41,8 @@ const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
   },
   defaultSubscription: 'type = "identify"',
   perform: (jimo, { payload, settings }) => {
+    const browserWindow: WindowWithJimoInit = window
+
     const pushEmail = () => {
       if (payload.email == null) return
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -78,9 +82,10 @@ const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
       payload.userId &&
       typeof payload.userId === 'string' &&
       payload.userId.length > 0 &&
-      Array.isArray(window.jimo)
+      Array.isArray(window.jimo) &&
+      browserWindow.jimoInit != null
     ) {
-      window.jimoInit()
+      browserWindow.jimoInit()
     }
   }
 }

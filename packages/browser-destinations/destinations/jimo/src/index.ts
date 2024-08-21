@@ -40,8 +40,8 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
     },
     manualInit: {
       description:
-        'If true, Jimo SDK will be initialized only after a Segment event containing a userID has been triggered.',
-      label: 'Manual Init',
+        'If true, Jimo SDK will be initialized only after a Segment event containing a userID has been triggered. This prevents from having anonymous profile created in Jimo.',
+      label: 'Initialize only for identified users',
       type: 'boolean',
       default: false
     }
