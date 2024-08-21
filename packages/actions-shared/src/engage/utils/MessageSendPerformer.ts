@@ -146,17 +146,16 @@ export abstract class MessageSendPerformer<
       parse: (cachedValue: string) => ValueOrError<T> | void
     }
   ): Promise<T> {
-    if (!this.engageDestinationCache) return createValue()
+    const engageDestinationCache = this.engageDestinationCache
+    if (!engageDestinationCache) return createValue()
 
-    const cacheRead = getOrCatch(() => this.engageDestinationCache?.getByKey(key))
+    const cacheRead = await getOrCatch(() => engageDestinationCache.getByKey(key))
+    const cacheReadValue = cacheRead.value
     if (cacheRead.error) {
       this.logError('cache_reading_error', { key })
       this.statsIncr('cache_reading_error')
-    } else if (cacheRead.value) {
-      const cacheReadValue = await cacheRead.value
-      const { value: parsedCache, error: parsingError } = getOrCatch(
-        () => cacheReadValue && serializer.parse(cacheReadValue)
-      )
+    } else if (cacheReadValue) {
+      const { value: parsedCache, error: parsingError } = getOrCatch(() => serializer.parse(cacheReadValue))
 
       if (parsingError) {
         //exception happened while parsing the cache.
@@ -516,8 +515,8 @@ export abstract class MessageSendPerformer<
 
 type ValueOrError<T> = { value?: T; error?: any } //& ({ value: T } | { error: any });
 
-function getOrCatch<T>(getValue: () => T): ValueOrError<T>
 function getOrCatch<T>(getValue: () => Promise<T>): Promise<ValueOrError<T>>
+function getOrCatch<T>(getValue: () => T): ValueOrError<T>
 function getOrCatch<T>(getValue: () => T | Promise<T>): ValueOrError<T> | Promise<ValueOrError<T>> {
   try {
     const value = getValue()
