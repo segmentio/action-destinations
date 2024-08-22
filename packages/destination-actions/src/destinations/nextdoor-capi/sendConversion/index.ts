@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { hashAndEncode } from './utils'
 import { omit } from '@segment/actions-core'
+import type { Custom, NDPayload, App } from './types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Conversion',
@@ -291,7 +292,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Order Value',
           description:
             'Required for purchase events. Total numeric value associated with the event. E.g. 99.99 denotes $99.99 USD. Currency is specified in the Currency field.',
-          type: 'string',
+          type: 'number',
           required: false
         },
         currency: {
@@ -414,47 +415,51 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     const apiKey = settings.apiKey
-
     const hashFields = omit(payload.customer, ['click_id', 'pixel_id']) as Record<string, string>
 
     for (const [key, value] of Object.entries(hashFields)) {
       hashFields[key] = hashAndEncode(value)
     }
 
-    interface Custom {
-      product_context: Array<{
-        id?: string
-        item_price?: number
-        quantity?: number
-      }>
-      order_value?: string
-      currency?: string
-      order_id?: string
-      delivery_category?: string
+    const custom: Custom = {
+      order_value:
+        payload?.custom?.order_value && payload?.custom?.currency
+          ? `${payload.custom.currency}${payload.custom.order_value}`
+          : undefined,
+      order_id: payload?.custom?.order_id ?? undefined,
+      delivery_category: payload?.custom?.delivery_category ?? undefined,
+      product_context: payload?.product_context?.map((product) => ({
+        id: product.id ?? undefined,
+        item_price: typeof product.item_price === 'number' ? product.item_price : undefined,
+        quantity: product?.quantity
+      }))
     }
 
-    const custom: Custom = {
-      product_context: payload.product_context,
-      order_value: payload.custom?.order_value,
-      currency: payload.custom?.currency,
-      order_id: payload.custom?.order_id,
-      delivery_category: payload.custom?.delivery_category
+    const app: App = {
+      app_id: payload?.app?.app_id ?? undefined,
+      app_tracking_enabled: payload?.app?.app_tracking_enabled ?? undefined,
+      platform: payload?.app?.platform ?? undefined,
+      app_version: payload?.app?.app_version ?? undefined
     }
-    
-    const data = {
+
+    const ndPayload: NDPayload = {
       event_name: payload.event_name,
       event_id: payload.event_id,
       event_time: payload.event_time,
-      event_timezone: payload.event_timezone,
       action_source: payload.action_source,
       client_id: payload.client_id,
       action_source_url: payload.action_source_url,
       delivery_optimization: payload.delivery_optimization,
-      test_event: payload.test_event,
-      partner_id: payload.partner_id,
-      customer: { click_id: payload.customer?.click_id, pixel_id: payload.customer?.pixel_id, ...hashFields },
+      event_timezone: payload.event_timezone,
+      customer: {
+        click_id: payload.customer?.click_id ? payload.customer.click_id : undefined,
+        pixel_id: payload.customer?.pixel_id ? payload.customer.pixel_id : undefined,
+        ...hashFields
+      },
       custom,
-      app: payload.app
+      app,
+      test_event: payload.test_event,
+      partner_id: payload.partner_id
     }
 
     return request('https://ads.nextdoor.com/v2/api/conversions/track', {
@@ -464,7 +469,7 @@ const action: ActionDefinition<Settings, Payload> = {
         Accept: 'application/json',
         Authorization: `Bearer ${apiKey}`
       },
-      json: JSON.parse(JSON.stringify(data))
+      json: JSON.parse(JSON.stringify(ndPayload))
     })
   }
 }

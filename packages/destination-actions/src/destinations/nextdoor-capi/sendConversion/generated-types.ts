@@ -36,7 +36,7 @@ export interface Payload {
   /**
    * Flag to indicate if this is a test event.
    */
-  test_event?: boolean & string
+  test_event?: boolean
   /**
    * ID of partners like Segment
    */
@@ -105,7 +105,7 @@ export interface Payload {
     /**
      * Required for purchase events. Total numeric value associated with the event. E.g. 99.99 denotes $99.99 USD. Currency is specified in the Currency field.
      */
-    order_value?: string
+    order_value?: number
     /**
      * Currency of the order value. Use the 3-letter currency code from ISO 4217 standard.
      */
@@ -134,7 +134,7 @@ export interface Payload {
     /**
      * Product Price
      */
-    item_price?: string
+    item_price?: number
     [k: string]: unknown
   }[]
   /**
