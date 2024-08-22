@@ -85,14 +85,14 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'True indicates data can be used for optimization. False indicates the data will only be used for attribution',
       type: 'boolean',
-      required: false,
+      required: true,
       default: true
     },
     test_event: {
       label: 'Test Event',
       description: 'Flag to indicate if this is a test event.',
       type: 'boolean',
-      required: false,
+      required: true,
       default: false
     },
     partner_id: {
@@ -311,8 +311,9 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Delivery Category',
           description: 'How a product is delivered',
           type: 'string',
-          required: false,
+          required: true,
           choices: [
+            { label: 'Not specified', value: 'not_specified' },
             { label: 'In store', value: 'in_store' },
             { label: 'Curbside', value: 'curbside' },
             { label: 'Home Delivery', value: 'home_delivery' }
@@ -322,7 +323,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         order_value: { '@path': '$.properties.total' },
         currency: { '@path': '$.properties.currency' },
-        order_id: { '@path': '$.properties.order_id' }
+        order_id: { '@path': '$.properties.order_id' },
+        delivery_category: 'not_specified'
       }
     },
     product_context: {
@@ -423,12 +425,13 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const custom: Custom = {
       order_value:
-        payload?.custom?.order_value && payload?.custom?.currency
+        payload.custom?.order_value && payload.custom?.currency
           ? `${payload.custom.currency}${payload.custom.order_value}`
           : undefined,
-      order_id: payload?.custom?.order_id ?? undefined,
-      delivery_category: payload?.custom?.delivery_category ?? undefined,
-      product_context: payload?.product_context?.map((product) => ({
+      order_id: payload.custom?.order_id ?? undefined,
+      delivery_category:
+        payload.custom?.delivery_category === 'not_specified' ? undefined : payload.custom?.delivery_category,
+      product_context: payload.product_context?.map((product) => ({
         id: product.id ?? undefined,
         item_price: typeof product.item_price === 'number' ? product.item_price : undefined,
         quantity: product?.quantity
@@ -436,10 +439,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const app: App = {
-      app_id: payload?.app?.app_id ?? undefined,
-      app_tracking_enabled: payload?.app?.app_tracking_enabled ?? undefined,
-      platform: payload?.app?.platform ?? undefined,
-      app_version: payload?.app?.app_version ?? undefined
+      app_id: payload.app?.app_id ?? undefined,
+      app_tracking_enabled: payload.app?.app_tracking_enabled ?? undefined,
+      platform: payload.app?.platform ?? undefined,
+      app_version: payload.app?.app_version ?? undefined
     }
 
     const ndPayload: NDPayload = {

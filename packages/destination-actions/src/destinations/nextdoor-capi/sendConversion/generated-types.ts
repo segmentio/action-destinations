@@ -32,11 +32,11 @@ export interface Payload {
   /**
    * True indicates data can be used for optimization. False indicates the data will only be used for attribution
    */
-  delivery_optimization?: boolean
+  delivery_optimization: boolean
   /**
    * Flag to indicate if this is a test event.
    */
-  test_event?: boolean
+  test_event: boolean
   /**
    * ID of partners like Segment
    */
@@ -117,7 +117,7 @@ export interface Payload {
     /**
      * How a product is delivered
      */
-    delivery_category?: string
+    delivery_category: string
   }
   /**
    * Product details associated with the event.

@@ -5,7 +5,7 @@ export interface NDPayload {
   action_source: string
   client_id: string
   action_source_url?: string
-  delivery_optimization?: boolean
+  delivery_optimization: boolean
   event_timezone?: string
 
   customer: {
@@ -14,7 +14,7 @@ export interface NDPayload {
 
   custom: Custom
   app: App
-  test_event?: boolean & string
+  test_event: boolean
   partner_id: string
 }
 
