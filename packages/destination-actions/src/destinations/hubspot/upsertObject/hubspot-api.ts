@@ -332,28 +332,17 @@ export class HubspotClient {
       case 'boolean':
         return { type: HSPropType.Enumeration, fieldType: HSPropFieldType.BooleanCheckbox }
       case 'string': {
-        const date = new Date(value as string)
-
-        if (isNaN(date.getTime())) {
-          return { type: HSPropType.String, fieldType: HSPropFieldType.Text }
-        } else {
-          const year = date.getUTCFullYear()
-          const month = date.getUTCMonth()
-          const day = date.getUTCDate()
-          const hours = date.getUTCHours()
-          const minutes = date.getUTCMinutes()
-          const seconds = date.getUTCSeconds()
-          const milliseconds = date.getUTCMilliseconds()
-
-          // Check if it's a date at midnight
-          if (hours === 0 && minutes === 0 && seconds === 0 && milliseconds === 0) {
-            // Reconstruct the date at UTC midnight
-            const reconstructedDate = new Date(Date.UTC(year, month, day))
-            if (reconstructedDate.getTime() === date.getTime()) {
-              return { type: HSPropType.Date, fieldType: HSPropFieldType.Date }
-            }
+        const isoDateRegExp =
+          /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:([ T])(\d{2}):?(\d{2})(?::?(\d{2})(?:[,\.](\d{1,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?)?$/ //eslint-disable-line no-useless-escape
+        const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/ //eslint-disable-line no-useless-escape
+        if (isoDateRegExp.test(value as string)) {
+          if (dateOnlyRegex.test(value as string)) {
+            return { type: HSPropType.Date, fieldType: HSPropFieldType.Date }
+          } else {
+            return { type: HSPropType.DateTime, fieldType: HSPropFieldType.Date }
           }
-          return { type: HSPropType.DateTime, fieldType: HSPropFieldType.Date }
+        } else {
+          return { type: HSPropType.String, fieldType: HSPropFieldType.Text }
         }
       }
       case undefined:
