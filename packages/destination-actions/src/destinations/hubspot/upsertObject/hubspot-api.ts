@@ -55,7 +55,8 @@ const HSPropFieldType = {
   Text: 'text',
   Number: 'number',
   Date: 'date',
-  BooleanCheckbox: 'booleancheckbox'
+  BooleanCheckbox: 'booleancheckbox',
+  Select: 'select'
 } as const
 
 type HSPropFieldType = typeof HSPropFieldType[keyof typeof HSPropFieldType]
@@ -332,14 +333,15 @@ export class HubspotClient {
       case 'boolean':
         return { type: HSPropType.Enumeration, fieldType: HSPropFieldType.BooleanCheckbox }
       case 'string': {
-        const isoDateRegExp =
+        // Check for date or datetime, otherwise default to string
+        const isoDateTimeRegex =
           /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:([ T])(\d{2}):?(\d{2})(?::?(\d{2})(?:[,\.](\d{1,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?)?$/ //eslint-disable-line no-useless-escape
         const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/ //eslint-disable-line no-useless-escape
-        if (isoDateRegExp.test(value as string)) {
-          if (dateOnlyRegex.test(value as string)) {
-            return { type: HSPropType.Date, fieldType: HSPropFieldType.Date }
-          } else {
-            return { type: HSPropType.DateTime, fieldType: HSPropFieldType.Date }
+
+        if (isoDateTimeRegex.test(value as string)) {
+          return {
+            type: dateOnlyRegex.test(value as string) ? HSPropType.Date : HSPropType.DateTime,
+            fieldType: HSPropFieldType.Date
           }
         } else {
           return { type: HSPropType.String, fieldType: HSPropFieldType.Text }
@@ -453,6 +455,38 @@ export class HubspotClient {
     console.log(`${data}`)
   }
 
+  /**
+   * Checks for a type clash between a property being passed in the Payload, and a property from the Hubspot schema.
+   *
+   * @param {Prop} prop - The property to be checked.
+   * @param {Result} hubspotProp - The existing property type details from Hubspot to compare against, also containing `fieldType` and `type`.
+   */
+  checkForIncompatiblePropTypes(prop: Prop, hubspotProp?: Result) {
+    if (!hubspotProp) {
+      return
+    }
+
+    if (hubspotProp.fieldType === prop.fieldType && hubspotProp.type === prop.type) {
+      return
+    }
+
+    if (
+      hubspotProp.fieldType === 'select' &&
+      hubspotProp.type === 'enumeration' &&
+      prop.fieldType === 'text' &&
+      prop.type === 'string'
+    ) {
+      // string:text is OK to match to enumeration:select
+      return
+    }
+
+    throw new IntegrationError(
+      `Payload property with name ${prop.name} has a different type to the property in HubSpot. Expected: type = ${prop.type} fieldType = ${prop.fieldType}. Received: type = ${hubspotProp.type} fieldType = ${hubspotProp.fieldType}`,
+      'HUBSPOT_PROPERTY_TYPE_MISMATCH',
+      400
+    )
+  }
+
   determineMissingPropsAndMatchType(
     response: ResponseType,
     properties: Prop[]
@@ -461,19 +495,12 @@ export class HubspotClient {
       case 'fulfilled': {
         const results = response.value?.data.results ?? []
         const missingProps: Prop[] = []
-
         properties.forEach((prop) => {
           const match = results.find((item: Result) => {
             return item.name === prop.name
           })
 
-          if (match && (match.fieldType !== prop.fieldType || match.type !== prop.type)) {
-            throw new IntegrationError(
-              `Payload property with name ${prop.name} has a different type to the property in HubSpot. Expected: type = ${prop.type} fieldType = ${prop.fieldType}. Received: type = ${match.type} fieldType = ${match.fieldType}`,
-              'HUBSPOT_PROPERTY_TYPE_MISMATCH',
-              400
-            )
-          }
+          this.checkForIncompatiblePropTypes(prop, match)
 
           if (!match) {
             missingProps.push({
@@ -673,7 +700,10 @@ export class HubspotClient {
     }
 
     const json: RequestBody = {
-      inputs: [...props.map((p) => input(p, false)), ...sensitiveProps.map((p) => input(p, true))]
+      inputs: [
+        ...(props ? props.map((p) => input(p, false)) : []),
+        ...(sensitiveProps ? sensitiveProps.map((p) => input(p, true)) : [])
+      ]
     } as RequestBody
 
     await this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${this.objectType}/batch/create`, {
