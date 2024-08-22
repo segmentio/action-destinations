@@ -196,8 +196,6 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
     }
   }
 
-  const defaultChoices = SUPPORTED_HUBSPOT_OBJECT_TYPES
-
   try {
     const response: ResponseType = await request(`${HUBSPOT_BASE_URL}/crm/v3/schemas?archived=false`, {
       method: 'GET',
@@ -218,7 +216,7 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
         return 0
       })
     return {
-      choices: [...choices, ...defaultChoices]
+      choices: [...choices, ...SUPPORTED_HUBSPOT_OBJECT_TYPES]
     }
   } catch (err) {
     const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
