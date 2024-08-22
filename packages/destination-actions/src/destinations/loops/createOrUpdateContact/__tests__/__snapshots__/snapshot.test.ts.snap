@@ -7,7 +7,7 @@ Object {
   "firstName": "IAIhDY9yOUxjQs(FSFfe",
   "lastName": "IAIhDY9yOUxjQs(FSFfe",
   "mailingLists": Object {
-    "testType": "IAIhDY9yOUxjQs(FSFfe",
+    "IAIhDY9yOUxjQs(FSFfe": false,
   },
   "source": "IAIhDY9yOUxjQs(FSFfe",
   "subscribed": false,
@@ -19,6 +19,7 @@ Object {
 
 exports[`Testing snapshot for Loops's createOrUpdateContact destination action: required fields 1`] = `
 Object {
+  "mailingLists": Object {},
   "userId": "IAIhDY9yOUxjQs(FSFfe",
 }
 `;
