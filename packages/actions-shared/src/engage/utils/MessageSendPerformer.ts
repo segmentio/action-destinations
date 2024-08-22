@@ -6,15 +6,9 @@ import { AggregateError } from './AggregateError'
 import { MaybePromise } from '@segment/actions-core/destination-kit/types'
 import { getProfileApiEndpoint, Region } from './getProfileApiEndpoint'
 import { track } from './track'
-import { IntegrationError, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { getErrorDetails } from '.'
-import {
-  CachedError,
-  CachedResponseType,
-  CachedValue,
-  CachedValueFactory,
-  CachedValueSerializationError
-} from './CachedResponse'
+import { CachedError, CachedResponseType, CachedValue, CachedValueFactory } from './CachedResponse'
 
 export enum SendabilityStatus {
   /**
@@ -99,49 +93,6 @@ export abstract class MessageSendPerformer<
   TPayload extends MessagePayloadBase
 > extends EngageActionPerformer<TSettings, TPayload> {
   /**
-   * Cache the response from the server based on messageId and recipientId.
-   * Only messages with valid messageIds, recipientIds, and successful or non
-   * retryable errors are cacheable. All other errors will be ignored.
-   *
-   * @param value The value from the server.
-   * @param messageId The messageId of the message.
-   * @param recipientId The recipientId of the message.
-   * @returns The response from the cache.
-   */
-  @track()
-  async putCache(value: string, messageId?: string, recipientId?: string) {
-    if (!messageId || !recipientId || !this.engageDestinationCache) {
-      return
-    }
-    await this.engageDestinationCache.setByKey(messageId + recipientId.toLowerCase(), value)
-  }
-
-  /**
-   * Read the response from the cache based on messageId and recipientId.
-   *
-   * @param messageId The messageId of the message.
-   * @param recipientId The recipientId of the message.
-   * @returns The response from the cache.
-   */
-  @track()
-  async readCache(messageId?: string, recipientId?: string) {
-    if (!messageId || !recipientId || !this.engageDestinationCache) {
-      this.logInfo('Cache not found', { messageId, recipientId })
-      this.statsIncr('cache_miss')
-      return
-    }
-    const cached = await this.engageDestinationCache.getByKey(messageId + recipientId.toLowerCase())
-    if (!cached) {
-      this.logInfo('Cache not found', { messageId, recipientId })
-      this.statsIncr('cache_miss')
-      return
-    }
-    this.logInfo('Cache found', { messageId, recipientId, cached })
-    this.statsIncr('cache_hit')
-    return cached
-  }
-
-  /**
    * Internal function to process sending a recepient.
    *
    * If a cache exists, it will check to see if the messageId, and recipientId
@@ -155,66 +106,97 @@ export abstract class MessageSendPerformer<
   protected async sendToRecepientCache(recepient: ExtId<TPayload>) {
     const messageId = (this.executeInput as any)['rawData']?.messageId
     const recipientId = recepient.id
-    let cachedResponse: CachedValue | CachedError | undefined
-    try {
-      const rawCachedResponse = await this.readCache(messageId, recipientId)
-      if (rawCachedResponse) {
-        cachedResponse = CachedValueFactory.fromString(rawCachedResponse)
-      }
-    } catch (error) {
-      if (!(error instanceof CachedValueSerializationError)) {
-        this.logError(`Unexpected error reading cache for messageId: ${messageId}, recipientId: ${recipientId}`, {
-          error
-        })
-        throw error
-      }
-      this.logError(`Failed to read cache for messageId: ${messageId}, recipientId: ${recipientId}`, {
-        error,
-        message: error.message
-      })
-    }
+    // if messageId or recipientId is not available, then don't cache
+    if (!messageId || !recipientId) return this.sendToRecepient(recepient)
 
-    if (cachedResponse?.type === CachedResponseType.Error && 'message' in cachedResponse) {
-      this.logInfo('Cached error found', {
-        message: cachedResponse.message,
-        code: cachedResponse.code,
-        status: cachedResponse.status
-      })
-      this.statsIncr('error_duplicate')
-      const { message, code, status } = cachedResponse
-      const error = new IntegrationError(message, code, status)
-      error.retry = false
-      throw error
-    } else if (cachedResponse?.type === CachedResponseType.Success) {
-      this.logInfo('Cached response found', { status: cachedResponse.status })
-      this.statsIncr('perform_duplicate')
-      return
-    }
-
-    let error: undefined | Error = undefined
-    let result: ModifiedResponse<unknown> | undefined = undefined
-    try {
-      this.statsIncr('perform')
-      result = await this.sendToRecepient(recepient)
-      return result
-    } catch (e) {
-      error = e
-    } finally {
-      try {
-        if (error && !isRetryableError(error)) {
-          const errorDetails = getErrorDetails(error)
-          if (errorDetails?.status) {
-            const cachedError = new CachedError(errorDetails.status, errorDetails.message, errorDetails.code)
-            await this.putCache(cachedError.serialize(), messageId, recipientId)
+    return await this.getOrAddCache(
+      `${messageId}-${recipientId?.toLowerCase()}`,
+      () => this.sendToRecepient(recepient),
+      {
+        parse: (cachedValue) => {
+          const parsed = CachedValueFactory.fromString(cachedValue)
+          if (parsed instanceof CachedError) {
+            const error = new IntegrationError(parsed.message, parsed.code, parsed.status)
+            error.retry = false
+            return { error }
+          } else if (parsed.type === CachedResponseType.Success) {
+            return { value: { status: parsed.status } }
           }
-        } else if (!error && result) {
-          const cachedResult = new CachedValue(result.status)
-          await this.putCache(cachedResult.serialize(), messageId, recipientId)
+        },
+        stringify: (cacheable) => {
+          if (cacheable.error && !isRetryableError(cacheable.error)) {
+            const errorDetails = getErrorDetails(cacheable.error)
+            if (errorDetails?.status) {
+              return new CachedError(errorDetails.status, errorDetails.message, errorDetails.code).serialize()
+            }
+          } else if (cacheable.value) {
+            return new CachedValue(cacheable.value.status).serialize()
+          }
         }
-      } catch (cacheError) {
-        this.logError(`Failed to cache response for messageId: ${messageId}, recipientId: ${recipientId}`, cacheError)
+      }
+    )
+  }
+
+  async getOrAddCache<T>(
+    key: string,
+    createValue: () => Promise<T>,
+    serializer: {
+      //if undefined returned, then the value will not be cached
+      stringify: (cacheable: ValueOrError<T>) => string | void
+      //if undefined returned, then the cache is either corrupted or expired and will be re-executed
+      parse: (cachedValue: string) => ValueOrError<T> | void
+    }
+  ): Promise<T> {
+    if (!this.engageDestinationCache) return createValue()
+
+    const cacheRead = await getOrCatch(() => this.engageDestinationCache!.getByKey(key))
+    if (cacheRead.error) {
+      this.logInfo('cache_reading_error', { key })
+      this.statsIncr('cache_reading_error')
+    } else if (cacheRead.value) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- good luck making typescript happy here :)
+      const { value: parsedCache, error: parsingError } = getOrCatch(() => serializer.parse(cacheRead.value!))
+
+      if (parsingError) {
+        //exception happened while parsing the cache.
+        // Log it and execute as if we don't have cache
+        this.logInfo('cache_parsing_error', { key, value: cacheRead.value, parsingError })
+        this.statsIncr('cache_parsing_error')
+      } else if (parsedCache) {
+        //parsed cache successfully && cache is not expired
+        // parsedValue - either value or error was parsed
+        this.statsIncr('cache_hit', 1, [`cached_error:${!!parsedCache?.error}`])
+        if (parsedCache?.error) throw parsedCache.error
+        return parsedCache.value!
+      } else {
+        //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
+        this.logInfo('cache_ignored', { key, value: cacheRead.value })
+        this.statsIncr('cache_ignored')
       }
     }
+    // re-executing, because cache not found or ignored or failed to read or parse
+    this.statsIncr('cache_miss')
+    this.logInfo('cache_miss', { key })
+    const { value: result, error: resultError } = await getOrCatch(() => createValue())
+
+    //before returning result - we need to try to serialize it and store it in cache
+    const stringified = getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
+    if (stringified.error) {
+      this.logInfo('cache_stringify_error', { key, error: stringified.error })
+      this.statsIncr('cache_stringify_error')
+    } else if (stringified.value) {
+      //result stringified and contains cacheable value - cache it
+      const { error: cacheSavingError } = await getOrCatch(() =>
+        this.engageDestinationCache!.setByKey(key, stringified.value!)
+      )
+      if (cacheSavingError) {
+        this.logInfo('cache_saving_error', { key, error: cacheSavingError })
+        this.statsIncr('cache_saving_error')
+      }
+    }
+
+    if (resultError) throw resultError
+    else return result as T
   }
 
   async doPerform() {
@@ -370,7 +352,7 @@ export abstract class MessageSendPerformer<
    * @param recepient The recipient to send the message to.
    * @returns The response from the server.
    */
-  abstract sendToRecepient(recepient: ExtId<TPayload>): any
+  abstract sendToRecepient(recepient: ExtId<TPayload>): Promise<any>
 
   getCommonTags() {
     const settings = this.settings
@@ -521,5 +503,23 @@ export abstract class MessageSendPerformer<
     )
     const body = await response.json()
     return body.traits
+  }
+}
+
+type ValueOrError<T> = { value?: T; error?: any } //& ({ value: T } | { error: any });
+
+function getOrCatch<T>(getValue: () => Promise<T>): Promise<ValueOrError<T>>
+function getOrCatch<T>(getValue: () => T): ValueOrError<T>
+function getOrCatch(getValue: () => any): Promise<ValueOrError<any>> | ValueOrError<any> {
+  try {
+    const value = getValue()
+
+    if (value instanceof Promise) {
+      return value.then((value) => ({ value })).catch((error) => ({ error }))
+    } else {
+      return { value }
+    }
+  } catch (error) {
+    return { error }
   }
 }
