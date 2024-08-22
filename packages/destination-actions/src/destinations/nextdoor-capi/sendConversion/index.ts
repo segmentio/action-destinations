@@ -90,7 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
     test_event: {
       label: 'Test Event',
       description: 'Flag to indicate if this is a test event.',
-      type: 'string',
+      type: 'boolean',
       required: false,
       default: false
     },
@@ -347,7 +347,7 @@ const action: ActionDefinition<Settings, Payload> = {
         item_price: {
           label: 'Product Price',
           description: 'Product Price',
-          type: 'string',
+          type: 'number',
           required: false
         }
       },
@@ -421,6 +421,26 @@ const action: ActionDefinition<Settings, Payload> = {
       hashFields[key] = hashAndEncode(value)
     }
 
+    interface Custom {
+      product_context: Array<{
+        id?: string
+        item_price?: number
+        quantity?: number
+      }>
+      order_value?: string
+      currency?: string
+      order_id?: string
+      delivery_category?: string
+    }
+
+    const custom: Custom = {
+      product_context: payload.product_context,
+      order_value: payload.custom?.order_value,
+      currency: payload.custom?.currency,
+      order_id: payload.custom?.order_id,
+      delivery_category: payload.custom?.delivery_category
+    }
+    
     const data = {
       event_name: payload.event_name,
       event_id: payload.event_id,
@@ -433,7 +453,7 @@ const action: ActionDefinition<Settings, Payload> = {
       test_event: payload.test_event,
       partner_id: payload.partner_id,
       customer: { click_id: payload.customer?.click_id, pixel_id: payload.customer?.pixel_id, ...hashFields },
-      custom: { ...payload.custom, ...payload.product_context },
+      custom,
       app: payload.app
     }
 
@@ -444,7 +464,7 @@ const action: ActionDefinition<Settings, Payload> = {
         Accept: 'application/json',
         Authorization: `Bearer ${apiKey}`
       },
-      json: data
+      json: JSON.parse(JSON.stringify(data))
     })
   }
 }

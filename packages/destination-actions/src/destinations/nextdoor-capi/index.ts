@@ -22,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
       return await request('https://ads.nextdoor.com/v2/api/me', {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${settings.apiKey}`,
+          Authorization: `Bearer GEcNsi6DytAWNbqgdujEAEBn41U0RI-1NoBKXwL3usM`,
           'Content-Type': 'application/json'
         }
       })
