@@ -30,12 +30,6 @@ const destination: DestinationDefinition<Settings> = {
     //   // you can remove the `testAuthentication` function, though discouraged.
     // }
   },
-  
-  // onDelete: async (request, { settings, payload }) => {
-  //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-  //   // provided in the payload. If your destination does not support GDPR deletion you should not
-  //   // implement this function and should remove it completely.
-  // },
 
   actions: {
     trackEvent

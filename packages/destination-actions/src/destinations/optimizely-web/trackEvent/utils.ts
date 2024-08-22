@@ -1,4 +1,5 @@
 import { StateContext, RequestClient } from '@segment/actions-core'
+import { OptimizelyPayload } from './types'
 export interface EventItem {
     id: number
     key: string
@@ -9,42 +10,6 @@ interface CreateEventBody {
     name: string;
     category: string;
     event_type: string;
-}
-
-interface Tag {
-    revenue?: number
-    value?: number
-    quantity?: number
-}
-
-interface Event {
-    entity_id: number
-    key?: string
-    timestamp: string | number
-    uuid: string
-    type: string
-    tags: Tag
-    properties: { [key: string]: unknown }
-}
-
-interface Snapshot {
-    decisions: []
-    events: Event[]
-}
-
-interface Visitor {
-    visitor_id: string
-    attributes: []
-    snapshots: Snapshot[]
-}
-
-export interface Body {
-    account_id: string
-    visitors: Visitor[]
-    anonymize_ip: boolean
-    client_name: string
-    client_version: string
-    enrich_decisions: boolean
 }
 export class OptimizelyWebClient {
     request: RequestClient
@@ -102,7 +67,7 @@ export class OptimizelyWebClient {
         this.stateContext?.setResponseContext?.(`events`, String(events), {})
     }
 
-    async sendEvent(body: Body){
+    async sendEvent(body: OptimizelyPayload){
         return this.request('https://logx.optimizely.com/v1/events', {
             method: 'POST',
             json: body,

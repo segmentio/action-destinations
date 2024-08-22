@@ -5,6 +5,7 @@ import { omit } from '@segment/actions-core'
 import  snakeCase from 'lodash/snakeCase' 
 import { OptimizelyWebClient, Body } from './utils'
 import { IntegrationError } from '@segment/actions-core/'
+import { OptimizelyPayload, Visitor, Event } from './types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -36,6 +37,13 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.project_id' }
         }
       }
+    },
+    anonymizeIP: {
+      label: 'Anonymize IP',
+      description: 'Anonymize the IP address of the user.',
+      type: 'boolean',
+      required: true,
+      default: true
     },
     createEventIfNotFound: {
       label: 'Create Custom Event',
@@ -102,18 +110,12 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.type' }
     },
-    type:{
-      label: 'Type of Event', 
-      description: "The type of event. For example, to indicate a 'decision_point' type should be 'campaign_activated'",
-      type: 'string',
-      required: true,
-      default: 'other'
-    },
     tags:{
       label: 'Tags', 
       description: "Tags to send with the event",
       type: 'object',
       required: false,
+      additionalProperties: true,
       properties: {
         revenue: {
           label: 'Revenue', 
@@ -139,7 +141,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: false,
           default: 'USD'
-        },
+        }
       },
       default: { 
         revenue: {
@@ -175,7 +177,6 @@ const action: ActionDefinition<Settings, Payload> = {
       endUserId, 
       eventName: friendlyEventName, 
       category, 
-      type, 
       projectID, 
       timestamp, 
       properties, 
@@ -205,7 +206,9 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError(`Event with name ${event_name} not found`, 'EVENT_NOT_FOUND', 400)
     }
 
-    const body: Body = {
+    const key = 
+
+    const body: OptimizelyPayload = {
       account_id: settings.optimizelyAccountId,
       visitors: [
         {
@@ -216,9 +219,9 @@ const action: ActionDefinition<Settings, Payload> = {
               decisions: [], // should be empty array
               events: [
                 {
-                  entity_id: event.id,
-                  key: event_name ?? eventType === 'page' ? 'page_viewed' : undefined,
-                  timestamp,
+                  entity_id: String(event.id),
+                  key: event_name ?? eventType === 'page' ?? 'page_viewed',
+                  timestamp: new Date(timestamp as string).getTime(), // TODO - fix so this is always 13 digit unix
                   uuid,
                   type,
                   tags: {
@@ -233,8 +236,8 @@ const action: ActionDefinition<Settings, Payload> = {
           ]
         }
       ],
-      anonymize_ip: true,
-      client_name: 'Optimizely/event-api-demo',
+      anonymize_ip: payload.anonymizeIP,
+      client_name: 'Segment Optimizely Web Destination',
       client_version: '1.0.0',
       enrich_decisions: true
     }
