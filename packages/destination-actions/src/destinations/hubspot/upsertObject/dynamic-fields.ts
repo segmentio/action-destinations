@@ -241,7 +241,11 @@ export async function dynamicReadProperties(
   interface ResultItem {
     label: string
     name: string
+    type: string
     hasUniqueValue: boolean
+    modificationMetadata: {
+      readOnlyValue: boolean
+    }
   }
 
   interface ResponseType {
@@ -260,10 +264,10 @@ export async function dynamicReadProperties(
     return {
       choices: [
         ...response.data.results
-          .filter((field: ResultItem) => !field.hasUniqueValue)
+          .filter((field: ResultItem) => !field.hasUniqueValue && field.modificationMetadata.readOnlyValue === false)
           .map((field: ResultItem) => {
             return {
-              label: field.label,
+              label: `${field.label} - ${field.type}`,
               value: field.name
             }
           })
