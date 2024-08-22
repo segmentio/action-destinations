@@ -14,6 +14,13 @@ export interface Result {
   error?: JSONObject | null
   // Data to be returned from action
   data?: JSONObject | null
+  // Cloudevents Spec V2 Response
+  response?:
+    | ActionDestinationSuccessResponseType
+    | (ActionDestinationErrorResponseType & {
+        errorreporter: 'INTEGRATIONS' | 'DESTINATION'
+      })
+    | null
 }
 
 export interface DynamicFieldContext {
@@ -349,4 +356,18 @@ export interface SyncModeDefinition {
   description: string
   /** The available sync mode choices */
   choices: SyncModeOption[]
+}
+
+export type ActionDestinationSuccessResponseType = {
+  status: number
+  sent: object | string
+  body: object | string
+}
+
+export type ActionDestinationErrorResponseType = {
+  status: number
+  errortype: string
+  errormessage: string
+  sent?: object | string
+  body?: object | string
 }

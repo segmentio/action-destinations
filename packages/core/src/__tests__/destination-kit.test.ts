@@ -493,7 +493,11 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
-          output: 'successfully processed batch of events'
+          response: {
+            status: 200,
+            body: {},
+            sent: {}
+          }
         }
       ])
     })
@@ -543,7 +547,13 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
-          output: 'successfully processed batch of events'
+          response: {
+            body: {},
+            sent: {
+              userId: 'this-is-a-user-id'
+            },
+            status: 200
+          }
         }
       ])
     })

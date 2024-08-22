@@ -93,3 +93,12 @@ export type { JSONPrimitive, JSONValue, JSONObject, JSONArray, JSONLike, JSONLik
 export type { SegmentEvent } from './segment-event'
 
 export type { RequestClient } from './create-request-client'
+
+export {
+  ActionDestinationSuccessResponse,
+  ActionDestinationErrorResponse,
+  MultiStatusResponse,
+  MultiStatusResponseBuilder,
+  MultiStatusPayloadValidatorFn,
+  MultiStatusPayloadTransformerFn
+} from './destination-kit/action'

@@ -486,8 +486,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     try {
       await this.authentication.testAuthentication(requestClient, data)
     } catch (error) {
-      const statusCode = error?.response?.status ?? ''
-      throw new Error(`Credentials are invalid: ${statusCode} ${error.message}`)
+      const typedError = error as { response?: { status?: string | number }; message: string }
+      const statusCode = typedError?.response?.status ?? ''
+      throw new Error(`Credentials are invalid: ${statusCode} ${typedError.message}`)
     }
   }
 
@@ -606,7 +607,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
     }
 
-    await action.executeBatch({
+    return await action.executeBatch({
       mapping,
       data: events as unknown as InputData[],
       settings,
@@ -619,8 +620,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       transactionContext,
       stateContext
     })
-
-    return [{ output: 'successfully processed batch of events' }]
   }
 
   public async executeDynamicField(
