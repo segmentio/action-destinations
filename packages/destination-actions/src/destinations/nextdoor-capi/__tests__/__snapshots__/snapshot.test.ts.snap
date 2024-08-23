@@ -44,7 +44,7 @@ Object {
   "event_time": "@SQ$NFo^ou^GY",
   "event_timezone": "@SQ$NFo^ou^GY",
   "partner_id": "segment",
-  "test_event": false,
+  "test_event": "false",
 }
 `;
 
@@ -60,6 +60,6 @@ Object {
   "event_name": "custom_conversion_7",
   "event_time": "@SQ$NFo^ou^GY",
   "partner_id": "segment",
-  "test_event": false,
+  "test_event": "false",
 }
 `;

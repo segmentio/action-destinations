@@ -5,7 +5,8 @@ import { Settings } from '../generated-types'
 
 const testDestination = createTestIntegration(Definition)
 const settings: Settings = {
-  apiKey: 'fake_api_key'
+  apiKey: 'fake_api_key',
+  client_id: 'client_id_1'
 }
 
 describe('Nextdoor Conversions Api', () => {
@@ -62,7 +63,6 @@ describe('Nextdoor Conversions Api', () => {
         mapping: {
           event_name: 'custom_conversion_1',
           action_source: 'website',
-          client_id: 'client_id_1',
           event_id: 'test_event_id',
           event_timezone: 'America/Los_Angeles',
           custom: {
@@ -123,7 +123,7 @@ describe('Nextdoor Conversions Api', () => {
         event_time: '2024-01-08T13:52:50.212Z',
         event_timezone: 'America/Los_Angeles',
         partner_id: 'segment',
-        test_event: false
+        test_event: 'false'
       })
     })
   })

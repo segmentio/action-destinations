@@ -16,6 +16,13 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The Embed API Key for your account. You can find this on your settings pages.',
         type: 'password',
         required: true
+      },
+      client_id: {
+        label: 'Nextdoor Advertiser ID',
+        description:
+          'Your Nextdoor Advertiser ID for self serve clients can be found in your NAM account for managed your support team can provide',
+        type: 'string',
+        required: true
       }
     },
     testAuthentication: async (request, { settings }) => {

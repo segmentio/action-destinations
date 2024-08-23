@@ -66,13 +66,6 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'other', value: 'custom_conversion_8' }
       ]
     },
-    client_id: {
-      label: 'Nextdoor Advertiser ID',
-      description:
-        'Your Nextdoor Advertiser ID for self serve clients can be found in your NAM account for managed your support team can provide',
-      type: 'string',
-      required: true
-    },
     action_source_url: {
       label: 'Action Source url',
       description: 'The browser URL where the event happened (required for web events).',
@@ -450,7 +443,7 @@ const action: ActionDefinition<Settings, Payload> = {
       event_id: payload.event_id,
       event_time: payload.event_time,
       action_source: payload.action_source,
-      client_id: payload.client_id,
+      client_id: settings.client_id,
       action_source_url: payload.action_source_url,
       delivery_optimization: payload.delivery_optimization,
       event_timezone: payload.event_timezone,
@@ -461,7 +454,7 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       custom,
       app,
-      test_event: payload.test_event,
+      test_event: String(payload.test_event),
       partner_id: payload.partner_id
     }
 

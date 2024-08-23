@@ -14,7 +14,7 @@ export interface NDPayload {
 
   custom: Custom
   app: App
-  test_event: boolean
+  test_event: string
   partner_id: string
 }
 

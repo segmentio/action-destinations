@@ -22,10 +22,6 @@ export interface Payload {
    */
   action_source: string
   /**
-   * Your Nextdoor Advertiser ID for self serve clients can be found in your NAM account for managed your support team can provide
-   */
-  client_id: string
-  /**
    * The browser URL where the event happened (required for web events).
    */
   action_source_url?: string
