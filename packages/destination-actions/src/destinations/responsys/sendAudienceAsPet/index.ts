@@ -1,7 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
+
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { validateListMemberPayload } from '../utils'
+import { createPet, petExists } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Audience as Pet',
@@ -18,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         EMAIL_ADDRESS_: {
           label: 'Email address',
-          description: "The user's email address",
+          description: "The user's email address.",
           type: 'string',
           format: 'email',
           required: false
@@ -26,6 +28,12 @@ const action: ActionDefinition<Settings, Payload> = {
         CUSTOMER_ID_: {
           label: 'Customer ID',
           description: 'Responsys Customer ID.',
+          type: 'string',
+          required: false
+        },
+        RIID_: {
+          label: 'Recipient ID',
+          description: 'Recipient ID (RIID). RIID is required if Email Address is empty.',
           type: 'string',
           required: false
         }
@@ -40,6 +48,13 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         CUSTOMER_ID_: { '@path': '$.userId' }
       }
+    },
+    folder_name: {
+      label: 'Folder Name',
+      description: 'The name of the folder where the new Profile Extension Table will be created.',
+      type: 'string',
+      required: true,
+      default: 'Segment'
     },
     computation_key: {
       label: 'Segment Audience Key',
@@ -77,10 +92,17 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 0
     }
   },
-  perform: (request, data) => {
-    const { payload, settings, statsContext } = data
-    console.log(payload, settings, statsContext, request)
+  perform: async (request, data) => {
+    const { payload, settings } = data
     validateListMemberPayload(payload.userData)
+
+    const petAlreadyExists = await petExists(request, settings, payload.computation_key)
+    if (!petAlreadyExists) {
+      await createPet(request, settings, payload)
+    }
+
+    // return sendCustomTraits(request, [payload], data.settings, Object.keys(payload.userData), true)
+
     // Make your partner api request here!
     // return request('https://example.com', {
     //   method: 'post',

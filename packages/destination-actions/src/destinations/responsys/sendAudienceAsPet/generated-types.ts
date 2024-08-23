@@ -6,14 +6,22 @@ export interface Payload {
    */
   userData: {
     /**
-     * The user's email address
+     * The user's email address.
      */
     EMAIL_ADDRESS_?: string
     /**
      * Responsys Customer ID.
      */
     CUSTOMER_ID_?: string
+    /**
+     * Recipient ID (RIID). RIID is required if Email Address is empty.
+     */
+    RIID_?: string
   }
+  /**
+   * The name of the folder where the new Profile Extension Table will be created.
+   */
+  folder_name: string
   /**
    * A unique identifier assigned to a specific audience in Segment.
    */
