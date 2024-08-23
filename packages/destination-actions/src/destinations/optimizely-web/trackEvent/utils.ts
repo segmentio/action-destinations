@@ -1,80 +1,73 @@
-import { StateContext, RequestClient } from '@segment/actions-core'
-import { OptimizelyPayload } from './types'
-export interface EventItem {
-    id: number
-    key: string
+import type { Payload } from './generated-types'
+import { StateContext, IntegrationError, PayloadValidationError, omit } from '@segment/actions-core'
+import { UnixTimestamp13 } from './types'
+import snakeCase from 'lodash/snakeCase'
+
+export function isUnixTimestamp13(value: number): value is UnixTimestamp13 {
+  return value.toString().length === 13
 }
 
-interface CreateEventBody {
-    key: string;
-    name: string;
-    category: string;
-    event_type: string;
+export function isPrimitive(
+  value: unknown,
+  typesToCheck: Array<'string' | 'boolean' | 'number'> = ['string', 'boolean', 'number']
+): boolean {
+  const type = typeof value
+  return typesToCheck.includes(type as 'string' | 'boolean' | 'number')
 }
-export class OptimizelyWebClient {
-    request: RequestClient
-    stateContext: StateContext
-    projectID: string
 
-    constructor(request: RequestClient, projectID: string, stateContext: StateContext) {
-        this.request = request,
-        this.stateContext = stateContext
-        this.projectID = projectID
-    }
+export function areAllPropertiesPrimitive(
+  obj: Record<string, unknown> | undefined,
+  typesToCheck: Array<'string' | 'boolean' | 'number'> = ['string', 'boolean', 'number']
+): boolean {
+  if (obj === undefined || Object.keys(obj).length === 0) {
+    return true
+  }
+  return Object.values(obj).every((value) => isPrimitive(value, typesToCheck))
+}
 
-    getEventFromCache(event_name: string): EventItem | undefined {
-        return this.getEventsFromCache().find((event: EventItem) => event.key === event_name)
-    }
+export function payloadItems(payload: Payload, stateContext?: StateContext) {
+  const {
+    eventType,
+    timestamp,
+    properties,
+    eventName,
+    tags: { value, revenue, quantity, currency, ...restTags } = {}
+  } = payload
 
-    getEventsFromCache(): EventItem[] {
-        return this.stateContext?.getRequestContext?.('events') as EventItem[] ?? []
-    }
+  if (!stateContext) {
+    throw new IntegrationError('stateContext is not available', 'MISSING_STATE_CONTEXT', 400)
+  }
 
-    async getEventFromOptimzely(event_name: string): Promise<EventItem | undefined> {
-        const response = await this.request<EventItem[]>(`https://logx.optimizely.com/v1/events?per_page=100&page=1&include_classic=false&project_id=${this.projectID}`, {
-            method: 'GET',
-            headers: {
-                'content-type': 'application/json',
-                'accept': 'application/json'
-            }
-        })
-        const events: EventItem[] | [] = await response.json()
-        return events.find((event: EventItem) => event.key === event_name)
-    }
+  if (!['track', 'page'].includes(eventType)) {
+    throw new PayloadValidationError('event must be track() or page()')
+  }
 
-    async createEvent(event_name: string, friendlyEventName: string, category: string): Promise<EventItem | undefined>{
-        const response = await this.request<EventItem>(`https://api.optimizely.com/v2/projects/${this.projectID}/custom_events`, {
-            method: 'POST',
-            json: {
-                key: event_name,
-                name: friendlyEventName,
-                category,
-                event_type: 'custom'
-            } as CreateEventBody,
-            headers: {
-                'content-type': 'application/json',
-                'accept': 'application/json'
-            }
-        })
+  const unixTimestamp13: UnixTimestamp13 = new Date(timestamp as string).getTime() as UnixTimestamp13
 
-        const event = await response.json()
-        return event ?? undefined 
-    }
+  if (!isUnixTimestamp13(unixTimestamp13)) {
+    throw new PayloadValidationError('Unable to convert timestamp into 13 digit Unix timestamp')
+  }
 
-    async updateCache(event: EventItem) {
-        const events = this.getEventsFromCache()
-        events.push(event)
-        this.stateContext?.setResponseContext?.(`events`, String(events), {})
-    }
+  const opt_event_properties = omit(properties, ['revenue', 'value', 'quantity', 'currency'])
 
-    async sendEvent(body: OptimizelyPayload){
-        return this.request('https://logx.optimizely.com/v1/events', {
-            method: 'POST',
-            json: body,
-            headers: {
-              'content-type': 'application/json',
-              'accept': 'application/json'
-            }
-        })
-    }
+  if (!areAllPropertiesPrimitive(opt_event_properties, ['string', 'number', 'boolean'])) {
+    throw new PayloadValidationError('Event properties must be of type string, number or boolean')
+  }
+
+  if (!areAllPropertiesPrimitive(restTags as Record<string, unknown>, ['string', 'number'])) {
+    throw new PayloadValidationError('Tags must be of type string or number')
+  }
+
+  const event_name = payload.createEventIfNotFound === 'CREATE_SNAKE_CASE' ? snakeCase(eventName) : eventName
+
+  return {
+    unixTimestamp13,
+    opt_event_properties,
+    event_name,
+    value,
+    revenue,
+    quantity,
+    currency,
+    restTags
+  }
 }

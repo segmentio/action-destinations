@@ -10,6 +10,10 @@ export interface Payload {
    */
   projectID: string
   /**
+   * Anonymize the IP address of the user.
+   */
+  anonymizeIP: boolean
+  /**
    * Segment will create a new Custom Event in Optimizely if the Custom Event doesn't already exist.
    */
   createEventIfNotFound: string
@@ -34,10 +38,6 @@ export interface Payload {
    */
   eventType: string
   /**
-   * The type of event. For example, to indicate a 'decision_point' type should be 'campaign_activated'
-   */
-  type: string
-  /**
    * Tags to send with the event
    */
   tags?: {
@@ -57,6 +57,7 @@ export interface Payload {
      * Currency code for revenue. Defaults to USD.
      */
     currency?: string
+    [k: string]: unknown
   }
   /**
    * Additional properties to send with the event.
