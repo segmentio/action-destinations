@@ -1052,8 +1052,8 @@ describe('destination kit', () => {
       jest.restoreAllMocks()
       jest.resetAllMocks()
     })
-    describe('On Delete', () => {
-      test('Refreshes the access-token in case of Unauthorized(401) and update it in Cache', async () => {
+    describe('onDelete', () => {
+      test('should refresh the access-token in case of Unauthorized(401) and update it in Cache', async () => {
         const destinationTest = new Destination(destinationOAuth3)
         const testEvent: SegmentEvent = {
           traits: { a: 'foo' },
@@ -1093,7 +1093,7 @@ describe('destination kit', () => {
         expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(1)
       })
 
-      test('Will not refresh access-token in case of any non 401 error', async () => {
+      test('should not refresh access-token in case of any non 401 error', async () => {
         const destinationTest = new Destination(destinationOAuth3)
         const testEvent: SegmentEvent = {
           properties: { a: 'foo', field_one: 'test input' },
@@ -1133,7 +1133,7 @@ describe('destination kit', () => {
         expect(UpdateTokenSpy).toHaveBeenCalledTimes(0)
         expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(0)
       })
-      test(' Will not refresh access-token if token is already valid', async () => {
+      test('should not refresh access-token if token is already valid', async () => {
         const destinationTest = new Destination(destinationOAuth3)
         const testEvent: SegmentEvent = {
           properties: { a: 'foo', field_one: 'test input' },
@@ -1164,8 +1164,8 @@ describe('destination kit', () => {
         expect(spy).toHaveBeenCalledTimes(0)
       })
     })
-    describe('On Event', () => {
-      test('Refreshes the access-token in case of Unauthorized(401) and update it in Cache', async () => {
+    describe('onEvent', () => {
+      test('should refresh the access-token in case of Unauthorized(401) and update it in Cache', async () => {
         const destinationTest = new Destination(destinationOAuth3)
         const testEvent: SegmentEvent = {
           traits: { a: 'foo' },
@@ -1211,7 +1211,7 @@ describe('destination kit', () => {
         expect(UpdateTokenSpy).toHaveBeenCalledTimes(1)
         expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(1)
       })
-      test('Will not refresh access-token in case of any non 401 error', async () => {
+      test('should not refresh access-token in case of any non 401 error', async () => {
         const destinationTest = new Destination(destinationOAuth3)
         const testEvent: SegmentEvent = {
           properties: { a: 'foo', field_one: 'test input' },
@@ -1254,7 +1254,7 @@ describe('destination kit', () => {
         expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(0)
       })
 
-      test(' Will not refresh access-token if token is already valid', async () => {
+      test('should not refresh access-token if token is already valid', async () => {
         const destinationTest = new Destination(destinationOAuth3)
         const testEvent: SegmentEvent = {
           properties: { a: 'foo', field_one: 'test input' },
@@ -1290,8 +1290,8 @@ describe('destination kit', () => {
       })
     })
 
-    describe('On Batch', () => {
-      test('Refreshes the access-token in case of Unauthorized(401)', async () => {
+    describe('onBatch', () => {
+      test('should refresh the access-token in case of Unauthorized(401)', async () => {
         const destinationTest = new Destination(destinationOAuth3)
         const testEvents: SegmentEvent[] = [
           {
@@ -1343,7 +1343,7 @@ describe('destination kit', () => {
         expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(1)
       })
 
-      test('Will not refresh access-token in case of any non 401 error', async () => {
+      test('should not refresh access-token in case of any non 401 error', async () => {
         const destinationTest = new Destination(destinationOAuth3)
         const testEvents: SegmentEvent[] = [
           {
@@ -1384,7 +1384,7 @@ describe('destination kit', () => {
         expect(UpdateTokenSpy).toHaveBeenCalledTimes(0)
         expect(synchronizeRefreshAccessTokenSpy).toHaveBeenCalledTimes(0)
       })
-      test('Will not refresh access-token if token is already valid', async () => {
+      test('should not refresh access-token if token is already valid', async () => {
         const destinationTest = new Destination(destinationOAuth3)
         const testEvents: SegmentEvent[] = [
           {
