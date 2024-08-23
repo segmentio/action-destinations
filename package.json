@@ -13,7 +13,6 @@
   },
   "scripts": {
     "alpha": "lerna version prerelease --allow-branch $(git branch --show-current) --preid $(git branch --show-current) --no-push --no-git-tag-version",
-    "bootstrap": "lerna bootstrap",
     "browser": "yarn workspace @segment/browser-destinations",
     "build": "nx run-many -t build && yarn build:browser-bundles",
     "build:browser-bundles": "nx build @segment/destinations-manifest && nx build-web @segment/browser-destinations",
