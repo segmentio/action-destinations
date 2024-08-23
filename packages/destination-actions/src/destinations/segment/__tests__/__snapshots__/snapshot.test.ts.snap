@@ -198,6 +198,13 @@ Object {
         "messageId": ")#1JCeQHYVLgzRan",
         "timestamp": ")#1JCeQHYVLgzRan",
         "traits": Object {
+          "address": Object {
+            "city": ")#1JCeQHYVLgzRan",
+            "country": ")#1JCeQHYVLgzRan",
+            "postalCode": ")#1JCeQHYVLgzRan",
+            "state": ")#1JCeQHYVLgzRan",
+            "street": ")#1JCeQHYVLgzRan",
+          },
           "testType": ")#1JCeQHYVLgzRan",
         },
         "type": "identify",

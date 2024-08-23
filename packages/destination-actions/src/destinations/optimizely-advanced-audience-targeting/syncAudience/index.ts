@@ -1,29 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getHost } from '../utils'
-
-interface Data {
-  payload: Payload & {
-    context?: {
-      [k: string]: unknown
-      personas?: {
-        computation_key?: string
-        computation_class?: string
-      }
-    }
-  }
-  rawData?: {
-    context?: {
-      personas?: {
-        computation_key?: string
-        computation_class?: string
-      }
-    }
-    properties?: Record<string, boolean>
-    traits?: Record<string, boolean>
-  }
-}
+import { OptimizelyClient, Data } from './optimizely-client'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -83,30 +61,30 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'Enable batching of event data to Optimizely.',
+      type: 'boolean',
+      default: true,
+      unsafe_hidden: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Number of events to batch before sending to Optimizely.',
+      type: 'integer',
+      default: 100,
+      unsafe_hidden: true
     }
   },
 
   perform: async (request, data) => {
-    const payload = data.payload
-    const settings = data.settings
-
-    const host = getHost(settings)
-
-    const d: Data = data
-    const audienceId = payload.segment_computation_id
-    const audienceName = payload.custom_audience_name
-    const audienceValue = d?.rawData?.properties?.[audienceName] ?? d?.rawData?.traits?.[audienceName]
-
-    return request(`${host}/sync_audience`, {
-      method: 'post',
-      json: {
-        audienceId: audienceId,
-        audienceName: audienceName,
-        timestamp: payload.timestamp,
-        subscription: audienceValue,
-        userId: payload.optimizelyUserId
-      }
-    })
+    const optimizelyClient = new OptimizelyClient(request, data as Data)
+    await optimizelyClient.send()
+  },
+  performBatch: async (request, data) => {
+    const optimizelyClient = new OptimizelyClient(request, data as Data)
+    await optimizelyClient.send()
   }
 }
 

@@ -22,23 +22,22 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       description: 'ID for the user',
       required: false
-    }, 
+    },
     createAttributes: {
       label: 'Create Attributes',
       type: 'boolean',
       description: 'Inidicates if Attributes should be created in Contentstack',
       required: false,
-      default: {'@path': '$.integrations.Contentstack.createAttributes'}
+      default: { '@path': '$.integrations.Contentstack.createAttributes' }
     }
   },
   perform: async (request, { payload, settings }) => {
-    
     const { createAttributes } = payload
-    if(createAttributes){
+    if (createAttributes) {
       const personalizeAttributesData = (await fetchAllAttributes(request, settings.personalizeApiBaseUrl)).map(
         (attribute: PersonalizeAttributes) => attribute?.key
       )
-      
+
       const attributesToCreate = Object.keys(payload.traits || {}).filter(
         (trait: string) => !personalizeAttributesData.includes(trait)
       )
@@ -50,14 +49,14 @@ const action: ActionDefinition<Settings, Payload> = {
           settings.personalizeApiBaseUrl
         )
         if (firstAttributeRes.status === 401) return firstAttributeRes
-  
+
         const otherAttributes = attributesToCreate.slice(1)
-  
+
         await Promise.allSettled(
           otherAttributes.map((trait: string) => createCustomAttrbute(request, trait, settings.personalizeApiBaseUrl))
         )
       }
-    }    
+    }
 
     return request(`${settings.personalizeEdgeApiBaseUrl}/user-attributes`, {
       method: 'patch',
@@ -66,7 +65,6 @@ const action: ActionDefinition<Settings, Payload> = {
         'x-cs-eclipse-user-uid': payload.userId ?? ''
       }
     })
-    
   }
 }
 

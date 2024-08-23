@@ -22,7 +22,7 @@ export interface Payload {
    */
   comment?: string
   /**
-   * A tag to apply to created Accounts.
+   * A tag to apply.
    */
   tag?: string
 }
