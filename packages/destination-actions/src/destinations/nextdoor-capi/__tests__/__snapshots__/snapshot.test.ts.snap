@@ -55,9 +55,11 @@ Object {
   "client_id": "@SQ$NFo^ou^GY",
   "custom": Object {},
   "customer": Object {},
+  "delivery_optimization": false,
   "event_id": "@SQ$NFo^ou^GY",
   "event_name": "custom_conversion_7",
   "event_time": "@SQ$NFo^ou^GY",
   "partner_id": "segment",
+  "test_event": false,
 }
 `;
