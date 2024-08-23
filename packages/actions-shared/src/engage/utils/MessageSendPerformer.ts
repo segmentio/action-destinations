@@ -154,7 +154,6 @@ export abstract class MessageSendPerformer<
       this.logInfo('cache_reading_error', { key })
       this.statsIncr('cache_reading_error')
     } else if (cacheRead.value) {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- good luck making typescript happy here :)
       const { value: parsedCache, error: parsingError } = getOrCatch(() => serializer.parse(cacheRead.value!))
 
       if (parsingError) {
