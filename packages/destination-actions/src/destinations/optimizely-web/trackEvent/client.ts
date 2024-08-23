@@ -13,11 +13,12 @@ interface CreateEventBody {
 }
 export class OptimizelyWebClient {
   request: RequestClient
-  stateContext: StateContext
+  stateContext?: StateContext | undefined
   projectID: string
 
-  constructor(request: RequestClient, projectID: string, stateContext: StateContext) {
-    ;(this.request = request), (this.stateContext = stateContext)
+  constructor(request: RequestClient, projectID: string, stateContext: StateContext | undefined) {
+    this.request = request, 
+    this.stateContext = stateContext
     this.projectID = projectID
   }
 
@@ -26,7 +27,7 @@ export class OptimizelyWebClient {
   }
 
   getEventsFromCache(): EventItem[] {
-    return (this.stateContext?.getRequestContext?.('events') as EventItem[]) ?? []
+    return this.stateContext?.getRequestContext?.('events') as EventItem[] ?? []
   }
 
   async getEventFromOptimzely(event_name: string): Promise<EventItem | undefined> {

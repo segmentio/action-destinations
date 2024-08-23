@@ -2,6 +2,7 @@ import type { Payload } from './generated-types'
 import { StateContext, IntegrationError, PayloadValidationError, omit } from '@segment/actions-core'
 import { UnixTimestamp13 } from './types'
 import snakeCase from 'lodash/snakeCase'
+import { LOCAL_TESTING } from './constants'
 
 export function isUnixTimestamp13(value: number): value is UnixTimestamp13 {
   return value.toString().length === 13
@@ -34,7 +35,7 @@ export function payloadItems(payload: Payload, stateContext?: StateContext) {
     tags: { value, revenue, quantity, currency, ...restTags } = {}
   } = payload
 
-  if (!stateContext) {
+  if (!stateContext && !LOCAL_TESTING) {
     throw new IntegrationError('stateContext is not available', 'MISSING_STATE_CONTEXT', 400)
   }
 

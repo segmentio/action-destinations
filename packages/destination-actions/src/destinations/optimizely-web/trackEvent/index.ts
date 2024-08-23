@@ -1,4 +1,4 @@
-import type { ActionDefinition, StateContext } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { OptimizelyWebClient } from './client'
@@ -11,13 +11,13 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send an analytics event to Optimizely',
   defaultSubscription: 'type = "track" or type = "page"',
   fields,
-  perform: async (request, { payload, settings, stateContext }) => {
+  perform: async (request, { payload, settings, stateContext }) => {    
     const { endUserId, category, projectID, uuid, createEventIfNotFound, eventName: friendlyEventName } = payload
 
     const { unixTimestamp13, opt_event_properties, event_name, value, revenue, quantity, currency, restTags } =
       payloadItems(payload, stateContext)
 
-    const client = new OptimizelyWebClient(request, projectID, stateContext as StateContext)
+    const client = new OptimizelyWebClient(request, projectID, stateContext ?? undefined)
 
     const eventId = await client.getEventid(event_name, category, friendlyEventName, createEventIfNotFound)
 

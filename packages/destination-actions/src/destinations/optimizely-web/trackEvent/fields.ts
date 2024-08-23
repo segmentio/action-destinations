@@ -40,9 +40,9 @@ export const fields: Record<string, InputField> = {
     description: "Segment will create a new Custom Event in Optimizely if the Custom Event doesn't already exist.",
     type: 'string',
     choices: [
-      { label: 'DO_NOT_CREATE', value: 'Do not create' },
-      { label: 'CREATE', value: 'Create Custom Event' },
-      { label: 'CREATE_SNAKE_CASE', value: 'Create Custom Event - snake_case' }
+      { label: 'Do not create', value: 'DO_NOT_CREATE' },
+      { label: 'Create Custom Event', value: 'CREATE' },
+      { label: 'Create Custom Event - snake_case', value: 'CREATE_SNAKE_CASE' }
     ],
     required: true,
     default: 'CREATE'
