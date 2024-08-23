@@ -18,7 +18,12 @@ async function emit(eventType: string, allocation: Allocation) {
   if (window.analytics) {
     // console.info('sending track for analytics', data)
     window.analytics
-      .track('Experiment Viewed', data)
+      .track('Experiment Viewed', data, {
+       integrations: {
+          'All': true,
+          'Evolv AI Web Mode (Actions)': false
+       }
+  })
       .then(() => true)
       .catch(() => true)
   } else {
