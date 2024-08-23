@@ -2,11 +2,7 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { UniversalStorage } from '@segment/analytics-next'
-import {
-  storageFallback,
-  clickIdCookieName,
-  clickIdIntegrationFieldName
-} from '../utils'
+import { storageFallback, clickIdCookieName, clickIdIntegrationFieldName, CLOUD_INTEGRATION_NAME } from '../utils'
 
 const action: BrowserActionDefinition<Settings, unknown, Payload> = {
   title: 'Nextdoor Browser Plugin',
@@ -21,10 +17,10 @@ const action: BrowserActionDefinition<Settings, unknown, Payload> = {
     const clickId: string | null = storage.get(clickIdCookieName)
     if (clickId) {
       const integrationsData: Record<string, string> = {}
-      integrationsData[clickIdIntegrationFieldName] = clickId    
+      integrationsData[clickIdIntegrationFieldName] = clickId
 
-      if (context.event.integrations?.All !== false || context.event.integrations['Nextdoor Conversions API']) {
-        context.updateEvent(`integrations.Nextdoor Conversions API`, integrationsData)
+      if (context.event.integrations?.All !== false || context.event.integrations[CLOUD_INTEGRATION_NAME]) {
+        context.updateEvent(`integrations.${CLOUD_INTEGRATION_NAME}`, integrationsData)
       }
     }
     return

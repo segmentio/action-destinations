@@ -7,6 +7,8 @@ export const clickIdQuerystringName = 'ndclid'
 // The name of the key Segment will use when storing the ndclid locally in the browser
 export const clickIdCookieName = 'ndclid'
 
+export const CLOUD_INTEGRATION_NAME = 'Nextdoor Conversions API'
+
 export const storageFallback = {
   get: (key: string) => {
     const data = window.localStorage.getItem(key)

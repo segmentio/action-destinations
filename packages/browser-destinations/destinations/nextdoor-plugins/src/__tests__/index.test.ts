@@ -1,7 +1,7 @@
 import { Analytics, Context, JSONValue, Plugin } from '@segment/analytics-next'
 import { Subscription } from '@segment/browser-destination-runtime/types'
 import browserPluginsDestination from '../'
-import { clickIdIntegrationFieldName, clickIdQuerystringName } from '../utils'
+import { clickIdIntegrationFieldName, clickIdQuerystringName, CLOUD_INTEGRATION_NAME } from '../utils'
 
 const example: Subscription[] = [
   {
@@ -54,9 +54,8 @@ describe('ajs-integration', () => {
 
     const updatedCtx = (await nextdoorPlugin.track?.(ctx)) as Context
 
-    console.log('updatedCtx', updatedCtx)
+    const nextdoorIntegrationsObj = updatedCtx?.event?.integrations[CLOUD_INTEGRATION_NAME] as Record<string, any>
 
-    const nextdoorIntegrationsObj = updatedCtx?.event?.integrations['Nextdoor Conversions Api'] as Record<string, any>
     expect(nextdoorIntegrationsObj[clickIdIntegrationFieldName]).toEqual('dummyQuerystringValue')
   })
 })
