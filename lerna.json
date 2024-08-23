@@ -2,7 +2,6 @@
   "packages": ["packages/*", "packages/browser-destinations/destinations/*"],
   "npmClient": "yarn",
   "version": "independent",
-  "useWorkspaces": true,
   "command": {
     "bootstrap": {
       "npmClientArgs": ["--ignore-engines", "--ignore-optional"]
@@ -10,5 +9,6 @@
     "version": {
       "allowBranch": ["main", "release"]
     }
-  }
+  },
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json"
 }
