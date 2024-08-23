@@ -36,8 +36,6 @@ describe('Nextdoor Conversions Api', () => {
           pixel_id: 'pixel_id_1',
           click_id: 'click_id_1',
           total: 100,
-          currency: 'USD',
-          order_id: 'order_id_1',
           products: [
             { product_id: 'product_id_1', quantity: 1, price: 40 },
             { product_id: 'product_id_2', quantity: 2, price: 30 }
@@ -66,7 +64,13 @@ describe('Nextdoor Conversions Api', () => {
           action_source: 'website',
           client_id: 'client_id_1',
           event_id: 'test_event_id',
-          event_timezone: 'America/Los_Angeles'
+          event_timezone: 'America/Los_Angeles',
+          custom: {
+            delivery_category: 'in_store',
+            order_id: 'order_id_1',
+            order_value: 100,
+            currency: 'USD'
+          }
         }
       })
 
@@ -94,6 +98,7 @@ describe('Nextdoor Conversions Api', () => {
               quantity: 2
             }
           ],
+          delivery_category: 'in_store',
           order_id: 'order_id_1',
           order_value: 'USD100'
         },
