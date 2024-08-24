@@ -2,6 +2,8 @@ import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { IntegrationError } from '@segment/actions-core'
 
+import addToAudience from './addToAudience'
+
 // For an example audience destination, refer to webhook-audiences. The Readme section is under 'Audience Support'
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Reddit Audiences',
@@ -145,7 +147,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   //   // implement this function and should remove it completely.
   // },
 
-  actions: {}
+  actions: {
+    addToAudience
+  }
 }
 
 export default destination
