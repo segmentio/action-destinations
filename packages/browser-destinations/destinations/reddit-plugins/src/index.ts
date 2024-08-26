@@ -12,7 +12,6 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   settings: {},
   actions: { redditPlugin },
   initialize: async ({ analytics }) => {
-
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
     const urlParams = new URLSearchParams(window.location.search)
     const clickId: string | null = urlParams.get(clickIdQuerystringName) || null

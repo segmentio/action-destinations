@@ -52,8 +52,7 @@ export const click_id: InputField = {
 
 export const conversion_id: InputField = {
   label: 'Conversion ID',
-  description:
-    'The unique conversion ID that corresponds to a distinct conversion event.',
+  description: 'The unique conversion ID that corresponds to a distinct conversion event.',
   type: 'string',
   required: false,
   default: { '@path': '$.properties.conversion_id' }
