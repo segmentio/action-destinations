@@ -4,34 +4,39 @@ import type { Payload } from './generated-types'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, {}, Payload> = {
-  title: 'Custom Attributes Sync',
-  description: 'Sync Custom Attributes to your Contentstack Experience.',
-  defaultSubscription: 'type = "track" or type = "identify"',
+  title: 'Events Sync',
+  description: 'Sync Events to your Contentstack Experience.',
+  defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
-    traits: {
-      type: 'object',
-      default: { '@path': '$.traits' },
-      label: 'User traits',
-      description: 'User Profile traits to send to Contentstack',
-      required: true
-    },
     userId: {
       type: 'string',
       default: { '@path': '$.userId' },
       label: 'User ID',
       description: 'ID for the user',
       required: true
+    },
+    event: {
+      type: 'string',
+      default: { '@path': '$.event' },
+      label: 'User Event',
+      description: 'User Event',
+      required: true
     }
   },
   perform: (_sdk, { payload, settings }) => {
-    const { traits, userId } = payload
+    const { event, userId } = payload
 
-    return fetch(`${settings.personalizeEdgeApiBaseUrl}/user-attributes`, {
-      method: 'PATCH',
-      body: JSON.stringify(traits),
+    return fetch(`${settings.personalizeEdgeApiBaseUrl}/events`, {
+      method: 'POST',
+      body: JSON.stringify([
+        {
+          eventKey: event,
+          type: 'EVENT'
+        }
+      ]),
       headers: {
-        'x-cs-eclipse-user-uid': userId ?? '',
+        'x-cs-eclipse-user-uid': userId,
         'x-project-uid': settings?.personalizeProjectId ?? ''
       }
     })

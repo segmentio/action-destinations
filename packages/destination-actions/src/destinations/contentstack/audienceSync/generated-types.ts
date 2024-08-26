@@ -20,5 +20,5 @@ export interface Payload {
   /**
    * ID for the user
    */
-  userId?: string
+  userId: string
 }

@@ -6,10 +6,10 @@ import eventsSync from './eventsSync'
 
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, {}> = {
-  name: 'Contentstack Browser Plugins',
-  slug: 'contentstack-browser-plugins',
+  name: 'Contentstack Web',
+  slug: 'contentstack-web',
   mode: 'device',
-  description: 'Sync data from Segment to Contentstack',
+  description: 'Sync web event and user profile data from Segment to Contentstack',
   settings: {
     personalizeProjectId: {
       label: 'Personalize project ID',

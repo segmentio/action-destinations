@@ -1,5 +1,5 @@
 {
-  "name": "@segment/analytics-browser-actions-contentstack-browser-plugins",
+  "name": "@segment/analytics-browser-actions-contentstack-web",
   "version": "1.5.0",
   "license": "MIT",
   "publishConfig": {

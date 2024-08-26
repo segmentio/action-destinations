@@ -31,7 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.userId' },
       label: 'User ID',
       description: 'ID for the user',
-      required: false
+      required: true
     }
   },
   perform: (request, { payload, settings }) => {
@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'patch',
       json: traits,
       headers: {
-        'x-cs-eclipse-user-uid': payload?.userId ?? '',
+        'x-cs-eclipse-user-uid': payload?.userId,
         'x-project-uid': settings?.personalizeProjectId ?? ''
       }
     })

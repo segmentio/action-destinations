@@ -1,6 +1,6 @@
-# @segment/analytics-browser-actions-contentstack-browser-plugins
+# @segment/analytics-browser-actions-contentstack-web
 
-The Contentstack Browser Plugins browser action destination for use with @segment/analytics-next.
+The Contentstack Web browser action destination for use with @segment/analytics-next.
 
 ## License
 
