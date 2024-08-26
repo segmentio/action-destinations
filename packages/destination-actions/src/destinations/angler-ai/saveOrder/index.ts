@@ -550,6 +550,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const lineItemsPayload = {
         src: 'SEGMENT',
         data: lineItems.map((lineItem) => ({
+          id: `${order.id}-${lineItem.variantId}`,
           product_id: lineItem.id,
           variant_id: lineItem.variantId,
           price: lineItem.priceAmount,
