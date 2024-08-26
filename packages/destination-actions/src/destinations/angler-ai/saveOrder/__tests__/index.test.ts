@@ -7,7 +7,7 @@ const testDestination = createTestIntegration(Destination)
 
 describe('AnglerAi.saveOrder', () => {
   const event = createTestEvent({
-    properties: { id: 'test_event_id' }
+    properties: { order_id: 'test_order_id' }
   })
 
   const workspaceId = 'test_workspace'
