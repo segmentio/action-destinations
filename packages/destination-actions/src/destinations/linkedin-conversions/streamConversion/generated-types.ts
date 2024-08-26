@@ -48,6 +48,14 @@ export interface Payload {
     title?: string
     countryCode?: string
   }
+  /**
+   * Enable batching of requests.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
 // Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
 

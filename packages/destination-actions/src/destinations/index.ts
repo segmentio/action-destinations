@@ -172,6 +172,12 @@ register('668d1cb2a1dcc5ad33228d92', './angler-ai')
 register('6698df634212816c561d3e6a', './aws-s3')
 register('669f91bb3f2189462dddb691', './adjust')
 register('66a7c28810bbaf446695d27d', './iterable-lists')
+register('66b1f528d26440823fb27af9', './webhook-extensible')
+register('66ba235ecfcfee29bab517ce', './dawn')
+register('66ba237845b93b71bca2713e', './topsort')
+register('66c492a35a05977266a4a5c4', './delivrai-activate')
+register('66cc766ef4b1c152177239a0', './reddit-conversions-api')
+register('66cc76e29693c9e5591bf029', './nextdoor-capi')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

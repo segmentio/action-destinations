@@ -43,7 +43,14 @@ jobs:
         run: NODE_ENV=production yarn nx affected -t build --parallel=3 # nx recipe
 
       - name: Test (Affected)
-        run: yarn nx affected -t test --parallel=3 # nx recipe
+        run: yarn nx affected -t test --parallel=3 --coverage # nx recipe
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: segmentio/action-destinations
+          handle_no_reports_found: true # don't fail if no reports are found
 
   lint:
     name: Lint
