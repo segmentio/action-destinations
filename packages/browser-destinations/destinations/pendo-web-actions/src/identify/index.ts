@@ -52,7 +52,7 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       }
     }
 
-    const analyticsGroupId = event.analytics.group().id()
+    const analyticsGroupId = typeof event.analytics?.group === 'function' ? event.analytics.group()?.id() : undefined
     if (event.payload.accountId) {
       payload['account'] = { id: event.payload.accountId }
     } else if (analyticsGroupId && !event.settings.disableGroupIdAndTraitsOnLoad) {

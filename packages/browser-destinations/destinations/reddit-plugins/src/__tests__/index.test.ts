@@ -1,4 +1,5 @@
 import { Analytics, Context, Plugin } from '@segment/analytics-next'
+import { Subscription } from '@segment/browser-destination-runtime/types'
 import redditPluginsDestination from '../'
 import {
   clickIdIntegrationFieldName,
@@ -7,7 +8,7 @@ import {
   rdtCookieName
 } from '../utils'
 
-const example: Array<Record<string, any>> = [
+const example: Subscription[] = [
   {
     partnerAction: 'redditPlugin',
     name: 'Reddit Browser Plugin',
