@@ -63,13 +63,26 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: true
         },
-        value: {
-          label: 'value',
+        subscribed: {
+          label: 'subscribed',
           description:
             'true indicates that the user is to be added to the list, false will remove the user from the list.',
           type: 'boolean',
           required: true
         }
+      },
+      default: {
+        '@arrayPath': [
+          '$.properties.mailing_lists',
+          {
+            list_id: {
+              '@path': '$.list_id'
+            },
+            subscribed: {
+              '@path': '$.subscribed'
+            }
+          }
+        ]
       }
     },
     source: {
@@ -114,12 +127,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
     /* Re-shape mailing list data from a list of objects to a single object for the API */
     const formattedMailingLists: Record<string, boolean> = {}
+    type listObj = { list_id: string; subscribed: boolean }
     if (payload.mailingLists) {
-      for (const value of Object.values(payload.mailingLists)) {
-        if (typeof value === 'object' && 'list_id' in value && 'value' in value) {
-          formattedMailingLists[(value as { list_id: string; value: boolean }).list_id] = (
-            value as { list_id: string; value: boolean }
-          ).value
+      for (const list of Object.values(payload.mailingLists)) {
+        if (typeof list === 'object' && 'list_id' in list && 'subscribed' in list) {
+          formattedMailingLists[(list as listObj).list_id] = (list as listObj).subscribed
         }
       }
     }
