@@ -2,6 +2,55 @@
 
 export interface Payload {
   /**
+   * list of line items associated with the order.
+   */
+  line_items?: {
+    /**
+     * A globally unique identifier for the item.
+     */
+    id?: string
+    /**
+     * Identifier for the variant of the product
+     */
+    variantId?: string
+    /**
+     * The location of the image as a URL.
+     */
+    imageSrc?: string
+    /**
+     * The price of the product variant.
+     */
+    priceAmount?: number
+    /**
+     * The SKU (stock keeping unit) associated with the variant.
+     */
+    sku?: string
+    /**
+     * The product variant's title.
+     */
+    title?: string
+    /**
+     * The product variant's untranslated title.
+     */
+    untranslatedTitle?: string
+    /**
+     * The product's vendor name.
+     */
+    vendor?: string
+    /**
+     * The product type specified by the merchant.
+     */
+    type?: string
+    /**
+     * The relative URL of the product.
+     */
+    url?: string
+    /**
+     * Quantity of the item
+     */
+    quantity?: number
+  }[]
+  /**
    * The mailing address associated with the payment method.
    */
   billing_address?: {

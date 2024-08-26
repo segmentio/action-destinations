@@ -1,7 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import { addressDefaultFields, addressProperties } from '../fields/addressFields'
+import { productsFields } from '../fields/productsFields'
 import type { Settings } from '../generated-types'
-import { baseURL, ordersEndpoint } from '../routes'
+import { baseURL, lineItemsEndpoint, ordersEndpoint } from '../routes'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -9,6 +10,19 @@ const action: ActionDefinition<Settings, Payload> = {
   description:
     'Send an order to Angler. Use this Mapping for transactions which may not originate from the browser. E.g. recurring subscriptions.',
   fields: {
+    line_items: {
+      ...productsFields,
+      label: 'Line items',
+      description: 'list of line items associated with the order.',
+      properties: {
+        ...productsFields.properties,
+        quantity: {
+          label: 'Quantity',
+          type: 'number',
+          description: 'Quantity of the item'
+        }
+      }
+    },
     billing_address: {
       type: 'object',
       label: 'Billing Address',
@@ -528,14 +542,38 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, data) => {
-    const payload = {
+  perform: async (request, data) => {
+    const { line_items: lineItems, ...order } = data.payload
+
+    // send line items
+    if (lineItems !== undefined) {
+      const lineItemsPayload = {
+        src: 'SEGMENT',
+        data: lineItems.map((lineItem) => ({
+          id: lineItem.id,
+          variant_id: lineItem.variantId,
+          price: lineItem.priceAmount,
+          sku: lineItem.sku,
+          title: lineItem.title,
+          vendor: lineItem.vendor,
+          quantity: lineItem.quantity,
+          order_id: order.id
+        }))
+      }
+      await request(baseURL + lineItemsEndpoint(data.settings.workspaceId), {
+        method: 'post',
+        json: lineItemsPayload
+      })
+    }
+
+    // send order
+    const orderPayload = {
       src: 'SEGMENT',
-      data: [data.payload]
+      data: [order]
     }
     return request(baseURL + ordersEndpoint(data.settings.workspaceId), {
       method: 'post',
-      json: payload
+      json: orderPayload
     })
   }
 }
