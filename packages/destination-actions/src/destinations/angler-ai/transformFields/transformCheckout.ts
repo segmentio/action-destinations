@@ -4,6 +4,7 @@ export function transformCheckout(payload: Payload) {
   return {
     checkout: {
       currencyCode: payload.checkout?.currencyCode,
+      email: payload.customer?.email,
       lineItems: payload.checkoutLineItems?.map((lineItem) => ({
         discountAllocations: [
           {
@@ -45,6 +46,7 @@ export function transformCheckout(payload: Payload) {
       order: {
         id: payload.checkout?.orderId
       },
+      phone: payload.customer?.phone,
       shippingLine: {
         price: {
           amount: payload.checkout?.shippingLinePriceAmount
