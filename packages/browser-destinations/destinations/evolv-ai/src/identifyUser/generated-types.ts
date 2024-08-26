@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * JSON object containing additional attributes associated with the user.
+   * Object containing additional attributes associated with the user.
    */
   attributes: {
     [k: string]: unknown
