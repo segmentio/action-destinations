@@ -9,7 +9,7 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
 
   authentication: {
-    scheme: 'oauth-managed',
+    scheme: 'custom',
     fields: {
       personalizeProjectId: {
         label: 'Personalize project ID',
