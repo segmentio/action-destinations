@@ -50,6 +50,29 @@ describe('Upsert Profile', () => {
     )
   })
 
+  it('should throw an error for invalid phone number format in perform', async () => {
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        phone: 'invalid-phone-number',
+        email: 'test@example.com'
+      }
+    })
+
+    const mapping = {
+      phone_number: {
+        '@path': '$.traits.phone'
+      },
+      email: {
+        '@path': '$.traits.email'
+      }
+    }
+
+    await expect(testDestination.testAction('upsertProfile', { event, mapping, settings })).rejects.toThrowError(
+      'invalid-phone-number is not a valid E.164 phone number.'
+    )
+  })
+
   it('should create a new profile if successful', async () => {
     const requestBody = {
       data: {
@@ -344,6 +367,61 @@ describe('Upsert Profile Batch', () => {
     })
 
     expect(response).toEqual([])
+  })
+
+  it('should filter out profiles with invalid phone numbers in performBatch', async () => {
+    const events = [
+      createTestEvent({
+        traits: { email: 'user1@example.com' }
+      }),
+      createTestEvent({
+        traits: { phone: 'invalid-phone-number' }
+      })
+    ]
+
+    const mapping = {
+      email: {
+        '@path': '$.traits.email'
+      },
+      phone_number: {
+        '@path': '$.traits.phone'
+      }
+    }
+
+    const validRequestBody = {
+      data: {
+        type: 'profile-bulk-import-job',
+        attributes: {
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  email: 'user1@example.com'
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+
+    nock(API_URL)
+      .post('/profile-bulk-import-jobs/', (body) => {
+        return JSON.stringify(body) === JSON.stringify(validRequestBody)
+      })
+      .reply(200, { success: true })
+
+    await expect(
+      testDestination.testBatchAction('upsertProfile', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
+
+    // Ensure the valid request was made and the invalid profile was filtered out
+    expect(nock.isDone()).toBe(true)
   })
 
   it('should process profiles with and without list_ids separately', async () => {

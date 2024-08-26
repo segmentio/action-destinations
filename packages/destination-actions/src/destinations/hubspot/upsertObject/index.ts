@@ -139,7 +139,7 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
     propertyGroup
   )
 
-  const cleanedPayloads = client.cleanProps(payloads)
+  const cleanedPayloads = client.validate(payloads)
   const schema = client.schema(cleanedPayloads)
   const schemaDiffCache = await client.schemaDiffCache(schema)
 

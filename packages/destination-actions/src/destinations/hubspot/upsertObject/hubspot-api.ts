@@ -226,6 +226,16 @@ export class HubspotClient {
 
   // #region Schema functions
 
+  /**
+   * Cleans and validates a property name. The function:
+   * - Converts the name to lowercase.
+   * - Replaces non-alphanumeric characters (except underscores) with underscores.
+   * - Throws an error if the name does not start with a letter.
+   *
+   * @param {string} str - The property name to clean and validate.
+   * @returns {string} - The cleaned property name.
+   * @throws {PayloadValidationError} - If the cleaned name does not start with a letter.
+   */
   cleanProp(str: string): string {
     str = str.toLowerCase().replace(/[^a-z0-9_]/g, '_')
 
@@ -238,7 +248,21 @@ export class HubspotClient {
     return str
   }
 
-  cleanObj(obj: { [k: string]: unknown } | undefined): { [k: string]: string | number | boolean } | undefined {
+  /**
+   * Cleans an object by transforming its property keys and converting its values to a more
+   * standardized format. Specifically, it ensures that:
+   * - The keys are cleaned using the `cleanProp` method.
+   * - The values are converted to a string, number, or boolean, or if they are objects, to their
+   *   JSON string representation.
+   *
+   * If the input object is `undefined`, the function will return `undefined`.
+   *
+   * @param {Object.<string, unknown> | undefined} obj - The object whose properties and values
+   *   need to be cleaned. It can be `undefined` which will result in an `undefined` return value.
+   * @returns {Object.<string, string | number | boolean> | undefined} - A new object with cleaned
+   *   property keys and values. If the input was `undefined`, `undefined` is returned.
+   */
+  cleanPropObj(obj: { [k: string]: unknown } | undefined): { [k: string]: string | number | boolean } | undefined {
     const cleanObj: { [k: string]: string | number | boolean } = {}
 
     if (obj === undefined) {
@@ -255,13 +279,48 @@ export class HubspotClient {
     return cleanObj
   }
 
-  cleanProps(payloads: Payload[]): Payload[] {
-    const copy = JSON.parse(JSON.stringify(payloads)) as Payload[]
-    copy.forEach((payload) => {
-      payload.properties = this.cleanObj(payload.properties)
-      payload.sensitive_properties = this.cleanObj(payload.sensitive_properties)
+  /**
+   * Validates and cleans an array of payloads by removing any payloads that have missing or empty critical fields.
+   * Additionally, it cleans up the `properties`, `sensitive_properties`, and `associations` fields
+   * of each payload.
+   *
+   * @param {Payload[]} payloads - The array of payloads to be validated.
+   * @returns {Payload[]} - A new array of validated payloads.
+   */
+  validate(payloads: Payload[]): Payload[] {
+    const length = payloads.length
+
+    const cleaned: Payload[] = payloads.filter((payload) => {
+      const fieldsToCheck = [
+        payload.object_details.id_field_name,
+        payload.object_details.id_field_value,
+        payload.object_details.object_type
+      ]
+      return fieldsToCheck.every((field) => field !== null && field !== '')
     })
-    return copy
+
+    if (length === 1 && cleaned.length === 0) {
+      throw new PayloadValidationError(
+        'Payload is missing required fields. Null or empty values are not allowed for "Object Type", "ID Field Name" or "ID Field Value".'
+      )
+    }
+
+    cleaned.forEach((payload) => {
+      payload.properties = this.cleanPropObj(payload.properties)
+      payload.sensitive_properties = this.cleanPropObj(payload.sensitive_properties)
+
+      payload.associations = payload.associations?.filter((association) => {
+        const fieldsToCheck = [
+          association.id_field_name,
+          association.object_type,
+          association.id_field_value,
+          association.association_label
+        ]
+        return fieldsToCheck.every((field) => field !== null && field !== '')
+      })
+    })
+
+    return cleaned
   }
 
   format(value: unknown): { type: HSPropType; fieldType: HSPropFieldType } {
@@ -322,6 +381,14 @@ export class HubspotClient {
     throw new IntegrationError('Property type not supported', 'HUBSPOT_PROPERTY_TYPE_NOT_SUPPORTED', 400)
   }
 
+  /**
+   * Generates a schema from an array of payloads. It extracts and formats properties and
+   * sensitive properties into a standardized schema structure.
+   *
+   * @param {Payload[]} payloads - An array of payloads to generate the schema from.
+   * @returns {Schema} - The generated schema including object details, properties, and
+   *   sensitive properties.
+   */
   schema(payloads: Payload[]): Schema {
     const extractProperties = (propertyType: 'properties' | 'sensitive_properties'): Prop[] => {
       return Object.values(
@@ -356,6 +423,14 @@ export class HubspotClient {
     }
   }
 
+  /**
+   * A placeholder asynchronous function intended for future caching implementation.
+   * Currently, it processes the given schema and returns a default `SchemaDiff` object.
+   *
+   * @param {Schema} schema - The schema to compare against the cache.
+   * @returns {Promise<SchemaDiff>} - A promise that resolves to a default `SchemaDiff` object
+   *   indicating no match and empty lists for missing properties.
+   */
   async schemaDiffCache(schema: Schema): Promise<SchemaDiff> {
     // no op function until caching implemented
     let data = JSON.stringify(`${schema}`)
@@ -375,6 +450,13 @@ export class HubspotClient {
     return Promise.resolve(schemaDiff)
   }
 
+  /**
+   * A placeholder asynchronous function for saving a schema to cache.
+   * Currently, it processes the given schema but does not perform any caching operations.
+   *
+   * @param {Schema} schema - The schema to be saved to the cache.
+   * @returns {Promise<void>} - A promise that resolves when the function completes.
+   */
   async saveSchemaToCache(schema: Schema) {
     // no op function until caching implemented
     let data = JSON.stringify(`${schema}`)
@@ -433,6 +515,16 @@ export class HubspotClient {
     }
   }
 
+  /**
+   * Compares the provided schema against properties from HubSpot to identify differences.
+   * This function fetches properties and sensitive properties from HubSpot, compares them with
+   * the schema, and returns a `SchemaDiff` object indicating any discrepancies.
+   *
+   * @param {Schema} schema - The schema to compare against HubSpot properties.
+   * @returns {Promise<SchemaDiff>} - A promise that resolves to a `SchemaDiff` object with
+   *   the comparison results, including missing properties and the match status.
+   * @throws {IntegrationError} - Throws an error if the data cannot be fetched from HubSpot.
+   */
   async schemaDiffHubspot(schema: Schema): Promise<SchemaDiff> {
     const requests = []
     const hasProps = schema.properties.length
@@ -506,7 +598,7 @@ export class HubspotClient {
       )
     }
 
-    if (schemaDiff.missingProperties.length === 0 || schemaDiff.missingSensitiveProperties.length === 0) {
+    if (schemaDiff.missingProperties.length === 0 && schemaDiff.missingSensitiveProperties.length === 0) {
       return
     }
 

@@ -42,9 +42,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, syncMode }) => {
-    
     if (!payload.record_details.object_id && !payload.record_details.email && !payload.record_details.utk) {
       throw new PayloadValidationError('At least one of object_id, email or utk is required')
+    }
+
+    if (payload.record_details.object_id && typeof payload.record_details.object_id !== 'number') {
+      throw new PayloadValidationError('Object ID must be numeric')
     }
 
     if (payload.record_details.email && payload.record_details.object_type !== 'contact') {
@@ -56,7 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const hubspotClient = new HubspotClient(request, syncMode as SyncMode)
-    await hubspotClient.send(payload)
+    return await hubspotClient.send(payload)
   }
 }
 

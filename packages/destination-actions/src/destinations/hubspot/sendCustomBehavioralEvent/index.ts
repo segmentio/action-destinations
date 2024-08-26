@@ -83,11 +83,15 @@ const action: ActionDefinition<Settings, Payload> = {
           choices
         }
       } catch (err) {
+        const code: string = (err as HubSpotError)?.response?.status
+          ? String((err as HubSpotError).response.status)
+          : '500'
+
         return {
           choices: [],
           error: {
             message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
-            code: (err as HubSpotError)?.response?.status + '' ?? '500'
+            code: code
           }
         }
       }

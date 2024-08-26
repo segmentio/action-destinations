@@ -5,6 +5,7 @@ import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { EventData } from '../types'
 import { v4 as uuidv4 } from '@lukeed/uuid'
+import { validatePhoneNumber } from '../functions'
 
 const createEventData = (payload: Payload) => ({
   data: {
@@ -18,7 +19,7 @@ const createEventData = (payload: Payload) => ({
         data: {
           type: 'metric',
           attributes: {
-            name: payload.event_name
+            name: 'Order Completed'
           }
         }
       },
@@ -49,7 +50,7 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
             data: {
               type: 'metric',
               attributes: {
-                name: payload.event_name
+                name: 'Ordered Product'
               }
             }
           },
@@ -161,8 +162,8 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
     }
 
-    if (!payload.event_name) {
-      payload.event_name = 'Order Completed'
+    if (phone_number && !validatePhoneNumber(phone_number)) {
+      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
     }
 
     const eventData = createEventData(payload)
