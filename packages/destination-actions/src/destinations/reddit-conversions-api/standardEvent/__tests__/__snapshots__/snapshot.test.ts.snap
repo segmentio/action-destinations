@@ -67,6 +67,7 @@ Object {
       },
     ],
     "partner": "SEGMENT",
+    "test_mode": false,
   },
 }
 `;
