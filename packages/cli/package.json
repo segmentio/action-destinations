@@ -70,7 +70,7 @@
     "jscodeshift": "^0.14.0",
     "jscodeshift-add-imports": "^1.0.10",
     "jsdom": "^18.0.0",
-    "json-diff": "^0.5.4",
+    "json-diff": "^0.10.0",
     "json-schema-to-typescript": "^10.1.5",
     "lodash": "^4.17.20",
     "mustache": "^4.2.0",
