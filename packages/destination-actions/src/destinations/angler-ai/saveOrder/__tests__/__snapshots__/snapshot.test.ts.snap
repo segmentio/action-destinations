@@ -4,9 +4,9 @@ exports[`Testing snapshot for AnglerAi's saveOrder destination action: all field
 Object {
   "data": Array [
     Object {
-      "id": "UIbymzz8amIPzalS",
       "order_id": "UIbymzz8amIPzalS",
       "price": 43575821310361.6,
+      "product_id": "UIbymzz8amIPzalS",
       "quantity": 43575821310361.6,
       "sku": "UIbymzz8amIPzalS",
       "title": "UIbymzz8amIPzalS",

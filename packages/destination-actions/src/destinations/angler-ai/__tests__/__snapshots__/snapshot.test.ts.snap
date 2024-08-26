@@ -931,9 +931,9 @@ exports[`Testing snapshot for actions-angler-ai destination: saveOrder action - 
 Object {
   "data": Array [
     Object {
-      "id": "E0rNrwcK",
       "order_id": "E0rNrwcK",
       "price": -51347472609443.84,
+      "product_id": "E0rNrwcK",
       "quantity": -51347472609443.84,
       "sku": "E0rNrwcK",
       "title": "E0rNrwcK",
