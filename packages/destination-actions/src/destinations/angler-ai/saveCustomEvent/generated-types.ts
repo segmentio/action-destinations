@@ -293,6 +293,104 @@ export interface Payload {
     discountValue?: number
   }[]
   /**
+   * The billing address associated with the checkout.
+   */
+  checkoutBillingAddress?: {
+    /**
+     * The customer's mailing address.
+     */
+    address1?: string
+    /**
+     * An additional field for the customer's mailing address.
+     */
+    address2?: string
+    /**
+     * The customer's city, town, or village.
+     */
+    city?: string
+    /**
+     * The customer's country.
+     */
+    country?: string
+    /**
+     * The two-letter country code corresponding to the customer's country
+     */
+    country_code?: string
+    /**
+     * The customer's first name.
+     */
+    first_name?: string
+    /**
+     * The customer's last name.
+     */
+    last_name?: string
+    /**
+     * The customer's phone number at this address.
+     */
+    phone?: string
+    /**
+     * The customer's region name. Typically a province, a state, or a prefecture
+     */
+    province?: string
+    /**
+     * The code for the region of the address, such as the province, state, or district. For example QC for Quebec, Canada.
+     */
+    province_code?: string
+    /**
+     * The customer's postal code, also known as zip, postcode, Eircode, etc
+     */
+    zip?: string
+  }
+  /**
+   * The address to which the order will be shipped.
+   */
+  checkoutShippingAddress?: {
+    /**
+     * The customer's mailing address.
+     */
+    address1?: string
+    /**
+     * An additional field for the customer's mailing address.
+     */
+    address2?: string
+    /**
+     * The customer's city, town, or village.
+     */
+    city?: string
+    /**
+     * The customer's country.
+     */
+    country?: string
+    /**
+     * The two-letter country code corresponding to the customer's country
+     */
+    country_code?: string
+    /**
+     * The customer's first name.
+     */
+    first_name?: string
+    /**
+     * The customer's last name.
+     */
+    last_name?: string
+    /**
+     * The customer's phone number at this address.
+     */
+    phone?: string
+    /**
+     * The customer's region name. Typically a province, a state, or a prefecture
+     */
+    province?: string
+    /**
+     * The code for the region of the address, such as the province, state, or district. For example QC for Quebec, Canada.
+     */
+    province_code?: string
+    /**
+     * The customer's postal code, also known as zip, postcode, Eircode, etc
+     */
+    zip?: string
+  }
+  /**
    * Collection details
    */
   collection?: {
