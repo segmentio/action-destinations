@@ -1,6 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { audienceSync } from '../functions'
+
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Add to Audience',
@@ -61,19 +63,16 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       unsafe_hidden: true
     }
   },
-  perform: (request, data) => {
+  perform: (request, { payload }) => {
+    return audienceSync(request, [payload])
     // Make your partner api request here!
     // return request('https://example.com', {
     //   method: 'post',
     //   json: data.payload
     // })
   },
-  performBatch: (request, data) => {
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+  performBatch: (request, { payload }) => {
+    return audienceSync(request, payload)
   }
 }
 
