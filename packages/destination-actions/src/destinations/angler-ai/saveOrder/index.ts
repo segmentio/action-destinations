@@ -113,7 +113,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The current subtotal price of the order in the shop currency. The value of this field reflects order edits, returns, and refunds.',
       default: {
-        '@path': '$.properties.current_subtotal_price'
+        '@path': '$.properties.subtotal'
       }
     },
     current_total_discounts: {
@@ -122,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The current total discounts on the order in the shop currency. The value of this field reflects order edits, returns, and refunds.',
       default: {
-        '@path': '$.properties.current_total_discounts'
+        '@path': '$.properties.discount'
       }
     },
     current_total_price: {
@@ -140,7 +140,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The current total taxes charged on the order in the shop currency. The value of this field reflects order edits, returns, or refunds.',
       default: {
-        '@path': '$.properties.current_total_tax'
+        '@path': '$.properties.tax'
       }
     },
     customer_id: {
@@ -302,7 +302,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'ID',
       description: 'The ID of the order, used for API purposes.',
       default: {
-        '@path': '$.properties.id'
+        '@path': '$.properties.order_id'
       }
     },
     landing_site: {
@@ -415,7 +415,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The price of the order in the shop currency after discounts but before shipping, duties, taxes, and tips.',
       default: {
-        '@path': '$.properties.subtotal_price'
+        '@path': '$.properties.subtotal'
       }
     },
     tags: {
@@ -440,7 +440,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Total Discounts',
       description: 'The total discounts applied to the price of the order in the shop currency.',
       default: {
-        '@path': '$.properties.total_discounts'
+        '@path': '$.properties.discount'
       }
     },
     total_line_items_price: {
@@ -465,7 +465,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The sum of all line item prices, discounts, shipping, taxes, and tips in the shop currency. Must be positive.',
       default: {
-        '@path': '$.properties.total_price'
+        '@path': '$.properties.total'
       }
     },
     total_price_usd: {
@@ -481,7 +481,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Total Tax',
       description: 'The sum of all the taxes applied to the order in the shop currency. Must be positive.',
       default: {
-        '@path': '$.properties.total_tax'
+        '@path': '$.properties.tax'
       }
     },
     user_id: {

@@ -5,6 +5,7 @@ import saveCartEvent from './saveCartEvent'
 import saveCheckoutEvent from './saveCheckoutEvent'
 import saveCollectionEvent from './saveCollectionEvent'
 import saveFormEvent from './saveFormEvent'
+import saveOrder from './saveOrder'
 import saveProductEvent from './saveProductEvent'
 import saveSearchEvent from './saveSearchEvent'
 import saveUser from './saveUser'
@@ -155,6 +156,13 @@ export const presets: DestinationDefinition['presets'] = [
       ...defaultValues(saveFormEvent.fields),
       eventName: 'form_submitted'
     },
+    type: 'automatic'
+  },
+  {
+    name: 'Save Order',
+    subscribe: 'event = "Order Completed"',
+    partnerAction: 'saveOrder',
+    mapping: defaultValues(saveOrder.fields),
     type: 'automatic'
   }
 ]
