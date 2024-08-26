@@ -37,7 +37,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     refreshAccessToken: async (request, { auth }) => {
-      let res
+      let res // no op to force new deploy
 
       if (!process.env.ACTIONS_LINKEDIN_CONVERSIONS_CLIENT_ID) {
         throw new IntegrationError(`Missing client ID`, ErrorCodes.OAUTH_REFRESH_FAILED, 500)
