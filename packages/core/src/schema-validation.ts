@@ -43,6 +43,7 @@ interface ValidationOptions {
   schemaKey?: string
   throwIfInvalid?: boolean
   statsContext?: StatsContext
+  exempt?: string[]
 }
 
 /**
@@ -50,8 +51,14 @@ interface ValidationOptions {
  * and caches the schema for subsequent validations when a key is provided
  */
 export function validateSchema(obj: unknown, schema: JSONSchema4, options?: ValidationOptions) {
-  const { schemaKey, throwIfInvalid = true, statsContext } = options ?? {}
+  const { schemaKey, throwIfInvalid = true, statsContext, exempt = [] } = options ?? {}
   let validate: ValidateFunction
+
+  // Remove exempted properties from the object before validation
+  const objCopy = { ...(obj as Record<string, unknown>) }
+  exempt.forEach((prop) => {
+    delete objCopy[prop]
+  })
 
   if (schemaKey) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -61,8 +68,8 @@ export function validateSchema(obj: unknown, schema: JSONSchema4, options?: Vali
   }
 
   // Ajv's `coerceTypes: 'array'` only works on scalars, so we need to manually arrify ourselves!
-  arrifyFields(obj, schema)
-  const isValid = validate(obj)
+  arrifyFields(objCopy, schema)
+  const isValid = validate(objCopy)
 
   if (throwIfInvalid && !isValid && validate.errors) {
     statsContext?.statsClient?.incr('ajv.discard', 1, statsContext.tags)
