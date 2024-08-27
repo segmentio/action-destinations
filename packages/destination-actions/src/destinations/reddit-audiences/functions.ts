@@ -1,11 +1,9 @@
-import { IntegrationError, RequestClient, PayloadValidationError, ModifiedResponse } from '@segment/actions-core'
+import { IntegrationError, RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Payload as AddToAudiencePayload } from './addToAudience/generated-types'
-import { Settings } from './generated-types'
-import { AudienceSettings } from './generated-types'
 import { createHash } from 'crypto'
 
 
-let token = ''
+let token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzI0ODYzMzU3LjQ2NDMwNCwiaWF0IjoxNzI0Nzc2OTU3LjQ2NDMwNCwianRpIjoiMmpvcm9nNG1DNmw2U01NQndZUEU5Szdrd0w0QU5BIiwiY2lkIjoiOWtYLUJWQlFTVWlZWEx4QmZGdzcyZyIsImxpZCI6InQyXzN4OWkyMnQwIiwiYWlkIjoidDJfM3g5aTIydDAiLCJsY2EiOjE1NjAyMDQyNTg0MzMsInNjcCI6ImVKeUtWaXBLVFV4UjBsRktUQ21Hc2pJeWkwdnlpeW9oWXFrcG1TVVFWbkotWGxscVVYRm1mbDZ4VWl3Z0FBRF9fd0NaRXc0IiwicmNpZCI6IjFRc3Q1ZFJnM1lrZkFHb3VJYnp2a3RzOGN6el9pOHU1Y3p3Z05vV2pHWmciLCJmbG8iOjN9.NQck8WJaZex70qw8poPxgotdfl6Qm117XD_V_x1flvSWYAVuPqZAvT4SHUixfA3v7I_bUruksL5Lm1A8P3HP7XVvCERpYz7EXgRhj0Z3vMzOpRKtBwLRIsKeOHNejpXJ0m-5HRVHccjWwQB0x9f4qZRNJMIBGRTI15IN8NwgqIj1PP7WJyvoLJGXZq4J2FgjMWyIPXTQ1IctuktN1-r8Z9zqK0fKa6nQ42SbB9Ubb_cyrvNsXzJCDmD8yOTCPw1X09fONEjgAWJiiFmfaYLAQ5yborXUT093FW9GlWWzOGLLQ0hfQm6OnYMSK9A3TDi7tOqZkJ8089z1pEEZ8CrT5g'
 
 export async function audienceSync(
   request: RequestClient,
@@ -13,16 +11,54 @@ export async function audienceSync(
 ) {
   let get_audience = getAudience(request, payloads[0])
 
-  const schema = createSchema(payloads[0])
+  schemaCheck(payloads)
 
   const user_payload = createPayload(payloads)
-  console.log(schema)
-  console.log(user_payload)
+  const schema_columns = createSchema(payloads[0])
+
+  console.log('payload length:', user_payload.length)
+
+  if (user_payload.length > 0) {
+    const audienceValues = {
+      action_type: 'ADD',
+      column_order: schema_columns,
+      user_data: user_payload
+    }
+
+    let res
+    res = await updateAudience(request, audienceValues, payloads[0])
+  }
+  else {
+    throw new PayloadValidationError('At least one of Email Id or Advertising ID must be provided.')
+  }
+
+}
+
+
+export async function updateAudience(request: RequestClient, data: {}, payload: AddToAudiencePayload) {
+  const updateAudienceUrl = `https://ads-api.reddit.com/api/v3/custom_audiences/${payload.audience_id}/users`
+  const json_payload = {
+    data
+  }
+  console.log(data)
+
+  const response = await request(updateAudienceUrl, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    json: json_payload,
+    throwHttpErrors: true
+  })
+
+  const r = await response.status
+  console.log('HTTP Status Code:', r)
+  return r
 
 }
 
 export function createSchema(payload: AddToAudiencePayload) {
-  console.log('start createSchema function')
   const schema_columns = []
   if (payload.send_email == true) {
     schema_columns.push('EMAIL_SHA256')
@@ -45,22 +81,39 @@ export async function getAudience(request: RequestClient, payload: AddToAudience
 }
 
 export function createPayload(payloads: AddToAudiencePayload[]) {
-  const audience_payload: {}[] = []
+  const audience_payload: string[][] = []
 
   payloads.forEach((payload: AddToAudiencePayload) => {
-    const user_data = []
+    let user_email: string[] = []
+    let user_maid: string[] = []
 
-    if (payload.send_email == true) {
-      if (!checkHash(payload.email)) {
-        payload.email = hashEmail(payload.email)
-      }
-      user_data.push(payload.email)
+    console.log('email payload:', payload.email)
+    if (!payload.email && !payload.maid) {
+      return
     }
 
-    audience_payload.push(user_data)
+    if (payload.send_email == true) {
+      if (payload.email) {
+        if (!checkHash(payload.email)) {
+          payload.email = hashEmail(payload.email)
+        }
+        console.log('email payload: ', payload.email)
+        user_email.push(payload.email)
+      }
+    }
 
+    if (payload.send_maid == true) {
+      if (payload.maid) {
+        if (!checkHash(payload.maid)) {
+          payload.maid = sha256Hash(payload.maid)
+        }
+        console.log('maid payload: ', payload.maid)
+        user_maid.push(payload.maid)
+      }
+    }
+    audience_payload.push(user_email, user_maid)
+    console.log('audience_payload:     ', audience_payload)
   })
-
   return audience_payload
 }
 
@@ -69,7 +122,7 @@ export function checkHash(value: any): boolean {
   return sha256HashedRegex.test(value)
 }
 
-export function hashEmail(value: any) {
+export function hashEmail(value: any): string {
   const email = normalizeEmail(value)
   const hash = createHash('sha256')
 
@@ -77,6 +130,14 @@ export function hashEmail(value: any) {
   const hashed_email = hash.digest('hex')
 
   return hashed_email
+}
+
+export function sha256Hash(maid: any): string {
+  const hash = createHash('sha256')
+  hash.update(maid)
+  const hashed_maid = hash.digest('hex')
+
+  return hashed_maid
 }
 
 export function normalizeEmail(value: string): string {
@@ -88,4 +149,17 @@ export function normalizeEmail(value: string): string {
   const cleanedLocalPart = localPart.replace(/\./g, '').split('+')[0]
   localPartAndDomain[0] = cleanedLocalPart
   return localPartAndDomain.join('@').toLowerCase()
+}
+
+export function schemaCheck(payloads: AddToAudiencePayload[]) {
+  if (
+    payloads[0].send_email === false &&
+    payloads[0].send_maid === false
+  ) {
+    throw new IntegrationError(
+      'At least one of `Send Email` or `Send Advertising ID` must be set to `true`.',
+      'INVALID_SETTINGS',
+      400
+    )
+  }
 }
