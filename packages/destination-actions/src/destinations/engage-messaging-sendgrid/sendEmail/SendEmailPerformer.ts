@@ -258,7 +258,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       },
       json: mailContent
     }
-    this.statsClient?.set('message_body_size', JSON.stringify(req).length)
+    //this.statsClient?.set('message_body_size', JSON.stringify(req).length) // Commented due to performance issues
     const response = await this.request('https://api.sendgrid.com/v3/mail/send', req)
     if (this.payload?.eventOccurredTS != undefined) {
       this.statsClient?.histogram(
@@ -272,7 +272,24 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
 
   @track()
   async getBodyTemplateFromS3(bodyUrl: string) {
-    const { content } = await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })
+    // seems like Redis key size can be up to 512MB, so we should be fine using entire url as a key
+    const content = await this.getOrAddCache(
+      `engage-email-template:${bodyUrl}`,
+      async () => (await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })).content,
+      {
+        stringify(cacheable) {
+          return JSON.stringify(cacheable.error ? { error: cacheable.error.message } : { value: cacheable.value })
+        },
+        parse(cachedValue) {
+          const parsed = JSON.parse(cachedValue)
+          if (parsed.error) {
+            return { error: new IntegrationError(parsed.error, 'CacheError', 400) }
+          }
+          return { value: parsed.value }
+        },
+        expiryInSeconds: 60 * 10 // 10 minutes
+      }
+    )
     return content
   }
 

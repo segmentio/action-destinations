@@ -140,11 +140,12 @@ export abstract class MessageSendPerformer<
   async getOrAddCache<T>(
     key: string,
     createValue: () => Promise<T>,
-    serializer: {
+    options: {
       //if undefined returned, then the value will not be cached
       stringify: (cacheable: ValueOrError<T>) => string | void
       //if undefined returned, then the cache is either corrupted or expired and will be re-executed
       parse: (cachedValue: string) => ValueOrError<T> | void
+      expiryInSeconds?: number
     }
   ): Promise<T> {
     if (!this.engageDestinationCache) return createValue()
@@ -154,7 +155,7 @@ export abstract class MessageSendPerformer<
       this.logInfo('cache_reading_error', { key })
       this.statsIncr('cache_reading_error')
     } else if (cacheRead.value) {
-      const { value: parsedCache, error: parsingError } = getOrCatch(() => serializer.parse(cacheRead.value!))
+      const { value: parsedCache, error: parsingError } = getOrCatch(() => options.parse(cacheRead.value!))
 
       if (parsingError) {
         //exception happened while parsing the cache.
@@ -179,14 +180,14 @@ export abstract class MessageSendPerformer<
     const { value: result, error: resultError } = await getOrCatch(() => createValue())
 
     //before returning result - we need to try to serialize it and store it in cache
-    const stringified = getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
+    const stringified = getOrCatch(() => options.stringify(resultError ? { error: resultError } : { value: result }))
     if (stringified.error) {
       this.logInfo('cache_stringify_error', { key, error: stringified.error })
       this.statsIncr('cache_stringify_error')
     } else if (stringified.value) {
       //result stringified and contains cacheable value - cache it
       const { error: cacheSavingError } = await getOrCatch(() =>
-        this.engageDestinationCache!.setByKey(key, stringified.value!)
+        this.engageDestinationCache!.setByKey(key, stringified.value!, options.expiryInSeconds)
       )
       if (cacheSavingError) {
         this.logInfo('cache_saving_error', { key, error: cacheSavingError })
@@ -362,13 +363,16 @@ export abstract class MessageSendPerformer<
       `settings_region:${settings.region}`,
       `channel:${this.getChannelType()}`
     ]
-    const correlation_id = payload.customArgs?.correlation_id || payload.customArgs?.__segment_internal_correlation_id__
+    const correlation_id = this.getCorrelationId()
     if (correlation_id) res.push(`correlation_id:${correlation_id}`)
 
     const computation_id = (payload as any).segmentComputationId
     if (computation_id) res.push(`computation_id:${computation_id}`)
 
     return res
+  }
+  getCorrelationId() {
+    return this.payload.customArgs?.correlation_id || this.payload.customArgs?.__segment_internal_correlation_id__
   }
 
   /**
