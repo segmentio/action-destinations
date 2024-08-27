@@ -15,4 +15,4 @@ playwright-report
 
 
 # nx
-.nx
+.nx/cache
