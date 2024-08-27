@@ -97,6 +97,26 @@ export async function getCustomVariables(
   )
 }
 
+export function memoizedGetCustomVariables() {
+  const cache: Map<string, Promise<ModifiedResponse<QueryResponse[]>>> = new Map()
+
+  return async (
+    customerId: string,
+    auth: any,
+    request: RequestClient,
+    features: Features | undefined,
+    statsContext: StatsContext | undefined
+  ) => {
+    if (cache.has(customerId)) {
+      return cache.get(customerId)
+    } else {
+      const result = getCustomVariables(customerId, auth, request, features, statsContext)
+      cache.set(customerId, result)
+      return result
+    }
+  }
+}
+
 export async function getConversionActionId(
   customerId: string | undefined,
   auth: any,

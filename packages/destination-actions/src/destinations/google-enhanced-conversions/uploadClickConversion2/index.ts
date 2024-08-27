@@ -23,8 +23,10 @@ import {
   getApiVersion,
   commonHashedEmailValidation,
   getConversionActionDynamicData,
-  isHashedInformation
+  isHashedInformation,
+  memoizedGetCustomVariables
 } from '../functions'
+import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Click Conversion',
@@ -225,6 +227,21 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'DENIED', value: 'DENIED' },
         { label: 'UNSPECIFIED', value: 'UNSPECIFIED' }
       ]
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Google Enhanced Conversions',
+      description:
+        'If true, Segment will batch events before sending to Google’s APIs. Google accepts batches of up to 2000 events.',
+      unsafe_hidden: true,
+      default: false
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch.',
+      type: 'number',
+      unsafe_hidden: true,
+      default: GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE
     }
   },
 
@@ -340,6 +357,122 @@ const action: ActionDefinition<Settings, Payload> = {
     } else {
       throw new IntegrationError(`Unsupported Sync Mode "${syncMode}"`, 'INTEGRATION_ERROR', 400)
     }
+  },
+  performBatch: async (request, { auth, settings, payload, features, statsContext, syncMode }) => {
+    if (syncMode !== 'add') {
+      throw new IntegrationError(`Unsupported Sync Mode "${syncMode}"`, 'INTEGRATION_ERROR', 400)
+    }
+
+    /* Enforcing this here since Customer ID is required for the Google Ads API
+      but not for the Enhanced Conversions API. */
+    if (!settings.customerId) {
+      throw new PayloadValidationError(
+        'Customer ID is required for this action. Please set it in destination settings.'
+      )
+    }
+
+    const customerId = settings.customerId.replace(/-/g, '')
+
+    const getCustomVariables = memoizedGetCustomVariables()
+
+    const request_objects: ClickConversionRequestObjectInterface[] = await Promise.all(
+      payload.map(async (payloadItem) => {
+        let cartItems: CartItemInterface[] = []
+        if (payloadItem.items && Array.isArray(payloadItem.items)) {
+          cartItems = payloadItem.items.map((product) => {
+            return {
+              productId: product.product_id,
+              quantity: product.quantity,
+              unitPrice: product.price
+            } as CartItemInterface
+          })
+        }
+
+        const request_object: ClickConversionRequestObjectInterface = {
+          conversionAction: `customers/${settings.customerId}/conversionActions/${payloadItem.conversion_action}`,
+          conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp),
+          gclid: payloadItem.gclid,
+          gbraid: payloadItem.gbraid,
+          wbraid: payloadItem.wbraid,
+          orderId: payloadItem.order_id,
+          conversionValue: payloadItem.value,
+          currencyCode: payloadItem.currency,
+          conversionEnvironment: payloadItem.conversion_environment,
+          cartData: {
+            merchantId: payloadItem.merchant_id,
+            feedCountryCode: payloadItem.merchant_country_code,
+            feedLanguageCode: payloadItem.merchant_language_code,
+            localTransactionCost: payloadItem.local_cost,
+            items: cartItems
+          },
+          userIdentifiers: []
+        }
+        // Add Consent Signals 'adUserData' if it is defined
+        if (payloadItem.ad_user_data_consent_state) {
+          request_object['consent'] = {
+            adUserData: payloadItem.ad_user_data_consent_state
+          }
+        }
+
+        // Add Consent Signals 'adPersonalization' if it is defined
+        if (payloadItem.ad_personalization_consent_state) {
+          request_object['consent'] = {
+            ...request_object['consent'],
+            adPersonalization: payloadItem.ad_personalization_consent_state
+          }
+        }
+
+        // Retrieves all of the custom variables that the customer has created in their Google Ads account
+        if (payloadItem.custom_variables) {
+          const customVariableIds = await getCustomVariables(customerId, auth, request, features, statsContext)
+          if (customVariableIds?.data?.length) {
+            request_object.customVariables = formatCustomVariables(
+              payloadItem.custom_variables,
+              customVariableIds.data[0].results
+            )
+          }
+        }
+
+        if (payloadItem.email_address) {
+          const validatedEmail: string = commonHashedEmailValidation(payloadItem.email_address)
+
+          request_object.userIdentifiers.push({
+            hashedEmail: validatedEmail
+          } as UserIdentifierInterface)
+        }
+
+        if (payloadItem.phone_number) {
+          // remove '+' from phone number if received in payload duplicacy and add '+'
+          const phoneNumber = '+' + payloadItem.phone_number.split('+').join('')
+
+          request_object.userIdentifiers.push({
+            hashedPhoneNumber: isHashedInformation(payloadItem.phone_number)
+              ? payloadItem.phone_number
+              : hash(phoneNumber)
+          } as UserIdentifierInterface)
+        }
+
+        return request_object
+      })
+    )
+
+    const response: ModifiedResponse<PartialErrorResponse> = await request(
+      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadClickConversions`,
+      {
+        method: 'post',
+        headers: {
+          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+        },
+        json: {
+          conversions: request_objects,
+          partialFailure: true
+        }
+      }
+    )
+    handleGoogleErrors(response)
+    return response
   }
 }
 
