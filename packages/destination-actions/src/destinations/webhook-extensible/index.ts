@@ -57,10 +57,13 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest: ({ settings, payload, auth }) => {
+    if (!payload) {
+      payload = {}
+    }
     const payloadData = payload.length ? payload[0]['data'] : payload['data']
     if (settings.sharedSecret && payloadData) {
       const digest = createHmac('sha1', settings.sharedSecret)
-        .update(JSON.stringify({ payloadData, settings, auth }), 'utf8')
+        .update(JSON.stringify({ payloadData }), 'utf8')
         .digest('hex')
       return {
         headers: {

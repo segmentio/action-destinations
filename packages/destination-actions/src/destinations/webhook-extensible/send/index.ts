@@ -47,12 +47,12 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.' }
     }
   },
-  perform: (request, { payload }) => {
+  perform: (request, { payload, settings }) => {
     try {
       return request(payload.url, {
         method: payload.method as RequestMethod,
         headers: payload.headers as Record<string, string>,
-        json: payload.data
+        json: { ...payload.data, ...settings }
       })
     } catch (error) {
       if (error instanceof TypeError) throw new PayloadValidationError(error.message)
