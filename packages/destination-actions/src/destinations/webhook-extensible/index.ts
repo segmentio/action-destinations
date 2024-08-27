@@ -47,23 +47,22 @@ const destination: DestinationDefinition<Settings> = {
       const res = await request<RefreshTokenResponse>(settings.authenticationUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
           Authorization: `Basic ${Buffer.from(settings.client_id + ':' + settings.client_secret).toString('base64')}`
         },
         body: '{"grant_type":"client_credentials"}'
       })
-      if (res.status == 200) {
+      if (res.status == 200 && res.data) {
         return { accessToken: res.data.access_token }
       } else {
         throw new Error(res.status + res.statusText)
       }
     },
     refreshAccessToken: async (request, { settings }) => {
-      // Refresh access token using client_id and client_secret provided in the Settings
       const res = await request<RefreshTokenResponse>(settings.refreshTokenUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
           Authorization: `Basic ${Buffer.from(settings.client_id + ':' + settings.client_secret).toString('base64')}`
         },
         body: '{"grant_type":"client_credentials"}'
