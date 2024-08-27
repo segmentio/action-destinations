@@ -1,5 +1,6 @@
 import { StateContext, RequestClient, IntegrationError } from '@segment/actions-core'
 import { OptimizelyPayload } from './types'
+import { Settings } from '../generated-types'
 export interface EventItem {
   id: number
   key: string
@@ -13,13 +14,14 @@ interface CreateEventBody {
 }
 export class OptimizelyWebClient {
   request: RequestClient
-  stateContext?: StateContext | undefined
+  settings: Settings
   projectID: string
+  stateContext?: StateContext | undefined
 
-  constructor(request: RequestClient, projectID: string, stateContext: StateContext | undefined) {
-    this.request = request, 
-    this.stateContext = stateContext
+  constructor(request: RequestClient, settings: Settings, projectID: string, stateContext: StateContext | undefined) {
+    ;(this.request = request), (this.stateContext = stateContext)
     this.projectID = projectID
+    this.settings = settings
   }
 
   getEventFromCache(event_name: string): EventItem | undefined {
@@ -27,21 +29,23 @@ export class OptimizelyWebClient {
   }
 
   getEventsFromCache(): EventItem[] {
-    return this.stateContext?.getRequestContext?.('events') as EventItem[] ?? []
+    return (this.stateContext?.getRequestContext?.('events') as EventItem[]) ?? []
   }
 
   async getEventFromOptimzely(event_name: string): Promise<EventItem | undefined> {
     const response = await this.request<EventItem[]>(
-      `https://logx.optimizely.com/v1/events?per_page=100&page=1&include_classic=false&project_id=${this.projectID}`,
+      `https://api.optimizely.com/v2/events?per_page=100&page=1&include_classic=false&project_id=${this.projectID}`,
       {
         method: 'GET',
         headers: {
           'content-type': 'application/json',
-          accept: 'application/json'
+          accept: 'application/json',
+          authorization: `Bearer ${this.settings.optimizelyApiKey}`
         }
       }
     )
     const events: EventItem[] | [] = await response.json()
+
     return events.find((event: EventItem) => event.key === event_name)
   }
 
@@ -58,7 +62,8 @@ export class OptimizelyWebClient {
         } as CreateEventBody,
         headers: {
           'content-type': 'application/json',
-          accept: 'application/json'
+          accept: 'application/json',
+          authorization: `Bearer ${this.settings.optimizelyApiKey}`
         }
       }
     )
@@ -86,8 +91,8 @@ export class OptimizelyWebClient {
 
   async getEventid(
     event_name: string,
-    friendlyEventName: string,
     category: string,
+    friendlyEventName: string,
     createEventIfNotFound: string
   ): Promise<string> {
     let event = this.getEventFromCache(event_name)

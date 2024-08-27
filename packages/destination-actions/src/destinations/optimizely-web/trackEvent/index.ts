@@ -9,15 +9,15 @@ import { fields } from './fields'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Send an analytics event to Optimizely',
-  defaultSubscription: 'type = "track" or type = "page"',
+  defaultSubscription: 'type = "track"',
   fields,
-  perform: async (request, { payload, settings, stateContext }) => {    
+  perform: async (request, { payload, settings, stateContext }) => {
     const { endUserId, category, projectID, uuid, createEventIfNotFound, eventName: friendlyEventName } = payload
 
     const { unixTimestamp13, opt_event_properties, event_name, value, revenue, quantity, currency, restTags } =
       payloadItems(payload, stateContext)
 
-    const client = new OptimizelyWebClient(request, projectID, stateContext ?? undefined)
+    const client = new OptimizelyWebClient(request, settings, projectID, stateContext ?? undefined)
 
     const eventId = await client.getEventid(event_name, category, friendlyEventName, createEventIfNotFound)
 
@@ -37,9 +37,10 @@ const action: ActionDefinition<Settings, Payload> = {
               events: [
                 {
                   entity_id: eventId,
-                  key: event_name ?? 'page_viewed',
+                  key: event_name,
                   timestamp: unixTimestamp13,
                   uuid,
+                  type: 'other',
                   tags: {
                     revenue: revenue ? revenue * 100 : undefined,
                     value,

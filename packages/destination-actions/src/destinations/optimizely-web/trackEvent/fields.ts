@@ -52,13 +52,7 @@ export const fields: Record<string, InputField> = {
     description: 'Event Name.',
     type: 'string',
     required: true,
-    default: {
-      '@if': {
-        exists: { '@path': '$.event' },
-        then: { '@path': '$.event' },
-        else: { '@path': '$.name' }
-      }
-    }
+    default: { '@path': '$.event' }
   },
   category: {
     label: 'Event Category',

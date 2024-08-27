@@ -23,6 +23,7 @@ export interface Event {
   key: string
   timestamp: UnixTimestamp13
   uuid: string
+  type: EventType
   tags: {
     revenue?: number
     value?: number
@@ -34,5 +35,7 @@ export interface Event {
     [key: string]: string | number | { [key: string]: string | number | boolean } | undefined
   }
 }
+
+export type EventType = 'view_activated' | 'other'
 
 export type UnixTimestamp13 = number & { __type: 'UnixTimestamp13' }
