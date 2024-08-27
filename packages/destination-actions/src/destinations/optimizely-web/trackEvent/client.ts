@@ -32,7 +32,7 @@ export class OptimizelyWebClient {
     return (this.stateContext?.getRequestContext?.('events') as EventItem[]) ?? []
   }
 
-  async getEventFromOptimzely(event_name: string): Promise<EventItem | undefined> {
+  async getCustomEventFromOptimzely(event_name: string): Promise<EventItem | undefined> {
     const response = await this.request<EventItem[]>(
       `https://api.optimizely.com/v2/events?per_page=100&page=1&include_classic=false&project_id=${this.projectID}`,
       {
@@ -49,7 +49,11 @@ export class OptimizelyWebClient {
     return events.find((event: EventItem) => event.key === event_name)
   }
 
-  async createEvent(event_name: string, friendlyEventName: string, category: string): Promise<EventItem | undefined> {
+  async createCustomEvent(
+    event_name: string,
+    friendlyEventName: string,
+    category: string
+  ): Promise<EventItem | undefined> {
     const response = await this.request<EventItem>(
       `https://api.optimizely.com/v2/projects/${this.projectID}/custom_events`,
       {
@@ -91,6 +95,7 @@ export class OptimizelyWebClient {
 
   async getEventid(
     event_name: string,
+    eventType: 'page' | 'track',
     category: string,
     friendlyEventName: string,
     createEventIfNotFound: string
@@ -98,10 +103,16 @@ export class OptimizelyWebClient {
     let event = this.getEventFromCache(event_name)
 
     if (typeof event === 'undefined' && createEventIfNotFound !== 'DO_NOT_CREATE') {
-      event = await this.getEventFromOptimzely(event_name)
+      event =
+        eventType === 'page'
+          ? await this.getPageEventFromOptimzely(event_name)
+          : await this.getCustomEventFromOptimzely(event_name)
 
       if (typeof event === 'undefined') {
-        event = await this.createEvent(event_name, friendlyEventName, category)
+        event =
+          eventType === 'page'
+            ? await this.createPageEvent(event_name, friendlyEventName, category)
+            : await this.createCustomEvent(event_name, friendlyEventName, category)
         if (!event) {
           throw new IntegrationError(
             `Enable to create event with name ${event_name} in Optimizely`,

@@ -41,8 +41,7 @@ export const fields: Record<string, InputField> = {
     type: 'string',
     choices: [
       { label: 'Do not create', value: 'DO_NOT_CREATE' },
-      { label: 'Create Custom Event', value: 'CREATE' },
-      { label: 'Create Custom Event - snake_case', value: 'CREATE_SNAKE_CASE' }
+      { label: 'Create Custom Event', value: 'CREATE' }
     ],
     required: true,
     default: 'CREATE'

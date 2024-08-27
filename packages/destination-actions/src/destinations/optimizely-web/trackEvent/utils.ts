@@ -59,7 +59,7 @@ export function payloadItems(payload: Payload, stateContext?: StateContext) {
     throw new PayloadValidationError('Tags must be of type string or number')
   }
 
-  const event_name = payload.createEventIfNotFound === 'CREATE_SNAKE_CASE' ? snakeCase(eventName) : eventName
+  const event_name = snakeCase(eventName)
 
   return {
     unixTimestamp13,
