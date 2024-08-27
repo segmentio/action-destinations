@@ -43,21 +43,6 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: async (request, { settings }) => {
-      const res = await request<RefreshTokenResponse>(settings.authenticationUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Basic ${Buffer.from(settings.client_id + ':' + settings.client_secret).toString('base64')}`
-        },
-        body: '{"grant_type":"client_credentials"}'
-      })
-      if (res.status == 200 && res.data) {
-        return { accessToken: res.data.access_token }
-      } else {
-        throw new Error(res.status + res.statusText)
-      }
-    },
     refreshAccessToken: async (request, { settings }) => {
       const res = await request<RefreshTokenResponse>(settings.refreshTokenUrl, {
         method: 'POST',
@@ -74,7 +59,9 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest: ({ settings, payload, auth }) => {
     const payloadData = payload.length ? payload[0]['data'] : payload['data']
     if (settings.sharedSecret && payloadData) {
-      const digest = createHmac('sha1', settings.sharedSecret).update(JSON.stringify(payloadData), 'utf8').digest('hex')
+      const digest = createHmac('sha1', settings.sharedSecret)
+        .update(JSON.stringify({ payloadData, settings, auth }), 'utf8')
+        .digest('hex')
       return {
         headers: {
           'X-Signature': digest,
