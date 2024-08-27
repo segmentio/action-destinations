@@ -1,7 +1,6 @@
 import type { Payload } from './generated-types'
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { RequestClient } from '@segment/actions-core'
 import { GoogleSheets, GetResponse } from '../googleapis/index'
-import { CONSTANTS } from '../constants'
 
 import A1 from '@segment/a1-notation'
 
@@ -67,13 +66,13 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
  * @param events data to be written to the spreadsheet
  * @returns
  */
-function processGetSpreadsheetResponse(response: GetResponse, events: Payload[], mappingSettings: MappingSettings) {
-  const numColumns = mappingSettings.columns.length
-  const numRows = response.values?.length
+function processGetSpreadsheetResponse(response: GetResponse, events: Payload[], _mappingSettings: MappingSettings) {
+  // const numColumns = mappingSettings.columns.length
+  // const numRows = response.values?.length
 
-  if (numRows * numColumns > CONSTANTS.MAX_CELLS) {
-    throw new IntegrationError('Sheet has reached maximum limit', 'INVALID_REQUEST_DATA', 400)
-  }
+  // // if (numRows * numColumns > CONSTANTS.MAX_CELLS) {
+  // //   throw new IntegrationError('Sheet has reached maximum limit', 'INVALID_REQUEST_DATA', 400)
+  // // }
 
   const updateBatch: UpdateBatch[] = []
   const appendBatch: AppendBatch[] = []
