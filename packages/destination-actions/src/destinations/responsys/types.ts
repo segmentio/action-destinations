@@ -6,7 +6,7 @@ export interface Data {
   }
 }
 
-export type MergeRule = {
+export type ResponsysMergeRule = {
   /**
    * Value of incoming preferred email format data. For example, 'H' may represent a preference for HTML formatted email.
    */
@@ -53,23 +53,30 @@ export type MergeRule = {
   defaultPermissionStatus?: string
 }
 
-export type RecordData = {
+export type ResponsysRecordData = {
   fieldNames: string[]
-  records: unknown[][]
-  mapTemplateName: string
+  records: string[][]
+  mapTemplateName: string | null
 }
 
-export type ListMemberRequestBody = {
-  recordData: RecordData
+export type ResponsysListMemberRequestBody = {
+  recordData: ResponsysRecordData
 } & {
-  mergeRule: MergeRule
+  mergeRule: ResponsysMergeRule
 }
 
-export type CustomTraitsRequestBody = {
-  recordData: RecordData
+export type ResponsysCustomTraitsRequestBody = {
+  recordData: ResponsysRecordData
 } & {
   insertOnNoMatch?: boolean
   updateOnMatch?: string
   matchColumnName1?: string
   matchColumnName2?: string
+}
+
+export type ResponsysAudiencePetUpdateRequestBody = {
+  recordData: ResponsysRecordData
+  insertOnNoMatch: boolean
+  updateOnMatch: string
+  matchColumnName1: 'CUSTOMER_ID_' | 'EMAIL_ADDRESS_' | 'RIID_'
 }

@@ -1,7 +1,13 @@
 import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-types'
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
 import { Payload as ListMemberPayload } from './upsertListMember/generated-types'
-import { RecordData, CustomTraitsRequestBody, MergeRule, ListMemberRequestBody, Data } from './types'
+import {
+  ResponsysRecordData,
+  ResponsysCustomTraitsRequestBody,
+  ResponsysMergeRule,
+  ResponsysListMemberRequestBody,
+  Data
+} from './types'
 import {
   RequestClient,
   IntegrationError,
@@ -118,13 +124,13 @@ export const sendCustomTraits = async (
     })
   })
 
-  const recordData: RecordData = {
+  const recordData: ResponsysRecordData = {
     fieldNames: userDataFieldNames.map((field) => field.toUpperCase()),
     records,
     mapTemplateName: ''
   }
 
-  const requestBody: CustomTraitsRequestBody = {
+  const requestBody: ResponsysCustomTraitsRequestBody = {
     recordData,
     insertOnNoMatch: settings.insertOnNoMatch,
     updateOnMatch: settings.updateOnMatch,
@@ -152,7 +158,7 @@ export const upsertListMembers = async (
 ) => {
   const userDataArray = payload.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
 
-  const records: unknown[][] = userDataArray.map((userData) => {
+  const records: string[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
       return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
         ? (userData as Record<string, string>)[fieldName]
@@ -160,13 +166,13 @@ export const upsertListMembers = async (
     })
   })
 
-  const recordData: RecordData = {
+  const recordData: ResponsysRecordData = {
     fieldNames: userDataFieldNames,
     records,
     mapTemplateName: ''
   }
 
-  const mergeRule: MergeRule = {
+  const mergeRule: ResponsysMergeRule = {
     htmlValue: settings.htmlValue,
     optinValue: settings.optinValue,
     textValue: settings.textValue,
@@ -180,7 +186,7 @@ export const upsertListMembers = async (
     defaultPermissionStatus: settings.defaultPermissionStatus
   }
 
-  const requestBody: ListMemberRequestBody = {
+  const requestBody: ResponsysListMemberRequestBody = {
     recordData,
     mergeRule
   }
@@ -200,7 +206,7 @@ export const upsertListMembers = async (
 
 const sendDebugMessageToSegmentSource = async (
   request: RequestClient,
-  requestBody: CustomTraitsRequestBody,
+  requestBody: ResponsysCustomTraitsRequestBody,
   response: ModifiedResponse<unknown>,
   settings: Settings
 ) => {

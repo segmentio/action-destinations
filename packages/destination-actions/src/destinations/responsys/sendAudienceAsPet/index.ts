@@ -3,7 +3,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { validateListMemberPayload } from '../utils'
-import { createPet, petExists } from './functions'
+import { createPet, petExists, updatePet } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Audience as Pet',
@@ -101,13 +101,28 @@ const action: ActionDefinition<Settings, Payload> = {
       await createPet(request, settings, payload)
     }
 
-    // return sendCustomTraits(request, [payload], data.settings, Object.keys(payload.userData), true)
+    return await updatePet(request, settings, [payload])
+  },
+  performBatch: async (request, data) => {
+    const { payload, settings } = data
 
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+    const validPayloads = []
+    for (const item of payload) {
+      try {
+        validateListMemberPayload(item.userData)
+        validPayloads.push(item)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    // Can we consider that each batch has only one audience key?
+    const petAlreadyExists = await petExists(request, settings, payload[0].computation_key)
+    if (!petAlreadyExists) {
+      await createPet(request, settings, payload[0])
+    }
+
+    return await updatePet(request, settings, payload)
   }
 }
 
