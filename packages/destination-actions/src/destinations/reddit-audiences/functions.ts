@@ -3,7 +3,7 @@ import { Payload as AddToAudiencePayload } from './addToAudience/generated-types
 import { createHash } from 'crypto'
 
 
-let token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzI0ODYzMzU3LjQ2NDMwNCwiaWF0IjoxNzI0Nzc2OTU3LjQ2NDMwNCwianRpIjoiMmpvcm9nNG1DNmw2U01NQndZUEU5Szdrd0w0QU5BIiwiY2lkIjoiOWtYLUJWQlFTVWlZWEx4QmZGdzcyZyIsImxpZCI6InQyXzN4OWkyMnQwIiwiYWlkIjoidDJfM3g5aTIydDAiLCJsY2EiOjE1NjAyMDQyNTg0MzMsInNjcCI6ImVKeUtWaXBLVFV4UjBsRktUQ21Hc2pJeWkwdnlpeW9oWXFrcG1TVVFWbkotWGxscVVYRm1mbDZ4VWl3Z0FBRF9fd0NaRXc0IiwicmNpZCI6IjFRc3Q1ZFJnM1lrZkFHb3VJYnp2a3RzOGN6el9pOHU1Y3p3Z05vV2pHWmciLCJmbG8iOjN9.NQck8WJaZex70qw8poPxgotdfl6Qm117XD_V_x1flvSWYAVuPqZAvT4SHUixfA3v7I_bUruksL5Lm1A8P3HP7XVvCERpYz7EXgRhj0Z3vMzOpRKtBwLRIsKeOHNejpXJ0m-5HRVHccjWwQB0x9f4qZRNJMIBGRTI15IN8NwgqIj1PP7WJyvoLJGXZq4J2FgjMWyIPXTQ1IctuktN1-r8Z9zqK0fKa6nQ42SbB9Ubb_cyrvNsXzJCDmD8yOTCPw1X09fONEjgAWJiiFmfaYLAQ5yborXUT093FW9GlWWzOGLLQ0hfQm6OnYMSK9A3TDi7tOqZkJ8089z1pEEZ8CrT5g'
+let token = ''
 
 export async function audienceSync(
   request: RequestClient,
@@ -14,9 +14,10 @@ export async function audienceSync(
   schemaCheck(payloads)
 
   const user_payload = createPayload(payloads)
-  const schema_columns = createSchema(payloads[0])
 
-  console.log('payload length:', user_payload.length)
+  const schema_columns = createSchema(payloads)
+
+  console.log('payload length:', user_payload[0].length)
 
   if (user_payload.length > 0) {
     const audienceValues = {
@@ -58,12 +59,12 @@ export async function updateAudience(request: RequestClient, data: {}, payload: 
 
 }
 
-export function createSchema(payload: AddToAudiencePayload) {
+export function createSchema(payload: AddToAudiencePayload[]) {
   const schema_columns = []
-  if (payload.send_email == true) {
+  if (payload[0].send_email == true) {
     schema_columns.push('EMAIL_SHA256')
   }
-  if (payload.send_maid == true) {
+  if (payload[0].send_maid == true) {
     schema_columns.push('MAID_SHA256')
   }
 
@@ -111,7 +112,16 @@ export function createPayload(payloads: AddToAudiencePayload[]) {
         user_maid.push(payload.maid)
       }
     }
-    audience_payload.push(user_email, user_maid)
+
+    if (payload.send_email == true && payload.send_maid == false) {
+      audience_payload.push(user_email)
+    }
+    if (payload.send_email == false && payload.send_maid == true) {
+      audience_payload.push(user_maid)
+    }
+    if (payload.send_email == true && payload.send_maid == true) {
+      audience_payload.push(user_email, user_maid)
+    }
     console.log('audience_payload:     ', audience_payload)
   })
   return audience_payload
