@@ -52,7 +52,7 @@ const destination: DestinationDefinition<Settings> = {
         },
         body: '{"grant_type":"client_credentials"}'
       })
-      if (res.status == 200) {
+      if (res.status == 200 && res.data) {
         return { accessToken: res.data.access_token }
       } else {
         throw new Error(res.status + res.statusText)
