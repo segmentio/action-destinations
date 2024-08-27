@@ -1,0 +1,4 @@
+[2K[1G[33mwarning[39m package.json: "dependencies" has dependency "@types/node" with range "^18.11.15" that collides with a dependency in "devDependencies" of the same name with version "^14.0.0"
+[2K[1G[2m$ yarn tsc -b tsconfig.build.json[22m
+[2K[1G[33mwarning[39m package.json: "dependencies" has dependency "@types/node" with range "^18.11.15" that collides with a dependency in "devDependencies" of the same name with version "^14.0.0"
+[2K[1G[2m$ /Users/vvijayaragavan/dev/src/github.com/segmentio/action-destinations/node_modules/.bin/tsc -b tsconfig.build.json[22m
