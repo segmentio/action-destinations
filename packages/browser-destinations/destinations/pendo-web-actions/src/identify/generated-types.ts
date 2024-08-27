@@ -11,4 +11,8 @@ export interface Payload {
   visitorData?: {
     [k: string]: unknown
   }
+  /**
+   * Pendo Account ID. Maps to Segment groupId.  Note: If you plan to change this, enable the setting "Use custom Segment group trait for Pendo account id"
+   */
+  accountId?: string
 }
