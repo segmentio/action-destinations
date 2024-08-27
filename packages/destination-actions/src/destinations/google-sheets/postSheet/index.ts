@@ -75,6 +75,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Data to Google Sheets',
       description: 'Set as true to ensure Segment sends data to Google Sheets in batches. Please do not set to false.',
       default: true
+    },
+    batch_size: {
+      type: 'number',
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      required: false,
+      default: 100000
     }
   },
   perform: (request, { payload }) => {

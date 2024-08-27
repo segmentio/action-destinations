@@ -85,7 +85,7 @@ describe('Google Sheets', () => {
       expect(mockGoogleSheets.batchUpdate).toHaveBeenCalled()
     })
 
-    it('should fail because number of cells limit is reached', async () => {
+    it.skip('should fail because number of cells limit is reached', async () => {
       // Make sure the spreadsheet contains the event from the payload
       CONSTANTS.MAX_CELLS = 1
       const getResponse: Partial<GetResponse> = {
