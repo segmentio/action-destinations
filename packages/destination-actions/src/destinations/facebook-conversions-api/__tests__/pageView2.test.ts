@@ -16,7 +16,48 @@ const settingsWithTestEventCode = {
 }
 
 describe('FacebookConversionsApi', () => {
-  describe('PageView', () => {
+  describe('PageView2', () => {
+    it('should throw an error syncMode incorrect', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product Added',
+        userId: 'abc123',
+        properties: {
+          timestamp: 1631210030,
+          action_source: 'email',
+          email: 'test@test.com'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('pageView2', {
+          event,
+          settings,
+          mapping: {
+            __segment_internal_sync_mode: 'update',
+            currency: {
+              '@path': '$.properties.currency'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            action_source: {
+              '@path': '$.properties.action_source'
+            },
+            event_time: {
+              '@path': '$.properties.timestamp'
+            },
+            user_data: {
+              email: {
+                '@path': '$.properties.email'
+              }
+            }
+          }
+        })
+      ).rejects.toThrowError('Sync mode update is not supported')
+    })
+
     it('should handle a basic event', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -32,7 +73,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('pageView', {
+      const responses = await testDestination.testAction('pageView2', {
         event,
         settings,
         useDefaultMappings: true,
@@ -61,7 +102,7 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('pageView', {
+        testDestination.testAction('pageView2', {
           event,
           settings,
           mapping: {
@@ -98,7 +139,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('pageView', {
+      const responses = await testDestination.testAction('pageView2', {
         event,
         settings,
         useDefaultMappings: true,
@@ -140,7 +181,7 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('pageView', {
+        testDestination.testAction('pageView2', {
           event,
           settings,
           mapping: {
@@ -180,7 +221,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('pageView', {
+      const responses = await testDestination.testAction('pageView2', {
         event,
         settings: settingsWithTestEventCode,
         useDefaultMappings: true,
@@ -211,7 +252,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('pageView', {
+      const responses = await testDestination.testAction('pageView2', {
         event,
         settings,
         useDefaultMappings: true,
