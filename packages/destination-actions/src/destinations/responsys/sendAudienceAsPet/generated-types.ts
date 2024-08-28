@@ -23,13 +23,13 @@ export interface Payload {
    */
   folder_name: string
   /**
-   * A unique identifier assigned to a specific audience in Segment.
+   * The PET (Profile Extension Table) name. The default value is the audience key in Segment.
    */
-  computation_key: string
+  pet_name: string
   /**
    * The timestamp of when the event occurred.
    */
-  timestamp: string | number
+  timestamp?: string | number
   /**
    * A delay of the selected seconds will be added before retrying a failed request.
    *                     Max delay allowed is 600 secs (10 mins). The default is 0 seconds.

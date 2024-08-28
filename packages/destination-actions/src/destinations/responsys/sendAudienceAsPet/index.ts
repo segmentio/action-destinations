@@ -56,9 +56,9 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: 'Segment'
     },
-    computation_key: {
-      label: 'Segment Audience Key',
-      description: 'A unique identifier assigned to a specific audience in Segment.',
+    pet_name: {
+      label: 'Profile Extension Table Name',
+      description: 'The PET (Profile Extension Table) name. The default value is the audience key in Segment.',
       type: 'string',
       required: true,
       unsafe_hidden: true,
@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Timestamp',
       description: 'The timestamp of when the event occurred.',
       type: 'datetime',
-      required: true,
+      required: false,
       unsafe_hidden: true,
       default: {
         '@path': '$.timestamp'
@@ -92,17 +92,19 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 0
     }
   },
+  // https://docs.oracle.com/en/cloud/saas/marketing/responsys-rest-api/op-rest-api-v1.3-lists-listname-listextensions-petname-members-post.html
   perform: async (request, data) => {
     const { payload, settings } = data
     validateListMemberPayload(payload.userData)
 
-    const petAlreadyExists = await petExists(request, settings, payload.computation_key)
+    const petAlreadyExists = await petExists(request, settings, payload.pet_name)
     if (!petAlreadyExists) {
       await createPet(request, settings, payload)
     }
 
     return await updatePet(request, settings, [payload])
   },
+  // https://docs.oracle.com/en/cloud/saas/marketing/responsys-rest-api/op-rest-api-v1.3-lists-listname-listextensions-petname-members-post.html
   performBatch: async (request, data) => {
     const { payload, settings } = data
 
@@ -117,7 +119,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     // Can we consider that each batch has only one audience key?
-    const petAlreadyExists = await petExists(request, settings, payload[0].computation_key)
+    const petAlreadyExists = await petExists(request, settings, payload[0].pet_name)
     if (!petAlreadyExists) {
       await createPet(request, settings, payload[0])
     }

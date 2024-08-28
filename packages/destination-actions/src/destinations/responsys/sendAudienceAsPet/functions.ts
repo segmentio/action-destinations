@@ -20,13 +20,13 @@ export const petExists = async (request: RequestClient, settings: Settings, comp
 export const createPet = async (request: RequestClient, settings: Settings, payload: Payload) => {
   const requestBody = {
     profileExtension: {
-      objectName: payload.computation_key,
+      objectName: payload.pet_name,
       folderName: payload.folder_name
     },
     fields: [
       {
-        name: payload.computation_key,
-        fieldType: 'STRING'
+        fieldName: payload.pet_name,
+        fieldType: 'STR500'
       }
     ]
   }
@@ -55,8 +55,8 @@ export const updatePet = async (request: RequestClient, settings: Settings, payl
   } = {}
 
   for (const payload of payloads) {
-    if (!records[payload.computation_key]) {
-      records[payload.computation_key] = {
+    if (!records[payload.pet_name]) {
+      records[payload.pet_name] = {
         recordsWithUserId: [],
         recordsWithEmail: [],
         recordsWithRiid: []
@@ -64,11 +64,11 @@ export const updatePet = async (request: RequestClient, settings: Settings, payl
     }
 
     if (payload.userData.CUSTOMER_ID_) {
-      records[payload.computation_key].recordsWithUserId.push(payload)
+      records[payload.pet_name].recordsWithUserId.push(payload)
     } else if (payload.userData.EMAIL_ADDRESS_) {
-      records[payload.computation_key].recordsWithEmail.push(payload)
+      records[payload.pet_name].recordsWithEmail.push(payload)
     } else if (payload.userData.RIID_) {
-      records[payload.computation_key].recordsWithRiid.push(payload)
+      records[payload.pet_name].recordsWithRiid.push(payload)
     }
   }
 
@@ -123,9 +123,11 @@ const buildPetUpdatePayload = (payloads: Payload[], fieldType: 'CUSTOMER_ID' | '
       }) as string[][],
       mapTemplateName: null
     },
-    insertOnNoMatch: true,
-    updateOnMatch: 'REPLACE_ALL',
-    matchColumnName1: matchType
+    mergeRule: {
+      insertOnNoMatch: true,
+      updateOnMatch: 'REPLACE_ALL',
+      matchColumnName1: matchType
+    }
   }
 
   return requestBody

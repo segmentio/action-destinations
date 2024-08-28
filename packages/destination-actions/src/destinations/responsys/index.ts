@@ -192,8 +192,9 @@ const destination: DestinationDefinition<Settings> = {
 
       return Promise.resolve(res.data.authToken ? true : false)
     },
-    refreshAccessToken: async (request, { settings }) => {
-      const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+    refreshAccessToken: async (request, { auth }) => {
+      const resolvedAuth = auth as unknown as { baseUrl: string; username: string; userPassword: string }
+      const baseUrl = resolvedAuth.baseUrl?.replace(/\/$/, '')
       const endpoint = `${baseUrl}/rest/api/v1.3/auth/token`
 
       const res = await request<RefreshTokenResponse>(endpoint, {
@@ -201,8 +202,8 @@ const destination: DestinationDefinition<Settings> = {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `user_name=${encodeURIComponent(settings.username)}&password=${encodeURIComponent(
-          settings.userPassword
+        body: `user_name=${encodeURIComponent(resolvedAuth.username)}&password=${encodeURIComponent(
+          resolvedAuth.userPassword
         )}&auth_type=password`
       })
       return { accessToken: res.data.authToken }

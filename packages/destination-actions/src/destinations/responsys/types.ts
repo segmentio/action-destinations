@@ -56,7 +56,7 @@ export type ResponsysMergeRule = {
 export type ResponsysRecordData = {
   fieldNames: string[]
   records: string[][]
-  mapTemplateName: string | null
+  mapTemplateName?: string | null
 }
 
 export type ResponsysListMemberRequestBody = {
@@ -76,7 +76,5 @@ export type ResponsysCustomTraitsRequestBody = {
 
 export type ResponsysAudiencePetUpdateRequestBody = {
   recordData: ResponsysRecordData
-  insertOnNoMatch: boolean
-  updateOnMatch: string
-  matchColumnName1: 'CUSTOMER_ID_' | 'EMAIL_ADDRESS_' | 'RIID_'
+  mergeRule: ResponsysMergeRule
 }
