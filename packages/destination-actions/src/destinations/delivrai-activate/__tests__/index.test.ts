@@ -2,7 +2,7 @@ import { gen_update_segment_payload } from '../utils-rt'
 import { Payload } from '../updateSegment/generated-types'
 
 describe('Delivr AI Audiences', () => {
-  
+
   describe('gen_update_segment_payload() function', () => {
     describe('Success cases', () => {
       it('trivial', () => {
@@ -46,7 +46,7 @@ describe('Delivr AI Audiences', () => {
         ]
         const client_identifier_id = 'delivrai'
         // When
-        const result = gen_update_segment_payload(payloads,client_identifier_id)
+        const result = gen_update_segment_payload(payloads ,client_identifier_id)
 
         // Then
         expect(result).toBeTruthy()
