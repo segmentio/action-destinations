@@ -95,7 +95,9 @@ export abstract class OperationStats<TContext extends OperationStatsContext = Op
   }
 
   toTags(tags: Record<string, string | boolean | number | undefined>): string[] {
-    return Object.entries(tags).map(([key, value]) => (value ? `${key}:${value}` : key))
+    return Object.entries(tags).map(([key, value]) =>
+      value === undefined || value === '' || value === null ? key : `${key}:${value}`
+    )
   }
   statsOperationEvent(args: OperationStatsEventArgs) {
     if (args.context.decoratorArgs?.shouldStats) {
