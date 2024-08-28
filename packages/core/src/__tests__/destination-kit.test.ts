@@ -1505,7 +1505,7 @@ describe('destination kit', () => {
         expect(spy).toHaveBeenCalledTimes(1)
       })
 
-      test('Will not refresh access-token in case of any non 401 error', async () => {
+      test('should not refresh access-token in case of any non 401 error', async () => {
         const createAudienceInput = {
           audienceName: 'Test Audience',
           settings: {
@@ -1525,7 +1525,7 @@ describe('destination kit', () => {
         expect(spy).not.toHaveBeenCalled()
       })
 
-      test('Will not refresh access-token if token is already valid', async () => {
+      test('should not refresh access-token if token is already valid', async () => {
         const createAudienceInput = {
           audienceName: 'Test Audience',
           settings: {
@@ -1549,7 +1549,7 @@ describe('destination kit', () => {
         expect(spy).not.toHaveBeenCalled()
       })
 
-      test('Will not refresh the access-token for non-Oauth authentication scheme', async () => {
+      test('should not refresh the access-token for non-Oauth authentication scheme', async () => {
         const createAudienceInput = {
           audienceName: 'Test Audience',
           settings: {
@@ -1595,7 +1595,7 @@ describe('destination kit', () => {
         expect(spy).toHaveBeenCalledTimes(1)
       })
 
-      test('Will not refresh access-token in case of any non 401 error', async () => {
+      test('should not refresh access-token in case of any non 401 error', async () => {
         const getAudienceInput = {
           externalId: WRONG_AUDIENCE_ID,
           settings: {
@@ -1614,7 +1614,7 @@ describe('destination kit', () => {
         expect(spy).not.toHaveBeenCalled()
       })
 
-      test('Will not refresh access-token if token is already valid', async () => {
+      test('should not refresh access-token if token is already valid', async () => {
         const getAudienceInput = {
           externalId: '366170701270726115',
           settings: {
@@ -1634,7 +1634,7 @@ describe('destination kit', () => {
         expect(spy).not.toHaveBeenCalled()
       })
 
-      test('Will not refresh the access-token for non-Oauth authentication scheme', async () => {
+      test('should not refresh the access-token for non-Oauth authentication scheme', async () => {
         const getAudienceInput = {
           externalId: '366170701270726115',
           settings: {
