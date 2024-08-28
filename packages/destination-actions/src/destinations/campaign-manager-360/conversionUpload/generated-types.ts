@@ -2,49 +2,54 @@
 
 export interface Payload {
   /**
-   * The Floodlight configuration ID associated with the conversion.
+   * The Floodlight configuration ID associated with the conversion. Overrides the default Floodlight Configuration ID defined in Settings.
    */
   floodlightConfigurationId?: string
   /**
-   * The Floodlight activity ID associated with the conversion.
+   * The Floodlight activity ID associated with the conversion. Overrides the default Floodlight Activity ID defined in Settings.
    */
   floodlightActivityId?: string
   /**
-   * The email address associated with the conversion.
+   * User details associated with the conversion.
    */
-  email?: string
-  /**
-   * The phone number associated with the conversion.
-   */
-  phone?: string
-  /**
-   * The first name associated with the conversion.
-   */
-  firstName?: string
-  /**
-   * The last name associated with the conversion.
-   */
-  lastName?: string
-  /**
-   * The street address associated with the conversion.
-   */
-  streetAddress?: string
-  /**
-   * The city associated with the conversion.
-   */
-  city?: string
-  /**
-   * The state associated with the conversion.
-   */
-  state?: string
-  /**
-   * The postal code associated with the conversion.
-   */
-  postalCode?: string
-  /**
-   * The country code associated with the conversion.
-   */
-  countryCode?: string
+  userDetails?: {
+    /**
+     * The email address associated with the conversion.
+     */
+    email?: string
+    /**
+     * The phone number associated with the conversion.
+     */
+    phone?: string
+    /**
+     * The first name associated with the conversion.
+     */
+    firstName?: string
+    /**
+     * The last name associated with the conversion.
+     */
+    lastName?: string
+    /**
+     * The street address associated with the conversion.
+     */
+    streetAddress?: string
+    /**
+     * The city associated with the conversion.
+     */
+    city?: string
+    /**
+     * The state associated with the conversion.
+     */
+    state?: string
+    /**
+     * The postal code associated with the conversion.
+     */
+    postalCode?: string
+    /**
+     * The country code associated with the conversion.
+     */
+    countryCode?: string
+  }
   /**
    * The Google Click ID (gclid) associated with the conversion.
    */
@@ -81,8 +86,19 @@ export interface Payload {
    * Custom variables associated with the conversion.
    */
   customVariables?: {
-    [k: string]: unknown
-  }
+    /**
+     * The type of the custom variable.
+     */
+    type: string
+    /**
+     * The value of the custom variable.
+     */
+    value: string
+    /**
+     * The kind of the custom variable.
+     */
+    kind?: string
+  }[]
   /**
    * Whether Limit Ad Tracking is enabled. When set to true, the conversion will be used for reporting but not targeting. This will prevent remarketing.
    */
@@ -92,9 +108,9 @@ export interface Payload {
    */
   childDirectedTreatment?: boolean
   /**
-   * A list of the alphanumeric encrypted user IDs. Any user ID with exposure prior to the conversion timestamp will be used in the inserted conversion. If no such user ID is found then the conversion will be rejected with INVALID_ARGUMENT error. When set, `encryptionInfo` should also be specified.
+   * A comma separated list of the alphanumeric encrypted user IDs. Any user ID with exposure prior to the conversion timestamp will be used in the inserted conversion. If no such user ID is found then the conversion will be rejected with INVALID_ARGUMENT error. When set, `encryptionInfo` should also be specified.
    */
-  encryptedUserIdCandidates?: string[]
+  encryptedUserIdCandidates?: string
   /**
    * Whether the conversion was for a non personalized ad.
    */
@@ -115,4 +131,25 @@ export interface Payload {
    * The user data consent status for the conversion.
    */
   adUserDataConsent?: string
+  /**
+   * A Description of how user IDs are encrypted.
+   */
+  encryptionInfo?: {
+    /**
+     * The encryption entity type. This should match the encryption type configuration for ad serving or Data Transfer.
+     */
+    encryptionEntityType: string
+    /**
+     * The encryption entity ID. This should match the encryption configuration for ad serving or Data Transfer.
+     */
+    encryptionEntityId: string
+    /**
+     * Describes whether the encrypted cookie was received from ad serving (the %m macro) or from Data Transfer.
+     */
+    encryptionSource: string
+    /**
+     * Identifies what kind of resource this is. Value: the fixed string
+     */
+    kind: string
+  }
 }

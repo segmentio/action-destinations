@@ -11,14 +11,16 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     floodlightConfigurationId: {
       label: 'Floodlight Configuration ID',
-      description: 'The Floodlight configuration ID associated with the conversion.',
+      description:
+        'The Floodlight configuration ID associated with the conversion. Overrides the default Floodlight Configuration ID defined in Settings.',
       type: 'string',
       required: false
       // dynamic: true
     },
     floodlightActivityId: {
       label: 'Floodlight Activity ID',
-      description: 'The Floodlight activity ID associated with the conversion.',
+      description:
+        'The Floodlight activity ID associated with the conversion. Overrides the default Floodlight Activity ID defined in Settings.',
       type: 'string',
       required: false
     },
@@ -84,7 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        email: { 
+        email: {
           '@if': {
             exists: { '@path': '$.traits.email' },
             then: { '@path': '$.traits.email' },
@@ -92,56 +94,56 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         },
         phone: {
-          'if': { 
+          '@if': {
             exists: { '@path': '$.traits.phone' },
             then: { '@path': '$.traits.phone' },
             else: { '@path': '$.context.traits.phone' }
           }
         },
         firstName: {
-          'if': { 
+          '@if': {
             exists: { '@path': '$.traits.first_name' },
             then: { '@path': '$.traits.first_name' },
             else: { '@path': '$.context.traits.first_name' }
           }
         },
         lastName: {
-          'if': { 
+          '@if': {
             exists: { '@path': '$.traits.last_name' },
             then: { '@path': '$.traits.last_name' },
             else: { '@path': '$.context.traits.last_name' }
           }
         },
         streetAddress: {
-          'if': { 
+          '@if': {
             exists: { '@path': '$.traits.address.street' },
             then: { '@path': '$.traits.address.street' },
             else: { '@path': '$.context.traits.address.street' }
           }
         },
         city: {
-          'if': { 
+          '@if': {
             exists: { '@path': '$.traits.address.city' },
             then: { '@path': '$.traits.address.city' },
             else: { '@path': '$.context.traits.address.city' }
           }
         },
         state: {
-          'if': { 
+          '@if': {
             exists: { '@path': '$.traits.address.state' },
             then: { '@path': '$.traits.address.state' },
             else: { '@path': '$.context.traits.address.state' }
           }
         },
         postalCode: {
-          'if': { 
-            exists: { '@path': '$.traits.address.postalCode' },
-            then: { '@path': '$.traits.address.postalCode' },
-            else: { '@path': '$.context.traits.address.postalCode' }
+          '@if': {
+            exists: { '@path': '$.traits.address.postal_code' },
+            then: { '@path': '$.traits.address.postal_code' },
+            else: { '@path': '$.context.traits.address.postal_code' }
           }
         },
         countryCode: {
-          'if': { 
+          '@if': {
             exists: { '@path': '$.traits.address.country' },
             then: { '@path': '$.traits.address.country' },
             else: { '@path': '$.context.traits.address.country' }
@@ -154,7 +156,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The Google Click ID (gclid) associated with the conversion.',
       type: 'string',
       required: false,
-      default: { 
+      default: {
         '@if': {
           exists: { '@path': '$.integrations.Campaign Manager 360.gclid' },
           then: { '@path': '$.integrations.Campaign Manager 360.gclid' },
@@ -167,7 +169,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The Display Click ID (dclid) associated with the conversion.',
       type: 'string',
       required: false,
-      default: { 
+      default: {
         '@if': {
           exists: { '@path': '$.integrations.Campaign Manager 360.dclid' },
           then: { '@path': '$.integrations.Campaign Manager 360.dclid' },
@@ -205,7 +207,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.properties.total' },
           then: { '@path': '$.properties.total' },
-          else: { '@path': '$.properties.revenue'}
+          else: { '@path': '$.properties.revenue' }
         }
       }
     },
@@ -243,7 +245,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Value',
           description: 'The value of the custom variable.',
           type: 'string',
-          required: true          
+          required: true
         },
         kind: {
           label: 'Kind',
@@ -337,7 +339,8 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         encryptionEntityType: {
           label: 'Encryption Entity Type',
-          description: 'The encryption entity type. This should match the encryption type configuration for ad serving or Data Transfer.',
+          description:
+            'The encryption entity type. This should match the encryption type configuration for ad serving or Data Transfer.',
           type: 'string',
           choices: [
             { label: 'ENCRYPTION_ENTITY_TYPE_UNKNOWN', value: 'ENCRYPTION_ENTITY_TYPE_UNKNOWN' },
@@ -352,13 +355,15 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         encryptionEntityId: {
           label: 'Encryption Entity ID',
-          description: 'The encryption entity ID. This should match the encryption configuration for ad serving or Data Transfer.',
+          description:
+            'The encryption entity ID. This should match the encryption configuration for ad serving or Data Transfer.',
           type: 'string',
           required: true
         },
         encryptionSource: {
           label: 'Encryption Source',
-          description: 'Describes whether the encrypted cookie was received from ad serving (the %m macro) or from Data Transfer.',
+          description:
+            'Describes whether the encrypted cookie was received from ad serving (the %m macro) or from Data Transfer.',
           type: 'string',
           choices: [
             { label: 'ENCRYPTION_SCOPE_UNKNOWN', value: 'ENCRYPTION_SCOPE_UNKNOWN' },

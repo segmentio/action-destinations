@@ -2,49 +2,54 @@
 
 export interface Payload {
   /**
-   * The Floodlight configuration ID associated with the conversion.
+   * The Floodlight configuration ID associated with the conversion. Overrides the default Floodlight Configuration ID defined in Settings.
    */
   floodlightConfigurationId?: string
   /**
-   * The Floodlight activity ID associated with the conversion.
+   * The Floodlight activity ID associated with the conversion. Overrides the default Floodlight Activity ID defined in Settings.
    */
   floodlightActivityId?: string
   /**
-   * The email address associated with the conversion.
+   * User details associated with the conversion.
    */
-  email?: string
-  /**
-   * The phone number associated with the conversion.
-   */
-  phone?: string
-  /**
-   * The first name associated with the conversion.
-   */
-  firstName?: string
-  /**
-   * The last name associated with the conversion.
-   */
-  lastName?: string
-  /**
-   * The street address associated with the conversion.
-   */
-  streetAddress?: string
-  /**
-   * The city associated with the conversion.
-   */
-  city?: string
-  /**
-   * The state associated with the conversion.
-   */
-  state?: string
-  /**
-   * The postal code associated with the conversion.
-   */
-  postalCode?: string
-  /**
-   * The country code associated with the conversion.
-   */
-  countryCode?: string
+  userDetails?: {
+    /**
+     * The email address associated with the conversion.
+     */
+    email?: string
+    /**
+     * The phone number associated with the conversion.
+     */
+    phone?: string
+    /**
+     * The first name associated with the conversion.
+     */
+    firstName?: string
+    /**
+     * The last name associated with the conversion.
+     */
+    lastName?: string
+    /**
+     * The street address associated with the conversion.
+     */
+    streetAddress?: string
+    /**
+     * The city associated with the conversion.
+     */
+    city?: string
+    /**
+     * The state associated with the conversion.
+     */
+    state?: string
+    /**
+     * The postal code associated with the conversion.
+     */
+    postalCode?: string
+    /**
+     * The country code associated with the conversion.
+     */
+    countryCode?: string
+  }
   /**
    * The Google Click ID (gclid) associated with the conversion.
    */
