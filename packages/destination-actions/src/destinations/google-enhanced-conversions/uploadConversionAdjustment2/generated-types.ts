@@ -73,4 +73,12 @@ export interface Payload {
    * The user agent to enhance the original conversion. User agent can only be specified in enhancements with user identifiers. This should match the user agent of the request that sent the original conversion so the conversion and its enhancement are either both attributed as same-device or both attributed as cross-device.
    */
   user_agent?: string
+  /**
+   * If true, Segment will batch events before sending to Google’s APIs. Google accepts batches of up to 2000 events.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch.
+   */
+  batch_size?: number
 }

@@ -422,41 +422,56 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   }
 
   async createAudience(createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>) {
-    const audienceDefinition = this.definition as AudienceDestinationDefinition
-    if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
+    let settings: JSONObject = createAudienceInput.settings as unknown as JSONObject
+    const { audienceConfig } = this.definition as AudienceDestinationDefinition
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceConfig)) {
       throw new Error('Unexpected call to createAudience')
     }
-    const destinationSettings = this.getDestinationSettings(createAudienceInput.settings as unknown as JSONObject)
-    const auth = getAuthData(createAudienceInput.settings as unknown as JSONObject)
-    const context: ExecuteInput<Settings, any, AudienceSettings> = {
-      audienceSettings: createAudienceInput.audienceSettings,
-      settings: destinationSettings,
-      payload: undefined,
-      auth
+    const destinationSettings = this.getDestinationSettings(settings)
+    const run = async () => {
+      const auth = getAuthData(settings)
+      const context: ExecuteInput<Settings, any, AudienceSettings> = {
+        audienceSettings: createAudienceInput.audienceSettings,
+        settings: destinationSettings,
+        payload: undefined,
+        auth
+      }
+      const opts = this.extendRequest?.(context) ?? {}
+      const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
+      return await audienceConfig?.createAudience(requestClient, createAudienceInput)
     }
-    const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
 
-    return audienceDefinition.audienceConfig?.createAudience(requestClient, createAudienceInput)
+    const onFailedAttempt = async (error: ResponseError & HTTPError) => {
+      settings = await this.handleAuthError(error, settings)
+    }
+    return await retry(run, { retries: 2, onFailedAttempt })
   }
 
   async getAudience(getAudienceInput: GetAudienceInput<Settings, AudienceSettings>) {
-    const audienceDefinition = this.definition as AudienceDestinationDefinition
-    if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceDefinition.audienceConfig)) {
+    const { audienceConfig } = this.definition as AudienceDestinationDefinition
+    let settings: JSONObject = getAudienceInput.settings as unknown as JSONObject
+    if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceConfig)) {
       throw new Error('Unexpected call to getAudience')
     }
-    const destinationSettings = this.getDestinationSettings(getAudienceInput.settings as unknown as JSONObject)
-    const auth = getAuthData(getAudienceInput.settings as unknown as JSONObject)
-    const context: ExecuteInput<Settings, any, AudienceSettings> = {
-      audienceSettings: getAudienceInput.audienceSettings,
-      settings: destinationSettings,
-      payload: undefined,
-      auth
+    const destinationSettings = this.getDestinationSettings(settings)
+    const run = async () => {
+      const auth = getAuthData(settings)
+      const context: ExecuteInput<Settings, any, AudienceSettings> = {
+        audienceSettings: getAudienceInput.audienceSettings,
+        settings: destinationSettings,
+        payload: undefined,
+        auth
+      }
+      const opts = this.extendRequest?.(context) ?? {}
+      const requestClient = createRequestClient({ ...opts, statsContext: context.statsContext })
+      return await audienceConfig?.getAudience(requestClient, getAudienceInput)
     }
-    const options = this.extendRequest?.(context) ?? {}
-    const requestClient = createRequestClient({ ...options, statsContext: context.statsContext })
 
-    return audienceDefinition.audienceConfig?.getAudience(requestClient, getAudienceInput)
+    const onFailedAttempt = async (error: ResponseError & HTTPError) => {
+      settings = await this.handleAuthError(error, settings)
+    }
+
+    return await retry(run, { retries: 2, onFailedAttempt })
   }
 
   async testAuthentication(settings: Settings): Promise<void> {

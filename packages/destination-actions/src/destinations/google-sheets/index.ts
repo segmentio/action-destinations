@@ -2,6 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import postSheet from './postSheet'
+import postSheet2 from './postSheet2'
 interface RefreshTokenResponse {
   access_token: string
   scope: string
@@ -51,7 +52,8 @@ const destination: DestinationDefinition<Settings> = {
   // },
 
   actions: {
-    postSheet
+    postSheet,
+    postSheet2
   }
 }
 
