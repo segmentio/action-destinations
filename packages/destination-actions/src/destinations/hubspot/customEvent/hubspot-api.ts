@@ -1,6 +1,7 @@
 import { RequestClient, PayloadValidationError, IntegrationError, RetryableError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
+import { sanitizeEventName, sanitizeProperties } from './utils'
 
 export type SyncMode = 'upsert' | 'add' | 'update'
 
@@ -84,34 +85,6 @@ export class HubspotClient {
     return 'datetime'
   }
 
-  sanitizeEventName(str: string): string {
-    return str.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
-  }
-
-  sanitizePropertyName(str: string): string {
-    return str.toLowerCase().replace(/[^a-z0-9_]/g, '_')
-  }
-
-  sanitizeProperties(properties: { [k: string]: unknown }): { [k: string]: string | number | boolean } {
-    const result: { [k: string]: string | number | boolean } = {}
-
-    Object.keys(properties).forEach((key) => {
-      const value = properties[key]
-      const propName = this.sanitizePropertyName(key)
-
-      if (!/^[a-z]/.test(propName)) {
-        throw new PayloadValidationError(
-          `Property ${key} in event has an invalid name. Property names must start with a letter.`
-        )
-      }
-
-      result[propName] =
-        typeof value === 'object' && value !== null ? JSON.stringify(value) : (value as string | number | boolean)
-    })
-
-    return result
-  }
-
   propertyBody(
     eventName: string,
     type: SegmentPropertyType,
@@ -184,7 +157,7 @@ export class HubspotClient {
 
   segmentSchema(payload: Payload): SegmentEventSchema {
     const { event_name, properties } = payload
-    const sanitizedEventName = this.sanitizeEventName(event_name)
+    const sanitizedEventName = sanitizeEventName(event_name)
     const props: { [key: string]: SegmentProperty } = {}
 
     if (properties) {
@@ -296,7 +269,7 @@ export class HubspotClient {
       email: record_details.email ?? undefined,
       utk: record_details.utk ?? undefined,
       occurredAt,
-      properties: properties ? this.sanitizeProperties(properties) : undefined
+      properties: properties ? sanitizeProperties(properties) : undefined
     }
 
     return this.request(url, {
@@ -306,7 +279,8 @@ export class HubspotClient {
   }
 
   async send(payload: Payload) {
-    payload.properties = this.sanitizeProperties(payload.properties ?? {})
+    payload.event_name = sanitizeEventName(payload.event_name)
+    payload.properties = sanitizeProperties(payload.properties ?? {})
 
     const schema = this.segmentSchema(payload)
     const cacheSchemaDiff = await this.compareSchemaToCache(schema)

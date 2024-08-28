@@ -2,7 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { SUPPORTED_HUBSPOT_OBJECT_TYPES, DEFAULT_CUSTOM_EVENT_PROPERTIES } from './constants'
-
+import { sanitizeEventName } from './utils'
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 export async function dynamicReadEventNames(request: RequestClient): Promise<DynamicFieldResponse> {
@@ -103,6 +103,7 @@ export async function dynamicReadProperties(request: RequestClient, eventName: s
     }
     archived: boolean
     fullyQualifiedName: string
+    name: string
     properties: Array<{
       archived: boolean
       label: string
@@ -128,10 +129,15 @@ export async function dynamicReadProperties(request: RequestClient, eventName: s
       }
     )
 
+    const sanitizedEventName = sanitizeEventName(eventName)
+
     return {
       choices: (() => {
         const choices = response.data.results
-          .filter((event: ResultItem) => event.fullyQualifiedName === eventName && !event.archived)
+          .filter(
+            (event: ResultItem) =>
+              (event.fullyQualifiedName === sanitizedEventName || event.name === sanitizedEventName) && !event.archived
+          )
           .map((event: ResultItem) => {
             if (!event.properties || event.properties.length === 0) {
               return {
