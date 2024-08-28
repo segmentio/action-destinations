@@ -4,3 +4,4 @@ export interface DelivrAIPayload {
   data: Array<unknown>,
   client_identifier_id:string
 }
+
