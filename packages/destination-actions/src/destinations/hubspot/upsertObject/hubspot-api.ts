@@ -258,6 +258,9 @@ export class HubspotClient {
    *
    * If the input object is `undefined`, the function will return `undefined`.
    *
+   * This function is particularly important when the customer passes properties via as key:value pairs, as the UI converts all of these into strings,
+   * which then need to be converted back into numbers, booleans, before being passed on to Hubspot
+   *
    * @param {Object.<string, unknown> | undefined} obj - The object whose properties and values
    *   need to be cleaned. It can be `undefined` which will result in an `undefined` return value.
    * @returns {Object.<string, string | number | boolean> | undefined} - A new object with cleaned
@@ -273,8 +276,20 @@ export class HubspotClient {
     Object.keys(obj).forEach((key) => {
       const value = obj[key]
       const cleanKey = this.cleanProp(key)
-      cleanObj[cleanKey] =
-        typeof value === 'object' && value !== null ? JSON.stringify(value) : (value as string | number | boolean)
+
+      if (!isNaN(Number(value))) {
+        // If the value can be cast to a number
+        cleanObj[cleanKey] = Number(value)
+      } else if (typeof value === 'string' && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
+        // If the value can be cast to a boolean
+        cleanObj[cleanKey] = value.toLowerCase() === 'true'
+      } else if (typeof value === 'object' && value !== null) {
+        // If the value is an object
+        cleanObj[cleanKey] = JSON.stringify(value)
+      } else {
+        // If the value is anything else then stringify it
+        cleanObj[cleanKey] = String(value)
+      }
     })
 
     return cleanObj
