@@ -92,6 +92,7 @@ export abstract class MessageSendPerformer<
   TSettings extends MessageSettingsBase,
   TPayload extends MessagePayloadBase
 > extends EngageActionPerformer<TSettings, TPayload> {
+  @track()
   /**
    * Internal function to process sending a recepient.
    *
@@ -104,7 +105,7 @@ export abstract class MessageSendPerformer<
    * @returns The response from the server.
    */
   protected async sendToRecepientCache(recepient: ExtId<TPayload>) {
-    const messageId = (this.executeInput as any)['rawData']?.messageId
+    const messageId = this.getMessageId()
     const recipientId = recepient.id
     // if messageId or recipientId is not available, then don't cache
     if (!messageId || !recipientId) return this.sendToRecepient(recepient)
@@ -373,6 +374,9 @@ export abstract class MessageSendPerformer<
   }
   getCorrelationId() {
     return this.payload.customArgs?.correlation_id || this.payload.customArgs?.__segment_internal_correlation_id__
+  }
+  getMessageId() {
+    return (this.executeInput as any)['rawData']?.messageId
   }
 
   /**

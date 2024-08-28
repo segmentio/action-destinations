@@ -171,6 +171,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
             source_id: this.settings.sourceId,
             space_id: this.settings.spaceId,
             user_id: this.payload.userId ?? undefined,
+            message_id: this.getMessageId(),
             __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
             __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
           }
