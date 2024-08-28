@@ -16,7 +16,50 @@ const settingsWithTestEventCode = {
 }
 
 describe('FacebookConversionsApi', () => {
-  describe('AddToCart', () => {
+  describe('AddToCart2', () => {
+    it('should throw an error for invalid syncMode', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product Added',
+        userId: 'abc123',
+        timestamp: '1631210010',
+        properties: {
+          action_source: 'email',
+          currency: 'USD',
+          value: 12.12,
+          email: 'nicholas.aguilar@segment.com'
+        }
+      })
+
+      await expect(
+        testDestination.testAction('addToCart2', {
+          event,
+          settings,
+          mapping: {
+            __segment_internal_sync_mode: 'update',
+            currency: {
+              '@path': '$.properties.currency'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            user_data: {
+              email: {
+                '@path': '$.properties.email'
+              }
+            },
+            action_source: {
+              '@path': '$.properties.action_source'
+            },
+            event_time: {
+              '@path': '$.timestamp'
+            }
+          }
+        })
+      ).rejects.toThrowError('Sync mode update is not supported')
+    })
+
     it('should handle a basic event', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
 
@@ -39,7 +82,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart', {
+      const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
         mapping: {
@@ -97,7 +140,7 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('addToCart', {
+        testDestination.testAction('addToCart2', {
           event,
           settings,
           mapping: {
@@ -141,11 +184,11 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart', {
+      const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: { action_source: { '@path': '$.properties.action_source' } }
+        mapping: { __segment_internal_sync_mode: 'add', action_source: { '@path': '$.properties.action_source' } }
       })
 
       expect(responses.length).toBe(1)
@@ -174,7 +217,7 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('addToCart', {
+        testDestination.testAction('addToCart2', {
           event,
           settings,
           mapping: {
@@ -231,7 +274,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart', {
+      const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
         useDefaultMappings: true,
@@ -276,7 +319,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart', {
+      const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
         useDefaultMappings: true,
@@ -317,7 +360,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart', {
+      const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
         useDefaultMappings: true,
@@ -357,7 +400,7 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('addToCart', {
+        testDestination.testAction('addToCart2', {
           event,
           settings,
           mapping: {
@@ -412,7 +455,7 @@ describe('FacebookConversionsApi', () => {
       })
 
       await expect(
-        testDestination.testAction('addToCart', {
+        testDestination.testAction('addToCart2', {
           event,
           settings,
           mapping: {
@@ -457,7 +500,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart', {
+      const responses = await testDestination.testAction('addToCart2', {
         event,
         settings: settingsWithTestEventCode,
         mapping: {
@@ -545,7 +588,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart', {
+      const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
         mapping: {
@@ -654,7 +697,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart', {
+      const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
         mapping: {
@@ -694,7 +737,7 @@ describe('FacebookConversionsApi', () => {
         }
       })
 
-      const responses = await testDestination.testAction('addToCart', {
+      const responses = await testDestination.testAction('addToCart2', {
         event,
         settings,
         mapping: {
