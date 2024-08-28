@@ -52,12 +52,12 @@ const action: ActionDefinition<Settings, Payload> = {
     mailingLists: {
       label: 'Mailing Lists',
       description:
-        'An an array of objects containing key-value pairs of mailing list IDs and true/false determining if the contact should be added to or removed from each list.',
+        'An array of objects containing key-value pairs of mailing list IDs as `listId` and a true/false `subscribed` value determining if the contact should be added to or removed from each list.',
       type: 'object',
       multiple: true,
       required: false,
       properties: {
-        list_id: {
+        listId: {
           label: 'List ID',
           description: 'The ID of the mailing list.',
           type: 'string',
@@ -73,10 +73,10 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       default: {
         '@arrayPath': [
-          '$.properties.mailing_lists',
+          '$.traits.mailingLists',
           {
-            list_id: {
-              '@path': '$.list_id'
+            listId: {
+              '@path': '$.listId'
             },
             subscribed: {
               '@path': '$.subscribed'
@@ -127,13 +127,18 @@ const action: ActionDefinition<Settings, Payload> = {
 
     /* Re-shape mailing list data from a list of objects to a single object for the API */
     const formattedMailingLists: Record<string, boolean> = {}
-    type listObj = { list_id: string; subscribed: boolean }
+    type listObj = { listId: string; subscribed: boolean }
     if (payload.mailingLists) {
       for (const list of Object.values(payload.mailingLists)) {
-        if (typeof list === 'object' && 'list_id' in list && 'subscribed' in list) {
-          formattedMailingLists[(list as listObj).list_id] = (list as listObj).subscribed
+        if (typeof list === 'object' && 'listId' in list && 'subscribed' in list) {
+          formattedMailingLists[(list as listObj).listId] = (list as listObj).subscribed
         }
       }
+    }
+
+    /* Now delete the mailingLists data from traits/customAttributes */
+    if (typeof customAttributes === 'object' && 'mailingLists' in customAttributes) {
+      delete customAttributes.mailingLists
     }
 
     return request('https://app.loops.so/api/v1/contacts/update', {

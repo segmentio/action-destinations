@@ -114,4 +114,39 @@ describe('Loops.createOrUpdateContact', () => {
       id: 'someId'
     })
   })
+
+  it('should work with mailingLists data', async () => {
+    const testPayloadIn = {
+      email: 'test@example.com',
+      userId: 'some-id-2',
+      mailingLists: [
+        { listId: '1234', subscribed: true },
+        { listId: '74648', subscribed: false }
+      ]
+    }
+    const testPayloadOut = {
+      email: 'test@example.com',
+      userId: 'some-id-2',
+      mailingLists: {
+        1234: true,
+        74648: false
+      }
+    }
+    nock('https://app.loops.so/api/v1').put('/contacts/update', testPayloadOut).reply(200, {
+      success: true,
+      id: 'someId'
+    })
+
+    const responses = await testDestination.testAction('createOrUpdateContact', {
+      mapping: testPayloadIn,
+      settings: { apiKey: LOOPS_API_KEY }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toStrictEqual({
+      success: true,
+      id: 'someId'
+    })
+  })
 })
