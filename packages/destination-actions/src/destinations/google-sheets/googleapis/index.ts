@@ -30,6 +30,7 @@ export class GoogleSheets {
       `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values:batchUpdate`,
       {
         method: 'post',
+        timeout: 90000, // set to 90s. Google Sheets API has a 180s timeout. Overall batch request timeout within segment is 120s.
         json: {
           valueInputOption: mappingSettings.dataFormat,
           data: batchPayload
