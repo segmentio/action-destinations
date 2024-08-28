@@ -289,7 +289,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           }
           return { value: parsed.value }
         },
-        expiryInSeconds: 60 * 10 // 10 minutes
+        expiryInSeconds: 60 * 60 // 1hr
       }
     )
     return content
