@@ -1,7 +1,7 @@
 import { RequestClient } from '@segment/actions-core'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
-import { SUPPORTED_HUBSPOT_OBJECT_TYPES } from './constants'
+import { SUPPORTED_HUBSPOT_OBJECT_TYPES, DEFAULT_CUSTOM_EVENT_PROPERTIES } from './constants'
 
 import { DynamicFieldResponse } from '@segment/actions-core'
 
@@ -129,8 +129,8 @@ export async function dynamicReadProperties(request: RequestClient, eventName: s
     )
 
     return {
-      choices: [
-        ...response.data.results
+      choices: (() => {
+        const choices = response.data.results
           .filter((event: ResultItem) => event.fullyQualifiedName === eventName && !event.archived)
           .map((event: ResultItem) => {
             if (!event.properties || event.properties.length === 0) {
@@ -150,7 +150,13 @@ export async function dynamicReadProperties(request: RequestClient, eventName: s
               })
           })
           .flat()
-      ]
+
+        if (choices.length === 0) {
+          return DEFAULT_CUSTOM_EVENT_PROPERTIES
+        }
+
+        return choices
+      })()
     }
   } catch (err) {
     const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
