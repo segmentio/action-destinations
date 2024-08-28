@@ -94,6 +94,9 @@ export abstract class OperationStats<TContext extends OperationStatsContext = Op
     return Array.from(tagsMap.entries()).map(([key, value]) => (value ? `${key}:${value}` : key))
   }
 
+  toTags(tags: Record<string, string | boolean | number | undefined>): string[] {
+    return Object.entries(tags).map(([key, value]) => (value ? `${key}:${value}` : key))
+  }
   statsOperationEvent(args: OperationStatsEventArgs) {
     if (args.context.decoratorArgs?.shouldStats) {
       const shouldStats = args.context.decoratorArgs.shouldStats(args)

@@ -114,6 +114,7 @@ export abstract class MessageSendPerformer<
       `${messageId}-${recipientId?.toLowerCase()}`,
       () => this.sendToRecepient(recepient),
       {
+        cacheGroup: 'sendToRecepient',
         parse: (cachedValue) => {
           const parsed = CachedValueFactory.fromString(cachedValue)
           if (parsed instanceof CachedError) {
@@ -138,10 +139,15 @@ export abstract class MessageSendPerformer<
     )
   }
 
+  @track()
   async getOrAddCache<T>(
     key: string,
     createValue: () => Promise<T>,
     options: {
+      /**
+       * The group of cache used for stats tags
+       */
+      cacheGroup?: string
       //if undefined returned, then the value will not be cached
       stringify: (cacheable: ValueOrError<T>) => string | void
       //if undefined returned, then the cache is either corrupted or expired and will be re-executed
@@ -149,50 +155,63 @@ export abstract class MessageSendPerformer<
       expiryInSeconds?: number
     }
   ): Promise<T> {
+    const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
+    const finalStatsTags: { cache_hit: boolean; [key: string]: any } = {
+      cache_group,
+      cache_hit: false
+    }
+
+    this.currentOperation?.onFinally.push(() => {
+      this.currentOperation?.tags.push(...this.statsClient.toTags(finalStatsTags))
+    })
+
     if (!this.engageDestinationCache) return createValue()
 
     const cacheRead = await getOrCatch(() => this.engageDestinationCache!.getByKey(key))
     if (cacheRead.error) {
-      this.logInfo('cache_reading_error', { key })
-      this.statsIncr('cache_reading_error')
+      finalStatsTags.cache_reading_error = true
+      this.logInfo('cache_reading_error', { key, cacheGroup: cache_group })
     } else if (cacheRead.value) {
       const { value: parsedCache, error: parsingError } = getOrCatch(() => options.parse(cacheRead.value!))
 
       if (parsingError) {
         //exception happened while parsing the cache.
         // Log it and execute as if we don't have cache
+        finalStatsTags.cache_parsing_error = true
         this.logInfo('cache_parsing_error', { key, value: cacheRead.value, parsingError })
-        this.statsIncr('cache_parsing_error')
       } else if (parsedCache) {
         //parsed cache successfully && cache is not expired
         // parsedValue - either value or error was parsed
-        this.statsIncr('cache_hit', 1, [`cached_error:${!!parsedCache?.error}`])
+        finalStatsTags.cache_hit = true
+        finalStatsTags.cached_error = !!parsedCache?.error
+        this.statsIncr('cache_hit', 1, this.statsClient.toTags(finalStatsTags))
         if (parsedCache?.error) throw parsedCache.error
         return parsedCache.value!
       } else {
         //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
-        this.logInfo('cache_ignored', { key, value: cacheRead.value })
-        this.statsIncr('cache_ignored')
+        finalStatsTags.cache_ignored = true
+        this.logInfo('cache_ignored', { key, value: cacheRead.value, cacheGroup: cache_group })
       }
     }
     // re-executing, because cache not found or ignored or failed to read or parse
-    this.statsIncr('cache_miss')
-    this.logInfo('cache_miss', { key })
+    finalStatsTags.cache_hit = false
+    this.statsIncr('cache_miss', 1, this.statsClient.toTags(finalStatsTags))
+    this.logInfo('cache_miss', { key, cacheGroup: cache_group })
     const { value: result, error: resultError } = await getOrCatch(() => createValue())
 
     //before returning result - we need to try to serialize it and store it in cache
     const stringified = getOrCatch(() => options.stringify(resultError ? { error: resultError } : { value: result }))
     if (stringified.error) {
-      this.logInfo('cache_stringify_error', { key, error: stringified.error })
-      this.statsIncr('cache_stringify_error')
+      finalStatsTags.cache_stringify_error = true
+      this.logInfo('cache_stringify_error', { key, error: stringified.error, cacheGroup: cache_group })
     } else if (stringified.value) {
       //result stringified and contains cacheable value - cache it
       const { error: cacheSavingError } = await getOrCatch(() =>
         this.engageDestinationCache!.setByKey(key, stringified.value!, options.expiryInSeconds)
       )
       if (cacheSavingError) {
-        this.logInfo('cache_saving_error', { key, error: cacheSavingError })
-        this.statsIncr('cache_saving_error')
+        finalStatsTags.cache_saving_error = true
+        this.logInfo('cache_saving_error', { key, error: cacheSavingError, cacheGroup: cache_group })
       }
     }
 
