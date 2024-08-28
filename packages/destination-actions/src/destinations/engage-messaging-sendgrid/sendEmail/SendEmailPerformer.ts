@@ -278,6 +278,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       `engage-email-template:${bodyUrl}`,
       async () => (await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })).content,
       {
+        cacheGroup: 'getBodyTemplateFromS3',
         stringify(cacheable) {
           return JSON.stringify(cacheable.error ? { error: cacheable.error.message } : { value: cacheable.value })
         },
