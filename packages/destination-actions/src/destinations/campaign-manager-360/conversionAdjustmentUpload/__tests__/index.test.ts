@@ -65,6 +65,18 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
             },
             ordinal: {
               '@path': '$.properties.ordinal'
+            },
+            limitAdTracking: {
+              '@path': '$.properties.limitAdTracking'
+            },
+            childDirectedTreatment: {
+              '@path': '$.properties.childDirectedTreatment'
+            },
+            nonPersonalizedAd: {
+              '@path': '$.properties.nonPersonalizedAd'
+            },
+            treatmentForUnderage: {
+              '@path': '$.properties.treatmentForUnderage'
             }
           },
           useDefaultMappings: true,
