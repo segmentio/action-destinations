@@ -67,6 +67,35 @@ describe('Cm360.conversionUpload', () => {
             ordinal: {
               '@path': '$.properties.ordinal'
             },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
+            },
             limitAdTracking: {
               '@path': '$.properties.limitAdTracking'
             },
@@ -143,6 +172,35 @@ describe('Cm360.conversionUpload', () => {
             },
             ordinal: {
               '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
             }
           },
           useDefaultMappings: true,
@@ -292,6 +350,35 @@ describe('Cm360.conversionUpload', () => {
             },
             ordinal: {
               '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
             }
           },
           useDefaultMappings: true,
@@ -388,6 +475,35 @@ describe('Cm360.conversionUpload', () => {
             },
             ordinal: {
               '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
             }
           },
           useDefaultMappings: true,
@@ -514,6 +630,35 @@ describe('Cm360.conversionUpload', () => {
             },
             ordinal: {
               '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
             }
           },
           useDefaultMappings: true,
@@ -573,6 +718,35 @@ describe('Cm360.conversionUpload', () => {
             },
             ordinal: {
               '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
             }
           },
           useDefaultMappings: true,
