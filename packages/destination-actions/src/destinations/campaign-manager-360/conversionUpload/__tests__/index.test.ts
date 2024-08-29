@@ -605,7 +605,12 @@ describe('Cm360.conversionUpload', () => {
             countryCode: 'US'
           }
         },
-        properties: {}
+        properties: {
+          gclid: '',
+          ordinal: '1',
+          quantity: '2',
+          value: '100'
+        }
       })
 
       nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
@@ -613,7 +618,7 @@ describe('Cm360.conversionUpload', () => {
       })
 
       await expect(
-        testDestination.testAction('conversionAdjustment', {
+        testDestination.testAction('conversionUpload', {
           event,
           mapping: {
             gclid: {
@@ -701,7 +706,7 @@ describe('Cm360.conversionUpload', () => {
       })
 
       await expect(
-        testDestination.testAction('conversionAdjustment', {
+        testDestination.testAction('conversionUpload', {
           event,
           mapping: {
             gclid: {

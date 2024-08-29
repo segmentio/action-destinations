@@ -604,7 +604,12 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
             countryCode: 'US'
           }
         },
-        properties: {}
+        properties: {
+          dclid: '',
+          ordinal: '1',
+          quantity: '2',
+          value: '100'
+        }
       })
 
       nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
@@ -615,8 +620,8 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         testDestination.testAction('conversionAdjustmentUpload', {
           event,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
+            dclid: {
+              '@path': '$.properties.dclid'
             },
             timestamp: {
               '@path': '$.timestamp'
