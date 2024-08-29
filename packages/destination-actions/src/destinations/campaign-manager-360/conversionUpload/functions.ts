@@ -6,7 +6,7 @@ import {
   CampaignManager360UserIdentifier
 } from '../types'
 
-import { hash, isHashedInformation } from '../common-functions'
+import { resolveGoogleCampaignManager360UserIdentifiers } from '../common-functions'
 
 export function validateInsertConversionPayloads(
   payloads: Payload[],
@@ -95,41 +95,8 @@ export function validateInsertConversionPayloads(
 
     // User Identifiers.
     const userIdentifiers: CampaignManager360UserIdentifier[] = []
-    if (payload.phone) {
-      userIdentifiers.push({
-        hashedPhoneNumber: isHashedInformation(payload.phone) ? payload.phone : hash(payload.phone)
-      } as CampaignManager360UserIdentifier)
-    }
-
-    if (payload.email) {
-      userIdentifiers.push({
-        hashedEmail: isHashedInformation(payload.email) ? payload.email : hash(payload.email)
-      } as CampaignManager360UserIdentifier)
-    }
-
-    const containsAddressInfo =
-      payload.firstName ||
-      payload.lastName ||
-      payload.city ||
-      payload.state ||
-      payload.countryCode ||
-      payload.postalCode ||
-      payload.streetAddress
-
-    if (containsAddressInfo) {
-      userIdentifiers.push({
-        addressInfo: {
-          hashedFirstName: isHashedInformation(String(payload.firstName)) ? payload.firstName : hash(payload.firstName),
-          hashedLastName: isHashedInformation(String(payload.lastName)) ? payload.lastName : hash(payload.lastName),
-          hashedStreetAddress: isHashedInformation(String(payload.streetAddress))
-            ? payload.streetAddress
-            : hash(payload.streetAddress),
-          city: payload.city,
-          state: payload.state,
-          countryCode: payload.countryCode,
-          postalCode: payload.postalCode
-        }
-      })
+    if (payload.userDetails) {
+      userIdentifiers.push(...resolveGoogleCampaignManager360UserIdentifiers(payload.userDetails))
     }
 
     conversionsBatchInsertRequest.conversions.push(conversion)

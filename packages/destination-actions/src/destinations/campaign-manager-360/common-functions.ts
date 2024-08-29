@@ -1,9 +1,14 @@
 import { createHash } from 'crypto'
-import { CampaignManager360RefreshTokenResponse, CampaignManager360Settings } from './types'
+import {
+  CampaignManager360PayloadUserDetails,
+  CampaignManager360RefreshTokenResponse,
+  CampaignManager360Settings,
+  CampaignManager360UserIdentifier
+} from './types'
 import { RequestClient } from '@segment/actions-core/*'
 
-export const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
-export const hash = (value: string | undefined): string | undefined => {
+const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
+const hash = (value: string | undefined): string | undefined => {
   if (value === undefined) {
     return
   }
@@ -33,4 +38,52 @@ export async function refreshGoogleAccessToken(request: RequestClient, settings:
   }
 
   return refreshTokenResponse.data.access_token
+}
+
+export function resolveGoogleCampaignManager360UserIdentifiers(
+  userDetails: CampaignManager360PayloadUserDetails
+): CampaignManager360UserIdentifier[] {
+  const userIdentifiers: CampaignManager360UserIdentifier[] = []
+  if (userDetails.phone) {
+    userIdentifiers.push({
+      hashedPhoneNumber: isHashedInformation(userDetails.phone) ? userDetails.phone : hash(userDetails.phone)
+    } as CampaignManager360UserIdentifier)
+  }
+
+  if (userDetails.email) {
+    userIdentifiers.push({
+      hashedEmail: isHashedInformation(userDetails.email) ? userDetails.email : hash(userDetails.email)
+    } as CampaignManager360UserIdentifier)
+  }
+
+  const containsAddressInfo =
+    userDetails.firstName ||
+    userDetails.lastName ||
+    userDetails.city ||
+    userDetails.state ||
+    userDetails.countryCode ||
+    userDetails.postalCode ||
+    userDetails.streetAddress
+
+  if (containsAddressInfo) {
+    userIdentifiers.push({
+      addressInfo: {
+        hashedFirstName: isHashedInformation(String(userDetails.firstName))
+          ? userDetails.firstName
+          : hash(userDetails.firstName),
+        hashedLastName: isHashedInformation(String(userDetails.lastName))
+          ? userDetails.lastName
+          : hash(userDetails.lastName),
+        hashedStreetAddress: isHashedInformation(String(userDetails.streetAddress))
+          ? userDetails.streetAddress
+          : hash(userDetails.streetAddress),
+        city: userDetails.city,
+        state: userDetails.state,
+        countryCode: userDetails.countryCode,
+        postalCode: userDetails.postalCode
+      }
+    })
+  }
+
+  return userIdentifiers
 }

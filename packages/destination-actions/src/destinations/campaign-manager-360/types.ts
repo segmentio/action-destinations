@@ -70,6 +70,18 @@ export interface CampaignManager360EncryptionInfo {
   kind: 'dfareporting#encryptionInfo'
 }
 
+export interface CampaignManager360PayloadUserDetails {
+  email?: string
+  phone?: string
+  firstName?: string
+  lastName?: string
+  streetAddress?: string
+  city?: string
+  state?: string
+  postalCode?: string
+  countryCode?: string
+}
+
 export interface CampaignManager360Settings {
   clientId: string
   clientSecret: string
