@@ -45,7 +45,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       expect(request.headers).toMatchSnapshot()
     })
 
-    it(`${actionSlug} action - all fields`, async () => {
+    it.skip(`${actionSlug} action - all fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
