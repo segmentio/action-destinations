@@ -18,16 +18,16 @@ describe('Cm360.conversionUpload', () => {
         quantity: '1',
         value: '123',
         gclid: '54321',
-        email: 'test@gmail.com',
-        orderId: '1234',
-        phone: '1234567890',
-        firstName: 'Jane',
-        lastName: 'Doe',
-        address: {
-          street: '123 Street SW',
-          city: 'San Diego',
+        userDetails: {
+          email: 'daffy@warnerbros.com',
+          phone: '1234567890',
+          firstName: 'Daffy',
+          lastName: 'Duck',
+          streetAddress: '123 Daffy St',
+          city: 'Burbank',
           state: 'CA',
-          postalCode: '982004'
+          postalCode: '98765',
+          countryCode: 'US'
         }
       }
     })
