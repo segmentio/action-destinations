@@ -15,12 +15,8 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         const event = createTestEvent({
           timestamp,
           event: 'Test Event',
-          properties: {
-            ordinal: '1',
-            quantity: '2',
-            value: '100',
-            gclid: '54321',
-            userDetails: {
+          context: {
+            traits: {
               email: 'daffy@warnerbros.com',
               phone: '1234567890',
               firstName: 'Daffy',
@@ -31,6 +27,12 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
               postalCode: '98765',
               countryCode: 'US'
             }
+          },
+          properties: {
+            ordinal: '1',
+            quantity: '2',
+            value: '100',
+            gclid: '54321'
           }
         })
 
@@ -78,12 +80,8 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         const event = createTestEvent({
           timestamp,
           event: 'Test Event',
-          properties: {
-            ordinal: '1',
-            quantity: '2',
-            value: '100',
-            gclid: '54321',
-            userDetails: {
+          context: {
+            traits: {
               email: '8e46bd4eaabb5d6324e327751b599f190dbaacd90066e66c94a046640bed60d0',
               phone: 'c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646',
               firstName: 'a628aa64f14c8196c8c82c7ffb6482b2db7431e4cb5b28cd313004ce7ba4eb66',
@@ -94,6 +92,64 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
               postalCode: '98765',
               countryCode: 'US'
             }
+          },
+          properties: {
+            ordinal: '1',
+            quantity: '2',
+            value: '100',
+            gclid: '54321'
+          }
+        })
+
+        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
+          access_token: 'my.access.token'
+        })
+
+        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+          .post('')
+          .reply(200, { results: [{}] })
+
+        const responses = await testDestination.testAction('conversionAdjustmentUpload', {
+          event,
+          mapping: {
+            gclid: {
+              '@path': '$.properties.gclid'
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+
+        expect(responses.length).toBe(2)
+        expect(responses[0].status).toBe(200)
+        expect(responses[1].status).toBe(200)
+      })
+
+      it('sends an event with default mappings + default settings, no user details', async () => {
+        const event = createTestEvent({
+          timestamp,
+          event: 'Test Event',
+          properties: {
+            ordinal: '1',
+            quantity: '2',
+            value: '100',
+            gclid: '54321'
           }
         })
 
@@ -145,12 +201,8 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
             type: 'track',
             event: 'Test Event',
             timestamp,
-            properties: {
-              ordinal: '1',
-              quantity: '1',
-              value: '123',
-              gclid: '54321',
-              userDetails: {
+            context: {
+              traits: {
                 email: 'daffy@warnerbros.com',
                 phone: '1234567890',
                 firstName: 'Daffy',
@@ -161,18 +213,20 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
                 postalCode: '98765',
                 countryCode: 'US'
               }
+            },
+            properties: {
+              ordinal: '1',
+              quantity: '1',
+              value: '123',
+              gclid: '54321'
             }
           },
           {
             type: 'track',
             event: 'Test Event',
             timestamp,
-            properties: {
-              ordinal: '1',
-              quantity: '1',
-              value: '234',
-              gclid: '54322',
-              userDetails: {
+            context: {
+              traits: {
                 email: 'bugs@warnerbros.com',
                 phone: '1234567891',
                 firstName: 'Bugs',
@@ -183,6 +237,12 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
                 postalCode: '98765',
                 countryCode: 'US'
               }
+            },
+            properties: {
+              ordinal: '1',
+              quantity: '1',
+              value: '234',
+              gclid: '54322'
             }
           }
         ]
@@ -233,12 +293,8 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
             type: 'track',
             event: 'Test Event',
             timestamp,
-            properties: {
-              ordinal: '1',
-              quantity: '1',
-              value: '123',
-              gclid: '54321',
-              userDetails: {
+            context: {
+              traits: {
                 email: '8e46bd4eaabb5d6324e327751b599f190dbaacd90066e66c94a046640bed60d0',
                 phone: 'c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646',
                 firstName: 'a628aa64f14c8196c8c82c7ffb6482b2db7431e4cb5b28cd313004ce7ba4eb66',
@@ -249,18 +305,20 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
                 postalCode: '98765',
                 countryCode: 'US'
               }
+            },
+            properties: {
+              ordinal: '1',
+              quantity: '1',
+              value: '123',
+              gclid: '54321'
             }
           },
           {
             type: 'track',
             event: 'Test Event',
             timestamp,
-            properties: {
-              ordinal: '1',
-              quantity: '1',
-              value: '234',
-              gclid: '54322',
-              userDetails: {
+            context: {
+              traits: {
                 email: 'ce4c7b4a4b35b8b4c8bfb38d4e881d8b3f563939f4e6c5e873b556c9313980af',
                 phone: '523aa18ecb892c51fbdbe28c57e10a92419e0a73e8931e578b98baffccf99cdd',
                 firstName: 'ff7c5467ce496637e5ba10662b7a90cde4ed9f8ef33f06fab0893b1c6c800845',
@@ -271,6 +329,78 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
                 postalCode: '98765',
                 countryCode: 'US'
               }
+            },
+            properties: {
+              ordinal: '1',
+              quantity: '1',
+              value: '234',
+              gclid: '54322'
+            }
+          }
+        ]
+
+        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
+          access_token: 'my.access.token'
+        })
+
+        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
+          .post('')
+          .reply(201, { results: [{}] })
+
+        const responses = await testDestination.testBatchAction('conversionAdjustmentUpload', {
+          events: goodBatch,
+          mapping: {
+            gclid: {
+              '@path': '$.properties.gclid'
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+
+        expect(responses.length).toBe(2)
+        expect(responses[0].status).toBe(200)
+        expect(responses[1].status).toBe(201)
+      })
+
+      it('sends a batch of events with default mappings + default settings, no user details', async () => {
+        const goodBatch: SegmentEvent[] = [
+          {
+            type: 'track',
+            event: 'Test Event',
+            timestamp,
+            properties: {
+              ordinal: '1',
+              quantity: '1',
+              value: '123',
+              gclid: '54321'
+            }
+          },
+          {
+            type: 'track',
+            event: 'Test Event',
+            timestamp,
+            properties: {
+              ordinal: '1',
+              quantity: '1',
+              value: '234',
+              gclid: '54322'
             }
           }
         ]
