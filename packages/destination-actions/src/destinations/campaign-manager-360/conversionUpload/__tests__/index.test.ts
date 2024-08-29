@@ -33,7 +33,11 @@ describe('Cm360.conversionUpload', () => {
             ordinal: '1',
             quantity: '1',
             value: '123',
-            gclid: '54321'
+            gclid: '54321',
+            limitAdTracking: true,
+            childDirectedTreatment: true,
+            nonPersonalizedAd: true,
+            treatmentForUnderage: true
           }
         })
 
@@ -98,7 +102,7 @@ describe('Cm360.conversionUpload', () => {
             ordinal: '1',
             quantity: '1',
             value: '123',
-            gclid: '54321'
+            dclid: '54321'
           }
         })
 
@@ -113,8 +117,8 @@ describe('Cm360.conversionUpload', () => {
         const responses = await testDestination.testAction('conversionUpload', {
           event,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
+            dclid: {
+              '@path': '$.properties.dclid'
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -150,7 +154,7 @@ describe('Cm360.conversionUpload', () => {
             ordinal: '1',
             quantity: '1',
             value: '123',
-            gclid: '54321'
+            encryptedUserId: '54321'
           }
         })
 
@@ -165,8 +169,8 @@ describe('Cm360.conversionUpload', () => {
         const responses = await testDestination.testAction('conversionUpload', {
           event,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
+            encryptedUserId: {
+              '@path': '$.properties.encryptedUserId'
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -219,7 +223,7 @@ describe('Cm360.conversionUpload', () => {
               ordinal: '1',
               quantity: '1',
               value: '123',
-              gclid: '54321'
+              mobileDeviceId: '54321'
             }
           },
           {
@@ -227,14 +231,7 @@ describe('Cm360.conversionUpload', () => {
             event: 'Test Event',
             timestamp,
             context: {
-              traits: {}
-            },
-            properties: {
-              ordinal: '1',
-              quantity: '1',
-              value: '234',
-              gclid: '54322',
-              userDetails: {
+              traits: {
                 email: 'bugs@warnerbros.com',
                 phone: '1234567891',
                 firstName: 'Bugs',
@@ -245,6 +242,12 @@ describe('Cm360.conversionUpload', () => {
                 postalCode: '98765',
                 countryCode: 'US'
               }
+            },
+            properties: {
+              ordinal: '1',
+              quantity: '1',
+              value: '234',
+              matchId: '54322'
             }
           }
         ]
@@ -260,8 +263,11 @@ describe('Cm360.conversionUpload', () => {
         const responses = await testDestination.testBatchAction('conversionUpload', {
           events: goodBatch,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
+            matchId: {
+              '@path': '$.properties.matchId'
+            },
+            mobileDeviceId: {
+              '@path': '$.properties.mobileDeviceId'
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -312,7 +318,8 @@ describe('Cm360.conversionUpload', () => {
               ordinal: '1',
               quantity: '1',
               value: '123',
-              gclid: '54321'
+              gclid: '54321',
+              impressionId: '909090'
             }
           },
           {
@@ -354,6 +361,9 @@ describe('Cm360.conversionUpload', () => {
           mapping: {
             gclid: {
               '@path': '$.properties.gclid'
+            },
+            impressionId: {
+              '@path': '$.properties.impressionId'
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -446,6 +456,119 @@ describe('Cm360.conversionUpload', () => {
         expect(responses[0].status).toBe(200)
         expect(responses[1].status).toBe(201)
       })
+    })
+  })
+
+  describe('Error scenarios', () => {
+    it('throws an error if the event is missing at least one required parameter', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        context: {
+          traits: {
+            email: 'daffy@warnerbros.com',
+            phone: '1234567890',
+            firstName: 'Daffy',
+            lastName: 'Duck',
+            streetAddress: '123 Daffy St',
+            city: 'Burbank',
+            state: 'CA',
+            postalCode: '98765',
+            countryCode: 'US'
+          }
+        },
+        properties: {}
+      })
+
+      nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
+        access_token: 'my.access.token'
+      })
+
+      await expect(
+        testDestination.testAction('conversionAdjustment', {
+          event,
+          mapping: {
+            gclid: {
+              '@path': '$.properties.gclid'
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+      ).rejects.toThrowError()
+    })
+
+    it('throws an error if neither the settings nor the event define Floodlight parameters', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        context: {
+          traits: {
+            email: 'daffy@warnerbros.com',
+            phone: '1234567890',
+            firstName: 'Daffy',
+            lastName: 'Duck',
+            streetAddress: '123 Daffy St',
+            city: 'Burbank',
+            state: 'CA',
+            postalCode: '98765',
+            countryCode: 'US'
+          }
+        },
+        properties: {
+          ordinal: '1',
+          quantity: '2',
+          value: '100',
+          gclid: '54321'
+        }
+      })
+
+      nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
+        access_token: 'my.access.token'
+      })
+
+      await expect(
+        testDestination.testAction('conversionAdjustment', {
+          event,
+          mapping: {
+            gclid: {
+              '@path': '$.properties.gclid'
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId
+          }
+        })
+      ).rejects.toThrowError()
     })
   })
 })
