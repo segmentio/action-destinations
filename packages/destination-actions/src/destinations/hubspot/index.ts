@@ -31,6 +31,7 @@ const destination: DestinationDefinition<Settings> = {
       return request(`${HUBSPOT_BASE_URL}/crm/v3/objects/contacts?limit=1`)
     },
     refreshAccessToken: async (request, { auth }) => {
+      // adding a comment
       // Return a request that refreshes the access_token if the API supports it
       const res = await request<RefreshTokenResponse>(`${HUBSPOT_BASE_URL}/oauth/v1/token`, {
         method: 'POST',
