@@ -8,7 +8,8 @@ import {
 import { RequestClient } from '@segment/actions-core/*'
 
 const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
-const hash = (value: string | undefined): string | undefined => {
+// Only exported for unit testing purposes.
+export const hash = (value: string | undefined): string | undefined => {
   if (value === undefined) {
     return
   }

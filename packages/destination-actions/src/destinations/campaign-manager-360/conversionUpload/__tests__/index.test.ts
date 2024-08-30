@@ -761,5 +761,95 @@ describe('Cm360.conversionUpload', () => {
         })
       ).rejects.toThrowError()
     })
+
+    it('throws an error Floodlight parameters are partially defined', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        context: {
+          traits: {
+            email: 'daffy@warnerbros.com',
+            phone: '1234567890',
+            firstName: 'Daffy',
+            lastName: 'Duck',
+            streetAddress: '123 Daffy St',
+            city: 'Burbank',
+            state: 'CA',
+            postalCode: '98765',
+            countryCode: 'US'
+          }
+        },
+        properties: {
+          ordinal: '1',
+          quantity: '2',
+          value: '100',
+          gclid: '54321',
+          floodlightActivityId: '23456'
+        }
+      })
+
+      nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
+        access_token: 'my.access.token'
+      })
+
+      await expect(
+        testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            floodlightActivityId: {
+              '@path': '$.properties.floodlightActivityId'
+            },
+            gclid: {
+              '@path': '$.properties.gclid'
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId
+          }
+        })
+      ).rejects.toThrowError()
+    })
   })
 })

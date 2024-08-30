@@ -43,10 +43,30 @@ describe('Campaign Manager 360', () => {
       expect(result).toEqual({ accessToken: 'my.access.token' })
     })
 
-    it('should refresh the access token, error scenario', async () => {
+    it('should refresh the access token, error scenario, HTTP 400', async () => {
       nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(400, {
         error: 'invalid_grant'
       })
+
+      await expect(
+        testDestination.refreshAccessToken(
+          {
+            profileId: '12345',
+            defaultFloodlightActivityId: '23456',
+            defaultFloodlightConfigurationId: '34567'
+          },
+          {
+            accessToken: 'blah-blah-blah',
+            refreshToken: 'yada-yada-yada',
+            clientId: '123',
+            clientSecret: '456'
+          }
+        )
+      ).rejects.toThrowError()
+    })
+
+    it('should refresh the access token, error scenario, HTTP 2XX, invalid response', async () => {
+      nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {})
 
       await expect(
         testDestination.refreshAccessToken(
