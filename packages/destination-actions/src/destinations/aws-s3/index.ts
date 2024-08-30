@@ -2,6 +2,7 @@ import { AudienceDestinationDefinition, IntegrationError } from '@segment/action
 import type { AudienceSettings, Settings } from './generated-types'
 
 import syncAudienceToCSV from './syncAudienceToCSV'
+import syncSourceToCSV from './syncSourcetoCSV'
 
 type PersonasSettings = {
   computation_id: string
@@ -97,7 +98,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   actions: {
-    syncAudienceToCSV
+    syncAudienceToCSV,
+    syncSourceToCSV
   }
 }
 
