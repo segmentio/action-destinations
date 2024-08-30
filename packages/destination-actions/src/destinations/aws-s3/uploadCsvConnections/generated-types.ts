@@ -2,21 +2,9 @@
 
 export interface Payload {
   /**
-   * Column names to write to S3 CSV file.
+   * Column names to write to S3 CSV file. (test)
    */
   columns: {
-    /**
-     * Name of column for the Audience Name
-     */
-    audience_name?: string
-    /**
-     * Name of column for the Audience ID
-     */
-    audience_id?: string
-    /**
-     * Indicates if the user has been added or removed from the Audience. true = added, false = removed.
-     */
-    audience_action?: string
     /**
      * Name of column for email address
      */
@@ -50,14 +38,6 @@ export interface Payload {
      */
     properties_or_traits?: string
   }
-  /**
-   * Audience Name Hidden Field
-   */
-  audienceName: string
-  /**
-   * Audience ID Hidden Field
-   */
-  audienceId: string
   /**
    * Email Hidden Field
    */

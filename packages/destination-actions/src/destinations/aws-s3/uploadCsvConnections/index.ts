@@ -10,28 +10,12 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   fields: {
     columns: {
       label: 'Columns',
-      description: `Column names to write to S3 CSV file.`,
+      description: `Column names to write to S3 CSV file. (test)`,
       type: 'object',
       defaultObjectUI: 'object',
       required: true,
       additionalProperties: false,
       properties: {
-        audience_name: {
-          label: 'Audience Name column',
-          description: 'Name of column for the Audience Name',
-          type: 'string'
-        },
-        audience_id: {
-          label: 'Audience ID column',
-          description: 'Name of column for the Audience ID',
-          type: 'string'
-        },
-        audience_action: {
-          label: 'Audience Action column',
-          description:
-            'Indicates if the user has been added or removed from the Audience. true = added, false = removed.',
-          type: 'string'
-        },
         email: {
           label: 'Email column',
           description: 'Name of column for email address',
@@ -77,9 +61,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         }
       },
       default: {
-        audience_name: 'audience_name',
-        audience_id: 'audience_id',
-        audience_action: 'audience_action',
         email: 'email',
         user_id: 'user_id',
         anonymous_id: 'anonymous_id',
@@ -89,22 +70,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
         integrations_object: 'integrations_object',
         properties_or_traits: 'properties_or_traits'
       }
-    },
-    audienceName: {
-      label: 'Audience Name Hidden Field',
-      description: 'Audience Name Hidden Field',
-      type: 'string',
-      required: true,
-      unsafe_hidden: true,
-      default: { '@path': '$.context.personas.computation_key' }
-    },
-    audienceId: {
-      label: 'Audience ID Hidden Field',
-      description: 'Audience ID Hidden Field',
-      type: 'string',
-      required: true,
-      unsafe_hidden: true,
-      default: { '@path': '$.context.personas.computation_id' }
     },
     email: {
       label: 'Email Hidden Field',

@@ -4,6 +4,8 @@ import type { AudienceSettings, Settings } from './generated-types'
 import syncAudienceToCSV from './syncAudienceToCSV'
 import syncSourceToCSV from './syncSourcetoCSV'
 
+import uploadCsvConnections from './uploadCsvConnections'
+
 type PersonasSettings = {
   computation_id: string
 }
@@ -99,7 +101,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudienceToCSV,
-    syncSourceToCSV
+    syncSourceToCSV,
+    uploadCsvConnections
   }
 }
 
