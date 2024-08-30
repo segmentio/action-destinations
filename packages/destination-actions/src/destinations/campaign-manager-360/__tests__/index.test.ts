@@ -68,21 +68,21 @@ describe('Campaign Manager 360', () => {
     it('should refresh the access token, error scenario, HTTP 2XX, invalid response', async () => {
       nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {})
 
-      await expect(
-        testDestination.refreshAccessToken(
-          {
-            profileId: '12345',
-            defaultFloodlightActivityId: '23456',
-            defaultFloodlightConfigurationId: '34567'
-          },
-          {
-            accessToken: 'blah-blah-blah',
-            refreshToken: 'yada-yada-yada',
-            clientId: '123',
-            clientSecret: '456'
-          }
-        )
-      ).rejects.toThrowError()
+      const result = await testDestination.refreshAccessToken(
+        {
+          profileId: '12345',
+          defaultFloodlightActivityId: '23456',
+          defaultFloodlightConfigurationId: '34567'
+        },
+        {
+          accessToken: 'blah-blah-blah',
+          refreshToken: 'yada-yada-yada',
+          clientId: '123',
+          clientSecret: '456'
+        }
+      )
+
+      expect(result).toEqual({ accessToken: undefined })
     })
   })
 })
