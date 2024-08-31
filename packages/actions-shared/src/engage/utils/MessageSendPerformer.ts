@@ -115,7 +115,12 @@ export abstract class MessageSendPerformer<
       `${messageId}-${recipientId?.toLowerCase()}`,
       () => this.sendToRecepient(recepient),
       {
-        cacheGroup: 'sendToRecepient'
+        cacheGroup: 'sendToRecepient',
+        lockOptions: {
+          acquireLockMaxWaitInSeconds: 30,
+          acquireLockRetryIntervalMs: 1000,
+          lockTTLInSeconds: 60
+        }
       }
     )
   }
