@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-intercom",
-  "version": "1.61.1-staging-e0b48ba11.0",
+  "version": "1.61.1-staging-7bbce372d.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -16,7 +16,7 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@segment/actions-core": "3.128.1-staging-e0b48ba11.0",
-    "@segment/actions-shared": "1.109.1-staging-e0b48ba11.0",
+    "@segment/actions-shared": "1.109.1-staging-7bbce372d.0",
     "@segment/browser-destination-runtime": "1.57.1-staging-e0b48ba11.0"
   },
   "peerDependencies": {
