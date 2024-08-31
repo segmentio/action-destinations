@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { EngageActionPerformer } from './EngageActionPerformer'
@@ -114,27 +115,7 @@ export abstract class MessageSendPerformer<
       `${messageId}-${recipientId?.toLowerCase()}`,
       () => this.sendToRecepient(recepient),
       {
-        cacheGroup: 'sendToRecepient',
-        parse: (cachedValue) => {
-          const parsed = CachedValueFactory.fromString(cachedValue)
-          if (parsed instanceof CachedError) {
-            const error = new IntegrationError(parsed.message, parsed.code, parsed.status)
-            error.retry = false
-            return { error }
-          } else if (parsed.type === CachedResponseType.Success) {
-            return { value: { status: parsed.status } }
-          }
-        },
-        stringify: (cacheable) => {
-          if (cacheable.error && !isRetryableError(cacheable.error)) {
-            const errorDetails = getErrorDetails(cacheable.error)
-            if (errorDetails?.status) {
-              return new CachedError(errorDetails.status, errorDetails.message, errorDetails.code).serialize()
-            }
-          } else if (cacheable.value) {
-            return new CachedValue(cacheable.value.status).serialize()
-          }
-        }
+        cacheGroup: 'sendToRecepient'
       }
     )
   }
@@ -148,10 +129,7 @@ export abstract class MessageSendPerformer<
        * The group of cache used for stats tags
        */
       cacheGroup?: string
-      //if undefined returned, then the value will not be cached
-      stringify: (cacheable: ValueOrError<T>) => string | void
-      //if undefined returned, then the cache is either corrupted or expired and will be re-executed
-      parse: (cachedValue: string) => ValueOrError<T> | void
+      serializer?: CacheSerializer<T>
       expiryInSeconds?: number
       lockOptions?: Parameters<typeof MessageSendPerformer.prototype.withDistributedLock>[2]
     }
@@ -167,6 +145,8 @@ export abstract class MessageSendPerformer<
     })
 
     if (!this.engageDestinationCache) return createValue()
+
+    const serializer = options.serializer || DefaultSerializer
 
     const cacheRead = await getOrCatch(() => this.engageDestinationCache!.getByKey(key))
 
@@ -184,7 +164,7 @@ export abstract class MessageSendPerformer<
       finalStatsTags.cache_reading_error = true
       this.logInfo('cache_reading_error', { key, cacheGroup: cache_group })
     } else if (cacheRead.value) {
-      const { value: parsedCache, error: parsingError } = getOrCatch(() => options.parse(cacheRead.value!))
+      const { value: parsedCache, error: parsingError } = getOrCatch(() => serializer.parse(cacheRead.value!))
 
       if (parsingError) {
         //exception happened while parsing the cache.
@@ -198,7 +178,7 @@ export abstract class MessageSendPerformer<
         finalStatsTags.cached_error = !!parsedCache?.error
         this.statsIncr('cache_hit', 1, this.statsClient.toTags(finalStatsTags))
         if (parsedCache?.error) throw parsedCache.error
-        return parsedCache.value!
+        return parsedCache.value
       } else {
         //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
         finalStatsTags.cache_ignored = true
@@ -212,7 +192,7 @@ export abstract class MessageSendPerformer<
     const { value: result, error: resultError } = await getOrCatch(() => createValue())
 
     //before returning result - we need to try to serialize it and store it in cache
-    const stringified = getOrCatch(() => options.stringify(resultError ? { error: resultError } : { value: result }))
+    const stringified = getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
     if (stringified.error) {
       finalStatsTags.cache_stringify_error = true
       this.logInfo('cache_stringify_error', { key, error: stringified.error, cacheGroup: cache_group })
@@ -625,5 +605,44 @@ function getOrCatch(getValue: () => any): Promise<ValueOrError<any>> | ValueOrEr
     }
   } catch (error) {
     return { error }
+  }
+}
+
+type CacheSerializer<T> = {
+  /**
+   * Stringyfies value or error to string
+   * @param cacheable value or error to be stringified
+   * @returns if undefined returned, then the value will not be cached
+   */
+  stringify: (cacheable: ValueOrError<T>) => string | void
+  /**
+   * parses cached string to value or error
+   * @param cachedValue
+   * @returns if undefined returned, then the cache is either corrupted or expired and will be re-executed
+   */
+  parse: (cachedValue: string) => ValueOrError<T> | void
+}
+
+const DefaultSerializer: CacheSerializer<any> = {
+  parse: (cachedValue) => {
+    const parsed = CachedValueFactory.fromString(cachedValue)
+    if (parsed instanceof CachedError) {
+      const error = new IntegrationError(parsed.message, parsed.code, parsed.status)
+      error.retry = false
+      return { error }
+    } else if (parsed.type === CachedResponseType.Success) {
+      return { value: { status: parsed.status } }
+    }
+  },
+  stringify: (cacheable) => {
+    if (cacheable.error && !isRetryableError(cacheable.error)) {
+      // we only stringify non-retryable error, retryable errors are not cached
+      const errorDetails = getErrorDetails(cacheable.error)
+      if (errorDetails?.status) {
+        return new CachedError(errorDetails.status, errorDetails.message, errorDetails.code).serialize()
+      }
+    } else if (cacheable.value) {
+      return new CachedValue(cacheable.value.status).serialize()
+    }
   }
 }
