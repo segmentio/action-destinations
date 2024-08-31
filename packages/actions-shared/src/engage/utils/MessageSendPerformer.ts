@@ -153,6 +153,7 @@ export abstract class MessageSendPerformer<
       //if undefined returned, then the cache is either corrupted or expired and will be re-executed
       parse: (cachedValue: string) => ValueOrError<T> | void
       expiryInSeconds?: number
+      lockOptions?: Parameters<typeof MessageSendPerformer.prototype.withDistributedLock>[2]
     }
   ): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
@@ -168,6 +169,17 @@ export abstract class MessageSendPerformer<
     if (!this.engageDestinationCache) return createValue()
 
     const cacheRead = await getOrCatch(() => this.engageDestinationCache!.getByKey(key))
+
+    // we respect lockOptions only if cache is not found and no error happened while reading cache
+    if (options.lockOptions && !(cacheRead.error || cacheRead.value)) {
+      if (!options.lockOptions.cacheGroup) options.lockOptions.cacheGroup = cache_group
+      return this.withDistributedLock(
+        `cache:${key}`,
+        () => this.getOrAddCache(key, createValue, { ...options, lockOptions: undefined }),
+        options.lockOptions
+      )
+    }
+
     if (cacheRead.error) {
       finalStatsTags.cache_reading_error = true
       this.logInfo('cache_reading_error', { key, cacheGroup: cache_group })
@@ -217,6 +229,72 @@ export abstract class MessageSendPerformer<
 
     if (resultError) throw resultError
     else return result as T
+  }
+
+  async withDistributedLock<T>(
+    key: string,
+    createValue: () => Promise<T>,
+    options: {
+      acquireLockMaxWaitInSeconds: number
+      acquireLockRetryIntervalMs?: number
+      lockTTLInSeconds: number
+      cacheGroup?: string
+    }
+  ): Promise<T> {
+    const redisClient = (this.engageDestinationCache as any)?.redis
+    const lockKey = `engage-messaging-lock:${key}`
+    const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
+    const statsTags: { [key: string]: any } = { cache_group }
+
+    if (!redisClient) {
+      this.logInfo('redis_client_unavailable', { key, statsTags })
+      return createValue()
+    }
+
+    const acquireLock = async (): Promise<boolean> => {
+      //tries to acquire lock for acquireLockMaxWaitInSeconds seconds
+      const startTime = Date.now()
+      while (Date.now() - startTime < options.acquireLockMaxWaitInSeconds * 1000) {
+        if ((await redisClient.set(lockKey, 'locked', 'NX', 'PX', options.lockTTLInSeconds * 1000)) === 'OK') {
+          return true
+        }
+        await new Promise((resolve) => setTimeout(resolve, options.acquireLockRetryIntervalMs || 500)) // Wait 500ms before retrying
+      }
+      return false
+    }
+
+    const releaseLock = async (): Promise<void> => {
+      await redisClient.del(lockKey)
+    }
+
+    try {
+      const locked = await acquireLock()
+
+      if (!locked) {
+        this.logInfo('lock_acquisition_failed', { key, statsTags })
+        this.statsIncr('lock_acquisition_failed', 1, this.statsClient.toTags(statsTags))
+        return createValue()
+      }
+
+      this.logInfo('lock_acquired', { key, statsTags })
+      this.statsIncr('lock_acquired', 1, this.statsClient.toTags(statsTags))
+
+      try {
+        return await createValue()
+      } finally {
+        await releaseLock()
+        this.logInfo('lock_released', { key, statsTags })
+        this.statsIncr('lock_released', 1, this.statsClient.toTags(statsTags))
+      }
+    } catch (error) {
+      this.logInfo('unexpected_error', {
+        key,
+        statsTags,
+        error: error instanceof Error ? error.message : String(error)
+      })
+      this.statsIncr('unexpected_error', 1, this.statsClient.toTags(statsTags))
+      return createValue()
+    }
   }
 
   async doPerform() {
