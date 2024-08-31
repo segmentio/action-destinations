@@ -10,7 +10,7 @@ import { ResponseError, getErrorDetails } from './ResponseError'
 import { RequestOptions } from '@segment/actions-core/request-client'
 import { IntegrationError } from '@segment/actions-core'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
-import { Awaited } from './operationTracking'
+import { Awaited, StatsTags } from './operationTracking'
 import truncate from 'lodash/truncate'
 
 /**
@@ -145,7 +145,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     })
   }
 
-  statsIncr(metric: string, value?: number, tags?: string[]) {
+  statsIncr(metric: string, value?: number, tags?: StatsTags) {
     this.statsClient.stats({ method: 'incr', metric, value, tags })
   }
 

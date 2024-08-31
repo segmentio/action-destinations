@@ -5,7 +5,8 @@ import {
   OperationStats,
   OperationStatsContext,
   TryCatchFinallyHook,
-  TrackedError
+  TrackedError,
+  StatsTags
 } from './operationTracking'
 import { EngageActionPerformer } from './EngageActionPerformer'
 import { OperationContext } from './track'
@@ -73,13 +74,13 @@ export class EngageStats extends OperationStats {
     )
   }
 
-  incr(metric: string, value?: number, tags?: string[]) {
+  incr(metric: string, value?: number, tags?: StatsTags) {
     this.stats({ metric, value, tags, method: 'incr' })
   }
-  histogram(metric: string, value?: number, tags?: string[]) {
+  histogram(metric: string, value?: number, tags?: StatsTags) {
     this.stats({ metric, value, tags, method: 'histogram' })
   }
-  set(metric: string, value?: number, tags?: string[]) {
+  set(metric: string, value?: number, tags?: StatsTags) {
     this.stats({ metric, value, tags, method: 'set' })
   }
 
