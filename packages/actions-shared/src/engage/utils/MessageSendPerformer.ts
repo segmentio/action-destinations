@@ -118,9 +118,9 @@ export abstract class MessageSendPerformer<
       {
         cacheGroup: 'sendToRecepient',
         lockOptions: {
-          acquireLockMaxWaitInSeconds: 30,
-          acquireLockRetryIntervalMs: 1000,
-          lockTTLInSeconds: 60
+          acquireLockMaxWaitInSeconds: 30, //30 secs - max wait for lock time
+          acquireLockRetryIntervalMs: 1000, //1 sec
+          lockTTLInSeconds: 3 * 60 //3 mins max lock time
         }
       }
     )
@@ -259,7 +259,7 @@ export abstract class MessageSendPerformer<
       if (!locked) {
         this.logInfo('lock_acquisition_failed', { key, statsTags })
         this.statsIncr('lock_acquisition_failed', 1, statsTags)
-        const timeoutError = new IntegrationError('Timeout while acquiring lock', 'etimedout', 500)
+        const timeoutError = new IntegrationError('Timeout while acquiring lock', 'ETIMEDOUT', 500)
         timeoutError.retry = true
         throw timeoutError
         //return createValue()
