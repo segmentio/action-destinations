@@ -282,9 +282,9 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
         expiryInSeconds: 4 * 60 * 60, // 4hr
         // this guarantees that only one instance will try to download the s3 object under same url
         lockOptions: {
-          acquireLockRetryIntervalMs: 1000,
-          lockTTLInSeconds: 30, // give it 30 seconds to finish downloading s3 object from cloudfront
-          acquireLockMaxWaitInSeconds: 30
+          lockTTLInSeconds: 30, // give it 30 seconds to finish downloading s3 object from cloudfront while others are waiting
+          acquireLockMaxWaitInSeconds: 30,
+          acquireLockRetryIntervalMs: 1000
         }
       }
     )
