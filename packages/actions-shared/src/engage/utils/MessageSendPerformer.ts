@@ -8,7 +8,8 @@ import { MaybePromise } from '@segment/actions-core/destination-kit/types'
 import { getProfileApiEndpoint, Region } from './getProfileApiEndpoint'
 import { track } from './track'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
-import { getErrorDetails } from '.'
+import { getErrorDetails } from './ResponseError'
+import { StatsTagsMap } from './operationTracking'
 import { CachedError, CachedResponseType, CachedValue, CachedValueFactory } from './CachedResponse'
 
 export enum SendabilityStatus {
@@ -140,13 +141,13 @@ export abstract class MessageSendPerformer<
     }
   ): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
-    const finalStatsTags: { cache_hit: boolean; [key: string]: any } = {
+    const finalStatsTags: StatsTagsMap & { cache_hit: boolean } = {
       cache_group,
       cache_hit: false
     }
 
     this.currentOperation?.onFinally.push(() => {
-      this.currentOperation?.tags.push(...this.statsClient.toTags(finalStatsTags))
+      this.currentOperation?.tags.push(...this.statsClient.tagsMapToArray(finalStatsTags))
     })
 
     if (!this.engageDestinationCache) return createValue()
@@ -181,7 +182,7 @@ export abstract class MessageSendPerformer<
         // parsedValue - either value or error was parsed
         finalStatsTags.cache_hit = true
         finalStatsTags.cached_error = !!parsedCache?.error
-        this.statsIncr('cache_hit', 1, this.statsClient.toTags(finalStatsTags))
+        this.statsIncr('cache_hit', 1, finalStatsTags)
         if (parsedCache?.error) throw parsedCache.error
         return parsedCache.value
       } else {
@@ -192,7 +193,7 @@ export abstract class MessageSendPerformer<
     }
     // re-executing, because cache not found or ignored or failed to read or parse
     finalStatsTags.cache_hit = false
-    this.statsIncr('cache_miss', 1, this.statsClient.toTags(finalStatsTags))
+    this.statsIncr('cache_miss', 1, finalStatsTags)
     this.logInfo('cache_miss', { key, cacheGroup: cache_group })
     const { value: result, error: resultError } = await getOrCatch(() => createValue())
 
@@ -229,7 +230,7 @@ export abstract class MessageSendPerformer<
     const redisClient = (this.engageDestinationCache as any)?.redis
     const lockKey = `engage-messaging-lock:${key}`
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
-    const statsTags: { [key: string]: any } = { cache_group }
+    const statsTags: StatsTagsMap = { cache_group }
 
     if (!redisClient) {
       this.logInfo('redis_client_unavailable', { key, statsTags })
@@ -257,19 +258,22 @@ export abstract class MessageSendPerformer<
 
       if (!locked) {
         this.logInfo('lock_acquisition_failed', { key, statsTags })
-        this.statsIncr('lock_acquisition_failed', 1, this.statsClient.toTags(statsTags))
-        return createValue()
+        this.statsIncr('lock_acquisition_failed', 1, statsTags)
+        const timeoutError = new IntegrationError('Timeout while acquiring lock', 'etimedout', 500)
+        timeoutError.retry = true
+        throw timeoutError
+        //return createValue()
       }
 
       this.logInfo('lock_acquired', { key, statsTags })
-      this.statsIncr('lock_acquired', 1, this.statsClient.toTags(statsTags))
+      this.statsIncr('lock_acquired', 1, statsTags)
 
       try {
         return await createValue()
       } finally {
         await releaseLock()
         this.logInfo('lock_released', { key, statsTags })
-        this.statsIncr('lock_released', 1, this.statsClient.toTags(statsTags))
+        this.statsIncr('lock_released', 1, statsTags)
       }
     } catch (error) {
       this.logInfo('unexpected_error', {
@@ -277,7 +281,7 @@ export abstract class MessageSendPerformer<
         statsTags,
         error: error instanceof Error ? error.message : String(error)
       })
-      this.statsIncr('unexpected_error', 1, this.statsClient.toTags(statsTags))
+      this.statsIncr('unexpected_error', 1, statsTags)
       return createValue()
     }
   }
