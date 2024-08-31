@@ -289,7 +289,13 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           }
           return { value: parsed.value }
         },
-        expiryInSeconds: 60 * 60 // 1hr
+        expiryInSeconds: 60 * 60, // 1hr
+        lockOptions: {
+          // this guarantees that only one instance will try to download the s3 object under same url
+          acquireLockRetryIntervalMs: 1000,
+          lockTTLInSeconds: 30, // give it 30 seconds to finish downloading s3 object from cloudfront
+          acquireLockMaxWaitInSeconds: 30
+        }
       }
     )
     return content
