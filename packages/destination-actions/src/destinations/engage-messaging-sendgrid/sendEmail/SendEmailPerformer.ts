@@ -279,9 +279,9 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       async () => (await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })).content,
       {
         cacheGroup: 'getBodyTemplateFromS3',
-        expiryInSeconds: 60 * 60, // 1hr
+        expiryInSeconds: 4 * 60 * 60, // 4hr
+        // this guarantees that only one instance will try to download the s3 object under same url
         lockOptions: {
-          // this guarantees that only one instance will try to download the s3 object under same url
           acquireLockRetryIntervalMs: 1000,
           lockTTLInSeconds: 30, // give it 30 seconds to finish downloading s3 object from cloudfront
           acquireLockMaxWaitInSeconds: 30
