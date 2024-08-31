@@ -279,22 +279,12 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       async () => (await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })).content,
       {
         cacheGroup: 'getBodyTemplateFromS3',
-        stringify(cacheable) {
-          return JSON.stringify(cacheable.error ? { error: cacheable.error.message } : { value: cacheable.value })
-        },
-        parse(cachedValue) {
-          const parsed = JSON.parse(cachedValue)
-          if (parsed.error) {
-            return { error: new IntegrationError(parsed.error, 'CacheError', 400) }
-          }
-          return { value: parsed.value }
-        },
-        expiryInSeconds: 60 * 60, // 1hr
+        expiryInSeconds: 4 * 60 * 60, // 4hr
+        // this guarantees that only one instance will try to download the s3 object under same url
         lockOptions: {
-          // this guarantees that only one instance will try to download the s3 object under same url
-          acquireLockRetryIntervalMs: 1000,
-          lockTTLInSeconds: 30, // give it 30 seconds to finish downloading s3 object from cloudfront
-          acquireLockMaxWaitInSeconds: 30
+          lockTTLInSeconds: 30, // give it 30 seconds to finish downloading s3 object from cloudfront while others are waiting
+          acquireLockMaxWaitInSeconds: 30,
+          acquireLockRetryIntervalMs: 1000
         }
       }
     )
