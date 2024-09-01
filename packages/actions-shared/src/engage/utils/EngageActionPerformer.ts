@@ -305,7 +305,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       statsTags.lock_acquired = false
       const startTime = Date.now()
       while (Date.now() - startTime < options.acquireLockMaxWaitTimeMs) {
-        if (await cache.setByKeyNX(lockKey, 'locked', options.lockMaxTimeMs)) {
+        if (await cache.setByKeyNX(lockKey, 'locked', options.lockMaxTimeMs / 1000)) {
           // lock acquired, returning release function
           statsTags.lock_acquired = true
           return {
