@@ -236,7 +236,7 @@ export abstract class MessageSendPerformer<
     })
 
     if (!redisClient) {
-      return createValue()
+      return await createValue()
     }
 
     /**
@@ -278,7 +278,7 @@ export abstract class MessageSendPerformer<
           this.logInfo('lock_acquire_error', { key, redisError, statsTags })
           statsTags.lock_acquired_error = true
         }
-        return createValue()
+        return await createValue()
       } finally {
         const { error: releaseError } = lock?.release ? await getOrCatch(() => lock.release()) : { error: undefined }
         if (releaseError) {
