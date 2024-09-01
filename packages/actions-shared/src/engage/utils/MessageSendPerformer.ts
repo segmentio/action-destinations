@@ -217,6 +217,7 @@ export abstract class MessageSendPerformer<
     else return result as T
   }
 
+  @track()
   async withDistributedLock<T>(
     key: string,
     createValue: () => Promise<T>,
@@ -228,61 +229,68 @@ export abstract class MessageSendPerformer<
     }
   ): Promise<T> {
     const redisClient = (this.engageDestinationCache as any)?.redis
-    const lockKey = `engage-messaging-lock:${key}`
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
     const statsTags: StatsTagsMap = { cache_group }
+    this.currentOperation?.onFinally.push(() => {
+      this.currentOperation?.tags.push(...this.statsClient.tagsMapToArray(statsTags))
+    })
 
     if (!redisClient) {
-      this.logInfo('redis_client_unavailable', { key, statsTags })
       return createValue()
     }
 
-    const acquireLock = async (): Promise<boolean> => {
+    /**
+     * LOGIC:
+     * Trying to aquire lock. Possible outcomes:
+     * 1. Lock acquired:
+     *    - createValue() and finally release lock
+     * 2. Lock not acquired because of timeout:
+     *   - throw timeout error up
+     * 3. Lock not acquired because of error accessing redis:
+     *   - fallback to createValue()
+     */
+
+    const lockKey = `engage-messaging-lock:${key}`
+    const acquireLock = async () => {
       //tries to acquire lock for acquireLockMaxWaitInSeconds seconds
+      statsTags.lock_acquired = false
       const startTime = Date.now()
       while (Date.now() - startTime < options.acquireLockMaxWaitInSeconds * 1000) {
         if ((await redisClient.set(lockKey, 'locked', 'NX', 'PX', options.lockTTLInSeconds * 1000)) === 'OK') {
-          return true
+          // lock acquired, returning release function
+          statsTags.lock_acquired = true
+          return {
+            release: async () => await redisClient.del(lockKey)
+          }
         }
         await new Promise((resolve) => setTimeout(resolve, options.acquireLockRetryIntervalMs || 500)) // Wait 500ms before retrying
       }
-      return false
+      //no lock acquired because of waiting timeout
+      return
     }
 
-    const releaseLock = async (): Promise<void> => {
-      await redisClient.del(lockKey)
-    }
+    const { value: lock, error: redisError } = await getOrCatch(() => acquireLock())
 
-    try {
-      const locked = await acquireLock()
-
-      if (!locked) {
-        this.logInfo('lock_acquisition_failed', { key, statsTags })
-        this.statsIncr('lock_acquisition_failed', 1, statsTags)
-        const timeoutError = new IntegrationError('Timeout while acquiring lock', 'ETIMEDOUT', 500)
-        timeoutError.retry = true
-        throw timeoutError
-        //return createValue()
-      }
-
-      this.logInfo('lock_acquired', { key, statsTags })
-      this.statsIncr('lock_acquired', 1, statsTags)
-
+    if (redisError || lock?.release)
+      //if lock obtained or there was redis error - execute createValue and finally release lock
       try {
-        return await createValue()
+        if (redisError) {
+          this.logInfo('lock_acquire_error', { key, redisError, statsTags })
+          statsTags.lock_acquired_error = true
+        }
+        return createValue()
       } finally {
-        await releaseLock()
-        this.logInfo('lock_released', { key, statsTags })
-        this.statsIncr('lock_released', 1, statsTags)
+        const { error: releaseError } = lock?.release ? await getOrCatch(() => lock.release()) : { error: undefined }
+        if (releaseError) {
+          this.logInfo('lock_release_error', { key, releaseError, statsTags })
+          statsTags.lock_release_error = true
+        }
       }
-    } catch (error) {
-      this.logInfo('unexpected_error', {
-        key,
-        statsTags,
-        error: error instanceof Error ? error.message : String(error)
-      })
-      this.statsIncr('unexpected_error', 1, statsTags)
-      return createValue()
+    else {
+      // no redis error and no lock acquired - means it was acquiring timeout
+      const acquireLockTimeoutError = new IntegrationError('Timeout while acquiring lock', 'ETIMEDOUT', 500)
+      acquireLockTimeoutError.retry = true
+      throw acquireLockTimeoutError
     }
   }
 
