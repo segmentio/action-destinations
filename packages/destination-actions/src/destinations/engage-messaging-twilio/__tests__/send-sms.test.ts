@@ -12,12 +12,16 @@ const defaultTags = JSON.stringify({
 describe.each(['stage', 'production'])('%s environment', (environment) => {
   const getByKey = jest.fn().mockResolvedValue(undefined)
   const setByKey = jest.fn().mockResolvedValue(undefined)
+  const setByKeyNX = jest.fn().mockResolvedValue(undefined)
+  const delByKey = jest.fn().mockResolvedValue(undefined)
   // Create a mocked engageDestinationCache so the test does not fail.
   const engageDestinationCache: EngageDestinationCache = {
     getByKey,
     maxExpirySeconds: 60,
     maxValueSizeBytes: 1024,
-    setByKey
+    setByKey,
+    setByKeyNX,
+    delByKey
   }
 
   const contentSid = 'g'

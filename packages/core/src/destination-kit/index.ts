@@ -371,7 +371,9 @@ export interface EngageDestinationCache {
   getByKey: (key: string) => Promise<string | null>
   readonly maxExpirySeconds: number
   readonly maxValueSizeBytes: number
-  setByKey: (key: string, value: string, expiryInSeconds?: number) => Promise<void>
+  setByKey: (key: string, value: string, expiryInSeconds?: number) => Promise<boolean>
+  setByKeyNX: (key: string, value: string, expiryInSeconds?: number) => Promise<boolean>
+  delByKey: (key: string) => Promise<boolean>
 }
 
 export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
