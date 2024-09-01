@@ -14,6 +14,7 @@ import { Awaited, StatsTags, StatsTagsMap } from './operationTracking'
 import truncate from 'lodash/truncate'
 import { isRetryableError } from './isRetryableError'
 import { CachedError, CachedValueFactory } from './CachedResponse'
+import { getOrCatch, ValueOrError } from './getOrCatch'
 
 /**
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
@@ -188,13 +189,14 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       cacheGroup?: string
       serializer?: CacheSerializer<T>
       expiryInSeconds?: number
-      lockOptions?: Parameters<typeof EngageActionPerformer.prototype.withDistributedLock>[2]
+      lockOptions?: LockOptions
     }
   ): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
     const finalStatsTags: StatsTagsMap & { cache_hit: boolean } = {
       cache_group,
-      cache_hit: false
+      cache_hit: false,
+      withLock: !!options.lockOptions
     }
 
     this.currentOperation?.onFinally.push(() => {
@@ -268,17 +270,24 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     else return result as T
   }
 
+  /**
+   * Distributed lock implementation using Redis
+   *
+   * LOGIC:
+   * Trying to aquire lock. Possible outcomes:
+   * 1. Lock acquired:
+   *    - createValue() and finally release lock
+   * 2. Lock not acquired because of timeout:
+   *   - throw timeout error up
+   * 3. Lock not acquired because of error accessing redis:
+   *   - fallback to createValue()
+   * @param key resource key to lock under
+   * @param createValue function to execute if lock is acquired
+   * @param options lock options
+   * @returns
+   */
   @track()
-  async withDistributedLock<T>(
-    key: string,
-    createValue: () => Promise<T>,
-    options: {
-      acquireLockMaxWaitTimeMs: number
-      acquireLockRetryIntervalMs?: number
-      lockMaxTimeMs: number
-      cacheGroup?: string
-    }
-  ): Promise<T> {
+  async withDistributedLock<T>(key: string, createValue: () => Promise<T>, options: LockOptions): Promise<T> {
     const redisClient = (this.engageDestinationCache as any)?.redis
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
     const statsTags: StatsTagsMap = { cache_group }
@@ -289,17 +298,6 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     if (!redisClient) {
       return await createValue()
     }
-
-    /**
-     * LOGIC:
-     * Trying to aquire lock. Possible outcomes:
-     * 1. Lock acquired:
-     *    - createValue() and finally release lock
-     * 2. Lock not acquired because of timeout:
-     *   - throw timeout error up
-     * 3. Lock not acquired because of error accessing redis:
-     *   - fallback to createValue()
-     */
 
     const lockKey = `engage-messaging-lock:${key}`
     const acquireLock = async () => {
@@ -355,24 +353,6 @@ function addUrlToLog(ctx: any) {
   }
 }
 
-type ValueOrError<T> = { value?: T; error?: any } //& ({ value: T } | { error: any });
-
-function getOrCatch<T>(getValue: () => Promise<T>): Promise<ValueOrError<T>>
-function getOrCatch<T>(getValue: () => T): ValueOrError<T>
-function getOrCatch(getValue: () => any): Promise<ValueOrError<any>> | ValueOrError<any> {
-  try {
-    const value = getValue()
-
-    if (value instanceof Promise) {
-      return value.then((value) => ({ value })).catch((error) => ({ error }))
-    } else {
-      return { value }
-    }
-  } catch (error) {
-    return { error }
-  }
-}
-
 export type CacheSerializer<T> = {
   /**
    * Stringyfies value or error to string
@@ -416,4 +396,25 @@ export const DefaultSerializer: CacheSerializer<any> = {
       return { value: parsedValOrError.value }
     }
   }
+}
+
+export type LockOptions = {
+  /**
+   * Max time in milliseconds to wait for the lock to be acquired.
+   * If the lock is not acquired within this time, the timeout error will be thrown
+   */
+  acquireLockMaxWaitTimeMs: number
+  /**
+   * Interval in milliseconds between lock acquisition attempts
+   */
+  acquireLockRetryIntervalMs?: number
+  /**
+   * Max time in milliseconds for which the lock will be held.
+   * If the lock is not released within this time, it will be expired.
+   */
+  lockMaxTimeMs: number
+  /**
+   * used for stats
+   */
+  cacheGroup?: string
 }
