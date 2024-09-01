@@ -288,28 +288,28 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
    */
   @track()
   async withDistributedLock<T>(key: string, createValue: () => Promise<T>, options: LockOptions): Promise<T> {
-    const redisClient = (this.engageDestinationCache as any)?.redis
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
     const statsTags: StatsTagsMap = { cache_group }
     this.currentOperation?.onFinally.push(() => {
       this.currentOperation?.tags.push(...this.statsClient.tagsMapToArray(statsTags))
     })
 
-    if (!redisClient) {
+    if (!this.engageDestinationCache) {
       return await createValue()
     }
+    const cache = this.engageDestinationCache
 
-    const lockKey = `engage-messaging-lock:${key}`
+    const lockKey = `lock:${key}`
     const acquireLock = async () => {
       //tries to acquire lock for acquireLockMaxWaitInSeconds seconds
       statsTags.lock_acquired = false
       const startTime = Date.now()
       while (Date.now() - startTime < options.acquireLockMaxWaitTimeMs) {
-        if ((await redisClient.set(lockKey, 'locked', 'NX', 'PX', options.lockMaxTimeMs)) === 'OK') {
+        if (await cache.setByKeyNX(lockKey, 'locked', options.lockMaxTimeMs)) {
           // lock acquired, returning release function
           statsTags.lock_acquired = true
           return {
-            release: async () => await redisClient.del(lockKey)
+            release: async () => await cache.delByKey(lockKey)
           }
         }
         await new Promise((resolve) => setTimeout(resolve, options.acquireLockRetryIntervalMs || 500)) // Wait 500ms before retrying
