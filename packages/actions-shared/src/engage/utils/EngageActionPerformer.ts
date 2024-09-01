@@ -38,6 +38,9 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
   @track()
   async perform() {
     await this.beforePerform?.()
+
+    // increment the perform_attempt metric - was done after noticing that some actions are not achieving the finally block of the operation (possibly due to process/pod termination)
+    this.statsIncr('perform_attempt')
     return this.doPerform()
   }
 

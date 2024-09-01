@@ -118,10 +118,11 @@ export abstract class MessageSendPerformer<
       {
         cacheGroup: 'sendToRecepient',
         lockOptions: {
-          acquireLockMaxWaitInSeconds: 30, //30 secs - max wait for lock time
+          acquireLockMaxWaitTimeMs: 30 * 1000, //30 secs - max wait for lock time, before throwing timeout error
           acquireLockRetryIntervalMs: 1000, //1 sec
-          lockTTLInSeconds: 3 * 60 //3 mins max lock time
-        }
+          lockMaxTimeMs: 10 * 60 * 1000 //10 mins max lock time
+        },
+        serializer: SendToRecepientResponseSerializer
       }
     )
   }
@@ -222,9 +223,9 @@ export abstract class MessageSendPerformer<
     key: string,
     createValue: () => Promise<T>,
     options: {
-      acquireLockMaxWaitInSeconds: number
+      acquireLockMaxWaitTimeMs: number
       acquireLockRetryIntervalMs?: number
-      lockTTLInSeconds: number
+      lockMaxTimeMs: number
       cacheGroup?: string
     }
   ): Promise<T> {
@@ -255,8 +256,8 @@ export abstract class MessageSendPerformer<
       //tries to acquire lock for acquireLockMaxWaitInSeconds seconds
       statsTags.lock_acquired = false
       const startTime = Date.now()
-      while (Date.now() - startTime < options.acquireLockMaxWaitInSeconds * 1000) {
-        if ((await redisClient.set(lockKey, 'locked', 'NX', 'PX', options.lockTTLInSeconds * 1000)) === 'OK') {
+      while (Date.now() - startTime < options.acquireLockMaxWaitTimeMs) {
+        if ((await redisClient.set(lockKey, 'locked', 'NX', 'PX', options.lockMaxTimeMs)) === 'OK') {
           // lock acquired, returning release function
           statsTags.lock_acquired = true
           return {
@@ -640,17 +641,12 @@ type CacheSerializer<T> = {
   parse: (cachedValue: string) => ValueOrError<T> | void
 }
 
-const DefaultSerializer: CacheSerializer<any> = {
-  parse: (cachedValue) => {
-    const parsed = CachedValueFactory.fromString(cachedValue)
-    if (parsed instanceof CachedError) {
-      const error = new IntegrationError(parsed.message, parsed.code, parsed.status)
-      error.retry = false
-      return { error }
-    } else if (parsed.type === CachedResponseType.Success) {
-      return { value: { status: parsed.status } }
-    }
-  },
+/**
+ * Serializer optimized for caching sendToRecepient response.
+ * As success it only serializes status, as error it serializes status, message and code.
+ * It was created for performance reasons, as so we don't use JSON.stringify and don't cache whole response object
+ */
+export const SendToRecepientResponseSerializer: CacheSerializer<any> = {
   stringify: (cacheable) => {
     if (cacheable.error && !isRetryableError(cacheable.error)) {
       // we only stringify non-retryable error, retryable errors are not cached
@@ -660,6 +656,46 @@ const DefaultSerializer: CacheSerializer<any> = {
       }
     } else if (cacheable.value) {
       return new CachedValue(cacheable.value.status).serialize()
+    }
+  },
+  parse: (cachedValue) => {
+    const parsed = CachedValueFactory.fromString(cachedValue)
+    if (parsed instanceof CachedError) {
+      const error = new IntegrationError(parsed.message, parsed.code, parsed.status)
+      error.retry = false
+      return { error }
+    } else if (parsed.type === CachedResponseType.Success) {
+      return { value: { status: parsed.status } }
+    }
+  }
+}
+
+/**
+ * Default serializer that supports caching of non-retriable error as well as any JSON.stringify-able value
+ */
+export const DefaultSerializer: CacheSerializer<any> = {
+  stringify: (valueOrError) => {
+    let cacheObj = undefined
+    if (valueOrError.error && !isRetryableError(valueOrError.error)) {
+      const errorDetails = getErrorDetails(valueOrError.error)
+      if (errorDetails?.status) {
+        cacheObj = { error: new CachedError(errorDetails.status, errorDetails.message, errorDetails.code).serialize() }
+      }
+    } else if (valueOrError.value !== undefined) {
+      cacheObj = { value: valueOrError.value }
+    }
+    return cacheObj ? JSON.stringify(cacheObj) : undefined
+  },
+
+  parse: (cachedValue) => {
+    const parsedValOrError = JSON.parse(cachedValue) as { value?: any; error?: string }
+    if (parsedValOrError.error) {
+      const parsed = CachedValueFactory.fromString(parsedValOrError.error) as CachedError
+      const error = new IntegrationError(parsed.message, parsed.code, parsed.status)
+      error.retry = false
+      return { error }
+    } else if (parsedValOrError.value !== undefined) {
+      return { value: parsedValOrError.value }
     }
   }
 }
