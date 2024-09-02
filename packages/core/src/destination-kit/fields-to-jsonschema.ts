@@ -51,6 +51,14 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
       schema.format = 'password'
     } else if (field.type === 'text') {
       schema.format = 'text'
+    } else if (field.type === 'number') {
+      const { minimum = null, maximum = null } = field as InputField
+      if (minimum) {
+        schema.minimum = minimum
+      }
+      if (maximum) {
+        schema.maximum = maximum
+      }
     }
 
     if (field.choices) {
