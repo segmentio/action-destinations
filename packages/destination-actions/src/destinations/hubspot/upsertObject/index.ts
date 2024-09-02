@@ -39,7 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'Object Type' first")
+          throw new Error("Select a value from the 'Object Type' field")
         }
 
         return await dynamicReadIdFields(request, fromObjectType)
@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'Object Type' first")
+          throw new Error("Select a value from the 'Object Type' field")
         }
 
         return await dynamicReadPropertyGroups(request, fromObjectType)
@@ -59,7 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'Object Type' first")
+          throw new Error("Select a value from the 'Object Type' field")
         }
 
         return await dynamicReadProperties(request, fromObjectType, false)
@@ -70,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'Object Type' first")
+          throw new Error("Select a value from the 'Object Type' field")
         }
 
         return await dynamicReadProperties(request, fromObjectType, true)
@@ -91,11 +91,11 @@ const action: ActionDefinition<Settings, Payload> = {
         const toObjectType = payload?.associations?.[selectedIndex]?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'Object Type' first")
+          throw new Error("Select a value from the from 'Object Type' field")
         }
 
         if (!toObjectType) {
-          throw new Error("Select from 'To Object Type' first")
+          throw new Error("Select a value from the 'To Object Type' field")
         }
 
         return await dynamicReadAssociationLabels(request, fromObjectType, toObjectType)
@@ -110,7 +110,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const toObjectType = payload?.associations?.[selectedIndex]?.object_type
 
         if (!toObjectType) {
-          throw new Error("Select from 'To Object Type' first")
+          throw new Error("Select a value from the 'To Object Type' field")
         }
 
         return await dynamicReadIdFields(request, toObjectType)
