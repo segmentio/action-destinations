@@ -239,4 +239,22 @@ describe('validateSchema', () => {
       }
     `)
   })
+
+  it('should validate min/max for number type fields', () => {
+    const less_than_min_payload = { batch_size: 99 }
+    const greater_than_max_payload = { batch_size: Number.MAX_SAFE_INTEGER }
+    const valid_number_payload = { batch_size: 158 }
+
+    const min_max_schema = fieldsToJsonSchema({
+      batch_size: {
+        type: 'number',
+        label: 'Batch size',
+        minimum: 100,
+        maximum: 10000
+      }
+    })
+    expect(validateSchema(valid_number_payload, min_max_schema)).toBeTruthy()
+    expect(validateSchema(less_than_min_payload, min_max_schema)).toBeFalsy()
+    expect(validateSchema(greater_than_max_payload, min_max_schema)).toBeFalsy()
+  })
 })
