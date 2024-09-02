@@ -12,7 +12,14 @@ interface SegmentProperty {
   stringFormat?: StringFormat
 }
 
-type SchemaMatch = 'full_match' | 'properties_missing' | 'no_match' | 'mismatch'
+export const SchemaMatch = {
+  FullMatch: 'full_match',
+  PropertiesMissing: 'properties_missing',
+  NoMatch: 'no_match',
+  Mismatch: 'mismatch'
+} as const
+
+export type SchemaMatch = typeof SchemaMatch[keyof typeof SchemaMatch]
 
 interface SchemaDiff {
   match: SchemaMatch
@@ -23,7 +30,7 @@ interface SchemaDiff {
   }
 }
 
-interface SegmentEventSchema {
+interface Schema {
   eventName: string
   properties: {
     [key: string]: SegmentProperty
@@ -154,7 +161,7 @@ export class HubspotClient {
     }
   }
 
-  segmentSchema(payload: Payload): SegmentEventSchema {
+  schema(payload: Payload): Schema {
     const { event_name, properties } = payload
     const props: { [key: string]: SegmentProperty } = {}
 
@@ -171,7 +178,7 @@ export class HubspotClient {
     return { eventName: event_name, primaryObject: payload.record_details.object_type, properties: props }
   }
 
-  async compareSchemaToCache(_schema: SegmentEventSchema): Promise<SchemaDiff> {
+  async compareToCache(_schema: Schema): Promise<SchemaDiff> {
     // no op function until caching implemented
     const schemaDiff: SchemaDiff = {
       match: 'no_match',
@@ -181,7 +188,7 @@ export class HubspotClient {
     return Promise.resolve(schemaDiff)
   }
 
-  async compareSchemaToHubspot(schema: SegmentEventSchema): Promise<SchemaDiff> {
+  async compareToHubspot(schema: Schema): Promise<SchemaDiff> {
     interface ResponseType {
       data: ResultItem
     }
@@ -244,7 +251,7 @@ export class HubspotClient {
     }
   }
 
-  async saveSchemaToCache(_fullyQualifiedName: string, _name: string, _schema: SegmentEventSchema) {
+  async saveSchemaToCache(_fullyQualifiedName: string, _name: string, _schema: Schema) {
     return
   }
 
@@ -268,69 +275,7 @@ export class HubspotClient {
     })
   }
 
-  async send(payload: Payload) {
-    const schema = this.segmentSchema(payload)
-    const cacheSchemaDiff = await this.compareSchemaToCache(schema)
-
-    switch (cacheSchemaDiff.match) {
-      case 'full_match':
-        return await this.sendEvent(cacheSchemaDiff?.fullyQualifiedName as string, payload)
-
-      case 'mismatch':
-        throw new IntegrationError('Cache schema mismatch.', 'CACHE_SCHEMA_MISMATCH', 400)
-
-      case 'no_match':
-      case 'properties_missing': {
-        const hubspotSchemaDiff = await this.compareSchemaToHubspot(schema)
-
-        switch (hubspotSchemaDiff.match) {
-          case 'full_match': {
-            const fullyQualifiedName = hubspotSchemaDiff?.fullyQualifiedName as string
-            const name = hubspotSchemaDiff?.name as string
-            await this.saveSchemaToCache(fullyQualifiedName, name, schema)
-            return await this.sendEvent(fullyQualifiedName, payload)
-          }
-
-          case 'mismatch':
-            throw new IntegrationError('Hubspot schema mismatch.', 'HUBSPOT_SCHEMA_MISMATCH', 400)
-
-          case 'no_match': {
-            if (this.syncMode === 'update') {
-              throw new IntegrationError(
-                `The 'Sync Mode' setting is set to 'update' which is stopping Segment from creating a new Custom Event Schema in the HubSpot`,
-                'HUBSPOT_SCHEMA_MISSING',
-                400
-              )
-            }
-
-            const schemaDiff = await this.createHubspotSchema(schema)
-            const fullyQualifiedName = schemaDiff?.fullyQualifiedName as string
-            const name = schemaDiff?.name as string
-            await this.saveSchemaToCache(fullyQualifiedName, name, schema)
-            return await this.sendEvent(fullyQualifiedName, payload)
-          }
-
-          case 'properties_missing': {
-            if (this.syncMode === 'add') {
-              throw new IntegrationError(
-                `The 'Sync Mode' setting is set to 'add' which is stopping Segment from creating a new properties on the Event Schema in the HubSpot`,
-                'HUBSPOT_SCHEMA_PROPERTIES_MISSING',
-                400
-              )
-            }
-
-            const fullyQualifiedName = hubspotSchemaDiff?.fullyQualifiedName as string
-            const name = hubspotSchemaDiff?.name as string
-            await this.updateHubspotSchema(fullyQualifiedName, hubspotSchemaDiff)
-            await this.saveSchemaToCache(fullyQualifiedName, name, schema)
-            return await this.sendEvent(fullyQualifiedName, payload)
-          }
-        }
-      }
-    }
-  }
-
-  async createHubspotSchema(schema: SegmentEventSchema): Promise<SchemaDiff> {
+  async createHubspotEventSchema(schema: Schema): Promise<SchemaDiff> {
     interface RequestJSON {
       label: string
       name: string

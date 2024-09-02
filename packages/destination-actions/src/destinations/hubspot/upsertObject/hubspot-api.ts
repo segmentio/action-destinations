@@ -439,11 +439,8 @@ export class HubspotClient {
    * @returns {Promise<SchemaDiff>} - A promise that resolves to a default `SchemaDiff` object
    *   indicating no match and empty lists for missing properties.
    */
-  async schemaDiffCache(schema: Schema): Promise<SchemaDiff> {
+  async compareToCache(schema: Schema): Promise<SchemaDiff> {
     // no op function until caching implemented
-    let data = JSON.stringify(`${schema}`)
-    data = data.replace(data, '')
-    console.log(`${data}`)
 
     const schemaDiff: SchemaDiff = {
       match: 'no_match',
@@ -558,7 +555,7 @@ export class HubspotClient {
    *   the comparison results, including missing properties and the match status.
    * @throws {IntegrationError} - Throws an error if the data cannot be fetched from HubSpot.
    */
-  async schemaDiffHubspot(schema: Schema): Promise<SchemaDiff> {
+  async compareToHubspot(schema: Schema): Promise<SchemaDiff> {
     const requests = []
     const hasProps = schema.properties.length
     const hasSensitiveProps = schema.sensitiveProperties.length

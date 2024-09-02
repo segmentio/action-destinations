@@ -118,10 +118,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, syncMode }) => {
-    await send(request, [payload], syncMode as SyncMode)
+    return await send(request, [payload], syncMode as SyncMode)
   },
   performBatch: async (request, { payload, syncMode }) => {
-    await send(request, payload, syncMode as SyncMode)
+    return await send(request, payload, syncMode as SyncMode)
   }
 }
 
@@ -139,29 +139,32 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
     propertyGroup
   )
 
-  const cleanedPayloads = client.validate(payloads)
-  const schema = client.schema(cleanedPayloads)
-  const schemaDiffCache = await client.schemaDiffCache(schema)
+  const validPayloads = client.validate(payloads)
 
-  switch (schemaDiffCache.match) {
+  const schema = client.schema(validPayloads)
+
+  const cacheSchemaDiff = await client.compareToCache(schema)
+
+  switch (cacheSchemaDiff.match) {
     case SchemaMatch.FullMatch: {
-      const fromRecordPayloads = await client.sendFromRecords(cleanedPayloads)
+      const fromRecordPayloads = await client.sendFromRecords(validPayloads)
       const associationPayloads = client.createAssociationPayloads(fromRecordPayloads)
       const associatedRecords = await client.sendAssociatedRecords(associationPayloads)
       await client.sendAssociations(associatedRecords)
       return
     }
+
     case SchemaMatch.PropertiesMissing:
     case SchemaMatch.NoMatch: {
-      const schemaDiffHubspot = await client.schemaDiffHubspot(schema)
+      const hubspotSchemaDiff = await client.compareToHubspot(schema)
 
-      switch (schemaDiffHubspot.match) {
+      switch (hubspotSchemaDiff.match) {
         case SchemaMatch.FullMatch: {
           await client.saveSchemaToCache(schema)
           break
         }
         case SchemaMatch.PropertiesMissing: {
-          await client.createProperties(schemaDiffHubspot)
+          await client.createProperties(hubspotSchemaDiff)
           await client.saveSchemaToCache(schema)
           break
         }
@@ -170,7 +173,7 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
         }
       }
 
-      const fromRecordPayloads = await client.sendFromRecords(cleanedPayloads)
+      const fromRecordPayloads = await client.sendFromRecords(validPayloads)
       const associationPayloads = client.createAssociationPayloads(fromRecordPayloads)
       const associatedRecords = await client.sendAssociatedRecords(associationPayloads)
       await client.sendAssociations(associatedRecords)

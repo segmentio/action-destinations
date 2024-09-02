@@ -1,7 +1,7 @@
 import { PayloadValidationError } from '@segment/actions-core'
 import { Payload } from './generated-types'
 
-export function validate(payload: Payload) {
+export function validate(payload: Payload): Payload {
   if (payload.record_details.object_type !== 'contact' && typeof payload.record_details.object_id !== 'number') {
     throw new PayloadValidationError('object_id is required and must be numeric')
   }
@@ -20,6 +20,8 @@ export function validate(payload: Payload) {
   cleanIdentifiers(payload)
   payload.event_name = cleanEventName(payload.event_name)
   payload.properties = cleanPropObj(payload.properties ?? {})
+
+  return payload
 }
 
 function cleanIdentifiers(payload: Payload) {
