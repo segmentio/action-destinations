@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.80.1-staging-b28424352.0",
+  "version": "1.80.1-staging-344f847d7.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -23,13 +23,13 @@
     "@segment/analytics-browser-actions-commandbar": "1.58.1-staging-b28424352.0",
     "@segment/analytics-browser-actions-contentstack-web": "1.1.1-staging-b28424352.0",
     "@segment/analytics-browser-actions-devrev": "1.45.1-staging-b28424352.0",
-    "@segment/analytics-browser-actions-friendbuy": "1.59.1-staging-b28424352.0",
+    "@segment/analytics-browser-actions-friendbuy": "1.59.1-staging-344f847d7.0",
     "@segment/analytics-browser-actions-fullstory": "1.60.1-staging-b28424352.0",
     "@segment/analytics-browser-actions-google-analytics-4": "1.65.1-staging-b28424352.0",
     "@segment/analytics-browser-actions-google-campaign-manager": "1.49.1-staging-b28424352.0",
     "@segment/analytics-browser-actions-heap": "1.58.1-staging-b28424352.0",
     "@segment/analytics-browser-actions-hubspot": "1.58.1-staging-b28424352.0",
-    "@segment/analytics-browser-actions-intercom": "1.61.1-staging-b28424352.0",
+    "@segment/analytics-browser-actions-intercom": "1.61.1-staging-344f847d7.0",
     "@segment/analytics-browser-actions-iterate": "1.58.1-staging-b28424352.0",
     "@segment/analytics-browser-actions-jimo": "1.47.1-staging-b28424352.0",
     "@segment/analytics-browser-actions-koala": "1.59.1-staging-b28424352.0",
