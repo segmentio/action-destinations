@@ -1,8 +1,9 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { HubspotClient, SyncMode } from './hubspot-api'
 import { commonFields } from './common-fields'
+import { validate } from './utils'
 
 import { dynamicReadEventNames, dynamicReadObjectTypes, dynamicReadProperties } from './dynamic-fields'
 
@@ -42,29 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, syncMode }) => {
-    if (payload.record_details.email && payload.record_details.object_type !== 'contact') {
-      delete payload.record_details.email
-    }
-
-    if (payload.record_details.utk && payload.record_details.object_type !== 'contact') {
-      delete payload.record_details.utk
-    }
-
-    if (payload.record_details.object_type !== 'contact' && typeof payload.record_details.object_id !== 'number') {
-      throw new PayloadValidationError('object_id is required and must be numeric')
-    }
-
-    if (
-      payload.record_details.object_type === 'contact' &&
-      typeof payload.record_details.object_id !== 'number' &&
-      !payload.record_details.email &&
-      !payload.record_details.utk
-    ) {
-      throw new PayloadValidationError(
-        'Contact requires at least one of object_id (as number), email or utk to be provided'
-      )
-    }
-
+    validate(payload)
     const hubspotClient = new HubspotClient(request, syncMode as SyncMode)
     return await hubspotClient.send(payload)
   }

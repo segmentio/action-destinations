@@ -1,10 +1,42 @@
 import { PayloadValidationError } from '@segment/actions-core'
+import { Payload } from './generated-types'
+
+export function validate(payload: Payload) {
+  if (payload.record_details.object_type !== 'contact' && typeof payload.record_details.object_id !== 'number') {
+    throw new PayloadValidationError('object_id is required and must be numeric')
+  }
+
+  if (
+    payload.record_details.object_type === 'contact' &&
+    typeof payload.record_details.object_id !== 'number' &&
+    !payload.record_details.email &&
+    !payload.record_details.utk
+  ) {
+    throw new PayloadValidationError(
+      'Contact requires at least one of object_id (as number), email or utk to be provided'
+    )
+  }
+
+  cleanIdentifiers(payload)
+  payload.event_name = cleanEventName(payload.event_name)
+  payload.properties = cleanPropObj(payload.properties ?? {})
+}
+
+function cleanIdentifiers(payload: Payload) {
+  if (payload.record_details.email && payload.record_details.object_type !== 'contact') {
+    delete payload.record_details.email
+  }
+
+  if (payload.record_details.utk && payload.record_details.object_type !== 'contact') {
+    delete payload.record_details.utk
+  }
+}
 
 export function cleanEventName(str: string): string {
   return str.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
 }
 
-export function cleanPropObj(
+function cleanPropObj(
   obj: { [k: string]: unknown } | undefined
 ): { [k: string]: string | number | boolean } | undefined {
   const cleanObj: { [k: string]: string | number | boolean } = {}
@@ -37,7 +69,7 @@ export function cleanPropObj(
   return cleanObj
 }
 
-export function cleanProp(str: string): string {
+function cleanProp(str: string): string {
   str = str.toLowerCase().replace(/[^a-z0-9_]/g, '_')
 
   if (!/^[a-z]/.test(str)) {

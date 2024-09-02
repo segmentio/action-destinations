@@ -1,7 +1,6 @@
 import { RequestClient, PayloadValidationError, IntegrationError, RetryableError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
-import { cleanEventName, cleanPropObj } from './utils'
 
 export type SyncMode = 'upsert' | 'add' | 'update'
 
@@ -157,7 +156,6 @@ export class HubspotClient {
 
   segmentSchema(payload: Payload): SegmentEventSchema {
     const { event_name, properties } = payload
-    const cleanedEventName = cleanEventName(event_name)
     const props: { [key: string]: SegmentProperty } = {}
 
     if (properties) {
@@ -170,7 +168,7 @@ export class HubspotClient {
         }
       })
     }
-    return { eventName: cleanedEventName, primaryObject: payload.record_details.object_type, properties: props }
+    return { eventName: event_name, primaryObject: payload.record_details.object_type, properties: props }
   }
 
   async compareSchemaToCache(_schema: SegmentEventSchema): Promise<SchemaDiff> {
@@ -271,9 +269,6 @@ export class HubspotClient {
   }
 
   async send(payload: Payload) {
-    payload.event_name = cleanEventName(payload.event_name)
-    payload.properties = cleanPropObj(payload.properties ?? {})
-
     const schema = this.segmentSchema(payload)
     const cacheSchemaDiff = await this.compareSchemaToCache(schema)
 
