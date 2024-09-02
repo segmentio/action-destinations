@@ -1,11 +1,20 @@
-import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { HubspotClient, SyncMode, SchemaMatch } from './hubspot-api'
 import { commonFields } from './common-fields'
-import { validate } from './utils'
-
+import { Client } from './client'
+import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
 import { dynamicReadEventNames, dynamicReadObjectTypes, dynamicReadProperties } from './dynamic-fields'
+import { SyncMode, SchemaMatch } from './types'
+import {
+  compareToCache,
+  compareToHubspot,
+  createHubspotEventSchema,
+  eventSchema,
+  saveSchemaToCache,
+  sendEvent,
+  updateHubspotSchema,
+  validate
+} from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
@@ -15,9 +24,9 @@ const action: ActionDefinition<Settings, Payload> = {
     label: 'Sync Mode',
     default: 'update',
     choices: [
-      { label: 'Create new event schemas, and update existing event schemas', value: 'upsert' },
-      { label: 'Create new event schemas, but do not update existing event schemas', value: 'add' },
-      { label: 'Update existing event schemas, but do not create new event schemas', value: 'update' }
+      { label: 'Create new and update existing custom event definitions', value: 'upsert' },
+      { label: 'Create new, but do not update existing custom event definitions', value: 'add' },
+      { label: 'Update existing, but do ot create new custom event definitions', value: 'update' }
     ]
   },
   fields: {
@@ -48,17 +57,17 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode) => {
-  const client = new HubspotClient(request, syncMode)
+  const client = new Client(request)
 
   const validPayload = validate(payload)
 
-  const schema = client.schema(validPayload)
+  const schema = eventSchema(validPayload)
 
-  const cacheSchemaDiff = await client.compareToCache(schema)
+  const cacheSchemaDiff = await compareToCache(schema)
 
   switch (cacheSchemaDiff.match) {
     case SchemaMatch.FullMatch: {
-      return await client.sendEvent(cacheSchemaDiff?.fullyQualifiedName as string, validPayload)
+      return await sendEvent(client, cacheSchemaDiff?.fullyQualifiedName as string, validPayload)
     }
 
     case SchemaMatch.Mismatch: {
@@ -67,14 +76,14 @@ const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode
 
     case SchemaMatch.NoMatch:
     case SchemaMatch.PropertiesMissing: {
-      const hubspotSchemaDiff = await client.compareToHubspot(schema)
+      const hubspotSchemaDiff = await compareToHubspot(client, schema)
 
       switch (hubspotSchemaDiff.match) {
         case SchemaMatch.FullMatch: {
           const fullyQualifiedName = hubspotSchemaDiff?.fullyQualifiedName as string
           const name = hubspotSchemaDiff?.name as string
-          await client.saveSchemaToCache(fullyQualifiedName, name, schema)
-          return await client.sendEvent(fullyQualifiedName, validPayload)
+          await saveSchemaToCache(fullyQualifiedName, name, schema)
+          return await sendEvent(client, fullyQualifiedName, validPayload)
         }
 
         case SchemaMatch.Mismatch: {
@@ -90,15 +99,15 @@ const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode
             )
           }
 
-          const schemaDiff = await client.createHubspotEventSchema(schema)
+          const schemaDiff = await createHubspotEventSchema(client, schema)
           const fullyQualifiedName = schemaDiff?.fullyQualifiedName as string
           const name = schemaDiff?.name as string
-          await client.saveSchemaToCache(fullyQualifiedName, name, schema)
-          return await client.sendEvent(fullyQualifiedName, validPayload)
+          await saveSchemaToCache(fullyQualifiedName, name, schema)
+          return await sendEvent(client, fullyQualifiedName, validPayload)
         }
 
         case SchemaMatch.PropertiesMissing: {
-          if (client.syncMode === 'add') {
+          if (syncMode === 'add') {
             throw new IntegrationError(
               `The 'Sync Mode' setting is set to 'add' which is stopping Segment from creating a new properties on the Event Schema in the HubSpot`,
               'HUBSPOT_SCHEMA_PROPERTIES_MISSING',
@@ -108,9 +117,9 @@ const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode
 
           const fullyQualifiedName = hubspotSchemaDiff?.fullyQualifiedName as string
           const name = hubspotSchemaDiff?.name as string
-          await client.updateHubspotSchema(fullyQualifiedName, hubspotSchemaDiff)
-          await client.saveSchemaToCache(fullyQualifiedName, name, schema)
-          return await client.sendEvent(fullyQualifiedName, validPayload)
+          await updateHubspotSchema(client, fullyQualifiedName, hubspotSchemaDiff)
+          await saveSchemaToCache(fullyQualifiedName, name, schema)
+          return await sendEvent(client, fullyQualifiedName, validPayload)
         }
       }
     }
