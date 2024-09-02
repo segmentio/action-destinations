@@ -7,14 +7,13 @@ import { EngageLogger } from './EngageLogger'
 import { EngageStats } from './EngageStats'
 import { OperationContext, track } from './track'
 import { isDestinationActionService } from './isDestinationActionService'
-import { ResponseError, getErrorDetails } from './ResponseError'
+import { ErrorDetails, ResponseError, getErrorDetails } from './ResponseError'
 import { RequestOptions } from '@segment/actions-core/request-client'
 import { IntegrationError } from '@segment/actions-core'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
 import { Awaited, StatsTags, StatsTagsMap } from './operationTracking'
 import truncate from 'lodash/truncate'
 import { isRetryableError } from './isRetryableError'
-import { CachedError, CachedValueFactory } from './CachedResponse'
 import { getOrCatch, ValueOrError } from './getOrCatch'
 
 /**
@@ -399,7 +398,7 @@ export const DefaultSerializer: CacheSerializer<any> = {
     if (valueOrError.error && !isRetryableError(valueOrError.error)) {
       const errorDetails = getErrorDetails(valueOrError.error)
       if (errorDetails?.status) {
-        cacheObj = { error: new CachedError(errorDetails.status, errorDetails.message, errorDetails.code).serialize() }
+        cacheObj = { error: errorDetails }
       }
     } else if (valueOrError.value !== undefined) {
       cacheObj = { value: valueOrError.value }
@@ -408,14 +407,13 @@ export const DefaultSerializer: CacheSerializer<any> = {
   },
 
   parse: (cachedValue) => {
-    const parsedValOrError = JSON.parse(cachedValue) as { value?: any; error?: string }
-    if (parsedValOrError.error) {
-      const parsed = CachedValueFactory.fromString(parsedValOrError.error) as CachedError
-      const error = new IntegrationError(parsed.message, parsed.code, parsed.status)
+    const parsed = JSON.parse(cachedValue) as { value?: any; error?: ErrorDetails }
+    if (parsed.error) {
+      const error = new IntegrationError(parsed.error.message, parsed.error.code, parsed.error.status || 400)
       error.retry = false
       return { error }
-    } else if (parsedValOrError.value !== undefined) {
-      return { value: parsedValOrError.value }
+    } else {
+      return { value: parsed.value }
     }
   }
 }
