@@ -39,7 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'From Object Type' first")
+          throw new Error("Select from 'Object Type' first")
         }
 
         return await dynamicReadIdFields(request, fromObjectType)
@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'From Object Type' first")
+          throw new Error("Select from 'Object Type' first")
         }
 
         return await dynamicReadPropertyGroups(request, fromObjectType)
@@ -59,7 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'From Object Type' first")
+          throw new Error("Select from 'Object Type' first")
         }
 
         return await dynamicReadProperties(request, fromObjectType, false)
@@ -70,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'From Object Type' first")
+          throw new Error("Select from 'Object Type' first")
         }
 
         return await dynamicReadProperties(request, fromObjectType, true)
@@ -91,7 +91,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const toObjectType = payload?.associations?.[selectedIndex]?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'From Object Type' first")
+          throw new Error("Select from 'Object Type' first")
         }
 
         if (!toObjectType) {
