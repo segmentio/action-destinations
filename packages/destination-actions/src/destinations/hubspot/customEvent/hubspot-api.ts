@@ -173,12 +173,8 @@ export class HubspotClient {
     return { eventName: cleanedEventName, primaryObject: payload.record_details.object_type, properties: props }
   }
 
-  async compareSchemaToCache(schema: SegmentEventSchema): Promise<SchemaDiff> {
+  async compareSchemaToCache(_schema: SegmentEventSchema): Promise<SchemaDiff> {
     // no op function until caching implemented
-    let data = JSON.stringify(`${schema}`)
-    data = data.replace(data, '')
-    console.log(`compared schema to cache: ${data}`)
-
     const schemaDiff: SchemaDiff = {
       match: 'no_match',
       missingProperties: {}
@@ -250,11 +246,7 @@ export class HubspotClient {
     }
   }
 
-  async saveSchemaToCache(fullyQualifiedName: string, name: string, schema: SegmentEventSchema) {
-    // no op function until caching implemented
-    let data = JSON.stringify(`${fullyQualifiedName} ${name} ${schema}`)
-    data = data.replace(data, '')
-    console.log(`saved schema to cache: ${data}`)
+  async saveSchemaToCache(_fullyQualifiedName: string, _name: string, _schema: SegmentEventSchema) {
     return
   }
 
