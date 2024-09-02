@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RequestClient } from '@segment/actions-core/create-request-client'
 import { EngageDestinationCache, ExecuteInput } from '@segment/actions-core/destination-kit'
@@ -6,14 +7,13 @@ import { EngageLogger } from './EngageLogger'
 import { EngageStats } from './EngageStats'
 import { OperationContext, track } from './track'
 import { isDestinationActionService } from './isDestinationActionService'
-import { ResponseError, getErrorDetails } from './ResponseError'
+import { ErrorDetails, ResponseError, getErrorDetails } from './ResponseError'
 import { RequestOptions } from '@segment/actions-core/request-client'
 import { IntegrationError } from '@segment/actions-core'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
 import { Awaited, StatsTags, StatsTagsMap } from './operationTracking'
 import truncate from 'lodash/truncate'
 import { isRetryableError } from './isRetryableError'
-import { CachedError, CachedValueFactory } from './CachedResponse'
 import { getOrCatch, ValueOrError } from './getOrCatch'
 
 /**
@@ -155,11 +155,11 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     this.statsClient.stats({ method: 'incr', metric, value, tags })
   }
 
-  statsHistogram(metric: string, value: number, tags?: string[]) {
+  statsHistogram(metric: string, value: number, tags?: StatsTags) {
     this.statsClient.stats({ method: 'histogram', metric, value, tags })
   }
 
-  statsSet(metric: string, value: number, tags?: string[]) {
+  statsSet(metric: string, value: number, tags?: StatsTags) {
     this.statsClient.stats({ method: 'set', metric, value, tags })
   }
 
@@ -176,6 +176,18 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     getWrapper: () => IntegrationError | ConstructorParameters<typeof IntegrationError>
   ): never {
     throw IntegrationErrorWrapper.wrap(error, getWrapper, this.currentOperation)
+  }
+
+  /**
+   *
+   * @param message
+   * @param code
+   * @throws {IntegrationError} with retry flag set to true
+   */
+  throwRetryableError(message: string, code = 'ETIMEDOUT'): never {
+    const error = new IntegrationError(message, code, 500)
+    error.retry = true
+    throw error
   }
 
   @track()
@@ -204,10 +216,11 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     })
 
     if (!this.engageDestinationCache) return createValue()
+    const cache = this.engageDestinationCache
 
     const serializer = options.serializer || DefaultSerializer
 
-    const cacheRead = await getOrCatch(() => this.engageDestinationCache!.getByKey(key))
+    const cacheRead = await getOrCatch(() => cache.getByKey(key))
 
     // we respect lockOptions only if cache is not found and no error happened while reading cache
     if (options.lockOptions && !(cacheRead.error || cacheRead.value)) {
@@ -221,7 +234,8 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
     if (cacheRead.error) {
       finalStatsTags.cache_reading_error = true
-      this.logInfo('cache_reading_error', { key, cacheGroup: cache_group })
+      this.logInfo('cache_reading_error', { key, finalStatsTags, error: cacheRead.error })
+      this.throwRetryableError('Error reading cache')
     } else if (cacheRead.value) {
       const { value: parsedCache, error: parsingError } = getOrCatch(() => serializer.parse(cacheRead.value!))
 
@@ -229,7 +243,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         //exception happened while parsing the cache.
         // Log it and execute as if we don't have cache
         finalStatsTags.cache_parsing_error = true
-        this.logInfo('cache_parsing_error', { key, value: cacheRead.value, parsingError })
+        this.logInfo('cache_parsing_error', { key, value: cacheRead.value, parsingError, finalStatsTags })
       } else if (parsedCache) {
         //parsed cache successfully && cache is not expired
         // parsedValue - either value or error was parsed
@@ -241,7 +255,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       } else {
         //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
         finalStatsTags.cache_ignored = true
-        this.logInfo('cache_ignored', { key, value: cacheRead.value, cacheGroup: cache_group })
+        this.logInfo('cache_ignored', { key, value: cacheRead.value, finalStatsTags })
       }
     }
     // re-executing, because cache not found or ignored or failed to read or parse
@@ -254,7 +268,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     const stringified = getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
     if (stringified.error) {
       finalStatsTags.cache_stringify_error = true
-      this.logInfo('cache_stringify_error', { key, error: stringified.error, cacheGroup: cache_group })
+      this.logInfo('cache_stringify_error', { key, error: stringified.error, finalStatsTags })
     } else if (stringified.value) {
       //result stringified and contains cacheable value - cache it
       const { error: cacheSavingError } = await getOrCatch(() =>
@@ -262,7 +276,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       )
       if (cacheSavingError) {
         finalStatsTags.cache_saving_error = true
-        this.logInfo('cache_saving_error', { key, error: cacheSavingError, cacheGroup: cache_group })
+        this.logInfo('cache_saving_error', { key, error: cacheSavingError, finalStatsTags })
       }
     }
 
@@ -280,7 +294,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
    * 2. Lock not acquired because of timeout:
    *   - throw timeout error up
    * 3. Lock not acquired because of error accessing redis:
-   *   - fallback to createValue()
+   *   - throw retryable error //fallback to createValue()
    * @param key resource key to lock under
    * @param createValue function to execute if lock is acquired
    * @param options lock options
@@ -302,31 +316,40 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     const lockKey = `lock:${key}`
     const acquireLock = async () => {
       //tries to acquire lock for acquireLockMaxWaitInSeconds seconds
+      this.logInfo('trying to acquireLock', { key, statsTags })
       statsTags.lock_acquired = false
       const startTime = Date.now()
       while (Date.now() - startTime < options.acquireLockMaxWaitTimeMs) {
         if (await cache.setByKeyNX(lockKey, 'locked', options.lockMaxTimeMs / 1000)) {
           // lock acquired, returning release function
           statsTags.lock_acquired = true
+          this.logInfo('lock_acquired', { key, statsTags })
+          this.statsHistogram('lock_acquire_time', Date.now() - startTime, statsTags)
           return {
-            release: async () => await cache.delByKey(lockKey)
+            release: async () => {
+              this.logInfo('lock_releasing...', { key, statsTags })
+              await cache.delByKey(lockKey)
+              this.logInfo('lock_released', { key, statsTags })
+            }
           }
         }
         await new Promise((resolve) => setTimeout(resolve, options.acquireLockRetryIntervalMs || 500)) // Wait 500ms before retrying
       }
       //no lock acquired because of waiting timeout
-      return
+      this.logInfo('lock_NOT_acquired because of waiting timeout', { key, statsTags })
     }
 
     const { value: lock, error: redisError } = await getOrCatch(() => acquireLock())
 
-    if (redisError || lock?.release)
+    if (redisError) {
+      this.logInfo('lock_acquire_error', { key, redisError, statsTags })
+      statsTags.lock_acquired_error = true
+      throw redisError
+    }
+
+    if (lock?.release)
       //if lock obtained or there was redis error - execute createValue and finally release lock
       try {
-        if (redisError) {
-          this.logInfo('lock_acquire_error', { key, redisError, statsTags })
-          statsTags.lock_acquired_error = true
-        }
         return await createValue()
       } finally {
         const { error: releaseError } = lock?.release ? await getOrCatch(() => lock.release()) : { error: undefined }
@@ -337,9 +360,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       }
     else {
       // no redis error and no lock acquired - means it was acquiring timeout
-      const acquireLockTimeoutError = new IntegrationError('Timeout while acquiring lock', 'ETIMEDOUT', 500)
-      acquireLockTimeoutError.retry = true
-      throw acquireLockTimeoutError
+      this.throwRetryableError('Timeout while acquiring lock')
     }
   }
 }
@@ -377,7 +398,7 @@ export const DefaultSerializer: CacheSerializer<any> = {
     if (valueOrError.error && !isRetryableError(valueOrError.error)) {
       const errorDetails = getErrorDetails(valueOrError.error)
       if (errorDetails?.status) {
-        cacheObj = { error: new CachedError(errorDetails.status, errorDetails.message, errorDetails.code).serialize() }
+        cacheObj = { error: errorDetails }
       }
     } else if (valueOrError.value !== undefined) {
       cacheObj = { value: valueOrError.value }
@@ -386,14 +407,13 @@ export const DefaultSerializer: CacheSerializer<any> = {
   },
 
   parse: (cachedValue) => {
-    const parsedValOrError = JSON.parse(cachedValue) as { value?: any; error?: string }
-    if (parsedValOrError.error) {
-      const parsed = CachedValueFactory.fromString(parsedValOrError.error) as CachedError
-      const error = new IntegrationError(parsed.message, parsed.code, parsed.status)
+    const parsed = JSON.parse(cachedValue) as { value?: any; error?: ErrorDetails }
+    if (parsed.error) {
+      const error = new IntegrationError(parsed.error.message, parsed.error.code, parsed.error.status || 400)
       error.retry = false
       return { error }
-    } else if (parsedValOrError.value !== undefined) {
-      return { value: parsedValOrError.value }
+    } else {
+      return { value: parsed.value }
     }
   }
 }

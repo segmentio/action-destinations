@@ -9,7 +9,7 @@ import { getProfileApiEndpoint, Region } from './getProfileApiEndpoint'
 import { track } from './track'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import { getErrorDetails } from './ResponseError'
-import { CachedError, CachedResponseType, CachedValue, CachedValueFactory } from './CachedResponse'
+import { ValueOrError } from './getOrCatch'
 
 export enum SendabilityStatus {
   /**
@@ -446,24 +446,26 @@ export abstract class MessageSendPerformer<
  */
 export const SendToRecepientResponseSerializer: CacheSerializer<any> = {
   stringify: (cacheable) => {
-    if (cacheable.error && !isRetryableError(cacheable.error)) {
-      // we only stringify non-retryable error, retryable errors are not cached
+    if (cacheable.error && isRetryableError(cacheable.error)) return
+    // we only stringify non-retryable error, retryable errors are not cached
+
+    let cacheObj: ValueOrError<{ status: any }> | undefined = undefined
+    if (cacheable.error) {
       const errorDetails = getErrorDetails(cacheable.error)
-      if (errorDetails?.status) {
-        return new CachedError(errorDetails.status, errorDetails.message, errorDetails.code).serialize()
-      }
+      cacheObj = { error: errorDetails }
     } else if (cacheable.value) {
-      return new CachedValue(cacheable.value.status).serialize()
+      cacheObj = { value: cacheable.value?.status }
     }
+    return cacheObj ? JSON.stringify(cacheObj) : undefined
   },
   parse: (cachedValue) => {
-    const parsed = CachedValueFactory.fromString(cachedValue)
-    if (parsed instanceof CachedError) {
-      const error = new IntegrationError(parsed.message, parsed.code, parsed.status)
+    const parsed = JSON.stringify(cachedValue) as ValueOrError<any>
+    if (parsed.error) {
+      const error = new IntegrationError(parsed.error.message, parsed.error.code, parsed.error.status)
       error.retry = false
       return { error }
-    } else if (parsed.type === CachedResponseType.Success) {
-      return { value: { status: parsed.status } }
+    } else {
+      return { value: { status: parsed.value } }
     }
   }
 }
