@@ -254,7 +254,7 @@ describe('validateSchema', () => {
       }
     })
     expect(validateSchema(valid_number_payload, min_max_schema)).toBeTruthy()
-    expect(validateSchema(less_than_min_payload, min_max_schema)).toBeFalsy()
-    expect(validateSchema(greater_than_max_payload, min_max_schema)).toBeFalsy()
+    expect(validateSchema(less_than_min_payload, min_max_schema, { throwIfInvalid: false })).toBeFalsy()
+    expect(validateSchema(greater_than_max_payload, min_max_schema, { throwIfInvalid: false })).toBeFalsy()
   })
 })
