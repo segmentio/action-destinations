@@ -232,6 +232,11 @@ export interface InputField extends InputFieldJSONSchema {
    * Determines which input methods are disabled for this field. This is useful when you want to restrict variable selection, freeform entry, etc.
    */
   disabledInputMethods?: FieldInputMethods[]
+
+  /** Minimum value for a field of type 'number' */
+  minimum?: number
+  /** Maximum value for a field of type 'number' */
+  maximum?: number
 }
 
 /** Base interface for conditions  */

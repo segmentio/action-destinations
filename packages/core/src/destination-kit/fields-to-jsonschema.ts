@@ -52,6 +52,9 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
     } else if (field.type === 'text') {
       schema.format = 'text'
     }
+    // else if (field.type === 'number') {
+    //   schema.minimum = field?.
+    // }
 
     if (field.choices) {
       schema.enum = field.choices.map((choice) => {

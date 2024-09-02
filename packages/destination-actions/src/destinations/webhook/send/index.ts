@@ -32,7 +32,9 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       required: false,
-      default: 0
+      default: 1,
+      minimum: 1,
+      maximum: Number.MAX_SAFE_INTEGER
     },
     headers: {
       label: 'Headers',
