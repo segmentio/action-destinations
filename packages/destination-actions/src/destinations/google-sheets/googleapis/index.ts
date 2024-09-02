@@ -31,6 +31,7 @@ export class GoogleSheets {
       {
         method: 'post',
         timeout: 90000, // set to 90s. Google Sheets API has a 180s timeout. Overall batch request timeout within segment is 120s.
+        skipResponseCloning: true,
         json: {
           valueInputOption: mappingSettings.dataFormat,
           data: batchPayload
@@ -57,6 +58,8 @@ export class GoogleSheets {
       `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}:append?valueInputOption=${mappingSettings.dataFormat}&insertDataOption=INSERT_ROWS`,
       {
         method: 'post',
+        skipResponseCloning: true,
+        timeout: 90000,
         json: {
           values: values
         }
