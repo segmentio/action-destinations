@@ -3039,6 +3039,25 @@
   dependencies:
     "@types/node" "^18.11.15"
 
+"@segment/actions-core@3.128.1-staging-b28424352.0":
+  version "3.128.1-staging-b28424352.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.128.1-staging-b28424352.0.tgz#a8609de1f2c233a704629ad4c1ac081381589c6e"
+  integrity sha512-51oc8d04Ln0QIqr66yaRvsSaneHKmehHao5Bs+4kwfKyEmOetAw2FhsGKTZ1rZMWdK+oZDOOWQSggAEuEjK5Hg==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/action-emitters" "^1.3.6"
+    "@segment/ajv-human-errors" "2.13.1-staging-e0b48ba11.0"
+    "@segment/destination-subscriptions" "3.34.1-staging-e0b48ba11.0"
+    "@types/node" "^18.11.15"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
 "@segment/actions-core@^3.121.0", "@segment/actions-core@^3.128.0":
   version "3.128.0"
   resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.128.0.tgz#9d8a2bf83cc8c77faabdd99694a01b9f89a00219"
@@ -3057,6 +3076,19 @@
     cross-fetch "^3.1.4"
     dayjs "^1.10.7"
     ts-custom-error "^3.2.0"
+
+"@segment/actions-shared@1.109.1-staging-344f847d7.0":
+  version "1.109.1-staging-344f847d7.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.109.1-staging-344f847d7.0.tgz#68fb9627179f5df02a4bf1c1b90d51e4767312c4"
+  integrity sha512-1kVfHjiyp5WCLVnHpUtUm32MGhQ3Cpi1pvYOpKMzYcv/vBQbuSG+GigIdguiRp2wtHPYMBNjeATr7Hhbz336ng==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/actions-core" "3.128.1-staging-b28424352.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^10.8.4"
+    lodash "^4.17.21"
 
 "@segment/actions-shared@^1.109.0":
   version "1.109.0"
