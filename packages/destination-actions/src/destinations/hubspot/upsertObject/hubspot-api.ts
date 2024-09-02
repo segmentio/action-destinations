@@ -277,12 +277,14 @@ export class HubspotClient {
       const value = obj[key]
       const cleanKey = this.cleanProp(key)
 
-      if (!isNaN(Number(value))) {
-        // If the value can be cast to a number
-        cleanObj[cleanKey] = Number(value)
+      if (typeof value === 'boolean' || typeof value === 'number') {
+        cleanObj[cleanKey] = value
       } else if (typeof value === 'string' && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
         // If the value can be cast to a boolean
         cleanObj[cleanKey] = value.toLowerCase() === 'true'
+      } else if (!isNaN(Number(value))) {
+        // If the value can be cast to a number
+        cleanObj[cleanKey] = Number(value)
       } else if (typeof value === 'object' && value !== null) {
         // If the value is an object
         cleanObj[cleanKey] = JSON.stringify(value)

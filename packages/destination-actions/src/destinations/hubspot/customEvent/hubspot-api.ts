@@ -1,7 +1,7 @@
 import { RequestClient, PayloadValidationError, IntegrationError, RetryableError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
-import { sanitizeEventName, sanitizeProperties } from './utils'
+import { cleanEventName, cleanPropObj } from './utils'
 
 export type SyncMode = 'upsert' | 'add' | 'update'
 
@@ -157,7 +157,7 @@ export class HubspotClient {
 
   segmentSchema(payload: Payload): SegmentEventSchema {
     const { event_name, properties } = payload
-    const sanitizedEventName = sanitizeEventName(event_name)
+    const cleanedEventName = cleanEventName(event_name)
     const props: { [key: string]: SegmentProperty } = {}
 
     if (properties) {
@@ -170,7 +170,7 @@ export class HubspotClient {
         }
       })
     }
-    return { eventName: sanitizedEventName, primaryObject: payload.record_details.object_type, properties: props }
+    return { eventName: cleanedEventName, primaryObject: payload.record_details.object_type, properties: props }
   }
 
   async compareSchemaToCache(schema: SegmentEventSchema): Promise<SchemaDiff> {
@@ -269,7 +269,7 @@ export class HubspotClient {
       email: record_details.email ?? undefined,
       utk: record_details.utk ?? undefined,
       occurredAt,
-      properties: properties ? sanitizeProperties(properties) : undefined
+      properties: properties
     }
 
     return this.request(url, {
@@ -279,8 +279,8 @@ export class HubspotClient {
   }
 
   async send(payload: Payload) {
-    payload.event_name = sanitizeEventName(payload.event_name)
-    payload.properties = sanitizeProperties(payload.properties ?? {})
+    payload.event_name = cleanEventName(payload.event_name)
+    payload.properties = cleanPropObj(payload.properties ?? {})
 
     const schema = this.segmentSchema(payload)
     const cacheSchemaDiff = await this.compareSchemaToCache(schema)
