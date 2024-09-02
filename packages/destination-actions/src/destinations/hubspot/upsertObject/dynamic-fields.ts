@@ -2,7 +2,6 @@ import { RequestClient } from '@segment/actions-core'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { SUPPORTED_HUBSPOT_OBJECT_TYPES } from './constants'
-
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 enum AssociationCategory {

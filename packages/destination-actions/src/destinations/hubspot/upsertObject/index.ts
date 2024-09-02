@@ -1,10 +1,9 @@
 import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { HubspotClient, AssociationSyncMode, SyncMode } from './hubspot-api'
 import { commonFields } from './common-fields'
-import { SchemaMatch } from './hubspot-api'
-
+import { Client } from './client'
+import { AssociationSyncMode, SyncMode, SchemaMatch } from './types'
 import {
   dynamicReadAssociationLabels,
   dynamicReadIdFields,
@@ -12,6 +11,18 @@ import {
   dynamicReadPropertyGroups,
   dynamicReadProperties
 } from './dynamic-fields'
+import {
+  sendAssociatedRecords,
+  compareToCache,
+  compareToHubspot,
+  createAssociationPayloads,
+  createProperties,
+  objectSchema,
+  saveSchemaToCache,
+  sendAssociations,
+  sendFromRecords,
+  validate
+} from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object',
@@ -131,41 +142,39 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
     association_sync_mode: assocationSyncMode
   } = payloads[0]
 
-  const client = new HubspotClient(
-    request,
-    objectType,
-    syncMode,
-    assocationSyncMode as AssociationSyncMode,
-    propertyGroup
-  )
+  const client = new Client(request, objectType)
 
-  const validPayloads = client.validate(payloads)
+  const validPayloads = validate(payloads)
 
-  const schema = client.schema(validPayloads)
+  const schema = objectSchema(validPayloads, objectType)
 
-  const cacheSchemaDiff = await client.compareToCache(schema)
+  const cacheSchemaDiff = await compareToCache(schema)
 
   switch (cacheSchemaDiff.match) {
     case SchemaMatch.FullMatch: {
-      const fromRecordPayloads = await client.sendFromRecords(validPayloads)
-      const associationPayloads = client.createAssociationPayloads(fromRecordPayloads)
-      const associatedRecords = await client.sendAssociatedRecords(associationPayloads)
-      await client.sendAssociations(associatedRecords)
+      const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
+      const associationPayloads = createAssociationPayloads(fromRecordPayloads)
+      const associatedRecords = await sendAssociatedRecords(
+        client,
+        associationPayloads,
+        assocationSyncMode as AssociationSyncMode
+      )
+      await sendAssociations(client, associatedRecords)
       return
     }
 
     case SchemaMatch.PropertiesMissing:
     case SchemaMatch.NoMatch: {
-      const hubspotSchemaDiff = await client.compareToHubspot(schema)
+      const hubspotSchemaDiff = await compareToHubspot(client, schema)
 
       switch (hubspotSchemaDiff.match) {
         case SchemaMatch.FullMatch: {
-          await client.saveSchemaToCache(schema)
+          await saveSchemaToCache(schema)
           break
         }
         case SchemaMatch.PropertiesMissing: {
-          await client.createProperties(hubspotSchemaDiff)
-          await client.saveSchemaToCache(schema)
+          await createProperties(client, hubspotSchemaDiff, propertyGroup)
+          await saveSchemaToCache(schema)
           break
         }
         case SchemaMatch.NoMatch: {
@@ -173,10 +182,14 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
         }
       }
 
-      const fromRecordPayloads = await client.sendFromRecords(validPayloads)
-      const associationPayloads = client.createAssociationPayloads(fromRecordPayloads)
-      const associatedRecords = await client.sendAssociatedRecords(associationPayloads)
-      await client.sendAssociations(associatedRecords)
+      const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
+      const associationPayloads = createAssociationPayloads(fromRecordPayloads)
+      const associatedRecords = await sendAssociatedRecords(
+        client,
+        associationPayloads,
+        assocationSyncMode as AssociationSyncMode
+      )
+      await sendAssociations(client, associatedRecords)
     }
   }
 }
