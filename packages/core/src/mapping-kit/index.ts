@@ -322,11 +322,7 @@ registerDirective('@excludeWhenNull', (value, payload) => {
   }
 
   // Go through all fields and remove any that are null
-  if (isObject(resolved)) {
-    return cleanNulls(resolved)
-  }
-
-  return resolved
+  return cleanNulls(resolved)
 })
 
 // Recursively remove all null values from an object
