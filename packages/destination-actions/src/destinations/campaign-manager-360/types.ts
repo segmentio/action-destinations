@@ -32,10 +32,10 @@ export interface CampaignManager360CommonConversion {
   floodlightConfigurationId: string
   encryptedUserId?: string
   mobileDeviceId?: string
-  timestampMicros?: string
+  timestampMicros: string
   value: number
   quantity: string
-  ordinal?: string
+  ordinal: string
   limitAdTracking?: boolean
   childDirectedTreatment?: boolean
   gclid?: string

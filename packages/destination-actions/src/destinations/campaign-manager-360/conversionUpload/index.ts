@@ -44,19 +44,22 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         firstName: {
           label: 'First Name',
-          description: 'First name of the user. This will be hashed by Segment before being sent to Campaign Manager 360.',
+          description:
+            'First name of the user. This will be hashed by Segment before being sent to Campaign Manager 360.',
           type: 'string',
           required: false
         },
         lastName: {
           label: 'Last Name',
-          description: 'Last name of the user. This will be hashed by Segment before being sent to Campaign Manager 360.',
+          description:
+            'Last name of the user. This will be hashed by Segment before being sent to Campaign Manager 360.',
           type: 'string',
           required: false
         },
         streetAddress: {
           label: 'Street Address',
-          description: 'The street address of the user. This will be hashed by Segment before being sent to Campaign Manager 360.',
+          description:
+            'The street address of the user. This will be hashed by Segment before being sent to Campaign Manager 360.',
           type: 'string',
           required: false
         },
@@ -228,7 +231,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.',
       type: 'string',
-      required: false
+      required: true
     },
     customVariables: {
       label: 'Custom Variables',

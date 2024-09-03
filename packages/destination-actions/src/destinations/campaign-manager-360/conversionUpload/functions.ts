@@ -46,11 +46,8 @@ export function validateInsertConversionPayloads(
       timestampMicros: (new Date(String(payload.timestamp)).getTime() / 1000).toFixed(0),
       value: payload.value,
       quantity: payload.quantity,
+      ordinal: payload.ordinal,
       kind: 'dfareporting#conversion'
-    }
-
-    if (payload.ordinal) {
-      conversion.ordinal = payload.ordinal
     }
 
     if (payload.gclid) {

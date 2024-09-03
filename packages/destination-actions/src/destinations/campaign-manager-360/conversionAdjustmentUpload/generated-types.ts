@@ -81,7 +81,7 @@ export interface Payload {
   /**
    * The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.
    */
-  ordinal?: string
+  ordinal: string
   /**
    * Whether Limit Ad Tracking is enabled. When set to true, the conversion will be used for reporting but not targeting. This will prevent remarketing.
    */

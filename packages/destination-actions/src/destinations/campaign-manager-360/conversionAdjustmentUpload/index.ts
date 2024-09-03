@@ -224,7 +224,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.',
       type: 'string',
-      required: false
+      required: true
     },
     limitAdTracking: {
       label: 'Limit Ad Tracking',

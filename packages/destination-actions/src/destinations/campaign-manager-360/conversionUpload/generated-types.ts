@@ -22,15 +22,15 @@ export interface Payload {
      */
     phone?: string
     /**
-     * The first name associated with the conversion.
+     * First name of the user. This will be hashed by Segment before being sent to Campaign Manager 360.
      */
     firstName?: string
     /**
-     * The last name associated with the conversion.
+     * Last name of the user. This will be hashed by Segment before being sent to Campaign Manager 360.
      */
     lastName?: string
     /**
-     * The street address associated with the conversion.
+     * The street address of the user. This will be hashed by Segment before being sent to Campaign Manager 360.
      */
     streetAddress?: string
     /**
@@ -38,7 +38,7 @@ export interface Payload {
      */
     city?: string
     /**
-     * The state associated with the conversion.
+     * State code of the address.
      */
     state?: string
     /**
@@ -81,7 +81,7 @@ export interface Payload {
   /**
    * The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.
    */
-  ordinal?: string
+  ordinal: string
   /**
    * Custom variables associated with the conversion.
    */
