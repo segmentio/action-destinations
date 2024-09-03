@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         state: {
           label: 'State',
-          description: 'The state associated with the conversion.',
+          description: 'State code of the address.',
           type: 'string',
           required: false
         },
