@@ -80,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         countryCode: {
           label: 'Country Code',
-          description: 'The country code associated with the conversion.',
+          description: '2-letter country code in ISO-3166-1 alpha-2 of the user's address.',
           type: 'string',
           required: false
         }
