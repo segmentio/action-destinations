@@ -7,7 +7,7 @@ import { refreshGoogleAccessToken } from '../common-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Upload',
-  description: "Inserts a conversion into Campaign Manager 360's profile configured under Settings.",
+  description: "Send a conversion to Campaign Manager 360.",
   fields: {
     floodlightConfigurationId: {
       label: 'Floodlight Configuration ID',
