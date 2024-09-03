@@ -26,7 +26,6 @@ describe('Reddit Conversions Api', () => {
           currency: 'USD',
           quantity: 10,
           total: 100,
-          opt_out: false,
           uuid: 'uuid_1',
           products: [
             { product_id: 'product_id_1', category: 'category_1', name: 'name_1' },
@@ -87,7 +86,6 @@ describe('Reddit Conversions Api', () => {
                 email: 'f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a',
                 external_id: '3482ae91c8ec52c06e19d618d400b3985814bf705e00947a302ec849a6575c4c',
                 ip_address: '5feaf188de296cd3b17f7c66fd3a2aec9b694815f2b1180631f7b52f57029777',
-                opt_out: false,
                 user_agent: 'test-user-agent',
                 uuid: 'uuid_1'
               }
@@ -114,7 +112,6 @@ describe('Reddit Conversions Api', () => {
           currency: 'USD',
           quantity: 10,
           total: 100,
-          opt_out: false,
           uuid: 'uuid_1',
           products: [
             { product_id: 'product_id_1', category: 'category_1', name: 'name_1' },
@@ -174,7 +171,6 @@ describe('Reddit Conversions Api', () => {
                 email: 'f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a',
                 external_id: '3482ae91c8ec52c06e19d618d400b3985814bf705e00947a302ec849a6575c4c',
                 ip_address: '5feaf188de296cd3b17f7c66fd3a2aec9b694815f2b1180631f7b52f57029777',
-                opt_out: false,
                 user_agent: 'test-user-agent',
                 uuid: 'uuid_1'
               }
@@ -198,7 +194,6 @@ describe('Reddit Conversions Api', () => {
           conversion_id: 'conversion_id_1',
           currency: 'USD',
           total: 100,
-          opt_out: false,
           uuid: 'uuid_1',
           products: [
             { product_id: 'product_id_1', category: 'category_1', name: 'name_1' },
@@ -257,7 +252,6 @@ describe('Reddit Conversions Api', () => {
                 email: 'f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a',
                 external_id: '3482ae91c8ec52c06e19d618d400b3985814bf705e00947a302ec849a6575c4c',
                 ip_address: '5feaf188de296cd3b17f7c66fd3a2aec9b694815f2b1180631f7b52f57029777',
-                opt_out: false,
                 user_agent: 'test-user-agent',
                 uuid: 'uuid_1'
               }
