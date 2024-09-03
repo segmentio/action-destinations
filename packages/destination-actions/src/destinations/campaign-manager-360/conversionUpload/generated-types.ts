@@ -152,4 +152,38 @@ export interface Payload {
      */
     kind: string
   }
+  /**
+   * Cart details associated with the conversion.
+   */
+  cartData?: {
+    /**
+     * The Merchant Center ID where the items are uploaded.
+     */
+    merchantId: string
+    /**
+     * The feed labels associated with the feed where your items are uploaded. For more information, please refer to ​​ https://support.google.com/merchants/answer/12453549.
+     */
+    merchantFeedLabel: string
+    /**
+     * The language associated with the feed where your items are uploaded. Use ISO 639-1 language codes. This field is needed only when item IDs are not unique across multiple Merchant Center feeds.
+     */
+    merchantFeedLanguage?: string
+    /**
+     * The items in the cart.
+     */
+    items: {
+      /**
+       * The item ID associated with the conversion.
+       */
+      itemId: string
+      /**
+       * The quantity of the item.
+       */
+      quantity: number
+      /**
+       * The value of the item.
+       */
+      unitPrice: number
+    }
+  }
 }

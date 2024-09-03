@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { validateInsertConversionPayloads } from './functions'
+import { buildInsertConversionBatchPayload } from './functions'
 import { refreshGoogleAccessToken } from '../common-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -15,7 +15,6 @@ const action: ActionDefinition<Settings, Payload> = {
         'The Floodlight configuration ID associated with the conversion. Overrides the default Floodlight Configuration ID defined in Settings.',
       type: 'string',
       required: false
-      // dynamic: true
     },
     floodlightActivityId: {
       label: 'Floodlight Activity ID',
@@ -385,6 +384,53 @@ const action: ActionDefinition<Settings, Payload> = {
           required: true
         }
       }
+    },
+    merchantId: {
+      label: 'Cart Data Merchant ID',
+      description: 'The Merchant Center ID where the items are uploaded.',
+      type: 'string',
+      required: false
+    },
+    merchantFeedLabel: {
+      label: 'Cart Data Merchant Feed Label',
+      description:
+        'The feed labels associated with the feed where your items are uploaded. For more information, please refer to ​​ https://support.google.com/merchants/answer/12453549.',
+      type: 'string',
+      required: false
+    },
+    merchantFeedLanguage: {
+      label: 'Cart Data Merchant Feed Language',
+      description:
+        'The language associated with the feed where your items are uploaded. Use ISO 639-1 language codes. This field is needed only when item IDs are not unique across multiple Merchant Center feeds.',
+      type: 'string',
+      required: false
+    },
+    cartDataItems: {
+      label: 'Cart Data Items',
+      description: 'The items in the cart.',
+      type: 'object',
+      required: false,
+      additionalProperties: false,
+      properties: {
+        itemId: {
+          label: 'Item ID',
+          description: 'The item ID associated with the conversion.',
+          type: 'string',
+          required: true
+        },
+        quantity: {
+          label: 'Quantity',
+          description: 'The quantity of the item.',
+          type: 'number',
+          required: true
+        },
+        unitPrice: {
+          label: 'Value',
+          description: 'The value of the item.',
+          type: 'number',
+          required: true
+        }
+      }
     }
   },
 
@@ -429,7 +475,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   // https://developers.google.com/doubleclick-advertisers/rest/v4/conversions/batchinsert
   perform: async (request, { settings, payload }) => {
-    const conversionsBatchInsertRequest = validateInsertConversionPayloads([payload], settings)
+    const conversionsBatchInsertRequest = buildInsertConversionBatchPayload([payload], settings)
     const bearerToken = await refreshGoogleAccessToken(request, settings)
 
     const response = await request(
@@ -448,7 +494,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   // https://developers.google.com/doubleclick-advertisers/rest/v4/conversions/batchinsert
   performBatch: async (request, { settings, payload }) => {
-    const conversionsBatchInsertRequest = validateInsertConversionPayloads(payload, settings)
+    const conversionsBatchInsertRequest = buildInsertConversionBatchPayload(payload, settings)
     const bearerToken = await refreshGoogleAccessToken(request, settings)
 
     const response = await request(

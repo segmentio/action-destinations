@@ -27,7 +27,21 @@ export interface CampaignManager360ConversionsBatchInsertRequest {
   kind: 'dfareporting#conversionsBatchInsertRequest'
 }
 
-export interface CampaignManager360CommonConversion {
+type ExactlyOne<T, Keys extends keyof T = keyof T> = {
+  [K in Keys]: Pick<T, K> & Partial<Record<Exclude<Keys, K>, never>>
+}[Keys]
+
+type ExactlyOneIdentifier = ExactlyOne<{
+  encryptedUserId?: string
+  mobileDeviceId?: string
+  matchId?: string
+  gclid?: string
+  dclid?: string
+  impressionId?: string
+  encryptedUserIdCandidates?: string[]
+}>
+
+export type CampaignManager360CommonConversion = ExactlyOneIdentifier & {
   floodlightActivityId: string
   floodlightConfigurationId: string
   encryptedUserId?: string
@@ -47,15 +61,29 @@ export interface CampaignManager360CommonConversion {
   userIdentifiers?: CampaignManager360UserIdentifier[]
   kind: 'dfareporting#conversion'
   adUserDataConsent?: CampaignManager360ConsentStatus
+  cartData?: CampaignManager360ConversionCartData
 }
 
-export interface CampaignManager360Conversion extends CampaignManager360CommonConversion {
+export type CampaignManager360ConversionCartData = {
+  merchantId: string
+  merchantFeedLabel: string
+  merchantFeedLanguage: string
+  items: CampaignManager360ConversionCartDataItem[]
+}
+
+export type CampaignManager360ConversionCartDataItem = {
+  itemId: string
+  quantity: number
+  unitPrice: number
+}
+
+export type CampaignManager360Conversion = CampaignManager360CommonConversion & {
   // https://developers.google.com/doubleclick-advertisers/rest/v4/Conversion
   customVariables?: CampaignManager360ConversionCustomVariable[]
   encryptedUserIdCandidates?: string[]
 }
 
-export interface CampaignManager360ConversionAdjustment extends CampaignManager360CommonConversion {}
+export type CampaignManager360ConversionAdjustment = CampaignManager360CommonConversion
 
 export interface CampaignManager360ConversionCustomVariable {
   type: CampaignManager360CustomFloodlightVariable
@@ -88,11 +116,10 @@ export interface CampaignManager360Settings {
   refreshToken: string
 }
 
-export interface CampaignManager360UserIdentifier {
-  hashedEmail?: string
-  hashedPhoneNumber?: string
-  addressInfo?: CampaignManager360AddressInfo
-}
+export type CampaignManager360UserIdentifier =
+  | { hashedEmail: string }
+  | { hashedPhoneNumber: string }
+  | { addressInfo: CampaignManager360AddressInfo }
 
 export type CampaignManager360ConsentStatus = 'GRANTED' | 'DENIED'
 

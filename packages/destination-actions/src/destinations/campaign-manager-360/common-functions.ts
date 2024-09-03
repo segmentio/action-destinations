@@ -1,11 +1,16 @@
 import { createHash } from 'crypto'
+import { RequestClient } from '@segment/actions-core/*'
+
 import {
+  CampaignManager360Conversion,
   CampaignManager360PayloadUserDetails,
   CampaignManager360RefreshTokenResponse,
   CampaignManager360Settings,
   CampaignManager360UserIdentifier
 } from './types'
-import { RequestClient } from '@segment/actions-core/*'
+import { Payload as ConversionAdjustmentUpload } from './conversionAdjustmentUpload/generated-types'
+import { Payload as ConversionUpload } from './conversionUpload/generated-types'
+import { Settings } from './generated-types'
 
 const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
 // Only exported for unit testing purposes.
@@ -39,6 +44,82 @@ export async function refreshGoogleAccessToken(request: RequestClient, settings:
   }
 
   return refreshTokenResponse.data.access_token
+}
+
+export function resolveGoogleCampaignManager360Conversion(
+  payload: ConversionAdjustmentUpload | ConversionUpload,
+  settings: Settings
+) {
+  if (!payload.floodlightActivityId && !settings.defaultFloodlightActivityId) {
+    throw new Error('Missing required parameter: floodlightActivityId.')
+  }
+
+  if (!payload.floodlightConfigurationId && !settings.defaultFloodlightConfigurationId) {
+    throw new Error('Missing required parameter: floodlightConfigurationId.')
+  }
+
+  const conversion: CampaignManager360Conversion = {
+    floodlightActivityId: String(payload.floodlightActivityId || settings.defaultFloodlightActivityId),
+    floodlightConfigurationId: String(payload.floodlightConfigurationId || settings.defaultFloodlightConfigurationId),
+    timestampMicros: (new Date(String(payload.timestamp)).getTime() / 1000).toFixed(0),
+    value: payload.value,
+    quantity: payload.quantity,
+    ordinal: payload.ordinal,
+    kind: 'dfareporting#conversion'
+  }
+
+  if (payload.gclid) {
+    conversion.gclid = payload.gclid
+  }
+
+  if (payload.dclid) {
+    conversion.dclid = payload.dclid
+  }
+
+  // Optional fields.
+  if (payload.encryptedUserId) {
+    conversion.encryptedUserId = payload.encryptedUserId
+  }
+
+  if (payload.mobileDeviceId) {
+    conversion.mobileDeviceId = payload.mobileDeviceId
+  }
+
+  if (payload.limitAdTracking) {
+    conversion.limitAdTracking = payload.limitAdTracking
+  }
+
+  if (payload.childDirectedTreatment) {
+    conversion.childDirectedTreatment = payload.childDirectedTreatment
+  }
+
+  if (payload.nonPersonalizedAd) {
+    conversion.nonPersonalizedAd = payload.nonPersonalizedAd
+  }
+
+  if (payload.treatmentForUnderage) {
+    conversion.treatmentForUnderage = payload.treatmentForUnderage
+  }
+
+  if (payload.matchId) {
+    conversion.matchId = payload.matchId
+  }
+
+  if (payload.impressionId) {
+    conversion.impressionId = payload.impressionId
+  }
+
+  // User Identifiers.
+  const userIdentifiers: CampaignManager360UserIdentifier[] = []
+  if (payload.userDetails) {
+    userIdentifiers.push(...resolveGoogleCampaignManager360UserIdentifiers(payload.userDetails))
+  }
+
+  return conversion
+}
+
+export function resolveGoogleCampaignManager360CartData() {
+  console.log('123')
 }
 
 export function resolveGoogleCampaignManager360UserIdentifiers(
