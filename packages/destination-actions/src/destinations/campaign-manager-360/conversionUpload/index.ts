@@ -62,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         city: {
           label: 'City',
-          description: 'The city associated with the conversion.',
+          description: 'City of the address',
           type: 'string',
           required: false
         },
