@@ -32,11 +32,19 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * This represents consent for ad user data. For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).
+   * This represents consent for ad user data. For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).
    */
   ad_user_data_consent_state?: string
   /**
-   * This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).
+   * This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).
    */
   ad_personalization_consent_state?: string
+  /**
+   * If true, Segment will batch events before sending to Google’s APIs. Google accepts batches of up to 2000 events.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch.
+   */
+  batch_size?: number
 }

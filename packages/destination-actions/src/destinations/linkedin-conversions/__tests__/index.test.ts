@@ -40,4 +40,91 @@ describe('Linkedin Conversions Api', () => {
       )
     })
   })
+
+  describe('refreshAccessToken', () => {
+    const OLD_ENV = process.env
+
+    beforeEach(() => {
+      jest.resetModules() // Most important - it clears the cache
+      process.env = { ...OLD_ENV } // Make a copy
+
+      process.env.ACTIONS_LINKEDIN_CONVERSIONS_CLIENT_ID = 'client_id'
+      process.env.ACTIONS_LINKEDIN_CONVERSIONS_CLIENT_SECRET = 'client_secret'
+    })
+
+    afterAll(() => {
+      process.env = OLD_ENV // Restore old environment
+    })
+
+    it('should correctly request a new access token', async () => {
+      nock(`https://www.linkedin.com`)
+        .post('/oauth/v2/accessToken', {
+          grant_type: 'refresh_token',
+          client_id: 'client_id',
+          client_secret: 'client_secret',
+          refresh_token: 'refresh_token'
+        })
+        .reply(200, {
+          access_token: 'new_token',
+          expires_in: 5183999,
+          refresh_token: 'refresh_token',
+          refresh_token_expires_in: 31535960,
+          scope: 'r_basicprofile,rw_ads,rw_conversions'
+        })
+
+      const response = await testDestination.refreshAccessToken(validSettings, {
+        refreshToken: 'refresh_token',
+        // The OAuth2ClientCredentials type requires these values below, however they are not actually
+        // passed into the function at runtime. The type is incorrect. Passing fake values here to satisfy the type.
+        clientId: 'fake-unused-client_id',
+        clientSecret: 'fake-unused-client_secret',
+        accessToken: 'fake-unused-access-token'
+      })
+
+      expect(response).toEqual({ accessToken: 'new_token' })
+    })
+
+    it('should throw an error if the client id is missing when requesting a new access token', async () => {
+      process.env.ACTIONS_LINKEDIN_CONVERSIONS_CLIENT_ID = undefined
+
+      await expect(
+        testDestination.refreshAccessToken(validSettings, {
+          refreshToken: 'refresh_token',
+          // The OAuth2ClientCredentials type requires these values below, however they are not actually
+          // passed into the function at runtime. The type is incorrect. Passing fake values here to satisfy the type.
+          clientId: 'fake-unused-client_id',
+          clientSecret: 'fake-unused-client_secret',
+          accessToken: 'fake-unused-access-token'
+        })
+      ).rejects.toThrowError('Missing client ID')
+    })
+
+    it('should throw an error if the client secret is missing when requesting a new access token', async () => {
+      process.env.ACTIONS_LINKEDIN_CONVERSIONS_CLIENT_SECRET = undefined
+
+      await expect(
+        testDestination.refreshAccessToken(validSettings, {
+          refreshToken: 'refresh_token',
+          // The OAuth2ClientCredentials type requires these values below, however they are not actually
+          // passed into the function at runtime. The type is incorrect. Passing fake values here to satisfy the type.
+          clientId: 'fake-unused-client_id',
+          clientSecret: 'fake-unused-client_secret',
+          accessToken: 'fake-unused-access-token'
+        })
+      ).rejects.toThrowError('Missing client secret')
+    })
+
+    it('should throw an error if the refresh token is missing when requesting a new access token', async () => {
+      await expect(
+        testDestination.refreshAccessToken(validSettings, {
+          refreshToken: '',
+          // The OAuth2ClientCredentials type requires these values below, however they are not actually
+          // passed into the function at runtime. The type is incorrect. Passing fake values here to satisfy the type.
+          clientId: 'fake-unused-client_id',
+          clientSecret: 'fake-unused-client_secret',
+          accessToken: 'fake-unused-access-token'
+        })
+      ).rejects.toThrowError('Missing refresh token. Please re-authenticate to fetch a new refresh token.')
+    })
+  })
 })

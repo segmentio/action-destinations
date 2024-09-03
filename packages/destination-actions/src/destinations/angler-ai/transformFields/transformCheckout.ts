@@ -4,6 +4,7 @@ export function transformCheckout(payload: Payload) {
   return {
     checkout: {
       currencyCode: payload.checkout?.currencyCode,
+      email: payload.customer?.email,
       lineItems: payload.checkoutLineItems?.map((lineItem) => ({
         discountAllocations: [
           {
@@ -45,6 +46,7 @@ export function transformCheckout(payload: Payload) {
       order: {
         id: payload.checkout?.orderId
       },
+      phone: payload.customer?.phone,
       shippingLine: {
         price: {
           amount: payload.checkout?.shippingLinePriceAmount
@@ -58,6 +60,32 @@ export function transformCheckout(payload: Payload) {
       },
       totalTax: {
         amount: payload.checkout?.totalTaxAmount
+      },
+      billingAddress: {
+        address1: payload.checkoutBillingAddress?.address1,
+        address2: payload.checkoutBillingAddress?.address2,
+        city: payload.checkoutBillingAddress?.city,
+        country: payload.checkoutBillingAddress?.country,
+        countryCode: payload.checkoutBillingAddress?.country_code,
+        firstName: payload.checkoutBillingAddress?.first_name,
+        lastName: payload.checkoutBillingAddress?.last_name,
+        phone: payload.checkoutBillingAddress?.phone,
+        province: payload.checkoutBillingAddress?.province,
+        provinceCode: payload.checkoutBillingAddress?.province_code,
+        zip: payload.checkoutBillingAddress?.zip
+      },
+      shippingAddress: {
+        address1: payload.checkoutShippingAddress?.address1,
+        address2: payload.checkoutShippingAddress?.address2,
+        city: payload.checkoutShippingAddress?.city,
+        country: payload.checkoutShippingAddress?.country,
+        countryCode: payload.checkoutShippingAddress?.country_code,
+        firstName: payload.checkoutShippingAddress?.first_name,
+        lastName: payload.checkoutShippingAddress?.last_name,
+        phone: payload.checkoutShippingAddress?.phone,
+        province: payload.checkoutShippingAddress?.province,
+        provinceCode: payload.checkoutShippingAddress?.province_code,
+        zip: payload.checkoutShippingAddress?.zip
       }
     }
   }
