@@ -50,7 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         lastName: {
           label: 'Last Name',
-          description: 'The last name associated with the conversion.',
+          description: 'Last name of the user. This will be hashed by Segment before being sent to Campaign Manager 360.',
           type: 'string',
           required: false
         },
