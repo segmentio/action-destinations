@@ -187,7 +187,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Mobile Device ID',
       description: 'The mobile device ID associated with the conversion.',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.context.device.id'
+      }
     },
     timestamp: {
       label: 'Timestamp (ISO-8601)',
