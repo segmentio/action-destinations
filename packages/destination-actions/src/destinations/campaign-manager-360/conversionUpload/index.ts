@@ -74,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         postalCode: {
           label: 'Postal Code',
-          description: 'The postal code associated with the conversion.',
+          description: 'Postal code of the user's address.',
           type: 'string',
           required: false
         },
