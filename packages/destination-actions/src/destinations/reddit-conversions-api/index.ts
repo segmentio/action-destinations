@@ -13,7 +13,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       ad_account_id: {
-        label: 'Ad Account ID',
+        label: 'Pixel ID',
         description: 'Unique identifier of an ad account. This can be found in the Reddit UI.',
         type: 'string',
         required: true
