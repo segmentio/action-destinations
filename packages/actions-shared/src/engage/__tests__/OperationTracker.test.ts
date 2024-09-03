@@ -6,6 +6,14 @@ import { OperationDecorator, ContextFromDecorator } from '../utils/operationTrac
 import { TryCatchFinallyHook } from '../utils/operationTracking/wrapTryCatchFinallyPromisable'
 import { TrackedError } from '../utils/operationTracking/TrackedError'
 
+const log: typeof console.log = function log(...args: any[]) {
+  const isVerbose = process.argv.includes('--verbose')
+  // globalThis.jest && (globalThis.jest as any)['isVerbose']
+  if (isVerbose) {
+    console.log.call(console, ...args)
+  }
+}
+
 class TestLogger extends OperationLogger {
   logInfo = jest.fn()
   logError = jest.fn()
@@ -43,7 +51,7 @@ function createTestClass(
       const instance = this
       if (asyncMethods)
         return (async () => {
-          await new Promise((res) => setTimeout(res, 100))
+          await new Promise((res) => setImmediate(res)) //to speed up tests and keep it async
           return await testMethodImpl.apply(instance, args)
         })()
       return testMethodImpl.apply(instance, args)
@@ -186,7 +194,7 @@ describe('log', () => {
       expect(testResult.classInstance.logger.logError).toHaveBeenCalledTimes(0)
     })
 
-    test('on method failing', async () => {
+    test('when method failing', async () => {
       const testResult = await runTestMethod({
         testMethodImpl: () => {
           throw new MyCustomError('My custom error')
@@ -223,7 +231,7 @@ describe('log', () => {
       expectLogInfo(testResult.classInstance.logger.logInfo, ['testMethod succeeded after'])
     })
 
-    test('onFinally hook to add extra data on error', async () => {
+    test('onFinally hook to add extra logs on error', async () => {
       const myCustomError = new MyCustomError('My custom error')
       const someExtraErrorMessage = 'some extra info about error'
       const methodImpl = function (this: any, throwError: boolean) {
@@ -375,6 +383,44 @@ describe('stats', () => {
           method: 'incr',
           value: 1,
           tags: []
+        })
+      })
+
+      test('onFinally hook to add extra tags', async () => {
+        const methodImpl = function (this: any) {
+          const op = testTrack.getCurrentOperation(this) as TestOperationContext
+          const tags: string[] = []
+          op?.onFinally.push(() => {
+            op.tags.push(...tags)
+          })
+
+          tags.push('extra-tag:123')
+
+          if (_throwError) throw new MyCustomError('My custom error')
+        }
+        const TestClass = createTestClass({}, methodImpl, isAsync)
+        const testInstance = new TestClass()
+        testInstance.stats.stats.mockImplementation((...args) => {
+          log('>>> stats called with args', { isAsync, _throwError }, args)
+        })
+        try {
+          await testInstance.testMethod()
+        } catch (e) {
+          // eslint-disable-next-line no-empty
+        }
+
+        expect(testInstance.stats.stats).toHaveBeenCalledTimes(2)
+        expect(testInstance.stats.stats).toHaveBeenNthCalledWith(1, {
+          metric: 'testMethod',
+          method: 'incr',
+          value: 1,
+          tags: expect.arrayContaining(['extra-tag:123'])
+        })
+        expect(testInstance.stats.stats).toHaveBeenNthCalledWith(2, {
+          metric: 'testMethod.duration',
+          method: 'histogram',
+          value: expect.anything(),
+          tags: expect.arrayContaining(['extra-tag:123'])
         })
       })
     })
