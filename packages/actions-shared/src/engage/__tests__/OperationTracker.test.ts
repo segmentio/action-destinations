@@ -6,14 +6,6 @@ import { OperationDecorator, ContextFromDecorator } from '../utils/operationTrac
 import { TryCatchFinallyHook } from '../utils/operationTracking/wrapTryCatchFinallyPromisable'
 import { TrackedError } from '../utils/operationTracking/TrackedError'
 
-const log: typeof console.log = function log(...args: any[]) {
-  const isVerbose = process.argv.includes('--verbose')
-  // globalThis.jest && (globalThis.jest as any)['isVerbose']
-  if (isVerbose) {
-    console.log.call(console, ...args)
-  }
-}
-
 class TestLogger extends OperationLogger {
   logInfo = jest.fn()
   logError = jest.fn()
@@ -111,12 +103,12 @@ beforeEach(() => {
 
 describe('pass through', () => {
   describe.each([
-    ['async target method', true],
-    ['sync target method', false]
+    ['async method', true],
+    ['sync method', false]
   ])('%s', (_name, isAsync) => {
     describe.each([
-      ['target method thows error', true],
-      ['target completes successfully', false]
+      ['method thows error', true],
+      ['method completes successfully', false]
     ])('%s', (_name, throwError) => {
       test.each(<(TestDecoratorArgs | undefined)[]>[
         undefined,
@@ -400,9 +392,6 @@ describe('stats', () => {
         }
         const TestClass = createTestClass({}, methodImpl, isAsync)
         const testInstance = new TestClass()
-        testInstance.stats.stats.mockImplementation((...args) => {
-          log('>>> stats called with args', { isAsync, _throwError }, args)
-        })
         try {
           await testInstance.testMethod()
         } catch (e) {
