@@ -94,7 +94,13 @@ export type AudienceResult = {
 }
 
 export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
-export type Personas = { computation_id: 'string'; computation_key: 'string'; [key: string]: unknown }
+// Personas are referenced in the following location: [GitHub - external-audience-manager-service](https://github.com/segmentio/external-audience-manager-service/blob/97b95a968ffdfedad095928f5c2037c24e92886e/internal/gxClient/gxClient.go#L75C2-L79C4).
+export type Personas = {
+  computation_id: string
+  computation_key: string
+  namespace: string
+  [key: string]: unknown
+}
 
 export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
   settings: Settings
