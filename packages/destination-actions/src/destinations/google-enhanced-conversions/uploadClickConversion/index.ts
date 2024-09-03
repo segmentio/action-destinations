@@ -254,6 +254,14 @@ const action: ActionDefinition<Settings, Payload> = {
         'Customer ID is required for this action. Please set it in destination settings.'
       )
     }
+
+    // GCLID, GBRAID and WBRAID are mutually exclusive. Only one of them can be set.
+    // Per Google, for iOS, GCLID does not exist if user never gave consent to track their data.
+    // GBRAID and WBRAID are used for iOS 14 and later.
+    if (payload.gclid && (payload.gbraid || payload.wbraid)) {
+      throw new PayloadValidationError('GCLID, GBRAID and WBRAID are mutually exclusive. Only one of them can be set.')
+    }
+
     settings.customerId = settings.customerId.replace(/-/g, '')
 
     let cartItems: CartItemInterface[] = []
