@@ -84,6 +84,13 @@ const destination: DestinationDefinition<Settings> = {
 
   presets: [
     {
+      name: 'Reddit Browser Plugin',
+      subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+      partnerAction: 'redditPlugin',
+      mapping: {},
+      type: 'automatic'
+    },
+    {
       name: 'Page Visit',
       subscribe: 'type = "page"',
       partnerAction: 'standardEvent',
