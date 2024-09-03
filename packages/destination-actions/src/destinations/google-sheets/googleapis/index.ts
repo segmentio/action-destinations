@@ -1,4 +1,4 @@
-import { ModifiedResponse, RequestClient } from '@segment/actions-core'
+import { DEFAULT_REQUEST_TIMEOUT, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { MappingSettings } from '../postSheet/operations'
 
 const API_VERSION = 'v4'
@@ -30,8 +30,9 @@ export class GoogleSheets {
       `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values:batchUpdate`,
       {
         method: 'post',
-        timeout: 90000, // set to 90s. Google Sheets API has a 180s timeout. Overall batch request timeout within segment is 120s.
+        // response for inserts can be long. Hence, skipping response cloning
         skipResponseCloning: true,
+        timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT),
         json: {
           valueInputOption: mappingSettings.dataFormat,
           data: batchPayload
@@ -58,8 +59,9 @@ export class GoogleSheets {
       `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}:append?valueInputOption=${mappingSettings.dataFormat}&insertDataOption=INSERT_ROWS`,
       {
         method: 'post',
+        // response for inserts can be long. Hence, skipping response cloning
         skipResponseCloning: true,
-        timeout: 90000,
+        timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT),
         json: {
           values: values
         }

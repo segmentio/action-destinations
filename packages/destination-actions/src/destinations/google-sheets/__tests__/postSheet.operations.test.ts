@@ -98,5 +98,27 @@ describe('Google Sheets', () => {
         'Sheet has reached maximum limit'
       )
     })
+
+    it('should fail because number of cells limit (CANARY) is reached if feature flag is enabled', async () => {
+      // Make sure the spreadsheet contains the event from the payload
+      CONSTANTS.MAX_CELLS = 1
+      CONSTANTS.MAX_CELLS_CANARY = 2
+      const getResponse: Partial<GetResponse> = {
+        values: [['id'], ['1234'], ['12345']]
+      }
+
+      mockGoogleSheets.get.mockResolvedValue({
+        data: getResponse
+      })
+
+      await expect(
+        PostSheet.performBatch?.(jest.fn(), {
+          ...data,
+          features: {
+            GOOGLE_SHEETS_NEW_MAX_CELLS_ENABLED: true
+          }
+        } as ExecuteInput<Settings, Payload[]>)
+      ).rejects.toThrowError('Sheet has reached maximum limit')
+    })
   })
 })

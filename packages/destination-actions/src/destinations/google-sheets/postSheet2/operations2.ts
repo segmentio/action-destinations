@@ -73,13 +73,19 @@ function processGetSpreadsheetResponse(
   response: GetResponse,
   events: Payload[],
   mappingSettings: MappingSettings,
-  syncMode: string
+  syncMode: string,
+  features: { [k: string]: boolean }
 ) {
   const numColumns = mappingSettings.columns.length
   const numRows = response.values?.length
 
-  if (numRows * numColumns > CONSTANTS.MAX_CELLS) {
-    throw new IntegrationError('Sheet has reached maximum limit', 'INVALID_REQUEST_DATA', 400)
+  const MAX_CELLS = features['GOOGLE_SHEETS_NEW_MAX_CELLS_ENABLED'] ? CONSTANTS.MAX_CELLS_CANARY : CONSTANTS.MAX_CELLS
+  if (numRows * numColumns > MAX_CELLS) {
+    throw new IntegrationError(
+      `Sheet has reached maximum limit. Segment supports uploading a maximum of ${MAX_CELLS} in a single sync.`,
+      'INVALID_REQUEST_DATA',
+      400
+    )
   }
 
   const updateBatch: UpdateBatch[] = []
@@ -220,7 +226,12 @@ async function processAppendBatch(mappingSettings: MappingSettings, appendBatch:
  * @param events array of events to commit to the spreadsheet
  * @param syncMode
  */
-async function processData(request: RequestClient, events: Payload[], syncMode: string) {
+async function processData(
+  request: RequestClient,
+  events: Payload[],
+  syncMode: string,
+  features: { [k: string]: boolean } = {}
+) {
   // These are assumed to be constant across all events
   const mappingSettings = {
     spreadsheetId: events[0].spreadsheet_id,
@@ -235,7 +246,13 @@ async function processData(request: RequestClient, events: Payload[], syncMode: 
   const response = await gs.get(mappingSettings, `A${DATA_ROW_OFFSET}:A`)
 
   // Use the retrieved row identifiers along with the incoming events to decide which ones should be appended or updated.
-  const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events, mappingSettings, syncMode)
+  const { appendBatch, updateBatch } = processGetSpreadsheetResponse(
+    response.data,
+    events,
+    mappingSettings,
+    syncMode,
+    features
+  )
 
   const promises = [
     processUpdateBatch(mappingSettings, updateBatch, gs),

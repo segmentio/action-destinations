@@ -87,19 +87,35 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Data to Google Sheets',
       description: 'Set as true to ensure Segment sends data to Google Sheets in batches. Please do not set to false.',
       default: true
+    },
+    batch_size: {
+      type: 'number',
+      label: 'Batch Size',
+      description: 'The number of rows to write to the spreadsheet in a single batch. The maximum value is 1000.',
+      default: 100,
+      required: true,
+      unsafe_hidden: true // TODO: Display this field when min/max is implemented.
+    },
+    batch_bytes: {
+      type: 'number',
+      label: 'Batch Bytes',
+      description: 'The number of bytes to write to the spreadsheet in a single batch. The maximum value is 4000000.',
+      default: 2000000, // 2MB,
+      required: true,
+      unsafe_hidden: true // TODO: Display this field when min/max is implemented.
     }
   },
-  perform: (request, { payload, syncMode }) => {
+  perform: (request, { payload, syncMode, features }) => {
     if (!syncMode) {
       throw new IntegrationError('Sync mode is required for this action.', 'INVALID_REQUEST_DATA', 400)
     }
-    return processData(request, [payload], syncMode)
+    return processData(request, [payload], syncMode, features)
   },
-  performBatch: (request, { payload, syncMode }) => {
+  performBatch: (request, { payload, syncMode, features }) => {
     if (!syncMode) {
       throw new IntegrationError('Sync mode is required for this action.', 'INVALID_REQUEST_DATA', 400)
     }
-    return processData(request, payload, syncMode)
+    return processData(request, payload, syncMode, features)
   }
 }
 

@@ -57,14 +57,14 @@ const action: ActionDefinition<Settings, Payload> = {
     fields: {
       label: 'Fields',
       description: `
-  The fields to write to the spreadsheet. 
+  The fields to write to the spreadsheet.
 
-  On the left-hand side, input the name of the field as it will appear in the Google Sheet. 
-  
+  On the left-hand side, input the name of the field as it will appear in the Google Sheet.
+
   On the right-hand side, select the field from your data model that maps to the given field in your sheet.
-     
+
   ---
-      
+
   `,
       type: 'object',
       required: true,
@@ -79,16 +79,25 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size: {
       type: 'number',
       label: 'Batch Size',
-      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
-      required: false,
-      default: 100000
+      description: 'The number of rows to write to the spreadsheet in a single batch. The maximum value is 1000.',
+      default: 50_000,
+      required: true,
+      unsafe_hidden: true // TODO: Display this field when min/max is implemented.
+    },
+    batch_bytes: {
+      type: 'number',
+      label: 'Batch Bytes',
+      description: 'The number of bytes to write to the spreadsheet in a single batch. The maximum value is 4000000.',
+      default: 2000000, // 2MB,
+      required: true,
+      unsafe_hidden: true // TODO: Display this field when min/max is implemented.
     }
   },
-  perform: (request, { payload }) => {
-    return processData(request, [payload])
+  perform: (request, { payload, features }) => {
+    return processData(request, [payload], features)
   },
-  performBatch: (request, { payload }) => {
-    return processData(request, payload)
+  performBatch: (request, { payload, features }) => {
+    return processData(request, payload, features)
   }
 }
 
