@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         streetAddress: {
           label: 'Street Address',
-          description: 'The street address associated with the conversion.',
+          description: 'The street address of the user. This will be hashed by Segment before being sent to Campaign Manager 360.',
           type: 'string',
           required: false
         },
