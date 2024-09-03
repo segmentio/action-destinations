@@ -453,7 +453,7 @@ export const SendToRecepientResponseSerializer: CacheSerializer<any> = {
     if (cacheable.error) {
       const errorDetails = getErrorDetails(cacheable.error)
       cacheObj = { error: errorDetails }
-    } else if (cacheable.value) {
+    } else {
       cacheObj = { value: cacheable.value?.status }
     }
     return cacheObj ? JSON.stringify(cacheObj) : undefined
