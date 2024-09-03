@@ -51,11 +51,30 @@ describe('Order Completed', () => {
     )
   })
 
+  it('should throw an error for invalid phone number format', async () => {
+    const profile = { email: 'test@example.com', phone_number: 'invalid-phone-number' }
+    const properties = { key: 'value' }
+    const metricName = 'Order Completed'
+    const value = 10
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: '2022-01-01T00:00:00.000Z'
+    })
+
+    const mapping = { profile, metric_name: metricName, properties, value }
+
+    await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).rejects.toThrowError(
+      'invalid-phone-number is not a valid E.164 phone number.'
+    )
+  })
+
   it('should successfully track event with external Id', async () => {
     const profile = { external_id: '3xt3rnal1d' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
+    const eventName = 'Order Completed'
 
     const requestBody = createRequestBody(properties, value, metricName, profile)
 
@@ -66,7 +85,7 @@ describe('Order Completed', () => {
       timestamp: '2022-01-01T00:00:00.000Z'
     })
 
-    const mapping = { profile, metric_name: metricName, properties, value }
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName }
 
     await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).resolves.not.toThrowError()
   })
@@ -76,6 +95,7 @@ describe('Order Completed', () => {
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
+    const eventName = 'Order Completed'
 
     const requestBody = createRequestBody(properties, value, metricName, profile)
 
@@ -86,16 +106,17 @@ describe('Order Completed', () => {
       timestamp: '2022-01-01T00:00:00.000Z'
     })
 
-    const mapping = { profile, metric_name: metricName, properties, value }
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName }
 
     await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).resolves.not.toThrowError()
   })
 
   it('should successfully track event if proper parameters are provided', async () => {
-    const profile = { email: 'test@example.com', phone_number: '1234567890' }
+    const profile = { email: 'test@example.com', phone_number: '+14155552671' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
+    const eventName = 'Order Completed'
 
     const requestBody = createRequestBody(properties, value, metricName, profile)
 
@@ -106,16 +127,17 @@ describe('Order Completed', () => {
       timestamp: '2022-01-01T00:00:00.000Z'
     })
 
-    const mapping = { profile, metric_name: metricName, properties, value }
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName }
 
     await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).resolves.not.toThrowError()
   })
 
   it('should throw an error if the API request fails', async () => {
-    const profile = { email: 'test@example.com', phone_number: '1234567890' }
+    const profile = { email: 'test@example.com', phone_number: '+14155552671' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
+    const eventName = 'Order Completed'
 
     const requestBody = createRequestBody(properties, value, metricName, profile)
 
@@ -126,7 +148,7 @@ describe('Order Completed', () => {
       timestamp: '2022-01-01T00:00:00.000Z'
     })
 
-    const mapping = { profile, metric_name: metricName, properties, value }
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName }
 
     await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).rejects.toThrowError(
       'Internal Server Error'
@@ -141,10 +163,11 @@ describe('Order Completed', () => {
       }
     ]
 
-    const profile = { email: 'test@example.com', phone_number: '1234567890' }
+    const profile = { email: 'test@example.com', phone_number: '+14155552671' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
+    const eventName = 'Order Completed'
 
     const event = createTestEvent({
       type: 'track',
@@ -156,7 +179,8 @@ describe('Order Completed', () => {
       metric_name: metricName,
       properties,
       value,
-      products: products
+      products: products,
+      event_name: eventName
     }
 
     const requestBodyForEvent = createRequestBody(properties, value, metricName, profile)

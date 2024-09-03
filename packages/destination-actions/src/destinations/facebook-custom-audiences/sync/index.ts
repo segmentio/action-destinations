@@ -153,25 +153,34 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   fields: {
+    externalId: {
+      type: 'string',
+      required: true,
+      label: 'External ID',
+      description:
+        'Your company’s custom identifier for this user. This can be any unique ID, such as loyalty membership IDs, user IDs, and external cookie IDs.'
+    },
     email: {
       type: 'string',
       label: 'Email',
-      description: 'The email address of the user.'
+      description: 'User’s email (ex: foo@bar.com)'
     },
     phone: {
       type: 'string',
       label: 'Phone',
-      description: 'The phone number of the user.'
+      description:
+        'User’s phone number, including country code. Punctuation and spaces are ok (ex: 1-234-567-8910 or +44 844 412 4653)'
     },
-    gender: {
+    country: {
       type: 'string',
-      label: 'Gender',
-      description: 'The gender of the user.'
+      label: 'Country',
+      description: 'User’s country. Use 2-letter country codes in ISO 3166-1 alpha-2 format.'
     },
     birth: {
       type: 'object',
       label: 'Date of Birth',
-      description: 'The date of birth of the user.',
+      description:
+        'User’s date of birth. Include as many fields as possible for better match rates (ex: year = YYYY, month = MM, day = DD)',
       properties: {
         year: {
           type: 'string',
@@ -190,7 +199,8 @@ const action: ActionDefinition<Settings, Payload> = {
     name: {
       type: 'object',
       label: 'Name',
-      description: 'The name of the user.',
+      description:
+        'User’s name. Include as many fields as possible for better match rates. Use a-z only. No punctuation. Special characters in UTF-8 format',
       properties: {
         first: {
           type: 'string',
@@ -209,44 +219,40 @@ const action: ActionDefinition<Settings, Payload> = {
     city: {
       type: 'string',
       label: 'City',
-      description: 'The city of the user'
+      description: 'User’s city. Use a-z only. No punctuation. No special characters.'
     },
     state: {
       type: 'string',
       label: 'State',
-      description: 'The state of the user.'
+      description:
+        'User’s state. Use the 2-character ANSI abbreviation code, Normalize states outside the US with no punctuation and no special characters.'
     },
     zip: {
       type: 'string',
       label: 'Postal Code',
-      description: 'The postal code of the user.'
+      description:
+        'User’s postal code. For the US, use only the first 5 digits. For the UK, use the Area/District/Sector format.'
     },
-    country: {
+    gender: {
       type: 'string',
-      label: 'Country',
-      description: 'The country of the user.'
+      label: 'Gender',
+      description: 'User’s gender (m for male, f for female)'
     },
     mobileAdId: {
       type: 'string',
       label: 'Mobile Advertising ID',
-      description: 'The mobile advertising ID of the user.'
+      description:
+        'User’s Apple IDFA, Android Ad ID, or Facebook app scoped ID. Keep hyphens (ex: AB1234CD-E123-12FG-J123)'
     },
-    externalId: {
+    appId: {
       type: 'string',
-      label: 'External ID',
-      description: 'The external ID of the user.'
+      label: 'App ID',
+      description: 'The app ID of the user.'
     },
-    appIds: {
+    pageId: {
       type: 'string',
-      multiple: true,
-      label: 'App IDs',
-      description: 'The app IDs of the user.'
-    },
-    pageIds: {
-      type: 'string',
-      multiple: true,
-      label: 'Page IDs',
-      description: 'The page IDs of the user.'
+      label: 'Page ID',
+      description: 'The page ID of the user.'
     },
     enable_batching,
     batch_size

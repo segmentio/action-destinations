@@ -1,0 +1,21 @@
+github_checks:
+  annotations: false
+comment:
+  require_changes: true
+
+codecov:
+  require_ci_to_pass: true # Require CI to pass before uploading coverage
+  notify:
+    wait_for_ci: true
+
+# https://about.codecov.io/blog/the-5-levels-of-code-coverage-how-to-build-a-testing-culture-in-your-organization/
+# Setting this configuration as recommended for beginners in the above blog post.
+# We can introduce more strict settings as we progress.
+coverage:
+  status:
+    project:
+      default:
+        informational: false
+    patch:
+      default:
+        informational: false
