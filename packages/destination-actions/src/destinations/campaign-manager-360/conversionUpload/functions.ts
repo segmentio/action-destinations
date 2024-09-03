@@ -43,14 +43,15 @@ export function validateInsertConversionPayloads(
     const conversion: CampaignManager360Conversion = {
       floodlightActivityId: String(payload.floodlightActivityId || settings.defaultFloodlightActivityId),
       floodlightConfigurationId: String(payload.floodlightConfigurationId || settings.defaultFloodlightConfigurationId),
+      timestampMicros: (new Date(String(payload.timestamp)).getTime() / 1000).toFixed(0),
+      value: payload.value,
+      quantity: payload.quantity,
       kind: 'dfareporting#conversion'
     }
 
-    // Required fields.
-    conversion.timestampMicros = parseInt((new Date(String(payload.timestamp)).getTime() / 1000).toFixed(0))
-    conversion.value = payload.value
-    conversion.quantity = payload.quantity
-    conversion.ordinal = payload.ordinal
+    if (payload.ordinal) {
+      conversion.ordinal = payload.ordinal
+    }
 
     if (payload.gclid) {
       conversion.gclid = payload.gclid

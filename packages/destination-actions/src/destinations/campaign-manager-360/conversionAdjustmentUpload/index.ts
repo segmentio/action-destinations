@@ -213,7 +213,7 @@ const action: ActionDefinition<Settings, Payload> = {
     quantity: {
       label: 'Quantity',
       description: 'The quantity of the conversion.',
-      type: 'number',
+      type: 'string',
       required: true,
       default: {
         '@path': '$.quantity'
@@ -223,7 +223,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ordinal',
       description:
         'The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.',
-      type: 'number',
+      type: 'string',
       required: false
     },
     limitAdTracking: {

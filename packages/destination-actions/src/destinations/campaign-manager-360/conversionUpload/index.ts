@@ -7,7 +7,7 @@ import { refreshGoogleAccessToken } from '../common-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Upload',
-  description: "Send a conversion to Campaign Manager 360.",
+  description: 'Send a conversion to Campaign Manager 360.',
   fields: {
     floodlightConfigurationId: {
       label: 'Floodlight Configuration ID',
@@ -74,13 +74,13 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         postalCode: {
           label: 'Postal Code',
-          description: 'Postal code of the user's address.',
+          description: "Postal code of the user's address.",
           type: 'string',
           required: false
         },
         countryCode: {
           label: 'Country Code',
-          description: '2-letter country code in ISO-3166-1 alpha-2 of the user's address.',
+          description: "2-letter country code in ISO-3166-1 alpha-2 of the user's address.",
           type: 'string',
           required: false
         }
@@ -217,7 +217,7 @@ const action: ActionDefinition<Settings, Payload> = {
     quantity: {
       label: 'Quantity',
       description: 'The quantity of the conversion.',
-      type: 'number',
+      type: 'string',
       required: true,
       default: {
         '@path': '$.quantity'
@@ -227,7 +227,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ordinal',
       description:
         'The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.',
-      type: 'number',
+      type: 'string',
       required: false
     },
     customVariables: {

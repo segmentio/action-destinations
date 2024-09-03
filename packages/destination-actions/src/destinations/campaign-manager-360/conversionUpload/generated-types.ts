@@ -34,7 +34,7 @@ export interface Payload {
      */
     streetAddress?: string
     /**
-     * The city associated with the conversion.
+     * City of the address
      */
     city?: string
     /**
@@ -42,11 +42,11 @@ export interface Payload {
      */
     state?: string
     /**
-     * The postal code associated with the conversion.
+     * Postal code of the user's address.
      */
     postalCode?: string
     /**
-     * The country code associated with the conversion.
+     * 2-letter country code in ISO-3166-1 alpha-2 of the user's address.
      */
     countryCode?: string
   }
@@ -77,11 +77,11 @@ export interface Payload {
   /**
    * The quantity of the conversion.
    */
-  quantity: number
+  quantity: string
   /**
    * The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.
    */
-  ordinal?: number
+  ordinal?: string
   /**
    * Custom variables associated with the conversion.
    */
