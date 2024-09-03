@@ -72,7 +72,21 @@ Object {
           "quantity": 33800216662507.52,
         },
         "checkout": Object {
+          "billingAddress": Object {
+            "address1": "VjtX1zqO^*9PrF@2",
+            "address2": "VjtX1zqO^*9PrF@2",
+            "city": "VjtX1zqO^*9PrF@2",
+            "country": "VjtX1zqO^*9PrF@2",
+            "countryCode": "VjtX1zqO^*9PrF@2",
+            "firstName": "VjtX1zqO^*9PrF@2",
+            "lastName": "VjtX1zqO^*9PrF@2",
+            "phone": "VjtX1zqO^*9PrF@2",
+            "province": "VjtX1zqO^*9PrF@2",
+            "provinceCode": "VjtX1zqO^*9PrF@2",
+            "zip": "VjtX1zqO^*9PrF@2",
+          },
           "currencyCode": "VjtX1zqO^*9PrF@2",
+          "email": "co@museku.fr",
           "lineItems": Array [
             Object {
               "discountAllocations": Array [
@@ -115,6 +129,20 @@ Object {
           ],
           "order": Object {
             "id": "VjtX1zqO^*9PrF@2",
+          },
+          "phone": "VjtX1zqO^*9PrF@2",
+          "shippingAddress": Object {
+            "address1": "VjtX1zqO^*9PrF@2",
+            "address2": "VjtX1zqO^*9PrF@2",
+            "city": "VjtX1zqO^*9PrF@2",
+            "country": "VjtX1zqO^*9PrF@2",
+            "countryCode": "VjtX1zqO^*9PrF@2",
+            "firstName": "VjtX1zqO^*9PrF@2",
+            "lastName": "VjtX1zqO^*9PrF@2",
+            "phone": "VjtX1zqO^*9PrF@2",
+            "province": "VjtX1zqO^*9PrF@2",
+            "provinceCode": "VjtX1zqO^*9PrF@2",
+            "zip": "VjtX1zqO^*9PrF@2",
           },
           "shippingLine": Object {
             "price": Object {
@@ -269,7 +297,9 @@ Object {
           },
         },
         "checkout": Object {
+          "billingAddress": Object {},
           "order": Object {},
+          "shippingAddress": Object {},
           "shippingLine": Object {
             "price": Object {},
           },

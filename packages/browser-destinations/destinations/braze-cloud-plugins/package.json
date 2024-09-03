@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-braze-cloud-plugins",
-  "version": "1.62.0",
+  "version": "1.64.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,8 +15,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/analytics-browser-actions-braze": "^1.62.0",
-    "@segment/browser-destination-runtime": "^1.57.0"
+    "@segment/analytics-browser-actions-braze": "^1.64.0",
+    "@segment/browser-destination-runtime": "^1.58.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
