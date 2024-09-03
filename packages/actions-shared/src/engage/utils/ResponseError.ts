@@ -23,6 +23,7 @@ export interface ErrorDetails {
   message: string
   code: string
   status?: number
+  class?: string
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,6 +36,8 @@ export function getErrorDetails(error: any): ErrorDetails {
   const status = respError.status || respError.response?.status
   // || respError.response?.data?.status // twilio apis provides status and statusCode in data, but we assume it's the same as response.status
   // || respError.response?.data?.statusCode
+
+  const error_class = error?.constructor?.name
 
   const code = respError.code || respError.response?.data?.code
   // || respError.response?.statusText // e.g. 'Not Found' for 404
@@ -51,5 +54,5 @@ export function getErrorDetails(error: any): ErrorDetails {
   ]
     .filter(Boolean)
     .join('; ')
-  return { status, code: code?.toString(), message }
+  return { status, code: code?.toString(), message, class: error_class }
 }

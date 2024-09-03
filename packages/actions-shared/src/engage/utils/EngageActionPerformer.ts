@@ -234,7 +234,12 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
     if (cacheRead.error) {
       finalStatsTags.cache_reading_error = true
-      this.logInfo('cache_reading_error', { key, finalStatsTags, error: cacheRead.error })
+      this.logInfo('cache_reading_error', {
+        key,
+        finalStatsTags,
+        error: cacheRead.error,
+        details: getErrorDetails(cacheRead.error)
+      })
       this.throwRetryableError('Error reading cache')
     } else if (cacheRead.value) {
       const { value: parsedCache, error: parsingError } = getOrCatch(() => serializer.parse(cacheRead.value!))
