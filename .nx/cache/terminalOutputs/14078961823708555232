@@ -1,0 +1,81 @@
+[2K[1G[2m$ yarn clean && bash scripts/build-web.sh[22m
+[2K[1G[2m$ rm -rf dist[22m
+[2K[1G[2m$ /Users/joeayoub/dev/src/github.com/segmentio/action-destinations/node_modules/.bin/webpack -c webpack.config.js[22m
+assets by status 27 KiB [1m[32m[cached][39m[22m 1 asset
+assets by info 5.57 MiB [1m[32m[immutable][39m[22m
+  assets by status [1m[33m576 KiB[39m[22m [1m[33m[big][39m[22m
+    asset [1m[33mintercom/1e3186d1a21964384090.js[39m[22m [1m[33m291 KiB[39m[22m [1m[32m[emitted][39m[22m [1m[32m[immutable][39m[22m [1m[32m[minimized][39m[22m [1m[33m[big][39m[22m (name: intercom) 2 related assets
+    asset [1m[33mfriendbuy/59527cb3c961b39f91c1.js[39m[22m [1m[33m285 KiB[39m[22m [1m[32m[emitted][39m[22m [1m[32m[immutable][39m[22m [1m[32m[minimized][39m[22m [1m[33m[big][39m[22m (name: friendbuy) 2 related assets
+  + 40 assets
+assets by path [1m[32m*.json[39m[22m 3.56 KiB
+  asset [1m[32mmanifest-2664dc496.json[39m[22m 1.78 KiB [1m[32m[emitted][39m[22m 1 related asset
+  asset [1m[32mmanifest-latest.json[39m[22m 1.78 KiB [1m[32m[emitted][39m[22m 1 related asset
+runtime modules 296 KiB 422 modules
+orphan modules 362 KiB [1m[33m[orphan][39m[22m 198 modules
+cacheable modules 2.63 MiB
+  modules by path [1m../[39m[22m 726 KiB
+    javascript modules 723 KiB 201 modules
+    json modules 3.07 KiB 2 modules
+  modules by path [1m./destinations/[39m[22m 1.93 MiB
+    [1m./destinations/1flow/src/index.ts + 23 modules[39m[22m 56.2 KiB [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+    [1m./destinations/adobe-target/src/index.ts + 6 modules[39m[22m 9.39 KiB [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+    [1m./destinations/algolia-plugins/src/index.ts + 3 modules[39m[22m 2.83 KiB [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+    + 39 modules
+  [1mcrypto (ignored)[39m[22m 15 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+  [1mos (ignored)[39m[22m 15 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+  [1mcrypto (ignored)[39m[22m 15 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+
+[1m[33mWARNING[39m[22m in [1masset size limit: The following asset(s) exceed the recommended size limit (244 KiB).
+This can impact web performance.
+Assets: 
+  friendbuy/59527cb3c961b39f91c1.js (285 KiB)
+  intercom/1e3186d1a21964384090.js (291 KiB)
+  friendbuy/59527cb3c961b39f91c1.js.map.gz (249 KiB)
+  intercom/1e3186d1a21964384090.js.map.gz (252 KiB)[39m[22m
+
+[1m[33mWARNING[39m[22m in [1mentrypoint size limit: The following entrypoint(s) combined asset size exceeds the recommended limit (244 KiB). This can impact web performance.
+Entrypoints:
+  friendbuy (285 KiB)
+      friendbuy/59527cb3c961b39f91c1.js
+  intercom (291 KiB)
+      intercom/1e3186d1a21964384090.js
+[39m[22m
+
+webpack 5.82.0 compiled with [1m[33m2 warnings[39m[22m in 21103 ms
+
+assets by status [1m[33m576 KiB[39m[22m [1m[33m[big][39m[22m
+  asset [1m[33maW50ZXJjb20/1e3186d1a21964384090.js[39m[22m [1m[33m291 KiB[39m[22m [1m[32m[emitted][39m[22m [1m[32m[immutable][39m[22m [1m[32m[minimized][39m[22m [1m[33m[big][39m[22m (name: intercom) 2 related assets
+  asset [1m[33mZnJpZW5kYnV5/59527cb3c961b39f91c1.js[39m[22m [1m[33m285 KiB[39m[22m [1m[32m[emitted][39m[22m [1m[32m[immutable][39m[22m [1m[32m[minimized][39m[22m [1m[33m[big][39m[22m (name: friendbuy) 2 related assets
++ 41 assets
+runtime modules 296 KiB 422 modules
+orphan modules 362 KiB [1m[33m[orphan][39m[22m 198 modules
+cacheable modules 2.63 MiB
+  modules by path [1m../[39m[22m 726 KiB
+    javascript modules 723 KiB 201 modules
+    json modules 3.07 KiB 2 modules
+  modules by path [1m./destinations/[39m[22m 1.93 MiB
+    [1m./destinations/1flow/src/index.ts + 23 modules[39m[22m 56.2 KiB [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+    [1m./destinations/adobe-target/src/index.ts + 6 modules[39m[22m 9.39 KiB [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+    [1m./destinations/algolia-plugins/src/index.ts + 3 modules[39m[22m 2.83 KiB [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+    + 39 modules
+  [1mcrypto (ignored)[39m[22m 15 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+  [1mos (ignored)[39m[22m 15 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+  [1mcrypto (ignored)[39m[22m 15 bytes [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+
+[1m[33mWARNING[39m[22m in [1masset size limit: The following asset(s) exceed the recommended size limit (244 KiB).
+This can impact web performance.
+Assets: 
+  ZnJpZW5kYnV5/59527cb3c961b39f91c1.js (285 KiB)
+  aW50ZXJjb20/1e3186d1a21964384090.js (291 KiB)
+  ZnJpZW5kYnV5/59527cb3c961b39f91c1.js.map.gz (249 KiB)
+  aW50ZXJjb20/1e3186d1a21964384090.js.map.gz (252 KiB)[39m[22m
+
+[1m[33mWARNING[39m[22m in [1mentrypoint size limit: The following entrypoint(s) combined asset size exceeds the recommended limit (244 KiB). This can impact web performance.
+Entrypoints:
+  friendbuy (285 KiB)
+      ZnJpZW5kYnV5/59527cb3c961b39f91c1.js
+  intercom (291 KiB)
+      aW50ZXJjb20/1e3186d1a21964384090.js
+[39m[22m
+
+webpack 5.82.0 compiled with [1m[33m2 warnings[39m[22m in 21088 ms

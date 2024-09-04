@@ -387,14 +387,14 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     merchantId: {
       label: 'Cart Data Merchant ID',
-      description: 'The Merchant Center ID where the items are uploaded.',
+      description: 'The Merchant Center ID where the items are uploaded. Required if the cart data is provided.',
       type: 'string',
       required: false
     },
     merchantFeedLabel: {
       label: 'Cart Data Merchant Feed Label',
       description:
-        'The feed labels associated with the feed where your items are uploaded. For more information, please refer to ​​ https://support.google.com/merchants/answer/12453549.',
+        'The feed labels associated with the feed where your items are uploaded. Required if the cart data is provided. For more information, please refer to ​​ https://support.google.com/merchants/answer/12453549.',
       type: 'string',
       required: false
     },
@@ -409,6 +409,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Cart Data Items',
       description: 'The items in the cart.',
       type: 'object',
+      multiple: true,
       required: false,
       additionalProperties: false,
       properties: {
@@ -430,6 +431,16 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'number',
           required: true
         }
+      },
+      default: {
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            itemId: { '@path': '$.product_id' },
+            quantity: { '@path': '$.quantity' },
+            unitPrice: { '@path': '$.price' }
+          }
+        ]
       }
     }
   },

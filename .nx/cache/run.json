@@ -1,0 +1,21 @@
+{
+  "run": {
+    "command": "nx build-web @segment/browser-destinations",
+    "startTime": "2024-09-04T12:37:21.049Z",
+    "endTime": "2024-09-04T12:37:45.092Z",
+    "inner": false
+  },
+  "tasks": [
+    {
+      "taskId": "@segment/browser-destinations:build-web",
+      "target": "build-web",
+      "projectName": "@segment/browser-destinations",
+      "hash": "14078961823708555232",
+      "startTime": "2024-09-04T12:37:21.058Z",
+      "endTime": "2024-09-04T12:37:45.092Z",
+      "params": "",
+      "cacheStatus": "cache-miss",
+      "status": 0
+    }
+  ]
+}
