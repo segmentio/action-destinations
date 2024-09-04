@@ -11910,7 +11910,7 @@ lazystream@^1.0.0:
   dependencies:
     readable-stream "^2.0.5"
 
-lerna@8.1.7:
+"lerna@<= 8.1.7 || >8.1.9":
   version "8.1.7"
   resolved "https://registry.yarnpkg.com/lerna/-/lerna-8.1.7.tgz#096767c11cb510c4e368a648e2779192b6b06313"
   integrity sha512-v2kkBn8Vqtroo30Pr5/JQ9MygRhnCsoI1jSOf3DxWmcTbkpC5U7c6rGr+7NPK6QrxKbC0/Cj4kuIBMb/7f79sQ==
