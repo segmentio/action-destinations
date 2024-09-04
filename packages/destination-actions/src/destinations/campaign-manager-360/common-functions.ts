@@ -122,11 +122,34 @@ export function resolveGoogleCampaignManager360Conversion(
     userIdentifiers.push(...resolveGoogleCampaignManager360UserIdentifiers(payload.userDetails))
   }
 
+  // Cart Data.
+  const resolvedCartData = resolveGoogleCampaignManager360CartData(payload)
+  if (resolvedCartData) {
+    conversion.cartData = resolvedCartData
+  }
+
   return conversion
 }
 
-export function resolveGoogleCampaignManager360CartData() {
-  console.log('123')
+export function resolveGoogleCampaignManager360CartData(payload: ConversionAdjustmentUpload | ConversionUpload) {
+  if (!payload.cartDataItems) {
+    return undefined
+  }
+
+  if (!payload.merchantId || !payload.merchantFeedLabel || !payload.merchantFeedLanguage) {
+    throw new Error('Missing required parameters for cart data: merchantId, merchantFeedLabel, merchantFeedLanguage.')
+  }
+
+  return {
+    merchantId: payload.merchantId,
+    merchantFeedLabel: payload.merchantFeedLabel,
+    merchantFeedLanguage: payload.merchantFeedLanguage,
+    items: payload.cartDataItems.map((item) => ({
+      itemId: item.itemId,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice
+    }))
+  }
 }
 
 export function resolveGoogleCampaignManager360UserIdentifiers(
