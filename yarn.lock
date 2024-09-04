@@ -3007,6 +3007,31 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
+"@segment/action-destinations@^3.288.0":
+  version "3.312.0"
+  resolved "https://registry.npmjs.org/@segment/action-destinations/-/action-destinations-3.312.0.tgz#66d1d0e777dd1949c98f928c866407897bb7dcde"
+  integrity sha512-1v9QlhB0dbh8fPvI3Voo1KWye5dhbodbBlFP6gG5xEhdNK84We45KPnz1R45S3VQEdudp9LfPiZizfpMLephKw==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@aws-sdk/client-s3" "^3.600.0"
+    "@bufbuild/buf" "^1.28.0"
+    "@bufbuild/protobuf" "^1.4.2"
+    "@bufbuild/protoc-gen-es" "^1.4.2"
+    "@segment/a1-notation" "^2.1.4"
+    "@segment/actions-core" "^3.129.0"
+    "@segment/actions-shared" "^1.110.0"
+    "@types/node" "^18.11.15"
+    ajv-formats "^2.1.1"
+    aws4 "^1.12.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    google-libphonenumber "^3.2.31"
+    kafkajs "^2.2.4"
+    liquidjs "^10.8.4"
+    lodash "^4.17.21"
+    ssh2-sftp-client "^9.1.0"
+
 "@segment/action-emitters@^1.3.6":
   version "1.3.6"
   resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.3.6.tgz#0160442ae99821c43a9465c05226afddec73cbe5"
@@ -3014,12 +3039,346 @@
   dependencies:
     "@types/node" "^18.11.15"
 
+"@segment/actions-core@^3.121.0", "@segment/actions-core@^3.129.0":
+  version "3.129.0"
+  resolved "https://registry.npmjs.org/@segment/actions-core/-/actions-core-3.129.0.tgz#00906082d3c9015684d6b92eb22c1aceabf43e84"
+  integrity sha512-zOTnaFRdPB2Moi1I484PJE+Pld3U4Eo9sLd5ImCsOYXmVs5XGLdDMbQnQY9UVt3R8eugJ9mnnJG874nR9jQ3DA==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/action-emitters" "^1.3.6"
+    "@segment/ajv-human-errors" "^2.13.0"
+    "@segment/destination-subscriptions" "^3.34.0"
+    "@types/node" "^18.11.15"
+    abort-controller "^3.0.0"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
+"@segment/actions-shared@^1.110.0":
+  version "1.110.0"
+  resolved "https://registry.npmjs.org/@segment/actions-shared/-/actions-shared-1.110.0.tgz#1dc18a2a914bcd4ec95fc67c4dfe87907c8e02d7"
+  integrity sha512-mD9JwgKm5QGiZfdr/feaCkZn0YhqHkvQ1C9aMSeola8NK6CwcMiXSPuONb2mGB+ue+bRU0AzQXabdlsiPW7Ulg==
+  dependencies:
+    "@amplitude/ua-parser-js" "^0.7.25"
+    "@segment/actions-core" "^3.129.0"
+    cheerio "^1.0.0-rc.10"
+    dayjs "^1.10.7"
+    escape-goat "^3"
+    liquidjs "^10.8.4"
+    lodash "^4.17.21"
+
+"@segment/ajv-human-errors@^2.13.0":
+  version "2.13.0"
+  resolved "https://registry.npmjs.org/@segment/ajv-human-errors/-/ajv-human-errors-2.13.0.tgz#2881976962c86b8b18a5ee7d7287b8ef6df55ec1"
+  integrity sha512-rubuhyhxCHmVdTmA5G3aMiWoN8Yutp+LG/AGUSiIKJVs1r7EEE/yjqSzSqyANGj5ZkqGUP802Ur9s19MuWelZQ==
+
+"@segment/analytics-browser-actions-1flow@^1.41.0":
+  version "1.41.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-1flow/-/analytics-browser-actions-1flow-1.41.0.tgz#34e2314c179e8e578b3cca8daed0cfdec64d8fba"
+  integrity sha512-/isFSCsRnKmzDjq5jrYKIY4YTomZzpaaIWEw7Koe7CFvrgUegPaqLfMqGOv1klLbJZgpFofJgS0G12zlIkab6g==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-adobe-target@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-adobe-target/-/analytics-browser-actions-adobe-target-1.59.0.tgz#d1bfff2a46a5442eca7422a4f6b4c131aa23b642"
+  integrity sha512-59tv3H7WCl9km1a5u8szCIRV8mLWfEh3ejerImC95EfEeAfEWMUiuwLHexMzti8XO+uRsuW/dX2HiElG//isCA==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-algolia-plugins@^1.36.0":
+  version "1.36.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-algolia-plugins/-/analytics-browser-actions-algolia-plugins-1.36.0.tgz#4f29ddba7c7ef6c4434ab5716173b9348430c0e5"
+  integrity sha512-XM6GLR0KoiJK+prsAvjMjVgNGG8c4/wL88gd4bxPIrwGptzF+JqOUqX8qQLOmADk5v4/mxFAieQPTo7lkcDirg==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-amplitude-plugins@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-amplitude-plugins/-/analytics-browser-actions-amplitude-plugins-1.59.0.tgz#77b98939eb65b5a677a9b4696983ba5d459b37fa"
+  integrity sha512-38T9BnxhtTLENJyYgbgLz50y6IwThznhfW1+q+lRIAZn/sKpqX3PxCCKP/sgejx6NBHIVqt88sSq2LHkP05Wtw==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-braze-cloud-plugins@^1.64.0":
+  version "1.64.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-braze-cloud-plugins/-/analytics-browser-actions-braze-cloud-plugins-1.64.0.tgz#c8054fad414a7a0ea6ab04642f14c6049e036ab7"
+  integrity sha512-WrCR/VxbgxZVi02hXzDr9/CjOgrVT4XupwM/Ej5gXZFRr++mRUpBcjajSe3YyAXrPQrG8Fh7xJmIETkjcftHAw==
+  dependencies:
+    "@segment/analytics-browser-actions-braze" "^1.64.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-braze@^1.64.0":
+  version "1.64.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-braze/-/analytics-browser-actions-braze-1.64.0.tgz#530822a270f5fd6af3fc38edb6b1af4b5b8b3963"
+  integrity sha512-mwYHlTFq7l8yfClAIQJY94QbK4Cm4YO4c+MFB5MSmanyKFfUCfy+3TCrZju7sUu2AHyVBaE63BmjrLN2E92/tw==
+  dependencies:
+    "@braze/web-sdk" "npm:@braze/web-sdk@^4.1.0"
+    "@braze/web-sdk-v3" "npm:@braze/web-sdk@^3.5.1"
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-bucket@^1.39.0":
+  version "1.39.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-bucket/-/analytics-browser-actions-bucket-1.39.0.tgz#efaaddd31ad1d4f3b7e6afb6c0f7f58e72187941"
+  integrity sha512-wlPuv0Ns/cM8AXzuw+LY/JEcHZJUt7wbZAHwa0o3SOilYUBIi7jg6ePJdxlGxIGp5ivPzPaYGeuOfsCIik1qKQ==
+  dependencies:
+    "@bucketco/tracking-sdk" "^2.0.0"
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-cdpresolution@^1.46.0":
+  version "1.46.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-cdpresolution/-/analytics-browser-actions-cdpresolution-1.46.0.tgz#9cc1d3989991373ae62f72943d9e2ad99777bf85"
+  integrity sha512-jrMMTr6LLyWxcgqJ+Nb0Ic6WqZivr9FWoyV83Ters/Z5Xh5NNbCkvJof3yDkG4UhtYYV20I3wJqpThht9yw/ug==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-commandbar@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-commandbar/-/analytics-browser-actions-commandbar-1.59.0.tgz#d18fac5af29745fb83695cc6f703e6e027b3c33c"
+  integrity sha512-7Thx0otghOJrx558p54V3sTS5KF0WHBQcYan9qP+jtVvBeM4su+BjwXK0FwW/guzGa+rPDlnEd30p4S54IJuqg==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-contentstack-web@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-contentstack-web/-/analytics-browser-actions-contentstack-web-1.2.0.tgz#24af3a449391bf9bd4ae5f3c3030cc9187f3f91e"
+  integrity sha512-PqnIa0IB4wXwNG/T4fyAVmhu55lD4km7aLyRgPWi4t+5DTcmNV86JO1A26KE63Tut4Ckbh9nHraowGBbmmO3PQ==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-devrev@^1.46.0":
+  version "1.46.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-devrev/-/analytics-browser-actions-devrev-1.46.0.tgz#b032579759807f7eb1bb745c1be4181c72f8650f"
+  integrity sha512-etuhKjwWjIQGku93ZGA6dpAV0Xqvl9/oquz7ovSNcNuJ/67snrQgbteNlWnfWRHyD+8FBUEHnmZGJY4h594W/g==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-friendbuy@^1.60.0":
+  version "1.60.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-friendbuy/-/analytics-browser-actions-friendbuy-1.60.0.tgz#eb8b5c5f8658fa4cc30bcf0616a547d0944a3cdd"
+  integrity sha512-3DB5CIl3TPIXkh+LPyv1wQk8gReLu7V6UfMJsIKj2HVxtLHKtMj6oB0wAr4e1soF06AbXZrjEt77AJnYH0NiwQ==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/actions-shared" "^1.110.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-fullstory@^1.61.0":
+  version "1.61.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-fullstory/-/analytics-browser-actions-fullstory-1.61.0.tgz#bfd8e3b2ecbdd2d06f1c1c501f61ff3826e5e7ef"
+  integrity sha512-faUNbXEO8mcfsVvXayy/Esww3Oqt7jYFT7D/so1M4WYAAqielnbqqLp0SRkPDX49VSj30BFtPlAJ0ML1/nsYOw==
+  dependencies:
+    "@fullstory/browser" "^2.0.3"
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-google-analytics-4@^1.66.0":
+  version "1.66.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-google-analytics-4/-/analytics-browser-actions-google-analytics-4-1.66.0.tgz#0693eb1755a473e157bf11dba5b8cd834d60ad02"
+  integrity sha512-bjLdfcbxHidYTNGJbdxwXFYfYumc1MKP+RZTMfwYJTd/nr+fQFf3Zld0mEMKxp/F3T0TN1BIprSiwX31CSeIyQ==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-google-campaign-manager@^1.50.0":
+  version "1.50.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-google-campaign-manager/-/analytics-browser-actions-google-campaign-manager-1.50.0.tgz#38e151274cf12a9c129729f4e484b27d12abf585"
+  integrity sha512-b4p1SK95GtT9ZRJifIukpEPAaf2tOAD9V4w/yf+ZxR+BrEInMqFhuD/5TjfxIbnmXE7WujyDPsfUXotz3F86oQ==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-heap@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-heap/-/analytics-browser-actions-heap-1.59.0.tgz#b6cb337ac2a18bc96d851c020a3b653054be6758"
+  integrity sha512-lBfolbIVVMitPOMW95Ydy6WR0WM5qpFtXLn1sfQrCnmBLqMm+hzE7onZ+ToTVKRT66uM9BSidVDp52XNE0M/3A==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-hubspot@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-hubspot/-/analytics-browser-actions-hubspot-1.59.0.tgz#846c225c447a81226a9b3044a4d314c7210e2ef7"
+  integrity sha512-kmZaqeacfBkmHVd3jxox0De92UyTtTNGQl82C3Y8/jY4gNO/SRioTaivLV1aqKMUCvzDv7sGkENi4HjfGMSZqA==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-intercom@^1.62.0":
+  version "1.62.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-intercom/-/analytics-browser-actions-intercom-1.62.0.tgz#45d70b85bee8da9245f6b18246b3cc6c6082e947"
+  integrity sha512-hc7HeR6PqXmSscIRyhpOc+nf9Vrtsygm6iaKXVuC9PHFx1vLe3fxJbwCJzxk6gqIcDgUh0wY3NZOLrg0XAz5Lw==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/actions-shared" "^1.110.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-iterate@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-iterate/-/analytics-browser-actions-iterate-1.59.0.tgz#ccd1e216e3ef78aa907a147923539f094145d233"
+  integrity sha512-MgLp9LFw9nFOB7nbChSyepVZyMC/zffS8S00VZt0tV6amOsMwr1/uGtILCawZDtfq/OXtjoxrxVfAIEzGvZIsQ==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-jimo@^1.48.0":
+  version "1.48.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-jimo/-/analytics-browser-actions-jimo-1.48.0.tgz#6f5789090a0d5401ee7739a65f607f663189db80"
+  integrity sha512-18tCexsIgbd6njlbVJ3tAmYgdjiK/Re4dDKtxhUNq79+8oxdQnGHCmj1cM4+TubCN0UxDyZo3/CaGRyJUi7eGw==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-koala@^1.60.0":
+  version "1.60.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-koala/-/analytics-browser-actions-koala-1.60.0.tgz#f9ea3fb8a7cf33218652c72ec77fcdbb0058b6da"
+  integrity sha512-Ygd6noveoTa5+GTMcSgBuBdgk/HRjE3Fyr+9pb2hkhXbC3cvcWlFyBT+UqsZQy8iU7ilD0w/Emt9QE1REJhNRA==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-logrocket@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-logrocket/-/analytics-browser-actions-logrocket-1.59.0.tgz#0c807044e3881368f75fe193a69c019a25c7753f"
+  integrity sha512-/u+u4jrwWUJdjhvGClGscaqQxdzksbSABS1RSrpPU/NB2/7QgiWXnlSV4ptLrReNG84GP1pL2cg8S5boLvuYqA==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+    logrocket "^3.0.1"
+
+"@segment/analytics-browser-actions-pendo-web-actions@^1.49.0":
+  version "1.49.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-pendo-web-actions/-/analytics-browser-actions-pendo-web-actions-1.49.0.tgz#a41b4040095cf339df5180ad8dacb40a203289b9"
+  integrity sha512-Dsgn5O1f4WZsYyUvdjFyyhwDvzWpTDpCRUIPqklXaJRRuzwRdhJjOsNl2FpRNlPBlBEBqQ3FC/uqp3e4Cw2K/A==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-playerzero@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-playerzero/-/analytics-browser-actions-playerzero-1.59.0.tgz#c3efedf1a143751f02e488202404df7c46c01da1"
+  integrity sha512-5dQf6cLNFqr1XMc2rdz2xd1r27WPSJCodGPhHb6fbJeD82nsclAf7BUPX1HfYUNlTxReI4N1cDSY2gbId23CcA==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-replaybird@^1.40.0":
+  version "1.40.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-replaybird/-/analytics-browser-actions-replaybird-1.40.0.tgz#1ea0edd9ac607fed4eb9950b700de73fcc8c14c8"
+  integrity sha512-tJQjerxkvJu8hWfo9veDlvijxPPvsEuLTYP61tRkSdKCY0czvXMM6hBDLJ41ofVcGHvicVny9ElSTFUEaeWC7Q==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-ripe@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-ripe/-/analytics-browser-actions-ripe-1.59.0.tgz#9ac8de274c5ca5ca6290978962b166684440fe37"
+  integrity sha512-ioWlQMJuSrzodWlHnjTGIiS79Kmdv0a86AEzELeVlsT0xida6EMHtLjOSK/nrt39KNcdYvhsWfN+TVlremk5kQ==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sabil/-/analytics-browser-actions-sabil-1.6.0.tgz#4e1faf694e7b9b513e7309b74654abc31e789a37"
   integrity sha512-iDHYNFz3FQWiR6iSe9YWlHF14ztzrF/M2aJL+kKGqW422c3v/bOpYlnP9gbxryLATKH6N+PreYEc6pL+l55NpA==
   dependencies:
     "@segment/browser-destination-runtime" "^1.6.0"
+
+"@segment/analytics-browser-actions-screeb@^1.60.0":
+  version "1.60.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-screeb/-/analytics-browser-actions-screeb-1.60.0.tgz#bdb3fdce4a0289d90e3407a4985f54fc0a0a0a6e"
+  integrity sha512-z6jZ13zoXkjVHQTTBy9FPFzFrTMlBTA3l+At4MFZHpwl00s3NUp7NzMMRMKyRmhg20IW+3u5OH7kOo80NqsZ2Q==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-snap-plugins@^1.40.0":
+  version "1.40.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-snap-plugins/-/analytics-browser-actions-snap-plugins-1.40.0.tgz#d8e1fb3565198bcd8bd1a7a3f460b56d98e2f65c"
+  integrity sha512-79jVXpda7VKPPBjd4HGrSnc4Bm8BmdZX3OI8MrS8pIrkHgc5H5J5aqeczXu72j/pyuf2ob88z+6IJQU+HPFyHg==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-sprig@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-sprig/-/analytics-browser-actions-sprig-1.59.0.tgz#b19ed58e4706560444ca28d5a81e153c6fb59282"
+  integrity sha512-EIAygN7Dm7Ev4+YhgfOk5NfHDPuptFluBbxxTMNwKW0ioy5lN3IwJcLgvX9vSThCMc3dCqgyxDQOGfkHrFWdHA==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-stackadapt@^1.61.0":
+  version "1.61.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-stackadapt/-/analytics-browser-actions-stackadapt-1.61.0.tgz#3d419585bbdb7a07f7ddd9b262454034b265d782"
+  integrity sha512-81T6Zm0s9+nJULl+85HxSYVPPKtxkBXBvpV+FB48ks5aivE+IxIZlERc9JfHjn++qofdoC3+l3eq61o+E68chQ==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-survicate@^1.35.0":
+  version "1.35.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-survicate/-/analytics-browser-actions-survicate-1.35.0.tgz#005cab6fb4b57c0d408fcd23f8e1e4881990146f"
+  integrity sha512-KljRIoWkRT58TO5ViqeJIQc04U1G3BcUYnWGcx1SNiElxr/7/PYpPpex3+QunO637MwNctxnT8LuduoEfuOroA==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-tiktok-pixel@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-tiktok-pixel/-/analytics-browser-actions-tiktok-pixel-1.59.0.tgz#ed2c411894f831b1155146ad229c1eb5abf5b9e8"
+  integrity sha512-D5Hky2TWBsUtODdGehkQPkYhZBQZqg+TjNAYdhPJTwBAs73ssdedhwkquvVsgPbHZibbAgLlmVczvkmNpy9ELQ==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-upollo@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-upollo/-/analytics-browser-actions-upollo-1.59.0.tgz#1cc7c5e88cad3e764b61117de88174b3236676fa"
+  integrity sha512-KZ3XvmIbuu10M4BVa6CC5mzYMnWUCckuwtzelWfug21/x5PvExSEj1m1xyz+9kVHyybF64flu5Pberg4NgcRrw==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-userpilot@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-userpilot/-/analytics-browser-actions-userpilot-1.59.0.tgz#898f2f9a87020d9b1faaae51f10a428384c17d12"
+  integrity sha512-VR1oR9Ih9lMXVtE2RhPWihcGMzXEW3zQcK/1OsIl3nuprYHa6aNz5gSvKUIw48wcsSc9opuQJnmPzclfmmIDxw==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-utils@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-utils/-/analytics-browser-actions-utils-1.59.0.tgz#9934cefee71338a2e578f69a75a40bd825f2969c"
+  integrity sha512-G2nqTiN7IW+fah7V9rSNhamUcsQKMu1ggREJbQT3pZ24ANt57yBxTi41z4ZrhvUVDzMPxPzA0kwcZdpAHVSdPg==
+  dependencies:
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-vwo@^1.60.0":
+  version "1.60.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-vwo/-/analytics-browser-actions-vwo-1.60.0.tgz#a1b610baeaefdcff3e342bcb13f0a656bcf64a5f"
+  integrity sha512-I54baE3bWkIDLF/yDr6ZA3iQWrRbYvvK+z9kUhoNx41kKM6SadolzhEE/Qxp8c2GmalaqyVHnXS9uYz8XiXvUw==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-actions-wiseops@^1.60.0":
+  version "1.60.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-actions-wiseops/-/analytics-browser-actions-wiseops-1.60.0.tgz#2f30f6c4b2f93781d2fb90d3433b004976410846"
+  integrity sha512-KtAEvU9iRA0zajzhazqD/UgFOU36AOzgkpTCy2ATa9vbF4MAmKyW+NkOaLVxhNqCbtfXJ90TU7p5Sog4plWT6A==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
+
+"@segment/analytics-browser-hubble-web@^1.45.0":
+  version "1.45.0"
+  resolved "https://registry.npmjs.org/@segment/analytics-browser-hubble-web/-/analytics-browser-hubble-web-1.45.0.tgz#f275d335ac5f728f6f9f29c2d4992c393cc2d19f"
+  integrity sha512-9YlcnRtP/ooVl5KGABxbyl9zgR5v43YjxRGJorKJJKVKwzynqQ93znuIXrwuTWqxGhEN71VtCTvVeFixolrCLA==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
 
 "@segment/analytics-core@1.3.0":
   version "1.3.0"
@@ -3053,6 +3412,66 @@
   integrity sha512-lZwCyEXT4aaHBLNK433okEKdxGAuyrVmop4BpQqQSJuRz0DglPZgd9B/XjiiWs1UyOankg2aNYMN3VcS8t4eSQ==
   dependencies:
     unfetch "^3.1.1"
+
+"@segment/browser-destination-runtime@^1.58.0", "@segment/browser-destination-runtime@^1.6.0":
+  version "1.58.0"
+  resolved "https://registry.npmjs.org/@segment/browser-destination-runtime/-/browser-destination-runtime-1.58.0.tgz#13a7e495f4727b81dc1d63a049b9dcab4a48053d"
+  integrity sha512-wTTptkNAmHNR9nkQsA3WJioHNmrW2mZI6jx9LRQp+tWjhp2we9zcnmyID4VvzPVWBBn5LCvZOIppyk4e3S5CqQ==
+  dependencies:
+    "@segment/actions-core" "^3.129.0"
+
+"@segment/destination-subscriptions@^3.34.0":
+  version "3.34.0"
+  resolved "https://registry.npmjs.org/@segment/destination-subscriptions/-/destination-subscriptions-3.34.0.tgz#8533f91e0d409c2ee1a4b88478e2cebf37520bfc"
+  integrity sha512-taPhk+2Iy2uYNMm6criiKE/9IPlyxotfhjX4Zzj8sp48zksb8mDYNrSISpxDi+iO90fNVNg0iG+PVKLWvI9/Og==
+  dependencies:
+    "@segment/fql-ts" "^1.10.1"
+
+"@segment/destinations-manifest@^1.71.0":
+  version "1.81.0"
+  resolved "https://registry.npmjs.org/@segment/destinations-manifest/-/destinations-manifest-1.81.0.tgz#927a592fb2584713b6a8762db03efd6defe14734"
+  integrity sha512-wVDrYqWTZrEp4lp7C9pD5/UI/gw1+wf5JeBD/Tcj9kY53VDWSCaj9//OteTZibQKCJOMKJyWB3ydSUaYI44fLA==
+  dependencies:
+    "@segment/analytics-browser-actions-1flow" "^1.41.0"
+    "@segment/analytics-browser-actions-adobe-target" "^1.59.0"
+    "@segment/analytics-browser-actions-algolia-plugins" "^1.36.0"
+    "@segment/analytics-browser-actions-amplitude-plugins" "^1.59.0"
+    "@segment/analytics-browser-actions-braze" "^1.64.0"
+    "@segment/analytics-browser-actions-braze-cloud-plugins" "^1.64.0"
+    "@segment/analytics-browser-actions-bucket" "^1.39.0"
+    "@segment/analytics-browser-actions-cdpresolution" "^1.46.0"
+    "@segment/analytics-browser-actions-commandbar" "^1.59.0"
+    "@segment/analytics-browser-actions-contentstack-web" "^1.2.0"
+    "@segment/analytics-browser-actions-devrev" "^1.46.0"
+    "@segment/analytics-browser-actions-friendbuy" "^1.60.0"
+    "@segment/analytics-browser-actions-fullstory" "^1.61.0"
+    "@segment/analytics-browser-actions-google-analytics-4" "^1.66.0"
+    "@segment/analytics-browser-actions-google-campaign-manager" "^1.50.0"
+    "@segment/analytics-browser-actions-heap" "^1.59.0"
+    "@segment/analytics-browser-actions-hubspot" "^1.59.0"
+    "@segment/analytics-browser-actions-intercom" "^1.62.0"
+    "@segment/analytics-browser-actions-iterate" "^1.59.0"
+    "@segment/analytics-browser-actions-jimo" "^1.48.0"
+    "@segment/analytics-browser-actions-koala" "^1.60.0"
+    "@segment/analytics-browser-actions-logrocket" "^1.59.0"
+    "@segment/analytics-browser-actions-pendo-web-actions" "^1.49.0"
+    "@segment/analytics-browser-actions-playerzero" "^1.59.0"
+    "@segment/analytics-browser-actions-replaybird" "^1.40.0"
+    "@segment/analytics-browser-actions-ripe" "^1.59.0"
+    "@segment/analytics-browser-actions-sabil" "^1.6.0"
+    "@segment/analytics-browser-actions-screeb" "^1.60.0"
+    "@segment/analytics-browser-actions-snap-plugins" "^1.40.0"
+    "@segment/analytics-browser-actions-sprig" "^1.59.0"
+    "@segment/analytics-browser-actions-stackadapt" "^1.61.0"
+    "@segment/analytics-browser-actions-survicate" "^1.35.0"
+    "@segment/analytics-browser-actions-tiktok-pixel" "^1.59.0"
+    "@segment/analytics-browser-actions-upollo" "^1.59.0"
+    "@segment/analytics-browser-actions-userpilot" "^1.59.0"
+    "@segment/analytics-browser-actions-utils" "^1.59.0"
+    "@segment/analytics-browser-actions-vwo" "^1.60.0"
+    "@segment/analytics-browser-actions-wiseops" "^1.60.0"
+    "@segment/analytics-browser-hubble-web" "^1.45.0"
+    "@segment/browser-destination-runtime" "^1.58.0"
 
 "@segment/facade@^3.4.9":
   version "3.4.10"
@@ -15860,16 +16279,7 @@ string-length@^4.0.1:
     char-regex "^1.0.2"
     strip-ansi "^6.0.0"
 
-"string-width-cjs@npm:string-width@^4.2.0":
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
-  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
-  dependencies:
-    emoji-regex "^8.0.0"
-    is-fullwidth-code-point "^3.0.0"
-    strip-ansi "^6.0.1"
-
-"string-width@^1.0.2 || 2 || 3 || 4", string-width@^4.2.3:
+"string-width-cjs@npm:string-width@^4.2.0", "string-width@^1.0.2 || 2 || 3 || 4", string-width@^4.2.3:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -15927,7 +16337,7 @@ stringify-object@^3.3.0:
     is-obj "^1.0.1"
     is-regexp "^1.0.0"
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1":
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
@@ -15954,13 +16364,6 @@ strip-ansi@^6.0.0:
   integrity sha512-AuvKTrTfQNYNIctbR1K/YGTR1756GycPsg7b9bdV9Duqur4gv6aKqHXah67Z8ImS7WEz5QVcOtlfW2rZEugt6w==
   dependencies:
     ansi-regex "^5.0.0"
-
-strip-ansi@^6.0.1:
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
-  integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
-  dependencies:
-    ansi-regex "^5.0.1"
 
 strip-ansi@^7.0.1:
   version "7.1.0"
@@ -17451,7 +17854,7 @@ workerpool@6.2.1:
   resolved "https://registry.yarnpkg.com/workerpool/-/workerpool-6.2.1.tgz#46fc150c17d826b86a008e5a4508656777e9c343"
   integrity sha512-ILEIE97kDZvF9Wb9f6h5aXK4swSlKGUcOEGiIYb2OOu/IrDU9iwj0fD//SsA6E5ibwJxpEvhullJY4Sl4GcpAw==
 
-"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0":
+"wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
@@ -17473,15 +17876,6 @@ wrap-ansi@^6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-6.2.0.tgz#e9393ba07102e6c91a3b221478f0257cd2856e53"
   integrity sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==
-  dependencies:
-    ansi-styles "^4.0.0"
-    string-width "^4.1.0"
-    strip-ansi "^6.0.0"
-
-wrap-ansi@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
-  integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
   dependencies:
     ansi-styles "^4.0.0"
     string-width "^4.1.0"
