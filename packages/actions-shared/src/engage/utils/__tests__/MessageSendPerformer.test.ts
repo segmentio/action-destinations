@@ -126,7 +126,7 @@ describe('Message send performer', () => {
     async function runManyPerformers(args: {
       amount?: number
       sequentially?: boolean
-      sendToRecepient?: () => any | Promise<any>
+      sendToRecepient?: (this: TestMessageSendPerformer) => any | Promise<any>
       performerInit?: (performer: Mutable<TestMessageSendPerformer>, index: number) => void
       randomStartDelay?: number
       randomPerformDelay?: number
@@ -138,7 +138,7 @@ describe('Message send performer', () => {
           if (args.randomPerformDelay)
             await new Promise((res) => setTimeout(res, Math.floor(Math.random() * args.randomPerformDelay!)))
 
-          return await args.sendToRecepient?.()
+          return await args.sendToRecepient?.bind(performer as any)()
         })
         if (args.cache) {
           performer.executeInput.engageDestinationCache = args.cache
@@ -270,6 +270,30 @@ describe('Message send performer', () => {
       expect(isRetryableError(res[0])).toBeTruthy()
       expect(res[1]).toBeInstanceOf(IntegrationError)
       expect(isRetryableError(res[1])).toBeTruthy()
+    })
+
+    test('getOrAddCache works for nested call (fetching large template)', async () => {
+      const fetchLargeTemplate = jest.fn(async () => {
+        await new Promise((res) => setTimeout(res, 500))
+        return 'large message template'
+      })
+      const sendToRecepient = jest.fn(async function (this: TestMessageSendPerformer) {
+        await this.getOrAddCache('large_message_template', async () => await fetchLargeTemplate(), {
+          lockOptions: {
+            lockMaxTimeMs: 60_000, //1 min
+            acquireLockMaxWaitTimeMs: 500, //1 sec
+            acquireLockRetryIntervalMs: 500
+          }
+        })
+      })
+      const res = await runManyPerformers({
+        sendToRecepient,
+        amount: 10
+      })
+      expect(fetchLargeTemplate).toHaveBeenCalledTimes(1)
+      expect(sendToRecepient).toHaveBeenCalledTimes(1)
+      expect(res[0]).not.toBeInstanceOf(Error)
+      expect(res[1]).not.toBeInstanceOf(Error)
     })
   })
 })
