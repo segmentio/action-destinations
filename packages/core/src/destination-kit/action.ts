@@ -483,6 +483,18 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         return results
       }
 
+      // PerformBatch returned a HTTPError
+      if (performBatchResponse instanceof HTTPError) {
+        this.fillMultiStatusResponse({
+          results,
+          batchPayloadLength,
+          status: performBatchResponse.response.status,
+          body: performBatchResponse.message,
+          filteredPayloads: payloads
+        })
+        return results
+      }
+
       // PerformBatch returned a Spec V2 MultiStatus Response
       if (performBatchResponse instanceof MultiStatusResponse) {
         this.setMultiStatusResponse({
@@ -767,7 +779,7 @@ export class MultiStatusResponse {
   }
 
   // Pushes a Generic Response at the specified index of the responses array
-  public pushResponseAtIndex(
+  public pushResponseObjectAtIndex(
     index: number,
     response: ActionDestinationSuccessResponse | ActionDestinationErrorResponse
   ) {
@@ -815,7 +827,6 @@ export class MultiStatusResponse {
 
 export class MultiStatusResponseBuilder<PayloadType extends object = object> {
   private payloads: PayloadType[]
-  private batchSize: number
 
   private invalidPayloadIndices: Set<number>
   private validPayloadIndexToBatchIndexMap: Map<number, number>
@@ -824,13 +835,17 @@ export class MultiStatusResponseBuilder<PayloadType extends object = object> {
 
   constructor(payloads: PayloadType[]) {
     this.payloads = payloads
-    this.batchSize = payloads.length
 
     this.invalidPayloadIndices = new Set<number>()
+
+    // By default we assume all payloads are valid
     this.validPayloadIndexToBatchIndexMap = new Map<number, number>()
+    for (let i = 0; i < this.payloads.length; i++) {
+      this.validPayloadIndexToBatchIndexMap.set(i, i)
+    }
 
     this.multiStatusResponse = new Array<ActionDestinationSuccessResponse | ActionDestinationErrorResponse>(
-      this.batchSize
+      this.payloads.length
     )
   }
 
@@ -900,15 +915,15 @@ export class MultiStatusResponseBuilder<PayloadType extends object = object> {
 
   public async mergeAPIResponse<APIResponseType = unknown>(input: {
     apiResponse: MaybePromise<ModifiedResponse<APIResponseType>>
-    responseParserFn: (
+    responseParser: (
       response: ModifiedResponse<APIResponseType>,
       validEventsCount: number
     ) => (ActionDestinationSuccessResponse | ActionDestinationErrorResponse)[]
   }) {
     const response = await input.apiResponse
-    const parsedResponses = input.responseParserFn(response, this.validPayloadIndexToBatchIndexMap.size)
+    const parsedResponses = input.responseParser(response, this.validPayloadIndexToBatchIndexMap.size)
 
-    if (parsedResponses.length !== this.batchSize - this.invalidPayloadIndices.size) {
+    if (parsedResponses.length !== this.payloads.length - this.invalidPayloadIndices.size) {
       throw new IntegrationError(
         `The number of parsed responses (${parsedResponses.length}) does not match the number of valid payloads (${this.validPayloadIndexToBatchIndexMap.size}).`,
         'InvalidMultiStatusResponse',
@@ -947,7 +962,7 @@ export class MultiStatusResponseBuilder<PayloadType extends object = object> {
     // If the filterInvalidPayloads method was not executed, we assume all payloads are validated
     // hence we skip the merging process and directly fill the error responses to the MultiStatus responses array
     if (this.invalidPayloadIndices.size === 0) {
-      for (let i = 0; i < this.batchSize; i++) {
+      for (let i = 0; i < this.payloads.length; i++) {
         this.multiStatusResponse[i] = new ActionDestinationErrorResponse({
           status: error.response.status,
           errortype: 'HTTP_ERROR',
