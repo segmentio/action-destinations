@@ -17,7 +17,7 @@ import { get_api_version } from '../utils'
 import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Custom Event',
+  title: 'Custom Event V2',
   description: 'Send a custom event',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
