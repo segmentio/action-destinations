@@ -1,6 +1,8 @@
-import { ExecuteInput } from '@segment/actions-core/src'
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { ExecuteInput, IntegrationError } from '@segment/actions-core/src'
 import { MessagePayloadBase, MessageSendPerformer, MessageSettingsBase } from '../MessageSendPerformer'
 import { EngageDestinationCache } from '@segment/actions-core/destination-kit'
+import { isRetryableError } from '../isRetryableError'
 
 type Mutable<T> = {
   -readonly [P in keyof T]: T[P]
@@ -32,7 +34,10 @@ class TestMessageSendPerformer extends MessageSendPerformer<MessageSettingsBase,
     public mockRequestClient: jest.Mock = jest.fn()
   ) {
     super(mockRequestClient, <TestExecuteInput>{
-      settings: {},
+      settings: {
+        profileApiEnvironment: 'test-profile-api-environment',
+        profileApiAccessToken: 'test-profile-api-access-token'
+      },
       payload: {
         externalIds: [
           { channelType: 'test-channel', id: 'test-external-id', subscriptionStatus: 'subscribed', type: 'test-type' }
@@ -41,6 +46,17 @@ class TestMessageSendPerformer extends MessageSendPerformer<MessageSettingsBase,
       },
       rawData: {
         messageId: 'test-message-id'
+      },
+      statsContext: {
+        statsClient: {
+          incr: jest.fn(),
+          histogram: jest.fn(),
+          set: jest.fn(),
+          _tags: jest.fn(),
+          observe: jest.fn(),
+          _name: jest.fn()
+        },
+        tags: []
       }
     })
   }
@@ -107,38 +123,179 @@ describe('Message send performer', () => {
       jest.clearAllMocks()
     })
 
-    test('prevent calling send twice', async () => {
-      let performer = createPerformer()
-      await performer.perform()
-      expect(cache.getByKey).toHaveBeenCalledTimes(2)
-      // #1 - getOrAdd before locking
-      // #2 - getOrAdd after locking
+    async function runManyPerformers(args: {
+      amount?: number
+      sequentially?: boolean
+      sendToRecepient?: (this: TestMessageSendPerformer) => any | Promise<any>
+      performerInit?: (performer: Mutable<TestMessageSendPerformer>, index: number) => void
+      randomStartDelay?: number
+      randomPerformDelay?: number
+      uniqueMessageIds?: number
+      cache?: EngageDestinationCache
+    }) {
+      const allPerformers = Array.from({ length: args?.amount || 100 }, (_, i) => {
+        const performer = createPerformer(async () => {
+          if (args.randomPerformDelay)
+            await new Promise((res) => setTimeout(res, Math.floor(Math.random() * args.randomPerformDelay!)))
 
-      expect(performer.sendToRecepient).toHaveBeenCalledTimes(1)
-      expect(cache.setByKeyNX).toHaveBeenCalledTimes(1) //during locking
+          return await args.sendToRecepient?.bind(performer as any)()
+        })
+        if (args.cache) {
+          performer.executeInput.engageDestinationCache = args.cache
+          performer.engageDestinationCache = args.cache
+        }
+        if (args.uniqueMessageIds)
+          performer.executeInput.rawData.messageId = 'test-message-id' + (i % args.uniqueMessageIds)
+        args.performerInit?.(performer, i)
+        return performer
+      })
+      let result: any[] = []
+      if (args.sequentially)
+        for (const performer of allPerformers) {
+          try {
+            result.push(await performer.perform())
+          } catch (e) {
+            result.push(e)
+          }
+        }
+      else {
+        result = (
+          await Promise.allSettled(
+            allPerformers.map(async (performer) => {
+              if (args.randomStartDelay)
+                await new Promise((res) => setTimeout(res, Math.floor(Math.random() * args.randomStartDelay!))) //randomize start time
+              return await performer.perform()
+            })
+          )
+        ).map((sp) => (sp.status === 'fulfilled' ? sp.value : sp.reason))
+      }
+      return result
+    }
 
-      jest.clearAllMocks()
+    describe.each([
+      ['undefined', undefined],
+      ['empty string', ''],
+      ['null', null],
+      ['boolean false', false],
+      ['throw non-retryable error', new IntegrationError('some error', 'NON_RETRYABLE_ERROR', 401)]
+    ])('prevent sending & locking twice after first send cached:', (name, valueToCache) => {
+      test(name, async () => {
+        const sendToRecepient = jest.fn(() => {
+          if (valueToCache instanceof Error) throw valueToCache
+          else return valueToCache
+        })
+        const res = await runManyPerformers({
+          amount: 2,
+          sequentially: true,
+          sendToRecepient
+        })
 
-      performer = createPerformer()
-      await performer.perform()
-      expect(cache.getByKey).toHaveBeenCalledTimes(1) //only one call to get cache, must not lock, since it's already cached
+        expect(sendToRecepient).toHaveBeenCalledTimes(1)
+        expect(cache.getByKey).toHaveBeenCalledTimes(3) // #1 - getOrAdd before locking, #2 - getOrAdd after locking, #3 - getOrAdd for second performer
+        expect(res.length).toBe(2)
+        expect(res[0]).toEqual(valueToCache)
+        if (valueToCache instanceof Error) expect(res[1]).toBeInstanceOf(IntegrationError)
+        else expect(res[1]).toEqual({ status: undefined })
+      })
+      // test(`prevent sending & locking twice if second perform happens after first one cached {}`, async () => {
 
-      expect(performer.sendToRecepient).toHaveBeenCalledTimes(0)
-      //
+      // })
+    })
+    test('prevent caching retryable error', async () => {
+      const errorToThrow = new IntegrationError('some retryable error, should not be cached', 'RETRYABLE_ERROR', 500)
+      errorToThrow.retry = true
+      const sendToRecepient = jest.fn(() => {
+        throw errorToThrow
+      })
+      const res = await runManyPerformers({
+        amount: 2,
+        sequentially: true,
+        sendToRecepient
+      })
+
+      expect(sendToRecepient).toHaveBeenCalledTimes(2) //because we don't cache retryable errors
+      expect(res[0] == errorToThrow).toBeTruthy()
+      expect(res[1] == errorToThrow).toBeTruthy()
     })
 
-    test('parallel calls', async () => {
-      let sends = 0
-      const parallelPerformers = Array.from({ length: 100 }, (_, _i) =>
-        createPerformer(async () => {
-          await new Promise((res) => setTimeout(res, 1000))
-          sends++
-          return
+    test('prevent sending multiple times during hundred of concurrent calls', async () => {
+      const sendToRecepient = jest.fn()
+      const uniqueMessageIds = 4
+      await runManyPerformers({
+        randomPerformDelay: 500,
+        randomStartDelay: 500,
+        sendToRecepient,
+        uniqueMessageIds
+      })
+      expect(sendToRecepient).toHaveBeenCalledTimes(uniqueMessageIds)
+      expect(cache.setByKey).toHaveBeenCalledTimes(uniqueMessageIds)
+    })
+
+    test('stats always have withLock tag during concurrent calls', async () => {
+      const uniqueMessageIds = 4
+      await runManyPerformers({
+        randomStartDelay: 500,
+        randomPerformDelay: 500,
+        uniqueMessageIds,
+        performerInit(performer) {
+          type IncrFunc = jest.MockedFunction<
+            NonNullable<typeof performer.executeInput.statsContext>['statsClient']['incr']
+          >
+          const incrMock = performer.executeInput.statsContext?.statsClient.incr as IncrFunc
+          incrMock.mockImplementation((name, _value, tags) => {
+            if (name.startsWith('test-integration.getOrAddCache')) {
+              expect(tags!.some((t) => t == 'withLock:true') || tags!.some((t) => t == 'withLock:false')).toBeTruthy()
+            }
+          })
+        }
+      })
+    })
+
+    test('cache read error leads to retryable error immediately (without send)', async () => {
+      const cache = new TestCache()
+      cache.getByKey = jest.fn(() => {
+        throw new Error('some error while reading cache')
+      })
+      expect(() => cache.getByKey('any key')).toThrowError()
+      const sendToRecepient = jest.fn(() => Promise.resolve(new Date()))
+      const res = await runManyPerformers({
+        amount: 2,
+        sequentially: true,
+        sendToRecepient,
+        cache
+      })
+
+      expect(sendToRecepient).toHaveBeenCalledTimes(0)
+      expect(res[0]).toBeInstanceOf(IntegrationError)
+      expect(isRetryableError(res[0])).toBeTruthy()
+      expect(res[1]).toBeInstanceOf(IntegrationError)
+      expect(isRetryableError(res[1])).toBeTruthy()
+    })
+
+    test('getOrAddCache works for nested call (fetching large template)', async () => {
+      const template = 'large message template'
+      const fetchLargeTemplate = jest.fn(async () => {
+        await new Promise((res) => setTimeout(res, 500))
+        return template
+      })
+      const sendToRecepient = jest.fn(async function (this: TestMessageSendPerformer) {
+        const template = await this.getOrAddCache('large_message_template', async () => await fetchLargeTemplate(), {
+          lockOptions: {
+            lockMaxTimeMs: 60_000, //1 min
+            acquireLockMaxWaitTimeMs: 500, //1 sec
+            acquireLockRetryIntervalMs: 500
+          }
         })
-      )
-      await Promise.allSettled(parallelPerformers.map((performer) => performer.perform()))
-      expect(sends).toBe(1)
-      expect(cache.setByKey).toHaveBeenCalledTimes(1)
+        expect(template).toBe(template)
+      })
+      const res = await runManyPerformers({
+        sendToRecepient,
+        amount: 10
+      })
+      expect(fetchLargeTemplate).toHaveBeenCalledTimes(1)
+      expect(sendToRecepient).toHaveBeenCalledTimes(1)
+      expect(res[0]).not.toBeInstanceOf(Error)
+      expect(res[1]).not.toBeInstanceOf(Error)
     })
   })
 })
