@@ -18,14 +18,14 @@ interface getAudienceParams {
 }
 
 export const createAudienceRequest = (
-  _request: RequestClient,
+  request: RequestClient,
   params: createAudienceRequestParams
 ): Promise<Response> => {
   const { advertiserId, audienceName, description, membershipDurationDays, audienceType, token } = params
 
   const endpoint = DV360API + `?advertiserId=${advertiserId}`
 
-  return _request(endpoint, {
+  return request(endpoint, {
     method: 'POST',
     headers: {
       authorization: `Bearer ${token}`,
@@ -42,12 +42,12 @@ export const createAudienceRequest = (
   })
 }
 
-export const getAudienceRequest = (_request: RequestClient, params: getAudienceParams): Promise<Response> => {
+export const getAudienceRequest = (request: RequestClient, params: getAudienceParams): Promise<Response> => {
   const { advertiserId, audienceId, token } = params
 
   const endpoint = DV360API + `/${audienceId}?advertiserId=${advertiserId}`
 
-  return _request(endpoint, {
+  return request(endpoint, {
     method: 'GET',
     headers: {
       authorization: `Bearer ${token}`,
