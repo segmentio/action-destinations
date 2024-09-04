@@ -26,7 +26,8 @@ import type {
   Result,
   Deletion,
   DeletionPayload,
-  DynamicFieldResponse
+  DynamicFieldResponse,
+  ResultMultiStatusNode
 } from './types'
 import type { AllRequestOptions } from '../request-client'
 import { ErrorCodes, IntegrationError, InvalidAuthenticationError } from '../errors'
@@ -658,6 +659,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     auth: AuthTokens,
     options?: OnEventOptions
   ): Promise<Result[]> {
+    const isBatch = Array.isArray(events)
+
     const subscriptionStartedAt = time()
     const actionSlug = subscription.partnerAction
     const input = {
@@ -676,26 +679,89 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
     try {
       if (!subscription.subscribe || typeof subscription.subscribe !== 'string') {
-        results = [{ output: 'invalid subscription' }]
-        return results
+        const response: ResultMultiStatusNode = {
+          status: 400,
+          errortype: 'INVALID_SUBSCRIPTION',
+          errormessage: 'Invalid subscription',
+          errorreporter: 'INTEGRATIONS'
+        }
+
+        if (isBatch) {
+          return [
+            {
+              multistatus: Array(events.length).fill(response)
+            }
+          ]
+        }
+
+        return [{ output: response.errormessage }]
       }
 
       const parsedSubscription = parseFql(subscription.subscribe)
 
       if ((parsedSubscription as ErrorCondition).error) {
-        results = [{ output: `invalid subscription : ${(parsedSubscription as ErrorCondition).error.message}` }]
-        return results
+        const response: ResultMultiStatusNode = {
+          status: 400,
+          errortype: 'INVALID_SUBSCRIPTION',
+          errormessage: `invalid subscription : ${(parsedSubscription as ErrorCondition).error.message}`,
+          errorreporter: 'INTEGRATIONS'
+        }
+
+        if (isBatch) {
+          return [
+            {
+              multistatus: Array(events.length).fill(response)
+            }
+          ]
+        }
+
+        return [{ output: response.errormessage }]
       }
 
-      const isBatch = Array.isArray(events)
       const allEvents = (isBatch ? events : [events]) as SegmentEvent[]
-      const subscribedEvents = allEvents.filter((event) => validate(parsedSubscription, event))
+
+      // Filter invalid events and record discards
+      const subscribedEvents: SegmentEvent[] = []
+
+      const multistatus: ResultMultiStatusNode[] = []
+      const invalidPayloadIndices = new Set<number>()
+
+      for (let i = 0; i < allEvents.length; i++) {
+        const event = allEvents[i]
+
+        if (!validate(parsedSubscription, event)) {
+          multistatus[i] = {
+            status: 400,
+            errortype: 'INVALID_PAYLOAD',
+            errormessage: 'Payload is either invalid or does not match the subscription',
+            errorreporter: 'INTEGRATIONS'
+          }
+
+          invalidPayloadIndices.add(i)
+          continue
+        }
+
+        subscribedEvents.push(event)
+      }
 
       if (subscribedEvents.length === 0) {
         results = [{ output: 'not subscribed' }]
         return results
       } else if (isBatch) {
-        return await this.executeBatch(actionSlug, { ...input, events: subscribedEvents })
+        const executeBatchResponse = await this.executeBatch(actionSlug, { ...input, events: subscribedEvents })
+
+        let mergeIndex = 0
+        for (let i = 0; i < allEvents.length; i++) {
+          // Skip if there an event is already present in the index
+          if (invalidPayloadIndices.has(i)) {
+            continue
+          }
+
+          // TODO: Add status here for filtered out events
+          multistatus[i] = executeBatchResponse[mergeIndex++]
+        }
+
+        return [{ multistatus }]
       } else {
         // there should only be 1 item in the subscribedEvents array
         return await this.executeAction(actionSlug, { ...input, event: subscribedEvents[0] })

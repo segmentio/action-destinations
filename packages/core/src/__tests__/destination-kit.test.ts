@@ -1,5 +1,5 @@
 import { IntegrationError } from '../errors'
-import { ActionDefinition } from '../destination-kit/action'
+import { ActionDefinition, MultiStatusResponse } from '../destination-kit/action'
 import {
   StateContext,
   Destination,
@@ -321,6 +321,61 @@ const destinationWithIdentifier: DestinationDefinition<JSONObject> = {
   }
 }
 
+const multiStatusCompatibleDestination: DestinationDefinition<JSONObject> = {
+  name: 'Actions Braze',
+  mode: 'cloud',
+  actions: {
+    trackEvent: {
+      title: 'Track Event',
+      description: 'Record custom events in Braze',
+      defaultSubscription: 'type = "track" and event != "Order Completed"',
+      fields: {
+        name: {
+          label: 'Event Name',
+          description: 'The event name',
+          type: 'string',
+          required: true
+        },
+        email: {
+          label: 'Email',
+          description: 'The user email',
+          type: 'string'
+        }
+      },
+      perform: (_request, { payload }) => {
+        if (payload.email) {
+          throw new IntegrationError('Email is required', 'Missing required fields', 400)
+        }
+
+        return {
+          events_processed: 1,
+          message: 'success'
+        }
+      },
+      performBatch: (_request, { payload }) => {
+        const response = new MultiStatusResponse()
+        payload.forEach((event) => {
+          if (event?.email) {
+            response.pushSuccessResponse({
+              body: {},
+              sent: {},
+              status: 200
+            })
+          } else {
+            response.pushErrorResponse({
+              status: 400,
+              errortype: 'Missing required fields',
+              errormessage: 'Email is required'
+            })
+          }
+        })
+
+        return response
+      }
+    }
+  }
+}
+
 interface Payload {
   testDynamicField: string
   testUnstructuredObject: Record<string, string>
@@ -440,7 +495,7 @@ describe('destination kit', () => {
       const testEvent: SegmentEvent = { type: 'track' }
       const testSettings = { apiSecret: 'test_key', subscription: { subscribe: '', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: 'invalid subscription' }])
+      expect(res).toEqual([{ output: 'Invalid subscription' }])
     })
 
     test('should return invalid subscription with details when sending an invalid subscribe', async () => {
@@ -1651,6 +1706,104 @@ describe('destination kit', () => {
         await expect(destinationTest.getAudience(getAudienceInput)).rejects.toThrowError()
         expect(spy).not.toHaveBeenCalled()
       })
+    })
+  })
+
+  describe('multiStatus response', () => {
+    test('should report invalid events filtered out by actions framework', async () => {
+      const multiStatusDestination = new Destination(multiStatusCompatibleDestination)
+
+      const receivedAt = '2024-08-03T17:40:04.055Z'
+
+      const events: SegmentEvent[] = [
+        {
+          // Empty Object
+        } as unknown as SegmentEvent,
+        {
+          // Malformed Event
+          unknown: 'some-value'
+        } as unknown as SegmentEvent,
+        {
+          // Missing required fields
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {},
+          receivedAt
+        },
+        {
+          // Valid Event
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {
+            email: 'user.one@example.com'
+          },
+          receivedAt
+        }
+      ]
+
+      const settings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track" and event != "Order Completed"',
+          partnerAction: 'trackEvent',
+          mapping: {
+            name: { '@path': '$.event' },
+            email: { '@path': '$.properties.email' }
+          }
+        }
+      }
+
+      const eventOptions = {
+        features: {},
+        statsContext: {} as StatsContext,
+        logger: { name: 'test-integration', level: 'debug' } as Logger,
+        transactionContext: {
+          transaction: {},
+          setTransaction: (key: string, value: string) => ({ [key]: value })
+        } as TransactionContext,
+        stateContext: {
+          getRequestContext: (_key: string, _cb?: (res?: string) => any): any => {},
+          setResponseContext: (
+            _key: string,
+            _value: string,
+            _ttl: { hour?: number; minute?: number; second?: number }
+          ): void => {}
+        } as StateContext
+      }
+
+      const res = await multiStatusDestination.onBatch(events, settings, eventOptions)
+
+      expect(res).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "multistatus": Array [
+              Object {
+                "errormessage": "Payload is either invalid or does not match the subscription",
+                "errorreporter": "INTEGRATIONS",
+                "errortype": "INVALID_PAYLOAD",
+                "status": 400,
+              },
+              Object {
+                "errormessage": "Payload is either invalid or does not match the subscription",
+                "errorreporter": "INTEGRATIONS",
+                "errortype": "INVALID_PAYLOAD",
+                "status": 400,
+              },
+              Object {
+                "errormessage": "Email is required",
+                "errorreporter": "DESTINATION",
+                "errortype": "Missing required fields",
+                "status": 400,
+              },
+              Object {
+                "body": Object {},
+                "sent": Object {},
+                "status": 200,
+              },
+            ],
+          },
+        ]
+      `)
     })
   })
 })
