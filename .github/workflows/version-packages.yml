@@ -40,7 +40,6 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-          ref: ${{ github.event.inputs.base_branch }}
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
