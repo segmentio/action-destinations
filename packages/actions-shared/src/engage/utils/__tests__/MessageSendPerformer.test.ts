@@ -273,18 +273,20 @@ describe('Message send performer', () => {
     })
 
     test('getOrAddCache works for nested call (fetching large template)', async () => {
+      const template = 'large message template'
       const fetchLargeTemplate = jest.fn(async () => {
         await new Promise((res) => setTimeout(res, 500))
-        return 'large message template'
+        return template
       })
       const sendToRecepient = jest.fn(async function (this: TestMessageSendPerformer) {
-        await this.getOrAddCache('large_message_template', async () => await fetchLargeTemplate(), {
+        const template = await this.getOrAddCache('large_message_template', async () => await fetchLargeTemplate(), {
           lockOptions: {
             lockMaxTimeMs: 60_000, //1 min
             acquireLockMaxWaitTimeMs: 500, //1 sec
             acquireLockRetryIntervalMs: 500
           }
         })
+        expect(template).toBe(template)
       })
       const res = await runManyPerformers({
         sendToRecepient,
