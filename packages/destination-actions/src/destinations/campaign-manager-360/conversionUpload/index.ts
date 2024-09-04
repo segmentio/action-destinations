@@ -52,55 +52,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false
     },
-    encryptionInfo: {
-      label: 'Encryption Info',
-      description: 'A Description of how user IDs are encrypted.',
-      type: 'object',
-      required: false,
-      properties: {
-        encryptionEntityType: {
-          label: 'Encryption Entity Type',
-          description:
-            'The encryption entity type. This should match the encryption type configuration for ad serving or Data Transfer.',
-          type: 'string',
-          choices: [
-            { label: 'ENCRYPTION_ENTITY_TYPE_UNKNOWN', value: 'ENCRYPTION_ENTITY_TYPE_UNKNOWN' },
-            { label: 'DCM_ACCOUNT', value: 'DCM_ACCOUNT' },
-            { label: 'DCM_ADVERTISER', value: 'DCM_ADVERTISER' },
-            { label: 'DBM_PARTNER', value: 'DBM_PARTNER' },
-            { label: 'DBM_ADVERTISER', value: 'DBM_ADVERTISER' },
-            { label: 'ADWORDS_CUSTOMER', value: 'ADWORDS_CUSTOMER' },
-            { label: 'DFP_NETWORK_CODE', value: 'DFP_NETWORK_CODE' }
-          ],
-          required: true
-        },
-        encryptionEntityId: {
-          label: 'Encryption Entity ID',
-          description:
-            'The encryption entity ID. This should match the encryption configuration for ad serving or Data Transfer.',
-          type: 'string',
-          required: true
-        },
-        encryptionSource: {
-          label: 'Encryption Source',
-          description:
-            'Describes whether the encrypted cookie was received from ad serving (the %m macro) or from Data Transfer.',
-          type: 'string',
-          choices: [
-            { label: 'ENCRYPTION_SCOPE_UNKNOWN', value: 'ENCRYPTION_SCOPE_UNKNOWN' },
-            { label: 'AD_SERVING', value: 'AD_SERVING' },
-            { label: 'DATA_TRANSFER', value: 'DATA_TRANSFER' }
-          ],
-          required: true
-        },
-        kind: {
-          label: 'Kind',
-          description: 'Identifies what kind of resource this is. Value: the fixed string',
-          type: 'string',
-          required: true
-        }
-      }
-    },
     ...campaignManager360CommonFields
   },
 

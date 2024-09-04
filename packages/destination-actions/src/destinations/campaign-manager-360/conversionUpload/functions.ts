@@ -3,15 +3,10 @@ import { Settings } from '../generated-types'
 import {
   CampaignManager360ConversionCustomVariable,
   CampaignManager360ConversionsBatchInsertRequest,
-  CampaignManager360CustomFloodlightVariableType,
-  CampaignManager360EncryptionEntityType,
-  campaignManager360EncryptionEntityTypes,
-  CampaignManager360EncryptionInfo,
-  CampaignManager360EncryptionSource,
-  campaignManager360EncryptionSources
+  CampaignManager360CustomFloodlightVariableType
 } from '../types'
 
-import { resolveGoogleCampaignManager360Conversion } from '../common-functions'
+import { resolveGoogleCampaignManager360Conversion, validateEncryptionInfo } from '../common-functions'
 
 export function buildInsertConversionBatchPayload(
   payloads: Payload[],
@@ -25,12 +20,16 @@ export function buildInsertConversionBatchPayload(
   // Validation with `throw` is only done for one payload.
   // For batch requests, we will just log the error and continue with the rest of the payloads.
   if (payloads.length === 1 && payloads[0]) {
-    const encryptionInfo = payloads[0].encryptionInfo
-    if (encryptionInfo) {
-      const resolvedEncryptionInfo = validateEncryptionInfo(encryptionInfo, true)
-      if (!resolvedEncryptionInfo) {
-        conversionsBatchInsertRequest.encryptionInfo = resolvedEncryptionInfo
-      }
+    const firstPayload = payloads[0]
+    const resolvedEncryptionInfo = validateEncryptionInfo(
+      firstPayload.encryptionEntityId,
+      firstPayload.encryptionEntityType,
+      firstPayload.encryptionSource,
+      true
+    )
+
+    if (!resolvedEncryptionInfo) {
+      conversionsBatchInsertRequest.encryptionInfo = resolvedEncryptionInfo
     }
 
     const requiredId = payloads[0].requiredId
@@ -63,12 +62,16 @@ export function buildInsertConversionBatchPayload(
     return conversionsBatchInsertRequest
   }
 
-  const encryptionInfo = payloads[0].encryptionInfo
-  if (encryptionInfo) {
-    const resolvedEncryptionInfo = validateEncryptionInfo(encryptionInfo, false)
-    if (!resolvedEncryptionInfo) {
-      conversionsBatchInsertRequest.encryptionInfo = resolvedEncryptionInfo
-    }
+  const firstPayload = payloads[0]
+  const resolvedEncryptionInfo = validateEncryptionInfo(
+    firstPayload.encryptionEntityId,
+    firstPayload.encryptionEntityType,
+    firstPayload.encryptionSource,
+    false
+  )
+
+  if (!resolvedEncryptionInfo) {
+    conversionsBatchInsertRequest.encryptionInfo = resolvedEncryptionInfo
   }
 
   for (const payload of payloads) {
@@ -101,57 +104,6 @@ export function buildInsertConversionBatchPayload(
   }
 
   return conversionsBatchInsertRequest
-}
-
-function isValidEncryptionEntityType(entityType: string): entityType is CampaignManager360EncryptionEntityType {
-  return entityType in campaignManager360EncryptionEntityTypes
-}
-
-function isValidCustomVariableEncryptionSource(type: string): type is CampaignManager360EncryptionSource {
-  return type in campaignManager360EncryptionSources
-}
-
-function validateEncryptionInfo(
-  encryptionInfo: {
-    encryptionEntityId: string
-    encryptionEntityType: string
-    encryptionSource: string
-  },
-  shouldThrowException: boolean
-): CampaignManager360EncryptionInfo | undefined {
-  if (!encryptionInfo.encryptionEntityId && !encryptionInfo.encryptionEntityType && !encryptionInfo.encryptionSource) {
-    if (shouldThrowException) {
-      throw new Error('Encryption source, entity id, and entity type are mutually required.')
-    } else {
-      // TODO: Log the error here.
-      return undefined
-    }
-  }
-
-  if (!isValidEncryptionEntityType(encryptionInfo.encryptionEntityType)) {
-    if (shouldThrowException) {
-      throw new Error('Invalid encryption entity type.')
-    } else {
-      // TODO: Log the error here.
-      return undefined
-    }
-  }
-
-  if (!isValidCustomVariableEncryptionSource(encryptionInfo.encryptionSource)) {
-    if (shouldThrowException) {
-      throw new Error('Invalid encryption source.')
-    } else {
-      // TODO: Log the error here.
-      return undefined
-    }
-  }
-
-  return {
-    encryptionEntityId: encryptionInfo.encryptionEntityId,
-    encryptionEntityType: encryptionInfo.encryptionEntityType,
-    encryptionSource: encryptionInfo.encryptionSource,
-    kind: 'dfareporting#encryptionInfo'
-  }
 }
 
 function validateCustomVariable(

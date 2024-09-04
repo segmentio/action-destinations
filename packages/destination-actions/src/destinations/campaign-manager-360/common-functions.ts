@@ -3,6 +3,11 @@ import { RequestClient } from '@segment/actions-core/*'
 
 import {
   CampaignManager360Conversion,
+  CampaignManager360EncryptionEntityType,
+  campaignManager360EncryptionEntityTypes,
+  CampaignManager360EncryptionInfo,
+  CampaignManager360EncryptionSource,
+  campaignManager360EncryptionSources,
   CampaignManager360PayloadUserDetails,
   CampaignManager360RefreshTokenResponse,
   CampaignManager360Settings,
@@ -170,4 +175,65 @@ export function resolveGoogleCampaignManager360UserIdentifiers(
   }
 
   return userIdentifiers
+}
+
+function isValidEncryptionEntityType(
+  entityType: string | undefined
+): entityType is CampaignManager360EncryptionEntityType {
+  if (!entityType) {
+    return false
+  }
+  return entityType in campaignManager360EncryptionEntityTypes
+}
+
+function isValidCustomVariableEncryptionSource(type: string | undefined): type is CampaignManager360EncryptionSource {
+  if (!type) {
+    return false
+  }
+  return type in campaignManager360EncryptionSources
+}
+
+export function validateEncryptionInfo(
+  encryptionEntityId: string | undefined,
+  encryptionEntityType: string | undefined,
+  encryptionSource: string | undefined,
+  shouldThrowException: boolean
+): CampaignManager360EncryptionInfo | undefined {
+  if (!encryptionEntityId && !encryptionEntityType && !encryptionSource) {
+    return undefined
+  }
+
+  if (!isValidEncryptionEntityType(encryptionEntityType)) {
+    if (shouldThrowException) {
+      throw new Error('Invalid encryption entity type.')
+    } else {
+      // TODO: Log the error here.
+      return undefined
+    }
+  }
+
+  if (!isValidCustomVariableEncryptionSource(encryptionSource)) {
+    if (shouldThrowException) {
+      throw new Error('Invalid encryption source.')
+    } else {
+      // TODO: Log the error here.
+      return undefined
+    }
+  }
+
+  if (!encryptionEntityId) {
+    if (shouldThrowException) {
+      throw new Error('Encryption entity ID is required.')
+    } else {
+      // TODO: Log the error here.
+      return undefined
+    }
+  }
+
+  return {
+    encryptionEntityId: encryptionEntityId,
+    encryptionEntityType: encryptionEntityType,
+    encryptionSource: encryptionSource,
+    kind: 'dfareporting#encryptionInfo'
+  }
 }

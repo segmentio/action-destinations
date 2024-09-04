@@ -1,4 +1,4 @@
-import { resolveGoogleCampaignManager360Conversion } from '../common-functions'
+import { resolveGoogleCampaignManager360Conversion, validateEncryptionInfo } from '../common-functions'
 import { Settings } from '../generated-types'
 import { CampaignManager360ConversionsBatchUpdateRequest } from '../types'
 import { Payload } from './generated-types'
@@ -15,7 +15,19 @@ export function buildUpdateConversionBatchPayload(
   // Validation with `throw` is only done for one payload.
   // For batch requests, we will just log the error and continue with the rest of the payloads.
   if (payloads.length === 1 && payloads[0]) {
-    const requiredId = payloads[0].requiredId
+    const firstPayload = payloads[0]
+    const resolvedEncryptionInfo = validateEncryptionInfo(
+      firstPayload.encryptionEntityId,
+      firstPayload.encryptionEntityType,
+      firstPayload.encryptionSource,
+      true
+    )
+
+    if (!resolvedEncryptionInfo) {
+      conversionsBatchUpdateRequest.encryptionInfo = resolvedEncryptionInfo
+    }
+
+    const requiredId = firstPayload.requiredId
     if (
       !requiredId.gclid &&
       !requiredId.dclid &&
@@ -28,9 +40,21 @@ export function buildUpdateConversionBatchPayload(
       )
     }
 
-    const conversion = resolveGoogleCampaignManager360Conversion(payloads[0], settings)
+    const conversion = resolveGoogleCampaignManager360Conversion(firstPayload, settings)
     conversionsBatchUpdateRequest.conversions.push(conversion)
     return conversionsBatchUpdateRequest
+  }
+
+  const firstPayload = payloads[0]
+  const resolvedEncryptionInfo = validateEncryptionInfo(
+    firstPayload.encryptionEntityId,
+    firstPayload.encryptionEntityType,
+    firstPayload.encryptionSource,
+    false
+  )
+
+  if (!resolvedEncryptionInfo) {
+    conversionsBatchUpdateRequest.encryptionInfo = resolvedEncryptionInfo
   }
 
   for (const payload of payloads) {

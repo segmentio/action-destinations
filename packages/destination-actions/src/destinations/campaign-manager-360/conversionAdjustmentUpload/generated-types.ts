@@ -144,4 +144,16 @@ export interface Payload {
      */
     unitPrice: number
   }[]
+  /**
+   * The encryption entity ID. This should match the encryption type configuration for ad serving or Data Transfer.
+   */
+  encryptionEntityId?: string
+  /**
+   * The encryption entity type. This should match the encryption type configuration for ad serving or Data Transfer.
+   */
+  encryptionEntityType?: string
+  /**
+   * The encryption source. This should match the encryption type configuration for ad serving or Data Transfer.
+   */
+  encryptionSource?: string
 }
