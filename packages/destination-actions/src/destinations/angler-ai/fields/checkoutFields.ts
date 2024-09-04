@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core/index'
+import { addressDefaultFields, addressProperties } from '../fields/addressFields'
 import { productsDefaultProperties, productsFields } from './productsFields'
 
 export const checkoutFields: Record<string, InputField> = {
@@ -96,5 +97,19 @@ export const checkoutFields: Record<string, InputField> = {
         }
       ]
     }
+  },
+  checkoutBillingAddress: {
+    type: 'object',
+    label: 'Checkout Billing Address',
+    description: 'The billing address associated with the checkout.',
+    properties: addressProperties,
+    default: addressDefaultFields('$.properties.billing_address')
+  },
+  checkoutShippingAddress: {
+    type: 'object',
+    label: 'Checkout Shipping Address',
+    description: 'The address to which the order will be shipped.',
+    properties: addressProperties,
+    default: addressDefaultFields('$.properties.shipping_address')
   }
 }
