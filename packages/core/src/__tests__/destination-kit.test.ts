@@ -640,11 +640,7 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
-          response: {
-            body: {},
-            sent: {},
-            status: 200
-          }
+          multistatus: [{ body: {}, sent: {}, status: 200 }]
         }
       ])
     })
@@ -688,17 +684,7 @@ describe('destination kit', () => {
 
       const res = await destinationTest.onBatch([testEvent], testSettings)
 
-      expect(res).toEqual([
-        {
-          response: {
-            status: 200,
-            body: {},
-            sent: {
-              userId: 'this-is-a-user-id'
-            }
-          }
-        }
-      ])
+      expect(res).toEqual([{ multistatus: [{ body: {}, sent: { userId: 'this-is-a-user-id' }, status: 200 }] }])
     })
   })
 
