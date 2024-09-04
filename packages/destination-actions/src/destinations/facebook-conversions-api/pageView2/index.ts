@@ -17,7 +17,7 @@ import { get_api_version } from '../utils'
 import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Page View',
+  title: 'Page View V2',
   description: 'Send a page view event when a user lands on a page',
   defaultSubscription: 'type = "page"',
   syncMode: {
