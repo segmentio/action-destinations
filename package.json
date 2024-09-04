@@ -60,7 +60,7 @@
     "karma-jasmine": "^5.1.0",
     "karma-webkit-launcher": "^2.0.0",
     "karma-webpack": "^5.0.0",
-    "lerna": "^8.1.8",
+    "lerna": "<= 8.1.7 || >8.1.8",
     "lint-staged": "^10.5.3",
     "open": "^8.4.0",
     "os-browserify": "^0.3.0",
