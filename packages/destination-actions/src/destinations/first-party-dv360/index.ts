@@ -138,6 +138,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing required advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
+      if (!audienceId) {
+        statsTags?.push('error:missing-settings')
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
+        throw new IntegrationError('Failed to retrieve audience ID', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
       // Make API request to get audience details
       const response = await getAudienceRequest(_request, { advertiserId, audienceId, token })
 

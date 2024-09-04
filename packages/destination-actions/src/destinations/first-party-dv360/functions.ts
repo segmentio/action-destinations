@@ -46,7 +46,6 @@ export const getAudienceRequest = (_request: RequestClient, params: getAudienceP
   const { advertiserId, audienceId, token } = params
 
   const endpoint = DV360API + `/${audienceId}?advertiserId=${advertiserId}`
-  console.log(endpoint)
 
   return _request(endpoint, {
     method: 'GET',
