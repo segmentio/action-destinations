@@ -123,16 +123,19 @@ export type CampaignManager360UserIdentifier =
 
 export type CampaignManager360ConsentStatus = 'GRANTED' | 'DENIED'
 
-export type CampaignManager360EncryptionEntityType =
-  | 'ADWORDS_CUSTOMER'
-  | 'DBM_ADVERTISER'
-  | 'DBM_PARTNER'
-  | 'DCM_ACCOUNT'
-  | 'DCM_ADVERTISER'
-  | 'ENCRYPTION_ENTITY_TYPE_UNKNOWN'
-  | 'DFP_NETWORK_CODE'
+export const campaignManager360EncryptionEntityTypes = [
+  'ADWORDS_CUSTOMER',
+  'DBM_ADVERTISER',
+  'DBM_PARTNER',
+  'DCM_ACCOUNT',
+  'DCM_ADVERTISER',
+  'ENCRYPTION_ENTITY_TYPE_UNKNOWN',
+  'DFP_NETWORK_CODE'
+] as const
+export type CampaignManager360EncryptionEntityType = typeof campaignManager360EncryptionEntityTypes[number]
 
-export type CampaignManager360EncryptionSource = 'AD_SERVING' | 'ENCRYPTION_SCOPE_UNKNOWN' | 'DATA_TRANSFER'
+export const campaignManager360EncryptionSources = ['AD_SERVING', 'ENCRYPTION_SCOPE_UNKNOWN', 'DATA_TRANSFER'] as const
+export type CampaignManager360EncryptionSource = typeof campaignManager360EncryptionSources[number]
 
 export type CampaignManager360CustomFloodlightVariableType =
   | 'U1'

@@ -348,5 +348,38 @@ export const campaignManager360CommonFields: ActionDefinition<Settings>['fields'
         }
       ]
     }
+  },
+  encryptionEntityId: {
+    label: 'Encryption Entity ID',
+    description:
+      'The encryption entity ID. This should match the encryption type configuration for ad serving or Data Transfer.',
+    type: 'string',
+    required: false
+  },
+  encryptionEntityType: {
+    label: 'Encryption Entity Type',
+    description:
+      'The encryption entity type. This should match the encryption type configuration for ad serving or Data Transfer.',
+    type: 'string',
+    required: false,
+    choices: [
+      { label: 'ENCRYPTION_ENTITY_TYPE_UNKNOWN', value: 'ENCRYPTION_ENTITY_TYPE_UNKNOWN' },
+      { label: 'DCM_ACCOUNT', value: 'DCM_ACCOUNT' },
+      { label: 'DCM_ADVERTISER', value: 'DCM_ADVERTISER' },
+      { label: 'DBM_PARTNER', value: 'DBM_PARTNER' },
+      { label: 'DBM_ADVERTISER', value: 'DBM_ADVERTISER' }
+    ]
+  },
+  encryptionSource: {
+    label: 'Encryption Source',
+    description:
+      'The encryption source. This should match the encryption type configuration for ad serving or Data Transfer.',
+    type: 'string',
+    required: false,
+    choices: [
+      { label: 'ENCRYPTION_SOURCE_UNKNOWN', value: 'ENCRYPTION_SOURCE_UNKNOWN' },
+      { label: 'AD_SERVING', value: 'AD_SERVING' },
+      { label: 'DATA_TRANSFER', value: 'DATA_TRANSFER' }
+    ]
   }
 }
