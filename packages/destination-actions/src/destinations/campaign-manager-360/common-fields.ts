@@ -300,7 +300,7 @@ export const campaignManager360CommonFields: ActionDefinition<Settings>['fields'
   merchantFeedLabel: {
     label: 'Cart Data Merchant Feed Label',
     description:
-      'The feed labels associated with the feed where your items are uploaded. Required if the cart data is provided. For more information, please refer to ​​ https://support.google.com/merchants/answer/12453549.',
+      'The feed labels associated with the feed where your items are uploaded. Required if the cart data is provided. For more information, please refer to https://support.google.com/merchants/answer/12453549.',
     type: 'string',
     required: false
   },

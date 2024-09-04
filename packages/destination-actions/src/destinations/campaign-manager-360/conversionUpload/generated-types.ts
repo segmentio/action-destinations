@@ -13,10 +13,6 @@ export interface Payload {
      * The value of the custom variable.
      */
     value: string
-    /**
-     * The kind of the custom variable.
-     */
-    kind?: string
   }[]
   /**
    * A comma separated list of the alphanumeric encrypted user IDs. Any user ID with exposure prior to the conversion timestamp will be used in the inserted conversion. If no such user ID is found then the conversion will be rejected with INVALID_ARGUMENT error. When set, `encryptionInfo` should also be specified.
@@ -162,7 +158,7 @@ export interface Payload {
    */
   merchantId?: string
   /**
-   * The feed labels associated with the feed where your items are uploaded. Required if the cart data is provided. For more information, please refer to ​​ https://support.google.com/merchants/answer/12453549.
+   * The feed labels associated with the feed where your items are uploaded. Required if the cart data is provided. For more information, please refer to https://support.google.com/merchants/answer/12453549.
    */
   merchantFeedLabel?: string
   /**

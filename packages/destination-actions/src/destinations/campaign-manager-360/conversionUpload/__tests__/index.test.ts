@@ -851,5 +851,126 @@ describe('Cm360.conversionUpload', () => {
         })
       ).rejects.toThrowError()
     })
+
+    it('throws an error when custom variables are malformed', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        context: {
+          traits: {
+            email: 'daffy@warnerbros.com',
+            phone: '1234567890',
+            firstName: 'Daffy',
+            lastName: 'Duck',
+            streetAddress: '123 Daffy St',
+            city: 'Burbank',
+            state: 'CA',
+            postalCode: '98765',
+            countryCode: 'US'
+          }
+        },
+        properties: {
+          ordinal: '1',
+          quantity: '1',
+          value: '123',
+          gclid: '54321',
+          limitAdTracking: true,
+          childDirectedTreatment: true,
+          nonPersonalizedAd: true,
+          treatmentForUnderage: true,
+          customVariables: [
+            {
+              type: 'U123',
+              value: '123'
+            },
+            {
+              type: 'U4',
+              value: '456'
+            }
+          ]
+        }
+      })
+
+      nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
+        access_token: 'my.access.token'
+      })
+
+      nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        .post('')
+        .reply(201, { results: [{}] })
+
+      await expect(
+        testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            gclid: {
+              '@path': '$.properties.gclid'
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
+            },
+            limitAdTracking: {
+              '@path': '$.properties.limitAdTracking'
+            },
+            childDirectedTreatment: {
+              '@path': '$.properties.childDirectedTreatment'
+            },
+            nonPersonalizedAd: {
+              '@path': '$.properties.nonPersonalizedAd'
+            },
+            treatmentForUnderage: {
+              '@path': '$.properties.treatmentForUnderage'
+            },
+            customVariables: {
+              '@path': '$.properties.customVariables'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+      ).rejects.toThrowError()
+    })
   })
 })

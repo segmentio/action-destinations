@@ -29,12 +29,6 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'The value of the custom variable.',
           type: 'string',
           required: true
-        },
-        kind: {
-          label: 'Kind',
-          description: 'The kind of the custom variable.',
-          type: 'string',
-          required: false
         }
       },
       default: {
@@ -46,9 +40,6 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             value: {
               '@path': '$.value'
-            },
-            kind: {
-              '@path': '$.kind'
             }
           }
         ]

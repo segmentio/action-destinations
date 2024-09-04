@@ -86,7 +86,7 @@ export type CampaignManager360Conversion = CampaignManager360CommonConversion & 
 export type CampaignManager360ConversionAdjustment = CampaignManager360CommonConversion
 
 export interface CampaignManager360ConversionCustomVariable {
-  type: CampaignManager360CustomFloodlightVariable
+  type: CampaignManager360CustomFloodlightVariableType
   value: string
   kind: 'dfareporting#customFloodlightVariable'
 }
@@ -134,7 +134,7 @@ export type CampaignManager360EncryptionEntityType =
 
 export type CampaignManager360EncryptionSource = 'AD_SERVING' | 'ENCRYPTION_SCOPE_UNKNOWN' | 'DATA_TRANSFER'
 
-export type CampaignManager360CustomFloodlightVariable =
+export type CampaignManager360CustomFloodlightVariableType =
   | 'U1'
   | 'U2'
   | 'U3'
