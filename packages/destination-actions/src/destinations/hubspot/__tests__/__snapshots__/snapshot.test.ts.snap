@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-hubspot-cloud destination: customEvent action - all fields 1`] = `""`;
+exports[`Testing snapshot for actions-hubspot-cloud destination: customEvent action - all fields 1`] = `[TypeError: Cannot read properties of undefined (reading 'find')]`;
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: customEvent action - required fields 1`] = `[PayloadValidationError: object_id is required and must be numeric]`;
 

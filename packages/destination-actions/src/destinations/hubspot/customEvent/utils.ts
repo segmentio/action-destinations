@@ -1,11 +1,9 @@
 import { PayloadValidationError, IntegrationError, RetryableError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import {
-  CreateEventDefinitionRespErr,
   CreateEventDefinitionReq,
   CreatePropertyDefintionReq,
   CreatePropertyRegectedResp,
-  ErrorResponse,
   SegmentProperty,
   SegmentPropertyType,
   StringFormat,
@@ -225,48 +223,56 @@ export async function compareToCache(_schema: Schema): Promise<SchemaDiff> {
 export async function compareToHubspot(client: Client, schema: Schema): Promise<SchemaDiff> {
   const mismatchSchemaDiff: SchemaDiff = { match: 'mismatch', missingProperties: {} }
 
-  try {
-    const {
-      fullyQualifiedName,
-      name,
-      properties: hsProperties,
-      archived
-    } = await client.getEventDefinition(schema.eventName)
+  const response = await client.getEventDefinition(schema.eventName)
 
-    if (archived) {
-      return mismatchSchemaDiff
-    }
+  switch (response.status) {
+    case 200: {
+      const { fullyQualifiedName, name, properties: hsProperties, archived } = response.data
 
-    const schemaDiff = { missingProperties: {} } as SchemaDiff
-
-    for (const propName in schema.properties) {
-      const matchedProperty = hsProperties.find((hsProp) => hsProp.name === propName)
-
-      if (matchedProperty?.archived === true) {
+      if (archived) {
         return mismatchSchemaDiff
       }
 
-      const prop = schema.properties[propName]
+      const schemaDiff = { missingProperties: {} } as SchemaDiff
 
-      if (
-        (['object', 'string', 'boolean'].includes(prop.type) && matchedProperty?.type === 'number') ||
-        (['datetime', 'string', 'enumeration'].includes(matchedProperty?.type as string) && prop.type === 'number')
-      ) {
-        return mismatchSchemaDiff
+      for (const propName in schema.properties) {
+        const matchedProperty = hsProperties.find((hsProp) => hsProp.name === propName)
+
+        if (matchedProperty?.archived === true) {
+          return mismatchSchemaDiff
+        }
+
+        const prop = schema.properties[propName]
+
+        if (
+          (['object', 'string', 'boolean'].includes(prop.type) && matchedProperty?.type === 'number') ||
+          (['datetime', 'string', 'enumeration'].includes(matchedProperty?.type as string) && prop.type === 'number')
+        ) {
+          return mismatchSchemaDiff
+        }
+
+        if (!matchedProperty) {
+          schemaDiff.missingProperties[propName] = schema.properties[propName]
+        }
       }
 
-      if (!matchedProperty) {
-        schemaDiff.missingProperties[propName] = schema.properties[propName]
-      }
+      schemaDiff.match = Object.keys(schemaDiff.missingProperties).length === 0 ? 'full_match' : 'properties_missing'
+      schemaDiff.fullyQualifiedName = fullyQualifiedName
+      schemaDiff.name = name
+
+      return schemaDiff
     }
-
-    schemaDiff.match = Object.keys(schemaDiff.missingProperties).length === 0 ? 'full_match' : 'properties_missing'
-    schemaDiff.fullyQualifiedName = fullyQualifiedName
-    schemaDiff.name = name
-
-    return schemaDiff
-  } catch {
-    return { match: 'no_match', missingProperties: {} } as SchemaDiff
+    case 400:
+    case 404:
+      return { match: 'no_match', missingProperties: {} }
+    case 429:
+      throw new RetryableError('Hubspot:CustomEvent:compareToHubspot: Rate limit reached')
+    default:
+      throw new IntegrationError(
+        `Hubspot.CustomEvent.compareToHubspot: ${response?.statusText ? response.statusText : 'Unexpected Error'}`,
+        'UNEXPECTED_ERROR',
+        response.status
+      )
   }
 }
 
@@ -300,53 +306,88 @@ export async function createHubspotEventSchema(client: Client, schema: Schema): 
     })
   }
 
-  try {
-    const response = await client.createEventDefinition(json)
+  const response = await client.createEventDefinition(json)
 
-    return {
-      match: 'full_match',
-      fullyQualifiedName: response.fullyQualifiedName,
-      name: response.name
-    } as SchemaDiff
-  } catch (error) {
-    const responseError = error as CreateEventDefinitionRespErr
-    if (responseError.response.data.category === 'OBJECT_ALREADY_EXISTS') {
-      throw new RetryableError()
+  switch (response.status) {
+    case 201:
+    case 200: {
+      return {
+        match: 'full_match',
+        fullyQualifiedName: response.data.fullyQualifiedName,
+        name: response.data.name
+      } as SchemaDiff
     }
-    throw new IntegrationError(
-      `Error creating schema in HubSpot. ${responseError.response.data.message}`,
-      'HUBSPOT_CREATE_SCHEMA_ERROR',
-      400
-    )
+    case 409:
+      throw new RetryableError('Hubspot:CustomEvent:createHubspotEventSchema: Object already exists')
+    case 429:
+      throw new RetryableError('Hubspot:CustomEvent:createHubspotEventSchema: Rate limit reached')
+    default:
+      throw new IntegrationError(
+        `Hubspot.CustomEvent.createHubspotEventSchema: ${
+          response?.statusText ? response.statusText : 'Unexpected Error'
+        }`,
+        'UNEXPECTED_ERROR',
+        response.status
+      )
+  }
+}
+
+interface PropertyCreateResponseValue {
+  status: number
+  statusText: string
+  data: {
+    message: string
   }
 }
 
 export async function updateHubspotSchema(client: Client, fullyQualifiedName: string, schemaDiff: SchemaDiff) {
   const requests: Promise<{}>[] = []
 
-  try {
-    Object.keys(schemaDiff.missingProperties).forEach((propName) => {
-      const { type, stringFormat } = schemaDiff.missingProperties[propName]
-      const json = propertyBody(schemaDiff?.fullyQualifiedName as string, type, propName, stringFormat)
-      requests.push(client.createPropertyDefinition(json, fullyQualifiedName))
-    })
+  Object.keys(schemaDiff.missingProperties).forEach((propName) => {
+    const { type, stringFormat } = schemaDiff.missingProperties[propName]
+    const json = propertyBody(schemaDiff?.fullyQualifiedName as string, type, propName, stringFormat)
+    requests.push(client.createPropertyDefinition(json, fullyQualifiedName))
+  })
 
-    const responses = await Promise.allSettled(requests)
+  const responses = await Promise.allSettled(requests)
 
-    for (const response of responses) {
-      if (response.status === 'rejected') {
-        const error = response.reason as CreatePropertyRegectedResp
-        if (error.data.propertiesErrorCode !== 'PROPERTY_EXISTS') {
+  for (const response of responses) {
+    if (response.status === 'fulfilled') {
+      const {
+        status,
+        statusText,
+        data: { message }
+      } = response.value as PropertyCreateResponseValue
+
+      switch (status) {
+        case 201:
+        case 200:
+          return
+        case 409:
+          throw new RetryableError('Hubspot:CustomEvent:updateHubspotSchema: Property already exists', 429)
+        case 429:
+          throw new RetryableError('Hubspot:CustomEvent:updateHubspotSchema: Rate limit reached', 429)
+        default: {
           throw new IntegrationError(
-            `Error updating schema in HubSpot. ${error.data.message || ''} ${error.data.propertiesErrorCode || ''}`,
-            'HUBSPOT_UPDATE_SCHEMA_ERROR',
-            400
+            `Hubspot.CustomEvent.updateHubspotSchema: ${statusText ? statusText : 'Unexpected Error'}. ${
+              message ? message : ''
+            }`,
+            'UNEXPECTED_ERROR',
+            status
           )
         }
       }
     }
-  } catch (error) {
-    const responseError = error as ErrorResponse
-    throw new IntegrationError(`Error updating schema in HubSpot. ${responseError.code}`, `${responseError.code}`, 400)
+
+    if (response.status === 'rejected') {
+      const error = response.reason as CreatePropertyRegectedResp
+      if (error.data.propertiesErrorCode !== 'PROPERTY_EXISTS') {
+        throw new IntegrationError(
+          `Error updating schema in HubSpot. ${error.data.message || ''} ${error.data.propertiesErrorCode || ''}`,
+          'HUBSPOT_UPDATE_SCHEMA_ERROR',
+          400
+        )
+      }
+    }
   }
 }

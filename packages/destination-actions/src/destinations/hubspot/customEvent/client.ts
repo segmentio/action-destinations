@@ -1,4 +1,4 @@
-import { RequestClient } from '@segment/actions-core'
+import { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import { HUBSPOT_BASE_URL } from '../properties'
 import {
   CreateEventDefinitionResp,
@@ -15,15 +15,15 @@ export class Client {
     this.request = request
   }
 
-  async getEventDefinition(eventName: string): Promise<GetEventDefinitionResp> {
-    const url = `${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`
-
-    const response = await this.request(url, {
-      method: 'GET',
-      skipResponseCloning: true
-    })
-
-    return response.data as GetEventDefinitionResp
+  async getEventDefinition(eventName: string): Promise<ModifiedResponse<GetEventDefinitionResp>> {
+    return await this.request<GetEventDefinitionResp>(
+      `${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`,
+      {
+        method: 'GET',
+        skipResponseCloning: true,
+        throwHttpErrors: false
+      }
+    )
   }
 
   async send(json: EventCompletionReq) {
@@ -33,19 +33,20 @@ export class Client {
     })
   }
 
-  async createEventDefinition(json: CreateEventDefinitionReq): Promise<CreateEventDefinitionResp> {
-    const response = await this.request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions`, {
+  async createEventDefinition(json: CreateEventDefinitionReq): Promise<ModifiedResponse<CreateEventDefinitionResp>> {
+    return await this.request<CreateEventDefinitionResp>(`${HUBSPOT_BASE_URL}/events/v3/event-definitions`, {
       method: 'POST',
-      json
+      json,
+      skipResponseCloning: true,
+      throwHttpErrors: false
     })
-
-    return response.data as CreateEventDefinitionResp
   }
 
   async createPropertyDefinition(json: CreatePropertyDefintionReq, eventName: string) {
     return this.request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/property`, {
       method: 'POST',
-      json
+      json,
+      throwHttpErrors: false
     })
   }
 }
