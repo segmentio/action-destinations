@@ -459,7 +459,7 @@ export const SendToRecepientResponseSerializer: CacheSerializer<any> = {
     return cacheObj ? JSON.stringify(cacheObj) : undefined
   },
   parse: (cachedValue) => {
-    const parsed = JSON.stringify(cachedValue) as ValueOrError<any>
+    const parsed = JSON.parse(cachedValue) as ValueOrError<any>
     if (parsed.error) {
       const error = new IntegrationError(parsed.error.message, parsed.error.code, parsed.error.status)
       error.retry = false

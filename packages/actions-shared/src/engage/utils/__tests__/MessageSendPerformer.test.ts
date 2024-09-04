@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ExecuteInput } from '@segment/actions-core/src'
+import { ExecuteInput, IntegrationError } from '@segment/actions-core/src'
 import { MessagePayloadBase, MessageSendPerformer, MessageSettingsBase } from '../MessageSendPerformer'
 import { EngageDestinationCache } from '@segment/actions-core/destination-kit'
+import { isRetryableError } from '../isRetryableError'
 
 type Mutable<T> = {
   -readonly [P in keyof T]: T[P]
@@ -122,58 +123,105 @@ describe('Message send performer', () => {
       jest.clearAllMocks()
     })
 
-    async function runConcurrently(args: {
-      concurrency?: number
-      sendToRecepient?: () => Promise<any>
+    async function runManyPerformers(args: {
+      amount?: number
+      sequentially?: boolean
+      sendToRecepient?: () => any | Promise<any>
       performerInit?: (performer: Mutable<TestMessageSendPerformer>, index: number) => void
       randomStartDelay?: number
       randomPerformDelay?: number
       uniqueMessageIds?: number
+      cache?: EngageDestinationCache
     }) {
-      const parallelPerformers = Array.from({ length: args?.concurrency || 100 }, (_, i) => {
+      const allPerformers = Array.from({ length: args?.amount || 100 }, (_, i) => {
         const performer = createPerformer(async () => {
           if (args.randomPerformDelay)
             await new Promise((res) => setTimeout(res, Math.floor(Math.random() * args.randomPerformDelay!)))
+
           return await args.sendToRecepient?.()
         })
+        if (args.cache) {
+          performer.executeInput.engageDestinationCache = args.cache
+          performer.engageDestinationCache = args.cache
+        }
         if (args.uniqueMessageIds)
           performer.executeInput.rawData.messageId = 'test-message-id' + (i % args.uniqueMessageIds)
         args.performerInit?.(performer, i)
         return performer
       })
-      await Promise.all(
-        parallelPerformers.map(async (performer) => {
-          if (args.randomStartDelay)
-            await new Promise((res) => setTimeout(res, Math.floor(Math.random() * args.randomStartDelay!))) //randomize start time
-          await performer.perform()
-        })
-      )
+      let result: any[] = []
+      if (args.sequentially)
+        for (const performer of allPerformers) {
+          try {
+            result.push(await performer.perform())
+          } catch (e) {
+            result.push(e)
+          }
+        }
+      else {
+        result = (
+          await Promise.allSettled(
+            allPerformers.map(async (performer) => {
+              if (args.randomStartDelay)
+                await new Promise((res) => setTimeout(res, Math.floor(Math.random() * args.randomStartDelay!))) //randomize start time
+              return await performer.perform()
+            })
+          )
+        ).map((sp) => (sp.status === 'fulfilled' ? sp.value : sp.reason))
+      }
+      return result
     }
 
-    test('prevent sending twice', async () => {
-      let performer = createPerformer()
-      await performer.perform()
-      expect(cache.getByKey).toHaveBeenCalledTimes(2)
-      // #1 - getOrAdd before locking
-      // #2 - getOrAdd after locking
+    describe.each([
+      ['undefined', undefined],
+      ['empty string', ''],
+      ['null', null],
+      ['boolean false', false],
+      ['throw non-retryable error', new IntegrationError('some error', 'NON_RETRYABLE_ERROR', 401)]
+    ])('prevent sending & locking twice after first send cached:', (name, valueToCache) => {
+      test(name, async () => {
+        const sendToRecepient = jest.fn(() => {
+          if (valueToCache instanceof Error) throw valueToCache
+          else return valueToCache
+        })
+        const res = await runManyPerformers({
+          amount: 2,
+          sequentially: true,
+          sendToRecepient
+        })
 
-      expect(performer.sendToRecepient).toHaveBeenCalledTimes(1)
-      expect(cache.setByKeyNX).toHaveBeenCalledTimes(1) //during locking
+        expect(sendToRecepient).toHaveBeenCalledTimes(1)
+        expect(cache.getByKey).toHaveBeenCalledTimes(3) // #1 - getOrAdd before locking, #2 - getOrAdd after locking, #3 - getOrAdd for second performer
+        expect(res.length).toBe(2)
+        expect(res[0]).toEqual(valueToCache)
+        if (valueToCache instanceof Error) expect(res[1]).toBeInstanceOf(IntegrationError)
+        else expect(res[1]).toEqual({ status: undefined })
+      })
+      // test(`prevent sending & locking twice if second perform happens after first one cached {}`, async () => {
 
-      jest.clearAllMocks()
+      // })
+    })
+    test('prevent caching retryable error', async () => {
+      const errorToThrow = new IntegrationError('some retryable error, should not be cached', 'RETRYABLE_ERROR', 500)
+      errorToThrow.retry = true
+      const sendToRecepient = jest.fn(() => {
+        throw errorToThrow
+      })
+      const res = await runManyPerformers({
+        amount: 2,
+        sequentially: true,
+        sendToRecepient
+      })
 
-      performer = createPerformer()
-      await performer.perform()
-      expect(cache.getByKey).toHaveBeenCalledTimes(1) //only one call to get cache, must not lock, since it's already cached
-
-      expect(performer.sendToRecepient).toHaveBeenCalledTimes(0)
-      //
+      expect(sendToRecepient).toHaveBeenCalledTimes(2) //because we don't cache retryable errors
+      expect(res[0] == errorToThrow).toBeTruthy()
+      expect(res[1] == errorToThrow).toBeTruthy()
     })
 
     test('prevent sending multiple times during hundred of concurrent calls', async () => {
       const sendToRecepient = jest.fn()
       const uniqueMessageIds = 4
-      await runConcurrently({
+      await runManyPerformers({
         randomPerformDelay: 500,
         randomStartDelay: 500,
         sendToRecepient,
@@ -185,7 +233,7 @@ describe('Message send performer', () => {
 
     test('stats always have withLock tag during concurrent calls', async () => {
       const uniqueMessageIds = 4
-      await runConcurrently({
+      await runManyPerformers({
         randomStartDelay: 500,
         randomPerformDelay: 500,
         uniqueMessageIds,
@@ -201,6 +249,27 @@ describe('Message send performer', () => {
           })
         }
       })
+    })
+
+    test('cache read error leads to retryable error immediately (without send)', async () => {
+      const cache = new TestCache()
+      cache.getByKey = jest.fn(() => {
+        throw new Error('some error while reading cache')
+      })
+      expect(() => cache.getByKey('any key')).toThrowError()
+      const sendToRecepient = jest.fn(() => Promise.resolve(new Date()))
+      const res = await runManyPerformers({
+        amount: 2,
+        sequentially: true,
+        sendToRecepient,
+        cache
+      })
+
+      expect(sendToRecepient).toHaveBeenCalledTimes(0)
+      expect(res[0]).toBeInstanceOf(IntegrationError)
+      expect(isRetryableError(res[0])).toBeTruthy()
+      expect(res[1]).toBeInstanceOf(IntegrationError)
+      expect(isRetryableError(res[1])).toBeTruthy()
     })
   })
 })

@@ -205,10 +205,11 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     }
   ): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
-    const finalStatsTags: StatsTagsMap & { cache_hit: boolean } = {
+    const finalStatsTags: StatsTagsMap & { cache_hit: boolean; cache_step: string } = {
       cache_group,
       cache_hit: false,
-      withLock: !!options.lockOptions
+      withLock: !!options.lockOptions,
+      cache_step: 'init'
     }
 
     this.currentOperation?.onFinally.push(() => {
@@ -221,6 +222,9 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     const serializer = options.serializer || DefaultSerializer
 
     const cacheRead = await getOrCatch(() => cache.getByKey(key))
+    finalStatsTags.cache_step = `read_${
+      cacheRead.error ? 'error' : !isEmptyValue(cacheRead.value) ? 'value' : 'value_empty'
+    }`
 
     // we respect lockOptions only if cache is not found and no error happened while reading cache
     if (options.lockOptions && !(cacheRead.error || cacheRead.value)) {
@@ -233,6 +237,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     }
 
     if (cacheRead.error) {
+      //redis error
       finalStatsTags.cache_reading_error = true
       this.logInfo('cache_reading_error', {
         key,
@@ -241,8 +246,12 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         details: getErrorDetails(cacheRead.error)
       })
       this.throwRetryableError('Error reading cache')
-    } else if (cacheRead.value) {
+    } else if (!isEmptyValue(cacheRead.value)) {
+      //if cache FOUND (getByKey returned not null and not undefined)
       const { value: parsedCache, error: parsingError } = getOrCatch(() => serializer.parse(cacheRead.value!))
+      finalStatsTags.cache_step = `parse_${
+        parsingError ? 'error' : parsedCache !== undefined ? 'value' : 'value_empty'
+      }`
 
       if (parsingError) {
         //exception happened while parsing the cache.
@@ -268,9 +277,12 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     this.statsIncr('cache_miss', 1, finalStatsTags)
     this.logInfo('cache_miss', { key, cacheGroup: cache_group })
     const { value: result, error: resultError } = await getOrCatch(() => createValue())
+    finalStatsTags.cache_step = 'createValue_' + (resultError ? 'error' : 'value')
 
     //before returning result - we need to try to serialize it and store it in cache
     const stringified = getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
+    finalStatsTags.cache_step = 'stringify_' + (stringified.error ? 'error' : 'value')
+
     if (stringified.error) {
       finalStatsTags.cache_stringify_error = true
       this.logInfo('cache_stringify_error', { key, error: stringified.error, finalStatsTags })
@@ -279,11 +291,14 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       const { error: cacheSavingError } = await getOrCatch(() =>
         this.engageDestinationCache!.setByKey(key, stringified.value!, options.expiryInSeconds)
       )
+      finalStatsTags.cache_step = 'save_' + (cacheSavingError ? 'error' : 'value')
       if (cacheSavingError) {
         finalStatsTags.cache_saving_error = true
         this.logInfo('cache_saving_error', { key, error: cacheSavingError, finalStatsTags })
       }
     }
+
+    finalStatsTags.cache_step = 'return_' + (resultError ? 'error' : 'value')
 
     if (resultError) throw resultError
     else return result as T
@@ -442,4 +457,8 @@ export type LockOptions = {
    * used for stats
    */
   cacheGroup?: string
+}
+
+export function isEmptyValue(cacheValue: any) {
+  return cacheValue === undefined || cacheValue === null
 }
