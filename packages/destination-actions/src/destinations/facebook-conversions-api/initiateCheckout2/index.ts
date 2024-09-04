@@ -25,7 +25,7 @@ import { get_api_version } from '../utils'
 import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Initiate Checkout',
+  title: 'Initiate Checkout V2',
   description: 'Send event when a user enters the checkout flow',
   defaultSubscription: 'type = "track" and event = "Checkout Started"',
   syncMode: {
