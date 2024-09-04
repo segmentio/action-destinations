@@ -4,7 +4,6 @@ import {
   CreateEventDefinitionReq,
   CreatePropertyDefintionReq,
   CreatePropertyRegectedResp,
-  ErrorResponse,
   SegmentProperty,
   SegmentPropertyType,
   StringFormat,
@@ -333,32 +332,62 @@ export async function createHubspotEventSchema(client: Client, schema: Schema): 
   }
 }
 
+interface PropertyCreateResponseValue {
+  status: number
+  statusText: string
+  data: {
+    message: string
+  }
+}
+
 export async function updateHubspotSchema(client: Client, fullyQualifiedName: string, schemaDiff: SchemaDiff) {
   const requests: Promise<{}>[] = []
 
-  try {
-    Object.keys(schemaDiff.missingProperties).forEach((propName) => {
-      const { type, stringFormat } = schemaDiff.missingProperties[propName]
-      const json = propertyBody(schemaDiff?.fullyQualifiedName as string, type, propName, stringFormat)
-      requests.push(client.createPropertyDefinition(json, fullyQualifiedName))
-    })
+  Object.keys(schemaDiff.missingProperties).forEach((propName) => {
+    const { type, stringFormat } = schemaDiff.missingProperties[propName]
+    const json = propertyBody(schemaDiff?.fullyQualifiedName as string, type, propName, stringFormat)
+    requests.push(client.createPropertyDefinition(json, fullyQualifiedName))
+  })
 
-    const responses = await Promise.allSettled(requests)
+  const responses = await Promise.allSettled(requests)
 
-    for (const response of responses) {
-      if (response.status === 'rejected') {
-        const error = response.reason as CreatePropertyRegectedResp
-        if (error.data.propertiesErrorCode !== 'PROPERTY_EXISTS') {
+  for (const response of responses) {
+    if (response.status === 'fulfilled') {
+      const {
+        status,
+        statusText,
+        data: { message }
+      } = response.value as PropertyCreateResponseValue
+
+      switch (status) {
+        case 201:
+        case 200:
+          return
+        case 409:
+          throw new RetryableError('Hubspot:CustomEvent:updateHubspotSchema: Property already exists', 429)
+        case 429:
+          throw new RetryableError('Hubspot:CustomEvent:updateHubspotSchema: Rate limit reached', 429)
+        default: {
           throw new IntegrationError(
-            `Error updating schema in HubSpot. ${error.data.message || ''} ${error.data.propertiesErrorCode || ''}`,
-            'HUBSPOT_UPDATE_SCHEMA_ERROR',
-            400
+            `Hubspot.CustomEvent.updateHubspotSchema: ${statusText ? statusText : 'Unexpected Error'}. ${
+              message ? message : ''
+            }`,
+            'UNEXPECTED_ERROR',
+            status
           )
         }
       }
     }
-  } catch (error) {
-    const responseError = error as ErrorResponse
-    throw new IntegrationError(`Error updating schema in HubSpot. ${responseError.code}`, `${responseError.code}`, 400)
+
+    if (response.status === 'rejected') {
+      const error = response.reason as CreatePropertyRegectedResp
+      if (error.data.propertiesErrorCode !== 'PROPERTY_EXISTS') {
+        throw new IntegrationError(
+          `Error updating schema in HubSpot. ${error.data.message || ''} ${error.data.propertiesErrorCode || ''}`,
+          'HUBSPOT_UPDATE_SCHEMA_ERROR',
+          400
+        )
+      }
+    }
   }
 }

@@ -82,10 +82,6 @@ export interface CreatePropertyRegectedResp {
   }
 }
 
-export interface ErrorResponse {
-  code: string
-}
-
 export interface EventCompletionReq {
   eventName: string
   objectId?: number | undefined

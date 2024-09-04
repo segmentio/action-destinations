@@ -45,7 +45,8 @@ export class Client {
   async createPropertyDefinition(json: CreatePropertyDefintionReq, eventName: string) {
     return this.request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/property`, {
       method: 'POST',
-      json
+      json,
+      throwHttpErrors: false
     })
   }
 }
