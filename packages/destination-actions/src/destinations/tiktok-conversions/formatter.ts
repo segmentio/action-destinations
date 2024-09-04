@@ -65,6 +65,19 @@ export function formatUserIds(userIds: string[] | undefined): string[] {
   return result
 }
 
+export function formatString(str: string | undefined | null): string | undefined {
+  if (!str) return ''
+  if (!isHashedInformation(str)) {
+    str = hashAndEncode(str.replace(/\s/g, '').toLowerCase())
+  }
+  return str
+}
+
+export function formatAddress(address: string | undefined | null): string | undefined {
+  if (!address) return ''
+  return address.replace(/[^A-Za-z0-9]/g, '').toLowerCase()
+}
+
 function hashAndEncode(property: string) {
   return createHash('sha256').update(property).digest('hex')
 }

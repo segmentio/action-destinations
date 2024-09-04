@@ -30,6 +30,20 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
       label: 'Id',
       type: 'string',
       required: true
+    },
+    refetchExperiencesOnTraitsUpdate: {
+      description:
+        "Enable this option if you'd like Jimo to refetch experiences supposed to be shown to the user after user traits get updated. This is useful when if you have experiences that use segment based on Segment traits.",
+      label: 'Refetch experiences after traits changes',
+      type: 'boolean',
+      default: false
+    },
+    manualInit: {
+      description:
+        'If true, Jimo SDK will be initialized only after a Segment event containing a userID has been triggered. This prevents from having anonymous profile created in Jimo.',
+      label: 'Initialize only for identified users',
+      type: 'boolean',
+      default: false
     }
   },
   presets: [
@@ -53,7 +67,9 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
 
     await deps.loadScript(`${ENDPOINT_UNDERCITY}`)
 
-    await deps.resolveWhen(() => Array.isArray(window.jimo) === false, 100)
+    const manualInit = settings.manualInit ?? false
+
+    await deps.resolveWhen(() => Array.isArray(window.jimo) === manualInit, 100)
 
     return window.jimo as JimoSDK
   },

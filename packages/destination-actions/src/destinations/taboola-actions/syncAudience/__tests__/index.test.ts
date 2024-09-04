@@ -6,7 +6,7 @@ import { createHash } from 'crypto'
 const testDestination = createTestIntegration(Destination)
 
 const ACCOUNT_ID = '12345'
-const EXTERNAL_AUDIENCE_ID = '12345'
+const EXTERNAL_AUDIENCE_ID = 12345
 const DEVICE_ID = '123'
 
 describe('Taboola.syncAudience', () => {
@@ -18,10 +18,11 @@ describe('Taboola.syncAudience', () => {
     const event = createTestEvent({
       event: 'Audience Entered',
       type: 'track',
-      properties: {},
+      properties: {
+        ios_id: DEVICE_ID
+      },
       context: {
         device: {
-          id: DEVICE_ID,
           advertisingId: '11111'
         },
         traits: {
@@ -127,10 +128,11 @@ describe('Taboola.syncAudience', () => {
     const event = createTestEvent({
       event: 'Audience Entered',
       type: 'track',
-      properties: {},
+      properties: {
+        ios_id: DEVICE_ID
+      },
       context: {
         device: {
-          id: DEVICE_ID,
           advertisingId: '11111'
         },
         traits: {
@@ -165,10 +167,11 @@ describe('Taboola.syncAudience', () => {
       createTestEvent({
         event: 'Audience Entered',
         type: 'track',
-        properties: {},
+        properties: {
+          ios_id: DEVICE_ID
+        },
         context: {
           device: {
-            id: DEVICE_ID,
             advertisingId: '11111'
           },
           traits: {
@@ -186,10 +189,11 @@ describe('Taboola.syncAudience', () => {
       createTestEvent({
         event: 'Audience Exited',
         type: 'track',
-        properties: {},
+        properties: {
+          ios_id: '456'
+        },
         context: {
           device: {
-            id: '456',
             advertisingId: '22222'
           },
           traits: {

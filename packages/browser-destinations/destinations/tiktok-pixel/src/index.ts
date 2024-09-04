@@ -6,6 +6,8 @@ import { defaultValues } from '@segment/actions-core'
 import { TikTokPixel } from './types'
 import { initScript } from './init-script'
 
+import identify from './identify'
+
 declare global {
   interface Window {
     ttq: TikTokPixel
@@ -235,7 +237,8 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
     return window.ttq
   },
   actions: {
-    reportWebEvent
+    reportWebEvent,
+    identify
   }
 }
 

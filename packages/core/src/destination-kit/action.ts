@@ -12,7 +12,8 @@ import type {
   ExecuteInput,
   Result,
   SyncMode,
-  SyncModeDefinition
+  SyncModeDefinition,
+  DynamicFieldContext
 } from './types'
 import { syncModeTypes } from './types'
 import { NormalizedOptions } from '../request-client'
@@ -22,6 +23,7 @@ import { AuthTokens } from './parse-settings'
 import { IntegrationError } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
 import { Logger, StatsContext, TransactionContext, StateContext, DataFeedCache } from './index'
+import { get } from '../get'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -68,6 +70,9 @@ type GenericActionHookBundle = {
   }
 }
 
+// Utility type to check if T is an array
+type IsArray<T> = T extends (infer U)[] ? U : never
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ActionDefinition<
   Settings,
@@ -80,7 +85,27 @@ export interface ActionDefinition<
    * This is likely going to change as we productionalize the data model and definition object
    */
   dynamicFields?: {
-    [K in keyof Payload]?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+    [K in keyof Payload]?: IsArray<Payload[K]> extends never
+      ? Payload[K] extends object | undefined
+        ? {
+            [ObjectProperty in keyof Payload[K] | '__keys__' | '__values__']?: RequestFn<
+              Settings,
+              Payload,
+              DynamicFieldResponse,
+              AudienceSettings
+            >
+          }
+        : RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+      : IsArray<Payload[K]> extends object
+      ? {
+          [ObjectProperty in keyof IsArray<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
+            Settings,
+            Payload,
+            DynamicFieldResponse,
+            AudienceSettings
+          >
+        }
+      : never
   }
 
   /** The operation to perform when this action is triggered */
@@ -165,6 +190,7 @@ export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = 
   features?: Features | undefined
   statsContext?: StatsContext | undefined
   hookInputs?: GenericActionHookValues
+  dynamicFieldContext?: DynamicFieldContext
 }
 
 interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, ActionHookValues = any> {
@@ -185,6 +211,13 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
 
 const isSyncMode = (value: unknown): value is SyncMode => {
   return syncModeTypes.find((validValue) => value === validValue) !== undefined
+}
+
+const INTERNAL_HIDDEN_FIELDS = ['__segment_internal_sync_mode', '__segment_internal_matching_key']
+const removeInternalHiddenFields = (mapping: JSONObject): JSONObject => {
+  return Object.keys(mapping).reduce((acc, key) => {
+    return INTERNAL_HIDDEN_FIELDS.includes(key) ? acc : { ...acc, [key]: mapping[key] }
+  }, {})
 }
 
 /**
@@ -255,17 +288,15 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // TODO cleanup results... not sure it's even used
     const results: Result[] = []
 
+    // Remove internal hidden fields
+    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
+
     // Resolve/transform the mapping with the input data
-    let payload = transform(bundle.mapping, bundle.data) as Payload
+    let payload = transform(mapping, bundle.data) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
     payload = removeEmptyValues(payload, this.schema, true) as Payload
-
-    // Remove internal hidden field
-    if (bundle.mapping && '__segment_internal_sync_mode' in bundle.mapping) {
-      delete payload['__segment_internal_sync_mode']
-    }
 
     // Validate the resolved payload against the schema
     if (this.schema) {
@@ -287,6 +318,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
 
+    const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+
     // Construct the data bundle to send to an action
     const dataBundle = {
       rawData: bundle.data,
@@ -302,7 +335,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       stateContext: bundle.stateContext,
       audienceSettings: bundle.audienceSettings,
       hookOutputs,
-      syncMode: isSyncMode(syncMode) ? syncMode : undefined
+      syncMode: isSyncMode(syncMode) ? syncMode : undefined,
+      matchingKey: matchingKey ? String(matchingKey) : undefined
     }
 
     // Construct the request client and perform the action
@@ -312,23 +346,15 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return results
   }
 
-  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<Result[]> {
-    const results: Result[] = [{ output: 'Action Executed' }]
-
+  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<void> {
     if (!this.hasBatchSupport) {
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
 
-    let payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
+    // Remove internal hidden fields
+    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
 
-    // Remove internal hidden field
-    if (bundle.mapping && '__segment_internal_sync_mode' in bundle.mapping) {
-      for (const payload of payloads) {
-        if (payload) {
-          delete payload['__segment_internal_sync_mode']
-        }
-      }
-    }
+    let payloads = transformBatch(mapping, bundle.data) as Payload[]
 
     // Validate the resolved payloads against the schema
     if (this.schema) {
@@ -358,11 +384,13 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (payloads.length === 0) {
-      return results
+      return
     }
 
     if (this.definition.performBatch) {
       const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+      const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+
       const data = {
         rawData: bundle.data,
         rawMapping: bundle.mapping,
@@ -377,15 +405,46 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
         hookOutputs,
-        syncMode: isSyncMode(syncMode) ? syncMode : undefined
+        syncMode: isSyncMode(syncMode) ? syncMode : undefined,
+        matchingKey: matchingKey ? String(matchingKey) : undefined
       }
-      const output = await this.performRequest(this.definition.performBatch, data)
-      results[0].data = output as JSONObject
+      await this.performRequest(this.definition.performBatch, data)
+    }
+  }
 
-      return results
+  /*
+   * Extract the dynamic field context and handler path from a field string. Examples:
+   * - "structured.first_name" => { dynamicHandlerPath: "structured.first_name" }
+   * - "unstructuredObject.testProperty" => { dynamicHandlerPath: "unstructuredObject.__values__", dynamicFieldContext: { selectedKey: "testProperty" } }
+   * - "structuredArray.[0].first_name" => { dynamicHandlerPath: "structuredArray.first_name", dynamicFieldContext: { selectedArrayIndex: 0 } }
+   */
+  private extractFieldContextAndHandler(field: string): {
+    dynamicHandlerPath: string
+    dynamicFieldContext?: DynamicFieldContext
+  } {
+    const arrayRegex = /(.*)\.\[(\d+)\]\.(.*)/
+    const objectRegex = /(.*)\.(.*)/
+    let dynamicHandlerPath = field
+    let dynamicFieldContext: DynamicFieldContext | undefined
+
+    const match = arrayRegex.exec(field) || objectRegex.exec(field)
+    if (match) {
+      const [, parent, indexOrChild, child] = match
+      if (child) {
+        // It is an array, so we need to extract the index from parent.[index].child and call paret.child handler
+        dynamicFieldContext = { selectedArrayIndex: parseInt(indexOrChild, 10) }
+        dynamicHandlerPath = `${parent}.${child}`
+      } else {
+        // It is an object, if there is a dedicated fetcher for child we use it otherwise we use parent.__values__
+        const parentFetcher = this.definition.dynamicFields?.[parent]
+        if (parentFetcher && !(indexOrChild in parentFetcher)) {
+          dynamicHandlerPath = `${parent}.__values__`
+          dynamicFieldContext = { selectedKey: indexOrChild }
+        }
+      }
     }
 
-    return results
+    return { dynamicHandlerPath, dynamicFieldContext }
   }
 
   async executeDynamicField(
@@ -396,12 +455,16 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
      */
     dynamicFn?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
   ): Promise<DynamicFieldResponse> {
-    let fn
     if (dynamicFn && typeof dynamicFn === 'function') {
-      fn = dynamicFn
-    } else {
-      fn = this.definition.dynamicFields?.[field]
+      return (await this.performRequest(dynamicFn, { ...data })) as DynamicFieldResponse
     }
+
+    const { dynamicHandlerPath, dynamicFieldContext } = this.extractFieldContextAndHandler(field)
+
+    const fn = get<RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>>(
+      this.definition.dynamicFields,
+      dynamicHandlerPath
+    )
 
     if (typeof fn !== 'function') {
       return Promise.resolve({
@@ -415,7 +478,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     // fn will always be a dynamic field function, so we can safely cast it to DynamicFieldResponse
-    return (await this.performRequest(fn, data)) as DynamicFieldResponse
+    return (await this.performRequest(fn, { ...data, dynamicFieldContext })) as DynamicFieldResponse
   }
 
   async executeHook(

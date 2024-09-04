@@ -1,4 +1,15 @@
 import { IntegrationError, InputField } from '@segment/actions-core'
+import { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
+
+export const hideIfDeleteOperation: DependsOnConditions = {
+  conditions: [
+    {
+      fieldKey: 'operation',
+      operator: 'is_not',
+      value: 'delete'
+    }
+  ]
+}
 
 export const operation: InputField = {
   label: 'Operation',
@@ -17,9 +28,10 @@ export const operation: InputField = {
 export const enable_batching: InputField = {
   label: 'Use Salesforce Bulk API',
   description:
-    'If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 5000 before sending to Salesforce. *Enabling Bulk API is not compatible with the `create` operation*.',
+    'If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 5000 before sending to Salesforce.',
   type: 'boolean',
-  default: false
+  default: false,
+  depends_on: hideIfDeleteOperation
 }
 
 export const batch_size: InputField = {
@@ -28,7 +40,8 @@ export const batch_size: InputField = {
   type: 'number',
   required: false,
   unsafe_hidden: true,
-  default: 5000
+  default: 5000,
+  depends_on: hideIfDeleteOperation
 }
 
 export const bulkUpsertExternalId: InputField = {
@@ -145,7 +158,8 @@ export const customFields: InputField = {
   
   `,
   type: 'object',
-  defaultObjectUI: 'keyvalue'
+  defaultObjectUI: 'keyvalue',
+  depends_on: hideIfDeleteOperation
 }
 
 interface Payload {
