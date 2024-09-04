@@ -185,43 +185,6 @@ export interface Payload {
     deviceTimezone?: string
   }
   /**
-   * The content IDs associated with the event, such as product SKUs.
-   */
-  content_ids?: string[]
-  /**
-   * The name of the page or product associated with the event.
-   */
-  content_name?: string
-  /**
-   * The content type should be set to product or product_group. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data) for more information.
-   */
-  content_type?: string
-  /**
-   * A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.
-   */
-  contents?: {
-    /**
-     * The product ID of the purchased item.
-     */
-    id?: string
-    /**
-     * The number of items purchased.
-     */
-    quantity?: number
-    /**
-     * The price of the item.
-     */
-    item_price?: number
-    /**
-     * The type of delivery for a purchase event. Supported values are "in_store", "curbside", and "home_delivery".
-     */
-    delivery_category?: string
-  }[]
-  /**
-   * The currency for the value specified. Currency must be a valid ISO 4217 three-digit currency code.
-   */
-  currency?: string
-  /**
    * This ID can be any unique string. Event ID is used to deduplicate events sent by both Facebook Pixel and Conversions API.
    */
   event_id?: string
@@ -229,10 +192,6 @@ export interface Payload {
    * The browser URL where the event happened. The URL must begin with http:// or https:// and should match the verified domain. This is required if the action source is "website."
    */
   event_source_url?: string
-  /**
-   * A numeric value associated with this event. This could be a monetary value or a value in some other metric.
-   */
-  value?: number
   /**
    * The custom data object can be used to pass custom properties. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/custom-data#custom-properties) for more information.
    */
