@@ -25,7 +25,7 @@ import { get_api_version } from '../utils'
 import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Add to Cart',
+  title: 'Add to Cart V2',
   description: 'Send event when a user adds a product to the shopping cart',
   defaultSubscription: 'type = "track" and event = "Product Added"',
   syncMode: {
