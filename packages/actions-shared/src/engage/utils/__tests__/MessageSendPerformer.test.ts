@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ExecuteInput } from '@segment/actions-core/src'
 import { MessagePayloadBase, MessageSendPerformer, MessageSettingsBase } from '../MessageSendPerformer'
 import { EngageDestinationCache } from '@segment/actions-core/destination-kit'
@@ -32,7 +33,10 @@ class TestMessageSendPerformer extends MessageSendPerformer<MessageSettingsBase,
     public mockRequestClient: jest.Mock = jest.fn()
   ) {
     super(mockRequestClient, <TestExecuteInput>{
-      settings: {},
+      settings: {
+        profileApiEnvironment: 'test-profile-api-environment',
+        profileApiAccessToken: 'test-profile-api-access-token'
+      },
       payload: {
         externalIds: [
           { channelType: 'test-channel', id: 'test-external-id', subscriptionStatus: 'subscribed', type: 'test-type' }
@@ -41,6 +45,17 @@ class TestMessageSendPerformer extends MessageSendPerformer<MessageSettingsBase,
       },
       rawData: {
         messageId: 'test-message-id'
+      },
+      statsContext: {
+        statsClient: {
+          incr: jest.fn(),
+          histogram: jest.fn(),
+          set: jest.fn(),
+          _tags: jest.fn(),
+          observe: jest.fn(),
+          _name: jest.fn()
+        },
+        tags: []
       }
     })
   }
@@ -107,7 +122,35 @@ describe('Message send performer', () => {
       jest.clearAllMocks()
     })
 
-    test('prevent calling send twice', async () => {
+    async function runConcurrently(args: {
+      concurrency?: number
+      sendToRecepient?: () => Promise<any>
+      performerInit?: (performer: Mutable<TestMessageSendPerformer>, index: number) => void
+      randomStartDelay?: number
+      randomPerformDelay?: number
+      uniqueMessageIds?: number
+    }) {
+      const parallelPerformers = Array.from({ length: args?.concurrency || 100 }, (_, i) => {
+        const performer = createPerformer(async () => {
+          if (args.randomPerformDelay)
+            await new Promise((res) => setTimeout(res, Math.floor(Math.random() * args.randomPerformDelay!)))
+          return await args.sendToRecepient?.()
+        })
+        if (args.uniqueMessageIds)
+          performer.executeInput.rawData.messageId = 'test-message-id' + (i % args.uniqueMessageIds)
+        args.performerInit?.(performer, i)
+        return performer
+      })
+      await Promise.all(
+        parallelPerformers.map(async (performer) => {
+          if (args.randomStartDelay)
+            await new Promise((res) => setTimeout(res, Math.floor(Math.random() * args.randomStartDelay!))) //randomize start time
+          await performer.perform()
+        })
+      )
+    }
+
+    test('prevent sending twice', async () => {
       let performer = createPerformer()
       await performer.perform()
       expect(cache.getByKey).toHaveBeenCalledTimes(2)
@@ -127,18 +170,37 @@ describe('Message send performer', () => {
       //
     })
 
-    test('parallel calls', async () => {
-      let sends = 0
-      const parallelPerformers = Array.from({ length: 100 }, (_, _i) =>
-        createPerformer(async () => {
-          await new Promise((res) => setTimeout(res, 1000))
-          sends++
-          return
-        })
-      )
-      await Promise.allSettled(parallelPerformers.map((performer) => performer.perform()))
-      expect(sends).toBe(1)
-      expect(cache.setByKey).toHaveBeenCalledTimes(1)
+    test('prevent sending multiple times during hundred of concurrent calls', async () => {
+      const sendToRecepient = jest.fn()
+      const uniqueMessageIds = 4
+      await runConcurrently({
+        randomPerformDelay: 500,
+        randomStartDelay: 500,
+        sendToRecepient,
+        uniqueMessageIds
+      })
+      expect(sendToRecepient).toHaveBeenCalledTimes(uniqueMessageIds)
+      expect(cache.setByKey).toHaveBeenCalledTimes(uniqueMessageIds)
+    })
+
+    test('stats always have withLock tag during concurrent calls', async () => {
+      const uniqueMessageIds = 4
+      await runConcurrently({
+        randomStartDelay: 500,
+        randomPerformDelay: 500,
+        uniqueMessageIds,
+        performerInit(performer) {
+          type IncrFunc = jest.MockedFunction<
+            NonNullable<typeof performer.executeInput.statsContext>['statsClient']['incr']
+          >
+          const incrMock = performer.executeInput.statsContext?.statsClient.incr as IncrFunc
+          incrMock.mockImplementation((name, _value, tags) => {
+            if (name.startsWith('test-integration.getOrAddCache')) {
+              expect(tags!.some((t) => t == 'withLock:true') || tags!.some((t) => t == 'withLock:false')).toBeTruthy()
+            }
+          })
+        }
+      })
     })
   })
 })
