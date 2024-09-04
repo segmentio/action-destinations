@@ -26,7 +26,7 @@ import { get_api_version } from '../utils'
 import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'View Content',
+  title: 'View Content V2',
   description: 'Send event when a user views content or a product',
   defaultSubscription: 'type = "track" and event = "Product Viewed"',
   syncMode: {
