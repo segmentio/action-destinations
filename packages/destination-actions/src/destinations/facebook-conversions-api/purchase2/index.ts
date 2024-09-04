@@ -26,7 +26,7 @@ import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Purchase',
+  title: 'Purchase V2',
   description: 'Send event when a user completes a purchase',
   defaultSubscription: 'type = "track" and event = "Order Completed"',
   syncMode: {
