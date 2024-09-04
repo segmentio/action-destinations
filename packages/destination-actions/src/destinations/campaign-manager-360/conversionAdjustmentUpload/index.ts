@@ -3,12 +3,12 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { buildUpdateConversionBatchPayload } from './functions'
 import { refreshGoogleAccessToken } from '../common-functions'
-import { commonFields } from '../fields'
+import { campaignManager360CommonFields } from '../common-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Adjustment Upload',
   description: "Inserts a conversion into Campaign Manager 360's profile configured under Settings.",
-  fields: commonFields,
+  fields: campaignManager360CommonFields,
   // https://developers.google.com/doubleclick-advertisers/rest/v4/conversions/batchupdate
   perform: async (request, { settings, payload }) => {
     const conversionsBatchUpdateRequest = buildUpdateConversionBatchPayload([payload], settings)

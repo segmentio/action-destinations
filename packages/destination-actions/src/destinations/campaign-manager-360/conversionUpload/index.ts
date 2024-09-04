@@ -4,12 +4,12 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { buildInsertConversionBatchPayload } from './functions'
 import { refreshGoogleAccessToken } from '../common-functions'
-import { commonFields } from '../fields'
+import { campaignManager360CommonFields } from '../common-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Upload',
   description: 'Send a conversion to Campaign Manager 360.',
-  fields: { 
+  fields: {
     customVariables: {
       label: 'Custom Variables',
       description: 'Custom variables associated with the conversion.',
@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]
       }
-    }, 
+    },
     encryptedUserIdCandidates: {
       label: 'Encrypted User ID Candidates',
       description:
@@ -110,7 +110,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    ...commonFields
+    ...campaignManager360CommonFields
   },
 
   // So far, Google didn't provide an answer whether this is a good way to fetch the Floodlight Configurations.
