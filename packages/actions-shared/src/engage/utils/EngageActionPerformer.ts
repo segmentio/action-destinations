@@ -203,7 +203,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       expiryInSeconds?: number
       lockOptions?: LockOptions
       saveRetries?: number
-      saveRetryIntervalMs?: number
+      saveRetryIntervalMs?: number | ((attempt: number) => number)
     }
   ): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
@@ -293,15 +293,14 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       this.logInfo('cache_stringify_error', { key, error: stringified.error, finalStatsTags })
     } else if (!isNothing(stringified.value)) {
       //result stringified and contains cacheable value - cache it
-      let retriesLeft = options.saveRetries || 3
-      let cacheSavingError: any | undefined = undefined
-      do {
-        cacheSavingError = (
-          await getOrCatch(() =>
-            this.engageDestinationCache!.setByKey(key, stringified.value!, options.expiryInSeconds)
-          )
-        ).error
-      } while (cacheSavingError && retriesLeft-- > 0 && (await delay(options.saveRetryIntervalMs || 1000)))
+
+      const cacheSavingError = await doWithRetries(
+        () => this.engageDestinationCache!.setByKey(key, stringified.value!, options.expiryInSeconds),
+        {
+          retryAttempts: options.saveRetries || 3,
+          retryIntervalMs: options.saveRetryIntervalMs ? options.saveRetryIntervalMs : (attempt) => 1000 * attempt
+        }
+      )
 
       finalStatsTags.cache_step = 'save_' + (cacheSavingError ? 'error' : 'value')
       if (cacheSavingError) {
@@ -477,4 +476,31 @@ export function isNothing(cacheValue: any): cacheValue is null | undefined | voi
 
 async function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export async function doWithRetries<T>(
+  action: () => Promise<T>,
+  args: {
+    retryAttempts: number
+    retryIntervalMs: number | ((attempt: number) => number)
+    retryIf?: (valueOrError: ValueOrError<T>) => boolean
+  }
+): Promise<ValueOrError<T>> {
+  let retryAttempt = 0
+  let valueOrError: ValueOrError<T> | undefined = undefined
+  do {
+    valueOrError = await getOrCatch(action)
+    const shouldRetry = args.retryIf ? args.retryIf(valueOrError) : valueOrError.error
+
+    if (!shouldRetry || retryAttempt > args.retryAttempts) break
+
+    retryAttempt++
+
+    const retryIntervalMs =
+      typeof args.retryIntervalMs === 'function' ? args.retryIntervalMs(retryAttempt) : args.retryIntervalMs
+    await delay(retryIntervalMs)
+    // eslint-disable-next-line no-constant-condition -- the loop is exited by break
+  } while (true)
+
+  return valueOrError
 }
