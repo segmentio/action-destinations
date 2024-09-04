@@ -202,6 +202,8 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       serializer?: CacheSerializer<T>
       expiryInSeconds?: number
       lockOptions?: LockOptions
+      saveRetries?: number
+      saveRetryIntervalMs?: number
     }
   ): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
@@ -291,14 +293,21 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       this.logInfo('cache_stringify_error', { key, error: stringified.error, finalStatsTags })
     } else if (!isNothing(stringified.value)) {
       //result stringified and contains cacheable value - cache it
-      const { error: cacheSavingError } = await getOrCatch(() =>
-        this.engageDestinationCache!.setByKey(key, stringified.value!, options.expiryInSeconds)
-      )
+      let retriesLeft = options.saveRetries || 3
+      let cacheSavingError: any | undefined = undefined
+      do {
+        cacheSavingError = (
+          await getOrCatch(() =>
+            this.engageDestinationCache!.setByKey(key, stringified.value!, options.expiryInSeconds)
+          )
+        ).error
+      } while (cacheSavingError && retriesLeft-- > 0 && (await delay(options.saveRetryIntervalMs || 1000)))
+
       finalStatsTags.cache_step = 'save_' + (cacheSavingError ? 'error' : 'value')
       if (cacheSavingError) {
         this.statsIncr('cache_saving_error', 1, finalStatsTags)
         finalStatsTags.cache_saving_error = true
-        this.logInfo('cache_saving_error', { key, error: cacheSavingError, finalStatsTags })
+        this.logInfo('cache_saving_error', { key, error: getErrorDetails(cacheSavingError), finalStatsTags })
       }
     }
 
@@ -464,4 +473,8 @@ export type LockOptions = {
 
 export function isNothing(cacheValue: any): cacheValue is null | undefined | void {
   return cacheValue === undefined || cacheValue === null
+}
+
+async function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
