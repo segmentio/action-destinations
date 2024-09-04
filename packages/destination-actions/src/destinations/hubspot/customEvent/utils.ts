@@ -224,49 +224,53 @@ export async function compareToCache(_schema: Schema): Promise<SchemaDiff> {
 
 export async function compareToHubspot(client: Client, schema: Schema): Promise<SchemaDiff> {
   const mismatchSchemaDiff: SchemaDiff = { match: 'mismatch', missingProperties: {} }
+    
+  const response =await client.getEventDefinition(schema.eventName)
 
-  try {
-    const {
-      fullyQualifiedName,
-      name,
-      properties: hsProperties,
-      archived
-    } = await client.getEventDefinition(schema.eventName)
-
-    if (archived) {
-      return mismatchSchemaDiff
-    }
-
-    const schemaDiff = { missingProperties: {} } as SchemaDiff
-
-    for (const propName in schema.properties) {
-      const matchedProperty = hsProperties.find((hsProp) => hsProp.name === propName)
-
-      if (matchedProperty?.archived === true) {
+  switch (response.status) {
+    case 200:{
+      const { fullyQualifiedName, name, properties: hsProperties, archived } = response.data
+     
+      if (archived) {
         return mismatchSchemaDiff
       }
-
-      const prop = schema.properties[propName]
-
-      if (
-        (['object', 'string', 'boolean'].includes(prop.type) && matchedProperty?.type === 'number') ||
-        (['datetime', 'string', 'enumeration'].includes(matchedProperty?.type as string) && prop.type === 'number')
-      ) {
-        return mismatchSchemaDiff
+  
+      const schemaDiff = { missingProperties: {} } as SchemaDiff
+  
+      for (const propName in schema.properties) {
+        const matchedProperty = hsProperties.find((hsProp) => hsProp.name === propName)
+  
+        if (matchedProperty?.archived === true) {
+          return mismatchSchemaDiff
+        }
+  
+        const prop = schema.properties[propName]
+  
+        if (
+          (['object', 'string', 'boolean'].includes(prop.type) && matchedProperty?.type === 'number') ||
+          (['datetime', 'string', 'enumeration'].includes(matchedProperty?.type as string) && prop.type === 'number')
+        ) {
+          return mismatchSchemaDiff
+        }
+  
+        if (!matchedProperty) {
+          schemaDiff.missingProperties[propName] = schema.properties[propName]
+        }
       }
-
-      if (!matchedProperty) {
-        schemaDiff.missingProperties[propName] = schema.properties[propName]
-      }
+  
+      schemaDiff.match = Object.keys(schemaDiff.missingProperties).length === 0 ? 'full_match' : 'properties_missing'
+      schemaDiff.fullyQualifiedName = fullyQualifiedName
+      schemaDiff.name = name
+  
+      return schemaDiff
     }
-
-    schemaDiff.match = Object.keys(schemaDiff.missingProperties).length === 0 ? 'full_match' : 'properties_missing'
-    schemaDiff.fullyQualifiedName = fullyQualifiedName
-    schemaDiff.name = name
-
-    return schemaDiff
-  } catch {
-    return { match: 'no_match', missingProperties: {} } as SchemaDiff
+    case 400:
+    case 404:
+      return { match: 'no_match', missingProperties: {} }
+    case 429:
+      throw new RetryableError('Hubspot:CustomEvent:compareToHubspot: Rate limit reached')
+    default:
+      throw new IntegrationError(`Hubspot.CustomEvent.compareToHubspot: ${response?.statusText ? response.statusText : 'Unexpected Error'}`, 'UNEXPECTED_ERROR', response.status)
   }
 }
 

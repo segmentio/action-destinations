@@ -1,4 +1,4 @@
-import { RequestClient } from '@segment/actions-core'
+import { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import { HUBSPOT_BASE_URL } from '../properties'
 import {
   CreateEventDefinitionResp,
@@ -15,15 +15,15 @@ export class Client {
     this.request = request
   }
 
-  async getEventDefinition(eventName: string): Promise<GetEventDefinitionResp> {
+  async getEventDefinition(eventName: string): Promise<ModifiedResponse<GetEventDefinitionResp>> {
     const url = `${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`
 
-    const response = await this.request(url, {
+    return await this.request<GetEventDefinitionResp>(url, {
       method: 'GET',
-      skipResponseCloning: true
+      skipResponseCloning: true,
+      throwHttpErrors: false
     })
-
-    return response.data as GetEventDefinitionResp
+    
   }
 
   async send(json: EventCompletionReq) {
