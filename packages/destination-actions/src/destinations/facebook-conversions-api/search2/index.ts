@@ -24,7 +24,7 @@ import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Search',
+  title: 'Search V2',
   description: 'Send event when a user searches content or products',
   defaultSubscription: 'type = "track" and event = "Products Searched"',
   syncMode: {
