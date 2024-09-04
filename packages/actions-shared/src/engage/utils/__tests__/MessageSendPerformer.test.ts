@@ -272,7 +272,7 @@ describe('Message send performer', () => {
       expect(isRetryableError(res[1])).toBeTruthy()
     })
 
-    test('getOrAddCache works for nested call (fetching large template)', async () => {
+    test('getOrAddCache should work for nested call (fetching large template)', async () => {
       const template = 'large message template'
       const fetchLargeTemplate = jest.fn(async () => {
         await new Promise((res) => setTimeout(res, 500))

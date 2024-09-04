@@ -15,6 +15,7 @@ import { Awaited, StatsTags, StatsTagsMap } from './operationTracking'
 import truncate from 'lodash/truncate'
 import { isRetryableError } from './isRetryableError'
 import { getOrCatch, ValueOrError } from './getOrCatch'
+import { getOrRetry } from './getOrRetry'
 
 /**
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
@@ -294,7 +295,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     } else if (!isNothing(stringified.value)) {
       //result stringified and contains cacheable value - cache it
 
-      const cacheSavingError = await doWithRetries(
+      const cacheSavingError = await getOrRetry(
         () => this.engageDestinationCache!.setByKey(key, stringified.value!, options.expiryInSeconds),
         {
           retryAttempts: options.saveRetries || 3,
@@ -472,35 +473,4 @@ export type LockOptions = {
 
 export function isNothing(cacheValue: any): cacheValue is null | undefined | void {
   return cacheValue === undefined || cacheValue === null
-}
-
-async function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-export async function doWithRetries<T>(
-  action: () => Promise<T>,
-  args: {
-    retryAttempts: number
-    retryIntervalMs: number | ((attempt: number) => number)
-    retryIf?: (valueOrError: ValueOrError<T>) => boolean
-  }
-): Promise<ValueOrError<T>> {
-  let retryAttempt = 0
-  let valueOrError: ValueOrError<T> | undefined = undefined
-  do {
-    valueOrError = await getOrCatch(action)
-    const shouldRetry = args.retryIf ? args.retryIf(valueOrError) : valueOrError.error
-
-    if (!shouldRetry || retryAttempt > args.retryAttempts) break
-
-    retryAttempt++
-
-    const retryIntervalMs =
-      typeof args.retryIntervalMs === 'function' ? args.retryIntervalMs(retryAttempt) : args.retryIntervalMs
-    await delay(retryIntervalMs)
-    // eslint-disable-next-line no-constant-condition -- the loop is exited by break
-  } while (true)
-
-  return valueOrError
 }
