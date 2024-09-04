@@ -71,6 +71,22 @@ const destination: DestinationDefinition<Settings> = {
         )
       }
 
+      if (!process.env.ACTIONS_LINKEDIN_CONVERSIONS_CLIENT_ID) {
+        throw new IntegrationError(`Missing client ID`, ErrorCodes.OAUTH_REFRESH_FAILED, 500)
+      }
+
+      if (!process.env.ACTIONS_LINKEDIN_CONVERSIONS_CLIENT_SECRET) {
+        throw new IntegrationError(`Missing client secret`, ErrorCodes.OAUTH_REFRESH_FAILED, 500)
+      }
+
+      if (!auth?.refreshToken) {
+        throw new IntegrationError(
+          `Missing refresh token. Please re-authenticate to fetch a new refresh token.`,
+          ErrorCodes.OAUTH_REFRESH_FAILED,
+          401
+        )
+      }
+
       try {
         res = await request<RefreshTokenResponse>('https://www.linkedin.com/oauth/v2/accessToken', {
           method: 'POST',

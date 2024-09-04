@@ -108,7 +108,7 @@ export const user_data_field: InputField = {
       type: 'integer'
     },
     anonId: {
-      label: 'anon_id: Your install ID',
+      label: 'Install ID (anon_id)',
       description:
         'This field represents unique application installation instances. Note: This parameter is for app events only.',
       type: 'string'

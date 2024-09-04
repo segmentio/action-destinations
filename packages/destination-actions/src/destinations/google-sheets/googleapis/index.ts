@@ -1,4 +1,4 @@
-import { DEFAULT_REQUEST_TIMEOUT, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import { ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { MappingSettings } from '../postSheet/operations'
 
 const API_VERSION = 'v4'
@@ -30,9 +30,7 @@ export class GoogleSheets {
       `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values:batchUpdate`,
       {
         method: 'post',
-        // response for inserts can be long. Hence, skipping response cloning
         skipResponseCloning: true,
-        timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT),
         json: {
           valueInputOption: mappingSettings.dataFormat,
           data: batchPayload
@@ -59,9 +57,7 @@ export class GoogleSheets {
       `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}:append?valueInputOption=${mappingSettings.dataFormat}&insertDataOption=INSERT_ROWS`,
       {
         method: 'post',
-        // response for inserts can be long. Hence, skipping response cloning
         skipResponseCloning: true,
-        timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT),
         json: {
           values: values
         }
