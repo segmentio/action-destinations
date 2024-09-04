@@ -1,7 +1,6 @@
 import { PayloadValidationError, IntegrationError, RetryableError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import {
-  CreateEventDefinitionRespErr,
   CreateEventDefinitionReq,
   CreatePropertyDefintionReq,
   CreatePropertyRegectedResp,
@@ -224,44 +223,44 @@ export async function compareToCache(_schema: Schema): Promise<SchemaDiff> {
 
 export async function compareToHubspot(client: Client, schema: Schema): Promise<SchemaDiff> {
   const mismatchSchemaDiff: SchemaDiff = { match: 'mismatch', missingProperties: {} }
-    
-  const response =await client.getEventDefinition(schema.eventName)
+
+  const response = await client.getEventDefinition(schema.eventName)
 
   switch (response.status) {
-    case 200:{
+    case 200: {
       const { fullyQualifiedName, name, properties: hsProperties, archived } = response.data
-     
+
       if (archived) {
         return mismatchSchemaDiff
       }
-  
+
       const schemaDiff = { missingProperties: {} } as SchemaDiff
-  
+
       for (const propName in schema.properties) {
         const matchedProperty = hsProperties.find((hsProp) => hsProp.name === propName)
-  
+
         if (matchedProperty?.archived === true) {
           return mismatchSchemaDiff
         }
-  
+
         const prop = schema.properties[propName]
-  
+
         if (
           (['object', 'string', 'boolean'].includes(prop.type) && matchedProperty?.type === 'number') ||
           (['datetime', 'string', 'enumeration'].includes(matchedProperty?.type as string) && prop.type === 'number')
         ) {
           return mismatchSchemaDiff
         }
-  
+
         if (!matchedProperty) {
           schemaDiff.missingProperties[propName] = schema.properties[propName]
         }
       }
-  
+
       schemaDiff.match = Object.keys(schemaDiff.missingProperties).length === 0 ? 'full_match' : 'properties_missing'
       schemaDiff.fullyQualifiedName = fullyQualifiedName
       schemaDiff.name = name
-  
+
       return schemaDiff
     }
     case 400:
@@ -270,7 +269,11 @@ export async function compareToHubspot(client: Client, schema: Schema): Promise<
     case 429:
       throw new RetryableError('Hubspot:CustomEvent:compareToHubspot: Rate limit reached')
     default:
-      throw new IntegrationError(`Hubspot.CustomEvent.compareToHubspot: ${response?.statusText ? response.statusText : 'Unexpected Error'}`, 'UNEXPECTED_ERROR', response.status)
+      throw new IntegrationError(
+        `Hubspot.CustomEvent.compareToHubspot: ${response?.statusText ? response.statusText : 'Unexpected Error'}`,
+        'UNEXPECTED_ERROR',
+        response.status
+      )
   }
 }
 
@@ -304,24 +307,29 @@ export async function createHubspotEventSchema(client: Client, schema: Schema): 
     })
   }
 
-  try {
-    const response = await client.createEventDefinition(json)
+  const response = await client.createEventDefinition(json)
 
-    return {
-      match: 'full_match',
-      fullyQualifiedName: response.fullyQualifiedName,
-      name: response.name
-    } as SchemaDiff
-  } catch (error) {
-    const responseError = error as CreateEventDefinitionRespErr
-    if (responseError.response.data.category === 'OBJECT_ALREADY_EXISTS') {
-      throw new RetryableError()
+  switch (response.status) {
+    case 201:
+    case 200: {
+      return {
+        match: 'full_match',
+        fullyQualifiedName: response.data.fullyQualifiedName,
+        name: response.data.name
+      } as SchemaDiff
     }
-    throw new IntegrationError(
-      `Error creating schema in HubSpot. ${responseError.response.data.message}`,
-      'HUBSPOT_CREATE_SCHEMA_ERROR',
-      400
-    )
+    case 409:
+      throw new RetryableError('Hubspot:CustomEvent:createHubspotEventSchema: Object already exists')
+    case 429:
+      throw new RetryableError('Hubspot:CustomEvent:createHubspotEventSchema: Rate limit reached')
+    default:
+      throw new IntegrationError(
+        `Hubspot.CustomEvent.createHubspotEventSchema: ${
+          response?.statusText ? response.statusText : 'Unexpected Error'
+        }`,
+        'UNEXPECTED_ERROR',
+        response.status
+      )
   }
 }
 

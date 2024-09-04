@@ -16,14 +16,14 @@ export class Client {
   }
 
   async getEventDefinition(eventName: string): Promise<ModifiedResponse<GetEventDefinitionResp>> {
-    const url = `${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`
-
-    return await this.request<GetEventDefinitionResp>(url, {
-      method: 'GET',
-      skipResponseCloning: true,
-      throwHttpErrors: false
-    })
-    
+    return await this.request<GetEventDefinitionResp>(
+      `${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`,
+      {
+        method: 'GET',
+        skipResponseCloning: true,
+        throwHttpErrors: false
+      }
+    )
   }
 
   async send(json: EventCompletionReq) {
@@ -33,13 +33,13 @@ export class Client {
     })
   }
 
-  async createEventDefinition(json: CreateEventDefinitionReq): Promise<CreateEventDefinitionResp> {
-    const response = await this.request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions`, {
+  async createEventDefinition(json: CreateEventDefinitionReq): Promise<ModifiedResponse<CreateEventDefinitionResp>> {
+    return await this.request<CreateEventDefinitionResp>(`${HUBSPOT_BASE_URL}/events/v3/event-definitions`, {
       method: 'POST',
-      json
+      json,
+      skipResponseCloning: true,
+      throwHttpErrors: false
     })
-
-    return response.data as CreateEventDefinitionResp
   }
 
   async createPropertyDefinition(json: CreatePropertyDefintionReq, eventName: string) {
