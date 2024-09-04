@@ -2,7 +2,6 @@ import { RequestClient } from '@segment/actions-core'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { SUPPORTED_HUBSPOT_OBJECT_TYPES } from './constants'
-
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 enum AssociationCategory {
@@ -196,8 +195,6 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
     }
   }
 
-  const defaultChoices = SUPPORTED_HUBSPOT_OBJECT_TYPES
-
   try {
     const response: ResponseType = await request(`${HUBSPOT_BASE_URL}/crm/v3/schemas?archived=false`, {
       method: 'GET',
@@ -218,7 +215,7 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
         return 0
       })
     return {
-      choices: [...choices, ...defaultChoices]
+      choices: [...choices, ...SUPPORTED_HUBSPOT_OBJECT_TYPES]
     }
   } catch (err) {
     const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
@@ -241,7 +238,11 @@ export async function dynamicReadProperties(
   interface ResultItem {
     label: string
     name: string
+    type: string
     hasUniqueValue: boolean
+    modificationMetadata: {
+      readOnlyValue: boolean
+    }
   }
 
   interface ResponseType {
@@ -260,10 +261,10 @@ export async function dynamicReadProperties(
     return {
       choices: [
         ...response.data.results
-          .filter((field: ResultItem) => !field.hasUniqueValue)
+          .filter((field: ResultItem) => !field.hasUniqueValue && field.modificationMetadata.readOnlyValue === false)
           .map((field: ResultItem) => {
             return {
-              label: field.label,
+              label: `${field.label} - ${field.type}`,
               value: field.name
             }
           })
