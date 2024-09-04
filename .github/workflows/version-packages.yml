@@ -22,6 +22,9 @@ on:
 
 jobs:
   build-and-version-packages:
+    strategy:
+      matrix:
+        node-version: [18.x]
     env:
       HUSKY: 0
     runs-on: ubuntu-latest
