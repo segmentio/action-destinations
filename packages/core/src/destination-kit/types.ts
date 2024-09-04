@@ -16,8 +16,8 @@ export interface Result {
   data?: JSONObject | null
   // Cloudevents Spec V2 Response
   response?:
-    | ActionDestinationSuccessResponse
-    | (ActionDestinationErrorResponse & {
+    | ActionDestinationSuccessResponseType
+    | (ActionDestinationErrorResponseType & {
         errorreporter: 'INTEGRATIONS' | 'DESTINATION'
       })
     | null
@@ -354,18 +354,16 @@ export interface SyncModeDefinition {
   choices: SyncModeOption[]
 }
 
-export type ActionDestinationSuccessResponse = {
+export type ActionDestinationSuccessResponseType = {
   status: number
   sent: object | string
   body: object | string
 }
 
-export type ActionDestinationErrorResponse = {
+export type ActionDestinationErrorResponseType = {
   status: number
   errortype: string
   errormessage: string
   sent?: object | string
   body?: object | string
 }
-
-export type ActionDestinationResponse = ActionDestinationSuccessResponse | ActionDestinationErrorResponse

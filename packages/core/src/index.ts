@@ -85,10 +85,7 @@ export type {
   DynamicFieldItem,
   InputField,
   GlobalSetting,
-  RequestExtension,
-  ActionDestinationResponse,
-  ActionDestinationSuccessResponse,
-  ActionDestinationErrorResponse
+  RequestExtension
 } from './destination-kit/types'
 
 export type { JSONPrimitive, JSONValue, JSONObject, JSONArray, JSONLike, JSONLikeObject } from './json-object'
@@ -97,10 +94,11 @@ export type { SegmentEvent } from './segment-event'
 
 export type { RequestClient } from './create-request-client'
 
-export { MultiStatusResponse, MultiStatusResponseBuilder } from './destination-kit/action'
-
-export type {
-  MultiStatusPayloadValidatorFunction,
-  MultiStatusPayloadValidatorFunctionObjectResponse,
-  MultiStatusPayloadTransformerFunction
+export {
+  ActionDestinationSuccessResponse,
+  ActionDestinationErrorResponse,
+  MultiStatusResponse,
+  MultiStatusResponseBuilder,
+  MultiStatusPayloadValidatorFn,
+  MultiStatusPayloadTransformerFn
 } from './destination-kit/action'
