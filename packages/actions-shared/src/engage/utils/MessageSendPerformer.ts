@@ -115,6 +115,7 @@ export abstract class MessageSendPerformer<
       `${messageId}-${recipientId?.toLowerCase()}`,
       () => this.sendToRecepient(recepient),
       {
+        expiryInSeconds: 60 * 60 * 4, // 24 hours
         cacheGroup: 'sendToRecepient',
         lockOptions: {
           acquireLockMaxWaitTimeMs: 30 * 1000, //30 secs - max wait for lock time, before throwing timeout error

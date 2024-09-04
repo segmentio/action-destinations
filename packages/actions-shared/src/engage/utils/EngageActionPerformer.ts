@@ -223,18 +223,8 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
     const cacheRead = await getOrCatch(() => cache.getByKey(key))
     finalStatsTags.cache_step = `read_${
-      cacheRead.error ? 'error' : !isEmptyValue(cacheRead.value) ? 'value' : 'value_empty'
+      cacheRead.error ? 'error' : !isNothing(cacheRead.value) ? 'value' : 'value_empty'
     }`
-
-    // we respect lockOptions only if cache is not found and no error happened while reading cache
-    if (options.lockOptions && !(cacheRead.error || cacheRead.value)) {
-      if (!options.lockOptions.cacheGroup) options.lockOptions.cacheGroup = cache_group
-      return this.withDistributedLock(
-        `cache:${key}`,
-        () => this.getOrAddCache(key, createValue, { ...options, lockOptions: undefined }),
-        options.lockOptions
-      )
-    }
 
     if (cacheRead.error) {
       //redis error
@@ -246,8 +236,21 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         details: getErrorDetails(cacheRead.error)
       })
       this.throwRetryableError('Error reading cache')
-    } else if (!isEmptyValue(cacheRead.value)) {
+    }
+
+    // we lock only if cache not found
+    if (isNothing(cacheRead.value) && options.lockOptions) {
+      if (!options.lockOptions.cacheGroup) options.lockOptions.cacheGroup = cache_group
+      return this.withDistributedLock(
+        `cache:${key}`,
+        () => this.getOrAddCache(key, createValue, { ...options, lockOptions: undefined }),
+        options.lockOptions
+      )
+    }
+
+    if (!isNothing(cacheRead.value)) {
       //if cache FOUND (getByKey returned not null and not undefined)
+      // trying to parse the cached value
       const { value: parsedCache, error: parsingError } = getOrCatch(() => serializer.parse(cacheRead.value!))
       finalStatsTags.cache_step = `parse_${
         parsingError ? 'error' : parsedCache !== undefined ? 'value' : 'value_empty'
@@ -258,18 +261,18 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         // Log it and execute as if we don't have cache
         finalStatsTags.cache_parsing_error = true
         this.logInfo('cache_parsing_error', { key, value: cacheRead.value, parsingError, finalStatsTags })
-      } else if (parsedCache) {
-        //parsed cache successfully && cache is not expired
-        // parsedValue - either value or error was parsed
-        finalStatsTags.cache_hit = true
-        finalStatsTags.cached_error = !!parsedCache?.error
-        this.statsIncr('cache_hit', 1, finalStatsTags)
-        if (parsedCache?.error) throw parsedCache.error
-        return parsedCache.value
-      } else {
+      } else if (isNothing(parsedCache)) {
         //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
         finalStatsTags.cache_ignored = true
         this.logInfo('cache_ignored', { key, value: cacheRead.value, finalStatsTags })
+      } else {
+        //parsed cache successfully && cache is not expired
+        // parsedValue - either value or error was parsed
+        finalStatsTags.cache_hit = true
+        finalStatsTags.cached_error = !!parsedCache.error
+        this.statsIncr('cache_hit', 1, finalStatsTags)
+        if (parsedCache?.error) throw parsedCache.error
+        return parsedCache.value
       }
     }
     // re-executing, because cache not found or ignored or failed to read or parse
@@ -286,13 +289,14 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     if (stringified.error) {
       finalStatsTags.cache_stringify_error = true
       this.logInfo('cache_stringify_error', { key, error: stringified.error, finalStatsTags })
-    } else if (stringified.value) {
+    } else if (!isNothing(stringified.value)) {
       //result stringified and contains cacheable value - cache it
       const { error: cacheSavingError } = await getOrCatch(() =>
         this.engageDestinationCache!.setByKey(key, stringified.value!, options.expiryInSeconds)
       )
       finalStatsTags.cache_step = 'save_' + (cacheSavingError ? 'error' : 'value')
       if (cacheSavingError) {
+        this.statsIncr('cache_saving_error', 1, finalStatsTags)
         finalStatsTags.cache_saving_error = true
         this.logInfo('cache_saving_error', { key, error: cacheSavingError, finalStatsTags })
       }
@@ -364,24 +368,23 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     if (redisError) {
       this.logInfo('lock_acquire_error', { key, redisError, statsTags })
       statsTags.lock_acquired_error = true
-      throw redisError
-    }
-
-    if (lock?.release)
-      //if lock obtained or there was redis error - execute createValue and finally release lock
-      try {
-        return await createValue()
-      } finally {
-        const { error: releaseError } = lock?.release ? await getOrCatch(() => lock.release()) : { error: undefined }
-        if (releaseError) {
-          this.logInfo('lock_release_error', { key, releaseError, statsTags })
-          statsTags.lock_release_error = true
-        }
-      }
-    else {
+      this.throwRetryableError('Error acquiring lock: ' + redisError.message)
+    } else if (!lock?.release) {
       // no redis error and no lock acquired - means it was acquiring timeout
       this.throwRetryableError('Timeout while acquiring lock')
     }
+    //if lock obtained or there was redis error - execute createValue and finally release lock
+    else
+      try {
+        return await createValue()
+      } finally {
+        const { error: releaseError } = await getOrCatch(() => lock.release())
+        if (releaseError) {
+          this.logInfo('lock_release_error', { key, releaseError, statsTags })
+          statsTags.lock_release_error = true
+          // we can ignore the error, as the lock will be expired anyway
+        }
+      }
   }
 }
 
@@ -459,6 +462,6 @@ export type LockOptions = {
   cacheGroup?: string
 }
 
-export function isEmptyValue(cacheValue: any) {
+export function isNothing(cacheValue: any): cacheValue is null | undefined | void {
   return cacheValue === undefined || cacheValue === null
 }
