@@ -14,13 +14,14 @@ export function buildInsertConversionBatchPayload(
   }
 
   for (const payload of payloads) {
+    const requiredId = payload.requiredId
     if (
-      !payload.gclid &&
-      !payload.dclid &&
-      !payload.encryptedUserId &&
-      !payload.mobileDeviceId &&
-      !payload.matchId &&
-      !payload.impressionId &&
+      !requiredId.gclid &&
+      !requiredId.dclid &&
+      !requiredId.encryptedUserId &&
+      !requiredId.mobileDeviceId &&
+      !requiredId.matchId &&
+      !requiredId.impressionId &&
       (!payload.encryptedUserIdCandidates || payload.encryptedUserIdCandidates.length === 0)
     ) {
       throw new Error(

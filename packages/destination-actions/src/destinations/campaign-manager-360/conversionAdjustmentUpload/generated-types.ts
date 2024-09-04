@@ -14,58 +14,71 @@ export interface Payload {
    */
   userDetails?: {
     /**
-     * The email address associated with the conversion.
+     * The user's email address. If unhashed, Segment will hash before sending to Campaign Manager 360.
      */
     email?: string
     /**
-     * The phone number associated with the conversion.
+     * The user's phone number. If unhashed, Segment will hash before sending to Campaign Manager 360.
      */
     phone?: string
     /**
-     * The first name associated with the conversion.
+     * First name of the user. If unhashed, Segment will hash before sending to Campaign Manager 360.
      */
     firstName?: string
     /**
-     * The last name associated with the conversion.
+     * Last name of the user. If unhashed, Segment will hash before sending to Campaign Manager 360.
      */
     lastName?: string
     /**
-     * The street address associated with the conversion.
+     * The street address of the user. If unhashed, Segment will hash before sending to Campaign Manager 360.
      */
     streetAddress?: string
     /**
-     * The city associated with the conversion.
+     * The user's city
      */
     city?: string
     /**
-     * The state associated with the conversion.
+     * The user's state
      */
     state?: string
     /**
-     * The postal code associated with the conversion.
+     * The user's postal code
      */
     postalCode?: string
     /**
-     * The country code associated with the conversion.
+     * 2-letter country code in ISO-3166-1 alpha-2 of the user's address.
      */
     countryCode?: string
   }
   /**
-   * The Google Click ID (gclid) associated with the conversion.
+   * A user identifier record the conversion against. Exactly one of Google Click ID, Display Click ID, Encrypted User ID, Mobile Device ID, Match ID or Impression ID must be provided.
    */
-  gclid?: string
-  /**
-   * The Display Click ID (dclid) associated with the conversion.
-   */
-  dclid?: string
-  /**
-   * The encrypted user ID associated with the conversion.
-   */
-  encryptedUserId?: string
-  /**
-   * The mobile device ID associated with the conversion.
-   */
-  mobileDeviceId?: string
+  requiredId: {
+    /**
+     * The Google Click ID (gclid) associated with the conversion.
+     */
+    gclid?: string
+    /**
+     * The Display Click ID (dclid) associated with the conversion.
+     */
+    dclid?: string
+    /**
+     * The encrypted user ID associated with the conversion.
+     */
+    encryptedUserId?: string
+    /**
+     * The mobile device ID associated with the conversion.
+     */
+    mobileDeviceId?: string
+    /**
+     * The match ID field. A match ID is your own first-party identifier that has been synced with Google using the match ID feature in Floodlight.
+     */
+    matchId?: string
+    /**
+     * The impression ID associated with the conversion.
+     */
+    impressionId?: string
+  }
   /**
    * The timestamp of the conversion in a ISO-8601 string.
    */
@@ -99,27 +112,15 @@ export interface Payload {
    */
   treatmentForUnderage?: boolean
   /**
-   * The match ID field. A match ID is your own first-party identifier that has been synced with Google using the match ID feature in Floodlight.
-   */
-  matchId?: string
-  /**
-   * The impression ID associated with the conversion.
-   */
-  impressionId?: string
-  /**
-   * User identifiers associated with the conversion. The maximum number of user identifiers for each conversion is 5.
-   */
-  userIdentifiers?: string[]
-  /**
    * The user data consent status for the conversion.
    */
   adUserDataConsent?: string
   /**
-   * The Merchant Center ID where the items are uploaded.
+   * The Merchant Center ID where the items are uploaded. Required if the cart data is provided.
    */
   merchantId?: string
   /**
-   * The feed labels associated with the feed where your items are uploaded. For more information, please refer to ​​ https://support.google.com/merchants/answer/12453549.
+   * The feed labels associated with the feed where your items are uploaded. Required if the cart data is provided. For more information, please refer to ​​ https://support.google.com/merchants/answer/12453549.
    */
   merchantFeedLabel?: string
   /**
@@ -142,5 +143,5 @@ export interface Payload {
      * The value of the item.
      */
     unitPrice: number
-  }
+  }[]
 }

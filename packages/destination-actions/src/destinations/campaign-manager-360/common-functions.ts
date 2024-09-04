@@ -68,21 +68,23 @@ export function resolveGoogleCampaignManager360Conversion(
     kind: 'dfareporting#conversion'
   }
 
-  if (payload.gclid) {
-    conversion.gclid = payload.gclid
+  const requiredId = payload.requiredId
+
+  if (requiredId.gclid) {
+    conversion.gclid = requiredId.gclid
   }
 
-  if (payload.dclid) {
-    conversion.dclid = payload.dclid
+  if (requiredId.dclid) {
+    conversion.dclid = requiredId.dclid
   }
 
   // Optional fields.
-  if (payload.encryptedUserId) {
-    conversion.encryptedUserId = payload.encryptedUserId
+  if (requiredId.encryptedUserId) {
+    conversion.encryptedUserId = requiredId.encryptedUserId
   }
 
-  if (payload.mobileDeviceId) {
-    conversion.mobileDeviceId = payload.mobileDeviceId
+  if (requiredId.mobileDeviceId) {
+    conversion.mobileDeviceId = requiredId.mobileDeviceId
   }
 
   if (payload.limitAdTracking) {
@@ -101,12 +103,12 @@ export function resolveGoogleCampaignManager360Conversion(
     conversion.treatmentForUnderage = payload.treatmentForUnderage
   }
 
-  if (payload.matchId) {
-    conversion.matchId = payload.matchId
+  if (requiredId.matchId) {
+    conversion.matchId = requiredId.matchId
   }
 
-  if (payload.impressionId) {
-    conversion.impressionId = payload.impressionId
+  if (requiredId.impressionId) {
+    conversion.impressionId = requiredId.impressionId
   }
 
   // User Identifiers.
