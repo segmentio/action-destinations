@@ -15,6 +15,7 @@ import { Awaited, StatsTags, StatsTagsMap } from './operationTracking'
 import truncate from 'lodash/truncate'
 import { isRetryableError } from './isRetryableError'
 import { getOrCatch, ValueOrError } from './getOrCatch'
+import { getOrRetry } from './getOrRetry'
 
 /**
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
@@ -203,7 +204,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       expiryInSeconds?: number
       lockOptions?: LockOptions
       saveRetries?: number
-      saveRetryIntervalMs?: number
+      saveRetryIntervalMs?: number | ((attempt: number) => number)
     }
   ): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
@@ -293,15 +294,14 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       this.logInfo('cache_stringify_error', { key, error: stringified.error, finalStatsTags })
     } else if (!isNothing(stringified.value)) {
       //result stringified and contains cacheable value - cache it
-      let retriesLeft = options.saveRetries || 3
-      let cacheSavingError: any | undefined = undefined
-      do {
-        cacheSavingError = (
-          await getOrCatch(() =>
-            this.engageDestinationCache!.setByKey(key, stringified.value!, options.expiryInSeconds)
-          )
-        ).error
-      } while (cacheSavingError && retriesLeft-- > 0 && (await delay(options.saveRetryIntervalMs || 1000)))
+
+      const cacheSavingError = await getOrRetry(
+        () => this.engageDestinationCache!.setByKey(key, stringified.value!, options.expiryInSeconds),
+        {
+          retryAttempts: options.saveRetries || 3,
+          retryIntervalMs: options.saveRetryIntervalMs ? options.saveRetryIntervalMs : (attempt) => 1000 * attempt
+        }
+      )
 
       finalStatsTags.cache_step = 'save_' + (cacheSavingError ? 'error' : 'value')
       if (cacheSavingError) {
@@ -473,8 +473,4 @@ export type LockOptions = {
 
 export function isNothing(cacheValue: any): cacheValue is null | undefined | void {
   return cacheValue === undefined || cacheValue === null
-}
-
-async function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
 }
