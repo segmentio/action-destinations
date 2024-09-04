@@ -689,7 +689,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         if (isBatch) {
           return [
             {
-              multistatus: Array(events.length).fill(response)
+              multistatus: Array((events as SegmentEvent[]).length).fill(response)
             }
           ]
         }
@@ -710,7 +710,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         if (isBatch) {
           return [
             {
-              multistatus: Array(events.length).fill(response)
+              multistatus: Array((events as SegmentEvent[]).length).fill(response)
             }
           ]
         }
