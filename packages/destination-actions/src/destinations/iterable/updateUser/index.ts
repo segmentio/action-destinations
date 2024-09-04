@@ -60,6 +60,21 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     mergeNestedObjects: {
       ...MERGE_NESTED_OBJECTS_FIELD
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'When enabled, Segment will send data to Iterable in batches of up to 500',
+      type: 'boolean',
+      required: false,
+      default: false
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      unsafe_hidden: true,
+      required: false,
+      default: 500
     }
   },
   perform: (request, { payload, settings }) => {
