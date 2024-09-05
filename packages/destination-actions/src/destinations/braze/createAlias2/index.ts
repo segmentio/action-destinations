@@ -9,50 +9,47 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'event = "Create Alias"',
   fields: {
     external_id: {
-        label: 'External ID',
-        description: 'The external ID of the user to create an alias for.',
-        type: 'string',
-        allowNull: true
-      },
-      alias_name: {
-        label: 'Alias Name',
-        description: 'The alias identifier',
-        type: 'string',
-        required: true
-      },
-      alias_label: {
-        label: 'Alias Label',
-        description: 'A label indicating the type of alias',
-        type: 'string',
-        required: true
-      }
+      label: 'External ID',
+      description: 'The external ID of the user to create an alias for.',
+      type: 'string',
+      allowNull: true
+    },
+    alias_name: {
+      label: 'Alias Name',
+      description: 'The alias identifier',
+      type: 'string',
+      required: true
+    },
+    alias_label: {
+      label: 'Alias Label',
+      description: 'A label indicating the type of alias',
+      type: 'string',
+      required: true
+    }
   },
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
     label: 'How to add Aliases',
     default: 'add',
-    choices: [
-      { label: 'Insert Alias', value: 'add' },
-    ]
+    choices: [{ label: 'Insert Alias', value: 'add' }]
   },
   perform: (request, { settings, payload, syncMode }) => {
     if (syncMode === 'add') {
-        return request(`${settings.endpoint}/users/alias/new`, {
-            method: 'post',
-            json: {
-              user_aliases: [
-                {
-                  external_id: payload.external_id ?? undefined,
-                  alias_name: payload.alias_name,
-                  alias_label: payload.alias_label
-                }
-              ]
+      return request(`${settings.endpoint}/users/alias/new`, {
+        method: 'post',
+        json: {
+          user_aliases: [
+            {
+              external_id: payload.external_id ?? undefined,
+              alias_name: payload.alias_name,
+              alias_label: payload.alias_label
             }
-          })
+          ]
+        }
+      })
     }
 
-
-    throw new IntegrationError('syncMode is required', 'Undefined syncMode', 400)
+    throw new IntegrationError('syncMode must be: add', 'Invalid syncMode', 400)
   }
 }
 
