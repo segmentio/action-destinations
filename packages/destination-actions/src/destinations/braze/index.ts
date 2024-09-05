@@ -1,6 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { defaultValues } from '@segment/actions-core'
+import { DEFAULT_REQUEST_TIMEOUT, defaultValues } from '@segment/actions-core'
 import createAlias from './createAlias'
 import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
@@ -63,7 +63,8 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         Authorization: `Bearer ${settings.api_key}`
-      }
+      },
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     }
   },
   actions: {
