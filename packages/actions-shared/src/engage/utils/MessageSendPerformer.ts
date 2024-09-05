@@ -324,7 +324,12 @@ export abstract class MessageSendPerformer<
     }
     //overrideable
     Object.assign(this.logDetails, {
-      externalIds: this.payload.externalIds?.map((eid) => ({ ...eid, id: this.redactPii(eid.id) })),
+      externalIds: this.payload.externalIds?.map((eid) => ({
+        id: this.redactPii(eid.id),
+        channelType: eid.channelType,
+        subStatus: eid.subscriptionStatus,
+        type: eid.type
+      })),
       shouldSend: this.payload.send,
       settings_region: this.settings.region,
       sourceId: this.settings.sourceId,

@@ -9,10 +9,10 @@ describe('getRetryable', () => {
     }
 
     const result = await getOrRetry(retriableAction, {
-      retryAttempts: 3,
+      attempts: 3,
       retryIntervalMs: 1
     })
-    expect(actualAttempts).toBe(4)
+    expect(actualAttempts).toBe(3)
     expect(result.error).toBeDefined()
   })
 
@@ -25,7 +25,7 @@ describe('getRetryable', () => {
     }
 
     const result = await getOrRetry(retriableAction, {
-      retryAttempts: 3,
+      attempts: 3,
       retryIntervalMs: 1
     })
     expect(actualAttempts).toBe(3)
