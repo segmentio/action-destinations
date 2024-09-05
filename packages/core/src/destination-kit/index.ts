@@ -414,7 +414,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   validateSettings(settings: Settings): void {
     if (this.settingsSchema) {
       try {
-        validateSchema(settings, this.settingsSchema, { schemaKey: `${this.name}:settings`, exempt: ['webhook2-auth'] })
+        validateSchema(settings, this.settingsSchema, {
+          schemaKey: `${this.name}:settings`,
+          exempt: ['dynamicAuthSettings']
+        })
       } catch (err) {
         const error = err as ResponseError
         if (error.name === 'AggregateAjvError' || error.name === 'ValidationError') {
