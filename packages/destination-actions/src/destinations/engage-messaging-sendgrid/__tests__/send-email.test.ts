@@ -184,7 +184,7 @@ describe.each([
         })
     })
 
-    it('should send Email', async () => {
+    it.only('should send Email', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {

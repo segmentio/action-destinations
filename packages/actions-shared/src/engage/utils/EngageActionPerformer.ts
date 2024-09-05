@@ -15,7 +15,7 @@ import { Awaited, StatsTags, StatsTagsMap } from './operationTracking'
 import truncate from 'lodash/truncate'
 import { isRetryableError } from './isRetryableError'
 import { getOrCatch, ValueOrError } from './getOrCatch'
-import { getOrRetry } from './getOrRetry'
+import { backoffRetryPolicy, getOrRetry, RetryArgs } from './getOrRetry'
 
 /**
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
@@ -203,8 +203,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       serializer?: CacheSerializer<T>
       expiryInSeconds?: number
       lockOptions?: LockOptions
-      saveRetries?: number
-      saveRetryIntervalMs?: number | ((attempt: number) => number)
+      saveRetry?: RetryArgs
     }
   ): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
@@ -216,7 +215,13 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     }
 
     this.currentOperation?.onFinally.push(() => {
-      this.currentOperation?.tags.push(...this.statsClient.tagsMapToArray(finalStatsTags))
+      const tagsArray = this.statsClient.tagsMapToArray(finalStatsTags)
+      // for some reasons I see in DD untagged metrics, so I want to know when it happens. Once we figure it out we can remove this
+      if (!tagsArray.some((t) => t.startsWith('cache_group'))) {
+        this.logInfo('>>> FAILED CACHE TAGS', { finalStatsTags, tagsArray, operationTags: this.currentOperation?.tags })
+        this.statsIncr('untagged_caching', 1) //to find timestamp in logs
+      }
+      this.currentOperation?.tags.push(...tagsArray)
     })
 
     if (!this.engageDestinationCache) return createValue()
@@ -295,19 +300,23 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     } else if (!isNothing(stringified.value)) {
       //result stringified and contains cacheable value - cache it
 
-      const cacheSavingError = await getOrRetry(
-        () => this.engageDestinationCache!.setByKey(key, stringified.value!, options.expiryInSeconds),
-        {
-          retryAttempts: options.saveRetries || 3,
-          retryIntervalMs: options.saveRetryIntervalMs ? options.saveRetryIntervalMs : (attempt) => 1000 * attempt
+      const { error: cacheSavingError, value: cacheSavingResult } = await getOrRetry(
+        () => cache.setByKey(key, stringified.value!, options.expiryInSeconds),
+        options.saveRetry || {
+          attempts: 3,
+          retryIntervalMs: backoffRetryPolicy()
         }
       )
 
       finalStatsTags.cache_step = 'save_' + (cacheSavingError ? 'error' : 'value')
-      if (cacheSavingError) {
+      if (cacheSavingError || !cacheSavingResult) {
         this.statsIncr('cache_saving_error', 1, finalStatsTags)
-        finalStatsTags.cache_saving_error = true
-        this.logInfo('cache_saving_error', { key, error: getErrorDetails(cacheSavingError), finalStatsTags })
+        finalStatsTags.cache_saving_error = cacheSavingError ? true : 'redis_returns_false'
+        this.logInfo('cache_saving_error', {
+          key,
+          error: cacheSavingError ? getErrorDetails(cacheSavingError) : cacheSavingResult,
+          finalStatsTags
+        })
       }
     }
 

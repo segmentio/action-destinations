@@ -103,7 +103,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       features: features ?? {},
       statsContext: statsContext ?? ({} as StatsContext),
       logger: logger ?? ({ info: noop, error: noop } as Logger),
-      engageDestinationCache: engageDestinationCache ?? ({} as EngageDestinationCache),
+      engageDestinationCache: engageDestinationCache,
       transactionContext: transactionContext ?? ({} as TransactionContext),
       stateContext: stateContext ?? ({} as StateContext)
     })
