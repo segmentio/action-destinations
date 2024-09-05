@@ -3103,6 +3103,11 @@
     liquidjs "^10.8.4"
     lodash "^4.17.21"
 
+"@segment/ajv-human-errors@2.13.1-staging-b5c93a25c.0":
+  version "2.13.1-staging-b5c93a25c.0"
+  resolved "https://registry.yarnpkg.com/@segment/ajv-human-errors/-/ajv-human-errors-2.13.1-staging-b5c93a25c.0.tgz#384a132c09b89bc4562d62a1e54bcbb3f355b8db"
+  integrity sha512-nvF7u/jVdPpxAKy8IagB1iBxDmLxxIWEqraOVIRYayrz5A1Ulev4BZCqRPdPx+Dcy1Bxy0l+sPIZRjrlsgS8pQ==
+
 "@segment/ajv-human-errors@^2.13.0":
   version "2.13.0"
   resolved "https://registry.npmjs.org/@segment/ajv-human-errors/-/ajv-human-errors-2.13.0.tgz#2881976962c86b8b18a5ee7d7287b8ef6df55ec1"
@@ -3451,6 +3456,13 @@
   integrity sha512-wTTptkNAmHNR9nkQsA3WJioHNmrW2mZI6jx9LRQp+tWjhp2we9zcnmyID4VvzPVWBBn5LCvZOIppyk4e3S5CqQ==
   dependencies:
     "@segment/actions-core" "^3.129.0"
+
+"@segment/destination-subscriptions@3.34.1-staging-b5c93a25c.0":
+  version "3.34.1-staging-b5c93a25c.0"
+  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.34.1-staging-b5c93a25c.0.tgz#2a947d50085868083e6afd12e1a1e0330fc8bc9b"
+  integrity sha512-U2TuuoKKLNdVf9NeTtYQUMdoYGEjyC+f5HATBhNtqwpWTKECU2J6lIHWJbyb2PJ7NBCNLCGq4NTuNyEPXl58Eg==
+  dependencies:
+    "@segment/fql-ts" "^1.10.1"
 
 "@segment/destination-subscriptions@^3.34.0":
   version "3.34.0"
