@@ -26,9 +26,14 @@ function generateFile(payloads: Payload[], isAudience?: boolean): string {
 
     if (isAudience) {
       if (index === 0) {
-        headers.push('audience_name')
+        headers.push('audience_name', 'audience_id', 'audience_class', 'space_id')
       }
-      row.push(encodeString(String(payload.context?.personas?.computation_key ?? '')))
+      row.push(
+        encodeString(String(payload.context?.personas?.computation_key ?? '')),
+        encodeString(String(payload.context?.personas?.computation_id ?? '')),
+        encodeString(String(payload.context?.personas?.computation_class ?? '')),
+        encodeString(String(payload.context?.personas?.space_id ?? ''))
+      )
     }
 
     if (![undefined, null, ''].includes(columnsField.email)) {
@@ -143,13 +148,6 @@ function validate(payloads: Payload[]) {
       throw new Error(`Column name ${columnName} cannot contain delimiter: ${delimiter}`)
     }
   })
-
-  // ensure additional identifier column names do not contain delimiter
-  // additionalIdentifierColumns?.forEach((column) => {
-  //   if (column.value.includes(delimiter)) {
-  //     throw new Error(`Column name ${column.value} cannot contain delimiter: ${delimiter}`)
-  //   }
-  // })
 
   // ensure additional identifier column names do not contain delimiter
   if (additionalIdentifierColumns) {

@@ -58,8 +58,6 @@ export class S3CSVClient {
   }
 
   async uploadS3(settings: Settings, fileContent: string, filename: string, s3_aws_folder_name: string) {
-    // console.log('Uploading to S3', settings, fileContent, audienceName, filename, s3_aws_folder_name)
-    // let filename = audienceSettings.filename ?? ''
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
     if (filename.endsWith('.csv')) {

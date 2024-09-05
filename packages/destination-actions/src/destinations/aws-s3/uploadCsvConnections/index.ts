@@ -169,7 +169,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     userTraits: {
       type: 'object',
-      label: 'User Properties',
+      label: 'User Traits',
       description: 'The properties of the user',
       required: false,
       disabledInputMethods: ['enrichment', 'function', 'variable'],
