@@ -18,20 +18,3 @@ export interface Settings {
    */
   iam_external_id: string
 }
-// Generated file. DO NOT MODIFY IT BY HAND.
-
-export interface AudienceSettings {
-  /**
-   * Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/
-   */
-  s3_aws_folder_name?: string
-  /**
-   * Prefix to append to the name of the uploaded file. A lower cased audience name and timestamp will be appended by default to the filename to ensure uniqueness.
-   *                     Format: <PREFIX>_<AUDIENCE NAME>_<TIMESTAMP>.csv
-   */
-  filename?: string
-  /**
-   * Character used to separate tokens in the resulting file.
-   */
-  delimiter: string
-}

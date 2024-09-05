@@ -1,6 +1,6 @@
 import { ExecuteInput } from '@segment/actions-core'
-import type { Payload } from './syncAudienceToCSV/generated-types'
-import type { AudienceSettings } from './generated-types'
+import type { Payload } from './uploadCsvConnections/generated-types'
+// import { is } from 'cheerio/lib/api/traversing'
 
 // Type definitions
 export type RawData = {
@@ -13,47 +13,31 @@ export type RawData = {
   }
 }
 
-export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unknown> = ExecuteInput<
-  Settings,
-  Payload,
-  AudienceSettings
-> & { rawData?: RawData }
+export type ExecuteInputRaw<Settings, Payload, RawData> = ExecuteInput<Settings, Payload> & { rawData?: RawData }
 
-function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): string {
+function generateFile(payloads: Payload[], isAudience?: boolean): string {
   const headers: string[] = []
   const columnsField = payloads[0].columns
 
   const rows: string[] = []
-
+  console.log('generateFile payloads', payloads)
   payloads.forEach((payload, index, arr) => {
-    const action = payload.propertiesOrTraits[payload.audienceName]
-
     const row: string[] = []
 
-    if (![undefined, null, ''].includes(columnsField.audience_name)) {
+    if (isAudience) {
       if (index === 0) {
-        headers.push(columnsField.audience_name as string)
+        headers.push('audience_name')
       }
-      row.push(encodeString(String(payload.audienceName ?? '')))
+      row.push(encodeString(String(payload.context?.personas?.computation_key ?? '')))
     }
-    if (![undefined, null, ''].includes(columnsField.audience_id)) {
-      if (index === 0) {
-        headers.push(columnsField.audience_id as string)
-      }
-      row.push(encodeString(String(payload.audienceId ?? '')))
-    }
-    if (![undefined, null, ''].includes(columnsField.audience_action)) {
-      if (index === 0) {
-        headers.push(columnsField.audience_action as string)
-      }
-      row.push(encodeString(String(action ?? '')))
-    }
+
     if (![undefined, null, ''].includes(columnsField.email)) {
       if (index === 0) {
         headers.push(columnsField.email as string)
       }
       row.push(encodeString(String(payload.email ?? '')))
     }
+
     if (![undefined, null, ''].includes(columnsField.user_id)) {
       if (index === 0) {
         headers.push(columnsField.user_id as string)
@@ -78,12 +62,6 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): 
       }
       row.push(encodeString(String(payload.messageId ?? '')))
     }
-    if (![undefined, null, ''].includes(columnsField.space_id)) {
-      if (index === 0) {
-        headers.push(columnsField.space_id as string)
-      }
-      row.push(encodeString(String(payload.spaceId ?? '')))
-    }
     if (![undefined, null, ''].includes(columnsField.integrations_object)) {
       if (index === 0) {
         headers.push(columnsField.integrations_object as string)
@@ -97,6 +75,20 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): 
       row.push(encodeString(String(JSON.stringify(payload.propertiesOrTraits) ?? '')))
     }
 
+    if (![undefined, null, ''].includes(columnsField.eventName)) {
+      if (index === 0) {
+        headers.push(columnsField.eventName as string)
+      }
+      row.push(encodeString(String(payload.eventName ?? '')))
+    }
+
+    if (![undefined, null, ''].includes(columnsField.eventType)) {
+      if (index === 0) {
+        headers.push(columnsField.eventType as string)
+      }
+      row.push(encodeString(String(payload.eventType ?? '')))
+    }
+
     if (payload.additional_identifiers_and_traits_columns) {
       for (const [key, value] of Object.entries(payload.additional_identifiers_and_traits_columns)) {
         if (index === 0) {
@@ -106,13 +98,29 @@ function generateFile(payloads: Payload[], audienceSettings: AudienceSettings): 
       }
     }
 
+    if (payload.eventProperties) {
+      for (const [key, value] of Object.entries(payload.eventProperties)) {
+        if (index === 0) {
+          headers.push(String(value))
+        }
+        row.push(encodeString(String(payload.propertiesOrTraits[String(key)] ?? '')))
+      }
+    }
+
+    if (payload.userTraits) {
+      for (const [key, value] of Object.entries(payload.userTraits)) {
+        if (index === 0) {
+          headers.push(String(value))
+        }
+        row.push(encodeString(String(payload.propertiesOrTraits[String(key)] ?? '')))
+      }
+    }
+
     const isLastRow = arr.length === index + 1
-    const rowString = `${row.join(audienceSettings.delimiter === 'tab' ? '\t' : audienceSettings.delimiter)}${
-      isLastRow ? '' : '\n'
-    }`
+    const rowString = `${row.join(payload.delimiter === 'tab' ? '\t' : payload.delimiter)}${isLastRow ? '' : '\n'}`
 
     if (index === 0) {
-      const headerString = `${headers.join(audienceSettings.delimiter === 'tab' ? '\t' : audienceSettings.delimiter)}\n`
+      const headerString = `${headers.join(payload.delimiter === 'tab' ? '\t' : payload.delimiter)}\n`
       rows.push(headerString)
     }
     rows.push(rowString)
@@ -124,8 +132,8 @@ function encodeString(str: string) {
   return `"${String(str).replace(/"/g, '""')}"`
 }
 
-function validate(payloads: Payload[], audienceSettings: AudienceSettings) {
-  const delimiter = audienceSettings.delimiter
+function validate(payloads: Payload[]) {
+  const delimiter = payloads[0].delimiter
   const columns = payloads[0].columns
   const additionalIdentifierColumns = payloads[0].additional_identifiers_and_traits_columns
 

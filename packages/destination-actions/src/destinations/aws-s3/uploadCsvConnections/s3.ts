@@ -1,4 +1,4 @@
-import { AudienceSettings, Settings } from '../generated-types'
+import { Settings } from '../generated-types'
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import { S3Client, PutObjectCommandInput, PutObjectCommand } from '@aws-sdk/client-s3'
 import { v4 as uuidv4 } from '@lukeed/uuid'
@@ -57,8 +57,9 @@ export class S3CSVClient {
     }
   }
 
-  async uploadS3(settings: Settings, audienceSettings: AudienceSettings, fileContent: string, audienceName: string) {
-    let filename = audienceSettings.filename ?? ''
+  async uploadS3(settings: Settings, fileContent: string, filename: string, s3_aws_folder_name: string) {
+    // console.log('Uploading to S3', settings, fileContent, audienceName, filename, s3_aws_folder_name)
+    // let filename = audienceSettings.filename ?? ''
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
     if (filename.endsWith('.csv')) {
@@ -66,16 +67,15 @@ export class S3CSVClient {
       filename = filename.replace('.csv', `_${dateSuffix}.csv`)
     } else {
       // Append the date suffix followed by .csv
-      audienceName = audienceName ? audienceName.toLowerCase() : ''
-      filename = filename ? `${filename}_${audienceName}_${dateSuffix}.csv` : `${audienceName}_${dateSuffix}.csv`
+      filename = filename ? `${filename}_${dateSuffix}.csv` : `${dateSuffix}.csv`
     }
-
+    console.log('Filename:', filename)
     const bucketName = settings.s3_aws_bucket_name
-    const folderName = ['', null, undefined].includes(audienceSettings?.s3_aws_folder_name)
+    const folderName = ['', null, undefined].includes(s3_aws_folder_name)
       ? ''
-      : audienceSettings?.s3_aws_folder_name?.endsWith('/')
-      ? audienceSettings?.s3_aws_folder_name
-      : `${audienceSettings?.s3_aws_folder_name}/`
+      : s3_aws_folder_name?.endsWith('/')
+      ? s3_aws_folder_name
+      : `${s3_aws_folder_name}/`
     const credentials = await this.assumeRole()
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const s3Client = new S3Client({
