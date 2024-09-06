@@ -1,8 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { defaultValues } from '@segment/actions-core'
-import createAlias from './createAlias'
-import identifyUser from './identifyUser'
+import { createAlias, createAliasV2 } from './createAlias'
+import { identifyUser, identifyUserV2 } from './identifyUser'
 import trackEvent from './trackEvent'
 import trackPurchase from './trackPurchase'
 import updateUserProfile from './updateUserProfile'
@@ -71,7 +71,9 @@ const destination: DestinationDefinition<Settings> = {
     trackEvent,
     trackPurchase,
     createAlias,
-    identifyUser
+    identifyUser,
+    createAliasV2,
+    identifyUserV2
   },
   presets: [
     {
