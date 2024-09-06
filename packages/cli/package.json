@@ -69,7 +69,7 @@
     "globby": "^11.0.3",
     "jscodeshift": "^0.14.0",
     "jscodeshift-add-imports": "^1.0.10",
-    "jsdom": "^18.0.0",
+    "jsdom": "^24.1.1",
     "json-diff": "^0.5.4",
     "json-schema-to-typescript": "^10.1.5",
     "lodash": "^4.17.20",
