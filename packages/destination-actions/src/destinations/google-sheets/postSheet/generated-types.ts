@@ -41,7 +41,11 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   * The number of rows to write to the spreadsheet in a single batch. The maximum value is 1000.
    */
-  batch_size?: number
+  batch_size: number
+  /**
+   * The number of bytes to write to the spreadsheet in a single batch. The maximum value is 4000000.
+   */
+  batch_bytes: number
 }
