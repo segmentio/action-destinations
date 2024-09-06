@@ -77,22 +77,22 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           msgLowercare?.includes('timeout') ||
           msgLowercare?.includes('timedout') ||
           msgLowercare?.includes('exceeded the deadline') ||
-          errorDetails.code?.toLowerCase().includes('etimedout')
+          errorDetails?.code?.toLowerCase().includes('etimedout')
 
         // CHANNELS-651 somehow Timeouts are not retried by Integrations, this is fixing it
         if (isTimeoutError) {
-          const status = errorDetails.status ?? respError.status ?? 408
+          const status = errorDetails?.status ?? respError.status ?? 408
           respError.status = status
-          errorDetails.status = status
+          if (errorDetails) errorDetails.status = status
 
-          const errorCode = errorDetails.code ?? respError.code ?? 'etimedout'
+          const errorCode = errorDetails?.code ?? respError.code ?? 'etimedout'
           respError.code = errorCode
-          errorDetails.code = errorCode
+          if (errorDetails) errorDetails.code = errorCode
           respError.retry = true
         }
 
-        if (errorDetails.code) op.tags.push(`response_code:${errorDetails.code}`)
-        if (errorDetails.status) op.tags.push(`response_status:${errorDetails.status}`)
+        if (errorDetails?.code) op.tags.push(`response_code:${errorDetails.code}`)
+        if (errorDetails?.status) op.tags.push(`response_status:${errorDetails.status}`)
         if (this.onResponse)
           try {
             this.onResponse({ error: respError, operation: op })
@@ -236,11 +236,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     const cacheRead = await getOrCatch(() => cache.getByKey(key))
     finalStatsTags.cache_step = `read_${cacheRead.error ? 'error' : !isNone(cacheRead.value) ? 'value' : 'value_empty'}`
 
-    this.logStep(
-      'cache_read',
-      { key, error: cacheRead.error ? getErrorDetails(cacheRead.error) : undefined, value: cacheRead.value },
-      finalStatsTags
-    )
+    this.logStep('cache_read', { key, error: getErrorDetails(cacheRead.error), value: cacheRead.value }, finalStatsTags)
 
     if (cacheRead.error) {
       //redis error

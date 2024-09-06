@@ -49,9 +49,9 @@ export class EngageLogger extends OperationLogger {
 
   getErrorMessage(error: unknown) {
     const errorDetails = getErrorDetails(error)
-    let res = `${errorDetails.message}`
-    if (errorDetails.code) res += `. Code: ${errorDetails.code}`
-    if (errorDetails.status) res += `. Status: ${errorDetails.status}`
+    let res = `${errorDetails?.message}`
+    if (errorDetails?.code) res += `. Code: ${errorDetails.code}`
+    if (errorDetails?.status) res += `. Status: ${errorDetails.status}`
     return res
   }
 }

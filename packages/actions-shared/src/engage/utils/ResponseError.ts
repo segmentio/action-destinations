@@ -27,9 +27,10 @@ export interface ErrorDetails {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getErrorDetails(error: any): ErrorDetails {
+export function getErrorDetails(error: any): ErrorDetails | undefined {
   //example of errors are here: https://segment.atlassian.net/browse/CHANNELS-819
   // each API may have its own response.data structure. E.g. Twilio has code, message, more_info, status, while Sendgrid has array of errors where each has `message`, `field`, `help`.
+  if (!error) return
   const respError = error as ResponseError
   // some errors noticed to have no status and no response (e.g. ECONNRESET, ETIMEDOUT)
   // there are tests impling it supposed to be retried: https://github.com/segmentio/integrations/blob/995f96a0526c3aba051c3948c3bfc306c704aec9/src/createIntegration/test/proto.js#L728, but ETIMEDOUT were still not retried
