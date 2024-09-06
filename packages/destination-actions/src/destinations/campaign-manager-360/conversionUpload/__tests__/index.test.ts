@@ -41,10 +41,6 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-          access_token: 'my.access.token'
-        })
-
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
           .post('')
           .reply(201, { results: [{}] })
@@ -117,9 +113,8 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        expect(responses.length).toBe(2)
-        expect(responses[0].status).toBe(200)
-        expect(responses[1].status).toBe(201)
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(201)
       })
 
       it('sends an event with default mappings + default settings, hashed data', async () => {
@@ -145,10 +140,6 @@ describe('Cm360.conversionUpload', () => {
             value: '123',
             dclid: '54321'
           }
-        })
-
-        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-          access_token: 'my.access.token'
         })
 
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
@@ -211,9 +202,8 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        expect(responses.length).toBe(2)
-        expect(responses[0].status).toBe(200)
-        expect(responses[1].status).toBe(201)
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(201)
       })
 
       it('sends an event with default mappings + default settings, no user details', async () => {
@@ -226,10 +216,6 @@ describe('Cm360.conversionUpload', () => {
             value: '123',
             encryptedUserId: '54321'
           }
-        })
-
-        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-          access_token: 'my.access.token'
         })
 
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
@@ -263,9 +249,8 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        expect(responses.length).toBe(2)
-        expect(responses[0].status).toBe(200)
-        expect(responses[1].status).toBe(201)
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(201)
       })
     })
 
@@ -321,10 +306,6 @@ describe('Cm360.conversionUpload', () => {
             }
           }
         ]
-
-        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-          access_token: 'my.access.token'
-        })
 
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
           .post('')
@@ -389,9 +370,8 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        expect(responses.length).toBe(2)
-        expect(responses[0].status).toBe(200)
-        expect(responses[1].status).toBe(201)
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(201)
       })
 
       it('sends a batch of events with default mappings + default settings, hashed data', async () => {
@@ -446,10 +426,6 @@ describe('Cm360.conversionUpload', () => {
             }
           }
         ]
-
-        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-          access_token: 'my.access.token'
-        })
 
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
           .post('')
@@ -514,9 +490,8 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        expect(responses.length).toBe(2)
-        expect(responses[0].status).toBe(200)
-        expect(responses[1].status).toBe(201)
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(201)
       })
 
       it('sends a batch of events with default mappings + default settings, no user details', async () => {
@@ -544,10 +519,6 @@ describe('Cm360.conversionUpload', () => {
             }
           }
         ]
-
-        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-          access_token: 'my.access.token'
-        })
 
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
           .post('')
@@ -580,9 +551,8 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        expect(responses.length).toBe(2)
-        expect(responses[0].status).toBe(200)
-        expect(responses[1].status).toBe(201)
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(201)
       })
     })
   })
@@ -611,10 +581,6 @@ describe('Cm360.conversionUpload', () => {
           quantity: '2',
           value: '100'
         }
-      })
-
-      nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-        access_token: 'my.access.token'
       })
 
       await expect(
@@ -701,10 +667,6 @@ describe('Cm360.conversionUpload', () => {
         }
       })
 
-      nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-        access_token: 'my.access.token'
-      })
-
       await expect(
         testDestination.testAction('conversionUpload', {
           event,
@@ -786,10 +748,6 @@ describe('Cm360.conversionUpload', () => {
           gclid: '54321',
           floodlightActivityId: '23456'
         }
-      })
-
-      nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-        access_token: 'my.access.token'
       })
 
       await expect(
@@ -889,10 +847,6 @@ describe('Cm360.conversionUpload', () => {
             }
           ]
         }
-      })
-
-      nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-        access_token: 'my.access.token'
       })
 
       nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)

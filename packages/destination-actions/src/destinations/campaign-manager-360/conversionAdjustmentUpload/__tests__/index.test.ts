@@ -40,10 +40,6 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
 
-        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-          access_token: 'my.access.token'
-        })
-
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
           .post('')
           .reply(200, { results: [{}] })
@@ -116,9 +112,8 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
 
-        expect(responses.length).toBe(2)
+        expect(responses.length).toBe(1)
         expect(responses[0].status).toBe(200)
-        expect(responses[1].status).toBe(200)
       })
 
       it('sends an event with default mappings + default settings, hashed data', async () => {
@@ -144,10 +139,6 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
             value: '100',
             dclid: '54321'
           }
-        })
-
-        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-          access_token: 'my.access.token'
         })
 
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
@@ -210,9 +201,8 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
 
-        expect(responses.length).toBe(2)
+        expect(responses.length).toBe(1)
         expect(responses[0].status).toBe(200)
-        expect(responses[1].status).toBe(200)
       })
 
       it('sends an event with default mappings + default settings, no user details', async () => {
@@ -225,10 +215,6 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
             value: '100',
             encryptedUserId: '54321'
           }
-        })
-
-        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-          access_token: 'my.access.token'
         })
 
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
@@ -262,9 +248,8 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
 
-        expect(responses.length).toBe(2)
+        expect(responses.length).toBe(1)
         expect(responses[0].status).toBe(200)
-        expect(responses[1].status).toBe(200)
       })
     })
 
@@ -320,10 +305,6 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
             }
           }
         ]
-
-        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-          access_token: 'my.access.token'
-        })
 
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
           .post('')
@@ -388,9 +369,8 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
 
-        expect(responses.length).toBe(2)
-        expect(responses[0].status).toBe(200)
-        expect(responses[1].status).toBe(201)
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(201)
       })
 
       it('sends a batch of events with default mappings + default settings, hashed data', async () => {
@@ -445,10 +425,6 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
             }
           }
         ]
-
-        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-          access_token: 'my.access.token'
-        })
 
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
           .post('')
@@ -513,9 +489,8 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
 
-        expect(responses.length).toBe(2)
-        expect(responses[0].status).toBe(200)
-        expect(responses[1].status).toBe(201)
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(201)
       })
 
       it('sends a batch of events with default mappings + default settings, no user details', async () => {
@@ -543,10 +518,6 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
             }
           }
         ]
-
-        nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-          access_token: 'my.access.token'
-        })
 
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
           .post('')
@@ -579,9 +550,8 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
 
-        expect(responses.length).toBe(2)
-        expect(responses[0].status).toBe(200)
-        expect(responses[1].status).toBe(201)
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(201)
       })
     })
   })
@@ -610,10 +580,6 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           quantity: '2',
           value: '100'
         }
-      })
-
-      nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-        access_token: 'my.access.token'
       })
 
       await expect(
@@ -700,10 +666,6 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         }
       })
 
-      nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-        access_token: 'my.access.token'
-      })
-
       await expect(
         testDestination.testAction('conversionAdjustmentUpload', {
           event,
@@ -785,10 +747,6 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           gclid: '54321',
           floodlightActivityId: '23456'
         }
-      })
-
-      nock(`https://www.googleapis.com/oauth2/v4/token`).post('').reply(200, {
-        access_token: 'my.access.token'
       })
 
       await expect(
