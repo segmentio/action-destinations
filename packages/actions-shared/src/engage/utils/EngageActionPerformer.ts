@@ -424,11 +424,15 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       this.throwRetryableError('Timeout while acquiring lock')
     }
     //if lock obtained or there was redis error - execute createValue and finally release lock
-    else
-      try {
-        this.logStep('cache_lock_creating', { key }, statsTags)
-        return await createValue()
-      } finally {
+    else {
+      this.logStep('cache_lock_creating', { key }, statsTags)
+      const { value: createdValue, error: createValueError } = await getOrCatch(() => createValue())
+      this.logStep('cache_lock_created', { key, error: getErrorDetails(createValueError) }, statsTags)
+
+      //release the lock unless shouldReleaseLock specified and explicitly returns false
+      const shouldReleaseLock = this.isFeatureActive('engage-messaging-release-lock-on-cacheerror', () => false)
+      if (shouldReleaseLock) {
+        //TODO: remove it after debugging. Lock should be released after value is in cache
         const { error: releaseError } = await getOrCatch(() => lock.release())
         if (releaseError) {
           statsTags.lock_release_error = true
@@ -436,6 +440,9 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           // we can ignore the error, as the lock will be expired anyway
         }
       }
+      if (createValueError) throw createValueError
+      return createdValue as T
+    }
   }
 
   logStep(stepName: string, logDetails: any, statsTags: StatsTagsMap) {

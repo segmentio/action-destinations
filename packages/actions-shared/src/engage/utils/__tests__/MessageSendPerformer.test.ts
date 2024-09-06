@@ -57,6 +57,10 @@ class TestMessageSendPerformer extends MessageSendPerformer<MessageSettingsBase,
           _name: jest.fn()
         },
         tags: []
+      },
+      features: {
+        //TODO: remove this debugging is done
+        'engage-messaging-release-lock-on-cacheerror': true
       }
     })
   }
