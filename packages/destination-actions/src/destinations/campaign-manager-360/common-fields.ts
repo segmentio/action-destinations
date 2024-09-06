@@ -1,7 +1,9 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from './generated-types'
+import { ConsentType } from './types'
+import {getEntityTypeChoices, getSources} from './utils'
 
-export const campaignManager360CommonFields: ActionDefinition<Settings>['fields'] = {
+export const commonFields: ActionDefinition<Settings>['fields'] = {
   floodlightConfigurationId: {
     label: 'Floodlight Configuration ID',
     description:
@@ -15,6 +17,37 @@ export const campaignManager360CommonFields: ActionDefinition<Settings>['fields'
       'The Floodlight activity ID associated with the conversion. Overrides the default Floodlight Activity ID defined in Settings.',
     type: 'string',
     required: false
+  },
+  encryptionInfo: {
+    label: 'Encryption Info',
+    description: 'The encryption information associated with the conversion. Required if Encrypted User ID or Encryption User ID Candidates fields are populated.',
+    type: 'object',
+    required: false,
+    properties: {
+      encryptionEntityId: {
+        label: 'Encryption Entity ID',
+        description:
+          'The encryption entity ID. This should match the encryption type configuration for ad serving or Data Transfer.',
+        type: 'string',
+        required: true
+      },
+      encryptionEntityType: {
+        label: 'Encryption Entity Type',
+        description:
+          'The encryption entity type. This should match the encryption type configuration for ad serving or Data Transfer.',
+        type: 'string',
+        required: true,
+        choices: getEntityTypeChoices()
+      },
+      encryptionSource: {
+        label: 'Encryption Source',
+        description:
+          'The encryption source. This should match the encryption type configuration for ad serving or Data Transfer.',
+        type: 'string',
+        required: true,
+        choices: getSources()
+      }
+    }
   },
   userDetails: {
     label: 'User Details',
@@ -144,75 +177,6 @@ export const campaignManager360CommonFields: ActionDefinition<Settings>['fields'
       }
     }
   },
-  requiredId: {
-    label: 'Required ID',
-    description:
-      'A user identifier record the conversion against. Exactly one of Google Click ID, Display Click ID, Encrypted User ID, Mobile Device ID, Match ID or Impression ID must be provided.',
-    type: 'object',
-    required: true,
-    properties: {
-      gclid: {
-        label: 'Google Click ID',
-        description: 'The Google Click ID (gclid) associated with the conversion.',
-        type: 'string',
-        required: false
-      },
-      dclid: {
-        label: 'Display Click ID',
-        description: 'The Display Click ID (dclid) associated with the conversion.',
-        type: 'string',
-        required: false
-      },
-      encryptedUserId: {
-        label: 'Encrypted User ID',
-        description: 'The encrypted user ID associated with the conversion.',
-        type: 'string',
-        required: false
-      },
-      mobileDeviceId: {
-        label: 'Mobile Device ID',
-        description: 'The mobile device ID associated with the conversion.',
-        type: 'string',
-        required: false,
-        default: {
-          '@path': '$.context.device.id'
-        }
-      },
-      matchId: {
-        label: 'Match ID',
-        description:
-          'The match ID field. A match ID is your own first-party identifier that has been synced with Google using the match ID feature in Floodlight.',
-        type: 'string',
-        required: false
-      },
-      impressionId: {
-        label: 'Impression ID',
-        description: 'The impression ID associated with the conversion.',
-        type: 'string',
-        required: false
-      }
-    },
-    default: {
-      gclid: {
-        '@if': {
-          exists: { '@path': '$.integrations.Campaign Manager 360.gclid' },
-          then: { '@path': '$.integrations.Campaign Manager 360.gclid' },
-          else: { '@path': '$.properties.gclid' }
-        }
-      },
-      dclid: {
-        '@if': {
-          exists: { '@path': '$.integrations.Campaign Manager 360.dclid' },
-          then: { '@path': '$.integrations.Campaign Manager 360.dclid' },
-          else: { '@path': '$.properties.dclid' }
-        }
-      },
-      encryptedUserId: { '@path': '$.userId' },
-      mobileDeviceId: { '@path': '$.context.device.id' },
-      matchId: { '@path': '$.properties.matchId' },
-      impressionId: { '@path': '$.properties.impressionId' }
-    }
-  },
   timestamp: {
     label: 'Timestamp (ISO-8601)',
     description: 'The timestamp of the conversion in a ISO-8601 string.',
@@ -287,8 +251,8 @@ export const campaignManager360CommonFields: ActionDefinition<Settings>['fields'
     type: 'string',
     required: false,
     choices: [
-      { label: 'Granted', value: 'GRANTED' },
-      { label: 'Denied', value: 'DENIED' }
+      { label: ConsentType.GRANTED, value: ConsentType.GRANTED },
+      { label: ConsentType.DENIED, value: ConsentType.DENIED }
     ]
   },
   merchantId: {
@@ -348,38 +312,5 @@ export const campaignManager360CommonFields: ActionDefinition<Settings>['fields'
         }
       ]
     }
-  },
-  encryptionEntityId: {
-    label: 'Encryption Entity ID',
-    description:
-      'The encryption entity ID. This should match the encryption type configuration for ad serving or Data Transfer.',
-    type: 'string',
-    required: false
-  },
-  encryptionEntityType: {
-    label: 'Encryption Entity Type',
-    description:
-      'The encryption entity type. This should match the encryption type configuration for ad serving or Data Transfer.',
-    type: 'string',
-    required: false,
-    choices: [
-      { label: 'ENCRYPTION_ENTITY_TYPE_UNKNOWN', value: 'ENCRYPTION_ENTITY_TYPE_UNKNOWN' },
-      { label: 'DCM_ACCOUNT', value: 'DCM_ACCOUNT' },
-      { label: 'DCM_ADVERTISER', value: 'DCM_ADVERTISER' },
-      { label: 'DBM_PARTNER', value: 'DBM_PARTNER' },
-      { label: 'DBM_ADVERTISER', value: 'DBM_ADVERTISER' }
-    ]
-  },
-  encryptionSource: {
-    label: 'Encryption Source',
-    description:
-      'The encryption source. This should match the encryption type configuration for ad serving or Data Transfer.',
-    type: 'string',
-    required: false,
-    choices: [
-      { label: 'ENCRYPTION_SOURCE_UNKNOWN', value: 'ENCRYPTION_SOURCE_UNKNOWN' },
-      { label: 'AD_SERVING', value: 'AD_SERVING' },
-      { label: 'DATA_TRANSFER', value: 'DATA_TRANSFER' }
-    ]
   }
 }

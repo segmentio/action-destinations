@@ -1,11 +1,11 @@
-export interface CampaignManager360RefreshTokenResponse {
+export interface AuthTokenResp {
   access_token: string
   scope: string
   expires_in: number
   token_type: string
 }
 
-export interface CampaignManager360AddressInfo {
+export interface AddressInfo {
   hashedFirstName?: string
   hashedLastName?: string
   city?: string
@@ -15,16 +15,35 @@ export interface CampaignManager360AddressInfo {
   hashedStreetAddress?: string
 }
 
-export interface CampaignManager360ConversionsBatchUpdateRequest {
-  conversions: CampaignManager360Conversion[]
-  encryptionInfo?: CampaignManager360EncryptionInfo
+export interface UpdateRequest {
+  conversions: Conversion[]
+  encryptionInfo?: EncryptionInfo
   kind: 'dfareporting#conversionsBatchUpdateRequest'
 }
 
-export interface CampaignManager360ConversionsBatchInsertRequest {
-  conversions: CampaignManager360Conversion[]
-  encryptionInfo?: CampaignManager360EncryptionInfo
+export interface InsertRequest {
+  conversions: Conversion[]
+  encryptionInfo?: EncryptionInfo
   kind: 'dfareporting#conversionsBatchInsertRequest'
+}
+
+
+export type CartData = {
+  merchantId: string
+  merchantFeedLabel: string
+  merchantFeedLanguage: string
+  items: CartDataItem[]
+}
+
+export type CartDataItem = {
+  itemId: string
+  quantity: number
+  unitPrice: number
+}
+
+export type Conversion = ConversionBase & {
+  customVariables?: CustomVariable[]
+  encryptedUserIdCandidates?: string[]
 }
 
 type ExactlyOne<T, Keys extends keyof T = keyof T> = {
@@ -32,7 +51,7 @@ type ExactlyOne<T, Keys extends keyof T = keyof T> = {
 }[Keys]
 
 type ExactlyOneIdentifier = ExactlyOne<{
-  encryptedUserId?: string
+  encryptedUserId?: string 
   mobileDeviceId?: string
   matchId?: string
   gclid?: string
@@ -41,200 +60,77 @@ type ExactlyOneIdentifier = ExactlyOne<{
   encryptedUserIdCandidates?: string[]
 }>
 
-export type CampaignManager360CommonConversion = ExactlyOneIdentifier & {
+export type ConversionBase = ExactlyOneIdentifier & {
+  adUserDataConsent?: ConsentType | undefined
+  cartData?: CartData | undefined
+  childDirectedTreatment?: boolean | undefined
+  dclid?: string | undefined
+  encryptedUserId?: string | undefined
   floodlightActivityId: string
   floodlightConfigurationId: string
-  encryptedUserId?: string
-  mobileDeviceId?: string
-  timestampMicros: string
-  value: number
-  quantity: string
-  ordinal: string
-  limitAdTracking?: boolean
-  childDirectedTreatment?: boolean
-  gclid?: string
-  nonPersonalizedAd?: boolean
-  treatmentForUnderage?: boolean
-  matchId?: string
-  dclid?: string
-  impressionId?: string
-  userIdentifiers?: CampaignManager360UserIdentifier[]
+  gclid?: string | undefined
+  impressionId?: string | undefined
   kind: 'dfareporting#conversion'
-  adUserDataConsent?: CampaignManager360ConsentStatus
-  cartData?: CampaignManager360ConversionCartData
+  limitAdTracking?: boolean | undefined
+  matchId?: string | undefined
+  mobileDeviceId?: string | undefined
+  nonPersonalizedAd?: boolean | undefined
+  ordinal: string
+  quantity: string
+  timestampMicros: string
+  treatmentForUnderage?: boolean | undefined
+  userIdentifiers?: UserIdentifier[] 
+  value: number
 }
 
-export type CampaignManager360ConversionCartData = {
-  merchantId: string
-  merchantFeedLabel: string
-  merchantFeedLanguage: string
-  items: CampaignManager360ConversionCartDataItem[]
-}
-
-export type CampaignManager360ConversionCartDataItem = {
-  itemId: string
-  quantity: number
-  unitPrice: number
-}
-
-export type CampaignManager360Conversion = CampaignManager360CommonConversion & {
-  // https://developers.google.com/doubleclick-advertisers/rest/v4/Conversion
-  customVariables?: CampaignManager360ConversionCustomVariable[]
-  encryptedUserIdCandidates?: string[]
-}
-
-export type CampaignManager360ConversionAdjustment = CampaignManager360CommonConversion
-
-export interface CampaignManager360ConversionCustomVariable {
-  type: CampaignManager360CustomFloodlightVariableType
+export interface CustomVariable {
+  type: CustomVarTypeChoices
   value: string
   kind: 'dfareporting#customFloodlightVariable'
 }
 
-export interface CampaignManager360EncryptionInfo {
+export interface EncryptionInfo {
   encryptionEntityId: string
-  encryptionEntityType: CampaignManager360EncryptionEntityType
-  encryptionSource: CampaignManager360EncryptionSource
+  encryptionEntityType: EntityType
+  encryptionSource: Source
   kind: 'dfareporting#encryptionInfo'
 }
 
-export interface CampaignManager360PayloadUserDetails {
-  email?: string
-  phone?: string
-  firstName?: string
-  lastName?: string
-  streetAddress?: string
-  city?: string
-  state?: string
-  postalCode?: string
-  countryCode?: string
-}
-
-export interface CampaignManager360Settings {
-  clientId: string
-  clientSecret: string
-  refreshToken: string
-}
-
-export type CampaignManager360UserIdentifier =
+export type UserIdentifier =
   | { hashedEmail: string }
   | { hashedPhoneNumber: string }
-  | { addressInfo: CampaignManager360AddressInfo }
+  | { addressInfo: AddressInfo }
 
-export type CampaignManager360ConsentStatus = 'GRANTED' | 'DENIED'
+export const ConsentType = {
+  GRANTED: 'GRANTED',
+  DENIED: 'DENIED'
+} as const
 
-export const campaignManager360EncryptionEntityTypes = [
-  'ADWORDS_CUSTOMER',
-  'DBM_ADVERTISER',
-  'DBM_PARTNER',
-  'DCM_ACCOUNT',
-  'DCM_ADVERTISER',
-  'ENCRYPTION_ENTITY_TYPE_UNKNOWN',
-  'DFP_NETWORK_CODE'
-] as const
-export type CampaignManager360EncryptionEntityType = typeof campaignManager360EncryptionEntityTypes[number]
+export type ConsentType = typeof ConsentType[keyof typeof ConsentType]
 
-export const campaignManager360EncryptionSources = ['AD_SERVING', 'ENCRYPTION_SCOPE_UNKNOWN', 'DATA_TRANSFER'] as const
-export type CampaignManager360EncryptionSource = typeof campaignManager360EncryptionSources[number]
+export const EntityType = {
+  ADWORDS_CUSTOMER: 'ADWORDS_CUSTOMER',
+  DBM_ADVERTISER: 'DBM_ADVERTISER',
+  DBM_PARTNER: 'DBM_PARTNER',
+  DCM_ACCOUNT: 'DCM_ACCOUNT',
+  DCM_ADVERTISER: 'DCM_ADVERTISER',
+  ENCRYPTION_ENTITY_TYPE_UNKNOWN: 'ENCRYPTION_ENTITY_TYPE_UNKNOWN',
+  DFP_NETWORK_CODE: 'DFP_NETWORK_CODE'
+} as const
 
-export type CampaignManager360CustomFloodlightVariableType =
-  | 'U1'
-  | 'U2'
-  | 'U3'
-  | 'U4'
-  | 'U5'
-  | 'U6'
-  | 'U7'
-  | 'U8'
-  | 'U9'
-  | 'U10'
-  | 'U11'
-  | 'U12'
-  | 'U13'
-  | 'U14'
-  | 'U15'
-  | 'U16'
-  | 'U17'
-  | 'U18'
-  | 'U19'
-  | 'U20'
-  | 'U21'
-  | 'U22'
-  | 'U23'
-  | 'U24'
-  | 'U25'
-  | 'U26'
-  | 'U27'
-  | 'U28'
-  | 'U29'
-  | 'U30'
-  | 'U31'
-  | 'U32'
-  | 'U33'
-  | 'U34'
-  | 'U35'
-  | 'U36'
-  | 'U37'
-  | 'U38'
-  | 'U39'
-  | 'U40'
-  | 'U41'
-  | 'U42'
-  | 'U43'
-  | 'U44'
-  | 'U45'
-  | 'U46'
-  | 'U47'
-  | 'U48'
-  | 'U49'
-  | 'U50'
-  | 'U51'
-  | 'U52'
-  | 'U53'
-  | 'U54'
-  | 'U55'
-  | 'U56'
-  | 'U57'
-  | 'U58'
-  | 'U59'
-  | 'U60'
-  | 'U61'
-  | 'U62'
-  | 'U63'
-  | 'U64'
-  | 'U65'
-  | 'U66'
-  | 'U67'
-  | 'U68'
-  | 'U69'
-  | 'U70'
-  | 'U71'
-  | 'U72'
-  | 'U73'
-  | 'U74'
-  | 'U75'
-  | 'U76'
-  | 'U77'
-  | 'U78'
-  | 'U79'
-  | 'U80'
-  | 'U81'
-  | 'U82'
-  | 'U83'
-  | 'U84'
-  | 'U85'
-  | 'U86'
-  | 'U87'
-  | 'U88'
-  | 'U89'
-  | 'U90'
-  | 'U91'
-  | 'U92'
-  | 'U93'
-  | 'U94'
-  | 'U95'
-  | 'U96'
-  | 'U97'
-  | 'U98'
-  | 'U99'
-  | 'U100'
+export type EntityType = typeof EntityType[keyof typeof EntityType]
+
+export const Source = {
+  AD_SERVING: 'AD_SERVING', 
+  ENCRYPTION_SCOPE_UNKNOWN: 'ENCRYPTION_SCOPE_UNKNOWN', 
+  DATA_TRANSFER: 'DATA_TRANSFER'
+} as const
+
+export type Source = typeof Source[keyof typeof Source]
+
+export const CustomVarTypeChoices = Array.from(
+  { length: 100 },
+  (_, i) => `U${i + 1}`
+)
+
+export type CustomVarTypeChoices = typeof CustomVarTypeChoices[number]

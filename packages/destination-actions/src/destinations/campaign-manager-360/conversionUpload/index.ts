@@ -1,10 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
-
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { buildInsertConversionBatchPayload } from './functions'
-import { refreshGoogleAccessToken } from '../common-functions'
-import { campaignManager360CommonFields } from '../common-fields'
+import { getCustomVarTypeChoices, send } from '../utils'
+import { commonFields } from '../common-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Upload',
@@ -22,12 +20,15 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Type',
           description: 'The type of the custom variable.',
           type: 'string',
-          required: true
+          allowNull: false,
+          required: true, 
+          choices: getCustomVarTypeChoices()
         },
         value: {
           label: 'Value',
           description: 'The value of the custom variable.',
           type: 'string',
+          allowNull: false,
           required: true
         }
       },
@@ -45,92 +46,90 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
-    encryptedUserIdCandidates: {
-      label: 'Encrypted User ID Candidates',
+    requiredId: {
+      label: 'Required ID',
       description:
-        'A comma separated list of the alphanumeric encrypted user IDs. Any user ID with exposure prior to the conversion timestamp will be used in the inserted conversion. If no such user ID is found then the conversion will be rejected with INVALID_ARGUMENT error. When set, `encryptionInfo` should also be specified.',
-      type: 'string',
-      required: false
+        'A user identifier record the conversion against. Exactly one of Google Click ID, Display Click ID, Encrypted User ID, Mobile Device ID, Match ID, Impression ID or Encrypted User ID Candidates must be provided.',
+      type: 'object',
+      required: true,
+      properties: {
+        gclid: {
+          label: 'Google Click ID',
+          description: 'The Google Click ID (gclid) associated with the conversion.',
+          type: 'string',
+          required: false
+        },
+        dclid: {
+          label: 'Display Click ID',
+          description: 'The Display Click ID (dclid) associated with the conversion.',
+          type: 'string',
+          required: false
+        },
+        encryptedUserId: {
+          label: 'Encrypted User ID',
+          description: "The encrypted user ID associated with the conversion. If this field is set then 'Encryption Entity ID', 'Encryption Entity Type' and 'Encryption Source' should also be specified.",
+          type: 'string',
+          required: false
+        },
+        mobileDeviceId: {
+          label: 'Mobile Device ID',
+          description: 'The mobile device ID associated with the conversion.',
+          type: 'string',
+          required: false,
+          default: {
+            '@path': '$.context.device.id'
+          }
+        },
+        matchId: {
+          label: 'Match ID',
+          description:
+            'The match ID field. A match ID is your own first-party identifier that has been synced with Google using the match ID feature in Floodlight.',
+          type: 'string',
+          required: false
+        },
+        impressionId: {
+          label: 'Impression ID',
+          description: 'The impression ID associated with the conversion.',
+          type: 'string',
+          required: false
+        },
+        encryptedUserIdCandidates: {
+          label: 'Encrypted User ID Candidates',
+          description:
+            'A comma separated list of the alphanumeric encrypted user IDs. Any user ID with exposure prior to the conversion timestamp will be used in the inserted conversion. If no such user ID is found then the conversion will be rejected with INVALID_ARGUMENT error. When set, `encryptionInfo` should also be specified.',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        gclid: {
+          '@if': {
+            exists: { '@path': '$.integrations.Campaign Manager 360.gclid' },
+            then: { '@path': '$.integrations.Campaign Manager 360.gclid' },
+            else: { '@path': '$.properties.gclid' }
+          }
+        },
+        dclid: {
+          '@if': {
+            exists: { '@path': '$.integrations.Campaign Manager 360.dclid' },
+            then: { '@path': '$.integrations.Campaign Manager 360.dclid' },
+            else: { '@path': '$.properties.dclid' }
+          }
+        },
+        encryptedUserId: { '@path': '$.userId' },
+        mobileDeviceId: { '@path': '$.context.device.id' },
+        matchId: { '@path': '$.properties.matchId' },
+        impressionId: { '@path': '$.properties.impressionId' },
+        encryptedUserIdCandidates: { '@path': '$.properties.encryptedUserIdCandidates' }
+      }
     },
-    ...campaignManager360CommonFields
+    ...commonFields
   },
-
-  // So far, Google didn't provide an answer whether this is a good way to fetch the Floodlight Configurations.
-  // The current implementation is commented out and the Floodlight Configuration ID is not dynamic.
-  /* dynamicFields: {
-    floodlightConfigurationId: async (request, { settings }) => {
-      try {
-        const bearerToken = await refreshGoogleAccessToken(request, settings)
-        const response = await request(
-          `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/floodlightConfigurations`,
-          {
-            headers: {
-              Authorization: `Bearer ${bearerToken}`
-            }
-          }
-        )
-
-        console.log(response)
-        return {
-          choices: [
-            {
-              value: '12345',
-              label: 'Floodlight Configuration 12345'
-            }
-          ]
-        }
-      } catch (error) {
-        console.error(error)
-        return {
-          choices: [],
-          nextPage: '',
-          error: {
-            message:
-              'Error fetching Floodlight Configurations. Please provide the Floodlight Configuration ID manually.',
-            code: '500'
-          }
-        }
-      }
-    }
-  }, */
-
-  // https://developers.google.com/doubleclick-advertisers/rest/v4/conversions/batchinsert
-  perform: async (request, { settings, payload }) => {
-    const conversionsBatchInsertRequest = buildInsertConversionBatchPayload([payload], settings)
-    const bearerToken = await refreshGoogleAccessToken(request, settings)
-
-    const response = await request(
-      `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/conversions/batchinsert`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${bearerToken}`,
-          'Content-Type': 'application/json',
-          Host: 'dfareporting.googleapis.com'
-        },
-        json: conversionsBatchInsertRequest
-      }
-    )
-    return response
+  perform: async (request, { settings, payload, auth }) => {
+    return await send(request, settings, [payload], false, auth )
   },
-  // https://developers.google.com/doubleclick-advertisers/rest/v4/conversions/batchinsert
-  performBatch: async (request, { settings, payload }) => {
-    const conversionsBatchInsertRequest = buildInsertConversionBatchPayload(payload, settings)
-    const bearerToken = await refreshGoogleAccessToken(request, settings)
-
-    const response = await request(
-      `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/conversions/batchinsert`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${bearerToken}`,
-          'Content-Type': 'application/json',
-          Host: 'dfareporting.googleapis.com'
-        },
-        json: conversionsBatchInsertRequest
-      }
-    )
-    return response
+  performBatch: async (request, { settings, payload, auth }) => {
+    return await send(request, settings, payload, false, auth )
   }
 }
 

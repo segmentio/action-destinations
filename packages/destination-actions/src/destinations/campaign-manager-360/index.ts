@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import conversionUpload from './conversionUpload'
-import { CampaignManager360RefreshTokenResponse } from './types'
+import { AuthTokenResp } from './types'
 
 import conversionAdjustmentUpload from './conversionAdjustmentUpload'
 
@@ -40,7 +40,7 @@ const destination: DestinationDefinition<Settings> = {
       return true
     },
     refreshAccessToken: async (request, { auth }) => {
-      const response = await request<CampaignManager360RefreshTokenResponse>(
+      const response = await request<AuthTokenResp>(
         'https://www.googleapis.com/oauth2/v4/token',
         {
           method: 'POST',

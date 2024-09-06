@@ -2,6 +2,35 @@
 
 export interface Payload {
   /**
+   * A user identifier record the conversion against. Exactly one of Google Click ID, Display Click ID, Encrypted User ID, Mobile Device ID, Match ID, Impression ID or Encrypted User ID Candidates must be provided.
+   */
+  requiredId: {
+    /**
+     * The Google Click ID (gclid) associated with the conversion.
+     */
+    gclid?: string
+    /**
+     * The Display Click ID (dclid) associated with the conversion.
+     */
+    dclid?: string
+    /**
+     * The encrypted user ID associated with the conversion. If this field is set then 'Encryption Entity ID', 'Encryption Entity Type' and 'Encryption Source' should also be specified.
+     */
+    encryptedUserId?: string
+    /**
+     * The mobile device ID associated with the conversion.
+     */
+    mobileDeviceId?: string
+    /**
+     * The match ID field. A match ID is your own first-party identifier that has been synced with Google using the match ID feature in Floodlight.
+     */
+    matchId?: string
+    /**
+     * The impression ID associated with the conversion.
+     */
+    impressionId?: string
+  }
+  /**
    * The Floodlight configuration ID associated with the conversion. Overrides the default Floodlight Configuration ID defined in Settings.
    */
   floodlightConfigurationId?: string
@@ -9,6 +38,23 @@ export interface Payload {
    * The Floodlight activity ID associated with the conversion. Overrides the default Floodlight Activity ID defined in Settings.
    */
   floodlightActivityId?: string
+  /**
+   * The encryption information associated with the conversion. Required if Encrypted User ID or Encryption User ID Candidates fields are populated.
+   */
+  encryptionInfo?: {
+    /**
+     * The encryption entity ID. This should match the encryption type configuration for ad serving or Data Transfer.
+     */
+    encryptionEntityId: string
+    /**
+     * The encryption entity type. This should match the encryption type configuration for ad serving or Data Transfer.
+     */
+    encryptionEntityType: string
+    /**
+     * The encryption source. This should match the encryption type configuration for ad serving or Data Transfer.
+     */
+    encryptionSource: string
+  }
   /**
    * User details associated with the conversion.
    */
@@ -49,35 +95,6 @@ export interface Payload {
      * 2-letter country code in ISO-3166-1 alpha-2 of the user's address.
      */
     countryCode?: string
-  }
-  /**
-   * A user identifier record the conversion against. Exactly one of Google Click ID, Display Click ID, Encrypted User ID, Mobile Device ID, Match ID or Impression ID must be provided.
-   */
-  requiredId: {
-    /**
-     * The Google Click ID (gclid) associated with the conversion.
-     */
-    gclid?: string
-    /**
-     * The Display Click ID (dclid) associated with the conversion.
-     */
-    dclid?: string
-    /**
-     * The encrypted user ID associated with the conversion.
-     */
-    encryptedUserId?: string
-    /**
-     * The mobile device ID associated with the conversion.
-     */
-    mobileDeviceId?: string
-    /**
-     * The match ID field. A match ID is your own first-party identifier that has been synced with Google using the match ID feature in Floodlight.
-     */
-    matchId?: string
-    /**
-     * The impression ID associated with the conversion.
-     */
-    impressionId?: string
   }
   /**
    * The timestamp of the conversion in a ISO-8601 string.
@@ -144,16 +161,4 @@ export interface Payload {
      */
     unitPrice: number
   }[]
-  /**
-   * The encryption entity ID. This should match the encryption type configuration for ad serving or Data Transfer.
-   */
-  encryptionEntityId?: string
-  /**
-   * The encryption entity type. This should match the encryption type configuration for ad serving or Data Transfer.
-   */
-  encryptionEntityType?: string
-  /**
-   * The encryption source. This should match the encryption type configuration for ad serving or Data Transfer.
-   */
-  encryptionSource?: string
 }
