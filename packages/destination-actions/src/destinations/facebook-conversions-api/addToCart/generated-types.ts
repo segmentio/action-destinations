@@ -86,6 +86,10 @@ export interface Payload {
      */
     fbLoginID?: number
     /**
+     * This field represents unique application installation instances. Note: This parameter is for app events only.
+     */
+    anonId?: string
+    /**
      * The ID issued by Facebook identity partner.
      */
     partner_id?: string
