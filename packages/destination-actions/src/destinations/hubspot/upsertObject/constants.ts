@@ -8,12 +8,9 @@ export const SUPPORTED_HUBSPOT_OBJECT_TYPES = [
   { label: 'Contact', value: 'contact' },
   { label: 'Company', value: 'company' },
   { label: 'Deal', value: 'deal' },
-  { label: 'Ticket', value: 'ticket' },
-  { label: 'Calls', value: 'calls' },
-  { label: 'Emails', value: 'email' },
-  { label: 'Meetings', value: 'meetings' },
-  { label: 'Postal Mail', value: 'postal_mail' },
-  { label: 'Tasks', value: 'tasks' }
+  { label: 'Ticket', value: 'ticket' }
 ]
 
 export const MAX_HUBSPOT_BATCH_SIZE = 100
+
+export const OBJECT_NOT_FOUND_ERROR_RESPONSE = 'Unable to infer object type'
