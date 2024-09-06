@@ -3,14 +3,16 @@
 import { delay } from './delay'
 import { ValueOrError, getOrCatch } from './getOrCatch'
 
-export type RetryPolicy = (attempt: number, error: any) => number
+/**
+ * function that defines the interval between retries depending on the attempt number and the error that occurred
+ */
+export type RetryIntervalMsPolicy = (attempt: number, error: any) => number
 
 export async function getOrRetry<T>(
   action: (attempt: number) => PromiseLike<T> | T,
   args?: RetryArgs
 ): Promise<ValueOrError<T>> {
   const retryIntervalMs = args?.retryIntervalMs === undefined ? backoffRetryPolicy() : args?.retryIntervalMs
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- good luck figuring out why typescript thinks it's unsafe
   return getOrCatch(
     async () =>
       await retry((attempt) => action(attempt), {
@@ -28,13 +30,13 @@ export async function getOrRetry<T>(
   )
 }
 
-export function backoffRetryPolicy(initialDelayMs = 500, multiplier = 1): RetryPolicy {
+export function backoffRetryPolicy(initialDelayMs = 500, multiplier = 1): RetryIntervalMsPolicy {
   return (attempt: number) => initialDelayMs * attempt * multiplier
 }
 
 export type RetryArgs = {
   attempts?: number
-  retryIntervalMs?: number | RetryPolicy
+  retryIntervalMs?: number | RetryIntervalMsPolicy
 }
 
 /**
