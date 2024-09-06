@@ -204,6 +204,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       expiryInSeconds?: number
       lockOptions?: LockOptions
       saveRetry?: RetryArgs
+      onSaveFailed?: (error: Error) => void
     }
   ): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
@@ -218,36 +219,47 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       const tagsArray = this.statsClient.tagsMapToArray(finalStatsTags)
       // for some reasons I see in DD untagged metrics, so I want to know when it happens. Once we figure it out we can remove this
       if (!tagsArray.some((t) => t.startsWith('cache_group'))) {
-        this.logInfo('>>> FAILED CACHE TAGS', { finalStatsTags, tagsArray, operationTags: this.currentOperation?.tags })
-        this.statsIncr('untagged_caching', 1) //to find timestamp in logs
+        this.logStep('untagged_caching', { tagsArray, operationTags: this.currentOperation?.tags }, finalStatsTags)
       }
       this.currentOperation?.tags.push(...tagsArray)
     })
+
+    this.logStep('cache_begin', { key }, finalStatsTags)
 
     if (!this.engageDestinationCache) return createValue()
     const cache = this.engageDestinationCache
 
     const serializer = options.serializer || DefaultSerializer
 
+    this.logStep('cache_reading', { key }, finalStatsTags)
+
     const cacheRead = await getOrCatch(() => cache.getByKey(key))
-    finalStatsTags.cache_step = `read_${
-      cacheRead.error ? 'error' : !isNothing(cacheRead.value) ? 'value' : 'value_empty'
-    }`
+    finalStatsTags.cache_step = `read_${cacheRead.error ? 'error' : !isNone(cacheRead.value) ? 'value' : 'value_empty'}`
+
+    this.logStep(
+      'cache_read',
+      { key, error: cacheRead.error ? getErrorDetails(cacheRead.error) : undefined, value: cacheRead.value },
+      finalStatsTags
+    )
 
     if (cacheRead.error) {
       //redis error
-      finalStatsTags.cache_reading_error = true
-      this.logInfo('cache_reading_error', {
-        key,
-        finalStatsTags,
-        error: cacheRead.error,
-        details: getErrorDetails(cacheRead.error)
-      })
+      finalStatsTags.cache_read_error = true
+      this.logStep(
+        'cache_read_error',
+        {
+          key,
+          error: getErrorDetails(cacheRead.error)
+        },
+        finalStatsTags
+      )
       this.throwRetryableError('Error reading cache')
     }
 
     // we lock only if cache not found
-    if (isNothing(cacheRead.value) && options.lockOptions) {
+    if (isNone(cacheRead.value) && options.lockOptions) {
+      this.logStep('cache_locking', { key }, finalStatsTags)
+
       if (!options.lockOptions.cacheGroup) options.lockOptions.cacheGroup = cache_group
       return this.withDistributedLock(
         `cache:${key}`,
@@ -256,67 +268,88 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       )
     }
 
-    if (!isNothing(cacheRead.value)) {
+    if (!isNone(cacheRead.value)) {
       //if cache FOUND (getByKey returned not null and not undefined)
       // trying to parse the cached value
       const { value: parsedCache, error: parsingError } = getOrCatch(() => serializer.parse(cacheRead.value!))
       finalStatsTags.cache_step = `parse_${
         parsingError ? 'error' : parsedCache !== undefined ? 'value' : 'value_empty'
       }`
+      this.logStep('cache_parsed', { key, error: getErrorDetails(parsingError) }, finalStatsTags)
 
       if (parsingError) {
         //exception happened while parsing the cache.
         // Log it and execute as if we don't have cache
         finalStatsTags.cache_parsing_error = true
-        this.logInfo('cache_parsing_error', { key, value: cacheRead.value, parsingError, finalStatsTags })
-      } else if (isNothing(parsedCache)) {
+        this.logStep(
+          'cache_parsing_error',
+          { key, value: cacheRead.value, error: getErrorDetails(parsingError) },
+          finalStatsTags
+        )
+      } else if (isNone(parsedCache)) {
         //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
         finalStatsTags.cache_ignored = true
-        this.logInfo('cache_ignored', { key, value: cacheRead.value, finalStatsTags })
+        this.logStep('cache_ignored', { key, value: cacheRead.value }, finalStatsTags)
       } else {
         //parsed cache successfully && cache is not expired
         // parsedValue - either value or error was parsed
         finalStatsTags.cache_hit = true
         finalStatsTags.cached_error = !!parsedCache.error
-        this.statsIncr('cache_hit', 1, finalStatsTags)
-        if (parsedCache?.error) throw parsedCache.error
+        this.logStep('cache_hit', { key }, finalStatsTags)
+        if (parsedCache.error) {
+          this.logStep('cache_hit_error', { key }, finalStatsTags)
+          throw parsedCache.error
+        }
+        this.logStep('cache_hit_value', { key }, finalStatsTags)
         return parsedCache.value
       }
     }
     // re-executing, because cache not found or ignored or failed to read or parse
     finalStatsTags.cache_hit = false
-    this.statsIncr('cache_miss', 1, finalStatsTags)
-    this.logInfo('cache_miss', { key, cacheGroup: cache_group })
+    this.logStep('cache_miss', { key }, finalStatsTags)
     const { value: result, error: resultError } = await getOrCatch(() => createValue())
     finalStatsTags.cache_step = 'createValue_' + (resultError ? 'error' : 'value')
+    this.logStep('cache_created_value', { key, resultError: getErrorDetails(resultError) }, finalStatsTags)
 
     //before returning result - we need to try to serialize it and store it in cache
     const stringified = getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
     finalStatsTags.cache_step = 'stringify_' + (stringified.error ? 'error' : 'value')
+    this.logStep(
+      'cache_stringified',
+      { key, stringifyError: stringified.error ? getErrorDetails(stringified.error) : undefined },
+      finalStatsTags
+    )
 
     if (stringified.error) {
       finalStatsTags.cache_stringify_error = true
-      this.logInfo('cache_stringify_error', { key, error: stringified.error, finalStatsTags })
-    } else if (!isNothing(stringified.value)) {
+      this.logStep('cache_stringify_error', { key, error: stringified.error }, finalStatsTags)
+    } else if (!isNone(stringified.value)) {
       //result stringified and contains cacheable value - cache it
-
+      this.logStep('cache_stringify_value', { key, value: stringified.value }, finalStatsTags)
+      this.logStep('cache_saving', { key, value: stringified.value }, finalStatsTags)
       const { error: cacheSavingError, value: cacheSavingResult } = await getOrRetry(
         () => cache.setByKey(key, stringified.value!, options.expiryInSeconds),
         options.saveRetry || {
-          attempts: 3,
-          retryIntervalMs: backoffRetryPolicy()
+          attempts: 5,
+          retryIntervalMs: backoffRetryPolicy(10000, 3)
         }
       )
 
       finalStatsTags.cache_step = 'save_' + (cacheSavingError ? 'error' : 'value')
       if (cacheSavingError || !cacheSavingResult) {
-        this.statsIncr('cache_saving_error', 1, finalStatsTags)
+        options?.onSaveFailed?.(cacheSavingError)
+
         finalStatsTags.cache_saving_error = cacheSavingError ? true : 'redis_returns_false'
-        this.logInfo('cache_saving_error', {
-          key,
-          error: cacheSavingError ? getErrorDetails(cacheSavingError) : cacheSavingResult,
+        this.logStep(
+          'cache_save_error',
+          {
+            key,
+            error: cacheSavingError ? getErrorDetails(cacheSavingError) : cacheSavingResult
+          },
           finalStatsTags
-        })
+        )
+      } else {
+        this.logStep('cache_save_success', { key }, finalStatsTags)
       }
     }
 
@@ -358,51 +391,61 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     const lockKey = `lock:${key}`
     const acquireLock = async () => {
       //tries to acquire lock for acquireLockMaxWaitInSeconds seconds
-      this.logInfo('trying to acquireLock', { key, statsTags })
       statsTags.lock_acquired = false
+      this.logStep('cache_lock_acquiring', { key }, statsTags)
       const startTime = Date.now()
       while (Date.now() - startTime < options.acquireLockMaxWaitTimeMs) {
+        this.logStep('cache_lock_attempt', { key }, statsTags)
         if (await cache.setByKeyNX(lockKey, 'locked', options.lockMaxTimeMs / 1000)) {
           // lock acquired, returning release function
           statsTags.lock_acquired = true
-          this.logInfo('lock_acquired', { key, statsTags })
+          this.logStep('cache_lock_acquired', { key }, statsTags)
           this.statsHistogram('lock_acquire_time', Date.now() - startTime, statsTags)
           return {
             release: async () => {
-              this.logInfo('lock_releasing...', { key, statsTags })
-              await cache.delByKey(lockKey)
-              this.logInfo('lock_released', { key, statsTags })
+              this.logStep('cache_lock_releasing', { key }, statsTags)
+              const releaseRes = await cache.delByKey(lockKey)
+              this.logStep('cache_lock_released', { key, releaseRes }, statsTags)
             }
           }
         }
+        this.logStep('cache_lock_waiting', { key, lockKey }, statsTags)
         await new Promise((resolve) => setTimeout(resolve, options.acquireLockRetryIntervalMs || 500)) // Wait 500ms before retrying
       }
       //no lock acquired because of waiting timeout
-      this.logInfo('lock_NOT_acquired because of waiting timeout', { key, statsTags })
+      this.logStep('cache_lock_timeout', { key, lockKey }, statsTags)
     }
 
     const { value: lock, error: redisError } = await getOrCatch(() => acquireLock())
 
     if (redisError) {
-      this.logInfo('lock_acquire_error', { key, redisError, statsTags })
       statsTags.lock_acquired_error = true
+      this.logStep('cache_lock_error', { key, error: getErrorDetails(redisError) }, statsTags)
       this.throwRetryableError('Error acquiring lock: ' + redisError.message)
     } else if (!lock?.release) {
       // no redis error and no lock acquired - means it was acquiring timeout
+      this.logStep('cache_lock_timeout_exit', { key }, statsTags)
       this.throwRetryableError('Timeout while acquiring lock')
     }
     //if lock obtained or there was redis error - execute createValue and finally release lock
     else
       try {
+        this.logStep('cache_lock_creating', { key }, statsTags)
         return await createValue()
       } finally {
         const { error: releaseError } = await getOrCatch(() => lock.release())
         if (releaseError) {
-          this.logInfo('lock_release_error', { key, releaseError, statsTags })
           statsTags.lock_release_error = true
+          this.logStep('lock_release_error', { key, error: getErrorDetails(releaseError) }, statsTags)
           // we can ignore the error, as the lock will be expired anyway
         }
       }
+  }
+
+  logStep(stepName: string, logDetails: any, statsTags: StatsTagsMap) {
+    statsTags.step = stepName
+    this.logInfo(stepName, { ...logDetails, statsTags })
+    this.statsIncr(stepName, 1, statsTags)
   }
 }
 
@@ -480,6 +523,6 @@ export type LockOptions = {
   cacheGroup?: string
 }
 
-export function isNothing(cacheValue: any): cacheValue is null | undefined | void {
+export function isNone(cacheValue: any): cacheValue is null | undefined | void {
   return cacheValue === undefined || cacheValue === null
 }
