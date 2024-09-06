@@ -137,7 +137,6 @@ export const destination: BrowserDestinationDefinition<Settings, Evolv> = {
       await deps.loadScript('https://media.evolv.ai/asset-manager/releases/latest/webloader.min.js', scriptOptions)
     }
 
-    window.evolv = window.evolv || {}
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'evolv'), 100)
 
     if (settings.receiveConfirmations) {
