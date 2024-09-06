@@ -3,7 +3,6 @@ import type { Payload } from './generated-types'
 import {
   CreateEventDefinitionReq,
   CreatePropertyDefintionReq,
-  CreatePropertyRegectedResp,
   SegmentProperty,
   SegmentPropertyType,
   StringFormat,
@@ -380,14 +379,7 @@ export async function updateHubspotSchema(client: Client, fullyQualifiedName: st
     }
 
     if (response.status === 'rejected') {
-      const error = response.reason as CreatePropertyRegectedResp
-      if (error.data.propertiesErrorCode !== 'PROPERTY_EXISTS') {
-        throw new IntegrationError(
-          `Error updating schema in HubSpot. ${error.data.message || ''} ${error.data.propertiesErrorCode || ''}`,
-          'HUBSPOT_UPDATE_SCHEMA_ERROR',
-          400
-        )
-      }
+      throw new RetryableError('Hubspot:CustomEvent:updateHubspotSchema: promise.allSettled rejected - retrying', 429)
     }
   }
 }

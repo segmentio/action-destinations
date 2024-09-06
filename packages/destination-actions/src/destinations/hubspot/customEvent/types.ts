@@ -74,14 +74,6 @@ export interface CreateEventDefinitionReq {
   propertyDefinitions: Array<CreatePropertyDefintionReq>
 }
 
-export interface CreatePropertyRegectedResp {
-  data: {
-    status: string
-    message?: string
-    propertiesErrorCode?: string
-  }
-}
-
 export interface EventCompletionReq {
   eventName: string
   objectId?: number | undefined
