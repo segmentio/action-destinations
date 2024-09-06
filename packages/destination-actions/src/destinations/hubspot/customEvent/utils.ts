@@ -316,9 +316,36 @@ export async function createHubspotEventSchema(client: Client, schema: Schema): 
         name: response.data.name
       } as SchemaDiff
     }
-    case 409:
-      throw new RetryableError('Hubspot:CustomEvent:createHubspotEventSchema: Object already exists')
+    case 409: {
+      // If the event schema already exists, we can ignore the error
+      if (response.data.message.includes('already exists')) {
+        throw new RetryableError('Hubspot:CustomEvent:createHubspotEventSchema: Event schema already exists', 429)
+      } else {
+        throw new IntegrationError(
+          `Hubspot.CustomEvent.createHubspotEventSchema: ${
+            response?.statusText ? response.statusText : 'Unexpected Error'
+          }`,
+          'UNEXPECTED_ERROR',
+          response.status
+        )
+      }
+    }
+    case 408:
+    case 423:
     case 429:
+    case 500:
+    case 502:
+    case 503:
+    case 504:
+    case 505:
+    case 506:
+    case 507:
+    case 508:
+    case 509:
+    case 510:
+    case 511:
+    case 598:
+    case 599:
       throw new RetryableError('Hubspot:CustomEvent:createHubspotEventSchema: Rate limit reached')
     default:
       throw new IntegrationError(
@@ -362,10 +389,40 @@ export async function updateHubspotSchema(client: Client, fullyQualifiedName: st
         case 201:
         case 200:
           return
-        case 409:
-          throw new RetryableError('Hubspot:CustomEvent:updateHubspotSchema: Property already exists', 429)
+        case 409: {
+          // If the property already exists, we can ignore the error
+          if (message.includes('already exists')) {
+            return
+          } else {
+            throw new IntegrationError(
+              `Hubspot.CustomEvent.updateHubspotSchema: ${statusText ? statusText : 'Unexpected Error'}. ${
+                message ? message : ''
+              }`,
+              'UNEXPECTED_ERROR',
+              status
+            )
+          }
+        }
+        case 408:
+        case 423:
         case 429:
-          throw new RetryableError('Hubspot:CustomEvent:updateHubspotSchema: Rate limit reached', 429)
+        case 500:
+        case 502:
+        case 503:
+        case 504:
+        case 505:
+        case 506:
+        case 507:
+        case 508:
+        case 509:
+        case 510:
+        case 511:
+        case 598:
+        case 599:
+          throw new RetryableError(
+            'Hubspot:CustomEvent:updateHubspotSchema: Retryable response status received',
+            status
+          )
         default: {
           throw new IntegrationError(
             `Hubspot.CustomEvent.updateHubspotSchema: ${statusText ? statusText : 'Unexpected Error'}. ${
@@ -379,6 +436,7 @@ export async function updateHubspotSchema(client: Client, fullyQualifiedName: st
     }
 
     if (response.status === 'rejected') {
+      // rejected likely means a network layer error, so retry
       throw new RetryableError('Hubspot:CustomEvent:updateHubspotSchema: promise.allSettled rejected - retrying', 429)
     }
   }
