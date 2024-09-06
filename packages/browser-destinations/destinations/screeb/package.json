@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-screeb",
-  "version": "1.60.1-staging-a4ef6836a.0",
+  "version": "1.60.1-staging-0e30b6670.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -16,7 +16,7 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@segment/actions-core": "3.129.1-staging-cf84b9f3d.0",
-    "@segment/browser-destination-runtime": "1.58.1-staging-a4ef6836a.0"
+    "@segment/browser-destination-runtime": "1.58.1-staging-0e30b6670.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
