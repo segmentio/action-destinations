@@ -2,7 +2,7 @@ import { PayloadValidationError, IntegrationError, RetryableError } from '@segme
 import type { Payload } from './generated-types'
 import {
   CreateEventDefinitionReq,
-  CreatePropertyDefintionReq,
+  CreatePropDefinitionReq,
   SegmentProperty,
   SegmentPropertyType,
   StringFormat,
@@ -94,32 +94,16 @@ function cleanProp(str: string): string {
 }
 
 function stringFormat(str: string): StringFormat {
-  const date = new Date(str)
+  // Check for date or datetime, otherwise default to string
+  const isoDateTimeRegex =
+    /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:([ T])(\d{2}):?(\d{2})(?::?(\d{2})(?:[,\.](\d{1,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?)?$/ //eslint-disable-line no-useless-escape
+  const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/ //eslint-disable-line no-useless-escape
 
-  if (isNaN(date.getTime())) {
+  if (isoDateTimeRegex.test(str)) {
+    return dateOnlyRegex.test(str) ? 'date' : 'datetime'
+  } else {
     return 'string'
   }
-
-  const year = date.getUTCFullYear()
-  const month = date.getUTCMonth()
-  const day = date.getUTCDate()
-  const hours = date.getUTCHours()
-  const minutes = date.getUTCMinutes()
-  const seconds = date.getUTCSeconds()
-  const milliseconds = date.getUTCMilliseconds()
-
-  // Check if it's a date at midnight
-  if (hours === 0 && minutes === 0 && seconds === 0 && milliseconds === 0) {
-    // Reconstruct the date at UTC midnight
-    const reconstructedDate = new Date(Date.UTC(year, month, day))
-    if (reconstructedDate.getTime() === date.getTime()) {
-      return 'date'
-    } else {
-      return 'datetime'
-    }
-  }
-
-  return 'datetime'
 }
 
 function propertyBody(
@@ -127,7 +111,7 @@ function propertyBody(
   type: SegmentPropertyType,
   name: string,
   stringFormat?: StringFormat
-): CreatePropertyDefintionReq {
+): CreatePropDefinitionReq {
   switch (type) {
     case 'number':
       return {
@@ -264,8 +248,23 @@ export async function compareToHubspot(client: Client, schema: Schema): Promise<
     case 400:
     case 404:
       return { match: 'no_match', missingProperties: {} }
+    case 408:
+    case 423:
     case 429:
-      throw new RetryableError('Hubspot:CustomEvent:compareToHubspot: Rate limit reached')
+    case 500:
+    case 502:
+    case 503:
+    case 504:
+    case 505:
+    case 506:
+    case 507:
+    case 508:
+    case 509:
+    case 510:
+    case 511:
+    case 598:
+    case 599:
+      throw new RetryableError('Hubspot:CustomEvent:compareToHubspot: Retryable error', response.status)
     default:
       throw new IntegrationError(
         `Hubspot.CustomEvent.compareToHubspot: ${response?.statusText ? response.statusText : 'Unexpected Error'}`,
@@ -317,7 +316,7 @@ export async function createHubspotEventSchema(client: Client, schema: Schema): 
       } as SchemaDiff
     }
     case 409: {
-      // If the event schema already exists, we can ignore the error
+      // If the event schema already exists, we can ignore the error and retry later
       if (response.data.message.includes('already exists')) {
         throw new RetryableError('Hubspot:CustomEvent:createHubspotEventSchema: Event schema already exists', 429)
       } else {

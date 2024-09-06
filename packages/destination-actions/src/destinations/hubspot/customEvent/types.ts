@@ -50,9 +50,10 @@ export interface GetEventDefinitionResp {
 export interface CreateEventDefinitionResp {
   fullyQualifiedName: string
   name: string
+  message: string
 }
 
-export interface CreatePropertyDefintionReq {
+export interface CreatePropDefinitionReq {
   name: string
   label: string
   type: HubspotPropertyType
@@ -71,7 +72,7 @@ export interface CreateEventDefinitionReq {
   name: string
   description: string
   primaryObject: string
-  propertyDefinitions: Array<CreatePropertyDefintionReq>
+  propertyDefinitions: Array<CreatePropDefinitionReq>
 }
 
 export interface EventCompletionReq {
