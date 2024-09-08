@@ -5,7 +5,10 @@ import { RefreshTokenResponse } from './types'
 
 import send from './send'
 
-const destination: DestinationDefinition<Settings> = {
+type SettingsWithDynamicAuth = Settings & {
+  dynamicAuthSettings: any
+}
+const destination: DestinationDefinition<SettingsWithDynamicAuth> = {
   name: 'Extensible Webhook',
   slug: 'actions-webhook-extensible',
   mode: 'cloud',
@@ -17,38 +20,14 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Shared Secret',
         description:
           'If set, Segment will sign requests with an HMAC in the "X-Signature" request header. The HMAC is a hex-encoded SHA1 hash generated using this shared secret and the request body.'
-      },
-      client_id: {
-        label: 'Client ID',
-        description: 'Your client ID.',
-        type: 'string',
-        required: true
-      },
-      client_secret: {
-        label: 'Client Secret',
-        description: 'Your client secret.',
-        type: 'password',
-        required: true
-      },
-      authenticationUrl: {
-        label: 'Authentication URL',
-        description: 'The URL to authenticate the client.',
-        type: 'string',
-        required: true
-      },
-      refreshTokenUrl: {
-        label: 'Refresh Token URL',
-        description: 'The URL to refresh the access token.',
-        type: 'string',
-        required: true
       }
     },
-    refreshAccessToken: async (request, { settings }) => {
-      const res = await request<RefreshTokenResponse>(settings.refreshTokenUrl, {
+    refreshAccessToken: async (request, { settings, auth }) => {
+      const res = await request<RefreshTokenResponse>(settings.dynamicAuthSettings.oauth.refreshTokenUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Basic ${Buffer.from(settings.client_id + ':' + settings.client_secret).toString('base64')}`
+          Authorization: `Basic ${Buffer.from(auth.clientId + ':' + auth.clientSecret).toString('base64')}`
         },
         body: '{"grant_type":"client_credentials"}'
       })
@@ -56,7 +35,10 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: res.data.access_token }
     }
   },
-  extendRequest: ({ settings, payload, auth }) => {
+  extendRequest: ({ settings, payload }) => {
+    const { dynamicAuthSettings } = settings
+    const accessToken = dynamicAuthSettings?.oauth?.access?.access_token
+
     if (!payload) {
       payload = {}
     }
@@ -68,7 +50,7 @@ const destination: DestinationDefinition<Settings> = {
       return {
         headers: {
           'X-Signature': digest,
-          authorization: `Bearer ${auth?.accessToken}`
+          authorization: `Bearer ${accessToken}`
         }
       }
     }
