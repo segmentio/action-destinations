@@ -15,14 +15,14 @@ export const AssociationSyncMode = {
 
 export type AssociationSyncMode = typeof AssociationSyncMode[keyof typeof AssociationSyncMode]
 
-export const BatchRequestType = {
+export const ObjReqType = {
   Upsert: 'upsert',
   Create: 'create',
   Update: 'update',
   Read: 'read'
 } as const
 
-export type BatchRequestType = typeof BatchRequestType[keyof typeof BatchRequestType]
+export type ObjReqType = typeof ObjReqType[keyof typeof ObjReqType]
 
 export const HSPropTypeFieldType = {
   StringText: 'string:text',
@@ -96,10 +96,10 @@ export interface SchemaDiff {
   missingSensitiveProperties: Prop[]
 }
 
-export interface ResponseType {
-  status: 'fulfilled' | 'rejected'
-  value?: { data: { results: Result[] } }
-  reason?: { message: string }
+export interface ReadPropsResp {
+  results: Array<Result>
+  status: number
+  statusText: string
 }
 
 export interface Result {
@@ -109,13 +109,13 @@ export interface Result {
   hasUniqueValue: boolean
 }
 
-export interface ReadJSON {
+export interface ReadReq {
   idProperty: string
   properties: string[]
   inputs: Array<{ id: string }>
 }
 
-export interface UpsertJSON {
+export interface UpsertReq {
   inputs: Array<{
     idProperty: string
     id: string
@@ -123,14 +123,14 @@ export interface UpsertJSON {
   }>
 }
 
-export interface CreateJSON {
+export interface CreateReq {
   inputs: Array<{
     idProperty: string
     properties: Record<string, string>
   }>
 }
 
-export interface RespJSON {
+export interface BatchObjResp {
   status: string
   results: Array<{
     id: string
@@ -168,18 +168,7 @@ export interface AssociationPayloadWithId extends AssociationPayload {
   }
 }
 
-export interface AssociationType {
-  associationCategory: AssociationCategory
-  associationTypeId: string
-}
-
-enum AssociationCategory {
-  HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
-  USER_DEFINED = 'USER_DEFINED',
-  INTEGRATOR_DEFINED = 'INTEGRATOR_DEFINED'
-}
-
-export interface BatchAssociationsRequestBody {
+export interface AssociationsReq {
   inputs: {
     types: AssociationType[]
     from: {
@@ -191,16 +180,27 @@ export interface BatchAssociationsRequestBody {
   }[]
 }
 
+export interface AssociationType {
+  associationCategory: AssociationCategory
+  associationTypeId: string
+}
+
+enum AssociationCategory {
+  HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
+  USER_DEFINED = 'USER_DEFINED',
+  INTEGRATOR_DEFINED = 'INTEGRATOR_DEFINED'
+}
+
 export interface GroupableFields {
   object_type: string
   id_field_name: string
 }
 
-export interface CreatePropsDefinitionReq {
-  inputs: Array<Input>
+export interface CreatePropsReq {
+  inputs: Array<CreatePropsReqItem>
 }
 
-export interface Input {
+export interface CreatePropsReqItem {
   name: string
   label: string
   groupName: string
