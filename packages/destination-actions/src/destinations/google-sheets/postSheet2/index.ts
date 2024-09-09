@@ -91,18 +91,19 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size: {
       type: 'number',
       label: 'Batch Size',
-      description: 'The number of rows to write to the spreadsheet in a single batch. The maximum value is 1000.',
+      description:
+        'The number of rows to write to the spreadsheet in a single batch. The value is determined by number of rows * columns that Segment can upload within 30s.',
       default: 100,
       required: true,
-      unsafe_hidden: true // TODO: Display this field when min/max is implemented.
+      unsafe_hidden: true
     },
     batch_bytes: {
       type: 'number',
       label: 'Batch Bytes',
-      description: 'The number of bytes to write to the spreadsheet in a single batch. The maximum value is 4000000.',
+      description: 'The number of bytes to write to the spreadsheet in a single batch. Limit is 2MB.',
       default: 2000000, // 2MB,
       required: true,
-      unsafe_hidden: true // TODO: Display this field when min/max is implemented.
+      unsafe_hidden: true
     }
   },
   perform: (request, { payload, syncMode }) => {
