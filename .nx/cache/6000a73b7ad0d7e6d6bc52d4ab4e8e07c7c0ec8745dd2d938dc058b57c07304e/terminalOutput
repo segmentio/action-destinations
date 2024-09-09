@@ -1,0 +1,6 @@
+[2K[1G[2m$ yarn clean[22m
+[2K[1G[2m$ tsc --build tsconfig.build.json --clean[22m
+[2K[1G[2m$ rm -rf dist[22m
+[2K[1G[2m$ yarn build:cjs && yarn build:esm[22m
+[2K[1G[2m$ tsc -p tsconfig.build.json -m commonjs --outDir dist/cjs[22m
+[2K[1G[2m$ tsc -p tsconfig.build.json -m es2015 --outDir dist/esm[22m

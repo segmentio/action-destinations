@@ -1,0 +1,162 @@
+[2K[1G[2m$ jest[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/segment-utilities-web/src/throttle/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/heap/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1msetConfigurationFields.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/amplitude-plugins/src/sessionId/__tests__/[22m[1msessionId.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/intercom/src/identifyCompany/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/intercom/src/identifyUser/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/reddit-plugins/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/rupt/src/attach/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/hubble-web/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/evolv-ai/src/source/__tests__/[22m[1mindext.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/heap/src/identifyUser/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/intercom/src/__tests__/[22m[1mindex.test.ts[22m
+  [1m● [22mConsole
+
+    [2mconsole.info[22m
+      [Intercom] Launcher is disabled in settings or current page does not match display conditions
+[2m[22m
+[2m      [2mat VirtualConsole.onMethodCall ([22m[2m../../node_modules/jest-environment-jsdom/node_modules/jsdom/lib/jsdom/virtual-console.js[2m:22:29)[22m[2m[22m
+
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/hubble-web/src/identify/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/iterate/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/hubspot-web/src/trackCustomBehavioralEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/screeb/src/identify/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mlogin.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/intercom/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/adobe-target/src/triggerView/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/intercom/src/__tests__/[22m[1mutils.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mcustomEvent.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/adobe-target/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/screeb/src/group/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/upollo/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/commandbar/src/identifyUser/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1msignUp.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/bucket/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/fullstory/src/__tests__/[22m[1mfullstory.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/rupt/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/screeb/src/alias/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/adobe-target/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/replaybird/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/wisepops/src/trackGoal/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1msearch.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/survicate/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/adobe-target/src/upsertProfile/__tests__/[22m[1mindex.test.ts[22m ([0m[1m[41m7.32 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mpurchase.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/wisepops/src/setCustomProperties/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mbeginCheckout.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mgenerateLead.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/hubspot-web/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/segment-utilities-web/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mviewItemList.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mremoveFromCart.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mviewCart.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mviewItem.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/iterate/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1maddToCart.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/bucket/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/iterate/src/identifyUser/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/replaybird/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/fullstory/src/__tests__/[22m[1mfullstoryV2.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1maddToWishlist.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/bucket/src/group/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mselectItem.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mrefund.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1maddPaymentInfo.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/jimo/src/sendUserData/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/algolia-plugins/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/upollo/src/identifyUser/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/vwo/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/commandbar/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/commandbar/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/wisepops/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/screeb/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/wisepops/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/cdpresolution/src/sync/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mselectPromotion.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/evolv-ai/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/sprig-web/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/evolv-ai/src/identifyUser/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-analytics-4-web/src/__tests__/[22m[1mviewPromotion.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/vwo/src/identifyUser/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/logrocket/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/koala/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/hubspot-web/src/upsertContact/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/heap/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/sprig-web/src/identifyUser/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/replaybird/src/identifyUser/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/fullstory/src/__tests__/[22m[1minitialization.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/nextdoor-plugins/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/bucket/src/identifyUser/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/wisepops/src/trackPage/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/sprig-web/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/hubspot-web/src/trackPageView/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/evolv-ai/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/1flow/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/vwo/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/sprig-web/src/updateUserId/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/adobe-target/src/__tests__/[22m[1mutils.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/screeb/src/track/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/1flow/src/identifyUser/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/upollo/src/enrichUser/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/logrocket/src/track/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/devrev/src/revUserEnrichment/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/1flow/src/trackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/hubble-web/src/track/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/tiktok-pixel/src/reportWebEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/braze/src/__tests__/[22m[1mintegration.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/friendbuy/src/trackCustomEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/braze/src/__tests__/[22m[1mupdateUserProfile.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/braze/src/__tests__/[22m[1mdebounce.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/braze/src/__tests__/[22m[1minitialization.test.ts[22m
+  [1m● [22mConsole
+
+    [2m[31mconsole.error[39m[22m
+[31m      Error: Error: getaddrinfo ENOTFOUND endpoint[39m
+[31m          at Object.dispatchError (/Users/joeayoub/dev/src/github.com/segmentio/action-destinations/node_modules/jest-environment-jsdom/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:63:19)[39m
+[31m          at EventEmitter.<anonymous> (/Users/joeayoub/dev/src/github.com/segmentio/action-destinations/node_modules/jest-environment-jsdom/node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)[39m
+[31m          at EventEmitter.emit (node:events:525:35)[39m
+[31m          at Request.<anonymous> (/Users/joeayoub/dev/src/github.com/segmentio/action-destinations/node_modules/jest-environment-jsdom/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:401:14)[39m
+[31m          at Request.emit (node:events:513:28)[39m
+[31m          at ClientRequest.<anonymous> (/Users/joeayoub/dev/src/github.com/segmentio/action-destinations/node_modules/jest-environment-jsdom/node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:121:14)[39m
+[31m          at ClientRequest.emit (node:events:513:28)[39m
+[31m          at TLSSocket.socketErrorListener (node:_http_client:494:9)[39m
+[31m          at TLSSocket.emit (node:events:513:28)[39m
+[31m          at emitErrorNT (node:internal/streams/destroy:151:8) undefined[39m
+[2m[22m
+[2m      [2mat VirtualConsole.<anonymous> ([22m[2m../../node_modules/jest-environment-jsdom/node_modules/jsdom/lib/jsdom/virtual-console.js[2m:29:45)[22m[2m[22m
+
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-campaign-manager/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/userpilot/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/snap-plugins/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/pendo-web-actions/src/group/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/ripe/src/page/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/ripe/src/group/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-campaign-manager/src/__tests__/[22m[1msalesActivity.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/ripe/src/track/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/friendbuy/src/trackPurchase/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/stackadapt/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/friendbuy/src/trackSignUp/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/stackadapt/src/__tests__/[22m[1mtrack.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/friendbuy/src/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/ripe/src/identify/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/google-campaign-manager/src/__tests__/[22m[1mcounterActivity.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/tiktok-pixel/src/identify/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/stackadapt/src/__tests__/[22m[1mpage.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2m__tests__/[22m[1mwindow.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/braze/src/__tests__/[22m[1mtrackEvent.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/pendo-web-actions/src/track/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/braze/src/__tests__/[22m[1mtrackPurchase.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/friendbuy/src/trackCustomer/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/logrocket/src/identify/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/jimo/src/sendTrackEvent/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/pendo-web-actions/src/identify/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/friendbuy/src/trackPage/__tests__/[22m[1mindex.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2mdestinations/koala/src/identifyVisitor/__tests__/[22m[1mindex.test.ts[22m
+
+[1mTest Suites: [22m[1m[33m3 skipped[39m[22m, [1m[32m130 passed[39m[22m, 130 of 133 total
+[1mTests:       [22m[1m[33m5 skipped[39m[22m, [1m[32m353 passed[39m[22m, 358 total
+[1mSnapshots:   [22m[1m[32m21 passed[39m[22m, 21 total
+[1mTime:[22m        17.35 s
+[2mRan all test suites[22m[2m.[22m
+[1mForce exiting Jest: [22mHave you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

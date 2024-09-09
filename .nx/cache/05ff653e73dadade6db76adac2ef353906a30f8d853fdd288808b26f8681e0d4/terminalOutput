@@ -1,0 +1,10 @@
+[2K[1G[2m$ jest[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2msrc/friendbuy/__tests__/[22m[1mutil.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2msrc/friendbuy/__tests__/[22m[1mmapEvent.test.ts[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [2msrc/engage/__tests__/[22m[1mOperationTracker.test.ts[22m
+
+[1mTest Suites: [22m[1m[32m3 passed[39m[22m, 3 total
+[1mTests:       [22m[1m[32m68 passed[39m[22m, 68 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        4.652 s, estimated 9 s
+[2mRan all test suites[22m[2m.[22m
