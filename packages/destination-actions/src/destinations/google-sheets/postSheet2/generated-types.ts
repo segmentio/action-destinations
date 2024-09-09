@@ -24,7 +24,9 @@ export interface Payload {
    *   On the left-hand side, input the name of the field as it will appear in the Google Sheet.
    *
    *   On the right-hand side, select the field from your data model that maps to the given field in your sheet.
+   *
    *   ---
+   *
    *
    */
   fields: {
@@ -35,7 +37,7 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
-   * The number of rows to write to the spreadsheet in a single batch. The value is determined by number of rows * columns that Segment can upload within 30s.
+   * The number of rows to write to the spreadsheet in a single batch. This value is determined by the number of rows * columns (cells) that Segment can process and upload within timeout window.
    */
   batch_size: number
   /**
