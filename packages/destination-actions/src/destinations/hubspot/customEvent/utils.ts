@@ -207,8 +207,6 @@ export async function compareToHubspot(client: Client, schema: Schema): Promise<
   const mismatchSchemaDiff: SchemaDiff = { match: 'mismatch', missingProperties: {} }
 
   const response = await client.getEventDefinition(schema.eventName)
-console.log(response)
-console.log(response.status)
   switch (response.status) {
     case 200: {
       const { fullyQualifiedName, name, properties: hsProperties, archived } = response.data
@@ -306,12 +304,6 @@ export async function createHubspotEventSchema(client: Client, schema: Schema): 
   }
 
   const response = await client.createEventDefinition(json)
-console.log(JSON.stringify({
-  match: 'full_match',
-  fullyQualifiedName: response.data.fullyQualifiedName,
-  name: response.data.name
-}))
-//console.log(response.status)
   switch (response.status) {
     case 201:
     case 200: {

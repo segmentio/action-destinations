@@ -16,7 +16,7 @@ export class Client {
   }
 
   async getEventDefinition(eventName: string): Promise<ModifiedResponse<GetEventDefinitionResp>> {
-   // console.log(`${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`)
+    // console.log(`${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`)
     return await this.request<GetEventDefinitionResp>(
       `${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`,
       {
@@ -28,9 +28,6 @@ export class Client {
   }
 
   async send(json: EventCompletionReq) {
-    console.log("HELLO")
-    console.log(json)
-    console.log("BYE")
     return this.request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'POST',
       json
