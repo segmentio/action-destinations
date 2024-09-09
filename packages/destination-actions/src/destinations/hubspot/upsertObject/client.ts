@@ -1,13 +1,14 @@
 import { RequestClient } from '@segment/actions-core'
 import { HUBSPOT_BASE_URL } from '../properties'
 import {
-  BatchAssociationsRequestBody,
-  BatchRequestType,
-  CreateJSON,
-  CreatePropsDefinitionReq,
-  ReadJSON,
-  RespJSON,
-  UpsertJSON
+  AssociationsReq,
+  ObjReqType,
+  CreateReq,
+  CreatePropsReq,
+  ReadReq,
+  ReadPropsResp,
+  BatchObjResp,
+  UpsertReq
 } from './types'
 
 export class Client {
@@ -21,14 +22,16 @@ export class Client {
 
   async readProperties(sensitive: boolean) {
     const sensitivity = '?dataSensitivity=sensitive'
-    const url = `${HUBSPOT_BASE_URL}/crm/v3/properties/${this.objectType}${sensitive ? sensitivity : ''}`
-    return this.request<ResponseType>(url, {
-      method: 'GET',
-      skipResponseCloning: true
-    })
+    return this.request<ReadPropsResp>(
+      `${HUBSPOT_BASE_URL}/crm/v3/properties/${this.objectType}${sensitive ? sensitivity : ''}`,
+      {
+        method: 'GET',
+        skipResponseCloning: true
+      }
+    )
   }
 
-  async createPropertiesDefinition(json: CreatePropsDefinitionReq) {
+  async createPropertiesDefinition(json: CreatePropsReq) {
     await this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${this.objectType}/batch/create`, {
       method: 'POST',
       skipResponseCloning: true,
@@ -36,17 +39,17 @@ export class Client {
     })
   }
 
-  async batchObjectRequest(action: BatchRequestType, objectType: string, data: ReadJSON | UpsertJSON | CreateJSON) {
-    return this.request<RespJSON>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
+  async batchObjectRequest(action: ObjReqType, objectType: string, json: ReadReq | UpsertReq | CreateReq) {
+    return this.request<BatchObjResp>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
       method: 'POST',
-      json: data
+      json
     })
   }
 
-  async batchAssociationsRequest(body: BatchAssociationsRequestBody, toObjectType: string) {
+  async batchAssociationsRequest(json: AssociationsReq, toObjectType: string) {
     return this.request(`${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/create`, {
       method: 'POST',
-      json: body
+      json
     })
   }
 }
