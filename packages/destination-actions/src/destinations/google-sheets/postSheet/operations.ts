@@ -1,6 +1,6 @@
 import type { Payload } from './generated-types'
 import { IntegrationError, RequestClient } from '@segment/actions-core'
-import { GoogleSheets, GetResponse } from '../googleapis/index'
+import { GoogleSheets, GetResponse } from '../googleapis'
 import { CONSTANTS } from '../constants'
 
 import A1 from '@segment/a1-notation'
@@ -35,21 +35,21 @@ const DATA_ROW_OFFSET = 2
 
 /**
  * Utility function that converts the event properties into an array of strings that Google Sheets API can understand.
- * Note that the identifier is forced as the first column. 
+ * Note that the identifier is forced as the first column.
  * @param identifier value used to imbue fields with a uniqueness constraint
  * @param fields list of properties contained in the event
  * @param columns list of properties that will be committed to the spreadsheet
  * @returns a string object that has used the `fields` data to populate the `columns` ordering
- * 
+ *
  * @example
- * fields: 
+ * fields:
     {
       "CLOSE_DATE": "2022-07-08T00:00:00Z",
       "CLOSE_DATE_EOQ": "2022-07-08",
       "ENTRY_POINT": "Website Demo Request",
       "E_ARR_POST_LAUNCH_C": "100000.0",
       "FINANCE_ENTRY_POINT": "Inbound High Intent"
-    } 
+    }
     columns: ["ENTRY_POINT", "MISSING_COLUMN", "CLOSE_DATE"]
 
     return => ["Website Demo Request", "", "2022-07-08T00:00:00Z"]
@@ -65,6 +65,8 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
  * Processes the response of the Google Sheets GET call and parses the events into separate operation buckets.
  * @param response result of the Google Sheets API get call
  * @param events data to be written to the spreadsheet
+ * @param mappingSettings the mapping settings
+ * @param features feature flags
  * @returns
  */
 function processGetSpreadsheetResponse(

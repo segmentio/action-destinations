@@ -1,6 +1,6 @@
 import type { Payload } from './generated-types'
 import { IntegrationError, RequestClient } from '@segment/actions-core'
-import { GoogleSheets, GetResponse } from '../googleapis/index'
+import { GoogleSheets, GetResponse } from '../googleapis'
 import { CONSTANTS } from '../constants'
 
 import A1 from '@segment/a1-notation'
@@ -65,9 +65,10 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
  * Processes the response of the Google Sheets GET call and parses the events into separate operation buckets.
  * @param response result of the Google Sheets API get call
  * @param events data to be written to the spreadsheet
- * @param mappingSettings
- * @param syncMode
- * @returns
+ * @param mappingSettings the mapping settings
+ * @param syncMode the sync mode
+ * @param features feature flags
+ * @returns an object containing the events to append and update
  */
 function processGetSpreadsheetResponse(
   response: GetResponse,
