@@ -302,8 +302,11 @@ function setupRoutes(def: DestinationDefinition | null): void {
 
           if (Array.isArray(eventParams.data)) {
             // If no mapping or default mapping is provided, default to using the first payload across all events.
+            console.log('ContextParams:', req.body.payload[0].context?.personas?.external_audience_id)
             eventParams.mapping = mapping || eventParams.data[0] || {}
             eventParams.audienceSettings = req.body.payload[0]?.context?.personas?.audience_settings || {}
+            console.log('EventParams2', eventParams)
+            console.log('EventParamContext:', eventParams.data[0].context)
             await action.executeBatch(eventParams)
           } else {
             await action.execute(eventParams)
