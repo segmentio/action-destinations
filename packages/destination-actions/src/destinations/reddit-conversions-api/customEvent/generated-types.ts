@@ -55,10 +55,6 @@ export interface Payload {
      */
     ip_address?: string
     /**
-     * A flag indicating whether the user has opted out of tracking.
-     */
-    opt_out?: boolean
-    /**
      * The user agent of the user's browser.
      */
     user_agent?: string
