@@ -47,12 +47,29 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.' }
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload }) => {
     try {
+      let body
+      let contentType = 'application/json'
+
+      if (payload.headers) {
+        contentType = (payload.headers['Content-Type'] as string) || (payload.headers['content-type'] as string)
+      }
+
+      if (contentType === 'application/json') {
+        body = { json: payload.data }
+      } else if (contentType === 'application/x-www-form-urlencoded') {
+        const formUrlEncoded = new URLSearchParams(payload.data).toString()
+        body = { body: formUrlEncoded }
+      } else {
+        // Handle other content types or default case
+        body = { json: payload.data }
+      }
+
       return request(payload.url, {
         method: payload.method as RequestMethod,
         headers: payload.headers as Record<string, string>,
-        json: { ...payload.data, ...settings }
+        ...body
       })
     } catch (error) {
       if (error instanceof TypeError) throw new PayloadValidationError(error.message)
