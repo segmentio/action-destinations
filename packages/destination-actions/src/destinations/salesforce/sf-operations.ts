@@ -113,7 +113,7 @@ interface CreateJobResponseData {
   id: string
 }
 
-interface SObjectsResponseData {
+export interface SObjectsResponseData {
   sobjects: [
     {
       label: string
@@ -124,7 +124,7 @@ interface SObjectsResponseData {
   ]
 }
 
-interface SalesforceError {
+export interface SalesforceError {
   response: {
     data: [
       {
