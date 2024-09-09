@@ -5,11 +5,12 @@ import type { Settings } from './generated-types'
 import { initScript } from './init-script'
 import sendTrackEvent from './sendTrackEvent'
 import sendUserData from './sendUserData'
-import { JimoSDK } from './types'
+import { JimoClient } from './types'
 
 declare global {
   interface Window {
-    jimo: JimoSDK | never[]
+    jimo: []
+    segmentJimo: JimoClient
     JIMO_PROJECT_ID: string
     JIMO_MANUAL_INIT: boolean
   }
@@ -17,7 +18,7 @@ declare global {
 
 const ENDPOINT_UNDERCITY = 'https://undercity.usejimo.com/jimo-invader.js'
 
-export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
+export const destination: BrowserDestinationDefinition<Settings, JimoClient> = {
   name: 'Jimo (Actions)',
   slug: 'actions-jimo',
   mode: 'device',
@@ -63,15 +64,11 @@ export const destination: BrowserDestinationDefinition<Settings, JimoSDK> = {
     }
   ],
   initialize: async ({ settings }, deps) => {
-    initScript(settings)
+    initScript(settings) // if -1, return {}
 
     await deps.loadScript(`${ENDPOINT_UNDERCITY}`)
 
-    const manualInit = settings.manualInit ?? false
-
-    await deps.resolveWhen(() => Array.isArray(window.jimo) === manualInit, 100)
-
-    return window.jimo as JimoSDK
+    return window.segmentJimo
   },
   actions: {
     sendUserData,

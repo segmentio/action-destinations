@@ -104,10 +104,6 @@ export interface Payload {
    */
   addresses?: {
     /**
-     * A unique identifier for the address.
-     */
-    id?: string
-    /**
      * The customer's mailing address.
      */
     address1?: string
@@ -120,10 +116,6 @@ export interface Payload {
      */
     city?: string
     /**
-     * The customer's company.
-     */
-    company?: string
-    /**
      * The customer's country.
      */
     country?: string
@@ -132,18 +124,6 @@ export interface Payload {
      */
     country_code?: string
     /**
-     * The customer's normalized country name.
-     */
-    country_name?: string
-    /**
-     * A unique identifier for the customer.
-     */
-    customer_id?: string
-    /**
-     * Whether this address is the default address for the customer.
-     */
-    default?: boolean
-    /**
      * The customer's first name.
      */
     first_name?: string
@@ -151,10 +131,6 @@ export interface Payload {
      * The customer's last name.
      */
     last_name?: string
-    /**
-     * The customer's first and last names.
-     */
-    name?: string
     /**
      * The customer's phone number at this address.
      */
@@ -171,48 +147,12 @@ export interface Payload {
      * The customer's postal code, also known as zip, postcode, Eircode, etc
      */
     zip?: string
-    /**
-     * Hashed value of first name in SHA256 (lower case).
-     */
-    hashed_first_name?: string
-    /**
-     * Hashed value of last name in SHA256 (lower case).
-     */
-    hashed_last_name?: string
-    /**
-     * Hashed value of phone in SHA256 (lower case).
-     */
-    hashed_phone?: string
-    /**
-     * Hashed value of address1 in SHA256 (lower case).
-     */
-    hashed_address1?: string
-    /**
-     * Hashed value of address2 in SHA256 (lower case).
-     */
-    hashed_address2?: string
-    /**
-     * Hashed value of city in SHA256 (lower case).
-     */
-    hashed_city?: string
-    /**
-     * Hashed value of zip in SHA256 (lower case).
-     */
-    hashed_zip?: string
-    /**
-     * Hashed value of country code in SHA256 (lower case).
-     */
-    hashed_country_code?: string
   }[]
   /**
    * The mailing address associated with the payment method.
    */
   default_address?: {
     /**
-     * A unique identifier for the address.
-     */
-    id?: string
-    /**
      * The customer's mailing address.
      */
     address1?: string
@@ -225,10 +165,6 @@ export interface Payload {
      */
     city?: string
     /**
-     * The customer's company.
-     */
-    company?: string
-    /**
      * The customer's country.
      */
     country?: string
@@ -237,18 +173,6 @@ export interface Payload {
      */
     country_code?: string
     /**
-     * The customer's normalized country name.
-     */
-    country_name?: string
-    /**
-     * A unique identifier for the customer.
-     */
-    customer_id?: string
-    /**
-     * Whether this address is the default address for the customer.
-     */
-    default?: boolean
-    /**
      * The customer's first name.
      */
     first_name?: string
@@ -256,10 +180,6 @@ export interface Payload {
      * The customer's last name.
      */
     last_name?: string
-    /**
-     * The customer's first and last names.
-     */
-    name?: string
     /**
      * The customer's phone number at this address.
      */
@@ -276,38 +196,6 @@ export interface Payload {
      * The customer's postal code, also known as zip, postcode, Eircode, etc
      */
     zip?: string
-    /**
-     * Hashed value of first name in SHA256 (lower case).
-     */
-    hashed_first_name?: string
-    /**
-     * Hashed value of last name in SHA256 (lower case).
-     */
-    hashed_last_name?: string
-    /**
-     * Hashed value of phone in SHA256 (lower case).
-     */
-    hashed_phone?: string
-    /**
-     * Hashed value of address1 in SHA256 (lower case).
-     */
-    hashed_address1?: string
-    /**
-     * Hashed value of address2 in SHA256 (lower case).
-     */
-    hashed_address2?: string
-    /**
-     * Hashed value of city in SHA256 (lower case).
-     */
-    hashed_city?: string
-    /**
-     * Hashed value of zip in SHA256 (lower case).
-     */
-    hashed_zip?: string
-    /**
-     * Hashed value of country code in SHA256 (lower case).
-     */
-    hashed_country_code?: string
   }
   /**
    * The marketing consent information when the customer consented to receiving marketing material by email.
