@@ -81,8 +81,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Size',
       description: 'The number of rows to write to the spreadsheet in a single batch. The maximum value is 1000.',
       default: 50_000,
-      required: true,
-      unsafe_hidden: true // TODO: Display this field when min/max is implemented.
+      required: true
+      // unsafe_hidden: true // TODO: Display this field when min/max is implemented.
     },
     batch_bytes: {
       type: 'number',
