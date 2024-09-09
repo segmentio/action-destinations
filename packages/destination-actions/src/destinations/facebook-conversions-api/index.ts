@@ -8,6 +8,7 @@ import search from './search'
 import pageView from './pageView'
 import custom from './custom'
 import pageView2 from './pageView2'
+import purchase2 from './purchase2'
 import custom2 from './custom2'
 
 const destination: DestinationDefinition<Settings> = {
@@ -48,6 +49,7 @@ const destination: DestinationDefinition<Settings> = {
     pageView,
     custom,
     pageView2,
+    purchase2,
     custom2
   }
 }
