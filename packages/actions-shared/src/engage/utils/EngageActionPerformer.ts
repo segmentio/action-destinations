@@ -111,7 +111,11 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
           }
       }
     })
-    return await this.requestClient<Data>(url, options)
+    return await this.requestClient<Data>(url, {
+      timeout: this.isLockExpirationExtended() ? false : undefined,
+      keepalive: this.isRequestKeepAlive() ? true : undefined,
+      ...options
+    })
   }
 
   onResponse?(args: { response?: Awaited<ReturnType<RequestClient>>; error?: any; operation: OperationContext }): void
@@ -487,6 +491,9 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
   }
   isLockShouldBeReleased() {
     return this.isFeatureActive('engage-messaging-release-lock-on-cacheerror', () => false)
+  }
+  isRequestKeepAlive() {
+    return this.isFeatureActive('engage-messaging-request-keepalive', () => false)
   }
 }
 
