@@ -115,12 +115,12 @@ export abstract class MessageSendPerformer<
       `${messageId}-${recipientId?.toLowerCase()}`,
       () => this.sendToRecepient(recepient),
       {
-        expiryInSeconds: 60 * 60 * 4, // 24 hours
+        expiryInSeconds: 60 * 60 * 4, // 4 hours
         cacheGroup: 'sendToRecepient',
         lockOptions: {
           acquireLockMaxWaitTimeMs: 30 * 1000, //30 secs - max wait for lock time, before throwing timeout error
           acquireLockRetryIntervalMs: 1000, //1 sec
-          lockMaxTimeMs: 10 * 60 * 1000 //10 mins max lock time
+          lockMaxTimeMs: (this.isLockExpirationExtended() ? 30 : 10) * 60_000 //30 or 10 mins max lock time
         },
         serializer: SendToRecepientResponseSerializer
       }
@@ -303,7 +303,7 @@ export abstract class MessageSendPerformer<
     return this.payload.customArgs?.correlation_id || this.payload.customArgs?.__segment_internal_correlation_id__
   }
   getMessageId() {
-    return (this.executeInput as any)['rawData']?.messageId
+    return (this.executeInput as any)['rawData']?.messageId // undocumented, not recommended way used here for tracing retries in logs https://github.com/segmentio/action-destinations/blob/main/packages/core/src/destination-kit/action.ts#L141
   }
 
   /**
@@ -335,7 +335,7 @@ export abstract class MessageSendPerformer<
       sourceId: this.settings.sourceId,
       spaceId: this.settings.spaceId,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      messageId: (this.executeInput as any)['rawData']?.messageId, // undocumented, not recommended way used here for tracing retries in logs https://github.com/segmentio/action-destinations/blob/main/packages/core/src/destination-kit/action.ts#L141
+      messageId: this.getMessageId(),
       channelType: this.getChannelType()
     })
     if ('userId' in this.payload) this.logDetails.userId = this.payload.userId

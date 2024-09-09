@@ -11,11 +11,12 @@ import { ErrorDetails, ResponseError, getErrorDetails } from './ResponseError'
 import { RequestOptions } from '@segment/actions-core/request-client'
 import { IntegrationError } from '@segment/actions-core'
 import { IntegrationErrorWrapper } from './IntegrationErrorWrapper'
-import { Awaited, StatsTags, StatsTagsMap } from './operationTracking'
+import { Awaited, OperationDecorator, StatsTags, TryCatchFinallyContext } from './operationTracking'
 import truncate from 'lodash/truncate'
 import { isRetryableError } from './isRetryableError'
 import { getOrCatch, ValueOrError } from './getOrCatch'
-import { backoffRetryPolicy, getOrRetry, RetryArgs } from './getOrRetry'
+import { backoffRetryPolicy, getOrRetry, GetOrRetryArgs } from './getOrRetry'
+import { performance } from 'perf_hooks'
 
 /**
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
@@ -191,6 +192,100 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     throw error
   }
 
+  createStepLogger(args: LogStepDetails): StepLogger {
+    //TODO: this is for troubleshooting, should be incorporated in track decorator
+    const { tags = {}, logs = {} } = args
+    const messageId = (this.executeInput as any)['rawData']?.messageId
+    logs.messageId = messageId
+    const operation =
+      OperationDecorator.getOperationName(this.currentOperation as TryCatchFinallyContext) ||
+      this.currentOperation?.func.name ||
+      ''
+
+    const stepLogger: StepLogger = args as any
+
+    const appendStepDetails = (stepname: string, details?: Partial<LogStepDetails>) => {
+      tags['step_' + stepname] = true
+      if (details?.tags) {
+        //Object.assign(tags, details.tags)
+        for (const [key, value] of Object.entries(details.tags)) tags[stepname + '_' + key] = value
+      }
+      if (details?.logs) {
+        for (const [key, value] of Object.entries(details.logs))
+          logs[stepname + '_' + key] = value instanceof Error ? getErrorDetails(value) : value
+      }
+    }
+
+    const info = (stepName: string, details?: LogStepDetails, durationMs?: number) => {
+      appendStepDetails(stepName, details)
+      tags.last_step = stepName
+      this.statsIncr(`${operation}_${stepName}`, 1, tags)
+      this.logInfo(`${operation}_${stepName}`, logs)
+      if (durationMs !== undefined) {
+        this.statsHistogram(`${operation}_${stepName}.duration`, durationMs, tags)
+      }
+    }
+    stepLogger.info = info
+
+    stepLogger.track = (stepName, fn) => {
+      const startStep = `${stepName}_starting`
+      info(startStep)
+      const stepDetails: LogStepDetails = { logs: {}, tags: {} }
+      let fnRes: Awaited<ReturnType<typeof fn>> | undefined = undefined
+      let error: any = undefined
+      let isPromise = false
+      const startTime = performance.now()
+      const onFinally = () => {
+        const durationMs = performance.now() - startTime
+        const valueOrError: ValueOrError<any> | undefined =
+          fnRes instanceof Object && ('error' in fnRes || 'value' in fnRes) ? fnRes : undefined
+        fnRes = valueOrError?.value || fnRes
+        error = error || valueOrError?.error
+        ;(stepDetails.logs.value = isNone(valueOrError?.value) ? '(none)' : `${valueOrError?.value}`.substring(0, 100)),
+          (stepDetails.logs.error = error ? getErrorDetails(error) : undefined)
+        stepDetails.tags.error = !!error
+        info(`${stepName}_finished`, stepDetails, durationMs)
+      }
+      const onCatch = (e: any) => {
+        error = e
+        throw e
+      }
+      try {
+        const result = fn(stepDetails)
+
+        if (result instanceof Promise) {
+          isPromise = true
+          return result
+            .then((res) => {
+              return (fnRes = res)
+            })
+            .catch(onCatch)
+            .finally(onFinally) as any
+        }
+        return result
+      } catch (e) {
+        onCatch(e)
+      } finally {
+        if (!isPromise) {
+          onFinally()
+        }
+      }
+    }
+    this.currentOperation?.onFinally.push(() => {
+      const tagsArray = this.statsClient.tagsMapToArray(tags)
+      this.currentOperation?.tags.push(...tagsArray)
+    })
+
+    return stepLogger
+  }
+  // logStep(stepName: string, logDetails: any, statsTags: StatsTagsMap) {
+  //   statsTags.step = stepName
+  //   statsTags[stepName] = true
+  //   const messageId = (this.executeInput as any)['rawData']?.messageId
+  //   this.logInfo(stepName, { ...logDetails, messageId, statsTags })
+  //   this.statsIncr(stepName, 1, statsTags)
+  // }
+
   @track()
   async getOrAddCache<T>(
     key: string,
@@ -203,153 +298,102 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       serializer?: CacheSerializer<T>
       expiryInSeconds?: number
       lockOptions?: LockOptions
-      saveRetry?: RetryArgs
+      saveRetry?: GetOrRetryArgs
       onSaveFailed?: (error: Error) => void
     }
   ): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
-    const finalStatsTags: StatsTagsMap & { cache_hit: boolean; cache_step: string } = {
-      cache_group,
-      cache_hit: false,
-      withLock: !!options.lockOptions,
-      cache_step: 'init'
-    }
 
-    this.currentOperation?.onFinally.push(() => {
-      const tagsArray = this.statsClient.tagsMapToArray(finalStatsTags)
-      // for some reasons I see in DD untagged metrics, so I want to know when it happens. Once we figure it out we can remove this
-      if (!tagsArray.some((t) => t.startsWith('cache_group'))) {
-        this.logStep('untagged_caching', { tagsArray, operationTags: this.currentOperation?.tags }, finalStatsTags)
-      }
-      this.currentOperation?.tags.push(...tagsArray)
+    const log = this.createStepLogger({
+      tags: {
+        cache_group: cache_group,
+        withLock: !!options.lockOptions,
+        last_step: 'init'
+      },
+      logs: { key }
     })
 
-    this.logStep('cache_begin', { key }, finalStatsTags)
-
-    if (!this.engageDestinationCache) return createValue()
+    if (!this.engageDestinationCache) return log.track('no_cache', () => createValue())
     const cache = this.engageDestinationCache
 
     const serializer = options.serializer || DefaultSerializer
 
-    this.logStep('cache_reading', { key }, finalStatsTags)
-
-    const cacheRead = await getOrCatch(() => cache.getByKey(key))
-    finalStatsTags.cache_step = `read_${cacheRead.error ? 'error' : !isNone(cacheRead.value) ? 'value' : 'value_empty'}`
-
-    this.logStep('cache_read', { key, error: getErrorDetails(cacheRead.error), value: cacheRead.value }, finalStatsTags)
+    const cacheRead = await log.track('cache_reading', () => getOrCatch(() => cache.getByKey(key)))
 
     if (cacheRead.error) {
       //redis error
-      finalStatsTags.cache_read_error = true
-      this.logStep(
-        'cache_read_error',
-        {
-          key,
-          error: getErrorDetails(cacheRead.error)
-        },
-        finalStatsTags
-      )
       this.throwRetryableError('Error reading cache')
     }
 
     // we lock only if cache not found
     if (isNone(cacheRead.value) && options.lockOptions) {
-      this.logStep('cache_locking', { key }, finalStatsTags)
-
       if (!options.lockOptions.cacheGroup) options.lockOptions.cacheGroup = cache_group
-      return this.withDistributedLock(
-        `cache:${key}`,
-        () => this.getOrAddCache(key, createValue, { ...options, lockOptions: undefined }),
-        options.lockOptions
+      return log.track('cache_locking', () =>
+        this.withDistributedLock(
+          `cache:${key}`,
+          () => this.getOrAddCache(key, createValue, { ...options, lockOptions: undefined }),
+          options.lockOptions!
+        )
       )
     }
 
     if (!isNone(cacheRead.value)) {
       //if cache FOUND (getByKey returned not null and not undefined)
       // trying to parse the cached value
-      const { value: parsedCache, error: parsingError } = getOrCatch(() => serializer.parse(cacheRead.value!))
-      finalStatsTags.cache_step = `parse_${
-        parsingError ? 'error' : parsedCache !== undefined ? 'value' : 'value_empty'
-      }`
-      this.logStep('cache_parsed', { key, error: getErrorDetails(parsingError) }, finalStatsTags)
+      const { value: parsedCache, error: parsingError } = log.track('cache_parse', () =>
+        getOrCatch(() => serializer.parse(cacheRead.value!))
+      )
 
       if (parsingError) {
         //exception happened while parsing the cache.
         // Log it and execute as if we don't have cache
-        finalStatsTags.cache_parsing_error = true
-        this.logStep(
-          'cache_parsing_error',
-          { key, value: cacheRead.value, error: getErrorDetails(parsingError) },
-          finalStatsTags
-        )
       } else if (isNone(parsedCache)) {
         //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
-        finalStatsTags.cache_ignored = true
-        this.logStep('cache_ignored', { key, value: cacheRead.value }, finalStatsTags)
+        log.info('cache_ignored')
       } else {
         //parsed cache successfully && cache is not expired
         // parsedValue - either value or error was parsed
-        finalStatsTags.cache_hit = true
-        finalStatsTags.cached_error = !!parsedCache.error
-        this.logStep('cache_hit', { key }, finalStatsTags)
+        log.info('cache_hit', { tags: { cache_hit: true, cached_error: !!parsedCache.error } })
         if (parsedCache.error) {
-          this.logStep('cache_hit_error', { key }, finalStatsTags)
           throw parsedCache.error
         }
-        this.logStep('cache_hit_value', { key }, finalStatsTags)
         return parsedCache.value
       }
     }
     // re-executing, because cache not found or ignored or failed to read or parse
-    finalStatsTags.cache_hit = false
-    this.logStep('cache_miss', { key }, finalStatsTags)
-    const { value: result, error: resultError } = await getOrCatch(() => createValue())
-    finalStatsTags.cache_step = 'createValue_' + (resultError ? 'error' : 'value')
-    this.logStep('cache_created_value', { key, resultError: getErrorDetails(resultError) }, finalStatsTags)
+    log.info('cache_miss')
+    const { value: result, error: resultError } = await log.track('cache_create_value', () =>
+      getOrCatch(() => createValue())
+    )
 
     //before returning result - we need to try to serialize it and store it in cache
-    const stringified = getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
-    finalStatsTags.cache_step = 'stringify_' + (stringified.error ? 'error' : 'value')
-    this.logStep(
-      'cache_stringified',
-      { key, stringifyError: stringified.error ? getErrorDetails(stringified.error) : undefined },
-      finalStatsTags
+    const stringified = log.track('cache_stringified', () =>
+      getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
     )
 
     if (stringified.error) {
-      finalStatsTags.cache_stringify_error = true
-      this.logStep('cache_stringify_error', { key, error: stringified.error }, finalStatsTags)
+      //
     } else if (!isNone(stringified.value)) {
       //result stringified and contains cacheable value - cache it
-      this.logStep('cache_stringify_value', { key, value: stringified.value }, finalStatsTags)
-      this.logStep('cache_saving', { key, value: stringified.value }, finalStatsTags)
-      const { error: cacheSavingError, value: cacheSavingResult } = await getOrRetry(
-        () => cache.setByKey(key, stringified.value!, options.expiryInSeconds),
-        options.saveRetry || {
-          attempts: 5,
-          retryIntervalMs: backoffRetryPolicy(10000, 3)
-        }
+      const { error: cacheSavingError, value: cacheSavingResult } = await log.track('cache_save', () =>
+        getOrRetry(
+          () => cache.setByKey(key, stringified.value!, options.expiryInSeconds),
+          options.saveRetry || {
+            attempts: 5,
+            retryIntervalMs: backoffRetryPolicy(10000, 3),
+            onFailedAttempt: (error, attemptCount) => {
+              log.info('cache_save_failed_attempt', { logs: { attemptCount, error: getErrorDetails(error) } })
+            }
+          }
+        )
       )
 
-      finalStatsTags.cache_step = 'save_' + (cacheSavingError ? 'error' : 'value')
       if (cacheSavingError || !cacheSavingResult) {
         options?.onSaveFailed?.(cacheSavingError)
-
-        finalStatsTags.cache_saving_error = cacheSavingError ? true : 'redis_returns_false'
-        this.logStep(
-          'cache_save_error',
-          {
-            key,
-            error: cacheSavingError ? getErrorDetails(cacheSavingError) : cacheSavingResult
-          },
-          finalStatsTags
-        )
-      } else {
-        this.logStep('cache_save_success', { key }, finalStatsTags)
       }
+    } else {
+      log.info('cache_save_skipped')
     }
-
-    finalStatsTags.cache_step = 'return_' + (resultError ? 'error' : 'value')
 
     if (resultError) throw resultError
     else return result as T
@@ -374,9 +418,13 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
   @track()
   async withDistributedLock<T>(key: string, createValue: () => Promise<T>, options: LockOptions): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
-    const statsTags: StatsTagsMap = { cache_group }
-    this.currentOperation?.onFinally.push(() => {
-      this.currentOperation?.tags.push(...this.statsClient.tagsMapToArray(statsTags))
+    const log = this.createStepLogger({
+      logs: {
+        key
+      },
+      tags: {
+        cache_group
+      }
     })
 
     if (!this.engageDestinationCache) {
@@ -387,68 +435,57 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     const lockKey = `lock:${key}`
     const acquireLock = async () => {
       //tries to acquire lock for acquireLockMaxWaitInSeconds seconds
-      statsTags.lock_acquired = false
-      this.logStep('cache_lock_acquiring', { key }, statsTags)
       const startTime = Date.now()
       while (Date.now() - startTime < options.acquireLockMaxWaitTimeMs) {
-        this.logStep('cache_lock_attempt', { key }, statsTags)
-        if (await cache.setByKeyNX(lockKey, 'locked', options.lockMaxTimeMs / 1000)) {
+        log.info('cache_lock_attempt')
+        if (await log.track('redis_setNX', () => cache.setByKeyNX(lockKey, 'locked', options.lockMaxTimeMs / 1000))) {
           // lock acquired, returning release function
-          statsTags.lock_acquired = true
-          this.logStep('cache_lock_acquired', { key }, statsTags)
-          this.statsHistogram('lock_acquire_time', Date.now() - startTime, statsTags)
+          log.info('cache_lock_acquired', { tags: { lock_acquired: true } })
+          this.statsHistogram('cache_lock_waiting_time', Date.now() - startTime, log.tags)
           return {
-            release: async () => {
-              this.logStep('cache_lock_releasing', { key }, statsTags)
-              const releaseRes = await cache.delByKey(lockKey)
-              this.logStep('cache_lock_released', { key, releaseRes }, statsTags)
-            }
+            release: () => log.track('redis_delByKey', () => cache.delByKey(lockKey))
           }
         }
-        this.logStep('cache_lock_waiting', { key, lockKey }, statsTags)
+        log.info('cache_lock_waiting')
         await new Promise((resolve) => setTimeout(resolve, options.acquireLockRetryIntervalMs || 500)) // Wait 500ms before retrying
       }
       //no lock acquired because of waiting timeout
-      this.logStep('cache_lock_timeout', { key, lockKey }, statsTags)
+      log.info('cache_lock_timeout')
     }
 
-    const { value: lock, error: redisError } = await getOrCatch(() => acquireLock())
+    const { value: lock, error: redisError } = await log.track('cache_acquire_lock', () =>
+      getOrCatch(() => acquireLock())
+    )
 
     if (redisError) {
-      statsTags.lock_acquired_error = true
-      this.logStep('cache_lock_error', { key, error: getErrorDetails(redisError) }, statsTags)
       this.throwRetryableError('Error acquiring lock: ' + redisError.message)
     } else if (!lock?.release) {
       // no redis error and no lock acquired - means it was acquiring timeout
-      this.logStep('cache_lock_timeout_exit', { key }, statsTags)
+      log.info('cache_lock_timeout_exit')
       this.throwRetryableError('Timeout while acquiring lock')
     }
     //if lock obtained or there was redis error - execute createValue and finally release lock
     else {
-      this.logStep('cache_lock_creating', { key }, statsTags)
-      const { value: createdValue, error: createValueError } = await getOrCatch(() => createValue())
-      this.logStep('cache_lock_created', { key, error: getErrorDetails(createValueError) }, statsTags)
+      const { value: createdValue, error: createValueError } = await log.track('cache_lock_create', () =>
+        getOrCatch(() => createValue())
+      )
 
       //release the lock unless shouldReleaseLock specified and explicitly returns false
-      const shouldReleaseLock = this.isFeatureActive('engage-messaging-release-lock-on-cacheerror', () => false)
-      if (shouldReleaseLock) {
+
+      if (this.isLockShouldBeReleased()) {
         //TODO: remove it after debugging. Lock should be released after value is in cache
-        const { error: releaseError } = await getOrCatch(() => lock.release())
-        if (releaseError) {
-          statsTags.lock_release_error = true
-          this.logStep('lock_release_error', { key, error: getErrorDetails(releaseError) }, statsTags)
-          // we can ignore the error, as the lock will be expired anyway
-        }
+        await log.track('cache_lock_release', () => getOrCatch(() => lock.release()))
       }
       if (createValueError) throw createValueError
       return createdValue as T
     }
   }
 
-  logStep(stepName: string, logDetails: any, statsTags: StatsTagsMap) {
-    statsTags.step = stepName
-    this.logInfo(stepName, { ...logDetails, statsTags })
-    this.statsIncr(stepName, 1, statsTags)
+  isLockExpirationExtended() {
+    return this.isFeatureActive('engage-messaging-lock-expiration-extended', () => false)
+  }
+  isLockShouldBeReleased() {
+    return this.isFeatureActive('engage-messaging-release-lock-on-cacheerror', () => false)
   }
 }
 
@@ -528,4 +565,24 @@ export type LockOptions = {
 
 export function isNone(cacheValue: any): cacheValue is null | undefined | void {
   return cacheValue === undefined || cacheValue === null
+}
+
+type StepLogger = LogStepDetails & {
+  // tags: Record<string, any>
+  // logs: Record<string, any>
+  track<T>(stepName: string, fn: (details: LogStepDetails) => T): T
+  info(stepName: string, details?: Partial<LogStepDetails>): void
+}
+
+// interface LogStep {
+//   (stepName: string, details?: LogStepDetails): void;
+//   <T>(stepName: string, start: LogStepDetails, fn: (end: Required<LogStepDetails>) => T): T;
+//   <T>(stepName: string, fn: (end: Required<LogStepDetails>) => T): T;
+//   //<T>(stepName: string, start: { tags?: Record<string, any>; log?: Record<string, any> }, fn: (end: { tags: Record<string, any>; details: Record<string, any> }) => PromiseLike<T>): PromiseLike<T>;
+//   //<T>(stepName: string, fn: (end: { tags: Record<string, any>; details: Record<string, any> }) => PromiseLike<T>): PromiseLike<T>;
+// }
+
+type LogStepDetails = {
+  tags: Record<string, any>
+  logs: Record<string, any>
 }
