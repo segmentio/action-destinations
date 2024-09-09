@@ -16,6 +16,7 @@ import truncate from 'lodash/truncate'
 import { isRetryableError } from './isRetryableError'
 import { getOrCatch, ValueOrError } from './getOrCatch'
 import { backoffRetryPolicy, getOrRetry, GetOrRetryArgs } from './getOrRetry'
+import { performance } from 'perf_hooks'
 
 /**
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
