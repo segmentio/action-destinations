@@ -6,7 +6,7 @@ export interface Payload {
    */
   eventName: string
   /**
-   * JSON object containing additional properties associated with the event.
+   * Object containing additional properties associated with the event.
    */
   properties?: {
     [k: string]: unknown

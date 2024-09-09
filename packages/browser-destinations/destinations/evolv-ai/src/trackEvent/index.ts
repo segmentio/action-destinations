@@ -22,7 +22,7 @@ const action: BrowserActionDefinition<Settings, Evolv, Payload> = {
       }
     },
     properties: {
-      description: 'JSON object containing additional properties associated with the event.',
+      description: 'Object containing additional properties associated with the event.',
       label: 'Properties',
       required: false,
       type: 'object',
