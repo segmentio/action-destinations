@@ -110,7 +110,11 @@ function processGetSpreadsheetResponse(response: GetResponse, events: Payload[],
   const updateBatchLimit = updateBatch.length * numColumns > CONSTANTS.MAX_CELLS
 
   if (appendBatchLimit || updateBatchLimit) {
-    throw new IntegrationError('Sheet has reached maximum limit', 'INVALID_REQUEST_DATA', 400)
+    throw new IntegrationError(
+      `Sheet has reached maximum limit supported by Segment: ${CONSTANTS.MAX_CELLS} cells.`,
+      'INVALID_REQUEST_DATA',
+      400
+    )
   }
 
   return { appendBatch, updateBatch }
