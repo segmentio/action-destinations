@@ -107,3 +107,39 @@ it('all fields - backwards compatibility testing', async () => {
     expect(rawBody).toMatchSnapshot()
   }
 })
+
+it('fails if sync mode is delete', async () => {
+  const action = destination.actions['identifyUserV2']
+  const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+
+  const event = createTestEvent({
+    properties: eventData
+  })
+
+  await expect(
+    testDestination.testAction('identifyUserV2', {
+      event: event,
+      mapping: { ...event.properties, __segment_internal_sync_mode: 'delete' },
+      settings: settingsData,
+      auth: undefined
+    })
+  ).rejects.toThrowError()
+})
+
+it('fails if sync mode is update', async () => {
+  const action = destination.actions['identifyUserV2']
+  const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+
+  const event = createTestEvent({
+    properties: eventData
+  })
+
+  await expect(
+    testDestination.testAction('identifyUserV2', {
+      event: event,
+      mapping: { ...event.properties, __segment_internal_sync_mode: 'update' },
+      settings: settingsData,
+      auth: undefined
+    })
+  ).rejects.toThrowError()
+})

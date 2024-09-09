@@ -72,4 +72,22 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       expect(rawBody).toMatchSnapshot()
     }
   })
+
+  it('fails if sync mode is not add', async () => {
+    const action = destination.actions['createAliasV2']
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+
+    const event = createTestEvent({
+      properties: eventData
+    })
+
+    await expect(
+      testDestination.testAction('createAliasV2', {
+        event: event,
+        mapping: { ...event.properties, __segment_internal_sync_mode: 'upsert' },
+        settings: settingsData,
+        auth: undefined
+      })
+    ).rejects.toThrowError()
+  })
 })

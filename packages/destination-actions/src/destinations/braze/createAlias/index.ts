@@ -53,7 +53,7 @@ export const createAliasV2: ActionDefinition<Settings, Payload> = {
     description: 'Define how the records from your destination will be synced.',
     label: 'How to add Aliases',
     default: 'add',
-    choices: [{ label: 'Insert Alias', value: 'add' }]
+    choices: [{ label: 'Create Alias', value: 'add' }]
   },
   perform: (request, { settings, payload, syncMode }) => {
     if (syncMode === 'add') {
@@ -71,6 +71,6 @@ export const createAliasV2: ActionDefinition<Settings, Payload> = {
       })
     }
 
-    throw new IntegrationError('syncMode must be: add', 'Invalid syncMode', 400)
+    throw new IntegrationError('syncMode must be "add"', 'Invalid syncMode', 400)
   }
 }

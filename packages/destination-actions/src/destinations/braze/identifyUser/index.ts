@@ -1,4 +1,5 @@
 import type { ActionDefinition, InputField } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -75,19 +76,23 @@ const identifyUserV2: ActionDefinition<Settings, Payload> = {
       { label: 'Upsert User', value: 'upsert' }
     ]
   },
-  perform: (request, { settings, payload }) => {
-    return request(`${settings.endpoint}/users/identify`, {
-      method: 'post',
-      json: {
-        aliases_to_identify: [
-          {
-            external_id: payload.external_id,
-            user_alias: payload.user_alias
-          }
-        ],
-        ...(payload.merge_behavior !== undefined && { merge_behavior: payload.merge_behavior })
-      }
-    })
+  perform: (request, { settings, payload, syncMode }) => {
+    if (syncMode === 'add' || syncMode === 'upsert') {
+      return request(`${settings.endpoint}/users/identify`, {
+        method: 'post',
+        json: {
+          aliases_to_identify: [
+            {
+              external_id: payload.external_id,
+              user_alias: payload.user_alias
+            }
+          ],
+          ...(payload.merge_behavior !== undefined && { merge_behavior: payload.merge_behavior })
+        }
+      })
+    }
+
+    throw new IntegrationError('syncMode must be "add" or "upsert"', 'Invalid syncMode', 400)
   }
 }
 
