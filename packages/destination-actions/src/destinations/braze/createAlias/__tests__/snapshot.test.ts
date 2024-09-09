@@ -93,6 +93,39 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
     ).rejects.toThrowError()
   })
 
+  it('required fields', async () => {
+    const action = destination.actions['createAliasV2']
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+
+    nock(/.*/).persist().get(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().put(/.*/).reply(200)
+
+    const event = createTestEvent({
+      properties: eventData
+    })
+
+    const responses = await testDestination.testAction('createAliasV2', {
+      event: event,
+      mapping: { ...event.properties, __segment_internal_sync_mode: 'add' },
+      settings: settingsData,
+      auth: undefined
+    })
+
+    const request = responses[0].request
+    const rawBody = await request.text()
+
+    try {
+      const json = JSON.parse(rawBody)
+      expect(json).toMatchSnapshot()
+      return
+    } catch (err) {
+      expect(rawBody).toMatchSnapshot()
+    }
+
+    expect(request.headers).toMatchSnapshot()
+  })
+
   it('all fields', async () => {
     const action = destination.actions['createAliasV2']
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
