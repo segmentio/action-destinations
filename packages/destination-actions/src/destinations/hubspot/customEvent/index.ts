@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     choices: [
       { label: 'Create new and update existing custom event definitions', value: 'upsert' },
       { label: 'Create new, but do not update existing custom event definitions', value: 'add' },
-      { label: 'Update existing, but do ot create new custom event definitions', value: 'update' }
+      { label: 'Update existing, but do not create new custom event definitions', value: 'update' }
     ]
   },
   fields: {
