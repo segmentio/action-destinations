@@ -40,4 +40,12 @@ export interface Payload {
    * Set as true to ensure Segment sends data to Google Sheets in batches. Please do not set to false.
    */
   enable_batching?: boolean
+  /**
+   * The number of rows to write to the spreadsheet in a single batch. The maximum value is 1000.
+   */
+  batch_size: number
+  /**
+   * The number of bytes to write to the spreadsheet in a single batch. The maximum value is 4000000.
+   */
+  batch_bytes: number
 }

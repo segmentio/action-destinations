@@ -41,7 +41,8 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`
-      }
+      },
+      timeout: 30000 // 30 seconds.
     }
   },
 
