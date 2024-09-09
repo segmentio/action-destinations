@@ -1,7 +1,6 @@
 import type { Payload } from './generated-types'
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { RequestClient } from '@segment/actions-core'
 import { GoogleSheets, GetResponse } from '../googleapis'
-import { CONSTANTS } from '../constants'
 
 import A1 from '@segment/a1-notation'
 
@@ -65,23 +64,23 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
  * Processes the response of the Google Sheets GET call and parses the events into separate operation buckets.
  * @param response result of the Google Sheets API get call
  * @param events data to be written to the spreadsheet
- * @param mappingSettings the mapping settings
- * @param features feature flags
+ * @param _mappingSettings the mapping settings
+ * @param _features feature flags
  * @returns
  */
 function processGetSpreadsheetResponse(
   response: GetResponse,
   events: Payload[],
-  mappingSettings: MappingSettings,
-  features: { [k: string]: boolean }
+  _mappingSettings: MappingSettings,
+  _features: { [k: string]: boolean }
 ) {
-  const numColumns = mappingSettings.columns.length
-  const numRows = response.values?.length
+  // const numColumns = mappingSettings.columns.length
+  // const numRows = response.values?.length
 
-  const MAX_CELLS = features['GOOGLE_SHEETS_NEW_MAX_CELLS_ENABLED'] ? CONSTANTS.MAX_CELLS_CANARY : CONSTANTS.MAX_CELLS
-  if (numRows * numColumns > MAX_CELLS) {
-    throw new IntegrationError('Sheet has reached maximum limit', 'INVALID_REQUEST_DATA', 400)
-  }
+  // const MAX_CELLS = features['GOOGLE_SHEETS_NEW_MAX_CELLS_ENABLED'] ? CONSTANTS.MAX_CELLS_CANARY : CONSTANTS.MAX_CELLS
+  // if (numRows * numColumns > MAX_CELLS) {
+  //   throw new IntegrationError('Sheet has reached maximum limit', 'INVALID_REQUEST_DATA', 400)
+  // }
 
   const updateBatch: UpdateBatch[] = []
   const appendBatch: AppendBatch[] = []
