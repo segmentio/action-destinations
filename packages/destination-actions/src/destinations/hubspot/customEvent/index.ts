@@ -17,7 +17,7 @@ import {
 } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Custom Event',
+  title: 'Custom Event V2',
   description: 'Send Custom Events to HubSpot',
   syncMode: {
     description: 'Specify how Segment should update event schemas in Hubspot',
