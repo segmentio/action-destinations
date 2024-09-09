@@ -108,38 +108,71 @@ it('all fields - backwards compatibility testing', async () => {
   }
 })
 
-it('fails if sync mode is delete', async () => {
-  const action = destination.actions['identifyUserV2']
-  const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2 action:`, () => {
+  it('fails if sync mode is delete', async () => {
+    const action = destination.actions['identifyUserV2']
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-  const event = createTestEvent({
-    properties: eventData
+    const event = createTestEvent({
+      properties: eventData
+    })
+
+    await expect(
+      testDestination.testAction('identifyUserV2', {
+        event: event,
+        mapping: { ...event.properties, __segment_internal_sync_mode: 'delete' },
+        settings: settingsData,
+        auth: undefined
+      })
+    ).rejects.toThrowError()
   })
 
-  await expect(
-    testDestination.testAction('identifyUserV2', {
+  it('fails if sync mode is update', async () => {
+    const action = destination.actions['identifyUserV2']
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+
+    const event = createTestEvent({
+      properties: eventData
+    })
+
+    await expect(
+      testDestination.testAction('identifyUserV2', {
+        event: event,
+        mapping: { ...event.properties, __segment_internal_sync_mode: 'update' },
+        settings: settingsData,
+        auth: undefined
+      })
+    ).rejects.toThrowError()
+  })
+
+  it('all fields', async () => {
+    const action = destination.actions['identifyUserV2']
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+
+    nock(/.*/).persist().get(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().put(/.*/).reply(200)
+
+    const event = createTestEvent({
+      properties: eventData
+    })
+
+    const responses = await testDestination.testAction('identifyUserV2', {
       event: event,
-      mapping: { ...event.properties, __segment_internal_sync_mode: 'delete' },
+      mapping: { ...event.properties, __segment_internal_sync_mode: 'add' },
       settings: settingsData,
       auth: undefined
     })
-  ).rejects.toThrowError()
-})
 
-it('fails if sync mode is update', async () => {
-  const action = destination.actions['identifyUserV2']
-  const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+    const request = responses[0].request
+    const rawBody = await request.text()
 
-  const event = createTestEvent({
-    properties: eventData
+    try {
+      const json = JSON.parse(rawBody)
+      expect(json).toMatchSnapshot()
+      return
+    } catch (err) {
+      expect(rawBody).toMatchSnapshot()
+    }
   })
-
-  await expect(
-    testDestination.testAction('identifyUserV2', {
-      event: event,
-      mapping: { ...event.properties, __segment_internal_sync_mode: 'update' },
-      settings: settingsData,
-      auth: undefined
-    })
-  ).rejects.toThrowError()
 })
