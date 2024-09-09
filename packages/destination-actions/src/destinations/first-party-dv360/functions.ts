@@ -74,12 +74,11 @@ export const getAudienceRequest = (request: RequestClient, params: getAudiencePa
 
 export async function addCustomerMatchMembers(
   request: RequestClient,
-  settings: AudienceSettings,
   payloads: Payload[],
   statsContext?: StatsContext // Adjust type based on actual stats context
 ) {
   console.log('Payload:', payloads)
-  // Use the audience ID from the first payload
+  const settings = {} as AudienceSettings
   const audienceId = payloads[0].external_id
   const endpoint = DV360API + '${audienceId}:editCustomerMatchMembers'
 

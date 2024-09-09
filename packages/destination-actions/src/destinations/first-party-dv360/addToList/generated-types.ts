@@ -1,7 +1,6 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface Payload {
-  external_id: any
   /**
    * A list of the user's emails. If not already hashed, the system will hash them before use.
    */
@@ -26,4 +25,8 @@ export interface Payload {
    * The country code of the user.
    */
   countryCode?: string
+  /**
+   * The ID of the DV360 Audience.
+   */
+  external_id?: string
 }
