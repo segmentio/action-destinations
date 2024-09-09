@@ -112,7 +112,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       }
     })
     return await this.requestClient<Data>(url, {
-      timeout: this.isLockExpirationExtended() ? false : undefined,
+      timeout: this.isRequestTimeoutExtended() ? false : undefined,
       keepalive: this.isRequestKeepAlive() ? true : undefined,
       ...options
     })
@@ -494,6 +494,9 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
   }
   isRequestKeepAlive() {
     return this.isFeatureActive('engage-messaging-request-keepalive', () => false)
+  }
+  isRequestTimeoutExtended() {
+    return this.isFeatureActive('engage-messaging-request-timeout-extended', () => false)
   }
 }
 
