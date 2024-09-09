@@ -3,40 +3,50 @@
 import { delay } from './delay'
 import { ValueOrError, getOrCatch } from './getOrCatch'
 
-/**
- * function that defines the interval between retries depending on the attempt number and the error that occurred
- */
-export type RetryIntervalMsPolicy = (attempt: number, error: any) => number
-
 export async function getOrRetry<T>(
   action: (attempt: number) => PromiseLike<T> | T,
-  args?: RetryArgs
+  args?: GetOrRetryArgs
 ): Promise<ValueOrError<T>> {
-  const retryIntervalMs = args?.retryIntervalMs === undefined ? backoffRetryPolicy() : args?.retryIntervalMs
+  const retryIntervalMs = args?.retryIntervalMs === undefined ? backoffRetryPolicy() : args?.retryIntervalMs ?? 1000
   return getOrCatch(
     async () =>
       await retry((attempt) => action(attempt), {
         retries: args?.attempts,
         async onFailedAttempt(error, attemptCount) {
+          if (args?.onFailedAttempt) await args.onFailedAttempt(error, attemptCount)
           const intervalMs: number =
-            typeof retryIntervalMs == 'function'
-              ? retryIntervalMs(attemptCount, error)
-              : typeof args?.attempts === 'number'
-              ? (args?.retryIntervalMs as number)
-              : 1000
+            typeof retryIntervalMs == 'function' ? retryIntervalMs(attemptCount, error) : retryIntervalMs
           if (intervalMs > 0) await delay(intervalMs)
         }
       })
   )
 }
 
-export function backoffRetryPolicy(initialDelayMs = 500, multiplier = 1): RetryIntervalMsPolicy {
-  return (attempt: number) => initialDelayMs * attempt * multiplier
+export type GetOrRetryArgs = {
+  /**
+   * The number of times to attempt the operation before giving up. The default is 2.
+   */
+  attempts?: number
+  /**
+   * The interval between retries in milliseconds. If a function is provided, it will be called with the attempt number and the error that occurred.
+   */
+  retryIntervalMs?: number | RetryIntervalMsPolicy
+  /**
+   * callback invoked when an attempt fails
+   * @param error
+   * @param attemptCount
+   * @returns
+   */
+  onFailedAttempt?: (error: any, attemptCount: number) => PromiseLike<void> | void
 }
 
-export type RetryArgs = {
-  attempts?: number
-  retryIntervalMs?: number | RetryIntervalMsPolicy
+/**
+ * function that defines the interval between retries depending on the attempt number and the error that occurred
+ */
+export type RetryIntervalMsPolicy = (attempt: number, error: any) => number
+
+export function backoffRetryPolicy(initialDelayMs = 500, multiplier = 1): RetryIntervalMsPolicy {
+  return (attempt: number) => initialDelayMs * attempt * multiplier
 }
 
 /**

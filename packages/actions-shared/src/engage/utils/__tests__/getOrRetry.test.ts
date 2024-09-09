@@ -1,7 +1,7 @@
 import { getOrRetry } from '../getOrRetry'
 
 describe('getRetryable', () => {
-  test.only("does proper amount of retries and fails if it didn't succeed", async () => {
+  test("does proper amount of retries and fails if it didn't succeed", async () => {
     let actualAttempts = 0
     const retriableAction = () => {
       actualAttempts++
@@ -16,7 +16,7 @@ describe('getRetryable', () => {
     expect(result.error).toBeDefined()
   })
 
-  test.only('does proper amount of retries and return value if succeed', async () => {
+  test('does proper amount of retries and return value if succeed', async () => {
     let actualAttempts = 0
     const retriableAction = () => {
       actualAttempts++
