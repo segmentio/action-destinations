@@ -238,12 +238,13 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       const onFinally = () => {
         const durationMs = performance.now() - startTime
         const valueOrError: ValueOrError<any> | undefined =
-          fnRes instanceof Object && ('error' in fnRes || 'value' in fnRes) ? fnRes : undefined
+          fnRes instanceof Object && ('error' in fnRes || 'value' in fnRes) ? (fnRes as ValueOrError<any>) : undefined
         fnRes = valueOrError?.value || fnRes
         error = error || valueOrError?.error
-        ;(stepDetails.logs.value = isNone(valueOrError?.value) ? '(none)' : `${valueOrError?.value}`.substring(0, 100)),
-          (stepDetails.logs.error = error ? getErrorDetails(error) : undefined)
-        stepDetails.tags.error = !!error
+        if (error) stepDetails.logs.error = error ? getErrorDetails(error) : undefined
+        else
+          (stepDetails.logs.value = isNone(fnRes) ? '(none)' : `${valueOrError?.value}`.substring(0, 100)),
+            (stepDetails.tags.error = !!error)
         info(`${stepName}_finished`, stepDetails, durationMs)
       }
       const onCatch = (e: any) => {
