@@ -16,9 +16,8 @@ exports[`Testing snapshot for Braze's createAlias destination V2 action: require
 Object {
   "user_aliases": Array [
     Object {
-      "alias_label": "#HMCBuX*",
-      "alias_name": "#HMCBuX*",
-      "external_id": "#HMCBuX*",
+      "alias_label": "test_label",
+      "alias_name": "test_name",
     },
   ],
 }

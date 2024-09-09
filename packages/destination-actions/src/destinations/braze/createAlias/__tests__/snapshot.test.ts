@@ -107,7 +107,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
 
     const responses = await testDestination.testAction('createAliasV2', {
       event: event,
-      mapping: { ...event.properties, __segment_internal_sync_mode: 'add' },
+      mapping: { alias_name: 'test_name', alias_label: 'test_label', __segment_internal_sync_mode: 'add' },
       settings: settingsData,
       auth: undefined
     })
