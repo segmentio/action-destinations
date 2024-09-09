@@ -9,11 +9,16 @@ import { Features } from '../mapping-kit'
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 export type MaybePromise<T> = T | Promise<T>
 
-export interface Result {
+/*
+  Note: The Cloud Event object that we receive from Centrifuge contains an array of subscriptions,
+  the result object below is the result of execution of each subscription.
+*/ export interface Result {
   output?: JSONObject | string | null | undefined
   error?: JSONObject | null
   // Data to be returned from action
   data?: JSONObject | null
+  // Spec v2 compliant MultiStatus response
+  multistatus?: ResultMultiStatusNode[]
 }
 
 export interface DynamicFieldContext {
@@ -350,3 +355,23 @@ export interface SyncModeDefinition {
   /** The available sync mode choices */
   choices: SyncModeOption[]
 }
+
+export type ActionDestinationSuccessResponseType = {
+  status: number
+  sent: object | string
+  body: object | string
+}
+
+export type ActionDestinationErrorResponseType = {
+  status: number
+  errortype: string
+  errormessage: string
+  sent?: object | string
+  body?: object | string
+}
+
+export type ResultMultiStatusNode =
+  | ActionDestinationSuccessResponseType
+  | (ActionDestinationErrorResponseType & {
+      errorreporter: 'INTEGRATIONS' | 'DESTINATION'
+    })
