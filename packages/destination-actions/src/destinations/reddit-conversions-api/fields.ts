@@ -172,11 +172,6 @@ export const user: InputField = {
       description: 'The IP address of the user.',
       type: 'string'
     },
-    opt_out: {
-      label: 'Opt Out',
-      description: 'A flag indicating whether the user has opted out of tracking.',
-      type: 'boolean'
-    },
     user_agent: {
       label: 'User Agent',
       description: "The user agent of the user's browser.",
@@ -207,7 +202,6 @@ export const user: InputField = {
       }
     },
     ip_address: { '@path': '$.context.ip' },
-    opt_out: { '@path': '$.properties.opt_out' },
     user_agent: { '@path': '$.context.userAgent' },
     uuid: {
       '@if': {
@@ -225,6 +219,7 @@ export const data_processing_options: InputField = {
   type: 'object',
   required: false,
   additionalProperties: false,
+  defaultObjectUI: 'keyvalue',
   properties: {
     country: {
       label: 'Country',
@@ -501,6 +496,7 @@ export const screen_dimensions: InputField = {
   description: "The dimensions of the user's screen.",
   type: 'object',
   additionalProperties: false,
+  defaultObjectUI: 'keyvalue',
   properties: {
     height: {
       label: 'Height',

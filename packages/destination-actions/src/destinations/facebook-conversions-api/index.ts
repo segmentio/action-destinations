@@ -7,6 +7,10 @@ import viewContent from './viewContent'
 import search from './search'
 import pageView from './pageView'
 import custom from './custom'
+import addToCart2 from './addToCart2'
+import pageView2 from './pageView2'
+import purchase2 from './purchase2'
+import custom2 from './custom2'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Facebook Conversions API (Actions)',
@@ -44,7 +48,11 @@ const destination: DestinationDefinition<Settings> = {
     viewContent,
     search,
     pageView,
-    custom
+    custom,
+    addToCart2,
+    pageView2,
+    purchase2,
+    custom2
   }
 }
 

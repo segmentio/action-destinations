@@ -24,10 +24,7 @@ export async function send(request: RequestClient, settings: Settings, payload: 
   return request(`https://ads-api.reddit.com/api/v2.0/conversions/events/${settings.ad_account_id}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${settings.conversion_token}` },
-    json: {
-      // stringify to remove undefied values, then parse back to an object
-      data: JSON.parse(JSON.stringify(data))
-    }
+    json: JSON.parse(JSON.stringify(data))
   })
 }
 
@@ -151,7 +148,6 @@ function getUser(
     email: hash(clean(user.email)),
     external_id: hash(clean(user.external_id)),
     ip_address: hash(clean(user.ip_address)),
-    opt_out: user.opt_out,
     user_agent: clean(user.user_agent),
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
