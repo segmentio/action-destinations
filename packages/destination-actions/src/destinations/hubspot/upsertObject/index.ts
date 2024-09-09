@@ -190,6 +190,7 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
         assocationSyncMode as AssociationSyncMode
       )
       await sendAssociations(client, associatedRecords)
+      return
     }
   }
 }
