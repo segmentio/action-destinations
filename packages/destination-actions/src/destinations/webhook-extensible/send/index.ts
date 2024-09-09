@@ -59,7 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (contentType === 'application/json') {
         body = { json: payload.data }
       } else if (contentType === 'application/x-www-form-urlencoded') {
-        const formUrlEncoded = new URLSearchParams(payload.data).toString()
+        const formUrlEncoded = new URLSearchParams(payload.data as Record<string, string>).toString()
         body = { body: formUrlEncoded }
       } else {
         // Handle other content types or default case
