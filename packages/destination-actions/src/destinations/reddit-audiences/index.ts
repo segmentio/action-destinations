@@ -8,6 +8,7 @@ import createAudience from './createAudience'
 
 import deleteFromAudience from './deleteFromAudience'
 
+//Comment by Manik
 // For an example audience destination, refer to webhook-audiences. The Readme section is under 'Audience Support'
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Reddit Audiences',
