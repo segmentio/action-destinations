@@ -1,32 +1,32 @@
 import { PayloadValidationError, IntegrationError, ModifiedResponse } from '@segment/actions-core'
 import { Payload } from './generated-types'
-import { MAX_HUBSPOT_BATCH_SIZE, OBJECT_NOT_FOUND_ERROR_RESPONSE } from './constants'
+import { MAX_HUBSPOT_BATCH_SIZE } from './constants'
 import { Client } from './client'
 import {
   AssociationPayload,
   AssociationPayloadWithId,
   AssociationSyncMode,
   AssociationType,
-  BatchRequestType,
-  CreateJSON,
-  CreatePropsDefinitionReq,
+  ObjReqType,
+  CreateReq,
+  CreatePropsReq,
   GroupableFields,
   HSPropFieldType,
   HSPropType,
   HSPropTypeFieldType,
-  Input,
+  CreatePropsReqItem,
   PayloadWithFromId,
   Prop,
-  ReadJSON,
+  ReadReq,
+  ReadPropsResp,
   ReadType,
-  ResponseType,
-  RespJSON,
+  BatchObjResp,
   Result,
   Schema,
   SchemaDiff,
   SchemaMatch,
   SyncMode,
-  UpsertJSON
+  UpsertReq
 } from './types'
 
 export function validate(payloads: Payload[]): Payload[] {
@@ -230,7 +230,7 @@ export async function sendFromRecords(
 }
 
 async function upsertRecords(client: Client, payloads: Payload[], objectType: string): Promise<PayloadWithFromId[]> {
-  const response = await client.batchObjectRequest(BatchRequestType.Upsert, objectType, {
+  const response = await client.batchObjectRequest(ObjReqType.Upsert, objectType, {
     inputs: payloads.map(({ object_details: { id_field_value }, properties, sensitive_properties }) => {
       const idFieldName = payloads[0].object_details.id_field_name
       return {
@@ -239,7 +239,7 @@ async function upsertRecords(client: Client, payloads: Payload[], objectType: st
         properties: { ...properties, ...sensitive_properties, [idFieldName]: id_field_value }
       }
     })
-  } as UpsertJSON)
+  } as UpsertReq)
 
   return returnRecordsWithIds(payloads, response)
 }
@@ -252,7 +252,7 @@ async function updateRecords(client: Client, payloads: Payload[], objectType: st
     ReadType.ReturnRecordsWithIds
   )) as unknown as Payload[]
 
-  const response = await client.batchObjectRequest(BatchRequestType.Update, objectType, {
+  const response = await client.batchObjectRequest(ObjReqType.Update, objectType, {
     inputs: existingRecords.map(({ object_details: { id_field_value }, properties, sensitive_properties }) => {
       const idFieldName = payloads[0].object_details.id_field_name
       return {
@@ -261,7 +261,7 @@ async function updateRecords(client: Client, payloads: Payload[], objectType: st
         properties: { ...properties, ...sensitive_properties }
       }
     })
-  } as UpsertJSON)
+  } as UpsertReq)
 
   return returnRecordsWithIds(existingRecords, response)
 }
@@ -274,7 +274,7 @@ async function addRecords(client: Client, payloads: Payload[], objectType: strin
     ReadType.ReturnRecordsWithoutIds
   )) as Payload[]
 
-  const response: ModifiedResponse<RespJSON> = await client.batchObjectRequest(BatchRequestType.Create, objectType, {
+  const response: ModifiedResponse<BatchObjResp> = await client.batchObjectRequest(ObjReqType.Create, objectType, {
     inputs: recordsToCreate.map(
       ({ object_details: { id_field_value: fromIdFieldValue }, properties, sensitive_properties }) => {
         const idFieldName = payloads[0].object_details.id_field_name
@@ -284,7 +284,7 @@ async function addRecords(client: Client, payloads: Payload[], objectType: strin
         }
       }
     )
-  } as CreateJSON)
+  } as CreateReq)
 
   return returnRecordsWithIds(recordsToCreate, response)
 }
@@ -297,13 +297,13 @@ async function readRecords(
 ): Promise<PayloadWithFromId[] | Payload[]> {
   const idFieldName = payloads[0].object_details.id_field_name
 
-  const readResponse = await client.batchObjectRequest(BatchRequestType.Read, objectType, {
+  const readResponse = await client.batchObjectRequest(ObjReqType.Read, objectType, {
     properties: [idFieldName],
     idProperty: idFieldName,
     inputs: payloads.map((payload) => {
       return { id: payload.object_details.id_field_value }
     })
-  } as ReadJSON)
+  } as ReadReq)
 
   switch (readType) {
     case ReadType.ReturnRecordsWithIds:
@@ -313,7 +313,7 @@ async function readRecords(
   }
 }
 
-function returnRecordsWithIds(payloads: Payload[], response: ModifiedResponse<RespJSON>): PayloadWithFromId[] {
+function returnRecordsWithIds(payloads: Payload[], response: ModifiedResponse<BatchObjResp>): PayloadWithFromId[] {
   response?.data?.results.forEach((result) => {
     payloads
       .filter((p) => {
@@ -332,7 +332,7 @@ function returnRecordsWithIds(payloads: Payload[], response: ModifiedResponse<Re
   return payloads as unknown as PayloadWithFromId[]
 }
 
-function returnRecordsWithoutIds(payloads: Payload[], response: ModifiedResponse<RespJSON>): Payload[] {
+function returnRecordsWithoutIds(payloads: Payload[], response: ModifiedResponse<BatchObjResp>): Payload[] {
   const missingRecords = payloads.filter((payload) => {
     return !response.data.results.some((result) => {
       return result.properties[payload.object_details.id_field_name] === payload.object_details.id_field_value
@@ -449,7 +449,7 @@ async function upsertAssociatedRecords(
 
 function returnAssociatedRecordsWithIds(
   groupedPayloads: AssociationPayload[][],
-  responses: ModifiedResponse<RespJSON>[]
+  responses: ModifiedResponse<BatchObjResp>[]
 ): AssociationPayloadWithId[] {
   responses.forEach((response, index) => {
     const payloads = groupedPayloads[index]
@@ -520,7 +520,7 @@ export async function compareToHubspot(client: Client, schema: Schema): Promise<
     requests.push(client.readProperties(true))
   }
 
-  const responses = await Promise.allSettled(requests)
+  const responses = await Promise.all(requests)
 
   const schemaDiff = {
     object_details: {
@@ -530,25 +530,16 @@ export async function compareToHubspot(client: Client, schema: Schema): Promise<
   } as SchemaDiff
 
   if (hasProps && requests.length > 0) {
-    const response = responses.shift()
-    const { missingProps, match } = determineMissingPropsAndMatchType(response as ResponseType, schema.properties)
+    const response = responses.shift() as ModifiedResponse<ReadPropsResp>
+    const { missingProps, match } = determineMissingPropsAndMatchType(response, schema.properties)
     schemaDiff.missingProperties = missingProps
     schemaDiff.match = match
   }
 
   if (hasSensitiveProps && requests.length > 0) {
-    const response = responses.shift()
-    const { missingProps, match } = determineMissingPropsAndMatchType(
-      response as ResponseType,
-      schema.sensitiveProperties
-    )
+    const response = responses.shift() as ModifiedResponse<ReadPropsResp>
+    const { missingProps, match } = determineMissingPropsAndMatchType(response, schema.sensitiveProperties)
     schemaDiff.missingSensitiveProperties = missingProps
-
-    if (schemaDiff.match === SchemaMatch.NoMatch && schemaDiff.match !== SchemaMatch.NoMatch) {
-      // this should never happen. If it does, throw an error
-      throw new IntegrationError('Unable to fetch property data from Hubspot', 'HUBSPOT_PROPERTIES_ERROR', 400)
-    }
-
     if (schemaDiff.match === SchemaMatch.FullMatch) {
       schemaDiff.match = match
     }
@@ -558,46 +549,30 @@ export async function compareToHubspot(client: Client, schema: Schema): Promise<
 }
 
 function determineMissingPropsAndMatchType(
-  response: ResponseType,
+  response: ModifiedResponse<ReadPropsResp>,
   properties: Prop[]
 ): { missingProps: Prop[]; match: SchemaMatch } {
-  switch (response.status) {
-    case 'fulfilled': {
-      const results = response.value?.data.results ?? []
-      const missingProps: Prop[] = []
-      properties.forEach((prop) => {
-        const match = results.find((item: Result) => {
-          return item.name === prop.name
-        })
+  const results = response.data.results ?? []
+  const missingProps: Prop[] = []
+  properties.forEach((prop) => {
+    const match = results.find((item: Result) => {
+      return item.name === prop.name
+    })
 
-        checkForIncompatiblePropTypes(prop, match)
+    checkForIncompatiblePropTypes(prop, match)
 
-        if (!match) {
-          missingProps.push({
-            name: prop.name,
-            type: prop.type,
-            fieldType: prop.fieldType,
-            typeFieldType: prop.typeFieldType
-          })
-        }
+    if (!match) {
+      missingProps.push({
+        name: prop.name,
+        type: prop.type,
+        fieldType: prop.fieldType,
+        typeFieldType: prop.typeFieldType
       })
-      return {
-        missingProps,
-        match: missingProps.length === 0 ? SchemaMatch.FullMatch : SchemaMatch.PropertiesMissing
-      }
     }
-
-    case 'rejected': {
-      if (response.reason?.message.startsWith(OBJECT_NOT_FOUND_ERROR_RESPONSE)) {
-        return { missingProps: [], match: SchemaMatch.NoMatch }
-      } else {
-        throw new IntegrationError(
-          `Error fetching Hubspot property data: ${response.reason?.message}`,
-          'HUBSPOT_PROPERTY_FETCH_ERROR',
-          400
-        )
-      }
-    }
+  })
+  return {
+    missingProps,
+    match: missingProps.length === 0 ? SchemaMatch.FullMatch : SchemaMatch.PropertiesMissing
   }
 }
 
@@ -644,7 +619,7 @@ export async function createProperties(client: Client, schemaDiff: SchemaDiff, p
 
   const { missingProperties: props, missingSensitiveProperties: sensitiveProps } = schemaDiff
 
-  const input = (prop: Prop, sensitive: boolean): Input => {
+  const input = (prop: Prop, sensitive: boolean): CreatePropsReqItem => {
     switch (prop.typeFieldType) {
       case HSPropTypeFieldType.NumberNumber:
         return {
@@ -710,12 +685,12 @@ export async function createProperties(client: Client, schemaDiff: SchemaDiff, p
     }
   }
 
-  const json: CreatePropsDefinitionReq = {
+  const json: CreatePropsReq = {
     inputs: [
       ...(props ? props.map((p) => input(p, false)) : []),
       ...(sensitiveProps ? sensitiveProps.map((p) => input(p, true)) : [])
     ]
-  } as CreatePropsDefinitionReq
+  } as CreatePropsReq
 
   await client.createPropertiesDefinition(json)
 }
