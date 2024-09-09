@@ -1,6 +1,7 @@
 import type { Payload } from './generated-types'
-import { RequestClient } from '@segment/actions-core'
-import { GoogleSheets, GetResponse } from '../googleapis'
+import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { GoogleSheets, GetResponse } from '../googleapis/index'
+import { CONSTANTS } from '../constants'
 
 import A1 from '@segment/a1-notation'
 
@@ -64,23 +65,16 @@ const generateColumnValuesFromFields = (identifier: string, fields: Fields, colu
  * Processes the response of the Google Sheets GET call and parses the events into separate operation buckets.
  * @param response result of the Google Sheets API get call
  * @param events data to be written to the spreadsheet
- * @param _mappingSettings the mapping settings
- * @param _features feature flags
+ * @param mappingSettings
  * @returns
  */
-function processGetSpreadsheetResponse(
-  response: GetResponse,
-  events: Payload[],
-  _mappingSettings: MappingSettings,
-  _features: { [k: string]: boolean }
-) {
-  // const numColumns = mappingSettings.columns.length
-  // const numRows = response.values?.length
+function processGetSpreadsheetResponse(response: GetResponse, events: Payload[], mappingSettings: MappingSettings) {
+  const numColumns = mappingSettings.columns.length
+  const numRows = response.values?.length
 
-  // const MAX_CELLS = features['GOOGLE_SHEETS_NEW_MAX_CELLS_ENABLED'] ? CONSTANTS.MAX_CELLS_CANARY : CONSTANTS.MAX_CELLS
-  // if (numRows * numColumns > MAX_CELLS) {
-  //   throw new IntegrationError('Sheet has reached maximum limit', 'INVALID_REQUEST_DATA', 400)
-  // }
+  if (numRows * numColumns > CONSTANTS.MAX_CELLS) {
+    throw new IntegrationError('Sheet has reached maximum limit', 'INVALID_REQUEST_DATA', 400)
+  }
 
   const updateBatch: UpdateBatch[] = []
   const appendBatch: AppendBatch[] = []
@@ -211,7 +205,7 @@ async function processAppendBatch(mappingSettings: MappingSettings, appendBatch:
  * @param request request object used to perform HTTP calls
  * @param events array of events to commit to the spreadsheet
  */
-async function processData(request: RequestClient, events: Payload[], features: { [k: string]: boolean } = {}) {
+async function processData(request: RequestClient, events: Payload[]) {
   // These are assumed to be constant across all events
   const mappingSettings = {
     spreadsheetId: events[0].spreadsheet_id,
@@ -226,7 +220,7 @@ async function processData(request: RequestClient, events: Payload[], features: 
   const response = await gs.get(mappingSettings, `A${DATA_ROW_OFFSET}:A`)
 
   // Use the retrieved row identifiers along with the incoming events to decide which ones should be appended or updated.
-  const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events, mappingSettings, features)
+  const { appendBatch, updateBatch } = processGetSpreadsheetResponse(response.data, events, mappingSettings)
 
   const promises = [
     processUpdateBatch(mappingSettings, updateBatch, gs),

@@ -3,7 +3,6 @@ import type { Settings } from './generated-types'
 
 import postSheet from './postSheet'
 import postSheet2 from './postSheet2'
-import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 interface RefreshTokenResponse {
   access_token: string
   scope: string
@@ -43,7 +42,7 @@ const destination: DestinationDefinition<Settings> = {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`
       },
-      timeout: Math.max(30000, DEFAULT_REQUEST_TIMEOUT)
+      timeout: 30000 // 30 seconds.
     }
   },
 

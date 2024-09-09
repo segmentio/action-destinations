@@ -43,7 +43,9 @@ describe('Google Sheets', () => {
           spreadsheet_id: 'spreadsheet_id',
           spreadsheet_name: 'spreadsheet_name',
           data_format: 'data_format',
-          fields: { column1: 'value1', column2: 'value2' }
+          fields: { column1: 'value1', column2: 'value2' },
+          batch_size: 1,
+          batch_bytes: 1
         }
       ]
     }
@@ -83,7 +85,7 @@ describe('Google Sheets', () => {
       expect(mockGoogleSheets.batchUpdate).toHaveBeenCalled()
     })
 
-    it.skip('should fail because number of cells limit is reached', async () => {
+    it('should fail because number of cells limit is reached', async () => {
       // Make sure the spreadsheet contains the event from the payload
       CONSTANTS.MAX_CELLS = 1
       const getResponse: Partial<GetResponse> = {
@@ -97,28 +99,6 @@ describe('Google Sheets', () => {
       await expect(PostSheet.performBatch?.(jest.fn(), data as ExecuteInput<Settings, Payload[]>)).rejects.toThrowError(
         'Sheet has reached maximum limit'
       )
-    })
-
-    it('should fail because number of cells limit (CANARY) is reached if feature flag is enabled', async () => {
-      // Make sure the spreadsheet contains the event from the payload
-      CONSTANTS.MAX_CELLS = 1
-      CONSTANTS.MAX_CELLS_CANARY = 2
-      const getResponse: Partial<GetResponse> = {
-        values: [['id'], ['1234'], ['12345']]
-      }
-
-      mockGoogleSheets.get.mockResolvedValue({
-        data: getResponse
-      })
-
-      await expect(
-        PostSheet.performBatch?.(jest.fn(), {
-          ...data,
-          features: {
-            GOOGLE_SHEETS_NEW_MAX_CELLS_ENABLED: true
-          }
-        } as ExecuteInput<Settings, Payload[]>)
-      ).rejects.toThrowError('Sheet has reached maximum limit')
     })
   })
 })
