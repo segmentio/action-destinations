@@ -5,15 +5,15 @@ import { audienceSync } from '../functions'
 
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
-  title: 'Add to Audience',
-  description: 'Add users to a Reddit Custom Audience List.',
+  title: 'Delete from Audience',
+  description: 'Remove users from a Reddit Custom Audience List.',
   fields: {
     audience_id: {
       type: 'string',
       required: true,
       label: 'Audience ID',
       description:
-        'The Reddit Audience ID to add users to. You can find this in your Reddit Audience Manager page.'
+        'The Reddit Audience ID to remove users from. You can find this in your Reddit Audience Manager page.'
     },
     email: {
       type: 'string',
@@ -41,16 +41,16 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     },
     send_email: {
       type: 'boolean',
-      label: 'Send Email',
+      label: 'Remove Email',
       description:
-        "Send emails to Reddit to add to the Custom Audience List.",
+        "Remove emails from the Reddit Custom Audience List.",
       default: true
     },
     send_maid: {
       type: 'boolean',
       label: 'Send Mobile Advertising ID',
       description:
-        "Send Mobile Advertising IDs (IDFA / AAID) to Reddit to add to the Custom Audience List.",
+        "Remove Mobile Advertising IDs (IDFA / AAID) from the Reddit Custom Audience List.",
       default: true
     },
     enable_batching: {
@@ -64,11 +64,11 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
   perform: (request, { payload }) => {
-    const action: string = 'ADD'
+    const action: string = 'REMOVE'
     return audienceSync(request, [payload], action)
   },
   performBatch: (request, { payload }) => {
-    const action: string = 'ADD'
+    const action: string = 'REMOVE'
     return audienceSync(request, payload, action)
   }
 }
