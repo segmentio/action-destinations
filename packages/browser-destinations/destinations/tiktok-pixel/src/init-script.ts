@@ -48,7 +48,7 @@ export function initScript(settings) {
     ttq.load(settings.pixelCode, {
       limited_data_use: settings.ldu ? settings.ldu : false
     })
-    if (settings.autoPageView) {
+    if (settings.autoPageView === undefined || settings.autoPageView === true) {
       ttq.instance(settings.pixelCode).page()
     }
   })(window, document, 'ttq')
