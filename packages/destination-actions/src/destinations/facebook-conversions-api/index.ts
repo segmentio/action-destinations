@@ -8,6 +8,8 @@ import search from './search'
 import pageView from './pageView'
 import custom from './custom'
 
+import custom2 from './custom2'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Facebook Conversions API (Actions)',
   slug: 'actions-facebook-conversions-api',
@@ -44,7 +46,8 @@ const destination: DestinationDefinition<Settings> = {
     viewContent,
     search,
     pageView,
-    custom
+    custom,
+    custom2
   }
 }
 
