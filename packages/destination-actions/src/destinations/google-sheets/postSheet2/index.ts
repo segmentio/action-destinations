@@ -5,7 +5,7 @@ import type { Payload } from './generated-types'
 import { processData } from './operations2'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Post Sheet',
+  title: 'Post Sheet V2',
   description: 'Write values to a Google Sheets spreadsheet.',
   defaultSubscription: 'event = "updated" or event = "new"',
   syncMode: {

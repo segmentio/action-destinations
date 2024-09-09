@@ -24,7 +24,7 @@ export const commonFields: Record<string, InputField> = {
         required: true,
         dynamic: true,
         allowNull: false,
-        disabledInputMethods: ['literal', 'variable', 'function', 'freeform']
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
       object_id: {
         label: 'Object ID',
