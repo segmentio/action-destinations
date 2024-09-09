@@ -1,0 +1,2 @@
+[2K[1G[2m$ yarn tsc -b tsconfig.build.json[22m
+[2K[1G[2m$ /Users/joeayoub/dev/src/github.com/segmentio/action-destinations/node_modules/.bin/tsc -b tsconfig.build.json[22m

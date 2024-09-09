@@ -1,0 +1,3 @@
+[2K[1G[2m$ yarn build:esm && yarn build:cjs[22m
+[2K[1G[2m$ tsc --outDir ./dist/esm[22m
+[2K[1G[2m$ tsc --module commonjs --outDir ./dist/cjs[22m

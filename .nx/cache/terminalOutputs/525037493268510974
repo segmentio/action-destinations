@@ -1,0 +1,7 @@
+[2K[1G[2m$ yarn tsc -b tsconfig.build.json[22m
+[2K[1G[2m$ /Users/joeayoub/dev/src/github.com/segmentio/action-destinations/node_modules/.bin/tsc -b tsconfig.build.json[22m
+src/destinations/hubspot/customEvent/utils.ts(321,25): error TS2339: Property 'message' does not exist on type 'CreateEventDefinitionResp'.
+[2K[1G[31merror[39m Command failed with exit code 1.
+[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.
+[2K[1G[31merror[39m Command failed with exit code 1.
+[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.

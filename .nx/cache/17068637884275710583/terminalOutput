@@ -1,0 +1,7 @@
+[2K[1G[2m$ yarn clean && yarn build:cjs && yarn build:esm[22m
+[2K[1G[2m$ tsc -b tsconfig.build.json --clean[22m
+[2K[1G[2m$ rm -rf dist[22m
+[2K[1G[2m$ yarn tsc -p tsconfig.build.json -m commonjs --outDir dist/cjs[22m
+[2K[1G[2m$ /Users/joeayoub/dev/src/github.com/segmentio/action-destinations/node_modules/.bin/tsc -p tsconfig.build.json -m commonjs --outDir dist/cjs[22m
+[2K[1G[2m$ yarn tsc -p tsconfig.build.json -m es2015 --outDir dist/esm[22m
+[2K[1G[2m$ /Users/joeayoub/dev/src/github.com/segmentio/action-destinations/node_modules/.bin/tsc -p tsconfig.build.json -m es2015 --outDir dist/esm[22m
