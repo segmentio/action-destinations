@@ -9,6 +9,10 @@ export function initScript(settings: Settings) {
   }
 
   window.jimo = []
+  window.segmentJimo = {
+    initialized: !manualInit,
+    client: window.jimo
+  }
   window['JIMO_MANUAL_INIT'] = manualInit
   window['JIMO_PROJECT_ID'] = settings.projectId
 }

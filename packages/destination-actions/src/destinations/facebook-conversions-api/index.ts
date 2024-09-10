@@ -7,7 +7,12 @@ import viewContent from './viewContent'
 import search from './search'
 import pageView from './pageView'
 import custom from './custom'
-
+import addToCart2 from './addToCart2'
+import pageView2 from './pageView2'
+import purchase2 from './purchase2'
+import custom2 from './custom2'
+import viewContent2 from './viewContent2'
+import initiateCheckout2 from './initiateCheckout2'
 import search2 from './search2'
 
 const destination: DestinationDefinition<Settings> = {
@@ -47,7 +52,13 @@ const destination: DestinationDefinition<Settings> = {
     search,
     pageView,
     custom,
-    search2
+    search2,
+    viewContent2,
+    initiateCheckout2,
+    addToCart2,
+    pageView2,
+    purchase2,
+    custom2
   }
 }
 
