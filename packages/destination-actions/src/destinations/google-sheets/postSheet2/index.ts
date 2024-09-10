@@ -93,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Size',
       description:
         'The number of rows to write to the spreadsheet in a single batch. The value is determined by number of rows * columns that Segment can upload within 30s.',
-      default: 500,
+      default: 1001,
       required: true,
       unsafe_hidden: true
     },
