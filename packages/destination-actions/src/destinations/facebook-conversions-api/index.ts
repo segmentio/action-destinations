@@ -12,6 +12,8 @@ import pageView2 from './pageView2'
 import purchase2 from './purchase2'
 import custom2 from './custom2'
 
+import initiateCheckout2 from './initiateCheckout2'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Facebook Conversions API (Actions)',
   slug: 'actions-facebook-conversions-api',
@@ -49,6 +51,7 @@ const destination: DestinationDefinition<Settings> = {
     search,
     pageView,
     custom,
+    initiateCheckout2,
     addToCart2,
     pageView2,
     purchase2,
