@@ -110,15 +110,17 @@ export const updatePet = async (request: RequestClient, settings: Settings, payl
   return promises
 }
 
-const buildPetUpdatePayload = (payloads: Payload[], fieldType: 'CUSTOMER_ID' | 'EMAIL_ADDRESS' | 'RIID') => {
-  const matchType = (fieldType + '_') as 'CUSTOMER_ID_' | 'EMAIL_ADDRESS_' | 'RIID_'
+const buildPetUpdatePayload = (payloads: Payload[], matchType: 'CUSTOMER_ID' | 'EMAIL_ADDRESS' | 'RIID') => {
+  const resolvedMatchType = (matchType + '_') as 'CUSTOMER_ID_' | 'EMAIL_ADDRESS_' | 'RIID_'
+  const firstPayload = payloads[0]
   const requestBody = {
     recordData: {
-      fieldNames: [fieldType],
+      fieldNames: [resolvedMatchType, firstPayload.computation_key],
       records: payloads.map((payload) => {
-        const field = payload.userData[matchType]
+        const field = payload.userData[resolvedMatchType]
         if (field) {
-          return [field]
+          const inAudience = payload.traits_or_props[payload.computation_key] === true ? '1' : '0'
+          return [field, inAudience]
         }
       }) as string[][],
       mapTemplateName: null

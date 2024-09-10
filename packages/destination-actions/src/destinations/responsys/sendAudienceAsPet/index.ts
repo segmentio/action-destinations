@@ -64,6 +64,28 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true,
       default: { '@path': '$.context.personas.computation_key' }
     },
+    computation_key: {
+      label: 'Segment Audience Key',
+      description: 'A unique identifier assigned to a specific audience in Segment.',
+      type: 'string',
+      required: true,
+      unsafe_hidden: true,
+      default: { '@path': '$.context.personas.computation_key' }
+    },
+    traits_or_props: {
+      label: 'Traits or Properties',
+      description: 'Hidden field used to access traits or properties objects from Engage payloads.',
+      type: 'object',
+      required: true,
+      unsafe_hidden: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits' },
+          then: { '@path': '$.traits' },
+          else: { '@path': '$.properties' }
+        }
+      }
+    },
     timestamp: {
       label: 'Timestamp',
       description: 'The timestamp of when the event occurred.',

@@ -27,6 +27,16 @@ export interface Payload {
    */
   pet_name: string
   /**
+   * A unique identifier assigned to a specific audience in Segment.
+   */
+  computation_key: string
+  /**
+   * Hidden field used to access traits or properties objects from Engage payloads.
+   */
+  traits_or_props: {
+    [k: string]: unknown
+  }
+  /**
    * The timestamp of when the event occurred.
    */
   timestamp?: string | number
