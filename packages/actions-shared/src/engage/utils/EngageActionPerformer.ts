@@ -283,13 +283,6 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
     return stepLogger
   }
-  // logStep(stepName: string, logDetails: any, statsTags: StatsTagsMap) {
-  //   statsTags.step = stepName
-  //   statsTags[stepName] = true
-  //   const messageId = (this.executeInput as any)['rawData']?.messageId
-  //   this.logInfo(stepName, { ...logDetails, messageId, statsTags })
-  //   this.statsIncr(stepName, 1, statsTags)
-  // }
 
   @track()
   async getOrAddCache<T>(
@@ -475,10 +468,10 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         getOrCatch(() => createValue())
       )
 
-      //release the lock unless shouldReleaseLock specified and explicitly returns false
-
+      //release the lock
       if (this.isLockShouldBeReleased()) {
-        //TODO: remove it after debugging. Lock should be released after value is in cache
+        //TODO: remove this feature flag after debugging. Lock should be released after value is in cache
+
         await log.track('cache_lock_release', () => getOrCatch(() => lock.release()))
       }
       if (createValueError) throw createValueError
