@@ -7,7 +7,9 @@ import { Payload } from '../generated-types'
 describe('Jimo - Send User Data', () => {
   test('user id', async () => {
     const segmentJimo = {
-      client: { push: jest.fn() }
+      client() {
+        return { push: jest.fn() }
+      }
     } as any as JimoClient
 
     const context = new Context({
@@ -23,12 +25,14 @@ describe('Jimo - Send User Data', () => {
       } as Payload
     })
 
-    expect(segmentJimo.client.push).toHaveBeenCalled()
-    expect(segmentJimo.client.push).toHaveBeenCalledWith(['do', 'identify', ['u1', expect.any(Function)]])
+    expect(segmentJimo.client().push).toHaveBeenCalled()
+    expect(segmentJimo.client().push).toHaveBeenCalledWith(['do', 'identify', ['u1', expect.any(Function)]])
   })
   test('user id then email and attributes', async () => {
     const segmentJimo = {
-      client: { push: jest.fn() }
+      client() {
+        return { push: jest.fn() }
+      }
     } as any as JimoClient
 
     const context = new Context({
@@ -48,12 +52,14 @@ describe('Jimo - Send User Data', () => {
       } as Payload
     })
 
-    expect(segmentJimo.client.push).toHaveBeenCalled()
-    expect(segmentJimo.client.push).toHaveBeenCalledWith(['do', 'identify', ['u1', expect.any(Function)]])
+    expect(segmentJimo.client().push).toHaveBeenCalled()
+    expect(segmentJimo.client().push).toHaveBeenCalledWith(['do', 'identify', ['u1', expect.any(Function)]])
   })
   test('user email', async () => {
     const segmentJimo = {
-      client: { push: jest.fn() }
+      client() {
+        return { push: jest.fn() }
+      }
     } as any as JimoClient
 
     const context = new Context({
@@ -69,12 +75,14 @@ describe('Jimo - Send User Data', () => {
       } as Payload
     })
 
-    expect(segmentJimo.client.push).toHaveBeenCalled()
-    expect(segmentJimo.client.push).toHaveBeenCalledWith(['set', 'user:email', ['foo@bar.com']])
+    expect(segmentJimo.client().push).toHaveBeenCalled()
+    expect(segmentJimo.client().push).toHaveBeenCalledWith(['set', 'user:email', ['foo@bar.com']])
   })
   test('user traits', async () => {
     const segmentJimo = {
-      client: { push: jest.fn() }
+      client() {
+        return { push: jest.fn() }
+      }
     } as any as JimoClient
 
     const context = new Context({
@@ -94,8 +102,8 @@ describe('Jimo - Send User Data', () => {
       } as Payload
     })
 
-    expect(segmentJimo.client.push).toHaveBeenCalled()
-    expect(segmentJimo.client.push).toHaveBeenCalledWith([
+    expect(segmentJimo.client().push).toHaveBeenCalled()
+    expect(segmentJimo.client().push).toHaveBeenCalledWith([
       'set',
       'user:attributes',
       [
@@ -111,7 +119,9 @@ describe('Jimo - Send User Data', () => {
   })
   test('user traits with experience refetching', async () => {
     const segmentJimo = {
-      client: { push: jest.fn() }
+      client() {
+        return { push: jest.fn() }
+      }
     } as any as JimoClient
 
     const context = new Context({
@@ -131,8 +141,8 @@ describe('Jimo - Send User Data', () => {
       } as Payload
     })
 
-    expect(segmentJimo.client.push).toHaveBeenCalled()
-    expect(segmentJimo.client.push).toHaveBeenCalledWith([
+    expect(segmentJimo.client().push).toHaveBeenCalled()
+    expect(segmentJimo.client().push).toHaveBeenCalledWith([
       'set',
       'user:attributes',
       [
