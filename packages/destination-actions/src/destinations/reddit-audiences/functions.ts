@@ -4,7 +4,7 @@ import { Payload as CreateAudiencePayload } from './createAudience/generated-typ
 import { createHash } from 'crypto'
 
 
-let token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzI1NzM2MTY3LjM4NDg0LCJpYXQiOjE3MjU2NDk3NjcuMzg0ODM5LCJqdGkiOiJvTFpoUUt4OG5sQlN5aWFhd2paZng4b2JwQjhZUEEiLCJjaWQiOiI5a1gtQlZCUVNVaVlYTHhCZkZ3NzJnIiwibGlkIjoidDJfM3g5aTIydDAiLCJhaWQiOiJ0Ml8zeDlpMjJ0MCIsImxjYSI6MTU2MDIwNDI1ODQzMywic2NwIjoiZUp5S1ZpcEtUVXhSMGxGS1RDbUdzakl5aTB2eWl5b2hZcWtwbVNVUVZuSi1YbGxxVVhGbWZsNnhVaXdnQUFEX193Q1pFdzQiLCJyY2lkIjoiMVFzdDVkUmczWWtmQUdvdUlienZrdHM4Y3p6X2k4dTVjendnTm9XakdaZyIsImZsbyI6M30.NF4oKl1dkaNz-_UK4osY8yHy14wQrSJ8dapfKpBYbeVD5ngVeTQVePhLB6OhbHHZWhzB8GzkmHjr5fhzT2KckFpPWCoJ7HzvwbGZQ_k1pmV14Yzy5fV64ZLcd0yP5v0FVRfvimaeNRUWraDoawhDays1ky3KNgIQRM7Aauei36SX2X5NC44Py1yb2ntfhIckELZCce94pZyvPVIND1hGBb8i4rOoIdNgRk50kuFs_FU_xu97QfkLnHeBz_QYW-YmxY3fK7yc73f7cKEVRb9etcWKcd5jl36_-4WklGbTEmY_rPaF9HVPg49q77HsD8XnhzSdKKJ4-c1Xob43eZUC9Q'
+let token = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzI2MDgwNDk2Ljg5MjU5OSwiaWF0IjoxNzI1OTk0MDk2Ljg5MjU5OSwianRpIjoiVjVFbkJWZFdERVpRSzJMWThnaWFxZGlJTU43MW1BIiwiY2lkIjoiOWtYLUJWQlFTVWlZWEx4QmZGdzcyZyIsImxpZCI6InQyXzN4OWkyMnQwIiwiYWlkIjoidDJfM3g5aTIydDAiLCJsY2EiOjE1NjAyMDQyNTg0MzMsInNjcCI6ImVKeUtWaXBLVFV4UjBsRktUQ21Hc2pJeWkwdnlpeW9oWXFrcG1TVVFWbkotWGxscVVYRm1mbDZ4VWl3Z0FBRF9fd0NaRXc0IiwicmNpZCI6IjFRc3Q1ZFJnM1lrZkFHb3VJYnp2a3RzOGN6el9pOHU1Y3p3Z05vV2pHWmciLCJmbG8iOjN9.NsnheRfU2KBYROnc6WGXhY28G_0tZgzhlPPk2L-7bntuJ5tAqgNGqSJ_yojUczf40lollUYlpEN1-bN8mEH5g6UZdD_Y9fK0QcgVMtQ4F_Q-D4ph7JlQDuMOF6fpZim3jD8N0UXst100hOE0GEVbrKOmGovNY_wQuqBduo8Z4a-kuqWKN4pJjs4juYp6-c1B1ILu2M87VhaJwsvs1aIM8q3deOadJlIsW2hcPBYKWBAeALnsffDbc_4_7Qltp3TkkfgagKD631WePF8xSrwkJyBqUvPBGqA5S4P6VT_pZL3UNpb_BeUsfgxcGOWm6LDXEMjmV5gEzH4FHtnQQB3Pbw'
 
 export async function audienceSync(
   request: RequestClient,
@@ -12,9 +12,8 @@ export async function audienceSync(
   action: string
 ) {
   let get_audience = getAudience(request, payload[0])
-  // check audience length and divide by number of requests
-  // For division, round it up to the next integer
-  // store that as variable
+  // can we store the audience as a variable
+
   const email_schema_name = 'EMAIL_SHA256'
   const maid_schema_name = 'MAID_SHA256'
 
@@ -23,30 +22,15 @@ export async function audienceSync(
   const schema_columns = createSchema(payload, email_schema_name, maid_schema_name)
   const user_payload = createPayload(payload)
 
-
-  const max_size = 2500
-  const email_array = user_payload[0]
-  const maid_array = user_payload[1]
-  const total_audience_size = email_array.length + maid_array.length
-
-  const cleaned_schema = cleanSchema(schema_columns, email_array, maid_array, email_schema_name, maid_schema_name)
-  const cleaned_payload = cleanPayload(user_payload, email_array, maid_array)
-
   if (user_payload.length > 0) {
     let res
-    const audienceValues = {
+    const audience_values = {
       action_type: action,
-      column_order: cleaned_schema,
-      user_data: cleaned_payload
+      column_order: schema_columns,
+      user_data: [user_payload]
     }
 
-    if (total_audience_size <= max_size) {
-      res = await updateAudience(request, audienceValues, payload[0])
-    }
-
-    else {
-      res = await updateAudience(request, audienceValues, payload[0])
-    }
+    res = await updateAudience(request, audience_values, payload[0])
   }
 
   else {
@@ -55,60 +39,35 @@ export async function audienceSync(
 
 }
 
+async function updateAudience(request: RequestClient, audience_data: any, settings_payload: AddToAudiencePayload) {
+  const updateAudienceUrl = `https://ads-api.reddit.com/api/v3/custom_audiences/${settings_payload.audience_id}/users`
+  const max_size = 2500
 
-function cleanPayload(user_payloads: string[][], emails: string[], maids: string[]): string[][] {
-  let final_payload: string[][] = user_payloads
+  const user_data_chunks = splitArray(audience_data.user_data, max_size)
 
-  if (emails.length === 0 || emails === undefined || emails === null) {
-    final_payload[0] = maids
-    final_payload[1] = emails
+  for (const entry of user_data_chunks) {
+    const json_payload = {
+      data: {
+        ...audience_data,
+        user_data: entry
+      }
+    }
+    console.log('json-payload:', json_payload.data)
+
+    const response = await request(updateAudienceUrl, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      json: json_payload,
+      throwHttpErrors: true
+    })
+
+    const r = await response.status
+    console.log('HTTP Status Code:', r)
+    return r
   }
-  if (maids.length === 0 || maids === undefined || maids === null) {
-    final_payload[0] = emails
-    final_payload[1] = maids
-
-  }
-
-  final_payload = final_payload.filter(arr => arr.length > 0);
-
-  return final_payload
-}
-
-function cleanSchema(columns: string[], emails: string[], maids: string[],
-  email_schema_name: string, maid_schema_name: string): string[] | undefined {
-  if (emails.length === 0 || emails === undefined || emails === null) {
-    return [maid_schema_name]
-  }
-  if (maids.length === 0 || maids === undefined || maids === null) {
-    return [email_schema_name]
-  }
-  else {
-    return columns
-  }
-}
-
-
-async function updateAudience(request: RequestClient, data: {}, payload: AddToAudiencePayload) {
-  const updateAudienceUrl = `https://ads-api.reddit.com/api/v3/custom_audiences/${payload.audience_id}/users`
-  const json_payload = {
-    data
-  }
-  console.log('data', data)
-
-  const response = await request(updateAudienceUrl, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    json: json_payload,
-    throwHttpErrors: true
-  })
-
-  const r = await response.status
-  console.log('HTTP Status Code:', r)
-  return r
-
 }
 
 function createSchema(payload: AddToAudiencePayload[], email_schema_name: string, maid_schema_name: string) {
@@ -134,12 +93,9 @@ export async function getAudience(request: RequestClient, payload: AddToAudience
 }
 
 function createPayload(payloads: AddToAudiencePayload[]) {
-  const audience_payload: string[][] = []
-  let user_email: string[] = []
-  let user_maid: string[] = []
+  const hashed_payload: any = []
 
   payloads.forEach((payload: AddToAudiencePayload) => {
-    console.log('email payload:', payload.email)
     if (!payload.email && !payload.maid) {
       return
     }
@@ -149,33 +105,30 @@ function createPayload(payloads: AddToAudiencePayload[]) {
         if (!checkHash(payload.email)) {
           payload.email = hashEmail(payload.email)
         }
-        console.log('email payload: ', payload.email)
-        user_email.push(payload.email)
       }
+
+      if (!payload.email) {
+        payload.email = ''
+      }
+      hashed_payload.push(payload.email)
     }
 
     if (payload.send_maid == true) {
       if (payload.maid) {
         if (!checkHash(payload.maid)) {
-          payload.maid = sha256Hash(payload.maid)
+          const hash = createHash('sha256')
+          hash.update(payload.maid)
+          const hashed_maid = hash.digest('hex')
+          payload.maid = hashed_maid
         }
-        console.log('maid payload: ', payload.maid)
-        user_maid.push(payload.maid)
       }
+      if (!payload.maid) {
+        payload.maid = ''
+      }
+      hashed_payload.push(payload.maid)
     }
-
-    if (payload.send_email == true && payload.send_maid == false) {
-      audience_payload.push(user_email)
-    }
-    if (payload.send_email == false && payload.send_maid == true) {
-      audience_payload.push(user_maid)
-    }
-    if (payload.send_email == true && payload.send_maid == true) {
-      audience_payload.push(user_email, user_maid)
-    }
-    console.log('audience_payload:     ', audience_payload)
   })
-  return audience_payload
+  return hashed_payload
 }
 
 function checkHash(value: any): boolean {
@@ -184,7 +137,8 @@ function checkHash(value: any): boolean {
 }
 
 function hashEmail(value: any): string {
-  const email = normalizeEmail(value)
+  // first canonicalize the email value
+  const email = canonicalizeEmail(value)
   const hash = createHash('sha256')
 
   hash.update(email)
@@ -193,15 +147,7 @@ function hashEmail(value: any): string {
   return hashed_email
 }
 
-function sha256Hash(maid: any): string {
-  const hash = createHash('sha256')
-  hash.update(maid)
-  const hashed_maid = hash.digest('hex')
-
-  return hashed_maid
-}
-
-function normalizeEmail(value: string): string {
+function canonicalizeEmail(value: string): string {
   const localPartAndDomain = value.split('@')
   if (localPartAndDomain.length != 2) {
     return ''
@@ -226,13 +172,7 @@ function schemaCheck(payloads: AddToAudiencePayload[]) {
 }
 
 
-function clean(str: string | undefined): string | undefined {
-  if (str === undefined || str === null || str === '') return undefined
-  return str.trim()
-}
-
 export async function createAudience(request: RequestClient, payload: CreateAudiencePayload) {
-  console.log('create audience')
   const audience_type = 'CUSTOMER_LIST'
   const audience_name = payload.audience_name
   const createAudienceUrl = `https://ads-api.reddit.com/api/v3/ad_accounts/${payload.ad_account_id}/custom_audiences`
@@ -260,4 +200,12 @@ export async function createAudience(request: RequestClient, payload: CreateAudi
   }
 
   return response
+}
+
+function splitArray<T>(array: T[], chunkSize: number): T[][] {
+  const split_array: T[][] = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    split_array.push(array.slice(i, i + chunkSize));
+  }
+  return split_array
 }

@@ -3,7 +3,8 @@ import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { audienceSync } from '../functions'
 
-
+// Need to see how this will look within Segment -
+// Created this action for now as a placeholder
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Delete from Audience',
   description: 'Remove users from a Reddit Custom Audience List.',
