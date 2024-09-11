@@ -3,7 +3,7 @@ import { HUBSPOT_BASE_URL } from '../properties'
 import {
   CreateEventDefinitionResp,
   CreateEventDefinitionReq,
-  CreatePropertyDefintionReq,
+  CreatePropDefinitionReq,
   GetEventDefinitionResp,
   EventCompletionReq
 } from './types'
@@ -16,6 +16,7 @@ export class Client {
   }
 
   async getEventDefinition(eventName: string): Promise<ModifiedResponse<GetEventDefinitionResp>> {
+    // console.log(`${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`)
     return await this.request<GetEventDefinitionResp>(
       `${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`,
       {
@@ -42,7 +43,7 @@ export class Client {
     })
   }
 
-  async createPropertyDefinition(json: CreatePropertyDefintionReq, eventName: string) {
+  async createPropertyDefinition(json: CreatePropDefinitionReq, eventName: string) {
     return this.request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/property`, {
       method: 'POST',
       json,
