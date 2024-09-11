@@ -25,20 +25,28 @@ export class EngageLogger extends OperationLogger {
   readonly logDetails: Record<string, unknown> = {}
 
   logInfo(msg: string, metadata?: object): void {
-    const msgs = [msg, ...(metadata ? [JSON.stringify(metadata)] : [])]
     if (!this.actionPerformer.isFeatureActive(FLAGON_NAME_LOG_INFO, () => false)) return
-    const [firstMsg, ...rest] = msgs
-    this.loggerClient?.info(
-      `TE Messaging: ${this.channelType} ${firstMsg}`,
-      ...rest,
-      JSON.stringify({ ...this.logDetails, ...metadata })
-    )
+    try {
+      const msgs = [msg, ...(metadata ? [JSON.stringify(metadata)] : [])]
+      const [firstMsg, ...rest] = msgs
+      this.loggerClient?.info(
+        `TE Messaging: ${this.channelType} ${firstMsg}`,
+        ...rest,
+        JSON.stringify({ ...this.logDetails, ...metadata })
+      )
+    } catch {
+      // we just ignore error here since there is no reliable way to report it, and we don't want to break the flow
+    }
   }
 
   logError(msg: string, metadata?: object): void {
     if (!this.actionPerformer.isFeatureActive(FLAGON_NAME_LOG_ERROR, () => false)) return
-    const msgPrefix = `⛔ TE Messaging: ${this.channelType}`
-    this.loggerClient?.error(`${msgPrefix} ${msg}`, JSON.stringify({ ...this.logDetails, ...metadata }))
+    try {
+      const msgPrefix = `⛔ TE Messaging: ${this.channelType}`
+      this.loggerClient?.error(`${msgPrefix} ${msg}`, JSON.stringify({ ...this.logDetails, ...metadata }))
+    } catch {
+      // we just ignore error here since there is no reliable way to report it, and we don't want to break the flow
+    }
   }
   error(msg: string, metadata?: object) {
     return this.logError(msg, metadata)
