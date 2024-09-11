@@ -37,7 +37,11 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The user email',
       type: 'string',
       default: {
-        '@path': '$.traits.email'
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
       }
     },
     braze_id: {
