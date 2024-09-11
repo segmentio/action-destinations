@@ -40,6 +40,8 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
           }
         })
 
+        delete event.userId
+
         nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchupdate`)
           .post('')
           .reply(200, { results: [{}] })
@@ -47,8 +49,10 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         const responses = await testDestination.testAction('conversionAdjustmentUpload', {
           event,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -148,8 +152,10 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         const responses = await testDestination.testAction('conversionAdjustmentUpload', {
           event,
           mapping: {
-            dclid: {
-              '@path': '$.properties.dclid'
+            requiredId: {
+              dclid: {
+                '@path': '$.properties.dclid'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -224,8 +230,10 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         const responses = await testDestination.testAction('conversionAdjustmentUpload', {
           event,
           mapping: {
-            encryptedUserId: {
-              '@path': '$.properties.encryptedUserId'
+            requiredId: {
+              encryptedUserId: {
+                '@path': '$.properties.encryptedUserId'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -238,6 +246,11 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
             },
             ordinal: {
               '@path': '$.properties.ordinal'
+            },
+            encryptionInfo: {
+              encryptionEntityId: '12345',
+              encryptionEntityType: 'ADWORDS_CUSTOMER',
+              encryptionSource: 'AD_SERVING'
             }
           },
           useDefaultMappings: true,
@@ -313,11 +326,13 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         const responses = await testDestination.testBatchAction('conversionAdjustmentUpload', {
           events: goodBatch,
           mapping: {
-            matchId: {
-              '@path': '$.properties.matchId'
-            },
-            mobileDeviceId: {
-              '@path': '$.properties.mobileDeviceId'
+            requiredId: {
+              matchId: {
+                '@path': '$.properties.matchId'
+              },
+              mobileDeviceId: {
+                '@path': '$.properties.mobileDeviceId'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -433,8 +448,10 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         const responses = await testDestination.testBatchAction('conversionAdjustmentUpload', {
           events: goodBatch,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
             },
             impressionId: {
               '@path': '$.properties.impressionId'
@@ -526,8 +543,10 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         const responses = await testDestination.testBatchAction('conversionAdjustmentUpload', {
           events: goodBatch,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -586,8 +605,10 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         testDestination.testAction('conversionAdjustmentUpload', {
           event,
           mapping: {
-            dclid: {
-              '@path': '$.properties.dclid'
+            requiredId: {
+              dclid: {
+                '@path': '$.properties.dclid'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -670,8 +691,10 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         testDestination.testAction('conversionAdjustmentUpload', {
           event,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -753,11 +776,13 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         testDestination.testAction('conversionAdjustmentUpload', {
           event,
           mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
             floodlightActivityId: {
               '@path': '$.properties.floodlightActivityId'
-            },
-            gclid: {
-              '@path': '$.properties.gclid'
             },
             timestamp: {
               '@path': '$.timestamp'

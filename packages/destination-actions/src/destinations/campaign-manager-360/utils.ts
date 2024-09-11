@@ -208,7 +208,7 @@ function maybeThrow(message: string, shouldThrow: boolean) {
   }
 }
 
-function maybeHash(value: string | undefined): string | undefined {
+export function maybeHash(value: string | undefined): string | undefined {
   if (value === undefined) {
     return undefined
   }

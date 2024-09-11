@@ -48,8 +48,10 @@ describe('Cm360.conversionUpload', () => {
         const responses = await testDestination.testAction('conversionUpload', {
           event,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -149,8 +151,10 @@ describe('Cm360.conversionUpload', () => {
         const responses = await testDestination.testAction('conversionUpload', {
           event,
           mapping: {
-            dclid: {
-              '@path': '$.properties.dclid'
+            requiredId: {
+              dclid: {
+                '@path': '$.properties.dclid'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -225,8 +229,10 @@ describe('Cm360.conversionUpload', () => {
         const responses = await testDestination.testAction('conversionUpload', {
           event,
           mapping: {
-            encryptedUserId: {
-              '@path': '$.properties.encryptedUserId'
+            requiredId: {
+              encryptedUserId: {
+                '@path': '$.properties.encryptedUserId'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -239,6 +245,11 @@ describe('Cm360.conversionUpload', () => {
             },
             ordinal: {
               '@path': '$.properties.ordinal'
+            },
+            encryptionInfo: {
+              encryptionEntityId: '12345',
+              encryptionEntityType: 'ADWORDS_CUSTOMER',
+              encryptionSource: 'AD_SERVING'
             }
           },
           useDefaultMappings: true,
@@ -314,11 +325,13 @@ describe('Cm360.conversionUpload', () => {
         const responses = await testDestination.testBatchAction('conversionUpload', {
           events: goodBatch,
           mapping: {
-            matchId: {
-              '@path': '$.properties.matchId'
-            },
-            mobileDeviceId: {
-              '@path': '$.properties.mobileDeviceId'
+            requiredId: {
+              matchId: {
+                '@path': '$.properties.matchId'
+              },
+              mobileDeviceId: {
+                '@path': '$.properties.mobileDeviceId'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -434,11 +447,13 @@ describe('Cm360.conversionUpload', () => {
         const responses = await testDestination.testBatchAction('conversionUpload', {
           events: goodBatch,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
-            },
-            impressionId: {
-              '@path': '$.properties.impressionId'
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              },
+              impressionId: {
+                '@path': '$.properties.impressionId'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -527,8 +542,10 @@ describe('Cm360.conversionUpload', () => {
         const responses = await testDestination.testBatchAction('conversionUpload', {
           events: goodBatch,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -587,8 +604,10 @@ describe('Cm360.conversionUpload', () => {
         testDestination.testAction('conversionUpload', {
           event,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -671,8 +690,10 @@ describe('Cm360.conversionUpload', () => {
         testDestination.testAction('conversionUpload', {
           event,
           mapping: {
-            gclid: {
-              '@path': '$.properties.gclid'
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
             },
             timestamp: {
               '@path': '$.timestamp'
@@ -754,11 +775,13 @@ describe('Cm360.conversionUpload', () => {
         testDestination.testAction('conversionUpload', {
           event,
           mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
             floodlightActivityId: {
               '@path': '$.properties.floodlightActivityId'
-            },
-            gclid: {
-              '@path': '$.properties.gclid'
             },
             timestamp: {
               '@path': '$.timestamp'
