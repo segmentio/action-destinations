@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'removeSubscriberFromAudience'
+const actionSlug = 'syncProperties'
 const destinationSlug = 'Postscript'
 const seedName = `${destinationSlug}#${actionSlug}`
 

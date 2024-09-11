@@ -1,8 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
-import addSubscriberToAudience from './addSubscriberToAudience'
-import removeSubscriberFromAudience from './removeSubscriberFromAudience'
+import syncProperties from './syncProperties'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Postscript',
@@ -35,10 +33,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    addSubscriberToAudience,
-    removeSubscriberFromAudience
+    syncProperties
   }
 }
 
 export default destination
-

@@ -4,6 +4,6 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('Postscript.removeSubscriberFromAudience', () => {
+describe('Postscript.syncProperties', () => {
   // TODO: Test your action
 })
