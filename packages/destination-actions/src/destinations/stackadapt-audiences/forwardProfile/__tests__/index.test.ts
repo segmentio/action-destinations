@@ -31,6 +31,23 @@ const defaultEventPayload: Partial<SegmentEvent> = {
   }
 }
 
+const trackEventPayload: Partial<SegmentEvent> = {
+  userId: mockUserId,
+  type: 'track',
+  event: 'Audience Entered',
+  properties: {
+    audience_key: 'first_time_buyer',
+    first_time_buyer: true
+  },
+  context: {
+    personas: {
+      computation_class: 'audience',
+      computation_key: 'first_time_buyer',
+      computation_id: 'aud_123'
+    }
+  }
+}
+
 const batchEventPayload: Partial<SegmentEvent> = {
   userId: mockUserId2,
   type: 'identify',
@@ -48,7 +65,7 @@ const aliasEventPayload: Partial<SegmentEvent> = {
 }
 
 describe('forwardProfile', () => {
-  it('should translate audience entry/exit into GQL format', async () => {
+  it('should translate identify audience entry/exit into GQL format', async () => {
     let requestBody
     nock(gqlHostUrl)
       .post(gqlPath, (body) => {
@@ -88,6 +105,78 @@ describe('forwardProfile', () => {
               externalProvider: \\"segmentio\\",
               syncId: \\"9e1d2ce099d4f67eea85e3a8e692db14e1e903365304f871c304a1d718cfe28c\\",
               profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
+            ) {
+              userErrors {
+                message
+              }
+            }
+            upsertProfileMapping(
+              input: {
+                advertiserId: 23,
+                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
+                mappableType: \\"segmentio\\",
+              }
+            ) {
+              userErrors {
+                message
+              }
+            }
+            upsertExternalAudienceMapping(
+              input: {
+                advertiserId: 23,
+                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\"},{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"name\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\"}]\\",
+                mappableType: \\"segmentio\\"
+              }
+            ) {
+              userErrors {
+                message
+              }
+            }
+          }",
+      }
+    `)
+  })
+
+  it('should translate track audience entry/exit into GQL format', async () => {
+    let requestBody
+    nock(gqlHostUrl)
+      .post(gqlPath, (body) => {
+        requestBody = body
+        return body
+      })
+      .reply(200, { data: { success: true } })
+    const event = createTestEvent(trackEventPayload)
+    const responses = await testDestination.testAction('forwardProfile', {
+      event,
+      useDefaultMappings: true,
+      mapping: mockMappings,
+      settings: { apiKey: mockGqlKey }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].request.headers).toMatchInlineSnapshot(`
+      Headers {
+        Symbol(map): Object {
+          "authorization": Array [
+            "Bearer test-graphql-key",
+          ],
+          "content-type": Array [
+            "application/json",
+          ],
+          "user-agent": Array [
+            "Segment (Actions)",
+          ],
+        },
+      }
+    `)
+    expect(requestBody).toMatchInlineSnapshot(`
+      Object {
+        "query": "mutation {
+            upsertProfiles(
+              advertiserId: 23,
+              externalProvider: \\"segmentio\\",
+              syncId: \\"18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc\\",
+              profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
             ) {
               userErrors {
                 message

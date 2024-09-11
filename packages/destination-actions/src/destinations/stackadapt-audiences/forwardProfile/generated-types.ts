@@ -2,9 +2,9 @@
 
 export interface Payload {
   /**
-   * The properties of the user.
+   * The properties of the user or event.
    */
-  traits?: {
+  traits_or_props: {
     [k: string]: unknown
   }
   /**

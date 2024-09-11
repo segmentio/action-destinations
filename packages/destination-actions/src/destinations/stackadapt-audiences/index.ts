@@ -1,7 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import postMessage from './postMessage'
 import forwardProfile from './forwardProfile'
 
 // TODO: change to production
@@ -62,26 +61,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  onDelete: async (request, { payload }) => {
-    const userId = payload.userId ?? payload.anonymousId
-    // TODO: Add setting for advertiser ID and replace hardcoded value with it
-    const query = `mutation {
-      deleteProfiles(
-        subAdvertiserId: 1,
-        externalProvider: "segmentio",
-        userIds: ["${userId}"]
-      ) {
-        success
-      }
-    }`
-    return request(domain, {
-      body: JSON.stringify({
-        query
-      })
-    })
-  },
   actions: {
-    postMessage,
     forwardProfile
   }
 }

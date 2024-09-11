@@ -29,14 +29,20 @@ interface TokenInfoResponse {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Forward Profile',
   description: 'Forward new or updated user profile to StackAdapt',
-  defaultSubscription: 'type = "identify" or type = "alias"',
+  defaultSubscription: 'type = "identify" or type = "alias" or type = "track"',
   fields: {
-    traits: {
-      label: 'User Properties',
+    traits_or_props: {
+      label: 'User/Event Properties',
       type: 'object',
-      description: 'The properties of the user.',
+      description: 'The properties of the user or event.',
+      unsafe_hidden: true,
+      required: true,
       default: {
-        '@path': '$.traits'
+        '@if': {
+          exists: { '@path': '$.properties.audience_key' },
+          then: { '@path': '$.properties' },
+          else: { '@path': '$.traits' }
+        }
       }
     },
     user_id: {

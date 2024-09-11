@@ -48,30 +48,39 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
   const fieldsToMap: Set<string> = new Set(['userId'])
   const fieldTypes: Record<string, string> = { userId: 'string' }
   const advertiserId = events[0].advertiser_id
-  const profileUpdates = events.map((event) => {
+  const profileUpdates = events.flatMap((event) => {
     const profile: Record<string, string | number | undefined> = {
       userId: event.user_id
     }
-    if (event.event_type === 'alias') {
+    if (event.event_type === 'track' && event.segment_computation_class !== 'audience') {
+      // Filter out track events that are not audience enter/exit events until we have support for event tracking on our side
+      return []
+    } else if (event.event_type === 'alias') {
       profile.previousId = event.previous_id
-    } else if (event.segment_computation_class === 'audience' && event.traits && event.segment_computation_key) {
-      // This is an audience enter/exit event, there should be a boolean flag in the traits indicating if the user entered or exited the audience
+    } else if (
+      event.segment_computation_class === 'audience' &&
+      event.traits_or_props &&
+      event.segment_computation_key
+    ) {
+      // If this is an audience enter/exit event, there should be a boolean flag in the traits or props indicating if the user entered or exited the audience
       // We need to translate it into an enter or exit action as expected by the profile upsert GraphQL mutation
+      if (event.event_type === 'track') console.log(event.traits_or_props)
       profile.audienceId = event.segment_computation_id
-      const audienceKey = event.segment_computation_key
+      const audienceKey = (event.traits_or_props.audience_key as string) ?? event.segment_computation_key
       profile.audienceName = audienceKey
-      profile.action = event.traits[audienceKey] ? 'enter' : 'exit'
-      delete event.traits[audienceKey] // Don't need to include the boolean flag in the GQL payload
+      profile.action = event.traits_or_props[audienceKey] ? 'enter' : 'exit'
+      delete event.traits_or_props.audience_key
+      delete event.traits_or_props[audienceKey] // Don't need to include the boolean flag in the GQL payload
     }
     // Convert trait keys to camelCase and capture any non-standard fields
-    const traits = Object.keys(event?.traits ?? {}).reduce((acc: Record<string, unknown>, key) => {
+    const traits = Object.keys(event?.traits_or_props ?? {}).reduce((acc: Record<string, unknown>, key) => {
       const camelCaseKey = toCamelCase(key)
-      acc[camelCaseKey] = event?.traits?.[key]
+      acc[camelCaseKey] = event?.traits_or_props?.[key]
       if (!standardFields.has(camelCaseKey)) {
         fieldsToMap.add(camelCaseKey)
         // Field type should be the most specific type of the values we've seen so far, use string if there is a conflict of types
-        if (event?.traits?.[key] || event?.traits?.[key] === 0) {
-          const type = getType(event.traits[key])
+        if (event?.traits_or_props?.[key] || event?.traits_or_props?.[key] === 0) {
+          const type = getType(event.traits_or_props[key])
           if (fieldTypes[camelCaseKey] && fieldTypes[camelCaseKey] !== type) {
             fieldTypes[camelCaseKey] = 'string'
           } else {
