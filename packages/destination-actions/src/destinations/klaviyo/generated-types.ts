@@ -6,3 +6,11 @@ export interface Settings {
    */
   api_key: string
 }
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface AudienceSettings {
+  /**
+   * 'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'
+   */
+  listId?: string
+}
