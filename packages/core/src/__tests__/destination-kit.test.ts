@@ -1,4 +1,4 @@
-import { IntegrationError } from '../errors'
+import { ErrorCodes, IntegrationError } from '../errors'
 import { ActionDefinition, MultiStatusResponse } from '../destination-kit/action'
 import {
   StateContext,
@@ -364,7 +364,7 @@ const multiStatusCompatibleDestination: DestinationDefinition<JSONObject> = {
           } else {
             response.pushErrorResponse({
               status: 400,
-              errortype: 'Missing required fields',
+              errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
               errormessage: 'Email is required'
             })
           }
@@ -495,7 +495,7 @@ describe('destination kit', () => {
       const testEvent: SegmentEvent = { type: 'track' }
       const testSettings = { apiSecret: 'test_key', subscription: { subscribe: '', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: 'Invalid subscription' }])
+      expect(res).toEqual([{ output: 'Failed to validate subscription' }])
     })
 
     test('should return invalid subscription with details when sending an invalid subscribe', async () => {
@@ -503,7 +503,7 @@ describe('destination kit', () => {
       const testEvent: SegmentEvent = { type: 'track' }
       const testSettings = { apiSecret: 'test_key', subscription: { subscribe: 'typo', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: expect.stringContaining('invalid subscription') }])
+      expect(res).toEqual([{ output: expect.stringContaining('Invalid subscription') }])
       expect(res[0].output).toContain('Cannot read')
     })
 
@@ -1810,19 +1810,19 @@ describe('destination kit', () => {
               Object {
                 "errormessage": "Payload is either invalid or does not match the subscription",
                 "errorreporter": "INTEGRATIONS",
-                "errortype": "INVALID_PAYLOAD",
+                "errortype": "PAYLOAD_VALIDATION_FAILED",
                 "status": 400,
               },
               Object {
                 "errormessage": "Payload is either invalid or does not match the subscription",
                 "errorreporter": "INTEGRATIONS",
-                "errortype": "INVALID_PAYLOAD",
+                "errortype": "PAYLOAD_VALIDATION_FAILED",
                 "status": 400,
               },
               Object {
                 "errormessage": "Email is required",
                 "errorreporter": "DESTINATION",
-                "errortype": "Missing required fields",
+                "errortype": "PAYLOAD_VALIDATION_FAILED",
                 "status": 400,
               },
               Object {

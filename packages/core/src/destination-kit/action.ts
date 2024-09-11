@@ -23,7 +23,7 @@ import { HTTPError, NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
-import { IntegrationError } from '../errors'
+import { ErrorCodes, IntegrationError, MultiStatusErrorReporter } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
 import { Logger, StatsContext, TransactionContext, StateContext, EngageDestinationCache } from './index'
 import { get } from '../get'
@@ -223,7 +223,7 @@ type FillMultiStatusResponseInput = {
   invalidPayloadIndices: Set<number>
   batchPayloadLength: number
   status: number
-  body: JSONObject | string
+  body: JSONLikeObject | string
   filteredPayloads?: JSONLikeObject[]
 }
 
@@ -383,7 +383,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       const schema = this.schema
       const validationOptions = {
         schemaKey: `${this.destinationName}:${this.definition.title}`,
-        throwIfInvalid: false,
+        throwIfInvalid: true,
         statsContext: bundle.statsContext
       }
 
@@ -395,15 +395,15 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
           // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
           const payload = removeEmptyValues(payloads[i], schema) as Payload
           // Validate payload schema
-          const isValid = validateSchema(payload, schema, validationOptions)
-
-          // Validation failed, record the filtered out event
-          if (!isValid) {
+          try {
+            validateSchema(payload, schema, validationOptions)
+          } catch (e) {
+            // Validation failed with an exception, record the filtered out event
             multiStatusResponse[i] = {
               status: 400,
-              errortype: 'INVALID_PAYLOAD',
-              errormessage: 'Invalid payload',
-              errorreporter: 'INTEGRATIONS'
+              errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+              errormessage: (e as Error).message,
+              errorreporter: MultiStatusErrorReporter.INTEGRATIONS
             }
 
             invalidPayloadIndices.add(i)
@@ -457,7 +457,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       }
 
       const requestClient = this.createRequestClient(data)
-      // TODO: Add a try/catch block here to handle errors
       const performBatchResponse = await this.definition.performBatch(requestClient, data)
 
       // PerformBatch returned a legacy response
@@ -467,13 +466,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         // Try to parse the multi-status response
         let parsedBody: JSONObject | string = {}
 
-        try {
-          parsedBody =
-            ((performBatchResponse as ModifiedResponse).data as JSONObject) ??
-            (performBatchResponse as ModifiedResponse).content
-        } catch (e) {
-          parsedBody = {}
-        }
+        parsedBody =
+          ((performBatchResponse as ModifiedResponse)?.data as JSONObject) ??
+          (performBatchResponse as ModifiedResponse)?.content ??
+          {}
 
         this.fillMultiStatusResponse({
           multiStatusResponse,
@@ -517,7 +513,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
           if (response instanceof ActionDestinationErrorResponse) {
             multiStatusResponse[i] = {
               ...response.value(),
-              errorreporter: 'DESTINATION'
+              errorreporter: MultiStatusErrorReporter.DESTINATION
             }
 
             continue
@@ -695,11 +691,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         continue
       }
 
-      multiStatusResponse.push({
+      multiStatusResponse[i] = {
         status: status,
         body: body,
         sent: filteredPayloads ? filteredPayloads[payloadReadIndex++] : {}
-      })
+      }
     }
   }
 }
@@ -729,10 +725,6 @@ export class MultiStatusResponse {
 
   public length(): number {
     return this.responses.length
-  }
-
-  pushResponse(response: ActionDestinationSuccessResponse | ActionDestinationErrorResponse) {
-    this.responses.push(response)
   }
 
   // Pushes a Generic Response at the end of the responses array

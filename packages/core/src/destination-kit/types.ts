@@ -1,10 +1,11 @@
 import { StateContext, Logger, StatsContext, TransactionContext, EngageDestinationCache, ActionHookType } from './index'
 import type { RequestOptions } from '../request-client'
-import type { JSONObject } from '../json-object'
+import type { JSONLikeObject, JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
 import type { RequestClient } from '../create-request-client'
 import type { ID } from '../segment-event'
 import { Features } from '../mapping-kit'
+import type { ErrorCodes, MultiStatusErrorReporter } from '../errors'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 export type MaybePromise<T> = T | Promise<T>
@@ -358,20 +359,21 @@ export interface SyncModeDefinition {
 
 export type ActionDestinationSuccessResponseType = {
   status: number
-  sent: object | string
-  body: object | string
+  sent: JSONLikeObject | string
+  body: JSONLikeObject | string
 }
 
 export type ActionDestinationErrorResponseType = {
   status: number
-  errortype: string
+  // The `keyof typeof` in the following line allows using string literals that match enum values
+  errortype: keyof typeof ErrorCodes
   errormessage: string
-  sent?: object | string
-  body?: object | string
+  sent?: JSONLikeObject | string
+  body?: JSONLikeObject | string
 }
 
 export type ResultMultiStatusNode =
   | ActionDestinationSuccessResponseType
   | (ActionDestinationErrorResponseType & {
-      errorreporter: 'INTEGRATIONS' | 'DESTINATION'
+      errorreporter: MultiStatusErrorReporter
     })
