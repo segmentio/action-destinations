@@ -77,7 +77,6 @@ const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode
     case SchemaMatch.NoMatch:
     case SchemaMatch.PropertiesMissing: {
       const hubspotSchemaDiff = await compareToHubspot(client, schema)
-
       switch (hubspotSchemaDiff.match) {
         case SchemaMatch.FullMatch: {
           const fullyQualifiedName = hubspotSchemaDiff?.fullyQualifiedName as string
