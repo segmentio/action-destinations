@@ -13,7 +13,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       ad_account_id: {
-        label: 'Ad Account ID',
+        label: 'Pixel ID',
         description: 'Unique identifier of an ad account. This can be found in the Reddit UI.',
         type: 'string',
         required: true
@@ -83,6 +83,13 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   presets: [
+    {
+      name: 'Reddit Browser Plugin',
+      subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+      partnerAction: 'redditPlugin',
+      mapping: {},
+      type: 'automatic'
+    },
     {
       name: 'Page Visit',
       subscribe: 'type = "page"',
