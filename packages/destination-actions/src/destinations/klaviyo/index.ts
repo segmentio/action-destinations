@@ -67,7 +67,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     listId: {
       label: 'List Id',
-      description: `'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'`,
+      description: `Insert the ID of the default list that you'd like to subscribe users to when you call .identify().
+       NOTE: List ID takes precedence set within Actions.`,
       type: 'string'
     }
   },
