@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent, IntegrationError } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 
@@ -71,7 +71,7 @@ const expectedHubspotAPIPayload = {
 }
 
 describe('Hubspot.customEvent', () => {
-  describe('where syncmode = upsert', () => {
+  describe('where syncMode = upsert', () => {
     it('should send a Custom Event Completion to Hubspot when the event definition does not exist', async () => {
       const event = createTestEvent(validPayload)
 
@@ -287,6 +287,475 @@ describe('Hubspot.customEvent', () => {
 
       expect(responses.length).toBe(3)
       expect(responses[2].status).toBe(200)
+    })
+  })
+
+  describe('where syncMode = update', () => {
+    it('should not send a Custom Event Completion to Hubspot when the event definition does not exist', async () => {
+      const event = createTestEvent(validPayload)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_1/?includeProperties=true')
+        .reply(400, {
+          data: {
+            status: 'error',
+            message:
+              'StandardError{status=error, category=VALIDATION_ERROR, message=Event with fully qualified name custom_event_1 does not exist., errors=[], context={}, links={}}',
+            correlationId: '12f5b1b3-364a-4b68-9c14-5b1332d03312'
+          }
+        })
+
+      const updateMapping = {
+        ...upsertMapping,
+        __segment_internal_sync_mode: 'update'
+      }
+
+      await expect(
+        testDestination.testAction('customEvent', {
+          event,
+          settings,
+          useDefaultMappings: true,
+          mapping: updateMapping
+        })
+      ).rejects.toThrowError(
+        new IntegrationError(
+          "The 'Sync Mode' setting is set to 'update' which is stopping Segment from creating a new Custom Event Schema in the HubSpot",
+          'HUBSPOT_SCHEMA_MISSING',
+          400
+        )
+      )
+    })
+
+    it('should send a Custom Event Completion to Hubspot when the event definition does exist and is a full match', async () => {
+      const event = createTestEvent(validPayload)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_1/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_1',
+          fullyQualifiedName: 'pe23132826_custom_event_1',
+          properties: [
+            {
+              name: 'custom_prop_boolish_string',
+              type: 'enumeration',
+              archived: false
+            },
+            {
+              name: 'custom_prop_obj',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_arr',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_boolish_string_2',
+              type: 'enumeration',
+              archived: false
+            },
+            {
+              name: 'custom_prop_date',
+              type: 'datetime',
+              archived: false
+            },
+            {
+              name: 'custom_prop_bool',
+              type: 'enumeration',
+              archived: false
+            },
+            {
+              name: 'custom_prop_str',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_datetime',
+              type: 'datetime',
+              archived: false
+            },
+            {
+              name: 'custom_prop_numberish_string',
+              type: 'number',
+              archived: false
+            },
+            {
+              name: 'custom_prop_number',
+              type: 'number',
+              archived: false
+            }
+          ]
+        })
+
+      // sends an event completion to Hubspot
+      nock('https://api.hubapi.com').post('/events/v3/send', expectedHubspotAPIPayload).reply(200, {})
+
+      const updateMapping = {
+        ...upsertMapping,
+        __segment_internal_sync_mode: 'update'
+      }
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: updateMapping
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[1].status).toBe(200)
+    })
+
+    it('should send a Custom Event Completion to Hubspot when the event definition does exists but is a partial match', async () => {
+      const event = createTestEvent(validPayload)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_1/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_1',
+          fullyQualifiedName: 'pe23132826_custom_event_1',
+          properties: [
+            // deliberately leaving out this boolean / enumeration property so that it will be created in the defintion
+            // {
+            //     name: "custom_prop_boolish_string",
+            //     type: "enumeration",
+            //     archived: false
+            // },
+            {
+              name: 'custom_prop_obj',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_arr',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_boolish_string_2',
+              type: 'enumeration',
+              archived: false
+            },
+            {
+              name: 'custom_prop_date',
+              type: 'datetime',
+              archived: false
+            },
+            {
+              name: 'custom_prop_bool',
+              type: 'enumeration',
+              archived: false
+            },
+            {
+              name: 'custom_prop_str',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_datetime',
+              type: 'datetime',
+              archived: false
+            },
+            {
+              name: 'custom_prop_numberish_string',
+              type: 'number',
+              archived: false
+            },
+            {
+              name: 'custom_prop_number',
+              type: 'number',
+              archived: false
+            }
+          ]
+        })
+
+      const expectedHubspotCreatePropertyPayload = {
+        name: 'custom_prop_boolish_string',
+        label: 'custom_prop_boolish_string',
+        type: 'enumeration',
+        description: 'custom_prop_boolish_string - (created by Segment)',
+        options: [
+          {
+            label: 'true',
+            value: true,
+            hidden: false,
+            description: 'True',
+            displayOrder: 1
+          },
+          {
+            label: 'false',
+            value: false,
+            hidden: false,
+            description: 'False',
+            displayOrder: 2
+          }
+        ]
+      }
+
+      nock('https://api.hubapi.com')
+        .post('/events/v3/event-definitions/pe23132826_custom_event_1/property', expectedHubspotCreatePropertyPayload)
+        .reply(200, {})
+
+      // sends an event completion to Hubspot
+      nock('https://api.hubapi.com').post('/events/v3/send', expectedHubspotAPIPayload).reply(200, {})
+
+      const updateMapping = {
+        ...upsertMapping,
+        __segment_internal_sync_mode: 'update'
+      }
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: updateMapping
+      })
+
+      expect(responses.length).toBe(3)
+      expect(responses[2].status).toBe(200)
+    })
+  })
+
+  describe('where syncMode = add', () => {
+    it('should send a Custom Event Completion to Hubspot when the event definition does not exist', async () => {
+      const event = createTestEvent(validPayload)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_1/?includeProperties=true')
+        .reply(400, {
+          data: {
+            status: 'error',
+            message:
+              'StandardError{status=error, category=VALIDATION_ERROR, message=Event with fully qualified name custom_event_1 does not exist., errors=[], context={}, links={}}',
+            correlationId: '12f5b1b3-364a-4b68-9c14-5b1332d03312'
+          }
+        })
+
+      // creates an event definition on Hubspot
+      nock('https://api.hubapi.com').post('/events/v3/event-definitions').reply(201, {
+        fullyQualifiedName: 'pe23132826_custom_event_1',
+        name: 'custom_event_1'
+      })
+
+      // sends an event completion to Hubspot
+      nock('https://api.hubapi.com').post('/events/v3/send', expectedHubspotAPIPayload).reply(200, {})
+
+      const addMapping = {
+        ...upsertMapping,
+        __segment_internal_sync_mode: 'add'
+      }
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: addMapping
+      })
+
+      expect(responses.length).toBe(3)
+      expect(responses[2].status).toBe(200)
+    })
+
+    it('should send a Custom Event Completion to Hubspot when the event definition does exist and is a full match', async () => {
+      const event = createTestEvent(validPayload)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_1/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_1',
+          fullyQualifiedName: 'pe23132826_custom_event_1',
+          properties: [
+            {
+              name: 'custom_prop_boolish_string',
+              type: 'enumeration',
+              archived: false
+            },
+            {
+              name: 'custom_prop_obj',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_arr',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_boolish_string_2',
+              type: 'enumeration',
+              archived: false
+            },
+            {
+              name: 'custom_prop_date',
+              type: 'datetime',
+              archived: false
+            },
+            {
+              name: 'custom_prop_bool',
+              type: 'enumeration',
+              archived: false
+            },
+            {
+              name: 'custom_prop_str',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_datetime',
+              type: 'datetime',
+              archived: false
+            },
+            {
+              name: 'custom_prop_numberish_string',
+              type: 'number',
+              archived: false
+            },
+            {
+              name: 'custom_prop_number',
+              type: 'number',
+              archived: false
+            }
+          ]
+        })
+
+      // sends an event completion to Hubspot
+      nock('https://api.hubapi.com').post('/events/v3/send', expectedHubspotAPIPayload).reply(200, {})
+
+      const addMapping = {
+        ...upsertMapping,
+        __segment_internal_sync_mode: 'add'
+      }
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: addMapping
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[1].status).toBe(200)
+    })
+
+    it('should not send a Custom Event Completion to Hubspot when the event definition does exists but is a partial match', async () => {
+      const event = createTestEvent(validPayload)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_1/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_1',
+          fullyQualifiedName: 'pe23132826_custom_event_1',
+          properties: [
+            // deliberately leaving out this boolean / enumeration property so that it will be created in the defintion
+            // {
+            //     name: "custom_prop_boolish_string",
+            //     type: "enumeration",
+            //     archived: false
+            // },
+            {
+              name: 'custom_prop_obj',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_arr',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_boolish_string_2',
+              type: 'enumeration',
+              archived: false
+            },
+            {
+              name: 'custom_prop_date',
+              type: 'datetime',
+              archived: false
+            },
+            {
+              name: 'custom_prop_bool',
+              type: 'enumeration',
+              archived: false
+            },
+            {
+              name: 'custom_prop_str',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'custom_prop_datetime',
+              type: 'datetime',
+              archived: false
+            },
+            {
+              name: 'custom_prop_numberish_string',
+              type: 'number',
+              archived: false
+            },
+            {
+              name: 'custom_prop_number',
+              type: 'number',
+              archived: false
+            }
+          ]
+        })
+
+      const expectedHubspotCreatePropertyPayload = {
+        name: 'custom_prop_boolish_string',
+        label: 'custom_prop_boolish_string',
+        type: 'enumeration',
+        description: 'custom_prop_boolish_string - (created by Segment)',
+        options: [
+          {
+            label: 'true',
+            value: true,
+            hidden: false,
+            description: 'True',
+            displayOrder: 1
+          },
+          {
+            label: 'false',
+            value: false,
+            hidden: false,
+            description: 'False',
+            displayOrder: 2
+          }
+        ]
+      }
+
+      nock('https://api.hubapi.com')
+        .post('/events/v3/event-definitions/pe23132826_custom_event_1/property', expectedHubspotCreatePropertyPayload)
+        .reply(200, {})
+
+      // sends an event completion to Hubspot
+      nock('https://api.hubapi.com').post('/events/v3/send', expectedHubspotAPIPayload).reply(200, {})
+
+      const addMapping = {
+        ...upsertMapping,
+        __segment_internal_sync_mode: 'add'
+      }
+
+      await expect(
+        testDestination.testAction('customEvent', {
+          event,
+          settings,
+          useDefaultMappings: true,
+          mapping: addMapping
+        })
+      ).rejects.toThrowError(
+        new IntegrationError(
+          "The 'Sync Mode' setting is set to 'add' which is stopping Segment from creating a new properties on the Event Schema in the HubSpot",
+          'HUBSPOT_SCHEMA_MISSING',
+          400
+        )
+      )
     })
   })
 })

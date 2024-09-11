@@ -207,7 +207,6 @@ export async function compareToHubspot(client: Client, schema: Schema): Promise<
   const mismatchSchemaDiff: SchemaDiff = { match: 'mismatch', missingProperties: {} }
 
   const response = await client.getEventDefinition(schema.eventName)
-
   switch (response.status) {
     case 200: {
       const { fullyQualifiedName, name, properties: hsProperties, archived } = response.data
