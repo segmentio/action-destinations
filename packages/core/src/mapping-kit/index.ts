@@ -320,8 +320,29 @@ registerDirective('@excludeWhenNull', (value, payload) => {
     // assign undefined to the key which will get deleted at the end of all mappings
     return undefined
   }
-  return resolved
+
+  // Go through all fields and remove any that are null
+  return cleanNulls(resolved)
 })
+
+// Recursively remove all null values from an object
+function cleanNulls(value: JSONLike): JSONLike {
+  if (isObject(value)) {
+    const cleaned: JSONLike = Object.assign({}, value)
+    for (const key of Object.keys(value)) {
+      // value is already resolved, so we can check for null directly
+      const val = value[key]
+      if (val === null) {
+        cleaned[key] = undefined
+      } else if (isObject(val)) {
+        cleaned[key] = cleanNulls(val)
+      }
+    }
+    return cleaned
+  }
+
+  return value
+}
 
 function getMappingToProcess(mapping: JSONLikeObject): JSONLikeObject {
   let mappingToProcess = { ...mapping }

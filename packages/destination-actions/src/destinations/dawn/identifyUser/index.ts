@@ -49,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Use Dawn AI Batching',
       description: 'When enabled, the action will use batch requests to the Dawn AI API',
       required: true,
-      default: false
+      default: true
     }
   },
 
