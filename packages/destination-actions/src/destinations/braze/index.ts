@@ -2,7 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { DEFAULT_REQUEST_TIMEOUT, defaultValues } from '@segment/actions-core'
 import createAlias from './createAlias'
-import { identifyUser, identifyUserV2 } from './identifyUser'
+import identifyUser from './identifyUser'
+import identifyUser2 from './identifyUser2'
 import trackEvent from './trackEvent'
 import trackPurchase from './trackPurchase'
 import updateUserProfile from './updateUserProfile'
@@ -73,7 +74,7 @@ const destination: DestinationDefinition<Settings> = {
     trackPurchase,
     createAlias,
     identifyUser,
-    identifyUserV2
+    identifyUser2
   },
   presets: [
     {
