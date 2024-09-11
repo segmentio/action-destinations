@@ -4,11 +4,29 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'createAlias'
+const actionSlug = 'createAlias2'
 const destinationSlug = 'Braze'
 const seedName = `${destinationSlug}#${actionSlug}`
 
-describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
+describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2 action:`, () => {
+  it('fails if sync mode is not add', async () => {
+    const action = destination.actions[actionSlug]
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+
+    const event = createTestEvent({
+      properties: eventData
+    })
+
+    await expect(
+      testDestination.testAction(actionSlug, {
+        event: event,
+        mapping: { ...event.properties, __segment_internal_sync_mode: 'upsert' },
+        settings: settingsData,
+        auth: undefined
+      })
+    ).rejects.toThrowError()
+  })
+
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
@@ -23,7 +41,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: { alias_name: 'test_name', alias_label: 'test_label', __segment_internal_sync_mode: 'add' },
       settings: settingsData,
       auth: undefined
     })
@@ -56,7 +74,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: { ...event.properties, __segment_internal_sync_mode: 'add' },
       settings: settingsData,
       auth: undefined
     })
