@@ -6,8 +6,8 @@ import { SegmentEvent } from '@segment/actions-core/*'
 const testDestination = createTestIntegration(Definition)
 const mockGqlKey = 'test-graphql-key'
 
-const gqlHostUrl = 'https://sandbox.stackadapt.com'
-const gqlPath = '/public/graphql'
+const gqlHostUrl = 'https://api.stackadapt.com'
+const gqlPath = '/graphql-next'
 const mockEmail = 'admin@stackadapt.com'
 const mockUserId = 'user-id'
 const mockEmail2 = 'email2@stackadapt.com'

@@ -64,7 +64,6 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
     ) {
       // If this is an audience enter/exit event, there should be a boolean flag in the traits or props indicating if the user entered or exited the audience
       // We need to translate it into an enter or exit action as expected by the profile upsert GraphQL mutation
-      if (event.event_type === 'track') console.log(event.traits_or_props)
       profile.audienceId = event.segment_computation_id
       const audienceKey = (event.traits_or_props.audience_key as string) ?? event.segment_computation_key
       profile.audienceName = audienceKey

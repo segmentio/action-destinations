@@ -3,8 +3,7 @@ import type { Settings } from './generated-types'
 
 import forwardProfile from './forwardProfile'
 
-// TODO: change to production
-export const domain = 'https://sandbox.stackadapt.com/public/graphql'
+export const domain = 'https://api.stackadapt.com/graphql-next'
 const destination: DestinationDefinition<Settings> = {
   name: 'StackAdapt Audiences',
   slug: 'actions-stackadapt-audiences',
