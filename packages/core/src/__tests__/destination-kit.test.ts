@@ -175,7 +175,19 @@ const audienceDestination: AudienceDestinationDefinition<JSONObject> = {
   name: 'Amazon AMC (Actions)',
   mode: 'cloud',
   authentication: authentication,
-  audienceFields: {},
+  audienceFields: {
+    advertiserId: {
+      label: 'Advertiser ID',
+      description: 'Advertiser Id',
+      type: 'string',
+      required: true
+    },
+    cpmCents: {
+      label: 'CPM Cents',
+      type: 'number',
+      description: `Cost per thousand impressions (CPM) in cents. For example, $1.00 = 100 cents.`
+    }
+  },
   audienceConfig: {
     mode: {
       type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
@@ -188,9 +200,9 @@ const audienceDestination: AudienceDestinationDefinition<JSONObject> = {
       const audienceSettings: any = createAudienceInput.audienceSettings
 
       // it could be due to invalid input or Bad Request
-      if (!audienceSettings?.advertiserId)
+      if (!audienceSettings?.advertiserId) {
         throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
-
+      }
       // invalid access token
       if (settings.oauth.access_token == 'invalid-access-token' || settings.oauth.clientId == 'invalid_client_id') {
         return new Promise((_resolve, reject) => {
@@ -1571,6 +1583,29 @@ describe('destination kit', () => {
         const spy = jest.spyOn(authentication, 'refreshAccessToken')
         await expect(destinationTest.createAudience(createAudienceInput)).rejects.toThrowError()
         expect(spy).not.toHaveBeenCalled()
+      })
+
+      test('Validate Schema | CPM Cents must be a number but it was a string', async () => {
+        const createAudienceInput = {
+          audienceName: 'Test Audience',
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'invalid-access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          },
+          audienceSettings: {
+            advertiserId: '12334745462532',
+            cpmCents: 'cpm_in_string'
+          }
+        }
+        const destinationTest = new Destination(audienceDestination)
+        await expect(destinationTest.createAudience(createAudienceInput)).rejects.toThrowError(
+          'CPM Cents must be a number but it was a string.'
+        )
       })
     })
     describe('getAudience', () => {
