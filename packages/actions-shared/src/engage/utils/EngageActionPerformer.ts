@@ -143,6 +143,9 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
   logError(msg: string, metadata?: object) {
     this.logger.logError(msg, metadata)
   }
+  logWarn(msg: string, metadata?: object) {
+    this.logger.logWarn(msg, metadata)
+  }
   /**
    * Add a message to the log of current tracked operation, only if error happens during current operation. You can add some arguments here
    * @param getLogMessage
@@ -211,7 +214,6 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     const appendStepDetails = (stepname: string, details?: Partial<LogStepDetails>) => {
       tags['step_' + stepname] = true
       if (details?.tags) {
-        //Object.assign(tags, details.tags)
         for (const [key, value] of Object.entries(details.tags)) tags[stepname + '_' + key] = value
       }
       if (details?.logs) {
@@ -220,20 +222,32 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       }
     }
 
-    const info = (stepName: string, details?: LogStepDetails, durationMs?: number) => {
+    const write = (stepName: string, details?: LogStepDetails, durationMs?: number) => {
       appendStepDetails(stepName, details)
       tags.last_step = stepName
       this.statsIncr(`${operation}_${stepName}`, 1, tags)
-      this.logInfo(`${operation}_${stepName}`, logs)
+      const hasError = !!(details?.tags?.error || details?.logs?.error)
+      const level: LogStepDetails['level'] = details?.level ? details.level : hasError ? 'warn' : 'info'
+      switch (level) {
+        case 'error':
+          this.logError(`${operation}_${stepName}`, logs)
+          break
+        case 'warn':
+          this.logWarn(`${operation}_${stepName}`, logs)
+          break
+        default:
+          this.logInfo(`${operation}_${stepName}`, logs)
+          break
+      }
       if (durationMs !== undefined) {
         this.statsHistogram(`${operation}_${stepName}.duration`, durationMs, tags)
       }
     }
-    stepLogger.info = info
+    stepLogger.write = write
 
     stepLogger.track = (stepName, fn) => {
       const startStep = `${stepName}_starting`
-      info(startStep)
+      write(startStep)
       const stepDetails: LogStepDetails = { logs: {}, tags: {} }
       let fnRes: Awaited<ReturnType<typeof fn>> | undefined = undefined
       let error: any = undefined
@@ -243,13 +257,18 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         const durationMs = performance.now() - startTime
         const valueOrError: ValueOrError<any> | undefined =
           fnRes instanceof Object && ('error' in fnRes || 'value' in fnRes) ? (fnRes as ValueOrError<any>) : undefined
-        fnRes = valueOrError?.value || fnRes
+        if (valueOrError) fnRes = valueOrError.value
         error = error || valueOrError?.error
-        if (error) stepDetails.logs.error = error ? getErrorDetails(error) : undefined
-        else
-          (stepDetails.logs.value = isNone(fnRes) ? '(none)' : `${valueOrError?.value}`.substring(0, 100)),
-            (stepDetails.tags.error = !!error)
-        info(`${stepName}_finished`, stepDetails, durationMs)
+        stepDetails.tags.error = !!error
+        if (error) {
+          stepDetails.logs.error = error ? getErrorDetails(error) : undefined
+        } else {
+          const valueStr = getOrCatch(() =>
+            (isNone(fnRes) ? '(none)' : fnRes instanceof Object ? JSON.stringify(fnRes) : `${fnRes}`).substring(0, 100)
+          )
+          stepDetails.logs.value = valueStr.error ? `<error> ${valueStr.error.message}` : `${valueStr.value}`
+        }
+        write(`${stepName}_finished`, stepDetails, durationMs)
       }
       const onCatch = (e: any) => {
         error = e
@@ -347,11 +366,11 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         // Log it and execute as if we don't have cache
       } else if (isNone(parsedCache)) {
         //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
-        log.info('cache_ignored')
+        log.write('cache_ignored')
       } else {
         //parsed cache successfully && cache is not expired
         // parsedValue - either value or error was parsed
-        log.info('cache_hit', { tags: { cache_hit: true, cached_error: !!parsedCache.error } })
+        log.write('cache_hit', { tags: { cache_hit: true, cached_error: !!parsedCache.error } })
         if (parsedCache.error) {
           throw parsedCache.error
         }
@@ -359,7 +378,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       }
     }
     // re-executing, because cache not found or ignored or failed to read or parse
-    log.info('cache_miss')
+    log.write('cache_miss')
     const { value: result, error: resultError } = await log.track('cache_create_value', () =>
       getOrCatch(() => createValue())
     )
@@ -380,7 +399,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
             attempts: 5,
             retryIntervalMs: backoffRetryPolicy(10000, 3),
             onFailedAttempt: (error, attemptCount) => {
-              log.info('cache_save_failed_attempt', { logs: { attemptCount, error: getErrorDetails(error) } })
+              log.write('cache_save_failed_attempt', { logs: { attemptCount, error: getErrorDetails(error) } })
             }
           }
         )
@@ -390,7 +409,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         options?.onSaveFailed?.(cacheSavingError)
       }
     } else {
-      log.info('cache_save_skipped')
+      log.write('cache_save_skipped')
     }
 
     if (resultError) throw resultError
@@ -435,20 +454,20 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       //tries to acquire lock for acquireLockMaxWaitInSeconds seconds
       const startTime = Date.now()
       while (Date.now() - startTime < options.acquireLockMaxWaitTimeMs) {
-        log.info('cache_lock_attempt')
+        log.write('cache_lock_attempt')
         if (await log.track('redis_setNX', () => cache.setByKeyNX(lockKey, 'locked', options.lockMaxTimeMs / 1000))) {
           // lock acquired, returning release function
-          log.info('cache_lock_acquired', { tags: { lock_acquired: true } })
+          log.write('cache_lock_acquired', { tags: { lock_acquired: true } })
           this.statsHistogram('cache_lock_waiting_time', Date.now() - startTime, log.tags)
           return {
             release: () => log.track('redis_delByKey', () => cache.delByKey(lockKey))
           }
         }
-        log.info('cache_lock_waiting')
+        log.write('cache_lock_waiting')
         await new Promise((resolve) => setTimeout(resolve, options.acquireLockRetryIntervalMs || 500)) // Wait 500ms before retrying
       }
       //no lock acquired because of waiting timeout
-      log.info('cache_lock_timeout')
+      log.write('cache_lock_timeout')
     }
 
     const { value: lock, error: redisError } = await log.track('cache_acquire_lock', () =>
@@ -459,7 +478,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       this.throwRetryableError('Error acquiring lock: ' + redisError.message)
     } else if (!lock?.release) {
       // no redis error and no lock acquired - means it was acquiring timeout
-      log.info('cache_lock_timeout_exit')
+      log.write('cache_lock_timeout_exit')
       this.throwRetryableError('Timeout while acquiring lock')
     }
     //if lock obtained or there was redis error - execute createValue and finally release lock
@@ -575,7 +594,7 @@ type StepLogger = LogStepDetails & {
   // tags: Record<string, any>
   // logs: Record<string, any>
   track<T>(stepName: string, fn: (details: LogStepDetails) => T): T
-  info(stepName: string, details?: Partial<LogStepDetails>): void
+  write(stepName: string, details?: Partial<LogStepDetails>): void
 }
 
 // interface LogStep {
@@ -589,4 +608,5 @@ type StepLogger = LogStepDetails & {
 type LogStepDetails = {
   tags: Record<string, any>
   logs: Record<string, any>
+  level?: 'info' | 'warn' | 'error'
 }

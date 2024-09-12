@@ -48,11 +48,23 @@ export class EngageLogger extends OperationLogger {
       // we just ignore error here since there is no reliable way to report it, and we don't want to break the flow
     }
   }
+  logWarn(msg: string, metadata?: object): void {
+    if (!this.actionPerformer.isFeatureActive(FLAGON_NAME_LOG_INFO, () => false)) return
+    try {
+      const msgPrefix = `⛔ TE Messaging: ${this.channelType}`
+      this.loggerClient?.warn?.(`${msgPrefix} ${msg}`, JSON.stringify({ ...this.logDetails, ...metadata }))
+    } catch {
+      // we just ignore error here since there is no reliable way to report it, and we don't want to break the flow
+    }
+  }
   error(msg: string, metadata?: object) {
     return this.logError(msg, metadata)
   }
   info(msg: string, metadata?: object) {
     return this.logInfo(msg, metadata)
+  }
+  warn(msg: string, metadata?: object) {
+    return this.logWarn(msg, metadata)
   }
 
   getErrorMessage(error: unknown) {
