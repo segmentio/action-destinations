@@ -457,8 +457,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       const performBatchResponse = await this.definition.performBatch(requestClient, data)
 
       // PerformBatch returned a legacy response
-      if (performBatchResponse instanceof Response && performBatchResponse.status !== 207) {
-        // We received a legacy response with a status code other from 207 for the entire batch
+      if (performBatchResponse instanceof Response) {
+        // We received a legacy response for the entire batch
 
         // Try to parse the multi-status response
         let parsedBody: JSONObject | string = {}
@@ -523,9 +523,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         return multiStatusResponse
       }
 
-      // Assume the entire batch to be success in the following conditions
-      // - PerformBatch returned an unknown response
-      // - PerformBatch returned an unhandled 207 multi-status response
+      // Assume the entire batch to be success in performBatch returned an unknown response
       this.fillMultiStatusResponse({
         multiStatusResponse,
         invalidPayloadIndices,
