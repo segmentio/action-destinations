@@ -2,6 +2,11 @@ import { Destination, DestinationDefinition } from '../destination-kit'
 import type { JSONObject } from '../json-object'
 import type { SegmentEvent } from '../segment-event'
 import { createTestEvent } from '../create-test-event'
+import {
+  MultiStatusResponse,
+  ActionDestinationSuccessResponse,
+  ActionDestinationErrorResponse
+} from '../destination-kit/action'
 
 const basicBatch: DestinationDefinition<JSONObject> = {
   name: 'Batching Destination',
@@ -308,5 +313,198 @@ describe('Batching', () => {
           `)
     expect(batchSpy).not.toHaveBeenCalled()
     expect(spy).not.toHaveBeenCalled()
+  })
+})
+
+describe('MultiStatus', () => {
+  it('all methods should work as expected', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+
+    // 0. Push success as object
+    multiStatusResponse.pushSuccessResponse({
+      body: { ok: true },
+      sent: { user_id: 'user001' },
+      status: 200
+    })
+
+    // 1. Push success with ActionDestinationSuccessResponse
+    multiStatusResponse.pushSuccessResponse(
+      new ActionDestinationSuccessResponse({
+        body: { ok: true },
+        sent: { user_id: 'user002' },
+        status: 200
+      })
+    )
+
+    // 2. Push error as object
+    multiStatusResponse.pushErrorResponse({
+      body: { ok: true },
+      sent: { user_id: 'user003' },
+      status: 400,
+      errortype: 'INVALID_PAYLOAD',
+      errormessage: 'Payload is either invalid or missing required fields'
+    })
+
+    // 3. Push error with ActionDestinationErrorResponse
+    multiStatusResponse.pushErrorResponse(
+      new ActionDestinationErrorResponse({
+        body: { ok: true },
+        sent: { user_id: 'user004' },
+        status: 400,
+        errortype: 'INVALID_PAYLOAD',
+        errormessage: 'Payload is either invalid or missing required fields'
+      })
+    )
+
+    // 4. Push a generic response, determined by class
+    multiStatusResponse.pushResponseObject(
+      new ActionDestinationSuccessResponse({
+        body: { ok: true },
+        sent: { info: 'THIS_WILL_BE_DELETED_LATER' },
+        status: 200
+      })
+    )
+
+    // 5. Push a generic response at index, determined by class
+    multiStatusResponse.pushResponseObjectAtIndex(
+      5,
+      new ActionDestinationErrorResponse({
+        body: { ok: true },
+        sent: { info: 'THIS_WILL_BE_DELETED_LATER' },
+        status: 400,
+        errortype: 'INVALID_PAYLOAD',
+        errormessage: 'Payload is either invalid or missing required fields'
+      })
+    )
+
+    // 6. Set success at index
+    multiStatusResponse.setSuccessResponseAtIndex(6, {
+      body: { ok: true },
+      sent: { user_id: 'user005' },
+      status: 200
+    })
+
+    // 7. Set error at index
+    multiStatusResponse.setErrorResponseAtIndex(7, {
+      body: { ok: true },
+      sent: { user_id: 'user004' },
+      status: 400,
+      errortype: 'INVALID_PAYLOAD',
+      errormessage: 'Payload is either invalid or missing required fields'
+    })
+
+    expect(multiStatusResponse.getResponseAtIndex(4)).toMatchInlineSnapshot(`
+      ActionDestinationSuccessResponse {
+        "data": Object {
+          "body": Object {
+            "ok": true,
+          },
+          "sent": Object {
+            "info": "THIS_WILL_BE_DELETED_LATER",
+          },
+          "status": 200,
+        },
+      }
+    `)
+
+    expect(multiStatusResponse.getResponseAtIndex(5)).toMatchInlineSnapshot(`
+      ActionDestinationErrorResponse {
+        "data": Object {
+          "body": Object {
+            "ok": true,
+          },
+          "errormessage": "Payload is either invalid or missing required fields",
+          "errortype": "INVALID_PAYLOAD",
+          "sent": Object {
+            "info": "THIS_WILL_BE_DELETED_LATER",
+          },
+          "status": 400,
+        },
+      }
+    `)
+
+    expect(multiStatusResponse.length()).toBe(8)
+
+    multiStatusResponse.unsetResponseAtIndex(4)
+    multiStatusResponse.unsetResponseAtIndex(5)
+
+    expect(multiStatusResponse.getAllResponses()).toMatchInlineSnapshot(`
+      Array [
+        ActionDestinationSuccessResponse {
+          "data": Object {
+            "body": Object {
+              "ok": true,
+            },
+            "sent": Object {
+              "user_id": "user001",
+            },
+            "status": 200,
+          },
+        },
+        ActionDestinationSuccessResponse {
+          "data": Object {
+            "body": Object {
+              "ok": true,
+            },
+            "sent": Object {
+              "user_id": "user002",
+            },
+            "status": 200,
+          },
+        },
+        ActionDestinationErrorResponse {
+          "data": Object {
+            "body": Object {
+              "ok": true,
+            },
+            "errormessage": "Payload is either invalid or missing required fields",
+            "errortype": "INVALID_PAYLOAD",
+            "sent": Object {
+              "user_id": "user003",
+            },
+            "status": 400,
+          },
+        },
+        ActionDestinationErrorResponse {
+          "data": Object {
+            "body": Object {
+              "ok": true,
+            },
+            "errormessage": "Payload is either invalid or missing required fields",
+            "errortype": "INVALID_PAYLOAD",
+            "sent": Object {
+              "user_id": "user004",
+            },
+            "status": 400,
+          },
+        },
+        ,
+        ,
+        ActionDestinationSuccessResponse {
+          "data": Object {
+            "body": Object {
+              "ok": true,
+            },
+            "sent": Object {
+              "user_id": "user005",
+            },
+            "status": 200,
+          },
+        },
+        ActionDestinationErrorResponse {
+          "data": Object {
+            "body": Object {
+              "ok": true,
+            },
+            "errormessage": "Payload is either invalid or missing required fields",
+            "errortype": "INVALID_PAYLOAD",
+            "sent": Object {
+              "user_id": "user004",
+            },
+            "status": 400,
+          },
+        },
+      ]
+    `)
   })
 })

@@ -728,10 +728,6 @@ export class MultiStatusResponse {
     return this.responses.length
   }
 
-  pushResponse(response: ActionDestinationSuccessResponse | ActionDestinationErrorResponse) {
-    this.responses.push(response)
-  }
-
   // Pushes a Generic Response at the end of the responses array
   public pushResponseObject(response: ActionDestinationSuccessResponse | ActionDestinationErrorResponse) {
     this.responses.push(response)
