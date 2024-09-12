@@ -57,15 +57,21 @@ export class S3CSVClient {
     }
   }
 
-  async uploadS3(settings: Settings, fileContent: string, filename: string, s3_aws_folder_name: string) {
+  async uploadS3(
+    settings: Settings,
+    fileContent: string,
+    filename: string,
+    s3_aws_folder_name: string,
+    fileExtension: string
+  ) {
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
-    if (filename.endsWith('.csv')) {
-      // Insert the date suffix before the .csv extension
-      filename = filename.replace('.csv', `_${dateSuffix}.csv`)
+    if (filename.endsWith('.csv' || '.txt')) {
+      // Insert the date suffix before the extension
+      filename = filename.replace(fileExtension, `_${dateSuffix}.${fileExtension}`)
     } else {
-      // Append the date suffix followed by .csv
-      filename = filename ? `${filename}_${dateSuffix}.csv` : `${dateSuffix}.csv`
+      // Append the date suffix followed by the extension
+      filename = filename ? `${filename}_${dateSuffix}.${fileExtension}` : `${dateSuffix}.${fileExtension}`
     }
     console.log('Filename:', filename)
     const bucketName = settings.s3_aws_bucket_name
@@ -84,13 +90,13 @@ export class S3CSVClient {
         sessionToken: credentials.sessionToken
       }
     })
-
+    const contentType = fileExtension === 'csv' ? 'text/csv' : 'text/plain'
     const objectKey = folderName ? `${folderName}${filename}` : filename
     const uploadParams: PutObjectCommandInput = {
       Bucket: bucketName,
       Key: objectKey,
       Body: fileContent,
-      ContentType: 'text/csv'
+      ContentType: contentType
     }
 
     try {

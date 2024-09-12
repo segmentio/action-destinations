@@ -243,6 +243,17 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'colon', value: ':' }
       ],
       default: ','
+    },
+    file_extension: {
+      label: 'File Extension',
+      description: `File extension for the uploaded file.`,
+      type: 'string',
+      required: true,
+      choices: [
+        { label: 'csv', value: 'csv' },
+        { label: 'txt', value: 'txt' }
+      ],
+      default: 'csv'
     }
   },
 
@@ -265,7 +276,13 @@ async function processData(payloads: Payload[], settings: Settings) {
   }
   const fileContent = generateFile(payloads, isPersonasExist)
   const s3Client = new S3CSVClient(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
-  await s3Client.uploadS3(settings, fileContent, payloads[0]?.filename ?? '', payloads[0]?.s3_aws_folder_name ?? '')
+  await s3Client.uploadS3(
+    settings,
+    fileContent,
+    payloads[0]?.filename ?? '',
+    payloads[0]?.s3_aws_folder_name ?? '',
+    payloads[0]?.file_extension ?? '.csv'
+  )
 }
 
 export default action

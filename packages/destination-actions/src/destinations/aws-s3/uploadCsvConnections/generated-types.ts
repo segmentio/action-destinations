@@ -131,4 +131,8 @@ export interface Payload {
    * Character used to separate tokens in the resulting file.
    */
   delimiter: string
+  /**
+   * File extension for the uploaded file.
+   */
+  file_extension: string
 }
