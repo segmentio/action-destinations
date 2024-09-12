@@ -5,6 +5,7 @@ import { AuthTokens } from './parse-settings'
 import type { RequestClient } from '../create-request-client'
 import type { ID } from '../segment-event'
 import { Features } from '../mapping-kit'
+import type { ErrorCodes, MultiStatusErrorReporter } from '../errors'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 export type MaybePromise<T> = T | Promise<T>
@@ -360,7 +361,8 @@ export type ActionDestinationSuccessResponseType = {
 
 export type ActionDestinationErrorResponseType = {
   status: number
-  errortype: string
+  // The `keyof typeof` in the following line allows using string literals that match enum values
+  errortype: keyof typeof ErrorCodes
   errormessage: string
   sent?: JSONLikeObject | string
   body?: JSONLikeObject | string
@@ -369,5 +371,5 @@ export type ActionDestinationErrorResponseType = {
 export type ResultMultiStatusNode =
   | ActionDestinationSuccessResponseType
   | (ActionDestinationErrorResponseType & {
-      errorreporter: 'INTEGRATIONS' | 'DESTINATION'
+      errorreporter: MultiStatusErrorReporter
     })

@@ -7,6 +7,7 @@ import {
   ActionDestinationSuccessResponse,
   ActionDestinationErrorResponse
 } from '../destination-kit/action'
+import { ErrorCodes } from '../errors'
 
 const basicBatch: DestinationDefinition<JSONObject> = {
   name: 'Batching Destination',
@@ -171,7 +172,7 @@ describe('Batching', () => {
             Object {
               "errormessage": "The root value is missing the required field 'user_id'.",
               "errorreporter": "INTEGRATIONS",
-              "errortype": "MISSING_REQUIRED_FIELD",
+              "errortype": "PAYLOAD_VALIDATION_FAILED",
               "status": 400,
             },
           ],
@@ -246,7 +247,7 @@ describe('Batching', () => {
             Object {
               "errormessage": "Payload is either invalid or does not match the subscription",
               "errorreporter": "INTEGRATIONS",
-              "errortype": "INVALID_PAYLOAD",
+              "errortype": "PAYLOAD_VALIDATION_FAILED",
               "status": 400,
             },
             Object {
@@ -298,13 +299,13 @@ describe('Batching', () => {
                   Object {
                     "errormessage": "Payload is either invalid or does not match the subscription",
                     "errorreporter": "INTEGRATIONS",
-                    "errortype": "INVALID_PAYLOAD",
+                    "errortype": "PAYLOAD_VALIDATION_FAILED",
                     "status": 400,
                   },
                   Object {
                     "errormessage": "The root value is missing the required field 'user_id'.",
                     "errorreporter": "INTEGRATIONS",
-                    "errortype": "MISSING_REQUIRED_FIELD",
+                    "errortype": "PAYLOAD_VALIDATION_FAILED",
                     "status": 400,
                   },
                 ],
@@ -341,7 +342,7 @@ describe('MultiStatus', () => {
       body: { ok: true },
       sent: { user_id: 'user003' },
       status: 400,
-      errortype: 'INVALID_PAYLOAD',
+      errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
       errormessage: 'Payload is either invalid or missing required fields'
     })
 
@@ -351,7 +352,7 @@ describe('MultiStatus', () => {
         body: { ok: true },
         sent: { user_id: 'user004' },
         status: 400,
-        errortype: 'INVALID_PAYLOAD',
+        errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
         errormessage: 'Payload is either invalid or missing required fields'
       })
     )
@@ -372,7 +373,7 @@ describe('MultiStatus', () => {
         body: { ok: true },
         sent: { info: 'THIS_WILL_BE_DELETED_LATER' },
         status: 400,
-        errortype: 'INVALID_PAYLOAD',
+        errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
         errormessage: 'Payload is either invalid or missing required fields'
       })
     )
@@ -389,7 +390,7 @@ describe('MultiStatus', () => {
       body: { ok: true },
       sent: { user_id: 'user004' },
       status: 400,
-      errortype: 'INVALID_PAYLOAD',
+      errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
       errormessage: 'Payload is either invalid or missing required fields'
     })
 
@@ -414,7 +415,7 @@ describe('MultiStatus', () => {
             "ok": true,
           },
           "errormessage": "Payload is either invalid or missing required fields",
-          "errortype": "INVALID_PAYLOAD",
+          "errortype": "PAYLOAD_VALIDATION_FAILED",
           "sent": Object {
             "info": "THIS_WILL_BE_DELETED_LATER",
           },
@@ -458,7 +459,7 @@ describe('MultiStatus', () => {
               "ok": true,
             },
             "errormessage": "Payload is either invalid or missing required fields",
-            "errortype": "INVALID_PAYLOAD",
+            "errortype": "PAYLOAD_VALIDATION_FAILED",
             "sent": Object {
               "user_id": "user003",
             },
@@ -471,7 +472,7 @@ describe('MultiStatus', () => {
               "ok": true,
             },
             "errormessage": "Payload is either invalid or missing required fields",
-            "errortype": "INVALID_PAYLOAD",
+            "errortype": "PAYLOAD_VALIDATION_FAILED",
             "sent": Object {
               "user_id": "user004",
             },
@@ -497,7 +498,7 @@ describe('MultiStatus', () => {
               "ok": true,
             },
             "errormessage": "Payload is either invalid or missing required fields",
-            "errortype": "INVALID_PAYLOAD",
+            "errortype": "PAYLOAD_VALIDATION_FAILED",
             "sent": Object {
               "user_id": "user004",
             },

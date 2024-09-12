@@ -30,7 +30,7 @@ import type {
   ResultMultiStatusNode
 } from './types'
 import type { AllRequestOptions } from '../request-client'
-import { ErrorCodes, IntegrationError, InvalidAuthenticationError } from '../errors'
+import { ErrorCodes, IntegrationError, InvalidAuthenticationError, MultiStatusErrorReporter } from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
@@ -694,9 +694,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       if (!subscription.subscribe || typeof subscription.subscribe !== 'string') {
         const response: ResultMultiStatusNode = {
           status: 400,
-          errortype: 'INVALID_SUBSCRIPTION',
-          errormessage: 'Invalid subscription',
-          errorreporter: 'INTEGRATIONS'
+          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+          errormessage: 'Failed to validate subscription',
+          errorreporter: MultiStatusErrorReporter.INTEGRATIONS
         }
 
         if (isBatch) {
@@ -715,9 +715,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       if ((parsedSubscription as ErrorCondition).error) {
         const response: ResultMultiStatusNode = {
           status: 400,
-          errortype: 'INVALID_SUBSCRIPTION',
+          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
           errormessage: `Invalid subscription : ${(parsedSubscription as ErrorCondition).error.message}`,
-          errorreporter: 'INTEGRATIONS'
+          errorreporter: MultiStatusErrorReporter.INTEGRATIONS
         }
 
         if (isBatch) {
@@ -745,9 +745,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         if (!validate(parsedSubscription, event)) {
           multistatus[i] = {
             status: 400,
-            errortype: 'INVALID_PAYLOAD',
+            errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
             errormessage: 'Payload is either invalid or does not match the subscription',
-            errorreporter: 'INTEGRATIONS'
+            errorreporter: MultiStatusErrorReporter.INTEGRATIONS
           }
 
           invalidPayloadIndices.add(i)
