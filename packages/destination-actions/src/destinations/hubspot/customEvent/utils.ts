@@ -1,4 +1,4 @@
-import { PayloadValidationError, IntegrationError, RetryableError } from '@segment/actions-core'
+import { PayloadValidationError, IntegrationError, RetryableError, StatsContext } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import {
   CreateEventDefinitionReq,
@@ -8,9 +8,19 @@ import {
   StringFormat,
   Schema,
   SchemaDiff,
-  EventCompletionReq
+  EventCompletionReq,
+  SubscriptionMetadata
 } from './types'
 import { Client } from './client'
+import { LRUCache } from 'lru-cache'
+
+
+const options = {
+  max: 2000,
+  ttl: 1000 * 60 * 60
+}
+
+const cache = new LRUCache(options)
 
 export function validate(payload: Payload): Payload {
   if (payload.record_details.object_type !== 'contact' && typeof payload.record_details.object_id !== 'number') {
@@ -193,14 +203,34 @@ export function eventSchema(payload: Payload): Schema {
   return { eventName: event_name, primaryObject: payload.record_details.object_type, properties: props }
 }
 
-export async function compareToCache(_schema: Schema): Promise<SchemaDiff> {
+export async function compareToCache(schema: Schema, subscriptionMetadata: SubscriptionMetadata, statsContext?: StatsContext): Promise<SchemaDiff> {
   // no op function until caching implemented
   const schemaDiff: SchemaDiff = {
     match: 'no_match',
     missingProperties: {}
   }
 
+  const prefix = subscriptionMetadata.actionConfigId
+
+  const key = `${prefix}-${schema.eventName}`
+
+  const cachedSchema = cache.get(key)
+
+  if(cachedSchema)
+
   return Promise.resolve(schemaDiff)
+}
+
+function compareSchemas(schema1: Schema, schema2: Schema | undefined): SchemaDiff {
+  
+  if(schema2 === undefined) {
+    return { match: 'no_match', missingProperties: {} } as SchemaDiff
+  }
+
+  const schemaDiff = <Partial<SchemaDiff>>{ missingProperties: {}, match: 'mismatch' }
+
+  
+
 }
 
 export async function compareToHubspot(client: Client, schema: Schema): Promise<SchemaDiff> {
@@ -209,6 +239,12 @@ export async function compareToHubspot(client: Client, schema: Schema): Promise<
   const response = await client.getEventDefinition(schema.eventName)
   switch (response.status) {
     case 200: {
+
+      const hsSchema: <Partial<Schema>> = {
+        
+      }
+
+
       const { fullyQualifiedName, name, properties: hsProperties, archived } = response.data
 
       if (archived) {
@@ -246,7 +282,7 @@ export async function compareToHubspot(client: Client, schema: Schema): Promise<
     }
     case 400:
     case 404:
-      return { match: 'no_match', missingProperties: {} }
+      return compareSchemas(schema, undefined)
     case 408:
     case 423:
     case 429:
