@@ -220,7 +220,7 @@ type FillMultiStatusResponseInput = {
   invalidPayloadIndices: Set<number>
   batchPayloadLength: number
   status: number
-  body: JSONObject | string
+  body: JSONLikeObject | string
   filteredPayloads?: JSONLikeObject[]
 }
 

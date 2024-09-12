@@ -1,6 +1,6 @@
 import { StateContext, Logger, StatsContext, TransactionContext, DataFeedCache, ActionHookType } from './index'
 import type { RequestOptions } from '../request-client'
-import type { JSONObject } from '../json-object'
+import type { JSONLikeObject, JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
 import type { RequestClient } from '../create-request-client'
 import type { ID } from '../segment-event'
@@ -354,16 +354,16 @@ export interface SyncModeDefinition {
 
 export type ActionDestinationSuccessResponseType = {
   status: number
-  sent: object | string
-  body: object | string
+  sent: JSONLikeObject | string
+  body: JSONLikeObject | string
 }
 
 export type ActionDestinationErrorResponseType = {
   status: number
   errortype: string
   errormessage: string
-  sent?: object | string
-  body?: object | string
+  sent?: JSONLikeObject | string
+  body?: JSONLikeObject | string
 }
 
 export type ResultMultiStatusNode =
