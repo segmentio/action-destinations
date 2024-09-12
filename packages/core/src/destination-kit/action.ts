@@ -380,7 +380,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       const schema = this.schema
       const validationOptions = {
         schemaKey: `${this.destinationName}:${this.definition.title}`,
-        throwIfInvalid: false,
+        throwIfInvalid: true,
         statsContext: bundle.statsContext
       }
 
@@ -392,14 +392,27 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
           // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
           const payload = removeEmptyValues(payloads[i], schema) as Payload
           // Validate payload schema
-          const isValid = validateSchema(payload, schema, validationOptions)
+          try {
+            const isValid = validateSchema(payload, schema, validationOptions)
 
-          // Validation failed, record the filtered out event
-          if (!isValid) {
+            // Validation failed but there was no exception, record the filtered out event
+            if (!isValid) {
+              multiStatusResponse[i] = {
+                status: 400,
+                errortype: 'INVALID_PAYLOAD',
+                errormessage: 'Payload is either invalid or missing required fields',
+                errorreporter: 'INTEGRATIONS'
+              }
+
+              invalidPayloadIndices.add(i)
+              continue
+            }
+          } catch (e) {
+            // Validation failed with an exception, record the filtered out event
             multiStatusResponse[i] = {
               status: 400,
-              errortype: 'INVALID_PAYLOAD',
-              errormessage: 'Payload is either invalid or missing required fields',
+              errortype: 'MISSING_REQUIRED_FIELD',
+              errormessage: (e as Error).message,
               errorreporter: 'INTEGRATIONS'
             }
 
@@ -454,7 +467,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       }
 
       const requestClient = this.createRequestClient(data)
-      // TODO: Add a try/catch block here to handle errors
       const performBatchResponse = await this.definition.performBatch(requestClient, data)
 
       // PerformBatch returned a legacy response

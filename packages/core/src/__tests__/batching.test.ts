@@ -169,9 +169,9 @@ describe('Batching', () => {
               "status": 200,
             },
             Object {
-              "errormessage": "Payload is either invalid or missing required fields",
+              "errormessage": "The root value is missing the required field 'user_id'.",
               "errorreporter": "INTEGRATIONS",
-              "errortype": "INVALID_PAYLOAD",
+              "errortype": "MISSING_REQUIRED_FIELD",
               "status": 400,
             },
           ],
@@ -302,9 +302,9 @@ describe('Batching', () => {
                     "status": 400,
                   },
                   Object {
-                    "errormessage": "Payload is either invalid or missing required fields",
+                    "errormessage": "The root value is missing the required field 'user_id'.",
                     "errorreporter": "INTEGRATIONS",
-                    "errortype": "INVALID_PAYLOAD",
+                    "errortype": "MISSING_REQUIRED_FIELD",
                     "status": 400,
                   },
                 ],
