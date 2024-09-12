@@ -1456,7 +1456,22 @@ describe('destination kit', () => {
         const res = await destinationTest.onBatch(testEvents, testSettings, eventOptions)
         expect(res).toEqual([
           {
-            output: 'successfully processed batch of events'
+            multistatus: [
+              {
+                body: {},
+                sent: {
+                  advertiserId: '123456789'
+                },
+                status: 200
+              },
+              {
+                body: {},
+                sent: {
+                  advertiserId: '987654321'
+                },
+                status: 200
+              }
+            ]
           }
         ])
         expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
@@ -1538,7 +1553,22 @@ describe('destination kit', () => {
         const res = await destinationTest.onBatch(testEvents, testSettings)
         expect(res).toEqual([
           {
-            output: 'successfully processed batch of events'
+            multistatus: [
+              {
+                body: {},
+                sent: {
+                  advertiserId: '123456789'
+                },
+                status: 200
+              },
+              {
+                body: {},
+                sent: {
+                  advertiserId: '987654321'
+                },
+                status: 200
+              }
+            ]
           }
         ])
         expect(spy).toHaveBeenCalledTimes(0)
