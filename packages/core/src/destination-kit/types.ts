@@ -1,4 +1,12 @@
-import { StateContext, Logger, StatsContext, TransactionContext, DataFeedCache, ActionHookType } from './index'
+import {
+  StateContext,
+  Logger,
+  StatsContext,
+  TransactionContext,
+  DataFeedCache,
+  ActionHookType,
+  SubscriptionMetadata
+} from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
@@ -62,6 +70,7 @@ export interface ExecuteInput<
   readonly dataFeedCache?: DataFeedCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
+  readonly subscriptionMetadata?: SubscriptionMetadata
 }
 
 export interface DynamicFieldResponse {
