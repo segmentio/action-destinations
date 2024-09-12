@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 
 import forwardProfile from './forwardProfile'
 
-export const domain = 'https://api.stackadapt.com/graphql-next'
+export const domain = 'https://api.stackadapt.com/graphql'
 const destination: DestinationDefinition<Settings> = {
   name: 'StackAdapt Audiences',
   slug: 'actions-stackadapt-audiences',
@@ -22,9 +22,6 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: async (request) => {
       const scopeQuery = `query {
         tokenInfo {
-          name
-          expiresAt
-          createdAt
           scopesByAdvertiser {
             nodes {
               advertiser {
@@ -43,10 +40,10 @@ const destination: DestinationDefinition<Settings> = {
         throw new Error(res.status + res.statusText)
       }
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      const scopes: string[] = JSON.parse(res.content)?.data?.tokenInfo?.scopesByAdvertiser?.nodes?.flatMap(
-        (node: { scopes: string[] }) => node.scopes
+      const canWrite = (await res.json()).data?.tokenInfo?.scopesByAdvertiser?.nodes?.some(
+        (node: { scopes: string[] }) => node.scopes.includes('WRITE')
       )
-      if (!scopes.includes('WRITE')) {
+      if (!canWrite) {
         throw new Error('Please verify your GQL Token or contact support')
       }
     }

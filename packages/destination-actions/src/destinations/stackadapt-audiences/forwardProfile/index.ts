@@ -115,28 +115,23 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Advertiser',
       description: 'The StackAdapt advertiser to add the profile to.',
       type: 'string',
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
       required: true,
       dynamic: true
     }
   },
   dynamicFields: {
-    advertiser_id: async (request, { page }): Promise<DynamicFieldResponse> => {
-      // Even though its typescript type is string, in testing I found page can be a number so I use == here
-      page = !page || page == '1' ? '' : page
+    advertiser_id: async (request): Promise<DynamicFieldResponse> => {
       try {
         const query = `query {
           tokenInfo {
-            scopesByAdvertiser(after: "${page}") {
+            scopesByAdvertiser {
               nodes {
                 advertiser {
                   id
                   name
                 }
                 scopes
-              }
-              pageInfo {
-                hasNextPage
-                endCursor
               }
             }
           }
@@ -148,11 +143,8 @@ const action: ActionDefinition<Settings, Payload> = {
         const choices = scopesByAdvertiser.nodes
           .filter((advertiserEntry) => advertiserEntry.scopes.includes('WRITE'))
           .map((advertiserEntry) => ({ value: advertiserEntry.advertiser.id, label: advertiserEntry.advertiser.name }))
-        const nextPage = scopesByAdvertiser.pageInfo.hasNextPage ? scopesByAdvertiser.pageInfo.endCursor : undefined
-        return {
-          choices,
-          nextPage
-        }
+          .sort((a, b) => a.label.localeCompare(b.label))
+        return { choices }
       } catch (error) {
         return {
           choices: [],

@@ -7,7 +7,7 @@ const testDestination = createTestIntegration(Definition)
 const mockGqlKey = 'test-graphql-key'
 
 const gqlHostUrl = 'https://api.stackadapt.com'
-const gqlPath = '/graphql-next'
+const gqlPath = '/graphql'
 const mockEmail = 'admin@stackadapt.com'
 const mockUserId = 'user-id'
 const mockEmail2 = 'email2@stackadapt.com'
@@ -45,6 +45,22 @@ const trackEventPayload: Partial<SegmentEvent> = {
       computation_key: 'first_time_buyer',
       computation_id: 'aud_123'
     }
+  }
+}
+
+const trackEventWithoutTraitsPayload: Partial<SegmentEvent> = {
+  userId: mockUserId,
+  type: 'track',
+  event: 'Track Event Name',
+  properties: {
+    some_property: 'some_value'
+  }
+}
+
+const trackEventWithTraitsPayload: Partial<SegmentEvent> = {
+  ...trackEventWithoutTraitsPayload,
+  traits: {
+    email: mockEmail
   }
 }
 
@@ -243,6 +259,63 @@ describe('forwardProfile', () => {
               input: {
                 advertiserId: 23,
                 mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false},{\\\\\\"incoming_key\\\\\\":\\\\\\"customField\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"customField\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false},{\\\\\\"incoming_key\\\\\\":\\\\\\"numberCustomField\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"numberCustomField\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"number\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
+                mappableType: \\"segmentio\\",
+              }
+            ) {
+              userErrors {
+                message
+              }
+            }
+            upsertExternalAudienceMapping(
+              input: {
+                advertiserId: 23,
+                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\"},{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"name\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\"}]\\",
+                mappableType: \\"segmentio\\"
+              }
+            ) {
+              userErrors {
+                message
+              }
+            }
+          }",
+      }
+    `)
+  })
+
+  it('should only forward track events with traits', async () => {
+    let requestBody
+    nock(gqlHostUrl)
+      .post(gqlPath, (body) => {
+        requestBody = body
+        return body
+      })
+      .reply(200, { data: { success: true } })
+    const events = [createTestEvent(trackEventWithoutTraitsPayload), createTestEvent(trackEventWithTraitsPayload)]
+    const responses = await testDestination.testBatchAction('forwardProfile', {
+      events,
+      useDefaultMappings: true,
+      mapping: mockMappings,
+      settings: { apiKey: mockGqlKey }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(requestBody).toMatchInlineSnapshot(`
+      Object {
+        "query": "mutation {
+            upsertProfiles(
+              advertiserId: 23,
+              externalProvider: \\"segmentio\\",
+              syncId: \\"2927b0a6fa4184304ef5cc5896272f8c89dd35391adb949230e115cfc8dd58b1\\",
+              profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\"}]\\"
+            ) {
+              userErrors {
+                message
+              }
+            }
+            upsertProfileMapping(
+              input: {
+                advertiserId: 23,
+                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
                 mappableType: \\"segmentio\\",
               }
             ) {

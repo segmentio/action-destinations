@@ -1,4 +1,6 @@
 import { RequestClient } from '@segment/actions-core'
+import camelCase from 'lodash/camelCase'
+import isEmpty from 'lodash/isEmpty'
 import { Payload } from './generated-types'
 import { domain } from '..'
 import { createHash } from 'crypto'
@@ -44,52 +46,37 @@ interface Mapping {
 }
 
 export async function performForwardProfiles(request: RequestClient, events: Payload[]) {
-  if (events.length === 0) return
   const fieldsToMap: Set<string> = new Set(['userId'])
   const fieldTypes: Record<string, string> = { userId: 'string' }
   const advertiserId = events[0].advertiser_id
   const profileUpdates = events.flatMap((event) => {
+    const {
+      segment_computation_key,
+      segment_computation_class,
+      segment_computation_id,
+      event_type,
+      previous_id,
+      user_id,
+      traits_or_props
+    } = event
+
+    const isAudienceEvent = segment_computation_class === 'audience'
+    const audienceKey = (traits_or_props.audience_key as string) ?? segment_computation_key
+    const { audience_key, [audienceKey]: action, ...traits } = traits_or_props
     const profile: Record<string, string | number | undefined> = {
-      userId: event.user_id
+      userId: user_id
     }
-    if (event.event_type === 'track' && event.segment_computation_class !== 'audience') {
-      // Filter out track events that are not audience enter/exit events until we have support for event tracking on our side
-      return []
-    } else if (event.event_type === 'alias') {
-      profile.previousId = event.previous_id
-    } else if (
-      event.segment_computation_class === 'audience' &&
-      event.traits_or_props &&
-      event.segment_computation_key
-    ) {
-      // If this is an audience enter/exit event, there should be a boolean flag in the traits or props indicating if the user entered or exited the audience
-      // We need to translate it into an enter or exit action as expected by the profile upsert GraphQL mutation
-      profile.audienceId = event.segment_computation_id
-      const audienceKey = (event.traits_or_props.audience_key as string) ?? event.segment_computation_key
+    if (event_type === 'alias') {
+      profile.previousId = previous_id
+    } else if (isAudienceEvent) {
+      profile.audienceId = segment_computation_id
       profile.audienceName = audienceKey
-      profile.action = event.traits_or_props[audienceKey] ? 'enter' : 'exit'
-      delete event.traits_or_props.audience_key
-      delete event.traits_or_props[audienceKey] // Don't need to include the boolean flag in the GQL payload
+      profile.action = action ? 'enter' : 'exit'
+    } else if (isEmpty(traits)) {
+      // Skip if there are no traits and this is not an audience event
+      return []
     }
-    // Convert trait keys to camelCase and capture any non-standard fields
-    const traits = Object.keys(event?.traits_or_props ?? {}).reduce((acc: Record<string, unknown>, key) => {
-      const camelCaseKey = toCamelCase(key)
-      acc[camelCaseKey] = event?.traits_or_props?.[key]
-      if (!standardFields.has(camelCaseKey)) {
-        fieldsToMap.add(camelCaseKey)
-        // Field type should be the most specific type of the values we've seen so far, use string if there is a conflict of types
-        if (event?.traits_or_props?.[key] || event?.traits_or_props?.[key] === 0) {
-          const type = getType(event.traits_or_props[key])
-          if (fieldTypes[camelCaseKey] && fieldTypes[camelCaseKey] !== type) {
-            fieldTypes[camelCaseKey] = 'string'
-          } else {
-            fieldTypes[camelCaseKey] = type
-          }
-        }
-      }
-      return acc
-    }, {})
-    return { ...traits, ...profile }
+    return { ...processTraits(traits), ...profile }
   })
 
   const profiles = stringifyJsonWithEscapedQuotes(profileUpdates)
@@ -130,6 +117,27 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
   return await request(domain, {
     body: JSON.stringify({ query: mutation })
   })
+
+  function processTraits(traits: Record<string, unknown>) {
+    // Convert trait keys to camelCase and capture any non-standard fields as mappings
+    return Object.keys(traits).reduce((acc: Record<string, unknown>, key) => {
+      const camelCaseKey = camelCase(key)
+      acc[camelCaseKey] = traits[key]
+      if (!standardFields.has(camelCaseKey)) {
+        fieldsToMap.add(camelCaseKey)
+        // Field type should be the most specific type of the values we've seen so far, use string if there is a conflict of types
+        if (traits[key] || traits[key] === 0) {
+          const type = getType(traits[key])
+          if (fieldTypes[camelCaseKey] && fieldTypes[camelCaseKey] !== type) {
+            fieldTypes[camelCaseKey] = 'string'
+          } else {
+            fieldTypes[camelCaseKey] = type
+          }
+        }
+      }
+      return acc
+    }, {})
+  }
 }
 
 function getProfileMappings(customFields: string[], fieldTypes: Record<string, string>) {
@@ -156,15 +164,10 @@ function sha256hash(data: string) {
 }
 
 function getType(value: unknown) {
-  if (value instanceof Date) return 'date'
+  if (isDateStr(value)) return 'date'
   return typeof value
 }
 
-// From https://www.30secondsofcode.org/js/s/string-case-conversion/
-function toCamelCase(str: string) {
-  const s = str
-    .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
-    ?.map((x) => x.slice(0, 1).toUpperCase() + x.slice(1).toLowerCase())
-    .join('')
-  return s ? s.slice(0, 1).toLowerCase() + s.slice(1) : ''
+function isDateStr(value: unknown) {
+  return typeof value === 'string' && !isNaN(Date.parse(value))
 }
