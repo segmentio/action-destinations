@@ -126,7 +126,7 @@ describe('Batching', () => {
     )
   })
 
-  test('validates all the payloads, ignores invalid payloads', async () => {
+  test('validates all the payloads, skips and reports invalid payloads', async () => {
     const destination = new Destination(basicBatch)
     const spy = jest.spyOn(basicBatch.actions.testAction, 'performBatch')
 
@@ -136,7 +136,7 @@ describe('Batching', () => {
       userId: undefined
     })
 
-    await destination.onBatch([...events, invalidEvent], basicBatchSettings)
+    const response = await destination.onBatch([...events, invalidEvent], basicBatchSettings)
     expect(spy).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
@@ -144,6 +144,35 @@ describe('Batching', () => {
         payload: expect.arrayContaining([{ user_id: 'user_123' }, { user_id: 'user_456' }])
       })
     )
+
+    expect(response).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "multistatus": Array [
+            Object {
+              "body": Object {},
+              "sent": Object {
+                "user_id": "user_123",
+              },
+              "status": 200,
+            },
+            Object {
+              "body": Object {},
+              "sent": Object {
+                "user_id": "user_456",
+              },
+              "status": 200,
+            },
+            Object {
+              "errormessage": "Payload is either invalid or missing required fields",
+              "errorreporter": "INTEGRATIONS",
+              "errortype": "INVALID_PAYLOAD",
+              "status": 400,
+            },
+          ],
+        },
+      ]
+    `)
   })
 
   test('invokes the batch perform function when there is only 1 event', async () => {
@@ -186,7 +215,7 @@ describe('Batching', () => {
     )
   })
 
-  test('ensures that only subscribed events get passed on', async () => {
+  test('ensures that only subscribed events get passed on and filtered events gets reported', async () => {
     const destination = new Destination(basicBatch)
     const spy = jest.spyOn(basicBatch.actions.testAction, 'performBatch')
 
@@ -196,7 +225,7 @@ describe('Batching', () => {
       userId: 'nope'
     })
 
-    await destination.onBatch([unsubscribedEvent, ...events], basicBatchSettings)
+    const response = await destination.onBatch([unsubscribedEvent, ...events], basicBatchSettings)
 
     expect(spy).toHaveBeenCalledWith(
       expect.anything(),
@@ -204,9 +233,38 @@ describe('Batching', () => {
         payload: expect.not.arrayContaining([{ user_id: 'nope' }])
       })
     )
+
+    expect(response).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "multistatus": Array [
+            Object {
+              "errormessage": "Payload is either invalid or does not match the subscription",
+              "errorreporter": "INTEGRATIONS",
+              "errortype": "INVALID_PAYLOAD",
+              "status": 400,
+            },
+            Object {
+              "body": Object {},
+              "sent": Object {
+                "user_id": "user_123",
+              },
+              "status": 200,
+            },
+            Object {
+              "body": Object {},
+              "sent": Object {
+                "user_id": "user_456",
+              },
+              "status": 200,
+            },
+          ],
+        },
+      ]
+    `)
   })
 
-  test('doesnt invoke anything if there are no subscribed, valid events', async () => {
+  test('doesnt invoke anything if there are no subscribed or valid events', async () => {
     const destination = new Destination(basicBatch)
     const batchSpy = jest.spyOn(basicBatch.actions.testAction, 'performBatch')
     const spy = jest.spyOn(basicBatch.actions.testAction, 'perform')
@@ -239,7 +297,7 @@ describe('Batching', () => {
                     "status": 400,
                   },
                   Object {
-                    "errormessage": "Invalid payload",
+                    "errormessage": "Payload is either invalid or missing required fields",
                     "errorreporter": "INTEGRATIONS",
                     "errortype": "INVALID_PAYLOAD",
                     "status": 400,

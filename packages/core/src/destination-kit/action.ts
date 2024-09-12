@@ -399,7 +399,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
             multiStatusResponse[i] = {
               status: 400,
               errortype: 'INVALID_PAYLOAD',
-              errormessage: 'Invalid payload',
+              errormessage: 'Payload is either invalid or missing required fields',
               errorreporter: 'INTEGRATIONS'
             }
 
