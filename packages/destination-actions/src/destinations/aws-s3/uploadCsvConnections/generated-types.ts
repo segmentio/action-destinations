@@ -26,17 +26,21 @@ export interface Payload {
      */
     message_id?: string
     /**
-     * Name of column for the unique identifier for the Segment Engage Space that generated the event.
-     */
-    space_id?: string
-    /**
      * Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment
      */
     integrations_object?: string
     /**
-     * Name of column for properties and traits. This data contains the entire properties object from a track() call or the traits object from an identify() call emitted from Engage when a user is added to or removed from an Audience
+     * Name of column for the unique identifier for the Segment Engage Space that generated the event.
      */
-    properties_or_traits?: string
+    space_id?: string
+    /**
+     * Name of column for the track() properties.
+     */
+    all_event_properties?: string
+    /**
+     * Name of column for the track() or identify() user traits.
+     */
+    all_user_traits?: string
     /**
      * Name of the event.
      */
@@ -69,47 +73,51 @@ export interface Payload {
   /**
    * Integrations Object Hidden Field
    */
-  integrationsObject: {
+  integrationsObject?: {
     [k: string]: unknown
   }
   /**
-   * Properties or Traits Hidden Field
+   * Space ID Hidden Field
    */
-  propertiesOrTraits: {
+  spaceId?: string
+  /**
+   * Properties Hidden Field
+   */
+  event_properties?: {
+    [k: string]: unknown
+  }
+  /**
+   * All User Traits Hidden Field
+   */
+  user_traits?: {
     [k: string]: unknown
   }
   /**
    * Context Hidden Field
    */
-  context: {
+  context?: {
     [k: string]: unknown
   }
   /**
-   * Event-specific properties that can be included in emails triggered by this event.
+   * The properties of the event. Each item will be written to a separate column.
    */
   eventProperties?: {
     [k: string]: unknown
   }
   /**
-   * The properties of the user
+   * The properties of the user. Each item will be written to a separate column.
    */
   userTraits?: {
     [k: string]: unknown
   }
   /**
-   * Name of the event.
+   * Event Name Hidden Field.
    */
   eventName?: string
   /**
-   * The type of event
+   * Event Type Hidden Field
    */
   eventType: string
-  /**
-   * Additional user identifiers and traits to include as separate columns in the CSV file. Each item should contain a key and a value. The key is the trait or identifier name from the payload, and the value is the column name to be written to the CSV file.
-   */
-  additional_identifiers_and_traits_columns?: {
-    [k: string]: unknown
-  }
   /**
    * Receive events in a batch payload. This is required for LiveRamp audiences ingestion.
    */
@@ -123,8 +131,7 @@ export interface Payload {
    */
   s3_aws_folder_name?: string
   /**
-   * Prefix to append to the name of the uploaded file. A lower cased audience name and timestamp will be appended by default to the filename to ensure uniqueness.
-   *                       Format: <PREFIX>_<AUDIENCE NAME>_<TIMESTAMP>.csv
+   * Prefix to append to the name of the uploaded file. A lower cased audience name and timestamp will be appended by default to the filename to ensure uniqueness. Format: <PREFIX>_<AUDIENCE NAME>_<TIMESTAMP>.csv
    */
   filename?: string
   /**

@@ -4,8 +4,8 @@ import type { Settings } from './generated-types'
 import uploadCsvConnections from './uploadCsvConnections'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'AWS S3 CSV',
-  slug: 'actions-s3-csv',
+  name: 'AWS S3',
+  slug: 'actions-s3',
   mode: 'cloud',
   description: 'Sync Segment event and Audience data to AWS S3.',
 
@@ -26,7 +26,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       s3_aws_region: {
-        label: 'AWS Region Code (S3 only)',
+        label: 'AWS Region Code',
         description:
           'Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)',
         type: 'string',

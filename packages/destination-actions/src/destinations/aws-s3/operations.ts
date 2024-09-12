@@ -1,6 +1,5 @@
 import { ExecuteInput } from '@segment/actions-core'
 import type { Payload } from './uploadCsvConnections/generated-types'
-// import { is } from 'cheerio/lib/api/traversing'
 
 // Type definitions
 export type RawData = {
@@ -22,19 +21,20 @@ function generateFile(payloads: PayloadWithRawData[], isAudience?: boolean): str
   const columnsField = payloads[0].columns
 
   const rows: string[] = []
-  console.log('generateFile payloads', payloads)
+
   payloads.forEach((payload, index, arr) => {
     const row: string[] = []
 
     if (isAudience) {
       if (index === 0) {
-        headers.push('audience_name', 'audience_id', 'audience_class', 'space_id')
+        headers.push('audience_name', 'audience_id', 'audience_class', 'space_id', 'audience_action')
       }
       row.push(
         encodeString(String(payload.context?.personas?.computation_key ?? '')),
         encodeString(String(payload.context?.personas?.computation_id ?? '')),
         encodeString(String(payload.context?.personas?.computation_class ?? '')),
-        encodeString(String(payload.context?.personas?.space_id ?? ''))
+        encodeString(String(payload.context?.personas?.space_id ?? '')),
+        encodeString(String(payload.user_traits?.[String(payload.context?.personas?.computation_key ?? '')] ?? ''))
       )
     }
 
@@ -75,12 +75,12 @@ function generateFile(payloads: PayloadWithRawData[], isAudience?: boolean): str
       }
       row.push(encodeString(String(JSON.stringify(payload.integrationsObject) ?? '')))
     }
-    if (![undefined, null, ''].includes(columnsField.properties_or_traits)) {
-      if (index === 0) {
-        headers.push(columnsField.properties_or_traits as string)
-      }
-      row.push(encodeString(String(JSON.stringify(payload.propertiesOrTraits) ?? '')))
-    }
+    // if (![undefined, null, ''].includes(columnsField.properties_or_traits)) {
+    //   if (index === 0) {
+    //     headers.push(columnsField.properties_or_traits as string)
+    //   }
+    //   row.push(encodeString(String(JSON.stringify(payload.propertiesOrTraits) ?? '')))
+    // }
 
     if (![undefined, null, ''].includes(columnsField.eventName)) {
       if (index === 0) {
@@ -96,30 +96,23 @@ function generateFile(payloads: PayloadWithRawData[], isAudience?: boolean): str
       row.push(encodeString(String(payload.eventType ?? '')))
     }
 
-    if (payload.additional_identifiers_and_traits_columns) {
-      for (const [key, value] of Object.entries(payload.additional_identifiers_and_traits_columns)) {
-        if (index === 0) {
-          headers.push(String(value))
-        }
-        row.push(encodeString(String(payload.propertiesOrTraits[String(key)] ?? '')))
-      }
-    }
-
     if (payload.eventProperties) {
       for (const [key, value] of Object.entries(payload.eventProperties)) {
         if (index === 0) {
-          headers.push(String(value))
+          headers.push(String(key))
         }
-        row.push(encodeString(String(payload.propertiesOrTraits[String(key)] ?? '')))
+        row.push(encodeString(String(value)))
+        // row.push(encodeString(String(payload.eventProperties[String(key)] ?? '')))
       }
     }
 
     if (payload.userTraits) {
       for (const [key, value] of Object.entries(payload.userTraits)) {
         if (index === 0) {
-          headers.push(String(value))
+          headers.push(String(key))
         }
-        row.push(encodeString(String(payload.propertiesOrTraits[String(key)] ?? '')))
+        row.push(encodeString(String(value)))
+        // row.push(encodeString(String(payload.userTraits[String(value)] ?? '')))
       }
     }
 
@@ -142,7 +135,8 @@ function encodeString(str: string) {
 function validate(payloads: Payload[]) {
   const delimiter = payloads[0].delimiter
   const columns = payloads[0].columns
-  const additionalIdentifierColumns = payloads[0].additional_identifiers_and_traits_columns
+  const additionalPropertiesColumns = payloads[0].eventProperties
+  const additionalTraitsColumns = payloads[0].userTraits
 
   // ensure column names do not contain delimiter
   Object.values(columns).forEach((columnName) => {
@@ -152,8 +146,15 @@ function validate(payloads: Payload[]) {
   })
 
   // ensure additional identifier column names do not contain delimiter
-  if (additionalIdentifierColumns) {
-    Object.entries(additionalIdentifierColumns).forEach(([key, value]) => {
+  if (additionalPropertiesColumns) {
+    Object.entries(additionalPropertiesColumns).forEach(([key, value]) => {
+      if (typeof value === 'string' && value.includes(delimiter)) {
+        throw new Error(`Column name ${key} cannot contain delimiter: ${delimiter}`)
+      }
+    })
+  }
+  if (additionalTraitsColumns) {
+    Object.entries(additionalTraitsColumns).forEach(([key, value]) => {
       if (typeof value === 'string' && value.includes(delimiter)) {
         throw new Error(`Column name ${key} cannot contain delimiter: ${delimiter}`)
       }

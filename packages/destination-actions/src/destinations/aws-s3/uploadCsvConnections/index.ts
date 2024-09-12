@@ -7,6 +7,7 @@ import { S3CSVClient } from './s3'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload CSV',
   description: 'Uploads audience membership data to a CSV file in S3.',
+  defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     columns: {
       label: 'Columns',
@@ -41,22 +42,26 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Name of column for the unique identifier for the message.',
           type: 'string'
         },
-        space_id: {
-          label: 'Space ID',
-          description:
-            'Name of column for the unique identifier for the Segment Engage Space that generated the event.',
-          type: 'string'
-        },
         integrations_object: {
           label: 'Integrations Object',
           description:
             'Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment',
           type: 'string'
         },
-        properties_or_traits: {
-          label: 'Properties or Traits',
+        space_id: {
+          label: 'Space ID',
           description:
-            'Name of column for properties and traits. This data contains the entire properties object from a track() call or the traits object from an identify() call emitted from Engage when a user is added to or removed from an Audience',
+            'Name of column for the unique identifier for the Segment Engage Space that generated the event.',
+          type: 'string'
+        },
+        all_event_properties: {
+          label: 'All Event Properties',
+          description: 'Name of column for the track() properties.',
+          type: 'string'
+        },
+        all_user_traits: {
+          label: 'All User Traits',
+          description: 'Name of column for the track() or identify() user traits.',
           type: 'string'
         },
         eventName: {
@@ -77,9 +82,11 @@ const action: ActionDefinition<Settings, Payload> = {
         timestamp: 'timestamp',
         message_id: 'message_id',
         integrations_object: 'integrations_object',
-        properties_or_traits: 'properties_or_traits',
-        eventName: 'eventName',
-        eventType: 'eventType'
+        space_id: 'space_id',
+        all_event_properties: 'all_event_properties',
+        all_user_traits: 'all_user_traits',
+        eventName: 'event_name',
+        eventType: 'event_type'
       }
     },
     email: {
@@ -87,7 +94,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email Hidden Field',
       type: 'string',
       required: false,
-      unsafe_hidden: true,
       default: {
         '@if': {
           exists: { '@path': '$.traits.email' },
@@ -132,21 +138,37 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Integrations Object Hidden Field',
       description: 'Integrations Object Hidden Field',
       type: 'object',
-      required: true,
+      required: false,
       unsafe_hidden: true,
       default: { '@path': '$.integrations' }
     },
-    propertiesOrTraits: {
-      label: 'Properties or Traits Hidden Field',
-      description: 'Properties or Traits Hidden Field',
+    spaceId: {
+      label: 'Space ID Hidden Field',
+      description: 'Space ID Hidden Field',
+      type: 'string',
+      required: false,
+      unsafe_hidden: true,
+      default: { '@path': '$.context.personas.space_id' }
+    },
+    event_properties: {
+      label: 'All Event Properties Hidden Field',
+      description: 'Properties Hidden Field',
       type: 'object',
-      required: true,
+      required: false,
+      unsafe_hidden: true,
+      default: { '@path': '$.properties' }
+    },
+    user_traits: {
+      label: 'All User Traits Hidden Field',
+      description: 'All User Traits Hidden Field',
+      type: 'object',
+      required: false,
       unsafe_hidden: true,
       default: {
         '@if': {
           exists: { '@path': '$.traits' },
           then: { '@path': '$.traits' },
-          else: { '@path': '$.properties' }
+          else: { '@path': '$.context.traits' }
         }
       }
     },
@@ -154,51 +176,41 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Context Hidden Field',
       description: 'Context Hidden Field',
       type: 'object',
-      required: true,
+      required: false,
       unsafe_hidden: true,
       default: { '@path': '$.context' }
     },
     eventProperties: {
       label: 'Event Properties',
-      description: 'Event-specific properties that can be included in emails triggered by this event.',
+      description: 'The properties of the event. Each item will be written to a separate column.',
       type: 'object',
       required: false,
       disabledInputMethods: ['enrichment', 'function', 'variable'],
       defaultObjectUI: 'keyvalue:only'
-      // default: { '@path': '$.properties' }
     },
     userTraits: {
       type: 'object',
       label: 'User Traits',
-      description: 'The properties of the user',
+      description: 'The properties of the user. Each item will be written to a separate column.',
       required: false,
       disabledInputMethods: ['enrichment', 'function', 'variable'],
       defaultObjectUI: 'keyvalue:only'
-      // default: { '@path': '$.traits' }
     },
     eventName: {
-      label: 'Event Name',
-      description: 'Name of the event.',
+      label: 'Event Name Hidden Field',
+      description: 'Event Name Hidden Field.',
       type: 'string',
       required: false,
+      unsafe_hidden: true,
       default: { '@path': '$.event' }
     },
     eventType: {
-      label: 'Event Type',
-      description: 'The type of event',
+      label: 'Event Type Hidden Field',
+      description: 'Event Type Hidden Field',
       type: 'string',
       unsafe_hidden: true,
       required: true,
       default: { '@path': '$.type' }
-    },
-    additional_identifiers_and_traits_columns: {
-      label: 'Additional Identifier and Trait Columns',
-      description:
-        'Additional user identifiers and traits to include as separate columns in the CSV file. Each item should contain a key and a value. The key is the trait or identifier name from the payload, and the value is the column name to be written to the CSV file.',
-      type: 'object',
-      required: false,
-      disabledInputMethods: ['enrichment', 'function', 'variable'],
-      defaultObjectUI: 'keyvalue:only'
     },
     enable_batching: {
       type: 'boolean',
@@ -225,8 +237,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     filename: {
       label: 'Filename prefix',
-      description: `Prefix to append to the name of the uploaded file. A lower cased audience name and timestamp will be appended by default to the filename to ensure uniqueness.
-                      Format: <PREFIX>_<AUDIENCE NAME>_<TIMESTAMP>.csv`,
+      description: `Prefix to append to the name of the uploaded file. A lower cased audience name and timestamp will be appended by default to the filename to ensure uniqueness. Format: <PREFIX>_<AUDIENCE NAME>_<TIMESTAMP>.csv`,
       type: 'string',
       required: false
     },
@@ -235,6 +246,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `Character used to separate tokens in the resulting file.`,
       type: 'string',
       required: true,
+      disabledInputMethods: ['enrichment', 'function', 'variable'],
       choices: [
         { label: 'comma', value: ',' },
         { label: 'pipe', value: '|' },
@@ -269,7 +281,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
 async function processData(payloads: Payload[], settings: Settings) {
   validate(payloads)
-  console.log('processData payloads', payloads)
   let isPersonasExist = false
   if (payloads[0].context && payloads[0].context.personas) {
     isPersonasExist = true

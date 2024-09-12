@@ -73,7 +73,7 @@ export class S3CSVClient {
       // Append the date suffix followed by the extension
       filename = filename ? `${filename}_${dateSuffix}.${fileExtension}` : `${dateSuffix}.${fileExtension}`
     }
-    console.log('Filename:', filename)
+
     const bucketName = settings.s3_aws_bucket_name
     const folderName = ['', null, undefined].includes(s3_aws_folder_name)
       ? ''
