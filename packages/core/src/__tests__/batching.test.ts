@@ -75,12 +75,14 @@ describe('Batching', () => {
   test('basic happy path', async () => {
     const destination = new Destination(basicBatch)
     const res = await destination.onBatch(events, basicBatchSettings)
-    expect(res).toEqual(
-      expect.arrayContaining([
-        { response: { body: {}, sent: { user_id: 'user_123' }, status: 200 } },
-        { response: { body: {}, sent: { user_id: 'user_123' }, status: 200 } }
-      ])
-    )
+    expect(res).toEqual([
+      {
+        multistatus: [
+          { body: {}, sent: { user_id: 'user_123' }, status: 200 },
+          { body: {}, sent: { user_id: 'user_123' }, status: 200 }
+        ]
+      }
+    ])
   })
 
   test('transforms all the payloads based on the subscription mapping', async () => {

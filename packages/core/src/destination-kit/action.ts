@@ -15,7 +15,8 @@ import type {
   SyncModeDefinition,
   DynamicFieldContext,
   ActionDestinationSuccessResponseType,
-  ActionDestinationErrorResponseType
+  ActionDestinationErrorResponseType,
+  ResultMultiStatusNode
 } from './types'
 import { syncModeTypes } from './types'
 import { HTTPError, NormalizedOptions } from '../request-client'
@@ -215,16 +216,11 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
 }
 
 type FillMultiStatusResponseInput = {
-  results: Result[]
+  multiStatusResponse: ResultMultiStatusNode[]
   batchPayloadLength: number
   status: number
   body: JSONObject | string
   filteredPayloads?: JSONLikeObject[]
-}
-
-type SetMultiStatusResponseInput = {
-  results: Result[]
-  multiStatusResponse: MultiStatusResponse
 }
 
 const isSyncMode = (value: unknown): value is SyncMode => {
@@ -375,7 +371,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     let payloads = transformBatch(mapping, bundle.data) as Payload[]
     const batchPayloadLength = payloads.length
 
-    const results: Result[] = []
+    const multiStatusResponse: ResultMultiStatusNode[] = []
 
     // Validate the resolved payloads against the schema
     if (this.schema) {
@@ -386,6 +382,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         statsContext: bundle.statsContext
       }
 
+      // Filter out invalid payloads before sending them to the action
       {
         const filteredPayload: Payload[] = []
 
@@ -400,13 +397,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
             filteredPayload.push(payload)
           } else {
             // Validation failed, record the filtered out event
-            results[i] = {
-              response: {
-                status: 400,
-                errortype: 'INVALID_PAYLOAD',
-                errormessage: 'Invalid payload',
-                errorreporter: 'INTEGRATIONS'
-              }
+            multiStatusResponse[i] = {
+              status: 400,
+              errortype: 'INVALID_PAYLOAD',
+              errormessage: 'Invalid payload',
+              errorreporter: 'INTEGRATIONS'
             }
           }
         }
@@ -473,43 +468,63 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         }
 
         this.fillMultiStatusResponse({
-          results,
+          multiStatusResponse,
           batchPayloadLength,
           status: performBatchResponse.status,
           body: parsedBody,
           filteredPayloads: payloads
         })
 
-        return results
+        return [{ multistatus: multiStatusResponse }]
       }
 
       // PerformBatch returned a HTTPError
       if (performBatchResponse instanceof HTTPError) {
         this.fillMultiStatusResponse({
-          results,
+          multiStatusResponse,
           batchPayloadLength,
           status: performBatchResponse.response.status,
           body: performBatchResponse.message,
           filteredPayloads: payloads
         })
-        return results
+
+        return [{ multistatus: multiStatusResponse }]
       }
 
-      // PerformBatch returned a Spec V2 MultiStatus Response
+      // PerformBatch returned a Spec V2 compliant MultiStatus Response
       if (performBatchResponse instanceof MultiStatusResponse) {
-        this.setMultiStatusResponse({
-          results,
-          multiStatusResponse: performBatchResponse
-        })
+        let resultsReadIndex = 0
 
-        return results
+        for (let i = 0; i < performBatchResponse.length(); i++) {
+          const response = performBatchResponse.getResponseAtIndex(resultsReadIndex++)
+
+          // Skip the index if we already have a response set
+          if (multiStatusResponse[i]) {
+            continue
+          }
+
+          // Check if response is a failed response
+          if (response instanceof ActionDestinationErrorResponse) {
+            multiStatusResponse[i] = {
+              ...response.value(),
+              errorreporter: 'INTEGRATIONS'
+            }
+
+            continue
+          }
+
+          // We assume the response is a success response
+          multiStatusResponse[i] = response.value()
+        }
+
+        return [{ multistatus: multiStatusResponse }]
       }
 
       // Assume the entire batch to be success in the following conditions
       // - PerformBatch returned an unknown response
       // - PerformBatch returned an unhandled 207 multi-status response
       this.fillMultiStatusResponse({
-        results,
+        multiStatusResponse,
         batchPayloadLength,
         status: 200,
         body: {},
@@ -517,7 +532,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       })
     }
 
-    return results
+    return [{ multistatus: multiStatusResponse }]
   }
 
   /*
@@ -660,56 +675,20 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   }
 
   private fillMultiStatusResponse(input: FillMultiStatusResponseInput) {
-    const { results, batchPayloadLength, status, body, filteredPayloads } = input
+    const { multiStatusResponse, batchPayloadLength, status, body, filteredPayloads } = input
 
     for (let i = 0; i < batchPayloadLength; i++) {
       // Check if the index is already set to a failed response
-      if (results[i]) {
+      if (multiStatusResponse[i]) {
         continue
       }
 
       let payloadReadIndex = 0
-      results.push({
-        response: {
-          status: status,
-          body: body,
-          sent: filteredPayloads ? filteredPayloads[payloadReadIndex++] : {}
-        }
+      multiStatusResponse.push({
+        status: status,
+        body: body,
+        sent: filteredPayloads ? filteredPayloads[payloadReadIndex++] : {}
       })
-    }
-  }
-
-  private setMultiStatusResponse(input: SetMultiStatusResponseInput) {
-    const { results, multiStatusResponse } = input
-
-    let resultsReadIndex = 0
-    for (let i = 0; i < multiStatusResponse.length(); i++) {
-      const response = multiStatusResponse.getResponseAtIndex(resultsReadIndex++)
-
-      // Skip the index if we already have a response set
-      if (results[i]) {
-        continue
-      }
-
-      // Check if response is a failed response
-      if (
-        (response as ActionDestinationErrorResponseType).errortype ||
-        (response as ActionDestinationErrorResponseType).errormessage
-      ) {
-        results[i] = {
-          response: {
-            ...response,
-            errorreporter: 'INTEGRATIONS'
-          }
-        }
-
-        continue
-      }
-
-      // We assume the response is a success response
-      results[i] = {
-        response: response as ActionDestinationSuccessResponseType
-      }
     }
   }
 }
@@ -816,12 +795,12 @@ export class MultiStatusResponse {
     delete this.responses[index]
   }
 
-  public getResponseAtIndex(index: number): ActionDestinationSuccessResponseType | ActionDestinationErrorResponseType {
-    return this.responses[index].value()
+  public getResponseAtIndex(index: number): ActionDestinationSuccessResponse | ActionDestinationErrorResponse {
+    return this.responses[index]
   }
 
-  public getAllResponses(): (ActionDestinationSuccessResponseType | ActionDestinationErrorResponseType)[] {
-    return this.responses.map((response) => response.value())
+  public getAllResponses(): (ActionDestinationSuccessResponse | ActionDestinationErrorResponse)[] {
+    return this.responses
   }
 }
 
