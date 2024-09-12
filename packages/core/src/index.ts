@@ -97,8 +97,5 @@ export type { RequestClient } from './create-request-client'
 export {
   ActionDestinationSuccessResponse,
   ActionDestinationErrorResponse,
-  MultiStatusResponse,
-  MultiStatusResponseBuilder,
-  MultiStatusPayloadValidatorFn,
-  MultiStatusPayloadTransformerFn
+  MultiStatusResponse
 } from './destination-kit/action'
