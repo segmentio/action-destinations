@@ -9,13 +9,15 @@ export type RawData = {
       computation_key?: string
       computation_class?: string
       computation_id?: string
+      space_id?: string
     }
   }
 }
-
+// Combine RawData with the existing Payload type
+export type PayloadWithRawData = Payload & RawData
 export type ExecuteInputRaw<Settings, Payload, RawData> = ExecuteInput<Settings, Payload> & { rawData?: RawData }
 
-function generateFile(payloads: Payload[], isAudience?: boolean): string {
+function generateFile(payloads: PayloadWithRawData[], isAudience?: boolean): string {
   const headers: string[] = []
   const columnsField = payloads[0].columns
 
