@@ -692,11 +692,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         continue
       }
 
-      multiStatusResponse.push({
+      multiStatusResponse[i] = {
         status: status,
         body: body,
         sent: filteredPayloads ? filteredPayloads[payloadReadIndex++] : {}
-      })
+      }
     }
   }
 }

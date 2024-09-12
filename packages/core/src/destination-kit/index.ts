@@ -716,7 +716,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         const response: ResultMultiStatusNode = {
           status: 400,
           errortype: 'INVALID_SUBSCRIPTION',
-          errormessage: `invalid subscription : ${(parsedSubscription as ErrorCondition).error.message}`,
+          errormessage: `Invalid subscription : ${(parsedSubscription as ErrorCondition).error.message}`,
           errorreporter: 'INTEGRATIONS'
         }
 
@@ -770,7 +770,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
             continue
           }
 
-          // TODO: Add status here for filtered out events
           multistatus[i] = executeBatchResponse[mergeIndex++]
         }
 

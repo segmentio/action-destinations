@@ -515,7 +515,7 @@ describe('destination kit', () => {
       const testEvent: SegmentEvent = { type: 'track' }
       const testSettings = { apiSecret: 'test_key', subscription: { subscribe: 'typo', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: expect.stringContaining('invalid subscription') }])
+      expect(res).toEqual([{ output: expect.stringContaining('Invalid subscription') }])
       expect(res[0].output).toContain('Cannot read')
     })
 
