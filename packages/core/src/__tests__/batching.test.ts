@@ -75,7 +75,12 @@ describe('Batching', () => {
   test('basic happy path', async () => {
     const destination = new Destination(basicBatch)
     const res = await destination.onBatch(events, basicBatchSettings)
-    expect(res).toEqual(expect.arrayContaining([{ output: 'successfully processed batch of events' }]))
+    expect(res).toEqual(
+      expect.arrayContaining([
+        { response: { body: {}, sent: { user_id: 'user_123' }, status: 200 } },
+        { response: { body: {}, sent: { user_id: 'user_123' }, status: 200 } }
+      ])
+    )
   })
 
   test('transforms all the payloads based on the subscription mapping', async () => {
@@ -218,13 +223,7 @@ describe('Batching', () => {
 
     const promise = destination.onBatch([unsubscribedEvent, invalidEvent], basicBatchSettings)
     // The promise resolves because invalid events are ignored by the batch handler until we can get per-item responses hooked up
-    await expect(promise).resolves.toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "output": "successfully processed batch of events",
-              },
-            ]
-          `)
+    await expect(promise).resolves.toMatchInlineSnapshot(`Array []`)
     expect(batchSpy).not.toHaveBeenCalled()
     expect(spy).not.toHaveBeenCalled()
   })

@@ -4,7 +4,7 @@ import { JSONLikeObject, JSONObject } from '../json-object'
 import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
-import type { ModifiedResponse } from '../types'
+import { ModifiedResponse } from '../types'
 import type {
   DynamicFieldResponse,
   InputField,
@@ -13,9 +13,11 @@ import type {
   Result,
   SyncMode,
   SyncModeDefinition,
-  DynamicFieldContext
+  DynamicFieldContext,
+  ActionDestinationSuccessResponse,
+  ActionDestinationErrorResponse
 } from './types'
-import { syncModeTypes } from './types'
+import { syncModeTypes, ActionDestinationResponse } from './types'
 import { NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
@@ -73,6 +75,9 @@ type GenericActionHookBundle = {
 // Utility type to check if T is an array
 type IsArray<T> = T extends (infer U)[] ? U : never
 
+// Multi-status response from a batch request
+type PerformBatchResponse = MaybePromise<MultiStatusResponse> | MaybePromise<unknown>
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ActionDefinition<
   Settings,
@@ -112,7 +117,7 @@ export interface ActionDefinition<
   perform: RequestFn<Settings, Payload, any, AudienceSettings>
 
   /** The operation to perform when this action is triggered for a batch of events */
-  performBatch?: RequestFn<Settings, Payload[], any, AudienceSettings>
+  performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings>
 
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
@@ -207,6 +212,19 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   dataFeedCache?: DataFeedCache | undefined
   transactionContext?: TransactionContext
   stateContext?: StateContext
+}
+
+type FillMultiStatusResponseInput = {
+  results: Result[]
+  batchPayloadLength: number
+  status: number
+  body: JSONObject | string
+  filteredPayloads?: JSONLikeObject[]
+}
+
+type SetMultiStatusResponseInput = {
+  results: Result[]
+  multiStatusResponse: MultiStatusResponse
 }
 
 const isSyncMode = (value: unknown): value is SyncMode => {
@@ -346,7 +364,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return results
   }
 
-  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<void> {
+  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<Result[]> {
     if (!this.hasBatchSupport) {
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
@@ -355,6 +373,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
 
     let payloads = transformBatch(mapping, bundle.data) as Payload[]
+    const batchPayloadLength = payloads.length
+
+    const results: Result[] = []
 
     // Validate the resolved payloads against the schema
     if (this.schema) {
@@ -365,11 +386,34 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         statsContext: bundle.statsContext
       }
 
-      payloads = payloads
-        // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-        .map((payload) => removeEmptyValues(payload, schema) as Payload)
-        // Exclude invalid schemas for now...
-        .filter((payload) => validateSchema(payload, schema, validationOptions))
+      {
+        const filteredPayload: Payload[] = []
+
+        for (let i = 0; i < payloads.length; i++) {
+          // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
+          const payload = removeEmptyValues(payloads[i], schema) as Payload
+          // Validate payload schema
+          const isValid = validateSchema(payload, schema, validationOptions)
+
+          if (isValid) {
+            // Event is validated, pass it to the action
+            filteredPayload.push(payload)
+          } else {
+            // Validation failed, record the filtered out event
+            results[i] = {
+              response: {
+                status: 400,
+                errortype: 'INVALID_PAYLOAD',
+                errormessage: 'Invalid payload',
+                errorreporter: 'INTEGRATIONS'
+              }
+            }
+          }
+        }
+
+        // Update the payloads with the filtered out events
+        payloads = filteredPayload
+      }
     }
 
     let hookOutputs = {}
@@ -384,7 +428,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (payloads.length === 0) {
-      return
+      return []
     }
 
     if (this.definition.performBatch) {
@@ -408,8 +452,60 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         syncMode: isSyncMode(syncMode) ? syncMode : undefined,
         matchingKey: matchingKey ? String(matchingKey) : undefined
       }
-      await this.performRequest(this.definition.performBatch, data)
+
+      const requestClient = this.createRequestClient(data)
+      // TODO: Add a try/catch block here to handle errors
+      const performBatchResponse = await this.definition.performBatch(requestClient, data)
+
+      // PerformBatch returned a legacy response
+      if (performBatchResponse instanceof Response && performBatchResponse.status !== 207) {
+        // We received a legacy response with a status code other from 207 for the entire batch
+
+        // Try to parse the multi-status response
+        let parsedBody: JSONObject | string = {}
+
+        try {
+          parsedBody =
+            ((performBatchResponse as ModifiedResponse).data as JSONObject) ??
+            (performBatchResponse as ModifiedResponse).content
+        } catch (e) {
+          parsedBody = {}
+        }
+
+        this.fillMultiStatusResponse({
+          results,
+          batchPayloadLength,
+          status: performBatchResponse.status,
+          body: parsedBody,
+          filteredPayloads: payloads
+        })
+
+        return results
+      }
+
+      // PerformBatch returned a Spec V2 MultiStatus Response
+      if (performBatchResponse instanceof MultiStatusResponse) {
+        this.setMultiStatusResponse({
+          results,
+          multiStatusResponse: performBatchResponse
+        })
+
+        return results
+      }
+
+      // Assume the entire batch to be success in the following conditions
+      // - PerformBatch returned an unknown response
+      // - PerformBatch returned an unhandled 207 multi-status response
+      this.fillMultiStatusResponse({
+        results,
+        batchPayloadLength,
+        status: 200,
+        body: {},
+        filteredPayloads: payloads
+      })
     }
+
+    return results
   }
 
   /*
@@ -549,5 +645,253 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     // otherwise, we don't really know what this is, so return as-is
     return response
+  }
+
+  private fillMultiStatusResponse(input: FillMultiStatusResponseInput) {
+    const { results, batchPayloadLength, status, body, filteredPayloads } = input
+
+    for (let i = 0; i < batchPayloadLength; i++) {
+      // Check if the index is already set to a failed response
+      if (results[i]) {
+        continue
+      }
+
+      let payloadReadIndex = 0
+      results.push({
+        response: {
+          status: status,
+          body: body,
+          sent: filteredPayloads ? filteredPayloads[payloadReadIndex++] : {}
+        }
+      })
+    }
+  }
+
+  private setMultiStatusResponse(input: SetMultiStatusResponseInput) {
+    const { results, multiStatusResponse } = input
+
+    let resultsReadIndex = 0
+    for (let i = 0; i < multiStatusResponse.length(); i++) {
+      const response = multiStatusResponse.getResponseAtIndex(resultsReadIndex++)
+
+      // Skip the index if we already have a response set
+      if (results[i]) {
+        continue
+      }
+
+      // Check if response is a failed response
+      if (
+        (response as ActionDestinationErrorResponse).errortype ||
+        (response as ActionDestinationErrorResponse).errormessage
+      ) {
+        results[i] = {
+          response: {
+            ...response,
+            errorreporter: 'INTEGRATIONS'
+          }
+        }
+
+        continue
+      }
+
+      // We assume the response is a success response
+      results[i] = {
+        response: response as ActionDestinationSuccessResponse
+      }
+    }
+  }
+}
+
+export type MultiStatusPayloadValidatorFunction<PayloadType extends object = object> = (
+  payload: PayloadType
+) => MultiStatusPayloadValidatorFunctionObjectResponse | boolean
+
+export type MultiStatusPayloadValidatorFunctionObjectResponse = {
+  isValid: boolean
+  response?: ActionDestinationErrorResponse
+}
+
+export type MultiStatusPayloadTransformerFunction<
+  PayloadType extends object = object,
+  TransformedPayloadType extends object = object
+> = (payload: PayloadType) => TransformedPayloadType
+
+export class MultiStatusResponse {
+  private responses: ActionDestinationResponse[] = []
+
+  public length(): number {
+    return this.responses.length
+  }
+
+  // Pushes a Generic Response at the end of the responses array
+  public pushResponse(response: ActionDestinationResponse) {
+    this.responses.push(response)
+  }
+
+  // Pushes a Success Response at the end of the responses array
+  public pushSuccessResponse(response: ActionDestinationSuccessResponse) {
+    this.responses.push(response)
+  }
+
+  // Pushes an Error Response at the end of the responses array
+  public pushErrorResponse(response: ActionDestinationErrorResponse) {
+    this.responses.push(response)
+  }
+
+  // Pushes a Generic Response at the specified index of the responses array
+  public pushResponseAtIndex(index: number, response: ActionDestinationResponse) {
+    this.responses[index] = response
+  }
+
+  // Pushes a Success Response at the specified index of the responses array
+  public setSuccessResponseAtIndex(index: number, response: ActionDestinationSuccessResponse) {
+    this.responses[index] = response
+  }
+
+  // Pushes an Error Response at the specified index of the responses array
+  public setErrorResponseAtIndex(index: number, response: ActionDestinationErrorResponse) {
+    this.responses[index] = response
+  }
+
+  // Remove the response at the specified index of the responses array by setting it to empty
+  // Note: This will not remove the index from the array
+  public unsetResponseAtIndex(index: number) {
+    delete this.responses[index]
+  }
+
+  public getResponseAtIndex(index: number): ActionDestinationResponse {
+    return this.responses[index]
+  }
+
+  public getAllResponses(): ActionDestinationResponse[] {
+    return this.responses
+  }
+}
+
+export class MultiStatusResponseBuilder<PayloadType extends object = object> {
+  private payloads: PayloadType[] = []
+  private batchSize = 0
+
+  private invalidPayloadIndices: Set<number> = new Set()
+  private validPayloadIndexToBatchIndexMap: Map<number, number> = new Map()
+  private wasFilterInvalidPayloadsExecuted = false
+
+  private multiStatusResponse = new MultiStatusResponse()
+
+  constructor(payloads: PayloadType[]) {
+    this.payloads = payloads
+    this.batchSize = payloads.length
+  }
+
+  public filterInvalidPayloads<TransformedPayloadType extends object = object>(input: {
+    validatorFn: MultiStatusPayloadValidatorFunction<PayloadType>
+    transformerFn?: MultiStatusPayloadTransformerFunction<PayloadType, TransformedPayloadType>
+    defaultValidationMessage?: string
+    defaultValidationCode?: number
+  }) {
+    this.invalidPayloadIndices.clear()
+    this.validPayloadIndexToBatchIndexMap.clear()
+    const validatedPayloads: (PayloadType | TransformedPayloadType)[] = []
+
+    for (let i = 0; i < this.payloads.length; i++) {
+      if (!this.payloads[i]) {
+        this.multiStatusResponse.setErrorResponseAtIndex(i, {
+          status: input.defaultValidationCode ?? 400,
+          errortype: 'INVALID_PAYLOAD',
+          errormessage: input.defaultValidationMessage ?? 'Invalid Payload'
+        })
+
+        continue
+      }
+
+      // Execute the validation function
+      const validationResponse = input.validatorFn(this.payloads[i])
+
+      // If the validation response is a boolean, we assume it's a validation check with simple response
+      if (typeof validationResponse === 'boolean' && !validationResponse) {
+        this.multiStatusResponse.setErrorResponseAtIndex(i, {
+          status: input.defaultValidationCode ?? 400,
+          errortype: 'INVALID_PAYLOAD',
+          errormessage: input.defaultValidationMessage ?? 'Invalid Payload'
+        })
+
+        continue
+      }
+
+      // If the validation response is an object, we assume it's a validation check with complex response
+      if (typeof validationResponse === 'object' && !validationResponse.isValid) {
+        if (validationResponse.response) {
+          this.multiStatusResponse.setErrorResponseAtIndex(i, validationResponse.response)
+        } else {
+          this.multiStatusResponse.setErrorResponseAtIndex(i, {
+            status: input.defaultValidationCode ?? 400,
+            errortype: 'INVALID_PAYLOAD',
+            errormessage: input.defaultValidationMessage ?? 'Invalid Payload'
+          })
+        }
+      }
+
+      // If a transformation function is provided, transform the payload
+      if (input.transformerFn) {
+        const transformedPayload = input.transformerFn(this.payloads[i])
+        validatedPayloads.push(transformedPayload)
+      } else {
+        validatedPayloads.push(this.payloads[i])
+      }
+
+      // Keep track of the valid payload index to the batch index
+      this.validPayloadIndexToBatchIndexMap.set(validatedPayloads.length - 1, i)
+    }
+
+    this.wasFilterInvalidPayloadsExecuted = true
+    return validatedPayloads
+  }
+
+  public async mergeAPIResponse<APIResponseType = unknown>(input: {
+    apiResponse: MaybePromise<ModifiedResponse<APIResponseType>>
+    responseParserFn: (
+      response: ModifiedResponse<APIResponseType>,
+      validEventsCount: number
+    ) => ActionDestinationResponse[]
+  }) {
+    const response = await input.apiResponse
+    const parsedResponses = input.responseParserFn(response, this.validPayloadIndexToBatchIndexMap.size)
+
+    if (parsedResponses.length !== this.batchSize - this.invalidPayloadIndices.size) {
+      throw new IntegrationError(
+        `The number of parsed responses (${parsedResponses.length}) does not match the number of valid payloads (${this.validPayloadIndexToBatchIndexMap.size}).`,
+        'InvalidMultiStatusResponse',
+        400
+      )
+    }
+
+    // If the filterInvalidPayloads method was not executed, we assume all payloads are validated
+    // hence we skip the merging process and directly assign the parsed responses to the responses array
+    if (this.wasFilterInvalidPayloadsExecuted) {
+      for (let i = 0; i < parsedResponses.length; i++) {
+        this.multiStatusResponse.pushResponse(parsedResponses[i])
+      }
+
+      return
+    }
+
+    // If the filterInvalidPayloads method was executed, we need to merge the parsed responses with the responses array
+    for (let i = 0; i < parsedResponses.length; i++) {
+      const resolvedIndex = this.validPayloadIndexToBatchIndexMap.get(i)
+
+      if (!resolvedIndex) {
+        throw new IntegrationError(
+          `Failed to resolve the index for the parsed response at index ${i}.`,
+          'InvalidMultiStatusResponse',
+          400
+        )
+      }
+
+      this.multiStatusResponse.pushResponseAtIndex(resolvedIndex, parsedResponses[i])
+    }
+  }
+
+  public buildMultiStatusResponse() {
+    return this.multiStatusResponse
   }
 }
