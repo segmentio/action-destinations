@@ -79,7 +79,7 @@ describe('Batching', () => {
       {
         multistatus: [
           { body: {}, sent: { user_id: 'user_123' }, status: 200 },
-          { body: {}, sent: { user_id: 'user_123' }, status: 200 }
+          { body: {}, sent: { user_id: 'user_456' }, status: 200 }
         ]
       }
     ])
@@ -211,21 +211,43 @@ describe('Batching', () => {
     const batchSpy = jest.spyOn(basicBatch.actions.testAction, 'performBatch')
     const spy = jest.spyOn(basicBatch.actions.testAction, 'perform')
 
-    const unsubscribedEvent = createTestEvent({
-      event: 'Test Event',
-      type: 'identify',
-      userId: 'nope'
-    })
+    const events: SegmentEvent[] = [
+      // Unsubscribed event
+      createTestEvent({
+        event: 'Test Event',
+        type: 'identify',
+        userId: 'nope'
+      }),
+      // Invalid event
+      createTestEvent({
+        event: 'Test Event',
+        type: 'track',
+        userId: undefined
+      })
+    ]
 
-    const invalidEvent = createTestEvent({
-      event: 'Test Event',
-      type: 'track',
-      userId: undefined
-    })
-
-    const promise = destination.onBatch([unsubscribedEvent, invalidEvent], basicBatchSettings)
+    const promise = destination.onBatch(events, basicBatchSettings)
     // The promise resolves because invalid events are ignored by the batch handler until we can get per-item responses hooked up
-    await expect(promise).resolves.toMatchInlineSnapshot(`Array []`)
+    await expect(promise).resolves.toMatchInlineSnapshot(`
+            Array [
+              Object {
+                "multistatus": Array [
+                  Object {
+                    "errormessage": "Payload is either invalid or does not match the subscription",
+                    "errorreporter": "INTEGRATIONS",
+                    "errortype": "INVALID_PAYLOAD",
+                    "status": 400,
+                  },
+                  Object {
+                    "errormessage": "Invalid payload",
+                    "errorreporter": "INTEGRATIONS",
+                    "errortype": "INVALID_PAYLOAD",
+                    "status": 400,
+                  },
+                ],
+              },
+            ]
+          `)
     expect(batchSpy).not.toHaveBeenCalled()
     expect(spy).not.toHaveBeenCalled()
   })

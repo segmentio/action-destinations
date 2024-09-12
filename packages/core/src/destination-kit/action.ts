@@ -217,6 +217,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
 
 type FillMultiStatusResponseInput = {
   multiStatusResponse: ResultMultiStatusNode[]
+  invalidPayloadIndices: Set<number>
   batchPayloadLength: number
   status: number
   body: JSONObject | string
@@ -360,7 +361,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return results
   }
 
-  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<Result[]> {
+  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<ResultMultiStatusNode[]> {
     if (!this.hasBatchSupport) {
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
@@ -372,6 +373,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     const batchPayloadLength = payloads.length
 
     const multiStatusResponse: ResultMultiStatusNode[] = []
+    const invalidPayloadIndices = new Set<number>()
 
     // Validate the resolved payloads against the schema
     if (this.schema) {
@@ -392,18 +394,21 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
           // Validate payload schema
           const isValid = validateSchema(payload, schema, validationOptions)
 
-          if (isValid) {
-            // Event is validated, pass it to the action
-            filteredPayload.push(payload)
-          } else {
-            // Validation failed, record the filtered out event
+          // Validation failed, record the filtered out event
+          if (!isValid) {
             multiStatusResponse[i] = {
               status: 400,
               errortype: 'INVALID_PAYLOAD',
               errormessage: 'Invalid payload',
               errorreporter: 'INTEGRATIONS'
             }
+
+            invalidPayloadIndices.add(i)
+            continue
           }
+
+          // Event is validated, pass it to the action
+          filteredPayload.push(payload)
         }
 
         // Update the payloads with the filtered out events
@@ -423,7 +428,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (payloads.length === 0) {
-      return []
+      return multiStatusResponse
     }
 
     if (this.definition.performBatch) {
@@ -469,45 +474,47 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
         this.fillMultiStatusResponse({
           multiStatusResponse,
+          invalidPayloadIndices,
           batchPayloadLength,
           status: performBatchResponse.status,
           body: parsedBody,
           filteredPayloads: payloads
         })
 
-        return [{ multistatus: multiStatusResponse }]
+        return multiStatusResponse
       }
 
       // PerformBatch returned a HTTPError
       if (performBatchResponse instanceof HTTPError) {
         this.fillMultiStatusResponse({
           multiStatusResponse,
+          invalidPayloadIndices,
           batchPayloadLength,
           status: performBatchResponse.response.status,
           body: performBatchResponse.message,
           filteredPayloads: payloads
         })
 
-        return [{ multistatus: multiStatusResponse }]
+        return multiStatusResponse
       }
 
       // PerformBatch returned a Spec V2 compliant MultiStatus Response
       if (performBatchResponse instanceof MultiStatusResponse) {
         let resultsReadIndex = 0
 
-        for (let i = 0; i < performBatchResponse.length(); i++) {
-          const response = performBatchResponse.getResponseAtIndex(resultsReadIndex++)
-
+        for (let i = 0; i < batchPayloadLength; i++) {
           // Skip the index if we already have a response set
-          if (multiStatusResponse[i]) {
+          if (invalidPayloadIndices.has(i)) {
             continue
           }
+
+          const response = performBatchResponse.getResponseAtIndex(resultsReadIndex++)
 
           // Check if response is a failed response
           if (response instanceof ActionDestinationErrorResponse) {
             multiStatusResponse[i] = {
               ...response.value(),
-              errorreporter: 'INTEGRATIONS'
+              errorreporter: 'DESTINATION'
             }
 
             continue
@@ -517,7 +524,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
           multiStatusResponse[i] = response.value()
         }
 
-        return [{ multistatus: multiStatusResponse }]
+        return multiStatusResponse
       }
 
       // Assume the entire batch to be success in the following conditions
@@ -525,6 +532,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       // - PerformBatch returned an unhandled 207 multi-status response
       this.fillMultiStatusResponse({
         multiStatusResponse,
+        invalidPayloadIndices,
         batchPayloadLength,
         status: 200,
         body: {},
@@ -532,7 +540,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       })
     }
 
-    return [{ multistatus: multiStatusResponse }]
+    return multiStatusResponse
   }
 
   /*
@@ -677,13 +685,13 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   private fillMultiStatusResponse(input: FillMultiStatusResponseInput) {
     const { multiStatusResponse, batchPayloadLength, status, body, filteredPayloads } = input
 
+    let payloadReadIndex = 0
     for (let i = 0; i < batchPayloadLength; i++) {
       // Check if the index is already set to a failed response
-      if (multiStatusResponse[i]) {
+      if (input.invalidPayloadIndices.has(i)) {
         continue
       }
 
-      let payloadReadIndex = 0
       multiStatusResponse.push({
         status: status,
         body: body,
