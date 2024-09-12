@@ -46,119 +46,120 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
       })
 
-      return { accessToken: res.data.access_token }
-    }
-  },
-  extendRequest({ auth }) {
-    return {
-      headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+      return {
+        accessToken: res.data as { access_token: string }
       }
-    }
-  },
-
-  audienceFields: {
-    adAccountId: {
-      label: 'An audience id required by the destination',
-      description: 'An audience id required by the destination',
-      type: 'string',
-      required: true
     },
-    audienceId: {
-      label: 'An audience id required by the destination',
-      description: 'An audience id required by the destination',
-      type: 'string',
-      required: false
-    }
-  },
-
-  audienceConfig: {
-    mode: {
-      type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
-      full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+    extendRequest({ auth }) {
+      return {
+        headers: {
+          authorization: `Bearer ${auth?.accessToken}`
+        }
+      }
     },
 
-    // commented out createAudience for now - was causing issues during testing
-    // perhaps because the function name was the same as this
+    audienceFields: {
+      adAccountId: {
+        label: 'An audience id required by the destination',
+        description: 'An audience id required by the destination',
+        type: 'string',
+        required: true
+      },
+      audienceId: {
+        label: 'An audience id required by the destination',
+        description: 'An audience id required by the destination',
+        type: 'string',
+        required: false
+      }
+    },
 
-    // Get/Create are optional and only needed if you need to create an audience before sending events/users.
-    // createAudience: async (request, createAudienceInput) => {
-    //   const audienceName = createAudienceInput.audienceName
-    //   const adAccountId = createAudienceInput.audienceSettings?.adAccountId
-    //   // Create an audience through the destination's API
-    //   // Segment will save this externalId for subsequent calls; the externalId is used to keep track of the audience in our database
-    //   if (!audienceName) {
-    //     throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
-    //   }
+    audienceConfig: {
+      mode: {
+        type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
+        full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+      },
 
-    //   if (!adAccountId) {
-    //     throw new IntegrationError('Missing ad account ID value', 'MISSING_REQUIRED_FIELD', 400)
-    //   }
+      // commented out createAudience for now - was causing issues during testing
+      // perhaps because the function name was the same as this
 
-    //   // TODO - Check adAccountId regex for a2_ or t2_ prefix - throw error if not
+      // Get/Create are optional and only needed if you need to create an audience before sending events/users.
+      // createAudience: async (request, createAudienceInput) => {
+      //   const audienceName = createAudienceInput.audienceName
+      //   const adAccountId = createAudienceInput.audienceSettings?.adAccountId
+      //   // Create an audience through the destination's API
+      //   // Segment will save this externalId for subsequent calls; the externalId is used to keep track of the audience in our database
+      //   if (!audienceName) {
+      //     throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
+      //   }
 
-    //   const createAudienceUrl = `https://ads-api.reddit.com/api/v3/ad_accounts/${adAccountId}/custom_audiences`
-    //   const payload = {
-    //     data: {
-    //       name: audienceName,
-    //       type: 'CUSTOMER_LIST'
-    //     }
-    //   }
+      //   if (!adAccountId) {
+      //     throw new IntegrationError('Missing ad account ID value', 'MISSING_REQUIRED_FIELD', 400)
+      //   }
 
-    //   const response = await request(createAudienceUrl, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify(payload)
-    //   })
+      //   // TODO - Check adAccountId regex for a2_ or t2_ prefix - throw error if not
 
-    //   console.log(response)
+      //   const createAudienceUrl = `https://ads-api.reddit.com/api/v3/ad_accounts/${adAccountId}/custom_audiences`
+      //   const payload = {
+      //     data: {
+      //       name: audienceName,
+      //       type: 'CUSTOMER_LIST'
+      //     }
+      //   }
 
-    //   const jsonOutput = await response.json()
-    //   if (!jsonOutput.data['id']) {
-    //     throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
-    //   }
+      //   const response = await request(createAudienceUrl, {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json'
+      //     },
+      //     body: JSON.stringify(payload)
+      //   })
 
-    //   return { externalId: jsonOutput.data['id'] }
+      //   console.log(response)
+
+      //   const jsonOutput = await response.json()
+      //   if (!jsonOutput.data['id']) {
+      //     throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
+      //   }
+
+      //   return { externalId: jsonOutput.data['id'] }
+      // },
+
+      getAudience: async (request, getAudienceInput) => {
+        // Right now, `getAudience` will mostly serve as a check to ensure the audience still exists in the destination
+        const getAudienceUrl = `https://ads-api.reddit.com/api/v3/custom_audiences/${getAudienceInput.externalId}`
+
+        const response = await request(getAudienceUrl, {
+          method: 'GET'
+        })
+        console.log('getAudience Response:')
+        console.log(response)
+
+        const r = await response.json()
+        const audienceId = r.data['id']
+
+        if (!audienceId) {
+          throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
+        }
+
+        if (getAudienceInput.externalId !== audienceId) {
+          throw new IntegrationError("Couldn't find audience", 'INVALID_RESPONSE', 400)
+        }
+
+        return { externalId: audienceId }
+      }
+    },
+
+    // onDelete: async (request, { settings, payload }) => {
+    //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
+    //   // provided in the payload. If your destination does not support GDPR deletion you should not
+    //   // implement this function and should remove it completely.
     // },
 
-    getAudience: async (request, getAudienceInput) => {
-      // Right now, `getAudience` will mostly serve as a check to ensure the audience still exists in the destination
-      const getAudienceUrl = `https://ads-api.reddit.com/api/v3/custom_audiences/${getAudienceInput.externalId}`
-
-      const response = await request(getAudienceUrl, {
-        method: 'GET'
-      })
-      console.log('getAudience Response:')
-      console.log(response)
-
-      const r = await response.json()
-      const audienceId = r.data['id']
-
-      if (!audienceId) {
-        throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
-      }
-
-      if (getAudienceInput.externalId !== audienceId) {
-        throw new IntegrationError("Couldn't find audience", 'INVALID_RESPONSE', 400)
-      }
-
-      return { externalId: audienceId }
+    actions: {
+      addToAudience,
+      createAudience,
+      deleteFromAudience
     }
-  },
-
-  // onDelete: async (request, { settings, payload }) => {
-  //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-  //   // provided in the payload. If your destination does not support GDPR deletion you should not
-  //   // implement this function and should remove it completely.
-  // },
-
-  actions: {
-    addToAudience,
-    createAudience,
-    deleteFromAudience
   }
-}
 
 export default destination
