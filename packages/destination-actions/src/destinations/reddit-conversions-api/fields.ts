@@ -114,13 +114,13 @@ export const products: InputField = {
       label: 'Category',
       description: "The category the product is in; for example, a label from Google's product taxonomy. Required.",
       type: 'string',
-      required: true
+      required: false
     },
     id: {
       label: 'Product ID',
       description: 'The ID representing the product in a catalog. Required.',
       type: 'string',
-      required: true
+      required: false
     },
     name: {
       label: 'Product Name',
