@@ -5,9 +5,13 @@ import { Settings } from './generated-types'
 import { Client } from './client'
 
 export async function send(payloads: EventPayload[] | AudiencePayload[], settings: Settings) {
+  console.log('1')
   validate(payloads)
+  console.log('meh')
   const fileContent = generateFile(payloads)
+  console.log(fileContent)
   const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
+  console.log('hello')
   await s3Client.uploadS3(
     settings,
     fileContent,
@@ -28,7 +32,15 @@ function processField(
     if (index === 0) {
       headers.push(column_name as string)
     }
-    row.push(encodeString(field === undefined || field === null ? '' : String(field)))
+    row.push(
+      encodeString(
+        field === undefined || field === null
+          ? ''
+          : typeof field === 'object'
+          ? String(JSON.stringify(field))
+          : String(field)
+      )
+    )
   }
 }
 
@@ -37,7 +49,7 @@ function generateFile(payloads: EventPayload[] | AudiencePayload[]): string {
   const columnHeaders = payloads[0].columns
   const audienceColumnHeaders = (payloads as AudiencePayload[])[0].audienceColumns
   const rows: string[] = []
-
+  console.log()
   const {
     user_id_header,
     anonymous_id_header,
@@ -51,7 +63,8 @@ function generateFile(payloads: EventPayload[] | AudiencePayload[]): string {
     context_header
   } = columnHeaders
 
-  const { audience_name_header, audience_id_header, space_id_header, audience_action_header } = audienceColumnHeaders
+  const { audience_name_header, audience_id_header, space_id_header, audience_action_header } =
+    audienceColumnHeaders || {}
 
   payloads.forEach((payload, index, arr) => {
     const row: string[] = []
@@ -81,7 +94,8 @@ function generateFile(payloads: EventPayload[] | AudiencePayload[]): string {
       all_event_properties,
       all_user_traits,
       eventProperties,
-      userTraits
+      userTraits,
+      context
     } = p
 
     processField(index, headers, row, audience_name_header, audienceName)
@@ -144,11 +158,13 @@ function validate(payloads: EventPayload[] | AudiencePayload[]) {
     }
   })
 
-  Object.values(audienceColumns).forEach((columnName) => {
-    if (columnName.includes(delimiter)) {
-      throw new PayloadValidationError(`Audience Column name ${columnName} cannot contain delimiter: ${delimiter}`)
-    }
-  })
+  if (audienceColumns) {
+    Object.values(audienceColumns).forEach((columnName) => {
+      if (columnName.includes(delimiter)) {
+        throw new PayloadValidationError(`Audience Column name ${columnName} cannot contain delimiter: ${delimiter}`)
+      }
+    })
+  }
 
   if (additionalPropertiesColumns) {
     Object.entries(additionalPropertiesColumns).forEach(([key, value]) => {
