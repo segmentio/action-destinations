@@ -302,7 +302,7 @@ describe('Message send performer', () => {
       expect(res[1]).not.toBeInstanceOf(Error)
     })
 
-    test.only('cache lock write failure should lead to retryable error', async () => {
+    test('cache lock write failure should lead to retryable error', async () => {
       const cache = new TestCache()
       cache.setByKeyNX = jest.fn(() => {
         throw new Error('some error while writing lock')
