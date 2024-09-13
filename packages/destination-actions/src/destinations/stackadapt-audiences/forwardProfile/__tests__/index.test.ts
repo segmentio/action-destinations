@@ -117,10 +117,12 @@ describe('forwardProfile', () => {
       Object {
         "query": "mutation {
             upsertProfiles(
-              advertiserId: 23,
-              externalProvider: \\"segmentio\\",
-              syncId: \\"9e1d2ce099d4f67eea85e3a8e692db14e1e903365304f871c304a1d718cfe28c\\",
-              profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
+              input: {
+                advertiserId: 23,
+                externalProvider: \\"segmentio\\",
+                syncId: \\"9e1d2ce099d4f67eea85e3a8e692db14e1e903365304f871c304a1d718cfe28c\\",
+                profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
+              }
             ) {
               userErrors {
                 message
@@ -189,10 +191,12 @@ describe('forwardProfile', () => {
       Object {
         "query": "mutation {
             upsertProfiles(
-              advertiserId: 23,
-              externalProvider: \\"segmentio\\",
-              syncId: \\"18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc\\",
-              profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
+              input: {
+                advertiserId: 23,
+                externalProvider: \\"segmentio\\",
+                syncId: \\"18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
+              }
             ) {
               userErrors {
                 message
@@ -246,10 +250,12 @@ describe('forwardProfile', () => {
       Object {
         "query": "mutation {
             upsertProfiles(
-              advertiserId: 23,
-              externalProvider: \\"segmentio\\",
-              syncId: \\"568869a402020aef80f7079205c73a4a5e73b3ecaf2e7e95b47a47f750887ac1\\",
-              profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"},{\\\\\\"email\\\\\\":\\\\\\"email2@stackadapt.com\\\\\\",\\\\\\"customField\\\\\\":\\\\\\"value\\\\\\",\\\\\\"numberCustomField\\\\\\":123,\\\\\\"userId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
+              input: {
+                advertiserId: 23,
+                externalProvider: \\"segmentio\\",
+                syncId: \\"568869a402020aef80f7079205c73a4a5e73b3ecaf2e7e95b47a47f750887ac1\\",
+                profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"},{\\\\\\"email\\\\\\":\\\\\\"email2@stackadapt.com\\\\\\",\\\\\\"customField\\\\\\":\\\\\\"value\\\\\\",\\\\\\"numberCustomField\\\\\\":123,\\\\\\"userId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
+              }
             ) {
               userErrors {
                 message
@@ -303,10 +309,12 @@ describe('forwardProfile', () => {
       Object {
         "query": "mutation {
             upsertProfiles(
-              advertiserId: 23,
-              externalProvider: \\"segmentio\\",
-              syncId: \\"2927b0a6fa4184304ef5cc5896272f8c89dd35391adb949230e115cfc8dd58b1\\",
-              profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\"}]\\"
+              input: {
+                advertiserId: 23,
+                externalProvider: \\"segmentio\\",
+                syncId: \\"2927b0a6fa4184304ef5cc5896272f8c89dd35391adb949230e115cfc8dd58b1\\",
+                profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\"}]\\"
+              }
             ) {
               userErrors {
                 message
@@ -360,10 +368,12 @@ describe('forwardProfile', () => {
       Object {
         "query": "mutation {
             upsertProfiles(
-              advertiserId: 23,
-              externalProvider: \\"segmentio\\",
-              syncId: \\"b9612b9eb0ade5b30e0f474e03e54449e0d108e09306aa1afdf92e2a6267146e\\",
-              profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"previousId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
+              input: {
+                advertiserId: 23,
+                externalProvider: \\"segmentio\\",
+                syncId: \\"b9612b9eb0ade5b30e0f474e03e54449e0d108e09306aa1afdf92e2a6267146e\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"previousId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
+              }
             ) {
               userErrors {
                 message

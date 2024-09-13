@@ -4,10 +4,12 @@ exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardP
 Object {
   "query": "mutation {
       upsertProfiles(
-        advertiserId: PsAwlRv%,
-        externalProvider: \\"segmentio\\",
-        syncId: \\"f24e8ba158f2f09eaec6035ece3124e3a93a286d850f5a8a7d4403681b8748eb\\",
-        profiles: \\"[{\\\\\\"testType\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\"}]\\"
+        input: {
+          advertiserId: PsAwlRv%,
+          externalProvider: \\"segmentio\\",
+          syncId: \\"f24e8ba158f2f09eaec6035ece3124e3a93a286d850f5a8a7d4403681b8748eb\\",
+          profiles: \\"[{\\\\\\"testType\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\"}]\\"
+        }
       ) {
         userErrors {
           message
@@ -43,10 +45,12 @@ exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardP
 Object {
   "query": "mutation {
       upsertProfiles(
-        advertiserId: PsAwlRv%,
-        externalProvider: \\"segmentio\\",
-        syncId: \\"f24e8ba158f2f09eaec6035ece3124e3a93a286d850f5a8a7d4403681b8748eb\\",
-        profiles: \\"[{\\\\\\"testType\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\"}]\\"
+        input: {
+          advertiserId: PsAwlRv%,
+          externalProvider: \\"segmentio\\",
+          syncId: \\"f24e8ba158f2f09eaec6035ece3124e3a93a286d850f5a8a7d4403681b8748eb\\",
+          profiles: \\"[{\\\\\\"testType\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\"}]\\"
+        }
       ) {
         userErrors {
           message

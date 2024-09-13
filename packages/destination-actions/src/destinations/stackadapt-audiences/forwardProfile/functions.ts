@@ -82,10 +82,12 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
   const profiles = stringifyJsonWithEscapedQuotes(profileUpdates)
   const mutation = `mutation {
       upsertProfiles(
-        advertiserId: ${advertiserId},
-        externalProvider: "${EXTERNAL_PROVIDER}",
-        syncId: "${sha256hash(profiles)}",
-        profiles: "${profiles}"
+        input: {
+          advertiserId: ${advertiserId},
+          externalProvider: "${EXTERNAL_PROVIDER}",
+          syncId: "${sha256hash(profiles)}",
+          profiles: "${profiles}"
+        }
       ) {
         userErrors {
           message
