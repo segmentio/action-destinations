@@ -505,6 +505,28 @@ describe('Salesforce', () => {
           `"Unsupported operation: Bulk API does not support the delete operation"`
         )
       })
+
+      it('should fail if syncMode is undefined', async () => {
+        const event = createTestEvent({
+          type: 'track',
+          event: 'Delete',
+          userId: '123'
+        })
+
+        await expect(async () => {
+          await testDestination.testBatchAction('lead2', {
+            events: [event],
+            settings,
+            auth,
+            mapping: {
+              enable_batching: true,
+              traits: {
+                Id: { '@path': '$.userId' }
+              }
+            }
+          })
+        }).rejects.toThrowErrorMatchingInlineSnapshot(`"syncMode is required"`)
+      })
     })
 
     it('should fail if syncMode is undefined', async () => {
