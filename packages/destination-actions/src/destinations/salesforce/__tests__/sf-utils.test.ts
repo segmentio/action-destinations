@@ -137,7 +137,7 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const csv = buildCSVData(createPayloads, '', 'create')
+      const csv = buildCSVData(createPayloads, '', 'insert')
       const expected = `Name,Phone,Description\n"SpongeBob Squarepants","1234567890","Krusty Krab"\n"Squidward Tentacles","1234567891","Krusty Krab"\n`
 
       expect(csv).toEqual(expected)
@@ -159,7 +159,7 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const csv = buildCSVData(incompleteCreatePayloads, '', 'create')
+      const csv = buildCSVData(incompleteCreatePayloads, '', 'insert')
       const expected = `Name,Description,Phone\n"SpongeBob Squarepants",#N/A,"1234567890"\n"Squidward Tentacles","Krusty Krab",#N/A\n`
 
       expect(csv).toEqual(expected)
