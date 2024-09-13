@@ -508,5 +508,13 @@ export const screen_dimensions: InputField = {
       description: "The width of the user's screen in pixels. This must be positive and less than 32768.",
       type: 'integer'
     }
+  },
+  default: {
+    height: {
+      '@path': '$.context.screen.height'
+    },
+    width: {
+      '@path': '$.context.screen.width'
+    }
   }
 }
