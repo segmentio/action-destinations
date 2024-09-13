@@ -301,5 +301,30 @@ describe('Message send performer', () => {
       expect(res[0]).not.toBeInstanceOf(Error)
       expect(res[1]).not.toBeInstanceOf(Error)
     })
+
+    test.only('cache lock write failure should lead to retryable error', async () => {
+      const cache = new TestCache()
+      cache.setByKeyNX = jest.fn(() => {
+        throw new Error('some error while writing lock')
+      })
+      expect(() => cache.setByKeyNX('any key', 'any value')).toThrowError()
+      const sendToRecepient = jest.fn(() => Promise.resolve(new Date()))
+      const res = await runManyPerformers({
+        amount: 2,
+        sequentially: true,
+        sendToRecepient,
+        cache
+      })
+
+      expect(sendToRecepient).toHaveBeenCalledTimes(0)
+
+      expect(res[0]).toBeInstanceOf(IntegrationError)
+      expect(res[0].message.includes('some error while writing lock')).toBeTruthy()
+      expect(isRetryableError(res[0])).toBeTruthy()
+
+      expect(res[1]).toBeInstanceOf(IntegrationError)
+      expect(res[1].message.includes('some error while writing lock')).toBeTruthy()
+      expect(isRetryableError(res[1])).toBeTruthy()
+    })
   })
 })
