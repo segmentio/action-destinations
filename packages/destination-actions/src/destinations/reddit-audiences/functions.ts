@@ -1,7 +1,7 @@
 import { IntegrationError, RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Payload as AddToAudiencePayload } from './addToAudience/generated-types'
 import { Payload as CreateAudiencePayload } from './createAudience/generated-types'
-import { AuthSettings, AudienceResponse } from './types'
+import { AudienceResponse } from './types'
 import { createHash } from 'crypto'
 
 // Unified send function to handle all API requests
@@ -9,11 +9,10 @@ async function sendRequest<T = any>(
   request: RequestClient,
   method: 'GET' | 'POST' | 'PATCH',
   url: string,
-  auth: AuthSettings,
   body?: any
 ): Promise<T> {
   const headers: { [key: string]: string } = {
-    Authorization: `Bearer ${auth.accessToken}`,
+    Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
   }
 
@@ -41,10 +40,9 @@ async function sendRequest<T = any>(
 export async function audienceSync(
   request: RequestClient,
   payload: AddToAudiencePayload[],
-  action: string,
-  auth: AuthSettings
+  action: string
 ) {
-  await getAudience(request, payload[0], auth)
+  await getAudience(request, payload[0])
 
   const email_schema_name = 'EMAIL_SHA256'
   const maid_schema_name = 'MAID_SHA256'
@@ -60,7 +58,7 @@ export async function audienceSync(
       column_order: schema_columns,
       user_data: [user_payload]
     }
-    await updateAudience(request, audience_values, payload[0], auth)
+    await updateAudience(request, audience_values, payload[0])
   } else {
     throw new PayloadValidationError('At least one of Email Id or Advertising ID must be provided.')
   }
@@ -70,8 +68,7 @@ export async function audienceSync(
 async function updateAudience(
   request: RequestClient,
   audience_data: any,
-  settings_payload: AddToAudiencePayload,
-  auth: AuthSettings
+  settings_payload: AddToAudiencePayload
 ) {
   const updateAudienceUrl = `https://ads-api.reddit.com/api/v3/custom_audiences/${settings_payload.audience_id}/users`
   const max_size = 2500
@@ -85,25 +82,23 @@ async function updateAudience(
         user_data: entry
       }
     }
-    await sendRequest(request, 'PATCH', updateAudienceUrl, auth, json_payload)
+    await sendRequest(request, 'PATCH', updateAudienceUrl, json_payload)
   }
 }
 
 // Get Audience
 export async function getAudience(
   request: RequestClient,
-  payload: AddToAudiencePayload,
-  auth: AuthSettings
+  payload: AddToAudiencePayload
 ) {
   const getAudienceUrl = `https://ads-api.reddit.com/api/v3/custom_audiences/${payload.audience_id}`
-  return await sendRequest(request, 'GET', getAudienceUrl, auth)
+  return await sendRequest(request, 'GET', getAudienceUrl)
 }
 
 // Create Audience
 export async function createAudience(
   request: RequestClient,
-  payload: CreateAudiencePayload,
-  auth: AuthSettings
+  payload: CreateAudiencePayload
 ) {
   const audience_type = 'CUSTOMER_LIST'
   const createAudienceUrl = `https://ads-api.reddit.com/api/v3/ad_accounts/${payload.ad_account_id}/custom_audiences`
@@ -115,7 +110,7 @@ export async function createAudience(
     }
   }
 
-  const response = await sendRequest<AudienceResponse>(request, 'POST', createAudienceUrl, auth, request_payload)
+  const response = await sendRequest<AudienceResponse>(request, 'POST', createAudienceUrl, request_payload)
 
   if (!response.data?.id) {
     throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
@@ -200,3 +195,14 @@ function splitArray<T>(array: T[], chunkSize: number): T[][] {
   return split_array
 }
 
+let accessToken: string | null = null;
+
+// Function to set the access token
+export function setAccessToken(token: string) {
+  accessToken = token;
+}
+
+// Function to retrieve the current access token
+export function retrieveAccessToken(): string | null {
+  return accessToken;
+}

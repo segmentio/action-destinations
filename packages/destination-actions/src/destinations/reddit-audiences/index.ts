@@ -1,6 +1,7 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { AuthSettings, RequestOptions } from './types'
+import { setAccessToken } from './functions'
 
 import addToAudience from './addToAudience'
 
@@ -20,6 +21,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       ad_account_id: {
         type: 'string',
         label: 'Ad Account ID',
+        description: 'Unique identifier of an ad account. This can be found in the Reddit UI.',
+        required: true
+      },
+      client_id: {
+        type: 'string',
+        label: 'Client ID',
+        description: 'Unique identifier of an ad account. This can be found in the Reddit UI.',
+        required: true
+      },
+      client_secret: {
+        type: 'string',
+        label: 'Client Secret',
+        description: 'Unique identifier of an ad account. This can be found in the Reddit UI.',
+        required: true
+      },
+      refresh_token: {
+        type: 'string',
+        label: 'Refresh Token',
         description: 'Unique identifier of an ad account. This can be found in the Reddit UI.',
         required: true
       }
@@ -44,6 +63,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       })
       const responseData = res.data as { access_token: string }
 
+      setAccessToken(responseData.access_token);
       return {
         accessToken: responseData.access_token,
       }
@@ -71,57 +91,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
 
-    // commented out createAudience for now - was causing issues during testing
-    // perhaps because the function name was the same as this
-
-    // Get/Create are optional and only needed if you need to create an audience before sending events/users.
-    // createAudience: async (request, createAudienceInput) => {
-    //   const audienceName = createAudienceInput.audienceName
-    //   const adAccountId = createAudienceInput.audienceSettings?.adAccountId
-    //   // Create an audience through the destination's API
-    //   // Segment will save this externalId for subsequent calls; the externalId is used to keep track of the audience in our database
-    //   if (!audienceName) {
-    //     throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
-    //   }
-
-    //   if (!adAccountId) {
-    //     throw new IntegrationError('Missing ad account ID value', 'MISSING_REQUIRED_FIELD', 400)
-    //   }
-
-    //   // TODO - Check adAccountId regex for a2_ or t2_ prefix - throw error if not
-
-    //   const createAudienceUrl = `https://ads-api.reddit.com/api/v3/ad_accounts/${adAccountId}/custom_audiences`
-    //   const payload = {
-    //     data: {
-    //       name: audienceName,
-    //       type: 'CUSTOMER_LIST'
-    //     }
-    //   }
-
-    //   const response = await request(createAudienceUrl, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify(payload)
-    //   })
-
-    //   console.log(response)
-
-    //   const jsonOutput = await response.json()
-    //   if (!jsonOutput.data['id']) {
-    //     throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
-    //   }
-
-    //   return { externalId: jsonOutput.data['id'] }
-    // },
   },
-
-  // onDelete: async (request, { settings, payload }) => {
-  //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-  //   // provided in the payload. If your destination does not support GDPR deletion you should not
-  //   // implement this function and should remove it completely.
-  // },
 
   actions: {
     addToAudience,
