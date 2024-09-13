@@ -9,6 +9,8 @@ import contact from './contact'
 import account from './account'
 import { authenticateWithPassword } from './sf-operations'
 
+import lead2 from './lead2'
+
 interface RefreshTokenResponse {
   access_token?: string
   error?: string
@@ -118,7 +120,8 @@ const destination: DestinationDefinition<Settings> = {
     cases,
     contact,
     opportunity,
-    account
+    account,
+    lead2
   }
 }
 
