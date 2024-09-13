@@ -6,54 +6,46 @@ export interface Payload {
    */
   columns: {
     /**
-     * Name of column for email address
-     */
-    email?: string
-    /**
      * Name of column for user ID
      */
-    user_id?: string
+    user_id_header?: string
     /**
      * Name of column for anonymous ID
      */
-    anonymous_id?: string
+    anonymous_id_header?: string
     /**
      * Name of column for timestamp for when the user was added or removed from the Audience
      */
-    timestamp?: string
+    timestamp_header?: string
     /**
      * Name of column for the unique identifier for the message.
      */
-    message_id?: string
+    message_id_header?: string
     /**
      * Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment
      */
-    integrations_object?: string
-    /**
-     * Name of column for the unique identifier for the Segment Engage Space that generated the event.
-     */
-    space_id?: string
+    integrations_object_header?: string
     /**
      * Name of column for the track() properties.
      */
-    all_event_properties?: string
+    all_event_properties_header?: string
     /**
      * Name of column for the track() or identify() user traits.
      */
-    all_user_traits?: string
+    all_user_traits_header?: string
     /**
      * Name of the event.
      */
-    eventName?: string
+    event_name_header?: string
     /**
      * The type of event
      */
-    eventType?: string
+    event_type_header?: string
+    /**
+     * Name of column for the context object.
+     */
+    context_header?: string
   }
-  /**
-   * Email Hidden Field
-   */
-  email?: string
   /**
    * User ID Hidden Field
    */
@@ -77,19 +69,15 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Space ID Hidden Field
-   */
-  spaceId?: string
-  /**
    * Properties Hidden Field
    */
-  event_properties?: {
+  all_event_properties?: {
     [k: string]: unknown
   }
   /**
    * All User Traits Hidden Field
    */
-  user_traits?: {
+  all_user_traits?: {
     [k: string]: unknown
   }
   /**
@@ -119,7 +107,7 @@ export interface Payload {
    */
   eventType: string
   /**
-   * Receive events in a batch payload. This is required for LiveRamp audiences ingestion.
+   * Enable Batching Hidden Field
    */
   enable_batching: boolean
   /**
@@ -131,9 +119,9 @@ export interface Payload {
    */
   s3_aws_folder_name?: string
   /**
-   * Prefix to append to the name of the uploaded file. A lower cased audience name and timestamp will be appended by default to the filename to ensure uniqueness. Format: <PREFIX>_<AUDIENCE NAME>_<TIMESTAMP>.csv
+   * Prefix to append to the name of the uploaded file.
    */
-  filename?: string
+  filename_prefix?: string
   /**
    * Character used to separate tokens in the resulting file.
    */
@@ -142,4 +130,37 @@ export interface Payload {
    * File extension for the uploaded file.
    */
   file_extension: string
+  /**
+   * Column names to write to S3 CSV file.
+   */
+  audienceColumns: {
+    /**
+     * Name of column for audience name
+     */
+    audience_name_header?: string
+    /**
+     * Name of column for audience ID
+     */
+    audience_id_header?: string
+    /**
+     * Name of column for the unique identifier for the Segment Engage Space that generated the event.
+     */
+    space_id_header?: string
+    /**
+     * true indicates a user being added to the audience, false indicates a user being removed from the audience.
+     */
+    audience_action_header?: string
+  }
+  /**
+   * Space ID Hidden Field
+   */
+  spaceId?: string
+  /**
+   * Audience Name Hidden Field
+   */
+  audienceName?: string
+  /**
+   * Audience ID Hidden Field
+   */
+  audienceId?: string
 }

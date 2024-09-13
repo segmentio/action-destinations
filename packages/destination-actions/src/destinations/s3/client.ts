@@ -1,4 +1,4 @@
-import { Settings } from '../generated-types'
+import { Settings } from './generated-types'
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import { S3Client, PutObjectCommandInput, PutObjectCommand } from '@aws-sdk/client-s3'
 import { v4 as uuidv4 } from '@lukeed/uuid'
@@ -11,7 +11,7 @@ interface Credentials {
   sessionToken: string
 }
 
-export class S3CSVClient {
+export class Client {
   roleArn: string
   roleSessionName: string
   region: string
@@ -27,7 +27,6 @@ export class S3CSVClient {
   async assumeRole(): Promise<Credentials> {
     const intermediaryARN = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string
     const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string
-
     const intermediaryCreds = await this.getSTSCredentials(intermediaryARN, intermediaryExternalId)
     return this.getSTSCredentials(this.roleArn, this.externalId, intermediaryCreds)
   }
@@ -60,18 +59,20 @@ export class S3CSVClient {
   async uploadS3(
     settings: Settings,
     fileContent: string,
-    filename: string,
+    filename_prefix: string,
     s3_aws_folder_name: string,
     fileExtension: string
   ) {
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
-    if (filename.endsWith('.csv' || '.txt')) {
+    if (filename_prefix.endsWith('.csv') || filename_prefix.endsWith('.txt')) {
       // Insert the date suffix before the extension
-      filename = filename.replace(fileExtension, `_${dateSuffix}.${fileExtension}`)
+      filename_prefix = filename_prefix.replace(fileExtension, `_${dateSuffix}.${fileExtension}`)
     } else {
       // Append the date suffix followed by the extension
-      filename = filename ? `${filename}_${dateSuffix}.${fileExtension}` : `${dateSuffix}.${fileExtension}`
+      filename_prefix = filename_prefix
+        ? `${filename_prefix}_${dateSuffix}.${fileExtension}`
+        : `${dateSuffix}.${fileExtension}`
     }
 
     const bucketName = settings.s3_aws_bucket_name
@@ -91,7 +92,7 @@ export class S3CSVClient {
       }
     })
     const contentType = fileExtension === 'csv' ? 'text/csv' : 'text/plain'
-    const objectKey = folderName ? `${folderName}${filename}` : filename
+    const objectKey = folderName ? `${folderName}${filename_prefix}` : filename_prefix
     const uploadParams: PutObjectCommandInput = {
       Bucket: bucketName,
       Key: objectKey,

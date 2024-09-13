@@ -1,13 +1,13 @@
 import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
-import uploadToS3 from './uploadToS3'
+import syncEventsToS3 from './syncEventsToS3'
+import syncAudienceToS3 from './syncAudienceToS3'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'AWS S3',
   slug: 'actions-s3',
   mode: 'cloud',
-  description: 'Sync Segment event and Audience data to AWS S3.',
+  description: 'Sync Segment event data to AWS S3.',
 
   authentication: {
     scheme: 'custom',
@@ -41,7 +41,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    uploadToS3
+    syncEventsToS3,
+    syncAudienceToS3
   }
 }
 
