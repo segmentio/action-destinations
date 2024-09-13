@@ -6,7 +6,7 @@ import { commonFields, audienceOnlyFields } from '../fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync to S3',
-  description: 'Syncs Segment event data to S3.',
+  description: 'Syncs Engage Audience data to S3.',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     ...commonFields,
