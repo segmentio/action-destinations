@@ -204,7 +204,7 @@ export const upsertListMembers = async (
   return response
 }
 
-const sendDebugMessageToSegmentSource = async (
+export const sendDebugMessageToSegmentSource = async (
   request: RequestClient,
   requestBody: ResponsysCustomTraitsRequestBody,
   response: ModifiedResponse<unknown>,

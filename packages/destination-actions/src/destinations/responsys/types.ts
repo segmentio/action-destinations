@@ -76,5 +76,8 @@ export type ResponsysCustomTraitsRequestBody = {
 
 export type ResponsysAudiencePetUpdateRequestBody = {
   recordData: ResponsysRecordData
-  mergeRule: ResponsysMergeRule
-}
+} & {
+  insertOnNoMatch: boolean
+  updateOnMatch: string
+  matchColumnName1: string
+} // In PET update there's no `mergeRule` key, the merge rule is the root object

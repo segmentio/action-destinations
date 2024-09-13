@@ -3,7 +3,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { validateListMemberPayload } from '../utils'
-import { createPet, petExists, updatePet } from './functions'
+import { createPet, petExists, updateProfileListAndPet } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Audience as Pet',
@@ -124,7 +124,7 @@ const action: ActionDefinition<Settings, Payload> = {
       await createPet(request, settings, payload)
     }
 
-    return await updatePet(request, settings, [payload])
+    return await updateProfileListAndPet(request, settings, [payload])
   },
   // https://docs.oracle.com/en/cloud/saas/marketing/responsys-rest-api/op-rest-api-v1.3-lists-listname-listextensions-petname-members-post.html
   performBatch: async (request, data) => {
@@ -146,7 +146,7 @@ const action: ActionDefinition<Settings, Payload> = {
       await createPet(request, settings, payload[0])
     }
 
-    return await updatePet(request, settings, payload)
+    return await updateProfileListAndPet(request, settings, payload)
   }
 }
 

@@ -1,7 +1,13 @@
 import { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { ResponsysAudiencePetUpdateRequestBody } from '../types'
+import {
+  ResponsysAudiencePetUpdateRequestBody,
+  ResponsysListMemberRequestBody,
+  ResponsysMergeRule,
+  ResponsysRecordData
+} from '../types'
+import { sendDebugMessageToSegmentSource } from '../utils'
 
 export const petExists = async (request: RequestClient, settings: Settings, computationKey: string) => {
   const path = `/rest/api/v1.3/lists/${settings.profileListName}/listExtensions`
@@ -42,7 +48,7 @@ export const createPet = async (request: RequestClient, settings: Settings, payl
   return response
 }
 
-export const updatePet = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
+export const updateProfileListAndPet = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
   const records: {
     [audienceKey: string]: {
       recordsWithUserId: Payload[]
@@ -54,6 +60,10 @@ export const updatePet = async (request: RequestClient, settings: Settings, payl
     }
   } = {}
 
+  // First we need to make sure that all users exist in the Profile List.
+  await updateProfileListMembers(request, settings, payloads)
+
+  // This endpoint works better with only one identifier at a time, so we need to split the payloads into groups.
   for (const payload of payloads) {
     if (!records[payload.pet_name]) {
       records[payload.pet_name] = {
@@ -91,23 +101,23 @@ export const updatePet = async (request: RequestClient, settings: Settings, payl
   }
 
   // Responsys API is very restrictive, so we need to send each request separately, and in sequence.
-
-  const promises = []
+  // This is not ideal, but it's the only way to ensure that the requests are processed correctly.
+  const results = []
   for (const [computationKey, recordCategories] of Object.entries(records)) {
     if (recordCategories.requestBodyUserId) {
-      promises.push(await sendPetUpdate(request, settings, computationKey, recordCategories.requestBodyUserId))
+      results.push(await sendPetUpdate(request, settings, computationKey, recordCategories.requestBodyUserId))
     }
 
     if (recordCategories.requestBodyEmail) {
-      promises.push(await sendPetUpdate(request, settings, computationKey, recordCategories.requestBodyEmail))
+      results.push(await sendPetUpdate(request, settings, computationKey, recordCategories.requestBodyEmail))
     }
 
     if (recordCategories.requestBodyRiid) {
-      promises.push(await sendPetUpdate(request, settings, computationKey, recordCategories.requestBodyRiid))
+      results.push(await sendPetUpdate(request, settings, computationKey, recordCategories.requestBodyRiid))
     }
   }
 
-  return promises
+  return results
 }
 
 const buildPetUpdatePayload = (payloads: Payload[], matchType: 'CUSTOMER_ID' | 'EMAIL_ADDRESS' | 'RIID') => {
@@ -125,14 +135,54 @@ const buildPetUpdatePayload = (payloads: Payload[], matchType: 'CUSTOMER_ID' | '
       }) as string[][],
       mapTemplateName: null
     },
-    mergeRule: {
-      insertOnNoMatch: true,
-      updateOnMatch: 'REPLACE_ALL',
-      matchColumnName1: matchType
-    }
+    insertOnNoMatch: true,
+    updateOnMatch: 'REPLACE_ALL',
+    matchColumnName1: matchType
   }
 
   return requestBody
+}
+
+const updateProfileListMembers = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
+  const fieldNames = ['EMAIL_ADDRESS_', 'CUSTOMER_ID_']
+  const records: string[][] = []
+
+  for (const payload of payloads) {
+    const record: string[] = []
+    for (const fieldName of fieldNames) {
+      const value = payload.userData[fieldName as 'EMAIL_ADDRESS_' | 'CUSTOMER_ID_' | 'RIID_']
+      record.push(value || '')
+    }
+    records.push(record)
+  }
+
+  const recordData: ResponsysRecordData = {
+    fieldNames: fieldNames,
+    records: records,
+    mapTemplateName: ''
+  }
+
+  const mergeRule: ResponsysMergeRule = {
+    insertOnNoMatch: true,
+    updateOnMatch: 'REPLACE_ALL',
+    matchColumnName1: settings.matchColumnName1 + '_'
+  }
+
+  const requestBody: ResponsysListMemberRequestBody = {
+    recordData,
+    mergeRule
+  }
+
+  const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/members`
+
+  const endpoint = new URL(path, settings.baseUrl)
+
+  const response = await request(endpoint.href, {
+    method: 'POST',
+    body: JSON.stringify(requestBody)
+  })
+
+  await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
 }
 
 const sendPetUpdate = async (
