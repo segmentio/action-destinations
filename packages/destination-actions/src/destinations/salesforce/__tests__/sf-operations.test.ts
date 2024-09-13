@@ -555,7 +555,8 @@ describe('Salesforce', () => {
       nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
         .post('', {
           object: 'Account',
-          operation: 'insert',
+          operation: 'insert', // I think it was a mistake because the operation is 'create' in the payload. Please advise @nick.
+          // This impacts line 185 of sf-utils.ts
           contentType: 'CSV'
         })
         .reply(201, {
