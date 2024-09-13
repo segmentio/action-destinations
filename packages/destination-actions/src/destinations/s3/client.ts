@@ -4,12 +4,7 @@ import { S3Client, PutObjectCommandInput, PutObjectCommand } from '@aws-sdk/clie
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import * as process from 'process'
 import { ErrorCodes, IntegrationError } from '@segment/actions-core'
-
-interface Credentials {
-  accessKeyId: string
-  secretAccessKey: string
-  sessionToken: string
-}
+import { Credentials } from './types'
 
 export class Client {
   roleArn: string

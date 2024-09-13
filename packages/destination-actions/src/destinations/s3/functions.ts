@@ -3,15 +3,12 @@ import type { Payload as AudiencePayload } from './syncAudienceToS3/generated-ty
 import type { Payload as EventPayload } from './syncEventsToS3/generated-types'
 import { Settings } from './generated-types'
 import { Client } from './client'
+import { propTypes } from './types'
 
 export async function send(payloads: EventPayload[] | AudiencePayload[], settings: Settings) {
-  console.log('1')
   validate(payloads)
-  console.log('meh')
   const fileContent = generateFile(payloads)
-  console.log(fileContent)
   const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
-  console.log('hello')
   await s3Client.uploadS3(
     settings,
     fileContent,
@@ -26,7 +23,7 @@ function processField(
   headers: string[],
   row: string[],
   column_name: string | undefined,
-  field: string | number | boolean | object | undefined | null
+  field: propTypes
 ) {
   if (![undefined, null, ''].includes(column_name)) {
     if (index === 0) {
@@ -49,7 +46,6 @@ function generateFile(payloads: EventPayload[] | AudiencePayload[]): string {
   const columnHeaders = payloads[0].columns
   const audienceColumnHeaders = (payloads as AudiencePayload[])[0].audienceColumns
   const rows: string[] = []
-  console.log()
   const {
     user_id_header,
     anonymous_id_header,
@@ -61,8 +57,7 @@ function generateFile(payloads: EventPayload[] | AudiencePayload[]): string {
     all_event_properties_header,
     all_user_traits_header,
     context_header
-  } = columnHeaders
-
+  } = columnHeaders || {}
   const { audience_name_header, audience_id_header, space_id_header, audience_action_header } =
     audienceColumnHeaders || {}
 
@@ -116,14 +111,14 @@ function generateFile(payloads: EventPayload[] | AudiencePayload[]): string {
 
     if (eventProperties) {
       Object.entries(eventProperties).forEach(([key, headerName]) => {
-        const rowValue = p?.all_event_properties?.[key] ?? undefined
+        const rowValue = (p?.all_event_properties?.[key] as propTypes) ?? undefined
         processField(index, headers, row, headerName as string, rowValue)
       })
     }
 
     if (userTraits) {
       Object.entries(userTraits).forEach(([key, headerName]) => {
-        const rowValue = p?.all_user_traits?.[key] ?? undefined
+        const rowValue = (p?.all_user_traits?.[key] as propTypes) ?? undefined
         processField(index, headers, row, headerName as string, rowValue)
       })
     }
