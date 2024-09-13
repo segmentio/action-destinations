@@ -339,7 +339,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
     if (cacheRead.error) {
       //redis error
-      this.throwRetryableError('Error reading cache')
+      this.throwRetryableError('Error reading cache: ' + cacheRead.error.message)
     }
 
     // we lock only if cache not found
