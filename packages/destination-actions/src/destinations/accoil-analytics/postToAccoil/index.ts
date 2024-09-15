@@ -19,8 +19,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, { payload }) => {
-    return request(`https://in.accoil.com/segment`, {
+  perform: (request, { settings, payload }) => {
+    const staging = settings.api_key.toLowerCase().startsWith('stg_')
+    return request(staging ? `https://stagingin.accoil.com/segment` : `https://in.accoil.com/segment`, {
       method: 'post',
       json: payload.segmentEventData
     })
