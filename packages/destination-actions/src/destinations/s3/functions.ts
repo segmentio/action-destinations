@@ -1,4 +1,4 @@
-import { Payload } from './sync/generated-types'
+import { Payload } from './syncToS3/generated-types'
 import { Settings } from './generated-types'
 import { Client } from './client'
 import { RawMapping } from './types'
