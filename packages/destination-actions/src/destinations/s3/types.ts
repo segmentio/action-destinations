@@ -4,4 +4,16 @@ export interface Credentials {
   sessionToken: string
 }
 
-export type propTypes = string | number | boolean | object | undefined | null
+export interface SingleData {
+  rawMapping: RawMapping
+}
+
+export interface BatchData {
+  rawMapping: RawMapping[]
+}
+
+export interface RawMapping {
+  columns: {
+    [k: string]: unknown
+  }
+}

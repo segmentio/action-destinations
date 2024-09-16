@@ -4,179 +4,167 @@ import { Settings } from './generated-types'
 export const commonFields: ActionDefinition<Settings>['fields'] = {
   columns: {
     label: 'Columns',
-    description: `Column names to write to S3 CSV file.`,
+    description: `Column write to the S3 CSV file.`,
     type: 'object',
-    defaultObjectUI: 'object',
+    defaultObjectUI: 'keyvalue',
     required: true,
-    additionalProperties: false,
+    additionalProperties: true,
     properties: {
-      user_id_header: {
-        label: 'User ID column',
-        description: 'Name of column for user ID',
-        type: 'string'
-      },
-      anonymous_id_header: {
-        label: 'Anonymous ID column',
-        description: 'Name of column for anonymous ID',
-        type: 'string'
-      },
-      timestamp_header: {
-        label: 'Timestamp',
-        description: 'Name of column for timestamp for when the user was added or removed from the Audience',
-        type: 'string'
-      },
-      message_id_header: {
-        label: 'Message ID',
-        description: 'Name of column for the unique identifier for the message.',
-        type: 'string'
-      },
-      integrations_object_header: {
-        label: 'Integrations Object',
-        description:
-          'Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment',
-        type: 'string'
-      },
-      all_event_properties_header: {
-        label: 'All Event Properties',
-        description: 'Name of column for the track() properties.',
-        type: 'string'
-      },
-      all_user_traits_header: {
-        label: 'All User Traits',
-        description: 'Name of column for the track() or identify() user traits.',
-        type: 'string'
-      },
-      event_name_header: {
+      event_name: {
         label: 'Event Name',
         description: 'Name of the event.',
         type: 'string'
       },
-      event_type_header: {
+      event_type: {
         label: 'Event Type',
         description: 'The type of event',
         type: 'string'
       },
-      context_header: {
+      user_id: {
+        label: 'User ID',
+        description: 'User ID',
+        type: 'string'
+      },
+      anonymous_id: {
+        label: 'Anonymous ID',
+        description: 'Anonymous ID',
+        type: 'string'
+      },
+      email: {
+        label: 'Email',
+        description: 'Email address',
+        type: 'string'
+      },
+      properties: {
+        label: 'Properties',
+        description: 'Properties of the event',
+        type: 'object'
+      },
+      traits: {
+        label: 'Traits',
+        description: 'User traits',
+        type: 'object'
+      },
+      context: {
         label: 'Context',
-        description: 'Name of column for the context object.',
+        description: 'Context of the event',
+        type: 'object'
+      },
+      timestamp: {
+        label: 'Timestamp',
+        description: 'Timestamp of the event',
+        type: 'string'
+      },
+      message_id: {
+        label: 'Message ID',
+        description: 'Name of column for the unique identifier for the message.',
+        type: 'string'
+      },
+      integrations: {
+        label: 'Integrations Object',
+        description:
+          'Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment',
+        type: 'object'
+      },
+      audience_name: {
+        label: 'Audience Name',
+        description: 'Name of the audience',
+        type: 'string'
+      },
+      audience_id: {
+        label: 'Audience ID',
+        description: 'ID of the audience',
+        type: 'string'
+      },
+      audience_space_id: {
+        label: 'Audience Space ID',
+        description: 'ID of the Engage Space where the Audience was generated',
         type: 'string'
       }
     },
     default: {
-      user_id_header: 'user_id',
-      anonymous_id_header: 'anonymous_id',
-      timestamp_header: 'timestamp',
-      message_id_header: 'message_id',
-      integrations_object_header: 'integrations_object',
-      space_id_header: 'space_id',
-      all_event_properties_header: 'all_event_properties',
-      all_user_traits_header: 'all_user_traits',
-      event_name_header: 'event_name',
-      event_type_header: 'event_type',
-      context_header: 'context'
+      event_name: {
+        '@path': '$.event'
+      },
+      event_type: {
+        '@path': '$.type'
+      },
+      user_id: {
+        '@path': '$.userId'
+      },
+      anonymous_id: {
+        '@path': '$.anonymousId'
+      },
+      email: {
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.context.traits.email' }
+        }
+      },
+      properties: {
+        '@path': '$.properties'
+      },
+      traits: {
+        '@if': {
+          exists: { '@path': '$.traits' },
+          then: { '@path': '$.traits' },
+          else: { '@path': '$.context.traits' }
+        }
+      },
+      context: {
+        '@path': '$.context'
+      },
+      timestamp: {
+        '@path': '$.timestamp'
+      },
+      message_id: {
+        '@path': '$.messageId'
+      },
+      integrations: {
+        '@path': '$.integrations'
+      },
+      audience_name: {
+        '@path': '$.context.personas.computation_key'
+      },
+      audience_id: {
+        '@path': '$.context.personas.computation_id'
+      },
+      audience_space_id: {
+        '@path': '$.context.personas.space_id'
+      }
     }
   },
-  userId: {
-    label: 'User ID Hidden Field',
-    description: 'User ID Hidden Field',
+  audience_action_column_name: {
+    label: 'Audience Action Column Name',
+    description:
+      'Name of the column that will contain the action for the audience. true if the user is in the audience, false if not.',
     type: 'string',
     required: false,
-    unsafe_hidden: true,
-    default: { '@path': '$.userId' }
+    disabledInputMethods: ['variable', 'function', 'enrichment'],
+    default: 'audience_action'
   },
-  anonymousId: {
-    label: 'Anonymous ID Hidden Field',
-    description: 'Anonymous ID Hidden Field',
-    type: 'string',
-    required: false,
-    unsafe_hidden: true,
-    default: { '@path': '$.anonymousId' }
-  },
-  timestamp: {
-    label: 'Timestamp Hidden Field',
-    description: 'Timestamp Hidden Field',
-    type: 'datetime',
-    required: true,
-    unsafe_hidden: true,
-    default: { '@path': '$.timestamp' }
-  },
-  messageId: {
-    label: 'Message ID Hidden Field',
-    description: 'Message ID Hidden Field',
-    type: 'string',
-    required: true,
-    unsafe_hidden: true,
-    default: { '@path': '$.messageId' }
-  },
-  integrationsObject: {
-    label: 'Integrations Object Hidden Field',
-    description: 'Integrations Object Hidden Field',
-    type: 'object',
-    required: false,
-    unsafe_hidden: true,
-    default: { '@path': '$.integrations' }
-  },
-  all_event_properties: {
-    label: 'All Event Properties Hidden Field',
-    description: 'Properties Hidden Field',
-    type: 'object',
-    required: false,
-    unsafe_hidden: true,
-    default: { '@path': '$.properties' }
-  },
-  all_user_traits: {
-    label: 'All User Traits Hidden Field',
-    description: 'All User Traits Hidden Field',
+  traits_or_props: {
+    label: 'Traits or Props - Hidden Field',
+    description: 'Field used to retrieve Audience value',
     type: 'object',
     required: false,
     unsafe_hidden: true,
     default: {
       '@if': {
-        exists: { '@path': '$.traits' },
-        then: { '@path': '$.traits' },
-        else: { '@path': '$.context.traits' }
+        exists: { '@path': '$.properties' },
+        then: { '@path': '$.properties' },
+        else: { '@path': '$.traits' }
       }
     }
   },
-  context: {
-    label: 'Context Hidden Field',
-    description: 'Context Hidden Field',
-    type: 'object',
-    required: false,
-    unsafe_hidden: true,
-    default: { '@path': '$.context' }
-  },
-  eventProperties: {
-    label: 'Event Properties',
-    description: 'The properties of the event. Each item will be written to a separate column.',
-    type: 'object',
-    required: false,
-    disabledInputMethods: ['enrichment', 'function', 'variable'],
-    defaultObjectUI: 'keyvalue:only'
-  },
-  userTraits: {
-    type: 'object',
-    label: 'User Traits',
-    description: 'The properties of the user. Each item will be written to a separate column.',
-    required: false,
-    disabledInputMethods: ['enrichment', 'function', 'variable'],
-    defaultObjectUI: 'keyvalue:only'
-  },
-  eventName: {
-    label: 'Event Name Hidden Field',
-    description: 'Event Name Hidden Field.',
+  computation_key: {
+    label: 'Audience_Key - Hidden Field',
+    description: 'Field used to retrieve Audience Key',
     type: 'string',
     required: false,
     unsafe_hidden: true,
-    default: { '@path': '$.event' }
-  },
-  eventType: {
-    label: 'Event Type Hidden Field',
-    description: 'Event Type Hidden Field',
-    type: 'string',
-    unsafe_hidden: true,
-    required: true,
-    default: { '@path': '$.type' }
+    default: { '@path': '$.context.personas.computation_key' }
   },
   enable_batching: {
     type: 'boolean',
@@ -232,69 +220,5 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       { label: 'txt', value: 'txt' }
     ],
     default: 'csv'
-  }
-}
-
-export const audienceOnlyFields: ActionDefinition<Settings>['fields'] = {
-  audienceColumns: {
-    label: 'Columns',
-    description: `Column names to write to S3 CSV file.`,
-    type: 'object',
-    defaultObjectUI: 'object',
-    required: true,
-    additionalProperties: false,
-    properties: {
-      audience_name_header: {
-        label: 'Audience Name column',
-        description: 'Name of column for audience name',
-        type: 'string'
-      },
-      audience_id_header: {
-        label: 'Audience ID column',
-        description: 'Name of column for audience ID',
-        type: 'string'
-      },
-      space_id_header: {
-        label: 'Space ID',
-        description: 'Name of column for the unique identifier for the Segment Engage Space that generated the event.',
-        type: 'string'
-      },
-      audience_action_header: {
-        label: 'Audience Action',
-        description:
-          'true indicates a user being added to the audience, false indicates a user being removed from the audience.',
-        type: 'string'
-      }
-    },
-    default: {
-      audience_name: 'audience_name',
-      audience_id: 'audience_id',
-      space_id: 'space_id',
-      audience_action: 'audience_action'
-    }
-  },
-  spaceId: {
-    label: 'Space ID Hidden Field',
-    description: 'Space ID Hidden Field',
-    type: 'string',
-    required: false,
-    unsafe_hidden: true,
-    default: { '@path': '$.context.personas.space_id' }
-  },
-  audienceName: {
-    label: 'Audience Name Hidden Field',
-    description: 'Audience Name Hidden Field',
-    type: 'string',
-    required: false,
-    unsafe_hidden: true,
-    default: { '@path': '$.context.personas.computation_key' }
-  },
-  audienceId: {
-    label: 'Audience ID Hidden Field',
-    description: 'Audience ID Hidden Field',
-    type: 'string',
-    required: false,
-    unsafe_hidden: true,
-    default: { '@path': '$.context.personas.computation_id' }
   }
 }

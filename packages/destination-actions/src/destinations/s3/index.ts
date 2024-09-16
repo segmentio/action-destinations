@@ -1,7 +1,6 @@
 import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import syncEventsToS3 from './syncEventsToS3'
-import syncAudienceToS3 from './syncAudienceToS3'
+import syncToS3 from './syncToS3'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'AWS S3',
@@ -41,8 +40,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    syncEventsToS3,
-    syncAudienceToS3
+    syncToS3
   }
 }
 
