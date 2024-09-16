@@ -73,10 +73,11 @@ export const getAudienceRequest = (request: RequestClient, params: getAudiencePa
   })
 }
 
-export async function addDeviceMobileIds(
+export async function editDeviceMobileIds(
   request: RequestClient,
   settings: AudienceSettings | undefined,
   payloads: DeviceIdPayload[],
+  operation: 'add' | 'remove',
   statsContext?: StatsContext // Adjust type based on actual stats context
 ) {
   if (!settings) {
@@ -98,7 +99,8 @@ export async function addDeviceMobileIds(
   // Convert the payload to string if needed
   const requestPayload = JSON.stringify({
     advertiserId: settings.advertiserId,
-    addedMobileDeviceIdList: mobileDeviceIdList
+    ...(operation === 'add' ? { addedMobileDeviceIdLis: mobileDeviceIdList } : {}),
+    ...(operation === 'remove' ? { removedMobileDeviceIdLis: mobileDeviceIdList } : {})
   })
 
   console.log('MobileDeviceId:', mobileDeviceIdList)
@@ -124,10 +126,11 @@ export async function addDeviceMobileIds(
   return response.data
 }
 
-export async function addContactInfo(
+export async function editContactInfo(
   request: RequestClient,
   settings: AudienceSettings | undefined,
   payloads: Payload[],
+  operation: 'add' | 'remove',
   statsContext?: StatsContext // Adjust type based on actual stats context
 ) {
   console.log('Payload:', payloads)
@@ -154,7 +157,8 @@ export async function addContactInfo(
   // Convert the payload to string if needed
   const requestPayload = JSON.stringify({
     advertiserId: settings.advertiserId,
-    addedContactInfoList: contactInfoList
+    ...(operation === 'add' ? { addedContactInfoList: contactInfoList } : {}),
+    ...(operation === 'remove' ? { removedContactInfoList: contactInfoList } : {})
   })
 
   // Ensure the request data size is within acceptable limits
