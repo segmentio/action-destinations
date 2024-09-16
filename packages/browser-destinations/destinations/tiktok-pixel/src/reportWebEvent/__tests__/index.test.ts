@@ -24,6 +24,65 @@ describe('TikTokPixel.reportWebEvent', () => {
     })
   })
 
+  test('sends "Pageview" event', async () => {
+    const subscriptions: Subscription[] = [
+      {
+        partnerAction: 'reportWebEvent',
+        name: 'Page View',
+        enabled: true,
+        subscribe: 'type="page"',
+        mapping: {
+          event: 'Pageview'
+        }
+      }
+    ]
+
+    const context = new Context({
+      messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
+      type: 'page',
+      anonymousId: 'anonymousId',
+      userId: 'userId',
+      context: {
+        traits: {
+          last_name: 'lastName',
+          first_name: 'firstName',
+          address: {
+            city: 'city',
+            state: 'state',
+            country: 'country'
+          }
+        }
+      },
+      properties: {}
+    })
+
+    const [webEvent] = await TikTokDestination({
+      ...settings,
+      subscriptions
+    })
+    reportWebEvent = webEvent
+
+    await reportWebEvent.load(Context.system(), {} as Analytics)
+    await reportWebEvent.track?.(context)
+
+    expect(mockTtp.track).toHaveBeenCalledWith(
+      'Pageview',
+      {
+        content_type: undefined,
+        contents: [],
+        currency: 'USD',
+        description: undefined,
+        order_id: undefined,
+        query: undefined,
+        shop_id: undefined,
+        value: undefined
+      },
+      {
+        event_id: ''
+      }
+    )
+  })
+
   test('maps properties correctly for "PlaceAnOrder" event', async () => {
     const subscriptions: Subscription[] = [
       {
