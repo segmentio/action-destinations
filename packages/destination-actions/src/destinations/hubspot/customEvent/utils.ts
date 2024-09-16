@@ -193,6 +193,16 @@ export function eventSchema(payload: Payload): Schema {
   return { eventName: event_name, primaryObject: payload.record_details.object_type, properties: props }
 }
 
+export async function compareToCache(_schema: Schema): Promise<SchemaDiff> {
+  // no op function until caching implemented
+  const schemaDiff: SchemaDiff = {
+    match: 'no_match',
+    missingProperties: {}
+  }
+
+  return Promise.resolve(schemaDiff)
+}
+
 export async function compareToHubspot(client: Client, schema: Schema): Promise<SchemaDiff> {
   const mismatchSchemaDiff: SchemaDiff = { match: 'mismatch', missingProperties: {} }
 

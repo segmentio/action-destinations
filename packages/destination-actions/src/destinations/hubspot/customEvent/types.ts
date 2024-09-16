@@ -1,7 +1,3 @@
-export type SubscriptionMetadata = {
-  actionConfigId: string
-}
-
 export type SyncMode = 'upsert' | 'add' | 'update'
 
 export type StringFormat = 'date' | 'datetime' | 'string'

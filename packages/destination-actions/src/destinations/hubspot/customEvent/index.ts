@@ -2,9 +2,9 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
 import { Client } from './client'
-import { ActionDefinition, RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
 import { dynamicReadEventNames, dynamicReadObjectTypes, dynamicReadProperties } from './dynamic-fields'
-import { SyncMode, SchemaMatch, SubscriptionMetadata } from './types'
+import { SyncMode, SchemaMatch } from './types'
 import {
   compareToCache,
   compareToHubspot,
@@ -51,23 +51,19 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { payload, syncMode, statsContext }) => {
-    const subscriptionMetadata: SubscriptionMetadata = {
-      actionConfigId: 'testActionConfigId'
-    }
-
-    return await send(request, payload, syncMode as SyncMode, subscriptionMetadata, statsContext)
+  perform: async (request, { payload, syncMode }) => {
+    return await send(request, payload, syncMode as SyncMode)
   }
 }
 
-const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode, subscriptionMetadata: SubscriptionMetadata, statsContext?: StatsContext) => {
+const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode) => {
   const client = new Client(request)
 
   const validPayload = validate(payload)
 
   const schema = eventSchema(validPayload)
 
-  const cacheSchemaDiff = await compareToCache(schema, subscriptionMetadata, statsContext)
+  const cacheSchemaDiff = await compareToCache(schema)
 
   switch (cacheSchemaDiff.match) {
     case SchemaMatch.FullMatch: {
