@@ -105,14 +105,14 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   perform: (request, { settings, payload, syncMode }) => {
-    if (syncMode === 'add' || syncMode === 'upsert') {
-      return sendTrackEvent(request, settings, payload)
+    if (syncMode === 'add' || syncMode === 'update') {
+      return sendTrackEvent(request, settings, payload, syncMode)
     }
     throw new IntegrationError('syncMode must be "add" or "upsert"', 'Invalid syncMode', 400)
   },
   performBatch: (request, { settings, payload, syncMode }) => {
-    if (syncMode === 'add' || syncMode === 'upsert') {
-      return sendBatchedTrackEvent(request, settings, payload)
+    if (syncMode === 'add' || syncMode === 'update') {
+      return sendBatchedTrackEvent(request, settings, payload, syncMode)
     }
     throw new IntegrationError('syncMode must be "add" or "upsert"', 'Invalid syncMode', 400)
   }
