@@ -1,4 +1,5 @@
-import { PayloadValidationError, IntegrationError, RetryableError } from '@segment/actions-core'
+import { PayloadValidationError, IntegrationError, RetryableError, StatsContext } from '@segment/actions-core'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import type { Payload } from './generated-types'
 import {
   CreateEventDefinitionReq,
@@ -11,6 +12,14 @@ import {
   EventCompletionReq
 } from './types'
 import { Client } from './client'
+import LRUCache = require('lru-cache')
+
+const options: LRUCache.Options<string, Schema> = {
+  max: 2000,
+  ttl: 1000 * 60 * 60
+}
+
+const cache = new LRUCache<string, Schema>(options)
 
 export function validate(payload: Payload): Payload {
   if (payload.record_details.object_type !== 'contact' && typeof payload.record_details.object_id !== 'number') {
@@ -193,14 +202,51 @@ export function eventSchema(payload: Payload): Schema {
   return { eventName: event_name, primaryObject: payload.record_details.object_type, properties: props }
 }
 
-export async function compareToCache(_schema: Schema): Promise<SchemaDiff> {
-  // no op function until caching implemented
-  const schemaDiff: SchemaDiff = {
-    match: 'no_match',
-    missingProperties: {}
+export function getSchemaFromCache(eventName: string, subscriptionMetadata?: SubscriptionMetadata, statsContext: StatsContext): Schema | undefined {
+  if(!subscriptionMetadata || !subscriptionMetadata?.actionConfigId) {
+    statsContext?.statsClient?.incr('cache.miss', 1, statsContext?.tags)
+    return undefined
+  }
+  return cache.get(`${subscriptionMetadata.actionConfigId}-${eventName}`) ?? undefined 
+}
+
+export async function saveSchemaToCache(schema: Schema, subscriptionMetadata?: SubscriptionMetadata, statsContext: StatsContext) {
+  if(!subscriptionMetadata || !subscriptionMetadata?.actionConfigId) {
+    
+    
+    return 
+  }
+  statsContext?.statsClient?.incr('cache.save', 1, statsContext?.tags)
+  cache.set(`${subscriptionMetadata.actionConfigId}-${schema.eventName}`, schema)
+}
+
+export function compareToCache(schema1: Schema, schema2: Schema | undefined): SchemaDiff {
+  
+  if(schema2 === undefined){
+    return { match: 'no_match', missingProperties: {} }
   }
 
-  return Promise.resolve(schemaDiff)
+  const missingProperties: { [key: string]: SegmentProperty } = {}
+
+  for (const [key, prop1] of Object.entries(schema1.properties)) {
+    const prop2 = schema2.properties[key]
+    if(prop2 === undefined){
+      missingProperties[key] = prop1
+      continue
+    }
+    if(prop1.stringFormat === prop2.stringFormat && prop1.type === prop2.type){
+      continue
+    } else {
+      return { match: 'mismatch', missingProperties: {} }
+    }
+  }
+
+  return { 
+    fullyQualifiedName: schema1.eventName, 
+    name: schema1.eventName, 
+    match: Object.keys(missingProperties).length>0 ? 'properties_missing' : 'full_match', 
+    missingProperties 
+  }
 }
 
 export async function compareToHubspot(client: Client, schema: Schema): Promise<SchemaDiff> {
@@ -271,10 +317,6 @@ export async function compareToHubspot(client: Client, schema: Schema): Promise<
         response.status
       )
   }
-}
-
-export async function saveSchemaToCache(_fullyQualifiedName: string, _name: string, _schema: Schema) {
-  return
 }
 
 export async function sendEvent(client: Client, fullyQualifiedName: string, payload: Payload) {
@@ -364,6 +406,8 @@ interface PropertyCreateResponseValue {
 }
 
 export async function updateHubspotSchema(client: Client, fullyQualifiedName: string, schemaDiff: SchemaDiff) {
+  console.log("updateHubspotSchema")
+  
   const requests: Promise<{}>[] = []
 
   Object.keys(schemaDiff.missingProperties).forEach((propName) => {

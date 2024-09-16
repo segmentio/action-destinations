@@ -2,9 +2,10 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
 import { Client } from './client'
-import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
 import { dynamicReadEventNames, dynamicReadObjectTypes, dynamicReadProperties } from './dynamic-fields'
 import { SyncMode, SchemaMatch } from './types'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import {
   compareToCache,
   compareToHubspot,
@@ -13,7 +14,8 @@ import {
   saveSchemaToCache,
   sendEvent,
   updateHubspotSchema,
-  validate
+  validate,
+  getSchemaFromCache
 } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -51,19 +53,23 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { payload, syncMode }) => {
-    return await send(request, payload, syncMode as SyncMode)
+  perform: async (request, { payload, syncMode, subscriptionMetadata, statsContext }) => {
+    statsContext?.tags.push('action:custom_event')
+    return await send(request, payload, syncMode as SyncMode, subscriptionMetadata, statsContext)
   }
 }
 
-const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode) => {
+const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode, subscriptionMetadata?: SubscriptionMetadata, statsContext?: StatsContext) => {
+  
+  subscriptionMetadata = {
+    actionConfigId : "abcdefghij"
+  }
+  
   const client = new Client(request)
-
   const validPayload = validate(payload)
-
   const schema = eventSchema(validPayload)
-
-  const cacheSchemaDiff = await compareToCache(schema)
+  const cachedSchema = getSchemaFromCache(schema.eventName, subscriptionMetadata, statsContext)
+  const cacheSchemaDiff = compareToCache(schema, cachedSchema)
 
   switch (cacheSchemaDiff.match) {
     case SchemaMatch.FullMatch: {
@@ -76,13 +82,12 @@ const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode
 
     case SchemaMatch.NoMatch:
     case SchemaMatch.PropertiesMissing: {
+      
       const hubspotSchemaDiff = await compareToHubspot(client, schema)
       switch (hubspotSchemaDiff.match) {
         case SchemaMatch.FullMatch: {
-          const fullyQualifiedName = hubspotSchemaDiff?.fullyQualifiedName as string
-          const name = hubspotSchemaDiff?.name as string
-          await saveSchemaToCache(fullyQualifiedName, name, schema)
-          return await sendEvent(client, fullyQualifiedName, validPayload)
+          await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
+          return await sendEvent(client, hubspotSchemaDiff?.fullyQualifiedName as string, validPayload)
         }
 
         case SchemaMatch.Mismatch: {
@@ -97,12 +102,9 @@ const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode
               400
             )
           }
-
           const schemaDiff = await createHubspotEventSchema(client, schema)
-          const fullyQualifiedName = schemaDiff?.fullyQualifiedName as string
-          const name = schemaDiff?.name as string
-          await saveSchemaToCache(fullyQualifiedName, name, schema)
-          return await sendEvent(client, fullyQualifiedName, validPayload)
+          await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
+          return await sendEvent(client, schemaDiff?.fullyQualifiedName as string, validPayload)
         }
 
         case SchemaMatch.PropertiesMissing: {
@@ -114,11 +116,9 @@ const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode
             )
           }
 
-          const fullyQualifiedName = hubspotSchemaDiff?.fullyQualifiedName as string
-          const name = hubspotSchemaDiff?.name as string
-          await updateHubspotSchema(client, fullyQualifiedName, hubspotSchemaDiff)
-          await saveSchemaToCache(fullyQualifiedName, name, schema)
-          return await sendEvent(client, fullyQualifiedName, validPayload)
+          await updateHubspotSchema(client, hubspotSchemaDiff?.fullyQualifiedName as string, hubspotSchemaDiff)
+          await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
+          return await sendEvent(client, hubspotSchemaDiff?.fullyQualifiedName as string, validPayload)
         }
       }
     }
