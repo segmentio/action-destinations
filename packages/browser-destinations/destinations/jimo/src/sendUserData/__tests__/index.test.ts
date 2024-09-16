@@ -6,9 +6,10 @@ import { Payload } from '../generated-types'
 
 describe('Jimo - Send User Data', () => {
   test('user id', async () => {
+    const mockedPush = jest.fn()
     const segmentJimo = {
       client() {
-        return { push: jest.fn() }
+        return { push: mockedPush }
       }
     } as any as JimoClient
 
@@ -29,9 +30,10 @@ describe('Jimo - Send User Data', () => {
     expect(segmentJimo.client().push).toHaveBeenCalledWith(['do', 'identify', ['u1', expect.any(Function)]])
   })
   test('user id then email and attributes', async () => {
+    const mockedPush = jest.fn()
     const segmentJimo = {
       client() {
-        return { push: jest.fn() }
+        return { push: mockedPush }
       }
     } as any as JimoClient
 
@@ -56,9 +58,10 @@ describe('Jimo - Send User Data', () => {
     expect(segmentJimo.client().push).toHaveBeenCalledWith(['do', 'identify', ['u1', expect.any(Function)]])
   })
   test('user email', async () => {
+    const mockedPush = jest.fn()
     const segmentJimo = {
       client() {
-        return { push: jest.fn() }
+        return { push: mockedPush }
       }
     } as any as JimoClient
 
@@ -79,9 +82,10 @@ describe('Jimo - Send User Data', () => {
     expect(segmentJimo.client().push).toHaveBeenCalledWith(['set', 'user:email', ['foo@bar.com']])
   })
   test('user traits', async () => {
+    const mockedPush = jest.fn()
     const segmentJimo = {
       client() {
-        return { push: jest.fn() }
+        return { push: mockedPush }
       }
     } as any as JimoClient
 
@@ -118,9 +122,10 @@ describe('Jimo - Send User Data', () => {
     ])
   })
   test('user traits with experience refetching', async () => {
+    const mockedPush = jest.fn()
     const segmentJimo = {
       client() {
-        return { push: jest.fn() }
+        return { push: mockedPush }
       }
     } as any as JimoClient
 

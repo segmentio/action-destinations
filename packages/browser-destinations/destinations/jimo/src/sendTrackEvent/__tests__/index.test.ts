@@ -5,9 +5,10 @@ import { Payload } from '../generated-types'
 
 describe('Jimo - Send Track Event', () => {
   test('do:segmentio:track is called', async () => {
+    const mockedPush = jest.fn()
     const client = {
       client() {
-        return { push: jest.fn() }
+        return { push: mockedPush }
       }
     } as any as JimoClient
 
