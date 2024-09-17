@@ -52,38 +52,10 @@ const action: ActionDefinition<Settings, Payload> = {
     mailingLists: {
       label: 'Mailing Lists',
       description:
-        'An array of objects containing key-value pairs of mailing list IDs as `listId` and a true/false `subscribed` value determining if the contact should be added to or removed from each list.',
+        'Key-value pairs of mailing list IDs and a boolean denoting if the contact should be added (true) or removed (false) from the list. Input list IDs as keys on the right, and a boolean true or false value on the left.',
       type: 'object',
-      multiple: true,
-      required: false,
-      properties: {
-        listId: {
-          label: 'List ID',
-          description: 'The ID of the mailing list.',
-          type: 'string',
-          required: true
-        },
-        subscribed: {
-          label: 'subscribed',
-          description:
-            'true indicates that the user is to be added to the list, false will remove the user from the list.',
-          type: 'boolean',
-          required: true
-        }
-      },
-      default: {
-        '@arrayPath': [
-          '$.traits.mailingLists',
-          {
-            listId: {
-              '@path': '$.listId'
-            },
-            subscribed: {
-              '@path': '$.subscribed'
-            }
-          }
-        ]
-      }
+      defaultObjectUI: 'keyvalue',
+      required: false
     },
     source: {
       label: 'Source',
@@ -123,19 +95,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    const { customAttributes, ...rest } = payload
+    const { customAttributes, mailingLists, ...rest } = payload
 
-    /* Re-shape mailing list data from a list of objects to a single object for the API */
-    const formattedMailingLists: Record<string, boolean> = {}
-    type listObj = { listId: string; subscribed: boolean }
-    if (payload.mailingLists) {
-      for (const list of Object.values(payload.mailingLists)) {
-        if (typeof list === 'object' && 'listId' in list && 'subscribed' in list) {
-          formattedMailingLists[(list as listObj).listId] = (list as listObj).subscribed
-        }
-      }
+    let filteredMailingLists
+    if (mailingLists) {
+      filteredMailingLists = filterMailingLists(mailingLists)
     }
-
     /* Now delete the mailingLists data from traits/customAttributes */
     if (typeof customAttributes === 'object' && 'mailingLists' in customAttributes) {
       delete customAttributes.mailingLists
@@ -146,10 +111,23 @@ const action: ActionDefinition<Settings, Payload> = {
       json: {
         ...(typeof customAttributes === 'object' && customAttributes),
         ...rest,
-        mailingLists: formattedMailingLists
+        mailingLists: filteredMailingLists || {}
       }
     })
   }
 }
 
 export default action
+
+// remove any key value pairs where the value is not a true or false string
+function filterMailingLists(obj: { [key: string]: unknown }): { [key: string]: boolean } {
+  const result: { [key: string]: boolean } = {}
+  for (const key in obj) {
+    if (obj[key] === 'true') {
+      result[key] = true
+    } else if (obj[key] === 'false') {
+      result[key] = false
+    }
+  }
+  return result
+}
