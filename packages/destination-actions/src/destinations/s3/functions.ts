@@ -30,7 +30,7 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
   )
 }
 
-function snakeCase(str?: string) {
+export function snakeCase(str?: string) {
   if (!str) {
     return ''
   }
@@ -73,11 +73,11 @@ function generateFile(payloads: Payload[], headers: string[], delimiter: string,
   return rows.join('')
 }
 
-function encodeString(str: string) {
+export function encodeString(str: string) {
   return `"${String(str).replace(/"/g, '""')}"`
 }
 
-function getAudienceAction(payload: Payload): boolean | undefined {
+export function getAudienceAction(payload: Payload): boolean | undefined {
   if (!payload.traits_or_props || !payload.computation_key) {
     return undefined
   }
