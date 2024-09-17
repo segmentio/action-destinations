@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'The type of the custom variable.',
           type: 'string',
           allowNull: false,
-          required: true, 
+          required: true,
           choices: getCustomVarTypeChoices()
         },
         value: {
@@ -67,7 +67,8 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         encryptedUserId: {
           label: 'Encrypted User ID',
-          description: "The encrypted user ID associated with the conversion. If this field is set then 'Encryption Entity ID', 'Encryption Entity Type' and 'Encryption Source' should also be specified.",
+          description:
+            "The encrypted user ID associated with the conversion. If this field is set then 'Encryption Entity ID', 'Encryption Entity Type' and 'Encryption Source' should also be specified.",
           type: 'string',
           required: false
         },
@@ -126,10 +127,10 @@ const action: ActionDefinition<Settings, Payload> = {
     ...commonFields
   },
   perform: async (request, { settings, payload, auth }) => {
-    return await send(request, settings, [payload], false, auth )
+    return await send(request, settings, [payload], false, auth)
   },
   performBatch: async (request, { settings, payload, auth }) => {
-    return await send(request, settings, payload, false, auth )
+    return await send(request, settings, payload, false, auth)
   }
 }
 
