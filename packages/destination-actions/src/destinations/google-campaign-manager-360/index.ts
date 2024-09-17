@@ -7,8 +7,8 @@ import { AuthTokenResp } from './types'
 import conversionAdjustmentUpload from './conversionAdjustmentUpload'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Campaign Manager 360',
-  slug: 'campaign-manager-360',
+  name: 'Google Campaign Manager 360',
+  slug: 'actions-google-campaign-manager-360',
   mode: 'cloud',
 
   authentication: {
@@ -40,18 +40,15 @@ const destination: DestinationDefinition<Settings> = {
       return true
     },
     refreshAccessToken: async (request, { auth }) => {
-      const response = await request<AuthTokenResp>(
-        'https://www.googleapis.com/oauth2/v4/token',
-        {
-          method: 'POST',
-          body: new URLSearchParams({
-            refresh_token: auth.refreshToken,
-            client_id: auth.clientId,
-            client_secret: auth.clientSecret,
-            grant_type: 'refresh_token'
-          })
-        }
-      )
+      const response = await request<AuthTokenResp>('https://www.googleapis.com/oauth2/v4/token', {
+        method: 'POST',
+        body: new URLSearchParams({
+          refresh_token: auth.refreshToken,
+          client_id: auth.clientId,
+          client_secret: auth.clientSecret,
+          grant_type: 'refresh_token'
+        })
+      })
 
       return { accessToken: response.data.access_token }
     }

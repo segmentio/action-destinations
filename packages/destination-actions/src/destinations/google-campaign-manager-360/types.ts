@@ -27,7 +27,6 @@ export interface InsertRequest {
   kind: 'dfareporting#conversionsBatchInsertRequest'
 }
 
-
 export type CartData = {
   merchantId: string
   merchantFeedLabel: string
@@ -51,7 +50,7 @@ type ExactlyOne<T, Keys extends keyof T = keyof T> = {
 }[Keys]
 
 type ExactlyOneIdentifier = ExactlyOne<{
-  encryptedUserId?: string 
+  encryptedUserId?: string
   mobileDeviceId?: string
   matchId?: string
   gclid?: string
@@ -79,7 +78,7 @@ export type ConversionBase = ExactlyOneIdentifier & {
   quantity: string
   timestampMicros: string
   treatmentForUnderage?: boolean | undefined
-  userIdentifiers?: UserIdentifier[] 
+  userIdentifiers?: UserIdentifier[]
   value: number
 }
 
@@ -96,10 +95,7 @@ export interface EncryptionInfo {
   kind: 'dfareporting#encryptionInfo'
 }
 
-export type UserIdentifier =
-  | { hashedEmail: string }
-  | { hashedPhoneNumber: string }
-  | { addressInfo: AddressInfo }
+export type UserIdentifier = { hashedEmail: string } | { hashedPhoneNumber: string } | { addressInfo: AddressInfo }
 
 export const ConsentType = {
   GRANTED: 'GRANTED',
@@ -121,16 +117,13 @@ export const EntityType = {
 export type EntityType = typeof EntityType[keyof typeof EntityType]
 
 export const Source = {
-  AD_SERVING: 'AD_SERVING', 
-  ENCRYPTION_SCOPE_UNKNOWN: 'ENCRYPTION_SCOPE_UNKNOWN', 
+  AD_SERVING: 'AD_SERVING',
+  ENCRYPTION_SCOPE_UNKNOWN: 'ENCRYPTION_SCOPE_UNKNOWN',
   DATA_TRANSFER: 'DATA_TRANSFER'
 } as const
 
 export type Source = typeof Source[keyof typeof Source]
 
-export const CustomVarTypeChoices = Array.from(
-  { length: 100 },
-  (_, i) => `U${i + 1}`
-)
+export const CustomVarTypeChoices = Array.from({ length: 100 }, (_, i) => `U${i + 1}`)
 
 export type CustomVarTypeChoices = typeof CustomVarTypeChoices[number]

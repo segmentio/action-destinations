@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { ConsentType } from './types'
-import {getEntityTypeChoices, getSources} from './utils'
+import { getEntityTypeChoices, getSources } from './utils'
 
 export const commonFields: ActionDefinition<Settings>['fields'] = {
   floodlightConfigurationId: {
@@ -20,7 +20,8 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
   },
   encryptionInfo: {
     label: 'Encryption Info',
-    description: 'The encryption information associated with the conversion. Required if Encrypted User ID or Encryption User ID Candidates fields are populated.',
+    description:
+      'The encryption information associated with the conversion. Required if Encrypted User ID or Encryption User ID Candidates fields are populated.',
     type: 'object',
     required: false,
     properties: {

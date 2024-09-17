@@ -6,9 +6,8 @@ import { commonFields } from '../common-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Adjustment Upload',
-  description: "Adjust an conversion in Campaign Manager 360.",
-  fields: 
-  {
+  description: 'Adjust an conversion in Campaign Manager 360.',
+  fields: {
     requiredId: {
       label: 'Required ID',
       description:
@@ -30,7 +29,8 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         encryptedUserId: {
           label: 'Encrypted User ID',
-          description: "The encrypted user ID associated with the conversion. If this field is set then 'Encryption Entity ID', 'Encryption Entity Type' and 'Encryption Source' should also be specified.",
+          description:
+            "The encrypted user ID associated with the conversion. If this field is set then 'Encryption Entity ID', 'Encryption Entity Type' and 'Encryption Source' should also be specified.",
           type: 'string',
           required: false
         },
@@ -77,8 +77,8 @@ const action: ActionDefinition<Settings, Payload> = {
         matchId: { '@path': '$.properties.matchId' },
         impressionId: { '@path': '$.properties.impressionId' }
       }
-    }, 
-    ...commonFields 
+    },
+    ...commonFields
   },
   perform: async (request, { settings, payload, auth }) => {
     return await send(request, settings, [payload], true, auth)
