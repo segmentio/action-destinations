@@ -292,11 +292,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
 
     // Resolve/transform the mapping with the input data
-    const payload = transform(mapping, bundle.data) as Payload
+    let payload = transform(mapping, bundle.data) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-    //payload = removeEmptyValues(payload, this.schema, true) as Payload
+    payload = removeEmptyValues(payload, this.schema, true) as Payload
 
     // Validate the resolved payload against the schema
     if (this.schema) {
