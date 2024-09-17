@@ -20,11 +20,11 @@ export interface Payload {
     /**
      * The category the product is in; for example, a label from Google's product taxonomy. Required.
      */
-    category: string
+    category?: string
     /**
      * The ID representing the product in a catalog. Required.
      */
-    id: string
+    id?: string
     /**
      * The name of the product. Optional.
      */
@@ -54,10 +54,6 @@ export interface Payload {
      * The IP address of the user.
      */
     ip_address?: string
-    /**
-     * A flag indicating whether the user has opted out of tracking.
-     */
-    opt_out?: boolean
     /**
      * The user agent of the user's browser.
      */

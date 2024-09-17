@@ -21,7 +21,7 @@ import { ModifiedResponse } from '@segment/actions-core'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Call Conversion',
+  title: 'Call Conversion V2',
   description: 'Send an offline call conversion to the Google Ads API.',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
