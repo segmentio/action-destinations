@@ -19,11 +19,11 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      let api_key = settings.api_key
-      const staging = api_key.toLowerCase().startsWith('stg_')
+      let api_key = settings?.api_key
+      const staging = api_key?.toLowerCase()?.startsWith('stg_')
       api_key = api_key.replace('stg_', '')
       const AUTH_KEY = Buffer.from(`${api_key}:`).toString('base64')
-      return await request(staging ? `https://stagingin.accoil.com` : `https://in.accoil.com/segment`, {
+      return await request(staging == true ? `https://instaging.accoil.com/segment` : `https://in.accoil.com/segment`, {
         method: 'post',
         headers: {
           Authorization: `Basic ${AUTH_KEY}`
@@ -70,7 +70,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   ],
   extendRequest: ({ settings }) => {
-    const api_key = settings.api_key.replace('stg_', '')
+    const api_key = settings.api_key ? settings.api_key.replace('stg_', '') : ''
     const AUTH_KEY = Buffer.from(`${api_key}:`).toString('base64')
     return {
       headers: {
