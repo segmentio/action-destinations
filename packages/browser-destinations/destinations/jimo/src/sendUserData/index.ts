@@ -46,23 +46,21 @@ const action: BrowserActionDefinition<Settings, JimoClient, Payload> = {
     const pushEmail = () => {
       if (payload.email == null) return
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      jimo.client.push(['set', 'user:email', [payload.email]])
+      jimo.client().push(['set', 'user:email', [payload.email]])
     }
     const pushTraits = () => {
       if (payload.traits == null) return
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      jimo.client.push([
-        'set',
-        'user:attributes',
-        [payload.traits, settings.refetchExperiencesOnTraitsUpdate ?? false, true]
-      ])
+      jimo
+        .client()
+        .push(['set', 'user:attributes', [payload.traits, settings.refetchExperiencesOnTraitsUpdate ?? false, true]])
     }
 
     // If a userId is passed, we need to make sure email and attributes changes only happen in the
     // after the identify flow is done, that's why we pass it as a callback of the identify method
     if (payload.userId != null) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      jimo.client.push([
+      jimo.client().push([
         'do',
         'identify',
         [

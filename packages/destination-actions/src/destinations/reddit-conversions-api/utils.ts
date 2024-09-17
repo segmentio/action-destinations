@@ -145,7 +145,7 @@ function getUser(
 
   return {
     ...getAdId(user.device_type, user.advertising_id),
-    email: hash(clean(user.email)),
+    email: hash(clean(user.email), true),
     external_id: hash(clean(user.external_id)),
     ip_address: hash(clean(user.ip_address)),
     user_agent: clean(user.user_agent),
@@ -155,8 +155,17 @@ function getUser(
   }
 }
 
-const hash = (value: string | undefined): string | undefined => {
+function canonicalizeEmail(value: string): string {
+  const localPartAndDomain = value.split('@')
+  const localPart = localPartAndDomain[0].replace(/\./g, '').split('+')[0]
+  return `${localPart}@${localPartAndDomain[1].toLowerCase()}`
+}
+
+const hash = (value: string | undefined, isEmail = false): string | undefined => {
   if (value === undefined) return
+  if (isEmail) {
+    value = canonicalizeEmail(value)
+  }
   const hash = createHash('sha256')
   hash.update(value)
   return hash.digest('hex')
