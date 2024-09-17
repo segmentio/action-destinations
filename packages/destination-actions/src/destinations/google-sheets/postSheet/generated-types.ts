@@ -43,9 +43,9 @@ export interface Payload {
   /**
    * The number of rows to write to the spreadsheet in a single batch. The value is determined by number of rows * columns that Segment can upload within 30s.
    */
-  batch_size: number
+  batch_size?: number
   /**
    * The number of bytes to write to the spreadsheet in a single batch. Limit is 2MB.
    */
-  batch_bytes: number
+  batch_bytes?: number
 }
