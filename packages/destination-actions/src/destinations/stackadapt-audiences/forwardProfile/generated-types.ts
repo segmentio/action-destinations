@@ -2,9 +2,45 @@
 
 export interface Payload {
   /**
-   * The properties of the user or event.
+   * The properties of the user.
    */
-  traits_or_props: {
+  traits?: {
+    /**
+     * The email address of the user.
+     */
+    email?: string
+    /**
+     * The user's first name.
+     */
+    firstName?: string
+    /**
+     * The user's last name.
+     */
+    lastName?: string
+    /**
+     * The phone number of the user.
+     */
+    phone?: string
+    /**
+     * The city of the user.
+     */
+    city?: string
+    /**
+     * The country of the user.
+     */
+    country?: string
+    /**
+     * The state of the user.
+     */
+    state?: string
+    /**
+     * The postal code of the user.
+     */
+    postalCode?: string
+    /**
+     * The birthday of the user.
+     */
+    birthday?: string
     [k: string]: unknown
   }
   /**
@@ -23,18 +59,6 @@ export interface Payload {
    * When enabled, Segment will batch profiles together and send them to StackAdapt in a single request.
    */
   enable_batching: boolean
-  /**
-   * Segment computation class used to determine if input event is from an Engage Audience'.
-   */
-  segment_computation_class?: string
-  /**
-   * For audience enter/exit events, this will be the audience ID.
-   */
-  segment_computation_id?: string
-  /**
-   * For audience enter/exit events, this will be the audience key.
-   */
-  segment_computation_key?: string
   /**
    * The StackAdapt advertiser to add the profile to.
    */

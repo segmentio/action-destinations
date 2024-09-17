@@ -2,8 +2,10 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import forwardProfile from './forwardProfile'
+import forwardAudienceEvent from './forwardAudienceEvent'
+import { AdvertiserScopesResponse } from './types'
+import { DOMAIN } from './functions'
 
-export const domain = 'https://api.stackadapt.com/graphql'
 const destination: DestinationDefinition<Settings> = {
   name: 'StackAdapt Audiences',
   slug: 'actions-stackadapt-audiences',
@@ -33,16 +35,15 @@ const destination: DestinationDefinition<Settings> = {
         }
       }`
 
-      const res = await request(domain, {
+      const res = await request(DOMAIN, {
         body: JSON.stringify({ query: scopeQuery })
       })
       if (res.status !== 200) {
         throw new Error(res.status + res.statusText)
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      const canWrite = (await res.json()).data?.tokenInfo?.scopesByAdvertiser?.nodes?.some(
-        (node: { scopes: string[] }) => node.scopes.includes('WRITE')
-      )
+      const canWrite = (
+        (await res.json()) as AdvertiserScopesResponse
+      ).data?.tokenInfo?.scopesByAdvertiser?.nodes?.some((node: { scopes: string[] }) => node.scopes.includes('WRITE'))
       if (!canWrite) {
         throw new Error('Please verify your GQL Token or contact support')
       }
@@ -58,7 +59,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    forwardProfile
+    forwardProfile,
+    forwardAudienceEvent
   }
 }
 

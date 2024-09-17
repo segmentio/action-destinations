@@ -8,80 +8,44 @@ const mockGqlKey = 'test-graphql-key'
 
 const gqlHostUrl = 'https://api.stackadapt.com'
 const gqlPath = '/graphql'
-const mockEmail = 'admin@stackadapt.com'
 const mockUserId = 'user-id'
-const mockEmail2 = 'email2@stackadapt.com'
-const mockBirthday = '2001-01-02T00:00:00.000Z'
-const mockUserId2 = 'user-id2'
 const mockAdvertiserId = '23'
-const mockMappings = {
-  advertiser_id: mockAdvertiserId,
-  traits: {
-    email: {
-      '@path': '$.traits.email'
-    },
-    birthday: {
-      '@path': '$.traits.birthday'
-    },
-    custom_field: {
-      '@path': '$.traits.custom_field'
-    },
-    number_custom_field: {
-      '@path': '$.traits.number_custom_field'
-    }
-  }
-}
-const trackMockMappings = {
-  advertiser_id: mockAdvertiserId,
-  traits: {
-    email: {
-      '@path': '$.context.traits.email'
-    },
-    birthday: {
-      '@path': '$.context.traits.birthday'
-    }
-  }
-}
+const mockMappings = { advertiser_id: mockAdvertiserId }
 
 const defaultEventPayload: Partial<SegmentEvent> = {
   userId: mockUserId,
   type: 'identify',
   traits: {
-    email: mockEmail,
-    birthday: mockBirthday
+    first_time_buyer: true
+  },
+  context: {
+    personas: {
+      computation_class: 'audience',
+      computation_key: 'first_time_buyer',
+      computation_id: 'aud_123'
+    }
   }
 }
 
 const trackEventPayload: Partial<SegmentEvent> = {
   userId: mockUserId,
   type: 'track',
-  event: 'Track Event Name',
+  event: 'Audience Entered',
+  properties: {
+    audience_key: 'first_time_buyer',
+    first_time_buyer: true
+  },
   context: {
-    traits: {
-      email: mockEmail,
-      birthday: mockBirthday
+    personas: {
+      computation_class: 'audience',
+      computation_key: 'first_time_buyer',
+      computation_id: 'aud_123'
     }
   }
 }
 
-const batchEventPayload: Partial<SegmentEvent> = {
-  userId: mockUserId2,
-  type: 'identify',
-  traits: {
-    email: mockEmail2,
-    custom_field: 'value',
-    number_custom_field: 123
-  }
-}
-
-const aliasEventPayload: Partial<SegmentEvent> = {
-  type: 'alias',
-  userId: mockUserId,
-  previousId: mockUserId2
-}
-
-describe('forwardProfile', () => {
-  it('should translate identify into GQL format', async () => {
+describe('forwardAudienceEvent', () => {
+  it('should translate identify audience entry/exit into GQL format', async () => {
     let requestBody
     nock(gqlHostUrl)
       .post(gqlPath, (body) => {
@@ -90,7 +54,7 @@ describe('forwardProfile', () => {
       })
       .reply(200, { data: { success: true } })
     const event = createTestEvent(defaultEventPayload)
-    const responses = await testDestination.testAction('forwardProfile', {
+    const responses = await testDestination.testAction('forwardAudienceEvent', {
       event,
       useDefaultMappings: true,
       mapping: mockMappings,
@@ -120,8 +84,8 @@ describe('forwardProfile', () => {
               input: {
                 advertiserId: 23,
                 externalProvider: \\"segmentio\\",
-                syncId: \\"e6a568a61b0264fb8038ae64dbfb72032f7d1f5b32cf54acbe02979d9312f470\\",
-                profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"birthDay\\\\\\":1,\\\\\\"birthMonth\\\\\\":2}]\\"
+                syncId: \\"18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -139,12 +103,23 @@ describe('forwardProfile', () => {
                 message
               }
             }
+            upsertExternalAudienceMapping(
+              input: {
+                advertiserId: 23,
+                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\"},{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"name\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\"}]\\",
+                mappableType: \\"segmentio\\"
+              }
+            ) {
+              userErrors {
+                message
+              }
+            }
           }",
       }
     `)
   })
 
-  it('should translate track into GQL format', async () => {
+  it('should translate track audience entry/exit into GQL format', async () => {
     let requestBody
     nock(gqlHostUrl)
       .post(gqlPath, (body) => {
@@ -153,10 +128,10 @@ describe('forwardProfile', () => {
       })
       .reply(200, { data: { success: true } })
     const event = createTestEvent(trackEventPayload)
-    const responses = await testDestination.testAction('forwardProfile', {
+    const responses = await testDestination.testAction('forwardAudienceEvent', {
       event,
       useDefaultMappings: true,
-      mapping: trackMockMappings,
+      mapping: mockMappings,
       settings: { apiKey: mockGqlKey }
     })
     expect(responses.length).toBe(1)
@@ -183,8 +158,8 @@ describe('forwardProfile', () => {
               input: {
                 advertiserId: 23,
                 externalProvider: \\"segmentio\\",
-                syncId: \\"e6a568a61b0264fb8038ae64dbfb72032f7d1f5b32cf54acbe02979d9312f470\\",
-                profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"birthDay\\\\\\":1,\\\\\\"birthMonth\\\\\\":2}]\\"
+                syncId: \\"18173ad77a58c56aee5ef6ebde0ff2911b80807f32985ff1e10c03b02cd0b8bc\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -196,6 +171,17 @@ describe('forwardProfile', () => {
                 advertiserId: 23,
                 mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
                 mappableType: \\"segmentio\\",
+              }
+            ) {
+              userErrors {
+                message
+              }
+            }
+            upsertExternalAudienceMapping(
+              input: {
+                advertiserId: 23,
+                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\"},{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"name\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\"}]\\",
+                mappableType: \\"segmentio\\"
               }
             ) {
               userErrors {
@@ -215,8 +201,8 @@ describe('forwardProfile', () => {
         return body
       })
       .reply(200, { data: { success: true } })
-    const events = [createTestEvent(defaultEventPayload), createTestEvent(batchEventPayload)]
-    const responses = await testDestination.testBatchAction('forwardProfile', {
+    const events = [createTestEvent(defaultEventPayload), createTestEvent(trackEventPayload)]
+    const responses = await testDestination.testBatchAction('forwardAudienceEvent', {
       events,
       useDefaultMappings: true,
       mapping: mockMappings,
@@ -231,56 +217,8 @@ describe('forwardProfile', () => {
               input: {
                 advertiserId: 23,
                 externalProvider: \\"segmentio\\",
-                syncId: \\"fab5978d05bc4be0dadaed90eb6372333239e1c0c464a6a62b48d34cbaf676b2\\",
-                profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"birthDay\\\\\\":1,\\\\\\"birthMonth\\\\\\":2},{\\\\\\"email\\\\\\":\\\\\\"email2@stackadapt.com\\\\\\",\\\\\\"customField\\\\\\":\\\\\\"value\\\\\\",\\\\\\"numberCustomField\\\\\\":123,\\\\\\"userId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
-              }
-            ) {
-              userErrors {
-                message
-              }
-            }
-            upsertProfileMapping(
-              input: {
-                advertiserId: 23,
-                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false},{\\\\\\"incoming_key\\\\\\":\\\\\\"customField\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"customField\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false},{\\\\\\"incoming_key\\\\\\":\\\\\\"numberCustomField\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"numberCustomField\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"number\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
-                mappableType: \\"segmentio\\",
-              }
-            ) {
-              userErrors {
-                message
-              }
-            }
-          }",
-      }
-    `)
-  })
-
-  it('should translate alias event into GQL format', async () => {
-    let requestBody
-    nock(gqlHostUrl)
-      .post(gqlPath, (body) => {
-        requestBody = body
-        return body
-      })
-      .reply(200, { data: { success: true } })
-    const event = createTestEvent(aliasEventPayload)
-    const responses = await testDestination.testAction('forwardProfile', {
-      event,
-      useDefaultMappings: true,
-      mapping: mockMappings,
-      settings: { apiKey: mockGqlKey }
-    })
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-    expect(requestBody).toMatchInlineSnapshot(`
-      Object {
-        "query": "mutation {
-            upsertProfiles(
-              input: {
-                advertiserId: 23,
-                externalProvider: \\"segmentio\\",
-                syncId: \\"b9612b9eb0ade5b30e0f474e03e54449e0d108e09306aa1afdf92e2a6267146e\\",
-                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"previousId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
+                syncId: \\"c371022fd0a74b3ff0376ee0a8838c0e7d21be220ba335bfdd7205bca9545bd3\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"},{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"enter\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -292,6 +230,17 @@ describe('forwardProfile', () => {
                 advertiserId: 23,
                 mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
                 mappableType: \\"segmentio\\",
+              }
+            ) {
+              userErrors {
+                message
+              }
+            }
+            upsertExternalAudienceMapping(
+              input: {
+                advertiserId: 23,
+                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\"},{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"name\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\"}]\\",
+                mappableType: \\"segmentio\\"
               }
             ) {
               userErrors {

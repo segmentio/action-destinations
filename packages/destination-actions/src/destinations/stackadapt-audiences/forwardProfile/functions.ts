@@ -2,10 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import camelCase from 'lodash/camelCase'
 import isEmpty from 'lodash/isEmpty'
 import { Payload } from './generated-types'
-import { domain } from '..'
-import { createHash } from 'crypto'
-
-const EXTERNAL_PROVIDER = 'segmentio'
+import { DOMAIN, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes } from '../functions'
 
 const standardFields = new Set([
   'email',
@@ -25,18 +22,6 @@ const standardFields = new Set([
   'address',
   'previousId'
 ])
-const audienceMapping = stringifyJsonWithEscapedQuotes([
-  {
-    incoming_key: 'audienceId',
-    destination_key: 'external_id',
-    data_type: 'string'
-  },
-  {
-    incoming_key: 'audienceName',
-    destination_key: 'name',
-    data_type: 'string'
-  }
-])
 
 interface Mapping {
   incoming_key: string
@@ -50,33 +35,25 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
   const fieldTypes: Record<string, string> = { userId: 'string' }
   const advertiserId = events[0].advertiser_id
   const profileUpdates = events.flatMap((event) => {
-    const {
-      segment_computation_key,
-      segment_computation_class,
-      segment_computation_id,
-      event_type,
-      previous_id,
-      user_id,
-      traits_or_props
-    } = event
-
-    const isAudienceEvent = segment_computation_class === 'audience'
-    const audienceKey = (traits_or_props.audience_key as string) ?? segment_computation_key
-    const { audience_key, [audienceKey]: action, ...traits } = traits_or_props
+    const { event_type, previous_id, user_id, traits } = event
+    console.log(event)
     const profile: Record<string, string | number | undefined> = {
       userId: user_id
     }
     if (event_type === 'alias') {
       profile.previousId = previous_id
-    } else if (isAudienceEvent) {
-      profile.audienceId = segment_computation_id
-      profile.audienceName = audienceKey
-      profile.action = action ? 'enter' : 'exit'
     } else if (isEmpty(traits)) {
-      // Skip if there are no traits and this is not an audience event
+      // Skip if there are no traits
       return []
     }
-    return { ...processTraits(traits), ...profile }
+    const { birthday, ...rest } = traits ?? {}
+    if (birthday) {
+      // Extract birthDay and birthMonth from ISO date string
+      const [birthDay, birthMonth] = birthday.split('T')[0].split('-').slice(1)
+      profile.birthDay = parseInt(birthDay)
+      profile.birthMonth = parseInt(birthMonth)
+    }
+    return { ...processTraits(rest), ...profile }
   })
 
   const profiles = stringifyJsonWithEscapedQuotes(profileUpdates)
@@ -104,19 +81,8 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
           message
         }
       }
-      upsertExternalAudienceMapping(
-        input: {
-          advertiserId: ${advertiserId},
-          mappingSchema: "${audienceMapping}",
-          mappableType: "${EXTERNAL_PROVIDER}"
-        }
-      ) {
-        userErrors {
-          message
-        }
-      }
     }`
-  return await request(domain, {
+  return await request(DOMAIN, {
     body: JSON.stringify({ query: mutation })
   })
 
@@ -153,16 +119,6 @@ function getProfileMappings(customFields: string[], fieldTypes: Record<string, s
     })
   }
   return stringifyJsonWithEscapedQuotes(mappingSchema)
-}
-
-function stringifyJsonWithEscapedQuotes(value: unknown) {
-  return JSON.stringify(value).replace(/"/g, '\\"')
-}
-
-function sha256hash(data: string) {
-  const hash = createHash('sha256')
-  hash.update(data)
-  return hash.digest('hex')
 }
 
 function getType(value: unknown) {

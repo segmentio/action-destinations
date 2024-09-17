@@ -1,47 +1,131 @@
-import { ActionDefinition, APIError, DynamicFieldResponse } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { performForwardProfiles } from './functions'
-import { domain } from '..'
-
-interface Advertiser {
-  id: string
-  name: string
-}
-
-interface TokenInfoResponse {
-  data: {
-    tokenInfo: {
-      scopesByAdvertiser: {
-        nodes: {
-          advertiser: Advertiser
-          scopes: string[]
-        }[]
-        pageInfo: {
-          hasNextPage: boolean
-          endCursor: string
-        }
-      }
-    }
-  }
-}
+import { advertiserIdFieldImplementation } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Forward Profile',
   description: 'Forward new or updated user profile to StackAdapt',
   defaultSubscription: 'type = "identify" or type = "alias" or type = "track"',
   fields: {
-    traits_or_props: {
-      label: 'User/Event Properties',
+    traits: {
+      label: 'User Properties',
       type: 'object',
-      description: 'The properties of the user or event.',
-      unsafe_hidden: true,
-      required: true,
+      description: 'The properties of the user.',
+      defaultObjectUI: 'keyvalue',
+      additionalProperties: true,
+      required: false,
+      properties: {
+        email: {
+          label: 'Email',
+          type: 'string',
+          description: 'The email address of the user.'
+        },
+        firstName: {
+          label: 'First Name',
+          type: 'string',
+          description: "The user's first name."
+        },
+        lastName: {
+          label: 'Last Name',
+          type: 'string',
+          description: "The user's last name."
+        },
+        phone: {
+          label: 'Phone',
+          type: 'string',
+          description: 'The phone number of the user.'
+        },
+        city: {
+          label: 'City',
+          type: 'string',
+          description: 'The city of the user.'
+        },
+        country: {
+          label: 'Country',
+          type: 'string',
+          description: 'The country of the user.'
+        },
+        state: {
+          label: 'State',
+          type: 'string',
+          description: 'The state of the user.'
+        },
+        postalCode: {
+          label: 'Postal Code',
+          type: 'string',
+          description: 'The postal code of the user.'
+        },
+        birthday: {
+          label: 'Birthday',
+          type: 'string',
+          description: 'The birthday of the user.'
+        }
+      },
       default: {
-        '@if': {
-          exists: { '@path': '$.properties.audience_key' },
-          then: { '@path': '$.properties' },
-          else: { '@path': '$.traits' }
+        email: {
+          '@if': {
+            exists: { '@path': '$.traits.email' },
+            then: { '@path': '$.traits.email' },
+            else: { '@path': '$.context.traits.email' }
+          }
+        },
+        firstName: {
+          '@if': {
+            exists: { '@path': '$.traits.first_name' },
+            then: { '@path': '$.traits.first_name' },
+            else: { '@path': '$.context.traits.first_name' }
+          }
+        },
+        lastName: {
+          '@if': {
+            exists: { '@path': '$.traits.last_name' },
+            then: { '@path': '$.traits.last_name' },
+            else: { '@path': '$.context.traits.last_name' }
+          }
+        },
+        phone: {
+          '@if': {
+            exists: { '@path': '$.traits.phone' },
+            then: { '@path': '$.traits.phone' },
+            else: { '@path': '$.context.traits.phone' }
+          }
+        },
+        city: {
+          '@if': {
+            exists: { '@path': '$.traits.address.city' },
+            then: { '@path': '$.traits.address.city' },
+            else: { '@path': '$.context.traits.address.city' }
+          }
+        },
+        country: {
+          '@if': {
+            exists: { '@path': '$.traits.address.country' },
+            then: { '@path': '$.traits.address.country' },
+            else: { '@path': '$.context.traits.address.country' }
+          }
+        },
+        state: {
+          '@if': {
+            exists: { '@path': '$.traits.address.state' },
+            then: { '@path': '$.traits.address.state' },
+            else: { '@path': '$.context.traits.address.state' }
+          }
+        },
+        postalCode: {
+          '@if': {
+            exists: { '@path': '$.traits.address.postalCode' },
+            then: { '@path': '$.traits.address.postalCode' },
+            else: { '@path': '$.context.traits.address.postalCode' }
+          }
+        },
+        birthday: {
+          '@if': {
+            exists: { '@path': '$.traits.birthday' },
+            then: { '@path': '$.traits.birthday' },
+            else: { '@path': '$.context.traits.birthday' }
+          }
         }
       }
     },
@@ -84,33 +168,6 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: true
     },
-    segment_computation_class: {
-      label: 'Segment Computation Class',
-      description: "Segment computation class used to determine if input event is from an Engage Audience'.",
-      type: 'string',
-      unsafe_hidden: true,
-      default: {
-        '@path': '$.context.personas.computation_class'
-      }
-    },
-    segment_computation_id: {
-      label: 'Segment Computation ID',
-      description: 'For audience enter/exit events, this will be the audience ID.',
-      type: 'string',
-      unsafe_hidden: true,
-      default: {
-        '@path': '$.context.personas.computation_id'
-      }
-    },
-    segment_computation_key: {
-      label: 'Segment Computation Key',
-      description: 'For audience enter/exit events, this will be the audience key.',
-      type: 'string',
-      unsafe_hidden: true,
-      default: {
-        '@path': '$.context.personas.computation_key'
-      }
-    },
     advertiser_id: {
       label: 'Advertiser',
       description: 'The StackAdapt advertiser to add the profile to.',
@@ -121,41 +178,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    advertiser_id: async (request): Promise<DynamicFieldResponse> => {
-      try {
-        const query = `query {
-          tokenInfo {
-            scopesByAdvertiser {
-              nodes {
-                advertiser {
-                  id
-                  name
-                }
-                scopes
-              }
-            }
-          }
-        }`
-        const response = await request<TokenInfoResponse>(domain, {
-          body: JSON.stringify({ query })
-        })
-        const scopesByAdvertiser = response.data.data.tokenInfo.scopesByAdvertiser
-        const choices = scopesByAdvertiser.nodes
-          .filter((advertiserEntry) => advertiserEntry.scopes.includes('WRITE'))
-          .map((advertiserEntry) => ({ value: advertiserEntry.advertiser.id, label: advertiserEntry.advertiser.name }))
-          .sort((a, b) => a.label.localeCompare(b.label))
-        return { choices }
-      } catch (error) {
-        return {
-          choices: [],
-          nextPage: '',
-          error: {
-            message: (error as APIError).message ?? 'Unknown error',
-            code: (error as APIError).status?.toString() ?? 'Unknown error'
-          }
-        }
-      }
-    }
+    advertiser_id: advertiserIdFieldImplementation
   },
   perform: async (request, { payload }) => {
     return await performForwardProfiles(request, [payload])
