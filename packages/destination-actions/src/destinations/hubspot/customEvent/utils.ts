@@ -202,12 +202,21 @@ export function eventSchema(payload: Payload): Schema {
   return { eventName: event_name, primaryObject: payload.record_details.object_type, properties: props }
 }
 
-export function getSchemaFromCache(eventName: string, subscriptionMetadata?: SubscriptionMetadata, statsContext: StatsContext): Schema | undefined {
+export function getSchemaFromCache(eventName: string, subscriptionMetadata?: SubscriptionMetadata, statsContext?: StatsContext): Schema | undefined {
   if(!subscriptionMetadata || !subscriptionMetadata?.actionConfigId) {
-    statsContext?.statsClient?.incr('cache.miss', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('cache.error', 1, statsContext?.tags)
     return undefined
   }
-  return cache.get(`${subscriptionMetadata.actionConfigId}-${eventName}`) ?? undefined 
+
+  const schema = cache.get(`${subscriptionMetadata.actionConfigId}-${eventName}`) ?? undefined 
+
+  if(schema === undefined) {
+    statsContext?.statsClient?.incr('cache.miss', 1, statsContext?.tags)
+  } else {
+    statsContext?.statsClient?.incr('cache.hit', 1, statsContext?.tags)
+  }
+
+  return schema
 }
 
 export async function saveSchemaToCache(schema: Schema, subscriptionMetadata?: SubscriptionMetadata, statsContext: StatsContext) {

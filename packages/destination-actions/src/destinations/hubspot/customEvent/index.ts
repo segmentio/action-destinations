@@ -64,7 +64,7 @@ const send = async (request: RequestClient, payload: Payload, syncMode: SyncMode
   subscriptionMetadata = {
     actionConfigId : "abcdefghij"
   }
-  
+
   const client = new Client(request)
   const validPayload = validate(payload)
   const schema = eventSchema(validPayload)
