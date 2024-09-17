@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-tiktok-pixel",
-  "version": "1.59.1-staging-9554af676.0",
+  "version": "1.59.1-staging-8fe6f5ff6.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -16,7 +16,7 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@segment/actions-core": "3.129.1-staging-cf84b9f3d.0",
-    "@segment/browser-destination-runtime": "1.58.1-staging-9554af676.0"
+    "@segment/browser-destination-runtime": "1.58.1-staging-8fe6f5ff6.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
