@@ -20,11 +20,11 @@ export interface Payload {
     /**
      * The category the product is in; for example, a label from Google's product taxonomy. Required.
      */
-    category: string
+    category?: string
     /**
      * The ID representing the product in a catalog. Required.
      */
-    id: string
+    id?: string
     /**
      * The name of the product. Optional.
      */
