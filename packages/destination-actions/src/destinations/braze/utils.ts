@@ -148,7 +148,12 @@ export function sendBatchedTrackEvent(
   })
 }
 
-export function sendTrackPurchase(request: RequestClient, settings: Settings, payload: TrackPurchasePayload) {
+export function sendTrackPurchase(
+  request: RequestClient,
+  settings: Settings,
+  payload: TrackPurchasePayload,
+  syncMode?: 'add' | 'update'
+) {
   const { braze_id, external_id, email } = payload
   // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
   const user_alias = getUserAlias(payload.user_alias)
@@ -168,6 +173,12 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
 
   const reservedKeys = Object.keys(action.fields.products.properties ?? {})
   const event_properties = omit(payload.properties, ['products'])
+
+  let updateExistingOnly = payload._update_existing_only
+  if (syncMode) {
+    updateExistingOnly = syncMode === 'update'
+  }
+
   const base = {
     braze_id,
     external_id,
@@ -175,7 +186,7 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
     user_alias,
     app_id: settings.app_id,
     time: toISO8601(payload.time),
-    _update_existing_only: payload._update_existing_only
+    _update_existing_only: updateExistingOnly
   }
 
   return request(`${settings.endpoint}/users/track`, {
@@ -199,7 +210,12 @@ export function sendTrackPurchase(request: RequestClient, settings: Settings, pa
   })
 }
 
-export function sendBatchedTrackPurchase(request: RequestClient, settings: Settings, payloads: TrackPurchasePayload[]) {
+export function sendBatchedTrackPurchase(
+  request: RequestClient,
+  settings: Settings,
+  payloads: TrackPurchasePayload[],
+  syncMode?: 'add' | 'update'
+) {
   let payload = payloads
     .map((payload) => {
       const { braze_id, external_id, email } = payload
@@ -220,6 +236,11 @@ export function sendBatchedTrackPurchase(request: RequestClient, settings: Setti
         return
       }
 
+      let updateExistingOnly = payload._update_existing_only
+      if (syncMode) {
+        updateExistingOnly = syncMode === 'update'
+      }
+
       const base = {
         braze_id,
         external_id,
@@ -227,7 +248,7 @@ export function sendBatchedTrackPurchase(request: RequestClient, settings: Setti
         email,
         app_id: settings.app_id,
         time: toISO8601(payload.time),
-        _update_existing_only: payload._update_existing_only
+        _update_existing_only: updateExistingOnly
       }
 
       const reservedKeys = Object.keys(action.fields.products.properties ?? {})
