@@ -15,7 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const rawMapping: RawMapping = (data as unknown as SingleData).rawMapping
     return send([payload], settings, rawMapping)
   },
-  performBatch: (_, data) => {
+  performBatch: async (_, data) => {
     const { payload, settings } = data
     const rawMapping: RawMapping[] = (data as unknown as BatchData).rawMapping
     return send(payload, settings, rawMapping[0])

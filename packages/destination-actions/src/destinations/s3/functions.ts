@@ -34,8 +34,10 @@ function snakeCase(str?: string) {
   if (!str) {
     return ''
   }
-  const result = str.replace(/([A-Z])/g, '$1')
-  return result.split(' ').join('_').toLowerCase()
+  // Replace each uppercase letter with an underscore followed by the letter (except at the start)
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1_$2') // Add underscore between lowercase and uppercase letters
+    .toLowerCase()
 }
 
 function processField(row: string[], value: unknown | undefined) {
