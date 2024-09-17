@@ -24,7 +24,7 @@ interface TokenInfoResponse {
 }
 
 export const EXTERNAL_PROVIDER = 'segmentio'
-export const DOMAIN = 'https://api.stackadapt.com/graphql'
+export const GQL_ENDPOINT = 'https://api.stackadapt.com/graphql'
 
 export async function advertiserIdFieldImplementation(
   request: ReturnType<typeof createRequestClient>
@@ -43,7 +43,7 @@ export async function advertiserIdFieldImplementation(
           }
         }
       }`
-    const response = await request<TokenInfoResponse>(DOMAIN, {
+    const response = await request<TokenInfoResponse>(GQL_ENDPOINT, {
       body: JSON.stringify({ query })
     })
     const scopesByAdvertiser = response.data.data.tokenInfo.scopesByAdvertiser

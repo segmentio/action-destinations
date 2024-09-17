@@ -2,7 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import camelCase from 'lodash/camelCase'
 import isEmpty from 'lodash/isEmpty'
 import { Payload } from './generated-types'
-import { DOMAIN, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes } from '../functions'
+import { GQL_ENDPOINT, EXTERNAL_PROVIDER, sha256hash, stringifyJsonWithEscapedQuotes } from '../functions'
 
 const standardFields = new Set([
   'email',
@@ -36,7 +36,6 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
   const advertiserId = events[0].advertiser_id
   const profileUpdates = events.flatMap((event) => {
     const { event_type, previous_id, user_id, traits } = event
-    console.log(event)
     const profile: Record<string, string | number | undefined> = {
       userId: user_id
     }
@@ -82,7 +81,7 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
         }
       }
     }`
-  return await request(DOMAIN, {
+  return await request(GQL_ENDPOINT, {
     body: JSON.stringify({ query: mutation })
   })
 

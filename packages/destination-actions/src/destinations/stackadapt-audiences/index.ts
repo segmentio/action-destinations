@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import forwardProfile from './forwardProfile'
 import forwardAudienceEvent from './forwardAudienceEvent'
 import { AdvertiserScopesResponse } from './types'
-import { DOMAIN } from './functions'
+import { GQL_ENDPOINT } from './functions'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'StackAdapt Audiences',
@@ -35,8 +35,9 @@ const destination: DestinationDefinition<Settings> = {
         }
       }`
 
-      const res = await request(DOMAIN, {
-        body: JSON.stringify({ query: scopeQuery })
+      const res = await request(GQL_ENDPOINT, {
+        body: JSON.stringify({ query: scopeQuery }),
+        throwHttpErrors: false
       })
       if (res.status !== 200) {
         throw new Error(res.status + res.statusText)

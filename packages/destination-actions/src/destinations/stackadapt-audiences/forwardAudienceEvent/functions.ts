@@ -1,6 +1,6 @@
 import { RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
-import { DOMAIN, sha256hash, stringifyJsonWithEscapedQuotes } from '../functions'
+import { GQL_ENDPOINT, sha256hash, stringifyJsonWithEscapedQuotes } from '../functions'
 
 const EXTERNAL_PROVIDER = 'segmentio'
 
@@ -77,7 +77,7 @@ export async function performForwardAudienceEvents(request: RequestClient, event
         }
       }
     }`
-  return await request(DOMAIN, {
+  return await request(GQL_ENDPOINT, {
     body: JSON.stringify({ query: mutation })
   })
 }
