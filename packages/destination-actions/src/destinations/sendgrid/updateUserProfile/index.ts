@@ -121,7 +121,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone_number: {
       label: 'Phone Number',
-      description: `The contact's phone number.`,
+      description: `The contact's phone number. Note: This is different from the Phone Number ID field, but the same value can be stored in both fields.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -146,8 +146,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     line: {
-      label: 'LINE ID',
-      description: `The contact's LINE ID.`,
+      label: 'Line',
+      description: `The contact's landline.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -159,8 +159,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     facebook: {
-      label: 'Facebook ID',
-      description: `The contact's Facebook ID.`,
+      label: 'Facebook',
+      description: `The contact's Facebook identifier.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -184,25 +184,12 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    identity: {
-      label: 'Identity',
-      description: `The contact's identity.`,
-      type: 'string',
-      allowNull: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.identity' },
-          then: { '@path': '$.traits.identity' },
-          else: { '@path': '$.properties.identity' }
-        }
-      }
-    },
     primary_email: {
       label: 'Email Address',
       description: `The contact's email address.`,
       type: 'string',
-      allowNull: false,
-      required: true,
+      allowNull: true,
+      required: false,
       default: {
         '@if': {
           exists: { '@path': '$.traits.email' },
@@ -210,6 +197,42 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.email' }
         }
       }
+    },
+    phone_number_id: {
+      label: 'Phone Number ID',
+      description: `Primary Phone Number used to identify a Contact. This must be a valid phone number.`,
+      type: 'string',
+      allowNull: true,
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' },
+          else: { '@path': '$.properties.phone' }
+        }
+      }
+    },
+    external_id: {
+      label: 'External ID',
+      description: `The contact's External ID.`,
+      type: 'string',
+      allowNull: true,
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.external_id' },
+          then: { '@path': '$.traits.external_id' },
+          else: { '@path': '$.properties.external_id' }
+        }
+      }
+    },
+    anonymous_id: {
+      label: 'Anonymous ID ',
+      description: `The contact's Anonymous ID.`,
+      type: 'string',
+      allowNull: true,
+      required: false,
+      default: { '@path': '$.anonymousId' }
     },
     customFields: customFields
   },

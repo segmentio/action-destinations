@@ -1,5 +1,12 @@
-import { APIError, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
+import {
+  APIError,
+  RequestClient,
+  DynamicFieldResponse,
+  IntegrationError,
+  PayloadValidationError
+} from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
+import { Settings } from './generated-types'
 import {
   KlaviyoAPIError,
   ListIdResponse,
@@ -12,7 +19,8 @@ import {
   SubscribeEventData,
   UnsubscribeProfile,
   UnsubscribeEventData,
-  GroupedProfiles
+  GroupedProfiles,
+  AdditionalAttributes
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 
@@ -71,7 +79,9 @@ export async function removeProfileFromList(request: RequestClient, ids: string[
 export async function createProfile(
   request: RequestClient,
   email: string | undefined,
-  external_id: string | undefined
+  external_id: string | undefined,
+  phone_number: string | undefined,
+  additionalAttributes: AdditionalAttributes
 ) {
   try {
     const profileData: ProfileData = {
@@ -79,7 +89,9 @@ export async function createProfile(
         type: 'profile',
         attributes: {
           email,
-          external_id
+          external_id,
+          phone_number,
+          ...additionalAttributes
         }
       }
     }
@@ -92,7 +104,7 @@ export async function createProfile(
     return rs.data.id
   } catch (error) {
     const { response } = error as KlaviyoAPIError
-    if (response.status == 409) {
+    if (response?.status == 409) {
       const rs = await response.json()
       return rs.errors[0].meta.duplicate_profile_id
     }
@@ -144,7 +156,8 @@ export const sendImportJobRequest = async (request: RequestClient, importJobPayl
 export async function getProfiles(
   request: RequestClient,
   emails: string[] | undefined,
-  external_ids: string[] | undefined
+  external_ids: string[] | undefined,
+  phoneNumbers: string[] | undefined
 ): Promise<string[]> {
   const profileIds: string[] = []
 
@@ -153,8 +166,8 @@ export async function getProfiles(
     const response = await request(`${API_URL}/profiles/?filter=any(${filterId})`, {
       method: 'GET'
     })
-    const data: GetProfileResponse = await response.json()
-    profileIds.push(...data.data.map((profile: Profile) => profile.id))
+    const res: GetProfileResponse = await response.json()
+    profileIds.push(...res.data.map((profile: Profile) => profile.id))
   }
 
   if (emails?.length) {
@@ -162,8 +175,17 @@ export async function getProfiles(
     const response = await request(`${API_URL}/profiles/?filter=any(${filterEmail})`, {
       method: 'GET'
     })
-    const data: GetProfileResponse = await response.json()
-    profileIds.push(...data.data.map((profile: Profile) => profile.id))
+    const res: GetProfileResponse = await response.json()
+    profileIds.push(...res.data.map((profile: Profile) => profile.id))
+  }
+
+  if (phoneNumbers?.length) {
+    const filterPhone = `phone_number,["${phoneNumbers.join('","')}"]`
+    const response = await request(`${API_URL}/profiles/?filter=any(${filterPhone})`, {
+      method: 'GET'
+    })
+    const res: GetProfileResponse = await response.json()
+    profileIds.push(...res.data.map((profile: Profile) => profile.id))
   }
 
   return Array.from(new Set(profileIds))
@@ -294,6 +316,68 @@ export function formatUnsubscribeProfile(email: string | undefined, phone_number
   return profileToSubscribe
 }
 
+export async function getList(request: RequestClient, settings: Settings, listId: string) {
+  const apiKey = settings.api_key
+  const response = await request(`${API_URL}/lists/${listId}`, {
+    method: 'GET',
+    headers: buildHeaders(apiKey),
+    throwHttpErrors: false
+  })
+
+  if (!response.ok) {
+    const errorResponse = await response.json()
+    const klaviyoErrorDetail = errorResponse.errors[0].detail
+    throw new APIError(klaviyoErrorDetail, response.status)
+  }
+
+  const r = await response.json()
+  const externalId = r.data.id
+
+  if (externalId !== listId) {
+    throw new IntegrationError(
+      "Unable to verify ownership over audience. Segment Audience ID doesn't match The Klaviyo List Id.",
+      'INVALID_REQUEST_DATA',
+      400
+    )
+  }
+
+  return {
+    successMessage: `Using existing list '${r.data.attributes.name}' (id: ${listId})`,
+    savedData: {
+      id: listId,
+      name: r.data.attributes.name
+    }
+  }
+}
+
+export async function createList(request: RequestClient, settings: Settings, listName: string) {
+  const apiKey = settings.api_key
+  if (!listName) {
+    throw new PayloadValidationError('Missing audience name value')
+  }
+
+  if (!apiKey) {
+    throw new PayloadValidationError('Missing Api Key value')
+  }
+
+  const response = await request(`${API_URL}/lists`, {
+    method: 'POST',
+    headers: buildHeaders(apiKey),
+    json: {
+      data: { type: 'list', attributes: { name: listName } }
+    }
+  })
+  const r = await response.json()
+
+  return {
+    successMessage: `List '${r.data.attributes.name}' (id: ${r.data.id}) created successfully!`,
+    savedData: {
+      id: r.data.id,
+      name: r.data.attributes.name
+    }
+  }
+}
+
 export function groupByListId(profiles: Payload[]) {
   const grouped: GroupedProfiles = {}
 
@@ -317,4 +401,10 @@ export async function processProfilesByGroup(request: RequestClient, groupedProf
     })
   )
   return importResponses
+}
+
+export function validatePhoneNumber(phone?: string): boolean {
+  if (!phone) return true
+  const e164Regex = /^\+[1-9]\d{1,14}$/
+  return e164Regex.test(phone)
 }

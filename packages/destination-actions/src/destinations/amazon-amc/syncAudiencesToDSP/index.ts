@@ -62,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.properties.postal' }
     },
     state: {
-      label: 'Postal',
+      label: 'State',
       description: 'State Code. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,

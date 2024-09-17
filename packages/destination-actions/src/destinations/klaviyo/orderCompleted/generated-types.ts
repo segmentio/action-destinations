@@ -7,9 +7,15 @@ export interface Payload {
   profile: {
     email?: string
     phone_number?: string
-    other_properties?: {
-      [k: string]: unknown
-    }
+    /**
+     * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system.
+     */
+    external_id?: string
+    /**
+     * Anonymous user identifier for the user.
+     */
+    anonymous_id?: string
+    [k: string]: unknown
   }
   /**
    * Properties of this event.
@@ -42,4 +48,8 @@ export interface Payload {
   products?: {
     [k: string]: unknown
   }[]
+  /**
+   * Name of the event. This will be used as the metric name in Klaviyo.
+   */
+  event_name?: string
 }

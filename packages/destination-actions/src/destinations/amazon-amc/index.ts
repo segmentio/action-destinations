@@ -1,12 +1,10 @@
-import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
-import type { RefreshTokenResponse, AmazonRefreshTokenError, AmazonTestAuthenticationError } from './types'
+import { AudienceDestinationDefinition, InvalidAuthenticationError, IntegrationError } from '@segment/actions-core'
+import type { RefreshTokenResponse, AmazonTestAuthenticationError } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
 import {
   AudiencePayload,
-  AUTHORIZATION_URL,
-  CURRENCY,
   extractNumberAndSubstituteWithStringValue,
+  getAuthToken,
   REGEX_ADVERTISERID,
   REGEX_AUDIENCEID
 } from './utils'
@@ -14,7 +12,7 @@ import {
 import syncAudiencesToDSP from './syncAudiencesToDSP'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'Amazon AMC (Actions)',
+  name: 'Amazon Ads DSP and AMC',
   slug: 'actions-amazon-amc',
   mode: 'cloud',
 
@@ -41,7 +39,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       try {
         await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
-          method: 'GET'
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
         })
       } catch (e: any) {
         const error = e as AmazonTestAuthenticationError
@@ -54,37 +55,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     refreshAccessToken: async (request, { auth, settings }) => {
-      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
-      try {
-        const res = await request<RefreshTokenResponse>(endpoint, {
-          method: 'POST',
-          body: new URLSearchParams({
-            refresh_token: auth.refreshToken,
-            client_id: auth.clientId,
-            client_secret: auth.clientSecret,
-            grant_type: 'refresh_token'
-          }),
-          headers: {
-            // Amazon ads refresh token API throws error with authorization header so explicity overriding Authorization header here.
-            authorization: ''
-          }
-        })
-
-        return { accessToken: res.data.access_token }
-      } catch (e: any) {
-        const error = e as AmazonRefreshTokenError
-        if (error.response?.data?.error === 'invalid_grant') {
-          throw new InvalidAuthenticationError(
-            `Invalid Authentication: Your refresh token is invalid or expired. Please re-authenticate to fetch a new refresh token.`,
-            ErrorCodes.REFRESH_TOKEN_EXPIRED
-          )
-        }
-
-        throw new InvalidAuthenticationError(
-          `Failed to fetch a new access token. Reason: ${error.response?.data?.error}`,
-          ErrorCodes.OAUTH_REFRESH_FAILED
-        )
-      }
+      const authToken = await getAuthToken(request, settings, auth)
+      return { accessToken: authToken }
     }
   },
 
@@ -92,8 +64,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_ADS_CLIENT_ID || '',
-        'Content-Type': 'application/vnd.amcaudiences.v1+json'
+        'Amazon-Advertising-API-ClientID': process.env.ACTIONS_AMAZON_AMC_CLIENT_ID || ''
       }
     }
   },
@@ -126,7 +97,23 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     currency: {
       label: 'Currency',
       type: 'string',
-      description: `The price paid. Base units depend on the currency. As an example, USD should be reported as Dollars.Cents, whereas JPY should be reported as a whole number of Yen. All provided values will be rounded to two digits with toFixed(2).Refer [Aamzon Ads Documentation](https://advertising.amazon.com/API/docs/en-us/amc-advertiser-audience#tag/Audience-Metadata/operation/CreateAudienceMetadataV2) to view supported Currency`
+      description: `Currency code for the CPM value.`,
+      choices: [
+        { value: 'USD', label: 'USD' },
+        { value: 'CAD', label: 'CAD' },
+        { value: 'JPY', label: 'JPY' },
+        { value: 'GBP', label: 'GBP' },
+        { value: 'EUR', label: 'EUR' },
+        { value: 'SAR', label: 'SAR' },
+        { value: 'AUD', label: 'AUD' },
+        { value: 'AED', label: 'AED' },
+        { value: 'CNY', label: 'CNY' },
+        { value: 'MXN', label: 'MXN' },
+        { value: 'INR', label: 'INR' },
+        { value: 'SEK', label: 'SEK' },
+        { value: 'TRY', label: 'TRY' }
+      ],
+      default: ''
     },
     ttl: {
       type: 'number',
@@ -149,8 +136,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, audienceSettings } = createAudienceInput
-      const endpoint = createAudienceInput.settings.region
+      const { audienceName, audienceSettings, settings } = createAudienceInput
+      const endpoint = settings.region
       const description = audienceSettings?.description
       const advertiser_id = audienceSettings?.advertiserId
       const external_audience_id = audienceSettings?.externalAudienceId
@@ -191,25 +178,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       if (ttl) {
-        const timeToLive = Number(ttl)
-        if (!timeToLive) {
-          throw new IntegrationError('TTL:-String can not be converted to Number', 'INVALID_TTL_VALUE', 400)
-        }
-        payload.metadata.ttl = timeToLive
+        payload.metadata.ttl = ttl
       }
 
       if (cpm_cents && currency) {
-        if (!CURRENCY.includes(currency)) {
-          throw new IntegrationError('Invalid Currency Value', 'INVALID_CURRENCY_VALUE', 400)
-        }
-        const cpmCents = Number(cpm_cents)
-        if (!cpmCents) {
-          throw new IntegrationError('CPM_CENTS:-String can not be converted to Number', 'INVALID_CPMCENTS_VALUE', 400)
-        }
         payload.metadata.audienceFees = []
         payload.metadata?.audienceFees.push({
           currency,
-          cpmCents: cpmCents
+          cpmCents: cpm_cents
         })
       }
 
@@ -237,8 +213,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async getAudience(request, getAudienceInput) {
       // getAudienceInput.externalId represents audience ID that was created in createAudience
       const audience_id = getAudienceInput.externalId
-      const endpoint = getAudienceInput.settings.region
-
+      const { settings } = getAudienceInput
+      const endpoint = settings.region
       if (!audience_id) {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }

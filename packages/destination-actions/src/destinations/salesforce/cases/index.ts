@@ -10,7 +10,8 @@ import {
   validateLookup,
   enable_batching,
   recordMatcherOperator,
-  batch_size
+  batch_size,
+  hideIfDeleteOperation
 } from '../sf-properties'
 import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 
@@ -30,7 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
     description: {
       label: 'Description',
       description: 'A text description of the case.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     customFields: customFields
   },

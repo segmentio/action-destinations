@@ -16,7 +16,7 @@ Getting started with actions tester is quite easy. For cloud action destinations
 
 For web action destinations, use the following command instead:
 
-`./bin/run serve --directory ./packages/browser-destinations/src/destinations --browser`
+`./bin/run serve --directory ./packages/browser-destinations/destinations --browser`
 
 You may either select your new action destination via the command line menu, or optionally pass it via enviornment variable to skip that step.
 

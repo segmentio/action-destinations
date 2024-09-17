@@ -55,7 +55,8 @@ export interface EventData {
           attributes: {
             email?: string
             phone_number?: string
-            other_properties?: object
+            external_id?: string
+            anonymous_id?: string
           }
         }
       }
@@ -209,4 +210,12 @@ export interface UnsubscribeEventData {
 
 export interface GroupedProfiles {
   [listId: string]: Payload[]
+}
+
+export interface AdditionalAttributes {
+  first_name?: string
+  last_name?: string
+  organization?: string
+  title?: string
+  image?: string
 }

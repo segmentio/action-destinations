@@ -6,6 +6,7 @@ Object {
     Object {
       "anonymousId": "anonId1234",
       "context": Object {
+        "consent": Object {},
         "externalIds": Array [
           Object {
             "collection": "users",
@@ -83,6 +84,7 @@ Object {
     Object {
       "anonymousId": "anonId1234",
       "context": Object {
+        "consent": Object {},
         "externalIds": Array [
           Object {
             "collection": "users",

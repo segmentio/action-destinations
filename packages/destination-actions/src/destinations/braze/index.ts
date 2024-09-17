@@ -1,6 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { defaultValues } from '@segment/actions-core'
+import { DEFAULT_REQUEST_TIMEOUT, defaultValues } from '@segment/actions-core'
 import createAlias from './createAlias'
 import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
@@ -43,7 +43,8 @@ const destination: DestinationDefinition<Settings> = {
           { label: 'US-08	(https://dashboard-08.braze.com)', value: 'https://rest.iad-08.braze.com' },
           { label: 'US-09	(https://dashboard-09.braze.com)', value: 'https://rest.iad-09.braze.com' },
           { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'https://rest.fra-01.braze.eu' },
-          { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'https://rest.fra-02.braze.eu' }
+          { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'https://rest.fra-02.braze.eu' },
+          { label: 'ID-01 (https://dashboard-01.braze.id)', value: 'https://rest.apse-01.braze.id' }
         ],
         default: 'https://rest.iad-01.braze.com',
         required: true
@@ -62,7 +63,8 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         Authorization: `Bearer ${settings.api_key}`
-      }
+      },
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     }
   },
   actions: {

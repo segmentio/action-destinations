@@ -1,6 +1,6 @@
 # action-destinations
 
-Destination definitions and their actions
+Destination definitions and their actions.
 
 ## License
 

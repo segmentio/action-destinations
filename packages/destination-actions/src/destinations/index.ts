@@ -166,6 +166,18 @@ register('6627b0208bbe1699ca06eef8', './inleads-ai')
 register('663235c8575a8ec65ccadf42', './magellan-ai')
 register('664ce7bdc820c71f7e3ff031', './contentstack')
 register('664ce847b3e6f19ea96b3611', './trubrics')
+register('66684ba89c0523461d8bb7f3', './taboola-actions')
+register('6683e1d5e37fd84efcf3bbef', './first-party-dv360')
+register('668d1cb2a1dcc5ad33228d92', './angler-ai')
+register('6698df634212816c561d3e6a', './aws-s3')
+register('669f91bb3f2189462dddb691', './adjust')
+register('66a7c28810bbaf446695d27d', './iterable-lists')
+register('66b1f528d26440823fb27af9', './webhook-extensible')
+register('66ba235ecfcfee29bab517ce', './dawn')
+register('66ba237845b93b71bca2713e', './topsort')
+register('66c492a35a05977266a4a5c4', './delivrai-activate')
+register('66cc766ef4b1c152177239a0', './reddit-conversions-api')
+register('66cc76e29693c9e5591bf029', './nextdoor-capi')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

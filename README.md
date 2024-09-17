@@ -614,9 +614,12 @@ Additionally, you’ll need to coordinate with Segment’s R&D team for the time
 
 ## Action Hooks
 
-**Note: This feature is not yet released.**
-
 Hooks allow builders to perform requests against a destination at certain points in the lifecycle of a mapping. Values can then be persisted from that request to be used later on in the action's `perform` method.
+
+At the moment two hooks are available: `onMappingSave` and `retlOnMappingSave`:
+
+- `onMappingSave`: This hook appears in the MappingEditor page as a separate step. Users fill in the defined input fields and the code in the `performHook` block is triggered when the user saves their mapping.
+- `retlOnMappingSave`: This hook appears only for destinations connected to a RETL warehouse source. It is otherwise the same as the `onMappingSave` hook.
 
 **Inputs**
 
@@ -628,7 +631,7 @@ Similar to the `perform` method, the `performHook` method allows builders to tri
 
 **Outputs**
 
-Builders define the shape of the hook output with the `outputTypes` property. Successful returns from `performHook` should match the keys defined here. These values are then saved on a per-mapping basis, and can be used in the `perform` or `performBatch` methods when events are sent through the mapping.
+Builders define the shape of the hook output with the `outputTypes` property. Successful returns from `performHook` should match the keys defined here. These values are then saved on a per-mapping basis, and can be used in the `perform` or `performBatch` methods when events are sent through the mapping. Outputs can be referenced in the `perform` block with `data.hookOutputs?.<hookType>?.<property>`
 
 ### Example (LinkedIn Conversions API)
 
@@ -705,10 +708,6 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   }
   }
 ```
-
-### `onMappingSave` hook
-
-The `onMappingSave` hook is triggered after a user clicks 'Save' on a mapping. The result of the hook is then saved to the users configuration as if it were a normal field. Builders can access the saved values in the `perform` block by referencing `data.hookOutputs?.onMappingSave?.<key>`.
 
 ## Audience Support (Pilot)
 

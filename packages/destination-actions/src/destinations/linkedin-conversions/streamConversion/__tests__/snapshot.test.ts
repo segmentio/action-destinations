@@ -33,7 +33,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
           outputs: {
             id: '1234'
           }
-        }
+        },
+        enable_batching: true,
+        batch_size: 5000
       },
       settings: settingsData,
       auth: undefined
@@ -53,7 +55,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     expect(request.headers).toMatchSnapshot()
   })
 
-  it.only('all fields', async () => {
+  it('all fields', async () => {
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
@@ -92,7 +94,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
           outputs: {
             id: '1234'
           }
-        }
+        },
+        enable_batching: true,
+        batch_size: 5000
       },
       settings: settingsData,
       auth: undefined

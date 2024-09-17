@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       description: 'The device IP collected from the context',
-      label: 'Context properties',
+      label: 'Device IP',
       default: { '@path': '$.context.ip' }
     },
     message_id: {

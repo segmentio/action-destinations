@@ -73,6 +73,8 @@ const validateValue = (actual: unknown, operator: Operator, expected?: string | 
   switch (operator) {
     case '=':
       return actual === String(expected)
+    case 'number_equals':
+      return typeof actual === 'number' && Number(actual) === Number(expected)
     case '!=':
       return actual !== String(expected)
     case '<':

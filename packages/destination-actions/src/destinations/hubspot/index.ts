@@ -5,6 +5,8 @@ import sendCustomBehavioralEvent from './sendCustomBehavioralEvent'
 import upsertContact from './upsertContact'
 import upsertCompany from './upsertCompany'
 import upsertCustomObjectRecord from './upsertCustomObjectRecord'
+import upsertObject from './upsertObject'
+import customEvent from './customEvent'
 import { HUBSPOT_BASE_URL } from './properties'
 interface RefreshTokenResponse {
   access_token: string
@@ -56,7 +58,9 @@ const destination: DestinationDefinition<Settings> = {
     sendCustomBehavioralEvent,
     upsertContact,
     upsertCompany,
-    upsertCustomObjectRecord
+    upsertCustomObjectRecord,
+    upsertObject,
+    customEvent
   }
 }
 

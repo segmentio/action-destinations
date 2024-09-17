@@ -6,6 +6,14 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "cZE8HyAL0!BF#)WQb^",
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
+        },
         "groupId": "cZE8HyAL0!BF#)WQb^",
         "integrations": Object {
           "All": false,
@@ -30,6 +38,14 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "cZE8HyAL0!BF#)WQb^",
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
+        },
         "groupId": "cZE8HyAL0!BF#)WQb^",
         "integrations": Object {
           "All": false,
@@ -52,6 +68,14 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "hIC1OAmWa[Q!&d%o",
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
+        },
         "groupId": "hIC1OAmWa[Q!&d%o",
         "integrations": Object {
           "All": false,
@@ -76,6 +100,14 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "hIC1OAmWa[Q!&d%o",
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
+        },
         "groupId": "hIC1OAmWa[Q!&d%o",
         "integrations": Object {
           "All": false,
@@ -99,6 +131,7 @@ Object {
       Object {
         "anonymousId": undefined,
         "context": Object {
+          "consent": Object {},
           "externalIds": Array [
             Object {
               "collection": "users",
@@ -149,6 +182,7 @@ Object {
       Object {
         "anonymousId": undefined,
         "context": Object {
+          "consent": Object {},
           "externalIds": Array [
             Object {
               "collection": "users",
@@ -198,6 +232,14 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "[2uovRzxThJj",
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
+        },
         "event": "[2uovRzxThJj",
         "integrations": Object {
           "All": false,
@@ -222,6 +264,14 @@ Object {
     "batch": Array [
       Object {
         "anonymousId": "[2uovRzxThJj",
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
+        },
         "event": "[2uovRzxThJj",
         "integrations": Object {
           "All": false,

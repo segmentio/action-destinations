@@ -144,6 +144,10 @@ function mapPayload(payload: Payload) {
     object_type_id: object_type_id ?? '1',
     object_id: id
   }
+  // Removes `object_type_id` and `relationshipAttributes` from the `custom_attributes` object because our API does not use these values.
+  delete custom_attributes?.object_type_id
+  delete custom_attributes?.objectTypeId
+  delete custom_attributes?.relationshipAttributes
 
   let rel_attrs = relationship_attributes as Record<string, unknown>
 

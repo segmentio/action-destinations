@@ -156,6 +156,7 @@ export const minimal_items: InputField = {
   description: 'The list of products purchased.',
   type: 'object',
   multiple: true,
+  additionalProperties: true,
   properties: {
     item_id: {
       label: 'Product ID',

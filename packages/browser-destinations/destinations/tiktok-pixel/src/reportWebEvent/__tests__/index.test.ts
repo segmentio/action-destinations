@@ -17,10 +17,70 @@ describe('TikTokPixel.reportWebEvent', () => {
       mockTtp = {
         page: jest.fn(),
         identify: jest.fn(),
-        track: jest.fn()
+        track: jest.fn(),
+        instance: jest.fn(() => mockTtp)
       }
       return Promise.resolve(mockTtp)
     })
+  })
+
+  test('sends "Pageview" event', async () => {
+    const subscriptions: Subscription[] = [
+      {
+        partnerAction: 'reportWebEvent',
+        name: 'Page View',
+        enabled: true,
+        subscribe: 'type="page"',
+        mapping: {
+          event: 'Pageview'
+        }
+      }
+    ]
+
+    const context = new Context({
+      messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
+      type: 'page',
+      anonymousId: 'anonymousId',
+      userId: 'userId',
+      context: {
+        traits: {
+          last_name: 'lastName',
+          first_name: 'firstName',
+          address: {
+            city: 'city',
+            state: 'state',
+            country: 'country'
+          }
+        }
+      },
+      properties: {}
+    })
+
+    const [webEvent] = await TikTokDestination({
+      ...settings,
+      subscriptions
+    })
+    reportWebEvent = webEvent
+
+    await reportWebEvent.load(Context.system(), {} as Analytics)
+    await reportWebEvent.track?.(context)
+
+    expect(mockTtp.track).toHaveBeenCalledWith(
+      'Pageview',
+      {
+        content_type: undefined,
+        contents: [],
+        currency: 'USD',
+        description: undefined,
+        order_id: undefined,
+        query: undefined,
+        shop_id: undefined,
+        value: undefined
+      },
+      {
+        event_id: ''
+      }
+    )
   })
 
   test('maps properties correctly for "PlaceAnOrder" event', async () => {
@@ -45,6 +105,23 @@ describe('TikTokPixel.reportWebEvent', () => {
           },
           email: {
             '@path': '$.properties.email'
+          },
+          last_name: {
+            '@path': '$.context.traits.last_name'
+          },
+          first_name: {
+            '@path': '$.context.traits.first_name'
+          },
+          address: {
+            city: {
+              '@path': '$.context.traits.address.city'
+            },
+            state: {
+              '@path': '$.context.traits.address.state'
+            },
+            country: {
+              '@path': '$.context.traits.address.country'
+            }
           },
           groupId: {
             '@path': '$.groupId'
@@ -91,6 +168,17 @@ describe('TikTokPixel.reportWebEvent', () => {
       anonymousId: 'anonymousId',
       userId: 'userId',
       event: 'Order Completed',
+      context: {
+        traits: {
+          last_name: 'lastName',
+          first_name: 'firstName',
+          address: {
+            city: 'city',
+            state: 'state',
+            country: 'country'
+          }
+        }
+      },
       properties: {
         products: [
           {
@@ -125,9 +213,15 @@ describe('TikTokPixel.reportWebEvent', () => {
     await reportWebEvent.track?.(context)
 
     expect(mockTtp.identify).toHaveBeenCalledWith({
+      city: 'city',
+      country: 'country',
       email: 'aaa@aaa.com',
       phone_number: '+12345678900',
-      external_id: 'userId'
+      external_id: 'userId',
+      first_name: 'firstname',
+      last_name: 'lastname',
+      state: 'state',
+      zip_code: ''
     })
     expect(mockTtp.track).toHaveBeenCalledWith(
       'PlaceAnOrder',
@@ -167,6 +261,23 @@ describe('TikTokPixel.reportWebEvent', () => {
           },
           email: {
             '@path': '$.properties.email'
+          },
+          last_name: {
+            '@path': '$.context.traits.last_name'
+          },
+          first_name: {
+            '@path': '$.context.traits.first_name'
+          },
+          address: {
+            city: {
+              '@path': '$.context.traits.address.city'
+            },
+            state: {
+              '@path': '$.context.traits.address.state'
+            },
+            country: {
+              '@path': '$.context.traits.address.country'
+            }
           },
           groupId: {
             '@path': '$.groupId'
@@ -213,6 +324,17 @@ describe('TikTokPixel.reportWebEvent', () => {
       anonymousId: 'anonymousId',
       userId: 'userId',
       event: 'Product Added',
+      context: {
+        traits: {
+          last_name: 'lastName',
+          first_name: 'firstName',
+          address: {
+            city: 'city',
+            state: 'state',
+            country: 'country'
+          }
+        }
+      },
       properties: {
         product_id: '123',
         category: 'product',
@@ -237,9 +359,15 @@ describe('TikTokPixel.reportWebEvent', () => {
     await reportWebEvent.track?.(context)
 
     expect(mockTtp.identify).toHaveBeenCalledWith({
+      city: 'city',
+      country: 'country',
       email: 'aaa@aaa.com',
       phone_number: '+12345678900',
-      external_id: 'userId'
+      external_id: 'userId',
+      first_name: 'firstname',
+      last_name: 'lastname',
+      state: 'state',
+      zip_code: ''
     })
     expect(mockTtp.track).toHaveBeenCalledWith(
       'AddToCart',
@@ -276,6 +404,23 @@ describe('TikTokPixel.reportWebEvent', () => {
           },
           email: {
             '@path': '$.properties.email'
+          },
+          last_name: {
+            '@path': '$.context.traits.last_name'
+          },
+          first_name: {
+            '@path': '$.context.traits.first_name'
+          },
+          address: {
+            city: {
+              '@path': '$.context.traits.address.city'
+            },
+            state: {
+              '@path': '$.context.traits.address.state'
+            },
+            country: {
+              '@path': '$.context.traits.address.country'
+            }
           },
           groupId: {
             '@path': '$.groupId'
@@ -321,6 +466,17 @@ describe('TikTokPixel.reportWebEvent', () => {
       type: 'page',
       anonymousId: 'anonymousId',
       userId: 'userId',
+      context: {
+        traits: {
+          last_name: 'lastName',
+          first_name: 'firstName',
+          address: {
+            city: 'city',
+            state: 'state',
+            country: 'country'
+          }
+        }
+      },
       properties: {
         product_id: '123',
         category: 'product',
@@ -345,9 +501,15 @@ describe('TikTokPixel.reportWebEvent', () => {
     await reportWebEvent.track?.(context)
 
     expect(mockTtp.identify).toHaveBeenCalledWith({
+      city: 'city',
+      country: 'country',
       email: 'aaa@aaa.com',
       phone_number: '+12345678900',
-      external_id: 'userId'
+      external_id: 'userId',
+      first_name: 'firstname',
+      last_name: 'lastname',
+      state: 'state',
+      zip_code: ''
     })
     expect(mockTtp.track).toHaveBeenCalledWith(
       'ViewContent',
@@ -384,6 +546,23 @@ describe('TikTokPixel.reportWebEvent', () => {
           },
           email: {
             '@path': '$.properties.email'
+          },
+          last_name: {
+            '@path': '$.context.traits.last_name'
+          },
+          first_name: {
+            '@path': '$.context.traits.first_name'
+          },
+          address: {
+            city: {
+              '@path': '$.context.traits.address.city'
+            },
+            state: {
+              '@path': '$.context.traits.address.state'
+            },
+            country: {
+              '@path': '$.context.traits.address.country'
+            }
           },
           groupId: {
             '@path': '$.groupId'
@@ -430,6 +609,17 @@ describe('TikTokPixel.reportWebEvent', () => {
       anonymousId: 'anonymousId',
       userId: 'userId',
       event: 'Order Completed',
+      context: {
+        traits: {
+          last_name: 'lastName',
+          first_name: 'firstName',
+          address: {
+            city: 'city',
+            state: 'state',
+            country: 'country'
+          }
+        }
+      },
       properties: {
         products: [
           {
@@ -464,9 +654,15 @@ describe('TikTokPixel.reportWebEvent', () => {
     await reportWebEvent.track?.(context)
 
     expect(mockTtp.identify).toHaveBeenCalledWith({
+      city: 'city',
+      country: 'country',
       email: 'aaa@aaa.com',
       phone_number: '+12345678900',
-      external_id: 'userId'
+      external_id: 'userId',
+      first_name: 'firstname',
+      last_name: 'lastname',
+      state: 'state',
+      zip_code: ''
     })
     expect(mockTtp.track).toHaveBeenCalledWith(
       'PlaceAnOrder',
