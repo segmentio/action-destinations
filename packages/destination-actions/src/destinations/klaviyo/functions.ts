@@ -408,3 +408,34 @@ export function validatePhoneNumber(phone?: string): boolean {
   const e164Regex = /^\+[1-9]\d{1,14}$/
   return e164Regex.test(phone)
 }
+
+export function roundTimestamp(timestamp: string): string {
+  // Split the timestamp into date and time components
+  const [datePart, timePart] = timestamp.split('T')
+
+  // If there's no timePart, return the original timestamp directly
+  if (!timePart) {
+    return timestamp
+  }
+
+  // Split the time part into seconds and milliseconds
+  const [time, milliseconds] = timePart.split('.')
+
+  // If milliseconds exist, round them if they have more than 3 digits
+  if (milliseconds) {
+    const hasZ = milliseconds.endsWith('Z')
+    const msValue = hasZ ? milliseconds.slice(0, -1) : milliseconds // Remove 'Z' for processing
+
+    const msValueLength = msValue.length
+
+    if (msValueLength > 3) {
+      const divisor = Math.pow(10, msValueLength - 3) // Round upto 3 digits
+      const roundedValue = Math.round(parseFloat(msValue) / divisor)
+      const roundedMilliseconds = roundedValue.toString()
+      return `${datePart}T${time}.${roundedMilliseconds}${hasZ ? 'Z' : ''}`
+    }
+  }
+
+  // If milliseconds are 3 digits or fewer, return the original timestamp
+  return timestamp // Return the original timestamp
+}

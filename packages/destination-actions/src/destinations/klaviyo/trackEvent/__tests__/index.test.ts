@@ -238,4 +238,102 @@ describe('Track Event', () => {
       testDestination.testAction('trackEvent', { event, mapping, settings, useDefaultMappings: true })
     ).rejects.toThrowError('Internal Server Error')
   })
+
+  it('should successfully round the timestamp for time property that have more than three digits the milliseconds.', async () => {
+    const requestBody = {
+      data: {
+        type: 'event',
+        attributes: {
+          properties: { key: 'value' },
+          time: '2024-07-22T20:08:49.792Z', // round the timestamp from '2024-07-22T20:08:49.79191341Z'
+          value: 10,
+          unique_id: 'text-example-xyz',
+          metric: {
+            data: {
+              type: 'metric',
+              attributes: {
+                name: 'event_name'
+              }
+            }
+          },
+          profile: {
+            data: {
+              type: 'profile',
+              attributes: {
+                anonymous_id: 'an0nym0u51d'
+              }
+            }
+          }
+        }
+      }
+    }
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: '2024-07-22T20:08:49.79191341Z'
+    })
+
+    const mapping = {
+      profile: { anonymous_id: 'an0nym0u51d' },
+      metric_name: 'event_name',
+      properties: { key: 'value' },
+      value: 10,
+      unique_id: 'text-example-xyz'
+    }
+
+    await expect(
+      testDestination.testAction('trackEvent', { event, mapping, settings, useDefaultMappings: true })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should not round the timestamp for time property that have not more than three digits the milliseconds.', async () => {
+    const requestBody = {
+      data: {
+        type: 'event',
+        attributes: {
+          properties: { key: 'value' },
+          time: '2024-07-22T20:08:49.79Z',
+          value: 10,
+          unique_id: 'text-example-xyz',
+          metric: {
+            data: {
+              type: 'metric',
+              attributes: {
+                name: 'event_name'
+              }
+            }
+          },
+          profile: {
+            data: {
+              type: 'profile',
+              attributes: {
+                anonymous_id: 'an0nym0u51d'
+              }
+            }
+          }
+        }
+      }
+    }
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: '2024-07-22T20:08:49.79Z'
+    })
+
+    const mapping = {
+      profile: { anonymous_id: 'an0nym0u51d' },
+      metric_name: 'event_name',
+      properties: { key: 'value' },
+      value: 10,
+      unique_id: 'text-example-xyz'
+    }
+
+    await expect(
+      testDestination.testAction('trackEvent', { event, mapping, settings, useDefaultMappings: true })
+    ).resolves.not.toThrowError()
+  })
 })

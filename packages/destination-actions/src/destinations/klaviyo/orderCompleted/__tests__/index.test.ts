@@ -23,13 +23,15 @@ const createRequestBody = (
   properties: Record<string, any>,
   value: number,
   metricName: string,
-  profile: Record<string, any>
+  profile: Record<string, any>,
+  time?: string
 ) => ({
   data: {
     type: 'event',
     attributes: {
       properties,
       value,
+      time,
       metric: createMetric(metricName),
       profile: {
         data: {
@@ -208,5 +210,49 @@ describe('Order Completed', () => {
       .reply(200, {})
 
     await expect(testDestination.testAction(`orderCompleted`, { event, mapping, settings })).resolves.not.toThrowError()
+  })
+
+  it('should successfully round the timestamp for time property that have more than three digits the milliseconds.', async () => {
+    const profile = { anonymous_id: 'an0nym0u51d' }
+    const properties = { key: 'value' }
+    const metricName = 'Order Completed'
+    const value = 10
+    const eventName = 'Order Completed'
+    const time = '2024-07-22T20:08:49.892Z' // round the timestamp from '2024-07-22T20:08:49.89191341Z'
+    const timestamp = '2024-07-22T20:08:49.89191341Z'
+    const requestBody = createRequestBody(properties, value, metricName, profile, time)
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp
+    })
+
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName, time: timestamp }
+
+    await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).resolves.not.toThrowError()
+  })
+
+  it('should not round the timestamp for time property that have not more than three digits the milliseconds.', async () => {
+    const profile = { anonymous_id: 'an0nym0u51d' }
+    const properties = { key: 'value' }
+    const metricName = 'Order Completed'
+    const value = 10
+    const eventName = 'Order Completed'
+    const time = '2024-07-22T20:08:49.89Z'
+    const timestamp = '2024-07-22T20:08:49.89Z'
+    const requestBody = createRequestBody(properties, value, metricName, profile, time)
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp
+    })
+
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName, time: timestamp }
+
+    await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).resolves.not.toThrowError()
   })
 })
