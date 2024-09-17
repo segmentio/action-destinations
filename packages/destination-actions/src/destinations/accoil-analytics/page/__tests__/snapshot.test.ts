@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'postToAccoil'
+const actionSlug = 'page'
 const destinationSlug = 'AccoilAnalytics'
 const seedName = `${destinationSlug}#${actionSlug}`
 
@@ -33,7 +33,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
+      expect(json).toMatchSnapshot({
+        timestamp: expect.any(String)
+      })
       return
     } catch (err) {
       expect(rawBody).toMatchSnapshot()
@@ -66,7 +68,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
+      expect(json).toMatchSnapshot({
+        timestamp: expect.any(String)
+      })
       return
     } catch (err) {
       expect(rawBody).toMatchSnapshot()
