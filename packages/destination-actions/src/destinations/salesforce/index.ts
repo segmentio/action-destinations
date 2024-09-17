@@ -12,7 +12,7 @@ import { authenticateWithPassword } from './sf-operations'
 import lead2 from './lead2'
 import contact2 from './contact2'
 import cases2 from './cases2'
-
+import opportunity2 from './opportunity2'
 
 interface RefreshTokenResponse {
   access_token?: string
@@ -125,9 +125,9 @@ const destination: DestinationDefinition<Settings> = {
     opportunity,
     account,
     lead2,
+    opportunity2,
     contact2,
     cases2
-
   }
 }
 
