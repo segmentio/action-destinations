@@ -11,7 +11,7 @@ describe('S3 Destination', () => {
 
   it('should have the correct destination structure', () => {
     expect(destination).toBeDefined()
-    expect(destination.definition.name).toEqual('AWS S3')
+    expect(destination.definition.name).toEqual('AWS S3 (Actions)')
     expect(destination.definition.slug).toEqual('actions-s3')
     expect(destination.definition.mode).toEqual('cloud')
     expect(destination.definition.description).toEqual('Sync Segment event data to AWS S3.')
