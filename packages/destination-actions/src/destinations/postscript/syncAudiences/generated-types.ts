@@ -4,13 +4,13 @@ export interface Payload {
   /**
    * Segment Audience ID to which user identifier should be added or removed
    */
-  segment_audience_id: string
+  segment_audience_id?: string
   /**
    * Segment Audience key to which user identifier should be added or removed
    */
   segment_audience_key: string
   /**
-   * Segment computation class used to determine if input event is from an Engage Audience'. Value must be = 'audience'.
+   * Segment computation class used to determine if input event is from an Engage Audience. Value must be = 'audience'.
    */
   segment_computation_action: string
   /**

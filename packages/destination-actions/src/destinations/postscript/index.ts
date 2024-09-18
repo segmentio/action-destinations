@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import syncProperties from './syncProperties'
+import syncAudiences from './syncAudiences'
+import { PS_BASE_URL } from './properties'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Postscript',
@@ -19,7 +20,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request) => {
-      return request('https://api.postscript.io/api/v2/me', {
+      return request(PS_BASE_URL + '/api/v2/me', {
         method: 'get'
       })
     }
@@ -33,7 +34,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    syncProperties
+    syncAudiences
   }
 }
 
