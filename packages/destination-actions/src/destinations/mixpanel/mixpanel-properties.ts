@@ -394,7 +394,9 @@ export const eventProperties: Record<string, InputField> = {
     description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
     type: 'number',
     required: false,
-    default: 1000
+    default: 1000,
+    minimum: 0,
+    maximum: 2000
   },
   userAgentData: {
     label: 'User Agent Data',
