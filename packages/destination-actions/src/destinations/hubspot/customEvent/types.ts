@@ -19,19 +19,21 @@ export type SchemaMatch = typeof SchemaMatch[keyof typeof SchemaMatch]
 
 export interface SchemaDiff {
   match: SchemaMatch
-  fullyQualifiedName?: string
-  name?: string
   missingProperties: {
     [key: string]: SegmentProperty
   }
 }
 
 export interface Schema {
-  eventName: string
+  name: string
   properties: {
     [key: string]: SegmentProperty
   }
   primaryObject: string
+}
+
+export interface CachableSchema extends Schema {
+  fullyQualifiedName: string
 }
 
 export type HubspotPropertyType = 'string' | 'number' | 'enumeration' | 'datetime'
@@ -82,4 +84,12 @@ export interface EventCompletionReq {
   utk?: string | undefined
   occurredAt: string | number | undefined
   properties?: { [k: string]: unknown } | undefined
+}
+
+export interface PropertyCreateResp {
+  status: number
+  statusText: string
+  data: {
+    message: string
+  }
 }
