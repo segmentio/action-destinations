@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createHash } from 'crypto'
+import { validateAndExtractIdentifier } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -32,41 +32,27 @@ const action: ActionDefinition<Settings, Payload> = {
         'Choose the type of identifier to use when adding users to Snapchat. If selecting Mobile ID or Phone, ensure these identifiers are included as custom traits in the Audience settings page where the destination is connected.',
       default: 'EMAIL_SHA256'
     },
-    mobile_id_type: {
-      label: 'Mobile Identifier Type',
-      description: 'Select the type of mobile identifier to use as External ID',
+    phone: {
+      label: 'Phone Number',
+      description: "User's phone number",
       type: 'string',
-      required: true,
-      choices: [
-        { value: 'none', label: 'Not using Mobile ID' },
-        { value: 'ios.id', label: 'iOS Device ID' },
-        { value: 'android.id', label: 'Android Device ID' },
-        { value: 'advertisingId', label: 'Advertising ID (idfa)' }
-      ],
-      default: 'none'
-    },
-    segment_audience_key: {
-      label: 'Audience Key',
-      description: 'Segment Audience Key',
-      type: 'string',
-      unsafe_hidden: true,
-      required: true,
-      default: {
-        '@path': '$.context.personas.computation_key'
-      }
-    },
-    traits_or_props: {
-      label: 'Segment Profile Traits or Properties',
-      description: 'Segment Profile Traits or Properties',
-      type: 'object',
-      unsafe_hidden: true,
-      required: true,
+      required: false,
       default: {
         '@if': {
-          exists: { '@path': '$.properties' },
-          then: { '@path': '$.properties' },
-          else: { '@path': '$.traits' }
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' },
+          else: { '@path': '$.properties.phone' }
         }
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'schema_type',
+            operator: 'is',
+            value: 'PHONE_SHA256'
+          }
+        ]
       }
     },
     email: {
@@ -75,23 +61,115 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       format: 'email',
       required: false,
-      unsafe_hidden: true,
       default: {
         '@if': {
           exists: { '@path': '$.context.traits.email' },
           then: { '@path': '$.context.traits.email' },
           else: { '@path': '$.traits.email' }
         }
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'schema_type',
+            operator: 'is',
+            value: 'EMAIL_SHA256'
+          }
+        ]
+      }
+    },
+    mobile_id_type: {
+      label: 'Mobile Identifier Type',
+      description: 'Select the type of mobile identifier to use as External ID',
+      type: 'string',
+      required: true,
+      choices: [
+        { value: 'deviceId', label: 'iOS/Android Device ID' },
+        { value: 'advertisingId', label: 'Advertising ID (idfa)' }
+      ],
+      default: 'deviceId',
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'schema_type',
+            operator: 'is',
+            value: 'MOBILE_AD_ID_SHA256'
+          }
+        ]
+      }
+    },
+    advertising_id: {
+      label: 'Mobile Advertising ID',
+      description:
+        "User's mobile advertising ID. Ensure you have included either 'ios.idfa' or 'android.idfa' as identifiers in the 'Customized Setup' menu when connecting the destination to your audience.",
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties["ios.idfa"]' },
+          then: { '@path': '$.properties["ios.idfa"]' },
+          else: { '@path': '$.properties["android.idfa"]' }
+        }
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'schema_type',
+            operator: 'is',
+            value: 'MOBILE_AD_ID_SHA256'
+          },
+          {
+            fieldKey: 'mobile_id_type',
+            operator: 'is',
+            value: 'advertisingId'
+          }
+        ]
+      }
+    },
+    mobile_device_id: {
+      label: 'Mobile Device ID',
+      description:
+        "User's mobile device ID. Ensure you have included either 'ios.id' or 'android.id' as identifiers in the 'Customized Setup' menu when connecting the destination to your audience.",
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties["ios.id"]' },
+          then: { '@path': '$.properties["ios.id"]' },
+          else: { '@path': '$.properties["android.id"]' }
+        }
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'schema_type',
+            operator: 'is',
+            value: 'MOBILE_AD_ID_SHA256'
+          },
+          {
+            fieldKey: 'mobile_id_type',
+            operator: 'is',
+            value: 'deviceId'
+          }
+        ]
       }
     }
   },
-  perform: async (
-    request,
-    { payload: { traits_or_props, mobile_id_type, segment_audience_key, email, external_audience_id, schema_type } }
-  ) => {
-    const response = validateAndExtractIdentifier(schema_type, traits_or_props, mobile_id_type, email)
+  perform: async (request, { payload }) => {
+    const { external_audience_id, schema_type } = payload
+    const response = validateAndExtractIdentifier(
+      payload.schema_type,
+      payload.mobile_id_type,
+      payload.email,
+      payload.phone,
+      payload.advertising_id,
+      payload.mobile_device_id
+    )
     if (!response.found) return new PayloadValidationError(response.message)
-
     const { externalId } = response
 
     return request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
@@ -101,7 +179,7 @@ const action: ActionDefinition<Settings, Payload> = {
           users: [
             {
               schema: [`${schema_type}`],
-              data: [['userabc123']] // assuming this is just a placeholder
+              data: [[`${externalId}`]]
             }
           ]
         }
@@ -111,44 +189,3 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 export default action
-
-type IdentifierResult = { found: true; externalId: string } | { found: false; message: string }
-
-const validateAndExtractIdentifier = (
-  schemaType: string,
-  traitsOrProps: { [key: string]: any },
-  mobileIdType: string,
-  email: string | undefined
-): IdentifierResult => {
-  if (schemaType === 'EMAIL_SHA256') {
-    return email ? { found: true, externalId: email } : { found: false, message: 'Email not present in payload' }
-  }
-
-  if (schemaType === 'PHONE_SHA256') {
-    const phone = traitsOrProps.phone || traitsOrProps.phone_number
-    return phone ? { found: true, externalId: phone } : { found: false, message: 'Phone number not present in payload' }
-  }
-
-  if (schemaType === 'MOBILE_AD_ID_SHA256') {
-    return traitsOrProps[mobileIdType]
-      ? { found: true, externalId: traitsOrProps[mobileIdType] }
-      : { found: false, message: `${mobileIdType} not present in payload` }
-  }
-
-  return { found: false, message: 'Schema type not recognized' }
-}
-
-
-const hash = (value: string | undefined): string | undefined => {
-  if (value === undefined) return
-
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
-}
-
-const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
-
-// checks if email is already hashed
-const hashEmailSafe = (email: string | undefined): string | undefined =>
-  isHashedEmail(String(email)) ? email : hash(email)

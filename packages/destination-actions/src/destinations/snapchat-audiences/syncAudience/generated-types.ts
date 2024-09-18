@@ -10,21 +10,23 @@ export interface Payload {
    */
   schema_type: string
   /**
-   * Select the type of mobile identifier to use as External ID
+   * User's phone number
    */
-  mobile_id_type: string
-  /**
-   * Segment Audience Key
-   */
-  segment_audience_key: string
-  /**
-   * Segment Profile Traits or Properties
-   */
-  traits_or_props: {
-    [k: string]: unknown
-  }
+  phone?: string
   /**
    * User's email address
    */
   email?: string
+  /**
+   * Select the type of mobile identifier to use as External ID
+   */
+  mobile_id_type: string
+  /**
+   * User's mobile advertising ID. Ensure you have included either 'ios.idfa' or 'android.idfa' as identifiers in the 'Customized Setup' menu when connecting the destination to your audience.
+   */
+  advertising_id?: string
+  /**
+   * User's mobile device ID. Ensure you have included either 'ios.id' or 'android.id' as identifiers in the 'Customized Setup' menu when connecting the destination to your audience.
+   */
+  mobile_device_id?: string
 }
