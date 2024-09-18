@@ -48,19 +48,14 @@ const destination: AudienceDestinationDefinition<Settings> = {
   },
 
   audienceFields: {
-    schema_type: {
-      type: 'string',
-      multiple: true,
-      choices: [
-        { value: 'mobile_id', label: 'Mobile ID' },
-        { value: 'phone', label: 'Phone' },
-        { value: 'email', label: 'Email' }
-      ],
-      label: 'External ID Type',
-      description:
-        'Select the identifier type to use when adding users to Snapchat. Additional configuration is needed if using Mobile ID',
-      default: 'email'
+    placeholder: {
+      type: 'boolean',
+      label: 'Placeholder Setting',
+      description: 'Placeholder field to allow the audience to be created. Do not change this',
+      default: true
     }
+    // This is a required object, but we don't need to define any fields
+    // Placeholder setting will be removed once we make AudienceSettings optional
   },
 
   audienceConfig: {

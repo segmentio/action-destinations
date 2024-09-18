@@ -10,7 +10,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Select the identifier type to use when adding users to Snapchat. Additional configuration is needed if using Mobile ID
+   * Placeholder field to allow the audience to be created. Do not change this
    */
-  schema_type?: string & string[]
+  placeholder?: boolean
 }

@@ -8,19 +8,19 @@ export interface Payload {
   /**
    * Choose the type of identifier to use when adding users to Snapchat. If selecting Mobile ID or Phone, ensure these identifiers are included as custom traits in the Audience settings page where the destination is connected.
    */
-  schema_type?: string & string[]
+  schema_type: string
   /**
-   * The identifier used for the profile’s mobile ID. If left empty, Segment will automatically search the payload for either an iOS or Android ID and use the first one it finds.
+   * Select the type of mobile identifier to use as External ID
    */
-  mobile_id?: string
+  mobile_id_type: string
   /**
    * Segment Audience Key
    */
   segment_audience_key: string
   /**
-   * Traits object
+   * Segment Profile Traits or Properties
    */
-  traits: {
+  traits_or_props: {
     [k: string]: unknown
   }
   /**
