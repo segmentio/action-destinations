@@ -19,7 +19,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     schema_type: {
       type: 'string',
-      multiple: true,
       choices: [
         { value: 'MOBILE_AD_ID_SHA256', label: 'Mobile ID' },
         { value: 'PHONE_SHA256', label: 'Phone' },
