@@ -2,11 +2,11 @@ import { Payload } from './syncToS3/generated-types'
 import { Settings } from './generated-types'
 import { Client } from './client'
 import { RawMapping } from './types'
-import { IntegrationError } from '@segment/actions-core/'
+import { PayloadValidationError } from '@segment/actions-core/'
 
 export async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
   if (payloads?.[0]?.batch_size && payloads[0].batch_size > 25000) {
-    throw new IntegrationError('Batch size cannot exceed 25000', 'Invalid Payload', 400)
+    throw new PayloadValidationError('Batch size cannot exceed 25000')
   }
 
   const headers = Object.keys(rawMapping.columns).map((column) => {
