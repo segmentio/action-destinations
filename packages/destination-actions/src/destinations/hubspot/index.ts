@@ -49,7 +49,7 @@ const destination: DestinationDefinition<Settings> = {
     return {
       skipResponseCloning: true,
       headers: {
-        authorization: `Bearer pat-na1-ee93f087-9315-4a56-b55b-55289c0e8192`
+        authorization: `Bearer ${auth?.accessToken}`
       }
     }
   },
