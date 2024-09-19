@@ -83,7 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Mobile Identifier Type',
       description: 'Select the type of mobile identifier to use as External ID',
       type: 'string',
-      required: true,
+      required: false,
       choices: [
         { value: 'deviceId', label: 'iOS/Android Device ID' },
         { value: 'advertisingId', label: 'Advertising ID (idfa)' }
@@ -137,9 +137,9 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: {
         '@if': {
-          exists: { '@path': '$.properties["ios.id"]' },
-          then: { '@path': '$.properties["ios.id"]' },
-          else: { '@path': '$.properties["android.id"]' }
+          exists: { '@path': '$.properties.ios.id' },
+          then: { '@path': '$.properties.ios.id' },
+          else: { '@path': '$.properties.android.id' }
         }
       },
       depends_on: {
@@ -159,7 +159,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, rawData }) => {
+    console.dir(payload, { depth: null })
+    console.dir(rawData, { depth: null })
+    return
     const { external_audience_id, schema_type } = payload
     const response = validateAndExtractIdentifier(
       payload.schema_type,
@@ -169,7 +172,8 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.advertising_id,
       payload.mobile_device_id
     )
-    if (!response.found) return new PayloadValidationError(response.message)
+    console.dir(response)
+    if (!response.found) throw new PayloadValidationError(response.message)
     const { externalId } = response
 
     return request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
