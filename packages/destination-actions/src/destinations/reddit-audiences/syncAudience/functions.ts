@@ -22,11 +22,9 @@ export async function send(request: RequestClient, payloads: Payload[], settings
 
   // check if payload is hashed, otherwise hash the payload
   const user_payload = createPayload(payloads)
-  console.log('user payload', user_payload)
 
   // Add columns to the column_order
   const schema_columns = createSchema(email_schema_name, maid_schema_name, payloads)
-  console.log('schema:', schema_columns)
 
   if (user_payload.length > 0) {
     const audience_values = {
@@ -34,7 +32,6 @@ export async function send(request: RequestClient, payloads: Payload[], settings
       column_order: schema_columns,
       user_data: [user_payload]
     }
-    console.log(audience_values)
     await updateAudience(request, audience_values, payloads)
   } else {
     throw new PayloadValidationError('At least one of Email Id or Advertising ID must be provided.')
@@ -73,7 +70,6 @@ async function updateAudience(
     })
 
     const r = await response.status
-    console.log('HTTP Status Code:', r)
     return r
   }
 }
@@ -84,7 +80,6 @@ function createSchema(
   payloads: Payload[]
 ) {
   const schema_columns: string[] = []
-  console.log('user payload function', payloads)
 
   payloads.forEach((payload) => {
     // Check if the payload has any email. Add to Schema if so.
