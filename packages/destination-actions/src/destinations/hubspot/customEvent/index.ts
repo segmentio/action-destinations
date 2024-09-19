@@ -79,28 +79,32 @@ const send = async (
 
   if (cacheSchemaDiff.match === SchemaMatch.FullMatch) {
     return await sendEvent(client, (cachedSchema as CachableSchema).fullyQualifiedName, validPayload)
-  } else {
-    const hubspotSchema = await getSchemaFromHubspot(client, schema)
-    const hubspotSchemaDiff = compareSchemas(schema, hubspotSchema)
+  }
 
-    if (hubspotSchema) {
-      if (hubspotSchemaDiff.match === SchemaMatch.FullMatch) {
-        await saveSchemaToCache(hubspotSchema, subscriptionMetadata, statsContext)
-        return await sendEvent(client, hubspotSchema.fullyQualifiedName, validPayload)
-      } else if (hubspotSchemaDiff.match === SchemaMatch.PropertiesMissing) {
-        if (syncMode === 'add') {
-          throw new IntegrationError(
-            `The 'Sync Mode' setting is set to 'add' which is stopping Segment from creating a new properties on the Event Schema in the HubSpot`,
-            'HUBSPOT_SCHEMA_PROPERTIES_MISSING',
-            400
-          )
-        }
-        const cacheableSchema = { ...schema, fullyQualifiedName: hubspotSchema.fullyQualifiedName }
-        await updateHubspotSchema(client, cacheableSchema.fullyQualifiedName, hubspotSchemaDiff)
-        await saveSchemaToCache(cacheableSchema, subscriptionMetadata, statsContext)
-        return await sendEvent(client, cacheableSchema.fullyQualifiedName, validPayload)
+  const hubspotSchema = await getSchemaFromHubspot(client, schema)
+  const hubspotSchemaDiff = compareSchemas(schema, hubspotSchema)
+
+  switch (hubspotSchemaDiff.match) {
+    case SchemaMatch.FullMatch: {
+      await saveSchemaToCache(hubspotSchema as CachableSchema, subscriptionMetadata, statsContext)
+      return await sendEvent(client, (hubspotSchema as CachableSchema).fullyQualifiedName, validPayload)
+    }
+
+    case SchemaMatch.PropertiesMissing: {
+      if (syncMode === 'add') {
+        throw new IntegrationError(
+          `The 'Sync Mode' setting is set to 'add' which is stopping Segment from creating a new properties on the Event Schema in the HubSpot`,
+          'HUBSPOT_SCHEMA_PROPERTIES_MISSING',
+          400
+        )
       }
-    } else if (hubspotSchemaDiff.match === SchemaMatch.NoMatch) {
+      const cacheableSchema = { ...schema, fullyQualifiedName: (hubspotSchema as CachableSchema).fullyQualifiedName }
+      await updateHubspotSchema(client, cacheableSchema.fullyQualifiedName, hubspotSchemaDiff)
+      await saveSchemaToCache(cacheableSchema, subscriptionMetadata, statsContext)
+      return await sendEvent(client, cacheableSchema.fullyQualifiedName, validPayload)
+    }
+
+    case SchemaMatch.NoMatch: {
       if (syncMode === 'update') {
         throw new IntegrationError(
           `The 'Sync Mode' setting is set to 'update' which is stopping Segment from creating a new Custom Event Schema in the HubSpot`,

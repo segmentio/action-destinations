@@ -11,8 +11,7 @@ export interface SegmentProperty {
 export const SchemaMatch = {
   FullMatch: 'full_match',
   PropertiesMissing: 'properties_missing',
-  NoMatch: 'no_match',
-  Mismatch: 'mismatch'
+  NoMatch: 'no_match'
 } as const
 
 export type SchemaMatch = typeof SchemaMatch[keyof typeof SchemaMatch]

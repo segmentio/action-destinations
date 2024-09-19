@@ -90,8 +90,13 @@ export function compareSchemas(schema1: Schema, schema2: CachableSchema | undefi
     return { match: 'no_match', missingProperties: {} }
   }
 
-  if (schema1.name !== schema2.name || schema1.name !== schema2.fullyQualifiedName) {
-    return { match: 'mismatch', missingProperties: {} }
+  if (schema1.name !== schema2.name && schema1.name !== schema2.fullyQualifiedName) {
+    console.log(
+      'schema1.name = ' + schema1.name,
+      'schema2.name = ' + schema2.name,
+      'schema2.fullyQualifiedName = ' + schema2.fullyQualifiedName
+    )
+    throw new PayloadValidationError("Hubspot.CustomEvent.compareSchemas: Schema names don't match")
   }
 
   const missingProperties: { [key: string]: SegmentProperty } = {}
@@ -105,7 +110,7 @@ export function compareSchemas(schema1: Schema, schema2: CachableSchema | undefi
     if (prop1.stringFormat === prop2.stringFormat && prop1.type === prop2.type) {
       continue
     } else {
-      return { match: 'mismatch', missingProperties: {} }
+      throw new PayloadValidationError("Hubspot.CustomEvent.compareSchemas: Schema property types don't match")
     }
   }
 
