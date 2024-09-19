@@ -1,7 +1,14 @@
 import { createTestEvent } from './create-test-event'
 import { StateContext, Destination, TransactionContext } from './destination-kit'
 import { mapValues } from './map-values'
-import type { DestinationDefinition, StatsContext, Logger, EngageDestinationCache, RequestFn } from './destination-kit'
+import type {
+  DestinationDefinition,
+  StatsContext,
+  Logger,
+  EngageDestinationCache,
+  RequestFn,
+  SubscriptionMetadata
+} from './destination-kit'
 import type { JSONObject } from './json-object'
 import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
@@ -48,6 +55,7 @@ interface InputData<Settings> {
   transactionContext?: TransactionContext
   /** Engage internal use only. DO NOT USE. */
   stateContext?: StateContext
+  subscriptionMetadata?: SubscriptionMetadata
 }
 
 class TestDestination<T, AudienceSettings = any> extends Destination<T, AudienceSettings> {
@@ -83,7 +91,8 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       logger,
       engageDestinationCache,
       transactionContext,
-      stateContext
+      stateContext,
+      subscriptionMetadata
     }: InputData<T>
   ): Promise<Destination['responses']> {
     this.results = []
@@ -105,7 +114,8 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       logger: logger ?? ({ info: noop, error: noop } as Logger),
       engageDestinationCache: engageDestinationCache,
       transactionContext: transactionContext ?? ({} as TransactionContext),
-      stateContext: stateContext ?? ({} as StateContext)
+      stateContext: stateContext ?? ({} as StateContext),
+      subscriptionMetadata: subscriptionMetadata ?? ({} as SubscriptionMetadata)
     })
 
     const responses = this.responses
@@ -127,7 +137,8 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       logger,
       engageDestinationCache,
       transactionContext,
-      stateContext
+      stateContext,
+      subscriptionMetadata
     }: Omit<InputData<T>, 'event'> & { events?: SegmentEvent[] }
   ): Promise<Destination['responses']> {
     this.results = []
@@ -153,7 +164,8 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       logger: logger ?? ({} as Logger),
       engageDestinationCache: engageDestinationCache ?? ({} as EngageDestinationCache),
       transactionContext: transactionContext ?? ({} as TransactionContext),
-      stateContext: stateContext ?? ({} as StateContext)
+      stateContext: stateContext ?? ({} as StateContext),
+      subscriptionMetadata: subscriptionMetadata ?? ({} as SubscriptionMetadata)
     })
 
     this.results = [

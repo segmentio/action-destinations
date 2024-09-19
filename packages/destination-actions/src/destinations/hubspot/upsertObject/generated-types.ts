@@ -57,7 +57,7 @@ export interface Payload {
     /**
      * The value of the identifier for the record to be associated with
      */
-    id_field_value: string
+    id_field_value?: string
   }[]
   /**
    * By default Segment batches events to Hubspot.

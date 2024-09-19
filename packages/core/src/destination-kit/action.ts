@@ -25,7 +25,14 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { ErrorCodes, IntegrationError, MultiStatusErrorReporter } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
-import { Logger, StatsContext, TransactionContext, StateContext, EngageDestinationCache } from './index'
+import {
+  Logger,
+  StatsContext,
+  TransactionContext,
+  StateContext,
+  EngageDestinationCache,
+  SubscriptionMetadata
+} from './index'
 import { get } from '../get'
 
 type MaybePromise<T> = T | Promise<T>
@@ -216,6 +223,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   engageDestinationCache?: EngageDestinationCache | undefined
   transactionContext?: TransactionContext
   stateContext?: StateContext
+  subscriptionMetadata?: SubscriptionMetadata
 }
 
 type FillMultiStatusResponseInput = {
@@ -354,7 +362,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       audienceSettings: bundle.audienceSettings,
       hookOutputs,
       syncMode: isSyncMode(syncMode) ? syncMode : undefined,
-      matchingKey: matchingKey ? String(matchingKey) : undefined
+      matchingKey: matchingKey ? String(matchingKey) : undefined,
+      subscriptionMetadata: bundle.subscriptionMetadata
     }
 
     // Construct the request client and perform the action
@@ -451,6 +460,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         engageDestinationCache: bundle.engageDestinationCache,
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
+        subscriptionMetadata: bundle.subscriptionMetadata,
         hookOutputs,
         syncMode: isSyncMode(syncMode) ? syncMode : undefined,
         matchingKey: matchingKey ? String(matchingKey) : undefined

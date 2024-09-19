@@ -11,27 +11,28 @@ export interface SegmentProperty {
 export const SchemaMatch = {
   FullMatch: 'full_match',
   PropertiesMissing: 'properties_missing',
-  NoMatch: 'no_match',
-  Mismatch: 'mismatch'
+  NoMatch: 'no_match'
 } as const
 
 export type SchemaMatch = typeof SchemaMatch[keyof typeof SchemaMatch]
 
 export interface SchemaDiff {
   match: SchemaMatch
-  fullyQualifiedName?: string
-  name?: string
   missingProperties: {
     [key: string]: SegmentProperty
   }
 }
 
 export interface Schema {
-  eventName: string
+  name: string
   properties: {
     [key: string]: SegmentProperty
   }
   primaryObject: string
+}
+
+export interface CachableSchema extends Schema {
+  fullyQualifiedName: string
 }
 
 export type HubspotPropertyType = 'string' | 'number' | 'enumeration' | 'datetime'
@@ -50,9 +51,10 @@ export interface GetEventDefinitionResp {
 export interface CreateEventDefinitionResp {
   fullyQualifiedName: string
   name: string
+  message: string
 }
 
-export interface CreatePropertyDefintionReq {
+export interface CreatePropDefinitionReq {
   name: string
   label: string
   type: HubspotPropertyType
@@ -71,15 +73,7 @@ export interface CreateEventDefinitionReq {
   name: string
   description: string
   primaryObject: string
-  propertyDefinitions: Array<CreatePropertyDefintionReq>
-}
-
-export interface CreatePropertyRegectedResp {
-  data: {
-    status: string
-    message?: string
-    propertiesErrorCode?: string
-  }
+  propertyDefinitions: Array<CreatePropDefinitionReq>
 }
 
 export interface EventCompletionReq {
@@ -89,4 +83,12 @@ export interface EventCompletionReq {
   utk?: string | undefined
   occurredAt: string | number | undefined
   properties?: { [k: string]: unknown } | undefined
+}
+
+export interface PropertyCreateResp {
+  status: number
+  statusText: string
+  data: {
+    message: string
+  }
 }
