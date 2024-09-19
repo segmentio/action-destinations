@@ -65,24 +65,34 @@ const send = async (
   subscriptionMetadata?: SubscriptionMetadata,
   statsContext?: StatsContext
 ) => {
-  statsContext?.tags.push('action:custom_event')
-
-  subscriptionMetadata = {
-    actionConfigId: 'abcdefghij'
-  }
+  statsContext?.tags?.push('action:custom_event')
 
   const client = new Client(request)
   const validPayload = validate(payload)
   const schema = eventSchema(validPayload)
   const cachedSchema = getSchemaFromCache(schema.name, subscriptionMetadata, statsContext)
+
+  statsContext?.statsClient?.incr(`cache.get.${cachedSchema === undefined ? 'miss' : 'hit'}`, 1, statsContext?.tags)
+
   const cacheSchemaDiff = compareSchemas(schema, cachedSchema)
+
+  statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
 
   if (cacheSchemaDiff.match === SchemaMatch.FullMatch) {
     return await sendEvent(client, (cachedSchema as CachableSchema).fullyQualifiedName, validPayload)
   }
 
   const hubspotSchema = await getSchemaFromHubspot(client, schema)
+
+  statsContext?.statsClient?.incr(
+    `hubspotSchema.get.${hubspotSchema === undefined ? 'miss' : 'hit'}`,
+    1,
+    statsContext?.tags
+  )
+
   const hubspotSchemaDiff = compareSchemas(schema, hubspotSchema)
+
+  statsContext?.statsClient?.incr(`hubspotSchemaDiff.diff.${hubspotSchemaDiff.match}`, 1, statsContext?.tags)
 
   switch (hubspotSchemaDiff.match) {
     case SchemaMatch.FullMatch: {

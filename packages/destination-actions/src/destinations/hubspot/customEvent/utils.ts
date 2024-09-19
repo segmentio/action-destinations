@@ -61,13 +61,6 @@ export function getSchemaFromCache(
   }
 
   const schema: CachableSchema | undefined = cache.get(`${subscriptionMetadata.actionConfigId}-${name}`) ?? undefined
-
-  if (schema === undefined) {
-    statsContext?.statsClient?.incr('cache.get.miss', 1, statsContext?.tags)
-  } else {
-    statsContext?.statsClient?.incr('cache.get.hit', 1, statsContext?.tags)
-  }
-
   return schema
 }
 
@@ -91,11 +84,6 @@ export function compareSchemas(schema1: Schema, schema2: CachableSchema | undefi
   }
 
   if (schema1.name !== schema2.name && schema1.name !== schema2.fullyQualifiedName) {
-    console.log(
-      'schema1.name = ' + schema1.name,
-      'schema2.name = ' + schema2.name,
-      'schema2.fullyQualifiedName = ' + schema2.fullyQualifiedName
-    )
     throw new PayloadValidationError("Hubspot.CustomEvent.compareSchemas: Schema names don't match")
   }
 
