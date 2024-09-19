@@ -170,7 +170,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     type: 'boolean',
     label: 'Enable Batching',
     description: 'Enable Batching Hidden Field',
-    unsafe_hidden: true,
+    unsafe_hidden: false,
     required: true,
     default: true
   },
