@@ -2,21 +2,15 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent, IntegrationError } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
+import { cache } from '../utils'
 
 let testDestination = createTestIntegration(Definition)
-
+const subscriptionMetadata = {
+  // cache key for testing
+  actionConfigId: 'test-cache-key'
+}
 const timestamp = '2024-01-08T13:52:50.212Z'
-
 const settings: Settings = {}
-
-beforeEach((done) => {
-  // Re-Initialize the destination before each test
-  // This is done to mitigate a bug where action responses persist into other tests
-  testDestination = createTestIntegration(Definition)
-  nock.cleanAll()
-  done()
-})
-
 const validPayload = {
   timestamp: timestamp,
   event: 'Custom Event 1',
@@ -39,7 +33,6 @@ const validPayload = {
     custom_prop_arr: ['value1', 'value2']
   }
 } as Partial<SegmentEvent>
-
 const upsertMapping = {
   __segment_internal_sync_mode: 'upsert',
   event_name: { '@path': '$.event' },
@@ -49,7 +42,6 @@ const upsertMapping = {
     email: 'bibitybobity@example.com'
   }
 }
-
 const expectedHubspotAPIPayload = {
   eventName: 'pe23132826_custom_event_1',
   objectId: undefined,
@@ -70,8 +62,64 @@ const expectedHubspotAPIPayload = {
   }
 }
 
+beforeEach((done) => {
+  testDestination = createTestIntegration(Definition)
+  nock.cleanAll()
+  cache.clear()
+  done()
+})
+
 describe('Hubspot.customEvent', () => {
   describe('where syncMode = upsert', () => {
+    it('should use cache to reduce number of requests to Hubspot (when 2 events with same schema fired).', async () => {
+      const event = createTestEvent(validPayload)
+
+      // fetches the event definition from Hubspot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_1/?includeProperties=true')
+        .reply(400, {
+          data: {
+            status: 'error',
+            message:
+              'StandardError{status=error, category=VALIDATION_ERROR, message=Event with fully qualified name custom_event_1 does not exist., errors=[], context={}, links={}}',
+            correlationId: '12f5b1b3-364a-4b68-9c14-5b1332d03312'
+          }
+        })
+
+      // creates an event definition on Hubspot
+      nock('https://api.hubapi.com').post('/events/v3/event-definitions').reply(201, {
+        fullyQualifiedName: 'pe23132826_custom_event_1',
+        name: 'custom_event_1'
+      })
+
+      // sends an event completion to Hubspot
+      nock('https://api.hubapi.com').post('/events/v3/send', expectedHubspotAPIPayload).reply(200, {})
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      // sends an event completion to Hubspot without first fetching the event definition
+      nock('https://api.hubapi.com').post('/events/v3/send', expectedHubspotAPIPayload).reply(200, {})
+
+      const responses2 = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses.length).toBe(3)
+      expect(responses[2].status).toBe(200)
+      expect(responses2.length).toBe(1)
+      expect(responses2[0].status).toBe(200)
+    })
+
     it('should send a Custom Event Completion to Hubspot when the event definition does not exist', async () => {
       const event = createTestEvent(validPayload)
 
@@ -100,7 +148,8 @@ describe('Hubspot.customEvent', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: upsertMapping
+        mapping: upsertMapping,
+        subscriptionMetadata
       })
 
       expect(responses.length).toBe(3)
@@ -177,7 +226,8 @@ describe('Hubspot.customEvent', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: upsertMapping
+        mapping: upsertMapping,
+        subscriptionMetadata
       })
 
       expect(responses.length).toBe(2)
@@ -282,7 +332,8 @@ describe('Hubspot.customEvent', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: upsertMapping
+        mapping: upsertMapping,
+        subscriptionMetadata
       })
 
       expect(responses.length).toBe(3)
@@ -316,7 +367,8 @@ describe('Hubspot.customEvent', () => {
           event,
           settings,
           useDefaultMappings: true,
-          mapping: updateMapping
+          mapping: updateMapping,
+          subscriptionMetadata
         })
       ).rejects.toThrowError(
         new IntegrationError(
@@ -402,7 +454,8 @@ describe('Hubspot.customEvent', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: updateMapping
+        mapping: updateMapping,
+        subscriptionMetadata
       })
 
       expect(responses.length).toBe(2)
@@ -512,7 +565,8 @@ describe('Hubspot.customEvent', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: updateMapping
+        mapping: updateMapping,
+        subscriptionMetadata
       })
 
       expect(responses.length).toBe(3)
@@ -554,7 +608,8 @@ describe('Hubspot.customEvent', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: addMapping
+        mapping: addMapping,
+        subscriptionMetadata
       })
 
       expect(responses.length).toBe(3)
@@ -636,7 +691,8 @@ describe('Hubspot.customEvent', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: addMapping
+        mapping: addMapping,
+        subscriptionMetadata
       })
 
       expect(responses.length).toBe(2)
@@ -747,7 +803,8 @@ describe('Hubspot.customEvent', () => {
           event,
           settings,
           useDefaultMappings: true,
-          mapping: addMapping
+          mapping: addMapping,
+          subscriptionMetadata
         })
       ).rejects.toThrowError(
         new IntegrationError(

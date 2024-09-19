@@ -15,7 +15,7 @@ import {
 import { Client } from './client'
 import { LRUCache } from 'lru-cache'
 
-const cache = new LRUCache<string, CachableSchema>({
+export const cache = new LRUCache<string, CachableSchema>({
   max: 2000,
   ttl: 1000 * 60 * 60
 })

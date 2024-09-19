@@ -340,7 +340,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       matchingKey: matchingKey ? String(matchingKey) : undefined,
       subscriptionMetadata: bundle.subscriptionMetadata
     }
-
     // Construct the request client and perform the action
     const output = await this.performRequest(this.definition.perform, dataBundle)
     results.push({ data: output as JSONObject, output: 'Action Executed' })
@@ -406,6 +405,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         dataFeedCache: bundle.dataFeedCache,
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
+        subscriptionMetadata: bundle.subscriptionMetadata,
         hookOutputs,
         syncMode: isSyncMode(syncMode) ? syncMode : undefined,
         matchingKey: matchingKey ? String(matchingKey) : undefined
