@@ -4,12 +4,8 @@ export interface Credentials {
   sessionToken: string
 }
 
-export interface SingleData {
+export interface Data {
   rawMapping: RawMapping
-}
-
-export interface BatchData {
-  rawMapping: RawMapping[]
 }
 
 export interface RawMapping {
