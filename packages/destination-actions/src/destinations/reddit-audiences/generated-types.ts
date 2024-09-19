@@ -10,11 +10,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * An audience id required by the destination
+   * An audience name to display in Reddit
    */
-  adAccountId: string
-  /**
-   * An audience id required by the destination
-   */
-  audienceId?: string
+  audienceName: string
 }

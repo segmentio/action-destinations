@@ -97,11 +97,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 2500
     }
   },
-  perform: (request, {payload, settings, audienceSettings}) => {
-    await send(request, [payload], settings, audienceSettings)
+  perform: (request, { payload, settings, audienceSettings }) => {
+    send(request, [payload], settings, audienceSettings)
   },
-  performBatch: (request, {payload, settings, audienceSettings}) => {
-    await send(request, payload, settings, audienceSettings)
+  performBatch: (request, { payload, settings, audienceSettings }) => {
+    send(request, payload, settings, audienceSettings)
   }
 }
 
