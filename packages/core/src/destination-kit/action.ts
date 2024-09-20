@@ -505,6 +505,18 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
           }
 
           const response = performBatchResponse.getResponseAtIndex(resultsReadIndex++)
+          // We assume the response to be a failed response if it is undefined
+          // This is likely due to incorrect implementation of the MultiStatusResponse
+          if (!response) {
+            multiStatusResponse[i] = {
+              status: 500,
+              errormessage: 'MultiStatusResponse is missing a response at the specified index',
+              errortype: 'PAYLOAD_VALIDATION_FAILED',
+              errorreporter: MultiStatusErrorReporter.INTEGRATIONS
+            }
+
+            continue
+          }
 
           // Check if response is a failed response
           if (response instanceof ActionDestinationErrorResponse) {
@@ -781,6 +793,14 @@ export class MultiStatusResponse {
   // Note: This will not remove the index from the array
   public unsetResponseAtIndex(index: number) {
     delete this.responses[index]
+  }
+
+  public isSuccessResponseAtIndex(index: number): boolean {
+    return this.responses[index] instanceof ActionDestinationSuccessResponse
+  }
+
+  public isErrorResponseAtIndex(index: number): boolean {
+    return this.responses[index] instanceof ActionDestinationErrorResponse
   }
 
   public getResponseAtIndex(index: number): ActionDestinationSuccessResponse | ActionDestinationErrorResponse {
