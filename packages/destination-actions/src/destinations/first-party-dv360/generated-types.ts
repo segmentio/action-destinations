@@ -17,6 +17,10 @@ export interface AudienceSettings {
    */
   description?: string
   /**
+   * The appId matches with the type of the mobileDeviceIds being uploaded. **Required for CUSTOMER_MATCH_DEVICE_ID Audience Types.**
+   */
+  appId?: string
+  /**
    * The duration in days that an entry remains in the audience after the qualifying event. If the audience has no expiration, set the value of this field to 10000. Otherwise, the set value must be greater than 0 and less than or equal to 540.
    */
   membershipDurationDays: string
