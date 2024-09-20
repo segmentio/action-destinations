@@ -1,6 +1,6 @@
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { Payload } from '../syncAudience/generated-types'
-import {UpdateAudienceReq, Columns } from '../types'
+import { UpdateAudienceReq, Columns } from '../types'
 import { EMAIL_SCHEMA_NAME, MAID_SCHEMA_NAME } from '../const'
 import { createHash } from 'crypto'
 
@@ -24,7 +24,7 @@ export async function send(request: RequestClient, payloads: Payload[]) {
           data.push(p.email ?? '')
         }
         if (addColumns.includes(MAID_SCHEMA_NAME)) {
-            data.push(p.androidIDFA ?? p.iosIDFA ?? '')
+          data.push(p.androidIDFA ?? p.iosIDFA ?? '')
         }
         return data
       }),
@@ -32,7 +32,7 @@ export async function send(request: RequestClient, payloads: Payload[]) {
     }
   }
 
-  if(addJSON.data.user_data.length > 0) {
+  if (addJSON.data.user_data.length > 0) {
     await updateAudience(request, addJSON, audienceId)
   }
 
@@ -52,8 +52,8 @@ export async function send(request: RequestClient, payloads: Payload[]) {
       action_type: 'REMOVE'
     }
   }
-  
-  if(removeJSON.data.user_data.length > 0) {
+
+  if (removeJSON.data.user_data.length > 0) {
     await updateAudience(request, removeJSON, audienceId)
   }
 }
@@ -69,7 +69,7 @@ function cleanPayloads(payloads: Payload[]): Payload[] {
       if (copy.iosIDFA && !ensureHashed(copy.iosIDFA)) {
         const hash = createHash('sha256')
         hash.update(copy.iosIDFA)
-        copy.iosIDFA = hash.digest('hex');
+        copy.iosIDFA = hash.digest('hex')
       }
       if (copy.androidIDFA && !ensureHashed(copy.androidIDFA)) {
         const hash = createHash('sha256')
@@ -78,25 +78,16 @@ function cleanPayloads(payloads: Payload[]): Payload[] {
       }
       return copy
     })
-    return p
+  return p
 }
 
 function getColumns(payloads: Payload[]): Columns {
-  const hasEmail = payloads.some((payload) => !!payload.email);
-  const hasMAID = payloads.some((payload) => payload.androidIDFA || payload.iosIDFA);
-  return [
-    ...(hasEmail ? [EMAIL_SCHEMA_NAME] : []),
-    ...(hasMAID ? [MAID_SCHEMA_NAME] : [])
-  ] as Columns
+  const hasEmail = payloads.some((payload) => !!payload.email)
+  const hasMAID = payloads.some((payload) => payload.androidIDFA || payload.iosIDFA)
+  return [...(hasEmail ? [EMAIL_SCHEMA_NAME] : []), ...(hasMAID ? [MAID_SCHEMA_NAME] : [])] as Columns
 }
 
-async function updateAudience(
-  request: RequestClient,
-  json: UpdateAudienceReq,
-  audienceid: string
-) {
-  console.log(JSON.stringify(json)) 
-
+async function updateAudience(request: RequestClient, json: UpdateAudienceReq, audienceid: string) {
   return await request<UpdateAudienceReq>(`https://ads-api.reddit.com/api/v3/custom_audiences/${audienceid}/users`, {
     method: 'PATCH',
     json
@@ -121,4 +112,3 @@ function canonicalizeEmail(value: string): string {
   const localPart = localPartAndDomain[0].replace(/\./g, '').split('+')[0]
   return `${localPart}@${localPartAndDomain[1].toLowerCase()}`
 }
-

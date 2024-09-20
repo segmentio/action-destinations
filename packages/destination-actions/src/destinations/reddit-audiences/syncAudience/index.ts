@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       choices: [{ label: 'audience', value: 'audience' }]
     },
     computation_key: {
-      label: "Audience Computation Key",
+      label: 'Audience Computation Key',
       description: "Segment's friendly name for the Audience",
       type: 'string',
       required: true,
@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     iosIDFA: {
       label: 'iOS Ad ID',
-      description: "iOS Ad ID",
+      description: 'iOS Ad ID',
       type: 'string',
       default: {
         '@if': {
@@ -67,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     androidIDFA: {
       label: 'Android Ad ID',
-      description: "Android Ad ID",
+      description: 'Android Ad ID',
       type: 'string',
       default: {
         '@if': {
@@ -108,20 +108,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const p2 = { ...payload } 
-    p2.traits_or_props = {
-      email: "test2@gmail.com",
-      android_idfa: undefined,
-      hasphone: true
-    }
-    p2.email = "test2@gmail.com"
-    p2.androidIDFA = undefined 
-    p2.iosIDFA = undefined 
-    const payloads = [payload, p2]
-
-    console.log(JSON.stringify(payloads))
-
-    return await send(request, payloads)
+    return await send(request, [payload])
   },
   performBatch: async (request, { payload }) => {
     return await send(request, payload)
