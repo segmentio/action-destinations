@@ -12,6 +12,11 @@ export const settings = {
 }
 
 describe('Track Event', () => {
+  beforeEach(() => {
+    nock.cleanAll()
+    jest.resetAllMocks()
+  })
+
   it('should throw error if no profile identifiers are provided', async () => {
     const event = createTestEvent({
       type: 'track'
@@ -239,55 +244,6 @@ describe('Track Event', () => {
     ).rejects.toThrowError('Internal Server Error')
   })
 
-  it('should not throw an error when the time property has more than three digits in the milliseconds and should convert the time to ISO format.', async () => {
-    const requestBody = {
-      data: {
-        type: 'event',
-        attributes: {
-          properties: { key: 'value' },
-          time: '2024-07-22T20:08:49.791Z', // convert the timestamp from '2024-07-22T20:08:49.79191341Z'
-          value: 10,
-          unique_id: 'text-example-xyz',
-          metric: {
-            data: {
-              type: 'metric',
-              attributes: {
-                name: 'event_name'
-              }
-            }
-          },
-          profile: {
-            data: {
-              type: 'profile',
-              attributes: {
-                anonymous_id: 'an0nym0u51d'
-              }
-            }
-          }
-        }
-      }
-    }
-
-    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
-
-    const event = createTestEvent({
-      type: 'track',
-      timestamp: '2024-07-22T20:08:49.79191341Z'
-    })
-
-    const mapping = {
-      profile: { anonymous_id: 'an0nym0u51d' },
-      metric_name: 'event_name',
-      properties: { key: 'value' },
-      value: 10,
-      unique_id: 'text-example-xyz'
-    }
-
-    await expect(
-      testDestination.testAction('trackEvent', { event, mapping, settings, useDefaultMappings: true })
-    ).resolves.not.toThrowError()
-  })
-
   it('should successfully convert the timestamp for the time property to ISO format.', async () => {
     const requestBody = {
       data: {
@@ -335,5 +291,100 @@ describe('Track Event', () => {
     await expect(
       testDestination.testAction('trackEvent', { event, mapping, settings, useDefaultMappings: true })
     ).resolves.not.toThrowError()
+  })
+  it('should not throw an error when the time property has more than three digits in the milliseconds and should convert the time to ISO format.', async () => {
+    const timestamp = '2024-09-11T20:08:49.8919123123Z'
+    const requestBody = {
+      data: {
+        type: 'event',
+        attributes: {
+          properties: { key: 'value' },
+          time: '2024-09-11T20:08:49.891Z', // convert the timestamp from '2024-07-22T20:08:49.89191341Z'
+          value: 10,
+          unique_id: 'text-example-xyz',
+          metric: {
+            data: {
+              type: 'metric',
+              attributes: {
+                name: 'event_name'
+              }
+            }
+          },
+          profile: {
+            data: {
+              type: 'profile',
+              attributes: {
+                anonymous_id: 'an0nym0u51d'
+              }
+            }
+          }
+        }
+      }
+    }
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp
+    })
+
+    const mapping = {
+      profile: { anonymous_id: 'an0nym0u51d' },
+      metric_name: 'event_name',
+      properties: { key: 'value' },
+      value: 10,
+      unique_id: 'text-example-xyz'
+    }
+
+    const res = await testDestination.testAction('trackEvent', { event, mapping, settings, useDefaultMappings: true })
+    expect(res[0].options.body).toMatchSnapshot()
+  })
+
+  it('should not pass time property in API when it is not mapped or defined', async () => {
+    const requestBody = {
+      data: {
+        type: 'event',
+        attributes: {
+          properties: { key: 'value' },
+          value: 10,
+          unique_id: 'text-example-xyz',
+          metric: {
+            data: {
+              type: 'metric',
+              attributes: {
+                name: 'event_name'
+              }
+            }
+          },
+          profile: {
+            data: {
+              type: 'profile',
+              attributes: {
+                anonymous_id: 'an0nym0u51d'
+              }
+            }
+          }
+        }
+      }
+    }
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: '2024-07-22T20:08:49.79Z'
+    })
+
+    const mapping = {
+      profile: { anonymous_id: 'an0nym0u51d' },
+      metric_name: 'event_name',
+      properties: { key: 'value' },
+      value: 10,
+      unique_id: 'text-example-xyz'
+    }
+
+    const res = await testDestination.testAction('trackEvent', { event, mapping, settings })
+    expect(res[0].options.body).toMatchSnapshot()
   })
 })
