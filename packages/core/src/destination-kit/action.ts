@@ -404,6 +404,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
             }
 
             invalidPayloadIndices.add(i)
+
+            // Add datadog stats for events that are discarded by Actions
+            bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
             continue
           }
 
@@ -511,10 +514,12 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
             multiStatusResponse[i] = {
               status: 500,
               errormessage: 'MultiStatusResponse is missing a response at the specified index',
-              errortype: 'PAYLOAD_VALIDATION_FAILED',
+              errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
               errorreporter: MultiStatusErrorReporter.INTEGRATIONS
             }
 
+            // Add datadog stats for events that are discarded by Actions
+            bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
             continue
           }
 
@@ -525,6 +530,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
               errorreporter: MultiStatusErrorReporter.DESTINATION
             }
 
+            // Add datadog stats for events that are discarded by Destination
+            bundle.statsContext?.statsClient?.incr('destination.multistatus_discard', 1, bundle.statsContext?.tags)
             continue
           }
 
