@@ -13,6 +13,7 @@ interface createAudienceRequestParams {
   audienceName: string
   description?: string
   membershipDurationDays: string
+  appId?: string
   audienceType: string
   token?: string
 }
@@ -38,7 +39,7 @@ export const createAudienceRequest = (
   request: RequestClient,
   params: createAudienceRequestParams
 ): Promise<Response> => {
-  const { advertiserId, audienceName, description, membershipDurationDays, audienceType, token } = params
+  const { advertiserId, audienceName, description, membershipDurationDays, audienceType, appId, token } = params
 
   const endpoint = DV360API + `?advertiserId=${advertiserId}`
 
@@ -54,7 +55,8 @@ export const createAudienceRequest = (
       membershipDurationDays: membershipDurationDays,
       description: description,
       audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
-      firstAndThirdPartyAudienceType: 'FIRST_AND_THIRD_PARTY_AUDIENCE_TYPE_FIRST_PARTY'
+      firstAndThirdPartyAudienceType: 'FIRST_AND_THIRD_PARTY_AUDIENCE_TYPE_FIRST_PARTY',
+      appId: appId
     }
   })
 }

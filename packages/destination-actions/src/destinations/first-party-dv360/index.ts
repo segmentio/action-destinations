@@ -26,6 +26,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       required: true,
       description: 'The type of the audience.'
     },
+    appId: {
+      type: 'string',
+      label: 'App ID',
+      required: false,
+      description:
+        'The appId matches with the type of the mobileDeviceIds being uploaded. **Required for CUSTOMER_MATCH_DEVICE_ID Audience Types.**'
+    },
     description: {
       type: 'string',
       label: 'Description',

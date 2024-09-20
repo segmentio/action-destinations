@@ -13,6 +13,10 @@ export interface AudienceSettings {
    */
   audienceType: string
   /**
+   * The appId matches with the type of the mobileDeviceIds being uploaded. **Required for CUSTOMER_MATCH_DEVICE_ID Audience Types.**
+   */
+  appId?: string
+  /**
    * The description of the audience.
    */
   description?: string
