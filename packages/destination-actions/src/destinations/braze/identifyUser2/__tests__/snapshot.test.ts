@@ -24,7 +24,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
         settings: settingsData,
         auth: undefined
       })
-    ).rejects.toThrowError()
+    ).rejects.toThrowError('syncMode must be "add" or "upsert"')
   })
 
   it('fails if sync mode is update', async () => {
@@ -42,10 +42,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
         settings: settingsData,
         auth: undefined
       })
-    ).rejects.toThrowError()
+    ).rejects.toThrowError('syncMode must be "add" or "upsert"')
   })
 
-  it('all fields', async () => {
+  it('snapshot with all fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
