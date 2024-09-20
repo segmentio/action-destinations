@@ -24,10 +24,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
         settings: settingsData,
         auth: undefined
       })
-    ).rejects.toThrowError()
+    ).rejects.toThrowError('syncMode must be "add"')
   })
 
-  it('required fields', async () => {
+  it('snapshot with only required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
@@ -60,7 +60,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
     expect(request.headers).toMatchSnapshot()
   })
 
-  it('all fields', async () => {
+  it('snapshot with all possible fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
