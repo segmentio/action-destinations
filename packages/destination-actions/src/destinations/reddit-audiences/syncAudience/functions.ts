@@ -110,5 +110,5 @@ function hashEmail(value: string): string {
 function canonicalizeEmail(value: string): string {
   const localPartAndDomain = value.split('@')
   const localPart = localPartAndDomain[0].replace(/\./g, '').split('+')[0]
-  return `${localPart}@${localPartAndDomain[1].toLowerCase()}`
+  return `${localPart.toLowerCase()}@${localPartAndDomain[1].toLowerCase()}`
 }
