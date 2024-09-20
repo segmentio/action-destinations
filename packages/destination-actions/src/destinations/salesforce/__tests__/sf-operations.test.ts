@@ -773,6 +773,325 @@ describe('Salesforce', () => {
     })
   })
 
+  describe('Bulk Operations With Sync Mode', () => {
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, requestClient)
+
+    const bulkInsertPayloads: GenericPayload[] = [
+      {
+        operation: 'create',
+        enable_batching: true,
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab'
+      },
+      {
+        operation: 'create',
+        enable_batching: true,
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab'
+      }
+    ]
+
+    const bulkUpsertPayloads: GenericPayload[] = [
+      {
+        operation: 'upsert',
+        enable_batching: true,
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'ab'
+        },
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab'
+      },
+      {
+        operation: 'upsert',
+        enable_batching: true,
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'cd'
+        },
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab'
+      }
+    ]
+
+    const customPayloads: GenericPayload[] = [
+      {
+        operation: 'upsert',
+        enable_batching: true,
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'ab'
+        },
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab',
+        customFields: {
+          TickerSymbol: 'KRAB'
+        }
+      },
+      {
+        operation: 'upsert',
+        enable_batching: true,
+        bulkUpsertExternalId: {
+          externalIdName: 'test__c',
+          externalIdValue: 'cd'
+        },
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab',
+        customFields: {
+          TickerSymbol: 'KRAB'
+        }
+      }
+    ]
+
+    const bulkUpdatePayloads: GenericPayload[] = [
+      {
+        operation: 'update',
+        enable_batching: true,
+        bulkUpdateRecordId: 'ab',
+        name: 'SpongeBob Squarepants',
+        phone: '1234567890',
+        description: 'Krusty Krab'
+      },
+      {
+        operation: 'update',
+        enable_batching: true,
+        bulkUpdateRecordId: 'cd',
+        name: 'Squidward Tentacles',
+        phone: '1234567891',
+        description: 'Krusty Krab'
+      }
+    ]
+
+    it('should correctly insert a batch of records', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          operation: 'insert', // I think it was a mistake because the operation is 'create' in the payload. Please advise @nick.
+          // This impacts line 185 of sf-utils.ts
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'abc123'
+        })
+
+      const CSV = `Name,Phone,Description\n"SpongeBob Squarepants","1234567890","Krusty Krab"\n"Squidward Tentacles","1234567891","Krusty Krab"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandlerWithSyncMode(bulkInsertPayloads, 'Account', 'add') // add is the syncMode setting not "create" nor "insert"
+    })
+
+    it('should correctly upsert a batch of records', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          externalIdFieldName: 'test__c',
+          operation: 'upsert',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'abc123'
+        })
+
+      const CSV = `Name,Phone,Description,test__c\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandlerWithSyncMode(bulkUpsertPayloads, 'Account', 'upsert')
+    })
+
+    it('should correctly parse the customFields object', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          externalIdFieldName: 'test__c',
+          operation: 'upsert',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'xyz987'
+        })
+
+      const CSV = `Name,Phone,Description,TickerSymbol,test__c\n"SpongeBob Squarepants","1234567890","Krusty Krab","KRAB","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","KRAB","cd"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/xyz987/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/xyz987`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandlerWithSyncMode(customPayloads, 'Account', 'upsert')
+    })
+
+    it('should correctly update a batch of records', async () => {
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          externalIdFieldName: 'Id',
+          operation: 'update',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'abc123'
+        })
+
+      const CSV = `Name,Phone,Description,Id\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandlerWithSyncMode(bulkUpdatePayloads, 'Account', 'update')
+    })
+
+    it('should pass NO_VALUE when a bulk record ID is missing', async () => {
+      const missingRecordPayload = {
+        operation: 'update',
+        enable_batching: true,
+        bulkUpdateRecordId: undefined,
+        name: 'Plankton',
+        phone: '123-evil',
+        description: 'Proprietor of the 1 star restaurant, The Chum Bucket'
+      }
+
+      //create bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest`)
+        .post('', {
+          object: 'Account',
+          externalIdFieldName: 'Id',
+          operation: 'update',
+          contentType: 'CSV'
+        })
+        .reply(201, {
+          id: 'abc123'
+        })
+
+      const CSV = `Name,Phone,Description,Id\n"SpongeBob Squarepants","1234567890","Krusty Krab","ab"\n"Squidward Tentacles","1234567891","Krusty Krab","cd"\n"Plankton","123-evil","Proprietor of the 1 star restaurant, The Chum Bucket","#N/A"\n`
+
+      //upload csv
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123/batches`, {
+        reqheaders: {
+          'Content-Type': 'text/csv',
+          Accept: 'application/json'
+        }
+      })
+        .put('', CSV)
+        .reply(201, {})
+
+      //close bulk job
+      nock(`${settings.instanceUrl}services/data/${API_VERSION}/jobs/ingest/abc123`)
+        .patch('', {
+          state: 'UploadComplete'
+        })
+        .reply(201, {})
+
+      await sf.bulkHandlerWithSyncMode([...bulkUpdatePayloads, missingRecordPayload], 'Account', 'update')
+    })
+
+    it('should fail if a user selects a bulk delete operation', async () => {
+      const payloads: GenericPayload[] = [
+        {
+          operation: 'delete',
+          enable_batching: true,
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      await expect(sf.bulkHandlerWithSyncMode(payloads, 'Account', 'delete')).rejects.toThrow(
+        'Unsupported operation: Bulk API does not support the delete operation'
+      )
+    })
+
+    it('should fail if the bulkHandler is triggered but enable_batching is not true', async () => {
+      const payloads: GenericPayload[] = [
+        {
+          operation: 'upsert',
+          enable_batching: false,
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890',
+          description: 'Krusty Krab'
+        },
+        {
+          operation: 'upsert',
+          enable_batching: false,
+          name: 'Squidward Tentacles',
+          phone: '1234567891',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      await expect(sf.bulkHandlerWithSyncMode(payloads, 'Account', 'upsert')).rejects.toThrow(
+        'Bulk operation triggered where enable_batching is false.'
+      )
+    })
+  })
+
   describe('Username & Password flow', () => {
     const usernamePasswordOnly: Settings = {
       username: 'spongebob@seamail.com',

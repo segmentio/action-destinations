@@ -150,7 +150,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       events = [{ type: 'track' }]
     }
 
-    this.results = await super.executeBatch(action, {
+    const batchResponse = await super.executeBatch(action, {
       events: events.map((event) => createTestEvent(event)),
       mapping,
       settings: settings ?? ({} as T),
@@ -163,6 +163,12 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       stateContext: stateContext ?? ({} as StateContext),
       subscriptionMetadata: subscriptionMetadata ?? ({} as SubscriptionMetadata)
     })
+
+    this.results = [
+      {
+        multistatus: batchResponse
+      }
+    ]
 
     const responses = this.responses
     this.responses = []
