@@ -8,12 +8,12 @@ const audienceMapping = stringifyJsonWithEscapedQuotes([
   {
     incoming_key: 'audienceId',
     destination_key: 'external_id',
-    data_type: 'string'
+    type: 'string'
   },
   {
     incoming_key: 'audienceName',
     destination_key: 'name',
-    data_type: 'string'
+    type: 'string'
   }
 ])
 
@@ -21,7 +21,7 @@ const profileMapping = stringifyJsonWithEscapedQuotes([
   {
     incoming_key: 'userId',
     destination_key: 'external_id',
-    data_type: 'string',
+    type: 'string',
     is_pii: false
   }
 ])
