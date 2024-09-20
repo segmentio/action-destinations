@@ -35,7 +35,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     return {
       headers: {
         'Content-Type': 'application/json',
-        authorization: `Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IlNIQTI1NjpzS3dsMnlsV0VtMjVmcXhwTU40cWY4MXE2OWFFdWFyMnpLMUdhVGxjdWNZIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxNzI2OTM3MTQ4Ljc0MDM1MywiaWF0IjoxNzI2ODUwNzQ4Ljc0MDM1MywianRpIjoiQ0VNeldFNFV2eVdQLVkxWHB5N19FMWFWbmF1dUNRIiwiY2lkIjoiOWtYLUJWQlFTVWlZWEx4QmZGdzcyZyIsImxpZCI6InQyXzN4OWkyMnQwIiwiYWlkIjoidDJfM3g5aTIydDAiLCJsY2EiOjE1NjAyMDQyNTg0MzMsInNjcCI6ImVKeUtWaXBLVFV4UjBsRktUQ21Hc2pJeWkwdnlpeW9oWXFrcG1TVVFWbkotWGxscVVYRm1mbDZ4VWl3Z0FBRF9fd0NaRXc0IiwicmNpZCI6IjFRc3Q1ZFJnM1lrZkFHb3VJYnp2a3RzOGN6el9pOHU1Y3p3Z05vV2pHWmciLCJmbG8iOjN9.aoUBexJSDjGtef-8hKTstJtg_Xc2efVQX92t3E_XhQ_Hul5vdfXOCdN5EfEvWGkhw4oD7Jv8nNUq5o3mkKwz7DhzGGuvGG2ESJg9YVfwabOf61rkyQOQObt5bFW-wIqYrslTfG7wm8xn6Ng_3mabGXpMntZ6ZtBf6WgcL2iyXaTcOhtHB3nBCXCCvib_EbM5_l3e5MiQ0l7CK5ma5Whzyp135zP9ugFkrVndjc-u_o6p5Iy_SicOAHABm9qOip865GBgcRNMKeW3Ohms39iFvTjft8UlDbMx5jMWdJp0XfNUTuV0aygyqPkXZKPSDS2L_MLGaZ5Yrx-yetRbkiDdIg`
+        authorization: `Bearer ${auth?.accessToken}`
       }
     }
   },
