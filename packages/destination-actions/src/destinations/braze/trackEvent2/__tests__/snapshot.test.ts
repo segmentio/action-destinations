@@ -15,7 +15,7 @@ const settings = {
 }
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
-  it('required fields', async () => {
+  it('snapshot with only required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
@@ -48,7 +48,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     expect(request.headers).toMatchSnapshot()
   })
 
-  it('all fields', async () => {
+  it('snapshot with all possible fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
@@ -94,7 +94,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         settings: settingsData,
         auth: undefined
       })
-    ).rejects.toThrowError()
+    ).rejects.toThrowError('syncMode must be "add" or "upsert"')
   })
 
   it('it should work with batched events', async () => {
