@@ -212,13 +212,13 @@ describe('Order Completed', () => {
     await expect(testDestination.testAction(`orderCompleted`, { event, mapping, settings })).resolves.not.toThrowError()
   })
 
-  it('should successfully round the timestamp for time property that have more than three digits the milliseconds.', async () => {
+  it('should not throw an error when the time property has more than three digits in the milliseconds and should convert the time to ISO format.', async () => {
     const profile = { anonymous_id: 'an0nym0u51d' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
     const eventName = 'Order Completed'
-    const time = '2024-07-22T20:08:49.892Z' // round the timestamp from '2024-07-22T20:08:49.89191341Z'
+    const time = '2024-07-22T20:08:49.891Z' // convert the timestamp from '2024-07-22T20:08:49.89191341Z'
     const timestamp = '2024-07-22T20:08:49.89191341Z'
     const requestBody = createRequestBody(properties, value, metricName, profile, time)
 
@@ -234,13 +234,13 @@ describe('Order Completed', () => {
     await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).resolves.not.toThrowError()
   })
 
-  it('should not round the timestamp for time property that have not more than three digits the milliseconds.', async () => {
+  it('should successfully convert the timestamp for the time property to ISO format.', async () => {
     const profile = { anonymous_id: 'an0nym0u51d' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
     const eventName = 'Order Completed'
-    const time = '2024-07-22T20:08:49.89Z'
+    const time = '2024-07-22T20:08:49.890Z'
     const timestamp = '2024-07-22T20:08:49.89Z'
     const requestBody = createRequestBody(properties, value, metricName, profile, time)
 

@@ -4,7 +4,8 @@ import type { Payload } from './generated-types'
 
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
-import { validatePhoneNumber, roundTimestamp } from '../functions'
+import { validatePhoneNumber } from '../functions'
+import dayjs from 'dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -103,7 +104,7 @@ const action: ActionDefinition<Settings, Payload> = {
         type: 'event',
         attributes: {
           properties: { ...payload.properties },
-          time: payload?.time ? roundTimestamp(`${payload.time}`) : undefined,
+          time: payload?.time ? dayjs(payload.time).toISOString() : undefined,
           value: payload.value,
           unique_id: payload.unique_id,
           metric: {

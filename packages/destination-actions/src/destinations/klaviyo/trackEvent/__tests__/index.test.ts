@@ -239,13 +239,13 @@ describe('Track Event', () => {
     ).rejects.toThrowError('Internal Server Error')
   })
 
-  it('should successfully round the timestamp for time property that have more than three digits the milliseconds.', async () => {
+  it('should not throw an error when the time property has more than three digits in the milliseconds and should convert the time to ISO format.', async () => {
     const requestBody = {
       data: {
         type: 'event',
         attributes: {
           properties: { key: 'value' },
-          time: '2024-07-22T20:08:49.792Z', // round the timestamp from '2024-07-22T20:08:49.79191341Z'
+          time: '2024-07-22T20:08:49.791Z', // convert the timestamp from '2024-07-22T20:08:49.79191341Z'
           value: 10,
           unique_id: 'text-example-xyz',
           metric: {
@@ -288,13 +288,13 @@ describe('Track Event', () => {
     ).resolves.not.toThrowError()
   })
 
-  it('should not round the timestamp for time property that have not more than three digits the milliseconds.', async () => {
+  it('should successfully convert the timestamp for the time property to ISO format.', async () => {
     const requestBody = {
       data: {
         type: 'event',
         attributes: {
           properties: { key: 'value' },
-          time: '2024-07-22T20:08:49.79Z',
+          time: '2024-07-22T20:08:49.790Z',
           value: 10,
           unique_id: 'text-example-xyz',
           metric: {
