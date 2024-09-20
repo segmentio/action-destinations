@@ -68,11 +68,14 @@ const action: BrowserActionDefinition<Settings, JimoClient, Payload> = {
     const { event_name, userId, anonymousId, timestamp, messageId, properties } = payload
     const receivedAt = timestamp
 
-    jimo.client.push([
-      'do',
-      'segmentio:track',
-      [{ event: event_name, userId, anonymousId, messageId, timestamp, receivedAt, properties }]
-    ])
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    jimo
+      .client()
+      .push([
+        'do',
+        'segmentio:track',
+        [{ event: event_name, userId, anonymousId, messageId, timestamp, receivedAt, properties }]
+      ])
     window.dispatchEvent(new CustomEvent(`jimo-segmentio-track:${event_name}`))
   }
 }

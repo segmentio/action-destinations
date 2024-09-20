@@ -1,5 +1,5 @@
-import { IntegrationError } from '../errors'
-import { ActionDefinition } from '../destination-kit/action'
+import { ErrorCodes, IntegrationError } from '../errors'
+import { ActionDefinition, MultiStatusResponse } from '../destination-kit/action'
 import {
   StateContext,
   Destination,
@@ -175,7 +175,19 @@ const audienceDestination: AudienceDestinationDefinition<JSONObject> = {
   name: 'Amazon AMC (Actions)',
   mode: 'cloud',
   authentication: authentication,
-  audienceFields: {},
+  audienceFields: {
+    advertiserId: {
+      label: 'Advertiser ID',
+      description: 'Advertiser Id',
+      type: 'string',
+      required: true
+    },
+    cpmCents: {
+      label: 'CPM Cents',
+      type: 'number',
+      description: `Cost per thousand impressions (CPM) in cents. For example, $1.00 = 100 cents.`
+    }
+  },
   audienceConfig: {
     mode: {
       type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
@@ -188,9 +200,9 @@ const audienceDestination: AudienceDestinationDefinition<JSONObject> = {
       const audienceSettings: any = createAudienceInput.audienceSettings
 
       // it could be due to invalid input or Bad Request
-      if (!audienceSettings?.advertiserId)
+      if (!audienceSettings?.advertiserId) {
         throw new IntegrationError('Missing advertiserId Value', 'MISSING_REQUIRED_FIELD', 400)
-
+      }
       // invalid access token
       if (settings.oauth.access_token == 'invalid-access-token' || settings.oauth.clientId == 'invalid_client_id') {
         return new Promise((_resolve, reject) => {
@@ -321,6 +333,61 @@ const destinationWithIdentifier: DestinationDefinition<JSONObject> = {
   }
 }
 
+const multiStatusCompatibleDestination: DestinationDefinition<JSONObject> = {
+  name: 'Actions Braze',
+  mode: 'cloud',
+  actions: {
+    trackEvent: {
+      title: 'Track Event',
+      description: 'Record custom events in Braze',
+      defaultSubscription: 'type = "track" and event != "Order Completed"',
+      fields: {
+        name: {
+          label: 'Event Name',
+          description: 'The event name',
+          type: 'string',
+          required: true
+        },
+        email: {
+          label: 'Email',
+          description: 'The user email',
+          type: 'string'
+        }
+      },
+      perform: (_request, { payload }) => {
+        if (payload.email) {
+          throw new IntegrationError('Email is required', 'Missing required fields', 400)
+        }
+
+        return {
+          events_processed: 1,
+          message: 'success'
+        }
+      },
+      performBatch: (_request, { payload }) => {
+        const response = new MultiStatusResponse()
+        payload.forEach((event) => {
+          if (event?.email) {
+            response.pushSuccessResponse({
+              body: {},
+              sent: {},
+              status: 200
+            })
+          } else {
+            response.pushErrorResponse({
+              status: 400,
+              errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+              errormessage: 'Email is required'
+            })
+          }
+        })
+
+        return response
+      }
+    }
+  }
+}
+
 interface Payload {
   testDynamicField: string
   testUnstructuredObject: Record<string, string>
@@ -440,7 +507,7 @@ describe('destination kit', () => {
       const testEvent: SegmentEvent = { type: 'track' }
       const testSettings = { apiSecret: 'test_key', subscription: { subscribe: '', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: 'invalid subscription' }])
+      expect(res).toEqual([{ output: 'Failed to validate subscription' }])
     })
 
     test('should return invalid subscription with details when sending an invalid subscribe', async () => {
@@ -448,7 +515,7 @@ describe('destination kit', () => {
       const testEvent: SegmentEvent = { type: 'track' }
       const testSettings = { apiSecret: 'test_key', subscription: { subscribe: 'typo', partnerAction: 'customEvent' } }
       const res = await destinationTest.onEvent(testEvent, testSettings)
-      expect(res).toEqual([{ output: expect.stringContaining('invalid subscription') }])
+      expect(res).toEqual([{ output: expect.stringContaining('Invalid subscription') }])
       expect(res[0].output).toContain('Cannot read')
     })
 
@@ -640,7 +707,7 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
-          output: 'successfully processed batch of events'
+          multistatus: [{ body: {}, sent: {}, status: 200 }]
         }
       ])
     })
@@ -684,11 +751,7 @@ describe('destination kit', () => {
 
       const res = await destinationTest.onBatch([testEvent], testSettings)
 
-      expect(res).toEqual([
-        {
-          output: 'successfully processed batch of events'
-        }
-      ])
+      expect(res).toEqual([{ multistatus: [{ body: {}, sent: { userId: 'this-is-a-user-id' }, status: 200 }] }])
     })
   })
 
@@ -1393,7 +1456,22 @@ describe('destination kit', () => {
         const res = await destinationTest.onBatch(testEvents, testSettings, eventOptions)
         expect(res).toEqual([
           {
-            output: 'successfully processed batch of events'
+            multistatus: [
+              {
+                body: {},
+                sent: {
+                  advertiserId: '123456789'
+                },
+                status: 200
+              },
+              {
+                body: {},
+                sent: {
+                  advertiserId: '987654321'
+                },
+                status: 200
+              }
+            ]
           }
         ])
         expect(refreshTokenSpy).toHaveBeenCalledTimes(1)
@@ -1475,7 +1553,22 @@ describe('destination kit', () => {
         const res = await destinationTest.onBatch(testEvents, testSettings)
         expect(res).toEqual([
           {
-            output: 'successfully processed batch of events'
+            multistatus: [
+              {
+                body: {},
+                sent: {
+                  advertiserId: '123456789'
+                },
+                status: 200
+              },
+              {
+                body: {},
+                sent: {
+                  advertiserId: '987654321'
+                },
+                status: 200
+              }
+            ]
           }
         ])
         expect(spy).toHaveBeenCalledTimes(0)
@@ -1572,6 +1665,29 @@ describe('destination kit', () => {
         await expect(destinationTest.createAudience(createAudienceInput)).rejects.toThrowError()
         expect(spy).not.toHaveBeenCalled()
       })
+
+      test('Validate Schema | CPM Cents must be a number but it was a string', async () => {
+        const createAudienceInput = {
+          audienceName: 'Test Audience',
+          settings: {
+            oauth: {
+              clientId: 'valid-client-id',
+              clientSecret: 'valid-client-secret',
+              access_token: 'invalid-access-token',
+              refresh_token: 'refresh-token',
+              token_type: 'bearer'
+            }
+          },
+          audienceSettings: {
+            advertiserId: '12334745462532',
+            cpmCents: 'cpm_in_string'
+          }
+        }
+        const destinationTest = new Destination(audienceDestination)
+        await expect(destinationTest.createAudience(createAudienceInput)).rejects.toThrowError(
+          'CPM Cents must be a number but it was a string.'
+        )
+      })
     })
     describe('getAudience', () => {
       test('Refreshes the access-token in case of Unauthorized(401)', async () => {
@@ -1655,6 +1771,104 @@ describe('destination kit', () => {
         await expect(destinationTest.getAudience(getAudienceInput)).rejects.toThrowError()
         expect(spy).not.toHaveBeenCalled()
       })
+    })
+  })
+
+  describe('multiStatus response', () => {
+    test('should report invalid events filtered out by actions framework', async () => {
+      const multiStatusDestination = new Destination(multiStatusCompatibleDestination)
+
+      const receivedAt = '2024-08-03T17:40:04.055Z'
+
+      const events: SegmentEvent[] = [
+        {
+          // Empty Object
+        } as unknown as SegmentEvent,
+        {
+          // Malformed Event
+          unknown: 'some-value'
+        } as unknown as SegmentEvent,
+        {
+          // Missing required fields
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {},
+          receivedAt
+        },
+        {
+          // Valid Event
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {
+            email: 'user.one@example.com'
+          },
+          receivedAt
+        }
+      ]
+
+      const settings = {
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track" and event != "Order Completed"',
+          partnerAction: 'trackEvent',
+          mapping: {
+            name: { '@path': '$.event' },
+            email: { '@path': '$.properties.email' }
+          }
+        }
+      }
+
+      const eventOptions = {
+        features: {},
+        statsContext: {} as StatsContext,
+        logger: { name: 'test-integration', level: 'debug' } as Logger,
+        transactionContext: {
+          transaction: {},
+          setTransaction: (key: string, value: string) => ({ [key]: value })
+        } as TransactionContext,
+        stateContext: {
+          getRequestContext: (_key: string, _cb?: (res?: string) => any): any => {},
+          setResponseContext: (
+            _key: string,
+            _value: string,
+            _ttl: { hour?: number; minute?: number; second?: number }
+          ): void => {}
+        } as StateContext
+      }
+
+      const res = await multiStatusDestination.onBatch(events, settings, eventOptions)
+
+      expect(res).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "multistatus": Array [
+              Object {
+                "errormessage": "Payload is either invalid or does not match the subscription",
+                "errorreporter": "INTEGRATIONS",
+                "errortype": "PAYLOAD_VALIDATION_FAILED",
+                "status": 400,
+              },
+              Object {
+                "errormessage": "Payload is either invalid or does not match the subscription",
+                "errorreporter": "INTEGRATIONS",
+                "errortype": "PAYLOAD_VALIDATION_FAILED",
+                "status": 400,
+              },
+              Object {
+                "errormessage": "Email is required",
+                "errorreporter": "DESTINATION",
+                "errortype": "PAYLOAD_VALIDATION_FAILED",
+                "status": 400,
+              },
+              Object {
+                "body": Object {},
+                "sent": Object {},
+                "status": 200,
+              },
+            ],
+          },
+        ]
+      `)
     })
   })
 })
