@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import syncAudiences from './syncAudiences'
-import { PS_BASE_URL } from './properties'
+import { PS_BASE_URL } from './const'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Postscript',

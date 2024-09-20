@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { PS_BASE_URL } from '../../properties'
+import { PS_BASE_URL } from '../../const'
 
 const DUMMY_PHONE = '+15555555555'
 const DUMMY_EMAIL = 'test@email.com'

@@ -2,9 +2,8 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { PS_BASE_URL } from '../properties'
-
-const audienceProperty = 'Segment Audiences'
+import { AUDIENCE_PROPERTY, PS_BASE_URL } from '../const'
+import { SubscriberResp } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences',
@@ -85,7 +84,6 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload }) => {
     let { email, phone } = payload
 
-    // Massage email and phone
     email = email?.trim()
     phone = phone?.replace(/\D/g, '').trim()
 
@@ -93,18 +91,14 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Either email or phone is required')
     }
 
-    // If true add to audience, else remove
     const audienceAction = payload.traits_or_props[payload.segment_audience_key]
 
     let subscriber
 
-    // Try to find subscriber by phone
     if (phone) {
-      const response = await request(PS_BASE_URL + '/api/v2/subscribers', {
+      const response = await request<SubscriberResp>(PS_BASE_URL + '/api/v2/subscribers', {
         method: 'get',
         searchParams: {
-          // TODO: Determine if we need to use __eq or __contains for phone number,
-          // segment makes no guarantees about the format of the phone number
           phone_number__eq: phone
         }
       })
@@ -114,9 +108,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    // If we don't find a subscriber by phone, try email
     if (!subscriber && email) {
-      const response = await request(PS_BASE_URL + '/api/v2/subscribers', {
+      const response = await request<SubscriberResp>(PS_BASE_URL + '/api/v2/subscribers', {
         method: 'get',
         searchParams: {
           email__eq: email
@@ -128,26 +121,18 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    // If we have a subscriber get their custom properties and append/remove the audience based on the action
     if (subscriber) {
-      // Keep a boolean to track if we need to update the subscriber
       let makeUpdate = false
+      const audiences: string[] = subscriber?.properties?.[AUDIENCE_PROPERTY] || []
+      const exist = audiences.includes(payload.segment_audience_key)
 
-      const audiences: string[] = subscriber?.properties?.[audienceProperty] || []
-
-      if (audienceAction) {
-        // Check the audience is not already in the list
-        if (!audiences.includes(payload.segment_audience_key)) {
-          audiences.push(payload.segment_audience_key)
-          makeUpdate = true
-        }
-      } else {
-        // Check the audience is in the list
-        if (audiences.includes(payload.segment_audience_key)) {
-          const index = audiences.indexOf(payload.segment_audience_key)
-          audiences.splice(index, 1)
-          makeUpdate = true
-        }
+      if (audienceAction == true && !exist) {
+        audiences.push(payload.segment_audience_key)
+        makeUpdate = true
+      } else if (audienceAction == false && exist) {
+        const index = audiences.indexOf(payload.segment_audience_key)
+        audiences.splice(index, 1)
+        makeUpdate = true
       }
 
       if (makeUpdate) {
@@ -155,7 +140,7 @@ const action: ActionDefinition<Settings, Payload> = {
           method: 'patch',
           json: {
             properties: {
-              [audienceProperty]: audiences
+              [AUDIENCE_PROPERTY]: audiences
             }
           }
         })

@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { PS_BASE_URL } from '../properties'
+import { PS_BASE_URL } from '../const'
 
 const testDestination = createTestIntegration(Definition)
 
