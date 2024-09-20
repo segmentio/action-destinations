@@ -6,6 +6,7 @@ import { send } from './functions'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
   description: 'Sync a Segment Engage Audience to Reddit',
+  defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     segment_computation_action: {
       label: 'Segment Computation Action',
@@ -18,6 +19,15 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.computation_class'
       },
       choices: [{ label: 'audience', value: 'audience' }]
+    },
+    computation_key: {
+      label: "Audience Computation Key",
+      description: "Segment's friendly name for the Audience",
+      type: 'string',
+      required: true,
+      default: {
+        '@path': '$.context.personas.computation_key'
+      }
     },
     external_audience_id: {
       type: 'string',
@@ -97,11 +107,24 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 2500
     }
   },
-  perform: (request, { payload, settings, audienceSettings }) => {
-    send(request, [payload], settings, audienceSettings)
+  perform: async (request, { payload }) => {
+    const p2 = { ...payload } 
+    p2.traits_or_props = {
+      email: "test2@gmail.com",
+      android_idfa: undefined,
+      hasphone: true
+    }
+    p2.email = "test2@gmail.com"
+    p2.androidIDFA = undefined 
+    p2.iosIDFA = undefined 
+    const payloads = [payload, p2]
+
+    console.log(JSON.stringify(payloads))
+
+    return await send(request, payloads)
   },
-  performBatch: (request, { payload, settings, audienceSettings }) => {
-    send(request, payload, settings, audienceSettings)
+  performBatch: async (request, { payload }) => {
+    return await send(request, payload)
   }
 }
 

@@ -6,6 +6,10 @@ export interface Payload {
    */
   segment_computation_action: string
   /**
+   * Segment's friendly name for the Audience
+   */
+  computation_key: string
+  /**
    * Unique Audience Identifier returned by the createAudience() function call.
    */
   external_audience_id: string

@@ -1,22 +1,23 @@
-export interface AuthSettings {
-    clientId: string;
-    clientSecret: string;
-    refreshToken: string;
-    accessToken?: string;
+
+import { MAID_SCHEMA_NAME, EMAIL_SCHEMA_NAME } from './const'
+
+export interface CreateAudienceResp {
+    id: string
 }
 
-export interface RequestOptions {
-    method?: 'POST' | 'GET' | 'PATCH' | 'post' | 'get' | 'patch';
-    headers?: { [key: string]: string };
-    body?: string;
-    username?: string;
-    password?: string;
-}
-
-export interface AudienceResponse {
+export interface CreateAudienceReq {
     data: {
-        id: string;
-        name: string;
-        [key: string]: any; // In case there are additional fields
-    };
+        name: string
+        type: string
+    }
 }
+
+export interface UpdateAudienceReq {
+    data: {
+        column_order: Columns
+        user_data: string[][],
+        action_type: 'ADD' | 'REMOVE'
+    }
+}
+
+export type Columns = (typeof MAID_SCHEMA_NAME | typeof EMAIL_SCHEMA_NAME)[]
