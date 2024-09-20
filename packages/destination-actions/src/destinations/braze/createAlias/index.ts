@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-export const createAlias: ActionDefinition<Settings, Payload> = {
+const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Alias',
   description: 'Create new user aliases for existing identified users, or to create new unidentified users.',
   defaultSubscription: 'event = "Create Alias"',
@@ -42,4 +42,4 @@ export const createAlias: ActionDefinition<Settings, Payload> = {
   }
 }
 
-export default createAlias
+export default action
