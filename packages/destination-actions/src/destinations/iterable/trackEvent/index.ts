@@ -32,12 +32,11 @@ interface BulkTrackEventRequest {
 
 const transformIterableEventPayload = (payload: Payload): TrackEventRequest => {
   const formattedDataFields = convertDatesInObject(payload.dataFields ?? {})
-  const trackEventRequest: TrackEventRequest = {
+  return {
     ...payload,
     dataFields: formattedDataFields,
     createdAt: dayjs(payload.createdAt).unix()
   }
-  return trackEventRequest
 }
 
 const action: ActionDefinition<Settings, Payload> = {
