@@ -15,14 +15,6 @@ import viewContent2 from './viewContent2'
 import initiateCheckout2 from './initiateCheckout2'
 import search2 from './search2'
 
-import addToCart2 from './addToCart2'
-import pageView2 from './pageView2'
-import purchase2 from './purchase2'
-import search2 from './search2'
-import viewContent2 from './viewContent2'
-import initiateCheckout2 from './initiateCheckout2'
-import custom2 from './custom2'
-
 const destination: DestinationDefinition<Settings> = {
   name: 'Facebook Conversions API (Actions)',
   slug: 'actions-facebook-conversions-api',
