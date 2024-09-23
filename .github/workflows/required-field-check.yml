@@ -53,11 +53,11 @@ jobs:
         id: required-fields-main-branch
         if: steps.get_files.outputs.no_files_changed != 'true'
         run: |
-          git checkout 180314b913a092ae1c90ce7f3c657d1291806e1e
+          git checkout main
           REQUIRED_FIELDS_MAIN_BRANCH=$(./bin/run list-required-fields -p ${{ steps.get_files.outputs.files }} | jq -c .)
           echo "REQUIRED_FIELDS_MAIN_BRANCH=$REQUIRED_FIELDS_MAIN_BRANCH" >> $GITHUB_ENV
 
-      - name: Checkout back to the PR branch
+      - name: Checkout the PR branch again
         if: steps.get_files.outputs.no_files_changed != 'true'
         run: git checkout ${{ github.head_ref }}
 
