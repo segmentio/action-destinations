@@ -75,6 +75,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const description = audienceSettings?.description
       const membershipDurationDays = audienceSettings?.membershipDurationDays
       const audienceType = audienceSettings?.audienceType
+      const appId = audienceSettings?.appId
       const token = audienceSettings?.token // Temporary token variable
 
       // Update statistics tags and sends a call metric to Datadog. Ensures that datadog is infomred 'createAudience' operation was invoked
@@ -115,6 +116,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         description,
         membershipDurationDays,
         audienceType,
+        appId,
         token
       })
 
