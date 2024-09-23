@@ -94,7 +94,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         settings: settingsData,
         auth: undefined
       })
-    ).rejects.toThrowError('syncMode must be "add" or "upsert"')
+    ).rejects.toThrowError('syncMode must be "add" or "update"')
   })
 
   it('it should work with batched events', async () => {
