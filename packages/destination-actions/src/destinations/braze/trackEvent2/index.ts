@@ -114,7 +114,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (syncMode === 'add' || syncMode === 'update') {
       return sendBatchedTrackEvent(request, settings, payload, syncMode)
     }
-    throw new IntegrationError('syncMode must be "add" or "upsert"', 'Invalid syncMode', 400)
+    throw new IntegrationError('syncMode must be "add" or "update"', 'Invalid syncMode', 400)
   }
 }
 
