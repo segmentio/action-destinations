@@ -166,12 +166,6 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: false
         },
-        pixel_id: {
-          label: 'Nextdoor Pixel Id',
-          description: 'Nextdoor Pixel Id. Used for deduplication when events are sent via CAPI and front end Pixel.',
-          type: 'string',
-          required: false
-        },
         click_id: {
           label: 'Nextdoor Click ID',
           description: 'Next Door Click ID - ndclid parameter from the URL',
@@ -254,13 +248,6 @@ const action: ActionDefinition<Settings, Payload> = {
             exists: { '@path': '$.context.traits.address.postal_code' },
             then: { '@path': '$.context.traits.address.postal_code' },
             else: { '@path': '$.properties.address.postal_code' }
-          }
-        },
-        pixel_id: {
-          '@if': {
-            exists: { '@path': '$.context.traits.pixel_id' },
-            then: { '@path': '$.context.traits.pixel_id' },
-            else: { '@path': '$.properties.pixel_id' }
           }
         },
         click_id: {
@@ -410,7 +397,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     const apiKey = settings.apiKey
-    const hashFields = omit(payload.customer, ['click_id', 'pixel_id']) as Record<string, string>
+    const hashFields = omit(payload.customer, ['click_id']) as Record<string, string>
 
     for (const [key, value] of Object.entries(hashFields)) {
       hashFields[key] = hashAndEncode(value)
@@ -449,7 +436,7 @@ const action: ActionDefinition<Settings, Payload> = {
       event_timezone: payload.event_timezone,
       customer: {
         click_id: payload.customer?.click_id ? payload.customer.click_id : undefined,
-        pixel_id: payload.customer?.pixel_id ? payload.customer.pixel_id : undefined,
+        pixel_id: settings.pixel_id,
         ...hashFields
       },
       custom,
