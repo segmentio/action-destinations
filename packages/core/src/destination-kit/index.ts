@@ -929,6 +929,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
    * @throws {ResponseError & HTTPError} - If reauthentication is not needed or token refresh fails.
    */
   async handleAuthError(error: ResponseError & HTTPError, settings: JSONObject, options?: OnEventOptions) {
+    const statsContext = options?.statsContext
     const statusCode = error?.status ?? error?.response?.status ?? 500
     const needsReauthentication =
       statusCode === 401 &&
@@ -937,6 +938,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       throw error
     }
     const newTokens = await this.refreshTokenAndGetNewToken(settings, options)
+    statsContext?.statsClient?.incr('handleAuthError', 1, [...statsContext?.tags, `newToken:${newTokens.accessToken}`])
     // Update new access-token in cache and in settings.
     await options?.onTokenRefresh?.(newTokens)
     settings = updateOAuthSettings(settings, newTokens)
