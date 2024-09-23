@@ -4,7 +4,7 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'updateUserProfile'
+const actionSlug = 'updateUserProfile2'
 const destinationSlug = 'Braze'
 const seedName = `${destinationSlug}#${actionSlug}`
 const receivedAt = '2021-08-03T17:40:04.055Z'
@@ -15,7 +15,7 @@ const settings = {
 }
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
-  it('required fields', async () => {
+  it('only required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
@@ -29,7 +29,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: { ...event.properties, __segment_internal_sync_mode: 'update' },
       settings: settingsData,
       auth: undefined
     })
@@ -48,7 +48,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     expect(request.headers).toMatchSnapshot()
   })
 
-  it('all fields', async () => {
+  it('all possible fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
@@ -63,7 +63,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: { ...event.properties, __segment_internal_sync_mode: 'update' },
       settings: settingsData,
       auth: undefined
     })
@@ -78,6 +78,24 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     } catch (err) {
       expect(rawBody).toMatchSnapshot()
     }
+  })
+
+  it('fails if sync mode is not update', async () => {
+    const action = destination.actions[actionSlug]
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+
+    const event = createTestEvent({
+      properties: eventData
+    })
+
+    await expect(
+      testDestination.testAction(actionSlug, {
+        event: event,
+        mapping: { ...event.properties, __segment_internal_sync_mode: 'upsert' },
+        settings: settingsData,
+        auth: undefined
+      })
+    ).rejects.toThrowError('Sync mode upsert is not supported')
   })
 
   it('it should work with batched events', async () => {
@@ -128,7 +146,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         date_of_last_session: isoString,
         marked_email_as_spam_at: isoString,
         enable_batching: true,
-        _update_existing_only: true
+        __segment_internal_sync_mode: 'update'
       },
       settings: {
         ...settings
@@ -174,7 +192,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
           '@path': '$.properties'
         },
         enable_batching: true,
-        _update_existing_only: true
+        __segment_internal_sync_mode: 'update'
       },
       settings: {
         ...settings
