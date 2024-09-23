@@ -17,7 +17,7 @@ import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 const OBJECT_NAME = 'Case'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Case',
+  title: 'Case V2',
   description: 'Create, update, or upsert cases in Salesforce.',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',

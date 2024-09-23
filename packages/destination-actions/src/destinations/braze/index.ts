@@ -9,6 +9,8 @@ import updateUserProfile from './updateUserProfile'
 import trackEvent2 from './trackEvent2'
 import trackPurchase2 from './trackPurchase2'
 
+import updateUserProfile2 from './updateUserProfile2'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Braze Cloud Mode (Actions)',
   slug: 'actions-braze-cloud',
@@ -78,7 +80,8 @@ const destination: DestinationDefinition<Settings> = {
     createAliasV2,
     identifyUserV2,
     trackEvent2,
-    trackPurchase2
+    trackPurchase2,
+    updateUserProfile2
   },
   presets: [
     {

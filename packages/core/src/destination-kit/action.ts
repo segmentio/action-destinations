@@ -235,6 +235,15 @@ type FillMultiStatusResponseInput = {
   filteredPayloads?: JSONLikeObject[]
 }
 
+type FillMultiStatusResponseInput = {
+  multiStatusResponse: ResultMultiStatusNode[]
+  invalidPayloadIndices: Set<number>
+  batchPayloadLength: number
+  status: number
+  body: JSONLikeObject | string
+  filteredPayloads?: JSONLikeObject[]
+}
+
 const isSyncMode = (value: unknown): value is SyncMode => {
   return syncModeTypes.find((validValue) => value === validValue) !== undefined
 }

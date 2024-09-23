@@ -95,11 +95,20 @@ export type AudienceResult = {
 }
 
 export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audience_sync: boolean }
+// Personas are referenced in the following location: [GitHub - external-audience-manager-service](https://github.com/segmentio/external-audience-manager-service/blob/97b95a968ffdfedad095928f5c2037c24e92886e/internal/gxClient/gxClient.go#L75C2-L79C4).
+export type Personas = {
+  computation_id: string
+  computation_key: string
+  namespace: string
+  [key: string]: unknown
+}
 
 export type CreateAudienceInput<Settings = unknown, AudienceSettings = unknown> = {
   settings: Settings
 
   audienceSettings?: AudienceSettings
+
+  personas?: Personas
 
   audienceName: string
 
@@ -444,9 +453,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
   async createAudience(createAudienceInput: CreateAudienceInput<Settings, AudienceSettings>) {
     let settings: JSONObject = createAudienceInput.settings as unknown as JSONObject
-    const { audienceConfig } = this.definition as AudienceDestinationDefinition
+    const { audienceConfig, audienceFields } = this.definition as AudienceDestinationDefinition
     if (!instanceOfAudienceDestinationSettingsWithCreateGet(audienceConfig)) {
       throw new Error('Unexpected call to createAudience')
+    }
+    //validate audienceField Input
+    if (createAudienceInput.audienceSettings && Object.keys(createAudienceInput.audienceSettings).length > 0) {
+      validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceFields))
     }
     const destinationSettings = this.getDestinationSettings(settings)
     const run = async () => {

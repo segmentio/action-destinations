@@ -29,7 +29,7 @@ import {
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Click Conversion',
+  title: 'Click Conversion V2',
   description: 'Send an offline click conversion to the Google Ads API.',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
