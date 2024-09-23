@@ -281,13 +281,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits'
       }
     },
-    _update_existing_only: {
-      label: 'Update Existing Only',
-      description:
-        'Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.',
-      type: 'boolean',
-      default: false
-    },
     enable_batching: {
       type: 'boolean',
       label: 'Batch Data to Braze',
