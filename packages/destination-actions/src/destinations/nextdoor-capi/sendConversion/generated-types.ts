@@ -82,10 +82,6 @@ export interface Payload {
      */
     zip_code?: string
     /**
-     * Nextdoor Pixel Id. Used for deduplication when events are sent via CAPI and front end Pixel.
-     */
-    pixel_id?: string
-    /**
      * Next Door Click ID - ndclid parameter from the URL
      */
     click_id?: string
