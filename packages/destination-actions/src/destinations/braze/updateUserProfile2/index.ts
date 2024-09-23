@@ -2,11 +2,18 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { updateUserProfile, updateBatchedUserProfile } from '../utils'
+import { IntegrationError } from '@segment/actions-core/*'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update User Profile',
+  title: 'Update User Profile V2',
   description: "Update a user's profile attributes in Braze",
   defaultSubscription: 'type = "identify"',
+  syncMode: {
+    description: 'Define how the records from your destination will be synced.',
+    label: 'How to sync records',
+    default: 'update',
+    choices: [{ label: 'Update user profile', value: 'update' }]
+  },
   fields: {
     external_id: {
       label: 'External User ID',
@@ -297,11 +304,17 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { settings, payload }) => {
-    return updateUserProfile(request, settings, payload)
+  perform: (request, { settings, payload, syncMode }) => {
+    if (syncMode === 'update') {
+      return updateUserProfile(request, settings, payload, syncMode)
+    }
+    throw new IntegrationError(`Sync mode ${syncMode} is not supported`, 'Invalid syncMode', 400)
   },
-  performBatch: (request, { settings, payload }) => {
-    return updateBatchedUserProfile(request, settings, payload)
+  performBatch: (request, { settings, payload, syncMode }) => {
+    if (syncMode === 'update') {
+      return updateBatchedUserProfile(request, settings, payload, syncMode)
+    }
+    throw new IntegrationError(`Sync mode ${syncMode} is not supported`, 'Invalid syncMode', 400)
   }
 }
 

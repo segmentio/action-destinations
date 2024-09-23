@@ -241,7 +241,12 @@ export function sendBatchedTrackPurchase(request: RequestClient, settings: Setti
   })
 }
 
-export function updateUserProfile(request: RequestClient, settings: Settings, payload: UpdateUserProfilePayload) {
+export function updateUserProfile(
+  request: RequestClient,
+  settings: Settings,
+  payload: UpdateUserProfilePayload,
+  syncMode?: string
+) {
   const { braze_id, external_id, email } = payload
 
   // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
@@ -262,6 +267,11 @@ export function updateUserProfile(request: RequestClient, settings: Settings, pa
   // push additional default keys so they are not added as custom attributes
   reservedKeys.push('firstName', 'lastName', 'avatar')
   const customAttrs = omit(payload.custom_attributes, reservedKeys)
+
+  let updateExistingOnly = payload._update_existing_only
+  if (syncMode) {
+    updateExistingOnly = syncMode === 'update'
+  }
 
   return request(`${settings.endpoint}/users/track`, {
     method: 'post',
@@ -299,7 +309,7 @@ export function updateUserProfile(request: RequestClient, settings: Settings, pa
           push_tokens: payload.push_tokens,
           time_zone: payload.time_zone,
           twitter: payload.twitter,
-          _update_existing_only: payload._update_existing_only
+          _update_existing_only: updateExistingOnly
         }
       ]
     }
@@ -309,7 +319,8 @@ export function updateUserProfile(request: RequestClient, settings: Settings, pa
 export function updateBatchedUserProfile(
   request: RequestClient,
   settings: Settings,
-  payloads: UpdateUserProfilePayload[]
+  payloads: UpdateUserProfilePayload[],
+  syncMode?: string
 ) {
   const payload = payloads.map((payload) => {
     const { braze_id, external_id, email } = payload
@@ -333,6 +344,11 @@ export function updateBatchedUserProfile(
     // push additional default keys so they are not added as custom attributes
     reservedKeys.push('firstName', 'lastName', 'avatar')
     const customAttrs = omit(payload.custom_attributes, reservedKeys)
+
+    let updateExistingOnly = payload._update_existing_only
+    if (syncMode) {
+      updateExistingOnly = syncMode === 'update'
+    }
 
     return {
       ...customAttrs,
@@ -366,7 +382,7 @@ export function updateBatchedUserProfile(
       push_tokens: payload.push_tokens,
       time_zone: payload.time_zone,
       twitter: payload.twitter,
-      _update_existing_only: payload._update_existing_only
+      _update_existing_only: updateExistingOnly
     }
   })
 
