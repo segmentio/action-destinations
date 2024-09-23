@@ -5,13 +5,12 @@ import { RawMapping } from './types'
 import { IntegrationError } from '@segment/actions-core'
 
 export async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
-  
   const batchSize = payloads[0] && typeof payloads[0].batch_size === 'number' ? payloads[0].batch_size : 0
 
-  if(batchSize > 25000) {
+  if (batchSize > 25000) {
     throw new IntegrationError('Batch size cannot exceed 25000', 'Invalid Payload', 400)
   }
-  
+
   const headers = Object.keys(rawMapping.columns).map((column) => {
     return snakeCase(column)
   })

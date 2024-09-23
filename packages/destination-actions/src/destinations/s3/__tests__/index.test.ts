@@ -4,9 +4,8 @@ import nock from 'nock'
 const destination = createTestIntegration(Definition)
 
 describe('S3 Destination', () => {
-
   beforeEach(() => {
-    nock.cleanAll() 
+    nock.cleanAll()
   })
 
   it('should have the correct destination structure', () => {
