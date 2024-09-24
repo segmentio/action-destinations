@@ -76,8 +76,7 @@ const destination: DestinationDefinition<Settings> = {
     createAlias,
     identifyUser,
     identifyUser2,
-    createAlias2,
-    identifyUser
+    createAlias2
   },
   presets: [
     {
