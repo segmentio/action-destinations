@@ -5,7 +5,7 @@ Object {
   "groupId": "[t@95I7lqH",
   "timestamp": Any<String>,
   "traits": Object {
-    "createdAt": "2123-04-08T19:49:46.463Z",
+    "createdAt": Any<String>,
     "mrr": -32868147606323.2,
     "name": "[t@95I7lqH",
     "plan": "[t@95I7lqH",
@@ -30,7 +30,7 @@ Object {
   "timestamp": Any<String>,
   "traits": Object {
     "accountStatus": "f&3jleUWzgWoCkIRFb6v",
-    "createdAt": "2032-12-29T18:07:09.066Z",
+    "createdAt": Any<String>,
     "email": "foukiga@saluno.bo",
     "name": "f&3jleUWzgWoCkIRFb6v",
     "role": "f&3jleUWzgWoCkIRFb6v",
