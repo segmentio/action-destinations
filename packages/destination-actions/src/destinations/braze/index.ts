@@ -77,8 +77,7 @@ const destination: DestinationDefinition<Settings> = {
     createAlias,
     identifyUser,
     trackPurchase2,
-    createAlias2,
-    identifyUser
+    createAlias2
   },
   presets: [
     {
