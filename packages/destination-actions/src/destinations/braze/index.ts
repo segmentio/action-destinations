@@ -7,6 +7,7 @@ import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
 import trackPurchase from './trackPurchase'
 import updateUserProfile from './updateUserProfile'
+import trackEvent2 from './trackEvent2'
 import trackPurchase2 from './trackPurchase2'
 import updateUserProfile2 from './updateUserProfile2'
 
@@ -76,6 +77,7 @@ const destination: DestinationDefinition<Settings> = {
     trackPurchase,
     createAlias,
     identifyUser,
+    trackEvent2,
     trackPurchase2,
     updateUserProfile2,
     createAlias2
