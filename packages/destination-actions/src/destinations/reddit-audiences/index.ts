@@ -53,23 +53,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const response = await request<CreateAudienceResp>(
-        `https://ads-api.reddit.com/api/v3/ad_accounts/${createAudienceInput.settings.ad_account_id}/custom_audiences`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          json: {
-            data: {
-              name: createAudienceInput.audienceName,
-              type: 'CUSTOMER_LIST'
-            }
-          } as CreateAudienceReq
-        }
-      )
+      const response = await request<CreateAudienceResp>(`https://ads-api.reddit.com/api/v3/ad_accounts/${createAudienceInput.settings.ad_account_id}/custom_audiences`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        json: {
+          data: {
+            name: createAudienceInput.audienceName,
+            type: 'CUSTOMER_LIST'
+          }
+        } as CreateAudienceReq
+      })
       const jsonOutput = await response.json()
-      return { externalId: jsonOutput.data.id }
+      return { externalId: (jsonOutput.data.id) }
     },
     async getAudience(_, getAudienceInput) {
       return {
