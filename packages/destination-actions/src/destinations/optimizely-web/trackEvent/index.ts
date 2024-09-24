@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { OptimizelyWebClient } from './client'
 import { OptimizelyPayload, Event } from './types'
-import { validate } from './utils'
+import { validate, getEventid } from './utils'
 import { fields } from './fields'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -20,12 +20,12 @@ const action: ActionDefinition<Settings, Payload> = {
       projectID,
       uuid,
       eventMatching: { eventId },
-      eventType
+      eventType,
     } = payload
 
     const client = new OptimizelyWebClient(request, settings, projectID, stateContext ?? undefined)
 
-    const entity_id = eventId ?? await client.getEventid(payload)
+    const entity_id = eventId ?? await getEventid(client, payload)
 
     const body: OptimizelyPayload = {
       account_id: settings.optimizelyAccountId,

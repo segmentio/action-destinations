@@ -39,3 +39,34 @@ export interface Event {
 export type EventType = 'view_activated' | 'other'
 
 export type UnixTimestamp13 = number & { __type: 'UnixTimestamp13' }
+
+export interface EventItem {
+  id: number
+  key: string
+  name: string
+}
+
+export interface CreateEventBase {
+  category: string
+  event_type: string
+}
+
+export type CreateEventJSON = ( 
+  | { key: string; name?: never }
+  | { name: string; key?: never }
+) & CreateEventBase
+
+export interface CreatePageBase {
+  edit_url: string
+  project_id: string
+  category: string
+  event_type: string
+}
+
+export type CreatePageJSON = ( 
+  | { key: string; name?: never }
+  | { name: string; key?: never }
+) & CreatePageBase
+
+
+export type Type = 'track' | 'page'  
