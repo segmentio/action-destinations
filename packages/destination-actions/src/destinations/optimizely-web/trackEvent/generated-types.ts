@@ -14,13 +14,30 @@ export interface Payload {
    */
   anonymizeIP: boolean
   /**
-   * Segment will create a new Custom Event in Optimizely if the Custom Event doesn't already exist.
+   * Specify how Segment should match the Segment event to an Optimizely event, as well as specify if Segment should create new Custom Events and Pages in Optimizely if they don't exist.
    */
-  createEventIfNotFound: string
+  eventMatching: {
+    /**
+     * If needed, Segment can define new Custom Events and Pages in Optimizely. If you do not want Segment to create new events, select "Do not create".
+     */
+    createEventIfNotFound: string
+    /**
+     * Optimizely event or page name to record the event against.
+     */
+    eventName?: string
+    /**
+     * Optimizely event or page key to record the event against.
+     */
+    eventKey?: string
+    /**
+     * Optimizely event or page ID to record the event against. The ID can only be used when the event / page has already been created in Optimizely. Segment cannot create new events in Optimizely using the ID.
+     */
+    eventId?: string
+  }
   /**
-   * Event Name.
+   * The URL of the page where the event occurred.
    */
-  eventName: string
+  pageUrl?: string
   /**
    * Event Category
    */

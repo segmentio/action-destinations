@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { OptimizelyWebClient } from './client'
 import { OptimizelyPayload, Event } from './types'
-import { payloadItems } from './utils'
+import { validate } from './utils'
 import { fields } from './fields'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -12,22 +12,20 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" or type = "page"',
   fields,
   perform: async (request, { payload, settings, stateContext }) => {
+    
+    const { unixTimestamp13, opt_event_properties, value, revenue, quantity, currency, restTags } = validate(payload, stateContext)
+
     const {
       endUserId,
-      category,
       projectID,
       uuid,
-      createEventIfNotFound,
-      eventName: friendlyEventName,
+      eventMatching: { eventId },
       eventType
     } = payload
 
-    const { unixTimestamp13, opt_event_properties, event_name, value, revenue, quantity, currency, restTags } =
-      payloadItems(payload, stateContext)
-
     const client = new OptimizelyWebClient(request, settings, projectID, stateContext ?? undefined)
 
-    const eventId = await client.getEventid(event_name, eventType, category, friendlyEventName, createEventIfNotFound)
+    const entity_id = eventId ?? await client.getEventid(payload)
 
     const body: OptimizelyPayload = {
       account_id: settings.optimizelyAccountId,
@@ -44,7 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
               decisions: [],
               events: [
                 {
-                  entity_id: eventId,
+                  entity_id,
                   key: event_name,
                   timestamp: unixTimestamp13,
                   uuid,

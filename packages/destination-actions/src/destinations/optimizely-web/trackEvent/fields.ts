@@ -35,23 +35,53 @@ export const fields: Record<string, InputField> = {
     required: true,
     default: true
   },
-  createEventIfNotFound: {
-    label: 'Create Custom Event',
-    description: "Segment will create a new Custom Event in Optimizely if the Custom Event doesn't already exist.",
-    type: 'string',
-    choices: [
-      { label: 'Do not create', value: 'DO_NOT_CREATE' },
-      { label: 'Create Custom Event', value: 'CREATE' }
-    ],
+  eventMatching: {
+    label: 'Event Matching',
+    description: "Specify how Segment should match the Segment event to an Optimizely event, as well as specify if Segment should create new Custom Events and Pages in Optimizely if they don't exist.",
+    type: 'object',
     required: true,
-    default: 'CREATE'
+    properties: {
+      createEventIfNotFound: {
+        label: 'Create If Not Found',
+        description: 'If needed, Segment can define new Custom Events and Pages in Optimizely. If you do not want Segment to create new events, select "Do not create".',
+        type: 'string',
+        required: true,
+        choices: [
+          { label: 'Do not create', value: 'DO_NOT_CREATE' },
+          { label: 'Create Custom Event', value: 'CREATE' }
+        ]
+      },
+      eventName: {
+        label: 'Event Name',
+        description: "Optimizely event or page name to record the event against.",
+        type: 'string',
+        required: false,
+        default: { '@path': '$.event' }
+      },
+      eventKey: {
+        label: 'Event Key',
+        description: 'Optimizely event or page key to record the event against.',
+        type: 'string',
+        required: false,
+        default: { '@path': '$.event' }
+      },
+      eventId: {
+        label: 'Event ID',
+        description: 'Optimizely event or page ID to record the event against. The ID can only be used when the event / page has already been created in Optimizely. Segment cannot create new events in Optimizely using the ID.',
+        type: 'string',
+        required: false
+      },
+    },
+    default: {
+      createEventIfNotFound: 'CREATE'
+    }
   },
-  eventName: {
-    label: 'Event Name',
-    description: 'Event Name.',
+  pageUrl: {
+    label: 'Page URL',
+    description: 'The URL of the page where the event occurred.',
     type: 'string',
-    required: true,
-    default: { '@path': '$.event' }
+    required: false,
+    default: { '@path': '$.context.page.url' }
   },
   category: {
     label: 'Event Category',
