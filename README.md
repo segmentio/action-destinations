@@ -534,6 +534,7 @@ The `perform` method accepts two arguments, (1) the request client instance (ext
 - `engageDestinationCache` - EngageDestinationCache can only be used by internal Twilio/Segment employees. EngageDestinationCache should not be used for Partner builds.
 - `transactionContext` - An object, containing transaction variables and a method to update transaction variables which are required for few segment developed actions. Transaction Context cannot be used for Partner builds.
 - `stateContext` - An object, containing context variables and a method to get and set context variables which are required for few segment developed actions. State Context cannot be used for Partner builds.
+- `subscriptionMetadata` - an object, containing variables which identify the instance of a Destination and Action as well as other metadata. Subscription Metadata cannot be used for Partner builds.
 
 A basic example:
 

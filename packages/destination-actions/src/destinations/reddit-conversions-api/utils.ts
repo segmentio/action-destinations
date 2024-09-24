@@ -24,10 +24,7 @@ export async function send(request: RequestClient, settings: Settings, payload: 
   return request(`https://ads-api.reddit.com/api/v2.0/conversions/events/${settings.ad_account_id}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${settings.conversion_token}` },
-    json: {
-      // stringify to remove undefied values, then parse back to an object
-      data: JSON.parse(JSON.stringify(data))
-    }
+    json: JSON.parse(JSON.stringify(data))
   })
 }
 
@@ -117,7 +114,7 @@ function getMetadata(
 function getAdId(device_type?: string, advertising_id?: string): { [key: string]: string | undefined } | undefined {
   if (!device_type) return undefined
   if (!advertising_id) return undefined
-  return device_type === 'Apple' ? { idfa: hash(advertising_id) } : { aaid: hash(advertising_id) }
+  return device_type === 'ios' ? { idfa: hash(advertising_id) } : { aaid: hash(advertising_id) }
 }
 
 function getDataProcessingOptions(
@@ -148,10 +145,9 @@ function getUser(
 
   return {
     ...getAdId(user.device_type, user.advertising_id),
-    email: hash(clean(user.email)),
+    email: hash(clean(user.email), true),
     external_id: hash(clean(user.external_id)),
     ip_address: hash(clean(user.ip_address)),
-    opt_out: user.opt_out,
     user_agent: clean(user.user_agent),
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
@@ -159,8 +155,17 @@ function getUser(
   }
 }
 
-const hash = (value: string | undefined): string | undefined => {
+function canonicalizeEmail(value: string): string {
+  const localPartAndDomain = value.split('@')
+  const localPart = localPartAndDomain[0].replace(/\./g, '').split('+')[0]
+  return `${localPart.toLowerCase()}@${localPartAndDomain[1].toLowerCase()}`
+}
+
+const hash = (value: string | undefined, isEmail = false): string | undefined => {
   if (value === undefined) return
+  if (isEmail) {
+    value = canonicalizeEmail(value)
+  }
   const hash = createHash('sha256')
   hash.update(value)
   return hash.digest('hex')

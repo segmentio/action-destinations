@@ -119,8 +119,7 @@ export const commonFields: Record<string, InputField> = {
         label: 'To Object ID Field Value',
         description: 'The value of the identifier for the record to be associated with',
         type: 'string',
-        required: true,
-        allowNull: false
+        required: false
       }
     }
   },

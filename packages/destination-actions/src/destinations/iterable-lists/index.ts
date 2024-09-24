@@ -58,10 +58,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      const audienceSettings = createAudienceInput.audienceSettings
       const settings = createAudienceInput.settings
-      // @ts-ignore type is not defined, and we will define it later
-      const personasSettings = audienceSettings.personas
+      const personasSettings = createAudienceInput.personas
+
       if (!personasSettings) {
         throw new IntegrationError('Missing computation parameters: Key', 'MISSING_REQUIRED_FIELD', 422)
       }

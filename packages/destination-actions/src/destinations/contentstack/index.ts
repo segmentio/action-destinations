@@ -4,7 +4,7 @@ import computedAttributeSync from './computedAttributeSync'
 import audienceSync from './audienceSync'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Contentstack',
+  name: 'Contentstack Cloud',
   slug: 'actions-contentstack',
   mode: 'cloud',
 

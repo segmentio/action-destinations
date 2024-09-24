@@ -114,13 +114,13 @@ export const products: InputField = {
       label: 'Category',
       description: "The category the product is in; for example, a label from Google's product taxonomy. Required.",
       type: 'string',
-      required: true
+      required: false
     },
     id: {
       label: 'Product ID',
       description: 'The ID representing the product in a catalog. Required.',
       type: 'string',
-      required: true
+      required: false
     },
     name: {
       label: 'Product Name',
@@ -172,11 +172,6 @@ export const user: InputField = {
       description: 'The IP address of the user.',
       type: 'string'
     },
-    opt_out: {
-      label: 'Opt Out',
-      description: 'A flag indicating whether the user has opted out of tracking.',
-      type: 'boolean'
-    },
     user_agent: {
       label: 'User Agent',
       description: "The user agent of the user's browser.",
@@ -207,7 +202,6 @@ export const user: InputField = {
       }
     },
     ip_address: { '@path': '$.context.ip' },
-    opt_out: { '@path': '$.properties.opt_out' },
     user_agent: { '@path': '$.context.userAgent' },
     uuid: {
       '@if': {
@@ -225,6 +219,7 @@ export const data_processing_options: InputField = {
   type: 'object',
   required: false,
   additionalProperties: false,
+  defaultObjectUI: 'keyvalue',
   properties: {
     country: {
       label: 'Country',
@@ -501,6 +496,7 @@ export const screen_dimensions: InputField = {
   description: "The dimensions of the user's screen.",
   type: 'object',
   additionalProperties: false,
+  defaultObjectUI: 'keyvalue',
   properties: {
     height: {
       label: 'Height',
@@ -511,6 +507,14 @@ export const screen_dimensions: InputField = {
       label: 'Width',
       description: "The width of the user's screen in pixels. This must be positive and less than 32768.",
       type: 'integer'
+    }
+  },
+  default: {
+    height: {
+      '@path': '$.context.screen.height'
+    },
+    width: {
+      '@path': '$.context.screen.width'
     }
   }
 }

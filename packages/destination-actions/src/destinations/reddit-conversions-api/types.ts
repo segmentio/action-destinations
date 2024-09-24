@@ -35,7 +35,6 @@ export interface User {
   email?: string
   external_id?: string
   ip_address?: string
-  opt_out?: boolean
   user_agent?: string
   uuid?: string
   data_processing_options?: DatapProcessingOptions

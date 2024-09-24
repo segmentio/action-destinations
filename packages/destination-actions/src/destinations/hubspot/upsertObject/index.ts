@@ -25,7 +25,7 @@ import {
 } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Custom Object',
+  title: 'Custom Object V2',
   description:
     'Add, create or update records of any Object type to HubSpot, and optionally assocate that record with other records of any Object type.',
   syncMode: {
@@ -190,6 +190,7 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
         assocationSyncMode as AssociationSyncMode
       )
       await sendAssociations(client, associatedRecords)
+      return
     }
   }
 }

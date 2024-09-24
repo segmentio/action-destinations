@@ -74,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       unsafe_hidden: true,
       required: false,
-      default: 500
+      default: 1001
     }
   },
   perform: (request, { payload, settings }) => {
