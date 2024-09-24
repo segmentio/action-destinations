@@ -59,7 +59,12 @@ function toBrazeGender(gender: string | null | undefined): string | null | undef
   return brazeGender || gender
 }
 
-export function sendTrackEvent(request: RequestClient, settings: Settings, payload: TrackEventPayload) {
+export function sendTrackEvent(
+  request: RequestClient,
+  settings: Settings,
+  payload: TrackEventPayload,
+  syncMode?: 'add' | 'update'
+) {
   const { braze_id, external_id, email } = payload
   const user_alias = getUserAlias(payload.user_alias)
 
@@ -69,6 +74,11 @@ export function sendTrackEvent(request: RequestClient, settings: Settings, paylo
       'Missing required fields',
       400
     )
+  }
+
+  let updateExistingOnly = payload._update_existing_only
+  if (syncMode) {
+    updateExistingOnly = syncMode === 'update'
   }
 
   return request(`${settings.endpoint}/users/track`, {
@@ -84,14 +94,19 @@ export function sendTrackEvent(request: RequestClient, settings: Settings, paylo
           name: payload.name,
           time: toISO8601(payload.time),
           properties: payload.properties,
-          _update_existing_only: payload._update_existing_only
+          _update_existing_only: updateExistingOnly
         }
       ]
     }
   })
 }
 
-export function sendBatchedTrackEvent(request: RequestClient, settings: Settings, payloads: TrackEventPayload[]) {
+export function sendBatchedTrackEvent(
+  request: RequestClient,
+  settings: Settings,
+  payloads: TrackEventPayload[],
+  syncMode?: 'add' | 'update'
+) {
   const payload = payloads.map((payload) => {
     const { braze_id, external_id, email } = payload
     // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
@@ -106,6 +121,11 @@ export function sendBatchedTrackEvent(request: RequestClient, settings: Settings
     //   )
     // }
 
+    let updateExistingOnly = payload._update_existing_only
+    if (syncMode) {
+      updateExistingOnly = syncMode === 'update'
+    }
+
     return {
       braze_id,
       external_id,
@@ -115,7 +135,7 @@ export function sendBatchedTrackEvent(request: RequestClient, settings: Settings
       name: payload.name,
       time: toISO8601(payload.time),
       properties: payload.properties,
-      _update_existing_only: payload._update_existing_only
+      _update_existing_only: updateExistingOnly
     }
   })
 
