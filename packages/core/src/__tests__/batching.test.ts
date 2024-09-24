@@ -507,5 +507,10 @@ describe('MultiStatus', () => {
         },
       ]
     `)
+
+    expect(multiStatusResponse.isSuccessResponseAtIndex(1)).toBe(true)
+    expect(multiStatusResponse.isErrorResponseAtIndex(1)).toBe(false)
+    expect(multiStatusResponse.isSuccessResponseAtIndex(2)).toBe(false)
+    expect(multiStatusResponse.isErrorResponseAtIndex(2)).toBe(true)
   })
 })

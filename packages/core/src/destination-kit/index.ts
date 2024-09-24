@@ -194,6 +194,10 @@ export interface Subscription {
   partnerAction: string
   subscribe: string
   mapping?: JSONObject
+  ActionID?: string
+  ConfigID?: string
+  ID?: string
+  ProjectID?: string
 }
 
 export interface OAuth2ClientCredentials extends AuthTokens {
@@ -279,6 +283,13 @@ export type AuthenticationScheme<Settings = any> =
   | OAuth2Authentication<Settings>
   | OAuthManagedAuthentication<Settings>
 
+export type SubscriptionMetadata = {
+  actionConfigId?: string
+  destinationConfigId?: string
+  actionId?: string
+  sourceId?: string
+}
+
 interface EventInput<Settings> {
   readonly event: SegmentEvent
   readonly mapping: JSONObject
@@ -292,6 +303,7 @@ interface EventInput<Settings> {
   readonly dataFeedCache?: DataFeedCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
+  readonly subscriptionMetadata?: SubscriptionMetadata
 }
 
 interface BatchEventInput<Settings> {
@@ -307,6 +319,7 @@ interface BatchEventInput<Settings> {
   readonly dataFeedCache?: DataFeedCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
+  readonly subscriptionMetadata?: SubscriptionMetadata
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -572,6 +585,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     {
       event,
       mapping,
+      subscriptionMetadata,
       settings,
       auth,
       features,
@@ -603,7 +617,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       logger,
       dataFeedCache,
       transactionContext,
-      stateContext
+      stateContext,
+      subscriptionMetadata
     })
   }
 
@@ -612,6 +627,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     {
       events,
       mapping,
+      subscriptionMetadata,
       settings,
       auth,
       features,
@@ -644,7 +660,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       logger,
       dataFeedCache,
       transactionContext,
-      stateContext
+      stateContext,
+      subscriptionMetadata
     })
   }
 
@@ -678,6 +695,12 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const actionSlug = subscription.partnerAction
     const input = {
       mapping: subscription.mapping || {},
+      subscriptionMetadata: {
+        actionConfigId: subscription.ID,
+        destinationConfigId: subscription.ConfigID,
+        actionId: subscription.ActionID,
+        sourceId: subscription.ProjectID
+      } as SubscriptionMetadata,
       settings,
       auth,
       features: options?.features || {},
@@ -700,6 +723,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         }
 
         if (isBatch) {
+          // Add datadog stats for events that are discarded by Actions
+          options?.statsContext?.statsClient?.incr(
+            'action.multistatus_discard',
+            (events as SegmentEvent[]).length,
+            options.statsContext?.tags
+          )
+
           return [
             {
               multistatus: Array((events as SegmentEvent[]).length).fill(response)
@@ -721,6 +751,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         }
 
         if (isBatch) {
+          // Add datadog stats for events that are discarded by Actions
+          options?.statsContext?.statsClient?.incr(
+            'action.multistatus_discard',
+            (events as SegmentEvent[]).length,
+            options.statsContext?.tags
+          )
+
           return [
             {
               multistatus: Array((events as SegmentEvent[]).length).fill(response)
@@ -751,6 +788,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
           }
 
           invalidPayloadIndices.add(i)
+
+          // Add datadog stats for events that are discarded by Actions
+          options?.statsContext?.statsClient?.incr('action.multistatus_discard', 1, options.statsContext?.tags)
           continue
         }
 

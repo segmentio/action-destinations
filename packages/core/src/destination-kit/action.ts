@@ -25,7 +25,7 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { ErrorCodes, IntegrationError, MultiStatusErrorReporter } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
-import { Logger, StatsContext, TransactionContext, StateContext, DataFeedCache } from './index'
+import { Logger, StatsContext, TransactionContext, StateContext, DataFeedCache, SubscriptionMetadata } from './index'
 import { get } from '../get'
 
 type MaybePromise<T> = T | Promise<T>
@@ -213,6 +213,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   dataFeedCache?: DataFeedCache | undefined
   transactionContext?: TransactionContext
   stateContext?: StateContext
+  subscriptionMetadata?: SubscriptionMetadata
 }
 
 type FillMultiStatusResponseInput = {
@@ -351,9 +352,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       audienceSettings: bundle.audienceSettings,
       hookOutputs,
       syncMode: isSyncMode(syncMode) ? syncMode : undefined,
-      matchingKey: matchingKey ? String(matchingKey) : undefined
+      matchingKey: matchingKey ? String(matchingKey) : undefined,
+      subscriptionMetadata: bundle.subscriptionMetadata
     }
-
     // Construct the request client and perform the action
     const output = await this.performRequest(this.definition.perform, dataBundle)
     results.push({ data: output as JSONObject, output: 'Action Executed' })
@@ -404,6 +405,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
             }
 
             invalidPayloadIndices.add(i)
+
+            // Add datadog stats for events that are discarded by Actions
+            bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
             continue
           }
 
@@ -448,6 +452,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         dataFeedCache: bundle.dataFeedCache,
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
+        subscriptionMetadata: bundle.subscriptionMetadata,
         hookOutputs,
         syncMode: isSyncMode(syncMode) ? syncMode : undefined,
         matchingKey: matchingKey ? String(matchingKey) : undefined
@@ -505,6 +510,20 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
           }
 
           const response = performBatchResponse.getResponseAtIndex(resultsReadIndex++)
+          // We assume the response to be a failed response if it is undefined
+          // This is likely due to incorrect implementation of the MultiStatusResponse
+          if (!response) {
+            multiStatusResponse[i] = {
+              status: 500,
+              errormessage: 'MultiStatusResponse is missing a response at the specified index',
+              errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+              errorreporter: MultiStatusErrorReporter.INTEGRATIONS
+            }
+
+            // Add datadog stats for events that are discarded by Actions
+            bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
+            continue
+          }
 
           // Check if response is a failed response
           if (response instanceof ActionDestinationErrorResponse) {
@@ -513,6 +532,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
               errorreporter: MultiStatusErrorReporter.DESTINATION
             }
 
+            // Add datadog stats for events that are discarded by Destination
+            bundle.statsContext?.statsClient?.incr('destination.multistatus_discard', 1, bundle.statsContext?.tags)
             continue
           }
 
@@ -781,6 +802,14 @@ export class MultiStatusResponse {
   // Note: This will not remove the index from the array
   public unsetResponseAtIndex(index: number) {
     delete this.responses[index]
+  }
+
+  public isSuccessResponseAtIndex(index: number): boolean {
+    return this.responses[index] instanceof ActionDestinationSuccessResponse
+  }
+
+  public isErrorResponseAtIndex(index: number): boolean {
+    return this.responses[index] instanceof ActionDestinationErrorResponse
   }
 
   public getResponseAtIndex(index: number): ActionDestinationSuccessResponse | ActionDestinationErrorResponse {
