@@ -395,7 +395,7 @@ export const eventProperties: Record<string, InputField> = {
     type: 'number',
     required: false,
     default: 1000,
-    minimum: 0,
+    minimum: 1,
     maximum: 2000
   },
   userAgentData: {
