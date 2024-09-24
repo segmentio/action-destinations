@@ -4,6 +4,7 @@ import { DEFAULT_REQUEST_TIMEOUT, defaultValues } from '@segment/actions-core'
 import createAlias from './createAlias'
 import createAlias2 from './createAlias2'
 import identifyUser from './identifyUser'
+import identifyUser2 from './identifyUser2'
 import trackEvent from './trackEvent'
 import trackPurchase from './trackPurchase'
 import updateUserProfile from './updateUserProfile'
@@ -77,6 +78,7 @@ const destination: DestinationDefinition<Settings> = {
     trackPurchase,
     createAlias,
     identifyUser,
+    identifyUser2,
     trackEvent2,
     trackPurchase2,
     updateUserProfile2,
