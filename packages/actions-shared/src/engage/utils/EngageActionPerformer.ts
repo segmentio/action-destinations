@@ -16,7 +16,6 @@ import truncate from 'lodash/truncate'
 import { isRetryableError } from './isRetryableError'
 import { getOrCatch, ValueOrError } from './getOrCatch'
 import { backoffRetryPolicy, getOrRetry, GetOrRetryArgs } from './getOrRetry'
-import { performance } from 'perf_hooks'
 
 /**
  * Base class for all Engage Action Performers. Supplies common functionality like logger, stats, request, operation tracking
@@ -251,9 +250,9 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       let fnRes: Awaited<ReturnType<typeof fn>> | undefined = undefined
       let error: any = undefined
       let isPromise = false
-      const startTime = performance.now()
+      const startTime = Date.now()
       const onFinally = () => {
-        const durationMs = performance.now() - startTime
+        const durationMs = Date.now() - startTime
         const valueOrError: ValueOrError<any> | undefined =
           fnRes instanceof Object && ('error' in fnRes || 'value' in fnRes) ? (fnRes as ValueOrError<any>) : undefined
         if (valueOrError) fnRes = valueOrError.value
