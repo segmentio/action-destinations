@@ -4,7 +4,7 @@ import {
   PayloadValidationError,
   APIError
 } from '@segment/actions-core'
-import type { Settings } from './generated-types'
+import type { Settings, AudienceSettings } from './generated-types'
 
 import { API_URL } from './config'
 import upsertProfile from './upsertProfile'
@@ -18,7 +18,7 @@ import removeProfile from './removeProfile'
 
 import unsubscribeProfile from './unsubscribeProfile'
 
-const destination: AudienceDestinationDefinition<Settings> = {
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Klaviyo (Actions)',
   slug: 'actions-klaviyo',
   mode: 'cloud',
@@ -64,7 +64,14 @@ const destination: AudienceDestinationDefinition<Settings> = {
       headers: buildHeaders(settings.api_key)
     }
   },
-  audienceFields: {},
+  audienceFields: {
+    listId: {
+      label: 'List Id',
+      description: `Insert the ID of the default list that you'd like to subscribe users to when you call .identify().
+       NOTE: List ID takes precedence set within Actions.`,
+      type: 'string'
+    }
+  },
   audienceConfig: {
     mode: {
       type: 'synced',
@@ -73,6 +80,12 @@ const destination: AudienceDestinationDefinition<Settings> = {
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
       const apiKey = createAudienceInput.settings.api_key
+      const defaultAudienceId = createAudienceInput.audienceSettings?.listId
+
+      if (defaultAudienceId) {
+        return { externalId: defaultAudienceId }
+      }
+
       if (!audienceName) {
         throw new PayloadValidationError('Missing audience name value')
       }

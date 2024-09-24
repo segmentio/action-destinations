@@ -6,7 +6,8 @@ import { Settings } from '../generated-types'
 const testDestination = createTestIntegration(Definition)
 const settings: Settings = {
   apiKey: 'fake_api_key',
-  client_id: 'client_id_1'
+  client_id: 'client_id_1',
+  pixel_id: 'pixel_id_1'
 }
 
 describe('Nextdoor Conversions Api', () => {
@@ -34,7 +35,6 @@ describe('Nextdoor Conversions Api', () => {
             country: 'US',
             postal_code: '94105'
           },
-          pixel_id: 'pixel_id_1',
           click_id: 'click_id_1',
           total: 100,
           products: [

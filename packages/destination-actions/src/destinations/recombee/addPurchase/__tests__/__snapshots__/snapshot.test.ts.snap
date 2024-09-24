@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Recombee's addPurchase destination action: all fields 1`] = `
+Object {
+  "requests": Array [
+    Object {
+      "method": "POST",
+      "params": Object {
+        "additionalData": Object {
+          "testType": "o@fME^0ckHa[VN6e&Zv*",
+        },
+        "amount": 89304067955752.95,
+        "cascadeCreate": true,
+        "itemId": "o@fME^0ckHa[VN6e&Zv*",
+        "price": 89304067955752.95,
+        "profit": 89304067955752.95,
+        "recommId": "o@fME^0ckHa[VN6e&Zv*",
+        "timestamp": "o@fME^0ckHa[VN6e&Zv*",
+        "userId": "o@fME^0ckHa[VN6e&Zv*",
+      },
+      "path": "/purchases/",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Recombee's addPurchase destination action: required fields 1`] = `
+Object {
+  "requests": Array [
+    Object {
+      "method": "POST",
+      "params": Object {
+        "cascadeCreate": true,
+        "itemId": "o@fME^0ckHa[VN6e&Zv*",
+        "userId": "o@fME^0ckHa[VN6e&Zv*",
+      },
+      "path": "/purchases/",
+    },
+  ],
+}
+`;
