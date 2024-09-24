@@ -1,4 +1,12 @@
-import { StateContext, Logger, StatsContext, TransactionContext, DataFeedCache, ActionHookType } from './index'
+import {
+  StateContext,
+  Logger,
+  StatsContext,
+  TransactionContext,
+  DataFeedCache,
+  ActionHookType,
+  SubscriptionMetadata
+} from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONLikeObject, JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
@@ -68,6 +76,7 @@ export interface ExecuteInput<
   readonly dataFeedCache?: DataFeedCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
+  readonly subscriptionMetadata?: SubscriptionMetadata
 }
 
 export interface DynamicFieldResponse {
@@ -238,6 +247,11 @@ export interface InputField extends InputFieldJSONSchema {
    * Determines which input methods are disabled for this field. This is useful when you want to restrict variable selection, freeform entry, etc.
    */
   disabledInputMethods?: FieldInputMethods[]
+
+  /** Minimum value for a field of type 'number' */
+  minimum?: number
+  /** Maximum value for a field of type 'number' */
+  maximum?: number
 }
 
 /** Base interface for conditions  */

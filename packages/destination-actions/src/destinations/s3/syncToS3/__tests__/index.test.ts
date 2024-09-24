@@ -1,6 +1,6 @@
 import { generateFile } from '../../functions' // Adjust the import path
 import { Payload } from '../generated-types'
-import {snakeCase, encodeString, getAudienceAction} from '../../functions'
+import { snakeCase, encodeString, getAudienceAction } from '../../functions'
 
 // Mock Client class
 jest.mock('../../client', () => {
