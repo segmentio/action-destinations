@@ -25,7 +25,7 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { ErrorCodes, IntegrationError, MultiStatusErrorReporter } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
-import { Logger, StatsContext, TransactionContext, StateContext, DataFeedCache } from './index'
+import { Logger, StatsContext, TransactionContext, StateContext, DataFeedCache, SubscriptionMetadata } from './index'
 import { get } from '../get'
 
 type MaybePromise<T> = T | Promise<T>
@@ -213,6 +213,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   dataFeedCache?: DataFeedCache | undefined
   transactionContext?: TransactionContext
   stateContext?: StateContext
+  subscriptionMetadata?: SubscriptionMetadata
 }
 
 type FillMultiStatusResponseInput = {
@@ -351,9 +352,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       audienceSettings: bundle.audienceSettings,
       hookOutputs,
       syncMode: isSyncMode(syncMode) ? syncMode : undefined,
-      matchingKey: matchingKey ? String(matchingKey) : undefined
+      matchingKey: matchingKey ? String(matchingKey) : undefined,
+      subscriptionMetadata: bundle.subscriptionMetadata
     }
-
     // Construct the request client and perform the action
     const output = await this.performRequest(this.definition.perform, dataBundle)
     results.push({ data: output as JSONObject, output: 'Action Executed' })
@@ -451,6 +452,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         dataFeedCache: bundle.dataFeedCache,
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
+        subscriptionMetadata: bundle.subscriptionMetadata,
         hookOutputs,
         syncMode: isSyncMode(syncMode) ? syncMode : undefined,
         matchingKey: matchingKey ? String(matchingKey) : undefined
