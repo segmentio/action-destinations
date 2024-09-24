@@ -1,0 +1,149 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Braze's updateUserProfile2 destination action: it should work with a single batched events 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer my-api-key",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's updateUserProfile2 destination action: it should work with a single batched events 2`] = `
+Object {
+  "attributes": Array [
+    Object {
+      "_update_existing_only": true,
+      "braze_id": undefined,
+      "country": "United States",
+      "current_location": Object {
+        "latitude": 40.2964197,
+        "longitude": -76.9411617,
+      },
+      "date_of_first_session": undefined,
+      "date_of_last_session": undefined,
+      "dob": undefined,
+      "email": undefined,
+      "email_click_tracking_disabled": undefined,
+      "email_open_tracking_disabled": undefined,
+      "email_subscribe": undefined,
+      "external_id": "user1234",
+      "facebook": undefined,
+      "first_name": undefined,
+      "gender": undefined,
+      "home_city": undefined,
+      "image_url": undefined,
+      "language": undefined,
+      "last_name": undefined,
+      "marked_email_as_spam_at": undefined,
+      "phone": undefined,
+      "push_subscribe": undefined,
+      "push_tokens": undefined,
+      "time_zone": undefined,
+      "twitter": undefined,
+      "user_alias": undefined,
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's updateUserProfile2 destination action: it should work with batched events 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer my-api-key",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-braze-batch": Array [
+      "true",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's updateUserProfile2 destination action: it should work with batched events 2`] = `
+Object {
+  "attributes": Array [
+    Object {
+      "_update_existing_only": true,
+      "braze_id": undefined,
+      "country": "United States",
+      "current_location": Object {
+        "latitude": 40.2964197,
+        "longitude": -76.9411617,
+      },
+      "date_of_first_session": "2000-01-05T12:00:00.000Z",
+      "date_of_last_session": "2000-01-05T12:00:00.000Z",
+      "dob": undefined,
+      "email": undefined,
+      "email_click_tracking_disabled": undefined,
+      "email_open_tracking_disabled": undefined,
+      "email_subscribe": undefined,
+      "external_id": "user1234",
+      "facebook": undefined,
+      "first_name": undefined,
+      "gender": undefined,
+      "home_city": undefined,
+      "image_url": undefined,
+      "language": undefined,
+      "last_name": undefined,
+      "marked_email_as_spam_at": "2000-01-05T12:00:00.000Z",
+      "phone": undefined,
+      "push_subscribe": undefined,
+      "push_tokens": undefined,
+      "time_zone": undefined,
+      "twitter": undefined,
+      "user_alias": undefined,
+    },
+    Object {
+      "_update_existing_only": true,
+      "braze_id": undefined,
+      "country": "United States",
+      "current_location": Object {
+        "latitude": 40.2964197,
+        "longitude": -76.9411617,
+      },
+      "date_of_first_session": "2000-01-05T12:00:00.000Z",
+      "date_of_last_session": "2000-01-05T12:00:00.000Z",
+      "dob": undefined,
+      "email": undefined,
+      "email_click_tracking_disabled": undefined,
+      "email_open_tracking_disabled": undefined,
+      "email_subscribe": undefined,
+      "external_id": "user1234",
+      "facebook": undefined,
+      "first_name": undefined,
+      "gender": undefined,
+      "home_city": undefined,
+      "image_url": undefined,
+      "language": undefined,
+      "last_name": undefined,
+      "marked_email_as_spam_at": "2000-01-05T12:00:00.000Z",
+      "phone": undefined,
+      "push_subscribe": undefined,
+      "push_tokens": undefined,
+      "time_zone": undefined,
+      "twitter": undefined,
+      "user_alias": undefined,
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's updateUserProfile2 destination action: only required fields 1`] = `
+Object {
+  "attributes": Array [
+    Object {
+      "_update_existing_only": true,
+      "braze_id": "gW8BHbM8]GrBQUvvo",
+      "external_id": "gW8BHbM8]GrBQUvvo",
+    },
+  ],
+}
+`;
