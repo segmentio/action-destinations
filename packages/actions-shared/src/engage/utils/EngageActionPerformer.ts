@@ -112,8 +112,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       }
     })
     return await this.requestClient<Data>(url, {
-      timeout: this.isRequestTimeoutExtended() ? false : undefined,
-      keepalive: this.isRequestKeepAlive() ? true : undefined,
+      timeout: this.isRequestTimeoutExtended() ? 60_000 * 5 : 30_000,
       ...options
     })
   }
@@ -488,11 +487,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       )
 
       //release the lock
-      if (this.isLockShouldBeReleased()) {
-        //TODO: remove this feature flag after debugging. Lock should be released after value is in cache
-
-        await log.track('cache_lock_release', () => getOrCatch(() => lock.release()))
-      }
+      await log.track('cache_lock_release', () => getOrCatch(() => lock.release()))
       if (createValueError) throw createValueError
       return createdValue as T
     }
@@ -500,12 +495,6 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
 
   isLockExpirationExtended() {
     return this.isFeatureActive('engage-messaging-lock-expiration-extended', () => false)
-  }
-  isLockShouldBeReleased() {
-    return this.isFeatureActive('engage-messaging-release-lock-on-cacheerror', () => false)
-  }
-  isRequestKeepAlive() {
-    return this.isFeatureActive('engage-messaging-request-keepalive', () => false)
   }
   isRequestTimeoutExtended() {
     return this.isFeatureActive('engage-messaging-request-timeout-extended', () => false)
