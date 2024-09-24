@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AccoilAnalytics's identify destination action: all fields 1`] = `
+Object {
+  "timestamp": Any<String>,
+  "traits": Object {
+    "accountStatus": "P%0TB[8u4@po*D)*9J3e",
+    "createdAt": "2080-12-28T17:37:22.982Z",
+    "email": "noclitu@zuzdaz.am",
+    "name": "P%0TB[8u4@po*D)*9J3e",
+    "role": "P%0TB[8u4@po*D)*9J3e",
+    "testType": "P%0TB[8u4@po*D)*9J3e",
+  },
+  "type": "identify",
+  "userId": "P%0TB[8u4@po*D)*9J3e",
+}
+`;
+
+exports[`Testing snapshot for AccoilAnalytics's identify destination action: required fields 1`] = `
+Object {
+  "timestamp": Any<String>,
+  "traits": Object {},
+  "type": "identify",
+  "userId": "P%0TB[8u4@po*D)*9J3e",
+}
+`;

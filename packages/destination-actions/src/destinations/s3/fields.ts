@@ -180,7 +180,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       'Maximum number of events to include in each batch. Actual batch sizes may be lower. Max batch size is 25000.',
     type: 'number',
     required: false,
-    default: 25000
+    default: 5000
   },
   s3_aws_folder_name: {
     label: 'AWS Subfolder Name',
