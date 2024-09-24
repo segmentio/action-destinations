@@ -96,16 +96,6 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Track - Ecommerce - Product Added',
-      subscribe: 'type = "track" and event = "Product Added"',
-      partnerAction: 'addCartAddition',
-      mapping: {
-        ...defaultValues(addCartAddition.fields),
-        ...ecommerceIdMapping
-      },
-      type: 'automatic'
-    },
-    {
       name: 'Track - Ecommerce - Product Removed',
       subscribe: 'type = "track" and event = "Product Removed"',
       partnerAction: 'deleteCartAddition',
