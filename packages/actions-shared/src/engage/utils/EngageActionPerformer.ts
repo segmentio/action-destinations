@@ -23,7 +23,7 @@ import { backoffRetryPolicy, getOrRetry, GetOrRetryArgs } from './getOrRetry'
 export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TReturn = any> {
   readonly logger: EngageLogger
   readonly statsClient: EngageStats
-  readonly engageDestinationCache: EngageDestinationCache | undefined
+  readonly engageDestinationCache?: EngageDestinationCache
   readonly currentOperation: OperationContext | undefined
 
   readonly payload: TPayload
