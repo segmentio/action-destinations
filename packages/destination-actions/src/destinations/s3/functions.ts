@@ -61,8 +61,8 @@ function processField(row: string[], value: unknown | undefined) {
 
 function generateFile(payloads: Payload[], headers: string[], delimiter: string, actionColName?: string): string {
   const rows: string[] = []
+  headers.push('batch_size')
   rows.push(`${headers.join(delimiter === 'tab' ? '\t' : delimiter)}\n`)
-
   payloads.forEach((payload, index) => {
     const isLastRow = index === payloads.length - 1
     const row: string[] = []
@@ -70,6 +70,8 @@ function generateFile(payloads: Payload[], headers: string[], delimiter: string,
     headers.forEach((header) => {
       if (header === actionColName) {
         processField(row, getAudienceAction(payload))
+      } else if (header === 'batch_size') {
+        processField(row, payloads.length)
       } else {
         processField(row, payload.columns[header])
       }
@@ -77,6 +79,7 @@ function generateFile(payloads: Payload[], headers: string[], delimiter: string,
 
     rows.push(`${row.join(delimiter === 'tab' ? '\t' : delimiter)}${isLastRow ? '' : '\n'}`)
   })
+
   return rows.join('')
 }
 
