@@ -301,6 +301,13 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     return stepLogger
   }
 
+  /**
+   * tries to get value in cache and if it cannot find it - it adds it to cache
+   * @param key
+   * @param createValue method to compute value if it is not found in cache
+   * @param options cache options
+   * @returns value from cache or computed value
+   */
   @track()
   async getOrAddCache<T>(
     key: string,
@@ -310,16 +317,31 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
        * The group of cache used for stats tags
        */
       cacheGroup?: string
+      /**
+       * convert value to string and back
+       */
       serializer?: CacheSerializer<T>
+      /**
+       * cache expiry in seconds
+       */
       expiryInSeconds?: number
+      /**
+       * distributed lock options to be used while creating cache
+       */
       lockOptions?: LockOptions
+      /**
+       * retry options for saving cache
+       */
       saveRetry?: GetOrRetryArgs
+      /**
+       * callback invoked when cache save failed
+       */
       onSaveFailed?: (error: Error) => void
     }
   ): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
 
-    const log = this.createStepLogger({
+    const step = this.createStepLogger({
       tags: {
         cache_group: cache_group,
         withLock: !!options.lockOptions,
@@ -328,12 +350,12 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       logs: { key }
     })
 
-    if (!this.engageDestinationCache) return log.track('no_cache', () => createValue())
+    if (!this.engageDestinationCache) return step.track('no_cache', () => createValue())
     const cache = this.engageDestinationCache
 
     const serializer = options.serializer || DefaultSerializer
 
-    const cacheRead = await log.track('cache_reading', () => getOrCatch(() => cache.getByKey(key)))
+    const cacheRead = await step.track('cache_reading', () => getOrCatch(() => cache.getByKey(key)))
 
     if (cacheRead.error) {
       //redis error
@@ -343,7 +365,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     // we lock only if cache not found
     if (isNone(cacheRead.value) && options.lockOptions) {
       if (!options.lockOptions.cacheGroup) options.lockOptions.cacheGroup = cache_group
-      return log.track('cache_locking', () =>
+      return step.track('cache_locking', () =>
         this.withDistributedLock(
           `cache:${key}`,
           () => this.getOrAddCache(key, createValue, { ...options, lockOptions: undefined }),
@@ -355,7 +377,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
     if (!isNone(cacheRead.value)) {
       //if cache FOUND (getByKey returned not null and not undefined)
       // trying to parse the cached value
-      const { value: parsedCache, error: parsingError } = log.track('cache_parse', () =>
+      const { value: parsedCache, error: parsingError } = step.track('cache_parse', () =>
         getOrCatch(() => serializer.parse(cacheRead.value!))
       )
 
@@ -364,11 +386,11 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         // Log it and execute as if we don't have cache
       } else if (isNone(parsedCache)) {
         //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
-        log.write('cache_ignored')
+        step.write('cache_ignored')
       } else {
         //parsed cache successfully && cache is not expired
         // parsedValue - either value or error was parsed
-        log.write('cache_hit', { tags: { cache_hit: true, cached_error: !!parsedCache.error } })
+        step.write('cache_hit', { tags: { cache_hit: true, cached_error: !!parsedCache.error } })
         if (parsedCache.error) {
           throw parsedCache.error
         }
@@ -376,13 +398,13 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       }
     }
     // re-executing, because cache not found or ignored or failed to read or parse
-    log.write('cache_miss')
-    const { value: result, error: resultError } = await log.track('cache_create_value', () =>
+    step.write('cache_miss')
+    const { value: result, error: resultError } = await step.track('cache_create_value', () =>
       getOrCatch(() => createValue())
     )
 
     //before returning result - we need to try to serialize it and store it in cache
-    const stringified = log.track('cache_stringified', () =>
+    const stringified = step.track('cache_stringified', () =>
       getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
     )
 
@@ -390,14 +412,14 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       //
     } else if (!isNone(stringified.value)) {
       //result stringified and contains cacheable value - cache it
-      const { error: cacheSavingError, value: cacheSavingResult } = await log.track('cache_save', () =>
+      const { error: cacheSavingError, value: cacheSavingResult } = await step.track('cache_save', () =>
         getOrRetry(
           () => cache.setByKey(key, stringified.value!, options.expiryInSeconds),
           options.saveRetry || {
             attempts: 5,
             retryIntervalMs: backoffRetryPolicy(10000, 3),
             onFailedAttempt: (error, attemptCount) => {
-              log.write('cache_save_failed_attempt', { logs: { attemptCount, error: getErrorDetails(error) } })
+              step.write('cache_save_failed_attempt', { logs: { attemptCount, error: getErrorDetails(error) } })
             }
           }
         )
@@ -407,7 +429,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         options?.onSaveFailed?.(cacheSavingError)
       }
     } else {
-      log.write('cache_save_skipped')
+      step.write('cache_save_skipped')
     }
 
     if (resultError) throw resultError
@@ -578,21 +600,33 @@ export function isNone(cacheValue: any): cacheValue is null | undefined | void {
   return cacheValue === undefined || cacheValue === null
 }
 
+/**
+ * Similar to `@track` decorator, but it is used for tracking steps within the operation.
+ * Ideally should be integrated with `@track` decorator later
+ * This was created for thorough troubleshooting of the operations
+ */
 type StepLogger = LogStepDetails & {
-  // tags: Record<string, any>
-  // logs: Record<string, any>
+  /**
+   * Track inline function execution within trackable operation
+   * 1) Write a log message and increment stats before executing the function
+   * 2) executes the function and captures the result or error
+   * 3) Write a log message, increment stats finishing step, add histogram of step duration, with info if it was success or error
+   * The log messages and stats metric names will be prefixed with the step name
+   * @param stepName
+   * @param fn
+   */
   track<T>(stepName: string, fn: (details: LogStepDetails) => T): T
+  /**
+   * Write a log message for the current step and increment the stats metric for the step
+   * @param stepName name of the step
+   * @param details log details and stats tags
+   */
   write(stepName: string, details?: Partial<LogStepDetails>): void
 }
 
-// interface LogStep {
-//   (stepName: string, details?: LogStepDetails): void;
-//   <T>(stepName: string, start: LogStepDetails, fn: (end: Required<LogStepDetails>) => T): T;
-//   <T>(stepName: string, fn: (end: Required<LogStepDetails>) => T): T;
-//   //<T>(stepName: string, start: { tags?: Record<string, any>; log?: Record<string, any> }, fn: (end: { tags: Record<string, any>; details: Record<string, any> }) => PromiseLike<T>): PromiseLike<T>;
-//   //<T>(stepName: string, fn: (end: { tags: Record<string, any>; details: Record<string, any> }) => PromiseLike<T>): PromiseLike<T>;
-// }
-
+/**
+ * details for logging and stats tracking of the step
+ */
 type LogStepDetails = {
   tags: Record<string, any>
   logs: Record<string, any>
