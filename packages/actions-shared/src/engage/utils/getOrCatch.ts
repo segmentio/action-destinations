@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ValueOrError<T> = { value?: T; error?: any } //& ({ value: T } | { error: any });
 
 export function getOrCatch<T>(getValue: () => Promise<T>): Promise<ValueOrError<T>>
