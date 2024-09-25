@@ -12,8 +12,8 @@ describe('Usermotion.identify', () => {
 
     const event = createTestEvent({
       userId: '1453',
-      anonymousId: 'test-anonymous-id',
-      traits: { email: 'amirali@usermotion.com' }
+      traits: { email: 'amirali@usermotion.com' },
+      anonymousId: 'test-anonymous-id'
     })
 
     const responses = await testDestination.testAction('identify', {
@@ -26,7 +26,7 @@ describe('Usermotion.identify', () => {
 
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.body).toBe(
-      JSON.stringify({ id: '1453', properties: { email: 'amirali@usermotion.com', anonymousId: 'test-anonymous-id' } })
+      JSON.stringify({ id: '1453', anonymousId: 'test-anonymous-id', properties: { email: 'amirali@usermotion.com' } })
     )
   })
 

@@ -101,12 +101,12 @@ const heapTrackArrays = (
       return eventProperties
     }
 
+    delete eventProperties[key]
+    eventProperties = { ...eventProperties, ...flat({ [key]: value }) }
+
     if (!Array.isArray(value)) {
       continue
     }
-
-    delete eventProperties[key]
-    eventProperties = { ...eventProperties, ...flat({ [key]: value }) }
 
     const arrayLength = value.length
     let arrayPropertyValues

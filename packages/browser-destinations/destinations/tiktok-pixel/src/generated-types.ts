@@ -10,6 +10,10 @@ export interface Settings {
    */
   ldu?: boolean
   /**
+   * If true, TikTok Pixel will fire a "Pageview" event whenevent the pixel is loaded on the page.
+   */
+  autoPageView?: boolean
+  /**
    * Deprecated. Please do not provide any value.
    */
   useExistingPixel?: boolean

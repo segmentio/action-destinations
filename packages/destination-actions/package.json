@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.265.0",
+  "version": "3.325.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -39,12 +39,13 @@
   },
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
+    "@aws-sdk/client-s3": "^3.600.0",
     "@bufbuild/buf": "^1.28.0",
     "@bufbuild/protobuf": "^1.4.2",
     "@bufbuild/protoc-gen-es": "^1.4.2",
     "@segment/a1-notation": "^2.1.4",
-    "@segment/actions-core": "^3.108.0",
-    "@segment/actions-shared": "^1.89.0",
+    "@segment/actions-core": "^3.134.0",
+    "@segment/actions-shared": "^1.115.0",
     "@types/node": "^18.11.15",
     "ajv-formats": "^2.1.1",
     "aws4": "^1.12.0",
@@ -53,8 +54,9 @@
     "escape-goat": "^3",
     "google-libphonenumber": "^3.2.31",
     "kafkajs": "^2.2.4",
-    "liquidjs": "^9.37.0",
+    "liquidjs": "^10.8.4",
     "lodash": "^4.17.21",
+    "lru-cache": "10.4.3",
     "ssh2-sftp-client": "^9.1.0"
   },
   "jest": {

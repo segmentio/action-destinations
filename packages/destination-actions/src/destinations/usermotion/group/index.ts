@@ -7,24 +7,26 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Create or update a company in UserMotion',
   defaultSubscription: 'type = "group"',
   fields: {
+    userId: {
+      type: 'string',
+      description: 'A identifier for a known user.',
+      label: 'User ID',
+      required: false,
+      default: { '@path': '$.userId' }
+    },
+    anonymousId: {
+      type: 'string',
+      required: false,
+      description: 'An identifier for an anonymous user',
+      label: 'Anonymous ID',
+      default: { '@path': '$.anonymousId' }
+    },
     groupId: {
       type: 'string',
       description: 'A identifier for a known company.',
       label: 'Group ID',
       required: true,
       default: { '@path': '$.groupId' }
-    },
-    website: {
-      type: 'string',
-      label: 'Website',
-      description: 'The website address of the identified company',
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.website' },
-          then: { '@path': '$.traits.website' },
-          else: { '@path': '$.properties.website' }
-        }
-      }
     },
     traits: {
       type: 'object',
@@ -38,9 +40,11 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: {
         id: payload.groupId,
+        userId: payload.userId,
+        anonymousId: payload.anonymousId,
+
         properties: {
-          ...payload.traits,
-          website: payload.website
+          ...payload.traits
         }
       }
     })

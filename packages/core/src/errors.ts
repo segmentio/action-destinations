@@ -132,3 +132,10 @@ export enum ErrorCodes {
   // Destination has spent more than the alloted time and needs to self-terminate
   SELF_TIMEOUT = 'SELF_TIMEOUT'
 }
+
+export enum MultiStatusErrorReporter {
+  // Error occurred in the source
+  INTEGRATIONS = 'INTEGRATIONS',
+  // Error occurred in the performBatchBlock
+  DESTINATION = 'DESTINATION'
+}

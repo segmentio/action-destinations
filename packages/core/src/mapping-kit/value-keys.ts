@@ -27,7 +27,8 @@ export function isDirective(value: FieldValue): value is Directive {
         '@json',
         '@flatten',
         '@merge',
-        '@transform'
+        '@transform',
+        '@excludeWhenNull'
       ].includes(key)
     )
   )
@@ -207,6 +208,14 @@ export function isTransformDirective(value: FieldValue): value is TransformDirec
   )
 }
 
+export interface ExcludeWhenNullDirective extends DirectiveMetadata {
+  '@excludeWhenNull': FieldValue
+}
+
+export function isExcludeWhenNullDirective(value: FieldValue): value is ExcludeWhenNullDirective {
+  return isDirective(value) && '@excludeWhenNull' in value
+}
+
 type DirectiveKeysToType<T> = {
   ['@arrayPath']: (input: ArrayPathDirective) => T
   ['@case']: (input: CaseDirective) => T
@@ -219,6 +228,7 @@ type DirectiveKeysToType<T> = {
   ['@flatten']: (input: FlattenDirective) => T
   ['@merge']: (input: MergeDirective) => T
   ['@transform']: (input: TransformDirective) => T
+  ['@excludeWhenNull']: (input: ExcludeWhenNullDirective) => T
 }
 
 function directiveType<T>(directive: Directive, checker: DirectiveKeysToType<T>): T | null {
@@ -249,6 +259,9 @@ function directiveType<T>(directive: Directive, checker: DirectiveKeysToType<T>)
   if (isFlattenDirective(directive)) {
     return checker['@flatten'](directive)
   }
+  if (isExcludeWhenNullDirective(directive)) {
+    return checker['@excludeWhenNull'](directive)
+  }
   return null
 }
 
@@ -264,6 +277,7 @@ export type Directive =
   | FlattenDirective
   | MergeDirective
   | TransformDirective
+  | ExcludeWhenNullDirective
 
 export type PrimitiveValue = boolean | number | string | null
 export type FieldValue = Directive | PrimitiveValue | { [key: string]: FieldValue } | FieldValue[] | undefined
@@ -294,7 +308,8 @@ export function getFieldValueKeys(value: FieldValue): string[] {
         '@transform': (input: TransformDirective) => [
           ...getRawKeys(input['@transform'].apply),
           ...getRawKeys(input['@transform'].mapping)
-        ]
+        ],
+        '@excludeWhenNull': (_: ExcludeWhenNullDirective) => ['']
       })?.filter((k) => k) ?? []
     )
   } else if (isObject(value)) {

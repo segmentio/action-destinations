@@ -2,27 +2,23 @@
 
 export interface Settings {
   /**
-   * Dynamic Yield Section ID
+   * Dynamic Yield by Mastercard Section ID
    */
   sectionId: string
-  /**
-   * Dynamic Yield Data Center
-   */
-  dataCenter: string
   /**
    * Description to be added
    */
   accessKey: string
-  /**
-   * The type of identifier being used to identify the user in Dynamic Yield. Segment hashes the identifier before sending to Dynamic Yield.
-   */
-  identifier_type: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface AudienceSettings {
   /**
-   * Required: Provide a name for your Audience to be displayed in Dynamic Yield.
+   * Provide a name for your Audience to be displayed in Dynamic Yield by Mastercard.
    */
   audience_name: string
+  /**
+   * The type of Identifier to send to Dynamic Yield by Mastercard. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield by Mastercard.
+   */
+  identifier_type: string
 }

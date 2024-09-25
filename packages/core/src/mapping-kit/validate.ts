@@ -367,6 +367,10 @@ directive('@transform', (v, stack) => {
   )
 })
 
+directive('@excludeWhenNull', (v, stack) => {
+  validateDirectiveOrRaw(v, stack)
+})
+
 function indefiniteArticle(s: string): string {
   switch (s.charAt(0)) {
     case 'a':

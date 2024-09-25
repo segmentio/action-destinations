@@ -2,11 +2,12 @@
 
 exports[`Testing snapshot for actions-usermotion destination: group action - all fields 1`] = `
 Object {
+  "anonymousId": "ZKOt93",
   "id": "ZKOt93",
   "properties": Object {
     "testType": "ZKOt93",
-    "website": "ZKOt93",
   },
+  "userId": "ZKOt93",
 }
 `;
 
@@ -19,9 +20,9 @@ Object {
 
 exports[`Testing snapshot for actions-usermotion destination: identify action - all fields 1`] = `
 Object {
+  "anonymousId": "L[L@D",
   "id": "L[L@D",
   "properties": Object {
-    "anonymousId": "L[L@D",
     "email": "duz@raomopiw.to",
     "testType": "L[L@D",
   },
@@ -40,7 +41,9 @@ Object {
 exports[`Testing snapshot for actions-usermotion destination: track action - all fields 1`] = `
 Object {
   "anonymousId": "ZIYyudisV2#71gd",
-  "email": "gen@el.ci",
+  "context": Object {
+    "testType": "ZIYyudisV2#71gd",
+  },
   "event": "ZIYyudisV2#71gd",
   "properties": Object {
     "testType": "ZIYyudisV2#71gd",
@@ -51,8 +54,8 @@ Object {
 
 exports[`Testing snapshot for actions-usermotion destination: track action - required fields 1`] = `
 Object {
+  "context": Object {},
   "event": "ZIYyudisV2#71gd",
   "properties": Object {},
-  "userId": "ZIYyudisV2#71gd",
 }
 `;

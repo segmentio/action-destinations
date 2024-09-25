@@ -2,23 +2,27 @@ import nock from 'nock'
 import { createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination, { FACEBOOK_API_VERSION } from '../index'
 
-const adAccountId = 1500000000000000
+const adAccountId = '1500000000000000'
 const audienceId = '1506489116128966'
 const testDestination = createTestIntegration(Destination)
 const getAudienceUrl = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/`
 const createAudienceUrl = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/act_${adAccountId}`
 
 const createAudienceInput = {
-  settings: {},
+  settings: {
+    retlAdAccountId: '123'
+  },
   audienceName: '',
   audienceSettings: {
-    adAccountId: adAccountId,
+    engageAdAccountId: adAccountId,
     audienceDescription: 'We are the Mario Brothers and plumbing is our game.'
   }
 }
 const getAudienceInput = {
   externalId: audienceId,
-  settings: {}
+  settings: {
+    retlAdAccountId: '123'
+  }
 }
 
 describe('Facebook Custom Audiences', () => {
@@ -29,7 +33,7 @@ describe('Facebook Custom Audiences', () => {
 
     it('should fail if no ad account ID is set', async () => {
       createAudienceInput.audienceName = 'The Void'
-      createAudienceInput.audienceSettings.adAccountId = 0
+      createAudienceInput.audienceSettings.engageAdAccountId = ''
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
     })
 
@@ -37,7 +41,7 @@ describe('Facebook Custom Audiences', () => {
       nock(createAudienceUrl).post('/customaudiences').reply(200, { id: '88888888888888888' })
 
       createAudienceInput.audienceName = 'The Super Mario Brothers Fans'
-      createAudienceInput.audienceSettings.adAccountId = adAccountId
+      createAudienceInput.audienceSettings.engageAdAccountId = adAccountId
 
       const r = await testDestination.createAudience(createAudienceInput)
       expect(r).toEqual({ externalId: '88888888888888888' })

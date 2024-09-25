@@ -1,5 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Testing snapshot for actions-amazon-ads destination: syncAudiences action - all fields 1`] = `Object {}`;
-
-exports[`Testing snapshot for actions-amazon-ads destination: syncAudiences action - required fields 1`] = `Object {}`;

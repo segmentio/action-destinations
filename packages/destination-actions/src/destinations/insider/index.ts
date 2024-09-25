@@ -48,7 +48,11 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest: ({ settings }) => {
     return {
-      headers: { 'X-PARTNER-NAME': settings.account_name, 'X-REQUEST-TOKEN': settings.ucd_key }
+      headers: {
+        'X-PLATFORM-NAME': 'segment',
+        'X-PARTNER-NAME': settings.account_name,
+        'X-REQUEST-TOKEN': settings.ucd_key
+      }
     }
   },
 

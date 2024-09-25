@@ -344,6 +344,7 @@ export const eventProperties: Record<string, InputField> = {
     label: 'Event context',
     description: 'An object of key-value pairs that provides useful context about the event.',
     type: 'object',
+    unsafe_hidden: true,
     default: {
       '@path': '$.context'
     }

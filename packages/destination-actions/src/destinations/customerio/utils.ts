@@ -115,14 +115,20 @@ type BasePayload = {
   person_id?: string
   primary?: Identifiers
   secondary?: Identifiers
+  timestamp?: string | number
 }
 
 export const buildPayload = <Payload extends BasePayload>({ action, type, payload }: RequestPayload<Payload>) => {
-  const { convert_timestamp, person_id, anonymous_id, email, object_id, object_type_id, ...data } = payload
+  const { convert_timestamp, person_id, anonymous_id, email, object_id, object_type_id, timestamp, ...data } = payload
   let rest = data
 
   if ('convert_timestamp' in payload && convert_timestamp !== false) {
     rest = convertAttributeTimestamps(rest)
+  }
+
+  // Customer.io only accepts timestamps in unix format so it must always be converted regardless of the `convert_timestamp` setting.
+  if ('timestamp' in payload && timestamp) {
+    rest = { ...rest, timestamp: convertValidTimestamp(timestamp) }
   }
 
   const body: {

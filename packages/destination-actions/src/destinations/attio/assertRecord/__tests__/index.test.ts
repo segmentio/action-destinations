@@ -13,7 +13,8 @@ const event = createTestEvent({
   traits: {
     name: 'Stair car',
     number_of_wheels: 4
-  }
+  },
+  receivedAt: '2024-05-24T10:00:00.000Z'
 })
 
 const mapping = {
@@ -26,6 +27,9 @@ const mapping = {
     number_of_wheels: {
       '@path': '$.traits.number_of_wheels'
     }
+  },
+  received_at: {
+    '@path': '$.receivedAt'
   }
 }
 
@@ -108,5 +112,59 @@ describe('Attio.assertRecord', () => {
         }
       })
     })
+  })
+
+  it('uses the batch assertion endpoint', async () => {
+    nock('https://api.attio.com')
+      .put('/v2/batch/records', {
+        assertions: [
+          {
+            object: 'vehicles',
+            mode: 'create-or-update',
+            matching_attribute: 'name',
+            multiselect_values: 'append',
+            values: {
+              name: 'Stair car',
+              number_of_wheels: 4
+            },
+            received_at: '2024-05-24T10:00:00.000Z'
+          }
+        ]
+      })
+      .reply(202, '')
+
+    const [response] = await testDestination.testBatchAction('assertRecord', {
+      events: [event],
+      mapping,
+      settings: {}
+    })
+
+    expect(response.status).toBe(202)
+  })
+
+  it('handles the case where receivedAt is not provided', async () => {
+    const lackingReceivedAtEvent = createTestEvent({
+      type: 'track' as const,
+      traits: {
+        name: 'Stair car',
+        number_of_wheels: 4
+      },
+      receivedAt: undefined
+    })
+
+    // Can't control the exact timestamp, so only check it starts on the same year-month-day and is ISO8601 formatted
+    const datePrefix = new Date().toISOString().split('T')[0]
+
+    nock('https://api.attio.com')
+      .put('/v2/batch/records', new RegExp(`"received_at":"${datePrefix}T`))
+      .reply(202, '')
+
+    const [response] = await testDestination.testBatchAction('assertRecord', {
+      events: [lackingReceivedAtEvent],
+      mapping,
+      settings: {}
+    })
+
+    expect(response.status).toBe(202)
   })
 })

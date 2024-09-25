@@ -131,4 +131,33 @@ describe('flatten', () => {
       '0.a.1.d.0.e': 2
     })
   })
+
+  it('does not flatten arrays when omitArrays is passed', () => {
+    const obj = {
+      a: {
+        b: {
+          c: [
+            {
+              d: [
+                {
+                  e: 1
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+    expect(flattenObject(obj, undefined, '.', true)).toEqual({
+      'a.b.c': [
+        {
+          d: [
+            {
+              e: 1
+            }
+          ]
+        }
+      ]
+    })
+  })
 })

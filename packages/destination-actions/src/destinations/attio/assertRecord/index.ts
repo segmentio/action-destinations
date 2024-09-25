@@ -2,7 +2,8 @@ import type { ActionDefinition, DynamicFieldResponse, RequestClient } from '@seg
 import type { InputField } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { AttioClient } from '../api'
+import { AttioClient, SimpleValue } from '../api'
+import { commonFields } from '../common-fields'
 
 const object: InputField = {
   type: 'string',
@@ -68,7 +69,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     object,
     matching_attribute,
-    attributes
+    attributes,
+    ...commonFields
   },
 
   dynamicFields: {
@@ -82,6 +84,21 @@ const action: ActionDefinition<Settings, Payload> = {
       object: payload.object,
       matching_attribute: payload.matching_attribute,
       values: payload.attributes ?? {}
+    })
+  },
+
+  performBatch: async (request, { payload }) => {
+    const client = new AttioClient(request)
+
+    return await client.batchAssert({
+      assertions: payload.map((item) => ({
+        object: item.object,
+        mode: 'create-or-update',
+        matching_attribute: item.matching_attribute,
+        multiselect_values: 'append',
+        values: (item.attributes as Record<string, SimpleValue>) ?? {},
+        received_at: item.received_at?.toString() ?? new Date().toISOString()
+      }))
     })
   }
 }

@@ -1,6 +1,6 @@
 import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import Salesforce from '../sf-operations'
+import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 import {
   bulkUpsertExternalId,
   bulkUpdateRecordId,
@@ -10,7 +10,8 @@ import {
   validateLookup,
   enable_batching,
   recordMatcherOperator,
-  batch_size
+  batch_size,
+  hideIfDeleteOperation
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -31,32 +32,37 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Close Date',
       description:
         'Date when the opportunity is expected to close. Use yyyy-MM-dd format. **This is required to create an opportunity.**',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     name: {
       label: 'Name',
       description: 'A name for the opportunity. **This is required to create an opportunity.**',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     stage_name: {
       label: 'Stage Name',
       description: 'Current stage of the opportunity. **This is required to create an opportunity.**',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     amount: {
       label: 'Amount',
       description: 'Estimated total sale amount.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     description: {
       label: 'Description',
       description: 'A text description of the opportunity.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     customFields: customFields
   },
   perform: async (request, { settings, payload }) => {
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (payload.operation === 'create') {
       if (!payload.close_date || !payload.name || !payload.stage_name) {
@@ -83,7 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   performBatch: async (request, { settings, payload }) => {
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (payload[0].operation === 'upsert') {
       if (!payload[0].close_date || !payload[0].name || !payload[0].stage_name) {

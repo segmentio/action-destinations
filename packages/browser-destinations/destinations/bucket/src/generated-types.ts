@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your Bucket App tracking key, found on the tracking page.
+   * The publishable key for your Bucket environment, found on the tracking page on app.bucket.co.
    */
   trackingKey: string
 }

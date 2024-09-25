@@ -3,6 +3,7 @@ import type { InputField } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { AttioClient } from '../api'
+import { commonFields } from '../common-fields'
 
 const email_address: InputField = {
   type: 'string',
@@ -60,7 +61,8 @@ const action: ActionDefinition<Settings, Payload> = {
     email_address,
     user_id,
     user_attributes,
-    person_attributes
+    person_attributes,
+    ...commonFields
   },
 
   perform: async (request, { payload }) => {
@@ -84,6 +86,37 @@ const action: ActionDefinition<Settings, Payload> = {
         user_id: payload.user_id,
         ...(payload.user_attributes ?? {})
       }
+    })
+  },
+
+  performBatch: async (request, { payload }) => {
+    const client = new AttioClient(request)
+
+    return await client.batchAssert({
+      assertions: payload.map((item) => ({
+        object: 'users',
+        mode: 'create-or-update',
+        matching_attribute: 'user_id',
+        multiselect_values: 'append',
+        values: {
+          primary_email_address: item.email_address,
+          user_id: item.user_id,
+          ...(item.user_attributes ?? {}),
+
+          person: {
+            object: 'people',
+            mode: 'create-or-update',
+            matching_attribute: 'email_addresses',
+            multiselect_values: 'append',
+            values: {
+              email_addresses: item.email_address,
+              ...(item.person_attributes ?? {})
+            },
+            received_at: item.received_at?.toString() ?? new Date().toISOString()
+          }
+        },
+        received_at: item.received_at?.toString() ?? new Date().toISOString()
+      }))
     })
   }
 }

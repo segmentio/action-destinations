@@ -12,7 +12,7 @@ import {
   recordMatcherOperator,
   batch_size
 } from '../sf-properties'
-import Salesforce from '../sf-operations'
+import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 import { PayloadValidationError } from '@segment/actions-core'
 const OPERATIONS_WITH_CUSTOM_FIELDS = ['create', 'update', 'upsert']
 
@@ -39,7 +39,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     customObjectName: async (request, data) => {
-      const sf: Salesforce = new Salesforce(data.settings.instanceUrl, request)
+      const sf: Salesforce = new Salesforce(
+        data.settings.instanceUrl,
+        await generateSalesforceRequest(data.settings, request)
+      )
 
       return sf.customObjectName()
     }
@@ -49,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Custom fields are required for this operation.')
     }
 
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (payload.operation === 'create') {
       return await sf.createRecord(payload, payload.customObjectName)
@@ -74,7 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Custom fields are required for this operation.')
     }
 
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     return sf.bulkHandler(payload, payload[0].customObjectName)
   }
