@@ -1,4 +1,6 @@
-export interface OptimizelyPayload {
+import { TRACK, PAGE } from './constants'
+
+export interface SendEventJSON {
   account_id: string
   anonymize_ip: boolean
   client_name: 'Segment Optimizely Web Destination'
@@ -69,4 +71,4 @@ export type CreatePageJSON = (
 ) & CreatePageBase
 
 
-export type Type = 'track' | 'page'  
+export type Type = typeof TRACK | typeof PAGE  

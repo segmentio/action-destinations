@@ -1,38 +1,25 @@
 import { StateContext, RequestClient } from '@segment/actions-core'
 import { Settings } from '../generated-types'
-import { EventItem, CreateEventJSON, CreatePageJSON, OptimizelyPayload, Type } from './types'
+import { EventItem, CreateEventJSON, CreatePageJSON, SendEventJSON, Type } from './types'
 import { PayloadValidationError } from '@segment/actions-core/*'
 
 export class OptimizelyWebClient {
   request: RequestClient
   settings: Settings
   projectID: string
-  stateContext?: StateContext | undefined
+  stateContext?: StateContext
 
-  constructor(request: RequestClient, settings: Settings, projectID: string, stateContext: StateContext | undefined) {
+  constructor(request: RequestClient, settings: Settings, projectID: string, stateContext?: StateContext) {
     this.request = request, 
     this.stateContext = stateContext,
     this.projectID = projectID,
     this.settings = settings
   }
 
-  async getCustomEvents() {
+  async getCustomEvents(type: Type) {
+    const url = type === 'track' ? `https://api.optimizely.com/v2/events?per_page=100&include_classic=false&project_id=${this.projectID}` : `https://api.optimizely.com/v2/pages?per_page=100&project_id=${this.projectID}`
     return await this.request<EventItem[]>(
-      `https://api.optimizely.com/v2/events?per_page=100&page=1&include_classic=false&project_id=${this.projectID}`,
-      {
-        method: 'GET',
-        headers: {
-          'content-type': 'application/json',
-          accept: 'application/json',
-          authorization: `Bearer ${this.settings.optimizelyApiKey}`
-        }
-      }
-    )
-  }
-
-  async getPageEvents() {
-    return await this.request<EventItem[]>(
-      `https://api.optimizely.com/v2/pages?per_page=100&project_id=${this.projectID}`,
+      url,
       {
         method: 'GET',
         headers: {
@@ -75,7 +62,7 @@ export class OptimizelyWebClient {
     )
   }
 
-  async sendEvent(body: OptimizelyPayload) {
+  async sendEvent(body: SendEventJSON) {
     return this.request('https://logx.optimizely.com/v1/events', {
       method: 'POST',
       json: body,

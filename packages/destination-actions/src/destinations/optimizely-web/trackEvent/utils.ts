@@ -1,8 +1,62 @@
 import type { Payload } from './generated-types'
-import { StateContext, IntegrationError, PayloadValidationError, omit } from '@segment/actions-core'
-import { UnixTimestamp13, EventItem, Type } from './types'
-import { LOCAL_TESTING, SUPPORTED_TYPES, TRACK } from './constants'
+import { Settings } from '../generated-types'
+import { StateContext, IntegrationError, PayloadValidationError, omit, RequestClient } from '@segment/actions-core'
+import { Event, UnixTimestamp13, EventItem, Type, SendEventJSON } from './types'
+import { LOCAL_TESTING, SUPPORTED_TYPES, PAGE } from './constants'
 import { OptimizelyWebClient } from './client'
+
+export async function send(request: RequestClient, settings: Settings, payload: Payload, stateContext?: StateContext) {
+  const { unixTimestamp13, opt_event_properties, value, revenue, quantity, currency, restTags } = validate(payload, stateContext)
+
+  const {
+    endUserId,
+    projectID,
+    uuid,
+    eventMatching: { eventId, eventName, eventKey },
+    eventType,
+  } = payload
+
+  const client = new OptimizelyWebClient(request, settings, projectID, stateContext)
+
+  const entity_id = eventId ?? await getEventid(client, payload)
+  
+  const body: SendEventJSON = {
+    account_id: settings.optimizelyAccountId,
+    anonymize_ip: payload.anonymizeIP,
+    client_name: 'Segment Optimizely Web Destination',
+    client_version: '1.0.0',
+    enrich_decisions: true,
+    visitors: [
+      {
+        visitor_id: endUserId,
+        attributes: [],
+        snapshots: [
+          {
+            decisions: [],
+            events: [
+              {
+                entity_id,
+                key: (eventKey ?? eventName) as string,
+                timestamp: unixTimestamp13,
+                uuid,
+                type: eventType === PAGE ? 'view_activated' : 'other',
+                tags: {
+                  revenue: revenue ? revenue * 100 : undefined,
+                  value,
+                  quantity,
+                  currency,
+                  $opt_event_properties: opt_event_properties as Event['tags']['$opt_event_properties'],
+                  ...restTags
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  return await client.sendEvent(body)
+}
 
 export function validate(payload: Payload, stateContext?: StateContext) {
   const {
@@ -89,7 +143,7 @@ export async function getEventid(client: OptimizelyWebClient, payload: Payload):
 
   if (typeof event === undefined) {
     if(createEventIfNotFound === 'CREATE'){
-      event = await ensureEvent(client, idType, idValue, category, eventType as Type, pageUrl)
+      event = await ensureEventSchema(client, idType, idValue, category, eventType as Type, pageUrl)
     } else {
       throw new PayloadValidationError(`Event with ${idType} = ${idValue} not found in Optimizely. "Create If Not Found" field set to "Do not create" which prevents Segment from creating the event.`)
     }
@@ -121,14 +175,24 @@ export function getEventsFromCache(client: OptimizelyWebClient): EventItem[] {
   return (client.stateContext?.getRequestContext?.('events') as EventItem[]) ?? []
 }
 
+export async function ensureEventSchema(client: OptimizelyWebClient, idType: string, idValue: string, category: string, type: Type, pageUrl?: string): Promise<EventItem>{
+  
+  let event =  await (async () => {
+    const response = await client.getCustomEvents(type)
+    const eventItems: EventItem[] = await response.json()
+    return eventItems.find((event: EventItem) => {
+      return (idType==='key' && event.key === idValue) || (idType==='name' && event.name === idValue)
+    })
+  })()
 
-
-
-export async function ensureEvent(client: OptimizelyWebClient, idType: string, idValue: string, category: string, type: Type, pageUrl?: string): Promise<EventItem>{
-  let event =  await getEventFromOptimzely(client, idType, idValue, 'track')
   if (typeof event === undefined) {
-    event = await createCustomEvent(client, idType, idValue, category)
-    await updateCache(client, event)
+    event = await (async() => {
+      const response = await client.createCustomEvent(idType, idValue, category, type, pageUrl)
+      const event = await response.json()
+      return event
+    })()
+
+    await updateCache(client, event as EventItem)
   }
   if (!event) {
     throw new IntegrationError(
@@ -138,39 +202,6 @@ export async function ensureEvent(client: OptimizelyWebClient, idType: string, i
     )
   }
   return event 
-}
-
-export async function ensurePage(client: OptimizelyWebClient, idType: string, idValue: string, category: string, pageUrl?: string): Promise<EventItem>{
-  let event =  await getPageEventFromOptimzely(client, idType, idValue)
-  if (typeof event === undefined) {
-    if(!pageUrl) {
-      throw new PayloadValidationError(`Page URL is required for Segment to create a page event in Optimizely`)
-    }
-    event = await createPageEvent(client, idType, idValue, category, pageUrl)
-    await updateCache(client, event)
-  }
-  if (!event) {
-    throw new IntegrationError(
-      `Enable to create page with page ${idType} = ${idValue} in Optimizely`,
-      'EVENT_CREATION_ERROR',
-      400
-    )
-  }
-  return event
-}
-
-export async function getEventFromOptimzely(client: OptimizelyWebClient, idType: string, idValue: string, type: Type): Promise<EventItem | undefined> {
-  const response = type === 'track' ? await client.getCustomEvents() : await client.getPageEvents()
-  const eventItems: EventItem[] = await response.json()
-  return eventItems.find((event: EventItem) => {
-    return (idType==='key' && event.key === idValue) || (idType==='name' && event.name === idValue)
-  })
-}
-
-export async function createCustomEvent(client: OptimizelyWebClient, idType: string, idValue: string, category: string): Promise<EventItem | undefined> {
-  const response = await client.createCustomEvent(idType, idValue, category, 'track')
-  const event = await response.json()
-  return event ?? undefined
 }
 
 export async function updateCache(client: OptimizelyWebClient, event: EventItem) {
