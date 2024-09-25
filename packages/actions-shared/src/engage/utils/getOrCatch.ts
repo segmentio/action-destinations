@@ -2,7 +2,7 @@ export type ValueOrError<T> = { value?: T; error?: any } //& ({ value: T } | { e
 
 export function getOrCatch<T>(getValue: () => Promise<T>): Promise<ValueOrError<T>>
 export function getOrCatch<T>(getValue: () => T): ValueOrError<T>
-export function getOrCatch(getValue: () => any): Promise<ValueOrError<any>> | ValueOrError<any> {
+export function getOrCatch(getValue: () => unknown): Promise<ValueOrError<unknown>> | ValueOrError<unknown> {
   try {
     const value = getValue()
 
