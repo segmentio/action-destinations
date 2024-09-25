@@ -6,20 +6,23 @@ import { LOCAL_TESTING, SUPPORTED_TYPES, PAGE } from './constants'
 import { OptimizelyWebClient } from './client'
 
 export async function send(request: RequestClient, settings: Settings, payload: Payload, stateContext?: StateContext) {
-  const { unixTimestamp13, opt_event_properties, value, revenue, quantity, currency, restTags } = validate(payload, stateContext)
+  const { unixTimestamp13, opt_event_properties, value, revenue, quantity, currency, restTags } = validate(
+    payload,
+    stateContext
+  )
 
   const {
     endUserId,
     projectID,
     uuid,
     eventMatching: { eventId, eventName, eventKey },
-    eventType,
+    eventType
   } = payload
 
   const client = new OptimizelyWebClient(request, settings, projectID, stateContext)
 
-  const entity_id = eventId ?? await getEventid(client, payload)
-  
+  const entity_id = eventId ?? (await getEventid(client, payload))
+
   const body: SendEventJSON = {
     account_id: settings.optimizelyAccountId,
     anonymize_ip: payload.anonymizeIP,
@@ -64,10 +67,10 @@ export function validate(payload: Payload, stateContext?: StateContext) {
     eventType,
     tags: { value, revenue, quantity, currency, ...restTags } = {},
     timestamp,
-    properties,
+    properties
   } = payload
 
-  if(!eventName && !eventKey && !eventId){
+  if (!eventName && !eventKey && !eventId) {
     throw new PayloadValidationError('One of eventName, eventKey or eventId is required')
   }
 
@@ -75,13 +78,15 @@ export function validate(payload: Payload, stateContext?: StateContext) {
     throw new IntegrationError('stateContext is not available', 'MISSING_STATE_CONTEXT', 400)
   }
 
-  if(!SUPPORTED_TYPES.includes(eventType)){
-    throw new PayloadValidationError(`Event type ${eventType} is not supported. Supported types are ${SUPPORTED_TYPES.join(', ')}`)
+  if (!SUPPORTED_TYPES.includes(eventType)) {
+    throw new PayloadValidationError(
+      `Event type ${eventType} is not supported. Supported types are ${SUPPORTED_TYPES.join(', ')}`
+    )
   }
 
   const unixTimestamp13: UnixTimestamp13 = new Date(timestamp as string).getTime() as UnixTimestamp13
 
-  if (!isUnixTimestamp13(unixTimestamp13)) {
+  if (unixTimestamp13.toString().length !== 13) {
     throw new PayloadValidationError('Unable to convert timestamp into 13 digit Unix timestamp')
   }
 
@@ -94,7 +99,7 @@ export function validate(payload: Payload, stateContext?: StateContext) {
   if (!areAllPropertiesPrimitive(restTags as Record<string, unknown>, ['string', 'number'])) {
     throw new PayloadValidationError('Tags must be of type string or number')
   }
-  
+
   return {
     unixTimestamp13,
     opt_event_properties,
@@ -106,18 +111,6 @@ export function validate(payload: Payload, stateContext?: StateContext) {
   }
 }
 
-export function isUnixTimestamp13(value: number): value is UnixTimestamp13 {
-  return value.toString().length === 13
-}
-
-export function isPrimitive(
-  value: unknown,
-  typesToCheck: Array<'string' | 'boolean' | 'number'> = ['string', 'boolean', 'number']
-): boolean {
-  const type = typeof value
-  return typesToCheck.includes(type as 'string' | 'boolean' | 'number')
-}
-
 export function areAllPropertiesPrimitive(
   obj: Record<string, unknown> | undefined,
   typesToCheck: Array<'string' | 'boolean' | 'number'> = ['string', 'boolean', 'number']
@@ -125,11 +118,13 @@ export function areAllPropertiesPrimitive(
   if (obj === undefined || Object.keys(obj).length === 0) {
     return true
   }
-  return Object.values(obj).every((value) => isPrimitive(value, typesToCheck))
+  return Object.values(obj).every((value) => {
+    const type = typeof value
+    return typesToCheck.includes(type as 'string' | 'boolean' | 'number')
+  })
 }
 
 export async function getEventid(client: OptimizelyWebClient, payload: Payload): Promise<string> {
-
   const {
     category,
     eventMatching: { createEventIfNotFound, eventName, eventKey },
@@ -142,32 +137,38 @@ export async function getEventid(client: OptimizelyWebClient, payload: Payload):
   let event = getEventFromCache(client, idType, idValue)
 
   if (typeof event === undefined) {
-    if(createEventIfNotFound === 'CREATE'){
+    if (createEventIfNotFound === 'CREATE') {
       event = await ensureEventSchema(client, idType, idValue, category, eventType as Type, pageUrl)
     } else {
-      throw new PayloadValidationError(`Event with ${idType} = ${idValue} not found in Optimizely. "Create If Not Found" field set to "Do not create" which prevents Segment from creating the event.`)
+      throw new PayloadValidationError(
+        `Event with ${idType} = ${idValue} not found in Optimizely. "Create If Not Found" field set to "Do not create" which prevents Segment from creating the event.`
+      )
     }
-  } 
+  }
 
-  if(!event) {
+  if (!event) {
     throw new PayloadValidationError(`Error attempting to find event with ${idType} = ${idValue} in Optimizely`)
   }
 
   return event.id.toString()
 }
 
-export function getIdentifier(eventKey?: string, eventName?: string): {idType: string, idValue: string} {
-  if(!eventKey && !eventName) {
-    throw new IntegrationError(`Event Key or Event Name is required if eventId not provided`, 'EVENT_IDENTIFIER_REQUIRED', 400)
+export function getIdentifier(eventKey?: string, eventName?: string): { idType: string; idValue: string } {
+  if (!eventKey && !eventName) {
+    throw new IntegrationError(
+      `Event Key or Event Name is required if eventId not provided`,
+      'EVENT_IDENTIFIER_REQUIRED',
+      400
+    )
   }
   const idType = eventKey ? 'key' : 'name'
-  const idValue = eventKey ?? eventName as string
+  const idValue = eventKey ?? (eventName as string)
   return { idType, idValue }
 }
 
 export function getEventFromCache(client: OptimizelyWebClient, type: string, value: string): EventItem | undefined {
-  return getEventsFromCache(client).find((event: EventItem) => {      
-    return (type==='key' && event.key === value) || (type==='name' && event.name === value)
+  return getEventsFromCache(client).find((event: EventItem) => {
+    return (type === 'key' && event.key === value) || (type === 'name' && event.name === value)
   })
 }
 
@@ -175,18 +176,24 @@ export function getEventsFromCache(client: OptimizelyWebClient): EventItem[] {
   return (client.stateContext?.getRequestContext?.('events') as EventItem[]) ?? []
 }
 
-export async function ensureEventSchema(client: OptimizelyWebClient, idType: string, idValue: string, category: string, type: Type, pageUrl?: string): Promise<EventItem>{
-  
-  let event =  await (async () => {
+export async function ensureEventSchema(
+  client: OptimizelyWebClient,
+  idType: string,
+  idValue: string,
+  category: string,
+  type: Type,
+  pageUrl?: string
+): Promise<EventItem> {
+  let event = await (async () => {
     const response = await client.getCustomEvents(type)
     const eventItems: EventItem[] = await response.json()
     return eventItems.find((event: EventItem) => {
-      return (idType==='key' && event.key === idValue) || (idType==='name' && event.name === idValue)
+      return (idType === 'key' && event.key === idValue) || (idType === 'name' && event.name === idValue)
     })
   })()
 
   if (typeof event === undefined) {
-    event = await (async() => {
+    event = await (async () => {
       const response = await client.createCustomEvent(idType, idValue, category, type, pageUrl)
       const event = await response.json()
       return event
@@ -201,7 +208,7 @@ export async function ensureEventSchema(client: OptimizelyWebClient, idType: str
       400
     )
   }
-  return event 
+  return event
 }
 
 export async function updateCache(client: OptimizelyWebClient, event: EventItem) {
