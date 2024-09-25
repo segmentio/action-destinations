@@ -207,8 +207,6 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       this.currentOperation?.func.name ||
       ''
 
-    const stepLogger: StepLogger = args as any
-
     const appendStepDetails = (stepname: string, details?: Partial<LogStepDetails>) => {
       tags['step_' + stepname] = true
       if (details?.tags) {
@@ -241,9 +239,8 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         this.statsHistogram(`${operation}_${stepName}.duration`, durationMs, tags)
       }
     }
-    stepLogger.write = write
 
-    stepLogger.track = (stepName, fn) => {
+    const track: StepLogger['track'] = (stepName, fn) => {
       const startStep = `${stepName}_starting`
       write(startStep)
       const stepDetails: LogStepDetails = { logs: {}, tags: {} }
@@ -298,7 +295,12 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       this.currentOperation?.tags.push(...tagsArray)
     })
 
-    return stepLogger
+    return {
+      logs,
+      tags,
+      track,
+      write
+    }
   }
 
   /**
