@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 import syncToS3 from './syncToS3'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'AWS S3',
+  name: 'AWS S3 (Actions)',
   slug: 'actions-s3',
   mode: 'cloud',
   description: 'Sync Segment event data to AWS S3.',

@@ -170,17 +170,17 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     type: 'boolean',
     label: 'Enable Batching',
     description: 'Enable Batching Hidden Field',
-    unsafe_hidden: true,
+    unsafe_hidden: false,
     required: true,
     default: true
   },
   batch_size: {
     label: 'Batch Size',
-    description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+    description:
+      'Maximum number of events to include in each batch. Actual batch sizes may be lower. Max batch size is 25000.',
     type: 'number',
-    unsafe_hidden: true,
     required: false,
-    default: 25000
+    default: 5000
   },
   s3_aws_folder_name: {
     label: 'AWS Subfolder Name',
