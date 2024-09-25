@@ -457,7 +457,7 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
   @track()
   async withDistributedLock<T>(key: string, createValue: () => Promise<T>, options: LockOptions): Promise<T> {
     const cache_group = options.cacheGroup || this.currentOperation?.parent?.func.name || ''
-    const log = this.createStepLogger({
+    const step = this.createStepLogger({
       logs: {
         key
       },
@@ -476,23 +476,23 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       //tries to acquire lock for acquireLockMaxWaitInSeconds seconds
       const startTime = Date.now()
       while (Date.now() - startTime < options.acquireLockMaxWaitTimeMs) {
-        log.write('cache_lock_attempt')
-        if (await log.track('redis_setNX', () => cache.setByKeyNX(lockKey, 'locked', options.lockMaxTimeMs / 1000))) {
+        step.write('cache_lock_attempt')
+        if (await step.track('redis_setNX', () => cache.setByKeyNX(lockKey, 'locked', options.lockMaxTimeMs / 1000))) {
           // lock acquired, returning release function
-          log.write('cache_lock_acquired', { tags: { lock_acquired: true } })
-          this.statsHistogram('cache_lock_waiting_time', Date.now() - startTime, log.tags)
+          step.write('cache_lock_acquired', { tags: { lock_acquired: true } })
+          this.statsHistogram('cache_lock_waiting_time', Date.now() - startTime, step.tags)
           return {
-            release: () => log.track('redis_delByKey', () => cache.delByKey(lockKey))
+            release: () => step.track('redis_delByKey', () => cache.delByKey(lockKey))
           }
         }
-        log.write('cache_lock_waiting')
+        step.write('cache_lock_waiting')
         await new Promise((resolve) => setTimeout(resolve, options.acquireLockRetryIntervalMs || 500)) // Wait 500ms before retrying
       }
       //no lock acquired because of waiting timeout
-      log.write('cache_lock_timeout')
+      step.write('cache_lock_timeout')
     }
 
-    const { value: lock, error: redisError } = await log.track('cache_acquire_lock', () =>
+    const { value: lock, error: redisError } = await step.track('cache_acquire_lock', () =>
       getOrCatch(() => acquireLock())
     )
 
@@ -500,17 +500,17 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       this.throwRetryableError('Error acquiring lock: ' + redisError.message)
     } else if (!lock?.release) {
       // no redis error and no lock acquired - means it was acquiring timeout
-      log.write('cache_lock_timeout_exit')
+      step.write('cache_lock_timeout_exit')
       this.throwRetryableError('Timeout while acquiring lock')
     }
     //if lock obtained or there was redis error - execute createValue and finally release lock
     else {
-      const { value: createdValue, error: createValueError } = await log.track('cache_lock_create', () =>
+      const { value: createdValue, error: createValueError } = await step.track('cache_lock_create', () =>
         getOrCatch(() => createValue())
       )
 
       //release the lock
-      await log.track('cache_lock_release', () => getOrCatch(() => lock.release()))
+      await step.track('cache_lock_release', () => getOrCatch(() => lock.release()))
       if (createValueError) throw createValueError
       return createdValue as T
     }
