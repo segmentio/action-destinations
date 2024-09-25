@@ -18,7 +18,8 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       inputFields: {
         adAccountId: {
           label: 'Ad Account',
-          description: 'The ad account to use for the conversion event.',
+          description:
+            'The ad account to use when creating the conversion event. (When updating a conversion rule, changes to this field will be ignored. Ad Account IDs cannot be updated for a conversion rule.)',
           type: 'string',
           required: true,
           dynamic: async (request) => {

@@ -63,7 +63,7 @@ export interface HookBundle {
   onMappingSave: {
     inputs?: {
       /**
-       * The ad account to use for the conversion event.
+       * The ad account to use when creating the conversion event. (When updating a conversion rule, changes to this field will be ignored. Ad Account IDs cannot be updated for a conversion rule.)
        */
       adAccountId: string
       /**
