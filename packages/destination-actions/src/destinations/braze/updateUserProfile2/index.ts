@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { updateUserProfile, updateBatchedUserProfile } from '../utils'
+import { updateUserProfile, updateBatchedUserProfile, generateMultiStatusError } from '../utils'
 import { IntegrationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -281,13 +281,6 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits'
       }
     },
-    _update_existing_only: {
-      label: 'Update Existing Only',
-      description:
-        'Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.',
-      type: 'boolean',
-      default: false
-    },
     enable_batching: {
       type: 'boolean',
       label: 'Batch Data to Braze',
@@ -314,7 +307,9 @@ const action: ActionDefinition<Settings, Payload> = {
     if (syncMode === 'update') {
       return updateBatchedUserProfile(request, settings, payload, syncMode)
     }
-    throw new IntegrationError(`Sync mode ${syncMode} is not supported`, 'Invalid syncMode', 400)
+
+    // Return a multi-status error if the syncMode is invalid
+    return generateMultiStatusError(payload.length, 'Invalid syncMode, must be set to "add" or "update"')
   }
 }
 
