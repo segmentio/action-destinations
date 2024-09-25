@@ -1,5 +1,3 @@
-export const LOCAL_TESTING = true
-
 export const PAGE = 'page'
 
 export const TRACK = 'track'

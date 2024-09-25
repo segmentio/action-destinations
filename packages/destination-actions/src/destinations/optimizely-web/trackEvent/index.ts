@@ -9,8 +9,8 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send a Segment track or page event to Optimizely',
   defaultSubscription: 'type = "track" or type = "page"',
   fields,
-  perform: async (request, { payload, settings, stateContext }) => {
-    return await send(request, settings, payload, stateContext)
+  perform: async (request, { payload, settings }) => {
+    return await send(request, settings, payload)
   }
 }
 

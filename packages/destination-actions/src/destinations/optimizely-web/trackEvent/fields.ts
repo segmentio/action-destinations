@@ -1,6 +1,13 @@
 import { InputField } from '@segment/actions-core'
 
 export const fields: Record<string, InputField> = {
+  uuid: {
+    label: 'UUID',
+    description: 'Unique message UUID to send with the event',
+    type: 'string',
+    required: true,
+    default: { '@path': '$.messageId' }
+  },
   endUserId: {
     label: 'Optimizely End User ID',
     description:
@@ -17,8 +24,8 @@ export const fields: Record<string, InputField> = {
   },
   projectID: {
     label: 'Optimizely Project ID',
-    description: 'The unique identifier for the project.',
-    type: 'string',
+    description: 'The unique numeric identifier for the project.',
+    type: 'number',
     required: true,
     default: {
       '@if': {
@@ -33,7 +40,8 @@ export const fields: Record<string, InputField> = {
     description: 'Anonymize the IP address of the user.',
     type: 'boolean',
     required: true,
-    default: true
+    default: true,
+    disabledInputMethods: ['enrichment', 'freeform', 'function', 'literal', 'variable']
   },
   eventMatching: {
     label: 'Event Matching',
@@ -51,12 +59,11 @@ export const fields: Record<string, InputField> = {
           { label: 'Create Custom Event', value: 'CREATE' }
         ]
       },
-      eventName: {
-        label: 'Event Name',
-        description: "Optimizely event or page name to record the event against.",
-        type: 'string',
-        required: false,
-        default: { '@path': '$.event' }
+      shouldSnakeCaseEventKey: {
+        label: 'Should Snake Case Event Key',
+        description: 'If the event key should be converted to snake case before sending to Optimizely.',
+        type: 'boolean',
+        required: true
       },
       eventKey: {
         label: 'Event Key',
@@ -70,15 +77,31 @@ export const fields: Record<string, InputField> = {
         description: 'Optimizely event or page ID to record the event against. The ID can only be used when the event / page has already been created in Optimizely. Segment cannot create new events in Optimizely using the ID.',
         type: 'string',
         required: false
-      },
+      }
     },
     default: {
-      createEventIfNotFound: 'CREATE'
+      createEventIfNotFound: 'CREATE',
+      shouldSnakeCaseEventKey: false,
+      eventName: {
+        '@if': {
+          exists: { '@path': '$.event' },
+          then: { '@path': '$.event' },
+          else: { '@path': '$.name' }
+        }
+      },
+      eventKey: {
+        '@if': {
+          exists: { '@path': '$.event' },
+          then: { '@path': '$.event' },
+          else: { '@path': '$.name' }
+        }
+      },
+      eventId: { '@path': '$.properties.event_id' }
     }
   },
   pageUrl: {
     label: 'Page URL',
-    description: 'The URL of the page where the event occurred.',
+    description: 'The URL of the page where the event occurred. Used if Segment creates a Page in Optimizely.',
     type: 'string',
     required: false,
     default: { '@path': '$.context.page.url' }
@@ -108,13 +131,6 @@ export const fields: Record<string, InputField> = {
     required: true,
     default: { '@path': '$.timestamp' }
   },
-  uuid: {
-    label: 'UUID',
-    description: 'Unique message UUID to send with the event',
-    type: 'string',
-    required: true,
-    default: { '@path': '$.messageId' }
-  },
   eventType: {
     label: 'Event Type',
     description: 'The type of Segment event',
@@ -129,22 +145,31 @@ export const fields: Record<string, InputField> = {
     type: 'object',
     required: false,
     additionalProperties: true,
+    defaultObjectUI: 'keyvalue'
+  },
+  properties: {
+    label: 'Properties',
+    description: 'Additional properties to send with the event.',
+    type: 'object',
+    required: false,
+    additionalProperties: true,
+    defaultObjectUI: 'keyvalue',
     properties: {
       revenue: {
         label: 'Revenue',
-        description: 'The currency amount associated with the event. For example for $20.05 USD send 20.05',
+        description: 'The revenue amount associated with this event For example, to represent $23.42, this field would be set to 23.42.',
         type: 'number',
         required: false
       },
       value: {
         label: 'Value',
-        description: 'Value associated with the event.',
+        description: 'A scalar value associated with an event. This should be some non-revenue number.',
         type: 'number',
         required: false
       },
       quantity: {
         label: 'Quantity',
-        description: 'The quantity of items associated with the event.',
+        description: 'An aggregatable "count" associated with this event; for example, a number of video views or items in a shopping cart.',
         type: 'integer',
         required: false
       },
@@ -171,11 +196,17 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
-  properties: {
-    label: 'Properties',
-    description: 'Additional properties to send with the event.',
-    type: 'object',
+  sessionId: {
+    label: 'Session ID',
+    description: 'A unique identifier that identifies the session context, if any, for these events. If omitted, the Optimizely backend will calculate session-based results by inferring sessions by opening a session when an event is first received from a given visitor_id, and closing the session after 30 minutes with no events received for that visitor, with a maximum session size of 24 hours.',
+    type: 'string',
     required: false,
-    default: { '@path': '$.properties' }
+    default: {
+      '@if': {
+        exists: { '@path': '$.integrations.actions-optimizely-web.session_id' },
+        then: { '@path': '$.integrations.actions-optimizely-web.session_id' },
+        else: { '@path': '$.properties.session_id' }
+      }
+    }
   }
 }

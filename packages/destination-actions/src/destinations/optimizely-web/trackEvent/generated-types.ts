@@ -2,13 +2,17 @@
 
 export interface Payload {
   /**
+   * Unique message UUID to send with the event
+   */
+  uuid: string
+  /**
    * The unique identifier for the user. The value should be taken from the optimizelyEndUserId cookie, or it can be collected using window.optimizely.get('visitor').visitorId. If using the BYOID feature pass in the value of the ID for your user.
    */
   endUserId: string
   /**
-   * The unique identifier for the project.
+   * The unique numeric identifier for the project.
    */
-  projectID: string
+  projectID: number
   /**
    * Anonymize the IP address of the user.
    */
@@ -22,9 +26,9 @@ export interface Payload {
      */
     createEventIfNotFound: string
     /**
-     * Optimizely event or page name to record the event against.
+     * If the event key should be converted to snake case before sending to Optimizely.
      */
-    eventName?: string
+    shouldSnakeCaseEventKey: boolean
     /**
      * Optimizely event or page key to record the event against.
      */
@@ -35,7 +39,7 @@ export interface Payload {
     eventId?: string
   }
   /**
-   * The URL of the page where the event occurred.
+   * The URL of the page where the event occurred. Used if Segment creates a Page in Optimizely.
    */
   pageUrl?: string
   /**
@@ -47,10 +51,6 @@ export interface Payload {
    */
   timestamp: string | number
   /**
-   * Unique message UUID to send with the event
-   */
-  uuid: string
-  /**
    * The type of Segment event
    */
   eventType: string
@@ -58,16 +58,22 @@ export interface Payload {
    * Tags to send with the event
    */
   tags?: {
+    [k: string]: unknown
+  }
+  /**
+   * Additional properties to send with the event.
+   */
+  properties?: {
     /**
-     * The currency amount associated with the event. For example for $20.05 USD send 20.05
+     * The revenue amount associated with this event For example, to represent $23.42, this field would be set to 23.42.
      */
     revenue?: number
     /**
-     * Value associated with the event.
+     * A scalar value associated with an event. This should be some non-revenue number.
      */
     value?: number
     /**
-     * The quantity of items associated with the event.
+     * An aggregatable "count" associated with this event; for example, a number of video views or items in a shopping cart.
      */
     quantity?: number
     /**
@@ -77,9 +83,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Additional properties to send with the event.
+   * A unique identifier that identifies the session context, if any, for these events. If omitted, the Optimizely backend will calculate session-based results by inferring sessions by opening a session when an event is first received from a given visitor_id, and closing the session after 30 minutes with no events received for that visitor, with a maximum session size of 24 hours.
    */
-  properties?: {
-    [k: string]: unknown
-  }
+  sessionId?: string
 }

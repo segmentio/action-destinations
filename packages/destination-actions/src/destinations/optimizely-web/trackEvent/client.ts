@@ -1,23 +1,21 @@
-import { StateContext, RequestClient } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { EventItem, CreateEventJSON, CreatePageJSON, SendEventJSON, Type } from './types'
-import { PayloadValidationError } from '@segment/actions-core/*'
+import { TRACK, PAGE } from './constants'
 
 export class OptimizelyWebClient {
   request: RequestClient
   settings: Settings
-  projectID: string
-  stateContext?: StateContext
+  projectID: number
 
-  constructor(request: RequestClient, settings: Settings, projectID: string, stateContext?: StateContext) {
+  constructor(request: RequestClient, settings: Settings, projectID: number) {
     this.request = request, 
-    this.stateContext = stateContext,
     this.projectID = projectID,
     this.settings = settings
   }
 
   async getCustomEvents(type: Type) {
-    const url = type === 'track' ? `https://api.optimizely.com/v2/events?per_page=100&include_classic=false&project_id=${this.projectID}` : `https://api.optimizely.com/v2/pages?per_page=100&project_id=${this.projectID}`
+    const url = type === TRACK ? `https://api.optimizely.com/v2/events?per_page=100&include_classic=false&project_id=${this.projectID}` : `https://api.optimizely.com/v2/pages?per_page=100&project_id=${this.projectID}`
     return await this.request<EventItem[]>(
       url,
       {
@@ -31,22 +29,23 @@ export class OptimizelyWebClient {
     )
   }
 
-  async createCustomEvent(idType: string, idValue: string, category: string, type: Type, edit_url?: string) {
+  async createCustomEvent(key: string, name: string, category: string, type: Type, edit_url?: string) {
+
+    const url = type === TRACK ? `https://api.optimizely.com/v2/projects/${this.projectID}/custom_events` : `https://api.optimizely.com/v2/pages`
     
-    const url = type === 'track' ? `https://api.optimizely.com/v2/projects/${this.projectID}/custom_events` : `https://api.optimizely.com/v2/pages`
-    
-    if(!edit_url && type === 'page') {
+    if(!edit_url && type === PAGE) {
       throw new PayloadValidationError(`Page URL is required for Segment to create a page event in Optimizely`)
     } 
 
     const json = {
-      key: idType==='key' ? idValue : undefined,
-      name: idType==='name' ? idValue : undefined,
+      key,
+      name: name,
       category,
       event_type: 'custom', 
-      edit_url: type==='page' && edit_url ? edit_url : undefined,
-      project_id: type==='page' ? this.projectID : undefined 
+      edit_url: type===PAGE && edit_url ? edit_url : undefined,
+      project_id: type===PAGE ? this.projectID : undefined 
     }
+    console.log("creating = " + JSON.stringify(json))
 
     return await this.request<EventItem>(
       url,
@@ -72,7 +71,6 @@ export class OptimizelyWebClient {
       }
     })
   }
-
 }
 
 

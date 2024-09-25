@@ -2,6 +2,7 @@ import { TRACK, PAGE } from './constants'
 
 export interface SendEventJSON {
   account_id: string
+  project_id?: number
   anonymize_ip: boolean
   client_name: 'Segment Optimizely Web Destination'
   client_version: string
@@ -11,6 +12,7 @@ export interface SendEventJSON {
 
 export interface Visitor {
   visitor_id: string
+  session_id?: string
   attributes: [] // should be empty array
   snapshots: Array<Snapshot>
 }
@@ -22,7 +24,7 @@ export interface Snapshot {
 
 export interface Event {
   entity_id: string
-  key: string
+  key?: string
   timestamp: UnixTimestamp13
   uuid: string
   type: EventType
@@ -48,27 +50,16 @@ export interface EventItem {
   name: string
 }
 
-export interface CreateEventBase {
+export interface CreateEventJSON {
   category: string
   event_type: string
+  key: string 
+  name?: string
 }
 
-export type CreateEventJSON = ( 
-  | { key: string; name?: never }
-  | { name: string; key?: never }
-) & CreateEventBase
-
-export interface CreatePageBase {
+export interface CreatePageJSON extends CreateEventJSON{
   edit_url: string
-  project_id: string
-  category: string
-  event_type: string
-}
-
-export type CreatePageJSON = ( 
-  | { key: string; name?: never }
-  | { name: string; key?: never }
-) & CreatePageBase
-
+  project_id: number
+} 
 
 export type Type = typeof TRACK | typeof PAGE  
