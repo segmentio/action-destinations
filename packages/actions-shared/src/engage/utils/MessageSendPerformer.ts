@@ -64,6 +64,7 @@ export interface MessagePayloadBase {
   traits?: {
     [k: string]: unknown
   }
+  segmentComputationId?: string
 }
 
 export interface MessageSettingsBase {
@@ -284,7 +285,7 @@ export abstract class MessageSendPerformer<
 
   getCommonTags() {
     const settings = this.settings
-    const payload = this.payload // as Record<string, any>
+    const payload = this.payload
     const res = [
       `space_id:${settings.spaceId}`,
       `projectid:${settings.sourceId}`,
@@ -294,7 +295,7 @@ export abstract class MessageSendPerformer<
     const correlation_id = this.getCorrelationId()
     if (correlation_id) res.push(`correlation_id:${correlation_id}`)
 
-    const computation_id = (payload as any).segmentComputationId
+    const computation_id = payload.segmentComputationId
     if (computation_id) res.push(`computation_id:${computation_id}`)
 
     return res
