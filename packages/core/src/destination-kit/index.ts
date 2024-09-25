@@ -731,6 +731,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         }
 
         if (isBatch) {
+          // Add datadog stats for events that are discarded by Actions
+          options?.statsContext?.statsClient?.incr(
+            'action.multistatus_discard',
+            (events as SegmentEvent[]).length,
+            options.statsContext?.tags
+          )
+
           return [
             {
               multistatus: Array((events as SegmentEvent[]).length).fill(response)
@@ -752,6 +759,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         }
 
         if (isBatch) {
+          // Add datadog stats for events that are discarded by Actions
+          options?.statsContext?.statsClient?.incr(
+            'action.multistatus_discard',
+            (events as SegmentEvent[]).length,
+            options.statsContext?.tags
+          )
+
           return [
             {
               multistatus: Array((events as SegmentEvent[]).length).fill(response)
@@ -782,6 +796,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
           }
 
           invalidPayloadIndices.add(i)
+
+          // Add datadog stats for events that are discarded by Actions
+          options?.statsContext?.statsClient?.incr('action.multistatus_discard', 1, options.statsContext?.tags)
           continue
         }
 
