@@ -220,7 +220,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   features?: Features | undefined
   statsContext?: StatsContext | undefined
   logger?: Logger | undefined
-  engageDestinationCache?: EngageDestinationCache | undefined
+  engageDestinationCache?: EngageDestinationCache
   transactionContext?: TransactionContext
   stateContext?: StateContext
   subscriptionMetadata?: SubscriptionMetadata
