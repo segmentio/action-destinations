@@ -1,4 +1,3 @@
-import AbortController from 'abort-controller'
 import { CustomError } from 'ts-custom-error'
 import fetch, { Headers, Request, Response } from './fetch'
 import { isObject } from './real-type-of'
