@@ -43,7 +43,10 @@ interface InputData<Settings> {
    */
   useDefaultMappings?: boolean
   auth?: AuthTokens
-  /** Engage internal use only. DO NOT USE. */
+  /**
+   * The features available in the request based on the customer's sourceID;
+   * `features`, `stats`, `logger`, `engageDestinationCache`, `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
+   */
   features?: Features
   /** Engage internal use only. DO NOT USE. */
   statsContext?: StatsContext
@@ -75,9 +78,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
     return await super.executeDynamicField(action, fieldKey, data, dynamicFn)
   }
 
-  /**
-   * Testing method that runs an action e2e while allowing slightly more flexible inputs
-   */
+  /** Testing method that runs an action e2e while allowing slightly more flexible inputs */
   async testAction(
     action: string,
     {
