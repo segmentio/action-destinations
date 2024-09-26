@@ -1,12 +1,12 @@
 import { IntegrationError } from '@segment/actions-core'
-import { Payload } from './generated-types'
+import { Payload } from '../generated-types'
 import {
   HSPropFieldType,
   HSPropType,
   HSPropTypeFieldType,
   Prop,
   Schema,
-} from './types'
+} from '../types'
 
 export function objectSchema(payloads: Payload[], objectType: string): Schema {
     const extractProperties = (propertyType: 'properties' | 'sensitive_properties'): Prop[] => {

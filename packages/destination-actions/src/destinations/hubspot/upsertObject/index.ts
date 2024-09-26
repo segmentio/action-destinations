@@ -4,23 +4,13 @@ import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
 import { Client } from './client'
 import { AssociationSyncMode, SyncMode, SchemaMatch } from './types'
-import {
-  dynamicReadAssociationLabels,
-  dynamicReadIdFields,
-  dynamicReadObjectTypes,
-  dynamicReadPropertyGroups,
-  dynamicReadProperties
-} from './dynamic-fields'
-import {
-  compareToCache,
-  compareToHubspot,
-  createProperties,
-  saveSchemaToCache,
-} from './utils'
-import { validate } from './validation-functions'
-import { objectSchema } from './schema-functions'
-import { sendFromRecords } from './send-from-record-functions'
-import { sendAssociatedRecords, createAssociationPayloads, sendAssociations} from './association-functions'
+import { dynamicReadAssociationLabels, dynamicReadIdFields, dynamicReadObjectTypes, dynamicReadPropertyGroups, dynamicReadProperties } from './functions/dynamic-field-functions'
+import { compareToCache, saveSchemaToCache,} from './functions/cache-functions'
+import { validate } from './functions/validation-functions'
+import { objectSchema } from './functions/schema-functions'
+import { sendFromRecords } from './functions/hubspot-record-functions'
+import { sendAssociatedRecords, createAssociationPayloads, sendAssociations} from './functions/hubspot-association-functions'
+import { compareToHubspot, createProperties} from './functions/hubspot-properties-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object V2',

@@ -1,6 +1,6 @@
 import { ModifiedResponse } from '@segment/actions-core'
-import { Payload } from './generated-types'
-import { Client } from './client'
+import { Payload } from '../generated-types'
+import { Client } from '../client'
 import {
   ObjReqType,
   CreateReq,
@@ -10,7 +10,7 @@ import {
   BatchObjResp,
   SyncMode,
   UpsertReq
-} from './types'
+} from '../types'
 
 export async function sendFromRecords(
         client: Client,

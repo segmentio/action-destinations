@@ -1,6 +1,6 @@
 import { ModifiedResponse } from '@segment/actions-core'
-import { MAX_HUBSPOT_BATCH_SIZE } from './constants'
-import { Client } from './client'
+import { MAX_HUBSPOT_BATCH_SIZE } from '../constants'
+import { Client } from '../client'
 import {
   AssociationPayload,
   AssociationPayloadWithId,
@@ -9,7 +9,7 @@ import {
   GroupableFields,
   PayloadWithFromId,
   BatchObjResp,
-} from './types'
+} from '../types'
 
 export function createAssociationPayloads(payloads: PayloadWithFromId[]): AssociationPayload[][] {
     const associationPayloads: AssociationPayload[] = payloads.flatMap((payload) =>

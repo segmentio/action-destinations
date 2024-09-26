@@ -3,20 +3,18 @@ import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
 import { Client } from './client'
 import { ActionDefinition, RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
-import { dynamicReadEventNames, dynamicReadObjectTypes, dynamicReadProperties } from './dynamic-fields'
+import { dynamicReadEventNames, dynamicReadObjectTypes, dynamicReadProperties } from './functions/dynamic-field-functions'
 import { SyncMode, SchemaMatch, CachableSchema } from './types'
 import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import {
-  compareSchemas,
   getSchemaFromHubspot,
   createHubspotEventSchema,
-  saveSchemaToCache,
   updateHubspotSchema,
-  getSchemaFromCache
-} from './utils'
-import { sendEvent } from './event-completion'
-import { validate } from './validation-functions'
-import { eventSchema } from './schema-functions'
+} from './functions/hubspot-event-schema-functions'
+import { sendEvent } from './functions/event-completion-functions'
+import { validate } from './functions/validation-functions'
+import { eventSchema } from './functions/schema-functions'
+import { compareSchemas, saveSchemaToCache, getSchemaFromCache} from './functions/cache-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event V2',

@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent, IntegrationError } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
-import { cache } from '../utils'
+import { cache } from '../functions/hubspot-event-schema-functions'
 
 let testDestination = createTestIntegration(Definition)
 const subscriptionMetadata = {

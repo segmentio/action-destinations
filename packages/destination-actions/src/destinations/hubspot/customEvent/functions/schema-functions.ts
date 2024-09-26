@@ -1,10 +1,10 @@
-import type { Payload } from './generated-types'
+import type { Payload } from '../generated-types'
 import {
   SegmentProperty,
   SegmentPropertyType,
   StringFormat,
   Schema
-} from './types'
+} from '../types'
 
 export function eventSchema(payload: Payload): Schema {
     const { event_name, properties } = payload

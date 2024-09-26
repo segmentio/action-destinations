@@ -1,7 +1,7 @@
 import { RequestClient } from '@segment/actions-core'
-import { HubSpotError } from '../errors'
-import { HUBSPOT_BASE_URL } from '../properties'
-import { SUPPORTED_HUBSPOT_OBJECT_TYPES, DEFAULT_CUSTOM_EVENT_PROPERTIES } from './constants'
+import { HubSpotError } from '../../errors'
+import { HUBSPOT_BASE_URL } from '../../properties'
+import { SUPPORTED_HUBSPOT_OBJECT_TYPES, DEFAULT_CUSTOM_EVENT_PROPERTIES } from '../constants'
 import { cleanEventName } from './validation-functions'
 import { DynamicFieldResponse } from '@segment/actions-core'
 

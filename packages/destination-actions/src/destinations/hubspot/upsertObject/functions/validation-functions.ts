@@ -1,41 +1,40 @@
-import { Payload } from './generated-types'
 import { PayloadValidationError } from '@segment/actions-core'
+import { Payload } from '../generated-types'
 
-export function validate(payload: Payload): Payload {
-  if (payload.record_details.object_type !== 'contact' && typeof payload.record_details.object_id !== 'number') {
-    throw new PayloadValidationError('object_id is required and must be numeric')
-  }
+export function validate(payloads: Payload[]): Payload[] {
+  const length = payloads.length
 
-  if (
-    payload.record_details.object_type === 'contact' &&
-    typeof payload.record_details.object_id !== 'number' &&
-    !payload.record_details.email &&
-    !payload.record_details.utk
-  ) {
+  const cleaned: Payload[] = payloads.filter((payload) => {
+    const fieldsToCheck = [
+      payload.object_details.id_field_name,
+      payload.object_details.id_field_value,
+      payload.object_details.object_type
+    ]
+    return fieldsToCheck.every((field) => field !== null && field !== '')
+  })
+
+  if (length === 1 && cleaned.length === 0) {
     throw new PayloadValidationError(
-      'Contact requires at least one of object_id (as number), email or utk to be provided'
+      'Payload is missing required fields. Null or empty values are not allowed for "Object Type", "ID Field Name" or "ID Field Value".'
     )
   }
 
-  cleanIdentifiers(payload)
-  payload.event_name = cleanEventName(payload.event_name)
-  payload.properties = cleanPropObj(payload.properties ?? {})
+  cleaned.forEach((payload) => {
+    payload.properties = cleanPropObj(payload.properties)
+    payload.sensitive_properties = cleanPropObj(payload.sensitive_properties)
 
-  return payload
-}
+    payload.associations = payload.associations?.filter((association) => {
+      const fieldsToCheck = [
+        association.id_field_name,
+        association.object_type,
+        association.id_field_value,
+        association.association_label
+      ]
+      return fieldsToCheck.every((field) => field !== null && field !== '')
+    })
+  })
 
-function cleanIdentifiers(payload: Payload) {
-  if (payload.record_details.email && payload.record_details.object_type !== 'contact') {
-    delete payload.record_details.email
-  }
-
-  if (payload.record_details.utk && payload.record_details.object_type !== 'contact') {
-    delete payload.record_details.utk
-  }
-}
-
-export function cleanEventName(str: string): string {
-  return str.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+  return cleaned
 }
 
 function cleanPropObj(
@@ -67,6 +66,7 @@ function cleanPropObj(
       cleanObj[cleanKey] = String(value)
     }
   })
+
   return cleanObj
 }
 
@@ -78,6 +78,5 @@ function cleanProp(str: string): string {
       `Property ${str} in event has an invalid name. Property names must start with a letter.`
     )
   }
-
   return str
 }
