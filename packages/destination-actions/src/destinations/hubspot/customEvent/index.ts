@@ -16,7 +16,7 @@ import {
   getSchemaFromCache
 } from './utils'
 import { sendEvent } from './event-completion'
-import { validate } from './validation'
+import { validate } from './validation-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event V2',

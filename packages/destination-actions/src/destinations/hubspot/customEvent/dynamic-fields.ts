@@ -2,7 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
 import { SUPPORTED_HUBSPOT_OBJECT_TYPES, DEFAULT_CUSTOM_EVENT_PROPERTIES } from './constants'
-import { cleanEventName } from './validation'
+import { cleanEventName } from './validation-utils'
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 export async function dynamicReadEventNames(request: RequestClient): Promise<DynamicFieldResponse> {
