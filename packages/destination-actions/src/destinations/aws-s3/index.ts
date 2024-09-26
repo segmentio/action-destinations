@@ -79,9 +79,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(_, createAudienceInput) {
-      const audienceSettings = createAudienceInput.audienceSettings
-      // @ts-ignore type is not defined, and we will define it later
-      const personas = audienceSettings.personas as PersonasSettings
+      const personas = createAudienceInput.personas as PersonasSettings
       if (!personas) {
         throw new IntegrationError('Missing computation parameters: Id and Key', 'MISSING_REQUIRED_FIELD', 400)
       }

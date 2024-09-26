@@ -2,43 +2,43 @@
 
 export interface Payload {
   /**
-   * The user's first name.
+   * The user's first name. If not hashed, Segment will normalize and hash this value.
    */
   first_name?: string
   /**
-   * The user's last name.
+   * The user's last name. If not hashed, Segment will normalize and hash this value.
    */
   last_name?: string
   /**
-   * The user's email address.
+   * The user's email address. If not hashed, Segment will normalize and hash this value.
    */
   email?: string
   /**
-   * The user's phone number.
+   * The user's phone number. If not hashed, Segment will convert the phone number to the E.164 format and hash this value.
    */
   phone?: string
   /**
-   * The user's country code.
+   * 2-letter country code in ISO-3166-1 alpha-2 of the user's address
    */
   country_code?: string
   /**
-   * The user's postal code.
+   * Postal code of the user's address.
    */
   postal_code?: string
   /**
-   * Advertiser-assigned user ID for Customer Match upload.
+   * Advertiser-assigned user ID for Customer Match upload. Required if external ID type is CRM ID.
    */
   crm_id?: string
   /**
-   * Mobile device ID (advertising ID/IDFA).
+   * Mobile device ID (advertising ID/IDFA). Required if external ID type is mobile advertising ID.
    */
   mobile_advertising_id?: string
   /**
-   * This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).
+   * This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).
    */
   ad_user_data_consent_state: string
   /**
-   * This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).
+   * This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).
    */
   ad_personalization_consent_state: string
   /**
@@ -56,7 +56,7 @@ export interface Payload {
   /**
    * The name of the current Segment event.
    */
-  event_name: string
+  event_name?: string
 }
 // Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
 

@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core'
+import { DEPENDS_ON_OBJECT_TYPE_CONTACT } from './constants'
 
 export const commonFields: Record<string, InputField> = {
   event_name: {
@@ -21,13 +22,15 @@ export const commonFields: Record<string, InputField> = {
         description: 'The type of Hubspot Object to associate the event with.',
         type: 'string',
         required: true,
-        dynamic: true
+        dynamic: true,
+        allowNull: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
       object_id: {
         label: 'Object ID',
         description:
-          'The Object ID of the object to associate the event with. For example a contact id or a visitor id value. Works for Contacts, Companies, Deals, Tickets and Custom Objects.',
-        type: 'string',
+          'The numeric Object ID of the object to associate the event with. For example a contact id or a visitor id value. Works for Contacts, Companies, Deals, Tickets and Custom Objects.',
+        type: 'number',
         required: false
       },
       email: {
@@ -43,13 +46,15 @@ export const commonFields: Record<string, InputField> = {
             then: { '@path': '$.properties.email' },
             else: { '@path': '$.context.traits.email' }
           }
-        }
+        },
+        depends_on: DEPENDS_ON_OBJECT_TYPE_CONTACT
       },
       utk: {
         label: 'User Token / UTK',
         description: 'The user token of the Contact to associate the event with.',
         type: 'string',
-        required: false
+        required: false,
+        depends_on: DEPENDS_ON_OBJECT_TYPE_CONTACT
       }
     }
   },

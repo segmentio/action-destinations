@@ -1,11 +1,11 @@
 import { RequestClient } from '@segment/actions-core'
 import { HubSpotError } from '../errors'
 import { HUBSPOT_BASE_URL } from '../properties'
-import { SUPPORTED_HUBSPOT_OBJECT_TYPES } from './constants'
-
+import { SUPPORTED_HUBSPOT_OBJECT_TYPES, DEFAULT_CUSTOM_EVENT_PROPERTIES } from './constants'
+import { cleanEventName } from './validation'
 import { DynamicFieldResponse } from '@segment/actions-core'
 
-export async function dynamicReadEventNames(request: RequestClient) {
+export async function dynamicReadEventNames(request: RequestClient): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: {
       singular: string | null
@@ -42,11 +42,13 @@ export async function dynamicReadEventNames(request: RequestClient) {
         .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))
     }
   } catch (err) {
+    const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
+
     return {
       choices: [],
       error: {
         message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadEventNames',
-        code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+        code: code
       }
     }
   }
@@ -76,21 +78,24 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
       value: schema.name
     }))
     return {
-      choices: [...choices, ...defaultChoices]
-      .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()))
+      choices: [...choices, ...defaultChoices].sort((a, b) =>
+        a.label.toLowerCase().localeCompare(b.label.toLowerCase())
+      )
     }
   } catch (err) {
+    const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
+
     return {
       choices: [],
       error: {
         message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadObjectTypes',
-        code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+        code: code
       }
     }
   }
 }
 
-export async function dynamicReadProperties(request: RequestClient, eventName: string) {
+export async function dynamicReadProperties(request: RequestClient, eventName: string): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: {
       singular: string | null
@@ -98,6 +103,7 @@ export async function dynamicReadProperties(request: RequestClient, eventName: s
     }
     archived: boolean
     fullyQualifiedName: string
+    name: string
     properties: Array<{
       archived: boolean
       label: string
@@ -123,10 +129,15 @@ export async function dynamicReadProperties(request: RequestClient, eventName: s
       }
     )
 
+    const cleanedEventName = cleanEventName(eventName)
+
     return {
-      choices: [
-        ...response.data.results
-          .filter((event: ResultItem) => event.fullyQualifiedName === eventName && !event.archived)
+      choices: (() => {
+        const choices = response.data.results
+          .filter(
+            (event: ResultItem) =>
+              (event.fullyQualifiedName === cleanedEventName || event.name === cleanedEventName) && !event.archived
+          )
           .map((event: ResultItem) => {
             if (!event.properties || event.properties.length === 0) {
               return {
@@ -145,14 +156,22 @@ export async function dynamicReadProperties(request: RequestClient, eventName: s
               })
           })
           .flat()
-      ]
+
+        if (choices.length === 0) {
+          return DEFAULT_CUSTOM_EVENT_PROPERTIES
+        }
+
+        return choices
+      })()
     }
   } catch (err) {
+    const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
+
     return {
       choices: [],
       error: {
         message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error: dynamicReadProperties',
-        code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+        code: code
       }
     }
   }

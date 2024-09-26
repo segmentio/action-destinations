@@ -27,7 +27,7 @@ import { sha256SmartHash } from '@segment/actions-core'
 import { RefreshTokenResponse } from '.'
 
 export const API_VERSION = 'v15'
-export const CANARY_API_VERSION = 'v15'
+export const CANARY_API_VERSION = 'v17'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 
 export class GoogleAdsError extends HTTPError {
@@ -95,6 +95,26 @@ export async function getCustomVariables(
       }
     }
   )
+}
+
+export function memoizedGetCustomVariables() {
+  const cache: Map<string, Promise<ModifiedResponse<QueryResponse[]>>> = new Map()
+
+  return async (
+    customerId: string,
+    auth: any,
+    request: RequestClient,
+    features: Features | undefined,
+    statsContext: StatsContext | undefined
+  ) => {
+    if (cache.has(customerId)) {
+      return cache.get(customerId)
+    } else {
+      const result = getCustomVariables(customerId, auth, request, features, statsContext)
+      cache.set(customerId, result)
+      return result
+    }
+  }
 }
 
 export async function getConversionActionId(
@@ -577,4 +597,13 @@ export const handleUpdate = async (
   statsContext?.statsClient?.incr('success.offlineUpdateAudience', 1, statsContext?.tags)
 
   return executedJob
+}
+
+/* Enforcing this here since Customer ID is required for the Google Ads API
+  but not for the Enhanced Conversions API. */
+export const verifyCustomerId = (customerId: string | undefined) => {
+  if (!customerId) {
+    throw new PayloadValidationError('Customer ID is required.')
+  }
+  return customerId.replace(/-/g, '')
 }
