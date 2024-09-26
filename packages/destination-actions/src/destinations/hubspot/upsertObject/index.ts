@@ -1,10 +1,9 @@
 import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { HubspotClient, AssociationSyncMode, SyncMode } from './hubspot-api'
 import { commonFields } from './common-fields'
-import { SchemaMatch } from './hubspot-api'
-
+import { Client } from './client'
+import { AssociationSyncMode, SyncMode, SchemaMatch } from './types'
 import {
   dynamicReadAssociationLabels,
   dynamicReadIdFields,
@@ -12,9 +11,21 @@ import {
   dynamicReadPropertyGroups,
   dynamicReadProperties
 } from './dynamic-fields'
+import {
+  sendAssociatedRecords,
+  compareToCache,
+  compareToHubspot,
+  createAssociationPayloads,
+  createProperties,
+  objectSchema,
+  saveSchemaToCache,
+  sendAssociations,
+  sendFromRecords,
+  validate
+} from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Custom Object',
+  title: 'Custom Object V2',
   description:
     'Add, create or update records of any Object type to HubSpot, and optionally assocate that record with other records of any Object type.',
   syncMode: {
@@ -39,7 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'From Object Type' first")
+          throw new Error("Select a value from the 'Object Type' field")
         }
 
         return await dynamicReadIdFields(request, fromObjectType)
@@ -48,7 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'From Object Type' first")
+          throw new Error("Select a value from the 'Object Type' field")
         }
 
         return await dynamicReadPropertyGroups(request, fromObjectType)
@@ -59,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'From Object Type' first")
+          throw new Error("Select a value from the 'Object Type' field")
         }
 
         return await dynamicReadProperties(request, fromObjectType, false)
@@ -70,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const fromObjectType = payload?.object_details?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'From Object Type' first")
+          throw new Error("Select a value from the 'Object Type' field")
         }
 
         return await dynamicReadProperties(request, fromObjectType, true)
@@ -91,11 +102,11 @@ const action: ActionDefinition<Settings, Payload> = {
         const toObjectType = payload?.associations?.[selectedIndex]?.object_type
 
         if (!fromObjectType) {
-          throw new Error("Select from 'From Object Type' first")
+          throw new Error("Select a value from the from 'Object Type' field")
         }
 
         if (!toObjectType) {
-          throw new Error("Select from 'To Object Type' first")
+          throw new Error("Select a value from the 'To Object Type' field")
         }
 
         return await dynamicReadAssociationLabels(request, fromObjectType, toObjectType)
@@ -110,7 +121,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const toObjectType = payload?.associations?.[selectedIndex]?.object_type
 
         if (!toObjectType) {
-          throw new Error("Select from 'To Object Type' first")
+          throw new Error("Select a value from the 'To Object Type' field")
         }
 
         return await dynamicReadIdFields(request, toObjectType)
@@ -118,10 +129,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, syncMode }) => {
-    await send(request, [payload], syncMode as SyncMode)
+    return await send(request, [payload], syncMode as SyncMode)
   },
   performBatch: async (request, { payload, syncMode }) => {
-    await send(request, payload, syncMode as SyncMode)
+    return await send(request, payload, syncMode as SyncMode)
   }
 }
 
@@ -131,38 +142,39 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
     association_sync_mode: assocationSyncMode
   } = payloads[0]
 
-  const client = new HubspotClient(
-    request,
-    objectType,
-    syncMode,
-    assocationSyncMode as AssociationSyncMode,
-    propertyGroup
-  )
+  const client = new Client(request, objectType)
 
-  const cleanedPayloads = client.validate(payloads)
-  const schema = client.schema(cleanedPayloads)
-  const schemaDiffCache = await client.schemaDiffCache(schema)
+  const validPayloads = validate(payloads)
 
-  switch (schemaDiffCache.match) {
+  const schema = objectSchema(validPayloads, objectType)
+
+  const cacheSchemaDiff = await compareToCache(schema)
+
+  switch (cacheSchemaDiff.match) {
     case SchemaMatch.FullMatch: {
-      const fromRecordPayloads = await client.sendFromRecords(cleanedPayloads)
-      const associationPayloads = client.createAssociationPayloads(fromRecordPayloads)
-      const associatedRecords = await client.sendAssociatedRecords(associationPayloads)
-      await client.sendAssociations(associatedRecords)
+      const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
+      const associationPayloads = createAssociationPayloads(fromRecordPayloads)
+      const associatedRecords = await sendAssociatedRecords(
+        client,
+        associationPayloads,
+        assocationSyncMode as AssociationSyncMode
+      )
+      await sendAssociations(client, associatedRecords)
       return
     }
+
     case SchemaMatch.PropertiesMissing:
     case SchemaMatch.NoMatch: {
-      const schemaDiffHubspot = await client.schemaDiffHubspot(schema)
+      const hubspotSchemaDiff = await compareToHubspot(client, schema)
 
-      switch (schemaDiffHubspot.match) {
+      switch (hubspotSchemaDiff.match) {
         case SchemaMatch.FullMatch: {
-          await client.saveSchemaToCache(schema)
+          await saveSchemaToCache(schema)
           break
         }
         case SchemaMatch.PropertiesMissing: {
-          await client.createProperties(schemaDiffHubspot)
-          await client.saveSchemaToCache(schema)
+          await createProperties(client, hubspotSchemaDiff, propertyGroup)
+          await saveSchemaToCache(schema)
           break
         }
         case SchemaMatch.NoMatch: {
@@ -170,10 +182,15 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
         }
       }
 
-      const fromRecordPayloads = await client.sendFromRecords(cleanedPayloads)
-      const associationPayloads = client.createAssociationPayloads(fromRecordPayloads)
-      const associatedRecords = await client.sendAssociatedRecords(associationPayloads)
-      await client.sendAssociations(associatedRecords)
+      const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
+      const associationPayloads = createAssociationPayloads(fromRecordPayloads)
+      const associatedRecords = await sendAssociatedRecords(
+        client,
+        associationPayloads,
+        assocationSyncMode as AssociationSyncMode
+      )
+      await sendAssociations(client, associatedRecords)
+      return
     }
   }
 }

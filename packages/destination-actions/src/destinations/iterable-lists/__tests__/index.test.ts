@@ -25,16 +25,17 @@ describe('Iterable Lists', () => {
         apiKey: '12345'
       }
 
-      const audienceSettings = {
-        personas: {
-          computation_key: 'test'
-        }
-      }
+      const audienceSettings = {}
 
       const createAudienceInput = {
         settings,
         audienceSettings,
-        audienceName: 'Test Audience'
+        audienceName: 'Test Audience',
+        personas: {
+          computation_key: 'test',
+          computation_id: '12342352452562',
+          namespace: 'spa_12312414212412'
+        }
       }
 
       await expect(testDestination.createAudience(createAudienceInput)).resolves.not.toThrowError()
