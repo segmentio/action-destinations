@@ -71,6 +71,7 @@ export class IterableListsClient {
       subcribeRequests.push(
         this.request(`${CONSTANTS.API_BASE_URL}/lists/subscribe`, {
           method: 'post',
+          skipResponseCloning: true,
           json: {
             listId: Number(listId),
             subscribers,
@@ -84,6 +85,7 @@ export class IterableListsClient {
       unSubcribeRequests.push(
         this.request(`${CONSTANTS.API_BASE_URL}/lists/unsubscribe`, {
           method: 'post',
+          skipResponseCloning: true,
           json: {
             listId: Number(listId),
             subscribers,
