@@ -17,12 +17,12 @@ import {
   compareToHubspot,
   createAssociationPayloads,
   createProperties,
-  objectSchema,
   saveSchemaToCache,
   sendAssociations,
   sendFromRecords
 } from './utils'
-import { validate } from './validation-utils'
+import { validate } from './validation-functions'
+import { objectSchema } from './schema-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object V2',

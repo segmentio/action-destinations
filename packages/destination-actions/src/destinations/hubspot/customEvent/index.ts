@@ -10,13 +10,13 @@ import {
   compareSchemas,
   getSchemaFromHubspot,
   createHubspotEventSchema,
-  eventSchema,
   saveSchemaToCache,
   updateHubspotSchema,
   getSchemaFromCache
 } from './utils'
 import { sendEvent } from './event-completion'
-import { validate } from './validation-utils'
+import { validate } from './validation-functions'
+import { eventSchema } from './schema-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event V2',
