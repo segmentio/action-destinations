@@ -376,175 +376,177 @@ beforeEach((done) => {
 })
 
 describe('Hubspot.upsertObject', () => {
-  describe('where syncMode = upsert and where the Hubspot Schema is already a full match', () => {
-    it('should upsert a Custom Contact Record.', async () => {
-      const event = createTestEvent(payload)
+  describe('where syncMode = upsert', () => {
+    describe('Hubspot schema is a full match', () => {
+      it('should upsert a Custom Contact Record.', async () => {
+        const event = createTestEvent(payload)
 
-      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
+        nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
-        .reply(200, sensitivePropertiesResp)
+        nock(HUBSPOT_BASE_URL)
+          .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
+          .reply(200, sensitivePropertiesResp)
 
-      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
+        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
 
-      const responses = await testDestination.testAction('upsertObject', {
-        event,
-        settings,
-        useDefaultMappings: true,
-        mapping
+        const responses = await testDestination.testAction('upsertObject', {
+          event,
+          settings,
+          useDefaultMappings: true,
+          mapping
+        })
+
+        expect(responses.length).toBe(3)
       })
 
-      expect(responses.length).toBe(3)
-    })
+      it('should upsert a Custom Contact Record then upsert an Associated Company Record and then create an Association', async () => {
+        const event = createTestEvent(payload)
 
-    it('should upsert a Custom Contact Record then upsert an Associated Company Record and then create an Association', async () => {
-      const event = createTestEvent(payload)
+        nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
 
-      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
+        nock(HUBSPOT_BASE_URL)
+          .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
+          .reply(200, sensitivePropertiesResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
-        .reply(200, sensitivePropertiesResp)
+        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
 
-      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
+        nock(HUBSPOT_BASE_URL)
+          .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
+          .reply(200, upsertAssocCompanyRecordResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
-        .reply(200, upsertAssocCompanyRecordResp)
+        nock(HUBSPOT_BASE_URL)
+          .post('/crm/v4/associations/contact/company/batch/create', upsertCompanyAssociationReq)
+          .reply(200)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v4/associations/contact/company/batch/create', upsertCompanyAssociationReq)
-        .reply(200)
+        const responses = await testDestination.testAction('upsertObject', {
+          event,
+          settings,
+          useDefaultMappings: true,
+          mapping: {
+            ...mapping,
+            associations: [
+              {
+                object_type: 'company',
+                association_label: 'HUBSPOT_DEFINED:1',
+                id_field_name: 'kompany',
+                id_field_value: { '@path': '$.properties.company_id' }
+              }
+            ]
+          }
+        })
 
-      const responses = await testDestination.testAction('upsertObject', {
-        event,
-        settings,
-        useDefaultMappings: true,
-        mapping: {
-          ...mapping,
-          associations: [
-            {
-              object_type: 'company',
-              association_label: 'HUBSPOT_DEFINED:1',
-              id_field_name: 'kompany',
-              id_field_value: { '@path': '$.properties.company_id' }
-            }
-          ]
-        }
+        expect(responses.length).toBe(5)
       })
 
-      expect(responses.length).toBe(5)
-    })
+      it('should upsert a Custom Contact Record then upsert an Associated Company and Deal Records, and then create 2 Associations', async () => {
+        const event = createTestEvent(payload)
 
-    it('should upsert a Custom Contact Record then upsert an Associated Company and Deal Records, and then create 2 Associations', async () => {
-      const event = createTestEvent(payload)
+        nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
 
-      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
+        nock(HUBSPOT_BASE_URL)
+          .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
+          .reply(200, sensitivePropertiesResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
-        .reply(200, sensitivePropertiesResp)
+        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
 
-      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
+        nock(HUBSPOT_BASE_URL)
+          .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
+          .reply(200, upsertAssocCompanyRecordResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
-        .reply(200, upsertAssocCompanyRecordResp)
+        nock(HUBSPOT_BASE_URL)
+          .post('/crm/v3/objects/deal/batch/upsert', upsertAssocDealRecordReq)
+          .reply(200, upsertAssocDealRecordResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/deal/batch/upsert', upsertAssocDealRecordReq)
-        .reply(200, upsertAssocDealRecordResp)
+        nock(HUBSPOT_BASE_URL)
+          .post('/crm/v4/associations/contact/company/batch/create', upsertCompanyAssociationReq)
+          .reply(200)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v4/associations/contact/company/batch/create', upsertCompanyAssociationReq)
-        .reply(200)
+        nock(HUBSPOT_BASE_URL).post('/crm/v4/associations/contact/deal/batch/create', upsertDealAssociationReq).reply(200)
 
-      nock(HUBSPOT_BASE_URL).post('/crm/v4/associations/contact/deal/batch/create', upsertDealAssociationReq).reply(200)
+        const responses = await testDestination.testAction('upsertObject', {
+          event,
+          settings,
+          useDefaultMappings: true,
+          mapping: {
+            ...mapping,
+            associations: [
+              {
+                object_type: 'company',
+                association_label: 'HUBSPOT_DEFINED:1',
+                id_field_name: 'kompany',
+                id_field_value: { '@path': '$.properties.company_id' }
+              },
+              {
+                object_type: 'deal',
+                association_label: 'HUBSPOT_DEFINED:6',
+                id_field_name: 'seg_deal_id',
+                id_field_value: { '@path': '$.properties.deal_id' }
+              }
+            ]
+          }
+        })
 
-      const responses = await testDestination.testAction('upsertObject', {
-        event,
-        settings,
-        useDefaultMappings: true,
-        mapping: {
-          ...mapping,
-          associations: [
-            {
-              object_type: 'company',
-              association_label: 'HUBSPOT_DEFINED:1',
-              id_field_name: 'kompany',
-              id_field_value: { '@path': '$.properties.company_id' }
-            },
-            {
-              object_type: 'deal',
-              association_label: 'HUBSPOT_DEFINED:6',
-              id_field_name: 'seg_deal_id',
-              id_field_value: { '@path': '$.properties.deal_id' }
-            }
-          ]
-        }
+        expect(responses.length).toBe(7)
       })
 
-      expect(responses.length).toBe(7)
-    })
+      it('should upsert a Custom Contact Record then upsert an Associated Company and 2 Deal Records, and then create 3 Associations', async () => {
+        const event = createTestEvent(payload)
 
-    it('should upsert a Custom Contact Record then upsert an Associated Company and 2 Deal Records, and then create 3 Associations', async () => {
-      const event = createTestEvent(payload)
+        nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
 
-      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
+        nock(HUBSPOT_BASE_URL)
+          .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
+          .reply(200, sensitivePropertiesResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
-        .reply(200, sensitivePropertiesResp)
+        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
 
-      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
+        nock(HUBSPOT_BASE_URL)
+          .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
+          .reply(200, upsertAssocCompanyRecordResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
-        .reply(200, upsertAssocCompanyRecordResp)
+        nock(HUBSPOT_BASE_URL)
+          .post('/crm/v3/objects/deal/batch/upsert', upsertAssoc2DealRecordsReq)
+          .reply(200, upsertAssoc2DealRecordsResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/deal/batch/upsert', upsertAssoc2DealRecordsReq)
-        .reply(200, upsertAssoc2DealRecordsResp)
+        nock(HUBSPOT_BASE_URL)
+          .post('/crm/v4/associations/contact/company/batch/create', upsertCompanyAssociationReq)
+          .reply(200)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v4/associations/contact/company/batch/create', upsertCompanyAssociationReq)
-        .reply(200)
+        nock(HUBSPOT_BASE_URL)
+          .post('/crm/v4/associations/contact/deal/batch/create', upsert2DealAssociationsReq)
+          .reply(200)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v4/associations/contact/deal/batch/create', upsert2DealAssociationsReq)
-        .reply(200)
+        const responses = await testDestination.testAction('upsertObject', {
+          event,
+          settings,
+          useDefaultMappings: true,
+          mapping: {
+            ...mapping,
+            associations: [
+              {
+                object_type: 'company',
+                association_label: 'HUBSPOT_DEFINED:1',
+                id_field_name: 'kompany',
+                id_field_value: { '@path': '$.properties.company_id' }
+              },
+              {
+                object_type: 'deal',
+                association_label: 'HUBSPOT_DEFINED:6',
+                id_field_name: 'seg_deal_id',
+                id_field_value: { '@path': '$.properties.deal_id' }
+              },
+              {
+                object_type: 'deal',
+                association_label: 'HUBSPOT_DEFINED:6',
+                id_field_name: 'seg_deal_id',
+                id_field_value: { '@path': '$.properties.deal_id_2' }
+              }
+            ]
+          }
+        })
 
-      const responses = await testDestination.testAction('upsertObject', {
-        event,
-        settings,
-        useDefaultMappings: true,
-        mapping: {
-          ...mapping,
-          associations: [
-            {
-              object_type: 'company',
-              association_label: 'HUBSPOT_DEFINED:1',
-              id_field_name: 'kompany',
-              id_field_value: { '@path': '$.properties.company_id' }
-            },
-            {
-              object_type: 'deal',
-              association_label: 'HUBSPOT_DEFINED:6',
-              id_field_name: 'seg_deal_id',
-              id_field_value: { '@path': '$.properties.deal_id' }
-            },
-            {
-              object_type: 'deal',
-              association_label: 'HUBSPOT_DEFINED:6',
-              id_field_name: 'seg_deal_id',
-              id_field_value: { '@path': '$.properties.deal_id_2' }
-            }
-          ]
-        }
+        expect(responses.length).toBe(7)
       })
-
-      expect(responses.length).toBe(7)
     })
   })
 })
