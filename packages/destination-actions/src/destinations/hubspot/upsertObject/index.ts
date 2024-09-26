@@ -12,17 +12,15 @@ import {
   dynamicReadProperties
 } from './dynamic-fields'
 import {
-  sendAssociatedRecords,
   compareToCache,
   compareToHubspot,
-  createAssociationPayloads,
   createProperties,
   saveSchemaToCache,
-  sendAssociations,
-  sendFromRecords
 } from './utils'
 import { validate } from './validation-functions'
 import { objectSchema } from './schema-functions'
+import { sendFromRecords } from './send-from-record-functions'
+import { sendAssociatedRecords, createAssociationPayloads, sendAssociations} from './association-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object V2',
