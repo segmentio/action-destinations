@@ -17,7 +17,7 @@ export const commonFields: Record<string, InputField> = {
         required: true,
         allowNull: false,
         dynamic: true,
-        disabledInputMethods: ['literal', 'variable', 'function', 'freeform']
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
       id_field_name: {
         label: 'Object ID Field Name',
@@ -26,7 +26,7 @@ export const commonFields: Record<string, InputField> = {
         required: true,
         allowNull: false,
         dynamic: true,
-        disabledInputMethods: ['literal', 'variable', 'function', 'freeform']
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
       id_field_value: {
         label: 'Object ID Field Value',
@@ -43,7 +43,7 @@ export const commonFields: Record<string, InputField> = {
         required: false,
         default: undefined,
         dynamic: true,
-        disabledInputMethods: ['literal', 'variable', 'function', 'freeform']
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       }
     }
   },
@@ -76,7 +76,7 @@ export const commonFields: Record<string, InputField> = {
       { label: 'Create', value: 'upsert' },
       { label: 'Do not create', value: 'read' }
     ],
-    disabledInputMethods: ['literal', 'variable', 'function', 'freeform']
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   },
   associations: {
     label: 'Associations',
@@ -94,7 +94,7 @@ export const commonFields: Record<string, InputField> = {
         required: true,
         dynamic: true,
         allowNull: false,
-        disabledInputMethods: ['literal', 'variable', 'function', 'freeform']
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
       association_label: {
         label: 'Association Label',
@@ -103,7 +103,7 @@ export const commonFields: Record<string, InputField> = {
         required: true,
         dynamic: true,
         allowNull: false,
-        disabledInputMethods: ['literal', 'variable', 'function', 'freeform']
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
       id_field_name: {
         label: 'To Object ID Field Name',
@@ -113,14 +113,13 @@ export const commonFields: Record<string, InputField> = {
         required: true,
         dynamic: true,
         allowNull: false,
-        disabledInputMethods: ['literal', 'variable', 'function', 'freeform']
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
       id_field_value: {
         label: 'To Object ID Field Value',
         description: 'The value of the identifier for the record to be associated with',
         type: 'string',
-        required: true,
-        allowNull: false
+        required: false
       }
     }
   },

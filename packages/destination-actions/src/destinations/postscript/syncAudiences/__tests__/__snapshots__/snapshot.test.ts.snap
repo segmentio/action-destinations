@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Postscript's syncAudiences destination action with: all fields 1`] = `""`;
+
+exports[`Testing snapshot for Postscript's syncAudiences destination action with: required fields (with email) 1`] = `""`;
+
+exports[`Testing snapshot for Postscript's syncAudiences destination action with: required fields (with email) 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer Yag&Ib",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Postscript's syncAudiences destination action with: required fields (with phone for syncAudiences) 1`] = `""`;
+
+exports[`Testing snapshot for Postscript's syncAudiences destination action with: required fields (with phone for syncAudiences) 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer Yag&Ib",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
