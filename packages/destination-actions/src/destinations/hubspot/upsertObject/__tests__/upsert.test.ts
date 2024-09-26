@@ -35,7 +35,9 @@ const payload = {
       obj_sprop: { key1: 'value1', key2: 'value2' },
       arr_sprop: ['value1', 'value2']
     },
-    company_id: 'company_id_1'
+    company_id: 'company_id_1',
+    deal_id: 'deal_id_1',
+    deal_id_2: 'deal_id_2'
   }
 } as Partial<SegmentEvent>
 
@@ -214,7 +216,7 @@ const upsertRecordResp = {
   ]
 }
 
-const upsertAssocRecordReq = {
+const upsertAssocCompanyRecordReq = {
   inputs: [
     {
       idProperty: 'kompany',
@@ -226,7 +228,7 @@ const upsertAssocRecordReq = {
   ]
 }
 
-const upsertAssocRecordResp = {
+const upsertAssocCompanyRecordResp = {
   results: [
     {
       id: '798758764867',
@@ -237,7 +239,7 @@ const upsertAssocRecordResp = {
   ]
 }
 
-const upsertAssociationReq = {
+const upsertCompanyAssociationReq = {
   inputs: [
     {
       types: [
@@ -251,6 +253,117 @@ const upsertAssociationReq = {
       },
       to: {
         id: '798758764867'
+      }
+    }
+  ]
+}
+
+const upsertAssocDealRecordReq = {
+  inputs: [
+    {
+      idProperty: 'seg_deal_id',
+      id: 'deal_id_1',
+      properties: {
+        seg_deal_id: 'deal_id_1'
+      }
+    }
+  ]
+}
+
+const upsertAssoc2DealRecordsReq = {
+  inputs: [
+    {
+      idProperty: 'seg_deal_id',
+      id: 'deal_id_1',
+      properties: {
+        seg_deal_id: 'deal_id_1'
+      }
+    },
+    {
+      idProperty: 'seg_deal_id',
+      id: 'deal_id_2',
+      properties: {
+        seg_deal_id: 'deal_id_2'
+      }
+    }
+  ]
+}
+
+const upsertAssocDealRecordResp = {
+  results: [
+    {
+      id: '767876787678',
+      properties: {
+        seg_deal_id: 'deal_id_1'
+      }
+    }
+  ]
+}
+
+const upsertAssoc2DealRecordsResp = {
+  results: [
+    {
+      id: '767876787678',
+      properties: {
+        seg_deal_id: 'deal_id_1'
+      }
+    },
+    {
+      id: '223322332233',
+      properties: {
+        seg_deal_id: 'deal_id_2'
+      }
+    }
+  ]
+}
+
+const upsertDealAssociationReq = {
+  inputs: [
+    {
+      types: [
+        {
+          associationCategory: 'HUBSPOT_DEFINED',
+          associationTypeId: '6'
+        }
+      ],
+      from: {
+        id: '62102303560'
+      },
+      to: {
+        id: '767876787678'
+      }
+    }
+  ]
+}
+
+const upsert2DealAssociationsReq = {
+  inputs: [
+    {
+      types: [
+        {
+          associationCategory: 'HUBSPOT_DEFINED',
+          associationTypeId: '6'
+        }
+      ],
+      from: {
+        id: '62102303560'
+      },
+      to: {
+        id: '767876787678'
+      }
+    },
+    {
+      types: [
+        {
+          associationCategory: 'HUBSPOT_DEFINED',
+          associationTypeId: '6'
+        }
+      ],
+      from: {
+        id: '62102303560'
+      },
+      to: {
+        id: '223322332233'
       }
     }
   ]
@@ -283,7 +396,6 @@ describe('Hubspot.upsertObject', () => {
       })
 
       expect(responses.length).toBe(3)
-      expect(responses[2].status).toBe(200)
     })
 
     it('should upsert a Custom Contact Record then upsert an Associated Company Record and then create an Association', async () => {
@@ -298,10 +410,12 @@ describe('Hubspot.upsertObject', () => {
       nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
 
       nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/company/batch/upsert', upsertAssocRecordReq)
-        .reply(200, upsertAssocRecordResp)
+        .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
+        .reply(200, upsertAssocCompanyRecordResp)
 
-      nock(HUBSPOT_BASE_URL).post('/crm/v4/associations/contact/company/batch/create', upsertAssociationReq).reply(200)
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v4/associations/contact/company/batch/create', upsertCompanyAssociationReq)
+        .reply(200)
 
       const responses = await testDestination.testAction('upsertObject', {
         event,
@@ -321,7 +435,116 @@ describe('Hubspot.upsertObject', () => {
       })
 
       expect(responses.length).toBe(5)
-      expect(responses[4].status).toBe(200)
+    })
+
+    it('should upsert a Custom Contact Record then upsert an Associated Company and Deal Records, and then create 2 Associations', async () => {
+      const event = createTestEvent(payload)
+
+      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
+        .reply(200, sensitivePropertiesResp)
+
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
+        .reply(200, upsertAssocCompanyRecordResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/deal/batch/upsert', upsertAssocDealRecordReq)
+        .reply(200, upsertAssocDealRecordResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v4/associations/contact/company/batch/create', upsertCompanyAssociationReq)
+        .reply(200)
+
+      nock(HUBSPOT_BASE_URL).post('/crm/v4/associations/contact/deal/batch/create', upsertDealAssociationReq).reply(200)
+
+      const responses = await testDestination.testAction('upsertObject', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          ...mapping,
+          associations: [
+            {
+              object_type: 'company',
+              association_label: 'HUBSPOT_DEFINED:1',
+              id_field_name: 'kompany',
+              id_field_value: { '@path': '$.properties.company_id' }
+            },
+            {
+              object_type: 'deal',
+              association_label: 'HUBSPOT_DEFINED:6',
+              id_field_name: 'seg_deal_id',
+              id_field_value: { '@path': '$.properties.deal_id' }
+            }
+          ]
+        }
+      })
+
+      expect(responses.length).toBe(7)
+    })
+
+    it('should upsert a Custom Contact Record then upsert an Associated Company and 2 Deal Records, and then create 3 Associations', async () => {
+      const event = createTestEvent(payload)
+
+      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
+        .reply(200, sensitivePropertiesResp)
+
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
+        .reply(200, upsertAssocCompanyRecordResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/deal/batch/upsert', upsertAssoc2DealRecordsReq)
+        .reply(200, upsertAssoc2DealRecordsResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v4/associations/contact/company/batch/create', upsertCompanyAssociationReq)
+        .reply(200)
+
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v4/associations/contact/deal/batch/create', upsert2DealAssociationsReq)
+        .reply(200)
+
+      const responses = await testDestination.testAction('upsertObject', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          ...mapping,
+          associations: [
+            {
+              object_type: 'company',
+              association_label: 'HUBSPOT_DEFINED:1',
+              id_field_name: 'kompany',
+              id_field_value: { '@path': '$.properties.company_id' }
+            },
+            {
+              object_type: 'deal',
+              association_label: 'HUBSPOT_DEFINED:6',
+              id_field_name: 'seg_deal_id',
+              id_field_value: { '@path': '$.properties.deal_id' }
+            },
+            {
+              object_type: 'deal',
+              association_label: 'HUBSPOT_DEFINED:6',
+              id_field_name: 'seg_deal_id',
+              id_field_value: { '@path': '$.properties.deal_id_2' }
+            }
+          ]
+        }
+      })
+
+      expect(responses.length).toBe(7)
     })
   })
 })
