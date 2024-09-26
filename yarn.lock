@@ -3014,8 +3014,6 @@
   dependencies:
     "@types/node" "^18.11.15"
 
-<<<<<<< Updated upstream
-=======
 "@segment/actions-core@^3.121.0", "@segment/actions-core@^3.127.0":
   version "3.127.0"
   resolved "https://registry.npmjs.org/@segment/actions-core/-/actions-core-3.127.0.tgz#7bc48b84602de28e52c76d4697f9c008016bf670"
@@ -3257,7 +3255,6 @@
     "@segment/actions-core" "^3.127.0"
     "@segment/browser-destination-runtime" "^1.56.0"
 
->>>>>>> Stashed changes
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sabil/-/analytics-browser-actions-sabil-1.6.0.tgz#4e1faf694e7b9b513e7309b74654abc31e789a37"
@@ -3298,8 +3295,6 @@
   dependencies:
     unfetch "^3.1.1"
 
-<<<<<<< Updated upstream
-=======
 "@segment/browser-destination-runtime@^1.56.0", "@segment/browser-destination-runtime@^1.6.0":
   version "1.56.0"
   resolved "https://registry.npmjs.org/@segment/browser-destination-runtime/-/browser-destination-runtime-1.56.0.tgz#55d8815b8a3309f2399572f0b166fa5f978db4e4"
@@ -3360,7 +3355,6 @@
     "@segment/analytics-browser-hubble-web" "^1.43.0"
     "@segment/browser-destination-runtime" "^1.56.0"
 
->>>>>>> Stashed changes
 "@segment/facade@^3.4.9":
   version "3.4.10"
   resolved "https://registry.yarnpkg.com/@segment/facade/-/facade-3.4.10.tgz#118fab29cf2250d3128f9b2a16d6ec76f86e3710"
