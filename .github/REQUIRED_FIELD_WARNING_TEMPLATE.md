@@ -3,7 +3,7 @@
 # New required fields detected
 
 > [!WARNING]
-> Your PR adds new required fields to existing destination. Adding new required settings/mappings for a destination already in production requires updating existing customer destination configuration. Ignore this warning if this PR is for a new destination with no active customers in production.
+> Your PR adds new required fields to an existing destination. Adding new required settings/mappings for a destination already in production requires updating existing customer destination configuration. Ignore this warning if this PR is for a new destination with no active customers in production.
 
 The following required fields were added in this PR:
 
