@@ -257,4 +257,30 @@ describe('validateSchema', () => {
     expect(validateSchema(less_than_min_payload, min_max_schema, { throwIfInvalid: false })).toBeFalsy()
     expect(validateSchema(greater_than_max_payload, min_max_schema, { throwIfInvalid: false })).toBeFalsy()
   })
+
+  it('should allow exempted properties', () => {
+    const payload = {
+      a: 'a',
+      b: {
+        anything: 'goes'
+      },
+      exemptKey: {
+        nested: 'nested'
+      }
+    }
+
+    validateSchema(payload, schema, { schemaKey: `testSchema`, exempt: ['exemptKey'] })
+    expect(payload).toHaveProperty('d')
+    expect(payload).toMatchInlineSnapshot(`
+      Object {
+        "a": "a",
+        "b": Object {
+          "anything": "goes",
+        },
+        "exemptKey": {
+          nested: "nested"
+        },
+      }
+    `)
+  })
 })
