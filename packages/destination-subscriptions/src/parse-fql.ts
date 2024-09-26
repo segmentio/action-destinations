@@ -334,8 +334,8 @@ const parse = (tokens: Token[]): Condition => {
             })
           } else if (isNumberNotEquals) {
             nodes.push({
-              type: 'event-property',
-              name: token.value.replace(/^(properties)\./, ''),
+              type: 'event-trait',
+              name: token.value.replace(/^(traits)\./, ''),
               operator: 'number_not_equals',
               value: getTokenValue(valueToken)
             })
@@ -381,8 +381,8 @@ const parse = (tokens: Token[]): Condition => {
             })
           } else if (isNumberNotEquals) {
             nodes.push({
-              type: 'event-property',
-              name: token.value.replace(/^(properties)\./, ''),
+              type: 'event-context',
+              name: token.value.replace(/^(context)\./, ''),
               operator: 'number_not_equals',
               value: getTokenValue(valueToken)
             })

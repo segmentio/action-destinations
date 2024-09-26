@@ -211,3 +211,43 @@ test('should handle ast with nested (dot-delimited) and irregular properties', (
 
   expect(generateFql(ast)).toEqual('properties.foo.bar.baz\\ alp.zaz = "hello"')
 })
+
+test('should handle number_not_equals ast', () => {
+  const ast: Subscription = {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-trait',
+        name: 'value',
+        operator: 'number_not_equals',
+        value: '456.0'
+      }
+    ]
+  }
+
+  expect(generateFql(ast)).toEqual('traits.value != 456')
+})
+
+test('should handle both not equal (!=) and number_not_equals ast', () => {
+  const ast: Subscription = {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-property',
+        name: 'value',
+        operator: 'number_not_equals',
+        value: '123'
+      },
+      {
+        type: 'event-trait',
+        name: 'label',
+        operator: '!=',
+        value: '456'
+      }
+    ]
+  }
+
+  expect(generateFql(ast)).toEqual('properties.value != 123 and traits.label != "456"')
+})
