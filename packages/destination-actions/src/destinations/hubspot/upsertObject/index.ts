@@ -20,9 +20,9 @@ import {
   objectSchema,
   saveSchemaToCache,
   sendAssociations,
-  sendFromRecords,
-  validate
+  sendFromRecords
 } from './utils'
+import { validate } from './validation-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object V2',
