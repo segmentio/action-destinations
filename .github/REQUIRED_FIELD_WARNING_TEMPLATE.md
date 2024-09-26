@@ -9,4 +9,4 @@ The following required fields were added in this PR:
 
 {{FIELDS_ADDED}}
 
-Consider adding these new fields as optional instead and assume default values in `perform` or `performBatch` block.
+Add these new fields as optional instead and assume default values in `perform` or `performBatch` block.
