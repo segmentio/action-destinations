@@ -345,17 +345,24 @@ function returnRecordsWithoutIds(payloads: Payload[], response: ModifiedResponse
 export function createAssociationPayloads(payloads: PayloadWithFromId[]): AssociationPayload[][] {
   const associationPayloads: AssociationPayload[] = payloads.flatMap((payload) =>
     Array.isArray(payload.associations)
-      ? payload.associations.map((association) => ({
-          object_details: {
-            object_type: association.object_type,
-            id_field_name: association.id_field_name,
-            id_field_value: association.id_field_value,
-            from_record_id: association.from_record_id
-          },
-          association_details: {
-            association_label: association.association_label
-          }
-        }))
+      ? payload.associations
+          .filter(
+            (association) =>
+              association.id_field_value !== undefined &&
+              association.id_field_value !== null &&
+              association.id_field_value !== ''
+          )
+          .map((association) => ({
+            object_details: {
+              object_type: association.object_type,
+              id_field_name: association.id_field_name,
+              id_field_value: association.id_field_value,
+              from_record_id: association.from_record_id
+            },
+            association_details: {
+              association_label: association.association_label
+            }
+          }))
       : []
   )
 

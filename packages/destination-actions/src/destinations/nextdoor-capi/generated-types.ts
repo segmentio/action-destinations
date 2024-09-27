@@ -9,4 +9,8 @@ export interface Settings {
    * Your Nextdoor Advertiser ID for self serve clients can be found in your NAM account for managed your support team can provide
    */
   client_id: string
+  /**
+   * Nextdoor Pixel Id. Used for deduplication when events are sent via CAPI and front end Pixel.
+   */
+  pixel_id: string
 }

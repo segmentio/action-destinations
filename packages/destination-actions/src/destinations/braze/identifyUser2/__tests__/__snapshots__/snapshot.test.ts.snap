@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Braze's identifyUser2 destination V2 action: snapshot with all fields 1`] = `
+Object {
+  "aliases_to_identify": Array [
+    Object {
+      "external_id": "O$J@g9^nDz",
+      "user_alias": Object {
+        "alias_label": "O$J@g9^nDz",
+        "alias_name": "O$J@g9^nDz",
+      },
+    },
+  ],
+  "merge_behavior": "none",
+}
+`;

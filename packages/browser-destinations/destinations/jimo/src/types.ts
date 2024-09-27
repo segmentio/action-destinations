@@ -4,5 +4,5 @@ export interface JimoSDK {
 
 export interface JimoClient {
   initialized: boolean
-  client: JimoSDK | any[]
+  client: () => JimoSDK | any[]
 }
