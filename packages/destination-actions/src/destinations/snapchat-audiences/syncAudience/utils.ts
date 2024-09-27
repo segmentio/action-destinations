@@ -5,11 +5,9 @@ type IdentifierResult = { found: true; externalId: string } | { found: false; me
 // Extracts correct identifier and returns normalized and hashed identifier
 export const validateAndExtractIdentifier = (
   schemaType: string,
-  mobileIdType: string,
   email: string | undefined,
   phone: string | undefined,
-  advertisingId: string | undefined,
-  mobileDeviceId: string | undefined
+  mobileAdId: string | undefined
 ): IdentifierResult => {
   if (schemaType === 'EMAIL_SHA256') {
     return email
@@ -24,16 +22,9 @@ export const validateAndExtractIdentifier = (
   }
 
   if (schemaType === 'MOBILE_AD_ID_SHA256') {
-    let mobileId
-
-    if (mobileIdType === 'deviceId') {
-      mobileId = mobileDeviceId
-    } else {
-      mobileId = advertisingId
-    }
-    return mobileId
-      ? { found: true, externalId: normalizeAndHashMobileId(mobileId) }
-      : { found: false, message: 'Mobile ID not present in payload' }
+    return mobileAdId
+      ? { found: true, externalId: normalizeAndHashMobileId(mobileAdId) }
+      : { found: false, message: 'Mobile AD ID not present in payload' }
   }
 
   return { found: false, message: 'Schema type not recognized' }

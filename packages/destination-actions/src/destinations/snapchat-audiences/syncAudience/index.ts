@@ -79,27 +79,6 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
-    mobile_id_type: {
-      label: 'Mobile Identifier Type',
-      description: 'Select the type of mobile identifier to use as External ID',
-      type: 'string',
-      required: false,
-      choices: [
-        { value: 'deviceId', label: 'iOS/Android Device ID' },
-        { value: 'advertisingId', label: 'Advertising ID (idfa)' }
-      ],
-      default: 'deviceId',
-      depends_on: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'schema_type',
-            operator: 'is',
-            value: 'MOBILE_AD_ID_SHA256'
-          }
-        ]
-      }
-    },
     advertising_id: {
       label: 'Mobile Advertising ID',
       description:
@@ -107,11 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: {
-        '@if': {
-          exists: { '@path': '$.properties["ios.idfa"]' },
-          then: { '@path': '$.properties["ios.idfa"]' },
-          else: { '@path': '$.properties["android.idfa"]' }
-        }
+        '@path': '$.context.device.advertisingId'
       },
       depends_on: {
         match: 'all',
@@ -128,51 +103,16 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]
       }
-    },
-    mobile_device_id: {
-      label: 'Mobile Device ID',
-      description:
-        "User's mobile device ID. Ensure you have included either 'ios.id' or 'android.id' as identifiers in the 'Customized Setup' menu when connecting the destination to your audience.",
-      type: 'string',
-      required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties.ios.id' },
-          then: { '@path': '$.properties.ios.id' },
-          else: { '@path': '$.properties.android.id' }
-        }
-      },
-      depends_on: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'schema_type',
-            operator: 'is',
-            value: 'MOBILE_AD_ID_SHA256'
-          },
-          {
-            fieldKey: 'mobile_id_type',
-            operator: 'is',
-            value: 'deviceId'
-          }
-        ]
-      }
     }
   },
-  perform: async (request, { payload, rawData }) => {
-    console.dir(payload, { depth: null })
-    console.dir(rawData, { depth: null })
-    return
+  perform: async (request, { payload }) => {
     const { external_audience_id, schema_type } = payload
     const response = validateAndExtractIdentifier(
       payload.schema_type,
-      payload.mobile_id_type,
       payload.email,
       payload.phone,
-      payload.advertising_id,
-      payload.mobile_device_id
+      payload.advertising_id
     )
-    console.dir(response)
     if (!response.found) throw new PayloadValidationError(response.message)
     const { externalId } = response
 
