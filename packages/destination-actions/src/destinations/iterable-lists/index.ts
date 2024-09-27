@@ -73,7 +73,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audienceKey = personasSettings.computation_key
       const createAudienceResponse = await request('https://api.iterable.com/api/lists', {
         method: 'POST',
-        skipResponseCloning: true,
         headers: { 'Api-Key': settings.apiKey },
         json: {
           name: audienceKey
@@ -90,7 +89,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   extendRequest({ settings }) {
     return {
-      skipResponseCloning: true,
       headers: { 'Api-Key': settings.apiKey }
     }
   },
