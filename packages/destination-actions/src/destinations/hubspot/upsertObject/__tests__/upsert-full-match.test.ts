@@ -175,7 +175,7 @@ const sensitivePropertiesResp = {
   ]
 }
 
-const upsertRecordReq = {
+const upsertObjectReq = {
   inputs: [
     {
       idProperty: 'email',
@@ -205,7 +205,7 @@ const upsertRecordReq = {
   ]
 }
 
-const upsertRecordResp = {
+const upsertObjectResp = {
   results: [
     {
       id: '62102303560',
@@ -387,7 +387,7 @@ describe('Hubspot.upsertObject', () => {
           .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
           .reply(200, sensitivePropertiesResp)
 
-        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
+        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
         const responses = await testDestination.testAction('upsertObject', {
           event,
@@ -408,7 +408,7 @@ describe('Hubspot.upsertObject', () => {
           .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
           .reply(200, sensitivePropertiesResp)
 
-        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
+        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
         nock(HUBSPOT_BASE_URL)
           .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
@@ -447,7 +447,7 @@ describe('Hubspot.upsertObject', () => {
           .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
           .reply(200, sensitivePropertiesResp)
 
-        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
+        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
         nock(HUBSPOT_BASE_URL)
           .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)
@@ -498,7 +498,7 @@ describe('Hubspot.upsertObject', () => {
           .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
           .reply(200, sensitivePropertiesResp)
 
-        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertRecordReq).reply(200, upsertRecordResp)
+        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
         nock(HUBSPOT_BASE_URL)
           .post('/crm/v3/objects/company/batch/upsert', upsertAssocCompanyRecordReq)

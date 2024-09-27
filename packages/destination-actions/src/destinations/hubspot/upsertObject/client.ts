@@ -22,34 +22,38 @@ export class Client {
 
   async readProperties(sensitive: boolean) {
     const sensitivity = '?dataSensitivity=sensitive'
-    return this.request<ReadPropsResp>(
+    const response = await this.request<ReadPropsResp>(
       `${HUBSPOT_BASE_URL}/crm/v3/properties/${this.objectType}${sensitive ? sensitivity : ''}`,
       {
         method: 'GET',
         skipResponseCloning: true
       }
     )
+    return response
   }
 
   async createPropertiesDefinition(json: CreatePropsReq) {
-    await this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${this.objectType}/batch/create`, {
+    const response = this.request(`${HUBSPOT_BASE_URL}/crm/v3/properties/${this.objectType}/batch/create`, {
       method: 'POST',
       skipResponseCloning: true,
       json
     })
+    return response
   }
 
   async batchObjectRequest(action: ObjReqType, objectType: string, json: ReadReq | UpsertReq | CreateReq) {
-    return this.request<BatchObjResp>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
+    const response = await this.request<BatchObjResp>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
       method: 'POST',
       json
     })
+    return response 
   }
 
   async batchAssociationsRequest(json: AssociationsReq, toObjectType: string) {
-    return this.request(`${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/create`, {
+    const response = await this.request(`${HUBSPOT_BASE_URL}/crm/v4/associations/${this.objectType}/${toObjectType}/batch/create`, {
       method: 'POST',
       json
     })
+    return response 
   }
 }
