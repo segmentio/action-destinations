@@ -18,3 +18,6 @@ any of the tasks you completed below during your testing._
 - [ ] Added [unit tests](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing) for new functionality
 - [ ] Tested end-to-end using the [local server](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing)
 - [ ] [Segmenters] Tested in the staging environment
+- [ ] Confirmed via tests that this change doesn't break existing destination configuration in production, including the following:
+  - No new mapping/settings were added as required fields to an action/destination that is already live in production with traffic. All new fields must be optional.
+  - No existing mapping/settings were removed or changed in a way that would break existing destination configurations.
