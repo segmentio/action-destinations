@@ -39,7 +39,7 @@ const destination: DestinationDefinition<Settings> = {
                 {
                   event_name: 'checkout',
                   action_source: 'app_ios',
-                  event_time: 1678203524,
+                  event_time: Math.floor(Date.now() / 1000),
                   event_id: 'test_eventId',
                   user_data: {
                     em: ['411e44ce1261728ffd2c0686e44e3fffe413c0e2c5adc498bc7da883d476b9c8']
