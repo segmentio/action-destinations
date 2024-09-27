@@ -377,7 +377,7 @@ beforeEach((done) => {
 
 describe('Hubspot.upsertObject', () => {
   describe('where syncMode = upsert', () => {
-    describe('Hubspot schema is a full match', () => {
+    describe('All properties match on Hubspot object schema', () => {
       it('should upsert a Custom Contact Record.', async () => {
         const event = createTestEvent(payload)
 

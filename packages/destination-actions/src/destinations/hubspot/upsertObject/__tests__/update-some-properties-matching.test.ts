@@ -292,7 +292,7 @@ beforeEach((done) => {
 
 describe('Hubspot.upsertObject', () => {
   describe('where syncMode = update', () => {
-    describe('Hubspot schema is only a partial match', () => {
+    describe('Some properties match on Hubspot object schema', () => {
       it('should create 2 missing properties and 1 missing sensitive property on Hubspot schema, then upsert a Custom Contact Record.', async () => {
         const event = createTestEvent(payload)
 

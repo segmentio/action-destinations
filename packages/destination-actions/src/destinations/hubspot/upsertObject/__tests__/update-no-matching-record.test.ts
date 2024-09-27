@@ -10,7 +10,7 @@ const settings: Settings = {}
 const payload = {
   event: 'Test Custom Object Event',
   type: 'track',
-  userId: 'user_id_1',
+  userId: 'test-user-id',
   properties: {
     email: 'test@test.com',
     regular: {
@@ -42,11 +42,11 @@ const payload = {
 } as Partial<SegmentEvent>
 
 const mapping = {
-  __segment_internal_sync_mode: 'upsert',
+  __segment_internal_sync_mode: 'update',
   object_details: {
     object_type: 'contact',
-    id_field_name: 'email',
-    id_field_value: { '@path': '$.properties.email' },
+    id_field_name: 'contact_id',
+    id_field_value: { '@path': '$.userId' },
     property_group: 'contactinformation'
   },
   properties: { '@path': '$.properties.regular' },
@@ -61,8 +61,8 @@ const propertiesResp = {
   results: [
     {
       name: 'str_prop',
-      type: 'number',  // this is the mismatch. Segment expects it to be a string but Hubspot indicates it is a number
-      fieldType: 'number',
+      type: 'string',
+      fieldType: 'text',
       hasUniqueValue: false
     },
     {
@@ -175,6 +175,20 @@ const sensitivePropertiesResp = {
   ]
 }
 
+const readObjectReq = {
+  properties: ['contact_id'],
+  idProperty: 'contact_id',
+  inputs: [
+    {
+      id: 'test-user-id'
+    }
+  ]
+}
+
+const readObjectResp = {
+  results: []
+}
+
 beforeEach((done) => {
   testDestination = createTestIntegration(Definition)
   nock.cleanAll()
@@ -182,9 +196,9 @@ beforeEach((done) => {
 })
 
 describe('Hubspot.upsertObject', () => {
-  describe('where syncMode = upsert', () => {
-    describe('Hubspot schema has a property type mismatch', () => {
-      it('should throw an error explaining the property type mismatch.', async () => {
+  describe('where syncMode = update', () => {
+    describe('No matching record on Hubspot', () => {
+      it('Should not create a new record on Hubspot. Hubspot not updated in any way. Error is not thrown.', async () => {
         const event = createTestEvent(payload)
 
         nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
@@ -192,15 +206,17 @@ describe('Hubspot.upsertObject', () => {
         nock(HUBSPOT_BASE_URL)
           .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
           .reply(200, sensitivePropertiesResp)
+        
+        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/read', readObjectReq).reply(200, readObjectResp)
 
-        await expect(
-          testDestination.testAction('upsertObject', {
-            event,
-            settings,
-            useDefaultMappings: true,
-            mapping
-          })
-        ).rejects.toThrowError(new Error('Payload property with name str_prop has a different type to the property in HubSpot. Expected: type = string fieldType = text. Received: type = number fieldType = number'))
+        const responses = await testDestination.testAction('upsertObject', {
+          event,
+          settings,
+          useDefaultMappings: true,
+          mapping
+        })
+
+        expect(responses.length).toBe(3)
       })
     })
   })

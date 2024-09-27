@@ -59,13 +59,12 @@ const mapping = {
 
 const propertiesResp = {
   results: [
-    // Missing properties are commented out
-    // {
-    //   name: 'str_prop',
-    //   type: 'string',
-    //   fieldType: 'text',
-    //   hasUniqueValue: false
-    // },
+    {
+      name: 'str_prop',
+      type: 'number',  // this is the mismatch. Segment expects it to be a string but Hubspot indicates it is a number
+      fieldType: 'number',
+      hasUniqueValue: false
+    },
     {
       name: 'num_prop',
       type: 'number',
@@ -78,12 +77,12 @@ const propertiesResp = {
       fieldType: 'booleancheckbox',
       hasUniqueValue: false
     },
-    // {
-    //   name: 'numberish_string_prop',
-    //   type: 'number',
-    //   fieldType: 'number',
-    //   hasUniqueValue: false
-    // },
+    {
+      name: 'numberish_string_prop',
+      type: 'number',
+      fieldType: 'number',
+      hasUniqueValue: false
+    },
     {
       name: 'boolish_string_prop',
       type: 'enumeration',
@@ -131,12 +130,12 @@ const sensitivePropertiesResp = {
       fieldType: 'number',
       hasUniqueValue: false
     },
-    // {
-    //   name: 'bool_sprop',
-    //   type: 'enumeration',
-    //   fieldType: 'booleancheckbox',
-    //   hasUniqueValue: false
-    // },
+    {
+      name: 'bool_sprop',
+      type: 'enumeration',
+      fieldType: 'booleancheckbox',
+      hasUniqueValue: false
+    },
     {
       name: 'numberish_string_sprop',
       type: 'number',
@@ -176,90 +175,6 @@ const sensitivePropertiesResp = {
   ]
 }
 
-const upsertObjectReq = {
-  inputs: [
-    {
-      idProperty: 'email',
-      id: 'test@test.com',
-      properties: {
-        str_prop: 'Hello String!',
-        num_prop: 123.45,
-        bool_prop: true,
-        numberish_string_prop: 123.45,
-        boolish_string_prop: true,
-        datetime_prop: '2024-01-08T13:52:50.212Z',
-        date_prop: '2024-01-08',
-        obj_prop: '{"key1":"value1","key2":"value2"}',
-        arr_prop: '["value1","value2"]',
-        str_sprop: 'Hello String!',
-        num_sprop: 123.45,
-        bool_sprop: true,
-        numberish_string_sprop: 123.45,
-        boolish_string_sprop: true,
-        datetime_sprop: '2024-01-08T13:52:50.212Z',
-        date_sprop: '2024-01-08',
-        obj_sprop: '{"key1":"value1","key2":"value2"}',
-        arr_sprop: '["value1","value2"]',
-        email: 'test@test.com'
-      }
-    }
-  ]
-}
-
-const upsertObjectResp = {
-  results: [
-    {
-      id: '62102303560',
-      properties: {
-        email: 'test@test.com'
-      }
-    }
-  ]
-}
-
-const createPropertiesReq = {
-  inputs: [
-    {
-      name: "str_prop",
-      label: "str_prop",
-      groupName: "contactinformation",
-      type: "string",
-      fieldType: "text"
-    },
-    {
-      name: "numberish_string_prop",
-      label: "numberish_string_prop",
-      groupName: "contactinformation",
-      type: "number",
-      fieldType: "number"
-    },
-    {
-      name: "bool_sprop",
-      label: "bool_sprop",
-      groupName: "contactinformation",
-      type: "enumeration",
-      dataSensitivity: "sensitive",
-      fieldType: "booleancheckbox",
-      options: [
-        {
-          label: "true",
-          value: "true",
-          hidden: false,
-          description: "True",
-          displayOrder: 1
-        },
-        {
-          label: "false",
-          value: "false",
-          hidden: false,
-          description: "False",
-          displayOrder: 2
-        }
-      ]
-    }
-  ]
-}
-
 beforeEach((done) => {
   testDestination = createTestIntegration(Definition)
   nock.cleanAll()
@@ -268,8 +183,8 @@ beforeEach((done) => {
 
 describe('Hubspot.upsertObject', () => {
   describe('where syncMode = upsert', () => {
-    describe('Hubspot schema is only a partial match', () => {
-      it('should create 2 missing properties and 1 missing sensitive property on Hubspot schema, then upsert a Custom Contact Record.', async () => {
+    describe('Hubspot object schema has a mis-matched property', () => {
+      it('should throw an error explaining the property type mismatch.', async () => {
         const event = createTestEvent(payload)
 
         nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
@@ -278,20 +193,14 @@ describe('Hubspot.upsertObject', () => {
           .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
           .reply(200, sensitivePropertiesResp)
 
-        nock(HUBSPOT_BASE_URL)
-          .post('/crm/v3/properties/contact/batch/create', createPropertiesReq)
-          .reply(200)
-
-        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
-
-        const responses = await testDestination.testAction('upsertObject', {
-          event,
-          settings,
-          useDefaultMappings: true,
-          mapping
-        })
-
-        expect(responses.length).toBe(4)
+        await expect(
+          testDestination.testAction('upsertObject', {
+            event,
+            settings,
+            useDefaultMappings: true,
+            mapping
+          })
+        ).rejects.toThrowError(new Error('Payload property with name str_prop has a different type to the property in HubSpot. Expected: type = string fieldType = text. Received: type = number fieldType = number'))
       })
     })
   })

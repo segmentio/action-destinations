@@ -42,7 +42,7 @@ const payload = {
 } as Partial<SegmentEvent>
 
 const mapping = {
-  __segment_internal_sync_mode: 'update',
+  __segment_internal_sync_mode: 'upsert',
   object_details: {
     object_type: 'objectx',
     id_field_name: 'x_id_field',
@@ -65,13 +65,15 @@ beforeEach((done) => {
 
 describe('Hubspot.upsertObject', () => {
   describe('where syncMode = upsert', () => {
-    describe('Hubspot schema does not exist on Hubspot - no match', () => {
+    describe('No matching object schema found on Hubspot', () => {
       it('should throw an error', async () => {
         const event = createTestEvent(payload)
 
         nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/objectx').reply(400)
 
-        nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/objectx?dataSensitivity=sensitive').reply(400)
+        nock(HUBSPOT_BASE_URL)
+          .get('/crm/v3/properties/objectx?dataSensitivity=sensitive')
+          .reply(400)
 
         await expect(
           testDestination.testAction('upsertObject', {
