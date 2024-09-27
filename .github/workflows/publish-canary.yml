@@ -49,4 +49,4 @@ jobs:
 
       - name: Publish
         run: |
-          yarn lerna publish from-package --yes --allowBranch=staging --loglevel=verbose --dist-tag canary
+          yarn lerna publish from-package --yes --allowBranch=staging --loglevel=verbose --dist-tag canary --loglevel=silly
