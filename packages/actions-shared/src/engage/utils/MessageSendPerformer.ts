@@ -130,7 +130,12 @@ export abstract class MessageSendPerformer<
 
   async doPerform() {
     // sending messages and collecting results, including exceptions
-    const res = this.forAllRecepients(this.sendToRecepientCache.bind(this))
+
+    const res = this.forAllRecepients(
+      this.isFeatureActive('engage-cache-send-message')
+        ? this.sendToRecepientCache.bind(this)
+        : this.sendToRecepient.bind(this)
+    )
 
     if (this.executeInput.features) {
       this.logInfo('Feature flags:' + JSON.stringify(this.executeInput.features))
