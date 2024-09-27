@@ -60,7 +60,9 @@ class TestMessageSendPerformer extends MessageSendPerformer<MessageSettingsBase,
       },
       features: {
         //TODO: remove this debugging is done
-        'engage-messaging-release-lock-on-cacheerror': true
+        'engage-messaging-release-lock-on-cacheerror': true,
+        'engage-cache-send-message': true,
+        'engage-cache-email-template': true
       }
     })
   }
