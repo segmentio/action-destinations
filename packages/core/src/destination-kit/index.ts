@@ -43,7 +43,8 @@ export type {
   ActionHookResponse,
   ActionHookType,
   ExecuteInput,
-  RequestFn
+  RequestFn,
+  Result
 }
 export { hookTypeStrings }
 export type { MinimalInputField }
