@@ -133,15 +133,17 @@ export default action
 // remove any key value pairs where the value is not a true or false string
 function filterMailingLists(obj: { [key: string]: unknown }): { [key: string]: boolean } {
   const result: { [key: string]: boolean } = {}
-  for (const key in obj) {
-    if (typeof obj[key] !== 'boolean') {
-      if (obj[key] === 'true') {
-        result[key] = true
-      } else if (obj[key] === 'false') {
-        result[key] = false
+for (const key in obj) {
+    const value = obj[key];
+    
+    if (typeof value === 'string') {
+      if (value === 'true') {
+        result[key] = true;
+      } else if (value === 'false') {
+        result[key] = false;
       }
-    } else {
-      result[key] = obj[key]
+    } else if (typeof value === 'boolean') {
+      result[key] = value;
     }
   }
   return result
