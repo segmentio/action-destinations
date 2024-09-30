@@ -6,6 +6,16 @@ export interface Payload {
    */
   external_audience_id: string
   /**
+   * Audience key.
+   */
+  audienceKey: string
+  /**
+   * A computed object for track and identify events.
+   */
+  traits_or_props: {
+    [k: string]: unknown
+  }
+  /**
    * Choose the type of identifier to use when adding users to Snapchat. If selecting Mobile ID or Phone, ensure these identifiers are included as custom traits in the Audience settings page where the destination is connected.
    */
   schema_type: string

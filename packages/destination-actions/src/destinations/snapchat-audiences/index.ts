@@ -2,12 +2,12 @@ import { AudienceDestinationDefinition, IntegrationError } from '@segment/action
 import type { Settings } from './generated-types'
 
 import syncAudience from './syncAudience'
-
 const ACCESS_TOKEN_URL = 'https://accounts.snapchat.com/login/oauth2/access_token'
 
 interface RefreshTokenResponse {
   access_token: string
 }
+
 // For an example audience destination, refer to webhook-audiences. The Readme section is under 'Audience Support'
 const destination: AudienceDestinationDefinition<Settings> = {
   name: 'Snapchat Audiences (Actions)',

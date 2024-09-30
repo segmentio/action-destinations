@@ -1,3 +1,4 @@
+import type { Payload } from './generated-types'
 import { createHash } from 'crypto'
 
 type IdentifierResult = { found: true; externalId: string } | { found: false; message: string }
@@ -41,13 +42,13 @@ const hash = (value: string): string => {
 const isHashed = (identifier: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(identifier)
 
 // Normalize email addresses by trimming leading and trailing whitespace and converting all characters to lowercase before hashing
-const normalizeAndHashEmail = (email: string): string => {
+export const normalizeAndHashEmail = (email: string): string => {
   if (isHashed(email)) return email
   const hashedEmail = hash(email.trim().toLowerCase())
   return hashedEmail
 }
 // Normalize mobile advertiser id by using all lowercase
-const normalizeAndHashMobileId = (mobileAdId: string): string => {
+export const normalizeAndHashMobileId = (mobileAdId: string): string => {
   if (isHashed(mobileAdId)) return mobileAdId
   const hashedMobileId = hash(mobileAdId.toLowerCase())
   return hashedMobileId
@@ -59,7 +60,7 @@ const normalizeAndHashMobileId = (mobileAdId: string): string => {
   - if the number itself begins with a 0 this should be removed
   - Also exclude any non-numeric characters such as whitespace, parentheses, '+', or '-'.
 */
-const normalizeAndHashPhone = (phone: string): string => {
+export const normalizeAndHashPhone = (phone: string): string => {
   if (isHashed(phone)) return phone
 
   // Remove non-numeric characters and parentheses, '+', '-', ' '
@@ -77,4 +78,45 @@ const normalizeAndHashPhone = (phone: string): string => {
 
   const hashedPhone = hash(normalizedPhone)
   return hashedPhone
+}
+
+export const sortBatch = (payload: Payload[]) => {
+  return payload.reduce<{
+    enteredAudience: string[][]
+    exitedAudience: string[][]
+  }>(
+    (acc, payloadItem) => {
+      const audienceEntered = payloadItem.traits_or_props[payloadItem.audienceKey]
+      const response = validateAndExtractIdentifier(
+        payloadItem.schema_type,
+        payloadItem.email,
+        payloadItem.phone,
+        payloadItem.advertising_id
+      )
+
+      if (response.found) {
+        if (audienceEntered) {
+          acc.enteredAudience.push([response.externalId])
+        } else {
+          acc.exitedAudience.push([response.externalId])
+        }
+      }
+
+      return acc
+    },
+    { enteredAudience: [], exitedAudience: [] }
+  )
+}
+
+export const batchErrorMessage = (schema_type: string): string => {
+  switch (schema_type) {
+    case 'MOBILE_AD_ID_SHA256':
+      return 'Mobile Advertising IDs'
+    case 'EMAIL_SHA256':
+      return 'Emails'
+    case 'PHONE_SHA256':
+      return 'Phone numbers'
+    default:
+      return 'Identifiers'
+  }
 }

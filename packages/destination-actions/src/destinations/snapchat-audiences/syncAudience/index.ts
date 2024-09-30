@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { validateAndExtractIdentifier } from './utils'
+import { batchErrorMessage, sortBatch, validateAndExtractIdentifier } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -17,6 +17,30 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true,
       default: {
         '@path': '$.context.personas.external_audience_id'
+      }
+    },
+    audienceKey: {
+      type: 'string',
+      label: 'Audience Key',
+      description: 'Audience key.',
+      required: true,
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.context.personas.computation_key'
+      }
+    },
+    traits_or_props: {
+      label: 'Traits or properties object',
+      description: 'A computed object for track and identify events.',
+      type: 'object',
+      required: true,
+      unsafe_hidden: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties' },
+          then: { '@path': '$.properties' },
+          else: { '@path': '$.traits' }
+        }
       }
     },
     schema_type: {
@@ -106,7 +130,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { external_audience_id, schema_type } = payload
+    const { external_audience_id, schema_type, traits_or_props, audienceKey } = payload
+    const audienceEntered = traits_or_props[audienceKey]
+
     const response = validateAndExtractIdentifier(
       payload.schema_type,
       payload.email,
@@ -117,7 +143,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const { externalId } = response
 
     return request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
-      method: 'post',
+      method: `${audienceEntered ? 'post' : 'delete'}`,
       json: {
         data: {
           users: [
@@ -129,6 +155,55 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     })
+  },
+  performBatch: async (request, { payload }) => {
+    const { external_audience_id, schema_type } = payload[0]
+
+    const { enteredAudience, exitedAudience } = sortBatch(payload)
+
+    if (enteredAudience.length === 0 && exitedAudience.length === 0)
+      throw new PayloadValidationError(`No ${batchErrorMessage(schema_type)} present in batch`)
+
+    const requests = []
+
+    if (enteredAudience.length > 0) {
+      requests.push(
+        request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
+          method: 'post',
+          json: {
+            data: {
+              users: [
+                {
+                  schema: [`${schema_type}`],
+                  data: enteredAudience
+                }
+              ]
+            }
+          }
+        })
+      )
+    }
+
+    if (exitedAudience.length > 0) {
+      requests.push(
+        request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
+          method: 'delete',
+          json: {
+            data: {
+              users: [
+                {
+                  schema: [`${schema_type}`],
+                  data: exitedAudience
+                }
+              ]
+            }
+          }
+        })
+      )
+    }
+
+    // Wait for all requests to complete
+    return await Promise.all(requests)
   }
 }
 
