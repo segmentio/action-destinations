@@ -5,7 +5,8 @@ import {
   CreateEventDefinitionReq,
   CreatePropDefinitionReq,
   GetEventDefinitionResp,
-  EventCompletionReq
+  EventCompletionReq,
+  PropertyCreateResp
 } from './types'
 
 export class Client {
@@ -16,7 +17,6 @@ export class Client {
   }
 
   async getEventDefinition(eventName: string): Promise<ModifiedResponse<GetEventDefinitionResp>> {
-    // console.log(`${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`)
     return await this.request<GetEventDefinitionResp>(
       `${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`,
       {
@@ -44,7 +44,7 @@ export class Client {
   }
 
   async createPropertyDefinition(json: CreatePropDefinitionReq, eventName: string) {
-    return this.request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/property`, {
+    return this.request<PropertyCreateResp>(`${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/property`, {
       method: 'POST',
       json,
       throwHttpErrors: false

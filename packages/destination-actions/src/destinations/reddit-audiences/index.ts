@@ -8,7 +8,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   slug: 'actions-reddit-audiences',
   mode: 'cloud',
   authentication: {
-    scheme: 'oauth2',
+    scheme: 'oauth-managed',
     fields: {
       ad_account_id: {
         type: 'string',

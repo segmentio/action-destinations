@@ -23,6 +23,12 @@ const destination: DestinationDefinition<Settings> = {
           'Your Nextdoor Advertiser ID for self serve clients can be found in your NAM account for managed your support team can provide',
         type: 'string',
         required: true
+      },
+      pixel_id: {
+        label: 'Nextdoor Pixel Id',
+        description: 'Nextdoor Pixel Id. Used for deduplication when events are sent via CAPI and front end Pixel.',
+        type: 'string',
+        required: true
       }
     },
     testAuthentication: async (request, { settings }) => {
