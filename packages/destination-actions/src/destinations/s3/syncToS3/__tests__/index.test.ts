@@ -1,6 +1,7 @@
 import { generateFile } from '../../functions' // Adjust the import path
 import { Payload } from '../generated-types'
-import { snakeCase, encodeString, getAudienceAction } from '../../functions'
+import { clean, encodeString, getAudienceAction } from '../../functions'
+import { ColumnHeader } from '../../types'
 
 // Mock Client class
 jest.mock('../../client', () => {
@@ -20,17 +21,17 @@ jest.mock('../../client', () => {
 })
 
 // Test snakeCase function
-describe('snakeCase', () => {
-  it('should convert camelCase to snake_case', () => {
-    expect(snakeCase('abcdEfg')).toEqual('abcd_efg')
+describe('clean', () => {
+  it('should remove delimiter from string', () => {
+    expect(clean(',', 'abcd,Efg')).toEqual('abcdEfg')
   })
 
   it('should handle undefined input', () => {
-    expect(snakeCase(undefined)).toBe('')
+    expect(clean(',', '')).toBe('')
   })
 
   it('should handle empty string', () => {
-    expect(snakeCase('')).toBe('')
+    expect(clean('')).toBe('')
   })
 })
 
@@ -82,7 +83,7 @@ describe('generateFile', () => {
         file_extension: 'csv'
       }
     ]
-    const headers = ['event_name']
+    const headers: ColumnHeader[] = [{ cleanName: 'event_name', originalName: 'event_name' }]
     const result = generateFile(payloads, headers, ',', 'action_column')
     expect(result).toContain('Test Event')
   })
