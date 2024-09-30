@@ -255,11 +255,8 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    // GCLID, GBRAID and WBRAID are mutually exclusive. Only one of them can be set.
-    // Per Google, for iOS, GCLID does not exist if user never gave consent to track their data.
-    // GBRAID and WBRAID are used for iOS 14 and later.
-    if (payload.gclid && (payload.gbraid || payload.wbraid)) {
-      throw new PayloadValidationError('GCLID, GBRAID and WBRAID are mutually exclusive. Only one of them can be set.')
+    if ([payload.gclid, payload.gbraid, payload.wbraid].filter(Boolean).length!==1)) {
+      throw new PayloadValidationError('Only one of GCLID, GBRAID or WBRAID should be provided.')
     }
 
     settings.customerId = settings.customerId.replace(/-/g, '')
