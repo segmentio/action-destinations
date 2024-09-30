@@ -19,7 +19,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         adAccountId: {
           label: 'Ad Account',
           description:
-            'The ad account to use when creating the conversion event. (When updating a conversion rule, changes to this field will be ignored. Ad Account IDs cannot be updated for a conversion rule.)',
+            'The ad account to use when creating the conversion event. (When updating a conversion rule after initially creating it, changes to this field will be ignored. LinkedIn does not allow Ad Account IDs to be updated for a conversion rule.)',
           type: 'string',
           required: true,
           dynamic: async (request) => {
