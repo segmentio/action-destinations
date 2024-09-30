@@ -255,7 +255,7 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    if ([payload.gclid, payload.gbraid, payload.wbraid].filter(Boolean).length!==1)) {
+    if ([payload.gclid, payload.gbraid, payload.wbraid].filter(Boolean).length !== 1) {
       throw new PayloadValidationError('Only one of GCLID, GBRAID or WBRAID should be provided.')
     }
 
