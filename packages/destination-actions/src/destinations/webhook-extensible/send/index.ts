@@ -1,4 +1,4 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -48,40 +48,50 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    let body
-    let contentType = 'application/json'
+    try {
+      let body
+      let contentType = 'application/json'
 
-    if (payload.headers) {
-      contentType = (payload.headers['Content-Type'] as string) || (payload.headers['content-type'] as string)
+      if (payload.headers) {
+        contentType = (payload.headers['Content-Type'] as string) || (payload.headers['content-type'] as string)
+      }
+
+      if (payload.data) {
+        body = encodeBody(payload.data, contentType)
+      }
+
+      return request(payload.url, {
+        method: payload.method as RequestMethod,
+        headers: payload.headers as Record<string, string>,
+        ...body
+      })
+    } catch (error) {
+      if (error instanceof TypeError) throw new PayloadValidationError(error.message)
+      throw error
     }
-
-    if (payload.data) {
-      body = encodeBody(payload.data, contentType)
-    }
-
-    return request(payload.url, {
-      method: payload.method as RequestMethod,
-      headers: payload.headers as Record<string, string>,
-      ...body
-    })
   },
   performBatch: (request, { payload }) => {
     // Expect these to be the same across the payloads
-    const { url, method, headers } = payload[0]
-    return request(url, {
-      method: method as RequestMethod,
-      headers: headers as Record<string, string>,
-      json: payload.map(({ data }) => {
-        let contentType = 'application/json'
+    try {
+      const { url, method, headers } = payload[0]
+      return request(url, {
+        method: method as RequestMethod,
+        headers: headers as Record<string, string>,
+        json: payload.map(({ data }) => {
+          let contentType = 'application/json'
 
-        if (headers) {
-          contentType = (headers['Content-Type'] as string) || (headers['content-type'] as string)
-        }
-        if (data) return encodeBody(data, contentType)
+          if (headers) {
+            contentType = (headers['Content-Type'] as string) || (headers['content-type'] as string)
+          }
+          if (data) return encodeBody(data, contentType)
 
-        return data
+          return data
+        })
       })
-    })
+    } catch (error) {
+      if (error instanceof TypeError) throw new PayloadValidationError(error.message)
+      throw error
+    }
   }
 }
 

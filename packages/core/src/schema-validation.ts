@@ -53,11 +53,12 @@ interface ValidationOptions {
 export function validateSchema(obj: unknown, schema: JSONSchema4, options?: ValidationOptions) {
   const { schemaKey, throwIfInvalid = true, statsContext, exempt = [] } = options ?? {}
   let validate: ValidateFunction
+  const exemptedFields: Record<string, unknown> = {}
 
-  // Remove exempted properties from the object before validation
+  // save exempted fields
   const objCopy = { ...(obj as Record<string, unknown>) }
   exempt.forEach((prop) => {
-    delete objCopy[prop]
+    exemptedFields[prop] = objCopy[prop]
   })
 
   if (schemaKey) {
@@ -68,8 +69,15 @@ export function validateSchema(obj: unknown, schema: JSONSchema4, options?: Vali
   }
 
   // Ajv's `coerceTypes: 'array'` only works on scalars, so we need to manually arrify ourselves!
-  arrifyFields(objCopy, schema)
-  const isValid = validate(objCopy)
+  arrifyFields(obj, schema)
+  const isValid = validate(obj)
+
+  // add exempted fields back
+  exempt.forEach((prop) => {
+    if (objCopy[prop] !== undefined) {
+      ;(obj as Record<string, unknown>)[prop] = exemptedFields[prop]
+    }
+  })
 
   if (throwIfInvalid && !isValid && validate.errors) {
     statsContext?.statsClient?.incr('ajv.discard', 1, statsContext.tags)

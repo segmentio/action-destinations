@@ -455,7 +455,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
     //validate audienceField Input
     if (createAudienceInput.audienceSettings && Object.keys(createAudienceInput.audienceSettings).length > 0) {
-      validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceFields))
+      validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceFields), {
+        exempt: ['dynamicAuthSettings']
+      })
     }
     const destinationSettings = this.getDestinationSettings(settings)
     const run = async () => {

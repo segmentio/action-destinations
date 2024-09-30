@@ -270,15 +270,15 @@ describe('validateSchema', () => {
     }
 
     validateSchema(payload, schema, { schemaKey: `testSchema`, exempt: ['exemptKey'] })
-    expect(payload).toHaveProperty('d')
+    expect(payload).toHaveProperty('exemptKey')
     expect(payload).toMatchInlineSnapshot(`
       Object {
         "a": "a",
         "b": Object {
           "anything": "goes",
         },
-        "exemptKey": {
-          nested: "nested"
+        "exemptKey": Object {
+          "nested": "nested",
         },
       }
     `)
