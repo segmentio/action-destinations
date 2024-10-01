@@ -181,6 +181,9 @@ register('66cc76e29693c9e5591bf029', './nextdoor-capi')
 register('66e96b9f4ee97f41caa06487', './stackadapt-audiences')
 register('66e97a37a8f396642c0bd33c', './google-campaign-manager-360')
 register('66eaa166f650644f04389e2c', './s3')
+register('66f2aea175bae98028d5185a', './recombee')
+register('66f2b0818aa856d4d2d87f90', './postscript')
+register('66f2b0f961bb2128729079bb', './reddit-audiences')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

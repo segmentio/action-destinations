@@ -365,7 +365,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       matchingKey: matchingKey ? String(matchingKey) : undefined,
       subscriptionMetadata: bundle.subscriptionMetadata
     }
-
     // Construct the request client and perform the action
     const output = await this.performRequest(this.definition.perform, dataBundle)
     results.push({ data: output as JSONObject, output: 'Action Executed' })

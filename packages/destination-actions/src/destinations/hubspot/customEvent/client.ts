@@ -17,7 +17,6 @@ export class Client {
   }
 
   async getEventDefinition(eventName: string): Promise<ModifiedResponse<GetEventDefinitionResp>> {
-    // console.log(`${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`)
     return await this.request<GetEventDefinitionResp>(
       `${HUBSPOT_BASE_URL}/events/v3/event-definitions/${eventName}/?includeProperties=true`,
       {

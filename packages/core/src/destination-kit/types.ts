@@ -80,7 +80,6 @@ export interface ExecuteInput<
   readonly transactionContext?: TransactionContext
   /** Engage internal use only. DO NOT USE. */
   readonly stateContext?: StateContext
-
   readonly subscriptionMetadata?: SubscriptionMetadata
 }
 

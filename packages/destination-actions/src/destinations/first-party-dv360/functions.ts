@@ -13,8 +13,8 @@ interface createAudienceRequestParams {
   audienceName: string
   description?: string
   membershipDurationDays: string
-  appId?: string
   audienceType: string
+  appId?: string
   token?: string
 }
 
