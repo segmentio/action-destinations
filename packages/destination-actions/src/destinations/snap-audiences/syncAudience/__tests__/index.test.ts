@@ -88,7 +88,8 @@ describe('Snapchat Audiences syncAudience', () => {
       },
       traits_or_props: {
         '@path': '$.properties'
-      }
+      },
+      enable_batching: false
     }
     const phoneMapping = {
       schema_type: 'PHONE_SHA256',
@@ -100,7 +101,8 @@ describe('Snapchat Audiences syncAudience', () => {
       },
       traits_or_props: {
         '@path': '$.properties'
-      }
+      },
+      enable_batching: false
     }
     const mobileMapping = {
       schema_type: 'MOBILE_AD_ID_SHA256',
@@ -112,7 +114,8 @@ describe('Snapchat Audiences syncAudience', () => {
       },
       traits_or_props: {
         '@path': '$.properties'
-      }
+      },
+      enable_batching: false
     }
     await expect(
       testDestination.testAction('syncAudience', { event: audienceEventEntered, mapping: emailMapping, settings })
@@ -173,7 +176,8 @@ describe('Snapchat Audiences syncAudience', () => {
       },
       traits_or_props: {
         '@path': '$.properties'
-      }
+      },
+      enable_batching: false
     }
 
     const emailRequestBody = {
@@ -221,7 +225,8 @@ describe('Snapchat Audiences syncAudience', () => {
       },
       traits_or_props: {
         '@path': '$.properties'
-      }
+      },
+      enable_batching: false
     }
 
     const phoneRequestBody = {
@@ -270,7 +275,8 @@ describe('Snapchat Audiences syncAudience', () => {
       },
       traits_or_props: {
         '@path': '$.properties'
-      }
+      },
+      enable_batching: false
     }
 
     const mobileAdIdRequestBody = {
@@ -318,7 +324,8 @@ describe('Snapchat Audiences syncAudience', () => {
       },
       traits_or_props: {
         '@path': '$.properties'
-      }
+      },
+      enable_batching: true
     }
 
     const audienceEvent1 = createTestEvent({
@@ -409,7 +416,8 @@ describe('Snapchat Audiences syncAudience', () => {
       },
       traits_or_props: {
         '@path': '$.properties'
-      }
+      },
+      enable_batching: true
     }
 
     const audienceEvent1 = createTestEvent({
@@ -534,7 +542,8 @@ describe('Snapchat Audiences syncAudience', () => {
       },
       traits_or_props: {
         '@path': '$.properties'
-      }
+      },
+      enable_batching: true
     }
 
     const audienceEvent1 = createTestEvent({
