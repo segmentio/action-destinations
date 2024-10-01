@@ -698,4 +698,206 @@ describe('MultiStatus', () => {
       ])
     })
   })
+
+  describe('syncMode', () => {
+    it('trackEvent2 - should return a multiStatus error response when syncMode is not set', async () => {
+      nock(settings.endpoint).post('/users/track').reply(201, {})
+
+      const mapping = {
+        name: {
+          '@path': '$.traits.name'
+        },
+        time: receivedAt,
+        email: {
+          '@path': '$.traits.email'
+        },
+        external_id: {
+          '@path': '$.traits.externalId'
+        },
+        braze_id: {
+          '@path': '$.traits.brazeId'
+        }
+      }
+
+      const events: SegmentEvent[] = [
+        // Valid Event
+        createTestEvent({
+          type: 'identify',
+          receivedAt,
+          traits: {
+            name: 'Example User One',
+            externalId: 'test-external-id-1'
+          }
+        }),
+        // Event without any user identifier
+        createTestEvent({
+          type: 'identify',
+          receivedAt,
+          traits: {
+            name: 'Example User Two',
+            externalId: 'test-external-id-2'
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('trackEvent2', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response).toMatchObject([
+        {
+          errormessage: 'Invalid syncMode, must be set to "add" or "update"',
+          errorreporter: 'DESTINATION',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          status: 400
+        },
+        {
+          errormessage: 'Invalid syncMode, must be set to "add" or "update"',
+          errorreporter: 'DESTINATION',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          status: 400
+        }
+      ])
+    })
+
+    it('trackPurchase2 - should return a multiStatus error response when syncMode is not set', async () => {
+      nock(settings.endpoint).post('/users/track').reply(201, {})
+
+      const mapping = {
+        time: receivedAt,
+        external_id: {
+          '@path': '$.properties.externalId'
+        },
+        products: {
+          '@path': '$.properties.products'
+        }
+      }
+
+      const events: SegmentEvent[] = [
+        // Valid Event
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id',
+            products: [
+              {
+                product_id: 'test-product-id',
+                currency: 'USD',
+                price: 99.99,
+                quantity: 1
+              },
+              {
+                product_id: 'test-product-id',
+                currency: 'USD',
+                price: 99.99,
+                quantity: 1
+              }
+            ]
+          }
+        }),
+        // Event with no product
+        createTestEvent({
+          event: 'Order Completed',
+          type: 'track',
+          receivedAt,
+          properties: {
+            externalId: 'test-external-id',
+            products: []
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('trackPurchase2', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response).toMatchObject([
+        {
+          errormessage: 'Invalid syncMode, must be set to "add" or "update"',
+          errorreporter: 'DESTINATION',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          status: 400
+        },
+        {
+          errormessage: 'Invalid syncMode, must be set to "add" or "update"',
+          errorreporter: 'DESTINATION',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          status: 400
+        }
+      ])
+    })
+
+    it('updateUserProfile2 - should return a multiStatus error response when syncMode is not set', async () => {
+      nock(settings.endpoint).post('/users/track').reply(201, {})
+
+      const mapping = {
+        first_name: {
+          '@path': '$.traits.firstName'
+        },
+        last_name: {
+          '@path': '$.traits.lastName'
+        },
+        time: receivedAt,
+        email: {
+          '@path': '$.traits.email'
+        },
+        external_id: {
+          '@path': '$.traits.externalId'
+        },
+        braze_id: {
+          '@path': '$.traits.brazeId'
+        }
+      }
+
+      const events: SegmentEvent[] = [
+        // Valid Event
+        createTestEvent({
+          type: 'identify',
+          receivedAt,
+          traits: {
+            firstName: 'Example',
+            lastName: 'User',
+            externalId: 'test-external-id-1'
+          }
+        }),
+        // Valid Event
+        createTestEvent({
+          type: 'identify',
+          receivedAt,
+          traits: {
+            firstName: 'Example',
+            lastName: 'User',
+            externalId: 'test-external-id-2'
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('updateUserProfile2', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response).toMatchObject([
+        {
+          errormessage: 'Invalid syncMode, must be set to "add" or "update"',
+          errorreporter: 'DESTINATION',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          status: 400
+        },
+        {
+          errormessage: 'Invalid syncMode, must be set to "add" or "update"',
+          errorreporter: 'DESTINATION',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          status: 400
+        }
+      ])
+    })
+  })
 })

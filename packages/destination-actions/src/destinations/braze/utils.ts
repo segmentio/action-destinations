@@ -252,9 +252,7 @@ export function sendTrackPurchase(
 
 export async function sendBatchedTrackPurchase(
   request: RequestClient,
-
   settings: Settings,
-
   payloads: TrackPurchasePayload[],
   syncMode?: 'add' | 'update'
 ) {
@@ -590,4 +588,18 @@ async function handleBrazeAPIResponse(
 
 function transformPayloadsType(obj: object[]) {
   return obj as JSONLikeObject[]
+}
+
+export function generateMultiStatusError(batchSize: number, errorMessage: string): MultiStatusResponse {
+  const multiStatusResponse = new MultiStatusResponse()
+
+  for (let i = 0; i < batchSize; i++) {
+    multiStatusResponse.pushErrorResponse({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: errorMessage
+    })
+  }
+
+  return multiStatusResponse
 }
