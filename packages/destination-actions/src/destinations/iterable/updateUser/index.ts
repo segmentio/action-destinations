@@ -63,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     enable_batching: {
       label: 'Enable Batching',
-      description: 'When enabled, Segment will send data to Iterable in batches of up to 500',
+      description: 'When enabled, Segment will send data to Iterable in batches of up to 1001',
       type: 'boolean',
       required: false,
       default: false

@@ -117,14 +117,15 @@ describe('Loops.createOrUpdateContact', () => {
     })
   })
 
-  it('should work with mailingLists array', async () => {
+  it('should filter out invalid mailingLists', async () => {
     const testPayloadIn = {
       email: 'test@example.com',
       userId: 'some-id-2',
-      mailingLists: [
-        { listId: '1234', subscribed: true },
-        { listId: '74648', subscribed: false }
-      ]
+      mailingLists: {
+        '1234': 'true',
+        '74648': 'false',
+        '56456': 'foobar'
+      }
     }
     const testPayloadOut = {
       email: 'test@example.com',
@@ -156,7 +157,7 @@ describe('Loops.createOrUpdateContact', () => {
     const testPayloadIn = {
       email: 'test@example.com',
       userId: 'some-id-2',
-      mailingLists: []
+      mailingLists: {}
     }
     const testPayloadOut = {
       email: 'test@example.com',
