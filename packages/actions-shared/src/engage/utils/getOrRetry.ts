@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// import { retry } from '@segment/actions-core/retry' // This import is not working, gives a runtime error: retry_1.retry is not a function
+// import { retry } from '@segment/actions-core/retry' // TODO: fix this import. Currently it gives a runtime error: retry_1.retry is not a function (see below)
 import { delay } from './delay'
 import { ValueOrError, getOrCatch } from './getOrCatch'
 
@@ -37,12 +36,14 @@ export type GetOrRetryArgs = {
    * @param attemptCount
    * @returns
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onFailedAttempt?: (error: any, attemptCount: number) => PromiseLike<void> | void
 }
 
 /**
  * function that defines the interval between retries depending on the attempt number and the error that occurred
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type RetryIntervalMsPolicy = (attempt: number, error: any) => number
 
 export function backoffRetryPolicy(initialDelayMs = 500, multiplier = 1): RetryIntervalMsPolicy {

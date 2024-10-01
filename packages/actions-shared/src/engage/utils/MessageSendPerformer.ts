@@ -64,6 +64,7 @@ export interface MessagePayloadBase {
   traits?: {
     [k: string]: unknown
   }
+  segmentComputationId?: string
 }
 
 export interface MessageSettingsBase {
@@ -129,7 +130,12 @@ export abstract class MessageSendPerformer<
 
   async doPerform() {
     // sending messages and collecting results, including exceptions
-    const res = this.forAllRecepients(this.sendToRecepientCache.bind(this))
+
+    const res = this.forAllRecepients(
+      this.isFeatureActive('engage-cache-send-message')
+        ? this.sendToRecepientCache.bind(this)
+        : this.sendToRecepient.bind(this)
+    )
 
     if (this.executeInput.features) {
       this.logInfo('Feature flags:' + JSON.stringify(this.executeInput.features))
@@ -284,7 +290,7 @@ export abstract class MessageSendPerformer<
 
   getCommonTags() {
     const settings = this.settings
-    const payload = this.payload // as Record<string, any>
+    const payload = this.payload
     const res = [
       `space_id:${settings.spaceId}`,
       `projectid:${settings.sourceId}`,
@@ -294,7 +300,7 @@ export abstract class MessageSendPerformer<
     const correlation_id = this.getCorrelationId()
     if (correlation_id) res.push(`correlation_id:${correlation_id}`)
 
-    const computation_id = (payload as any).segmentComputationId
+    const computation_id = payload.segmentComputationId
     if (computation_id) res.push(`computation_id:${computation_id}`)
 
     return res
