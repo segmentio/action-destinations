@@ -1,11 +1,11 @@
 import type { ActionDefinition, DynamicFieldResponse, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getListIdDynamicData, validatePhoneNumber } from '../functions'
+import { getListIdDynamicData, validateAndConvertPhoneNumber } from '../functions'
 import { PayloadValidationError } from '@segment/actions-core'
 import { formatUnsubscribeProfile, formatUnsubscribeRequestBody } from '../functions'
 import { UnsubscribeProfile } from '../types'
-import { API_URL } from '../config'
+import { API_URL, COUNTRY_CODES } from '../config'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Unsubscribe Profile',
@@ -37,6 +37,21 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    country_code: {
+      label: 'Country Code',
+      description: `Country Code of the user. We support ISO 3166-1 alpha-2 country code.`,
+      type: 'string',
+      choices: COUNTRY_CODES,
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'phone_number',
+            operator: 'is_not',
+            value: ''
+          }
+        ]
+      }
+    },
     list_id: {
       label: 'List Id',
       description: `The Klaviyo list to remove the subscribed profiles from. If no list id is provided, the profile will be unsubscribed from all channels.`,
@@ -55,12 +70,19 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { email, phone_number, list_id } = payload
+    const { email, phone_number: initialPhoneNumber, list_id, country_code } = payload
+
+    let phone_number
+    if (initialPhoneNumber) {
+      phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
+      if (!phone_number) {
+        throw new PayloadValidationError(
+          `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
+        )
+      }
+    }
     if (!email && !phone_number) {
       throw new PayloadValidationError('Phone Number or Email is required.')
-    }
-    if (phone_number && !validatePhoneNumber(phone_number)) {
-      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
     }
 
     const profileToUnSubscribe = formatUnsubscribeProfile(email, phone_number)
@@ -77,7 +99,15 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { payload }) => {
     // remove payloads that have niether email or phone_number
     const filteredPayload = payload.filter((profile) => {
-      if (profile.phone_number && !validatePhoneNumber(profile.phone_number)) {
+      // Validate and convert the phone number using the provided country code
+      const validPhoneNumber = validateAndConvertPhoneNumber(profile.phone_number, profile.country_code)
+
+      // If the phone number is valid, update the profile's phone number with the validated format
+      if (validPhoneNumber) {
+        profile.phone_number = validPhoneNumber
+      }
+      // If the phone number is invalid (null), exclude this profile
+      else if (validPhoneNumber === null) {
         return false
       }
       return profile.email || profile.phone_number

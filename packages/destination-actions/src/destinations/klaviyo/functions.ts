@@ -23,6 +23,9 @@ import {
   AdditionalAttributes
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
+import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+
+const phoneUtil = PhoneNumberUtil.getInstance()
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
@@ -96,6 +99,8 @@ export async function createProfile(
       }
     }
 
+    console.log(profileData)
+
     const profile = await request(`${API_URL}/profiles/`, {
       method: 'POST',
       json: profileData
@@ -125,10 +130,12 @@ export const createImportJobPayload = (profiles: Payload[], listId?: string): { 
     type: 'profile-bulk-import-job',
     attributes: {
       profiles: {
-        data: profiles.map(({ list_id, enable_batching, batch_size, override_list_id, ...attributes }) => ({
-          type: 'profile',
-          attributes
-        }))
+        data: profiles.map(
+          ({ list_id, enable_batching, batch_size, override_list_id, country_code, ...attributes }) => ({
+            type: 'profile',
+            attributes
+          })
+        )
       }
     },
     ...(listId
@@ -403,8 +410,31 @@ export async function processProfilesByGroup(request: RequestClient, groupedProf
   return importResponses
 }
 
-export function validatePhoneNumber(phone?: string): boolean {
-  if (!phone) return true
+export function validateAndConvertPhoneNumber(phone?: string, countryCode?: string): string | undefined | null {
+  if (!phone) return
+
   const e164Regex = /^\+[1-9]\d{1,14}$/
-  return e164Regex.test(phone)
+
+  // Check if the phone number is already in E.164 format
+  if (e164Regex.test(phone)) {
+    return phone
+  }
+
+  // If phone number is not in E.164 format, attempt to convert it using the country code
+  if (countryCode) {
+    try {
+      const parsedPhone = phoneUtil.parse(phone, countryCode)
+      const isValid = phoneUtil.isValidNumberForRegion(parsedPhone, countryCode)
+
+      if (!isValid) {
+        return null
+      }
+
+      return phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
+    } catch (error) {
+      return null
+    }
+  }
+
+  return null
 }

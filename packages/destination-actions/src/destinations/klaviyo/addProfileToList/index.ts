@@ -6,7 +6,7 @@ import {
   addProfileToList,
   createImportJobPayload,
   sendImportJobRequest,
-  validatePhoneNumber
+  validateAndConvertPhoneNumber
 } from '../functions'
 import {
   email,
@@ -21,7 +21,8 @@ import {
   image,
   location,
   properties,
-  phone_number
+  phone_number,
+  country_code
 } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -41,29 +42,56 @@ const action: ActionDefinition<Settings, Payload> = {
     title: { ...title },
     organization: { ...organization },
     location: { ...location },
-    properties: { ...properties }
+    properties: { ...properties },
+    country_code: { ...country_code }
   },
   perform: async (request, { payload }) => {
-    const { email, phone_number, list_id, external_id, enable_batching, batch_size, ...additionalAttributes } = payload
+    const {
+      email,
+      phone_number: initialPhoneNumber,
+      list_id,
+      external_id,
+      enable_batching,
+      batch_size,
+      country_code,
+      ...additionalAttributes
+    } = payload
+    let phone_number
+    if (initialPhoneNumber) {
+      phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
+      if (!phone_number) {
+        throw new PayloadValidationError(
+          `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
+        )
+      }
+    }
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }
-    if (phone_number && !validatePhoneNumber(phone_number)) {
-      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
-    }
+    console.log(phone_number)
     const profileId = await createProfile(request, email, external_id, phone_number, additionalAttributes)
+    console.log(profileId)
     return await addProfileToList(request, profileId, list_id)
   },
   performBatch: async (request, { payload }) => {
     // Filtering out profiles that do not contain either an email, external_id or valid phone number.
     payload = payload.filter((profile) => {
-      if (profile.phone_number && !validatePhoneNumber(profile.phone_number)) {
+      // Validate and convert the phone number using the provided country code
+      const validPhoneNumber = validateAndConvertPhoneNumber(profile.phone_number, profile.country_code)
+
+      // If the phone number is valid, update the profile's phone number with the validated format
+      if (validPhoneNumber) {
+        profile.phone_number = validPhoneNumber
+      }
+      // If the phone number is invalid (null), exclude this profile
+      else if (validPhoneNumber === null) {
         return false
       }
       return profile.email || profile.external_id || profile.phone_number
     })
     const listId = payload[0]?.list_id
     const importJobPayload = createImportJobPayload(payload, listId)
+    console.log(importJobPayload)
     return sendImportJobRequest(request, importJobPayload)
   }
 }

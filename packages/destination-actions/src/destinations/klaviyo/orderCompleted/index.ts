@@ -2,10 +2,10 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
-import { API_URL } from '../config'
+import { API_URL, COUNTRY_CODES } from '../config'
 import { EventData } from '../types'
 import { v4 as uuidv4 } from '@lukeed/uuid'
-import { validatePhoneNumber } from '../functions'
+import { validateAndConvertPhoneNumber } from '../functions'
 
 const createEventData = (payload: Payload) => ({
   data: {
@@ -87,6 +87,21 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Phone Number',
           type: 'string'
         },
+        country_code: {
+          label: 'Country Code',
+          description: `Country Code of the user. We support ISO 3166-1 alpha-2 country code.`,
+          type: 'string',
+          choices: COUNTRY_CODES,
+          depends_on: {
+            conditions: [
+              {
+                fieldKey: 'phone_number',
+                operator: 'is_not',
+                value: ''
+              }
+            ]
+          }
+        },
         external_id: {
           label: 'External Id',
           description:
@@ -156,14 +171,21 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload }) => {
-    const { email, phone_number, external_id, anonymous_id } = payload.profile
+    const { email, phone_number: initialPhoneNumber, external_id, anonymous_id, country_code } = payload.profile
 
+    let phone_number
+    if (initialPhoneNumber) {
+      phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
+      if (!phone_number) {
+        throw new PayloadValidationError(
+          `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
+        )
+      }
+      payload.profile.phone_number = phone_number
+      delete payload?.profile?.country_code
+    }
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
-    }
-
-    if (phone_number && !validatePhoneNumber(phone_number)) {
-      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
     }
 
     const eventData = createEventData(payload)

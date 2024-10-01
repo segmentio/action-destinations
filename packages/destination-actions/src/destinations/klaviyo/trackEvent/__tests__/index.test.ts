@@ -24,7 +24,7 @@ describe('Track Event', () => {
   })
 
   it('should throw an error for invalid phone number format', async () => {
-    const profile = { email: 'test@example.com', phone_number: 'invalid-phone-number' }
+    const profile = { email: 'test@example.com', phone_number: 'invalid-phone-number', country_code: 'US' }
     const properties = { key: 'value' }
     const metricName = 'Order Completed'
     const value = 10
@@ -37,8 +37,56 @@ describe('Track Event', () => {
     const mapping = { profile, metric_name: metricName, properties, value }
 
     await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).rejects.toThrowError(
-      'invalid-phone-number is not a valid E.164 phone number.'
+      'invalid-phone-number is not a valid phone number and cannot be converted to E.164 format.'
     )
+  })
+
+  it('should convert a phone number to E.164 format if country code is provided', async () => {
+    const profile = { phone_number: '8448309222', country_code: 'IN' }
+    const properties = { key: 'value' }
+    const metricName = 'Order Completed'
+    const value = 10
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: '2022-01-01T00:00:00.000Z'
+    })
+
+    const mapping = { profile, metric_name: metricName, properties, value, unique_id: 'text-example-xyz' }
+
+    const requestBody = {
+      data: {
+        type: 'event',
+        attributes: {
+          properties: { key: 'value' },
+          time: '2022-01-01T00:00:00.000Z',
+          value: 10,
+          unique_id: 'text-example-xyz',
+          metric: {
+            data: {
+              type: 'metric',
+              attributes: {
+                name: metricName
+              }
+            }
+          },
+          profile: {
+            data: {
+              type: 'profile',
+              attributes: {
+                phone_number: '+918448309222'
+              }
+            }
+          }
+        }
+      }
+    }
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    await expect(
+      testDestination.testAction('trackEvent', { event, mapping, settings, useDefaultMappings: true })
+    ).resolves.not.toThrowError()
   })
 
   it('should successfully track event with external Id', async () => {
