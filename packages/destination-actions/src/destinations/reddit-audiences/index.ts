@@ -18,10 +18,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     refreshAccessToken: async (request, { auth }) => {
+      const authToken = Buffer.from(`${auth.clientId}:${auth.clientSecret}`).toString('base64')
+
       const res = await request('https://www.reddit.com/api/v1/access_token', {
         method: 'POST',
-        username: auth.clientId,
-        password: auth.clientSecret,
+        headers: {
+          Authorization: `Basic ${authToken}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'segmentaudienceapi:v1 (by /u/segment_audiences)'
+        },
         body: new URLSearchParams({
           refresh_token: auth.refreshToken,
           grant_type: 'refresh_token'
