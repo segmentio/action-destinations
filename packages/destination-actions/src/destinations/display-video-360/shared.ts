@@ -12,6 +12,7 @@ import {
 
 import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
 import type { AudienceSettings } from './generated-types'
+import { HTTPError } from '@segment/actions-core'
 
 type DV360AuthCredentials = { refresh_token: string; access_token: string; client_id: string; client_secret: string }
 
@@ -197,11 +198,11 @@ export const sendUpdateRequest = async (
 
     await bulkUploaderResponseHandler(response, statsName, statsContext)
   } catch (error) {
-    if (error.response?.status === 500) {
-      throw new IntegrationError(error.response.message, 'INTERNAL_SERVER_ERROR', 500)
+    if ((error as HTTPError).response?.status === 500) {
+      throw new IntegrationError((error as HTTPError).message, 'INTERNAL_SERVER_ERROR', 500)
     }
 
-    await bulkUploaderResponseHandler(error.response, statsName, statsContext)
+    await bulkUploaderResponseHandler((error as HTTPError).response, statsName, statsContext)
   }
 }
 
