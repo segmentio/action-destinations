@@ -22,7 +22,7 @@ describe('Reddit Conversions Api', () => {
         userId: 'user_id_1',
         properties: {
           click_id: 'click_id_1',
-          conversion_id: 'conversion_id_1',
+          conversion_id: 'ea3d01f99e303d2338cfb4e71f182441eb57c9a3cb129c40bcae9f5d641a7375',
           currency: 'USD',
           quantity: 10,
           total: 100,
@@ -61,7 +61,7 @@ describe('Reddit Conversions Api', () => {
             click_id: 'click_id_1',
             event_at: '2024-01-08T13:52:50.212Z',
             event_metadata: {
-              conversion_id: 'conversion_id_1',
+              conversion_id: '492ebaa71872336ef94c7093b77d2232fdba7e469f716586a816d861367b183f',
               currency: 'USD',
               item_count: 10,
               products: [
@@ -107,7 +107,7 @@ describe('Reddit Conversions Api', () => {
         userId: 'user_id_1',
         properties: {
           click_id: 'click_id_1',
-          conversion_id: 'conversion_id_1',
+          conversion_id: 'ea3d01f99e303d2338cfb4e71f182441eb57c9a3cb129c40bcae9f5d641a7375',
           currency: 'USD',
           quantity: 10,
           total: 100,
@@ -145,7 +145,7 @@ describe('Reddit Conversions Api', () => {
             click_id: 'click_id_1',
             event_at: '2024-01-08T13:52:50.212Z',
             event_metadata: {
-              conversion_id: 'conversion_id_1',
+              conversion_id: '492ebaa71872336ef94c7093b77d2232fdba7e469f716586a816d861367b183f',
               currency: 'USD',
               item_count: 10,
               products: [
@@ -188,7 +188,7 @@ describe('Reddit Conversions Api', () => {
         userId: 'user_id_1',
         properties: {
           click_id: 'click_id_1',
-          conversion_id: 'conversion_id_1',
+          conversion_id: 'ea3d01f99e303d2338cfb4e71f182441eb57c9a3cb129c40bcae9f5d641a7375',
           currency: 'USD',
           total: 100,
           uuid: 'uuid_1',
@@ -225,7 +225,7 @@ describe('Reddit Conversions Api', () => {
             click_id: 'click_id_1',
             event_at: '2024-01-08T13:52:50.212Z',
             event_metadata: {
-              conversion_id: 'conversion_id_1',
+              conversion_id: '492ebaa71872336ef94c7093b77d2232fdba7e469f716586a816d861367b183f',
               currency: 'USD',
               products: [
                 {

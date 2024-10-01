@@ -24,18 +24,11 @@ export interface Payload {
    */
   lastName?: string
   /**
-   * An array of objects containing key-value pairs of mailing list IDs as `listId` and a true/false `subscribed` value determining if the contact should be added to or removed from each list.
+   * Key-value pairs of mailing list IDs and a boolean denoting if the contact should be added (true) or removed (false) from the list. Input list IDs as keys on the right, and a boolean true or false value on the left.
    */
   mailingLists?: {
-    /**
-     * The ID of the mailing list.
-     */
-    listId: string
-    /**
-     * true indicates that the user is to be added to the list, false will remove the user from the list.
-     */
-    subscribed: boolean
-  }[]
+    [k: string]: unknown
+  }
   /**
    * The contact's source.
    */
