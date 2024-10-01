@@ -198,7 +198,6 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
   }
 
   createStepLogger(args: LogStepDetails): StepLogger {
-    //TODO: this is for troubleshooting, should be incorporated in track decorator
     const { tags = {}, logs = {} } = args
     const messageId = (this.executeInput as any)['rawData']?.messageId
     logs.messageId = messageId
@@ -383,21 +382,19 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
         getOrCatch(() => serializer.parse(cacheRead.value!))
       )
 
-      if (parsingError) {
-        //exception happened while parsing the cache.
-        // Log it and execute as if we don't have cache
-      } else if (isNone(parsedCache)) {
-        //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
-        step.write('cache_ignored')
-      } else {
-        //parsed cache successfully && cache is not expired
-        // parsedValue - either value or error was parsed
-        step.write('cache_hit', { tags: { cache_hit: true, cached_error: !!parsedCache.error } })
-        if (parsedCache.error) {
-          throw parsedCache.error
+      if (!parsingError)
+        if (isNone(parsedCache)) {
+          //cache parsed successfully but cache needs to be ignored (e.g. expired) - re-execute
+          step.write('cache_ignored')
+        } else {
+          //parsed cache successfully && cache is not expired
+          // parsedValue - either value or error was parsed
+          step.write('cache_hit', { tags: { cache_hit: true, cached_error: !!parsedCache.error } })
+          if (parsedCache.error) {
+            throw parsedCache.error
+          }
+          return parsedCache.value
         }
-        return parsedCache.value
-      }
     }
     // re-executing, because cache not found or ignored or failed to read or parse
     step.write('cache_miss')
@@ -410,29 +407,28 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       getOrCatch(() => serializer.stringify(resultError ? { error: resultError } : { value: result }))
     )
 
-    if (stringified.error) {
-      //
-    } else if (!isNone(stringified.value)) {
-      //result stringified and contains cacheable value - cache it
-      const { error: cacheSavingError, value: cacheSavingResult } = await step.track('cache_save', () =>
-        getOrRetry(
-          () => cache.setByKey(key, stringified.value!, options.expiryInSeconds),
-          options.saveRetry || {
-            attempts: 5,
-            retryIntervalMs: backoffRetryPolicy(10000, 3),
-            onFailedAttempt: (error, attemptCount) => {
-              step.write('cache_save_failed_attempt', { logs: { attemptCount, error: getErrorDetails(error) } })
+    if (!stringified.error)
+      if (!isNone(stringified.value)) {
+        //result stringified and contains cacheable value - cache it
+        const { error: cacheSavingError, value: cacheSavingResult } = await step.track('cache_save', () =>
+          getOrRetry(
+            () => cache.setByKey(key, stringified.value!, options.expiryInSeconds),
+            options.saveRetry || {
+              attempts: 5,
+              retryIntervalMs: backoffRetryPolicy(10000, 3),
+              onFailedAttempt: (error, attemptCount) => {
+                step.write('cache_save_failed_attempt', { logs: { attemptCount, error: getErrorDetails(error) } })
+              }
             }
-          }
+          )
         )
-      )
 
-      if (cacheSavingError || !cacheSavingResult) {
-        options?.onSaveFailed?.(cacheSavingError)
+        if (cacheSavingError || !cacheSavingResult) {
+          options?.onSaveFailed?.(cacheSavingError)
+        }
+      } else {
+        step.write('cache_save_skipped')
       }
-    } else {
-      step.write('cache_save_skipped')
-    }
 
     if (resultError) throw resultError
     else return result as T
@@ -502,9 +498,8 @@ export abstract class EngageActionPerformer<TSettings = any, TPayload = any, TRe
       // no redis error and no lock acquired - means it was acquiring timeout
       step.write('cache_lock_timeout_exit')
       this.throwRetryableError('Timeout while acquiring lock')
-    }
-    //if lock obtained or there was redis error - execute createValue and finally release lock
-    else {
+    } else {
+      //if lock obtained - execute createValue and finally release lock
       const { value: createdValue, error: createValueError } = await step.track('cache_lock_create', () =>
         getOrCatch(() => createValue())
       )
