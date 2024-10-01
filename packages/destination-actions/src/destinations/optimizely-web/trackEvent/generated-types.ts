@@ -10,10 +10,6 @@ export interface Payload {
    */
   endUserId: string
   /**
-   * The unique numeric identifier for the project.
-   */
-  projectID: number
-  /**
    * Anonymize the IP address of the user.
    */
   anonymizeIP: boolean
@@ -61,7 +57,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Additional properties to send with the event.
+   * Additional properties to send with the event. Properties must be defined in Optimizely before they can be sent.
    */
   properties?: {
     /**

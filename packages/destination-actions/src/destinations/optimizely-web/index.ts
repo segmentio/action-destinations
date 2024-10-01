@@ -22,6 +22,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Your Optimizely Account ID. TODO: Provide link to instructions on how to get this.',
         type: 'string',
         required: true
+      },
+      projectID: {
+        label: 'Optimizely Project ID',
+        description: 'The unique numeric identifier for the project.',
+        type: 'number',
+        required: true
       }
     }
     // testAuthentication: (request) => {

@@ -7,26 +7,23 @@ import { OptimizelyWebClient } from './client'
 import snakeCase from 'lodash/snakeCase'
 
 export async function send(request: RequestClient, settings: Settings, payload: Payload) {
-  const { unixTimestamp13, restProperties, value, revenue, quantity, currency, tags } = validate(
-    payload
-  )
+  const { unixTimestamp13, restProperties, value, revenue, quantity, currency, tags } = validate(payload)
 
   const {
     endUserId,
-    projectID: project_id,
     sessionId: session_id,
     uuid,
     eventMatching: { eventId, eventKey, shouldSnakeCaseEventKey },
     eventType
   } = payload
 
-  const client = new OptimizelyWebClient(request, settings, project_id)
+  const client = new OptimizelyWebClient(request, settings)
 
   const entity_id = eventId ?? (await getEventid(client, payload))
 
   const body: SendEventJSON = {
-    account_id: settings.optimizelyAccountId, 
-    project_id,
+    account_id: settings.optimizelyAccountId,
+    project_id: settings.projectID,
     anonymize_ip: payload.anonymizeIP,
     client_name: 'Segment Optimizely Web Destination',
     client_version: '1.0.0',
@@ -46,9 +43,9 @@ export async function send(request: RequestClient, settings: Settings, payload: 
                 timestamp: unixTimestamp13,
                 uuid,
                 type: eventType === PAGE ? 'view_activated' : 'other',
+                revenue: revenue ? revenue * 100 : undefined,
+                value,
                 tags: {
-                  revenue: revenue ? revenue * 100 : undefined,
-                  value,
                   quantity,
                   currency,
                   $opt_event_properties: restProperties as Event['tags']['$opt_event_properties'],
@@ -61,8 +58,6 @@ export async function send(request: RequestClient, settings: Settings, payload: 
       }
     ]
   }
-
-  console.log("event sent = " + JSON.stringify(body))
 
   return await client.sendEvent(body)
 }
@@ -132,7 +127,7 @@ export async function getEventid(client: OptimizelyWebClient, payload: Payload):
     pageUrl
   } = payload
 
-  if(!eventKey) {
+  if (!eventKey) {
     throw new PayloadValidationError('Event key is required to get the event id')
   }
 
@@ -159,8 +154,8 @@ export async function getEventid(client: OptimizelyWebClient, payload: Payload):
   return event.id.toString()
 }
 
-export function cleanKey(eventType: Type, shouldSnakeCaseEventKey: boolean, key?: string): string | undefined{
-  if(!key) {
+export function cleanKey(eventType: Type, shouldSnakeCaseEventKey: boolean, key?: string): string | undefined {
+  if (!key) {
     return undefined
   }
   const maybeSnakeKey = shouldSnakeCaseEventKey ? snakeCase(key) : key
@@ -169,7 +164,7 @@ export function cleanKey(eventType: Type, shouldSnakeCaseEventKey: boolean, key?
 
 export function getEventFromCache(key: string): EventItem | undefined {
   return getEventsFromCache().find((event: EventItem) => {
-    return (event.key === key)
+    return event.key === key
   })
 }
 
@@ -189,14 +184,10 @@ export async function ensureEventSchema(
     const response = await client.getCustomEvents(type)
     const eventItems: EventItem[] = await response.json()
 
-    //console.log("returned events = " + JSON.stringify(eventItems))
-
     return eventItems.find((event: EventItem) => {
-      return (event.key === key)
+      return event.key === key
     })
   })()
-
-  console.log(event ? "event found" : "event not found")
 
   if (event === undefined) {
     event = await (async () => {
@@ -204,15 +195,9 @@ export async function ensureEventSchema(
       const event = await response.json()
       return event
     })()
-
-    //updateCache()
   }
   if (!event) {
-    throw new IntegrationError(
-      `Unable to create event with key ${key} in Optimizely`,
-      'EVENT_CREATION_ERROR',
-      400
-    )
+    throw new IntegrationError(`Unable to create event with key ${key} in Optimizely`, 'EVENT_CREATION_ERROR', 400)
   }
   return event
 }

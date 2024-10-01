@@ -9,4 +9,8 @@ export interface Settings {
    * Your Optimizely Account ID. TODO: Provide link to instructions on how to get this.
    */
   optimizelyAccountId: string
+  /**
+   * The unique numeric identifier for the project.
+   */
+  projectID: number
 }

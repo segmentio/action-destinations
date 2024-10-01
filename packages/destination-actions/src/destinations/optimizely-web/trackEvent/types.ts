@@ -28,9 +28,9 @@ export interface Event {
   timestamp: UnixTimestamp13
   uuid: string
   type: EventType
+  revenue?: number
+  value?: number
   tags: {
-    revenue?: number
-    value?: number
     quantity?: number
     currency?: string
     $opt_event_properties?: {
@@ -53,13 +53,13 @@ export interface EventItem {
 export interface CreateEventJSON {
   category: string
   event_type: string
-  key: string 
+  key: string
   name?: string
 }
 
-export interface CreatePageJSON extends CreateEventJSON{
+export interface CreatePageJSON extends CreateEventJSON {
   edit_url: string
   project_id: number
-} 
+}
 
-export type Type = typeof TRACK | typeof PAGE  
+export type Type = typeof TRACK | typeof PAGE
