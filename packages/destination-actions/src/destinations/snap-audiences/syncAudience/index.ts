@@ -127,6 +127,13 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]
       }
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'When enabled, events will be batched before being sent to Snap.',
+      type: 'boolean',
+      required: true,
+      default: true
     }
   },
   perform: async (request, { payload }) => {
@@ -145,14 +152,12 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
       method: `${audienceEntered ? 'post' : 'delete'}`,
       json: {
-        data: {
-          users: [
-            {
-              schema: [`${schema_type}`],
-              data: [[`${externalId}`]]
-            }
-          ]
-        }
+        users: [
+          {
+            schema: [`${schema_type}`],
+            data: [[`${externalId}`]]
+          }
+        ]
       }
     })
   },
@@ -171,14 +176,12 @@ const action: ActionDefinition<Settings, Payload> = {
         request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
           method: 'post',
           json: {
-            data: {
-              users: [
-                {
-                  schema: [`${schema_type}`],
-                  data: enteredAudience
-                }
-              ]
-            }
+            users: [
+              {
+                schema: [`${schema_type}`],
+                data: enteredAudience
+              }
+            ]
           }
         })
       )
@@ -189,14 +192,12 @@ const action: ActionDefinition<Settings, Payload> = {
         request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
           method: 'delete',
           json: {
-            data: {
-              users: [
-                {
-                  schema: [`${schema_type}`],
-                  data: exitedAudience
-                }
-              ]
-            }
+            users: [
+              {
+                schema: [`${schema_type}`],
+                data: exitedAudience
+              }
+            ]
           }
         })
       )

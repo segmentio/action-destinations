@@ -10,7 +10,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Placeholder field to allow the audience to be created. Do not change this
+   * Name for the audience created in Snap. Defaults to the Segment audience name if left blank.
    */
-  placeholder?: boolean
+  customAudienceName?: string
 }

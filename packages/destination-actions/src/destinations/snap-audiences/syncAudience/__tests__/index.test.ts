@@ -177,14 +177,12 @@ describe('Snapchat Audiences syncAudience', () => {
     }
 
     const emailRequestBody = {
-      data: {
-        users: [
-          {
-            schema: ['EMAIL_SHA256'],
-            data: [['b375b7bbddb3de3298fbc7641063d9f03a38e118aa4480c8ab9f58740982e8bd']]
-          }
-        ]
-      }
+      users: [
+        {
+          schema: ['EMAIL_SHA256'],
+          data: [['b375b7bbddb3de3298fbc7641063d9f03a38e118aa4480c8ab9f58740982e8bd']]
+        }
+      ]
     }
 
     nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
@@ -227,15 +225,13 @@ describe('Snapchat Audiences syncAudience', () => {
     }
 
     const phoneRequestBody = {
-      data: {
-        users: [
-          {
-            schema: ['PHONE_SHA256'],
-            // hash of 17067675127
-            data: [['2fd199db6d3fa9fe754886ff1822f2867fcb104a6639495eca25c2978efe4ed4']]
-          }
-        ]
-      }
+      users: [
+        {
+          schema: ['PHONE_SHA256'],
+          // hash of 17067675127
+          data: [['2fd199db6d3fa9fe754886ff1822f2867fcb104a6639495eca25c2978efe4ed4']]
+        }
+      ]
     }
 
     nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
@@ -278,14 +274,12 @@ describe('Snapchat Audiences syncAudience', () => {
     }
 
     const mobileAdIdRequestBody = {
-      data: {
-        users: [
-          {
-            schema: ['MOBILE_AD_ID_SHA256'],
-            data: [['d4181bb455a74b3bc8b37c75ac9b2c702eb6b9930bd040b861403b31ca85634d']]
-          }
-        ]
-      }
+      users: [
+        {
+          schema: ['MOBILE_AD_ID_SHA256'],
+          data: [['d4181bb455a74b3bc8b37c75ac9b2c702eb6b9930bd040b861403b31ca85634d']]
+        }
+      ]
     }
 
     nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
@@ -382,18 +376,16 @@ describe('Snapchat Audiences syncAudience', () => {
     const events = [audienceEvent1, audienceEvent2, audienceEvent3]
 
     const batchRequestBody = {
-      data: {
-        users: [
-          {
-            schema: ['EMAIL_SHA256'],
-            data: [
-              ['0cd62bbd033e887666ab6ed1359253583b2c41e1c16b588e0fd58610233cf715'],
-              ['63b19a92fdc0a26b003f8adebbc85e04e4ed437fbb2d1ea02e543e3b40ec3153'],
-              ['be0cd3d2367d1e0e4d690fc2ecf4049b4693d840ebf5e0aeed216e43942dee0b']
-            ]
-          }
-        ]
-      }
+      users: [
+        {
+          schema: ['EMAIL_SHA256'],
+          data: [
+            ['0cd62bbd033e887666ab6ed1359253583b2c41e1c16b588e0fd58610233cf715'],
+            ['63b19a92fdc0a26b003f8adebbc85e04e4ed437fbb2d1ea02e543e3b40ec3153'],
+            ['be0cd3d2367d1e0e4d690fc2ecf4049b4693d840ebf5e0aeed216e43942dee0b']
+          ]
+        }
+      ]
     }
 
     nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
@@ -492,31 +484,27 @@ describe('Snapchat Audiences syncAudience', () => {
     const events = [audienceEvent1, audienceEvent2, audienceEvent3, audienceEvent4]
 
     const batchEnteredRequestBody = {
-      data: {
-        users: [
-          {
-            schema: ['EMAIL_SHA256'],
-            data: [
-              ['0cd62bbd033e887666ab6ed1359253583b2c41e1c16b588e0fd58610233cf715'],
-              ['63b19a92fdc0a26b003f8adebbc85e04e4ed437fbb2d1ea02e543e3b40ec3153']
-            ]
-          }
-        ]
-      }
+      users: [
+        {
+          schema: ['EMAIL_SHA256'],
+          data: [
+            ['0cd62bbd033e887666ab6ed1359253583b2c41e1c16b588e0fd58610233cf715'],
+            ['63b19a92fdc0a26b003f8adebbc85e04e4ed437fbb2d1ea02e543e3b40ec3153']
+          ]
+        }
+      ]
     }
 
     const batchExitedRequestBody = {
-      data: {
-        users: [
-          {
-            schema: ['EMAIL_SHA256'],
-            data: [
-              ['be0cd3d2367d1e0e4d690fc2ecf4049b4693d840ebf5e0aeed216e43942dee0b'],
-              ['297aad46b6b13a893b4d4e05486a1a825eeb3b03b6799d6072e7cfb5eef3adb6']
-            ]
-          }
-        ]
-      }
+      users: [
+        {
+          schema: ['EMAIL_SHA256'],
+          data: [
+            ['be0cd3d2367d1e0e4d690fc2ecf4049b4693d840ebf5e0aeed216e43942dee0b'],
+            ['297aad46b6b13a893b4d4e05486a1a825eeb3b03b6799d6072e7cfb5eef3adb6']
+          ]
+        }
+      ]
     }
     nock('https://adsapi.snapchat.com').post(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})
     nock('https://adsapi.snapchat.com').delete(`/v1/segments/${external_audience_id_value}/users`).reply(200, {})

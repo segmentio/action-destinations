@@ -1,5 +1,5 @@
 import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
-import type { Settings } from './generated-types'
+import type { Settings, AudienceSettings } from './generated-types'
 
 import syncAudience from './syncAudience'
 const ACCESS_TOKEN_URL = 'https://accounts.snapchat.com/login/oauth2/access_token'
@@ -9,9 +9,9 @@ interface RefreshTokenResponse {
 }
 
 // For an example audience destination, refer to webhook-audiences. The Readme section is under 'Audience Support'
-const destination: AudienceDestinationDefinition<Settings> = {
-  name: 'Snapchat Audiences (Actions)',
-  slug: 'actions-snapchat-audiences',
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
+  name: 'Snap Audiences (Actions)',
+  slug: 'actions-snap-audiences',
   mode: 'cloud',
 
   authentication: {
@@ -48,23 +48,24 @@ const destination: AudienceDestinationDefinition<Settings> = {
   },
 
   audienceFields: {
-    placeholder: {
-      type: 'boolean',
-      label: 'Placeholder Setting',
-      description: 'Placeholder field to allow the audience to be created. Do not change this',
-      default: true
+    customAudienceName: {
+      type: 'string',
+      label: 'Audience Name',
+      description: 'Name for the audience created in Snap. Defaults to the Segment audience name if left blank.',
+      default: '',
+      required: false
     }
-    // This is a required object, but we don't need to define any fields
-    // Placeholder setting will be removed once we make AudienceSettings optional
   },
 
   audienceConfig: {
     mode: {
-      type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
-      full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
+      type: 'synced',
+      full_audience_sync: false
     },
-    async createAudience(request, { settings, audienceName }) {
-      const { ad_account_id } = settings
+    async createAudience(request, createAudienceInput) {
+      const audienceName = createAudienceInput.audienceName
+      const ad_account_id = createAudienceInput.settings.ad_account_id
+      const customAudienceName = createAudienceInput.audienceSettings?.customAudienceName
 
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
@@ -72,10 +73,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
       const response = await request(`https://adsapi.snapchat.com/v1/adaccounts/${ad_account_id}/segments`, {
         method: 'POST',
+        headers: {
+          Authorization: `Bearer ${dev_token}`
+        },
         json: {
           segments: [
             {
-              name: audienceName,
+              name: `${customAudienceName !== '' ? customAudienceName : audienceName}`,
               source_type: 'FIRST_PARTY',
               ad_account_id
             }
@@ -83,11 +87,10 @@ const destination: AudienceDestinationDefinition<Settings> = {
         }
       })
 
-      const data = response.json()
+      const data = await response.json()
+      const snapAudienceId = data.segments[0].segment.id
 
-      console.dir(data, { depth: null })
-
-      return { externalId: 'asdlfkjasdfkj' }
+      return { externalId: snapAudienceId }
     },
 
     getAudience: async (request, { externalId }) => {
@@ -95,11 +98,10 @@ const destination: AudienceDestinationDefinition<Settings> = {
         method: 'GET'
       })
 
-      const data = response.json()
+      const data = await response.json()
+      const snapAudienceId = data.segments[0].segment.id
 
-      console.dir(data, { depth: null })
-
-      return { externalId: 'asdlfkjasdfkj' }
+      return { externalId: snapAudienceId }
     }
   },
 

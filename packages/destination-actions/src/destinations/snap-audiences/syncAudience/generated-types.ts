@@ -31,4 +31,8 @@ export interface Payload {
    * User's mobile advertising ID. Ensure you have included either 'ios.idfa' or 'android.idfa' as identifiers in the 'Customized Setup' menu when connecting the destination to your audience.
    */
   advertising_id?: string
+  /**
+   * When enabled, events will be batched before being sent to Snap.
+   */
+  enable_batching: boolean
 }
