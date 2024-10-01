@@ -73,9 +73,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const response = await request(`https://adsapi.snapchat.com/v1/adaccounts/${ad_account_id}/segments`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${dev_token}`
-        },
         json: {
           segments: [
             {
