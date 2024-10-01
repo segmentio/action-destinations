@@ -59,7 +59,7 @@ jobs:
 
       - name: Checkout the PR branch again
         if: steps.get_files.outputs.no_files_changed != 'true'
-        run: git checkout ${{ github.head_ref }}
+        run: git checkout -
 
       - name: Add comment on PR if there is diff in required fields
         if: steps.get_files.outputs.no_files_changed != 'true'
