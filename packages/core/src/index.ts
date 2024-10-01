@@ -76,7 +76,8 @@ export type {
   MinimalInputField,
   StateContext,
   StatsContext,
-  Preset
+  Preset,
+  Result
 } from './destination-kit'
 
 export type {
