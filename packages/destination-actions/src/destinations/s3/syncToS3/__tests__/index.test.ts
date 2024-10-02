@@ -97,6 +97,7 @@ describe('generateFile', () => {
         'Custom Field 2': 'Custom Field Value 2'
       },
       audience_action_column_name: 'audience_action',
+      batch_size_column_name: 'batch_size',
       traits_or_props: {
         audience_name_1: true,
         prop_str: 'Hello String!',
@@ -135,13 +136,14 @@ describe('generateFile', () => {
     { cleanName: 'audience_space_id', originalName: 'audience_space_id' },
     { cleanName: 'Custom Field 1', originalName: 'Custom Field 1' },
     { cleanName: 'Custom Field 2', originalName: 'Custom Field 2' },
-    { cleanName: 'audience_action', originalName: 'audience_action' }
+    { cleanName: 'audience_action', originalName: 'audience_action' },
+    { cleanName: 'batch_size', originalName: 'batch_size' }
   ]
 
-  const output = `event_name,event_type,user_id,anonymous_id,email,properties,traits,context,timestamp,message_id,integrations,audience_name,audience_id,audience_space_id,Custom Field 1,Custom Field 2,audience_action\n"Custom Event 1","track","user_id_1","anonymous_id_1","test@test.com","{""prop_str"":""Hello String!"",""prop_num"":123.45,""prop_bool"":true,""prop_datetime"":""2024-01-08T13:52:50.212Z"",""prop_date"":""2024-01-08"",""prop_obj"":{""key1"":""value1"",""key2"":""value2""},""prop_arr"":[""value1"",""value2""],""custom_field_1"":""Custom Field Value 1"",""custom_field_2"":""Custom Field Value 2""}","{""first_name"":""John"",""last_name"":""Doe"",""email"":""test@test.com""}","{""traits"":{""first_name"":""John"",""last_name"":""Doe"",""email"":""test@test.com""},""personas"":{""computation_key"":""audience_name_1"",""computation_id"":""audience_id_1"",""space_id"":""space_id_1""}}","2024-01-08T13:52:50.212Z","aaa-bbb-ccc","{}","audience_name_1","audience_id_1","space_id_1","Custom Field Value 1","Custom Field Value 2","true"`
+  const output = `event_name,event_type,user_id,anonymous_id,email,properties,traits,context,timestamp,message_id,integrations,audience_name,audience_id,audience_space_id,Custom Field 1,Custom Field 2,audience_action,batch_size\n"Custom Event 1","track","user_id_1","anonymous_id_1","test@test.com","{""prop_str"":""Hello String!"",""prop_num"":123.45,""prop_bool"":true,""prop_datetime"":""2024-01-08T13:52:50.212Z"",""prop_date"":""2024-01-08"",""prop_obj"":{""key1"":""value1"",""key2"":""value2""},""prop_arr"":[""value1"",""value2""],""custom_field_1"":""Custom Field Value 1"",""custom_field_2"":""Custom Field Value 2""}","{""first_name"":""John"",""last_name"":""Doe"",""email"":""test@test.com""}","{""traits"":{""first_name"":""John"",""last_name"":""Doe"",""email"":""test@test.com""},""personas"":{""computation_key"":""audience_name_1"",""computation_id"":""audience_id_1"",""space_id"":""space_id_1""}}","2024-01-08T13:52:50.212Z","aaa-bbb-ccc","{}","audience_name_1","audience_id_1","space_id_1","Custom Field Value 1","Custom Field Value 2","true","1"`
 
   it('should generate a CSV file with correct content', () => {
-    const result = generateFile(payloads, headers, ',', 'audience_action')
+    const result = generateFile(payloads, headers, ',', 'audience_action', 'batch_size')
     expect(result).toEqual(output)
   })
 })

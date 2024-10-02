@@ -73,7 +73,6 @@ export function generateFile(
   payloads.forEach((payload, index) => {
     const isLastRow = index === payloads.length - 1
     const row: string[] = []
-
     headers.forEach((header) => {
       if (header.originalName === actionColName) {
         processField(row, getAudienceAction(payload))
