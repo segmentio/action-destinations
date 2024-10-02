@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-optimizely-web destination: trackEvent action - all fields 1`] = `
+Object {
+  "account_id": "0dx]zHxQ6Zbx",
+  "anonymize_ip": true,
+  "client_name": "Segment Optimizely Web Destination",
+  "client_version": "1.0.0",
+  "enrich_decisions": true,
+  "project_id": -566109321297.92,
+  "visitors": Array [
+    Object {
+      "attributes": Array [],
+      "session_id": "0dx]zHxQ6Zbx",
+      "snapshots": Array [
+        Object {
+          "decisions": Array [],
+          "events": Array [
+            Object {
+              "entity_id": "custom_event_id_1",
+              "key": "custom_event_1",
+              "revenue": -56610932129792.01,
+              "tags": Object {
+                "$opt_event_properties": Object {},
+                "currency": "HRK",
+                "quantity": -56610932129792,
+                "testType": "0dx]zHxQ6Zbx",
+              },
+              "timestamp": 1612137600000,
+              "type": "other",
+              "uuid": "0dx]zHxQ6Zbx",
+              "value": -566109321297.92,
+            },
+          ],
+        },
+      ],
+      "visitor_id": "0dx]zHxQ6Zbx",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-optimizely-web destination: trackEvent action - required fields 1`] = `
+Object {
+  "account_id": "0dx]zHxQ6Zbx",
+  "anonymize_ip": true,
+  "client_name": "Segment Optimizely Web Destination",
+  "client_version": "1.0.0",
+  "enrich_decisions": true,
+  "project_id": -566109321297.92,
+  "visitors": Array [
+    Object {
+      "attributes": Array [],
+      "snapshots": Array [
+        Object {
+          "decisions": Array [],
+          "events": Array [
+            Object {
+              "entity_id": "custom_event_id_1",
+              "key": "custom_event_1",
+              "tags": Object {
+                "$opt_event_properties": Object {},
+              },
+              "timestamp": 1612137600000,
+              "type": "other",
+              "uuid": "0dx]zHxQ6Zbx",
+            },
+          ],
+        },
+      ],
+      "visitor_id": "0dx]zHxQ6Zbx",
+    },
+  ],
+}
+`;

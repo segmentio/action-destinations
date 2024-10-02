@@ -23,7 +23,16 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: {
+        ...event.properties,
+        eventMatching: {
+          eventId: 'custom_event_id_1',
+          eventKey: 'Custom_Event_1',
+          createEventIfNotFound: 'CREATE',
+          shouldSnakeCaseEventKey: true
+        },
+        eventType: 'track'
+      },
       settings: settingsData,
       auth: undefined
     })
@@ -56,7 +65,16 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: {
+        ...event.properties,
+        eventMatching: {
+          eventId: 'custom_event_id_1',
+          eventKey: 'Custom_Event_1',
+          createEventIfNotFound: 'CREATE',
+          shouldSnakeCaseEventKey: true
+        },
+        eventType: 'track'
+      },
       settings: settingsData,
       auth: undefined
     })

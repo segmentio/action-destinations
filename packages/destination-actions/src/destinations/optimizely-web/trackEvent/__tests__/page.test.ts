@@ -80,7 +80,7 @@ const mapping = {
 const createPageJSON: CreatePageJSON = {
   category: 'other',
   event_type: 'custom',
-  key: 'custom_page_1',
+  key: 'Custom_Page_1',
   name: 'Custom Page 1',
   edit_url: 'https://example.com',
   project_id: 123456
@@ -88,7 +88,7 @@ const createPageJSON: CreatePageJSON = {
 
 const eventItem: EventItem = {
   id: 88888888888,
-  key: 'custom_page_1',
+  key: 'Custom_Page_1',
   name: 'Custom Page 1'
 }
 
@@ -161,56 +161,6 @@ describe('OptimizelyWeb.trackEvent', () => {
         settings,
         useDefaultMappings: true,
         mapping
-      })
-
-      expect(responses.length).toBe(2)
-      expect(responses[1].status).toBe(204)
-    })
-
-    it('Should fetch event_id from Optimizely then send a custom track() event to Optimizely - event name should be snake cased and cleaned', async () => {
-      const event = createTestEvent(payload)
-
-      const mappingSnakeCase = {
-        ...mapping,
-        eventMatching: { ...mapping.eventMatching, shouldSnakeCaseEventKey: true }
-      }
-
-      const sendEventJSONSnakeCase = {
-        ...sendEventJSON,
-        visitors: [
-          {
-            ...sendEventJSON.visitors[0],
-            snapshots: [
-              {
-                ...sendEventJSON.visitors[0].snapshots[0],
-                events: [
-                  {
-                    ...sendEventJSON.visitors[0].snapshots[0].events[0],
-                    key: 'custom_page_1'
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-
-      nock('https://api.optimizely.com')
-        .get('/v2/pages?per_page=100&project_id=123456')
-        .reply(200, [
-          { id: 99999999999, key: 'not_the_correct_key', name: 'not_the_correct_name' },
-          { id: 88888888888, key: 'custom_event_1', name: 'Custom Event 1' }
-        ])
-
-      nock('https://logx.optimizely.com')
-        .post('/v1/events', sendEventJSONSnakeCase as unknown as any)
-        .reply(204)
-
-      const responses = await testDestination.testAction('trackEvent', {
-        event,
-        settings,
-        useDefaultMappings: true,
-        mapping: mappingSnakeCase
       })
 
       expect(responses.length).toBe(2)
