@@ -273,24 +273,23 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
 
   @track()
   async getBodyTemplateFromS3(bodyUrl: string) {
-    const content = !this.isFeatureActive('engage-cache-email-template')
-      ? (await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })).content
-      : await this.getOrAddCache(
-          // seems like Redis key size can be up to 512MB, so we should be fine using entire url as a key
-          `email-template:${bodyUrl}`,
-          async () => (await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })).content,
-          {
-            cacheGroup: 'getBodyTemplateFromS3',
-            expiryInSeconds: 4 * 60 * 60, // 4hr
-            // this guarantees that only one instance will try to download the s3 object under same url
-            lockOptions: {
-              lockMaxTimeMs: (this.isLockExpirationExtended() ? 30 : 10) * 60_000, // give it 30 mins to finish downloading s3 object from cloudfront while others are waiting
-              acquireLockMaxWaitTimeMs: 30_000, // 30 secs to acquire lock
-              acquireLockRetryIntervalMs: 1000 //1 sec between lock-retries
-            }
+    if (this.isFeatureActive('engage-cache-email-template'))
+      return await this.getOrAddCache(
+        // seems like Redis key size can be up to 512MB, so we should be fine using entire url as a key
+        `email-template:${bodyUrl}`,
+        async () => (await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })).content,
+        {
+          cacheGroup: 'getBodyTemplateFromS3',
+          expiryInSeconds: 4 * 60 * 60, // 4hr
+          // this guarantees that only one instance will try to download the s3 object under same url
+          lockOptions: {
+            lockMaxTimeMs: (this.isLockExpirationExtended() ? 30 : 10) * 60_000, // give it 30 mins to finish downloading s3 object from cloudfront while others are waiting
+            acquireLockMaxWaitTimeMs: 30_000, // 30 secs to acquire lock
+            acquireLockRetryIntervalMs: 1000 //1 sec between lock-retries
           }
-        )
-    return content
+        }
+      )
+    else return (await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })).content
   }
 
   @track()
