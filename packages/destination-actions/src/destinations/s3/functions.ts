@@ -8,23 +8,28 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
   const batchSize = payloads[0] && typeof payloads[0].batch_size === 'number' ? payloads[0].batch_size : 0
   const delimiter = payloads[0]?.delimiter
   const actionColName = payloads[0]?.audience_action_column_name
+  const batchColName = payloads[0]?.batch_size_column_name
 
-  if (batchSize > 25000) {
-    throw new IntegrationError('Batch size cannot exceed 25000', 'Invalid Payload', 400)
+  if (batchSize > 5000) {
+    throw new IntegrationError('Batch size cannot exceed 5000', 'Invalid Payload', 400)
   }
 
   const headers: ColumnHeader[] = Object.entries(rawMapping.columns)
     .filter(([_, value]) => value !== '')
     .map(([column]) => {
-      return { cleanName: clean(delimiter, column), originalName: column };
-    });
+      return { cleanName: clean(delimiter, column), originalName: column }
+    })
 
   if (actionColName) {
-    headers.push({cleanName: clean(delimiter, actionColName), originalName: actionColName} )
+    headers.push({ cleanName: clean(delimiter, actionColName), originalName: actionColName })
   }
 
-  const fileContent = generateFile(payloads, headers, delimiter, actionColName)
-  
+  if (batchColName) {
+    headers.push({ cleanName: clean(delimiter, batchColName), originalName: batchColName })
+  }
+
+  const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName)
+
   const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
 
   await s3Client.uploadS3(
@@ -55,9 +60,15 @@ function processField(row: string[], value: unknown | undefined) {
   )
 }
 
-export function generateFile(payloads: Payload[], headers: ColumnHeader[], delimiter: string, actionColName?: string): string {
-  const rows: string[] = [];
-  rows.push(`${headers.map(header => header.cleanName).join(delimiter === 'tab' ? '\t' : delimiter)}\n`)
+export function generateFile(
+  payloads: Payload[],
+  headers: ColumnHeader[],
+  delimiter: string,
+  actionColName?: string,
+  batchColName?: string
+): string {
+  const rows: string[] = []
+  rows.push(`${headers.map((header) => header.cleanName).join(delimiter === 'tab' ? '\t' : delimiter)}\n`)
 
   payloads.forEach((payload, index) => {
     const isLastRow = index === payloads.length - 1
@@ -66,6 +77,8 @@ export function generateFile(payloads: Payload[], headers: ColumnHeader[], delim
     headers.forEach((header) => {
       if (header.originalName === actionColName) {
         processField(row, getAudienceAction(payload))
+      } else if (header.originalName === batchColName) {
+        processField(row, payloads.length)
       } else {
         processField(row, payload.columns[header.originalName])
       }
