@@ -566,6 +566,18 @@ async function handleBrazeAPIResponse(
     }
   } catch (error) {
     if (error instanceof HTTPError) {
+      const errorResponse = error.response as ModifiedResponse<BrazeTrackUserAPIResponse>
+
+      // Iterate over the errors reported by Braze and store them at the original payload index
+      const parsedErrors: Set<string>[] = new Array(payloads.length).fill(new Set<string>())
+
+      if (errorResponse.data.errors && Array.isArray(errorResponse.data.errors)) {
+        errorResponse.data.errors.forEach((error) => {
+          const indexInOriginalPayload = validPayloadIndicesBitmap[error.index]
+          parsedErrors[indexInOriginalPayload].add(error.type)
+        })
+      }
+
       for (let i = 0; i < multiStatusResponse.length(); i++) {
         // Skip if the index is already marked as an error in pre-validation
         if (multiStatusResponse.isErrorResponseAtIndex(i)) {
@@ -576,7 +588,10 @@ async function handleBrazeAPIResponse(
         multiStatusResponse.setErrorResponseAtIndex(i, {
           status: error.response.status,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: (error?.response as ModifiedResponse<BrazeTrackUserAPIResponse>)?.data?.message ?? error.message
+          errormessage:
+            (error?.response as ModifiedResponse<BrazeTrackUserAPIResponse>)?.data?.message ?? error.message,
+          sent: payloads[i],
+          body: parsedErrors[i].size > 0 ? Array.from(parsedErrors[i]).join(', ') : undefined
         })
       }
     } else {
