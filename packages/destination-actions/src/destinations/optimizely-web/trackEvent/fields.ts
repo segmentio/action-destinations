@@ -72,13 +72,6 @@ export const fields: Record<string, InputField> = {
     default: {
       createEventIfNotFound: 'CREATE',
       shouldSnakeCaseEventKey: false,
-      eventName: {
-        '@if': {
-          exists: { '@path': '$.event' },
-          then: { '@path': '$.event' },
-          else: { '@path': '$.name' }
-        }
-      },
       eventKey: {
         '@if': {
           exists: { '@path': '$.event' },
