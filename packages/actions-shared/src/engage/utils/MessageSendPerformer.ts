@@ -406,14 +406,9 @@ export abstract class MessageSendPerformer<
       }
     }
 
-    // if we are here, then all failed.
     const rejected = sendResults.filter((sr) => sr.status === 'rejected')
 
-    /*
-     * Get all of retryable errors and aggregate them.
-     * return
-     */
-    // if some errors are retriable, throw aggregated with first code and status
+    // if there were errors - throw aggregated error, taking code and status from the first retryable error if present
     if (rejected.length) {
       const firstRetryableError = rejected.find((r) => isRetryableError(r.error))?.error
       throw AggregateError.create({
