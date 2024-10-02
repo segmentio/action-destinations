@@ -1,4 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import trackEvent from './trackEvent'
@@ -31,6 +32,15 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+  presets: [
+    {
+      name: 'Send Custom Event or Page Event',
+      subscribe: 'type = "track" or type = "page"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
+    }
+  ],
   actions: {
     trackEvent
   }
