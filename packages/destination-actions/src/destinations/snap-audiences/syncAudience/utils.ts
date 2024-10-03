@@ -1,6 +1,5 @@
 import type { Payload } from './generated-types'
 import { createHash } from 'crypto'
-type IdentifierResult = { found: true; externalId: string } | { found: false; message: string }
 
 // Filters out events with missing identifiers and sorts based on audience entered/exited
 export const sortPayload = (payload: Payload[]) => {
@@ -10,18 +9,18 @@ export const sortPayload = (payload: Payload[]) => {
   }>(
     (acc, payloadItem) => {
       const audienceEntered = payloadItem.traits_or_props[payloadItem.audienceKey]
-      const response = validateAndExtractIdentifier(
+      const externalId = validateAndExtractIdentifier(
         payloadItem.schema_type,
         payloadItem.email,
         payloadItem.phone,
         payloadItem.advertising_id
       )
 
-      if (response.found) {
+      if (externalId) {
         if (audienceEntered) {
-          acc.enteredAudience.push([response.externalId])
+          acc.enteredAudience.push([externalId])
         } else {
-          acc.exitedAudience.push([response.externalId])
+          acc.exitedAudience.push([externalId])
         }
       }
 
@@ -30,7 +29,6 @@ export const sortPayload = (payload: Payload[]) => {
     { enteredAudience: [], exitedAudience: [] }
   )
 }
-
 export const validationError = (schema_type: string): string => {
   switch (schema_type) {
     case 'MOBILE_AD_ID_SHA256':
@@ -44,32 +42,24 @@ export const validationError = (schema_type: string): string => {
   }
 }
 
-// Returns normalized and hashed identifier
+// Returns normalized and hashed identifier or null if not present
 const validateAndExtractIdentifier = (
   schemaType: string,
   email: string | undefined,
   phone: string | undefined,
   mobileAdId: string | undefined
-): IdentifierResult => {
-  if (schemaType === 'EMAIL_SHA256') {
-    return email
-      ? { found: true, externalId: normalizeAndHash(email) }
-      : { found: false, message: 'Email not present in payload' }
+): string | null => {
+  if (schemaType === 'EMAIL_SHA256' && email) {
+    return normalizeAndHash(email)
+  }
+  if (schemaType === 'MOBILE_AD_ID_SHA256' && mobileAdId) {
+    return normalizeAndHash(mobileAdId)
+  }
+  if (schemaType === 'PHONE_SHA256' && phone) {
+    return normalizeAndHashPhone(phone)
   }
 
-  if (schemaType === 'PHONE_SHA256') {
-    return phone
-      ? { found: true, externalId: normalizeAndHashPhone(phone) }
-      : { found: false, message: 'Phone number not present in payload' }
-  }
-
-  if (schemaType === 'MOBILE_AD_ID_SHA256') {
-    return mobileAdId
-      ? { found: true, externalId: normalizeAndHash(mobileAdId) }
-      : { found: false, message: 'Mobile AD ID not present in payload' }
-  }
-
-  return { found: false, message: 'Schema type not recognized' }
+  return null
 }
 
 const hash = (value: string): string => {
