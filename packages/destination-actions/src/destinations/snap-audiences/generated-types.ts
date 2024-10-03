@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * The ID of the Snapchat Ad Account
+   * The ID of the Snap Ad Account
    */
   ad_account_id: string
 }

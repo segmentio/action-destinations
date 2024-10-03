@@ -33,7 +33,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     fields: {
       ad_account_id: {
         label: 'Ad Account ID',
-        description: 'The ID of the Snapchat Ad Account',
+        description: 'The ID of the Snap Ad Account',
         required: true,
         type: 'string'
       }

@@ -6,7 +6,7 @@ import { validationError, sortPayload } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
-  description: 'Sync Segment Engage Audiences to Snapchat',
+  description: 'Sync Segment Engage Audiences to Snap',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     external_audience_id: {
