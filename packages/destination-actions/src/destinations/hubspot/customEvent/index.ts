@@ -3,18 +3,18 @@ import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
 import { Client } from './client'
 import { ActionDefinition, RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
-import { dynamicReadEventNames, dynamicReadObjectTypes, dynamicReadProperties } from './functions/dynamic-field-functions'
+import { dynamicFields } from './functions/dynamic-field-functions'
 import { SyncMode, SchemaMatch, CachableSchema } from './types'
 import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import {
   getSchemaFromHubspot,
   createHubspotEventSchema,
-  updateHubspotSchema,
+  updateHubspotSchema
 } from './functions/hubspot-event-schema-functions'
 import { sendEvent } from './functions/event-completion-functions'
 import { validate } from './functions/validation-functions'
 import { eventSchema } from './functions/schema-functions'
-import { compareSchemas, saveSchemaToCache, getSchemaFromCache} from './functions/cache-functions'
+import { compareSchemas, saveSchemaToCache, getSchemaFromCache } from './functions/cache-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event V2',
@@ -32,25 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     ...commonFields
   },
-  dynamicFields: {
-    event_name: async (request) => {
-      return await dynamicReadEventNames(request)
-    },
-    record_details: {
-      object_type: async (request) => {
-        return await dynamicReadObjectTypes(request)
-      }
-    },
-    properties: {
-      __keys__: async (request, { payload }) => {
-        const eventName = payload?.event_name
-        if (!eventName) {
-          throw new Error("Select from 'Event Name' first")
-        }
-        return await dynamicReadProperties(request, eventName)
-      }
-    }
-  },
+  dynamicFields,
   perform: async (request, { payload, syncMode, subscriptionMetadata, statsContext }) => {
     return await send(request, payload, syncMode as SyncMode, subscriptionMetadata, statsContext)
   }
