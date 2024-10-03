@@ -119,11 +119,6 @@ const action: ActionDefinition<Settings, Payload> = {
             fieldKey: 'schema_type',
             operator: 'is',
             value: 'MOBILE_AD_ID_SHA256'
-          },
-          {
-            fieldKey: 'mobile_id_type',
-            operator: 'is',
-            value: 'advertisingId'
           }
         ]
       }
