@@ -107,7 +107,7 @@ function getMetadata(
     item_count: cleanNum(metadata?.item_count),
     value_decimal: cleanNum(metadata?.value_decimal),
     products: getProducts(products),
-    conversion_id: clean(conversion_id)
+    conversion_id: hash(clean(conversion_id))
   }
 }
 
@@ -145,7 +145,7 @@ function getUser(
 
   return {
     ...getAdId(user.device_type, user.advertising_id),
-    email: hash(clean(user.email), true),
+    email: hashEmail(clean(user.email)),
     external_id: hash(clean(user.external_id)),
     ip_address: hash(clean(user.ip_address)),
     user_agent: clean(user.user_agent),
@@ -161,12 +161,16 @@ function canonicalizeEmail(value: string): string {
   return `${localPart.toLowerCase()}@${localPartAndDomain[1].toLowerCase()}`
 }
 
-const hash = (value: string | undefined, isEmail = false): string | undefined => {
+function hashEmail(email: string | undefined): string | undefined {
+  if (email === undefined) return
+  const canonicalEmail = canonicalizeEmail(email)
+  return hash(canonicalEmail)
+}
+
+const hash = (value: string | undefined): string | undefined => {
   if (value === undefined) return
-  if (isEmail) {
-    value = canonicalizeEmail(value)
-  }
   const hash = createHash('sha256')
   hash.update(value)
   return hash.digest('hex')
 }
+

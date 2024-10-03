@@ -23,13 +23,15 @@ const createRequestBody = (
   properties: Record<string, any>,
   value: number,
   metricName: string,
-  profile: Record<string, any>
+  profile: Record<string, any>,
+  time?: string
 ) => ({
   data: {
     type: 'event',
     attributes: {
       properties,
       value,
+      time,
       metric: createMetric(metricName),
       profile: {
         data: {
@@ -208,5 +210,70 @@ describe('Order Completed', () => {
       .reply(200, {})
 
     await expect(testDestination.testAction(`orderCompleted`, { event, mapping, settings })).resolves.not.toThrowError()
+  })
+
+  it('should not throw an error when the time property has more than three digits in the milliseconds and should convert the time to ISO format.', async () => {
+    const profile = { anonymous_id: 'an0nym0u51d' }
+    const properties = { key: 'value' }
+    const metricName = 'Order Completed'
+    const value = 10
+    const eventName = 'Order Completed'
+    const time = '2024-07-22T20:08:49.891Z' // convert the timestamp from '2024-07-22T20:08:49.89191341Z'
+    const timestamp = '2024-07-22T20:08:49.89191341Z'
+    const requestBody = createRequestBody(properties, value, metricName, profile, time)
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp
+    })
+
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName, time: timestamp }
+    const res = await testDestination.testAction('orderCompleted', { event, mapping, settings })
+    expect(res[0].options.body).toMatchSnapshot()
+  })
+
+  it('should successfully convert the timestamp for the time property to ISO format.', async () => {
+    const profile = { anonymous_id: 'an0nym0u51d' }
+    const properties = { key: 'value' }
+    const metricName = 'Order Completed'
+    const value = 10
+    const eventName = 'Order Completed'
+    const time = '2024-07-22T20:08:49.890Z'
+    const timestamp = '2024-07-22T20:08:49.89Z'
+    const requestBody = createRequestBody(properties, value, metricName, profile, time)
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp
+    })
+
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName, time: timestamp }
+    const res = await testDestination.testAction('orderCompleted', { event, mapping, settings })
+    expect(res[0].options.body).toMatchSnapshot()
+  })
+  it('should not pass time property in API when it is not mapped', async () => {
+    const profile = { anonymous_id: 'an0nym0u51d' }
+    const properties = { key: 'value' }
+    const metricName = 'Order Completed'
+    const value = 10
+    const eventName = 'Order Completed'
+    const timestamp = '2024-07-22T20:08:49.89191341Z'
+    const requestBody = createRequestBody(properties, value, metricName, profile)
+
+    nock(`${API_URL}`).post('/events/', requestBody).reply(200, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp
+    })
+
+    const mapping = { profile, metric_name: metricName, properties, value, event_name: eventName }
+
+    const res = await testDestination.testAction('orderCompleted', { event, mapping, settings })
+    expect(res[0].options.body).toMatchSnapshot()
   })
 })

@@ -94,6 +94,7 @@ export const apiEndpoints = {
   updateUser: '/api/users/update',
   bulkUpdateUser: '/api/users/bulkUpdate',
   trackEvent: '/api/events/track',
+  bulkTrackEvent: '/api/events/trackBulk',
   updateCart: '/api/commerce/updateCart',
   trackPurchase: '/api/commerce/trackPurchase',
   getWebhooks: '/api/webhooks'

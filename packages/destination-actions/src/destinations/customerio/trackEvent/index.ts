@@ -8,9 +8,6 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Track an event for a known or anonymous person.',
   defaultSubscription: `
     type = "track"
-    and event != "Application Installed"
-    and event != "Application Opened"
-    and event != "Application Uninstalled"
     and event != "Relationship Deleted"
     and event != "User Deleted"
     and event != "User Suppressed"
