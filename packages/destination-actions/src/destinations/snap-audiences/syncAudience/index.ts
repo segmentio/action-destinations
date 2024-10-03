@@ -52,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ],
       label: 'External ID Type',
       required: true,
-      description: 'Choose the type of identifier to use when adding users to Snapchat.',
+      description: 'Choose the type of identifier to use when adding users to Snap.',
       default: 'EMAIL_SHA256'
     },
     phone: {
