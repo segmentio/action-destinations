@@ -10,7 +10,15 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Name for the audience created in Snap. Defaults to the Segment audience name if left blank.
+   * Name for the audience that will be created in Snap. Defaults to the Segment audience name if left blank.
    */
   customAudienceName?: string
+  /**
+   * Description of for the audience that will be created in Snap.
+   */
+  description?: string
+  /**
+   * # of days to retain audience members. (Default retention is lifetime represented as 9999)
+   */
+  retention_in_days?: number
 }

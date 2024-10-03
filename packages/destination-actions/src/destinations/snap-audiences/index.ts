@@ -1,14 +1,28 @@
 import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-
 import syncAudience from './syncAudience'
 const ACCESS_TOKEN_URL = 'https://accounts.snapchat.com/login/oauth2/access_token'
 
 interface RefreshTokenResponse {
   access_token: string
 }
+interface SnapAudienceResponse {
+  segments: {
+    segment: {
+      id: string
+    }
+  }[]
+}
+interface CreateAudienceReq {
+  segments: {
+    name: string
+    source_type: string
+    ad_account_id: string
+    description: string
+    retention_in_days: number
+  }[]
+}
 
-// For an example audience destination, refer to webhook-audiences. The Readme section is under 'Audience Support'
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Snap Audiences (Actions)',
   slug: 'actions-snap-audiences',
@@ -25,7 +39,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     refreshAccessToken: async (request, { auth }) => {
-      // Return a request that refreshes the access_token if the API supports it
       const res = await request<RefreshTokenResponse>(ACCESS_TOKEN_URL, {
         method: 'POST',
         body: new URLSearchParams({
@@ -51,12 +64,26 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     customAudienceName: {
       type: 'string',
       label: 'Audience Name',
-      description: 'Name for the audience created in Snap. Defaults to the Segment audience name if left blank.',
+      description:
+        'Name for the audience that will be created in Snap. Defaults to the Segment audience name if left blank.',
       default: '',
+      required: false
+    },
+    description: {
+      type: 'string',
+      label: 'Audience Description',
+      description: 'Description of for the audience that will be created in Snap.',
+      default: '',
+      required: false
+    },
+    retention_in_days: {
+      type: 'number',
+      label: 'Retention in days',
+      description: '# of days to retain audience members. (Default retention is lifetime represented as 9999)',
+      default: 9999,
       required: false
     }
   },
-
   audienceConfig: {
     mode: {
       type: 'synced',
@@ -65,7 +92,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
       const ad_account_id = createAudienceInput.settings.ad_account_id
-      const customAudienceName = createAudienceInput.audienceSettings?.customAudienceName
+      const { customAudienceName, description, retention_in_days } = createAudienceInput.audienceSettings || {}
 
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
@@ -78,13 +105,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
             {
               name: `${customAudienceName !== '' ? customAudienceName : audienceName}`,
               source_type: 'FIRST_PARTY',
-              ad_account_id
+              ad_account_id,
+              description,
+              retention_in_days
             }
           ]
-        }
+        } as CreateAudienceReq
       })
 
-      const data = await response.json()
+      const data: SnapAudienceResponse = await response.json()
       const snapAudienceId = data.segments[0].segment.id
 
       return { externalId: snapAudienceId }
@@ -95,19 +124,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         method: 'GET'
       })
 
-      const data = await response.json()
+      const data: SnapAudienceResponse = await response.json()
       const snapAudienceId = data.segments[0].segment.id
 
       return { externalId: snapAudienceId }
     }
   },
-
-  // onDelete: async (request, { settings, payload }) => {
-  // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-  // provided in the payload. If your destination does not support GDPR deletion you should not
-  // implement this function and should remove it completely.
-  // },
-
   actions: {
     syncAudience
   }

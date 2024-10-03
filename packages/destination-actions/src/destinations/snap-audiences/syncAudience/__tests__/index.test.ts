@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, PayloadValidationError } from '@segment/actions-core'
 import Destination from '../../index'
-import { normalizeAndHashEmail, normalizeAndHashMobileId, normalizeAndHashPhone } from '../utils'
+import { normalizeAndHash, normalizeAndHashPhone } from '../utils'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -132,10 +132,10 @@ describe('Snapchat Audiences syncAudience', () => {
     const email2 = 'Person@email.com'
     const email3 = 'Person@email.com '
     const hashedEmail = 'b375b7bbddb3de3298fbc7641063d9f03a38e118aa4480c8ab9f58740982e8bd'
-    const email1Res = normalizeAndHashEmail(email1)
-    const email2Res = normalizeAndHashEmail(email2)
-    const email3Res = normalizeAndHashEmail(email3)
-    const alreadyHashedResEmail = normalizeAndHashEmail(hashedEmail)
+    const email1Res = normalizeAndHash(email1)
+    const email2Res = normalizeAndHash(email2)
+    const email3Res = normalizeAndHash(email3)
+    const alreadyHashedResEmail = normalizeAndHash(hashedEmail)
     expect(email1Res).toEqual(hashedEmail)
     expect(email2Res).toEqual(hashedEmail)
     expect(email3Res).toEqual(hashedEmail)
@@ -157,9 +157,9 @@ describe('Snapchat Audiences syncAudience', () => {
     const mobileAdId1 = 'f81d4fae-7dec-11d0-a765-00a0c91e6bf6'
     const mobileAdId2 = 'F81D4FAE-7DEC-11D0-A765-00A0C91E6BF6'
     const hashedMobileAdId = '30a5154b77ab8b2ddbe19f5e7af72f33cc2a4a41f22940d965102650a1c72863'
-    const mobileAdId1Res = normalizeAndHashMobileId(mobileAdId1)
-    const mobileAdId2Res = normalizeAndHashMobileId(mobileAdId2)
-    const alreadyHashedResMobileAdId = normalizeAndHashMobileId(hashedMobileAdId)
+    const mobileAdId1Res = normalizeAndHash(mobileAdId1)
+    const mobileAdId2Res = normalizeAndHash(mobileAdId2)
+    const alreadyHashedResMobileAdId = normalizeAndHash(hashedMobileAdId)
     expect(mobileAdId1Res).toEqual(hashedMobileAdId)
     expect(mobileAdId2Res).toEqual(hashedMobileAdId)
     expect(alreadyHashedResMobileAdId).toEqual(hashedMobileAdId)

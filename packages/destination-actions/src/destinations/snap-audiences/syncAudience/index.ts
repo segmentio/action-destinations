@@ -1,8 +1,8 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { batchErrorMessage, sortBatch, validateAndExtractIdentifier } from './utils'
+import { validationError, sortPayload } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -52,13 +52,13 @@ const action: ActionDefinition<Settings, Payload> = {
       ],
       label: 'External ID Type',
       required: true,
-      description:
-        'Choose the type of identifier to use when adding users to Snapchat. If selecting Mobile ID or Phone, ensure these identifiers are included as custom traits in the Audience settings page where the destination is connected.',
+      description: 'Choose the type of identifier to use when adding users to Snapchat.',
       default: 'EMAIL_SHA256'
     },
     phone: {
-      label: 'Phone Number',
-      description: "User's phone number",
+      label: 'Phone',
+      description:
+        "The user's phone number. Note: Phone is not included in audience payloads by default. To sync phone numbers, be sure to add them as an additional identifier in the Audience settings page.",
       type: 'string',
       required: false,
       default: {
@@ -81,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: "User's email address",
+      description: "The user's email address.",
       type: 'string',
       format: 'email',
       required: false,
@@ -106,7 +106,7 @@ const action: ActionDefinition<Settings, Payload> = {
     advertising_id: {
       label: 'Mobile Advertising ID',
       description:
-        "User's mobile advertising ID. Ensure you have included either 'ios.idfa' or 'android.idfa' as identifiers in the 'Customized Setup' menu when connecting the destination to your audience.",
+        "The user's mobile advertising ID. Note: Mobile Advertising Id is not included in audience payloads by default. To sync them, ensure the relevant mobile ID is added as an additional identifier in the Audience settings page.",
       type: 'string',
       required: false,
       default: {
@@ -137,75 +137,55 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { external_audience_id, schema_type, traits_or_props, audienceKey } = payload
-    const audienceEntered = traits_or_props[audienceKey]
-
-    const response = validateAndExtractIdentifier(
-      payload.schema_type,
-      payload.email,
-      payload.phone,
-      payload.advertising_id
-    )
-    if (!response.found) throw new PayloadValidationError(response.message)
-    const { externalId } = response
-
-    return request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
-      method: `${audienceEntered ? 'post' : 'delete'}`,
-      json: {
-        users: [
-          {
-            schema: [`${schema_type}`],
-            data: [[`${externalId}`]]
-          }
-        ]
-      }
-    })
+    return processPayload(request, [payload])
   },
   performBatch: async (request, { payload }) => {
-    const { external_audience_id, schema_type } = payload[0]
-
-    const { enteredAudience, exitedAudience } = sortBatch(payload)
-
-    if (enteredAudience.length === 0 && exitedAudience.length === 0)
-      throw new PayloadValidationError(`No ${batchErrorMessage(schema_type)} present in batch`)
-
-    const requests = []
-
-    if (enteredAudience.length > 0) {
-      requests.push(
-        request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
-          method: 'post',
-          json: {
-            users: [
-              {
-                schema: [`${schema_type}`],
-                data: enteredAudience
-              }
-            ]
-          }
-        })
-      )
-    }
-
-    if (exitedAudience.length > 0) {
-      requests.push(
-        request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
-          method: 'delete',
-          json: {
-            users: [
-              {
-                schema: [`${schema_type}`],
-                data: exitedAudience
-              }
-            ]
-          }
-        })
-      )
-    }
-
-    // Wait for all requests to complete
-    return await Promise.all(requests)
+    return processPayload(request, payload)
   }
 }
 
 export default action
+
+const processPayload = async (request: RequestClient, payload: Payload[]) => {
+  const { external_audience_id, schema_type } = payload[0]
+  const { enteredAudience, exitedAudience } = sortPayload(payload)
+
+  if (enteredAudience.length === 0 && exitedAudience.length === 0)
+    throw new PayloadValidationError(`No ${validationError(schema_type)} identifier present in payload(s)`)
+
+  const requests = []
+
+  if (enteredAudience.length > 0) {
+    requests.push(
+      request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
+        method: 'post',
+        json: {
+          users: [
+            {
+              schema: [`${schema_type}`],
+              data: enteredAudience
+            }
+          ]
+        }
+      })
+    )
+  }
+
+  if (exitedAudience.length > 0) {
+    requests.push(
+      request(`https://adsapi.snapchat.com/v1/segments/${external_audience_id}/users`, {
+        method: 'delete',
+        json: {
+          users: [
+            {
+              schema: [`${schema_type}`],
+              data: exitedAudience
+            }
+          ]
+        }
+      })
+    )
+  }
+
+  return await Promise.all(requests)
+}

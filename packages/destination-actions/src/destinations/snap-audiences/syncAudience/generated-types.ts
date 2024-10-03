@@ -16,19 +16,19 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Choose the type of identifier to use when adding users to Snapchat. If selecting Mobile ID or Phone, ensure these identifiers are included as custom traits in the Audience settings page where the destination is connected.
+   * Choose the type of identifier to use when adding users to Snapchat.
    */
   schema_type: string
   /**
-   * User's phone number
+   * The user's phone number. Note: Phone is not included in audience payloads by default. To sync phone numbers, be sure to add them as an additional identifier in the Audience settings page.
    */
   phone?: string
   /**
-   * User's email address
+   * The user's email address.
    */
   email?: string
   /**
-   * User's mobile advertising ID. Ensure you have included either 'ios.idfa' or 'android.idfa' as identifiers in the 'Customized Setup' menu when connecting the destination to your audience.
+   * The user's mobile advertising ID. Note: Mobile Advertising Id is not included in audience payloads by default. To sync them, ensure the relevant mobile ID is added as an additional identifier in the Audience settings page.
    */
   advertising_id?: string
   /**
