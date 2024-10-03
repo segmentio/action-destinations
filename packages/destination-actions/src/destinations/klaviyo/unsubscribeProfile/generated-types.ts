@@ -10,6 +10,10 @@ export interface Payload {
    */
   phone_number?: string
   /**
+   * The country code for the user's number, represented as a numeric code (e.g., '91' for India).
+   */
+  country_code?: string
+  /**
    * The Klaviyo list to remove the subscribed profiles from. If no list id is provided, the profile will be unsubscribed from all channels.
    */
   list_id?: string

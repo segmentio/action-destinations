@@ -8,6 +8,10 @@ export interface Payload {
     email?: string
     phone_number?: string
     /**
+     * The country code for the user's number, represented as a numeric code (e.g., '91' for India).
+     */
+    country_code?: string
+    /**
      * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system.
      */
     external_id?: string

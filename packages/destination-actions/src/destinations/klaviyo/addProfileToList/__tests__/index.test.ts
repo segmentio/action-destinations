@@ -98,12 +98,49 @@ describe('Add Profile To List', () => {
       list_id: listId,
       phone_number: {
         '@path': '$.properties.phone'
-      }
+      },
+      country_code: 'US'
     }
 
     await expect(testDestination.testAction('addProfileToList', { event, mapping, settings })).rejects.toThrowError(
-      'invalid-phone-number is not a valid E.164 phone number.'
+      'invalid-phone-number is not a valid phone number and cannot be converted to E.164 format.'
     )
+  })
+
+  it('should convert a phone number to E.164 format if country code is provided', async () => {
+    nock(`${API_URL}`)
+      .post('/profiles/', { data: { type: 'profile', attributes: { phone_number: '+918448309211' } } })
+      .reply(200, {
+        data: {
+          id: 'XYZABC'
+        }
+      })
+
+    nock(`${API_URL}/lists/${listId}`)
+      .post('/relationships/profiles/', requestBody)
+      .reply(
+        200,
+        JSON.stringify({
+          content: requestBody
+        })
+      )
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      properties: {
+        phone: '8448309211'
+      }
+    })
+    const mapping = {
+      list_id: listId,
+      phone_number: '8448309211',
+      country_code: 'IN'
+    }
+
+    await expect(
+      testDestination.testAction('addProfileToList', { event, mapping, settings })
+    ).resolves.not.toThrowError()
   })
 
   it('should add profile to list successfully with email only', async () => {
@@ -459,7 +496,8 @@ describe('Add Profile To List Batch', () => {
       },
       phone_number: {
         '@path': '$.context.traits.phone'
-      }
+      },
+      country_code: 'US'
     }
 
     nock(API_URL).post('/profile-bulk-import-jobs/').reply(200, { success: true })
@@ -482,6 +520,41 @@ describe('Add Profile To List Batch', () => {
           location: {}
         }
       ],
+      listId
+    )
+  })
+
+  it('should convert a phone number to E.164 format if country code is provided', async () => {
+    const events = [
+      createTestEvent({
+        context: { personas: { list_id: listId }, traits: { phone: '8448309211' } }
+      })
+    ]
+    const mapping = {
+      list_id: listId,
+      external_id: 'fake-external-id',
+      phone: {
+        '@path': '$.context.traits.phone'
+      },
+      country_code: 'IN'
+    }
+
+    nock(API_URL).post('/profile-bulk-import-jobs/').reply(200, { success: true })
+
+    await testDestination.testBatchAction('addProfileToList', {
+      settings,
+      events,
+      mapping,
+      useDefaultMappings: true
+    })
+
+    expect(Functions.createImportJobPayload).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          phone_number: '+918448309211',
+          list_id: listId
+        })
+      ]),
       listId
     )
   })

@@ -3,8 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { PayloadValidationError } from '@segment/actions-core'
-import { API_URL } from '../config'
-import { validatePhoneNumber } from '../functions'
+import { API_URL, COUNTRY_CODES } from '../config'
+import { validateAndConvertPhoneNumber } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -23,6 +23,12 @@ const action: ActionDefinition<Settings, Payload> = {
         phone_number: {
           label: 'Phone Number',
           type: 'string'
+        },
+        country_code: {
+          label: 'Country Code',
+          description: `Country Code of the user. We support ISO 3166-1 alpha-2 country code.`,
+          type: 'string',
+          choices: COUNTRY_CODES
         },
         external_id: {
           label: 'External Id',
@@ -89,14 +95,25 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    const { email, phone_number, external_id, anonymous_id } = payload.profile
+    const { email, phone_number: initialPhoneNumber, external_id, anonymous_id, country_code } = payload.profile
+
+    console.log(country_code, initialPhoneNumber)
+
+    let phone_number
+    if (initialPhoneNumber) {
+      phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
+      console.log
+      if (!phone_number) {
+        throw new PayloadValidationError(
+          `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
+        )
+      }
+      payload.profile.phone_number = phone_number
+      delete payload?.profile?.country_code
+    }
 
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
-    }
-
-    if (phone_number && !validatePhoneNumber(phone_number)) {
-      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
     }
 
     const eventData = {

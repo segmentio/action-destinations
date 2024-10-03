@@ -2,8 +2,9 @@ import { ActionDefinition, DynamicFieldResponse, PayloadValidationError } from '
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
-import { getListIdDynamicData, getProfiles, removeProfileFromList, validatePhoneNumber } from '../functions'
+import { getListIdDynamicData, getProfiles, removeProfileFromList, validateAndConvertPhoneNumber } from '../functions'
 import { enable_batching } from '../properties'
+import { COUNTRY_CODES } from '../config'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Profile',
@@ -35,6 +36,21 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `Individual's phone number in E.164 format. If SMS is not enabled and if you use Phone Number as identifier, then you have to provide one of Email or External ID.`,
       type: 'string',
       default: { '@path': '$.traits.phone' }
+    },
+    country_code: {
+      label: 'Country Code',
+      description: `Country Code of the user. We support ISO 3166-1 alpha-2 country code.`,
+      type: 'string',
+      choices: COUNTRY_CODES,
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'phone_number',
+            operator: 'is_not',
+            value: ''
+          }
+        ]
+      }
     }
   },
   dynamicFields: {
@@ -43,12 +59,18 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { email, list_id, external_id, phone_number } = payload
+    const { email, list_id, external_id, phone_number: initialPhoneNumber, country_code } = payload
+    let phone_number
+    if (initialPhoneNumber) {
+      phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
+      if (!phone_number) {
+        throw new PayloadValidationError(
+          `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
+        )
+      }
+    }
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
-    }
-    if (phone_number && !validatePhoneNumber(phone_number)) {
-      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
     }
     const profileIds = await getProfiles(
       request,
@@ -61,7 +83,15 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, { payload }) => {
     // Filtering out profiles that do not contain either an email, valid phone_number or external_id.
     const filteredPayload = payload.filter((profile) => {
-      if (profile.phone_number && !validatePhoneNumber(profile.phone_number)) {
+      // Validate and convert the phone number using the provided country code
+      const validPhoneNumber = validateAndConvertPhoneNumber(profile.phone_number, profile.country_code)
+
+      // If the phone number is valid, update the profile's phone number with the validated format
+      if (validPhoneNumber) {
+        profile.phone_number = validPhoneNumber
+      }
+      // If the phone number is invalid (null), exclude this profile
+      else if (validPhoneNumber === null) {
         return false
       }
       return profile.email || profile.external_id || profile.phone_number

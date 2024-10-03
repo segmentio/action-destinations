@@ -21,4 +21,8 @@ export interface Payload {
    * When enabled, the action will use the klaviyo batch API.
    */
   enable_batching?: boolean
+  /**
+   * The country code for the user's number, represented as a numeric code (e.g., '91' for India).
+   */
+  country_code?: string
 }
