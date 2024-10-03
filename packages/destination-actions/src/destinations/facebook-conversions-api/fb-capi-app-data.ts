@@ -33,7 +33,9 @@ export const generate_app_data = (app_data: AppData): GeneratedAppData | undefin
       app_data?.cpuCores ?? '',
       app_data?.storageSize ?? '',
       app_data?.freeStorage ?? '',
-      app_data?.deviceTimezone ?? ''
+      app_data?.deviceTimezone ?? '',
+      app_data?.anonId ?? '',
+      app_data?.madId ?? ''
     ]
   }
 }
