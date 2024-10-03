@@ -13,3 +13,8 @@ export interface RawMapping {
     [k: string]: unknown
   }
 }
+
+export interface ColumnHeader {
+  cleanName: string
+  originalName: string
+}

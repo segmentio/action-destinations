@@ -48,15 +48,11 @@ interface InputData<Settings> {
    * `features`, `stats`, `logger`, `engageDestinationCache`, `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
    */
   features?: Features
-  /** Engage internal use only. DO NOT USE. */
   statsContext?: StatsContext
-  /** Engage internal use only. DO NOT USE. */
   logger?: Logger
   /** Engage internal use only. DO NOT USE. */
   engageDestinationCache?: EngageDestinationCache
-  /** Engage internal use only. DO NOT USE. */
   transactionContext?: TransactionContext
-  /** Engage internal use only. DO NOT USE. */
   stateContext?: StateContext
   subscriptionMetadata?: SubscriptionMetadata
 }

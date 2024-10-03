@@ -6,13 +6,14 @@ import { API_URL, COUNTRY_CODES } from '../config'
 import { EventData } from '../types'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import { validateAndConvertPhoneNumber } from '../functions'
+import dayjs from 'dayjs'
 
 const createEventData = (payload: Payload) => ({
   data: {
     type: 'event',
     attributes: {
       properties: { ...payload.properties },
-      time: payload.time,
+      time: payload.time ? dayjs(payload.time).toISOString() : undefined,
       value: payload.value,
       unique_id: payload.unique_id,
       metric: {

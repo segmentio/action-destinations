@@ -23,6 +23,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     testAuthentication: (request, { settings }) => {
       return request('https://api.iterable.com/api/lists', {
         method: 'GET',
+        skipResponseCloning: true,
         headers: { 'Api-Key': settings.apiKey }
       })
     }

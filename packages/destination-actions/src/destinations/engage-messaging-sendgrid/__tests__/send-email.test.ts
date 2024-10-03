@@ -99,7 +99,6 @@ describe.each([
           source_id: 'sourceId',
           space_id: 'spaceId',
           user_id: userData.userId,
-          //message_id: 'messageId',
           __segment_internal_external_id_key__: 'email',
           __segment_internal_external_id_value__: userData.email
         }
@@ -206,7 +205,6 @@ describe.each([
           timestamp,
           event: 'Audience Entered',
           userId: userData.userId,
-          //messageId: 'messageId',
           external_ids: [
             {
               collection: 'users',

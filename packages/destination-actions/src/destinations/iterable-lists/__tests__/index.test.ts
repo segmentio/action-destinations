@@ -10,7 +10,7 @@ describe('Iterable Lists', () => {
       nock('https://api.iterable.com/api').get('/lists').reply(200, {})
 
       const settings = {
-        apiKey: '12345'
+        apiKey: '123456'
       }
 
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
@@ -22,14 +22,11 @@ describe('Iterable Lists', () => {
       nock('https://api.iterable.com/api').post('/lists').reply(200, {})
 
       const settings = {
-        apiKey: '12345'
+        apiKey: '123456'
       }
-
-      const audienceSettings = {}
 
       const createAudienceInput = {
         settings,
-        audienceSettings,
         audienceName: 'Test Audience',
         personas: {
           computation_key: 'test',
@@ -45,7 +42,7 @@ describe('Iterable Lists', () => {
       nock('https://api.iterable.com/api').post('/lists').reply(200, {})
 
       const settings = {
-        apiKey: '12345'
+        apiKey: '123456'
       }
 
       const audienceSettings = {}
@@ -63,7 +60,7 @@ describe('Iterable Lists', () => {
       nock('https://api.iterable.com/api').post('/lists').reply(200, {})
 
       const settings = {
-        apiKey: '12345'
+        apiKey: '123456'
       }
 
       const audienceSettings = {
@@ -85,7 +82,7 @@ describe('Iterable Lists', () => {
       const getAudienceInput = {
         externalId: '12345',
         settings: {
-          apiKey: '12345'
+          apiKey: '123456'
         }
       }
 

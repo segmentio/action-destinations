@@ -43,7 +43,8 @@ export type {
   ActionHookResponse,
   ActionHookType,
   ExecuteInput,
-  RequestFn
+  RequestFn,
+  Result
 }
 export { hookTypeStrings }
 export type { MinimalInputField }
@@ -428,8 +429,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       this.settingsSchema = fieldsToJsonSchema(this.authentication.fields)
     }
 
-    for (const [name, action] of Object.entries(destination.actions)) {
-      this.partnerAction(name, action)
+    for (const action of Object.keys(destination.actions)) {
+      this.partnerAction(action, destination.actions[action])
     }
   }
 

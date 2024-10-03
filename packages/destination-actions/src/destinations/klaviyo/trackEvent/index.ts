@@ -5,6 +5,7 @@ import type { Payload } from './generated-types'
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL, COUNTRY_CODES } from '../config'
 import { validateAndConvertPhoneNumber } from '../functions'
+import dayjs from 'dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -115,13 +116,12 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
     }
-
     const eventData = {
       data: {
         type: 'event',
         attributes: {
           properties: { ...payload.properties },
-          time: payload.time,
+          time: payload?.time ? dayjs(payload.time).toISOString() : undefined,
           value: payload.value,
           unique_id: payload.unique_id,
           metric: {

@@ -68,17 +68,16 @@ export interface ExecuteInput<
   matchingKey?: string
   /** The data needed in OAuth requests */
   readonly auth?: AuthTokens
-  /** Engage internal use only. DO NOT USE. */
+  /**
+   * The features available in the request based on the customer's sourceID;
+   * `features`,`stats`, `logger` , `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
+   */
   readonly features?: Features
-  /** Engage internal use only. DO NOT USE. */
   readonly statsContext?: StatsContext
-  /** Engage internal use only. DO NOT USE. */
   readonly logger?: Logger
   /** Engage internal use only. DO NOT USE. */
   readonly engageDestinationCache?: EngageDestinationCache
-  /** Engage internal use only. DO NOT USE. */
   readonly transactionContext?: TransactionContext
-  /** Engage internal use only. DO NOT USE. */
   readonly stateContext?: StateContext
   readonly subscriptionMetadata?: SubscriptionMetadata
 }
