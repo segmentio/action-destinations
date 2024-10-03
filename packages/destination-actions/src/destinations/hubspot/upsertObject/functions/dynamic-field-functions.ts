@@ -3,6 +3,8 @@ import { HubSpotError } from '../../errors'
 import { HUBSPOT_BASE_URL } from '../../properties'
 import { SUPPORTED_HUBSPOT_OBJECT_TYPES } from '../constants'
 import { DynamicFieldResponse } from '@segment/actions-core'
+import { Payload } from '../generated-types'
+import { DynamicFieldContext } from '@segment/actions-core/destination-kittypes'
 
 enum AssociationCategory {
   HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
@@ -10,7 +12,95 @@ enum AssociationCategory {
   INTEGRATOR_DEFINED = 'INTEGRATOR_DEFINED'
 }
 
-export async function dynamicReadIdFields(request: RequestClient, objectType: string): Promise<DynamicFieldResponse> {
+export const dynamicFields = {
+  object_details: {
+    object_type: async (request: RequestClient) => {
+      return await dynamicReadObjectTypes(request)
+    },
+    id_field_name: async (request: RequestClient, { payload }: {payload: Payload}) => {
+      const fromObjectType = payload?.object_details?.object_type
+
+      if (!fromObjectType) {
+        throw new Error("Select a value from the 'Object Type' field")
+      }
+
+      return await dynamicReadIdFields(request, fromObjectType)
+    },
+    property_group: async (request: RequestClient, { payload }: {payload: Payload}) => {
+      const fromObjectType = payload?.object_details?.object_type
+
+      if (!fromObjectType) {
+        throw new Error("Select a value from the 'Object Type' field")
+      }
+
+      return await dynamicReadPropertyGroups(request, fromObjectType)
+    }
+  },
+  properties: {
+    __keys__: async (request: RequestClient, { payload }: {payload: Payload}) => {
+      const fromObjectType = payload?.object_details?.object_type
+
+      if (!fromObjectType) {
+        throw new Error("Select a value from the 'Object Type' field")
+      }
+
+      return await dynamicReadProperties(request, fromObjectType, false)
+    }
+  },
+  sensitive_properties: {
+    __keys__: async (request: RequestClient, { payload }: {payload: Payload}) => {
+      const fromObjectType = payload?.object_details?.object_type
+
+      if (!fromObjectType) {
+        throw new Error("Select a value from the 'Object Type' field")
+      }
+
+      return await dynamicReadProperties(request, fromObjectType, true)
+    }
+  },
+  associations: {
+    object_type: async (request: RequestClient) => {
+      return await dynamicReadObjectTypes(request)
+    },
+    association_label: async (request: RequestClient, { dynamicFieldContext, payload }: {dynamicFieldContext?: DynamicFieldContext, payload: Payload}) => {
+      const selectedIndex = dynamicFieldContext?.selectedArrayIndex
+
+      if (selectedIndex === undefined) {
+        throw new Error('Selected array index is missing')
+      }
+
+      const fromObjectType = payload?.object_details?.object_type
+      const toObjectType = payload?.associations?.[selectedIndex]?.object_type
+
+      if (!fromObjectType) {
+        throw new Error("Select a value from the from 'Object Type' field")
+      }
+
+      if (!toObjectType) {
+        throw new Error("Select a value from the 'To Object Type' field")
+      }
+
+      return await dynamicReadAssociationLabels(request, fromObjectType, toObjectType)
+    },
+    id_field_name: async (request: RequestClient, { dynamicFieldContext, payload }: {dynamicFieldContext?: DynamicFieldContext, payload: Payload}) => {
+      const selectedIndex = dynamicFieldContext?.selectedArrayIndex
+
+      if (selectedIndex === undefined) {
+        throw new Error('Selected array index is missing')
+      }
+
+      const toObjectType = payload?.associations?.[selectedIndex]?.object_type
+
+      if (!toObjectType) {
+        throw new Error("Select a value from the 'To Object Type' field")
+      }
+
+      return await dynamicReadIdFields(request, toObjectType)
+    }
+  }
+}
+
+async function dynamicReadIdFields(request: RequestClient, objectType: string): Promise<DynamicFieldResponse> {
   interface ResultItem {
     label: string
     name: string
@@ -78,7 +168,7 @@ export async function dynamicReadIdFields(request: RequestClient, objectType: st
   }
 }
 
-export async function dynamicReadPropertyGroups(
+async function dynamicReadPropertyGroups(
   request: RequestClient,
   objectType: string
 ): Promise<DynamicFieldResponse> {
@@ -133,7 +223,7 @@ export async function dynamicReadPropertyGroups(
   }
 }
 
-export async function dynamicReadAssociationLabels(
+async function dynamicReadAssociationLabels(
   request: RequestClient,
   fromObjectType: string,
   toObjectType: string
@@ -191,7 +281,7 @@ export async function dynamicReadAssociationLabels(
   }
 }
 
-export async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFieldResponse> {
+async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: { singular: string; plural: string }
     fullyQualifiedName: string
@@ -238,7 +328,7 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
   }
 }
 
-export async function dynamicReadProperties(
+async function dynamicReadProperties(
   request: RequestClient,
   objectType: string,
   sensitive: boolean

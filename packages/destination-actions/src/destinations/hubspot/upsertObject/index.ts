@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
 import { Client } from './client'
 import { AssociationSyncMode, SyncMode, SchemaMatch } from './types'
-import { dynamicReadAssociationLabels, dynamicReadIdFields, dynamicReadObjectTypes, dynamicReadPropertyGroups, dynamicReadProperties } from './functions/dynamic-field-functions'
+import { dynamicFields } from './functions/dynamic-field-functions'
 import { compareToCache, saveSchemaToCache,} from './functions/cache-functions'
 import { validate } from './functions/validation-functions'
 import { objectSchema } from './functions/schema-functions'
@@ -29,93 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     ...commonFields
   },
-  dynamicFields: {
-    object_details: {
-      object_type: async (request) => {
-        return await dynamicReadObjectTypes(request)
-      },
-      id_field_name: async (request, { payload }) => {
-        const fromObjectType = payload?.object_details?.object_type
-
-        if (!fromObjectType) {
-          throw new Error("Select a value from the 'Object Type' field")
-        }
-
-        return await dynamicReadIdFields(request, fromObjectType)
-      },
-      property_group: async (request, { payload }) => {
-        const fromObjectType = payload?.object_details?.object_type
-
-        if (!fromObjectType) {
-          throw new Error("Select a value from the 'Object Type' field")
-        }
-
-        return await dynamicReadPropertyGroups(request, fromObjectType)
-      }
-    },
-    properties: {
-      __keys__: async (request, { payload }) => {
-        const fromObjectType = payload?.object_details?.object_type
-
-        if (!fromObjectType) {
-          throw new Error("Select a value from the 'Object Type' field")
-        }
-
-        return await dynamicReadProperties(request, fromObjectType, false)
-      }
-    },
-    sensitive_properties: {
-      __keys__: async (request, { payload }) => {
-        const fromObjectType = payload?.object_details?.object_type
-
-        if (!fromObjectType) {
-          throw new Error("Select a value from the 'Object Type' field")
-        }
-
-        return await dynamicReadProperties(request, fromObjectType, true)
-      }
-    },
-    associations: {
-      object_type: async (request) => {
-        return await dynamicReadObjectTypes(request)
-      },
-      association_label: async (request, { dynamicFieldContext, payload }) => {
-        const selectedIndex = dynamicFieldContext?.selectedArrayIndex
-
-        if (selectedIndex === undefined) {
-          throw new Error('Selected array index is missing')
-        }
-
-        const fromObjectType = payload?.object_details?.object_type
-        const toObjectType = payload?.associations?.[selectedIndex]?.object_type
-
-        if (!fromObjectType) {
-          throw new Error("Select a value from the from 'Object Type' field")
-        }
-
-        if (!toObjectType) {
-          throw new Error("Select a value from the 'To Object Type' field")
-        }
-
-        return await dynamicReadAssociationLabels(request, fromObjectType, toObjectType)
-      },
-      id_field_name: async (request, { dynamicFieldContext, payload }) => {
-        const selectedIndex = dynamicFieldContext?.selectedArrayIndex
-
-        if (selectedIndex === undefined) {
-          throw new Error('Selected array index is missing')
-        }
-
-        const toObjectType = payload?.associations?.[selectedIndex]?.object_type
-
-        if (!toObjectType) {
-          throw new Error("Select a value from the 'To Object Type' field")
-        }
-
-        return await dynamicReadIdFields(request, toObjectType)
-      }
-    }
-  },
+  dynamicFields,
   perform: async (request, { payload, syncMode }) => {
     return await send(request, [payload], syncMode as SyncMode)
   },
