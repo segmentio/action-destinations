@@ -16,7 +16,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Choose the type of identifier to use when adding users to Snapchat.
+   * Choose the type of identifier to use when adding users to Snap.
    */
   schema_type: string
   /**
