@@ -2,7 +2,7 @@ import type { ActionDefinition, DynamicFieldResponse, IntegrationError } from '@
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { API_URL, COUNTRY_CODES } from '../config'
+import { API_URL } from '../config'
 import { PayloadValidationError } from '@segment/actions-core'
 import { KlaviyoAPIError, ProfileData } from '../types'
 import {
@@ -16,7 +16,7 @@ import {
   processProfilesByGroup,
   validateAndConvertPhoneNumber
 } from '../functions'
-import { batch_size } from '../properties'
+import { batch_size, country_code } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -42,19 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.context.traits.phone' }
     },
     country_code: {
-      label: 'Country Code',
-      description: `Country Code of the user. We support ISO 3166-1 alpha-2 country code.`,
-      type: 'string',
-      choices: COUNTRY_CODES,
-      depends_on: {
-        conditions: [
-          {
-            fieldKey: 'phone_number',
-            operator: 'is_not',
-            value: ''
-          }
-        ]
-      }
+      ...country_code
     },
     external_id: {
       label: 'External ID',

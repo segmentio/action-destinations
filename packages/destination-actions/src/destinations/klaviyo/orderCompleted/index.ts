@@ -2,10 +2,11 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
-import { API_URL, COUNTRY_CODES } from '../config'
+import { API_URL } from '../config'
 import { EventData } from '../types'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import { validateAndConvertPhoneNumber } from '../functions'
+import { country_code } from '../properties'
 
 const createEventData = (payload: Payload) => ({
   data: {
@@ -87,21 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Phone Number',
           type: 'string'
         },
-        country_code: {
-          label: 'Country Code',
-          description: `Country Code of the user. We support ISO 3166-1 alpha-2 country code.`,
-          type: 'string',
-          choices: COUNTRY_CODES,
-          depends_on: {
-            conditions: [
-              {
-                fieldKey: 'phone_number',
-                operator: 'is_not',
-                value: ''
-              }
-            ]
-          }
-        },
+        country_code: { ...country_code },
         external_id: {
           label: 'External Id',
           description:

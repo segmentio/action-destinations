@@ -3,8 +3,9 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { PayloadValidationError } from '@segment/actions-core'
-import { API_URL, COUNTRY_CODES } from '../config'
+import { API_URL } from '../config'
 import { validateAndConvertPhoneNumber } from '../functions'
+import { country_code } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -25,10 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string'
         },
         country_code: {
-          label: 'Country Code',
-          description: `Country Code of the user. We support ISO 3166-1 alpha-2 country code.`,
-          type: 'string',
-          choices: COUNTRY_CODES
+          ...country_code
         },
         external_id: {
           label: 'External Id',
@@ -97,12 +95,9 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload }) => {
     const { email, phone_number: initialPhoneNumber, external_id, anonymous_id, country_code } = payload.profile
 
-    console.log(country_code, initialPhoneNumber)
-
     let phone_number
     if (initialPhoneNumber) {
       phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
-      console.log
       if (!phone_number) {
         throw new PayloadValidationError(
           `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`

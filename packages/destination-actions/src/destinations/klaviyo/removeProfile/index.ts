@@ -3,8 +3,7 @@ import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
 import { getListIdDynamicData, getProfiles, removeProfileFromList, validateAndConvertPhoneNumber } from '../functions'
-import { enable_batching } from '../properties'
-import { COUNTRY_CODES } from '../config'
+import { country_code, enable_batching } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Profile',
@@ -38,19 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.traits.phone' }
     },
     country_code: {
-      label: 'Country Code',
-      description: `Country Code of the user. We support ISO 3166-1 alpha-2 country code.`,
-      type: 'string',
-      choices: COUNTRY_CODES,
-      depends_on: {
-        conditions: [
-          {
-            fieldKey: 'phone_number',
-            operator: 'is_not',
-            value: ''
-          }
-        ]
-      }
+      ...country_code
     }
   },
   dynamicFields: {

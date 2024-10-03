@@ -99,8 +99,6 @@ export async function createProfile(
       }
     }
 
-    console.log(profileData)
-
     const profile = await request(`${API_URL}/profiles/`, {
       method: 'POST',
       json: profileData

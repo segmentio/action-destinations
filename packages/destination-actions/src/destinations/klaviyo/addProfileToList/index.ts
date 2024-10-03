@@ -68,9 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }
-    console.log(phone_number)
     const profileId = await createProfile(request, email, external_id, phone_number, additionalAttributes)
-    console.log(profileId)
     return await addProfileToList(request, profileId, list_id)
   },
   performBatch: async (request, { payload }) => {
@@ -91,7 +89,6 @@ const action: ActionDefinition<Settings, Payload> = {
     })
     const listId = payload[0]?.list_id
     const importJobPayload = createImportJobPayload(payload, listId)
-    console.log(importJobPayload)
     return sendImportJobRequest(request, importJobPayload)
   }
 }

@@ -517,7 +517,8 @@ describe('Add Profile To List Batch', () => {
           list_id: listId,
           email: 'valid@example.com',
           enable_batching: true,
-          location: {}
+          location: {},
+          country_code: 'US'
         }
       ],
       listId
