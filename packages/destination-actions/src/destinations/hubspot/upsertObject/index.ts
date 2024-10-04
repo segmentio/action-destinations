@@ -1,16 +1,17 @@
-import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import { Client } from './client'
 import { AssociationSyncMode, SyncMode, SchemaMatch } from './types'
 import { dynamicFields } from './functions/dynamic-field-functions'
-import { compareToCache, saveSchemaToCache,} from './functions/cache-functions'
+import { getSchemaFromCache, saveSchemaToCache,} from './functions/cache-functions'
 import { validate } from './functions/validation-functions'
-import { objectSchema } from './functions/schema-functions'
+import { objectSchema, compareSchemas } from './functions/schema-functions'
 import { sendFromRecords } from './functions/hubspot-record-functions'
 import { sendAssociatedRecords, createAssociationPayloads, sendAssociations} from './functions/hubspot-association-functions'
-import { compareToHubspot, createProperties} from './functions/hubspot-properties-functions'
+import { getSchemaFromHubspot, createProperties} from './functions/hubspot-properties-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object V2',
@@ -30,15 +31,24 @@ const action: ActionDefinition<Settings, Payload> = {
     ...commonFields
   },
   dynamicFields,
-  perform: async (request, { payload, syncMode }) => {
-    return await send(request, [payload], syncMode as SyncMode)
+  perform: async (request, { payload, syncMode, subscriptionMetadata, statsContext }) => {
+    statsContext?.tags?.push('action:custom_object')
+
+    let smd = { 
+      actionConfigId: "blahdiblab"
+    }
+
+    return await send(request, [payload], syncMode as SyncMode, smd, statsContext)
   },
-  performBatch: async (request, { payload, syncMode }) => {
-    return await send(request, payload, syncMode as SyncMode)
+  performBatch: async (request, { payload, syncMode, subscriptionMetadata, statsContext }) => {
+    statsContext?.tags?.push('action:custom_object_batch')
+    return await send(request, payload, syncMode as SyncMode, subscriptionMetadata, statsContext)
   }
 }
 
-const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncMode) => {
+const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncMode, subscriptionMetadata?: SubscriptionMetadata, statsContext?: StatsContext) => {
+  console.log(subscriptionMetadata)
+  
   const {
     object_details: { object_type: objectType, property_group: propertyGroup },
     association_sync_mode: assocationSyncMode
@@ -50,7 +60,14 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
 
   const schema = objectSchema(validPayloads, objectType)
 
-  const cacheSchemaDiff = await compareToCache(schema)
+  const cachedSchema = getSchemaFromCache(schema.object_details.object_type, subscriptionMetadata, statsContext)
+  statsContext?.statsClient?.incr(`cache.get.${cachedSchema === undefined ? 'miss' : 'hit'}`, 1, statsContext?.tags)
+  console.log(`cache.get.${cachedSchema === undefined ? 'miss' : 'hit'}`)
+  
+  const cacheSchemaDiff = compareSchemas(schema, cachedSchema, statsContext)
+  statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
+  console.log(`cache.diff.${cacheSchemaDiff.match}`)
+
 
   switch (cacheSchemaDiff.match) {
     case SchemaMatch.FullMatch: {
@@ -67,7 +84,8 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
 
     case SchemaMatch.PropertiesMissing:
     case SchemaMatch.NoMatch: {
-      const hubspotSchemaDiff = await compareToHubspot(client, schema)
+      const hubspotSchema = await getSchemaFromHubspot(client, schema)
+      const hubspotSchemaDiff = compareSchemas(schema, hubspotSchema, statsContext)
 
       switch (hubspotSchemaDiff.match) {
         case SchemaMatch.FullMatch: {

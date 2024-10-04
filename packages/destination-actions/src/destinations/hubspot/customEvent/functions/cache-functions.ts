@@ -13,17 +13,17 @@ export const cache = new LRUCache<string, CachableSchema>({
   ttl: 1000 * 60 * 60
 })
 
-export function getSchemaFromCache(
-    name: string,
-    subscriptionMetadata?: SubscriptionMetadata,
-    statsContext?: StatsContext
-  ): CachableSchema | undefined {
+function getKey(name: string, subscriptionMetadata: SubscriptionMetadata): string {
+  return `${subscriptionMetadata.actionConfigId}-${name}`
+}
+
+export function getSchemaFromCache( name: string, subscriptionMetadata?: SubscriptionMetadata, statsContext?: StatsContext ): CachableSchema | undefined {
     if (!subscriptionMetadata || !subscriptionMetadata?.actionConfigId) {
       statsContext?.statsClient?.incr('cache.get.error', 1, statsContext?.tags)
       return undefined
     }
   
-    const schema: CachableSchema | undefined = cache.get(`${subscriptionMetadata.actionConfigId}-${name}`) ?? undefined
+    const schema: CachableSchema | undefined = cache.get(getKey(name, subscriptionMetadata)) ?? undefined
     return schema
 }
   
@@ -37,7 +37,7 @@ export async function saveSchemaToCache(
       return
     }
   
-    cache.set(`${subscriptionMetadata.actionConfigId}-${schema.name}`, schema)
+    cache.set(getKey(schema.name, subscriptionMetadata), schema)
     statsContext?.statsClient?.incr('cache.save.success', 1, statsContext?.tags)
 }
   

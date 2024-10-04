@@ -1,5 +1,6 @@
-import { PayloadValidationError, IntegrationError, ModifiedResponse } from '@segment/actions-core'
+import { PayloadValidationError, ModifiedResponse } from '@segment/actions-core'
 import { Client } from '../client'
+import { formatHS } from './schema-functions'
 import {
   CreatePropsReq,
   HSPropTypeFieldType,
@@ -7,104 +8,54 @@ import {
   Prop,
   ReadPropsResp,
   Result,
-  Schema,
-  SchemaDiff,
-  SchemaMatch,
+  CachableSchema,
+  SchemaDiff
 } from '../types'
 
-export async function compareToHubspot(client: Client, schema: Schema): Promise<SchemaDiff> {
-    const requests = []
-    const hasProps = schema.properties.length
-    const hasSensitiveProps = schema.sensitiveProperties.length
-  
-    if (hasProps) {
-      requests.push(client.readProperties(false))
-    }
-  
-    if (hasSensitiveProps) {
-      requests.push(client.readProperties(true))
-    }
-  
-    const responses = await Promise.all(requests)
-  
-    const schemaDiff = {
-      object_details: {
-        object_type: schema.object_details.object_type,
-        id_field_name: schema.object_details.id_field_name
-      }
-    } as SchemaDiff
-  
-    if (hasProps && requests.length > 0) {
-      const response = responses.shift() as ModifiedResponse<ReadPropsResp>
-      const { missingProps, match } = determineMissingPropsAndMatchType(response, schema.properties)
-      schemaDiff.missingProperties = missingProps
-      schemaDiff.match = match
-    }
-  
-    if (hasSensitiveProps && requests.length > 0) {
-      const response = responses.shift() as ModifiedResponse<ReadPropsResp>
-      const { missingProps, match } = determineMissingPropsAndMatchType(response, schema.sensitiveProperties)
-      schemaDiff.missingSensitiveProperties = missingProps
-      if (schemaDiff.match === SchemaMatch.FullMatch) {
-        schemaDiff.match = match
-      }
-    }
-  
-    return schemaDiff
+export async function getSchemaFromHubspot(client: Client, schema: CachableSchema): Promise<CachableSchema> {
+  const requests = []
+  const hasProps = schema.properties.length
+  const hasSensitiveProps = schema.sensitiveProperties.length
+  const hsSchema: CachableSchema = {
+    object_details: schema.object_details,
+    properties: [],
+    sensitiveProperties: []
   }
-
-function determineMissingPropsAndMatchType(
-    response: ModifiedResponse<ReadPropsResp>,
-    properties: Prop[]
-  ): { missingProps: Prop[]; match: SchemaMatch } {
-    const results = response.data.results ?? []
-    const missingProps: Prop[] = []
-    properties.forEach((prop) => {
-      const match = results.find((item: Result) => {
-        return item.name === prop.name
-      })
-  
-      checkForIncompatiblePropTypes(prop, match)
-  
-      if (!match) {
-        missingProps.push({
-          name: prop.name,
-          type: prop.type,
-          fieldType: prop.fieldType,
-          typeFieldType: prop.typeFieldType
-        })
-      }
-    })
-    return {
-      missingProps,
-      match: missingProps.length === 0 ? SchemaMatch.FullMatch : SchemaMatch.PropertiesMissing
-    }
+  if (hasProps) {
+    requests.push(client.readProperties(false))
+  }
+  if (hasSensitiveProps) {
+    requests.push(client.readProperties(true))
+  }
+  const responses = await Promise.all(requests)
+  if (hasProps && requests.length > 0) {
+    const response = responses.shift() as ModifiedResponse<ReadPropsResp>
+    hsSchema.properties = extractProperties(response)
+  }
+  if (hasSensitiveProps && requests.length > 0) {
+    const response = responses.shift() as ModifiedResponse<ReadPropsResp>
+    hsSchema.sensitiveProperties = extractProperties(response)
+  }
+  return hsSchema
 }
-  
-function checkForIncompatiblePropTypes(prop: Prop, hubspotProp?: Result) {
-    if (!hubspotProp) {
-      return
+
+function extractProperties( response: ModifiedResponse<ReadPropsResp>): Prop[]  {
+  const results = response.data.results ?? []
+  const props: Prop[] = []
+
+  results.forEach((item: Result) => {
+    const hSPropTypeFieldType = formatHS(item.type, item.fieldType)
+    if(hSPropTypeFieldType) {
+      props.push({
+        name: item.name,
+        type: item.type,
+        fieldType: item.fieldType,
+        typeFieldType: hSPropTypeFieldType
+      })
     }
-  
-    if (hubspotProp.fieldType === prop.fieldType && hubspotProp.type === prop.type) {
-      return
-    }
-  
-    if (
-      hubspotProp.fieldType === 'select' &&
-      hubspotProp.type === 'enumeration' &&
-      prop.fieldType === 'text' &&
-      prop.type === 'string'
-    ) {
-      // string:text is OK to match to enumeration:select
-      return
-    }
-  
-    throw new IntegrationError(
-      `Payload property with name ${prop.name} has a different type to the property in HubSpot. Expected: type = ${prop.type} fieldType = ${prop.fieldType}. Received: type = ${hubspotProp.type} fieldType = ${hubspotProp.fieldType}`,
-      'HUBSPOT_PROPERTY_TYPE_MISMATCH',
-      400
-    )
+  })
+
+  return props
 }
   
 export async function createProperties(client: Client, schemaDiff: SchemaDiff, propertyGroup?: string) {
@@ -114,7 +65,7 @@ export async function createProperties(client: Client, schemaDiff: SchemaDiff, p
       )
     }
   
-    if (schemaDiff.missingProperties.length === 0 && schemaDiff.missingSensitiveProperties.length === 0) {
+    if (schemaDiff?.missingProperties?.length === 0 && schemaDiff?.missingSensitiveProperties?.length === 0) {
       return
     }
   
