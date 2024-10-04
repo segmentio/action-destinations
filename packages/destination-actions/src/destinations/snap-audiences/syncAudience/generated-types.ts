@@ -10,9 +10,9 @@ export interface Payload {
    */
   audienceKey: string
   /**
-   * A computed object for track and identify events.
+   * A computed object for track events.
    */
-  traits_or_props: {
+  props: {
     [k: string]: unknown
   }
   /**
@@ -20,7 +20,7 @@ export interface Payload {
    */
   schema_type: string
   /**
-   * The user's phone number. Note: Phone is not included in audience payloads by default. To sync phone numbers, be sure to add them as an additional identifier in the Audience settings page.
+   * If using phone as the identifier an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'phone' is configured as an additional identifier in the Audience settings tab.
    */
   phone?: string
   /**

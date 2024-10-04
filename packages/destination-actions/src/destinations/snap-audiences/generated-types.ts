@@ -10,7 +10,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Name for the audience that will be created in Snap. Defaults to the Segment audience name if left blank.
+   * Name for the audience that will be created in Snap. Defaults to the snake_cased Segment audience name if left blank.
    */
   customAudienceName?: string
   /**

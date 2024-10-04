@@ -8,7 +8,7 @@ export const sortPayload = (payload: Payload[]) => {
     exitedAudience: string[][]
   }>(
     (acc, payloadItem) => {
-      const audienceEntered = payloadItem.traits_or_props[payloadItem.audienceKey]
+      const audienceEntered = payloadItem.props[payloadItem.audienceKey]
       const externalId = validateAndExtractIdentifier(
         payloadItem.schema_type,
         payloadItem.email,

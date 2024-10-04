@@ -65,7 +65,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       label: 'Audience Name',
       description:
-        'Name for the audience that will be created in Snap. Defaults to the Segment audience name if left blank.',
+        'Name for the audience that will be created in Snap. Defaults to the snake_cased Segment audience name if left blank.',
       default: '',
       required: false
     },
@@ -103,7 +103,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         json: {
           segments: [
             {
-              name: `${customAudienceName !== '' ? customAudienceName : audienceName}`,
+              name: customAudienceName !== '' ? customAudienceName : audienceName,
               source_type: 'FIRST_PARTY',
               ad_account_id,
               description,
