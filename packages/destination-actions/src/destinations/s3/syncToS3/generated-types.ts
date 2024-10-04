@@ -94,7 +94,7 @@ export interface Payload {
    */
   enable_batching: boolean
   /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower. Max batch size is 25000.
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower. Max batch size is 10000.
    */
   batch_size?: number
   /**
