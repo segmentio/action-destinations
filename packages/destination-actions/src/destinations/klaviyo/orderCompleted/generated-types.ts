@@ -8,7 +8,7 @@ export interface Payload {
     email?: string
     phone_number?: string
     /**
-     * The country code for the user's number, represented as a numeric code (e.g., '91' for India).
+     * Country Code of the user. We support ISO 3166-1 alpha-2 country code.
      */
     country_code?: string
     /**
