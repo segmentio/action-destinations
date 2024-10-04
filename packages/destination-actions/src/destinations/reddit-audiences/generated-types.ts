@@ -10,7 +10,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * An audience name to display in Reddit
+   * An audience name to display in Reddit. if left blank the snake_cased Segment Audience name will be used.
    */
-  audienceName: string
+  audienceName?: string
 }

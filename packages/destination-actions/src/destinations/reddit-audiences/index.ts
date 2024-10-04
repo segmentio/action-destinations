@@ -2,6 +2,7 @@ import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { CreateAudienceReq, CreateAudienceResp } from './types'
+import { PayloadValidationError } from '@segment/actions-core'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Reddit Audiences',
@@ -47,9 +48,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     audienceName: {
       label: 'Audience Name',
-      description: 'An audience name to display in Reddit',
+      description: 'An audience name to display in Reddit. if left blank the snake_cased Segment Audience name will be used.',
       type: 'string',
-      required: true
+      required: false
     }
   },
   audienceConfig: {
@@ -58,6 +59,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
+
+      if(!createAudienceInput.audienceSettings?.audienceName){
+        throw new PayloadValidationError('audienceName is missing from payload')
+      }
+
+      const audienceName = createAudienceInput.audienceName ?? createAudienceInput.audienceSettings?.audienceName 
+
       const response = await request<CreateAudienceResp>(
         `https://ads-api.reddit.com/api/v3/ad_accounts/${createAudienceInput.settings.ad_account_id}/custom_audiences`,
         {
@@ -67,7 +75,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           },
           json: {
             data: {
-              name: createAudienceInput.audienceName,
+              name: audienceName,
               type: 'CUSTOMER_LIST'
             }
           } as CreateAudienceReq
