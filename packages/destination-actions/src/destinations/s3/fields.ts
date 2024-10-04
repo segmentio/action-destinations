@@ -144,6 +144,15 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     disabledInputMethods: ['variable', 'function', 'enrichment'],
     default: 'audience_action'
   },
+  batch_size_column_name: {
+    label: 'Batch Size Column Name',
+    description:
+      'Specify the column name to store the batch size when the event is sent to S3. Leave blank if no column is required',
+    type: 'string',
+    required: false,
+    disabledInputMethods: ['variable', 'function', 'enrichment'],
+    default: 'batch_size'
+  },
   traits_or_props: {
     label: 'Traits or Props - Hidden Field',
     description: 'Field used to retrieve Audience value',

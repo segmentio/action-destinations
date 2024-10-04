@@ -63,7 +63,7 @@ export interface HookBundle {
   onMappingSave: {
     inputs?: {
       /**
-       * The ad account to use for the conversion event.
+       * The ad account to use when creating the conversion event. (When updating a conversion rule after initially creating it, changes to this field will be ignored. LinkedIn does not allow Ad Account IDs to be updated for a conversion rule.)
        */
       adAccountId: string
       /**

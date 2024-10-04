@@ -740,3 +740,25 @@ test('event type = "track" and event = "Page Viewed" or event = "Order Completed
     })
   ).toEqual(true)
 })
+
+test('operators -  number_not_equals (numbers)', () => {
+  for (const value of ['456', 456]) {
+    const ast = {
+      type: 'group',
+      operator: 'and',
+      children: [
+        {
+          type: 'event-property',
+          name: 'value',
+          operator: 'number_not_equals',
+          value
+        }
+      ]
+    }
+
+    expect(validate(ast, { properties: { value: 123 } })).toEqual(true)
+
+    expect(validate(ast, { properties: { value: '456' } })).toEqual(false)
+    expect(validate(ast, { properties: { value: 0 } })).toEqual(true)
+  }
+})
