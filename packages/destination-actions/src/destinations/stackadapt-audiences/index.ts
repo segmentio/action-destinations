@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 
 import forwardProfile from './forwardProfile'
 import forwardAudienceEvent from './forwardAudienceEvent'
+import onDelete from './deleteProfile'
 import { AdvertiserScopesResponse } from './types'
 import { GQL_ENDPOINT } from './functions'
 
@@ -61,7 +62,8 @@ const destination: DestinationDefinition<Settings> = {
   },
   actions: {
     forwardProfile,
-    forwardAudienceEvent
+    forwardAudienceEvent,
+    onDelete
   }
 }
 
