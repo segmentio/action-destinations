@@ -2,7 +2,7 @@ import type { ActionDefinition, ExecuteInput, RequestClient } from '@segment/act
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { customFields, operation } from '../sf-properties'
-import { generateSalesforceRequest } from '../sf-operations'
+import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 import { SalesforceV61 } from './sf-classes'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -44,12 +44,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    const salesforceInstance: SalesforceV61 = new SalesforceV61(
-      settings.instanceUrl,
-      await generateSalesforceRequest(settings, request)
-    )
-    console.log(request, payload, salesforceInstance)
-    return await salesforceInstance.upsertRecord(payload, payload.customObjectName)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
+
+    return sf.upsertCustomObject(payload, payload.customObjectName)
   }
 }
 
