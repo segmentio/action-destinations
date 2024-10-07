@@ -1,10 +1,9 @@
-import type { DestinationDefinition } from '@segment/actions-core'
-import type { Settings } from './generated-types'
-import { createUrl, xSecurityKey } from './const'
+import { DestinationDefinition, IntegrationError } from '@segment/actions-core'
+import { Settings } from './generated-types'
 import { SingleStoreCreateJSON } from './types'
-import {generateKafkaCredentials} from './utils'
-
+import { createUrl, xSecurityKey } from './const'
 import sendData from './sendData'
+import { createHash, randomBytes } from 'crypto'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Singlestore',
@@ -44,36 +43,59 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The name of the database.',
         type: 'string',
         required: true  
+      },
+      environment: {
+        label: 'Environment',
+        description: 'The environment of the Singlestore database.',
+        type: 'string',
+        required: true,
+        choices: [
+          {
+            value: 'Prod',
+            label: 'Prod'
+          },
+          {
+            value: 'Stage',
+            label: 'Stage'
+          }
+        ],
+        default: 'Prod'
       }
     },
-    testAuthentication: async (request, { settings, auth }) => {
-     
+    testAuthentication: async (request, { settings, subscriptionMetadata }) => {
+      const destinationId = subscriptionMetadata?.destinationConfigId 
+      
+      if(!destinationId){
+        throw new IntegrationError('Destination Id is missing', "MISSING_DESTINATION_ID", 400)
+      }
 
-      const json = { 
+      const kafkaTopic = createHash('sha256').update(destinationId).digest('hex')
+      const kafkaUserName = createHash('sha256').update(`${destinationId}_user`).digest('hex').substring(0, 12)
+      const kafkaPassword = randomBytes(16).toString('hex')
+
+      const json: SingleStoreCreateJSON = { 
         ...settings, 
-        
-        ...generateKafkaCredentials(settings, destinationId)
+        kafkaUserName,
+        kafkaPassword,
+        kafkaTopic, 
+        destinationIdentifier: destinationId,
+        noRollbackOnFailure: false 
       }
     
-      const response = request<SingleStoreCreateJSON>(createUrl, {
+      request<void>(createUrl, {
         headers: {
           "x-security-key": xSecurityKey
         }, 
         throwHttpErrors: false,
         json, 
         method: 'POST'
+      }).catch(() => {
+        // do nothing
       })
 
       return Promise.resolve() 
     }
   },
-
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-  },
-
   actions: {
     sendData
   }

@@ -1,3 +1,5 @@
+import { DEFAULT_PARTITIONER } from './const'
+
 export interface SingleStoreCreateJSON {
     host: string
     port: number
@@ -17,4 +19,8 @@ export interface SingleStoreMessage {
     timestamp: string
     messageId: string
     message: string
+}
+
+export interface GetDatabaseJSON {
+
 }
