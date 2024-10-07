@@ -108,7 +108,7 @@ export const app_data_field: InputField = {
       type: 'string'
     },
     madId: {
-      label: 'advertiser ID (madid)',
+      label: 'Advertiser ID (madid)',
       description:
         'Your mobile advertiser ID, the advertising ID from an Android device or the Advertising Identifier (IDFA) from an Apple device.',
       type: 'string'
