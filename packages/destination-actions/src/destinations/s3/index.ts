@@ -38,11 +38,11 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: true
       }
-    },
-    extendRequest() {
-      return {
-        timeout: Math.max(60_000, DEFAULT_REQUEST_TIMEOUT)
-      }
+    }
+  },
+  extendRequest() {
+    return {
+      timeout: Math.max(60_000, DEFAULT_REQUEST_TIMEOUT)
     }
   },
   actions: {
