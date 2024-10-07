@@ -66,7 +66,7 @@ const destination: DestinationDefinition<Settings> = {
       const destinationId = subscriptionMetadata?.destinationConfigId 
       
       if(!destinationId){
-        throw new IntegrationError('Destination Id is missing', "MISSING_DESTINATION_ID", 400)
+        throw new IntegrationError('Destination Id is missing', 'MISSING_DESTINATION_ID', 400)
       }
 
       const kafkaTopic = createHash('sha256').update(destinationId).digest('hex')
@@ -81,8 +81,9 @@ const destination: DestinationDefinition<Settings> = {
         destinationIdentifier: destinationId,
         noRollbackOnFailure: false 
       }
-    
-      request<void>(createUrl, {
+
+      // eslint-disable-next-line
+      request(createUrl, {
         headers: {
           "x-security-key": xSecurityKey
         }, 
