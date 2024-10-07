@@ -1,5 +1,6 @@
 import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import syncToS3 from './syncToS3'
 
 const destination: DestinationDefinition<Settings> = {
@@ -36,6 +37,11 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The External ID to your IAM role. Generate a secure string and treat it like a password.',
         type: 'password',
         required: true
+      }
+    },
+    extendRequest() {
+      return {
+        timeout: Math.max(60_000, DEFAULT_REQUEST_TIMEOUT)
       }
     }
   },
