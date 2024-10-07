@@ -202,7 +202,7 @@ export const app_data_field: InputField = {
       '@path': '$.context.anon_id'
     },
     madId: {
-      '@path': '$.context.madid'
+      '@path': '$.context.madId'
     }
   }
 }

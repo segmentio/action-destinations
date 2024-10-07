@@ -645,7 +645,7 @@ describe('FacebookConversionsApi', () => {
             anon_id: '1231'
           },
           madId: {
-            madid: '2313'
+            madId: '2313'
           }
         }
       })
@@ -692,6 +692,12 @@ describe('FacebookConversionsApi', () => {
             },
             deviceTimezone: {
               '@path': '$.context.timezone'
+            },
+            anonId: {
+              '@path': '$.context.anonId.anon_id'
+            },
+            madId: {
+              '@path': '$.context.madId.madId'
             }
           }
         },
@@ -702,7 +708,7 @@ describe('FacebookConversionsApi', () => {
       expect(responses[0].status).toBe(201)
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"event_id\\":\\"123\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"]},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"contents\\":[{\\"id\\":\\"abc12345\\"}]},\\"app_data\\":{\\"advertiser_tracking_enabled\\":0,\\"application_tracking_enabled\\":0,\\"extinfo\\":[\\"\\",\\"com.krusty.krab.ios-prod\\",\\"\\",\\"2.0.1\\",\\"16.3.1\\",\\"iPhone10,5\\",\\"en-US\\",\\"\\",\\"AT&T\\",\\"414\\",\\"736\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"America/Los Angeles\\",\\"\\",\\"\\"]}}]}"`
+        `"{\\"data\\":[{\\"event_name\\":\\"AddToCart\\",\\"event_time\\":\\"1631210000\\",\\"event_id\\":\\"123\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"external_id\\":[\\"6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090\\"]},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"contents\\":[{\\"id\\":\\"abc12345\\"}]},\\"app_data\\":{\\"advertiser_tracking_enabled\\":0,\\"application_tracking_enabled\\":0,\\"extinfo\\":[\\"\\",\\"com.krusty.krab.ios-prod\\",\\"\\",\\"2.0.1\\",\\"16.3.1\\",\\"iPhone10,5\\",\\"en-US\\",\\"\\",\\"AT&T\\",\\"414\\",\\"736\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"America/Los Angeles\\",\\"1231\\",\\"2313\\"]}}]}"`
       )
     })
 
