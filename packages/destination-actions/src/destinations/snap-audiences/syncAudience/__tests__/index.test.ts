@@ -86,7 +86,7 @@ describe('Snapchat Audiences syncAudience', () => {
       audienceKey: {
         '@path': '$.context.personas.computation_key'
       },
-      traits_or_props: {
+      props: {
         '@path': '$.properties'
       },
       enable_batching: false
@@ -99,7 +99,7 @@ describe('Snapchat Audiences syncAudience', () => {
       audienceKey: {
         '@path': '$.context.personas.computation_key'
       },
-      traits_or_props: {
+      props: {
         '@path': '$.properties'
       },
       enable_batching: false
@@ -112,7 +112,7 @@ describe('Snapchat Audiences syncAudience', () => {
       audienceKey: {
         '@path': '$.context.personas.computation_key'
       },
-      traits_or_props: {
+      props: {
         '@path': '$.properties'
       },
       enable_batching: false
@@ -174,7 +174,7 @@ describe('Snapchat Audiences syncAudience', () => {
       audienceKey: {
         '@path': '$.context.personas.computation_key'
       },
-      traits_or_props: {
+      props: {
         '@path': '$.properties'
       },
       enable_batching: false
@@ -223,7 +223,7 @@ describe('Snapchat Audiences syncAudience', () => {
       audienceKey: {
         '@path': '$.context.personas.computation_key'
       },
-      traits_or_props: {
+      props: {
         '@path': '$.properties'
       },
       enable_batching: false
@@ -273,7 +273,7 @@ describe('Snapchat Audiences syncAudience', () => {
       audienceKey: {
         '@path': '$.context.personas.computation_key'
       },
-      traits_or_props: {
+      props: {
         '@path': '$.properties'
       },
       enable_batching: false
@@ -322,7 +322,7 @@ describe('Snapchat Audiences syncAudience', () => {
       audienceKey: {
         '@path': '$.context.personas.computation_key'
       },
-      traits_or_props: {
+      props: {
         '@path': '$.properties'
       },
       enable_batching: true
@@ -414,7 +414,7 @@ describe('Snapchat Audiences syncAudience', () => {
       audienceKey: {
         '@path': '$.context.personas.computation_key'
       },
-      traits_or_props: {
+      props: {
         '@path': '$.properties'
       },
       enable_batching: true
@@ -540,7 +540,7 @@ describe('Snapchat Audiences syncAudience', () => {
       audienceKey: {
         '@path': '$.context.personas.computation_key'
       },
-      traits_or_props: {
+      props: {
         '@path': '$.properties'
       },
       enable_batching: true

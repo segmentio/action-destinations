@@ -59,7 +59,35 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     }
   },
-
+  presets: [
+    {
+      name: 'Sync Audience with Email',
+      subscribe: 'type = "track" and context.traits.email exists',
+      partnerAction: 'syncAudience',
+      mapping: {
+        schema_type: 'EMAIL_SHA256'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Sync Audience with Phone',
+      subscribe: 'type = "track" and properties.phone exists',
+      partnerAction: 'syncAudience',
+      mapping: {
+        schema_type: 'PHONE_SHA256'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Sync Audience with Mobile AD ID',
+      subscribe: 'type = "track" and context.device.advertisingId exists',
+      partnerAction: 'syncAudience',
+      mapping: {
+        schema_type: 'MOBILE_AD_ID_SHA256'
+      },
+      type: 'automatic'
+    }
+  ],
   audienceFields: {
     customAudienceName: {
       type: 'string',

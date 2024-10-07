@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
     phone: {
       label: 'Phone',
       description:
-        "If using phone as the identifier an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'phone' is configured as an additional identifier in the Audience settings tab.",
+        "If using phone as the identifier, an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'phone' is configured as an additional identifier in the Audience settings tab.",
       type: 'string',
       required: false,
       default: { '@path': '$.properties.phone' },
@@ -89,7 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
     advertising_id: {
       label: 'Mobile Advertising ID',
       description:
-        "The user's mobile advertising ID. Note: Mobile Advertising Id is not included in audience payloads by default. To sync them, ensure the relevant mobile ID is added as an additional identifier in the Audience settings page.",
+        "If using Mobile Ad ID as the identifier, an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'ios.idfa' and 'android.idfa' are configured as an additional identifier in the Audience settings tab.",
       type: 'string',
       required: false,
       default: {
