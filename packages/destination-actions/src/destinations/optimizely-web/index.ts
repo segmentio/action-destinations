@@ -5,7 +5,7 @@ import type { Settings } from './generated-types'
 import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Optimizely Web',
+  name: 'Optimizely Web (Actions)',
   slug: 'actions-optimizely-web',
   mode: 'cloud',
 
