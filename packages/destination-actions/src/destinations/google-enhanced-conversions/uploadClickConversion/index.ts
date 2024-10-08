@@ -254,6 +254,11 @@ const action: ActionDefinition<Settings, Payload> = {
         'Customer ID is required for this action. Please set it in destination settings.'
       )
     }
+
+    if ([payload.gclid, payload.gbraid, payload.wbraid].filter(Boolean).length !== 1) {
+      throw new PayloadValidationError('Only one of GCLID, GBRAID or WBRAID should be provided.')
+    }
+
     settings.customerId = settings.customerId.replace(/-/g, '')
 
     let cartItems: CartItemInterface[] = []
