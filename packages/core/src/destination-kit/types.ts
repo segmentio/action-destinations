@@ -3,7 +3,7 @@ import {
   Logger,
   StatsContext,
   TransactionContext,
-  DataFeedCache,
+  EngageDestinationCache,
   ActionHookType,
   SubscriptionMetadata
 } from './index'
@@ -41,7 +41,9 @@ export interface ExecuteInput<
   Settings,
   Payload,
   AudienceSettings = unknown,
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
   ActionHookInputs = any,
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
   ActionHookOutputs = any
 > {
   /** The subscription mapping definition */
@@ -73,7 +75,8 @@ export interface ExecuteInput<
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
-  readonly dataFeedCache?: DataFeedCache
+  /** Engage internal use only. DO NOT USE. */
+  readonly engageDestinationCache?: EngageDestinationCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
   readonly subscriptionMetadata?: SubscriptionMetadata

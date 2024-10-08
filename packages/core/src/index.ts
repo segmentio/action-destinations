@@ -41,6 +41,7 @@ export {
   APIError,
   ErrorCodes
 } from './errors'
+export { retry } from './retry'
 export { get } from './get'
 export { omit } from './omit'
 export { removeUndefined } from './remove-undefined'

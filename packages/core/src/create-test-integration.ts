@@ -5,7 +5,7 @@ import type {
   DestinationDefinition,
   StatsContext,
   Logger,
-  DataFeedCache,
+  EngageDestinationCache,
   RequestFn,
   SubscriptionMetadata
 } from './destination-kit'
@@ -45,12 +45,13 @@ interface InputData<Settings> {
   auth?: AuthTokens
   /**
    * The features available in the request based on the customer's sourceID;
-   * `features`, `stats`, `logger`, `dataFeedCache`, and `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
+   * `features`, `stats`, `logger`, `engageDestinationCache`, `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
    */
   features?: Features
   statsContext?: StatsContext
   logger?: Logger
-  dataFeedCache?: DataFeedCache
+  /** Engage internal use only. DO NOT USE. */
+  engageDestinationCache?: EngageDestinationCache
   transactionContext?: TransactionContext
   stateContext?: StateContext
   subscriptionMetadata?: SubscriptionMetadata
@@ -85,7 +86,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       features,
       statsContext,
       logger,
-      dataFeedCache,
+      engageDestinationCache,
       transactionContext,
       stateContext,
       subscriptionMetadata
@@ -108,7 +109,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       features: features ?? {},
       statsContext: statsContext ?? ({} as StatsContext),
       logger: logger ?? ({ info: noop, error: noop } as Logger),
-      dataFeedCache: dataFeedCache ?? ({} as DataFeedCache),
+      engageDestinationCache: engageDestinationCache,
       transactionContext: transactionContext ?? ({} as TransactionContext),
       stateContext: stateContext ?? ({} as StateContext),
       subscriptionMetadata: subscriptionMetadata ?? ({} as SubscriptionMetadata)
@@ -131,7 +132,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       features,
       statsContext,
       logger,
-      dataFeedCache,
+      engageDestinationCache,
       transactionContext,
       stateContext,
       subscriptionMetadata
@@ -158,7 +159,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       features: features ?? {},
       statsContext: statsContext ?? ({} as StatsContext),
       logger: logger ?? ({} as Logger),
-      dataFeedCache: dataFeedCache ?? ({} as DataFeedCache),
+      engageDestinationCache: engageDestinationCache ?? ({} as EngageDestinationCache),
       transactionContext: transactionContext ?? ({} as TransactionContext),
       stateContext: stateContext ?? ({} as StateContext),
       subscriptionMetadata: subscriptionMetadata ?? ({} as SubscriptionMetadata)

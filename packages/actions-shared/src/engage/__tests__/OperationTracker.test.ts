@@ -43,7 +43,7 @@ function createTestClass(
       const instance = this
       if (asyncMethods)
         return (async () => {
-          await new Promise((res) => setTimeout(res, 100))
+          await new Promise((res) => setImmediate(res)) //to speed up tests and keep it async
           return await testMethodImpl.apply(instance, args)
         })()
       return testMethodImpl.apply(instance, args)
@@ -103,12 +103,12 @@ beforeEach(() => {
 
 describe('pass through', () => {
   describe.each([
-    ['async target method', true],
-    ['sync target method', false]
+    ['async method', true],
+    ['sync method', false]
   ])('%s', (_name, isAsync) => {
     describe.each([
-      ['target method thows error', true],
-      ['target completes successfully', false]
+      ['method thows error', true],
+      ['method completes successfully', false]
     ])('%s', (_name, throwError) => {
       test.each(<(TestDecoratorArgs | undefined)[]>[
         undefined,
@@ -186,7 +186,7 @@ describe('log', () => {
       expect(testResult.classInstance.logger.logError).toHaveBeenCalledTimes(0)
     })
 
-    test('on method failing', async () => {
+    test('when method failing', async () => {
       const testResult = await runTestMethod({
         testMethodImpl: () => {
           throw new MyCustomError('My custom error')
@@ -223,7 +223,7 @@ describe('log', () => {
       expectLogInfo(testResult.classInstance.logger.logInfo, ['testMethod succeeded after'])
     })
 
-    test('onFinally hook to add extra data on error', async () => {
+    test('onFinally hook to add extra logs on error', async () => {
       const myCustomError = new MyCustomError('My custom error')
       const someExtraErrorMessage = 'some extra info about error'
       const methodImpl = function (this: any, throwError: boolean) {
@@ -375,6 +375,41 @@ describe('stats', () => {
           method: 'incr',
           value: 1,
           tags: []
+        })
+      })
+
+      test('onFinally hook to add extra tags', async () => {
+        const methodImpl = function (this: any) {
+          const op = testTrack.getCurrentOperation(this) as TestOperationContext
+          const tags: string[] = []
+          op?.onFinally.push(() => {
+            op.tags.push(...tags)
+          })
+
+          tags.push('extra-tag:123')
+
+          if (_throwError) throw new MyCustomError('My custom error')
+        }
+        const TestClass = createTestClass({}, methodImpl, isAsync)
+        const testInstance = new TestClass()
+        try {
+          await testInstance.testMethod()
+        } catch (e) {
+          // eslint-disable-next-line no-empty
+        }
+
+        expect(testInstance.stats.stats).toHaveBeenCalledTimes(2)
+        expect(testInstance.stats.stats).toHaveBeenNthCalledWith(1, {
+          metric: 'testMethod',
+          method: 'incr',
+          value: 1,
+          tags: expect.arrayContaining(['extra-tag:123'])
+        })
+        expect(testInstance.stats.stats).toHaveBeenNthCalledWith(2, {
+          metric: 'testMethod.duration',
+          method: 'histogram',
+          value: expect.anything(),
+          tags: expect.arrayContaining(['extra-tag:123'])
         })
       })
     })

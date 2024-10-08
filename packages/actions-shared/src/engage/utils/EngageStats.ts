@@ -5,7 +5,8 @@ import {
   OperationStats,
   OperationStatsContext,
   TryCatchFinallyHook,
-  TrackedError
+  TrackedError,
+  StatsTags
 } from './operationTracking'
 import { EngageActionPerformer } from './EngageActionPerformer'
 import { OperationContext } from './track'
@@ -23,17 +24,6 @@ export class EngageStats extends OperationStats {
 
   onTry(ctx: OperationStatsContext): () => void {
     const res = super.onTry(ctx)
-    ctx.sharedContext.tags.push(
-      `space_id:${this.actionPerformer.settings.spaceId}`,
-      `projectid:${this.actionPerformer.settings.sourceId}`,
-      `computation_id:${this.actionPerformer.payload.segmentComputationId}`,
-      `settings_region:${this.actionPerformer.settings.region}`,
-      `channel:${this.actionPerformer.getChannelType()}`
-    )
-    const correlation_id =
-      this.actionPerformer.payload.customArgs?.correlation_id ||
-      this.actionPerformer.payload.customArgs?.__segment_internal_correlation_id__
-    if (correlation_id) ctx.sharedContext.tags.push(`correlation_id:${correlation_id}`)
 
     //for operations like request which can be used in multiple places, we need to have operation_path tag that will show where this operation is invoked from
     const parentOperation = (ctx as OperationContext).parent
@@ -58,7 +48,6 @@ export class EngageStats extends OperationStats {
   stats(statsArgs: StatsArgs): void {
     if (!this.statsClient) return
     const { method: statsMethod, metric, value, tags } = statsArgs
-    //[statsArgs.method, statsArgs.metric, statsArgs.value, statsArgs.tags]
     let statsFunc = this.statsClient?.[statsMethod || 'incr'].bind(this.statsClient)
     if (!statsFunc)
       switch (
@@ -68,14 +57,11 @@ export class EngageStats extends OperationStats {
         case 'incr':
           statsFunc = this.statsClient?.incr.bind(this.statsClient)
           break
-          break
         case 'histogram':
           statsFunc = this.statsClient?.histogram.bind(this.statsClient)
           break
-          break
         case 'set':
           statsFunc = this.statsClient?.set.bind(this.statsClient)
-          break
           break
         default:
           break
@@ -84,17 +70,17 @@ export class EngageStats extends OperationStats {
     statsFunc?.(
       `${this.actionPerformer.getIntegrationStatsName()}.${metric}`,
       typeof value === 'undefined' ? 1 : value,
-      [...(this.actionPerformer.executeInput.statsContext?.tags || []), ...(tags ?? [])]
+      this.mergeTags(this.actionPerformer.executeInput.statsContext?.tags, tags)
     )
   }
 
-  incr(metric: string, value?: number, tags?: string[]) {
+  incr(metric: string, value?: number, tags?: StatsTags) {
     this.stats({ metric, value, tags, method: 'incr' })
   }
-  histogram(metric: string, value?: number, tags?: string[]) {
+  histogram(metric: string, value?: number, tags?: StatsTags) {
     this.stats({ metric, value, tags, method: 'histogram' })
   }
-  set(metric: string, value?: number, tags?: string[]) {
+  set(metric: string, value?: number, tags?: StatsTags) {
     this.stats({ metric, value, tags, method: 'set' })
   }
 
