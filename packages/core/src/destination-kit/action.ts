@@ -327,7 +327,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Validate the resolved payload against the schema
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
-      validateSchema(payload, this.schema, { schemaKey, statsContext: bundle.statsContext })
+      validateSchema(payload, this.schema, {
+        schemaKey,
+        statsContext: bundle.statsContext,
+        exempt: ['dynamicAuthSettings']
+      })
       results.push({ output: 'Payload validated' })
     }
 
@@ -392,7 +396,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       const validationOptions = {
         schemaKey: `${this.destinationName}:${this.definition.title}`,
         throwIfInvalid: true,
-        statsContext: bundle.statsContext
+        statsContext: bundle.statsContext,
+        exempt: ['dynamicAuthSettings']
       }
 
       // Filter out invalid payloads before sending them to the action
@@ -652,7 +657,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     if (this.hookSchemas?.[hookType]) {
       const schema = this.hookSchemas[hookType]
-      validateSchema(data.hookInputs, schema)
+      validateSchema(data.hookInputs, schema, {
+        exempt: ['dynamicAuthSettings']
+      })
     }
 
     return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>

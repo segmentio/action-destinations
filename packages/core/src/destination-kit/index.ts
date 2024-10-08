@@ -438,7 +438,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   validateSettings(settings: Settings): void {
     if (this.settingsSchema) {
       try {
-        validateSchema(settings, this.settingsSchema, { schemaKey: `${this.name}:settings` })
+        validateSchema(settings, this.settingsSchema, {
+          schemaKey: `${this.name}:settings`,
+          exempt: ['dynamicAuthSettings']
+        })
       } catch (err) {
         const error = err as ResponseError
         if (error.name === 'AggregateAjvError' || error.name === 'ValidationError') {
@@ -458,7 +461,9 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
     //validate audienceField Input
     if (createAudienceInput.audienceSettings && Object.keys(createAudienceInput.audienceSettings).length > 0) {
-      validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceFields))
+      validateSchema(createAudienceInput.audienceSettings, fieldsToJsonSchema(audienceFields), {
+        exempt: ['dynamicAuthSettings']
+      })
     }
     const destinationSettings = this.getDestinationSettings(settings)
     const run = async () => {
