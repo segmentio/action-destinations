@@ -54,12 +54,60 @@ describe('Remove Profile', () => {
       list_id: listId,
       phone_number: {
         '@path': '$.context.traits.phone'
-      }
+      },
+      country_code: 'IN'
     }
 
     await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).rejects.toThrowError(
-      'invalid-phone-number is not a valid E.164 phone number.'
+      'invalid-phone-number is not a valid phone number and cannot be converted to E.164 format.'
     )
+  })
+
+  it('should convert a phone number to E.164 format if country code is provided', async () => {
+    const requestBody = {
+      data: [
+        {
+          type: 'profile',
+          id: 'XYZABC'
+        }
+      ]
+    }
+
+    nock(`${API_URL}/profiles`)
+      .get(`/?filter=any(phone_number,["+918448309222"])`)
+      .reply(200, {
+        data: [{ id: 'XYZABC' }]
+      })
+
+    nock(`${API_URL}/lists/${listId}`)
+      .delete('/relationships/profiles/', requestBody)
+      .reply(200, {
+        data: [
+          {
+            id: 'XYZABC'
+          }
+        ]
+      })
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      context: {
+        personas: {
+          external_audience_id: listId
+        }
+      },
+      properties: {
+        phone_number: '8448309222'
+      }
+    })
+    const mapping = {
+      list_id: listId,
+      phone_number: '8448309222',
+      country_code: 'IN'
+    }
+
+    await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).resolves.not.toThrowError()
   })
 
   it('should remove profile from list successfully with email address only', async () => {
@@ -238,7 +286,8 @@ describe('Remove Profile Batch', () => {
       },
       phone_number: {
         '@path': '$.properties.phone'
-      }
+      },
+      country_code: 'IN'
     }
 
     const requestBody = {
@@ -263,6 +312,44 @@ describe('Remove Profile Batch', () => {
     // Verify that the profile with invalid phone number was filtered out
     expect(getProfilesMock).toHaveBeenCalledWith(expect.anything(), ['user1@example.com'], [], [])
     getProfilesMock.mockRestore()
+  })
+
+  it('should convert a phone number to E.164 format if country code is provided', async () => {
+    const events = [
+      createTestEvent({
+        properties: {
+          phone: '8448309222'
+        }
+      }),
+      createTestEvent({
+        properties: {
+          phone: '8448309223'
+        }
+      })
+    ]
+    const mapping = {
+      list_id: listId,
+      phone_number: {
+        '@path': '$.properties.phone'
+      },
+      country_code: 'IN'
+    }
+
+    nock(`${API_URL}/profiles`)
+      .get(`/?filter=any(phone_number,["+918448309222","+918448309223"])`)
+      .reply(200, {
+        data: [{ id: 'XYZABC' }, { id: 'XYZABD' }]
+      })
+
+    nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/', requestBody).reply(200)
+
+    await expect(
+      testDestination.testBatchAction('removeProfile', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
   })
 
   it('should remove multiple profiles with valid emails', async () => {

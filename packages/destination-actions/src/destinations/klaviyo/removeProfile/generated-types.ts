@@ -21,4 +21,8 @@ export interface Payload {
    * Individual's phone number in E.164 format. If SMS is not enabled and if you use Phone Number as identifier, then you have to provide one of Email or External ID.
    */
   phone_number?: string
+  /**
+   * Country Code of the user. We support ISO 3166-1 alpha-2 country code.
+   */
+  country_code?: string
 }

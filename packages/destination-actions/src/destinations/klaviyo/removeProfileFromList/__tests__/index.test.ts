@@ -59,7 +59,7 @@ describe('Remove List from Profile', () => {
 
     await expect(
       testDestination.testAction('removeProfileFromList', { event, mapping, settings })
-    ).rejects.toThrowError('invalid-phone-number is not a valid E.164 phone number.')
+    ).rejects.toThrowError('invalid-phone-number is not a valid phone number and cannot be converted to E.164 format.')
   })
 
   it('should remove profile from list successfully with email address only', async () => {

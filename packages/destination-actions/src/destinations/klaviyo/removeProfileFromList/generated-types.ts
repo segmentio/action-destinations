@@ -21,4 +21,8 @@ export interface Payload {
    * When enabled, the action will use the klaviyo batch API.
    */
   enable_batching?: boolean
+  /**
+   * Country Code of the user. We support ISO 3166-1 alpha-2 country code.
+   */
+  country_code?: string
 }

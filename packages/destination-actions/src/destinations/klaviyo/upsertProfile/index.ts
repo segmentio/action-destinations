@@ -14,9 +14,9 @@ import {
   createList,
   groupByListId,
   processProfilesByGroup,
-  validatePhoneNumber
+  validateAndConvertPhoneNumber
 } from '../functions'
-import { batch_size } from '../properties'
+import { batch_size, country_code } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -40,6 +40,9 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `Individual's phone number in E.164 format. If SMS is not enabled and if you use Phone Number as identifier, then you have to provide one of Email or External ID.`,
       type: 'string',
       default: { '@path': '$.context.traits.phone' }
+    },
+    country_code: {
+      ...country_code
     },
     external_id: {
       label: 'External ID',
@@ -229,22 +232,29 @@ const action: ActionDefinition<Settings, Payload> = {
     const {
       email,
       external_id,
-      phone_number,
+      phone_number: initialPhoneNumber,
       enable_batching,
       batch_size,
       list_id: otherListId,
       override_list_id,
+      country_code,
       ...otherAttributes
     } = payload
 
     const list_id = hookOutputs?.retlOnMappingSave?.outputs?.id ?? override_list_id ?? otherListId
 
-    if (!email && !phone_number && !external_id) {
-      throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
+    let phone_number
+    if (initialPhoneNumber) {
+      phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
+      if (!phone_number) {
+        throw new PayloadValidationError(
+          `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
+        )
+      }
     }
 
-    if (phone_number && !validatePhoneNumber(phone_number)) {
-      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
+    if (!email && !phone_number && !external_id) {
+      throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }
 
     const profileData: ProfileData = {
@@ -298,7 +308,15 @@ const action: ActionDefinition<Settings, Payload> = {
 
   performBatch: async (request, { payload, hookOutputs }) => {
     payload = payload.filter((profile) => {
-      if (profile.phone_number && !validatePhoneNumber(profile.phone_number)) {
+      // Validate and convert the phone number using the provided country code
+      const validPhoneNumber = validateAndConvertPhoneNumber(profile.phone_number, profile.country_code)
+
+      // If the phone number is valid, update the profile's phone number with the validated format
+      if (validPhoneNumber) {
+        profile.phone_number = validPhoneNumber
+      }
+      // If the phone number is invalid (null), exclude this profile
+      else if (validPhoneNumber === null) {
         return false
       }
       return profile.email || profile.phone_number || profile.external_id
