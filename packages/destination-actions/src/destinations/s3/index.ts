@@ -1,5 +1,6 @@
 import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import syncToS3 from './syncToS3'
 
 const destination: DestinationDefinition<Settings> = {
@@ -37,6 +38,11 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: true
       }
+    }
+  },
+  extendRequest() {
+    return {
+      timeout: Math.max(60_000, DEFAULT_REQUEST_TIMEOUT)
     }
   },
   actions: {

@@ -2,6 +2,14 @@
 
 export interface Payload {
   /**
+   * Anonymous id
+   */
+  anonymousId?: string
+  /**
+   * The ID associated with the user
+   */
+  userId?: string
+  /**
    * The group id
    */
   groupId: string

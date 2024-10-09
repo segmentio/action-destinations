@@ -30,16 +30,16 @@ describe('FacebookConversionsApi', () => {
     delete sampleAppDataIncomplete.carrier
     delete sampleAppDataIncomplete.deviceTimezone
 
-    it('generated app data should always have a length 16 exinfo array', () => {
+    it('generated app data should always have a length 18 exinfo array', () => {
       let appData: GeneratedAppData | undefined = generate_app_data(sampleAppDataComplete)
       if (appData) {
-        expect(appData.extinfo.length).toBe(16)
+        expect(appData.extinfo.length).toBe(18)
       }
       expect(appData).toBeDefined()
 
       appData = generate_app_data(sampleAppDataIncomplete)
       if (appData) {
-        expect(appData.extinfo.length).toBe(16)
+        expect(appData.extinfo.length).toBe(18)
       }
       expect(appData).toBeDefined()
     })

@@ -10,8 +10,9 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
   const actionColName = payloads[0]?.audience_action_column_name
   const batchColName = payloads[0]?.batch_size_column_name
 
-  if (batchSize > 5000) {
-    throw new IntegrationError('Batch size cannot exceed 5000', 'Invalid Payload', 400)
+  const maxBatchSize = 10_000
+  if (batchSize > maxBatchSize) {
+    throw new IntegrationError(`Batch size cannot exceed ${maxBatchSize}`, 'Invalid Payload', 400)
   }
 
   const headers: ColumnHeader[] = Object.entries(rawMapping.columns)

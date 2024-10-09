@@ -33,7 +33,9 @@ export const generate_app_data = (app_data: AppData): GeneratedAppData | undefin
       app_data?.cpuCores ?? '',
       app_data?.storageSize ?? '',
       app_data?.freeStorage ?? '',
-      app_data?.deviceTimezone ?? ''
+      app_data?.deviceTimezone ?? '',
+      app_data?.anonId ?? '',
+      app_data?.madId ?? ''
     ]
   }
 }
@@ -41,7 +43,7 @@ export const generate_app_data = (app_data: AppData): GeneratedAppData | undefin
 export const app_data_field: InputField = {
   label: 'App Events Fields',
   description: `These fields support sending app events to Facebook through the Conversions API. For more information about app events support in the Conversions API, see the Facebook docs [here](https://developers.facebook.com/docs/marketing-api/conversions-api/app-events).
-  App events sent through the Conversions API must be associated with a dataset. 
+  App events sent through the Conversions API must be associated with a dataset.
   Instructions for creating a dataset can be found [here](https://www.facebook.com/business/help/750785952855662?id=490360542427371). Once a dataset is created, the dataset ID
   can be substituted for the pixel ID in the destination settings.`,
   type: 'object',
@@ -97,6 +99,18 @@ export const app_data_field: InputField = {
     deviceName: {
       label: 'Device Model Name',
       description: `Example: 'iPhone5,1'.`,
+      type: 'string'
+    },
+    anonId: {
+      label: 'Install ID (anon_id)',
+      description:
+        'This field represents unique application installation instances. Note: This parameter is for app events only.',
+      type: 'string'
+    },
+    madId: {
+      label: 'Advertiser ID (madid)',
+      description:
+        'Your mobile advertiser ID, the advertising ID from an Android device or the Advertising Identifier (IDFA) from an Apple device.',
       type: 'string'
     },
     locale: {
@@ -183,6 +197,12 @@ export const app_data_field: InputField = {
     },
     deviceTimezone: {
       '@path': '$.context.timezone'
+    },
+    anonId: {
+      '@path': '$.context.anon_id'
+    },
+    madId: {
+      '@path': '$.context.madId'
     }
   }
 }
