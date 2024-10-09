@@ -78,11 +78,17 @@ const destination: AudienceDestinationDefinition<Settings> = {
     }
   },
   audienceFields: {
+    supports_conversions: {
+      type: 'boolean',
+      label: 'Supports Conversions',
+      description:
+        'Mark true if you are using uploadCallConversion, uploadClickConversion or uploadConversionAdjustment. This destination will only operate with these actions if this is true.',
+      default: false
+    },
     external_id_type: {
       type: 'string',
       label: 'External ID Type',
       description: 'Customer match upload key types.',
-      required: true,
       choices: [
         { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
         { label: 'CRM ID', value: 'CRM_ID' },
@@ -112,6 +118,14 @@ const destination: AudienceDestinationDefinition<Settings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput: CreateAudienceInput) {
+      // When supports_conversions is enabled streaming mode is forced for this destination.
+      // This guarantees that uploadCallConversion, uploadClickConversion and uploadConversionAdjustment actions are usable with Engage sources.
+      if (createAudienceInput.audienceSettings.supports_conversions) {
+        return {
+          externalId: 'segment'
+        }
+      }
+
       createAudienceInput.settings.customerId = verifyCustomerId(createAudienceInput.settings.customerId)
       const auth = createAudienceInput.settings.oauth
       const userListId = await createGoogleAudience(

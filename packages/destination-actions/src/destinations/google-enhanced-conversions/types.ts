@@ -145,8 +145,9 @@ export interface CreateAudienceInput {
     }
   }
   audienceSettings: {
-    external_id_type: string
+    external_id_type?: string
     app_id?: string
+    supports_conversions?: boolean
   }
   statsContext?: StatsContext
 }
