@@ -61,7 +61,7 @@ const createDmpSegmentRequestBody = {
   sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
   sourceSegmentId: 'personas_test_audience',
   account: `urn:li:sponsoredAccount:456`,
-  // accessPolicy: 'PRIVATE',
+  accessPolicy: 'PRIVATE',
   type: 'USER',
   destinations: [
     {
