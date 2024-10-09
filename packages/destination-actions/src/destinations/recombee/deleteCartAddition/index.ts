@@ -37,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       label: 'Timestamp',
       description:
-        'The UTC timestamp of when the bookmark occurred. If the timestamp is omitted, then all the bookmarks with the given `userId` and `itemId` are deleted.',
+        'The UTC timestamp of when the cart addition occurred. If the timestamp is omitted, then all the cart additions with the given `userId` and `itemId` are deleted.',
       type: 'string',
       required: false
     }

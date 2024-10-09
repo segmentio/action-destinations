@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
     portion: {
       label: 'Portion',
       description:
-        'The viewed portion of the item in the interval [0.0,1.0], where 0.0 means the user viewed nothing and 1.0 means the full item was viewed. It should be the actual viewed part of the item, no matter the seeking. For example, if the user seeked immediately to half of the item and then viewed 10% of the item, the `portion` should still be `0.1`.',
+        'The viewed portion of the item as a number in the interval [0.0,1.0], where 0.0 means the user viewed nothing and 1.0 means the full item was viewed. It should be the actual viewed part of the item, no matter the seeking. For example, if the user seeked immediately to half of the item and then viewed 10% of the item, the `portion` should still be `0.1`.',
       type: 'number',
       required: true,
       default: { '@path': '$.properties.portion' }
