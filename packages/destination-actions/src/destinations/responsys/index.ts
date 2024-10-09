@@ -4,6 +4,8 @@ import sendCustomTraits from './sendCustomTraits'
 import sendAudience from './sendAudience'
 import upsertListMember from './upsertListMember'
 
+import sendAudienceAsPet from './sendAudienceAsPet'
+
 interface RefreshTokenResponse {
   authToken: string
 }
@@ -170,14 +172,11 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string'
       }
     },
-    testAuthentication: (_, { settings }) => {
-      if (settings.baseUrl.startsWith('https://'.toLowerCase())) {
-        return Promise.resolve('Success')
-      } else {
+    testAuthentication: async (request, { settings }) => {
+      if (!settings.baseUrl.startsWith('https://'.toLowerCase())) {
         throw new IntegrationError('Responsys endpoint URL must start with https://', 'INVALID_URL', 400)
       }
-    },
-    refreshAccessToken: async (request, { settings }) => {
+
       const baseUrl = settings.baseUrl?.replace(/\/$/, '')
       const endpoint = `${baseUrl}/rest/api/v1.3/auth/token`
 
@@ -188,6 +187,23 @@ const destination: DestinationDefinition<Settings> = {
         },
         body: `user_name=${encodeURIComponent(settings.username)}&password=${encodeURIComponent(
           settings.userPassword
+        )}&auth_type=password`
+      })
+
+      return Promise.resolve(res.data.authToken ? true : false)
+    },
+    refreshAccessToken: async (request, { auth }) => {
+      const resolvedAuth = auth as unknown as { baseUrl: string; username: string; userPassword: string }
+      const baseUrl = resolvedAuth.baseUrl?.replace(/\/$/, '')
+      const endpoint = `${baseUrl}/rest/api/v1.3/auth/token`
+
+      const res = await request<RefreshTokenResponse>(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `user_name=${encodeURIComponent(resolvedAuth.username)}&password=${encodeURIComponent(
+          resolvedAuth.userPassword
         )}&auth_type=password`
       })
       return { accessToken: res.data.authToken }
@@ -203,6 +219,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   actions: {
     sendAudience,
+    sendAudienceAsPet,
     sendCustomTraits,
     upsertListMember
   }
