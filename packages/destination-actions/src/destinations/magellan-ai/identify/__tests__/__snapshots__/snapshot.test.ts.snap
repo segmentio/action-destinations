@@ -2,14 +2,18 @@
 
 exports[`Testing snapshot for MagellanAI's identify destination action: all fields 1`] = `
 Object {
+  "ip": "206.160.101.213",
   "token": "UD9DA$2xqXR[KfJmt",
+  "ua": "UD9DA$2xqXR[KfJmt",
   "userId": "UD9DA$2xqXR[KfJmt",
 }
 `;
 
 exports[`Testing snapshot for MagellanAI's identify destination action: required fields 1`] = `
 Object {
+  "ip": "206.160.101.213",
   "token": "UD9DA$2xqXR[KfJmt",
+  "ua": "UD9DA$2xqXR[KfJmt",
   "userId": "UD9DA$2xqXR[KfJmt",
 }
 `;

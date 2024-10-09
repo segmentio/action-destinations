@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { buildPerformer } from '../utils'
-import { priceFields } from '../schema'
+import { clientFields, priceFields } from '../schema'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Lead',
@@ -44,7 +44,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: { '@path': '$.properties.category' },
       required: false
-    }
+    },
+    ...clientFields
   },
   perform: buildPerformer('lead')
 }

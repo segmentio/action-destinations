@@ -1,5 +1,29 @@
 import { InputField } from '@segment/actions-core'
 
+export const clientFields: Record<string, InputField> = {
+  ip: {
+    label: 'IP address',
+    description: 'The IPv4 address of the end user (Note: Segment does not support collecting IPv6 addresses)',
+    type: 'string',
+    format: 'ipv4',
+    default: { '@path': '$.context.ip' },
+    required: true
+  },
+  ua: {
+    label: 'User agent',
+    description: 'The user agent of the end user (Note: not collected by the iOS Segment agent)',
+    type: 'string',
+    default: {
+      '@if': {
+        exists: { '@path': '$.context.userAgent' },
+        then: { '@path': '$.context.userAgent' },
+        else: { '@path': '$.context.library.name' }
+      }
+    },
+    required: true
+  }
+}
+
 export function priceFields(valueSource = 'value'): Record<string, InputField> {
   return {
     value: {
@@ -177,28 +201,6 @@ export const mobileFields: Record<string, InputField> = {
     description: 'The name of the mobile application',
     type: 'string',
     default: { '@path': '$.context.app.name' },
-    required: true
-  },
-  ip: {
-    label: 'IP address',
-    description:
-      'The IPv4 address of the end user who installed the app (Note: Segment does not support collecting IPv6 addresses)',
-    type: 'string',
-    format: 'ipv4',
-    default: { '@path': '$.context.ip' },
-    required: true
-  },
-  ua: {
-    label: 'User agent',
-    description: 'The user agent of the end user who installed the app (Note: not sent by the iOS Segment agent)',
-    type: 'string',
-    default: {
-      '@if': {
-        exists: { '@path': '$.context.userAgent' },
-        then: { '@path': '$.context.userAgent' },
-        else: { '@path': '$.context.library.name' }
-      }
-    },
     required: true
   },
   ts: {

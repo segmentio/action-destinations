@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { buildPerformer } from '../utils'
+import { clientFields } from '../schema'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'View',
@@ -16,7 +17,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.context.page.url' },
       format: 'uri',
       required: true
-    }
+    },
+    ...clientFields
   },
   perform: buildPerformer('view')
 }

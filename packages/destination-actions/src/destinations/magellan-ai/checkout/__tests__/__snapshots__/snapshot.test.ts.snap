@@ -5,6 +5,7 @@ Object {
   "currency": "ISK",
   "discountCode": "tsbfmW@",
   "id": "tsbfmW@",
+  "ip": "43.69.65.7",
   "lineItems": Array [
     Object {
       "productId": "tsbfmW@",
@@ -19,6 +20,7 @@ Object {
   ],
   "quantity": -60083978287185.92,
   "token": "tsbfmW@",
+  "ua": "tsbfmW@",
   "value": -60083978287185.92,
 }
 `;
@@ -27,7 +29,9 @@ exports[`Testing snapshot for MagellanAI's checkout destination action: required
 Object {
   "currency": "ISK",
   "id": "tsbfmW@",
+  "ip": "43.69.65.7",
   "token": "tsbfmW@",
+  "ua": "tsbfmW@",
   "value": -60083978287185.92,
 }
 `;

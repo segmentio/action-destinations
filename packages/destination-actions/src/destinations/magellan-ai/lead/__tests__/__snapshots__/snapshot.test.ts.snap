@@ -5,10 +5,12 @@ Object {
   "category": "dtVRL!L9hrw]avE1wNG",
   "currency": "HNL",
   "id": "dtVRL!L9hrw]avE1wNG",
+  "ip": "235.10.66.165",
   "productId": "dtVRL!L9hrw]avE1wNG",
   "quantity": 75893497596477.44,
   "token": "dtVRL!L9hrw]avE1wNG",
   "type": "dtVRL!L9hrw]avE1wNG",
+  "ua": "dtVRL!L9hrw]avE1wNG",
   "value": 75893497596477.44,
 }
 `;
@@ -17,7 +19,9 @@ exports[`Testing snapshot for MagellanAI's lead destination action: required fie
 Object {
   "currency": "HNL",
   "id": "dtVRL!L9hrw]avE1wNG",
+  "ip": "235.10.66.165",
   "token": "dtVRL!L9hrw]avE1wNG",
+  "ua": "dtVRL!L9hrw]avE1wNG",
   "value": 75893497596477.44,
 }
 `;

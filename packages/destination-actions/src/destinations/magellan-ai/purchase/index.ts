@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { buildPerformer } from '../utils'
-import { orderInfoFields, priceFields } from '../schema'
+import { clientFields, orderInfoFields, priceFields } from '../schema'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase',
@@ -17,7 +17,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Whether or not this customer is a first-time buyer from your store',
       type: 'boolean',
       required: false
-    }
+    },
+    ...clientFields
   },
   perform: buildPerformer('purchase')
 }

@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { buildPerformer } from '../utils'
+import { clientFields } from '../schema'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Code',
@@ -22,7 +23,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: 'promo',
       required: true
-    }
+    },
+    ...clientFields
   },
   perform: buildPerformer('code')
 }
