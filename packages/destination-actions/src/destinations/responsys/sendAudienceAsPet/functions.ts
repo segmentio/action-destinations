@@ -150,8 +150,7 @@ const updateProfileListMembers = async (request: RequestClient, settings: Settin
     for (const fieldName of fieldNames) {
       const resolvedFieldName = fieldName as 'EMAIL_ADDRESS_' | 'CUSTOMER_ID_' | 'RIID_'
       if (payload.userData && payload.userData[resolvedFieldName]) {
-        const value = payload.userData[resolvedFieldName]
-        record.push(value || '')
+        record.push(payload.userData[resolvedFieldName])
       }
     }
 
