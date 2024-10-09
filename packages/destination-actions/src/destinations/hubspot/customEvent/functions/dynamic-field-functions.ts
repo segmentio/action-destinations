@@ -1,11 +1,32 @@
 import { RequestClient } from '@segment/actions-core'
-import { HubSpotError } from '../errors'
-import { HUBSPOT_BASE_URL } from '../properties'
-import { SUPPORTED_HUBSPOT_OBJECT_TYPES, DEFAULT_CUSTOM_EVENT_PROPERTIES } from './constants'
-import { cleanEventName } from './validation'
+import { HubSpotError } from '../../errors'
+import { HUBSPOT_BASE_URL } from '../../properties'
+import { SUPPORTED_HUBSPOT_OBJECT_TYPES, DEFAULT_CUSTOM_EVENT_PROPERTIES } from '../constants'
+import { cleanEventName } from './validation-functions'
 import { DynamicFieldResponse } from '@segment/actions-core'
+import { Payload } from '../generated-types'
 
-export async function dynamicReadEventNames(request: RequestClient): Promise<DynamicFieldResponse> {
+export const dynamicFields = {
+  event_name: async (request: RequestClient) => {
+    return await dynamicReadEventNames(request)
+  },
+  record_details: {
+    object_type: async (request: RequestClient) => {
+      return await dynamicReadObjectTypes(request)
+    }
+  },
+  properties: {
+    __keys__: async (request: RequestClient, { payload }: { payload: Payload }) => {
+      const eventName = payload?.event_name
+      if (!eventName) {
+        throw new Error("Select from 'Event Name' first")
+      }
+      return await dynamicReadProperties(request, eventName)
+    }
+  }
+}
+
+async function dynamicReadEventNames(request: RequestClient): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: {
       singular: string | null
@@ -54,7 +75,7 @@ export async function dynamicReadEventNames(request: RequestClient): Promise<Dyn
   }
 }
 
-export async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFieldResponse> {
+async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: { singular: string; plural: string }
     name: string
@@ -95,7 +116,7 @@ export async function dynamicReadObjectTypes(request: RequestClient): Promise<Dy
   }
 }
 
-export async function dynamicReadProperties(request: RequestClient, eventName: string): Promise<DynamicFieldResponse> {
+async function dynamicReadProperties(request: RequestClient, eventName: string): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: {
       singular: string | null
