@@ -389,6 +389,15 @@ export const eventProperties: Record<string, InputField> = {
     description: 'Set as true to ensure Segment sends data to Mixpanel in batches.',
     default: true
   },
+  batch_size: {
+    label: 'Batch Size',
+    description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+    type: 'number',
+    required: false,
+    default: 1000,
+    minimum: 1,
+    maximum: 2000
+  },
   userAgentData: {
     label: 'User Agent Data',
     type: 'object',
