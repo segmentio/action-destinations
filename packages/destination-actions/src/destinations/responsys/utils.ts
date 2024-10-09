@@ -1,13 +1,20 @@
 import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-types'
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
 import { Payload as ListMemberPayload } from './upsertListMember/generated-types'
-import { RecordData, CustomTraitsRequestBody, MergeRule, ListMemberRequestBody, Data } from './types'
+import {
+  ResponsysRecordData,
+  ResponsysCustomTraitsRequestBody,
+  ResponsysMergeRule,
+  ResponsysListMemberRequestBody,
+  Data
+} from './types'
 import {
   RequestClient,
   IntegrationError,
   PayloadValidationError,
   RetryableError,
-  StatsContext
+  StatsContext,
+  ModifiedResponse
 } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
@@ -86,29 +93,30 @@ export const sendCustomTraits = async (
   payload: CustomTraitsPayload[] | AudiencePayload[],
   settings: Settings,
   userDataFieldNames: string[],
-  isAudience?: boolean
+  isAudience = false
 ) => {
   let userDataArray: unknown[]
   if (isAudience) {
-    const audiencePayloads = payload as unknown[] as AudiencePayload[]
+    const audiencePayloads = payload as AudiencePayload[]
     userDataArray = audiencePayloads.map((obj) => {
-      const traitValue = obj.computation_key
-        ? { [obj.computation_key.toUpperCase() as unknown as string]: obj.traits_or_props[obj.computation_key] }
-        : {}
-      if (!userDataFieldNames.includes(obj.computation_key.toUpperCase() as unknown as string)) {
-        userDataFieldNames.push(obj.computation_key.toUpperCase() as unknown as string)
+      const audienceKeyUppercase = obj.computation_key.toUpperCase()
+      const audienceTraitValue = { [audienceKeyUppercase]: obj.traits_or_props[obj.computation_key] }
+
+      if (!userDataFieldNames.includes(audienceKeyUppercase)) {
+        userDataFieldNames.push(audienceKeyUppercase)
       }
+
       return {
         ...(obj.stringify ? stringifyObject(obj.userData) : obj.userData),
-        ...(obj.stringify ? stringifyObject(traitValue) : traitValue)
+        ...(obj.stringify ? stringifyObject(audienceTraitValue) : audienceTraitValue)
       }
     })
   } else {
-    const customTraitsPayloads = payload as unknown[] as CustomTraitsPayload[]
+    const customTraitsPayloads = payload as CustomTraitsPayload[]
     userDataArray = customTraitsPayloads.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
   }
 
-  const records: unknown[][] = userDataArray.map((userData) => {
+  const records: string[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
       return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
         ? (userData as Record<string, string>)[fieldName]
@@ -116,13 +124,13 @@ export const sendCustomTraits = async (
     })
   })
 
-  const recordData: RecordData = {
+  const recordData: ResponsysRecordData = {
     fieldNames: userDataFieldNames.map((field) => field.toUpperCase()),
     records,
     mapTemplateName: ''
   }
 
-  const requestBody: CustomTraitsRequestBody = {
+  const requestBody: ResponsysCustomTraitsRequestBody = {
     recordData,
     insertOnNoMatch: settings.insertOnNoMatch,
     updateOnMatch: settings.updateOnMatch,
@@ -138,37 +146,7 @@ export const sendCustomTraits = async (
     body: JSON.stringify(requestBody)
   })
 
-  if (settings.segmentWriteKey && settings.segmentWriteKeyRegion) {
-    try {
-      const body = response.data
-      await request(
-        settings.segmentWriteKeyRegion === 'EU'
-          ? 'events.eu1.segmentapis.com/v1/track'
-          : 'https://api.segment.io/v1/track',
-        {
-          method: 'POST',
-          headers: {
-            Authorization: 'Basic ' + Buffer.from(settings.segmentWriteKey + ': ').toString('base64'),
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            type: 'track',
-            event: 'Responsys Response Message Received',
-            properties: {
-              body,
-              responsysRequest: {
-                ...requestBody,
-                recordCount: requestBody.recordData.records.length
-              }
-            },
-            anonymousId: '__responsys__API__response__'
-          })
-        }
-      )
-    } catch (error) {
-      // do nothing
-    }
-  }
+  await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
   return response
 }
 
@@ -180,7 +158,7 @@ export const upsertListMembers = async (
 ) => {
   const userDataArray = payload.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
 
-  const records: unknown[][] = userDataArray.map((userData) => {
+  const records: string[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
       return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
         ? (userData as Record<string, string>)[fieldName]
@@ -188,13 +166,13 @@ export const upsertListMembers = async (
     })
   })
 
-  const recordData: RecordData = {
+  const recordData: ResponsysRecordData = {
     fieldNames: userDataFieldNames,
     records,
     mapTemplateName: ''
   }
 
-  const mergeRule: MergeRule = {
+  const mergeRule: ResponsysMergeRule = {
     htmlValue: settings.htmlValue,
     optinValue: settings.optinValue,
     textValue: settings.textValue,
@@ -208,7 +186,7 @@ export const upsertListMembers = async (
     defaultPermissionStatus: settings.defaultPermissionStatus
   }
 
-  const requestBody: ListMemberRequestBody = {
+  const requestBody: ResponsysListMemberRequestBody = {
     recordData,
     mergeRule
   }
@@ -222,6 +200,16 @@ export const upsertListMembers = async (
     body: JSON.stringify(requestBody)
   })
 
+  await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
+  return response
+}
+
+export const sendDebugMessageToSegmentSource = async (
+  request: RequestClient,
+  requestBody: ResponsysCustomTraitsRequestBody,
+  response: ModifiedResponse<unknown>,
+  settings: Settings
+) => {
   if (settings.segmentWriteKey && settings.segmentWriteKeyRegion) {
     try {
       const body = response.data
@@ -238,10 +226,6 @@ export const upsertListMembers = async (
           body: JSON.stringify({
             type: 'track',
             event: 'Responsys Response Message Received',
-            requestBody: {
-              ...requestBody,
-              recordCount: requestBody.recordData.records.length
-            },
             properties: {
               body,
               responsysRequest: {
@@ -257,5 +241,4 @@ export const upsertListMembers = async (
       // do nothing
     }
   }
-  return response
 }
