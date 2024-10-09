@@ -4,6 +4,8 @@ import { Payload } from './generated-types'
 import {
   ResponsysAudiencePetUpdateRequestBody,
   ResponsysListMemberRequestBody,
+  ResponsysMatchField,
+  ResponsysMatchType,
   ResponsysMergeRule,
   ResponsysRecordData
 } from '../types'
@@ -82,21 +84,15 @@ export const updateProfileListAndPet = async (request: RequestClient, settings: 
     }
   }
 
-  for (const [computationKey, recordCategories] of Object.entries(records)) {
+  for (const [audienceKey, recordCategories] of Object.entries(records)) {
     if (recordCategories.recordsWithUserId.length > 0) {
-      records[computationKey].requestBodyUserId = buildPetUpdatePayload(
-        recordCategories.recordsWithUserId,
-        'CUSTOMER_ID'
-      )
+      records[audienceKey].requestBodyUserId = buildPetUpdatePayload(recordCategories.recordsWithUserId, 'CUSTOMER_ID')
     }
     if (recordCategories.recordsWithEmail.length > 0) {
-      records[computationKey].requestBodyEmail = buildPetUpdatePayload(
-        recordCategories.recordsWithEmail,
-        'EMAIL_ADDRESS'
-      )
+      records[audienceKey].requestBodyEmail = buildPetUpdatePayload(recordCategories.recordsWithEmail, 'EMAIL_ADDRESS')
     }
     if (recordCategories.recordsWithRiid.length > 0) {
-      records[computationKey].requestBodyRiid = buildPetUpdatePayload(recordCategories.recordsWithRiid, 'RIID')
+      records[audienceKey].requestBodyRiid = buildPetUpdatePayload(recordCategories.recordsWithRiid, 'RIID')
     }
   }
 
@@ -120,24 +116,26 @@ export const updateProfileListAndPet = async (request: RequestClient, settings: 
   return results
 }
 
-const buildPetUpdatePayload = (payloads: Payload[], matchType: 'CUSTOMER_ID' | 'EMAIL_ADDRESS' | 'RIID') => {
-  const resolvedMatchType = (matchType + '_') as 'CUSTOMER_ID_' | 'EMAIL_ADDRESS_' | 'RIID_'
+const buildPetUpdatePayload = (payloads: Payload[], matchField: ResponsysMatchField) => {
+  const resolvedMatchType = (matchField + '_') as ResponsysMatchType
   const firstPayload = payloads[0]
+  const records = payloads.map((payload) => {
+    const field = payload.userData[resolvedMatchType]
+    if (field) {
+      const inAudience = payload.traits_or_props[payload.computation_key] === true ? '1' : '0'
+      return [field, inAudience]
+    }
+  }) as string[][]
+
   const requestBody = {
     recordData: {
       fieldNames: [resolvedMatchType, firstPayload.computation_key],
-      records: payloads.map((payload) => {
-        const field = payload.userData[resolvedMatchType]
-        if (field) {
-          const inAudience = payload.traits_or_props[payload.computation_key] === true ? '1' : '0'
-          return [field, inAudience]
-        }
-      }) as string[][],
+      records: records,
       mapTemplateName: null
     },
     insertOnNoMatch: true,
     updateOnMatch: 'REPLACE_ALL',
-    matchColumnName1: matchType
+    matchColumnName1: matchField
   }
 
   return requestBody
@@ -150,9 +148,13 @@ const updateProfileListMembers = async (request: RequestClient, settings: Settin
   for (const payload of payloads) {
     const record: string[] = []
     for (const fieldName of fieldNames) {
-      const value = payload.userData[fieldName as 'EMAIL_ADDRESS_' | 'CUSTOMER_ID_' | 'RIID_']
-      record.push(value || '')
+      const resolvedFieldName = fieldName as 'EMAIL_ADDRESS_' | 'CUSTOMER_ID_' | 'RIID_'
+      if (payload.userData && payload.userData[resolvedFieldName]) {
+        const value = payload.userData[resolvedFieldName]
+        record.push(value || '')
+      }
     }
+
     records.push(record)
   }
 

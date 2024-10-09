@@ -6,6 +6,9 @@ export interface Data {
   }
 }
 
+export type ResponsysMatchField = 'CUSTOMER_ID' | 'EMAIL_ADDRESS' | 'RIID'
+export type ResponsysMatchType = 'CUSTOMER_ID_' | 'EMAIL_ADDRESS_' | 'RIID_'
+
 export type ResponsysMergeRule = {
   /**
    * Value of incoming preferred email format data. For example, 'H' may represent a preference for HTML formatted email.
