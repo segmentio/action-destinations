@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -32,31 +32,45 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    merge_behavior: {
-      label: 'Merge Behavior',
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Braze',
       description:
-        'Sets the endpoint to merge some fields found exclusively on the anonymous user to the identified user. See [the docs](https://www.braze.com/docs/api/endpoints/user_data/post_user_identify/#request-parameters).',
-      type: 'string',
-      choices: [
-        { value: 'none', label: 'None' },
-        { value: 'merge', label: 'Merge' }
-      ]
+        'If true, Segment will batch events before sending to Braze’s identify user endpoint. Braze accepts batches of up to 50 events for this endpoint.',
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      default: 50,
+      unsafe_hidden: true
     }
   },
   perform: (request, { settings, payload }) => {
-    return request(`${settings.endpoint}/users/identify`, {
-      method: 'post',
-      json: {
-        aliases_to_identify: [
-          {
-            external_id: payload.external_id,
-            user_alias: payload.user_alias
-          }
-        ],
-        ...(payload.merge_behavior !== undefined && { merge_behavior: payload.merge_behavior })
-      }
-    })
+    return processData(request, settings, [payload])
+  },
+  performBatch: (request, { settings, payload }) => {
+    return processData(request, settings, payload)
   }
+}
+
+const processData = (request: RequestClient, settings: Settings, payload: Payload[]) => {
+  const aliases_to_identify = payload.map((event) => {
+    const { user_alias, external_id } = event
+    return {
+      external_id,
+      user_alias
+    }
+  })
+
+  return request(`${settings.endpoint}/users/identify`, {
+    method: 'post',
+    ...(payload.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
+    json: {
+      aliases_to_identify
+    }
+  })
 }
 
 export default action
