@@ -28,8 +28,9 @@ import {
 import { Payload } from './upsertProfile/generated-types'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import dayjs from 'dayjs'
-import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
+import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+
 const phoneUtil = PhoneNumberUtil.getInstance()
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
@@ -133,10 +134,12 @@ export const createImportJobPayload = (profiles: Payload[], listId?: string): { 
     type: 'profile-bulk-import-job',
     attributes: {
       profiles: {
-        data: profiles.map(({ list_id, enable_batching, batch_size, override_list_id, ...attributes }) => ({
-          type: 'profile',
-          attributes
-        }))
+        data: profiles.map(
+          ({ list_id, enable_batching, batch_size, override_list_id, country_code, ...attributes }) => ({
+            type: 'profile',
+            attributes
+          })
+        )
       }
     },
     ...(listId
@@ -411,12 +414,6 @@ export async function processProfilesByGroup(request: RequestClient, groupedProf
   return importResponses
 }
 
-export function validatePhoneNumber(phone?: string): boolean {
-  if (!phone) return true
-  const e164Regex = /^\+[1-9]\d{1,14}$/
-  return e164Regex.test(phone)
-}
-
 export function validateAndConvertPhoneNumber(phone?: string, countryCode?: string): string | undefined | null {
   if (!phone) return
 
@@ -444,6 +441,24 @@ export function validateAndConvertPhoneNumber(phone?: string, countryCode?: stri
   }
 
   return null
+}
+
+export function processPhoneNumber(
+  initialPhoneNumber: string | undefined,
+  country_code: string | undefined
+): string | undefined {
+  if (!initialPhoneNumber) {
+    return
+  }
+
+  const phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
+  if (!phone_number) {
+    throw new PayloadValidationError(
+      `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
+    )
+  }
+
+  return phone_number
 }
 
 export async function sendBatchedTrackEvent(request: RequestClient, payloads: TrackEventPayload[]) {

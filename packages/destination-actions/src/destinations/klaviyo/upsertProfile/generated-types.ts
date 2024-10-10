@@ -14,6 +14,10 @@ export interface Payload {
    */
   phone_number?: string
   /**
+   * Country Code of the user. We support ISO 3166-1 alpha-2 country code.
+   */
+  country_code?: string
+  /**
    * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID, Phone Number and Email required.
    */
   external_id?: string

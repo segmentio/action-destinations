@@ -10,6 +10,10 @@ export interface Payload {
    */
   phone_number?: string
   /**
+   * Country Code of the user. We support ISO 3166-1 alpha-2 country code.
+   */
+  country_code?: string
+  /**
    * The Klaviyo list to remove the subscribed profiles from. If no list id is provided, the profile will be unsubscribed from all channels.
    */
   list_id?: string
