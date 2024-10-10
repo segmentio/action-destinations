@@ -3,8 +3,10 @@ import {
   RequestClient,
   DynamicFieldResponse,
   IntegrationError,
-  PayloadValidationError
+  PayloadValidationError,
+  MultiStatusResponse
 } from '@segment/actions-core'
+import { JSONLikeObject } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
 import { Settings } from './generated-types'
 import {
@@ -20,9 +22,15 @@ import {
   UnsubscribeProfile,
   UnsubscribeEventData,
   GroupedProfiles,
-  AdditionalAttributes
+  AdditionalAttributes,
+  KlaviyoAPIErrorResponse
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
+import { Payload as TrackEventPayload } from './trackEvent/generated-types'
+import dayjs from 'dayjs'
+import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
+const phoneUtil = PhoneNumberUtil.getInstance()
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
@@ -407,4 +415,216 @@ export function validatePhoneNumber(phone?: string): boolean {
   if (!phone) return true
   const e164Regex = /^\+[1-9]\d{1,14}$/
   return e164Regex.test(phone)
+}
+
+export function validateAndConvertPhoneNumber(phone?: string, countryCode?: string): string | undefined | null {
+  if (!phone) return
+
+  const e164Regex = /^\+[1-9]\d{1,14}$/
+
+  // Check if the phone number is already in E.164 format
+  if (e164Regex.test(phone)) {
+    return phone
+  }
+
+  // If phone number is not in E.164 format, attempt to convert it using the country code
+  if (countryCode) {
+    try {
+      const parsedPhone = phoneUtil.parse(phone, countryCode)
+      const isValid = phoneUtil.isValidNumberForRegion(parsedPhone, countryCode)
+
+      if (!isValid) {
+        return null
+      }
+
+      return phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
+    } catch (error) {
+      return null
+    }
+  }
+
+  return null
+}
+
+export async function sendBatchedTrackEvent(request: RequestClient, payloads: TrackEventPayload[]) {
+  const multiStatusResponse = new MultiStatusResponse()
+  const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayloads(payloads, multiStatusResponse)
+  // if there are no payloads with valid phone number/email/external_id, return multiStatusResponse
+  if (filteredPayloads.length) {
+    const payloadToSend = {
+      data: {
+        type: 'event-bulk-create-job',
+        attributes: {
+          'events-bulk-create': {
+            data: filteredPayloads
+          }
+        }
+      }
+    }
+
+    try {
+      await request(`${API_URL}/event-bulk-create-jobs/`, {
+        method: 'POST',
+        json: payloadToSend
+      })
+    } catch (err: any) {
+      await handleKlaviyoAPIErrorResponse(
+        transformPayloadsType(payloads),
+        await err?.response?.json(),
+        multiStatusResponse,
+        validPayloadIndicesBitmap
+      )
+    }
+  }
+
+  return multiStatusResponse
+}
+
+function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusResponse: MultiStatusResponse) {
+  const filteredPayloads: JSONLikeObject[] = []
+  const validPayloadIndicesBitmap: number[] = []
+
+  payloads.forEach((payload, originalBatchIndex) => {
+    const { country_code, phone_number: initialPhoneNumber } = payload.profile
+
+    if (initialPhoneNumber) {
+      // Validate and convert the phone number if present
+      const validPhoneNumber = validateAndConvertPhoneNumber(initialPhoneNumber, country_code as string)
+      // If the phone number is not valid, skip this payload
+      if (!validPhoneNumber) {
+        multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: 'Phone number could not be converted to E.164 format.'
+        })
+        return // Skip this payload
+      }
+
+      // Update the payload's phone number with the validated format
+      payload.profile.phone_number = validPhoneNumber
+      delete payload?.profile?.country_code
+    }
+
+    // Filter out and record if payload is invalid
+    const validationError: ActionDestinationErrorResponseType | null = validatePayload(payload)
+    if (validationError) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, validationError)
+      return
+    }
+
+    // if (!email && !phone_number && !external_id && !anonymous_id) {
+    //   multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+    //     status: 400,
+    //     errortype: 'PAYLOAD_VALIDATION_FAILED',
+    //     errormessage: 'One of External ID, Anonymous ID, Phone Number or Email is required.'
+    //   })
+    //   return
+    // }
+
+    const profileToAdd = constructProfilePayload(payload)
+    filteredPayloads.push(profileToAdd as JSONLikeObject)
+    validPayloadIndicesBitmap.push(originalBatchIndex)
+    multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
+      status: 200,
+      sent: profileToAdd as JSONLikeObject,
+      body: 'success'
+    })
+  })
+
+  return { filteredPayloads, validPayloadIndicesBitmap }
+}
+
+function constructProfilePayload(payload: TrackEventPayload) {
+  return {
+    type: 'event-bulk-create',
+    attributes: {
+      profile: {
+        data: {
+          type: 'profile',
+          attributes: payload.profile
+        }
+      },
+      events: {
+        data: [
+          {
+            type: 'event',
+            attributes: {
+              metric: {
+                data: {
+                  type: 'metric',
+                  attributes: {
+                    name: payload.metric_name
+                  }
+                }
+              },
+              properties: { ...payload.properties },
+              time: payload?.time ? dayjs(payload.time).toISOString() : undefined,
+              value: payload.value,
+              unique_id: payload.unique_id
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+
+async function handleKlaviyoAPIErrorResponse(
+  payloads: JSONLikeObject[],
+  response: any,
+  multiStatusResponse: MultiStatusResponse,
+  validPayloadIndicesBitmap: number[]
+) {
+  if (response?.errors && Array.isArray(response.errors)) {
+    const invalidIndexSet = new Set<number>()
+    response.errors.forEach((error: KlaviyoAPIErrorResponse) => {
+      const indexInOriginalPayload = getIndexFromErrorPointer(error.source.pointer, validPayloadIndicesBitmap)
+      if (indexInOriginalPayload !== -1 && !multiStatusResponse.isErrorResponseAtIndex(indexInOriginalPayload)) {
+        multiStatusResponse.setErrorResponseAtIndex(indexInOriginalPayload, {
+          status: error.status,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: error.detail,
+          sent: payloads[indexInOriginalPayload],
+          body: JSON.stringify(error)
+        })
+        invalidIndexSet.add(indexInOriginalPayload)
+      }
+    })
+
+    for (const index of validPayloadIndicesBitmap) {
+      if (!invalidIndexSet.has(index)) {
+        multiStatusResponse.setSuccessResponseAtIndex(index, {
+          status: 429,
+          sent: payloads[index],
+          body: 'Retry'
+        })
+      }
+    }
+  }
+}
+
+function getIndexFromErrorPointer(pointer: string, validPayloadIndicesBitmap: number[]) {
+  const match = /\/data\/attributes\/events-bulk-create\/data\/(\d+)/.exec(pointer)
+  if (match && match[1]) {
+    const index = parseInt(match[1], 10)
+    return validPayloadIndicesBitmap[index] !== undefined ? validPayloadIndicesBitmap[index] : -1
+  }
+  return -1
+}
+
+function transformPayloadsType(obj: object[]) {
+  return obj as JSONLikeObject[]
+}
+
+function validatePayload(payload: TrackEventPayload): ActionDestinationErrorResponseType | null {
+  const { email, phone_number, external_id, anonymous_id } = payload.profile
+
+  if (!email && !phone_number && !external_id && !anonymous_id) {
+    return {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'One of External ID, Anonymous ID, Phone Number or Email is required.'
+    }
+  }
+  return null
 }

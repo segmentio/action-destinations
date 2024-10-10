@@ -1,12 +1,12 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
-import { validatePhoneNumber } from '../functions'
+import { validatePhoneNumber, sendBatchedTrackEvent } from '../functions'
+import { batch_size, enable_batching, country_code } from '../properties'
 import dayjs from 'dayjs'
-
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Track user events and associate it with their profile.',
@@ -24,6 +24,9 @@ const action: ActionDefinition<Settings, Payload> = {
         phone_number: {
           label: 'Phone Number',
           type: 'string'
+        },
+        country_code: {
+          ...country_code
         },
         external_id: {
           label: 'External Id',
@@ -87,15 +90,15 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.messageId'
       }
-    }
+    },
+    enable_batching: { ...enable_batching },
+    batch_size: { ...batch_size }
   },
   perform: (request, { payload }) => {
     const { email, phone_number, external_id, anonymous_id } = payload.profile
-
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
     }
-
     if (phone_number && !validatePhoneNumber(phone_number)) {
       throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
     }
@@ -124,11 +127,13 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     }
-
     return request(`${API_URL}/events/`, {
       method: 'POST',
       json: eventData
     })
+  },
+  performBatch: (request, { payload }) => {
+    return sendBatchedTrackEvent(request, payload)
   }
 }
 
