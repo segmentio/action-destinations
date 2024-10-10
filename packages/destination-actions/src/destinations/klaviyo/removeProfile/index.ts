@@ -2,7 +2,13 @@ import { ActionDefinition, DynamicFieldResponse, PayloadValidationError } from '
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
-import { getListIdDynamicData, getProfiles, removeProfileFromList, validateAndConvertPhoneNumber } from '../functions'
+import {
+  getListIdDynamicData,
+  getProfiles,
+  processPhoneNumber,
+  removeProfileFromList,
+  validateAndConvertPhoneNumber
+} from '../functions'
 import { country_code, enable_batching } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -47,15 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { payload }) => {
     const { email, list_id, external_id, phone_number: initialPhoneNumber, country_code } = payload
-    let phone_number
-    if (initialPhoneNumber) {
-      phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
-      if (!phone_number) {
-        throw new PayloadValidationError(
-          `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
-        )
-      }
-    }
+    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }

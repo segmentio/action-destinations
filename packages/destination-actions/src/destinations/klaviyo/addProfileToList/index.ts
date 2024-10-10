@@ -6,7 +6,8 @@ import {
   addProfileToList,
   createImportJobPayload,
   sendImportJobRequest,
-  validateAndConvertPhoneNumber
+  validateAndConvertPhoneNumber,
+  processPhoneNumber
 } from '../functions'
 import {
   email,
@@ -56,15 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
       country_code,
       ...additionalAttributes
     } = payload
-    let phone_number
-    if (initialPhoneNumber) {
-      phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
-      if (!phone_number) {
-        throw new PayloadValidationError(
-          `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
-        )
-      }
-    }
+    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }

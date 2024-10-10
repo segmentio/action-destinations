@@ -14,7 +14,8 @@ import {
   createList,
   groupByListId,
   processProfilesByGroup,
-  validateAndConvertPhoneNumber
+  validateAndConvertPhoneNumber,
+  processPhoneNumber
 } from '../functions'
 import { batch_size, country_code } from '../properties'
 
@@ -243,15 +244,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const list_id = hookOutputs?.retlOnMappingSave?.outputs?.id ?? override_list_id ?? otherListId
 
-    let phone_number
-    if (initialPhoneNumber) {
-      phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
-      if (!phone_number) {
-        throw new PayloadValidationError(
-          `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
-        )
-      }
-    }
+    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
 
     if (!email && !phone_number && !external_id) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')

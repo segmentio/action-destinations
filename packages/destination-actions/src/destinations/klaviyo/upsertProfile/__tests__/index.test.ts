@@ -472,7 +472,7 @@ describe('Upsert Profile Batch', () => {
         traits: { email: 'user1@example.com' }
       }),
       createTestEvent({
-        traits: { phone: '8448309222', country_code: 'IN' }
+        traits: { phone: '7702126011', country_code: 'US' }
       })
     ]
 
@@ -501,7 +501,7 @@ describe('Upsert Profile Batch', () => {
               {
                 type: 'profile',
                 attributes: {
-                  phone_number: '+918448309222'
+                  phone_number: '+17702126011'
                 }
               }
             ]

@@ -436,3 +436,21 @@ export function validateAndConvertPhoneNumber(phone?: string, countryCode?: stri
 
   return null
 }
+
+export function processPhoneNumber(
+  initialPhoneNumber: string | undefined,
+  country_code: string | undefined
+): string | undefined {
+  if (!initialPhoneNumber) {
+    return
+  }
+
+  const phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
+  if (!phone_number) {
+    throw new PayloadValidationError(
+      `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
+    )
+  }
+
+  return phone_number
+}

@@ -5,7 +5,7 @@ import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { EventData } from '../types'
 import { v4 as uuidv4 } from '@lukeed/uuid'
-import { validateAndConvertPhoneNumber } from '../functions'
+import { processPhoneNumber } from '../functions'
 import { country_code } from '../properties'
 import dayjs from 'dayjs'
 
@@ -161,17 +161,10 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload }) => {
     const { email, phone_number: initialPhoneNumber, external_id, anonymous_id, country_code } = payload.profile
 
-    let phone_number
-    if (initialPhoneNumber) {
-      phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
-      if (!phone_number) {
-        throw new PayloadValidationError(
-          `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
-        )
-      }
-      payload.profile.phone_number = phone_number
-      delete payload?.profile?.country_code
-    }
+    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
+    payload.profile.phone_number = phone_number
+    delete payload?.profile?.country_code
+
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
     }

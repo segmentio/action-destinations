@@ -1,7 +1,7 @@
 import type { ActionDefinition, DynamicFieldResponse, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getListIdDynamicData, validateAndConvertPhoneNumber } from '../functions'
+import { getListIdDynamicData, processPhoneNumber, validateAndConvertPhoneNumber } from '../functions'
 import { PayloadValidationError } from '@segment/actions-core'
 import { formatUnsubscribeProfile, formatUnsubscribeRequestBody } from '../functions'
 import { UnsubscribeProfile } from '../types'
@@ -61,15 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload }) => {
     const { email, phone_number: initialPhoneNumber, list_id, country_code } = payload
 
-    let phone_number
-    if (initialPhoneNumber) {
-      phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
-      if (!phone_number) {
-        throw new PayloadValidationError(
-          `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
-        )
-      }
-    }
+    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
     if (!email && !phone_number) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
