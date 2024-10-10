@@ -14,7 +14,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Mark true if you are using uploadCallConversion, uploadClickConversion or uploadConversionAdjustment. This destination will only operate with these actions if this is true.
+   * Mark true if you are using uploadCallConversion, uploadClickConversion or uploadConversionAdjustment. If you plan to use userLists alone or in combination with the others, mark as false.
    */
   supports_conversions?: boolean
   /**
