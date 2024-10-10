@@ -14,9 +14,13 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
+   * Mark true if you are using uploadCallConversion, uploadClickConversion or uploadConversionAdjustment. This destination will only operate with these actions if this is true.
+   */
+  supports_conversions?: boolean
+  /**
    * Customer match upload key types.
    */
-  external_id_type: string
+  external_id_type?: string
   /**
    * A string that uniquely identifies a mobile application from which the data was collected. Required if external ID type is mobile advertising ID
    */
