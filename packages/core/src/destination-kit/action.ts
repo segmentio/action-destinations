@@ -25,7 +25,14 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { ErrorCodes, IntegrationError, MultiStatusErrorReporter } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
-import { Logger, StatsContext, TransactionContext, StateContext, DataFeedCache, SubscriptionMetadata } from './index'
+import {
+  Logger,
+  StatsContext,
+  TransactionContext,
+  StateContext,
+  EngageDestinationCache,
+  SubscriptionMetadata
+} from './index'
 import { get } from '../get'
 
 type MaybePromise<T> = T | Promise<T>
@@ -82,8 +89,11 @@ type PerformBatchResponse = MaybePromise<MultiStatusResponse> | MaybePromise<unk
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ActionDefinition<
   Settings,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Payload = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   AudienceSettings = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   GeneratedActionHookBundle extends GenericActionHookBundle = any
 > extends BaseActionDefinition {
   /**
@@ -210,7 +220,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   features?: Features | undefined
   statsContext?: StatsContext | undefined
   logger?: Logger | undefined
-  dataFeedCache?: DataFeedCache | undefined
+  engageDestinationCache?: EngageDestinationCache
   transactionContext?: TransactionContext
   stateContext?: StateContext
   subscriptionMetadata?: SubscriptionMetadata
@@ -317,7 +327,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Validate the resolved payload against the schema
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
-      validateSchema(payload, this.schema, { schemaKey, statsContext: bundle.statsContext })
+      validateSchema(payload, this.schema, {
+        schemaKey,
+        statsContext: bundle.statsContext,
+        exempt: ['dynamicAuthSettings']
+      })
       results.push({ output: 'Payload validated' })
     }
 
@@ -346,7 +360,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       features: bundle.features,
       statsContext: bundle.statsContext,
       logger: bundle.logger,
-      dataFeedCache: bundle.dataFeedCache,
+      engageDestinationCache: bundle.engageDestinationCache,
       transactionContext: bundle.transactionContext,
       stateContext: bundle.stateContext,
       audienceSettings: bundle.audienceSettings,
@@ -382,7 +396,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       const validationOptions = {
         schemaKey: `${this.destinationName}:${this.definition.title}`,
         throwIfInvalid: true,
-        statsContext: bundle.statsContext
+        statsContext: bundle.statsContext,
+        exempt: ['dynamicAuthSettings']
       }
 
       // Filter out invalid payloads before sending them to the action
@@ -449,7 +464,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         features: bundle.features,
         statsContext: bundle.statsContext,
         logger: bundle.logger,
-        dataFeedCache: bundle.dataFeedCache,
+        engageDestinationCache: bundle.engageDestinationCache,
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
         subscriptionMetadata: bundle.subscriptionMetadata,
@@ -642,7 +657,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     if (this.hookSchemas?.[hookType]) {
       const schema = this.hookSchemas[hookType]
-      validateSchema(data.hookInputs, schema)
+      validateSchema(data.hookInputs, schema, {
+        exempt: ['dynamicAuthSettings']
+      })
     }
 
     return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>

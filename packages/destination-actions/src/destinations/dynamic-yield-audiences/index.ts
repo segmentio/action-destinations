@@ -4,11 +4,6 @@ import syncAudience from './syncAudience'
 import { getCreateAudienceURL, hashAndEncodeToInt, getDataCenter, getSectionId } from './helpers'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 
-type PersonasSettings = {
-  computation_id: string
-  computation_key: string
-}
-
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Dynamic Yield by Mastercard Audiences',
   slug: 'actions-dynamic-yield-audiences',
@@ -87,13 +82,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async createAudience(request, createAudienceInput) {
       const {
         settings,
-        audienceSettings: { audience_name, personas } = {}
-      }: {
-        settings: Settings
-        audienceSettings?: {
-          audience_name?: string
-          personas?: PersonasSettings | undefined
-        }
+        audienceSettings: { audience_name } = {},
+        personas
       } = createAudienceInput
 
       if (!audience_name) {

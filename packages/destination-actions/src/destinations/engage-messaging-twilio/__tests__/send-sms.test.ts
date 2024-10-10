@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestAction, expectErrorLogged, expectInfoLogged, loggerMock as logger } from './__helpers__/test-utils'
 import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '@segment/actions-shared'
+import { EngageDestinationCache } from '@segment/actions-core/destination-kit'
 
 const phoneNumber = '+1234567891'
 const defaultTags = JSON.stringify({
@@ -9,10 +10,25 @@ const defaultTags = JSON.stringify({
 })
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
+  const getByKey = jest.fn().mockResolvedValue(undefined)
+  const setByKey = jest.fn().mockResolvedValue(undefined)
+  const setByKeyNX = jest.fn().mockResolvedValue(undefined)
+  const delByKey = jest.fn().mockResolvedValue(undefined)
+  // Create a mocked engageDestinationCache so the test does not fail.
+  const engageDestinationCache: EngageDestinationCache = {
+    getByKey,
+    maxExpirySeconds: 60,
+    maxValueSizeBytes: 1024,
+    setByKey,
+    setByKeyNX,
+    delByKey
+  }
+
   const contentSid = 'g'
   const spaceId = 'd'
   const testAction = createTestAction({
     action: 'sendSms',
+    engageDestinationCache,
     environment,
     spaceId,
     getMapping: () => ({

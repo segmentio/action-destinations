@@ -1,4 +1,4 @@
-import { omit } from '@segment/actions-core'
+import { JSONLikeObject, ModifiedResponse, MultiStatusResponse, omit } from '@segment/actions-core'
 import { IntegrationError, RequestClient, removeUndefined } from '@segment/actions-core'
 import dayjs from 'dayjs'
 import { Settings } from './generated-types'
@@ -7,8 +7,21 @@ import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import { Payload as TrackPurchasePayload } from './trackPurchase/generated-types'
 import { Payload as UpdateUserProfilePayload } from './updateUserProfile/generated-types'
 import { getUserAlias } from './userAlias'
+import { HTTPError } from '@segment/actions-core'
 type DateInput = string | Date | number | null | undefined
 type DateOutput = string | undefined | null
+
+export type BrazeTrackUserAPIResponse = {
+  attributes_processed?: number
+  events_processed?: number
+  purchases_processed?: number
+  message: string
+  errors?: {
+    type: string
+    input_array: 'events' | 'purchases' | 'attributes'
+    index: number
+  }[]
+}
 
 function toISO8601(date: DateInput): DateOutput {
   if (date === null || date === undefined) {
@@ -101,32 +114,40 @@ export function sendTrackEvent(
   })
 }
 
-export function sendBatchedTrackEvent(
+export async function sendBatchedTrackEvent(
   request: RequestClient,
   settings: Settings,
   payloads: TrackEventPayload[],
   syncMode?: 'add' | 'update'
 ) {
-  const payload = payloads.map((payload) => {
+  const multiStatusResponse = new MultiStatusResponse()
+
+  const filteredPayloads: JSONLikeObject[] = []
+
+  // A bitmap that stores arr[new_index] = original_batch_payload_index
+  const validPayloadIndicesBitmap: number[] = []
+
+  payloads.forEach((payload, originalBatchIndex) => {
     const { braze_id, external_id, email } = payload
     // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
     const user_alias = getUserAlias(payload.user_alias)
 
-    // Disable errors until Actions Framework has a multistatus support
-    // if (!braze_id && !user_alias && !external_id) {
-    //   throw new IntegrationError(
-    //     'One of "external_id" or "user_alias" or "braze_id" is required.',
-    //     'Missing required fields',
-    //     400
-    //   )
-    // }
+    // Filter out and record if payload is invalid
+    if (!braze_id && !user_alias && !external_id) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'One of "external_id" or "user_alias" or "braze_id" is required.'
+      })
+      return
+    }
 
     let updateExistingOnly = payload._update_existing_only
     if (syncMode) {
       updateExistingOnly = syncMode === 'update'
     }
 
-    return {
+    const payloadToSend = {
       braze_id,
       external_id,
       email,
@@ -137,15 +158,34 @@ export function sendBatchedTrackEvent(
       properties: payload.properties,
       _update_existing_only: updateExistingOnly
     }
+
+    filteredPayloads.push(payloadToSend as JSONLikeObject)
+    validPayloadIndicesBitmap.push(originalBatchIndex)
+
+    // Initialize the Multi-Status response to be valid for all validated payloads
+    multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
+      status: 200,
+      sent: payloadToSend as JSONLikeObject,
+      body: 'success'
+    })
   })
 
-  return request(`${settings.endpoint}/users/track`, {
+  const response = request<BrazeTrackUserAPIResponse>(`${settings.endpoint}/users/track`, {
     method: 'post',
-    ...(payload.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
+    ...(filteredPayloads.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
     json: {
-      events: payload
+      events: filteredPayloads
     }
   })
+
+  await handleBrazeAPIResponse(
+    transformPayloadsType(payloads),
+    response,
+    multiStatusResponse,
+    validPayloadIndicesBitmap
+  )
+
+  return multiStatusResponse
 }
 
 export function sendTrackPurchase(
@@ -210,76 +250,104 @@ export function sendTrackPurchase(
   })
 }
 
-export function sendBatchedTrackPurchase(
+export async function sendBatchedTrackPurchase(
   request: RequestClient,
   settings: Settings,
   payloads: TrackPurchasePayload[],
   syncMode?: 'add' | 'update'
 ) {
-  let payload = payloads
-    .map((payload) => {
-      const { braze_id, external_id, email } = payload
-      // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
-      const user_alias = getUserAlias(payload.user_alias)
+  const multiStatusResponse = new MultiStatusResponse()
 
-      // Disable errors until Actions Framework has a multistatus support
-      // if (!braze_id && !user_alias && !external_id) {
-      //   throw new IntegrationError(
-      //     'One of "external_id" or "user_alias" or "braze_id" is required.',
-      //     'Missing required fields',
-      //     400
-      //   )
-      // }
+  const flattenedPayload: JSONLikeObject[] = []
 
-      // Skip when there are no products to send to Braze
-      if (payload.products.length === 0) {
-        return
-      }
+  // A bitmap that stores arr[new_index] = original_batch_payload_index
+  const validPayloadIndicesBitmap: number[] = []
 
-      let updateExistingOnly = payload._update_existing_only
-      if (syncMode) {
-        updateExistingOnly = syncMode === 'update'
-      }
+  const reservedKeys = Object.keys(action.fields.products.properties ?? {})
 
-      const base = {
-        braze_id,
-        external_id,
-        user_alias,
-        email,
-        app_id: settings.app_id,
-        time: toISO8601(payload.time),
-        _update_existing_only: updateExistingOnly
-      }
+  payloads.forEach((payload, originalBatchIndex) => {
+    const { braze_id, external_id, email } = payload
+    // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
+    const user_alias = getUserAlias(payload.user_alias)
 
-      const reservedKeys = Object.keys(action.fields.products.properties ?? {})
-      const event_properties = omit(payload.properties, ['products'])
-
-      return payload.products.map(function (product) {
-        return {
-          ...base,
-          product_id: product.product_id,
-          currency: product.currency ?? 'USD',
-          price: product.price,
-          quantity: product.quantity,
-          properties: {
-            ...omit(product, reservedKeys),
-            ...event_properties
-          }
-        }
+    // Filter out and record if payload is invalid
+    if (!braze_id && !user_alias && !external_id) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'One of "external_id" or "user_alias" or "braze_id" is required.'
       })
+      return
+    }
+
+    // Filter if no products are there to send
+    if (payload.products.length === 0) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'This event was not sent to Braze because it did not contain any products.'
+      })
+      return
+    }
+
+    let updateExistingOnly = payload._update_existing_only
+    if (syncMode) {
+      updateExistingOnly = syncMode === 'update'
+    }
+
+    const requestBase = {
+      braze_id,
+      external_id,
+      user_alias,
+      email,
+      app_id: settings.app_id,
+      time: toISO8601(payload.time),
+      _update_existing_only: updateExistingOnly
+    }
+
+    const eventProperties = omit(payload.properties, ['products'])
+
+    payload.products.forEach((product) => {
+      flattenedPayload.push({
+        ...requestBase,
+        product_id: product.product_id,
+        currency: product.currency ?? 'USD',
+        price: product.price,
+        quantity: product.quantity,
+        properties: {
+          ...omit(product, reservedKeys),
+          ...eventProperties
+        }
+      } as JSONLikeObject)
+
+      // Record the index of the flattened payload with the index of original batch payload
+      validPayloadIndicesBitmap.push(originalBatchIndex)
     })
-    .filter((notFalsy) => notFalsy)
 
-  // flatten arrays
-  payload = ([] as any[]).concat(...payload)
+    // Initialize the Multi-Status response to be valid for all validated payloads
+    multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
+      status: 200,
+      sent: payload as unknown as JSONLikeObject,
+      body: 'success'
+    })
+  })
 
-  return request(`${settings.endpoint}/users/track`, {
+  const response = request<BrazeTrackUserAPIResponse>(`${settings.endpoint}/users/track`, {
     method: 'post',
-    ...(payload.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
+    ...(flattenedPayload.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
     json: {
-      purchases: payload
+      purchases: flattenedPayload
     }
   })
+
+  await handleBrazeAPIResponse(
+    transformPayloadsType(payloads),
+    response,
+    multiStatusResponse,
+    validPayloadIndicesBitmap
+  )
+
+  return multiStatusResponse
 }
 
 export function updateUserProfile(
@@ -357,33 +425,40 @@ export function updateUserProfile(
   })
 }
 
-export function updateBatchedUserProfile(
+export async function updateBatchedUserProfile(
   request: RequestClient,
   settings: Settings,
   payloads: UpdateUserProfilePayload[],
   syncMode?: string
 ) {
-  const payload = payloads.map((payload) => {
-    const { braze_id, external_id, email } = payload
+  const multiStatusResponse = new MultiStatusResponse()
 
+  const filteredPayloads: JSONLikeObject[] = []
+  // A bitmap that stores arr[new_index] = original_batch_payload_index
+  const validPayloadIndicesBitmap: number[] = []
+
+  // Since we  merge reserved keys on top of custom_attributes we need to remove them
+  // to respect the customers mappings that might resolve `undefined`, without this we'd
+  // potentially send a value from `custom_attributes` that conflicts with their mappings.
+  const reservedKeys = Object.keys(action.fields)
+  // Push additional default keys so they are not added as custom attributes
+  reservedKeys.push('firstName', 'lastName', 'avatar')
+
+  payloads.forEach((payload, originalBatchIndex) => {
+    const { braze_id, external_id, email } = payload
     // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
     const user_alias = getUserAlias(payload.user_alias)
 
-    // Disable errors until Actions Framework has a multistatus support
-    // if (!braze_id && !user_alias && !external_id) {
-    //   throw new IntegrationError(
-    //     'One of "external_id" or "user_alias" or "braze_id" is required.',
-    //     'Missing required fields',
-    //     400
-    //   )
-    // }
+    // Filter out and record if payload is invalid
+    if (!braze_id && !user_alias && !external_id) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'One of "external_id" or "user_alias" or "braze_id" is required.'
+      })
+      return
+    }
 
-    // Since we are merge reserved keys on top of custom_attributes we need to remove them
-    // to respect the customers mappings that might resolve `undefined`, without this we'd
-    // potentially send a value from `custom_attributes` that conflicts with their mappings.
-    const reservedKeys = Object.keys(action.fields)
-    // push additional default keys so they are not added as custom attributes
-    reservedKeys.push('firstName', 'lastName', 'avatar')
     const customAttrs = omit(payload.custom_attributes, reservedKeys)
 
     let updateExistingOnly = payload._update_existing_only
@@ -391,7 +466,7 @@ export function updateBatchedUserProfile(
       updateExistingOnly = syncMode === 'update'
     }
 
-    return {
+    const payloadToSend = {
       ...customAttrs,
       braze_id,
       external_id,
@@ -425,13 +500,121 @@ export function updateBatchedUserProfile(
       twitter: payload.twitter,
       _update_existing_only: updateExistingOnly
     }
+
+    // Push valid payload to filtered array
+    filteredPayloads.push(payloadToSend as JSONLikeObject)
+
+    // Record the index of the original payload in the filtered array
+    validPayloadIndicesBitmap.push(originalBatchIndex)
+
+    // Initialize the Multi-Status response to be valid for all validated payloads
+    multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
+      status: 200,
+      sent: payloadToSend as JSONLikeObject,
+      body: 'success'
+    })
   })
 
-  return request(`${settings.endpoint}/users/track`, {
+  const response = request<BrazeTrackUserAPIResponse>(`${settings.endpoint}/users/track`, {
     method: 'post',
-    ...(payload.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
+    ...(filteredPayloads.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
     json: {
-      attributes: payload
+      attributes: filteredPayloads
     }
   })
+
+  await handleBrazeAPIResponse(
+    transformPayloadsType(payloads),
+    response,
+    multiStatusResponse,
+    validPayloadIndicesBitmap
+  )
+
+  return multiStatusResponse
+}
+
+async function handleBrazeAPIResponse(
+  payloads: JSONLikeObject[],
+  apiResponse: Promise<ModifiedResponse<BrazeTrackUserAPIResponse>>,
+  multiStatusResponse: MultiStatusResponse,
+  validPayloadIndicesBitmap: number[]
+) {
+  try {
+    const response: ModifiedResponse<BrazeTrackUserAPIResponse> = await apiResponse
+
+    // Responses were assumed to be successful by default
+    // If there are errors we need to update the response
+    if (response.data.errors && Array.isArray(response.data.errors)) {
+      response.data.errors.forEach((error) => {
+        // Resolve error's index back to the original payload's index
+        const indexInOriginalPayload = validPayloadIndicesBitmap[error.index]
+
+        // Skip if the index is already marked as an error earlier
+        // This is to prevent overwriting the error response if the payload is already marked as an error in Track Purchase
+        if (multiStatusResponse.isErrorResponseAtIndex(indexInOriginalPayload)) {
+          return
+        }
+
+        multiStatusResponse.setErrorResponseAtIndex(indexInOriginalPayload, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: error.type,
+          sent: payloads[indexInOriginalPayload],
+          body: error.type
+        })
+      })
+    }
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorResponse = error.response as ModifiedResponse<BrazeTrackUserAPIResponse>
+
+      // Iterate over the errors reported by Braze and store them at the original payload index
+      const parsedErrors: Set<string>[] = new Array(payloads.length).fill(new Set<string>())
+
+      if (errorResponse.data.errors && Array.isArray(errorResponse.data.errors)) {
+        errorResponse.data.errors.forEach((error) => {
+          const indexInOriginalPayload = validPayloadIndicesBitmap[error.index]
+          parsedErrors[indexInOriginalPayload].add(error.type)
+        })
+      }
+
+      for (let i = 0; i < multiStatusResponse.length(); i++) {
+        // Skip if the index is already marked as an error in pre-validation
+        if (multiStatusResponse.isErrorResponseAtIndex(i)) {
+          continue
+        }
+
+        // Set the error response
+        multiStatusResponse.setErrorResponseAtIndex(i, {
+          status: error.response.status,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage:
+            (error?.response as ModifiedResponse<BrazeTrackUserAPIResponse>)?.data?.message ?? error.message,
+          sent: payloads[i],
+          body: parsedErrors[i].size > 0 ? Array.from(parsedErrors[i]).join(', ') : undefined
+        })
+      }
+    } else {
+      // Bubble up the error and let Actions Framework handle it
+      throw error
+    }
+  }
+}
+
+function transformPayloadsType(obj: object[]) {
+  return obj as JSONLikeObject[]
+}
+
+export function generateMultiStatusError(batchSize: number, errorMessage: string): MultiStatusResponse {
+  const multiStatusResponse = new MultiStatusResponse()
+
+  for (let i = 0; i < batchSize; i++) {
+    multiStatusResponse.pushErrorResponse({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: errorMessage
+    })
+  }
+
+  return multiStatusResponse
 }

@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Sync a Segment Engage Audience into a Google Customer Match User List.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   syncMode: {
-    description: 'Define how the records will be synced from RETL to Google',
+    description: 'Define how the records will be synced to Google',
     label: 'How to sync records',
     default: 'add',
     choices: [
