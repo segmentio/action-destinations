@@ -159,8 +159,8 @@ const action: ActionDefinition<Settings, Payload> = {
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
           required: false,
-          dynamic: async (request, { settings, auth }) => {
-            return await getListIds(request, settings, auth)
+          dynamic: async (request, { settings, auth, features, statsContext }) => {
+            return await getListIds(request, settings, auth, features, statsContext)
           }
         },
         list_name: {
@@ -218,13 +218,20 @@ const action: ActionDefinition<Settings, Payload> = {
           required: false
         }
       },
-      performHook: async (request, { auth, settings, hookInputs, statsContext }) => {
+      performHook: async (request, { auth, settings, hookInputs, features, statsContext }) => {
         settings.customerId = verifyCustomerId(settings.customerId)
         if (hookInputs.list_id) {
           try {
-            const response: UserListResponse = await getGoogleAudience(request, settings, hookInputs.list_id, {
-              refresh_token: auth?.refreshToken
-            })
+            const response: UserListResponse = await getGoogleAudience(
+              request,
+              settings,
+              hookInputs.list_id,
+              {
+                refresh_token: auth?.refreshToken
+              },
+              features,
+              statsContext
+            )
             return {
               successMessage: `Using existing list '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
               savedData: {
@@ -254,7 +261,13 @@ const action: ActionDefinition<Settings, Payload> = {
               app_id: hookInputs.app_id
             }
           }
-          const listId = await createGoogleAudience(request, input, { refresh_token: auth?.refreshToken }, statsContext)
+          const listId = await createGoogleAudience(
+            request,
+            input,
+            { refresh_token: auth?.refreshToken },
+            features,
+            statsContext
+          )
 
           return {
             successMessage: `List '${hookInputs.list_name}' (id: ${listId}) created successfully!`,
@@ -277,7 +290,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode }) => {
+  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
     return await handleUpdate(
@@ -288,10 +301,14 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.id,
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
+      features,
       statsContext
     )
   },
-  performBatch: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode }) => {
+  performBatch: async (
+    request,
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }
+  ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
     return await handleUpdate(
@@ -302,6 +319,7 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.id,
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
+      features,
       statsContext
     )
   }

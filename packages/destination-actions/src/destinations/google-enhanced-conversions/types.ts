@@ -1,4 +1,5 @@
 import { StatsContext } from '@segment/actions-core/destination-kit'
+import { Features } from '@segment/actions-core/mapping-kit'
 
 export interface CartItemInterface {
   productId?: string
@@ -149,6 +150,7 @@ export interface CreateAudienceInput {
     app_id?: string
   }
   statsContext?: StatsContext
+  features?: Features
 }
 
 export interface GetAudienceInput {
@@ -165,6 +167,7 @@ export interface GetAudienceInput {
     app_id?: string
   }
   statsContext?: StatsContext
+  features?: Features
 }
 
 export interface CreateGoogleAudienceResponse {
