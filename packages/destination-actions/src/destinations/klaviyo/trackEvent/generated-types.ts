@@ -8,6 +8,10 @@ export interface Payload {
     email?: string
     phone_number?: string
     /**
+     * Country Code of the user. We support ISO 3166-1 alpha-2 country code.
+     */
+    country_code?: string
+    /**
      * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system.
      */
     external_id?: string
@@ -46,4 +50,12 @@ export interface Payload {
    *
    */
   unique_id?: string
+  /**
+   * When enabled, the action will use the klaviyo batch API.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
