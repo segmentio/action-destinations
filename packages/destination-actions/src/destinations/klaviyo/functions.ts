@@ -571,13 +571,13 @@ function constructProfilePayload(payload: TrackEventPayload) {
 
 async function handleKlaviyoAPIErrorResponse(
   payloads: JSONLikeObject[],
-  response: any,
+  response: KlaviyoAPIErrorResponse,
   multiStatusResponse: MultiStatusResponse,
   validPayloadIndicesBitmap: number[]
 ) {
   if (response?.errors && Array.isArray(response.errors)) {
     const invalidIndexSet = new Set<number>()
-    response.errors.forEach((error: KlaviyoAPIErrorResponse) => {
+    response.errors.forEach((error: KlaviyoAPIError) => {
       const indexInOriginalPayload = getIndexFromErrorPointer(error.source.pointer, validPayloadIndicesBitmap)
       if (indexInOriginalPayload !== -1 && !multiStatusResponse.isErrorResponseAtIndex(indexInOriginalPayload)) {
         multiStatusResponse.setErrorResponseAtIndex(indexInOriginalPayload, {

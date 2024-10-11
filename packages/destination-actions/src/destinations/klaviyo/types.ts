@@ -219,7 +219,7 @@ export interface AdditionalAttributes {
   title?: string
   image?: string
 }
-export interface KlaviyoAPIErrorResponse {
+export interface KlaviyoAPIError {
   id: string
   status: number
   code: string
@@ -229,4 +229,7 @@ export interface KlaviyoAPIErrorResponse {
     pointer: string
     parameter?: string
   }
+}
+export interface KlaviyoAPIErrorResponse {
+  errors: KlaviyoAPIError[]
 }
