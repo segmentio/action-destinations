@@ -18,7 +18,7 @@ export interface AudienceSettings {
    */
   supports_conversions?: boolean
   /**
-   * Customer match upload key types.
+   * Customer match upload key types. Required if you are using UserLists. Not used by the other actions.
    */
   external_id_type?: string
   /**
