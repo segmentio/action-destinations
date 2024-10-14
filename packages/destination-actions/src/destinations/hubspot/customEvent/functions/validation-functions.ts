@@ -1,4 +1,4 @@
-import { Payload } from './generated-types'
+import { Payload } from '../generated-types'
 import { PayloadValidationError } from '@segment/actions-core'
 
 export function validate(payload: Payload): Payload {
