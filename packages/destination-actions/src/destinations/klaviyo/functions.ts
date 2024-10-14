@@ -512,15 +512,6 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
       return
     }
 
-    // if (!email && !phone_number && !external_id && !anonymous_id) {
-    //   multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
-    //     status: 400,
-    //     errortype: 'PAYLOAD_VALIDATION_FAILED',
-    //     errormessage: 'One of External ID, Anonymous ID, Phone Number or Email is required.'
-    //   })
-    //   return
-    // }
-
     const profileToAdd = constructProfilePayload(payload)
     filteredPayloads.push(profileToAdd as JSONLikeObject)
     validPayloadIndicesBitmap.push(originalBatchIndex)
