@@ -47,6 +47,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async getAudience(request, getAudienceInput) {
       const getAudienceUrl = getAudienceInput.settings.getAudienceUrl
+      const features = getAudienceInput.features
+      const { statsClient, tags: statsTags } = getAudienceInput.statsContext || {}
+
+      if (features && 'audience-destination-feature' in features) {
+        statsClient?.incr('get-audience-destination-feature', 1, statsTags)
+      }
+
       if (!getAudienceUrl) {
         throw new IntegrationError('Missing get audience url value', 'MISSING_REQUIRED_FIELD', 400)
       }
@@ -79,6 +86,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
+      const features = createAudienceInput.features
+      const { statsClient, tags: statsTags } = createAudienceInput.statsContext || {}
+
+      if (features && 'audience-destination-feature' in features) {
+        statsClient?.incr('create-audience-destination-feature', 1, statsTags)
+      }
+
       if (audienceName?.length == 0) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
