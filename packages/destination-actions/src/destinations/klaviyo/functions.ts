@@ -437,10 +437,7 @@ export function validateAndConvertPhoneNumber(phone?: string, countryCode?: stri
   return null
 }
 
-export function processPhoneNumber(
-  initialPhoneNumber: string | undefined,
-  country_code: string | undefined
-): string | undefined {
+export function processPhoneNumber(initialPhoneNumber?: string, country_code?: string): string | undefined {
   if (!initialPhoneNumber) {
     return
   }
