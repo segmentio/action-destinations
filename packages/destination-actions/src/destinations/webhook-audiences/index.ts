@@ -64,7 +64,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         method: 'POST',
         json: {
           ...extras,
-          [externalIdKey]: getAudienceInput.externalId
+          [externalIdKey]: getAudienceInput.externalId,
+          features
         }
       })
 
@@ -108,7 +109,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         method: 'POST',
         json: {
           ...extras,
-          audienceName
+          audienceName,
+          features
         }
       })
 
