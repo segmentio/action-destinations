@@ -1,5 +1,4 @@
 import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
-import { AudienceSettings } from './generated-types'
 import { Payload } from './addToAudContactInfo/generated-types'
 import { createHash } from 'crypto'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
