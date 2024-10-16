@@ -18,6 +18,10 @@ export interface Payload {
    */
   email?: string
   /**
+   * The name of the plan the customer is on on the platform (Shopify)
+   */
+  platformPlanName?: string
+  /**
    * The custom fields of the customer / shop
    */
   customFields?: {
