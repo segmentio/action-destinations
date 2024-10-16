@@ -133,6 +133,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
         request,
         createAudienceInput,
         auth,
+        createAudienceInput.features,
         createAudienceInput.statsContext
       )
 
@@ -155,6 +156,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
         getAudienceInput.settings,
         getAudienceInput.externalId,
         getAudienceInput.settings.oauth,
+        getAudienceInput.features,
         getAudienceInput.statsContext
       )
 
