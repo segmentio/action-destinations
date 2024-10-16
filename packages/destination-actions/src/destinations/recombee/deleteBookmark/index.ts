@@ -6,7 +6,7 @@ import { Batch, DeleteBookmark, RecombeeApiClient } from '../recombeeApiClient'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Delete Bookmark',
   description: 'Deletes a bookmark of the given item made by the given user.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Product Removed from Wishlist"',
   fields: {
     userId: {
       label: 'User ID',

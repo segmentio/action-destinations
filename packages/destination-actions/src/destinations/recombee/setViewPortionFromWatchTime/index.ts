@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { PayloadValidationError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SetViewPortion, RecombeeApiClient, Batch } from '../recombeeApiClient'
@@ -50,13 +50,13 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         totalLength: {
           label: 'Total Length',
-          description: 'The total length of the item that the user can view.',
+          description: 'The total length of the item that the user can view (for example, in seconds or minutes).',
           type: 'number',
           required: true
         },
         watchTime: {
           label: 'Watch Time',
-          description: "The user's watched time of the item.",
+          description: "The user's watched time of the item (measured in the same units as Total Length).",
           type: 'number',
           required: true
         }
@@ -86,6 +86,9 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function payloadToViewPortion(payload: Payload): SetViewPortion {
+  if (payload.portion.totalLength === 0) {
+    throw new PayloadValidationError('The total length of the item cannot be zero.')
+  }
   return new SetViewPortion({
     userId: payload.userId,
     itemId: payload.itemId,

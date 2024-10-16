@@ -4,8 +4,8 @@ import type { Payload } from './generated-types'
 
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
-import { validatePhoneNumber, sendBatchedTrackEvent } from '../functions'
 import { batch_size, enable_batching, country_code } from '../properties'
+import { processPhoneNumber, sendBatchedTrackEvent } from '../functions'
 import dayjs from 'dayjs'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -95,12 +95,14 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size: { ...batch_size }
   },
   perform: (request, { payload }) => {
-    const { email, phone_number, external_id, anonymous_id } = payload.profile
+    const { email, phone_number: initialPhoneNumber, external_id, anonymous_id, country_code } = payload.profile
+
+    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
+    payload.profile.phone_number = phone_number
+    delete payload?.profile?.country_code
+
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
-    }
-    if (phone_number && !validatePhoneNumber(phone_number)) {
-      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
     }
     const eventData = {
       data: {
