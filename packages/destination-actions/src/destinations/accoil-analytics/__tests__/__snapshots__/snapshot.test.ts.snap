@@ -1,13 +1,103 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-accoil-analytics destination: postToAccoil action - all fields 1`] = `
+exports[`Testing snapshot for actions-accoil-analytics destination: group action - all fields 1`] = `
 Object {
-  "testType": "MlZ)Z",
+  "anonymousId": "[t@95I7lqH",
+  "groupId": "[t@95I7lqH",
+  "timestamp": Any<String>,
+  "traits": Object {
+    "createdAt": Any<String>,
+    "mrr": -32868147606323.2,
+    "name": "[t@95I7lqH",
+    "plan": "[t@95I7lqH",
+    "status": "[t@95I7lqH",
+    "testType": "[t@95I7lqH",
+  },
+  "type": "group",
+  "userId": "[t@95I7lqH",
 }
 `;
 
-exports[`Testing snapshot for actions-accoil-analytics destination: postToAccoil action - required fields 1`] = `
+exports[`Testing snapshot for actions-accoil-analytics destination: group action - required fields 1`] = `
 Object {
-  "testType": "MlZ)Z",
+  "groupId": "[t@95I7lqH",
+  "timestamp": Any<String>,
+  "traits": Object {},
+  "type": "group",
+}
+`;
+
+exports[`Testing snapshot for actions-accoil-analytics destination: identify action - all fields 1`] = `
+Object {
+  "timestamp": Any<String>,
+  "traits": Object {
+    "accountStatus": "f&3jleUWzgWoCkIRFb6v",
+    "createdAt": Any<String>,
+    "email": "foukiga@saluno.bo",
+    "name": "f&3jleUWzgWoCkIRFb6v",
+    "role": "f&3jleUWzgWoCkIRFb6v",
+    "testType": "f&3jleUWzgWoCkIRFb6v",
+  },
+  "type": "identify",
+  "userId": "f&3jleUWzgWoCkIRFb6v",
+}
+`;
+
+exports[`Testing snapshot for actions-accoil-analytics destination: identify action - required fields 1`] = `
+Object {
+  "timestamp": Any<String>,
+  "traits": Object {},
+  "type": "identify",
+  "userId": "f&3jleUWzgWoCkIRFb6v",
+}
+`;
+
+exports[`Testing snapshot for actions-accoil-analytics destination: page action - all fields 1`] = `
+Object {
+  "name": "u)VTkK@C",
+  "timestamp": Any<String>,
+  "type": "page",
+  "userId": "u)VTkK@C",
+}
+`;
+
+exports[`Testing snapshot for actions-accoil-analytics destination: page action - required fields 1`] = `
+Object {
+  "timestamp": Any<String>,
+  "type": "page",
+}
+`;
+
+exports[`Testing snapshot for actions-accoil-analytics destination: screen action - all fields 1`] = `
+Object {
+  "name": "UCPyIYOuMak8!!f",
+  "timestamp": Any<String>,
+  "type": "screen",
+  "userId": "UCPyIYOuMak8!!f",
+}
+`;
+
+exports[`Testing snapshot for actions-accoil-analytics destination: screen action - required fields 1`] = `
+Object {
+  "timestamp": Any<String>,
+  "type": "screen",
+}
+`;
+
+exports[`Testing snapshot for actions-accoil-analytics destination: track action - all fields 1`] = `
+Object {
+  "event": "l%H42djC%KlO",
+  "timestamp": Any<String>,
+  "type": "track",
+  "userId": "l%H42djC%KlO",
+}
+`;
+
+exports[`Testing snapshot for actions-accoil-analytics destination: track action - required fields 1`] = `
+Object {
+  "event": "l%H42djC%KlO",
+  "timestamp": Any<String>,
+  "type": "track",
+  "userId": "l%H42djC%KlO",
 }
 `;

@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createGoogleAudience, getGoogleAudience, getListIds, handleUpdate } from '../functions'
+import { createGoogleAudience, getGoogleAudience, getListIds, handleUpdate, verifyCustomerId } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
 
@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Sync a Segment Engage Audience into a Google Customer Match User List.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   syncMode: {
-    description: 'Define how the records will be synced from RETL to Google',
+    description: 'Define how the records will be synced to Google',
     label: 'How to sync records',
     default: 'add',
     choices: [
@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     first_name: {
       label: 'First Name',
-      description: "The user's first name.",
+      description: "The user's first name. If not hashed, Segment will normalize and hash this value.",
       type: 'string',
       default: {
         '@if': {
@@ -33,7 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     last_name: {
       label: 'Last Name',
-      description: "The user's last name.",
+      description: "The user's last name. If not hashed, Segment will normalize and hash this value.",
       type: 'string',
       default: {
         '@if': {
@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: "The user's email address.",
+      description: "The user's email address. If not hashed, Segment will normalize and hash this value.",
       type: 'string',
       default: {
         '@if': {
@@ -57,7 +57,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone: {
       label: 'Phone',
-      description: "The user's phone number.",
+      description:
+        "The user's phone number. If not hashed, Segment will convert the phone number to the E.164 format and hash this value.",
       type: 'string',
       default: {
         '@if': {
@@ -69,22 +70,22 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     country_code: {
       label: 'Country Code',
-      description: "The user's country code.",
+      description: "2-letter country code in ISO-3166-1 alpha-2 of the user's address",
       type: 'string'
     },
     postal_code: {
       label: 'Postal Code',
-      description: "The user's postal code.",
+      description: "Postal code of the user's address.",
       type: 'string'
     },
     crm_id: {
       label: 'CRM ID',
-      description: 'Advertiser-assigned user ID for Customer Match upload.',
+      description: 'Advertiser-assigned user ID for Customer Match upload. Required if external ID type is CRM ID.',
       type: 'string'
     },
     mobile_advertising_id: {
       label: 'Mobile Advertising ID',
-      description: 'Mobile device ID (advertising ID/IDFA).',
+      description: 'Mobile device ID (advertising ID/IDFA). Required if external ID type is mobile advertising ID.',
       type: 'string',
       default: {
         '@path': '$.context.device.advertisingId'
@@ -93,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',
       description:
-        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).',
+        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
       type: 'string',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
@@ -106,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ad Personalization Consent State',
       type: 'string',
       description:
-        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).',
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
@@ -144,8 +145,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.event'
       },
-      required: true,
-      readOnly: true
+      unsafe_hidden: true
     }
   },
   hooks: {
@@ -159,8 +159,8 @@ const action: ActionDefinition<Settings, Payload> = {
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
           required: false,
-          dynamic: async (request, { settings, auth }) => {
-            return await getListIds(request, settings, auth)
+          dynamic: async (request, { settings, auth, features, statsContext }) => {
+            return await getListIds(request, settings, auth, features, statsContext)
           }
         },
         list_name: {
@@ -218,12 +218,20 @@ const action: ActionDefinition<Settings, Payload> = {
           required: false
         }
       },
-      performHook: async (request, { auth, settings, hookInputs, statsContext }) => {
+      performHook: async (request, { auth, settings, hookInputs, features, statsContext }) => {
+        settings.customerId = verifyCustomerId(settings.customerId)
         if (hookInputs.list_id) {
           try {
-            const response: UserListResponse = await getGoogleAudience(request, settings, hookInputs.list_id, {
-              refresh_token: auth?.refreshToken
-            })
+            const response: UserListResponse = await getGoogleAudience(
+              request,
+              settings,
+              hookInputs.list_id,
+              {
+                refresh_token: auth?.refreshToken
+              },
+              features,
+              statsContext
+            )
             return {
               successMessage: `Using existing list '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
               savedData: {
@@ -253,7 +261,13 @@ const action: ActionDefinition<Settings, Payload> = {
               app_id: hookInputs.app_id
             }
           }
-          const listId = await createGoogleAudience(request, input, { refresh_token: auth?.refreshToken }, statsContext)
+          const listId = await createGoogleAudience(
+            request,
+            input,
+            { refresh_token: auth?.refreshToken },
+            features,
+            statsContext
+          )
 
           return {
             successMessage: `List '${hookInputs.list_name}' (id: ${listId}) created successfully!`,
@@ -276,8 +290,9 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode }) => {
-    hookOutputs?.retlOnMappingSave?.outputs.id
+  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }) => {
+    settings.customerId = verifyCustomerId(settings.customerId)
+
     return await handleUpdate(
       request,
       settings,
@@ -286,10 +301,16 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.id,
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
+      features,
       statsContext
     )
   },
-  performBatch: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode }) => {
+  performBatch: async (
+    request,
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }
+  ) => {
+    settings.customerId = verifyCustomerId(settings.customerId)
+
     return await handleUpdate(
       request,
       settings,
@@ -298,6 +319,7 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.id,
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
+      features,
       statsContext
     )
   }

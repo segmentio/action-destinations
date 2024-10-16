@@ -12,7 +12,21 @@ Object {
           },
         },
         "checkout": Object {
+          "billingAddress": Object {
+            "address1": "&yVQWLT2[LyiR]Lnd6^",
+            "address2": "&yVQWLT2[LyiR]Lnd6^",
+            "city": "&yVQWLT2[LyiR]Lnd6^",
+            "country": "&yVQWLT2[LyiR]Lnd6^",
+            "countryCode": "&yVQWLT2[LyiR]Lnd6^",
+            "firstName": "&yVQWLT2[LyiR]Lnd6^",
+            "lastName": "&yVQWLT2[LyiR]Lnd6^",
+            "phone": "&yVQWLT2[LyiR]Lnd6^",
+            "province": "&yVQWLT2[LyiR]Lnd6^",
+            "provinceCode": "&yVQWLT2[LyiR]Lnd6^",
+            "zip": "&yVQWLT2[LyiR]Lnd6^",
+          },
           "currencyCode": "&yVQWLT2[LyiR]Lnd6^",
+          "email": "eprer@gih.ne",
           "lineItems": Array [
             Object {
               "discountAllocations": Array [
@@ -55,6 +69,20 @@ Object {
           ],
           "order": Object {
             "id": "&yVQWLT2[LyiR]Lnd6^",
+          },
+          "phone": "&yVQWLT2[LyiR]Lnd6^",
+          "shippingAddress": Object {
+            "address1": "&yVQWLT2[LyiR]Lnd6^",
+            "address2": "&yVQWLT2[LyiR]Lnd6^",
+            "city": "&yVQWLT2[LyiR]Lnd6^",
+            "country": "&yVQWLT2[LyiR]Lnd6^",
+            "countryCode": "&yVQWLT2[LyiR]Lnd6^",
+            "firstName": "&yVQWLT2[LyiR]Lnd6^",
+            "lastName": "&yVQWLT2[LyiR]Lnd6^",
+            "phone": "&yVQWLT2[LyiR]Lnd6^",
+            "province": "&yVQWLT2[LyiR]Lnd6^",
+            "provinceCode": "&yVQWLT2[LyiR]Lnd6^",
+            "zip": "&yVQWLT2[LyiR]Lnd6^",
           },
           "shippingLine": Object {
             "price": Object {
@@ -115,7 +143,9 @@ Object {
           },
         },
         "checkout": Object {
+          "billingAddress": Object {},
           "order": Object {},
+          "shippingAddress": Object {},
           "shippingLine": Object {
             "price": Object {},
           },

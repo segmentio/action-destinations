@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { buildPerformer } from '../utils'
+import { clientFields } from '../schema'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
@@ -16,7 +17,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: { '@path': '$.userId' },
       required: true
-    }
+    },
+    ...clientFields
   },
   perform: buildPerformer('identify')
 }

@@ -175,6 +175,17 @@ register('66a7c28810bbaf446695d27d', './iterable-lists')
 register('66b1f528d26440823fb27af9', './webhook-extensible')
 register('66ba235ecfcfee29bab517ce', './dawn')
 register('66ba237845b93b71bca2713e', './topsort')
+register('66c492a35a05977266a4a5c4', './delivrai-activate')
+register('66cc766ef4b1c152177239a0', './reddit-conversions-api')
+register('66cc76e29693c9e5591bf029', './nextdoor-capi')
+register('66e96b9f4ee97f41caa06487', './stackadapt-audiences')
+register('66e97a37a8f396642c0bd33c', './google-campaign-manager-360')
+register('66eaa166f650644f04389e2c', './s3')
+register('66f2aea175bae98028d5185a', './recombee')
+register('66f2b0818aa856d4d2d87f90', './postscript')
+register('66f2b0f961bb2128729079bb', './reddit-audiences')
+register('67051b748c30a5c1360144ff', './snap-audiences')
+register('67051afe356a52d3cf4dfb95', './optimizely-web')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

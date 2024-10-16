@@ -23,6 +23,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     testAuthentication: (request, { settings }) => {
       return request('https://api.iterable.com/api/lists', {
         method: 'GET',
+        skipResponseCloning: true,
         headers: { 'Api-Key': settings.apiKey }
       })
     }
@@ -30,9 +31,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   audienceFields: {
     updateExistingUsersOnly: {
-      label: 'Update existing users only. Only valid for subscribe action.',
+      label: 'Update existing users only',
       description:
-        "Whether to skip operation when the request includes a userId or email that doesn't yet exist in the Iterable project. When true, Iterable ignores requests with unknown userIds and email addresses.",
+        'When true, Iterable ignores requests for unknown userIds and email addresses. This field is only relevant for non-email based Iterable projects: For email-based projects users will continue to be created in Iterable if a user is added or removed from a List.',
       type: 'boolean',
       default: false,
       required: false
@@ -58,10 +59,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput) {
-      const audienceSettings = createAudienceInput.audienceSettings
       const settings = createAudienceInput.settings
-      // @ts-ignore type is not defined, and we will define it later
-      const personasSettings = audienceSettings.personas
+      const personasSettings = createAudienceInput.personas
+
       if (!personasSettings) {
         throw new IntegrationError('Missing computation parameters: Key', 'MISSING_REQUIRED_FIELD', 422)
       }

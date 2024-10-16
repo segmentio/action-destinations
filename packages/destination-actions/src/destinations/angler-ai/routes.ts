@@ -13,7 +13,7 @@ export const ordersEndpoint = (workspaceId: string) => {
 }
 
 export const customersEndpoint = (workspaceId: string) => {
-  return `/v1/workspaces/${workspaceId}/data/orders`
+  return `/v1/workspaces/${workspaceId}/data/customers`
 }
 
 export const lineItemsEndpoint = (workspaceId: string) => {

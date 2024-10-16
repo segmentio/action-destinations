@@ -5,7 +5,7 @@ import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
 import { CreateAudienceInput, GetAudienceInput, UserListResponse } from './types'
-import { createGoogleAudience, getGoogleAudience } from './functions'
+import { createGoogleAudience, getGoogleAudience, verifyCustomerId } from './functions'
 import uploadCallConversion2 from './uploadCallConversion2'
 import userList from './userList'
 import uploadClickConversion2 from './uploadClickConversion2'
@@ -78,11 +78,18 @@ const destination: AudienceDestinationDefinition<Settings> = {
     }
   },
   audienceFields: {
+    supports_conversions: {
+      type: 'boolean',
+      label: 'Supports Conversions',
+      description:
+        'Mark true if you are using uploadCallConversion, uploadClickConversion or uploadConversionAdjustment. If you plan to use userLists alone or in combination with the others, mark as false.',
+      default: false
+    },
     external_id_type: {
       type: 'string',
       label: 'External ID Type',
-      description: 'Customer match upload key types.',
-      required: true,
+      description:
+        'Customer match upload key types. Required if you are using UserLists. Not used by the other actions.',
       choices: [
         { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
         { label: 'CRM ID', value: 'CRM_ID' },
@@ -112,11 +119,21 @@ const destination: AudienceDestinationDefinition<Settings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput: CreateAudienceInput) {
+      // When supports_conversions is enabled streaming mode is forced for this destination.
+      // This guarantees that uploadCallConversion, uploadClickConversion and uploadConversionAdjustment actions are usable with Engage sources.
+      if (createAudienceInput.audienceSettings.supports_conversions) {
+        return {
+          externalId: 'segment'
+        }
+      }
+
+      createAudienceInput.settings.customerId = verifyCustomerId(createAudienceInput.settings.customerId)
       const auth = createAudienceInput.settings.oauth
       const userListId = await createGoogleAudience(
         request,
         createAudienceInput,
         auth,
+        createAudienceInput.features,
         createAudienceInput.statsContext
       )
 
@@ -126,11 +143,20 @@ const destination: AudienceDestinationDefinition<Settings> = {
     },
 
     async getAudience(request, getAudienceInput: GetAudienceInput) {
+      // The connections that were created before the audience methods
+      // were added will have the externalId field as segment.
+      if (getAudienceInput.externalId === 'segment') {
+        return {
+          externalId: getAudienceInput.externalId
+        }
+      }
+      getAudienceInput.settings.customerId = verifyCustomerId(getAudienceInput.settings.customerId)
       const response: UserListResponse = await getGoogleAudience(
         request,
         getAudienceInput.settings,
         getAudienceInput.externalId,
         getAudienceInput.settings.oauth,
+        getAudienceInput.features,
         getAudienceInput.statsContext
       )
 

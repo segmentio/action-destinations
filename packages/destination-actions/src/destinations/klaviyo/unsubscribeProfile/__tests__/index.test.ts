@@ -19,6 +19,77 @@ describe('Unsubscribe Profile', () => {
     ).rejects.toThrowError(PayloadValidationError)
   })
 
+  it('should throw an error for invalid phone number format', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      context: {
+        traits: {
+          phone: 'invalid-phone-number',
+          country_code: 'US'
+        }
+      },
+      properties: {}
+    })
+
+    const mapping = {
+      phone_number: {
+        '@path': '$.context.traits.phone'
+      },
+      country_code: {
+        '@path': '$.context.traits.country_code'
+      }
+    }
+
+    await expect(testDestination.testAction('unsubscribeProfile', { event, mapping, settings })).rejects.toThrowError(
+      'invalid-phone-number is not a valid phone number and cannot be converted to E.164 format.'
+    )
+  })
+
+  it('should convert a phone number to E.164 format if country code is provided', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      context: {
+        traits: {
+          phone: '8448309222',
+          country_code: 'IN'
+        }
+      },
+      properties: {}
+    })
+
+    const mapping = {
+      phone_number: {
+        '@path': '$.context.traits.phone'
+      },
+      country_code: {
+        '@path': '$.context.traits.country_code'
+      }
+    }
+
+    const requestBody = {
+      data: {
+        type: 'profile-subscription-bulk-delete-job',
+        attributes: {
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  phone_number: '+918448309222'
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+    nock('https://a.klaviyo.com/api').post('/profile-subscription-bulk-delete-jobs', requestBody).reply(200, {})
+
+    await expect(
+      testDestination.testAction('unsubscribeProfile', { event, mapping, settings })
+    ).resolves.not.toThrowError()
+  })
+
   it('formats the correct request body when list id is empty', async () => {
     const payload = {
       email: 'segment@email.com',
@@ -359,6 +430,128 @@ describe('Unsubscribe Profile', () => {
     await expect(
       testDestination.testBatchAction('unsubscribeProfile', { events, settings, mapping })
     ).rejects.toThrowError(PayloadValidationError)
+  })
+
+  it('should filter out profiles with invalid phone numbers in performBatch', async () => {
+    const events = [
+      createTestEvent({
+        context: { traits: { email: 'user1@example.com' } }
+      }),
+      createTestEvent({
+        context: { traits: { phone: 'invalid-phone-number', country_code: 'US' } }
+      })
+    ]
+
+    const mapping = {
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      phone_number: {
+        '@path': '$.context.traits.phone'
+      },
+      country_code: {
+        '@path': '$.context.traits.country_code'
+      }
+    }
+
+    const validRequestBody = {
+      data: {
+        type: 'profile-subscription-bulk-delete-job',
+        attributes: {
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  email: 'user1@example.com'
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+
+    nock('https://a.klaviyo.com/api')
+      .post('/profile-subscription-bulk-delete-jobs', (body) => {
+        return JSON.stringify(body) === JSON.stringify(validRequestBody)
+      })
+      .reply(200, { success: true })
+
+    await expect(
+      testDestination.testBatchAction('unsubscribeProfile', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
+
+    // Ensure the valid request was made and the invalid one was filtered out
+    expect(nock.isDone()).toBe(true)
+  })
+
+  it('should convert a phone number to E.164 format if country code is provided in performBatch', async () => {
+    const events = [
+      createTestEvent({
+        context: { traits: { email: 'user1@example.com' } }
+      }),
+      createTestEvent({
+        context: { traits: { phone: '8448309222', country_code: 'IN' } }
+      })
+    ]
+
+    const mapping = {
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      phone_number: {
+        '@path': '$.context.traits.phone'
+      },
+      country_code: {
+        '@path': '$.context.traits.country_code'
+      }
+    }
+
+    const validRequestBody = {
+      data: {
+        type: 'profile-subscription-bulk-delete-job',
+        attributes: {
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  email: 'user1@example.com'
+                }
+              },
+              {
+                type: 'profile',
+                attributes: {
+                  phone_number: '+918448309222'
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+
+    nock('https://a.klaviyo.com/api')
+      .post('/profile-subscription-bulk-delete-jobs', (body) => {
+        return JSON.stringify(body) === JSON.stringify(validRequestBody)
+      })
+      .reply(200, { success: true })
+
+    await expect(
+      testDestination.testBatchAction('unsubscribeProfile', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
+
+    // Ensure the valid request was made and the invalid one was filtered out
+    expect(nock.isDone()).toBe(true)
   })
 
   it('formats the correct request body for batch requests with 1 list_id', async () => {

@@ -13,30 +13,32 @@ export class IterableListsClient {
   globalUnsubscribe?: boolean
   campaignId?: number
 
-  constructor( request: RequestClient, settings: Settings, audienceSettings: AudienceSettings | undefined) {
-    if(!audienceSettings){
+  constructor(request: RequestClient, settings: Settings, audienceSettings: AudienceSettings | undefined) {
+    if (!audienceSettings) {
       throw new PayloadValidationError('AudienceSettings missing from payload')
     }
     this.request = request
     this.apiKey = settings.apiKey
-    this.updateExistingUsersOnly = typeof audienceSettings.updateExistingUsersOnly === 'boolean' ? audienceSettings.updateExistingUsersOnly : undefined, 
-    this.globalUnsubscribe = typeof audienceSettings.globalUnsubscribe === 'boolean' ? audienceSettings.globalUnsubscribe : undefined,
-    this.campaignId = audienceSettings.campaignId ? Number(audienceSettings.campaignId) : undefined
+    ;(this.updateExistingUsersOnly =
+      typeof audienceSettings.updateExistingUsersOnly === 'boolean'
+        ? audienceSettings.updateExistingUsersOnly
+        : undefined),
+      (this.globalUnsubscribe =
+        typeof audienceSettings.globalUnsubscribe === 'boolean' ? audienceSettings.globalUnsubscribe : undefined),
+      (this.campaignId = audienceSettings.campaignId ? Number(audienceSettings.campaignId) : undefined)
   }
 
   async processPayload(payloads: Payload[]) {
-
     const subscribersGroup: Map<string, Subscriber[]> = new Map()
     const unsubscribersGroup: Map<string, Unsubscriber[]> = new Map()
 
     payloads.map((payload) => {
       const listId = payload.segmentAudienceId
       if (payload.traitsOrProperties[payload.segmentAudienceKey] === true) {
-
         const subscriber = {
           email: payload?.email ?? undefined,
-          dataFields: payload?.dataFields?.reduce((acc: { [key: string]: unknown }, item: string) => {
-            acc[item] = payload.traitsOrProperties[item];
+          dataFields: payload?.dataFields?.split(',').reduce((acc: { [key: string]: unknown }, item: string) => {
+            acc[item.trim()] = payload.traitsOrProperties[item.trim()]
             return acc
           }, {}),
           userId: payload?.userId ?? undefined,
@@ -49,7 +51,6 @@ export class IterableListsClient {
           subscribersGroup.set(listId, [subscriber])
         }
       } else {
-
         const subscriber = {
           email: payload?.email ?? undefined,
           userId: payload?.userId ?? undefined
@@ -64,12 +65,13 @@ export class IterableListsClient {
     })
 
     const subcribeRequests = []
-    const unSubcribeRequests = [] 
-    
+    const unSubcribeRequests = []
+
     subscribersGroup.forEach((subscribers, listId) => {
       subcribeRequests.push(
         this.request(`${CONSTANTS.API_BASE_URL}/lists/subscribe`, {
           method: 'post',
+          skipResponseCloning: true,
           json: {
             listId: Number(listId),
             subscribers,
@@ -83,6 +85,7 @@ export class IterableListsClient {
       unSubcribeRequests.push(
         this.request(`${CONSTANTS.API_BASE_URL}/lists/unsubscribe`, {
           method: 'post',
+          skipResponseCloning: true,
           json: {
             listId: Number(listId),
             subscribers,
@@ -93,7 +96,7 @@ export class IterableListsClient {
       )
     })
 
-    return await Promise.all([...unsubscribersGroup,...subscribersGroup])
+    return await Promise.all([...unsubscribersGroup, ...subscribersGroup])
   }
 
   static validate(payload: Payload) {
@@ -101,5 +104,4 @@ export class IterableListsClient {
       throw new PayloadValidationError('Either Email or User ID fields must be populated.')
     }
   }
-
 }

@@ -18,6 +18,26 @@ describe('Subscribe Profile', () => {
       testDestination.testAction('subscribeProfile', { event, settings, useDefaultMappings: true })
     ).rejects.toThrowError(PayloadValidationError)
   })
+  it('should throw an error for invalid phone number format', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      context: {
+        traits: {
+          phone: 'invalid-phone-number'
+        }
+      },
+      properties: {}
+    })
+    const mapping = {
+      phone_number: {
+        '@path': '$.context.traits.phone'
+      }
+    }
+
+    await expect(testDestination.testAction('subscribeProfile', { event, mapping })).rejects.toThrowError(
+      'invalid-phone-number is not a valid phone number and cannot be converted to E.164 format.'
+    )
+  })
   it('formats the correct request body when list id is empty and custom_source is defined', async () => {
     const payload = {
       email: 'segment@email.com',
@@ -419,6 +439,66 @@ describe('Subscribe Profile', () => {
     await expect(
       testDestination.testBatchAction('subscribeProfile', { events, settings, mapping })
     ).rejects.toThrowError(PayloadValidationError)
+  })
+  it('should filter out profiles with invalid phone numbers', async () => {
+    const events = [
+      createTestEvent({
+        context: { traits: { email: 'user1@example.com' } }
+      }),
+      createTestEvent({
+        context: { traits: { phone: 'invalid-phone-number' } }
+      })
+    ]
+
+    const mapping = {
+      email: {
+        '@path': '$.context.traits.email'
+      },
+      phone_number: {
+        '@path': '$.context.traits.phone'
+      }
+    }
+
+    const validRequestBody = {
+      data: {
+        type: 'profile-subscription-bulk-create-job',
+        attributes: {
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: 'SUBSCRIBED'
+                      }
+                    }
+                  },
+                  email: 'user1@example.com'
+                }
+              }
+            ]
+          },
+          custom_source: '-59'
+        }
+      }
+    }
+
+    nock('https://a.klaviyo.com/api')
+      .post('/profile-subscription-bulk-create-jobs/', validRequestBody)
+      .reply(200, { success: true })
+
+    await expect(
+      testDestination.testBatchAction('subscribeProfile', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
+
+    // Verify that the invalid phone number was filtered out and correct request was made
+    expect(nock.isDone()).toBe(true)
   })
   it('formats the correct request body for batch requests', async () => {
     const mapping = {

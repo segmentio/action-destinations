@@ -1,11 +1,16 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { defaultValues } from '@segment/actions-core'
+import { DEFAULT_REQUEST_TIMEOUT, defaultValues } from '@segment/actions-core'
 import createAlias from './createAlias'
+import createAlias2 from './createAlias2'
 import identifyUser from './identifyUser'
+import identifyUser2 from './identifyUser2'
 import trackEvent from './trackEvent'
 import trackPurchase from './trackPurchase'
 import updateUserProfile from './updateUserProfile'
+import trackEvent2 from './trackEvent2'
+import trackPurchase2 from './trackPurchase2'
+import updateUserProfile2 from './updateUserProfile2'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Braze Cloud Mode (Actions)',
@@ -63,7 +68,8 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         Authorization: `Bearer ${settings.api_key}`
-      }
+      },
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     }
   },
   actions: {
@@ -71,7 +77,12 @@ const destination: DestinationDefinition<Settings> = {
     trackEvent,
     trackPurchase,
     createAlias,
-    identifyUser
+    identifyUser,
+    identifyUser2,
+    trackEvent2,
+    trackPurchase2,
+    updateUserProfile2,
+    createAlias2
   },
   presets: [
     {

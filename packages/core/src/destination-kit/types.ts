@@ -1,19 +1,33 @@
-import { StateContext, Logger, StatsContext, TransactionContext, DataFeedCache, ActionHookType } from './index'
+import {
+  StateContext,
+  Logger,
+  StatsContext,
+  TransactionContext,
+  EngageDestinationCache,
+  ActionHookType,
+  SubscriptionMetadata
+} from './index'
 import type { RequestOptions } from '../request-client'
-import type { JSONObject } from '../json-object'
+import type { JSONLikeObject, JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
 import type { RequestClient } from '../create-request-client'
 import type { ID } from '../segment-event'
 import { Features } from '../mapping-kit'
+import type { ErrorCodes, MultiStatusErrorReporter } from '../errors'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 export type MaybePromise<T> = T | Promise<T>
 
-export interface Result {
+/*
+  Note: The Cloud Event object that we receive from Centrifuge contains an array of subscriptions,
+  the result object below is the result of execution of each subscription.
+*/ export interface Result {
   output?: JSONObject | string | null | undefined
   error?: JSONObject | null
   // Data to be returned from action
   data?: JSONObject | null
+  // Spec v2 compliant MultiStatus response
+  multistatus?: ResultMultiStatusNode[]
 }
 
 export interface DynamicFieldContext {
@@ -27,7 +41,9 @@ export interface ExecuteInput<
   Settings,
   Payload,
   AudienceSettings = unknown,
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
   ActionHookInputs = any,
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
   ActionHookOutputs = any
 > {
   /** The subscription mapping definition */
@@ -59,9 +75,11 @@ export interface ExecuteInput<
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
-  readonly dataFeedCache?: DataFeedCache
+  /** Engage internal use only. DO NOT USE. */
+  readonly engageDestinationCache?: EngageDestinationCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
+  readonly subscriptionMetadata?: SubscriptionMetadata
 }
 
 export interface DynamicFieldResponse {
@@ -232,6 +250,11 @@ export interface InputField extends InputFieldJSONSchema {
    * Determines which input methods are disabled for this field. This is useful when you want to restrict variable selection, freeform entry, etc.
    */
   disabledInputMethods?: FieldInputMethods[]
+
+  /** Minimum value for a field of type 'number' */
+  minimum?: number
+  /** Maximum value for a field of type 'number' */
+  maximum?: number
 }
 
 /** Base interface for conditions  */
@@ -346,3 +369,24 @@ export interface SyncModeDefinition {
   /** The available sync mode choices */
   choices: SyncModeOption[]
 }
+
+export type ActionDestinationSuccessResponseType = {
+  status: number
+  sent: JSONLikeObject | string
+  body: JSONLikeObject | string
+}
+
+export type ActionDestinationErrorResponseType = {
+  status: number
+  // The `keyof typeof` in the following line allows using string literals that match enum values
+  errortype: keyof typeof ErrorCodes
+  errormessage: string
+  sent?: JSONLikeObject | string
+  body?: JSONLikeObject | string
+}
+
+export type ResultMultiStatusNode =
+  | ActionDestinationSuccessResponseType
+  | (ActionDestinationErrorResponseType & {
+      errorreporter: MultiStatusErrorReporter
+    })

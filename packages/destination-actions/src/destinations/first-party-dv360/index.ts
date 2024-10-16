@@ -34,6 +34,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       required: false,
       description: 'The description of the audience.'
     },
+    appId: {
+      type: 'string',
+      label: 'App ID',
+      required: false,
+      description:
+        'The appId matches with the type of the mobileDeviceIds being uploaded. **Required for CUSTOMER_MATCH_DEVICE_ID Audience Types.**'
+    },
     membershipDurationDays: {
       type: 'string',
       label: 'Membership Duration Days',
@@ -70,6 +77,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const description = audienceSettings?.description
       const membershipDurationDays = audienceSettings?.membershipDurationDays
       const audienceType = audienceSettings?.audienceType
+      const appId = audienceSettings?.appId
       const token = audienceSettings?.token // Temporary token variable
 
       // Update statistics tags and sends a call metric to Datadog. Ensures that datadog is infomred 'createAudience' operation was invoked
@@ -110,6 +118,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         description,
         membershipDurationDays,
         audienceType,
+        appId,
         token
       })
 

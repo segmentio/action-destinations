@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { buildPerformer } from '../utils'
-import { orderInfoFields, priceFields } from '../schema'
+import { clientFields, orderInfoFields, priceFields } from '../schema'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Checkout',
@@ -11,7 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Checkout Started"',
   fields: {
     ...priceFields(),
-    ...orderInfoFields
+    ...orderInfoFields,
+    ...clientFields
   },
   perform: buildPerformer('checkout')
 }

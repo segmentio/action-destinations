@@ -74,14 +74,6 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       defaultObjectUI: 'keyvalue',
       additionalProperties: true,
-      properties: {
-        userId: {
-          label: 'User ID',
-          description: 'Your unique ID for your user',
-          type: 'string',
-          required: false
-        }
-      },
       default: {
         userId: { '@path': '$.userId' }
       }
