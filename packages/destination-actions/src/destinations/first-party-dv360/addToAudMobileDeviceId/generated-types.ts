@@ -9,4 +9,8 @@ export interface Payload {
    * The ID of the DV360 Audience.
    */
   external_id?: string
+  /**
+   * The Advertiser ID associated with the DV360 Audience.
+   */
+  advertiser_id?: string
 }

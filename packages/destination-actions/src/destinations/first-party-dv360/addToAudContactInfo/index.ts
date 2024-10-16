@@ -1,13 +1,13 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { emails, phoneNumbers, zipCodes, firstName, lastName, countryCode, external_id } from '../properties'
+import { emails, phoneNumbers, zipCodes, firstName, lastName, countryCode, external_id, advertiser_id } from '../properties'
 import { editContactInfo } from '../functions'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Edit Customer Match Members - Contact Info List',
   description: 'Add or update customer match members in Google Display & Video 360 Contact Info List Audience.',
-  defaultSubscription: 'event = "Audeince Entered - ContactInfoList"',
+  defaultSubscription: 'event = "Audience Entered"',
   fields: {
     emails: { ...emails },
     phoneNumbers: { ...phoneNumbers },
@@ -15,15 +15,16 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     firstName: { ...firstName },
     lastName: { ...lastName },
     countryCode: { ...countryCode },
-    external_id: { ...external_id }
+    external_id: { ...external_id },
+    advertiser_id: { ...advertiser_id }
   },
-  perform: async (request, { payload, statsContext, audienceSettings }) => {
+  perform: async (request, { payload, statsContext }) => {
     statsContext?.statsClient?.incr('editCustomerMatchMembers', 1, statsContext?.tags)
-    return editContactInfo(request, audienceSettings, [payload], 'add', statsContext)
+    return editContactInfo(request, [payload], 'add', statsContext)
   },
-  performBatch: async (request, { payload, statsContext, audienceSettings }) => {
+  performBatch: async (request, { payload, statsContext }) => {
     statsContext?.statsClient?.incr('editCustomerMatchMembers.batch', 1, statsContext?.tags)
-    return editContactInfo(request, audienceSettings, payload, 'add', statsContext)
+    return editContactInfo(request, payload, 'add', statsContext)
   }
 }
 

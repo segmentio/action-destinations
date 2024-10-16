@@ -5,7 +5,6 @@ import { createHash } from 'crypto'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
 
 const DV360API = `https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences`
-const MAX_REQUEST_SIZE = 500000
 const CONSENT_STATUS_GRANTED = 'CONSENT_STATUS_GRANTED' // Define consent status
 
 interface createAudienceRequestParams {
@@ -75,21 +74,17 @@ export const getAudienceRequest = (request: RequestClient, params: getAudiencePa
 
 export async function editDeviceMobileIds(
   request: RequestClient,
-  settings: AudienceSettings | undefined,
   payloads: DeviceIdPayload[],
   operation: 'add' | 'remove',
   statsContext?: StatsContext // Adjust type based on actual stats context
 ) {
-  if (!settings) {
-    throw new IntegrationError('No Audience Settings found in payload', 'INVALID_REQUEST_DATA', 400)
-  }
-
-  const audienceId = payloads[0].external_id
+  const payload = payloads[0]
+  const audienceId = payload.external_id
   //Format the endpoint
   const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
   // Prepare the request payload
   const mobileDeviceIdList = {
-    mobileDeviceIds: [payloads[0].mobileDeviceIds],
+    mobileDeviceIds: [payload.mobileDeviceIds],
     consent: {
       adUserData: CONSENT_STATUS_GRANTED,
       adPersonalization: CONSENT_STATUS_GRANTED
@@ -98,21 +93,18 @@ export async function editDeviceMobileIds(
 
   // Convert the payload to string if needed
   const requestPayload = JSON.stringify({
-    advertiserId: settings.advertiserId,
-    ...(operation === 'add' ? { addedMobileDeviceIdLis: mobileDeviceIdList } : {}),
-    ...(operation === 'remove' ? { removedMobileDeviceIdLis: mobileDeviceIdList } : {})
+    advertiserId: payload.advertiser_id,
+    ...(operation === 'add' ? { addedMobileDeviceIdList: mobileDeviceIdList } : {}),
+    ...(operation === 'remove' ? { removedMobileDeviceIdList: mobileDeviceIdList } : {})
   })
-
-  console.log('MobileDeviceId:', mobileDeviceIdList)
   const response = await request<DV360editCustomerMatchResponse>(endpoint, {
     method: 'POST',
     headers: {
-      authorization: `Bearer ${settings.token}`,
+      authorization: 'Bearer temp-token',
       'Content-Type': 'application/json; charset=utf-8'
     },
     body: requestPayload
   })
-  // Handle the API response generically
   if (!response.data || !response.data.firstAndThirdPartyAudienceId) {
     statsContext?.statsClient?.incr('addCustomerMatchMembers.error', 1, statsContext?.tags)
     throw new IntegrationError(
@@ -128,22 +120,15 @@ export async function editDeviceMobileIds(
 
 export async function editContactInfo(
   request: RequestClient,
-  settings: AudienceSettings | undefined,
   payloads: Payload[],
   operation: 'add' | 'remove',
-  statsContext?: StatsContext // Adjust type based on actual stats context
+  statsContext?: StatsContext
 ) {
-  console.log('Payload:', payloads)
+  const payload = payloads[0]
   const audienceId = payloads[0].external_id
+
   //Format the endpoint
   const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
-  console.log('endpoint', endpoint)
-
-  if (!settings) {
-    throw new IntegrationError('No Audience Settings found in payload', 'INVALID_REQUEST_DATA', 400)
-  }
-
-  const payload = payloads[0]
 
   // Prepare the request payload
   const contactInfoList = {
@@ -156,44 +141,19 @@ export async function editContactInfo(
 
   // Convert the payload to string if needed
   const requestPayload = JSON.stringify({
-    advertiserId: settings.advertiserId,
+    advertiserId: payload.advertiser_id,
     ...(operation === 'add' ? { addedContactInfoList: contactInfoList } : {}),
     ...(operation === 'remove' ? { removedContactInfoList: contactInfoList } : {})
   })
 
-  // Ensure the request data size is within acceptable limits
-  console.log('FIX')
-  const requestSize = Buffer.byteLength(requestPayload, 'utf8')
-  if (requestSize > MAX_REQUEST_SIZE) {
-    statsContext?.statsClient?.incr('addCustomerMatchMembers.error', 1, statsContext?.tags)
-    throw new IntegrationError(
-      `Request data size exceeds limit of ${MAX_REQUEST_SIZE} bytes`,
-      'INVALID_REQUEST_DATA',
-      400
-    )
-  }
-
-  console.log('Payload Formatted:', requestPayload)
-  console.log('Token', settings.token)
-
   const response = await request<DV360editCustomerMatchResponse>(endpoint, {
     method: 'POST',
     headers: {
-      authorization: `Bearer ${settings.token}`,
+      authorization: 'Bearer temp-token',
       'Content-Type': 'application/json; charset=utf-8'
     },
     body: requestPayload
   })
-
-  // Handle the API response generically
-  if (!response.data || !response.data.firstAndThirdPartyAudienceId) {
-    statsContext?.statsClient?.incr('addCustomerMatchMembers.error', 1, statsContext?.tags)
-    throw new IntegrationError(
-      `API returned error: ${response.data?.error || 'Unknown error'}`,
-      'API_REQUEST_ERROR',
-      400
-    )
-  }
 
   statsContext?.statsClient?.incr('addCustomerMatchMembers.success', 1, statsContext?.tags)
   return response.data
