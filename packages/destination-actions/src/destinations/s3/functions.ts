@@ -1,6 +1,7 @@
 import { Payload } from './syncToS3/generated-types'
 import { Settings } from './generated-types'
 import { Client } from './client'
+import { v4 as uuidv4 } from 'uuid'
 import { RawMapping, ColumnHeader } from './types'
 import { IntegrationError } from '@segment/actions-core'
 
@@ -14,6 +15,9 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
   if (batchSize > maxBatchSize) {
     throw new IntegrationError(`Batch size cannot exceed ${maxBatchSize}`, 'Invalid Payload', 400)
   }
+
+  // Generate a unique ID at the start of the sync
+  const syncId = uuidv4()
 
   const headers: ColumnHeader[] = Object.entries(rawMapping.columns)
     .filter(([_, value]) => value !== '')
@@ -30,13 +34,13 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
   }
 
   const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName)
-
+  const filename = payloads[0]?.filename_prefix || syncId
   const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
 
   await s3Client.uploadS3(
     settings,
     fileContent,
-    payloads[0]?.filename_prefix ?? '',
+    filename ?? '',
     payloads[0]?.s3_aws_folder_name ?? '',
     payloads[0]?.file_extension
   )
