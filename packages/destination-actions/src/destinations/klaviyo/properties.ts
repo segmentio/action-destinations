@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
+import { COUNTRY_CODES } from './config'
 
 export const list_id: InputField = {
   label: 'List Id',
@@ -144,4 +145,20 @@ export const phone_number: InputField = {
   description: `Individual's phone number in E.164 format. If SMS is not enabled and if you use Phone Number as identifier, then you have to provide one of Email or External ID.`,
   type: 'string',
   default: { '@path': '$.context.traits.phone' }
+}
+
+export const country_code: InputField = {
+  label: 'Country Code',
+  description: `Country Code in ISO 3166-1 alpha-2 format. If provided, this will be used to validate and automatically format Phone Number field in E.164 format accepted by Klaviyo.`,
+  type: 'string',
+  choices: COUNTRY_CODES,
+  depends_on: {
+    conditions: [
+      {
+        fieldKey: 'phone_number',
+        operator: 'is_not',
+        value: ''
+      }
+    ]
+  }
 }

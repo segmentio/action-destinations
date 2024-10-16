@@ -35,7 +35,7 @@ describe('Subscribe Profile', () => {
     }
 
     await expect(testDestination.testAction('subscribeProfile', { event, mapping })).rejects.toThrowError(
-      'invalid-phone-number is not a valid E.164 phone number.'
+      'invalid-phone-number is not a valid phone number and cannot be converted to E.164 format.'
     )
   })
   it('formats the correct request body when list id is empty and custom_source is defined', async () => {
