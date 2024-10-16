@@ -1,9 +1,18 @@
 import { Payload } from './syncToS3/generated-types'
 import { Settings } from './generated-types'
 import { Client } from './client'
-import { v4 as uuidv4 } from 'uuid'
 import { RawMapping, ColumnHeader } from './types'
 import { IntegrationError } from '@segment/actions-core'
+
+function generateUUID(length = 16): string {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length)
+    result += characters[randomIndex]
+  }
+  return result
+}
 
 export async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
   const batchSize = payloads[0] && typeof payloads[0].batch_size === 'number' ? payloads[0].batch_size : 0
@@ -17,7 +26,7 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
   }
 
   // Generate a unique ID at the start of the sync
-  const syncId = uuidv4()
+  const syncId = generateUUID()
 
   const headers: ColumnHeader[] = Object.entries(rawMapping.columns)
     .filter(([_, value]) => value !== '')
