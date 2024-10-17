@@ -1,8 +1,10 @@
 import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
-
-import addToList from './addToList'
 import { createAudienceRequest, getAudienceRequest } from './functions'
+import removeFromAudContactInfo from './removeFromAudContactInfo'
+import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
+import addToAudContactInfo from './addToAudContactInfo'
+import addToAudMobileDeviceId from './addToAudMobileDeviceId'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'First Party Dv360',
@@ -179,7 +181,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
 
   actions: {
-    addToList
+    addToAudContactInfo,
+    addToAudMobileDeviceId,
+    removeFromAudContactInfo,
+    removeFromAudMobileDeviceId
   }
 }
 
