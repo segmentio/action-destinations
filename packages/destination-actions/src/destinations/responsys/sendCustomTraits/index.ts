@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { enable_batching, batch_size } from '../shared_properties'
+import { enable_batching, batch_size } from '../shared-properties'
 import { sendCustomTraits, getUserDataFieldNames, validateCustomTraits, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
 
