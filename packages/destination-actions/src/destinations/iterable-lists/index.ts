@@ -71,6 +71,23 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       const audienceKey = personasSettings.computation_key
+
+      // If the list already exists, return its externalId
+      const getAudienceResponse = await request('https://api.iterable.com/api/lists', {
+        method: 'GET',
+        skipResponseCloning: true,
+        headers: { 'Api-Key': settings.apiKey }
+      })
+
+      const getAudienceResponseJson = await getAudienceResponse.json()
+      const existingAudience = (getAudienceResponseJson.lists as { id: number; name: string }[]).find(
+        (list: { id: number; name: string }) => list.name === audienceKey
+      )
+
+      if (existingAudience) {
+        return { externalId: existingAudience.id }
+      }
+
       const createAudienceResponse = await request('https://api.iterable.com/api/lists', {
         method: 'POST',
         headers: { 'Api-Key': settings.apiKey },

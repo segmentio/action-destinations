@@ -38,6 +38,39 @@ describe('Iterable Lists', () => {
       await expect(testDestination.createAudience(createAudienceInput)).resolves.not.toThrowError()
     })
 
+    it('should return externalId of existing audience', async () => {
+      nock('https://api.iterable.com/api')
+        .get('/lists')
+        .times(2)
+        .reply(200, {
+          lists: [
+            {
+              id: 123,
+              name: 'Test Audience'
+            }
+          ]
+        })
+
+      nock('https://api.iterable.com/api').post('/lists').times(0).reply(200, {})
+
+      const settings = {
+        apiKey: '123456'
+      }
+
+      const createAudienceInput = {
+        settings,
+        audienceName: 'Test Audience',
+        personas: {
+          computation_key: 'test',
+          computation_id: '12342352452562',
+          namespace: 'spa_12312414212412'
+        }
+      }
+
+      await expect(testDestination.createAudience(createAudienceInput)).resolves.toEqual({ externalId: 123 })
+      // expect(listsEndpoint.).toBe(true)
+    })
+
     it('should throw error when `personas` object is not provided in audience settings', async () => {
       nock('https://api.iterable.com/api').post('/lists').reply(200, {})
 
