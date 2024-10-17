@@ -50,4 +50,12 @@ export interface Payload {
    *
    */
   unique_id?: string
+  /**
+   * When enabled, the action will use the klaviyo batch API.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
