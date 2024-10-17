@@ -20,7 +20,7 @@ const destination: DestinationDefinition<Settings> = {
     // testAuthentication: (request) => {
     //   // Return a request that tests/validates the user's credentials.
     //   // If you do not have a way to validate the authentication fields safely,
-    //   // you can remove the `testAuthentication` function, though it's discouraged.
+    //   // you can remove the `testAuthentication` function, though discouraged.
     // },
     refreshAccessToken: async (request, { auth }) => {
       if (!auth.refreshTokenUrl) throw new Error('destination misconfigured: missing refresh token URL')
