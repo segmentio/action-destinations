@@ -27,6 +27,7 @@ jobs:
         node-version: [18.x]
     env:
       HUSKY: 0
+      NX_DISABLE_DB: true
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
