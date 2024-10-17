@@ -4,7 +4,8 @@ import {
   DynamicFieldResponse,
   IntegrationError,
   PayloadValidationError,
-  MultiStatusResponse
+  MultiStatusResponse,
+  HTTPError
 } from '@segment/actions-core'
 import { JSONLikeObject } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
@@ -29,7 +30,6 @@ import { Payload } from './upsertProfile/generated-types'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import dayjs from 'dayjs'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -479,13 +479,19 @@ export async function sendBatchedTrackEvent(request: RequestClient, payloads: Tr
         method: 'POST',
         json: payloadToSend
       })
-    } catch (err: any) {
-      await handleKlaviyoAPIErrorResponse(
-        transformPayloadsType(payloads),
-        await err?.response?.json(),
-        multiStatusResponse,
-        validPayloadIndicesBitmap
-      )
+    } catch (err) {
+      if (err instanceof HTTPError) {
+        const errorResponse = await err?.response?.json()
+        handleKlaviyoAPIErrorResponse(
+          payloads as object as JSONLikeObject[],
+          errorResponse,
+          multiStatusResponse,
+          validPayloadIndicesBitmap
+        )
+      } else {
+        // Bubble up the error and let Actions Framework handle it
+        throw err
+      }
     }
   }
 
@@ -497,11 +503,19 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
   const validPayloadIndicesBitmap: number[] = []
 
   payloads.forEach((payload, originalBatchIndex) => {
-    const { country_code, phone_number: initialPhoneNumber } = payload.profile
+    const { email, phone_number, external_id, anonymous_id, country_code } = payload.profile
+    if (!email && !phone_number && !external_id && !anonymous_id) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'One of External ID, Anonymous ID, Phone Number or Email is required.'
+      })
+      return
+    }
 
-    if (initialPhoneNumber) {
+    if (phone_number) {
       // Validate and convert the phone number if present
-      const validPhoneNumber = validateAndConvertPhoneNumber(initialPhoneNumber, country_code as string)
+      const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, country_code as string)
       // If the phone number is not valid, skip this payload
       if (!validPhoneNumber) {
         multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
@@ -515,13 +529,6 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
       // Update the payload's phone number with the validated format
       payload.profile.phone_number = validPhoneNumber
       delete payload?.profile?.country_code
-    }
-
-    // Filter out and record if payload is invalid
-    const validationError: ActionDestinationErrorResponseType | null = validatePayload(payload)
-    if (validationError) {
-      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, validationError)
-      return
     }
 
     const profileToAdd = constructProfilePayload(payload)
@@ -572,7 +579,7 @@ function constructProfilePayload(payload: TrackEventPayload) {
   }
 }
 
-async function handleKlaviyoAPIErrorResponse(
+function handleKlaviyoAPIErrorResponse(
   payloads: JSONLikeObject[],
   response: KlaviyoAPIErrorResponse,
   multiStatusResponse: MultiStatusResponse,
@@ -613,21 +620,4 @@ function getIndexFromErrorPointer(pointer: string, validPayloadIndicesBitmap: nu
     return validPayloadIndicesBitmap[index] !== undefined ? validPayloadIndicesBitmap[index] : -1
   }
   return -1
-}
-
-function transformPayloadsType(obj: object[]) {
-  return obj as JSONLikeObject[]
-}
-
-function validatePayload(payload: TrackEventPayload): ActionDestinationErrorResponseType | null {
-  const { email, phone_number, external_id, anonymous_id } = payload.profile
-
-  if (!email && !phone_number && !external_id && !anonymous_id) {
-    return {
-      status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage: 'One of External ID, Anonymous ID, Phone Number or Email is required.'
-    }
-  }
-  return null
 }
