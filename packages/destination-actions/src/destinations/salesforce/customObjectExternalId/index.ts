@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { customFields, operation } from '../sf-properties'
 import Salesforce, { generateSalesforceRequest } from '../sf-operations'
-import { SalesforceV61 } from './sf-classes'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object by External Id',
@@ -35,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     customObjectName: async (request: RequestClient, data: ExecuteInput<Settings, Payload, any, any, any>) => {
-      const salesforceInstance: SalesforceV61 = new SalesforceV61(
+      const salesforceInstance: Salesforce = new Salesforce(
         data.settings.instanceUrl,
         await generateSalesforceRequest(data.settings, request)
       )
