@@ -11,6 +11,8 @@ on:
 
 jobs:
   build-and-publish:
+    permissions:
+      id-token: write
     env:
       HUSKY: 0
       NX_DISABLE_DB: true

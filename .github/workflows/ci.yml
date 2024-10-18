@@ -8,6 +8,8 @@ on:
 
 jobs:
   test:
+    permissions:
+      id-token: write
     name: Unit tests
     runs-on: ubuntu-20.04
     timeout-minutes: 30
@@ -56,6 +58,8 @@ jobs:
           handle_no_reports_found: true # don't fail if no reports are found
 
   lint:
+    permissions:
+      id-token: write
     name: Lint
     runs-on: ubuntu-20.04
     timeout-minutes: 20
@@ -93,6 +97,8 @@ jobs:
         run: yarn lint
 
   validate:
+    permissions:
+      id-token: write
     name: Validate
     runs-on: ubuntu-20.04
     timeout-minutes: 20

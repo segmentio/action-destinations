@@ -8,6 +8,8 @@ on:
 
 jobs:
   install-and-test:
+    permissions:
+      id-token: write
     env:
       HUSKY: 0
       NX_DISABLE_DB: true
