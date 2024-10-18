@@ -62,21 +62,19 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     const reservedKeys = Object.keys(action.fields.products.properties ?? {})
     const purchaseProperties = omit(payload.purchaseProperties, reservedKeys)
 
-    if (purchaseProperties?.products && Array.isArray(purchaseProperties?.products)) {
-      purchaseProperties?.products?.forEach((product) => {
-        const result = client.instance.logPurchase(
-          (product.product_id as string | number).toString(),
-          product.price,
-          product.currency ?? 'USD',
-          product.quantity ?? 1,
-          purchaseProperties
-        )
+    payload.products?.forEach((product) => {
+      const result = client.instance.logPurchase(
+        (product.product_id as string | number).toString(),
+        product.price,
+        product.currency ?? 'USD',
+        product.quantity ?? 1,
+        purchaseProperties
+      )
 
-        if (!result) {
-          console.warn('Braze failed to attach purchase to the session for product ', product.productId)
-        }
-      })
-    }
+      if (!result) {
+        console.warn('Braze failed to attach purchase to the session for product ', product.product_id)
+      }
+    })
   }
 }
 
