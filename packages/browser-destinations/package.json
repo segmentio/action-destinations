@@ -24,6 +24,7 @@
     "size": "size-limit"
   },
   "dependencies": {
+    "jest": "^29.7.0",
     "tslib": "^2.3.1",
     "vm-browserify": "^1.1.2"
   },
