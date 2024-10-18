@@ -186,7 +186,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
   batch_size: {
     label: 'Batch Size',
     description:
-      'Maximum number of events to include in each batch. Actual batch sizes may be lower. Max batch size is 25000.',
+      'Maximum number of events to include in each batch. Actual batch sizes may be lower. Max batch size is 10000.',
     type: 'number',
     required: false,
     default: 5000

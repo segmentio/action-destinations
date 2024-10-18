@@ -90,6 +90,10 @@ export interface Payload {
      */
     anonId?: string
     /**
+     * Your mobile advertiser ID, the advertising ID from an Android device or the Advertising Identifier (IDFA) from an Apple device.
+     */
+    madId?: string
+    /**
      * The ID issued by Facebook identity partner.
      */
     partner_id?: string
@@ -143,6 +147,14 @@ export interface Payload {
      * Example: 'iPhone5,1'.
      */
     deviceName?: string
+    /**
+     * This field represents unique application installation instances. Note: This parameter is for app events only.
+     */
+    anonId?: string
+    /**
+     * Your mobile advertiser ID, the advertising ID from an Android device or the Advertising Identifier (IDFA) from an Apple device.
+     */
+    madId?: string
     /**
      * Example: 'En_US'.
      */

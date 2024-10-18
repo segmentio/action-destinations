@@ -55,7 +55,8 @@ describe('Upsert Profile', () => {
       type: 'identify',
       traits: {
         phone: 'invalid-phone-number',
-        email: 'test@example.com'
+        email: 'test@example.com',
+        country_code: 'US'
       }
     })
 
@@ -65,12 +66,53 @@ describe('Upsert Profile', () => {
       },
       email: {
         '@path': '$.traits.email'
-      }
+      },
+      country_code: { '@path': '$.traits.country_code' }
     }
 
     await expect(testDestination.testAction('upsertProfile', { event, mapping, settings })).rejects.toThrowError(
-      'invalid-phone-number is not a valid E.164 phone number.'
+      'invalid-phone-number is not a valid phone number and cannot be converted to E.164 format.'
     )
+  })
+
+  it('should convert a phone number to E.164 format if country code is provided', async () => {
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        phone: '8448309222',
+        email: 'test@example.com',
+        country_code: 'IN'
+      }
+    })
+
+    const mapping = {
+      phone_number: {
+        '@path': '$.traits.phone'
+      },
+      email: {
+        '@path': '$.traits.email'
+      },
+      country_code: {
+        '@path': '$.traits.country_code'
+      }
+    }
+    const requestBody = {
+      data: {
+        type: 'profile',
+        attributes: {
+          email: 'test@example.com',
+          phone_number: '+918448309222',
+          location: {},
+          properties: {}
+        }
+      }
+    }
+
+    nock(`${API_URL}`).post('/profiles/', requestBody).reply(200, {})
+
+    await expect(
+      testDestination.testAction('upsertProfile', { event, settings, mapping, useDefaultMappings: true })
+    ).resolves.not.toThrowError()
   })
 
   it('should create a new profile if successful', async () => {
@@ -398,6 +440,68 @@ describe('Upsert Profile Batch', () => {
                 type: 'profile',
                 attributes: {
                   email: 'user1@example.com'
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+
+    nock(API_URL)
+      .post('/profile-bulk-import-jobs/', (body) => {
+        return JSON.stringify(body) === JSON.stringify(validRequestBody)
+      })
+      .reply(200, { success: true })
+
+    await expect(
+      testDestination.testBatchAction('upsertProfile', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
+
+    // Ensure the valid request was made and the invalid profile was filtered out
+    expect(nock.isDone()).toBe(true)
+  })
+
+  it('should convert a phone number to E.164 format if country code is provided.', async () => {
+    const events = [
+      createTestEvent({
+        traits: { email: 'user1@example.com' }
+      }),
+      createTestEvent({
+        traits: { phone: '7702126011', country_code: 'US' }
+      })
+    ]
+
+    const mapping = {
+      email: {
+        '@path': '$.traits.email'
+      },
+      phone_number: {
+        '@path': '$.traits.phone'
+      },
+      country_code: { '@path': '$.traits.country_code' }
+    }
+
+    const validRequestBody = {
+      data: {
+        type: 'profile-bulk-import-job',
+        attributes: {
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  email: 'user1@example.com'
+                }
+              },
+              {
+                type: 'profile',
+                attributes: {
+                  phone_number: '+17702126011'
                 }
               }
             ]

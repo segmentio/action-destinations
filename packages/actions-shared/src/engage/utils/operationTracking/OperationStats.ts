@@ -69,12 +69,44 @@ export abstract class OperationStats<TContext extends OperationStatsContext = Op
     }
   }
 
-  mergeTags(...tagSets: (string[] | undefined)[]): string[] {
-    const res: string[] = []
-    for (const tags of tagSets) {
-      if (tags) res.push(...tags)
+  /**
+   * Merge tags from multiple tag sets into datadog format [<key>:<value>]
+   * @param distinct if true, only one tag of each key will be kept. For duplicate tags the last one will be kept
+   * @param tagSets set of tags to merge
+   */
+  mergeTags(...tagSets: (StatsTags | undefined)[]): string[]
+  mergeTags(distinct: boolean, ...tagSets: StatsTags[]): string[]
+  mergeTags(...args: any[]): string[] {
+    // eslint-disable-next-line prefer-const -- need to reassign tagSets later
+    let [distinct, tagSets] = (typeof args[0] == 'boolean' ? args : [true, args]) as [
+      boolean,
+      (StatsTags | undefined)[]
+    ]
+
+    tagSets = tagSets.filter((t) => (t && Array.isArray(t)) || t instanceof Object)
+
+    if (!distinct) return tagSets.flatMap((t) => (Array.isArray(t) ? t : this.tagsMapToArray(t!)))
+
+    const allTagsMaps = tagSets.map((tags) => (!tags ? {} : Array.isArray(tags) ? this.tagsArrayToMap(tags) : tags))
+
+    const tagsMap = Object.assign({}, ...allTagsMaps)
+    return this.tagsMapToArray(tagsMap)
+  }
+
+  tagsMapToArray(tags: StatsTagsMap): string[] {
+    return Object.entries(tags).map(([key, value]) =>
+      value === undefined || value === '' || value === null ? key : `${key}:${value}`
+    )
+  }
+
+  tagsArrayToMap(tags: string[]): StatsTagsMap {
+    const res: StatsTagsMap = {}
+    for (const tag of tags) {
+      const sepIndex = tag.indexOf(':')
+      const [key, value] = sepIndex >= 0 ? [tag.slice(0, sepIndex), tag.slice(sepIndex + 1)] : [tag, undefined]
+      res[key] = value
     }
-    return res.filter((t) => t)
+    return res
   }
 
   statsOperationEvent(args: OperationStatsEventArgs) {
@@ -181,8 +213,11 @@ export type StatsArgs = {
   method?: StatsMethod
   metric: string
   value?: number
-  tags?: string[]
+  tags?: StatsTags
 }
+
+export type StatsTagsMap = Record<string, string | number | boolean | undefined>
+export type StatsTags = string[] | StatsTagsMap
 
 export type OperationStatsEvent = OperationStatsContext['stage'] | 'duration'
 /**

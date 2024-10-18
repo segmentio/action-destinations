@@ -2,6 +2,7 @@
 
 exports[`Testing snapshot for actions-accoil-analytics destination: group action - all fields 1`] = `
 Object {
+  "anonymousId": "[t@95I7lqH",
   "groupId": "[t@95I7lqH",
   "timestamp": Any<String>,
   "traits": Object {
@@ -13,6 +14,7 @@ Object {
     "testType": "[t@95I7lqH",
   },
   "type": "group",
+  "userId": "[t@95I7lqH",
 }
 `;
 

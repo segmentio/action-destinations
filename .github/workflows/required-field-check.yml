@@ -79,8 +79,12 @@ jobs:
                     const mainRequiredFields = requiredFieldsOnMain[key][actionKey]
                     const diff = branchRequiredFields.filter(field => !mainRequiredFields?.includes(field))
                     if(diff.length > 0) {
-                      const actionOrSettings = actionKey === 'settings' ? '**Setting**' : `**${actionOrSettings}**:${actionKey},`
-                      fieldsAdded.push(`- **Destination**: ${key}, ${actionOrSettings} **Field(s)**:${diff.join(',')}`)
+                      const isSettingsKey = actionKey === 'settings'
+                      if (isSettingsKey) {
+                        fieldsAdded.push(`- **Destination**: ${key}, **Settings**:${diff.join(',')}`)
+                      } else {
+                        fieldsAdded.push(`- **Destination**: ${key}, Action **Field(s)**:${diff.join(',')}`)
+                      }
                     }
                   }
                 } else {
@@ -89,9 +93,12 @@ jobs:
                   const getActionKeys = Object.keys(requiredFieldsOnBranch[key])
                   for(const actionKey of getActionKeys) {
                     const branchRequiredFields = requiredFieldsOnBranch[key][actionKey]
-                    const actionOrSettings = actionKey === 'settings' ? 'Settings' : 'Action'
-                    fieldsAdded.push(`- **Destination**: ${key}, **${actionOrSettings}**:${actionKey}, **Fields**:${branchRequiredFields.join(',')}`)
-                  }
+                    if(actionKey === 'settings') {
+                      fieldsAdded.push(`- **Destination**: ${key}, **Settings**:${branchRequiredFields.join(',')}`)
+                    } else {
+                      fieldsAdded.push(`- **Destination**: ${key}, **Action**:${actionKey}, **Fields**:${branchRequiredFields.join(',')}`)
+                    }
+                }
                 }
               })
             }

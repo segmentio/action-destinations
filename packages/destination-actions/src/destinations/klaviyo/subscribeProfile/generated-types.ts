@@ -10,6 +10,10 @@ export interface Payload {
    */
   phone_number?: string
   /**
+   * Country Code in ISO 3166-1 alpha-2 format. If provided, this will be used to validate and automatically format Phone Number field in E.164 format accepted by Klaviyo.
+   */
+  country_code?: string
+  /**
    * The Klaviyo list to add the newly subscribed profiles to. If no List Id is present, the opt-in process used to subscribe the profile depends on the account's default opt-in settings.
    */
   list_id?: string

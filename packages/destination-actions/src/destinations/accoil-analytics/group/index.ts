@@ -9,6 +9,18 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Identify Accounts (groups) in Accoil',
   defaultSubscription: 'type = "group"',
   fields: {
+    anonymousId: {
+      type: 'string',
+      description: 'Anonymous id',
+      label: 'Anonymous ID',
+      default: { '@path': '$.anonymousId' }
+    },
+    userId: {
+      type: 'string',
+      description: 'The ID associated with the user',
+      label: 'User ID',
+      default: { '@path': '$.userId' }
+    },
     groupId: {
       type: 'string',
       description: 'The group id',
@@ -69,6 +81,8 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'post',
       json: {
         type: 'group',
+        anonymousId: payload.anonymousId,
+        userId: payload.userId,
         groupId: payload.groupId,
         traits: traits,
         timestamp: payload.timestamp

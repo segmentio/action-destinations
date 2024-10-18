@@ -11,6 +11,8 @@ describe('AccoilAnalytics.group', () => {
     const responses = await testDestination.testAction('group', {
       settings: { api_key: 'apikey' },
       event: createTestEvent({
+        userId: 'user1234',
+        anonymousId: 'anon1234',
         groupId: 'group123',
         traits: { mrr: 10, plan: 'starter', status: 'trial', createdAt: '2018-01-01T00:00:00.000Z', name: 'Group X' }
       }),
@@ -20,6 +22,8 @@ describe('AccoilAnalytics.group', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.body).toMatch(/"type":\s*"group"/g)
+    expect(responses[0].options.body).toMatch(/"userId":\s*"user1234"/g)
+    expect(responses[0].options.body).toMatch(/"anonymousId":\s*"anon1234"/g)
     expect(responses[0].options.body).toContain('group123')
     expect(responses[0].options.body).toContain('Group X')
     expect(responses[0].options.body).toContain('starter')
