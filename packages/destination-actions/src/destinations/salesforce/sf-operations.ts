@@ -260,9 +260,13 @@ export default class Salesforce {
 
     if (syncMode === 'upsert') {
       return await this.bulkUpsert(payloads, sobject)
-    } else if (syncMode === 'update') {
+    }
+
+    if (syncMode === 'update') {
       return await this.bulkUpdate(payloads, sobject)
-    } else if (syncMode === 'add') {
+    }
+
+    if (syncMode === 'add') {
       // Sync Mode does not have a "create" operation. We call it "add".
       // "add" will be transformed into "create" in the bulkInsert function.
       return await this.bulkInsert(payloads, sobject)
