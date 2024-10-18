@@ -7,6 +7,77 @@ import { upsertRows } from '../sfmc-operations'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event to Data Extension',
   description: 'Upsert events as rows into an existing data extension in Salesforce Marketing Cloud.',
+  hooks: {
+    onMappingSave: {
+      label: 'Create Data Extension',
+      description: 'Create a new data extension in Salesforce Marketing Cloud.',
+      inputFields: {
+        operation: {
+          label: 'Create a new data extension',
+          description: 'Create a new data extension in Salesforce Marketing Cloud.',
+          type: 'boolean'
+        },
+        dataExtensionName: {
+          label: 'Data Extension Name',
+          description: 'The name of the data extension to create.',
+          type: 'string',
+          required: true
+        },
+        dataExtensionShape: {
+          label: 'Columns to create',
+          description: 'The columns to create in the data extension.',
+          type: 'object',
+          additionalProperties: false,
+          multiple: true,
+          defaultObjectUI: 'arrayeditor',
+          properties: {
+            retlColumnName: {
+              label: 'RETL Column Name',
+              type: 'string',
+              required: true
+            },
+            dataExtensionColumnName: {
+              label: 'Data Extension Column Name',
+              type: 'string',
+              required: true
+            },
+            type: {
+              label: 'Type',
+              type: 'string',
+              required: true,
+              choices: [
+                { label: 'Text', value: 'text' },
+                { label: 'Number', value: 'number' },
+                { label: 'Date', value: 'date' },
+                { label: 'Boolean', value: 'boolean' }
+              ]
+            }
+          }
+        }
+      },
+      outputTypes: {},
+      performHook: async () => {
+        // The following is psuedo code
+
+        // const columns = dataExtensionShape.map((column) => {
+        //   return {
+        //     name: column.name,
+        //     type: column.type,
+        //   }
+        // })
+
+        // const res = await request(${url}, {
+        //   method: 'POST',
+        //   json: {
+        //     name: dataExtensionName,
+        //     columns,
+        //   }
+        // })
+
+        return {}
+      }
+    }
+  },
   fields: {
     key: key,
     id: id,
