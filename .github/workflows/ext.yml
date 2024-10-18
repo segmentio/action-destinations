@@ -33,4 +33,7 @@ jobs:
         run: yarn test
 
       - name: Build
-        run: yarn build
+        uses: ./.github/actions/build-with-cache
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}

@@ -37,7 +37,10 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Build
-        run: NODE_ENV=production yarn build
+        uses: ./.github/actions/build-with-cache
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
 
       - name: Fetch Latest Tags
         run: |

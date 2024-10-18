@@ -39,8 +39,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Build (Affected)
-        run: NODE_ENV=production yarn nx affected -t build --parallel=3 # nx recipe
+      - name: Build
+        uses: ./.github/actions/build-with-cache
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
 
       - name: Test (Affected)
         run: yarn nx affected -t test --parallel=3 --coverage # nx recipe
@@ -78,8 +81,11 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build # TODO: This monorepo should be refactored so packages can be linted invidually. "affected" will not work ATM.
-        run: NODE_ENV=production yarn build # nx recipe
+      - name: Build
+        uses: ./.github/actions/build-with-cache
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
 
       - name: Lint
         env:
@@ -115,8 +121,11 @@ jobs:
       - name: Assert yarn.lock is up-to-date
         run: bash scripts/assert-lockfile-updated.sh
 
-      - name: Build # TODO: This monorepo should be refactored so packages can be linted invidually. "affected" will not work ATM.
-        run: NODE_ENV=production yarn build # nx recipe
+      - name: Build
+        uses: ./.github/actions/build-with-cache
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
 
       - name: Validate Definitions
         run: yarn validate

@@ -64,7 +64,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Build
-        run: NODE_ENV=production yarn build
+        uses: ./.github/actions/build-with-cache
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
 
       - name: Version Packages
         run: yarn lerna version minor --yes --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private
