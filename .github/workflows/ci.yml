@@ -42,7 +42,7 @@ jobs:
       - name: Build
         uses: ./.github/actions/build-with-cache
         with:
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.CACHE_AWS_REGION }}
           cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
 
       - name: Test (Affected)
@@ -84,7 +84,7 @@ jobs:
       - name: Build
         uses: ./.github/actions/build-with-cache
         with:
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.CACHE_AWS_REGION }}
           cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
 
       - name: Lint
@@ -124,7 +124,7 @@ jobs:
       - name: Build
         uses: ./.github/actions/build-with-cache
         with:
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.CACHE_AWS_REGION }}
           cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
 
       - name: Validate Definitions
