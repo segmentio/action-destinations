@@ -69,6 +69,7 @@ jobs:
         with:
           aws-region: ${{ secrets.CACHE_AWS_REGION }}
           cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
+          cache-bucket: ${{ secrets.CACHE_BUCKET }}
 
       - name: Version Packages
         run: yarn lerna version minor --yes --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private

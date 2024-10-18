@@ -8,6 +8,9 @@ inputs:
   cache-role-to-assume:
     description: 'The ARN of the role to assume to access the cache.'
     required: true
+  cache-bucket:
+    description: 'The name of the S3 bucket to use for the cache.'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -21,3 +24,6 @@ runs:
     - name: Build (Affected)
       shell: bash
       run: NODE_ENV=production yarn build --parallel=3
+      env:
+        NXCACHE_S3_REGION: ${{ inputs.aws-region }}
+        NXCACHE_S3_BUCKET: ${{ inputs.cache-bucket }}

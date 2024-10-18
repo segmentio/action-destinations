@@ -39,3 +39,4 @@ jobs:
         with:
           aws-region: ${{ secrets.CACHE_AWS_REGION }}
           cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
+          cache-bucket: ${{ secrets.CACHE_BUCKET }}
