@@ -10,7 +10,7 @@
       "name": "Start dev server",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "yarn",
-      "runtimeArgs": ["server", "dev"],
+      "runtimeArgs": ["serve", "dev"],
       "restart": true,
       "console": "integratedTerminal",
       "port": 47082,
