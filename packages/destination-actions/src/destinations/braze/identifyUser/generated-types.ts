@@ -13,7 +13,11 @@ export interface Payload {
     alias_label: string
   }
   /**
-   * Sets the endpoint to merge some fields found exclusively on the anonymous user to the identified user. See [the docs](https://www.braze.com/docs/api/endpoints/user_data/post_user_identify/#request-parameters).
+   * If true, Segment will batch events before sending to Braze’s identify user endpoint. Braze accepts batches of up to 50 events for this endpoint.
    */
-  merge_behavior?: string
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
