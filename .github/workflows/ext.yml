@@ -29,13 +29,10 @@ jobs:
           cache: yarn
 
       - name: Install
-        run: yarn install --frozen-lockfile --ignore-optional
-
-      - name: Test
-        run: yarn test
+        run: yarn install --frozen-lockfile
 
       - name: Build
-        uses: ./.github/actions/build-with-cache
+        uses: ./.github/actions/build-and-test-with-cache
         with:
           aws-region: ${{ secrets.CACHE_AWS_REGION }}
           cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}

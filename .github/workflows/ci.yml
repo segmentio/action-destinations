@@ -42,14 +42,10 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build
-        uses: ./.github/actions/build-with-cache
+        uses: ./.github/actions/build-and-test-with-cache
         with:
           aws-region: ${{ secrets.CACHE_AWS_REGION }}
           cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
-          cache-bucket: ${{ secrets.CACHE_BUCKET }}
-
-      - name: Test (Affected)
-        run: yarn nx affected -t test --parallel=3 --coverage # nx recipe
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
@@ -91,7 +87,6 @@ jobs:
         with:
           aws-region: ${{ secrets.CACHE_AWS_REGION }}
           cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
-          cache-bucket: ${{ secrets.CACHE_BUCKET }}
 
       - name: Lint
         env:
@@ -99,8 +94,6 @@ jobs:
         run: yarn lint
 
   validate:
-    permissions:
-      id-token: write
     name: Validate
     runs-on: ubuntu-20.04
     timeout-minutes: 20
@@ -134,7 +127,6 @@ jobs:
         with:
           aws-region: ${{ secrets.CACHE_AWS_REGION }}
           cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
-          cache-bucket: ${{ secrets.CACHE_BUCKET }}
 
       - name: Validate Definitions
         run: yarn validate

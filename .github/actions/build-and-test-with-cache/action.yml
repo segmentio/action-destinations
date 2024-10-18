@@ -14,14 +14,14 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Configure AWS Credentials for China region audience
-      uses: aws-actions/configure-aws-credentials@v4
+    - name: Build with cache
+      uses: ./.github/actions/build-with-cache
       with:
-        audience: sts.amazonaws.com
         aws-region: ${{ inputs.aws-region }}
-        role-to-assume: ${{ inputs.cache-role-to-assume }}
+        cache-role-to-assume: ${{ inputs.cache-role-to-assume }}
+        cache-bucket: ${{ inputs.cache-bucket }}
 
-    - name: Build
+    - name: Test
       shell: bash
       run: NODE_ENV=production yarn build --parallel=3
       env:
