@@ -27,7 +27,6 @@ jobs:
         node-version: [18.x]
     env:
       HUSKY: 0
-      NX_DISABLE_DB: true
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -56,7 +55,7 @@ jobs:
           git push origin ${{ github.event.inputs.branch }}
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-optional
 
       - name: Configure git
         run: |
