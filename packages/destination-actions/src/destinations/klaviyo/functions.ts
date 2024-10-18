@@ -28,7 +28,7 @@ import {
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
-import dayjs from 'dayjs'
+import dayjs from '../../lib/dayjs'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 import { eventBulkCreateRegex } from './properties'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
