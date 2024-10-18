@@ -65,7 +65,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       subscribe: 'type = "track" and context.traits.email exists',
       partnerAction: 'syncAudience',
       mapping: {
-        schema_type: 'EMAIL_SHA256'
+        schema_type: 'EMAIL_SHA256',
+        external_audience_id: {
+          '@path': '$.context.personas.external_audience_id'
+        },
+        audienceKey: {
+          '@path': '$.context.personas.computation_key'
+        },
+        props: {
+          '@path': '$.properties'
+        },
+        enable_batching: true
       },
       type: 'automatic'
     },
@@ -74,7 +84,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       subscribe: 'type = "track" and properties.phone exists',
       partnerAction: 'syncAudience',
       mapping: {
-        schema_type: 'PHONE_SHA256'
+        schema_type: 'PHONE_SHA256',
+        external_audience_id: {
+          '@path': '$.context.personas.external_audience_id'
+        },
+        audienceKey: {
+          '@path': '$.context.personas.computation_key'
+        },
+        props: {
+          '@path': '$.properties'
+        },
+        enable_batching: true
       },
       type: 'automatic'
     },
@@ -83,7 +103,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       subscribe: 'type = "track" and context.device.advertisingId exists',
       partnerAction: 'syncAudience',
       mapping: {
-        schema_type: 'MOBILE_AD_ID_SHA256'
+        schema_type: 'MOBILE_AD_ID_SHA256',
+        external_audience_id: {
+          '@path': '$.context.personas.external_audience_id'
+        },
+        audienceKey: {
+          '@path': '$.context.personas.computation_key'
+        },
+        props: {
+          '@path': '$.properties'
+        },
+        enable_batching: true
       },
       type: 'automatic'
     }
