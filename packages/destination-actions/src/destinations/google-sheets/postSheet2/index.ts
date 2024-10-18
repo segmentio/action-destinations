@@ -94,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The number of rows to write to the spreadsheet in a single batch. The value is determined by number of rows * columns that Segment can upload within 30s.',
       default: 1001,
-      required: true,
+      required: false,
       unsafe_hidden: true
     },
     batch_bytes: {
@@ -102,7 +102,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Bytes',
       description: 'The number of bytes to write to the spreadsheet in a single batch. Limit is 2MB.',
       default: 2000000, // 2MB,
-      required: true,
+      required: false,
       unsafe_hidden: true
     }
   },
