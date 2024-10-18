@@ -9,6 +9,7 @@ import { CustomError } from 'ts-custom-error'
 export class IntegrationError extends CustomError {
   code: string | undefined
   status: number | undefined
+  retry?: boolean
 
   /**
    * @param message - a human-friendly message to display to users
@@ -131,4 +132,11 @@ export enum ErrorCodes {
   OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED',
   // Destination has spent more than the alloted time and needs to self-terminate
   SELF_TIMEOUT = 'SELF_TIMEOUT'
+}
+
+export enum MultiStatusErrorReporter {
+  // Error occurred in the source
+  INTEGRATIONS = 'INTEGRATIONS',
+  // Error occurred in the performBatchBlock
+  DESTINATION = 'DESTINATION'
 }

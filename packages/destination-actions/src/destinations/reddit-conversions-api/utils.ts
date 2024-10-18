@@ -107,14 +107,14 @@ function getMetadata(
     item_count: cleanNum(metadata?.item_count),
     value_decimal: cleanNum(metadata?.value_decimal),
     products: getProducts(products),
-    conversion_id: clean(conversion_id)
+    conversion_id: hash(clean(conversion_id))
   }
 }
 
 function getAdId(device_type?: string, advertising_id?: string): { [key: string]: string | undefined } | undefined {
   if (!device_type) return undefined
   if (!advertising_id) return undefined
-  return device_type === 'Apple' ? { idfa: hash(advertising_id) } : { aaid: hash(advertising_id) }
+  return device_type === 'ios' ? { idfa: hash(advertising_id) } : { aaid: hash(advertising_id) }
 }
 
 function getDataProcessingOptions(
@@ -145,7 +145,7 @@ function getUser(
 
   return {
     ...getAdId(user.device_type, user.advertising_id),
-    email: hash(clean(user.email)),
+    email: hashEmail(clean(user.email)),
     external_id: hash(clean(user.external_id)),
     ip_address: hash(clean(user.ip_address)),
     user_agent: clean(user.user_agent),
@@ -153,6 +153,18 @@ function getUser(
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
     screen_dimensions: getScreen(screenDimensions?.height, screenDimensions?.width)
   }
+}
+
+function canonicalizeEmail(value: string): string {
+  const localPartAndDomain = value.split('@')
+  const localPart = localPartAndDomain[0].replace(/\./g, '').split('+')[0]
+  return `${localPart.toLowerCase()}@${localPartAndDomain[1].toLowerCase()}`
+}
+
+function hashEmail(email: string | undefined): string | undefined {
+  if (email === undefined) return
+  const canonicalEmail = canonicalizeEmail(email)
+  return hash(canonicalEmail)
 }
 
 const hash = (value: string | undefined): string | undefined => {

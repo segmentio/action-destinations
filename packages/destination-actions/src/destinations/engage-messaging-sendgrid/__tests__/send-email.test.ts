@@ -10,6 +10,8 @@ import {
 } from '@segment/actions-shared'
 import { insertEmailPreviewText } from '../sendEmail/insertEmailPreviewText'
 import { FLAGON_NAME_DATA_FEEDS } from '../previewApiLookup/apiLookups'
+import cloneDeep from 'lodash/cloneDeep'
+import isEqual from 'lodash/isEqual'
 
 const { expectErrorLogged, expectInfoLogged, loggerMock } = getTestLoggerUtils()
 
@@ -24,6 +26,15 @@ function createDefaultActionProps() {
 }
 
 const defaultActionProps = createDefaultActionProps()
+
+//matcher that compares everything except customArgs.messageId
+const sendgridRequestBodyMatcher: (body: any) => nock.RequestBodyMatcher = (expected) => (actual: any) => {
+  const expectedCopy = cloneDeep(expected)
+  const actualCopy = cloneDeep(actual)
+  expectedCopy.personalizations[0].custom_args = omit(expectedCopy.personalizations[0].custom_args, ['message_id'])
+  actualCopy.personalizations[0].custom_args = omit(actualCopy.personalizations[0].custom_args, ['message_id'])
+  return isEqual(expectedCopy, actualCopy)
+}
 
 afterEach(() => {
   jest.clearAllMocks() // to clear all mock calls
@@ -71,7 +82,7 @@ describe.each([
     email: 'test@example.com'
   }
 
-  const sendgridRequestBody = {
+  const sendgridRequestBodyExpected = {
     personalizations: [
       {
         to: [
@@ -115,6 +126,8 @@ describe.each([
       }
     }
   }
+
+  const sendgridRequestBody = sendgridRequestBodyMatcher(sendgridRequestBodyExpected)
 
   const getDefaultMapping = (overrides?: any) => {
     return {
@@ -290,7 +303,7 @@ describe.each([
     })
 
     it('should send email with journey metadata', async () => {
-      const expectedSendGridRequest = {
+      const expectedSendGridRequest = sendgridRequestBodyMatcher({
         personalizations: [
           {
             to: [
@@ -337,7 +350,7 @@ describe.each([
             substitution_tag: '[unsubscribe]'
           }
         }
-      }
+      })
 
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
@@ -462,7 +475,7 @@ describe.each([
         .reply(200, 'Hi {{profile.traits.firstName}}, welcome to Segment')
 
       const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', expectedSendGridRequest)
+        .post('/v3/mail/send', sendgridRequestBodyMatcher(expectedSendGridRequest))
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
@@ -494,7 +507,7 @@ describe.each([
     })
 
     it('should send email where Unlayer body is stored in S3', async () => {
-      const expectedSendGridRequest = {
+      const expectedSendGridRequest = sendgridRequestBodyMatcher({
         personalizations: [
           {
             to: [
@@ -537,7 +550,7 @@ describe.each([
             substitution_tag: '[unsubscribe]'
           }
         }
-      }
+      })
 
       const s3Request = nock('https://s3.com').get('/body.txt').reply(200, '{"unlayer":true}')
 
@@ -592,7 +605,7 @@ describe.each([
       const previewText = 'Preview text {{profile.traits.first_name | default: "customer"}}'
       const renderedPreviewText = 'Preview text customer'
       const bodyHtml = `<html><head></head><body><p>Hi First Name, welcome to Segment</p></body></html>`
-      const expectedSendGridRequest = {
+      const expectedSendGridRequest = sendgridRequestBodyMatcher({
         personalizations: [
           {
             to: [
@@ -635,7 +648,7 @@ describe.each([
             substitution_tag: '[unsubscribe]'
           }
         }
-      }
+      })
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
         .reply(200, {})
@@ -671,7 +684,7 @@ describe.each([
       const renderedPreviewText = 'Preview text customer'
       const bodyHtml = '<p>Hi First Name, welcome to Segment</p>'
 
-      const expectedSendGridRequest = {
+      const expectedSendGridRequest = sendgridRequestBodyMatcher({
         personalizations: [
           {
             to: [
@@ -715,7 +728,7 @@ describe.each([
             substitution_tag: '[unsubscribe]'
           }
         }
-      }
+      })
       const s3Request = nock('https://s3.com').get('/body.txt').reply(200, '{"unlayer":true}')
 
       const unlayerRequest = nock('https://api.unlayer.com')
@@ -771,7 +784,7 @@ describe.each([
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
         '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a> | <a clicktracking="off" href="http://preferences_link">Manage Preferences</a></body></html>'
-      const expectedSendGridRequest = {
+      const expectedSendGridRequest = sendgridRequestBodyMatcher({
         personalizations: [
           {
             to: [
@@ -818,7 +831,7 @@ describe.each([
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
           'List-Unsubscribe': '<http://global_unsubscribe_link>'
         }
-      }
+      })
 
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
@@ -858,7 +871,7 @@ describe.each([
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_preferences_link]">Manage Preferences</a> | <a href="[upa_unsubscribe_link]">Unsubscribe</a>'
       const replacedHtmlWithLink =
         '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
-      const expectedSendGridRequest = {
+      const expectedSendGridRequest = sendgridRequestBodyMatcher({
         personalizations: [
           {
             to: [
@@ -905,7 +918,7 @@ describe.each([
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
           'List-Unsubscribe': '<http://global_unsubscribe_link>'
         }
-      }
+      })
 
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
@@ -945,7 +958,7 @@ describe.each([
         '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="http://unsubscribe_link">Unsubscribe</a></body></html>'
       const replacedHtmlWithLink =
         '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="http://unsubscribe_link">Unsubscribe</a></body></html>'
-      const expectedSendGridRequest = {
+      const expectedSendGridRequest = sendgridRequestBodyMatcher({
         personalizations: [
           {
             to: [
@@ -988,7 +1001,7 @@ describe.each([
             substitution_tag: '[unsubscribe]'
           }
         }
-      }
+      })
 
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
@@ -1028,7 +1041,7 @@ describe.each([
         '<p>Hi First Name, welcome to Segment. Here is an <a href="[upa_unsubscribe_link]">Unsubscribe</a> link.</p>  <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
         '<html><head></head><body><p>Hi First Name, welcome to Segment. Here is an <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a> link.</p>  <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a></body></html>'
-      const expectedSendGridRequest = {
+      const expectedSendGridRequest = sendgridRequestBodyMatcher({
         personalizations: [
           {
             to: [
@@ -1075,7 +1088,7 @@ describe.each([
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
           'List-Unsubscribe': '<http://global_unsubscribe_link>'
         }
-      }
+      })
 
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
@@ -1115,7 +1128,7 @@ describe.each([
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
         '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="[unsubscribe]">Unsubscribe</a></body></html>'
-      const expectedSendGridRequest = {
+      const expectedSendGridRequest = sendgridRequestBodyMatcher({
         personalizations: [
           {
             to: [
@@ -1158,7 +1171,7 @@ describe.each([
             substitution_tag: '[unsubscribe]'
           }
         }
-      }
+      })
 
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
@@ -1198,7 +1211,7 @@ describe.each([
         '<p>Hi First Name, welcome to Segment</p> <a href="[upa_unsubscribe_link]">Unsubscribe</a> | <a href="[upa_preferences_link]">Manage Preferences</a>'
       const replacedHtmlWithLink =
         '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://global_unsubscribe_link">Unsubscribe</a> | <a clicktracking="off" href="http://preferences_link">Manage Preferences</a></body></html>'
-      const expectedSendGridRequest = {
+      const expectedSendGridRequest = sendgridRequestBodyMatcher({
         personalizations: [
           {
             to: [
@@ -1245,7 +1258,7 @@ describe.each([
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
           'List-Unsubscribe': '<http://global_unsubscribe_link>'
         }
-      }
+      })
 
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
@@ -1284,7 +1297,7 @@ describe.each([
       const bodyHtml = '<p>Hi First Name, welcome to Segment</p> <a href="[unsubscribe]">Unsubscribe</a>'
       const replacedHtmlWithLink =
         '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a href="[unsubscribe]">Unsubscribe</a></body></html>'
-      const expectedSendGridRequest = {
+      const expectedSendGridRequest = sendgridRequestBodyMatcher({
         personalizations: [
           {
             to: [
@@ -1327,7 +1340,7 @@ describe.each([
             substitution_tag: '[unsubscribe]'
           }
         }
-      }
+      })
 
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
@@ -1364,7 +1377,7 @@ describe.each([
 
     it('should show a default in the subject when a trait is empty', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
+        .post('/v3/mail/send', sendgridRequestBodyMatcher({ ...sendgridRequestBodyExpected, subject: `Hi Person` }))
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
@@ -1401,7 +1414,7 @@ describe.each([
 
     it('should show a default in the subject when a trait is <nil>', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
+        .post('/v3/mail/send', sendgridRequestBodyMatcher({ ...sendgridRequestBodyExpected, subject: `Hi Person` }))
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
@@ -1438,7 +1451,7 @@ describe.each([
 
     it('should show a default in the subject when a trait is null', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
+        .post('/v3/mail/send', sendgridRequestBodyMatcher({ ...sendgridRequestBodyExpected, subject: `Hi Person` }))
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
@@ -1475,7 +1488,7 @@ describe.each([
 
     it('should show the correct non-string trait in the subject when a trait is non-string', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi true` })
+        .post('/v3/mail/send', sendgridRequestBodyMatcher({ ...sendgridRequestBodyExpected, subject: `Hi true` }))
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
@@ -1512,7 +1525,7 @@ describe.each([
 
     it('should show a default in the subject when a trait is undefined', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hi Person` })
+        .post('/v3/mail/send', sendgridRequestBodyMatcher({ ...sendgridRequestBodyExpected, subject: `Hi Person` }))
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
@@ -1555,7 +1568,7 @@ describe.each([
         })
 
       const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hello you` })
+        .post('/v3/mail/send', sendgridRequestBodyMatcher({ ...sendgridRequestBodyExpected, subject: `Hello you` }))
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
@@ -1585,7 +1598,7 @@ describe.each([
 
     it('should show a default in the subject when a trait is missing', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', { ...sendgridRequestBody, subject: `Hello you` })
+        .post('/v3/mail/send', sendgridRequestBodyMatcher({ ...sendgridRequestBodyExpected, subject: `Hello you` }))
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
@@ -1615,15 +1628,18 @@ describe.each([
 
     it('should show a default in the body when a trait is missing', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', {
-          ...sendgridRequestBody,
-          content: [
-            {
-              type: 'text/html',
-              value: `<html><head></head><body>Hi you, Welcome to segment</body></html>`
-            }
-          ]
-        })
+        .post(
+          '/v3/mail/send',
+          sendgridRequestBodyMatcher({
+            ...sendgridRequestBodyExpected,
+            content: [
+              {
+                type: 'text/html',
+                value: `<html><head></head><body>Hi you, Welcome to segment</body></html>`
+              }
+            ]
+          })
+        )
         .reply(200, {})
 
       const responses = await sendgrid.testAction('sendEmail', {
@@ -2337,7 +2353,7 @@ describe.each([
       const replacedHtmlWithLink =
         '<html><head></head><body><p>Hi First Name, welcome to Segment</p> <a clicktracking="off" href="http://group_unsubscribe_link">Unsubscribe</a> | <a clicktracking="off" href="http://preferences_link">Manage Preferences</a></body></html>'
 
-      const expectedSendGridRequest = {
+      const expectedSendGridRequest = sendgridRequestBodyMatcher({
         personalizations: [
           {
             to: [
@@ -2384,7 +2400,7 @@ describe.each([
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
           'List-Unsubscribe': '<http://group_unsubscribe_link>'
         }
-      }
+      })
 
       const sendGridRequest = nock('https://api.sendgrid.com')
         .post('/v3/mail/send', expectedSendGridRequest)
@@ -2451,15 +2467,18 @@ describe.each([
   describe('api lookups', () => {
     it('are called and successful responses are passed to email body liquid renderer before sending', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', {
-          ...sendgridRequestBody,
-          content: [
-            {
-              type: 'text/html',
-              value: `<html><head></head><body>Current temperature: 70, Current bitcoin price: 20000</body></html>`
-            }
-          ]
-        })
+        .post(
+          '/v3/mail/send',
+          sendgridRequestBodyMatcher({
+            ...sendgridRequestBodyExpected,
+            content: [
+              {
+                type: 'text/html',
+                value: `<html><head></head><body>Current temperature: 70, Current bitcoin price: 20000</body></html>`
+              }
+            ]
+          })
+        )
         .reply(200, {})
 
       nock(`https://fakeweather.com`)
@@ -2570,15 +2589,18 @@ describe.each([
 
     it('should send message with empty data if api lookup fails with shouldRetryOnRetryableError == false', async () => {
       const sendGridRequest = nock('https://api.sendgrid.com')
-        .post('/v3/mail/send', {
-          ...sendgridRequestBody,
-          content: [
-            {
-              type: 'text/html',
-              value: `<html><head></head><body>Current temperature: 99</body></html>`
-            }
-          ]
-        })
+        .post(
+          '/v3/mail/send',
+          sendgridRequestBodyMatcher({
+            ...sendgridRequestBodyExpected,
+            content: [
+              {
+                type: 'text/html',
+                value: `<html><head></head><body>Current temperature: 99</body></html>`
+              }
+            ]
+          })
+        )
         .reply(200, {})
       const dataFeedNock = nock(`https://fakeweather.com`).get('/api').reply(429)
 

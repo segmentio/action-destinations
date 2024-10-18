@@ -13,10 +13,10 @@ export class AggregateError extends IntegrationError {
       args.takeCodeAndStatusFromError ? args.takeCodeAndStatusFromError : args.errors[0]
     )
 
-    if (!args.code) args.code = firstErrorInfo.code
-    if (!args.status) args.status = firstErrorInfo.status
+    if (!args.code) args.code = firstErrorInfo?.code
+    if (!args.status) args.status = firstErrorInfo?.status
     let message = `Multiple errors (${args.errors.length}): ${args.errors
-      .map((e) => getErrorDetails(e).message)
+      .map((e) => getErrorDetails(e)?.message)
       .join(', ')}`
     message = args.message?.(message) || message
     return new AggregateError(args.errors, args.code, args.status, undefined, message)

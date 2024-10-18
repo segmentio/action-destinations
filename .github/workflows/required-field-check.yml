@@ -1,0 +1,143 @@
+name: Required Field Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  required-field-check:
+    runs-on: ubuntu-20.04
+
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+          cache: yarn
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Get files changed in the PR
+        id: get_files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const response = await github.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/files', {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            })
+            const files = response.data.map(file => file.filename)
+            core.setOutput('files', files.join(' '))
+            if (files.length === 0) {
+              core.setOutput('no_files_changed', true)
+            }
+
+      - name: Find required fields on current branch
+        id: required-fields-curr-branch
+        if: steps.get_files.outputs.no_files_changed != 'true'
+        run: |
+          REQUIRED_FIELDS_CURR_BRANCH=$(./bin/run list-required-fields -p ${{ steps.get_files.outputs.files }} | jq -c .)
+          echo "REQUIRED_FIELDS_CURR_BRANCH=$REQUIRED_FIELDS_CURR_BRANCH" >> $GITHUB_ENV
+
+      - name: Check for required fields on main branch
+        id: required-fields-main-branch
+        if: steps.get_files.outputs.no_files_changed != 'true'
+        run: |
+          git checkout main
+          REQUIRED_FIELDS_MAIN_BRANCH=$(./bin/run list-required-fields -p ${{ steps.get_files.outputs.files }} | jq -c .)
+          echo "REQUIRED_FIELDS_MAIN_BRANCH=$REQUIRED_FIELDS_MAIN_BRANCH" >> $GITHUB_ENV
+
+      - name: Add comment on PR if there is diff in required fields
+        if: steps.get_files.outputs.no_files_changed != 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const path = require('path')
+
+            const fieldsAdded = []
+            if(process.env.REQUIRED_FIELDS_CURR_BRANCH && process.env.REQUIRED_FIELDS_MAIN_BRANCH) {
+              const requiredFieldsOnBranch = JSON.parse(process.env.REQUIRED_FIELDS_CURR_BRANCH)
+              const requiredFieldsOnMain = JSON.parse(process.env.REQUIRED_FIELDS_MAIN_BRANCH)
+
+              Object.keys(requiredFieldsOnBranch).forEach(key => {
+                // Check if key is present in requiredFieldsOnMain
+                if(requiredFieldsOnMain[key]) {
+                  const getActionKeys = Object.keys(requiredFieldsOnBranch[key])
+                  for(const actionKey of getActionKeys) {
+                    const branchRequiredFields = requiredFieldsOnBranch[key][actionKey]
+                    const mainRequiredFields = requiredFieldsOnMain[key][actionKey]
+                    const diff = branchRequiredFields.filter(field => !mainRequiredFields?.includes(field))
+                    if(diff.length > 0) {
+                      const isSettingsKey = actionKey === 'settings'
+                      if (isSettingsKey) {
+                        fieldsAdded.push(`- **Destination**: ${key}, **Settings**:${diff.join(',')}`)
+                      } else {
+                        fieldsAdded.push(`- **Destination**: ${key}, Action **Field(s)**:${diff.join(',')}`)
+                      }
+                    }
+                  }
+                } else {
+                  
+                  // If key is not present in requiredFieldsOnMain, then all fields are added recently
+                  const getActionKeys = Object.keys(requiredFieldsOnBranch[key])
+                  for(const actionKey of getActionKeys) {
+                    const branchRequiredFields = requiredFieldsOnBranch[key][actionKey]
+                    if(actionKey === 'settings') {
+                      fieldsAdded.push(`- **Destination**: ${key}, **Settings**:${branchRequiredFields.join(',')}`)
+                    } else {
+                      fieldsAdded.push(`- **Destination**: ${key}, **Action**:${actionKey}, **Fields**:${branchRequiredFields.join(',')}`)
+                    }
+                }
+                }
+              })
+            }
+
+            // Get the comments of the current PR
+            const comments = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            })
+            const diffComment = comments.data.find(comment => comment.body.includes('<!--REQUIRED_FIELD_DIFF-->')) 
+
+            const comment = fs.readFileSync("./.github/REQUIRED_FIELD_WARNING_TEMPLATE.md", "utf8")
+            const commentBody = comment.replace('{{FIELDS_ADDED}}', fieldsAdded.join('\n'))
+
+            if (fieldsAdded.length > 0) {
+              // Check if the comment is already added
+
+              if (!diffComment) {
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: commentBody
+                  })
+              } else {
+                await github.rest.issues.updateComment({
+                  comment_id: diffComment.id,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: commentBody
+                })
+              }
+            } else {
+              if (diffComment) {
+                await github.rest.issues.deleteComment({
+                  comment_id: diffComment.id,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo
+                })
+              }
+            }

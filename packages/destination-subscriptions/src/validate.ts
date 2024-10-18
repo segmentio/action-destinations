@@ -77,6 +77,8 @@ const validateValue = (actual: unknown, operator: Operator, expected?: string | 
       return typeof actual === 'number' && Number(actual) === Number(expected)
     case '!=':
       return actual !== String(expected)
+    case 'number_not_equals':
+      return typeof actual === 'number' && Number(actual) !== Number(expected)
     case '<':
       return typeof actual === 'number' && Number(actual) < Number(expected)
     case '<=':

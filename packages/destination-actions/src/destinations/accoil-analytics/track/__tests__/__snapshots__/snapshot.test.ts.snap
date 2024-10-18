@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AccoilAnalytics's track destination action: all fields 1`] = `
+Object {
+  "event": "2#AcgpGtDhc(B&)cN",
+  "timestamp": Any<String>,
+  "type": "track",
+  "userId": "2#AcgpGtDhc(B&)cN",
+}
+`;
+
+exports[`Testing snapshot for AccoilAnalytics's track destination action: required fields 1`] = `
+Object {
+  "event": "2#AcgpGtDhc(B&)cN",
+  "timestamp": Any<String>,
+  "type": "track",
+  "userId": "2#AcgpGtDhc(B&)cN",
+}
+`;

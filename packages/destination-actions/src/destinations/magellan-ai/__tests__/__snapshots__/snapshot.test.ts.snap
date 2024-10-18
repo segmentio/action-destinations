@@ -3,12 +3,14 @@
 exports[`Testing snapshot for actions-magellan-ai destination: addToCart action - all fields 1`] = `
 Object {
   "currency": "NIO",
+  "ip": "36.184.84.10",
   "productId": "1ycI^2r",
   "productName": "1ycI^2r",
   "productType": "1ycI^2r",
   "productVendor": "1ycI^2r",
   "quantity": -64992310240215.04,
   "token": "1ycI^2r",
+  "ua": "1ycI^2r",
   "value": -64992310240215.04,
   "variantId": "1ycI^2r",
   "variantName": "1ycI^2r",
@@ -18,8 +20,10 @@ Object {
 exports[`Testing snapshot for actions-magellan-ai destination: addToCart action - required fields 1`] = `
 Object {
   "currency": "NIO",
+  "ip": "36.184.84.10",
   "quantity": -64992310240215.04,
   "token": "1ycI^2r",
+  "ua": "1ycI^2r",
   "value": -64992310240215.04,
 }
 `;
@@ -29,6 +33,7 @@ Object {
   "currency": "MDL",
   "discountCode": "TIKRkwh0SbShPf)0A#[",
   "id": "TIKRkwh0SbShPf)0A#[",
+  "ip": "238.158.118.124",
   "lineItems": Array [
     Object {
       "productId": "TIKRkwh0SbShPf)0A#[",
@@ -43,6 +48,7 @@ Object {
   ],
   "quantity": 78081917945118.72,
   "token": "TIKRkwh0SbShPf)0A#[",
+  "ua": "TIKRkwh0SbShPf)0A#[",
   "value": 78081917945118.72,
 }
 `;
@@ -51,7 +57,9 @@ exports[`Testing snapshot for actions-magellan-ai destination: checkout action -
 Object {
   "currency": "MDL",
   "id": "TIKRkwh0SbShPf)0A#[",
+  "ip": "238.158.118.124",
   "token": "TIKRkwh0SbShPf)0A#[",
+  "ua": "TIKRkwh0SbShPf)0A#[",
   "value": 78081917945118.72,
 }
 `;
@@ -59,29 +67,37 @@ Object {
 exports[`Testing snapshot for actions-magellan-ai destination: code action - all fields 1`] = `
 Object {
   "code": "*[IgdmoTG@k",
+  "ip": "104.240.250.119",
   "token": "*[IgdmoTG@k",
   "type": "*[IgdmoTG@k",
+  "ua": "*[IgdmoTG@k",
 }
 `;
 
 exports[`Testing snapshot for actions-magellan-ai destination: code action - required fields 1`] = `
 Object {
   "code": "*[IgdmoTG@k",
+  "ip": "104.240.250.119",
   "token": "*[IgdmoTG@k",
   "type": "*[IgdmoTG@k",
+  "ua": "*[IgdmoTG@k",
 }
 `;
 
 exports[`Testing snapshot for actions-magellan-ai destination: identify action - all fields 1`] = `
 Object {
+  "ip": "33.40.35.127",
   "token": "lkK!Vfi",
+  "ua": "lkK!Vfi",
   "userId": "lkK!Vfi",
 }
 `;
 
 exports[`Testing snapshot for actions-magellan-ai destination: identify action - required fields 1`] = `
 Object {
+  "ip": "33.40.35.127",
   "token": "lkK!Vfi",
+  "ua": "lkK!Vfi",
   "userId": "lkK!Vfi",
 }
 `;
@@ -121,10 +137,12 @@ Object {
   "category": "2bsDJl3C^^TnRNgF",
   "currency": "BYR",
   "id": "2bsDJl3C^^TnRNgF",
+  "ip": "184.189.6.66",
   "productId": "2bsDJl3C^^TnRNgF",
   "quantity": 40312441573212.16,
   "token": "2bsDJl3C^^TnRNgF",
   "type": "2bsDJl3C^^TnRNgF",
+  "ua": "2bsDJl3C^^TnRNgF",
   "value": 40312441573212.16,
 }
 `;
@@ -133,7 +151,9 @@ exports[`Testing snapshot for actions-magellan-ai destination: lead action - req
 Object {
   "currency": "BYR",
   "id": "2bsDJl3C^^TnRNgF",
+  "ip": "184.189.6.66",
   "token": "2bsDJl3C^^TnRNgF",
+  "ua": "2bsDJl3C^^TnRNgF",
   "value": 40312441573212.16,
 }
 `;
@@ -141,11 +161,13 @@ Object {
 exports[`Testing snapshot for actions-magellan-ai destination: product action - all fields 1`] = `
 Object {
   "currency": "JPY",
+  "ip": "198.66.204.71",
   "productId": "t7uT6JwnvlnnOV2jL",
   "productName": "t7uT6JwnvlnnOV2jL",
   "productType": "t7uT6JwnvlnnOV2jL",
   "productVendor": "t7uT6JwnvlnnOV2jL",
   "token": "t7uT6JwnvlnnOV2jL",
+  "ua": "t7uT6JwnvlnnOV2jL",
   "value": 50320375514398.72,
   "variantId": "t7uT6JwnvlnnOV2jL",
   "variantName": "t7uT6JwnvlnnOV2jL",
@@ -155,7 +177,9 @@ Object {
 exports[`Testing snapshot for actions-magellan-ai destination: product action - required fields 1`] = `
 Object {
   "currency": "JPY",
+  "ip": "198.66.204.71",
   "token": "t7uT6JwnvlnnOV2jL",
+  "ua": "t7uT6JwnvlnnOV2jL",
   "value": 50320375514398.72,
 }
 `;
@@ -165,6 +189,7 @@ Object {
   "currency": "UGX",
   "discountCode": "!OdP7X6NC",
   "id": "!OdP7X6NC",
+  "ip": "66.217.138.11",
   "isNewCustomer": true,
   "lineItems": Array [
     Object {
@@ -180,6 +205,7 @@ Object {
   ],
   "quantity": -43325033891758.08,
   "token": "!OdP7X6NC",
+  "ua": "!OdP7X6NC",
   "value": -43325033891758.08,
 }
 `;
@@ -188,7 +214,9 @@ exports[`Testing snapshot for actions-magellan-ai destination: purchase action -
 Object {
   "currency": "UGX",
   "id": "!OdP7X6NC",
+  "ip": "66.217.138.11",
   "token": "!OdP7X6NC",
+  "ua": "!OdP7X6NC",
   "value": -43325033891758.08,
 }
 `;
@@ -230,14 +258,18 @@ Object {
 
 exports[`Testing snapshot for actions-magellan-ai destination: view action - all fields 1`] = `
 Object {
+  "ip": "61.213.237.221",
   "token": "9&#iCHP1",
+  "ua": "9&#iCHP1",
   "url": "http://ova.gt/wihsa",
 }
 `;
 
 exports[`Testing snapshot for actions-magellan-ai destination: view action - required fields 1`] = `
 Object {
+  "ip": "61.213.237.221",
   "token": "9&#iCHP1",
+  "ua": "9&#iCHP1",
   "url": "http://ova.gt/wihsa",
 }
 `;
