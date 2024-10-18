@@ -35,7 +35,6 @@ describe('Salesforce', () => {
         event,
         settings,
         mapping: {
-          __segment_internal_sync_mode: 'upsert',
           operation: 'create',
           customObjectName: customObjectName,
           externalIdField: {
