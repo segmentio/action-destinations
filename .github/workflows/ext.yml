@@ -8,6 +8,8 @@ on:
 
 jobs:
   install-and-test:
+    permissions:
+      id-token: write
     env:
       HUSKY: 0
       NX_DISABLE_DB: true
@@ -27,10 +29,11 @@ jobs:
           cache: yarn
 
       - name: Install
-        run: yarn install --frozen-lockfile --ignore-optional
-
-      - name: Test
-        run: yarn test
+        run: yarn install --frozen-lockfile
 
       - name: Build
-        run: yarn build
+        uses: ./.github/actions/build-and-test-with-cache
+        with:
+          aws-region: ${{ secrets.CACHE_AWS_REGION }}
+          cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
+          cache-bucket: ${{ secrets.CACHE_BUCKET }}
