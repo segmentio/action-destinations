@@ -4,7 +4,7 @@ import { Client } from './client'
 import { RawMapping, ColumnHeader } from './types'
 import { IntegrationError } from '@segment/actions-core'
 
-function generateUUID(length = 16): string {
+export function generateUUID(length = 16): string {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   let result = ''
   for (let i = 0; i < length; i++) {
@@ -14,7 +14,7 @@ function generateUUID(length = 16): string {
   return result
 }
 
-export async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
+export async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping, syncId: string) {
   const batchSize = payloads[0] && typeof payloads[0].batch_size === 'number' ? payloads[0].batch_size : 0
   const delimiter = payloads[0]?.delimiter
   const actionColName = payloads[0]?.audience_action_column_name
@@ -26,7 +26,7 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
   }
 
   // Generate a unique ID at the start of the sync
-  const syncId = generateUUID()
+  // const syncId = generateUUID()
 
   const headers: ColumnHeader[] = Object.entries(rawMapping.columns)
     .filter(([_, value]) => value !== '')
