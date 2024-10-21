@@ -14,7 +14,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Configure AWS Credentials for China region audience
+    - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         audience: sts.amazonaws.com
