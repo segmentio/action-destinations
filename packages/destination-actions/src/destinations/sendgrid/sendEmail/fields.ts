@@ -338,7 +338,7 @@ export const fields: Record<string, InputField> = {
         }
       }
     },
-    ipPoolName: {
+    ip_pool_name: {
       label: 'IP Pool',
       description: 'Send email with an ip pool.',
       type: 'string',

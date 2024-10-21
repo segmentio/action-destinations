@@ -204,7 +204,7 @@ export interface Payload {
   /**
    * Send email with an ip pool.
    */
-  ipPoolName?: string
+  ip_pool_name?: string
   /**
    * Subscription settings for the email.
    */

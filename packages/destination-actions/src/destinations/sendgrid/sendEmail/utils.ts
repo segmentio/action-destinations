@@ -34,7 +34,7 @@ export async function send(request: RequestClient, payload: Payload) {
       template_id: payload.template_id,
       categories: payload.categories?.map(category => category.category),
       asm: payload.ASM ? { group_id: payload.ASM.groupId as number } : undefined,
-      ip_pool_name: payload.ipPoolName,
+      ip_pool_name: payload.ip_pool_name,
       tracking_settings: {
         click_tracking: payload.click_tracking ?? undefined,
         open_tracking: payload.open_tracking ?? undefined,
@@ -86,7 +86,7 @@ function validate(payload: Payload){
       }
     }
   
-    if(payload.ipPoolName && (payload.ipPoolName.length >= MAX_IP_POOL_NAME_LENGTH || payload.ipPoolName.length <= MIN_IP_POOL_NAME_LENGTH)) {
+    if(payload.ip_pool_name && (payload.ip_pool_name.length >= MAX_IP_POOL_NAME_LENGTH || payload.ip_pool_name.length <= MIN_IP_POOL_NAME_LENGTH)) {
       throw new PayloadValidationError(`IP Pool Name should at least ${MIN_IP_POOL_NAME_LENGTH} characters and at most ${MAX_IP_POOL_NAME_LENGTH} characters in length`)
     }
 
