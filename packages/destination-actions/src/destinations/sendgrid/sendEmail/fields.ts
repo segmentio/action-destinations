@@ -113,7 +113,7 @@ export const fields: Record<string, InputField> = {
       multiple: true,
       required: false,
       defaultObjectUI: 'keyvalue',
-      additionalProperties: true,
+      additionalProperties: false,
       properties: {
         key: {
           label: 'Key',
@@ -175,8 +175,7 @@ export const fields: Record<string, InputField> = {
           label: 'Reply To Equals From',
           description: 'Whether "reply to" settings are the same as "from"',
           type: 'boolean',
-          required: true,
-          default: true
+          required: true
         },
         email: {
           label: 'Email',
@@ -190,6 +189,9 @@ export const fields: Record<string, InputField> = {
           type: 'string',
           required: false
         }
+      },
+      default: {
+        reply_to_equals_from: true
       }
     },
     click_tracking: {
@@ -214,6 +216,9 @@ export const fields: Record<string, InputField> = {
           required: false,
           default: false
         }
+      },
+      default: {
+        enable: false
       }
     },
     open_tracking: {
@@ -228,8 +233,7 @@ export const fields: Record<string, InputField> = {
           label: 'Enabled',
           description: 'Indicates if this setting is enabled',
           type: 'boolean',
-          required: true,
-          default: true
+          required: true
         },
         substitution_tag:{
           label: 'Substitution Tag',
@@ -237,6 +241,9 @@ export const fields: Record<string, InputField> = {
           type: 'string',
           required: false
         }
+      },
+      default: {
+        enable: false
       }
     },
     subscription_tracking: {
@@ -251,8 +258,7 @@ export const fields: Record<string, InputField> = {
           label: 'Enabled',
           description: 'Indicates if this setting is enabled',
           type: 'boolean',
-          required: true,
-          default: false
+          required: true
         },
         text:{
           label: 'Text',
@@ -272,6 +278,9 @@ export const fields: Record<string, InputField> = {
           type: 'string',
           required: false
         }
+      },
+      default: {
+        enable: false
       }
     },
     categories: {
@@ -284,14 +293,14 @@ export const fields: Record<string, InputField> = {
       additionalProperties: false,
       properties: {
         category: {
-          label: 'Category name',
-          description: 'Category name.',
+          label: 'Category Name',
+          description: 'Category Name.',
           type: 'string',
           required: true
         }
       }
     },
-    googleAnalytics: {
+    google_analytics: {
       label: 'Google Analytics',
       description: 'Allows you to enable tracking provided by Google Analytics.',
       type: 'object',
@@ -303,8 +312,7 @@ export const fields: Record<string, InputField> = {
           label: 'Enabled',
           description: 'Indicates if this setting is enabled',
           type: 'boolean',
-          required: true,
-          default: false
+          required: true
         },
         utm_source: {
           label: 'UTM Source',
@@ -336,6 +344,14 @@ export const fields: Record<string, InputField> = {
           type: 'string',
           required: false
         }
+      },
+      default: {
+        enable: true,
+        utm_source: {'@path': "$.context.campaign.source"},
+        utm_medium: {'@path': "$.context.campaign.medium"},
+        utm_term: {'@path': "$.context.campaign.term"},
+        utm_content: {'@path': "$.context.campaign.content"},
+        utm_campaign: {'@path': "$.context.campaign.name"}
       }
     },
     ip_pool_name: {
@@ -372,23 +388,25 @@ export const fields: Record<string, InputField> = {
           label: 'Bypass List Management',
           description: 'Allows you to bypass all unsubscribe groups and suppressions to ensure that the email is delivered to every single recipient.',
           type: 'boolean',
-          required: false,
-          default: false
+          required: false
         },
         bypass_unsubscribe_management: {
           label: 'Bypass Unsubscribe Management',
           description: 'Allows you to bypass the global unsubscribe list to ensure that the email is delivered to recipients. This filter applies only to global unsubscribes and will not bypass group unsubscribes. This filter cannot be combined with the bypass_list_management.',
           type: 'boolean',
-          required: false,
-          default: false
+          required: false
         },
         sandbox_mode: {
           label: 'Sandbox Mode',
           description: 'Sandbox Mode allows you to send a test email to ensure that your request body is valid and formatted correctly.',
           type: 'boolean',
-          required: false,
-          default: false
+          required: false
         }
+      },
+      default: {
+        bypass_list_management: false,
+        bypass_unsubscribe_management: false,
+        sandbox_mode: false
       }
     }
 }

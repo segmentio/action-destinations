@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Sendgrid's sendEmail destination action: required fields 1`] = `
+Object {
+  "personalizations": Array [
+    Object {
+      "custom_args": Object {},
+      "from": Object {
+        "email": "oz@ogmeftik.fj",
+      },
+      "headers": Object {},
+      "subject": "!s3p^",
+      "to": Array [
+        Object {
+          "email": "oz@ogmeftik.fj",
+        },
+      ],
+    },
+  ],
+  "reply_to": Object {
+    "email": "oz@ogmeftik.fj",
+  },
+  "template_id": "!s3p^",
+  "tracking_settings": Object {},
+}
+`;

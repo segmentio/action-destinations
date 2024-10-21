@@ -39,7 +39,7 @@ export async function send(request: RequestClient, payload: Payload) {
         click_tracking: payload.click_tracking ?? undefined,
         open_tracking: payload.open_tracking ?? undefined,
         subscription_tracking: payload.subscription_tracking ?? undefined,
-        ganalytics: payload.googleAnalytics ?? undefined
+        ganalytics: payload.google_analytics ?? undefined
       },
       mail_settings: payload.mail_settings ?? undefined
     }

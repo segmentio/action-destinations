@@ -83,7 +83,6 @@ export interface Payload {
      * The default value to use if the value field is empty.
      */
     default?: string
-    [k: string]: unknown
   }[]
   /**
    * The template ID to use for the email. This must be for a Dynamic Template and should start with a 'd-'
@@ -168,14 +167,14 @@ export interface Payload {
    */
   categories?: {
     /**
-     * Category name.
+     * Category Name.
      */
     category: string
   }[]
   /**
    * Allows you to enable tracking provided by Google Analytics.
    */
-  googleAnalytics?: {
+  google_analytics?: {
     /**
      * Indicates if this setting is enabled
      */
