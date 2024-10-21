@@ -4,7 +4,8 @@ import type { Payload } from './generated-types'
 
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
-import { validatePhoneNumber } from '../functions'
+import { processPhoneNumber } from '../functions'
+import { country_code } from '../properties'
 import dayjs from 'dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -24,6 +25,9 @@ const action: ActionDefinition<Settings, Payload> = {
         phone_number: {
           label: 'Phone Number',
           type: 'string'
+        },
+        country_code: {
+          ...country_code
         },
         external_id: {
           label: 'External Id',
@@ -90,14 +94,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    const { email, phone_number, external_id, anonymous_id } = payload.profile
+    const { email, phone_number: initialPhoneNumber, external_id, anonymous_id, country_code } = payload.profile
+
+    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
+    payload.profile.phone_number = phone_number
+    delete payload?.profile?.country_code
 
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
-    }
-
-    if (phone_number && !validatePhoneNumber(phone_number)) {
-      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
     }
     const eventData = {
       data: {

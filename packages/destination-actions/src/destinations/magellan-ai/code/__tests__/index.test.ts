@@ -5,7 +5,12 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 
 const pixelToken = '123abc'
-const requiredFields = { code: 'FOOBAR29', type: 'discount%' }
+const requiredFields = {
+  code: 'FOOBAR29',
+  type: 'discount%',
+  ip: '12.34.56.78',
+  ua: 'Foo Bar User Agent'
+}
 const expectedPayload = { token: pixelToken, ...requiredFields }
 
 describe('MagellanAI.code', () => {
@@ -13,7 +18,12 @@ describe('MagellanAI.code', () => {
     nock('https://mgln.ai').post('/code', expectedPayload).reply(200)
 
     await testDestination.testAction('code', {
-      mapping: { code: 'FOOBAR29', type: 'discount%' },
+      mapping: {
+        code: 'FOOBAR29',
+        type: 'discount%',
+        ip: '12.34.56.78',
+        ua: 'Foo Bar User Agent'
+      },
       settings: { pixelToken: pixelToken }
     })
   })
@@ -35,7 +45,13 @@ describe('MagellanAI.code', () => {
     nock('https://mgln.ai').post('/code', expectedPayload).reply(200)
 
     await testDestination.testAction('code', {
-      mapping: { code: 'FOOBAR29', type: 'discount%', baz: 'bar' },
+      mapping: {
+        code: 'FOOBAR29',
+        type: 'discount%',
+        ip: '12.34.56.78',
+        ua: 'Foo Bar User Agent',
+        baz: 'bar'
+      },
       settings: { pixelToken: pixelToken }
     })
   })

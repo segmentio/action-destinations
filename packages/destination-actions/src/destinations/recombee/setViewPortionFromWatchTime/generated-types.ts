@@ -18,11 +18,11 @@ export interface Payload {
    */
   portion: {
     /**
-     * The total length of the item that the user can view.
+     * The total length of the item that the user can view (for example, in seconds or minutes).
      */
     totalLength: number
     /**
-     * The user's watched time of the item.
+     * The user's watched time of the item (measured in the same units as Total Length).
      */
     watchTime: number
   }

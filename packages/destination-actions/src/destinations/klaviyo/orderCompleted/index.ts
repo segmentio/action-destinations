@@ -5,7 +5,8 @@ import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { EventData } from '../types'
 import { v4 as uuidv4 } from '@lukeed/uuid'
-import { validatePhoneNumber } from '../functions'
+import { processPhoneNumber } from '../functions'
+import { country_code } from '../properties'
 import dayjs from 'dayjs'
 
 const createEventData = (payload: Payload) => ({
@@ -88,6 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Phone Number',
           type: 'string'
         },
+        country_code: { ...country_code },
         external_id: {
           label: 'External Id',
           description:
@@ -157,14 +159,14 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload }) => {
-    const { email, phone_number, external_id, anonymous_id } = payload.profile
+    const { email, phone_number: initialPhoneNumber, external_id, anonymous_id, country_code } = payload.profile
+
+    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
+    payload.profile.phone_number = phone_number
+    delete payload?.profile?.country_code
 
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
-    }
-
-    if (phone_number && !validatePhoneNumber(phone_number)) {
-      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
     }
 
     const eventData = createEventData(payload)
