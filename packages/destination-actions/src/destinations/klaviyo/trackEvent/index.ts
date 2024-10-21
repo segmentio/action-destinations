@@ -1,12 +1,12 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { batch_size, enable_batching, country_code } from '../properties'
 import { processPhoneNumber, sendBatchedTrackEvent } from '../functions'
-import dayjs from 'dayjs'
+import dayjs from '../../../lib/dayjs'
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Track user events and associate it with their profile.',
