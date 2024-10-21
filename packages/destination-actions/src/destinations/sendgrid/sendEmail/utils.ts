@@ -1,7 +1,7 @@
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import { sendEmailReq } from './types'
-import { RESERVED_HEADERS, MAX_CATEGORY_LENGTH } from './constants'
+import { RESERVED_HEADERS, MAX_CATEGORY_LENGTH, MIN_IP_POOL_NAME_LENGTH, MAX_IP_POOL_NAME_LENGTH } from './constants'
 
 export async function send(request: RequestClient, payload: Payload) {
     validate(payload)
@@ -86,5 +86,9 @@ function validate(payload: Payload){
       }
     }
   
+    if(payload.ipPoolName && (payload.ipPoolName.length >= MAX_IP_POOL_NAME_LENGTH || payload.ipPoolName.length <= MIN_IP_POOL_NAME_LENGTH)) {
+      throw new PayloadValidationError(`IP Pool Name should at least ${MIN_IP_POOL_NAME_LENGTH} characters and at most ${MAX_IP_POOL_NAME_LENGTH} characters in length`)
+    }
+
     return 
 }
