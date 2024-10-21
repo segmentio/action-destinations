@@ -17,7 +17,6 @@ runs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        audience: sts.amazonaws.com
         aws-region: ${{ inputs.aws-region }}
         role-to-assume: ${{ inputs.cache-role-to-assume }}
 
