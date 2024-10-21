@@ -12,68 +12,61 @@ export interface Payload {
     /**
      * From name of the sender, displayed to the recipient.
      */
-    name: string
-  }
-  /**
-   * Reply to details.
-   */
-  replyTo: {
-    /**
-     * Whether "reply to" settings are the same as "from"
-     */
-    replyToEqualsFrom: boolean
-    /**
-     * The email to reply to.
-     */
-    email?: string
-    /**
-     * The name to reply to.
-     */
     name?: string
   }
   /**
-   * To email addresses
+   * Recipient details.
    */
   to: {
     /**
      * The email address of the recipient.
      */
     email: string
+    /**
+     * The name of the recipient.
+     */
+    name?: string
   }[]
   /**
-   * CC email addresses
+   * CC recipient details
    */
   cc?: {
     /**
      * The email address of the CC recipient.
      */
     email: string
+    /**
+     * The name of the CC recipient.
+     */
+    name?: string
   }[]
   /**
-   * BCC email addresses
+   * BCC recipient details
    */
   bcc?: {
     /**
      * The email address of the BCC recipient.
      */
     email: string
+    /**
+     * The name of the BCC recipient.
+     */
+    name?: string
   }[]
   /**
    * The subject of the email.
    */
   subject: string
   /**
-   * The template ID to use for the email.
+   * Headers for the email.
    */
-  templateId: string
+  headers?: {
+    [k: string]: unknown
+  }
   /**
-   * Preview Text
+   * A collection property names that will be substituted by their corresponding property values in the subject, reply-to and content portions of a SendGrid Dynamic Template.
    */
-  previewText?: string
-  /**
-   * The dynamic template data to use for the email.
-   */
-  dynamicTemplateData?: {
+  dynamic_template_data?: {
     /**
      * The key of the dynamic template data.
      */
@@ -93,28 +86,83 @@ export interface Payload {
     [k: string]: unknown
   }[]
   /**
-   * The time to send the email. ISO 8601 format. E.g. 2024-09-23T12:00:00Z
+   * The template ID to use for the email. This must be for a Dynamic Template and should start with a 'd-'
    */
-  sendAt?: string
-  /**
-   * Tracking settings for the email.
-   */
-  trackingSettings?: {
-    /**
-     * Enable open tracking
-     */
-    openTracking?: boolean
-    /**
-     * Enable click tracking
-     */
-    clickTracking?: boolean
-  }
+  template_id: string
   /**
    * Custom arguments for the email.
    */
-  customArgs?: {
+  custom_args?: {
     [k: string]: unknown
-  }[]
+  }
+  /**
+   * The time to send the email. ISO 8601 format. E.g. 2024-09-23T12:00:00Z. A send cannot be scheduled more than 72 hours in advance.
+   */
+  send_at?: string
+  /**
+   * Reply to details.
+   */
+  reply_to: {
+    /**
+     * Whether "reply to" settings are the same as "from"
+     */
+    reply_to_equals_from: boolean
+    /**
+     * The email to reply to.
+     */
+    email?: string
+    /**
+     * The name to reply to.
+     */
+    name?: string
+  }
+  /**
+   * Click tracking settings for the email.
+   */
+  click_tracking?: {
+    /**
+     * Indicates if this setting is enabled
+     */
+    enable: boolean
+    /**
+     * Indicates if this setting should be included in the text/plain portion of your email.
+     */
+    enable_text?: boolean
+  }
+  /**
+   * Allows you to track if the email was opened by including a single transparent pixel image in the body of the message content.
+   */
+  open_tracking?: {
+    /**
+     * Indicates if this setting is enabled
+     */
+    enable: boolean
+    /**
+     * Allows you to specify a substitution tag that you can insert in the body of your email at a location that you desire. This tag will be replaced by the open tracking pixel.
+     */
+    substitution_tag?: string
+  }
+  /**
+   * Allows you to insert a subscription management link at the bottom of the text and HTML bodies of your email.
+   */
+  subscription_tracking?: {
+    /**
+     * Indicates if this setting is enabled
+     */
+    enable: boolean
+    /**
+     * Text to be appended to the email with the subscription tracking link.
+     */
+    text?: string
+    /**
+     * HTML to be appended to the email with the subscription tracking link.
+     */
+    html?: string
+    /**
+     * A tag that will be replaced with the unsubscribe URL. If this property is used, it will override both the text and html properties.
+     */
+    substitution_tag?: string
+  }
   /**
    * Categories for the email.
    */
@@ -122,31 +170,65 @@ export interface Payload {
     /**
      * Category name.
      */
-    category?: string
+    category: string
   }[]
   /**
-   * Enable sandbox mode. If true, the email will not actually be sent, but will be validated.
+   * Allows you to enable tracking provided by Google Analytics.
    */
-  sandboxMode: boolean
+  googleAnalytics?: {
+    /**
+     * Indicates if this setting is enabled
+     */
+    enable: boolean
+    /**
+     * Name of the referrer source. (e.g., Google, SomeDomain.com, or Marketing Email)
+     */
+    utm_source?: string
+    /**
+     * Name of the marketing medium. (e.g., Email)
+     */
+    utm_medium?: string
+    /**
+     * Used to identify any paid keywords.
+     */
+    utm_term?: string
+    /**
+     * Used to differentiate your campaign from advertisements.
+     */
+    utm_content?: string
+    /**
+     * The name of the campaign.
+     */
+    utm_campaign?: string
+  }
   /**
    * Send email with an ip pool.
    */
-  ipPool?: string
+  ipPoolName?: string
   /**
    * Subscription settings for the email.
    */
-  subscriptionSettings?: {
+  ASM?: {
     /**
      * Specify a Subscription Group ID to ensure emails are sent to only users who are subscribed to that group.
      */
-    groupId?: string
-    /**
-     * Send email without subscription check.
-     */
-    byPassSubscription?: boolean
+    groupId?: number
   }
   /**
-   * Send email without subscription check.
+   * A collection of different mail settings that you can use to specify how you would like this email to be handled.
    */
-  bypassListManagement?: boolean
+  mail_settings?: {
+    /**
+     * Allows you to bypass all unsubscribe groups and suppressions to ensure that the email is delivered to every single recipient.
+     */
+    bypass_list_management?: boolean
+    /**
+     * Allows you to bypass the global unsubscribe list to ensure that the email is delivered to recipients. This filter applies only to global unsubscribes and will not bypass group unsubscribes. This filter cannot be combined with the bypass_list_management.
+     */
+    bypass_unsubscribe_management?: boolean
+    /**
+     * Sandbox Mode allows you to send a test email to ensure that your request body is valid and formatted correctly.
+     */
+    sandbox_mode?: boolean
+  }
 }
