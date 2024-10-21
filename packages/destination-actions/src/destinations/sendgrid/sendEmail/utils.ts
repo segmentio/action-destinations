@@ -73,7 +73,7 @@ function validate(payload: Payload){
     })
   
     payload?.categories?.forEach(category => {
-      if(category.category.length > MAX_CATEGORY_LENGTH) {
+      if(category.category.length >= MAX_CATEGORY_LENGTH) {
         throw new PayloadValidationError(`Category with name ${category.category} exceeds the max length of ${MAX_CATEGORY_LENGTH} characters`)
       }
     })
