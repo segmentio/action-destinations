@@ -30,6 +30,7 @@ import { Payload } from './upsertProfile/generated-types'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import dayjs from '../../lib/dayjs'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+import { eventBulkCreateRegex } from './properties'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -462,39 +463,40 @@ export async function sendBatchedTrackEvent(request: RequestClient, payloads: Tr
   const multiStatusResponse = new MultiStatusResponse()
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayloads(payloads, multiStatusResponse)
   // if there are no payloads with valid phone number/email/external_id, return multiStatusResponse
-  if (filteredPayloads.length) {
-    const payloadToSend = {
-      data: {
-        type: 'event-bulk-create-job',
-        attributes: {
-          'events-bulk-create': {
-            data: filteredPayloads
-          }
+  if (!filteredPayloads.length) {
+    return multiStatusResponse
+  }
+  const payloadToSend = {
+    data: {
+      type: 'event-bulk-create-job',
+      attributes: {
+        'events-bulk-create': {
+          data: filteredPayloads
         }
-      }
-    }
-
-    try {
-      await request(`${API_URL}/event-bulk-create-jobs/`, {
-        method: 'POST',
-        json: payloadToSend
-      })
-    } catch (err) {
-      if (err instanceof HTTPError) {
-        const errorResponse = await err?.response?.json()
-        handleKlaviyoAPIErrorResponse(
-          payloads as object as JSONLikeObject[],
-          errorResponse,
-          multiStatusResponse,
-          validPayloadIndicesBitmap
-        )
-      } else {
-        // Bubble up the error and let Actions Framework handle it
-        throw err
       }
     }
   }
 
+  try {
+    await request(`${API_URL}/event-bulk-create-jobs/`, {
+      method: 'POST',
+      json: payloadToSend
+    })
+  } catch (err) {
+    if (err instanceof HTTPError) {
+      const errorResponse = await err?.response?.json()
+      handleKlaviyoAPIErrorResponse(
+        payloads as object as JSONLikeObject[],
+        errorResponse,
+        multiStatusResponse,
+        validPayloadIndicesBitmap,
+        eventBulkCreateRegex
+      )
+    } else {
+      // Bubble up the error and let Actions Framework handle it
+      throw err
+    }
+  }
   return multiStatusResponse
 }
 
@@ -583,12 +585,13 @@ function handleKlaviyoAPIErrorResponse(
   payloads: JSONLikeObject[],
   response: KlaviyoAPIErrorResponse,
   multiStatusResponse: MultiStatusResponse,
-  validPayloadIndicesBitmap: number[]
+  validPayloadIndicesBitmap: number[],
+  regex: RegExp
 ) {
   if (response?.errors && Array.isArray(response.errors)) {
     const invalidIndexSet = new Set<number>()
     response.errors.forEach((error: KlaviyoAPIError) => {
-      const indexInOriginalPayload = getIndexFromErrorPointer(error.source.pointer, validPayloadIndicesBitmap)
+      const indexInOriginalPayload = getIndexFromErrorPointer(error.source.pointer, validPayloadIndicesBitmap, regex)
       if (indexInOriginalPayload !== -1 && !multiStatusResponse.isErrorResponseAtIndex(indexInOriginalPayload)) {
         multiStatusResponse.setErrorResponseAtIndex(indexInOriginalPayload, {
           status: error.status,
@@ -613,8 +616,8 @@ function handleKlaviyoAPIErrorResponse(
   }
 }
 
-function getIndexFromErrorPointer(pointer: string, validPayloadIndicesBitmap: number[]) {
-  const match = /\/data\/attributes\/events-bulk-create\/data\/(\d+)/.exec(pointer)
+function getIndexFromErrorPointer(pointer: string, validPayloadIndicesBitmap: number[], regex: RegExp) {
+  const match = regex.exec(pointer)
   if (match && match[1]) {
     const index = parseInt(match[1], 10)
     return validPayloadIndicesBitmap[index] !== undefined ? validPayloadIndicesBitmap[index] : -1
