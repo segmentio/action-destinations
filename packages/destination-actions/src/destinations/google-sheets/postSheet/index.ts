@@ -57,14 +57,14 @@ const action: ActionDefinition<Settings, Payload> = {
     fields: {
       label: 'Fields',
       description: `
-  The fields to write to the spreadsheet. 
+  The fields to write to the spreadsheet.
 
-  On the left-hand side, input the name of the field as it will appear in the Google Sheet. 
-  
+  On the left-hand side, input the name of the field as it will appear in the Google Sheet.
+
   On the right-hand side, select the field from your data model that maps to the given field in your sheet.
-     
+
   ---
-      
+
   `,
       type: 'object',
       required: true,
@@ -82,7 +82,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The number of rows to write to the spreadsheet in a single batch. The value is determined by number of rows * columns that Segment can upload within 30s.',
       default: 1001,
-      required: true,
+      required: false,
       unsafe_hidden: true
     },
     batch_bytes: {
@@ -90,7 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Bytes',
       description: 'The number of bytes to write to the spreadsheet in a single batch. Limit is 2MB.',
       default: 2000000, // 2MB,
-      required: true,
+      required: false,
       unsafe_hidden: true
     }
   },
