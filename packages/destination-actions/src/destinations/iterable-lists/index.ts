@@ -1,7 +1,8 @@
-import { IntegrationError, AudienceDestinationDefinition } from '@segment/actions-core'
+import { IntegrationError, AudienceDestinationDefinition, RequestClient } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 
 import syncAudience from './syncAudience'
+import { GetAudienceResp } from './types'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Iterable Lists',
@@ -58,46 +59,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'synced', // Indicates that the audience is synced on some schedule
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
-    async createAudience(request, createAudienceInput) {
-      const settings = createAudienceInput.settings
-      const personasSettings = createAudienceInput.personas
-
-      if (!personasSettings) {
+    async createAudience(request, { settings, personas }) {
+      if (!personas) {
         throw new IntegrationError('Missing computation parameters: Key', 'MISSING_REQUIRED_FIELD', 422)
       }
-
-      if (!personasSettings.computation_key) {
+      if (!personas.computation_key) {
         throw new IntegrationError('Missing computation parameters: Key', 'MISSING_REQUIRED_FIELD', 422)
       }
-
-      const audienceKey = personasSettings.computation_key
-
-      // If the list already exists, return its externalId
-      const getAudienceResponse = await request('https://api.iterable.com/api/lists', {
-        method: 'GET',
-        skipResponseCloning: true,
-        headers: { 'Api-Key': settings.apiKey }
-      })
-
-      const getAudienceResponseJson = await getAudienceResponse.json()
-      const existingAudience = (getAudienceResponseJson.lists as { id: number; name: string }[]).find(
-        (list: { id: number; name: string }) => list.name === audienceKey
-      )
-
-      if (existingAudience) {
-        return { externalId: existingAudience.id }
+      const audienceKey = personas.computation_key
+      let externalId = await getAudience(request, settings, audienceKey)
+      if (externalId) {
+        return { externalId }
       }
-
-      const createAudienceResponse = await request('https://api.iterable.com/api/lists', {
-        method: 'POST',
-        headers: { 'Api-Key': settings.apiKey },
-        json: {
-          name: audienceKey
-        }
-      })
-      const createAudienceResponseJson = await createAudienceResponse.json()
-
-      return { externalId: createAudienceResponseJson.listId }
+      externalId = await createAudience(request, settings, audienceKey)
+      return { externalId }
     },
     async getAudience(_, getAudienceInput) {
       return { externalId: getAudienceInput.externalId }
@@ -113,6 +88,34 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   actions: {
     syncAudience
   }
+}
+
+async function getAudience(
+  request: RequestClient,
+  settings: Settings,
+  audienceKey: string
+): Promise<string | undefined> {
+  const response = await request('https://api.iterable.com/api/lists', {
+    method: 'GET',
+    skipResponseCloning: true,
+    headers: { 'Api-Key': settings.apiKey }
+  })
+
+  const json = (await response.data) as GetAudienceResp
+  const audience = json.lists.find((list: { id: number; name: string }) => list.name === audienceKey)
+  return audience?.id.toString() ?? undefined
+}
+
+async function createAudience(request: RequestClient, settings: Settings, audienceKey: string): Promise<string> {
+  const response = await request('https://api.iterable.com/api/lists', {
+    method: 'POST',
+    headers: { 'Api-Key': settings.apiKey },
+    json: {
+      name: audienceKey
+    }
+  })
+  const audience = await response.json()
+  return audience.listId
 }
 
 export default destination
