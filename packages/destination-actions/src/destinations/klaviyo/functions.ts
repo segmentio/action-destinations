@@ -533,7 +533,7 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
       delete payload?.profile?.country_code
     }
 
-    const profileToAdd = constructProfilePayload(payload)
+    const profileToAdd = constructBulkCreateEventPayload(payload)
     filteredPayloads.push(profileToAdd as JSONLikeObject)
     validPayloadIndicesBitmap.push(originalBatchIndex)
     multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
@@ -546,7 +546,7 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
   return { filteredPayloads, validPayloadIndicesBitmap }
 }
 
-function constructProfilePayload(payload: TrackEventPayload) {
+function constructBulkCreateEventPayload(payload: TrackEventPayload) {
   return {
     type: 'event-bulk-create',
     attributes: {
