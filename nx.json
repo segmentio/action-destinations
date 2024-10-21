@@ -23,6 +23,11 @@
       "inputs": ["default", "^production"],
       "dependsOn": ["build"],
       "cache": true
+    },
+    "lint": {
+      "inputs": ["default"],
+      "dependsOn": ["build"],
+      "cache": true
     }
   },
   "tasksRunnerOptions": {
