@@ -92,7 +92,7 @@ jobs:
       - name: Lint
         env:
           NODE_OPTIONS: '--max-old-space-size=4096'
-        run: yarn nx lint
+        run: yarn lint
 
   validate:
     name: Validate
