@@ -162,5 +162,3 @@ export const country_code: InputField = {
     ]
   }
 }
-
-export const eventBulkCreateRegex = /\/data\/attributes\/events-bulk-create\/data\/(\d+)/

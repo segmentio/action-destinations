@@ -30,8 +30,6 @@ import { Payload } from './upsertProfile/generated-types'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import dayjs from '../../lib/dayjs'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { eventBulkCreateRegex } from './properties'
-import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -462,11 +460,7 @@ export function processPhoneNumber(initialPhoneNumber?: string, country_code?: s
 
 export async function sendBatchedTrackEvent(request: RequestClient, payloads: TrackEventPayload[]) {
   const multiStatusResponse = new MultiStatusResponse()
-  const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayloads<TrackEventPayload>(
-    payloads,
-    multiStatusResponse,
-    trackEventValidationRules
-  )
+  const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayloads(payloads, multiStatusResponse)
   // if there are no payloads with valid phone number/email/external_id, return multiStatusResponse
   if (filteredPayloads.length) {
     const payloadToSend = {
@@ -492,11 +486,11 @@ export async function sendBatchedTrackEvent(request: RequestClient, payloads: Tr
           payloads as object as JSONLikeObject[],
           errorResponse,
           multiStatusResponse,
-          validPayloadIndicesBitmap,
-          eventBulkCreateRegex
+          validPayloadIndicesBitmap
         )
       } else {
-        throw err // Bubble up the error
+        // Bubble up the error and let Actions Framework handle it
+        throw err
       }
     }
   }
@@ -504,70 +498,50 @@ export async function sendBatchedTrackEvent(request: RequestClient, payloads: Tr
   return multiStatusResponse
 }
 
-function validateAndPreparePayloads<T>(
-  payloads: T[],
-  multiStatusResponse: MultiStatusResponse,
-  validationRules: (payload: T) => {
-    validPayload?: JSONLikeObject
-    error?: ActionDestinationErrorResponseType
-  }
-) {
+function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusResponse: MultiStatusResponse) {
   const filteredPayloads: JSONLikeObject[] = []
   const validPayloadIndicesBitmap: number[] = []
 
   payloads.forEach((payload, originalBatchIndex) => {
-    const { validPayload, error } = validationRules(payload)
-    if (error) {
-      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, error)
-    } else {
-      filteredPayloads.push(validPayload as JSONLikeObject)
-      validPayloadIndicesBitmap.push(originalBatchIndex)
-      multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
-        status: 200,
-        sent: validPayload as JSONLikeObject,
-        body: 'success'
+    const { email, phone_number, external_id, anonymous_id, country_code } = payload.profile
+    if (!email && !phone_number && !external_id && !anonymous_id) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'One of External ID, Anonymous ID, Phone Number or Email is required.'
       })
+      return
     }
+
+    if (phone_number) {
+      // Validate and convert the phone number if present
+      const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, country_code as string)
+      // If the phone number is not valid, skip this payload
+      if (!validPhoneNumber) {
+        multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: 'Phone number could not be converted to E.164 format.'
+        })
+        return // Skip this payload
+      }
+
+      // Update the payload's phone number with the validated format
+      payload.profile.phone_number = validPhoneNumber
+      delete payload?.profile?.country_code
+    }
+
+    const profileToAdd = constructProfilePayload(payload)
+    filteredPayloads.push(profileToAdd as JSONLikeObject)
+    validPayloadIndicesBitmap.push(originalBatchIndex)
+    multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
+      status: 200,
+      sent: profileToAdd as JSONLikeObject,
+      body: 'success'
+    })
   })
 
   return { filteredPayloads, validPayloadIndicesBitmap }
-}
-
-const trackEventValidationRules = (
-  payload: TrackEventPayload
-): { validPayload?: JSONLikeObject; error?: ActionDestinationErrorResponseType } => {
-  const { email, phone_number, external_id, anonymous_id, country_code } = payload.profile
-  const response: {
-    validPayload?: JSONLikeObject
-    error?: ActionDestinationErrorResponseType
-  } = {}
-
-  if (!email && !phone_number && !external_id && !anonymous_id) {
-    response.error = {
-      status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage: 'One of External ID, Anonymous ID, Phone Number or Email is required.'
-    }
-    return response
-  }
-
-  if (phone_number) {
-    const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, country_code as string)
-    if (!validPhoneNumber) {
-      response.error = {
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Phone number could not be converted to E.164 format.'
-      }
-      return response
-    }
-    payload.profile.phone_number = validPhoneNumber
-    delete payload.profile.country_code
-  }
-
-  // If all validations pass, construct the valid payload
-  response.validPayload = constructProfilePayload(payload) as JSONLikeObject
-  return response
 }
 
 function constructProfilePayload(payload: TrackEventPayload) {
@@ -609,13 +583,12 @@ function handleKlaviyoAPIErrorResponse(
   payloads: JSONLikeObject[],
   response: KlaviyoAPIErrorResponse,
   multiStatusResponse: MultiStatusResponse,
-  validPayloadIndicesBitmap: number[],
-  regex: RegExp
+  validPayloadIndicesBitmap: number[]
 ) {
   if (response?.errors && Array.isArray(response.errors)) {
     const invalidIndexSet = new Set<number>()
     response.errors.forEach((error: KlaviyoAPIError) => {
-      const indexInOriginalPayload = getIndexFromErrorPointer(error.source.pointer, validPayloadIndicesBitmap, regex)
+      const indexInOriginalPayload = getIndexFromErrorPointer(error.source.pointer, validPayloadIndicesBitmap)
       if (indexInOriginalPayload !== -1 && !multiStatusResponse.isErrorResponseAtIndex(indexInOriginalPayload)) {
         multiStatusResponse.setErrorResponseAtIndex(indexInOriginalPayload, {
           status: error.status,
@@ -640,8 +613,8 @@ function handleKlaviyoAPIErrorResponse(
   }
 }
 
-function getIndexFromErrorPointer(pointer: string, validPayloadIndicesBitmap: number[], regex: RegExp) {
-  const match = regex.exec(pointer)
+function getIndexFromErrorPointer(pointer: string, validPayloadIndicesBitmap: number[]) {
+  const match = /\/data\/attributes\/events-bulk-create\/data\/(\d+)/.exec(pointer)
   if (match && match[1]) {
     const index = parseInt(match[1], 10)
     return validPayloadIndicesBitmap[index] !== undefined ? validPayloadIndicesBitmap[index] : -1
