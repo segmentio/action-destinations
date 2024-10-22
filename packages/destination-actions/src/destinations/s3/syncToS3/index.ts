@@ -4,7 +4,6 @@ import type { Payload } from './generated-types'
 import { commonFields } from '../fields'
 import { send } from '../functions'
 import { Data, RawMapping } from '../types'
-import { generateUUID } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync to S3',

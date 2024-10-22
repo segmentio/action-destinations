@@ -230,3 +230,10 @@ export interface KlaviyoAPIErrorResponse {
     parameter?: string
   }
 }
+export interface KlaviyoAPIErrorResponse {
+  errors: KlaviyoAPIError[]
+}
+export interface KlaviyoProfile {
+  type: string
+  attributes: ProfileAttributes
+}
