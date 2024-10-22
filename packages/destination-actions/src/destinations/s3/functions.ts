@@ -43,7 +43,7 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
   }
 
   const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName)
-  const filename = payloads[0]?.filename_prefix || syncId
+  const filename = (payloads[0]?.filename_prefix || '') + 'new_' + syncId
   const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
 
   await s3Client.uploadS3(
