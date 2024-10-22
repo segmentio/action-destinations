@@ -162,3 +162,4 @@ export const country_code: InputField = {
     ]
   }
 }
+export const profileBulkImportRegex = /\/data\/attributes\/profiles\/data\/(\d+)/
