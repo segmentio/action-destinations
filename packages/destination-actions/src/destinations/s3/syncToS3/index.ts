@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { commonFields } from '../fields'
 import { send } from '../functions'
 import { Data, RawMapping } from '../types'
+import { generateUUID } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync to S3',
@@ -16,6 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const syncId = payload.sync_id
     return send([payload], settings, rawMapping, syncId || '')
   },
+
   performBatch: async (_, data) => {
     const { payload, settings } = data
     const syncId = payload[0].sync_id
