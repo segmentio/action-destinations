@@ -1,28 +1,24 @@
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
-import { sendEmailReq } from './types'
+import { SendEmailReq } from './types'
 import { RESERVED_HEADERS, MAX_CATEGORY_LENGTH, MIN_IP_POOL_NAME_LENGTH, MAX_IP_POOL_NAME_LENGTH } from './constants'
 
 export async function send(request: RequestClient, payload: Payload) {
   validate(payload)
 
-  const json: sendEmailReq = {
+  const json: SendEmailReq = {
     personalizations: [
       {
         from: { email: payload.from.email, name: payload.from?.name ?? undefined },
         to: payload.to.map((to) => ({ email: to.email, name: to?.name ?? undefined })),
         cc: payload.cc?.map((cc) => ({ email: cc.email, name: cc?.name ?? undefined })) ?? undefined,
         bcc: payload.bcc?.map((bcc) => ({ email: bcc.email, name: bcc?.name ?? undefined })) ?? undefined,
-        subject: payload.subject,
         headers:
           Object.entries(payload?.headers ?? {}).reduce((acc, [key, value]) => {
             acc[key] = String(value)
             return acc
           }, {} as Record<string, string>) || undefined,
-        dynamic_template_data: payload.dynamic_template_data?.reduce((acc, item) => {
-          acc[item.key] = item.value ?? item.default
-          return acc
-        }, {} as { [key: string]: string }),
+        dynamic_template_data: payload.dynamic_template_data,
         custom_args:
           Object.entries(payload?.custom_args ?? {}).reduce((acc, [key, value]) => {
             acc[key] = String(value)
@@ -40,8 +36,6 @@ export async function send(request: RequestClient, payload: Payload) {
     asm: payload.ASM ? { group_id: payload.ASM.groupId as number } : undefined,
     ip_pool_name: payload.ip_pool_name,
     tracking_settings: {
-      click_tracking: payload.click_tracking ?? undefined,
-      open_tracking: payload.open_tracking ?? undefined,
       subscription_tracking: payload.subscription_tracking ?? undefined,
       ganalytics: payload.google_analytics ?? undefined
     },
@@ -71,12 +65,6 @@ function validate(payload: Payload) {
       `Headers cannot contain any of the following reserved headers: ${RESERVED_HEADERS.join(', ')}`
     )
   }
-
-  payload.dynamic_template_data?.forEach((item) => {
-    if (item.required && !item.value && !item.default) {
-      throw new PayloadValidationError(`Dynamic Template Data with key '${item.key}' is required and cannot be empty`)
-    }
-  })
 
   payload?.categories?.forEach((category) => {
     if (category.category.length >= MAX_CATEGORY_LENGTH) {

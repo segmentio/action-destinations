@@ -92,12 +92,6 @@ export const fields: Record<string, InputField> = {
         }
       }
     },
-    subject: {
-      label: 'Subject',
-      description: 'The subject of the email.',
-      type: 'string',
-      required: true
-    },
     headers: {
       label: 'Headers',
       description: 'Headers for the email.',
@@ -108,39 +102,11 @@ export const fields: Record<string, InputField> = {
     },
     dynamic_template_data: {
       label: 'Dynamic Template Data',
-      description: 'A collection property names that will be substituted by their corresponding property values in the subject, reply-to and content portions of a SendGrid Dynamic Template.',
+      description: 'A collection of property names that will be substituted by their corresponding property values in the subject, reply-to and content portions of a SendGrid Dynamic Template.',
       type: 'object',
-      multiple: true,
       required: false,
       defaultObjectUI: 'keyvalue',
-      additionalProperties: false,
-      properties: {
-        key: {
-          label: 'Key',
-          description: 'The key of the dynamic template data.',
-          type: 'string',
-          required: true
-        },
-        value: {
-          label: 'Value',
-          description: 'The value of the dynamic template data.',
-          type: 'string',
-          required: true
-        },
-        required: {
-          label: 'Required',
-          description: 'If true, the email will not be sent if the Value field is empty, unless there is a default specified.',
-          type: 'boolean',
-          required: true,
-          default: false
-        }, 
-        default: {
-          label: 'Default value',
-          description: 'The default value to use if the value field is empty.',
-          type: 'string',
-          required: false
-        }
-      }
+      additionalProperties: true
     }, 
     template_id: {
       label: 'Template ID',
@@ -192,58 +158,6 @@ export const fields: Record<string, InputField> = {
       },
       default: {
         reply_to_equals_from: true
-      }
-    },
-    click_tracking: {
-      label: 'Click Tracking',
-      description: 'Click tracking settings for the email.',
-      type: 'object',
-      required: false,
-      additionalProperties: false,
-      defaultObjectUI: 'keyvalue',
-      properties: {
-        enable: {
-          label: 'Enabled',
-          description: 'Indicates if this setting is enabled',
-          type: 'boolean',
-          required: true,
-          default: true
-        },
-        enable_text:{
-          label: 'Enable Text',
-          description: 'Indicates if this setting should be included in the text/plain portion of your email.',
-          type: 'boolean',
-          required: false,
-          default: false
-        }
-      },
-      default: {
-        enable: false
-      }
-    },
-    open_tracking: {
-      label: 'Open Tracking',
-      description: 'Allows you to track if the email was opened by including a single transparent pixel image in the body of the message content.',
-      type: 'object',
-      required: false,
-      additionalProperties: false,
-      defaultObjectUI: 'keyvalue',
-      properties: {
-        enable: {
-          label: 'Enabled',
-          description: 'Indicates if this setting is enabled',
-          type: 'boolean',
-          required: true
-        },
-        substitution_tag:{
-          label: 'Substitution Tag',
-          description: 'Allows you to specify a substitution tag that you can insert in the body of your email at a location that you desire. This tag will be replaced by the open tracking pixel.',
-          type: 'string',
-          required: false
-        }
-      },
-      default: {
-        enable: false
       }
     },
     subscription_tracking: {
@@ -384,18 +298,6 @@ export const fields: Record<string, InputField> = {
       additionalProperties: false,
       defaultObjectUI: 'keyvalue',
       properties: {
-        bypass_list_management: {
-          label: 'Bypass List Management',
-          description: 'Allows you to bypass all unsubscribe groups and suppressions to ensure that the email is delivered to every single recipient.',
-          type: 'boolean',
-          required: false
-        },
-        bypass_unsubscribe_management: {
-          label: 'Bypass Unsubscribe Management',
-          description: 'Allows you to bypass the global unsubscribe list to ensure that the email is delivered to recipients. This filter applies only to global unsubscribes and will not bypass group unsubscribes. This filter cannot be combined with the bypass_list_management.',
-          type: 'boolean',
-          required: false
-        },
         sandbox_mode: {
           label: 'Sandbox Mode',
           description: 'Sandbox Mode allows you to send a test email to ensure that your request body is valid and formatted correctly.',
@@ -404,8 +306,6 @@ export const fields: Record<string, InputField> = {
         }
       },
       default: {
-        bypass_list_management: false,
-        bypass_unsubscribe_management: false,
         sandbox_mode: false
       }
     }

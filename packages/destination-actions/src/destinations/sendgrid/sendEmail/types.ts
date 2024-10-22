@@ -1,39 +1,28 @@
-export interface sendEmailReq {
+interface EmailDetails {
+  email: string
+  name: string | undefined
+}
+
+interface StringObject {
+  [key: string]: string
+}
+
+export interface SendEmailReq {
   personalizations: [
     {
-      from: {
-        email: string
-        name: string | undefined
-      }
-      to: {
-        email: string
-        name: string | undefined
-      }[]
-      cc?: {
-        email: string
-        name: string | undefined
-      }[]
-      bcc?: {
-        email: string
-        name?: string
-      }[]
-      subject: string
-      headers?: {
-        [key: string]: string
-      }
+      from: EmailDetails
+      to: EmailDetails[]
+      cc?: EmailDetails[]
+      bcc?: EmailDetails[]
+      headers?: StringObject
       dynamic_template_data?: {
-        [key: string]: string
+        [k: string]: unknown
       }
-      custom_args?: {
-        [key: string]: string
-      }
+      custom_args?: StringObject
       send_at?: number
     }
   ]
-  reply_to?: {
-    email: string
-    name?: string
-  }
+  reply_to?: EmailDetails
   template_id: string
   categories?: string[]
   asm?: {
@@ -41,14 +30,6 @@ export interface sendEmailReq {
   }
   ip_pool_name?: string
   tracking_settings?: {
-    click_tracking?: {
-      enable: boolean
-      enable_text?: boolean
-    }
-    open_tracking?: {
-      enable: boolean
-      substitution_tag?: string
-    }
     subscription_tracking?: {
       enable: boolean
       text?: string
@@ -65,8 +46,6 @@ export interface sendEmailReq {
     }
   }
   mail_settings?: {
-    bypass_list_management?: boolean
-    bypass_unsubscribe_management?: boolean
     sandbox_mode?: boolean
   }
 }

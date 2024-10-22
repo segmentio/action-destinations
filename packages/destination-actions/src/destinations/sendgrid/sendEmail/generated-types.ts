@@ -54,36 +54,17 @@ export interface Payload {
     name?: string
   }[]
   /**
-   * The subject of the email.
-   */
-  subject: string
-  /**
    * Headers for the email.
    */
   headers?: {
     [k: string]: unknown
   }
   /**
-   * A collection property names that will be substituted by their corresponding property values in the subject, reply-to and content portions of a SendGrid Dynamic Template.
+   * A collection of property names that will be substituted by their corresponding property values in the subject, reply-to and content portions of a SendGrid Dynamic Template.
    */
   dynamic_template_data?: {
-    /**
-     * The key of the dynamic template data.
-     */
-    key: string
-    /**
-     * The value of the dynamic template data.
-     */
-    value: string
-    /**
-     * If true, the email will not be sent if the Value field is empty, unless there is a default specified.
-     */
-    required: boolean
-    /**
-     * The default value to use if the value field is empty.
-     */
-    default?: string
-  }[]
+    [k: string]: unknown
+  }
   /**
    * The template ID to use for the email. This must be for a Dynamic Template and should start with a 'd-'
    */
@@ -114,32 +95,6 @@ export interface Payload {
      * The name to reply to.
      */
     name?: string
-  }
-  /**
-   * Click tracking settings for the email.
-   */
-  click_tracking?: {
-    /**
-     * Indicates if this setting is enabled
-     */
-    enable: boolean
-    /**
-     * Indicates if this setting should be included in the text/plain portion of your email.
-     */
-    enable_text?: boolean
-  }
-  /**
-   * Allows you to track if the email was opened by including a single transparent pixel image in the body of the message content.
-   */
-  open_tracking?: {
-    /**
-     * Indicates if this setting is enabled
-     */
-    enable: boolean
-    /**
-     * Allows you to specify a substitution tag that you can insert in the body of your email at a location that you desire. This tag will be replaced by the open tracking pixel.
-     */
-    substitution_tag?: string
   }
   /**
    * Allows you to insert a subscription management link at the bottom of the text and HTML bodies of your email.
@@ -217,14 +172,6 @@ export interface Payload {
    * A collection of different mail settings that you can use to specify how you would like this email to be handled.
    */
   mail_settings?: {
-    /**
-     * Allows you to bypass all unsubscribe groups and suppressions to ensure that the email is delivered to every single recipient.
-     */
-    bypass_list_management?: boolean
-    /**
-     * Allows you to bypass the global unsubscribe list to ensure that the email is delivered to recipients. This filter applies only to global unsubscribes and will not bypass group unsubscribes. This filter cannot be combined with the bypass_list_management.
-     */
-    bypass_unsubscribe_management?: boolean
     /**
      * Sandbox Mode allows you to send a test email to ensure that your request body is valid and formatted correctly.
      */
