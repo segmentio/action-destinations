@@ -15,13 +15,13 @@ const action: ActionDefinition<Settings, Payload> = {
         operation: {
           label: 'Create a new data extension',
           description: 'Create a new data extension in Salesforce Marketing Cloud.',
-          type: 'boolean'
+          type: 'boolean',
         },
         dataExtensionName: {
           label: 'Data Extension Name',
           description: 'The name of the data extension to create.',
           type: 'string',
-          required: true
+          required: true,
         },
         dataExtensionShape: {
           label: 'Columns to create',
@@ -34,12 +34,12 @@ const action: ActionDefinition<Settings, Payload> = {
             retlColumnName: {
               label: 'RETL Column Name',
               type: 'string',
-              required: true
+              required: true,
             },
             dataExtensionColumnName: {
               label: 'Data Extension Column Name',
               type: 'string',
-              required: true
+              required: true,
             },
             type: {
               label: 'Type',
@@ -49,8 +49,8 @@ const action: ActionDefinition<Settings, Payload> = {
                 { label: 'Text', value: 'text' },
                 { label: 'Number', value: 'number' },
                 { label: 'Date', value: 'date' },
-                { label: 'Boolean', value: 'boolean' }
-              ]
+                { label: 'Boolean', value: 'boolean' },
+              ],
             }
           }
         }
@@ -64,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
         //     name: column.name,
         //     type: column.type,
         //   }
-        // })
+        // }) 
 
         // const res = await request(${url}, {
         //   method: 'POST',
@@ -74,7 +74,8 @@ const action: ActionDefinition<Settings, Payload> = {
         //   }
         // })
 
-        return {}
+        return {
+        }
       }
     }
   },
@@ -86,7 +87,7 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: enable_batching,
     batch_size: batch_size
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, hookInputs }) => {
     return upsertRows(request, settings.subdomain, [payload])
   },
   performBatch: async (request, { settings, payload }) => {
