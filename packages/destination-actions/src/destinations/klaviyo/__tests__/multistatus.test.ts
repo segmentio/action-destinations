@@ -199,7 +199,7 @@ describe('MultiStatus', () => {
             list_id: '123'
           }
         },
-        body: '{"id":"752f7ece-af20-44e0-aa3a-b13290d98e72","status":400,"code":"invalid","title":"Invalid input.","detail":"Invalid email address","source":{"pointer":"/data/attributes/profile/data/0/attributes/email"},"links":{},"meta":{}}'
+        body: '{"id":"752f7ece-af20-44e0-aa3a-b13290d98e72","status":400,"code":"invalid","title":"Invalid input.","detail":"Invalid email address","source":{"pointer":"/data/attributes/profiles/data/0/attributes/email"},"links":{},"meta":{}}'
       })
 
       // The second event fails as Braze API reports an error
