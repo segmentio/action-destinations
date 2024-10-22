@@ -1,5 +1,6 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from './generated-types'
+import { generateUUID } from './functions'
 
 export const commonFields: ActionDefinition<Settings>['fields'] = {
   columns: {
@@ -229,5 +230,13 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       { label: 'txt', value: 'txt' }
     ],
     default: 'csv'
+  },
+  sync_id: {
+    label: 'Sync ID - Hidden Field',
+    description: 'Unique ID for the sync',
+    type: 'string',
+    required: false,
+    unsafe_hidden: true,
+    default: generateUUID()
   }
 }

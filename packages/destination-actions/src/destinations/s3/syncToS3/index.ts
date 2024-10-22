@@ -13,12 +13,14 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (_, data) => {
     const { payload, settings } = data
     const rawMapping: RawMapping = (data as unknown as Data).rawMapping
-    return send([payload], settings, rawMapping)
+    const syncId = payload.sync_id
+    return send([payload], settings, rawMapping, syncId || '')
   },
   performBatch: async (_, data) => {
     const { payload, settings } = data
+    const syncId = payload[0].sync_id
     const rawMapping: RawMapping = (data as unknown as Data).rawMapping
-    return send(payload, settings, rawMapping)
+    return send(payload, settings, rawMapping, syncId || '')
   }
 }
 

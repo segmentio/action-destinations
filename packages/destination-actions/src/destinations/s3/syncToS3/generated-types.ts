@@ -113,4 +113,8 @@ export interface Payload {
    * File extension for the uploaded file.
    */
   file_extension: string
+  /**
+   * Unique ID for the sync
+   */
+  sync_id?: string
 }
