@@ -21,6 +21,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
+    event.properties = {
+      ...event.properties, template_id: 'd-1234567890', send_at: ''
+    }
+
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
@@ -53,6 +57,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const event = createTestEvent({
       properties: eventData
     })
+
+    event.properties = {
+      ...event.properties, template_id: 'd-1234567890', send_at: ''
+    }
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
