@@ -200,19 +200,9 @@ export const fields: Record<string, InputField> = {
     categories: {
       label: 'Categories',
       description: 'Categories for the email.',
-      type: 'object',
+      type: 'string',
       multiple: true,
       required: false,
-      defaultObjectUI: 'keyvalue',
-      additionalProperties: false,
-      properties: {
-        category: {
-          label: 'Category Name',
-          description: 'Category Name.',
-          type: 'string',
-          required: true
-        }
-      }
     },
     google_analytics: {
       label: 'Google Analytics',

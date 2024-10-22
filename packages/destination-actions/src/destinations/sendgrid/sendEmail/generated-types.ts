@@ -120,12 +120,7 @@ export interface Payload {
   /**
    * Categories for the email.
    */
-  categories?: {
-    /**
-     * Category Name.
-     */
-    category: string
-  }[]
+  categories?: string[]
   /**
    * Allows you to enable tracking provided by Google Analytics.
    */

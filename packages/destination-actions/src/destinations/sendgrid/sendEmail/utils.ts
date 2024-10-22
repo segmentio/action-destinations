@@ -1,7 +1,7 @@
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import { SendEmailReq } from './types'
-import { RESERVED_HEADERS, MAX_CATEGORY_LENGTH, MIN_IP_POOL_NAME_LENGTH, MAX_IP_POOL_NAME_LENGTH } from './constants'
+import { RESERVED_HEADERS, MAX_CATEGORY_LENGTH, MIN_IP_POOL_NAME_LENGTH, MAX_IP_POOL_NAME_LENGTH, SEND_EMAIL_URL } from './constants'
 
 export async function send(request: RequestClient, payload: Payload) {
   validate(payload)
@@ -32,7 +32,7 @@ export async function send(request: RequestClient, payload: Payload) {
       name: payload.reply_to.reply_to_equals_from ? payload.from.name : payload.reply_to.name
     },
     template_id: payload.template_id,
-    categories: payload.categories?.map((category) => category.category),
+    categories: payload.categories,
     asm: payload.ASM ? { group_id: payload.ASM.groupId as number } : undefined,
     ip_pool_name: payload.ip_pool_name,
     tracking_settings: {
@@ -42,7 +42,7 @@ export async function send(request: RequestClient, payload: Payload) {
     mail_settings: payload.mail_settings ?? undefined
   }
 
-  return await request('https://api.sendgrid.com/v3/mail/send', {
+  return await request(SEND_EMAIL_URL, {
     method: 'post',
     json
   })
@@ -52,10 +52,15 @@ function toUnixTS(date: string | undefined): number | undefined {
   if (typeof date === 'undefined' || date === null || date === '') {
     return undefined
   }
+
   return new Date(date).getTime()
 }
 
 function validate(payload: Payload) {
+  if(!payload.template_id.startsWith('d-')) {
+    throw new PayloadValidationError('Template ID must refer to a Dynamic Template. Dynamic Template IDs start with "d-"')
+  }
+ 
   if (!payload.reply_to.reply_to_equals_from && !payload.reply_to.email) {
     throw new PayloadValidationError("'Reply To >> Email' must be provided if 'Reply To Equals From' is set to true")
   }
@@ -67,9 +72,9 @@ function validate(payload: Payload) {
   }
 
   payload?.categories?.forEach((category) => {
-    if (category.category.length >= MAX_CATEGORY_LENGTH) {
+    if (category.length > MAX_CATEGORY_LENGTH) {
       throw new PayloadValidationError(
-        `Category with name ${category.category} exceeds the max length of ${MAX_CATEGORY_LENGTH} characters`
+        `Category with name ${category} exceeds the max length of ${MAX_CATEGORY_LENGTH} characters`
       )
     }
   })
