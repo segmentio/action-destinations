@@ -83,7 +83,7 @@ export function sendTrackEvent(
 
   if (!braze_id && !user_alias && !external_id && !email) {
     throw new IntegrationError(
-      'One of "external_id" or "user_alias" or "braze_id" is required.',
+      'One of "external_id" or "user_alias" or "braze_id" or "email" is required.',
       'Missing required fields',
       400
     )
@@ -133,11 +133,11 @@ export async function sendBatchedTrackEvent(
     const user_alias = getUserAlias(payload.user_alias)
 
     // Filter out and record if payload is invalid
-    if (!braze_id && !user_alias && !external_id) {
+    if (!braze_id && !user_alias && !external_id && !email) {
       multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'One of "external_id" or "user_alias" or "braze_id" is required.'
+        errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" is required.'
       })
       return
     }
@@ -160,7 +160,12 @@ export async function sendBatchedTrackEvent(
     }
 
     filteredPayloads.push(payloadToSend as JSONLikeObject)
+
+    // Record the index of the original payload in the filtered array
     validPayloadIndicesBitmap.push(originalBatchIndex)
+
+    // Update the original payload with the payload that was sent to Braze
+    payloads[originalBatchIndex] = payloadToSend as object as TrackEventPayload
 
     // Initialize the Multi-Status response to be valid for all validated payloads
     multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
@@ -179,7 +184,7 @@ export async function sendBatchedTrackEvent(
   })
 
   await handleBrazeAPIResponse(
-    transformPayloadsType(payloads),
+    payloads as object as JSONLikeObject[],
     response,
     multiStatusResponse,
     validPayloadIndicesBitmap
@@ -200,7 +205,7 @@ export function sendTrackPurchase(
 
   if (!braze_id && !user_alias && !external_id && !email) {
     throw new IntegrationError(
-      'One of "external_id" or "user_alias" or "braze_id" is required.',
+      'One of "external_id" or "user_alias" or "braze_id" or "email" is required.',
       'Missing required fields',
       400
     )
@@ -271,11 +276,11 @@ export async function sendBatchedTrackPurchase(
     const user_alias = getUserAlias(payload.user_alias)
 
     // Filter out and record if payload is invalid
-    if (!braze_id && !user_alias && !external_id) {
+    if (!braze_id && !user_alias && !external_id && !email) {
       multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'One of "external_id" or "user_alias" or "braze_id" is required.'
+        errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" is required.'
       })
       return
     }
@@ -307,8 +312,12 @@ export async function sendBatchedTrackPurchase(
 
     const eventProperties = omit(payload.properties, ['products'])
 
+    // Since each payload can be potentially expanded into multiple payloads,
+    // we are grouping them together to keep track of what was sent to Braze
+    const flattenedPayloadGroup: JSONLikeObject[] = []
+
     payload.products.forEach((product) => {
-      flattenedPayload.push({
+      const flattenedPayloadItem = {
         ...requestBase,
         product_id: product.product_id,
         currency: product.currency ?? 'USD',
@@ -318,10 +327,16 @@ export async function sendBatchedTrackPurchase(
           ...omit(product, reservedKeys),
           ...eventProperties
         }
-      } as JSONLikeObject)
+      } as JSONLikeObject
+
+      flattenedPayload.push(flattenedPayloadItem)
+      flattenedPayloadGroup.push(flattenedPayloadItem)
 
       // Record the index of the flattened payload with the index of original batch payload
       validPayloadIndicesBitmap.push(originalBatchIndex)
+
+      // Update the original payload with the payload that was sent to Braze
+      payloads[originalBatchIndex] = flattenedPayloadGroup as object as TrackPurchasePayload
     })
 
     // Initialize the Multi-Status response to be valid for all validated payloads
@@ -341,7 +356,7 @@ export async function sendBatchedTrackPurchase(
   })
 
   await handleBrazeAPIResponse(
-    transformPayloadsType(payloads),
+    payloads as object as JSONLikeObject[],
     response,
     multiStatusResponse,
     validPayloadIndicesBitmap
@@ -450,11 +465,11 @@ export async function updateBatchedUserProfile(
     const user_alias = getUserAlias(payload.user_alias)
 
     // Filter out and record if payload is invalid
-    if (!braze_id && !user_alias && !external_id) {
+    if (!braze_id && !user_alias && !external_id && !email) {
       multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'One of "external_id" or "user_alias" or "braze_id" is required.'
+        errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" is required.'
       })
       return
     }
@@ -507,6 +522,9 @@ export async function updateBatchedUserProfile(
     // Record the index of the original payload in the filtered array
     validPayloadIndicesBitmap.push(originalBatchIndex)
 
+    // Update the original payload with the payload that was sent to Braze
+    payloads[originalBatchIndex] = payloadToSend as object as TrackEventPayload
+
     // Initialize the Multi-Status response to be valid for all validated payloads
     multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
       status: 200,
@@ -524,7 +542,7 @@ export async function updateBatchedUserProfile(
   })
 
   await handleBrazeAPIResponse(
-    transformPayloadsType(payloads),
+    payloads as object as JSONLikeObject[],
     response,
     multiStatusResponse,
     validPayloadIndicesBitmap
@@ -599,10 +617,6 @@ async function handleBrazeAPIResponse(
       throw error
     }
   }
-}
-
-function transformPayloadsType(obj: object[]) {
-  return obj as JSONLikeObject[]
 }
 
 export function generateMultiStatusError(batchSize: number, errorMessage: string): MultiStatusResponse {
