@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import track from './track'
+// import track from './track'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Drip',
@@ -10,12 +10,23 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'custom',
-    fields: {}
-    // testAuthentication: (request) => {
-    //   // Return a request that tests/validates the user's credentials.
-    //   // If you do not have a way to validate the authentication fields safely,
-    //   // you can remove the `testAuthentication` function, though discouraged.
-    // }
+    fields: {
+      apiKey: {
+        type: 'string',
+        label: 'API Key', // TODO: base64 encode
+        description: 'Your Drip API Key',
+        required: true
+      }
+    },
+
+    testAuthentication: async (request, { settings }) => {
+      return await request('https://api-staging.getdrip.com/v2/user', {
+        method: 'GET',
+        headers: {
+          Authorization: `Basic ${settings.apiKey}`
+        }
+      })
+    }
   },
 
   onDelete: async (request, { settings, payload }) => {
@@ -25,7 +36,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    track
+    // track
   }
 }
 
