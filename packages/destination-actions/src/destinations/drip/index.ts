@@ -13,26 +13,22 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       apiKey: {
         type: 'string',
-        label: 'API Key', // TODO: base64 encode
+        label: 'API Key',
         description: 'Your Drip API Key',
         required: true
       }
     },
 
     testAuthentication: async (request, { settings }) => {
+      const encodedApiKey = Buffer.from(`${settings.apiKey}:`).toString('base64')
+
       return await request('https://api-staging.getdrip.com/v2/user', {
         method: 'GET',
         headers: {
-          Authorization: `Basic ${settings.apiKey}`
+          Authorization: `Basic ${encodedApiKey}`
         }
       })
     }
-  },
-
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
   },
 
   actions: {
