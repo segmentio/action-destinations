@@ -12268,10 +12268,10 @@ loglevel@^1.6.0:
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.8.1.tgz#5c621f83d5b48c54ae93b6156353f555963377b4"
   integrity sha512-tCRIJM51SHjAayKwC+QAg8hT8vg6z7GSgLJKGvzuPb1Wc+hLzqtuVLxp6/HzSPOozuK+8ErAhy7U/sVzw8Dgfg==
 
-logrocket@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/logrocket/-/logrocket-3.0.1.tgz#c746e8df3d5fee999b152975e51db1908357a6f0"
-  integrity sha512-jOWG+jEzobKVxGytzZ+4KGm2kiMQMRTHab2uDWQyVZcHfEF38BlCH1yjQVY4LCmuQUwZitP9biMzJZnyUQ0dtQ==
+logrocket@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/logrocket/-/logrocket-9.0.0.tgz#bbe4c116f9859c9323a71245417521c4f11d4610"
+  integrity sha512-/nYoKA4W8nr3YETPyOin9oiFFzwGDv8Lh02DG8ZnS9coKBYwrEG+dE2OqpOotVbs4zJWjCCPaqhR/HAMi+O3yA==
 
 lower-case@^2.0.2:
   version "2.0.2"
