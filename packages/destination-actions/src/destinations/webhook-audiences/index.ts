@@ -47,7 +47,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async getAudience(request, getAudienceInput) {
       const getAudienceUrl = getAudienceInput.settings.getAudienceUrl
-      const features = getAudienceInput.features
+      const features = {}
+      //createAudienceInput.features
       const { statsClient, tags: statsTags } = getAudienceInput.statsContext || {}
 
       if (features && 'audience-destination-feature' in features) {
@@ -87,7 +88,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
-      const features = createAudienceInput.features
+      const features = {}
+      //createAudienceInput.features
       const { statsClient, tags: statsTags } = createAudienceInput.statsContext || {}
 
       if (features && 'audience-destination-feature' in features) {
