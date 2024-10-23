@@ -1,10 +1,11 @@
-import { ActionDefinition, RequestClient } from '@segment/actions-core'
+import { ActionDefinition, JSONLikeObject, MultiStatusResponse, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from '../mixpanel-types'
 import { getApiServerUrl } from '../common/utils'
 import { getEventProperties } from './functions'
 import { eventProperties } from '../mixpanel-properties'
+import { MixpanelTrackApiResponseType, handleMixPanelApiResponse, transformPayloadsType } from '../common/utils'
 
 const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEvent => {
   const event: MixpanelEvent = {
@@ -17,15 +18,44 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
 }
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
-  const events = payload.map((value) => getEventFromPayload(value, settings))
+  const multiStatusResponse = new MultiStatusResponse()
+  let events
+  if (!Array.isArray(payload)) {
+    // Run the function for a single event
+    events = getEventFromPayload(payload, settings)
+  } else {
+    events = payload.map((value, index) => {
+      if (!value.event) {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: 'Event name is required'
+        })
+      } else {
+        const event = getEventFromPayload(value, settings)
+        multiStatusResponse.setSuccessResponseAtIndex(index, {
+          status: 200,
+          sent: event as JSONLikeObject,
+          body: 'Event sent successfully'
+        })
+        return event
+      }
+    })
+  }
 
-  return request(`${getApiServerUrl(settings.apiRegion)}/import?strict=${settings.strictMode ?? `1`}`, {
-    method: 'post',
-    json: events,
-    headers: {
-      authorization: `Basic ${Buffer.from(`${settings.apiSecret}:`).toString('base64')}`
+  const response = request<MixpanelTrackApiResponseType>(
+    `${getApiServerUrl(settings.apiRegion)}/import?strict=${settings.strictMode ?? `1`}`,
+    {
+      method: 'post',
+      json: events,
+      headers: {
+        authorization: `Basic ${Buffer.from(`${settings.apiSecret}:`).toString('base64')}`
+      }
     }
-  })
+  )
+
+  await handleMixPanelApiResponse(transformPayloadsType(payload), await response, multiStatusResponse)
+  return multiStatusResponse
 }
 
 const action: ActionDefinition<Settings, Payload> = {

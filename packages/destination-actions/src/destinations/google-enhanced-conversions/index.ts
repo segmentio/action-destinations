@@ -82,13 +82,14 @@ const destination: AudienceDestinationDefinition<Settings> = {
       type: 'boolean',
       label: 'Supports Conversions',
       description:
-        'Mark true if you are using uploadCallConversion, uploadClickConversion or uploadConversionAdjustment. This destination will only operate with these actions if this is true.',
+        'Mark true if you are using uploadCallConversion, uploadClickConversion or uploadConversionAdjustment. If you plan to use userLists alone or in combination with the others, mark as false.',
       default: false
     },
     external_id_type: {
       type: 'string',
       label: 'External ID Type',
-      description: 'Customer match upload key types.',
+      description:
+        'Customer match upload key types. Required if you are using UserLists. Not used by the other actions.',
       choices: [
         { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
         { label: 'CRM ID', value: 'CRM_ID' },

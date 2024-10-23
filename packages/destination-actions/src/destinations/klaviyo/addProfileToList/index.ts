@@ -1,7 +1,14 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { createProfile, addProfileToList, processPhoneNumber, sendBatchedProfileImportJobRequest } from '../functions'
+import {
+  createProfile,
+  addProfileToList,
+  createImportJobPayload,
+  sendImportJobRequest,
+  validateAndConvertPhoneNumber,
+  processPhoneNumber
+} from '../functions'
 import {
   email,
   external_id,
@@ -58,7 +65,24 @@ const action: ActionDefinition<Settings, Payload> = {
     return await addProfileToList(request, profileId, list_id)
   },
   performBatch: async (request, { payload }) => {
-    return sendBatchedProfileImportJobRequest(request, payload)
+    // Filtering out profiles that do not contain either an email, external_id or valid phone number.
+    payload = payload.filter((profile) => {
+      // Validate and convert the phone number using the provided country code
+      const validPhoneNumber = validateAndConvertPhoneNumber(profile.phone_number, profile.country_code)
+
+      // If the phone number is valid, update the profile's phone number with the validated format
+      if (validPhoneNumber) {
+        profile.phone_number = validPhoneNumber
+      }
+      // If the phone number is invalid (null), exclude this profile
+      else if (validPhoneNumber === null) {
+        return false
+      }
+      return profile.email || profile.external_id || profile.phone_number
+    })
+    const listId = payload[0]?.list_id
+    const importJobPayload = createImportJobPayload(payload, listId)
+    return sendImportJobRequest(request, importJobPayload)
   }
 }
 

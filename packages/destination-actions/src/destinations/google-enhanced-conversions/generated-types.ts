@@ -14,11 +14,11 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Mark true if you are using uploadCallConversion, uploadClickConversion or uploadConversionAdjustment. This destination will only operate with these actions if this is true.
+   * Mark true if you are using uploadCallConversion, uploadClickConversion or uploadConversionAdjustment. If you plan to use userLists alone or in combination with the others, mark as false.
    */
   supports_conversions?: boolean
   /**
-   * Customer match upload key types.
+   * Customer match upload key types. Required if you are using UserLists. Not used by the other actions.
    */
   external_id_type?: string
   /**

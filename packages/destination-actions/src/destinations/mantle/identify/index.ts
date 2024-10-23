@@ -38,6 +38,13 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: { '@path': '$.traits.email' }
     },
+    platformPlanName: {
+      label: 'Platform Plan Name',
+      description: 'The name of the plan the customer is on on the platform (Shopify)',
+      type: 'string',
+      required: false,
+      default: { '@path': '$.traits.platformPlanName' }
+    },
     customFields: {
       label: 'Custom Fields',
       description: 'The custom fields of the customer / shop',
@@ -58,6 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
         myshopifyDomain: data.payload.myshopifyDomain,
         name: data.payload.name,
         email: data.payload.email,
+        ...(data.payload.platformPlanName ? { platformPlanName: data.payload.platformPlanName } : {}),
         ...(data.payload.customFields ? { customFields: data.payload.customFields } : {})
       }
     })

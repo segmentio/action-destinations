@@ -1,3 +1,5 @@
+import { JSONLikeObject, ModifiedResponse, MultiStatusResponse } from '@segment/actions-core'
+
 export enum ApiRegions {
   US = 'US 🇺🇸',
   EU = 'EU 🇪🇺'
@@ -98,4 +100,47 @@ export function getBrowserVersion(userAgent: string) {
 export function cheapGuid(maxlen?: number) {
   const guid = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10)
   return maxlen ? guid.substring(0, maxlen) : guid
+}
+
+export type MixpanelTrackApiResponseType = {
+  code: number
+  status: string
+  error?: string
+  num_records_imported?: number
+  failed_records?: {
+    index: number
+    insert_id: string
+    field: string
+    message: string
+  }[]
+}
+
+export function transformPayloadsType(obj: object[]) {
+  const jsonObj = obj as JSONLikeObject[]
+  return jsonObj.length
+}
+
+export async function handleMixPanelApiResponse(
+  payloadCount: Number,
+  apiResponse: ModifiedResponse<MixpanelTrackApiResponseType>,
+  multiStatusResponse: MultiStatusResponse
+) {
+  const errorResponse = apiResponse
+  if (errorResponse.data.code === 400) {
+    errorResponse.data.failed_records?.map((data) => {
+      multiStatusResponse.setErrorResponseAtIndex(data.index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: data.message
+      })
+    })
+  } else {
+    for (let i = 0; i < payloadCount; i++) {
+      multiStatusResponse.pushErrorResponse({
+        status: errorResponse.data.code,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: errorResponse.data.error ?? 'Payload validation error'
+      })
+    }
+  }
 }

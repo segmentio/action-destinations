@@ -8,7 +8,7 @@ export interface Payload {
     email?: string
     phone_number?: string
     /**
-     * Country Code of the user. We support ISO 3166-1 alpha-2 country code.
+     * Country Code in ISO 3166-1 alpha-2 format. If provided, this will be used to validate and automatically format Phone Number field in E.164 format accepted by Klaviyo.
      */
     country_code?: string
     /**
@@ -50,12 +50,4 @@ export interface Payload {
    *
    */
   unique_id?: string
-  /**
-   * When enabled, the action will use the klaviyo batch API.
-   */
-  enable_batching?: boolean
-  /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
-   */
-  batch_size?: number
 }
