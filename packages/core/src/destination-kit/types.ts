@@ -379,7 +379,7 @@ export type ActionDestinationSuccessResponseType = {
 export type ActionDestinationErrorResponseType = {
   status: number
   // The `keyof typeof` in the following line allows using string literals that match enum values
-  errortype: keyof typeof ErrorCodes
+  errortype?: keyof typeof ErrorCodes
   errormessage: string
   sent?: JSONLikeObject | string
   body?: JSONLikeObject | string

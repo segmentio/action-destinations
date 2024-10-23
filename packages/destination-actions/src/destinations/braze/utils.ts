@@ -575,7 +575,7 @@ async function handleBrazeAPIResponse(
 
         multiStatusResponse.setErrorResponseAtIndex(indexInOriginalPayload, {
           status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errortype: 'BAD_REQUEST',
           errormessage: error.type,
           sent: payloads[indexInOriginalPayload],
           body: error.type
@@ -605,7 +605,7 @@ async function handleBrazeAPIResponse(
         // Set the error response
         multiStatusResponse.setErrorResponseAtIndex(i, {
           status: error.response.status,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          // errortype will be inferred from the error.response.status,
           errormessage:
             (error?.response as ModifiedResponse<BrazeTrackUserAPIResponse>)?.data?.message ?? error.message,
           sent: payloads[i],
