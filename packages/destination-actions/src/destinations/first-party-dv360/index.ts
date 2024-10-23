@@ -3,7 +3,7 @@ import type { AudienceSettings, Settings } from './generated-types'
 import { createAudienceRequest, getAudienceRequest, getAuthSettings, getAuthToken } from './functions'
 import removeFromAudContactInfo from './removeFromAudContactInfo'
 import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
-import addToAudContactInfo from './addToAudContactInfo'
+import addToAudContactInfo from './addtoAudContactInfo'
 import addToAudMobileDeviceId from './addToAudMobileDeviceId'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
