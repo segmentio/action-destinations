@@ -1,0 +1,13 @@
+const.ts
+//Real
+export const xSecurityKey = "your-secure-security-key" 
+//For upload
+export const xSecurityKey = "TO-DO-MUST BE IN SECURE STORAGE" 
+
+utils.ts
+//Real
+const encryptionKey = "00f952a963f38a818e9980a17882acd6b8dfa6c20f514af996ad7fafa771da08";
+const iv = "ef00cbd191f27019f407d2db29ae5bc0";
+//For upload
+const encryptionKey = "TODO-GET FROM STORAGE";
+const iv = "TODO-GET FROM STORAGE";
