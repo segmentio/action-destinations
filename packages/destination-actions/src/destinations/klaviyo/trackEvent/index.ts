@@ -1,12 +1,11 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
-import { processPhoneNumber } from '../functions'
-import { country_code } from '../properties'
-import dayjs from 'dayjs'
+import { batch_size, enable_batching, country_code } from '../properties'
+import { processPhoneNumber, sendBatchedTrackEvent } from '../functions'
+import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -91,7 +90,9 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.messageId'
       }
-    }
+    },
+    enable_batching: { ...enable_batching },
+    batch_size: { ...batch_size }
   },
   perform: (request, { payload }) => {
     const { email, phone_number: initialPhoneNumber, external_id, anonymous_id, country_code } = payload.profile
@@ -128,11 +129,13 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     }
-
     return request(`${API_URL}/events/`, {
       method: 'POST',
       json: eventData
     })
+  },
+  performBatch: (request, { payload }) => {
+    return sendBatchedTrackEvent(request, payload)
   }
 }
 

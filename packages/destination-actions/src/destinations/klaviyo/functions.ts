@@ -3,8 +3,11 @@ import {
   RequestClient,
   DynamicFieldResponse,
   IntegrationError,
-  PayloadValidationError
+  PayloadValidationError,
+  MultiStatusResponse,
+  HTTPError
 } from '@segment/actions-core'
+import { JSONLikeObject } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
 import { Settings } from './generated-types'
 import {
@@ -20,10 +23,14 @@ import {
   UnsubscribeProfile,
   UnsubscribeEventData,
   GroupedProfiles,
-  AdditionalAttributes
+  AdditionalAttributes,
+  KlaviyoAPIErrorResponse
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
+import { Payload as TrackEventPayload } from './trackEvent/generated-types'
+import dayjs from '../../lib/dayjs'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+import { eventBulkCreateRegex } from './properties'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -450,4 +457,170 @@ export function processPhoneNumber(initialPhoneNumber?: string, country_code?: s
   }
 
   return phone_number
+}
+
+export async function sendBatchedTrackEvent(request: RequestClient, payloads: TrackEventPayload[]) {
+  const multiStatusResponse = new MultiStatusResponse()
+  const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayloads(payloads, multiStatusResponse)
+  // if there are no payloads with valid phone number/email/external_id, return multiStatusResponse
+  if (!filteredPayloads.length) {
+    return multiStatusResponse
+  }
+  const payloadToSend = {
+    data: {
+      type: 'event-bulk-create-job',
+      attributes: {
+        'events-bulk-create': {
+          data: filteredPayloads
+        }
+      }
+    }
+  }
+
+  try {
+    await request(`${API_URL}/event-bulk-create-jobs/`, {
+      method: 'POST',
+      json: payloadToSend
+    })
+  } catch (err) {
+    if (err instanceof HTTPError) {
+      const errorResponse = await err?.response?.json()
+      handleKlaviyoAPIErrorResponse(
+        payloads as object as JSONLikeObject[],
+        errorResponse,
+        multiStatusResponse,
+        validPayloadIndicesBitmap,
+        eventBulkCreateRegex
+      )
+    } else {
+      // Bubble up the error and let Actions Framework handle it
+      throw err
+    }
+  }
+  return multiStatusResponse
+}
+
+function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusResponse: MultiStatusResponse) {
+  const filteredPayloads: JSONLikeObject[] = []
+  const validPayloadIndicesBitmap: number[] = []
+
+  payloads.forEach((payload, originalBatchIndex) => {
+    const { email, phone_number, external_id, anonymous_id, country_code } = payload.profile
+    if (!email && !phone_number && !external_id && !anonymous_id) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'One of External ID, Anonymous ID, Phone Number or Email is required.'
+      })
+      return
+    }
+
+    if (phone_number) {
+      // Validate and convert the phone number if present
+      const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, country_code as string)
+      // If the phone number is not valid, skip this payload
+      if (!validPhoneNumber) {
+        multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: 'Phone number could not be converted to E.164 format.'
+        })
+        return // Skip this payload
+      }
+
+      // Update the payload's phone number with the validated format
+      payload.profile.phone_number = validPhoneNumber
+      delete payload?.profile?.country_code
+    }
+
+    const profileToAdd = constructBulkCreateEventPayload(payload)
+    filteredPayloads.push(profileToAdd as JSONLikeObject)
+    validPayloadIndicesBitmap.push(originalBatchIndex)
+    multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
+      status: 200,
+      sent: profileToAdd as JSONLikeObject,
+      body: 'success'
+    })
+  })
+
+  return { filteredPayloads, validPayloadIndicesBitmap }
+}
+
+function constructBulkCreateEventPayload(payload: TrackEventPayload) {
+  return {
+    type: 'event-bulk-create',
+    attributes: {
+      profile: {
+        data: {
+          type: 'profile',
+          attributes: payload.profile
+        }
+      },
+      events: {
+        data: [
+          {
+            type: 'event',
+            attributes: {
+              metric: {
+                data: {
+                  type: 'metric',
+                  attributes: {
+                    name: payload.metric_name
+                  }
+                }
+              },
+              properties: { ...payload.properties },
+              time: payload?.time ? dayjs(payload.time).toISOString() : undefined,
+              value: payload.value,
+              unique_id: payload.unique_id
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+
+function handleKlaviyoAPIErrorResponse(
+  payloads: JSONLikeObject[],
+  response: KlaviyoAPIErrorResponse,
+  multiStatusResponse: MultiStatusResponse,
+  validPayloadIndicesBitmap: number[],
+  regex: RegExp
+) {
+  if (response?.errors && Array.isArray(response.errors)) {
+    const invalidIndexSet = new Set<number>()
+    response.errors.forEach((error: KlaviyoAPIError) => {
+      const indexInOriginalPayload = getIndexFromErrorPointer(error.source.pointer, validPayloadIndicesBitmap, regex)
+      if (indexInOriginalPayload !== -1 && !multiStatusResponse.isErrorResponseAtIndex(indexInOriginalPayload)) {
+        multiStatusResponse.setErrorResponseAtIndex(indexInOriginalPayload, {
+          status: error.status,
+          // errortype will be inferred from the error.response.status
+          errormessage: error.detail,
+          sent: payloads[indexInOriginalPayload],
+          body: JSON.stringify(error)
+        })
+        invalidIndexSet.add(indexInOriginalPayload)
+      }
+    })
+
+    for (const index of validPayloadIndicesBitmap) {
+      if (!invalidIndexSet.has(index)) {
+        multiStatusResponse.setSuccessResponseAtIndex(index, {
+          status: 429,
+          sent: payloads[index],
+          body: 'Retry'
+        })
+      }
+    }
+  }
+}
+
+function getIndexFromErrorPointer(pointer: string, validPayloadIndicesBitmap: number[], regex: RegExp) {
+  const match = regex.exec(pointer)
+  if (match && match[1]) {
+    const index = parseInt(match[1], 10)
+    return validPayloadIndicesBitmap[index] !== undefined ? validPayloadIndicesBitmap[index] : -1
+  }
+  return -1
 }
