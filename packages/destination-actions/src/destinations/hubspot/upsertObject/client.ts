@@ -40,8 +40,6 @@ export class Client {
   }
 
   async batchObjectRequest(action: ObjReqType, objectType: string, json: ReadReq | UpsertReq | CreateReq) {
-    json = {"inputs":[{"idProperty":"contact_id","id":"contact_with_cancellation_1","properties":{"cancellation_motive_description":"","sensitive_demo_prop__1":"","contact_id":"contact_with_cancellation_1"}}]}
-
     return this.request<BatchObjResp>(`${HUBSPOT_BASE_URL}/crm/v3/objects/${objectType}/batch/${action}`, {
       method: 'POST',
       json

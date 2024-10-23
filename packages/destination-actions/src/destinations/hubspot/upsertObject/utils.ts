@@ -97,9 +97,6 @@ function cleanPropObj(
       cleanObj[cleanKey] = String(value)
     }
   })
-
-  console.log(cleanObj)
-
   return cleanObj
 }
 
