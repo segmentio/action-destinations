@@ -57,12 +57,11 @@ const getPurchaseEventsFromPayload = (payload: Payload, settings: Settings): Mix
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const multiStatusResponse = new MultiStatusResponse()
-  let events
-  if (!Array.isArray(payload)) {
-    // Run the function for a single event
-    events = getPurchaseEventsFromPayload(payload, settings).flat()
+  let events: MixpanelEvent[] = []
+  if (payload.length === 1) {
+    events = getPurchaseEventsFromPayload(payload[0], settings).flat()
   } else {
-    events = payload.map((value, index) => {
+    payload.forEach((value, index) => {
       if (!value.event) {
         multiStatusResponse.setErrorResponseAtIndex(index, {
           status: 400,
@@ -70,13 +69,13 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
           errormessage: 'Event name is required'
         })
       } else {
-        const event = getPurchaseEventsFromPayload(value, settings).flat()
         multiStatusResponse.setSuccessResponseAtIndex(index, {
           status: 200,
-          sent: event[index],
+          sent: String(value),
           body: 'Event sent successfully'
         })
-        return event
+        const purchaseEvents = getPurchaseEventsFromPayload(value, settings).flat()
+        events.push(...purchaseEvents)
       }
     })
   }
