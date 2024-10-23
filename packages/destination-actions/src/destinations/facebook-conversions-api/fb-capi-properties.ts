@@ -212,3 +212,11 @@ export const event_id: InputField = {
     '@path': '$.messageId'
   }
 }
+
+export const test_event_code: InputField = {
+  label: 'Test Event Code',
+  type: 'string',
+  description:
+    'Use this field to specify that events should be test events rather than actual traffic. You can find your Test Event Code in your Facebook Events Manager under the "Test events" tab. This property overrides the test event code defined in Settings. You\'ll want to remove your Test Event Code when sending real traffic through this integration.',
+  required: false
+}

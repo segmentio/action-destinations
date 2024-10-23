@@ -246,5 +246,82 @@ describe('FacebookConversionsApi', () => {
         `"{\\"data\\":[{\\"event_name\\":\\"ViewContent\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12,\\"content_ids\\":[\\"ABC123\\",\\"XYZ789\\"],\\"content_name\\":\\"Oreo's Quadruple Stack\\",\\"content_type\\":\\"product\\",\\"contents\\":[{\\"id\\":\\"ABC123\\",\\"quantity\\":2},{\\"id\\":\\"XYZ789\\",\\"quantity\\":3}],\\"content_category\\":\\"Cookies\\"}}],\\"test_event_code\\":\\"1234567890\\"}"`
       )
     })
+
+    it('should send test_event_code if present in the mapping', async () => {
+      nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+      const event = createTestEvent({
+        event: 'Product Viewed',
+        userId: 'abc123',
+        timestamp: '1631210063',
+        properties: {
+          action_source: 'email',
+          currency: 'USD',
+          value: 12.12,
+          email: 'nicholas.aguilar@segment.com',
+          content_category: 'Cookies',
+          content_name: "Oreo's Quadruple Stack",
+          content_type: 'product',
+          content_ids: ['ABC123', 'XYZ789'],
+          contents: [
+            { id: 'ABC123', quantity: 2 },
+            { id: 'XYZ789', quantity: 3 }
+          ],
+          test_event_code: '2345678901'
+        }
+      })
+
+      const responses = await testDestination.testAction('viewContent', {
+        event,
+        settings: settingsWithTestEventCode,
+        mapping: {
+          currency: {
+            '@path': '$.properties.currency'
+          },
+          value: {
+            '@path': '$.properties.value'
+          },
+          user_data: {
+            email: {
+              '@path': '$.properties.email'
+            }
+          },
+          action_source: {
+            '@path': '$.properties.action_source'
+          },
+          event_time: {
+            '@path': '$.timestamp'
+          },
+          search_string: {
+            '@path': '$.properties.search_string'
+          },
+          contents: {
+            '@path': '$.properties.contents'
+          },
+          content_ids: {
+            '@path': '$.properties.content_ids'
+          },
+          content_category: {
+            '@path': '$.properties.content_category'
+          },
+          content_type: {
+            '@path': '$.properties.content_type'
+          },
+          content_name: {
+            '@path': '$.properties.content_name'
+          },
+          test_event_code: {
+            '@path': '$.properties.test_event_code'
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"data\\":[{\\"event_name\\":\\"ViewContent\\",\\"event_time\\":\\"1631210063\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"eeaf810ee0e3cef3307089f22c3804f54c79eed19ef29bf70df864b43862c380\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12,\\"content_ids\\":[\\"ABC123\\",\\"XYZ789\\"],\\"content_name\\":\\"Oreo's Quadruple Stack\\",\\"content_type\\":\\"product\\",\\"contents\\":[{\\"id\\":\\"ABC123\\",\\"quantity\\":2},{\\"id\\":\\"XYZ789\\",\\"quantity\\":3}],\\"content_category\\":\\"Cookies\\"}}],\\"test_event_code\\":\\"2345678901\\"}"`
+      )
+    })
   })
 })
