@@ -144,7 +144,7 @@ describe('MultiStatus', () => {
       expect(response[1]).toMatchObject({
         status: 400,
         errormessage: 'a test error occurred',
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'BAD_REQUEST',
         errorreporter: 'DESTINATION'
       })
     })
@@ -200,13 +200,13 @@ describe('MultiStatus', () => {
         {
           status: 400,
           errormessage: "Valid data must be provided in the 'attributes', 'events', or 'purchases' fields.",
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errortype: 'BAD_REQUEST',
           errorreporter: 'DESTINATION'
         },
         {
           status: 400,
           errormessage: "Valid data must be provided in the 'attributes', 'events', or 'purchases' fields.",
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errortype: 'BAD_REQUEST',
           errorreporter: 'DESTINATION'
         }
       ])
@@ -425,7 +425,7 @@ describe('MultiStatus', () => {
       // The first event fails as it expands to 2 request items and one of them fails
       expect(response[0]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'BAD_REQUEST',
         errormessage: 'a test error occurred',
         errorreporter: 'DESTINATION'
       })
@@ -534,13 +534,13 @@ describe('MultiStatus', () => {
         {
           status: 400,
           errormessage: "Valid data must be provided in the 'attributes', 'events', or 'purchases' fields.",
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errortype: 'BAD_REQUEST',
           errorreporter: 'DESTINATION'
         },
         {
           status: 400,
           errormessage: "Valid data must be provided in the 'attributes', 'events', or 'purchases' fields.",
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errortype: 'BAD_REQUEST',
           errorreporter: 'DESTINATION'
         },
         {
@@ -688,7 +688,7 @@ describe('MultiStatus', () => {
       expect(response[1]).toMatchObject({
         status: 400,
         errormessage: 'a test error occurred',
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'BAD_REQUEST',
         errorreporter: 'DESTINATION'
       })
     })
@@ -746,13 +746,13 @@ describe('MultiStatus', () => {
         {
           status: 400,
           errormessage: "Valid data must be provided in the 'attributes', 'events', or 'purchases' fields.",
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errortype: 'BAD_REQUEST',
           errorreporter: 'DESTINATION'
         },
         {
           status: 400,
           errormessage: "Valid data must be provided in the 'attributes', 'events', or 'purchases' fields.",
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errortype: 'BAD_REQUEST',
           errorreporter: 'DESTINATION'
         }
       ])

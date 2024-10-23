@@ -39,7 +39,10 @@ export {
   PayloadValidationError,
   SelfTimeoutError,
   APIError,
-  ErrorCodes
+  ErrorCodes,
+  HttpErrorCodes,
+  CustomErrorCodes,
+  getErrorCodeFromHttpStatus
 } from './errors'
 export { retry } from './retry'
 export { get } from './get'
