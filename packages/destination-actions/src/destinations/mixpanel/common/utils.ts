@@ -116,40 +116,31 @@ export type MixpanelTrackApiResponseType = {
 }
 
 export function transformPayloadsType(obj: object[]) {
-  return obj as JSONLikeObject[]
+  const jsonObj = obj as JSONLikeObject[]
+  return jsonObj.length
 }
 
 export async function handleMixPanelApiResponse(
-  payloads: JSONLikeObject[],
-  apiResponse: Promise<ModifiedResponse<MixpanelTrackApiResponseType>>,
+  payloadCount: Number,
+  apiResponse: ModifiedResponse<MixpanelTrackApiResponseType>,
   multiStatusResponse: MultiStatusResponse
 ) {
-  try {
-    const response: ModifiedResponse<MixpanelTrackApiResponseType> = await apiResponse
-
-    console.log('MultistatusResponse', JSON.stringify(multiStatusResponse))
-    console.log('response', response)
-  } catch (error) {
-    console.log('error', error)
-
-    const errorResponse = error.response as ModifiedResponse<MixpanelTrackApiResponseType>
-
-    if (errorResponse.data.code === 400) {
-      errorResponse.data.failed_records?.map((data) => {
-        multiStatusResponse.setErrorResponseAtIndex(data.index, {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: data.message
-        })
+  const errorResponse = apiResponse
+  if (errorResponse.data.code === 400) {
+    errorResponse.data.failed_records?.map((data) => {
+      multiStatusResponse.setErrorResponseAtIndex(data.index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: data.message
       })
-    } else {
-      for (let i = 0; i < payloads.length; i++) {
-        multiStatusResponse.pushErrorResponse({
-          status: errorResponse.data.code,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: errorResponse.data.error ?? 'Payload validation error'
-        })
-      }
+    })
+  } else {
+    for (let i = 0; i < payloadCount; i++) {
+      multiStatusResponse.pushErrorResponse({
+        status: errorResponse.data.code,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: errorResponse.data.error ?? 'Payload validation error'
+      })
     }
   }
 }

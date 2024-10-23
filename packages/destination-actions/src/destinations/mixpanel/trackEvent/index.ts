@@ -54,7 +54,7 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
     }
   )
 
-  await handleMixPanelApiResponse(transformPayloadsType(payload), response, multiStatusResponse)
+  await handleMixPanelApiResponse(transformPayloadsType(payload), await response, multiStatusResponse)
   return multiStatusResponse
 }
 
