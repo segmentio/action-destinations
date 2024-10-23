@@ -1,6 +1,7 @@
 import { Subscription } from '@segment/browser-destination-runtime/types'
 import { Analytics, Context } from '@segment/analytics-next'
 import intercomDestination, { destination } from '../index'
+import nock from 'nock'
 
 const subscriptions: Subscription[] = [
   {
@@ -26,6 +27,10 @@ const subscriptions: Subscription[] = [
 ]
 
 describe('Intercom (actions)', () => {
+  beforeEach(() => {
+    nock('https://api-iam.intercom.io').get('/').reply(200)
+  })
+
   test('loads Intercom with just appID', async () => {
     const [event] = await intercomDestination({
       appId: 'topSecretKey',

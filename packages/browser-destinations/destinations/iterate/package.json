@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-iterate",
-  "version": "1.67.0",
+  "version": "1.69.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,8 +15,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.137.0",
-    "@segment/browser-destination-runtime": "^1.66.0"
+    "@segment/actions-core": "^3.139.0",
+    "@segment/browser-destination-runtime": "^1.68.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
