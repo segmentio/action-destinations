@@ -595,7 +595,7 @@ function handleKlaviyoAPIErrorResponse(
       if (indexInOriginalPayload !== -1 && !multiStatusResponse.isErrorResponseAtIndex(indexInOriginalPayload)) {
         multiStatusResponse.setErrorResponseAtIndex(indexInOriginalPayload, {
           status: error.status,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          // errortype will be inferred from the error.response.status
           errormessage: error.detail,
           sent: payloads[indexInOriginalPayload],
           body: JSON.stringify(error)

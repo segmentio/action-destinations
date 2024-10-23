@@ -166,7 +166,7 @@ describe('MultiStatus', () => {
       // The first doesn't fail as there is no error reported by Braze API
       expect(response[0]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'BAD_REQUEST',
         errormessage: 'Invalid email address',
         sent: {
           profile: {
