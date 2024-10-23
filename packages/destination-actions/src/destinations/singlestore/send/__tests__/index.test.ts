@@ -3,6 +3,8 @@ import { SegmentEvent } from '@segment/actions-core'
 import { Settings } from '../../generated-types'
 import { getProducerRecord, getKafkaConfiguration } from '../../util'
 
+const originalEnv = process.env
+
 const timestamp = '2024-01-08T13:52:50.212Z'
 const settings: Settings = {
   host: 'testhost',
@@ -37,12 +39,22 @@ const validPayload = {
 } as Partial<SegmentEvent>
 
 beforeEach((done) => {
+  process.env = { ...originalEnv }
   nock.cleanAll()
   done()
 })
 
+afterEach(() => {
+  process.env = originalEnv
+})
+
 describe('SingleStore.send', () => {
   it('create the correct kakfkaConfig, kafkaTopic and producerRecord objects', async () => {
+    
+    process.env.ACTIONS_SINGLE_STORE_ENCRYPTION_KEY = '47369146128f9c61f1349d3b277c26fbfd659cb82db8130f85f9b05c6d1f3268'
+    process.env.ACTIONS_SINGLE_STORE_X_SECURITY_KEY = '47369146128f9c61f1349d3b277c26fbfd659cb82db8130f85f9b05c6d1f3268'
+    process.env.ACTIONS_SINGLE_STORE_IV = 'e7e7cd503bb16df99445af9deb4d06f2'
+    
     const expectedKafkaTopic = '51e8049b5eff6e0c42012b596d46fcdb27457e71e5195db3e8f241e0b380ed08'
     const expectedKafkaConfig = {
       clientId: 'singlestore_segment_destination',
@@ -54,7 +66,7 @@ describe('SingleStore.send', () => {
       sasl: {
         username: '8bf14023d114c2d31ea66b5227c9bcc1e2bb81fc9f95a338732f1c32a507c75d',
         password:
-          'b9da30af98f4491f1657eb53063efe2a15b75c6cb480ef4e75ccea989fed6a12303491a4132d0c60723137b50891152d8cdcdcd8dc6ee6dda83a07938fa302e8dbc187e6a09ddf9385a0a11c7568b278',
+          '4ee754fe349da9fa8dbff42403d312bc1d9ad78fe1e6e6195359ec4f76e7458eaa83037a596420c14f95bff32cec4f34e532b07ccdb237ca2141de8e8190caa9f399df075dc8362517ae6467b627d812',
         mechanism: 'scram-sha-512'
       },
       ssl: true

@@ -41,7 +41,6 @@ export const getKafkaConfiguration = (settings: Settings): { kafkaConfig: KafkaC
   const kafkaTopic = createHash('sha256').update(destination_id).digest('hex')
   const kafkaUsername = createHash('sha256').update(`${destination_id}_user`).digest('hex')
   const kafkaPassword = encryptText(kafkaUsername)
-
   const kafkaConfig: KafkaConfig = {
     clientId: CLIENT_ID,
     brokers: settings.environment === 'Prod' ? PROD_BROKERS : STAGE_BROKERS,
