@@ -5,6 +5,7 @@ import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-t
 
 const DV360API = `https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences`
 const CONSENT_STATUS_GRANTED = 'CONSENT_STATUS_GRANTED' // Define consent status
+const OAUTH_URL = 'https://accounts.google.com/o/oauth2/token'
 
 interface createAudienceRequestParams {
   advertiserId: string
@@ -32,6 +33,42 @@ interface DV360editCustomerMatchResponse {
     }
   ]
 }
+
+interface RefreshTokenResponse {
+  access_token: string
+}
+
+type DV360AuthCredentials = { refresh_token: string; access_token: string; client_id: string; client_secret: string }
+
+export const getAuthSettings = (): DV360AuthCredentials => {
+  return {
+    refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN,
+    client_id: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID,
+    client_secret: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET
+  } as DV360AuthCredentials
+}
+
+// Use the refresh token to get a new access token.
+// Refresh tokens, Client_id and secret are long-lived and belong to the DMP.
+// Given the short expiration time of access tokens, we need to refresh them periodically.
+export const getAuthToken = async (request: RequestClient, settings: DV360AuthCredentials) => {
+  if (!settings.refresh_token) {
+    throw new IntegrationError('Refresh token is missing', 'INVALID_REQUEST_DATA', 400)
+  }
+
+  const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: settings.refresh_token,
+      client_id: settings.client_id,
+      client_secret: settings.client_secret,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  return data.access_token
+}
+
 export const createAudienceRequest = (
   request: RequestClient,
   params: createAudienceRequestParams
@@ -80,8 +117,19 @@ export async function editDeviceMobileIds(
 ) {
   const payload = payloads[0]
   const audienceId = payload.external_id
+
+  //Check if mobile device id exists otherwise drop the event
+  if (payload.mobileDeviceIds === undefined) {
+    return
+  }
+
+  //Get access token
+  const authSettings = getAuthSettings()
+  const token = await getAuthToken(request, authSettings)
+
   //Format the endpoint
   const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
+
   // Prepare the request payload
   const mobileDeviceIdList = {
     mobileDeviceIds: [payload.mobileDeviceIds],
@@ -100,7 +148,7 @@ export async function editDeviceMobileIds(
   const response = await request<DV360editCustomerMatchResponse>(endpoint, {
     method: 'POST',
     headers: {
-      authorization: 'Bearer temp-token',
+      authorization: `Bearer ${token}`,
       'Content-Type': 'application/json; charset=utf-8'
     },
     body: requestPayload
@@ -127,6 +175,20 @@ export async function editContactInfo(
   const payload = payloads[0]
   const audienceId = payloads[0].external_id
 
+  //Check if one of the required identifiers exists otherwise drop the event
+  if (
+    payload.emails === undefined &&
+    payload.phoneNumbers === undefined &&
+    payload.firstName === undefined &&
+    payload.lastName === undefined
+  ) {
+    return
+  }
+
+  //Get access token
+  const authSettings = getAuthSettings()
+  const token = await getAuthToken(request, authSettings)
+
   //Format the endpoint
   const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
 
@@ -149,7 +211,7 @@ export async function editContactInfo(
   const response = await request<DV360editCustomerMatchResponse>(endpoint, {
     method: 'POST',
     headers: {
-      authorization: 'Bearer temp-token',
+      authorization: `Bearer ${token}`,
       'Content-Type': 'application/json; charset=utf-8'
     },
     body: requestPayload
