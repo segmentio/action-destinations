@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Drip's track destination action: all fields 1`] = `
+Object {
+  "action": "EzGyNMVWXU*pKg6!KB5",
+  "email": "bi@gij.ch",
+  "properties": Object {
+    "testType": "EzGyNMVWXU*pKg6!KB5",
+  },
+  "type": "track",
+}
+`;
+
+exports[`Testing snapshot for Drip's track destination action: required fields 1`] = `
+Object {
+  "action": "EzGyNMVWXU*pKg6!KB5",
+  "email": "bi@gij.ch",
+  "type": "track",
+}
+`;
