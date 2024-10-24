@@ -197,6 +197,25 @@ Headers {
 }
 `;
 
+exports[`Testing snapshot for encharge destination: identifyUser action - required fields 4`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-encharge-token": Array [
+      "0$uor",
+    ],
+    "x-segment-actions": Array [
+      "1",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for encharge destination: removeTag action - all fields 1`] = `
 Object {
   "email": "diclujob@cag.br",
