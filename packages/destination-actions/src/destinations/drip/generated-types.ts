@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your Drip API Key
+   * API key for your Drip account. You can find this in your Drip account settings.
    */
   apiKey: string
 }

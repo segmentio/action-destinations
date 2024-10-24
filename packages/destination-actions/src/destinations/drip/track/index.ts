@@ -2,7 +2,7 @@
 // import type { Settings } from '../generated-types'
 // import type { Payload } from './generated-types'
 
-// import { endpointUrl } from '../utils'
+// import { baseUrl } from '../constants'
 
 // const action: ActionDefinition<Settings, Payload> = {
 //   title: 'Track',
@@ -36,14 +36,19 @@
 //     }
 //   },
 
-//   perform: (request, data) => {
-//     return request(endpointUrl(data.settings.api_key), {
-//       method: 'post',
+//   perform: (request, { settings, payload }) => {
+//     const encodedApiKey = Buffer.from(`${settings.apiKey}:`).toString('base64')
+
+//     return request(`${baseUrl}/v2/events`, {
+//       method: 'POST',
+//       headers: {
+//         Authorization: `Basic ${encodedApiKey}`
+//       },
 //       json: {
 //         type: 'track',
-//         event: data.payload.email,
-//         userId: data.payload.action,
-//         properties: data.payload.properties
+//         email: payload.email,
+//         userId: payload.action,
+//         properties: payload.properties
 //       }
 //     })
 //   }

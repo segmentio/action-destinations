@@ -16,7 +16,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         type: 'string',
         label: 'API Key',
-        description: 'Your Drip API Key',
+        description: 'API key for your Drip account. You can find this in your Drip account settings.',
         required: true
       }
     },
