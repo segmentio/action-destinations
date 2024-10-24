@@ -19,7 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
     domain: async (request) => {
       return await dynamicDomain(request)
     },
-    groupId: async (request) => {
+    group_id: async (request) => {
       return await dynamicGroupId(request)
     }
   },
