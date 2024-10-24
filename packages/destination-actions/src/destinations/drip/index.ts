@@ -1,6 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
+import { baseUrl } from './constants'
+
 // import track from './track'
 
 const destination: DestinationDefinition<Settings> = {
@@ -22,7 +24,7 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: async (request, { settings }) => {
       const encodedApiKey = Buffer.from(`${settings.apiKey}:`).toString('base64')
 
-      return await request('https://api-staging.getdrip.com/v2/user', {
+      return await request(`${baseUrl}/v2/user`, {
         method: 'GET',
         headers: {
           Authorization: `Basic ${encodedApiKey}`
