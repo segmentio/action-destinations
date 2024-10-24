@@ -42,13 +42,18 @@ const action: ActionDefinition<Settings, Payload> = {
     return request(`${baseUrl}/v2/3977335/events`, {
       method: 'POST',
       headers: {
-        Authorization: `Basic ${encodedApiKey}`
+        Authorization: `Basic ${encodedApiKey}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'Segment'
       },
       json: {
-        type: 'track',
-        email: payload.email,
-        action: payload.action,
-        properties: payload.properties
+        events: [
+          {
+            email: payload.email,
+            action: payload.action,
+            properties: payload.properties
+          }
+        ]
       }
     })
   }
