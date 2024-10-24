@@ -3,6 +3,8 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { Settings } from '../../generated-types'
 
+const settings: Settings = { apiKey: 'key' }
+
 const testDestination = createTestIntegration(Destination)
 
 describe('Drip.track', () => {
@@ -16,7 +18,7 @@ describe('Drip.track', () => {
     })
 
     const responses = await testDestination.testAction('track', {
-      settings: { apiKey: 'key' },
+      settings: settings,
       event: event,
       useDefaultMappings: true
     })
@@ -40,7 +42,7 @@ describe('Drip.track', () => {
     })
 
     const responses = await testDestination.testAction('track', {
-      settings: { apiKey: 'key' },
+      settings: settings,
       event: event,
       mapping: {
         action: {

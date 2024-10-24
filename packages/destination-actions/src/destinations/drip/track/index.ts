@@ -1,10 +1,10 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-// import type { Payload } from './generated-types' // Get these to generate
+import type { Payload } from './generated-types' // Get these to generate
 
 import { baseUrl } from '../constants'
 
-const action: ActionDefinition<Settings, any> = {
+const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
   description: 'Track event in Drip',
   fields: {
