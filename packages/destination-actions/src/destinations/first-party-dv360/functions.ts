@@ -42,9 +42,9 @@ type DV360AuthCredentials = { refresh_token: string; access_token: string; clien
 
 export const getAuthSettings = (): DV360AuthCredentials => {
   return {
-    refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN,
-    client_id: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID,
-    client_secret: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET
+    refresh_token: process.env.ACTIONS_FIRST_PARTY_DV360_REFRESH_TOKEN,
+    client_id: process.env.ACTIONS_FIRST_PARTY_DV360_CLIENT_ID,
+    client_secret: process.env.ACTIONS_FIRST_PARTY_DV360_CLIENT_SECRET
   } as DV360AuthCredentials
 }
 
