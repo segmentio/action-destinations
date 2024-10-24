@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * The domain to use for the email. This field is optional but recommended. If you do not provide a domain, Sendgrid will attempt to send the email based on the from address, and may fail if the domain in the from address is not validated.
+   */
+  domain?: string
+  /**
    * From details.
    */
   from: {
@@ -54,37 +58,17 @@ export interface Payload {
     name?: string
   }[]
   /**
-   * The subject of the email.
-   */
-  subject: string
-  /**
    * Headers for the email.
    */
   headers?: {
     [k: string]: unknown
   }
   /**
-   * A collection property names that will be substituted by their corresponding property values in the subject, reply-to and content portions of a SendGrid Dynamic Template.
+   * A collection of property names that will be substituted by their corresponding property values in the subject, reply-to and content portions of a SendGrid Dynamic Template.
    */
   dynamic_template_data?: {
-    /**
-     * The key of the dynamic template data.
-     */
-    key: string
-    /**
-     * The value of the dynamic template data.
-     */
-    value: string
-    /**
-     * If true, the email will not be sent if the Value field is empty, unless there is a default specified.
-     */
-    required: boolean
-    /**
-     * The default value to use if the value field is empty.
-     */
-    default?: string
     [k: string]: unknown
-  }[]
+  }
   /**
    * The template ID to use for the email. This must be for a Dynamic Template and should start with a 'd-'
    */
@@ -117,32 +101,6 @@ export interface Payload {
     name?: string
   }
   /**
-   * Click tracking settings for the email.
-   */
-  click_tracking?: {
-    /**
-     * Indicates if this setting is enabled
-     */
-    enable: boolean
-    /**
-     * Indicates if this setting should be included in the text/plain portion of your email.
-     */
-    enable_text?: boolean
-  }
-  /**
-   * Allows you to track if the email was opened by including a single transparent pixel image in the body of the message content.
-   */
-  open_tracking?: {
-    /**
-     * Indicates if this setting is enabled
-     */
-    enable: boolean
-    /**
-     * Allows you to specify a substitution tag that you can insert in the body of your email at a location that you desire. This tag will be replaced by the open tracking pixel.
-     */
-    substitution_tag?: string
-  }
-  /**
    * Allows you to insert a subscription management link at the bottom of the text and HTML bodies of your email.
    */
   subscription_tracking?: {
@@ -166,16 +124,11 @@ export interface Payload {
   /**
    * Categories for the email.
    */
-  categories?: {
-    /**
-     * Category name.
-     */
-    category: string
-  }[]
+  categories?: string[]
   /**
    * Allows you to enable tracking provided by Google Analytics.
    */
-  googleAnalytics?: {
+  google_analytics?: {
     /**
      * Indicates if this setting is enabled
      */
@@ -206,29 +159,11 @@ export interface Payload {
    */
   ip_pool_name?: string
   /**
-   * Subscription settings for the email.
+   * Specify a Group ID
    */
-  ASM?: {
-    /**
-     * Specify a Subscription Group ID to ensure emails are sent to only users who are subscribed to that group.
-     */
-    groupId?: number
-  }
+  group_id?: string
   /**
-   * A collection of different mail settings that you can use to specify how you would like this email to be handled.
+   * Sandbox Mode allows you to send a test email to ensure that your request body is valid and formatted correctly.
    */
-  mail_settings?: {
-    /**
-     * Allows you to bypass all unsubscribe groups and suppressions to ensure that the email is delivered to every single recipient.
-     */
-    bypass_list_management?: boolean
-    /**
-     * Allows you to bypass the global unsubscribe list to ensure that the email is delivered to recipients. This filter applies only to global unsubscribes and will not bypass group unsubscribes. This filter cannot be combined with the bypass_list_management.
-     */
-    bypass_unsubscribe_management?: boolean
-    /**
-     * Sandbox Mode allows you to send a test email to ensure that your request body is valid and formatted correctly.
-     */
-    sandbox_mode?: boolean
-  }
+  sandbox_mode?: boolean
 }

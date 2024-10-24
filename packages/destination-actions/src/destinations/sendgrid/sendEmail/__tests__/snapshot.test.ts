@@ -21,6 +21,13 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
+    event.properties = {
+      ...event.properties,
+      template_id: 'd-1234567890',
+      send_at: '',
+      group_id: ''
+    }
+
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
@@ -54,9 +61,18 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
+    event.properties = {
+      ...event.properties,
+      template_id: 'd-1234567890',
+      send_at: '',
+      group_id: '343234 - hello',
+      from: { email: 'from@gmail.com' },
+      domain: 'gmail.com'
+    }
+
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: { ...event.properties, group_id: { '@path': '$.properties.group_id' } },
       settings: settingsData,
       auth: undefined
     })
