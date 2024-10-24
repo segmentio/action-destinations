@@ -66,6 +66,9 @@ export const getAuthToken = async (request: RequestClient, settings: DV360AuthCr
     })
   })
 
+  console.log('Token settings:', settings)
+  console.log('Access Token:', data.access_token)
+
   return data.access_token
 }
 
@@ -76,6 +79,8 @@ export const createAudienceRequest = (
   const { advertiserId, audienceName, description, membershipDurationDays, audienceType, appId, token } = params
 
   const endpoint = DV360API + `?advertiserId=${advertiserId}`
+
+  console.log('Token in create audience request', token)
 
   return request(endpoint, {
     method: 'POST',
