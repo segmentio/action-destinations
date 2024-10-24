@@ -1,9 +1,9 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
-import { _1Flow } from '../api'
+import { _1flow } from '../api'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
+const action: BrowserActionDefinition<Settings, _1flow, Payload> = {
   title: 'Track Event',
   description: 'Submit an event to 1Flow.',
   defaultSubscription: 'type = "track"',
@@ -46,9 +46,9 @@ const action: BrowserActionDefinition<Settings, _1Flow, Payload> = {
       }
     }
   },
-  perform: (_1Flow, event) => {
+  perform: (_1flow, event) => {
     const { event_name, userId, anonymousId, properties } = event.payload
-    _1Flow('track', event_name, {
+    _1flow('track', event_name, {
       userId: userId,
       anonymousId: anonymousId,
       properties: properties

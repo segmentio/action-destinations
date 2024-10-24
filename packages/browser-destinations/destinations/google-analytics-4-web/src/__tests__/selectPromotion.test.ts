@@ -24,6 +24,9 @@ const subscriptions: Subscription[] = [
       promotion_name: {
         '@path': '$.properties.promotion_name'
       },
+      send_to: {
+        '@path': '$.properties.send_to'
+      },
       items: [
         {
           item_name: {
@@ -70,7 +73,82 @@ describe('GoogleAnalytics4Web.selectPromotion', () => {
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
 
-  test('GA4 selectPromotion Event', async () => {
+  test('GA4 selectPromotion Event when send to is false', async () => {
+    const context = new Context({
+      event: 'Select Promotion',
+      type: 'track',
+      properties: {
+        creative_name: 'summer_banner2',
+        creative_slot: 'featured_app_1',
+        location_id: 'ChIJIQBpAG2ahYAR_6128GcTUEo',
+        promotion_id: 'P_12345',
+        promotion_name: 'Summer Sale',
+        send_to: false,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+
+    await selectPromotionEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('select_promotion'),
+      expect.objectContaining({
+        creative_name: 'summer_banner2',
+        creative_slot: 'featured_app_1',
+        location_id: 'ChIJIQBpAG2ahYAR_6128GcTUEo',
+        promotion_id: 'P_12345',
+        promotion_name: 'Summer Sale',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        send_to: 'default'
+      })
+    )
+  })
+  test('GA4 selectPromotion Event when send to is true', async () => {
+    const context = new Context({
+      event: 'Select Promotion',
+      type: 'track',
+      properties: {
+        creative_name: 'summer_banner2',
+        creative_slot: 'featured_app_1',
+        location_id: 'ChIJIQBpAG2ahYAR_6128GcTUEo',
+        promotion_id: 'P_12345',
+        promotion_name: 'Summer Sale',
+        send_to: true,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+
+    await selectPromotionEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('select_promotion'),
+      expect.objectContaining({
+        creative_name: 'summer_banner2',
+        creative_slot: 'featured_app_1',
+        location_id: 'ChIJIQBpAG2ahYAR_6128GcTUEo',
+        promotion_id: 'P_12345',
+        promotion_name: 'Summer Sale',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        send_to: settings.measurementID
+      })
+    )
+  })
+
+  test('GA4 selectPromotion Event when send to is undefined', async () => {
     const context = new Context({
       event: 'Select Promotion',
       type: 'track',
@@ -101,7 +179,8 @@ describe('GoogleAnalytics4Web.selectPromotion', () => {
         location_id: 'ChIJIQBpAG2ahYAR_6128GcTUEo',
         promotion_id: 'P_12345',
         promotion_name: 'Summer Sale',
-        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }]
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        send_to: 'default'
       })
     )
   })

@@ -4,33 +4,43 @@ export const AlgoliaBehaviourURL = BaseAlgoliaInsightsURL + '/1/events'
 export const algoliaApiPermissionsUrl = (settings: Settings) =>
   `https://${settings.appId}.algolia.net/1/keys/${settings.apiKey}`
 
+export type AlgoliaEventType = 'view' | 'click' | 'conversion'
+
+export type AlgoliaEventSubtype = 'addToCart' | 'purchase'
+
 type EventCommon = {
   eventName: string
   index: string
   userToken: string
   timestamp?: number
   queryID?: string
+  eventType: AlgoliaEventType
 }
 
 export type AlgoliaProductViewedEvent = EventCommon & {
-  eventType: 'view'
   objectIDs: string[]
 }
 
 export type AlgoliaProductClickedEvent = EventCommon & {
-  eventType: 'click'
   positions?: number[]
   objectIDs: string[]
 }
 
 export type AlgoliaFilterClickedEvent = EventCommon & {
-  eventType: 'click'
   filters: string[]
 }
 
 export type AlgoliaConversionEvent = EventCommon & {
-  eventType: 'conversion'
+  eventSubtype?: AlgoliaEventSubtype
   objectIDs: string[]
+  objectData?: {
+    queryID?: string
+    price?: number | string
+    discount?: number | string
+    quantity?: number
+  }[]
+  value?: number
+  currency?: string
 }
 
 export type AlgoliaApiPermissions = {

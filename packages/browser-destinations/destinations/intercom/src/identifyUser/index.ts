@@ -97,9 +97,9 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
       required: false,
       default: {
         '@if': {
-          exists: { '@path': '$.context.Intercom.user_hash' },
-          then: { '@path': '$.context.Intercom.user_hash' },
-          else: { '@path': '$.context.Intercom.userHash' }
+          exists: { '@path': '$.integrations.Intercom.user_hash' },
+          then: { '@path': '$.integrations.Intercom.user_hash' },
+          else: { '@path': '$.integrations.Intercom.userHash' }
         }
       }
     },

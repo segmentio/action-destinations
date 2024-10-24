@@ -7,9 +7,19 @@ export interface Payload {
   profile: {
     email?: string
     phone_number?: string
-    other_properties?: {
-      [k: string]: unknown
-    }
+    /**
+     * Country Code in ISO 3166-1 alpha-2 format. If provided, this will be used to validate and automatically format Phone Number field in E.164 format accepted by Klaviyo.
+     */
+    country_code?: string
+    /**
+     * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system.
+     */
+    external_id?: string
+    /**
+     * Anonymous user identifier for the user.
+     */
+    anonymous_id?: string
+    [k: string]: unknown
   }
   /**
    * Name of the event. Must be less than 128 characters.

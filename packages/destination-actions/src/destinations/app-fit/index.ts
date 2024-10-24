@@ -5,7 +5,7 @@ import AppFitConfig from './config'
 import track from './track'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'App Fit',
+  name: 'AppFit',
   slug: 'actions-app-fit',
   mode: 'cloud',
 

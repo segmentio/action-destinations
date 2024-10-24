@@ -4,8 +4,8 @@ exports[`Testing snapshot for AlgoliaInsights's productViewedEvents destination 
 Object {
   "events": Array [
     Object {
-      "eventName": "Product Viewed",
-      "eventType": "view",
+      "eventName": "og&DCP)aINw@qxe)",
+      "eventType": "click",
       "index": "og&DCP)aINw@qxe)",
       "objectIDs": Array [
         "og&DCP)aINw@qxe)",

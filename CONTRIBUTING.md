@@ -50,7 +50,7 @@ Before continuing, please make sure to read our [Code of Conduct](./CODE_OF_COND
    - For cloud-mode destinations, follow these instructions: [Build & Test Cloud Destinations](./docs/testing.md).
    - If you are building a device-mode destination, see the [browser-destinations README](./packages/browser-destinations/README.md).
 
-4. When you have questions, ask in the Segment Partners Slack workspace - use the **#dev-center-pilot** channel.
+4. When you have questions, reach out to partner-support@segment.com for assistance.
 
 ## Submit a pull request
 

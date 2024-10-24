@@ -15,15 +15,15 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Track Event',
       subscribe: 'type = "track"',
-      partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields),
+      partnerAction: 'trackEventV2',
+      mapping: defaultValues(trackEventV2.fields),
       type: 'automatic'
     },
     {
       name: 'Identify User',
       subscribe: 'type = "identify"',
-      partnerAction: 'identifyUser',
-      mapping: defaultValues(identifyUser.fields),
+      partnerAction: 'identifyUserV2',
+      mapping: defaultValues(identifyUserV2.fields),
       type: 'automatic'
     }
   ],

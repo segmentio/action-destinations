@@ -58,7 +58,7 @@ export default class Init extends Command {
     return integrationDirs
   }
 
-  parseFlags() {
+  parseFlags(): flags.Output {
     return this.parse(Init)
   }
 

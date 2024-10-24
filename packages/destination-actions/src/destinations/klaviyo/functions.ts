@@ -1,7 +1,31 @@
-import { APIError, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
+import {
+  APIError,
+  RequestClient,
+  DynamicFieldResponse,
+  IntegrationError,
+  PayloadValidationError
+} from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
-import { KlaviyoAPIError, ListIdResponse, ProfileData, listData, ImportJobPayload } from './types'
+import { Settings } from './generated-types'
+import {
+  KlaviyoAPIError,
+  ListIdResponse,
+  ProfileData,
+  listData,
+  ImportJobPayload,
+  Profile,
+  GetProfileResponse,
+  SubscribeProfile,
+  SubscribeEventData,
+  UnsubscribeProfile,
+  UnsubscribeEventData,
+  GroupedProfiles,
+  AdditionalAttributes
+} from './types'
 import { Payload } from './upsertProfile/generated-types'
+import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+
+const phoneUtil = PhoneNumberUtil.getInstance()
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
@@ -42,42 +66,25 @@ export async function addProfileToList(request: RequestClient, id: string, list_
   return list
 }
 
-export async function removeProfileFromList(request: RequestClient, id: string, list_id: string | undefined) {
+export async function removeProfileFromList(request: RequestClient, ids: string[], list_id: string) {
   const listData: listData = {
-    data: [
-      {
-        type: 'profile',
-        id: id
-      }
-    ]
+    data: ids.map((id) => ({ type: 'profile', id }))
   }
-  const list = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
+
+  const response = await request(`${API_URL}/lists/${list_id}/relationships/profiles/`, {
     method: 'DELETE',
     json: listData
   })
 
-  return list
-}
-
-export async function getProfile(request: RequestClient, email: string | undefined, external_id: string | undefined) {
-  let filter
-  if (external_id) {
-    filter = `external_id,"${external_id}"`
-  }
-  if (email) {
-    filter = `email,"${email}"`
-  }
-  // If both email and external_id are provided. Email will take precedence.
-  const profile = await request(`${API_URL}/profiles/?filter=equals(${filter})`, {
-    method: 'GET'
-  })
-  return profile.json()
+  return response
 }
 
 export async function createProfile(
   request: RequestClient,
   email: string | undefined,
-  external_id: string | undefined
+  external_id: string | undefined,
+  phone_number: string | undefined,
+  additionalAttributes: AdditionalAttributes
 ) {
   try {
     const profileData: ProfileData = {
@@ -85,7 +92,9 @@ export async function createProfile(
         type: 'profile',
         attributes: {
           email,
-          external_id
+          external_id,
+          phone_number,
+          ...additionalAttributes
         }
       }
     }
@@ -98,7 +107,7 @@ export async function createProfile(
     return rs.data.id
   } catch (error) {
     const { response } = error as KlaviyoAPIError
-    if (response.status == 409) {
+    if (response?.status == 409) {
       const rs = await response.json()
       return rs.errors[0].meta.duplicate_profile_id
     }
@@ -119,10 +128,12 @@ export const createImportJobPayload = (profiles: Payload[], listId?: string): { 
     type: 'profile-bulk-import-job',
     attributes: {
       profiles: {
-        data: profiles.map(({ list_id, enable_batching, ...attributes }) => ({
-          type: 'profile',
-          attributes
-        }))
+        data: profiles.map(
+          ({ list_id, enable_batching, batch_size, override_list_id, country_code, ...attributes }) => ({
+            type: 'profile',
+            attributes
+          })
+        )
       }
     },
     ...(listId
@@ -145,4 +156,298 @@ export const sendImportJobRequest = async (request: RequestClient, importJobPayl
     },
     json: importJobPayload
   })
+}
+
+export async function getProfiles(
+  request: RequestClient,
+  emails: string[] | undefined,
+  external_ids: string[] | undefined,
+  phoneNumbers: string[] | undefined
+): Promise<string[]> {
+  const profileIds: string[] = []
+
+  if (external_ids?.length) {
+    const filterId = `external_id,["${external_ids.join('","')}"]`
+    const response = await request(`${API_URL}/profiles/?filter=any(${filterId})`, {
+      method: 'GET'
+    })
+    const res: GetProfileResponse = await response.json()
+    profileIds.push(...res.data.map((profile: Profile) => profile.id))
+  }
+
+  if (emails?.length) {
+    const filterEmail = `email,["${emails.join('","')}"]`
+    const response = await request(`${API_URL}/profiles/?filter=any(${filterEmail})`, {
+      method: 'GET'
+    })
+    const res: GetProfileResponse = await response.json()
+    profileIds.push(...res.data.map((profile: Profile) => profile.id))
+  }
+
+  if (phoneNumbers?.length) {
+    const filterPhone = `phone_number,["${phoneNumbers.join('","')}"]`
+    const response = await request(`${API_URL}/profiles/?filter=any(${filterPhone})`, {
+      method: 'GET'
+    })
+    const res: GetProfileResponse = await response.json()
+    profileIds.push(...res.data.map((profile: Profile) => profile.id))
+  }
+
+  return Array.from(new Set(profileIds))
+}
+
+export function formatSubscribeProfile(
+  email: string | undefined,
+  phone_number: string | undefined,
+  consented_at: string | number | undefined
+) {
+  const profileToSubscribe: SubscribeProfile = {
+    type: 'profile',
+    attributes: {
+      subscriptions: {}
+    }
+  }
+
+  if (email) {
+    profileToSubscribe.attributes.email = email
+    profileToSubscribe.attributes.subscriptions.email = {
+      marketing: {
+        consent: 'SUBSCRIBED'
+      }
+    }
+    if (consented_at) {
+      profileToSubscribe.attributes.subscriptions.email.marketing.consented_at = consented_at
+    }
+  }
+  if (phone_number) {
+    profileToSubscribe.attributes.phone_number = phone_number
+    profileToSubscribe.attributes.subscriptions.sms = {
+      marketing: {
+        consent: 'SUBSCRIBED'
+      }
+    }
+    if (consented_at) {
+      profileToSubscribe.attributes.subscriptions.sms.marketing.consented_at = consented_at
+    }
+  }
+
+  return profileToSubscribe
+}
+
+export function formatSubscribeRequestBody(
+  profiles: SubscribeProfile | SubscribeProfile[],
+  list_id: string | undefined,
+  custom_source: string | undefined
+) {
+  if (!Array.isArray(profiles)) {
+    profiles = [profiles]
+  }
+
+  // format request body per klaviyo api spec
+  const subData: SubscribeEventData = {
+    data: {
+      type: 'profile-subscription-bulk-create-job',
+      attributes: {
+        profiles: {
+          data: profiles
+        }
+      }
+    }
+  }
+
+  subData.data.attributes.custom_source = custom_source || '-59'
+
+  if (list_id) {
+    subData.data.relationships = {
+      list: {
+        data: {
+          type: 'list',
+          id: list_id
+        }
+      }
+    }
+  }
+
+  return subData
+}
+
+export function formatUnsubscribeRequestBody(
+  profiles: UnsubscribeProfile | UnsubscribeProfile[],
+  list_id: string | undefined
+) {
+  if (!Array.isArray(profiles)) {
+    profiles = [profiles]
+  }
+
+  // format request body per klaviyo api spec
+  const unsubData: UnsubscribeEventData = {
+    data: {
+      type: 'profile-subscription-bulk-delete-job',
+      attributes: {
+        profiles: {
+          data: profiles
+        }
+      }
+    }
+  }
+
+  if (list_id) {
+    unsubData.data.relationships = {
+      list: {
+        data: {
+          type: 'list',
+          id: list_id
+        }
+      }
+    }
+  }
+
+  return unsubData
+}
+
+export function formatUnsubscribeProfile(email: string | undefined, phone_number: string | undefined) {
+  const profileToSubscribe: UnsubscribeProfile = {
+    type: 'profile',
+    attributes: {}
+  }
+
+  if (email) {
+    profileToSubscribe.attributes.email = email
+  }
+
+  if (phone_number) {
+    profileToSubscribe.attributes.phone_number = phone_number
+  }
+  return profileToSubscribe
+}
+
+export async function getList(request: RequestClient, settings: Settings, listId: string) {
+  const apiKey = settings.api_key
+  const response = await request(`${API_URL}/lists/${listId}`, {
+    method: 'GET',
+    headers: buildHeaders(apiKey),
+    throwHttpErrors: false
+  })
+
+  if (!response.ok) {
+    const errorResponse = await response.json()
+    const klaviyoErrorDetail = errorResponse.errors[0].detail
+    throw new APIError(klaviyoErrorDetail, response.status)
+  }
+
+  const r = await response.json()
+  const externalId = r.data.id
+
+  if (externalId !== listId) {
+    throw new IntegrationError(
+      "Unable to verify ownership over audience. Segment Audience ID doesn't match The Klaviyo List Id.",
+      'INVALID_REQUEST_DATA',
+      400
+    )
+  }
+
+  return {
+    successMessage: `Using existing list '${r.data.attributes.name}' (id: ${listId})`,
+    savedData: {
+      id: listId,
+      name: r.data.attributes.name
+    }
+  }
+}
+
+export async function createList(request: RequestClient, settings: Settings, listName: string) {
+  const apiKey = settings.api_key
+  if (!listName) {
+    throw new PayloadValidationError('Missing audience name value')
+  }
+
+  if (!apiKey) {
+    throw new PayloadValidationError('Missing Api Key value')
+  }
+
+  const response = await request(`${API_URL}/lists`, {
+    method: 'POST',
+    headers: buildHeaders(apiKey),
+    json: {
+      data: { type: 'list', attributes: { name: listName } }
+    }
+  })
+  const r = await response.json()
+
+  return {
+    successMessage: `List '${r.data.attributes.name}' (id: ${r.data.id}) created successfully!`,
+    savedData: {
+      id: r.data.id,
+      name: r.data.attributes.name
+    }
+  }
+}
+
+export function groupByListId(profiles: Payload[]) {
+  const grouped: GroupedProfiles = {}
+
+  for (const profile of profiles) {
+    const listId: string = profile.override_list_id || (profile.list_id as string)
+    if (!grouped[listId]) {
+      grouped[listId] = []
+    }
+    grouped[listId].push(profile)
+  }
+
+  return grouped
+}
+
+export async function processProfilesByGroup(request: RequestClient, groupedProfiles: GroupedProfiles) {
+  const importResponses = await Promise.all(
+    Object.keys(groupedProfiles).map(async (listId) => {
+      const profiles = groupedProfiles[listId]
+      const importJobPayload = createImportJobPayload(profiles, listId)
+      return await sendImportJobRequest(request, importJobPayload)
+    })
+  )
+  return importResponses
+}
+
+export function validateAndConvertPhoneNumber(phone?: string, countryCode?: string): string | undefined | null {
+  if (!phone) return
+
+  const e164Regex = /^\+[1-9]\d{1,14}$/
+
+  // Check if the phone number is already in E.164 format
+  if (e164Regex.test(phone)) {
+    return phone
+  }
+
+  // If phone number is not in E.164 format, attempt to convert it using the country code
+  if (countryCode) {
+    try {
+      const parsedPhone = phoneUtil.parse(phone, countryCode)
+      const isValid = phoneUtil.isValidNumberForRegion(parsedPhone, countryCode)
+
+      if (!isValid) {
+        return null
+      }
+
+      return phoneUtil.format(parsedPhone, PhoneNumberFormat.E164)
+    } catch (error) {
+      return null
+    }
+  }
+
+  return null
+}
+
+export function processPhoneNumber(initialPhoneNumber?: string, country_code?: string): string | undefined {
+  if (!initialPhoneNumber) {
+    return
+  }
+
+  const phone_number = validateAndConvertPhoneNumber(initialPhoneNumber, country_code)
+  if (!phone_number) {
+    throw new PayloadValidationError(
+      `${initialPhoneNumber} is not a valid phone number and cannot be converted to E.164 format.`
+    )
+  }
+
+  return phone_number
 }

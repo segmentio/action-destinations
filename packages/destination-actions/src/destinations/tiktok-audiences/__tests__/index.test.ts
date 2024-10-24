@@ -80,7 +80,7 @@ const getAudienceResponse = {
   }
 }
 
-describe('Tik Tok Audiences', () => {
+describe('TikTok Audiences', () => {
   describe('createAudience', () => {
     it('should fail if no audience name is set', async () => {
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
@@ -97,7 +97,6 @@ describe('Tik Tok Audiences', () => {
         .post(`/${TIKTOK_API_VERSION}/segment/audience/`, {
           custom_audience_name: 'The Super Mario Brothers Fans',
           advertiser_id: '42884288',
-          id_type: 'EMAIL_SHA256',
           action: 'create'
         })
         .reply(200, {

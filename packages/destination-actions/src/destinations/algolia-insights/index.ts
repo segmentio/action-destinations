@@ -55,8 +55,14 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  // TODO: figure out how to pass multiple presets
   presets: [
+    {
+      name: 'Algolia Plugin',
+      subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+      partnerAction: 'algoliaPlugin',
+      mapping: {},
+      type: 'automatic'
+    },
     productClickPresets,
     conversionPresets,
     productViewedPresets,

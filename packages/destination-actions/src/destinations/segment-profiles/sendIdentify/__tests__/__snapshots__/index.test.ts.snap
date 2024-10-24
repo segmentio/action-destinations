@@ -1,14 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Segment.sendIdentify Should not send event if actions-segment-profiles-tapi-internal-enabled flag is enabled 1`] = `
+exports[`Segment.sendIdentify Should return transformed event 1`] = `
 Object {
   "batch": Array [
     Object {
       "anonymousId": "arky4h2sh7k",
+      "context": Object {
+        "consent": Object {},
+      },
       "groupId": undefined,
       "integrations": Object {
         "All": false,
       },
+      "messageId": undefined,
       "timestamp": "2023-09-26T09:46:28.290Z",
       "traits": Object {
         "email": "test-user@test-company.com",
@@ -18,34 +22,5 @@ Object {
       "userId": "test-user-ufi5bgkko5",
     },
   ],
-}
-`;
-
-exports[`Segment.sendIdentify Should send an identify event to Segment 1`] = `
-Headers {
-  Symbol(map): Object {
-    "authorization": Array [
-      "Basic ZW5nYWdlLXNwYWNlLXdyaXRla2V5Og==",
-    ],
-    "user-agent": Array [
-      "Segment (Actions)",
-    ],
-  },
-}
-`;
-
-exports[`Segment.sendIdentify Should send an identify event to Segment 2`] = `
-Object {
-  "anonymousId": "arky4h2sh7k",
-  "groupId": undefined,
-  "integrations": Object {
-    "All": false,
-  },
-  "timestamp": "2023-09-26T09:46:28.290Z",
-  "traits": Object {
-    "email": "test-user@test-company.com",
-    "name": "Test User",
-  },
-  "userId": "test-user-ufi5bgkko5",
 }
 `;

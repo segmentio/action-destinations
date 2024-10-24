@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { IntegrationError, createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { APIError, IntegrationError, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
@@ -15,7 +15,10 @@ const createAudienceInput = {
   settings: {
     api_key: ''
   },
-  audienceName: ''
+  audienceName: '',
+  audienceSettings: {
+    listId: ''
+  }
 }
 
 const getAudienceInput = {
@@ -97,6 +100,12 @@ describe('Klaviyo (actions)', () => {
         externalId: 'XYZABC'
       })
     })
+
+    it('Should return list_id if list_id is set in audienceSetting', async () => {
+      createAudienceInput.audienceSettings.listId = 'XYZABC'
+      const r = await testDestination.createAudience(createAudienceInput)
+      expect(r).toEqual({ externalId: 'XYZABC' })
+    })
   })
 
   describe('getAudience', () => {
@@ -114,6 +123,25 @@ describe('Klaviyo (actions)', () => {
       expect(r).toEqual({
         externalId: 'XYZABC'
       })
+    })
+
+    it('should throw an ApiError when the response is not ok', async () => {
+      const errorMessage = 'List not found'
+      nock(`${API_URL}/lists`)
+        .get(`/${listId}`)
+        .reply(404, {
+          success: false,
+          errors: [
+            {
+              detail: errorMessage
+            }
+          ]
+        })
+
+      const audiencePromise = testDestination.getAudience(getAudienceInput)
+      await expect(audiencePromise).rejects.toThrow(APIError)
+      await expect(audiencePromise).rejects.toHaveProperty('message', errorMessage)
+      await expect(audiencePromise).rejects.toHaveProperty('status', 404)
     })
   })
 })

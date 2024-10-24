@@ -1,7 +1,56 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Testing snapshot for actions-kameleoon destination: group action - all fields 1`] = `
+Object {
+  "anonymousId": "dqhK[",
+  "groupId": "dqhK[",
+  "messageId": "dqhK[",
+  "properties": Object {
+    "kameleoonVisitorCode": "dqhK[",
+    "testType": "dqhK[",
+  },
+  "timestamp": Any<String>,
+  "type": "dqhK[",
+  "userId": "dqhK[",
+}
+`;
+
+exports[`Testing snapshot for actions-kameleoon destination: group action - required fields 1`] = `
+Object {
+  "groupId": "dqhK[",
+  "messageId": "dqhK[",
+  "properties": Object {},
+  "timestamp": Any<String>,
+  "type": "dqhK[",
+}
+`;
+
+exports[`Testing snapshot for actions-kameleoon destination: identify action - all fields 1`] = `
+Object {
+  "anonymousId": ")%Z*B@",
+  "messageId": ")%Z*B@",
+  "properties": Object {
+    "kameleoonVisitorCode": ")%Z*B@",
+    "testType": ")%Z*B@",
+  },
+  "timestamp": Any<String>,
+  "type": ")%Z*B@",
+  "userId": ")%Z*B@",
+}
+`;
+
+exports[`Testing snapshot for actions-kameleoon destination: identify action - required fields 1`] = `
+Object {
+  "messageId": ")%Z*B@",
+  "properties": Object {},
+  "timestamp": Any<String>,
+  "type": ")%Z*B@",
+}
+`;
+
 exports[`Testing snapshot for actions-kameleoon destination: logEvent action - all fields 1`] = `
 Object {
+  "anonymousId": "VA*d2uO)D#",
   "context": Object {
     "testType": "VA*d2uO)D#",
   },
@@ -13,6 +62,7 @@ Object {
   },
   "timestamp": Any<String>,
   "type": "VA*d2uO)D#",
+  "userId": "VA*d2uO)D#",
 }
 `;
 
@@ -22,5 +72,31 @@ Object {
   "properties": Object {},
   "timestamp": Any<String>,
   "type": "VA*d2uO)D#",
+}
+`;
+
+exports[`Testing snapshot for actions-kameleoon destination: page action - all fields 1`] = `
+Object {
+  "anonymousId": "w3ly#Sw)El8",
+  "context": Object {
+    "testType": "w3ly#Sw)El8",
+  },
+  "messageId": "w3ly#Sw)El8",
+  "name": "w3ly#Sw)El8",
+  "properties": Object {
+    "kameleoonVisitorCode": "w3ly#Sw)El8",
+    "testType": "w3ly#Sw)El8",
+  },
+  "timestamp": Any<String>,
+  "type": "w3ly#Sw)El8",
+  "userId": "w3ly#Sw)El8",
+}
+`;
+
+exports[`Testing snapshot for actions-kameleoon destination: page action - required fields 1`] = `
+Object {
+  "properties": Object {},
+  "timestamp": Any<String>,
+  "type": "w3ly#Sw)El8",
 }
 `;

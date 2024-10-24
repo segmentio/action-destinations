@@ -42,7 +42,7 @@ export default class Init extends Command {
     }
   ]
 
-  parseFlags() {
+  parseFlags(): flags.Output {
     return this.parse(Init)
   }
 

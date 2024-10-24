@@ -152,6 +152,7 @@ const action: ActionDefinition<Settings, Payload> = {
     let upsertCustomRecordResponse: ModifiedResponse<UpsertRecordResponse>
     // Check if any custom object record were found based Custom Search Fields
     // If the search was skipped, searchCustomResponse would have a falsy value (null)
+    const properties = { ...flattenObject(payload.properties) }
     if (!searchCustomResponse?.data || searchCustomResponse?.data?.total === 0) {
       // No existing custom object record found with search criteria, attempt to create a new custom object record
 
@@ -161,7 +162,6 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!createNewCustomRecord) {
         return 'There was no record found to update. If you want to create a new custom object record in such cases, enable the Create Custom Object Record if Not Found flag'
       }
-      const properties = { ...flattenObject(payload.properties) }
       upsertCustomRecordResponse = await hubspotApiClient.create(properties, association ? [association] : [])
     } else {
       // Throw error if more than one custom object record were found with search criteria
@@ -169,10 +169,7 @@ const action: ActionDefinition<Settings, Payload> = {
         throw MultipleCustomRecordsInSearchResultThrowableError
       }
       // An existing Custom object record was identified, attempt to update the same record
-      upsertCustomRecordResponse = await hubspotApiClient.update(
-        searchCustomResponse.data.results[0].id,
-        payload.properties
-      )
+      upsertCustomRecordResponse = await hubspotApiClient.update(searchCustomResponse.data.results[0].id, properties)
       // If we have custom object record id to associate then associate it else don't associate
       if (toCustomObjectId && parsedAssociationType) {
         await hubspotApiClient.associate(searchCustomResponse.data.results[0].id, toCustomObjectId, [
@@ -219,7 +216,7 @@ async function getCustomObjects(
       choices: [],
       error: {
         message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
-        code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+        code: (err as HubSpotError)?.response?.status + '' ?? '500'
       }
     }
   }
@@ -248,7 +245,7 @@ async function getAssociationLabel(request: RequestClient, payload: Payload) {
       choices: [],
       error: {
         message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
-        code: (err as HubSpotError)?.response?.data?.category ?? 'Unknown code'
+        code: (err as HubSpotError)?.response?.status + '' ?? '500'
       }
     }
   }

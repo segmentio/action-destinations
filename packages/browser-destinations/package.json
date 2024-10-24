@@ -1,7 +1,7 @@
 {
   "name": "@segment/browser-destinations",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Action based browser destinations",
   "author": "Netto Farah",
   "license": "MIT",
@@ -20,7 +20,8 @@
     "prepublishOnly": "yarn build",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
-    "dev": "NODE_ENV=development NODE_OPTIONS=--openssl-legacy-provider concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\""
+    "dev": "NODE_ENV=development NODE_OPTIONS=--openssl-legacy-provider concurrently \"webpack serve\" \"webpack -c webpack.config.js --watch\"",
+    "size": "size-limit"
   },
   "dependencies": {
     "tslib": "^2.3.1",
@@ -32,13 +33,15 @@
     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-typescript": "^7.13.0",
-    "@types/gtag.js": "^0.0.13",
+    "@size-limit/preset-big-lib": "^11.0.1",
+    "@types/gtag.js": "^0.0.19",
     "@types/jest": "^27.0.0",
     "compression-webpack-plugin": "^7.1.2",
     "concurrently": "^6.3.0",
     "globby": "^11.0.2",
     "jest": "^27.3.1",
     "serve": "^12.0.1",
+    "size-limit": "^11.0.1",
     "terser-webpack-plugin": "^5.1.1",
     "ts-loader": "^9.2.6",
     "webpack": "^5.82.0",
@@ -77,5 +80,11 @@
       "<rootDir>/test/setup-after-env.ts"
     ],
     "forceExit": true
-  }
+  },
+  "size-limit": [
+    {
+      "path": "dist/web/*/*.js",
+      "limit": "200 KB"
+    }
+  ]
 }

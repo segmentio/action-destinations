@@ -190,6 +190,7 @@ export const minimal_items: InputField = {
   description: 'The list of products purchased.',
   type: 'object',
   multiple: true,
+  additionalProperties: true,
   properties: {
     item_id: {
       label: 'Product ID',
@@ -365,4 +366,11 @@ export const items_multi_products: InputField = {
       }
     ]
   }
+}
+export const send_to: InputField = {
+  label: 'Send To',
+  type: 'boolean',
+  default: true,
+  description:
+    'If the send_to parameter is not set, events are routed to all Tag Ids (AW-xxx, G-xxx) set via Google Tag'
 }

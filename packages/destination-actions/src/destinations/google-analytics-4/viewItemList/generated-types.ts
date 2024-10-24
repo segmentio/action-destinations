@@ -109,6 +109,7 @@ export interface Payload {
      * Item quantity.
      */
     quantity?: number
+    [k: string]: unknown
   }[]
   /**
    * The user properties to send to Google Analytics 4. You must create user-scoped dimensions to ensure custom properties are picked up by Google. See Google’s [Custom user properties](https://support.google.com/analytics/answer/9269570) to learn how to set and register user properties.
@@ -126,4 +127,12 @@ export interface Payload {
   params?: {
     [k: string]: unknown
   }
+  /**
+   * Sets consent for sending user data to Google for advertising purposes. Must be either GRANTED or DENIED.
+   */
+  ad_user_data_consent?: string
+  /**
+   * Sets consent for personalized advertising. Must be either GRANTED or DENIED.
+   */
+  ad_personalization_consent?: string
 }

@@ -3,13 +3,30 @@ import { IntegrationError, createTestEvent, createTestIntegration } from '@segme
 import Definition from '../../index'
 import { API_URL } from '../../config'
 import * as Functions from '../../functions'
+import { Settings } from '../../generated-types'
 
 const testDestination = createTestIntegration(Definition)
 
 const apiKey = 'fake-api-key'
 
-export const settings = {
+export const settings: Settings = {
   api_key: apiKey
+}
+
+const hookInputNew = {
+  settings: settings,
+  hookInputs: {
+    list_name: 'Test Audience'
+  },
+  payload: {}
+}
+
+const hookInputExisting = {
+  settings: settings,
+  hookInputs: {
+    list_identifier: 'XYZABC'
+  },
+  payload: {}
 }
 
 jest.mock('../../functions', () => ({
@@ -31,6 +48,71 @@ describe('Upsert Profile', () => {
     await expect(testDestination.testAction('upsertProfile', { event, settings })).rejects.toThrowError(
       IntegrationError
     )
+  })
+
+  it('should throw an error for invalid phone number format in perform', async () => {
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        phone: 'invalid-phone-number',
+        email: 'test@example.com',
+        country_code: 'US'
+      }
+    })
+
+    const mapping = {
+      phone_number: {
+        '@path': '$.traits.phone'
+      },
+      email: {
+        '@path': '$.traits.email'
+      },
+      country_code: { '@path': '$.traits.country_code' }
+    }
+
+    await expect(testDestination.testAction('upsertProfile', { event, mapping, settings })).rejects.toThrowError(
+      'invalid-phone-number is not a valid phone number and cannot be converted to E.164 format.'
+    )
+  })
+
+  it('should convert a phone number to E.164 format if country code is provided', async () => {
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        phone: '8448309222',
+        email: 'test@example.com',
+        country_code: 'IN'
+      }
+    })
+
+    const mapping = {
+      phone_number: {
+        '@path': '$.traits.phone'
+      },
+      email: {
+        '@path': '$.traits.email'
+      },
+      country_code: {
+        '@path': '$.traits.country_code'
+      }
+    }
+    const requestBody = {
+      data: {
+        type: 'profile',
+        attributes: {
+          email: 'test@example.com',
+          phone_number: '+918448309222',
+          location: {},
+          properties: {}
+        }
+      }
+    }
+
+    nock(`${API_URL}`).post('/profiles/', requestBody).reply(200, {})
+
+    await expect(
+      testDestination.testAction('upsertProfile', { event, settings, mapping, useDefaultMappings: true })
+    ).resolves.not.toThrowError()
   })
 
   it('should create a new profile if successful', async () => {
@@ -262,6 +344,53 @@ describe('Upsert Profile', () => {
 
     expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), profileId, listId)
   })
+
+  it('should proritize using override_list_id if it is provided in event', async () => {
+    const profileId = '123'
+    const mapping = { list_id: 'abc123', override_list_id: '321bca' }
+
+    const requestBody = {
+      data: {
+        type: 'profile',
+        attributes: {
+          email: 'test@example.com',
+          first_name: 'John',
+          last_name: 'Doe',
+          location: {},
+          properties: {}
+        }
+      }
+    }
+
+    nock(`${API_URL}`)
+      .post('/profiles/', requestBody)
+      .reply(
+        200,
+        JSON.stringify({
+          data: {
+            id: profileId
+          }
+        })
+      )
+
+    nock(`${API_URL}`).post(`/lists/${mapping.override_list_id}/relationships/profiles/`).reply(200)
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      traits: {
+        email: 'test@example.com',
+        firstName: 'John',
+        lastName: 'Doe'
+      }
+    })
+
+    await expect(
+      testDestination.testAction('upsertProfile', { event, mapping, settings, useDefaultMappings: true })
+    ).resolves.not.toThrowError()
+
+    expect(Functions.addProfileToList).toHaveBeenCalledWith(expect.anything(), profileId, mapping.override_list_id)
+  })
 })
 
 describe('Upsert Profile Batch', () => {
@@ -280,6 +409,123 @@ describe('Upsert Profile Batch', () => {
     })
 
     expect(response).toEqual([])
+  })
+
+  it('should filter out profiles with invalid phone numbers in performBatch', async () => {
+    const events = [
+      createTestEvent({
+        traits: { email: 'user1@example.com' }
+      }),
+      createTestEvent({
+        traits: { phone: 'invalid-phone-number' }
+      })
+    ]
+
+    const mapping = {
+      email: {
+        '@path': '$.traits.email'
+      },
+      phone_number: {
+        '@path': '$.traits.phone'
+      }
+    }
+
+    const validRequestBody = {
+      data: {
+        type: 'profile-bulk-import-job',
+        attributes: {
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  email: 'user1@example.com'
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+
+    nock(API_URL)
+      .post('/profile-bulk-import-jobs/', (body) => {
+        return JSON.stringify(body) === JSON.stringify(validRequestBody)
+      })
+      .reply(200, { success: true })
+
+    await expect(
+      testDestination.testBatchAction('upsertProfile', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
+
+    // Ensure the valid request was made and the invalid profile was filtered out
+    expect(nock.isDone()).toBe(true)
+  })
+
+  it('should convert a phone number to E.164 format if country code is provided.', async () => {
+    const events = [
+      createTestEvent({
+        traits: { email: 'user1@example.com' }
+      }),
+      createTestEvent({
+        traits: { phone: '7702126011', country_code: 'US' }
+      })
+    ]
+
+    const mapping = {
+      email: {
+        '@path': '$.traits.email'
+      },
+      phone_number: {
+        '@path': '$.traits.phone'
+      },
+      country_code: { '@path': '$.traits.country_code' }
+    }
+
+    const validRequestBody = {
+      data: {
+        type: 'profile-bulk-import-job',
+        attributes: {
+          profiles: {
+            data: [
+              {
+                type: 'profile',
+                attributes: {
+                  email: 'user1@example.com'
+                }
+              },
+              {
+                type: 'profile',
+                attributes: {
+                  phone_number: '+17702126011'
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+
+    nock(API_URL)
+      .post('/profile-bulk-import-jobs/', (body) => {
+        return JSON.stringify(body) === JSON.stringify(validRequestBody)
+      })
+      .reply(200, { success: true })
+
+    await expect(
+      testDestination.testBatchAction('upsertProfile', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
+
+    // Ensure the valid request was made and the invalid profile was filtered out
+    expect(nock.isDone()).toBe(true)
   })
 
   it('should process profiles with and without list_ids separately', async () => {
@@ -366,5 +612,85 @@ describe('Upsert Profile Batch', () => {
         useDefaultMappings: true
       })
     ).rejects.toThrow()
+  })
+
+  it('should group profiles by list_id correctly', () => {
+    const profiles = [
+      { email: 'profile1@example.com', list_id: 'listA', override_list_id: 'overridelistA' },
+      { email: 'profile2@example.com', list_id: 'listB' },
+      { email: 'profile3@example.com', list_id: 'listA' },
+      { email: 'profile4@example.com', override_list_id: 'overridelistA' }
+    ]
+
+    const grouped = Functions.groupByListId(profiles)
+
+    expect(Object.keys(grouped)).toEqual(['overridelistA', 'listB', 'listA'])
+    expect(grouped['listA']).toHaveLength(1)
+    expect(grouped['listB']).toHaveLength(1)
+    expect(grouped['overridelistA']).toHaveLength(2)
+  })
+})
+
+describe('retlOnMappingSave hook', () => {
+  it('create a new list with hook', async () => {
+    nock(`${API_URL}`)
+      .post('/lists', { data: { type: 'list', attributes: { name: 'Test Audience' } } })
+      .matchHeader('Authorization', `Klaviyo-API-Key ${apiKey}`)
+      .reply(200, {
+        success: true,
+        data: {
+          id: 'XYZABC',
+          attributes: {
+            name: 'Test Audience'
+          }
+        }
+      })
+
+    const r = await testDestination.actions.upsertProfile.executeHook('retlOnMappingSave', hookInputNew)
+
+    expect(r.savedData).toMatchObject({
+      id: 'XYZABC',
+      name: 'Test Audience'
+    })
+    expect(r.successMessage).toMatchInlineSnapshot(`"List 'Test Audience' (id: XYZABC) created successfully!"`)
+  })
+
+  it('verify the existing list', async () => {
+    nock(`${API_URL}/lists`)
+      .get(`/XYZABC`)
+      .reply(200, {
+        success: true,
+        data: {
+          id: 'XYZABC',
+          attributes: {
+            name: 'Test Audience'
+          }
+        }
+      })
+
+    const r = await testDestination.actions.upsertProfile.executeHook('retlOnMappingSave', hookInputExisting)
+
+    expect(r.savedData).toMatchObject({
+      id: 'XYZABC',
+      name: 'Test Audience'
+    })
+    expect(r.successMessage).toMatchInlineSnapshot(`"Using existing list 'Test Audience' (id: XYZABC)"`)
+  })
+
+  it('fail if list id does not exist', async () => {
+    nock(`${API_URL}/lists`)
+      .get(`/XYZABC`)
+      .reply(404, {
+        success: false,
+        errors: [
+          {
+            detail: 'List not found'
+          }
+        ]
+      })
+
+    await expect(
+      testDestination.actions.upsertProfile.executeHook('retlOnMappingSave', hookInputExisting)
+    ).rejects.toThrow('List not found')
   })
 })

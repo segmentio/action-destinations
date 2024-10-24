@@ -2,23 +2,23 @@
 
 export interface Settings {
   /**
-   * 7 digit number ... description to be added
+   * Dynamic Yield by Mastercard Section ID
    */
   sectionId: string
-  /**
-   * description to be added
-   */
-  dataCenter: string
   /**
    * Description to be added
    */
   accessKey: string
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface AudienceSettings {
   /**
-   * This setting will be removed
+   * Provide a name for your Audience to be displayed in Dynamic Yield by Mastercard.
    */
-  fullUpsertURL?: string
+  audience_name: string
   /**
-   * This setting will be removed
+   * The type of Identifier to send to Dynamic Yield by Mastercard. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield by Mastercard.
    */
-  fullVerifyURL?: string
+  identifier_type: string
 }

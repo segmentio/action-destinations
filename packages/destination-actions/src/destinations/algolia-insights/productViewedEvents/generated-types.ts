@@ -27,4 +27,12 @@ export interface Payload {
   extraProperties?: {
     [k: string]: unknown
   }
+  /**
+   * The name of the event to be send to Algolia. Defaults to 'Product Viewed'
+   */
+  eventName?: string
+  /**
+   * The type of event to send to Algolia. Defaults to 'view'
+   */
+  eventType?: string
 }

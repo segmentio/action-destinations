@@ -12,26 +12,28 @@
     "node": "14 || ^18.12"
   },
   "scripts": {
+    "alpha": "lerna version prerelease --allow-branch $(git branch --show-current) --preid $(git branch --show-current) --no-push --no-git-tag-version",
     "browser": "yarn workspace @segment/browser-destinations",
-    "cloud": "yarn workspace @segment/action-destinations",
-    "cli": "yarn workspace @segment/actions-cli",
-    "cli-internal": "yarn workspace @segment/actions-cli-internal",
-    "core": "yarn workspace @segment/actions-core",
-    "bootstrap": "lerna bootstrap",
     "build": "nx run-many -t build && yarn build:browser-bundles",
     "build:browser-bundles": "nx build @segment/destinations-manifest && nx build-web @segment/browser-destinations",
-    "types": "./bin/run generate:types",
-    "validate": "./bin/run validate",
+    "canary": "./scripts/canary.sh",
+    "clean": "sh scripts/clean.sh",
+    "cli": "yarn workspace @segment/actions-cli",
+    "cloud": "yarn workspace @segment/action-destinations",
+    "core": "yarn workspace @segment/actions-core",
     "lint": "ls -d ./packages/* | xargs -I {} eslint '{}/**/*.ts' --cache",
+    "postversion": "bash scripts/postversion.sh",
+    "prepare": "husky install",
+    "release": "bash scripts/release.sh",
+    "shared": "yarn workspace @segment/actions-shared",
     "subscriptions": "yarn workspace @segment/destination-subscriptions",
     "test": "nx run-many -t test",
-    "test-partners": "lerna run test --stream --ignore @segment/actions-core --ignore @segment/actions-cli --ignore @segment/ajv-human-errors",
+    "test:clear-cache": "nx clear-cache",
     "test-browser": "bash scripts/test-browser.sh",
+    "test-partners": "lerna run test --stream --ignore @segment/actions-core --ignore @segment/actions-cli --ignore @segment/ajv-human-errors",
     "typecheck": "lerna run typecheck --stream",
-    "alpha": "lerna version prerelease --allow-branch $(git branch --show-current) --preid $(git branch --show-current) --no-push --no-git-tag-version",
-    "release": "bash scripts/release.sh",
-    "prepare": "husky install",
-    "clean": "sh scripts/clean.sh"
+    "types": "./bin/run generate:types",
+    "validate": "./bin/run validate"
   },
   "devDependencies": {
     "@peculiar/webcrypto": "^1.2.3",
@@ -58,7 +60,7 @@
     "karma-jasmine": "^5.1.0",
     "karma-webkit-launcher": "^2.0.0",
     "karma-webpack": "^5.0.0",
-    "lerna": "^6.5.0",
+    "lerna": "^8.1.8",
     "lint-staged": "^10.5.3",
     "open": "^8.4.0",
     "os-browserify": "^0.3.0",
@@ -84,8 +86,8 @@
     }
   },
   "lint-staged": {
-    "**/src/destinations/**/index.ts": [
-      "./bin/run generate:types",
+    "**/{browser-destinations,destinations}/**/*.ts": [
+      "./bin/run generate:types -p",
       "git add **/generated-types.ts"
     ],
     "!(**/templates/**)/*.ts": [

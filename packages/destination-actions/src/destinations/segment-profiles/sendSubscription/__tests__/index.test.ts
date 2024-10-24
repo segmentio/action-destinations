@@ -2,12 +2,11 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import {
-  InvalidEndpointSelectedThrowableError,
   MissingExternalIdsError,
   MissingIosPushTokenIfIosPushSubscriptionIsPresentError,
   MissingSubscriptionStatusesError
 } from '../../errors'
-import { DEFAULT_SEGMENT_ENDPOINT, SEGMENT_ENDPOINTS } from '../../properties'
+import { DEFAULT_SEGMENT_ENDPOINT } from '../../properties'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -86,30 +85,6 @@ describe('SegmentProfiles.sendSubscription', () => {
     ).rejects.toThrowError(MissingExternalIdsError)
   })
 
-  test('Should throw an error if Segment Endpoint is incorrectly defined', async () => {
-    const event = createTestEvent({
-      type: 'identify',
-      traits: {
-        name: 'Test User',
-        email: 'test-user@test-company.com'
-      },
-      properties: {
-        email: 'tester11@seg.com',
-        email_subscription_status: 'unsubscribed'
-      }
-    })
-
-    await expect(
-      testDestination.testAction('sendSubscription', {
-        event,
-        mapping: defaultSubscriptionMapping,
-        settings: {
-          endpoint: 'incorrect-endpoint'
-        }
-      })
-    ).rejects.toThrowError(InvalidEndpointSelectedThrowableError)
-  })
-
   test('Should throw an error if `email` or `phone` or `Android_Push_Token` or `Ios_Push_Token` is not defined', async () => {
     const event = createTestEvent({
       traits: {
@@ -178,10 +153,7 @@ describe('SegmentProfiles.sendSubscription', () => {
     ).rejects.toThrowError(MissingIosPushTokenIfIosPushSubscriptionIsPresentError)
   })
 
-  test('Should send a subscription event to Segment when subscription groups are defined', async () => {
-    // Mock: Segment Identify Call
-    const segmentEndpoint = SEGMENT_ENDPOINTS[DEFAULT_SEGMENT_ENDPOINT].url
-    nock(segmentEndpoint).post('/identify').reply(200, { success: true })
+  test('Should return transformed event when subscription groups are defined', async () => {
     const event = createTestEvent({
       traits: {
         name: 'Test User',
@@ -209,56 +181,14 @@ describe('SegmentProfiles.sendSubscription', () => {
       }
     })
 
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toEqual(200)
-    expect(responses[0].options.headers).toMatchSnapshot()
-    expect(responses[0].options.json).toMatchSnapshot()
+    const results = testDestination.results
+
+    expect(responses.length).toBe(0)
+    expect(results.length).toBe(3)
+    expect(results[2].data).toMatchSnapshot()
   })
 
-  test('Should send a subscription event to Segment', async () => {
-    // Mock: Segment Identify Call
-    const segmentEndpoint = SEGMENT_ENDPOINTS[DEFAULT_SEGMENT_ENDPOINT].url
-    nock(segmentEndpoint).post('/identify').reply(200, { success: true })
-
-    const event = createTestEvent({
-      traits: {
-        name: 'Test User',
-        email: 'test-user@test-company.com'
-      },
-      timestamp: '2023-10-10T07:24:07.036Z',
-      properties: {
-        email: 'tester11@seg.com',
-        email_subscription_status: 'true',
-        phone: '+12135618345',
-        sms_subscription_status: 'true',
-        whatsapp_subscription_status: 'true',
-        subscription_groups: {
-          marketing: 'true',
-          ProductUpdates: '',
-          newsletter: 'false'
-        },
-        android_push_token: 'abcd12bbfygdbvbvvvv',
-        android_push_subscription_status: 'false',
-        ios_push_token: 'abcd12bbfjfsykdbvbvvvvvv',
-        ios_push_subscription_status: 'true'
-      }
-    })
-
-    const responses = await testDestination.testAction('sendSubscription', {
-      event,
-      mapping: defaultSubscriptionMapping,
-      settings: {
-        endpoint: DEFAULT_SEGMENT_ENDPOINT
-      }
-    })
-
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toEqual(200)
-    expect(responses[0].options.headers).toMatchSnapshot()
-    expect(responses[0].options.json).toMatchSnapshot()
-  })
-
-  test('Should not send event if actions-segment-profiles-tapi-internal-enabled flag is enabled', async () => {
+  test('Should return transformed event', async () => {
     const event = createTestEvent({
       traits: {
         name: 'Test User',

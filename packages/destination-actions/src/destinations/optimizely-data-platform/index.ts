@@ -2,6 +2,7 @@ import { defaultValues } from '@segment/actions-core'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import customEvent from './customEvent'
+import nonEcommCustomEvent from './nonEcommCustomEvent'
 import upsertContact from './upsertContact'
 import emailEvent from './emailEvent'
 import { hosts } from './utils'
@@ -70,7 +71,8 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'customEvent',
       mapping: {
         ...singleProductFields,
-        event_action: 'product_viewed'
+        event_type: 'product',
+        event_action: 'detail'
       },
       type: 'automatic'
     },
@@ -80,7 +82,8 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'customEvent',
       mapping: {
         ...singleProductFields,
-        event_action: 'product_added_to_cart'
+        event_type: 'product',
+        event_action: 'add_to_cart'
       },
       type: 'automatic'
     },
@@ -90,7 +93,8 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'customEvent',
       mapping: {
         ...singleProductFields,
-        event_action: 'product_removed_from_cart'
+        event_type: 'product',
+        event_action: 'remove_from_cart'
       },
       type: 'automatic'
     },
@@ -100,7 +104,18 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'customEvent',
       mapping: {
         ...defaultValues(customEvent.fields),
-        event_action: 'purchase_completed'
+        event_type: 'order',
+        event_action: 'purchase'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Email Sent',
+      subscribe: 'type = "track" and event = "Email Sent"',
+      partnerAction: 'emailEvent',
+      mapping: {
+        ...defaultValues(emailEvent.fields),
+        event_action: 'sent'
       },
       type: 'automatic'
     },
@@ -110,7 +125,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'emailEvent',
       mapping: {
         ...defaultValues(emailEvent.fields),
-        event_action: 'email_clicked'
+        event_action: 'click'
       },
       type: 'automatic'
     },
@@ -120,7 +135,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'emailEvent',
       mapping: {
         ...defaultValues(emailEvent.fields),
-        event_action: 'email_opened'
+        event_action: 'open'
       },
       type: 'automatic'
     },
@@ -130,7 +145,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'emailEvent',
       mapping: {
         ...defaultValues(emailEvent.fields),
-        event_action: 'email_unsubscribed'
+        event_action: 'unsubscribe'
       },
       type: 'automatic'
     },
@@ -140,13 +155,14 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'emailEvent',
       mapping: {
         ...defaultValues(emailEvent.fields),
-        event_action: 'email_marked_as_spam'
+        event_action: 'spam_report'
       },
       type: 'automatic'
     }
   ],
   actions: {
     customEvent,
+    nonEcommCustomEvent,
     upsertContact,
     emailEvent
   }

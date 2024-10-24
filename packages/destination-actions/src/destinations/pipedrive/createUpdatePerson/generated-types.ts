@@ -22,9 +22,9 @@ export interface Payload {
    */
   phone?: string[]
   /**
-   * Visibility of the Person. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user.
+   * Visibility of the Person. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans
    */
-  visible_to?: number
+  visible_to?: string
   /**
    * If the person is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS
    */

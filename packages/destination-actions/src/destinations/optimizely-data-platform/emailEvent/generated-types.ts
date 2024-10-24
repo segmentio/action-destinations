@@ -23,17 +23,17 @@ export interface Payload {
     optimizely_vuid?: string
   }
   /**
-   * The name of the Optimizely event to send
+   * The name of the Optimizely Event Action.
    */
   event_action: string
-  /**
-   * The campaign unique identifier
-   */
-  campaign_id?: string
   /**
    * The campaign name
    */
   campaign: string
+  /**
+   * The campaign unique identifier
+   */
+  campaign_id?: string
   /**
    * URL of the link which was clicked
    */
@@ -42,4 +42,12 @@ export interface Payload {
    * Event timestamp
    */
   timestamp: string
+  /**
+   * Enable batching of event data to Optimizely.
+   */
+  enable_batching?: boolean
+  /**
+   * Number of events to batch before sending to Optimizely.
+   */
+  batch_size?: number
 }

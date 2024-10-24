@@ -107,6 +107,18 @@ export const user_data_field: InputField = {
       description: 'The ID issued by Facebook when a person first logs into an instance of an app.',
       type: 'integer'
     },
+    anonId: {
+      label: 'Install ID (anon_id)',
+      description:
+        'This field represents unique application installation instances. Note: This parameter is for app events only.',
+      type: 'string'
+    },
+    madId: {
+      label: 'Advertiser ID (madid)',
+      description:
+        'Your mobile advertiser ID, the advertising ID from an Android device or the Advertising Identifier (IDFA) from an Apple device.',
+      type: 'string'
+    },
     partner_id: {
       label: 'Partner ID',
       description: 'The ID issued by Facebook identity partner.',
@@ -167,14 +179,17 @@ export const user_data_field: InputField = {
 
 type UserData = Pick<Payload, 'user_data'>
 
+const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
+
 const hash = (value: string | string[] | undefined): string | string[] | undefined => {
   if (value === undefined || !value.length) return
 
   if (typeof value == 'string') {
+    if (isHashedInformation(value)) return value
     return hashValue(value)
-  } else {
-    return value.map((el: string) => hashValue(el))
   }
+
+  return value.map((el: string) => (isHashedInformation(el) ? el : hashValue(el)))
 }
 const hashValue = (val: string): string => {
   const hash = createHash('sha256')
@@ -182,15 +197,18 @@ const hashValue = (val: string): string => {
   return hash.digest('hex')
 }
 
-// Normalization of user data properties according to Facebooks specifications.
-// https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
+/**
+ * Normalization of user data properties according to Facebooks specifications.
+ * @param payload
+ * @see https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
+ */
 export const normalize_user_data = (payload: UserData) => {
   if (payload.user_data.email) {
     // Regex removes all whitespace in the string.
     payload.user_data.email = payload.user_data.email.replace(/\s/g, '').toLowerCase()
   }
 
-  if (payload.user_data.phone) {
+  if (payload.user_data.phone && !isHashedInformation(payload.user_data.phone)) {
     // Regex removes all non-numeric characters from the string.
     payload.user_data.phone = payload.user_data.phone.replace(/\D/g, '')
   }
@@ -271,6 +289,8 @@ export const hash_user_data = (payload: UserData): Object => {
     fbp: payload.user_data?.fbp,
     subscription_id: payload.user_data?.subscriptionID,
     lead_id: payload.user_data?.leadID,
+    anon_id: payload.user_data?.anonId,
+    madid: payload.user_data?.madId,
     fb_login_id: payload.user_data?.fbLoginID,
     partner_id: payload.user_data?.partner_id,
     partner_name: payload.user_data?.partner_name

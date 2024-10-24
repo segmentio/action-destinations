@@ -186,7 +186,7 @@ describe('addUpdateEvents', () => {
     // const retValue = await addUpdateEvents(request,payload,settings,auth,email);
 
     const payload = {
-      email: 'acmeTest99@gmail.com',
+      uniqueRecipientId: 'acmeTest99@gmail.com',
       type: 'track',
       enable_batching: false,
       timestamp: '2023-02-12T15:07:21.381Z',
@@ -272,7 +272,7 @@ describe('addUpdateEvents', () => {
 describe('addUpdateEvents', () => {
   test('adds update events to CSV rows', () => {
     const mockPayload = {
-      email: 'example@example.com',
+      uniqueRecipientId: 'example@example.com',
       type: 'track',
       timestamp: '2023-02-07T02:19:23.469Z',
       key_value_pairs: {

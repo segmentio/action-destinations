@@ -5,6 +5,7 @@ import type { Settings } from './generated-types'
 
 import identifyUser from './identifyUser'
 import groupIdentifyUser from './groupIdentifyUser'
+import incrementProperties from './incrementProperties'
 
 import alias from './alias'
 import { ApiRegions, StrictMode } from './common/utils'
@@ -126,7 +127,8 @@ const destination: DestinationDefinition<Settings> = {
     identifyUser,
     groupIdentifyUser,
     alias,
-    trackPurchase
+    trackPurchase,
+    incrementProperties
   }
 }
 

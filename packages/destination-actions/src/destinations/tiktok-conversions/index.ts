@@ -11,11 +11,17 @@ const productProperties = {
   quantity: {
     '@path': '$.quantity'
   },
-  content_type: {
+  content_category: {
     '@path': '$.category'
   },
   content_id: {
     '@path': '$.product_id'
+  },
+  content_name: {
+    '@path': '$.name'
+  },
+  brand: {
+    '@path': '$.brand'
   }
 }
 
@@ -42,80 +48,6 @@ const multiProductContents = {
     ]
   }
 }
-
-/** used in the quick setup */
-const presets: DestinationDefinition['presets'] = [
-  {
-    name: 'View Content',
-    subscribe: 'type="page"',
-    partnerAction: 'reportWebEvent',
-    mapping: {
-      ...singleProductContents,
-      event: 'ViewContent'
-    },
-    type: 'automatic'
-  },
-  {
-    name: 'Search',
-    subscribe: 'event = "Products Searched"',
-    partnerAction: 'reportWebEvent',
-    mapping: {
-      ...singleProductContents,
-      event: 'Search'
-    },
-    type: 'automatic'
-  },
-  {
-    name: 'Add to Wishlist',
-    subscribe: 'event = "Product Added to Wishlist"',
-    partnerAction: 'reportWebEvent',
-    mapping: {
-      ...singleProductContents,
-      event: 'AddToWishlist'
-    },
-    type: 'automatic'
-  },
-  {
-    name: 'Add to Cart',
-    subscribe: 'event = "Product Added"',
-    partnerAction: 'reportWebEvent',
-    mapping: {
-      ...singleProductContents,
-      event: 'AddToCart'
-    },
-    type: 'automatic'
-  },
-  {
-    name: 'Initiate Checkout',
-    subscribe: 'event = "Checkout Started"',
-    partnerAction: 'reportWebEvent',
-    mapping: {
-      ...multiProductContents,
-      event: 'InitiateCheckout'
-    },
-    type: 'automatic'
-  },
-  {
-    name: 'Add Payment Info',
-    subscribe: 'event = "Payment Info Entered"',
-    partnerAction: 'reportWebEvent',
-    mapping: {
-      ...multiProductContents,
-      event: 'AddPaymentInfo'
-    },
-    type: 'automatic'
-  },
-  {
-    name: 'Place an Order',
-    subscribe: 'event = "Order Completed"',
-    partnerAction: 'reportWebEvent',
-    mapping: {
-      ...multiProductContents,
-      event: 'PlaceAnOrder'
-    },
-    type: 'automatic'
-  }
-]
 
 const destination: DestinationDefinition<Settings> = {
   // Need to leave this Destination Name as "Tiktok" since it was registered with a lower case t.
@@ -159,10 +91,164 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest({ settings }) {
     return {
-      headers: { 'Access-Token': settings.accessToken }
+      headers: {
+        'Access-Token': settings.accessToken,
+        'Content-Type': 'application/json'
+      }
     }
   },
-  presets,
+  presets: [
+    {
+      name: 'Complete Payment',
+      subscribe: 'event = "Order Completed"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...multiProductContents,
+        event: 'CompletePayment'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Contact',
+      subscribe: 'event = "Callback Started"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...defaultValues(reportWebEvent.fields),
+        event: 'Contact'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Subscribe',
+      subscribe: 'event = "Subscription Created"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...defaultValues(reportWebEvent.fields),
+        event: 'Subscribe'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Submit Form',
+      subscribe: 'event = "Form Submitted"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...defaultValues(reportWebEvent.fields),
+        event: 'SubmitForm'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Page View', // is it ok to change preset name that is used by live version?
+      subscribe: 'type="page"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...multiProductContents,
+        event: 'PageView'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'View Content',
+      subscribe: 'event = "Product Viewed"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...singleProductContents,
+        event: 'ViewContent'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Click Button',
+      subscribe: 'event = "Product Clicked"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...singleProductContents,
+        event: 'ClickButton'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Search',
+      subscribe: 'event = "Products Searched"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...singleProductContents,
+        event: 'Search'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add to Wishlist',
+      subscribe: 'event = "Product Added to Wishlist"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...singleProductContents,
+        event: 'AddToWishlist'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add to Cart',
+      subscribe: 'event = "Product Added"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...singleProductContents,
+        event: 'AddToCart'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Initiate Checkout',
+      subscribe: 'event = "Checkout Started"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...multiProductContents,
+        event: 'InitiateCheckout'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add Payment Info',
+      subscribe: 'event = "Payment Info Entered"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...multiProductContents,
+        event: 'AddPaymentInfo'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Place an Order',
+      subscribe: 'event = "Order Placed"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...multiProductContents,
+        event: 'PlaceAnOrder'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Download',
+      subscribe: 'event = "Download Link Clicked"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...defaultValues(reportWebEvent.fields),
+        event: 'Download'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Complete Registration',
+      subscribe: 'event = "Signed Up"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...defaultValues(reportWebEvent.fields),
+        event: 'CompleteRegistration'
+      },
+      type: 'automatic'
+    }
+  ],
   actions: {
     reportWebEvent
   }

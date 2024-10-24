@@ -20,10 +20,12 @@ import {
   user_agent,
   timezone,
   group_id,
-  properties
+  properties,
+  message_id,
+  consent,
+  validateConsentObject
 } from '../segment-properties'
-import { SEGMENT_ENDPOINTS } from '../properties'
-import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../errors'
+import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Page',
@@ -48,21 +50,26 @@ const action: ActionDefinition<Settings, Payload> = {
     user_agent,
     timezone,
     group_id,
-    properties
+    properties,
+    message_id,
+    consent
   },
-  perform: (request, { payload, settings, features, statsContext }) => {
+  perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
+    const isValidConsentObject = validateConsentObject(payload?.consent)
 
     const pagePayload: Object = {
       userId: payload?.user_id,
       anonymousId: payload?.anonymous_id,
       timestamp: payload?.timestamp,
       name: payload?.page_name,
+      messageId: payload?.message_id,
       context: {
         app: payload?.application,
         campaign: payload?.campaign_parameters,
+        consent: isValidConsentObject ? { ...payload?.consent } : {},
         device: payload?.device,
         ip: payload?.ip_address,
         locale: payload?.locale,
@@ -84,26 +91,12 @@ const action: ActionDefinition<Settings, Payload> = {
         title: payload?.page?.title,
         url: payload?.page?.url,
         ...payload?.properties
-      }
+      },
+      type: 'page'
     }
 
-    // Throw an error if endpoint is not defined or invalid
-    if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      throw InvalidEndpointSelectedThrowableError
-    }
-
-    // Return transformed payload without sending it to TAPI endpoint
-    if (features && features['actions-segment-tapi-internal-enabled']) {
-      statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendPage'])
-      const payload = { ...pagePayload, type: 'page' }
-      return { batch: [payload] }
-    }
-
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-    return request(`${selectedSegmentEndpoint}/page`, {
-      method: 'POST',
-      json: pagePayload
-    })
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendPage'])
+    return { batch: [pagePayload] }
   }
 }
 

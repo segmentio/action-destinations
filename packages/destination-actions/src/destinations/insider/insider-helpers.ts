@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { Payload as UserPayload } from './updateUserProfile/generated-types'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import { Payload as CartViewedEventPayload } from './cartViewedEvent/generated-types'
@@ -28,6 +30,44 @@ export interface upsertUserPayload {
   events: insiderEvent[]
 }
 
+const defaultAttributes = [
+  'email',
+  'phone',
+  'age',
+  'birthday',
+  'name',
+  'gender',
+  'surname',
+  'city',
+  'country',
+  'app_version',
+  'idfa',
+  'model',
+  'last_ip',
+  'carrier',
+  'os_version',
+  'platform',
+  'timezone',
+  'locale'
+]
+const defaultEvents = [
+  'campaign_id',
+  'campaign_name',
+  'url',
+  'product_id',
+  'user_agent',
+  'taxonomy',
+  'name',
+  'variant_id',
+  'unit_sale_price',
+  'unit_price',
+  'quantity',
+  'product_image_url',
+  'event_group_id',
+  'referrer',
+  'currency'
+]
+
 export function userProfilePayload(data: UserPayload) {
   const identifiers = {
     uuid: data.uuid,
@@ -36,15 +76,18 @@ export function userProfilePayload(data: UserPayload) {
     }
   }
 
+  if (data.custom_identifiers) {
+    identifiers.custom = {
+      ...identifiers.custom,
+      ...data.custom_identifiers
+    }
+  }
+
   if (data.email_as_identifier) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     identifiers['email'] = data.email
   }
 
   if (data.phone_number_as_identifier) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     identifiers['phone_number'] = data.phone
   }
 
@@ -114,16 +157,10 @@ export function sendTrackEvent(
     parameter = parameter.toString().toLowerCase().trim().split(' ').join('_')
 
     if (parameter === 'taxonomy') {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       event.event_params[parameter] = [data[parameter]]
     } else if (defaultEvents.indexOf(parameter) > -1) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       event.event_params[parameter] = data[parameter]
     } else if (data) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       event.event_params.custom[parameter] = data[parameter]
     }
 
@@ -137,82 +174,39 @@ export function sendTrackEvent(
     }
   }
 
+  if (data.custom_identifiers) {
+    identifiers.custom = {
+      ...identifiers.custom,
+      ...data.custom_identifiers
+    }
+  }
+
   if (data.email_as_identifier && data?.attributes?.email) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     identifiers['email'] = data?.attributes?.email
   }
 
   if (data.phone_number_as_identifier && data?.attributes?.phone) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     identifiers['phone_number'] = data?.attributes?.phone
   }
 
   const payload: upsertUserPayload = {
     identifiers,
     attributes: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       custom: {}
     },
     events: []
   }
 
-  const defaultAttributes = [
-    'email',
-    'phone',
-    'age',
-    'birthday',
-    'name',
-    'gender',
-    'surname',
-    'city',
-    'country',
-    'app_version',
-    'idfa',
-    'model',
-    'last_ip',
-    'carrier',
-    'os_version',
-    'platform',
-    'timezone',
-    'locale'
-  ]
-  const defaultEvents = [
-    'campaign_id',
-    'campaign_name',
-    'url',
-    'product_id',
-    'user_agent',
-    'taxonomy',
-    'name',
-    'variant_id',
-    'unit_sale_price',
-    'unit_price',
-    'quantity',
-    'product_image_url',
-    'event_group_id',
-    'referrer',
-    'currency'
-  ]
-
   for (const key of Object.keys(data.attributes || {})) {
     const attributeName: string = key.toString().toLowerCase().trim().split(' ').join('_').toString()
 
     if (attributeName === 'locale' && data.attributes) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       payload.attributes[attributeName as keyof typeof payload.attributes] = data.attributes[attributeName]
         ?.split('-')
         .join('_')
     } else if (defaultAttributes.indexOf(attributeName) > -1 && data.attributes) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       payload.attributes[attributeName as keyof typeof payload.attributes] = data.attributes[attributeName]
     } else if (data.attributes) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       payload.attributes.custom[attributeName as keyof typeof payload.attributes.custom] =
         data.attributes[attributeName]
     }
@@ -222,30 +216,30 @@ export function sendTrackEvent(
     event_name,
     timestamp: data.timestamp.toString(),
     event_params: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       custom: {}
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   for (const key of Object.keys(data.parameters || {})) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     event = addEventParameters(event, data.parameters, key)
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   if (data.products) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     for (const product of data.products) {
-      let productEvent = event
+      let productEvent: insiderEvent = {
+        event_name,
+        timestamp: data.timestamp.toString(),
+        event_params: {
+          custom: {}
+        }
+      }
 
       for (const key of Object.keys(product || {})) {
         productEvent = addEventParameters(productEvent, product, key)
+      }
+
+      for (const key of Object.keys(data.parameters || {})) {
+        productEvent = addEventParameters(productEvent, data.parameters, key)
       }
 
       payload.events.push(productEvent)
@@ -265,19 +259,16 @@ export function bulkUserProfilePayload(data: UserPayload[]) {
     const identifiers = {
       uuid: userPayload.uuid,
       custom: {
-        segment_anonymous_id: userPayload.segment_anonymous_id
+        segment_anonymous_id: userPayload.segment_anonymous_id,
+        ...userPayload.custom_identifiers
       }
     }
 
     if (userPayload.email_as_identifier) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       identifiers['email'] = userPayload.email
     }
 
     if (userPayload.phone_number_as_identifier) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       identifiers['phone_number'] = userPayload.phone
     }
 
@@ -358,16 +349,10 @@ export function sendBulkTrackEvents(
       parameter = parameter.toString().toLowerCase().trim().split(' ').join('_')
 
       if (parameter === 'taxonomy') {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         event.event_params[parameter] = [data[parameter]]
       } else if (defaultEvents.indexOf(parameter) > -1) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         event.event_params[parameter] = data[parameter]
       } else if (data) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         event.event_params.custom[parameter] = data[parameter]
       }
 
@@ -381,120 +366,75 @@ export function sendBulkTrackEvents(
       }
     }
 
+    if (data.custom_identifiers) {
+      identifiers.custom = {
+        ...identifiers.custom,
+        ...data.custom_identifiers
+      }
+    }
+
     if (data.email_as_identifier && data?.attributes?.email) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       identifiers['email'] = data?.attributes?.email
     }
 
     if (data.phone_number_as_identifier && data?.attributes?.phone) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       identifiers['phone_number'] = data?.attributes?.phone
     }
 
     const payload: upsertUserPayload = {
       identifiers,
       attributes: {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         custom: {}
       },
       not_append: true,
       events: []
     }
 
-    const defaultAttributes = [
-      'email',
-      'phone',
-      'age',
-      'birthday',
-      'name',
-      'gender',
-      'surname',
-      'city',
-      'country',
-      'app_version',
-      'idfa',
-      'model',
-      'last_ip',
-      'carrier',
-      'os_version',
-      'platform',
-      'timezone',
-      'locale'
-    ]
-    const defaultEvents = [
-      'campaign_id',
-      'campaign_name',
-      'url',
-      'product_id',
-      'user_agent',
-      'taxonomy',
-      'name',
-      'variant_id',
-      'unit_sale_price',
-      'unit_price',
-      'quantity',
-      'product_image_url',
-      'event_group_id',
-      'referrer',
-      'currency'
-    ]
-
     for (const key of Object.keys(data.attributes || {})) {
       const attributeName: string = key.toString().toLowerCase().trim().split(' ').join('_').toString()
 
       if (attributeName === 'locale' && data.attributes) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         payload.attributes[attributeName as keyof typeof payload.attributes] = data.attributes[attributeName]
           ?.split('-')
           .join('_')
       } else if (defaultAttributes.indexOf(attributeName) > -1 && data.attributes) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         payload.attributes[attributeName as keyof typeof payload.attributes] = data.attributes[attributeName]
       } else if (data.attributes) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         payload.attributes.custom[attributeName as keyof typeof payload.attributes.custom] =
           data.attributes[attributeName]
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const eventName = event_name || data.event_name.toString().toLowerCase().trim().split(' ').join('_').toString()
 
     let event: insiderEvent = {
       event_name: eventName,
       timestamp: data.timestamp.toString(),
       event_params: {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         custom: {}
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     for (const key of Object.keys(data.parameters || {})) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       event = addEventParameters(event, data.parameters, key)
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     if (data.products) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       for (const product of data.products) {
-        let productEvent = event
+        let productEvent: insiderEvent = {
+          event_name: eventName,
+          timestamp: data.timestamp.toString(),
+          event_params: {
+            custom: {}
+          }
+        }
 
         for (const key of Object.keys(product || {})) {
           productEvent = addEventParameters(productEvent, product, key)
+        }
+
+        for (const key of Object.keys(data.parameters || {})) {
+          productEvent = addEventParameters(productEvent, data.parameters, key)
         }
 
         payload.events.push(productEvent)

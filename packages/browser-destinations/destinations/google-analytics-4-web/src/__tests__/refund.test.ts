@@ -15,6 +15,9 @@ const subscriptions: Subscription[] = [
       value: {
         '@path': '$.properties.value'
       },
+      send_to: {
+        '@path': '$.properties.send_to'
+      },
       coupon: {
         '@path': '$.properties.coupon'
       },
@@ -67,7 +70,71 @@ describe('GoogleAnalytics4Web.refund', () => {
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
 
-  test('GA4 Refund Event', async () => {
+  test('GA4 Refund Event when send to is false', async () => {
+    const context = new Context({
+      event: 'Refund',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        transaction_id: 12321,
+        send_to: false,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+    await refundEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('refund'),
+      expect.objectContaining({
+        currency: 'USD',
+        transaction_id: 12321,
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10,
+        send_to: 'default'
+      })
+    )
+  })
+  test('GA4 Refund Event when send to is true', async () => {
+    const context = new Context({
+      event: 'Refund',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        transaction_id: 12321,
+        send_to: true,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+    await refundEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('refund'),
+      expect.objectContaining({
+        currency: 'USD',
+        transaction_id: 12321,
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10,
+        send_to: settings.measurementID
+      })
+    )
+  })
+  test('GA4 Refund Event when send to is undefined', async () => {
     const context = new Context({
       event: 'Refund',
       type: 'track',
@@ -93,7 +160,8 @@ describe('GoogleAnalytics4Web.refund', () => {
         currency: 'USD',
         transaction_id: 12321,
         items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
-        value: 10
+        value: 10,
+        send_to: 'default'
       })
     )
   })

@@ -1,0 +1,52 @@
+name: Publish Canary
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build-and-publish:
+    env:
+      HUSKY: 0
+      NX_DISABLE_DB: true
+    if: startsWith(github.event.head_commit.message, 'Publish') == true
+    runs-on: ubuntu-20.04
+
+    timeout-minutes: 15
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://registry.npmjs.org'
+          cache: yarn
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        run: NODE_ENV=production yarn build
+
+      - name: Fetch Latest Tags
+        run: |
+          git fetch --tags
+
+      - name: Set NPM Token
+        run: |
+          npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
+          npm whoami
+
+      - name: Publish
+        run: |
+          yarn lerna publish from-package --yes --allowBranch=staging --loglevel=verbose --dist-tag canary

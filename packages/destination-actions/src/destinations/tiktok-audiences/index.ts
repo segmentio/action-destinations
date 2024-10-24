@@ -66,18 +66,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Advertiser ID',
       description:
         'The advertiser ID to use when syncing audiences. Required if you wish to create or update an audience.'
-    },
-    idType: {
-      type: 'string',
-      label: 'ID Type',
-      description:
-        'Encryption type to be used for populating the audience. This field is required and only set when Segment creates a new audience.',
-      choices: [
-        { label: 'Email', value: 'EMAIL_SHA256' },
-        { label: 'Google Advertising ID', value: 'GAID_SHA256' },
-        { label: 'Android Advertising ID', value: 'AAID_SHA256' },
-        { label: 'iOS Advertising ID', value: 'IDFA_SHA256' }
-      ]
     }
   },
   audienceConfig: {
@@ -87,7 +75,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
-      const idType = createAudienceInput.audienceSettings?.idType
       const advertiserId = createAudienceInput.audienceSettings?.advertiserId
       const statsClient = createAudienceInput?.statsContext?.statsClient
       const statsTags = createAudienceInput?.statsContext?.tags
@@ -100,16 +87,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      if (!idType) {
-        throw new IntegrationError('Missing ID type value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
       const response = await request(CREATE_AUDIENCE_URL, {
         method: 'POST',
         json: {
           custom_audience_name: audienceName,
           advertiser_id: advertiserId,
-          id_type: idType,
           action: 'create'
         }
       })
@@ -174,11 +156,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   actions: {
+    addToAudience,
+    removeFromAudience,
     addUser,
     removeUser,
-    createAudience,
-    addToAudience,
-    removeFromAudience
+    createAudience
   }
 }
 

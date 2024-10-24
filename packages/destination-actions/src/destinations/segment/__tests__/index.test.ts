@@ -6,8 +6,7 @@ import { SEGMENT_ENDPOINTS, DEFAULT_SEGMENT_ENDPOINT } from '../properties'
 const testDestination = createTestIntegration(Definition)
 const segmentEndpoint = SEGMENT_ENDPOINTS[DEFAULT_SEGMENT_ENDPOINT].cdn
 const authData = {
-  source_write_key: 'test-source-write-key',
-  endpoint: DEFAULT_SEGMENT_ENDPOINT
+  source_write_key: 'test-source-write-key'
 }
 
 describe('Segment', () => {

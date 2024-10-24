@@ -1,0 +1,141 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AmazonAds.syncAudiencesToDSP Normalise and Hash personally-identifiable input provided with SHA-256 1`] = `
+Object {
+  "afterResponse": Array [
+    [Function],
+    [Function],
+    [Function],
+  ],
+  "beforeRequest": Array [
+    [Function],
+  ],
+  "body": "{\\"records\\":[{\\"externalUserId\\":\\"test-kochar-01\\",\\"countryCode\\":\\"US\\",\\"action\\":\\"CREATE\\",\\"hashedPII\\":[{\\"firstname\\":\\"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d\\",\\"phone\\":\\"63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b\\",\\"state\\":\\"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d\\",\\"email\\":\\"15b436489faf367dadf946cfe311d44b6621814e1aacc4f8acfdf0c29a068b11\\"}]}],\\"audienceId\\":379909525712777677}",
+  "headers": Headers {
+    Symbol(map): Object {
+      "amazon-advertising-api-clientid": Array [
+        "",
+      ],
+      "authorization": Array [
+        "Bearer undefined",
+      ],
+      "content-type": Array [
+        "application/vnd.amcaudiences.v1+json",
+      ],
+      "user-agent": Array [
+        "Segment (Actions)",
+      ],
+    },
+  },
+  "method": "POST",
+  "signal": AbortSignal {},
+  "statsContext": Object {},
+  "throwHttpErrors": true,
+  "timeout": 10000,
+}
+`;
+
+exports[`AmazonAds.syncAudiencesToDSP Should add user to audience when Event is Audience Entered 1`] = `
+Object {
+  "afterResponse": Array [
+    [Function],
+    [Function],
+    [Function],
+  ],
+  "beforeRequest": Array [
+    [Function],
+  ],
+  "body": "{\\"records\\":[{\\"externalUserId\\":\\"test-kochar-01\\",\\"countryCode\\":\\"US\\",\\"action\\":\\"CREATE\\",\\"hashedPII\\":[{}]}],\\"audienceId\\":379909525712777677}",
+  "headers": Headers {
+    Symbol(map): Object {
+      "amazon-advertising-api-clientid": Array [
+        "",
+      ],
+      "authorization": Array [
+        "Bearer undefined",
+      ],
+      "content-type": Array [
+        "application/vnd.amcaudiences.v1+json",
+      ],
+      "user-agent": Array [
+        "Segment (Actions)",
+      ],
+    },
+  },
+  "method": "POST",
+  "signal": AbortSignal {},
+  "statsContext": Object {},
+  "throwHttpErrors": true,
+  "timeout": 10000,
+}
+`;
+
+exports[`AmazonAds.syncAudiencesToDSP Should delete user from audience when Event is Audience Exited 1`] = `
+Object {
+  "afterResponse": Array [
+    [Function],
+    [Function],
+    [Function],
+  ],
+  "beforeRequest": Array [
+    [Function],
+  ],
+  "body": "{\\"records\\":[{\\"externalUserId\\":\\"test-kochar-01\\",\\"countryCode\\":\\"US\\",\\"action\\":\\"DELETE\\",\\"hashedPII\\":[{}]}],\\"audienceId\\":379909525712777677}",
+  "headers": Headers {
+    Symbol(map): Object {
+      "amazon-advertising-api-clientid": Array [
+        "",
+      ],
+      "authorization": Array [
+        "Bearer undefined",
+      ],
+      "content-type": Array [
+        "application/vnd.amcaudiences.v1+json",
+      ],
+      "user-agent": Array [
+        "Segment (Actions)",
+      ],
+    },
+  },
+  "method": "POST",
+  "signal": AbortSignal {},
+  "statsContext": Object {},
+  "throwHttpErrors": true,
+  "timeout": 10000,
+}
+`;
+
+exports[`AmazonAds.syncAudiencesToDSP should work with batch events 1`] = `
+Object {
+  "afterResponse": Array [
+    [Function],
+    [Function],
+    [Function],
+  ],
+  "beforeRequest": Array [
+    [Function],
+  ],
+  "body": "{\\"records\\":[{\\"externalUserId\\":\\"test-kochar-01\\",\\"countryCode\\":\\"US\\",\\"action\\":\\"CREATE\\",\\"hashedPII\\":[{\\"firstname\\":\\"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d\\",\\"city\\":\\"b4c0372af033c406857a420644e46c806280a0bab8246bd0c62c7807f66f794f\\",\\"state\\":\\"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d\\",\\"email\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]},{\\"externalUserId\\":\\"test-kochar-02\\",\\"countryCode\\":\\"US\\",\\"action\\":\\"DELETE\\",\\"hashedPII\\":[{\\"firstname\\":\\"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d\\",\\"lastname\\":\\"4cd1cb0957bc59e698beab9e86f062f2e84138bff5a446e49762da8fe0c2f499\\",\\"address\\":\\"45cfec5f1df1af649d49fc74314d7c9272e2f63ae9119bd3ef4b22a040d98cbc\\",\\"postal\\":\\"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08\\",\\"state\\":\\"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d\\",\\"email\\":\\"bd0bcf03735a1a00c6f1dd21c63c5d819e7e450298f301698192e8df90da3bb3\\"}]}],\\"audienceId\\":379909525712777677}",
+  "headers": Headers {
+    Symbol(map): Object {
+      "amazon-advertising-api-clientid": Array [
+        "",
+      ],
+      "authorization": Array [
+        "Bearer undefined",
+      ],
+      "content-type": Array [
+        "application/vnd.amcaudiences.v1+json",
+      ],
+      "user-agent": Array [
+        "Segment (Actions)",
+      ],
+    },
+  },
+  "method": "POST",
+  "signal": AbortSignal {},
+  "statsContext": Object {},
+  "throwHttpErrors": true,
+  "timeout": 10000,
+}
+`;

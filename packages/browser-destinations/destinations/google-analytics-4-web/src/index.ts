@@ -35,7 +35,7 @@ type ConsentParamsArg = 'granted' | 'denied' | undefined
 const presets: DestinationDefinition['presets'] = [
   {
     name: `Set Configuration Fields`,
-    subscribe: 'type = "page" or type = "identify"',
+    subscribe: 'type = "page"',
     partnerAction: 'setConfigurationFields',
     mapping: defaultValues(setConfigurationFields.fields),
     type: 'automatic'
@@ -83,18 +83,20 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       description: `Appends additional flags to the analytics cookie.  See [write a new cookie](https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie#write_a_new_cookie) for some examples of flags to set.`,
       label: 'Cookie Flag',
       type: 'string',
+      default: undefined,
       multiple: true
     },
     cookiePath: {
-      description: `Specifies the subpath used to store the analytics cookie.`,
+      description: `Specifies the subpath used to store the analytics cookie. We recommend to add a forward slash, / , in the first field as it is the Default Value for GA4.`,
       label: 'Cookie Path',
       type: 'string',
-      multiple: true
+      default: '/'
     },
     cookiePrefix: {
       description: `Specifies a prefix to prepend to the analytics cookie name.`,
       label: 'Cookie Prefix',
       type: 'string',
+      default: undefined,
       multiple: true
     },
     cookieUpdate: {
@@ -118,7 +120,16 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         { label: 'Granted', value: 'granted' },
         { label: 'Denied', value: 'denied' }
       ],
-      default: 'granted'
+      default: 'granted',
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'enableConsentMode',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
     },
     defaultAnalyticsStorageConsentState: {
       description:
@@ -129,7 +140,56 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         { label: 'Granted', value: 'granted' },
         { label: 'Denied', value: 'denied' }
       ],
-      default: 'granted'
+      default: 'granted',
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'enableConsentMode',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
+    },
+    adUserDataConsentState: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad User Data Consent State',
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ],
+      default: undefined,
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'enableConsentMode',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
+    },
+    adPersonalizationConsentState: {
+      description:
+        'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
+      label: 'Ad Personalization Consent State',
+      type: 'string',
+      choices: [
+        { label: 'Granted', value: 'granted' },
+        { label: 'Denied', value: 'denied' }
+      ],
+      default: undefined,
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'enableConsentMode',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
     },
     waitTimeToUpdateConsentStage: {
       description:
@@ -154,11 +214,24 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
 
     window.gtag('js', new Date())
     if (settings.enableConsentMode) {
-      window.gtag('consent', 'default', {
+      const consent: {
+        ad_storage: ConsentParamsArg
+        analytics_storage: ConsentParamsArg
+        wait_for_update: number | undefined
+        ad_user_data?: ConsentParamsArg
+        ad_personalization?: ConsentParamsArg
+      } = {
         ad_storage: settings.defaultAdsStorageConsentState as ConsentParamsArg,
         analytics_storage: settings.defaultAnalyticsStorageConsentState as ConsentParamsArg,
         wait_for_update: settings.waitTimeToUpdateConsentStage
-      })
+      }
+      if (settings.adUserDataConsentState) {
+        consent.ad_user_data = settings.adUserDataConsentState as ConsentParamsArg
+      }
+      if (settings.adPersonalizationConsentState) {
+        consent.ad_personalization = settings.adPersonalizationConsentState as ConsentParamsArg
+      }
+      gtag('consent', 'default', consent)
     }
     const script = `https://www.googletagmanager.com/gtag/js?id=${settings.measurementID}`
     await deps.loadScript(script)

@@ -19,7 +19,7 @@ describe('Wisepops.trackGoal', () => {
       subscribe: trackGoalObject.defaultSubscription!,
       mapping: {
         goalName: {
-          '@path': '$.event'
+          '@path': '$.properties.goalName'
         },
         goalRevenue: {
           '@path': '$.properties.revenue'
@@ -28,7 +28,7 @@ describe('Wisepops.trackGoal', () => {
     }
   ]
 
-  test('named goal with revenue', async () => {
+  test('old named goal with revenue', async () => {
     const [trackGoal] = await wisepopsDestination({
       websiteId: '1234567890',
       subscriptions
@@ -42,11 +42,35 @@ describe('Wisepops.trackGoal', () => {
       type: 'track',
       event: 'Order Completed',
       properties: {
+        goalName: 'Order Completed',
         revenue: 15
       }
     })
     trackGoal.track?.(context)
 
     expect(window.wisepops.q.push).toHaveBeenCalledWith(['goal', 'Order Completed', 15])
+  })
+
+  test('new goal with revenue', async () => {
+    const [trackGoal] = await wisepopsDestination({
+      websiteId: '1234567890',
+      subscriptions
+    })
+    expect(trackGoal).toBeDefined()
+
+    await trackGoal.load(Context.system(), {} as Analytics)
+    jest.spyOn(window.wisepops.q as any, 'push')
+
+    const context = new Context({
+      type: 'track',
+      event: 'Order Completed',
+      properties: {
+        goalName: 'yhqnj9RTF3Fk6TnTmRW6vhxiugipbUKc',
+        revenue: 15
+      }
+    })
+    trackGoal.track?.(context)
+
+    expect(window.wisepops.q.push).toHaveBeenCalledWith(['goal', 'yhqnj9RTF3Fk6TnTmRW6vhxiugipbUKc', {revenue: 15}])
   })
 })

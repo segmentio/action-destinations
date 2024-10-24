@@ -21,4 +21,16 @@ export interface Payload {
   person_attributes?: {
     [k: string]: unknown
   }
+  /**
+   * Events will be sent Attio in batches. When batching is enabled any invalid events will be silently dropped.
+   */
+  enable_batching?: boolean
+  /**
+   * Max batch size to send to Attio (limit is 10,000)
+   */
+  batch_size?: number
+  /**
+   * When the event was received.
+   */
+  received_at?: string | number
 }

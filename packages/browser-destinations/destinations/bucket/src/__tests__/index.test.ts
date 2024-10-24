@@ -70,9 +70,53 @@ describe('Bucket', () => {
     analyticsInstance.reset()
 
     expect(getBucketCallLog()).toStrictEqual([
-      { method: 'init', args: ['testTrackingKey'] },
+      { method: 'init', args: ['testTrackingKey', {}] },
       { method: 'reset', args: [] }
     ])
+  })
+
+  it('passes options to bucket.init()', async () => {
+    const [instance] = await bucketWebDestination({
+      trackingKey: 'testTrackingKey',
+      host: 'http://localhost:3200',
+      subscriptions: subscriptions as unknown as JSONArray
+    })
+
+    const analyticsInstance = new Analytics({ writeKey: 'test-writekey' })
+
+    await instance.load(Context.system(), analyticsInstance)
+
+    expect(getBucketCallLog()).toStrictEqual([
+      { method: 'init', args: ['testTrackingKey', { host: 'http://localhost:3200' }] }
+    ])
+  })
+
+  it('allows sdkVersion override', async () => {
+    const [instance] = await bucketWebDestination({
+      trackingKey: 'testTrackingKey',
+      sdkVersion: 'latest',
+      subscriptions: subscriptions as unknown as JSONArray
+    })
+
+    const analyticsInstance = new Analytics({ writeKey: 'test-writekey' })
+
+    await instance.load(Context.system(), analyticsInstance)
+
+    const scripts = Array.from(window.document.querySelectorAll('script'))
+    expect(scripts).toMatchInlineSnapshot(`
+      Array [
+        <script
+          src="https://cdn.jsdelivr.net/npm/@bucketco/tracking-sdk@latest"
+          status="loaded"
+          type="text/javascript"
+        />,
+        <script>
+          // the emptiness
+        </script>,
+      ]
+    `)
+
+    expect(getBucketCallLog()).toStrictEqual([{ method: 'init', args: ['testTrackingKey', {}] }])
   })
 
   describe('when not logged in', () => {
@@ -86,7 +130,7 @@ describe('Bucket', () => {
 
       await instance.load(Context.system(), analyticsInstance)
 
-      expect(getBucketCallLog()).toStrictEqual([{ method: 'init', args: ['testTrackingKey'] }])
+      expect(getBucketCallLog()).toStrictEqual([{ method: 'init', args: ['testTrackingKey', {}] }])
     })
   })
 
@@ -108,7 +152,7 @@ describe('Bucket', () => {
       await instance.load(Context.system(), analyticsInstance)
 
       expect(getBucketCallLog()).toStrictEqual([
-        { method: 'init', args: ['testTrackingKey'] },
+        { method: 'init', args: ['testTrackingKey', {}] },
         { method: 'user', args: ['test-user-id-1', {}, { active: false }] }
       ])
     })

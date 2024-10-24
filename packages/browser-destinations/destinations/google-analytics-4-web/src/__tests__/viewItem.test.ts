@@ -15,6 +15,9 @@ const subscriptions: Subscription[] = [
       value: {
         '@path': '$.properties.value'
       },
+      send_to: {
+        '@path': '$.properties.send_to'
+      },
       items: [
         {
           item_name: {
@@ -61,7 +64,69 @@ describe('GoogleAnalytics4Web.viewItem', () => {
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
 
-  test('GA4 viewItem Event', async () => {
+  test('GA4 viewItem Event when send to is false', async () => {
+    const context = new Context({
+      event: 'View Item',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        send_to: false,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+
+    await viewItemEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('view_item'),
+      expect.objectContaining({
+        currency: 'USD',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10,
+        send_to: 'default'
+      })
+    )
+  })
+  test('GA4 viewItem Event when send to is true', async () => {
+    const context = new Context({
+      event: 'View Item',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        send_to: true,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+
+    await viewItemEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('view_item'),
+      expect.objectContaining({
+        currency: 'USD',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10,
+        send_to: settings.measurementID
+      })
+    )
+  })
+  test('GA4 viewItem Event when send to is undefined', async () => {
     const context = new Context({
       event: 'View Item',
       type: 'track',
@@ -86,7 +151,8 @@ describe('GoogleAnalytics4Web.viewItem', () => {
       expect.objectContaining({
         currency: 'USD',
         items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
-        value: 10
+        value: 10,
+        send_to: 'default'
       })
     )
   })

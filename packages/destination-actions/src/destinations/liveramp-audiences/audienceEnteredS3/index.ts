@@ -34,9 +34,9 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string'
     },
     audience_key: {
-      label: 'Audience Key',
+      label: 'LiveRamp Audience Key',
       description:
-        'Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers.',
+        'Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers. See more information on [LiveRamp Audience Key](https://docs.liveramp.com/connect/en/onboarding-terms-and-concepts.html#audience-key) ',
       type: 'string',
       required: true,
       default: { '@path': '$.userId' }

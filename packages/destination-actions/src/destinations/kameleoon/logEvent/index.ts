@@ -7,9 +7,21 @@ import { BASE_URL } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Event',
-  description: 'Send an event to Kameleoon',
+  description: 'Send a track event to Kameleoon',
   defaultSubscription: 'type = "track"',
   fields: {
+    anonymousId: {
+      type: 'string',
+      description: 'Anonymous id',
+      label: 'Anonymous ID',
+      default: { '@path': '$.anonymousId' }
+    },
+    userId: {
+      type: 'string',
+      description: 'The ID associated with the user',
+      label: 'User ID',
+      default: { '@path': '$.userId' }
+    },
     event: {
       type: 'string',
       required: false,

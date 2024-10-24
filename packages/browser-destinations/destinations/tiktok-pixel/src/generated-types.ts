@@ -6,7 +6,15 @@ export interface Settings {
    */
   pixelCode: string
   /**
-   * Important! Changing this setting may block data collection to Segment if not done correctly. Select "true" to use an existing TikTok Pixel which is already installed on your website. The Pixel MUST be installed on your website when this is set to "true" or all data collection to Segment may fail.
+   * In order to help facilitate advertiser's compliance with the right to opt-out of sale and sharing of personal data under certain U.S. state privacy laws, TikTok offers a Limited Data Use ("LDU") feature. For more information, please refer to TikTok's [documentation page](https://business-api.tiktok.com/portal/docs?id=1770092377990145).
+   */
+  ldu?: boolean
+  /**
+   * If true, TikTok Pixel will fire a "Pageview" event whenevent the pixel is loaded on the page.
+   */
+  autoPageView?: boolean
+  /**
+   * Deprecated. Please do not provide any value.
    */
   useExistingPixel?: boolean
 }

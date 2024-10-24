@@ -2,132 +2,288 @@
 
 exports[`Testing snapshot for actions-segment-profiles destination: sendGroup action - all fields 1`] = `
 Object {
-  "anonymousId": "cZE8HyAL0!BF#)WQb^",
-  "groupId": "cZE8HyAL0!BF#)WQb^",
-  "integrations": Object {
-    "All": false,
+  "data": Object {
+    "batch": Array [
+      Object {
+        "anonymousId": "cZE8HyAL0!BF#)WQb^",
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
+        },
+        "groupId": "cZE8HyAL0!BF#)WQb^",
+        "integrations": Object {
+          "All": false,
+        },
+        "messageId": "cZE8HyAL0!BF#)WQb^",
+        "timestamp": "2021-02-01T00:00:00.000Z",
+        "traits": Object {
+          "testType": "cZE8HyAL0!BF#)WQb^",
+        },
+        "type": "group",
+        "userId": "cZE8HyAL0!BF#)WQb^",
+      },
+    ],
   },
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "traits": Object {
-    "testType": "cZE8HyAL0!BF#)WQb^",
-  },
-  "userId": "cZE8HyAL0!BF#)WQb^",
+  "output": "Action Executed",
 }
 `;
 
 exports[`Testing snapshot for actions-segment-profiles destination: sendGroup action - required fields 1`] = `
 Object {
-  "anonymousId": "cZE8HyAL0!BF#)WQb^",
-  "groupId": "cZE8HyAL0!BF#)WQb^",
-  "integrations": Object {
-    "All": false,
+  "data": Object {
+    "batch": Array [
+      Object {
+        "anonymousId": "cZE8HyAL0!BF#)WQb^",
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
+        },
+        "groupId": "cZE8HyAL0!BF#)WQb^",
+        "integrations": Object {
+          "All": false,
+        },
+        "messageId": "cZE8HyAL0!BF#)WQb^",
+        "timestamp": undefined,
+        "traits": Object {},
+        "type": "group",
+        "userId": "cZE8HyAL0!BF#)WQb^",
+      },
+    ],
   },
-  "traits": Object {},
-  "userId": "cZE8HyAL0!BF#)WQb^",
+  "output": "Action Executed",
 }
 `;
 
 exports[`Testing snapshot for actions-segment-profiles destination: sendIdentify action - all fields 1`] = `
 Object {
-  "anonymousId": "hIC1OAmWa[Q!&d%o",
-  "groupId": "hIC1OAmWa[Q!&d%o",
-  "integrations": Object {
-    "All": false,
+  "data": Object {
+    "batch": Array [
+      Object {
+        "anonymousId": "hIC1OAmWa[Q!&d%o",
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
+        },
+        "groupId": "hIC1OAmWa[Q!&d%o",
+        "integrations": Object {
+          "All": false,
+        },
+        "messageId": "hIC1OAmWa[Q!&d%o",
+        "timestamp": "2021-02-01T00:00:00.000Z",
+        "traits": Object {
+          "testType": "hIC1OAmWa[Q!&d%o",
+        },
+        "type": "identify",
+        "userId": "hIC1OAmWa[Q!&d%o",
+      },
+    ],
   },
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "traits": Object {
-    "testType": "hIC1OAmWa[Q!&d%o",
-  },
-  "userId": "hIC1OAmWa[Q!&d%o",
+  "output": "Action Executed",
 }
 `;
 
 exports[`Testing snapshot for actions-segment-profiles destination: sendIdentify action - required fields 1`] = `
 Object {
-  "anonymousId": "hIC1OAmWa[Q!&d%o",
-  "groupId": "hIC1OAmWa[Q!&d%o",
-  "integrations": Object {
-    "All": false,
+  "data": Object {
+    "batch": Array [
+      Object {
+        "anonymousId": "hIC1OAmWa[Q!&d%o",
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
+        },
+        "groupId": "hIC1OAmWa[Q!&d%o",
+        "integrations": Object {
+          "All": false,
+        },
+        "messageId": "hIC1OAmWa[Q!&d%o",
+        "timestamp": undefined,
+        "traits": Object {},
+        "type": "identify",
+        "userId": "hIC1OAmWa[Q!&d%o",
+      },
+    ],
   },
-  "traits": Object {},
-  "userId": "hIC1OAmWa[Q!&d%o",
+  "output": "Action Executed",
 }
 `;
 
 exports[`Testing snapshot for actions-segment-profiles destination: sendSubscription action - all fields 1`] = `
 Object {
-  "context": Object {
-    "externalIds": Array [
+  "data": Object {
+    "batch": Array [
       Object {
-        "collection": "users",
-        "encoding": "none",
-        "id": "tester11@seg.com",
-        "type": "email",
-      },
-      Object {
-        "collection": "users",
-        "encoding": "none",
-        "id": "+12135618345",
-        "type": "phone",
+        "anonymousId": undefined,
+        "context": Object {
+          "consent": Object {},
+          "externalIds": Array [
+            Object {
+              "collection": "users",
+              "encoding": "none",
+              "id": "tester11@seg.com",
+              "type": "email",
+            },
+            Object {
+              "collection": "users",
+              "encoding": "none",
+              "id": "+12135618345",
+              "type": "phone",
+            },
+          ],
+          "messaging_subscriptions": Array [
+            Object {
+              "key": "tester11@seg.com",
+              "status": "SUBSCRIBED",
+              "type": "EMAIL",
+            },
+            Object {
+              "key": "+12135618345",
+              "status": "SUBSCRIBED",
+              "type": "SMS",
+            },
+          ],
+          "messaging_subscriptions_retl": true,
+        },
+        "integrations": Object {
+          "All": false,
+        },
+        "messageId": undefined,
+        "timestamp": undefined,
+        "traits": Object {},
+        "type": "identify",
+        "userId": "user12",
       },
     ],
-    "messaging_subscriptions": Array [
-      Object {
-        "key": "tester11@seg.com",
-        "status": "SUBSCRIBED",
-        "type": "EMAIL",
-      },
-      Object {
-        "key": "+12135618345",
-        "status": "SUBSCRIBED",
-        "type": "SMS",
-      },
-    ],
-    "messaging_subscriptions_retl": true,
   },
-  "integrations": Object {
-    "All": false,
-  },
-  "traits": Object {},
-  "userId": "user12",
+  "output": "Action Executed",
 }
 `;
 
 exports[`Testing snapshot for actions-segment-profiles destination: sendSubscription action - required fields 1`] = `
 Object {
-  "context": Object {
-    "externalIds": Array [
+  "data": Object {
+    "batch": Array [
       Object {
-        "collection": "users",
-        "encoding": "none",
-        "id": "tester11@seg.com",
-        "type": "email",
-      },
-      Object {
-        "collection": "users",
-        "encoding": "none",
-        "id": "+12135618345",
-        "type": "phone",
+        "anonymousId": undefined,
+        "context": Object {
+          "consent": Object {},
+          "externalIds": Array [
+            Object {
+              "collection": "users",
+              "encoding": "none",
+              "id": "tester11@seg.com",
+              "type": "email",
+            },
+            Object {
+              "collection": "users",
+              "encoding": "none",
+              "id": "+12135618345",
+              "type": "phone",
+            },
+          ],
+          "messaging_subscriptions": Array [
+            Object {
+              "key": "tester11@seg.com",
+              "status": "SUBSCRIBED",
+              "type": "EMAIL",
+            },
+            Object {
+              "key": "+12135618345",
+              "status": "SUBSCRIBED",
+              "type": "SMS",
+            },
+          ],
+          "messaging_subscriptions_retl": true,
+        },
+        "integrations": Object {
+          "All": false,
+        },
+        "messageId": undefined,
+        "timestamp": undefined,
+        "traits": Object {},
+        "type": "identify",
+        "userId": "user12",
       },
     ],
-    "messaging_subscriptions": Array [
+  },
+  "output": "Action Executed",
+}
+`;
+
+exports[`Testing snapshot for actions-segment-profiles destination: sendTrack action - all fields 1`] = `
+Object {
+  "data": Object {
+    "batch": Array [
       Object {
-        "key": "tester11@seg.com",
-        "status": "SUBSCRIBED",
-        "type": "EMAIL",
-      },
-      Object {
-        "key": "+12135618345",
-        "status": "SUBSCRIBED",
-        "type": "SMS",
+        "anonymousId": "[2uovRzxThJj",
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
+        },
+        "event": "[2uovRzxThJj",
+        "integrations": Object {
+          "All": false,
+        },
+        "messageId": "[2uovRzxThJj",
+        "properties": Object {
+          "testType": "[2uovRzxThJj",
+        },
+        "timestamp": "2021-02-01T00:00:00.000Z",
+        "type": "track",
+        "userId": "[2uovRzxThJj",
       },
     ],
-    "messaging_subscriptions_retl": true,
   },
-  "integrations": Object {
-    "All": false,
+  "output": "Action Executed",
+}
+`;
+
+exports[`Testing snapshot for actions-segment-profiles destination: sendTrack action - required fields 1`] = `
+Object {
+  "data": Object {
+    "batch": Array [
+      Object {
+        "anonymousId": "[2uovRzxThJj",
+        "context": Object {
+          "consent": Object {
+            "categoryPreferences": Object {
+              "analytics": true,
+              "marketing": false,
+            },
+          },
+        },
+        "event": "[2uovRzxThJj",
+        "integrations": Object {
+          "All": false,
+        },
+        "messageId": "[2uovRzxThJj",
+        "properties": Object {},
+        "timestamp": undefined,
+        "type": "track",
+        "userId": "[2uovRzxThJj",
+      },
+    ],
   },
-  "traits": Object {},
-  "userId": "user12",
+  "output": "Action Executed",
 }
 `;

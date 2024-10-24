@@ -82,7 +82,14 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
-    }
+    },    
+    update_existing_only: {
+      label: 'Update Existing Users Only',
+      type: 'boolean',
+      description: 'If set to true, events from the Segment will only trigger updates for users who already exist in Moengage.',
+      required: false,
+      default: false
+    },
   },
   perform: async (request, { payload, settings }) => {
     if (!settings.api_id || !settings.api_key) {
@@ -100,7 +107,9 @@ const action: ActionDefinition<Settings, Payload> = {
         library: { version: payload.library_version }
       },
       properties: payload.properties,
-      timestamp: payload.timestamp
+      timestamp: payload.timestamp,
+      update_existing_only: payload.update_existing_only || false
+
     }
 
     const endpoint = getEndpointByRegion(settings.region)

@@ -102,3 +102,19 @@ export const subscription_groups: InputField = {
   additionalProperties: true,
   defaultObjectUI: 'keyvalue'
 }
+
+export const message_id: InputField = {
+  type: 'string',
+  label: 'MessageId',
+  description: 'The Segment messageId.',
+  default: { '@path': '$.messageId' },
+  unsafe_hidden: true
+}
+
+export const consent: InputField = {
+  label: 'Consent',
+  description: 'Segment event consent category preferences.',
+  type: 'object',
+  default: { '@path': '$.context.consent' },
+  unsafe_hidden: true
+}

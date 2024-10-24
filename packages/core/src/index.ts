@@ -13,6 +13,7 @@ export {
   PrimitiveValue,
   ReplaceDirective,
   TemplateDirective,
+  JSONDirective,
   getFieldValue,
   getFieldValueKeys,
   isArrayPathDirective,
@@ -22,11 +23,14 @@ export {
   isLiteralDirective,
   isPathDirective,
   isReplaceDirective,
-  isTemplateDirective
+  isTemplateDirective,
+  isJSONDirective,
+  isExcludeWhenNullDirective
 } from './mapping-kit/value-keys'
 export { createTestEvent } from './create-test-event'
 export { createTestIntegration } from './create-test-integration'
 export { default as createInstance } from './request-client'
+export { default as createRequestClient } from './create-request-client'
 export { defaultValues } from './defaults'
 export {
   IntegrationError,
@@ -35,11 +39,16 @@ export {
   PayloadValidationError,
   SelfTimeoutError,
   APIError,
-  ErrorCodes
+  ErrorCodes,
+  HttpErrorCodes,
+  CustomErrorCodes,
+  getErrorCodeFromHttpStatus
 } from './errors'
+export { retry } from './retry'
 export { get } from './get'
 export { omit } from './omit'
 export { removeUndefined } from './remove-undefined'
+export { sha256SmartHash, SmartHashing } from './hashing-utils'
 export { time, duration } from './time'
 
 export { realTypeOf, isObject, isArray, isString } from './real-type-of'
@@ -71,7 +80,8 @@ export type {
   MinimalInputField,
   StateContext,
   StatsContext,
-  Preset
+  Preset,
+  Result
 } from './destination-kit'
 
 export type {
@@ -88,3 +98,9 @@ export type { JSONPrimitive, JSONValue, JSONObject, JSONArray, JSONLike, JSONLik
 export type { SegmentEvent } from './segment-event'
 
 export type { RequestClient } from './create-request-client'
+
+export {
+  ActionDestinationSuccessResponse,
+  ActionDestinationErrorResponse,
+  MultiStatusResponse
+} from './destination-kit/action'

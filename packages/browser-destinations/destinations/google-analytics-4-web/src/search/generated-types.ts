@@ -21,4 +21,8 @@ export interface Payload {
    * The term that was searched for.
    */
   search_term?: string
+  /**
+   * If the send_to parameter is not set, events are routed to all Tag Ids (AW-xxx, G-xxx) set via Google Tag
+   */
+  send_to?: boolean
 }

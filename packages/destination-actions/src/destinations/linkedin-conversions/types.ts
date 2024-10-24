@@ -11,6 +11,16 @@ export interface ProfileAPIResponse {
   id: string
 }
 
+export interface LinkedInError {
+  response: {
+    data: {
+      message: string
+      code: string
+      status: number
+    }
+  }
+}
+
 export class LinkedInTestAuthenticationError extends HTTPError {
   response: Response & {
     data: {
@@ -35,15 +45,12 @@ export interface GetAdAccountsAPIResponse {
     start: number
     total: number
   }
-  elements: [Accounts]
+  elements: [Account]
 }
 
-export interface Accounts {
-  account: string
-  changeAuditStamps: object
-  role: string
-  user: string
-  version: object
+export interface Account {
+  name: string
+  id: string
 }
 
 export interface AccountsErrorInfo {
@@ -68,6 +75,8 @@ export interface GetConversionListAPIResponse {
 export interface Conversions {
   name: string
   id: string
+  enabled: boolean
+  conversionMethod: string
 }
 
 export interface GetCampaignsListAPIResponse {
@@ -89,7 +98,13 @@ export interface ConversionRuleCreationResponse {
   id: string
   name: string
   type: string
+  attributionType: string
+  postClickAttributionWindowSize: number
+  viewThroughAttributionWindowSize: number
 }
+
+/** This request returns 204 no content */
+export interface ConversionRuleUpdateResponse {}
 
 /**
  * The shape of the response from LinkedIn when fetching a conversion rule by id.
@@ -103,4 +118,6 @@ export interface GetConversionRuleResponse {
   id?: string
   attributionType?: string
   account?: string
+  postClickAttributionWindowSize?: number
+  viewThroughAttributionWindowSize?: number
 }

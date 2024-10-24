@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError, DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
@@ -12,6 +12,32 @@ import {
   DataCenterLocation
 } from '../shared-fields'
 import { convertDatesInObject, getRegionalEndpoint } from '../utils'
+
+interface TrackEventRequest {
+  email?: string
+  userId?: string
+  eventName: string
+  id?: string
+  createdAt?: number
+  dataFields?: {
+    [k: string]: unknown
+  }
+  campaignId?: number
+  templateId?: number
+}
+
+interface BulkTrackEventRequest {
+  events: TrackEventRequest[]
+}
+
+const transformIterableEventPayload = (payload: Payload): TrackEventRequest => {
+  const formattedDataFields = convertDatesInObject(payload.dataFields ?? {})
+  return {
+    ...payload,
+    dataFields: formattedDataFields,
+    createdAt: dayjs(payload.createdAt).unix()
+  }
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Event',
@@ -49,6 +75,21 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     templateId: {
       ...TEMPLATE_ID_FIELD
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'When enabled, Segment will send data to Iterable in batches of up to 1001',
+      type: 'boolean',
+      required: false,
+      default: false
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      unsafe_hidden: true,
+      required: false,
+      default: 1001
     }
   },
   perform: (request, { payload, settings }) => {
@@ -56,31 +97,27 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Must include email or userId.')
     }
 
-    interface TrackEventRequest {
-      email?: string
-      userId?: string
-      eventName: string
-      id?: string
-      createdAt?: number
-      dataFields?: {
-        [k: string]: unknown
-      }
-      campaignId?: number
-      templateId?: number
-    }
-
-    const formattedDataFields = convertDatesInObject(payload.dataFields ?? {})
-    const trackEventRequest: TrackEventRequest = {
-      ...payload,
-      dataFields: formattedDataFields,
-      createdAt: dayjs(payload.createdAt).unix()
-    }
+    const trackEventRequest = transformIterableEventPayload(payload)
 
     const endpoint = getRegionalEndpoint('trackEvent', settings.dataCenterLocation as DataCenterLocation)
 
     return request(endpoint, {
       method: 'post',
-      json: trackEventRequest
+      json: trackEventRequest,
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
+    })
+  },
+  performBatch: async (request, { settings, payload }) => {
+    const bulkTrackEventRequest: BulkTrackEventRequest = {
+      events: payload.map(transformIterableEventPayload)
+    }
+
+    const endpoint = getRegionalEndpoint('bulkTrackEvent', settings.dataCenterLocation as DataCenterLocation)
+
+    return request(endpoint, {
+      method: 'post',
+      json: bulkTrackEventRequest,
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     })
   }
 }

@@ -17,13 +17,13 @@ jobs:
 
     steps:
       # See nx recipe: https://nx.dev/recipes/ci/monorepo-ci-github-actions
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
           fetch-depth: 0 # nx recipe
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
@@ -43,7 +43,14 @@ jobs:
         run: NODE_ENV=production yarn nx affected -t build --parallel=3 # nx recipe
 
       - name: Test (Affected)
-        run: yarn nx affected -t test --parallel=3 # nx recipe
+        run: yarn nx affected -t test --parallel=3 --coverage # nx recipe
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: segmentio/action-destinations
+          handle_no_reports_found: true # don't fail if no reports are found
 
   lint:
     name: Lint
@@ -54,27 +61,22 @@ jobs:
         node-version: [18.x]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
           fetch-depth: 0 # nx recipe
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
-      - name: Use Github Personal Access Token
-        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
-
       - uses: nrwl/nx-set-shas@v3 # nx recipe
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build # TODO: This monorepo should be refactored so packages can be linted invidually. "affected" will not work ATM.
         run: NODE_ENV=production yarn build # nx recipe
@@ -93,27 +95,22 @@ jobs:
         node-version: [18.x]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
           fetch-depth: 0 # nx recipe
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
-      - name: Use Github Personal Access Token
-        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
-
       - uses: nrwl/nx-set-shas@v3 # nx recipe
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Assert yarn.lock is up-to-date
         run: bash scripts/assert-lockfile-updated.sh
@@ -145,27 +142,25 @@ jobs:
         node-version: [18.x]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
-      - name: Use Github Personal Access Token
-        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
-
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build
         run: NODE_ENV=production yarn build:browser-bundles
+
+      - name: Size Limit
+        run: yarn browser size
 
       # - name: Run Saucelabs Tests
       #   working-directory: packages/browser-destinations-integration-tests
@@ -205,13 +200,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Use Github Personal Access Token
-        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
-
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install Browser Dependencies
         run: npx playwright install-deps
@@ -255,13 +245,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Use Github Personal Access Token
-        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
-
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master

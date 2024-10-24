@@ -10,6 +10,10 @@ export interface Payload {
    */
   anonymous_id?: string
   /**
+   * An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).
+   */
+  event_id?: string
+  /**
    * The URL of the page visited.
    */
   url: string

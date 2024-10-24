@@ -46,7 +46,6 @@ export class LinkedInAudiences {
         sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
         sourceSegmentId: payload.personas_audience_key,
         account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
-        accessPolicy: 'PRIVATE',
         type: 'USER',
         destinations: [
           {

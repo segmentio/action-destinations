@@ -4,9 +4,19 @@ exports[`Testing snapshot for actions-algolia-insights destination: conversionEv
 Object {
   "events": Array [
     Object {
-      "eventName": "Conversion Event",
-      "eventType": "conversion",
+      "currency": "HTG",
+      "eventName": "U[ABpE$k",
+      "eventSubtype": "purchase",
+      "eventType": "view",
       "index": "U[ABpE$k",
+      "objectData": Array [
+        Object {
+          "discount": -52282070788997.12,
+          "price": -52282070788997.12,
+          "quantity": -52282070788997.12,
+          "queryID": "U[ABpE$k",
+        },
+      ],
       "objectIDs": Array [
         "U[ABpE$k",
       ],
@@ -14,6 +24,7 @@ Object {
       "testType": "U[ABpE$k",
       "timestamp": null,
       "userToken": "U[ABpE$k",
+      "value": -52282070788997.12,
     },
   ],
 }
@@ -24,6 +35,7 @@ Object {
   "events": Array [
     Object {
       "eventName": "Conversion Event",
+      "eventSubtype": "purchase",
       "eventType": "conversion",
       "index": "U[ABpE$k",
       "objectIDs": Array [
@@ -39,8 +51,8 @@ exports[`Testing snapshot for actions-algolia-insights destination: productAdded
 Object {
   "events": Array [
     Object {
-      "eventName": "Add to cart",
-      "eventType": "conversion",
+      "eventName": "g)$f*TeM",
+      "eventType": "view",
       "index": "g)$f*TeM",
       "objectIDs": Array [
         "g)$f*TeM",
@@ -74,8 +86,8 @@ exports[`Testing snapshot for actions-algolia-insights destination: productClick
 Object {
   "events": Array [
     Object {
-      "eventName": "Product Clicked",
-      "eventType": "click",
+      "eventName": "LLjxSD^^GnH",
+      "eventType": "conversion",
       "index": "LLjxSD^^GnH",
       "objectIDs": Array [
         "LLjxSD^^GnH",
@@ -112,8 +124,8 @@ exports[`Testing snapshot for actions-algolia-insights destination: productListF
 Object {
   "events": Array [
     Object {
-      "eventName": "Product List Filtered",
-      "eventType": "click",
+      "eventName": "6O0djra",
+      "eventType": "view",
       "filters": Array [
         "6O0djra:6O0djra",
       ],
@@ -147,7 +159,7 @@ exports[`Testing snapshot for actions-algolia-insights destination: productViewe
 Object {
   "events": Array [
     Object {
-      "eventName": "Product Viewed",
+      "eventName": "BLFCPcmz",
       "eventType": "view",
       "index": "BLFCPcmz",
       "objectIDs": Array [

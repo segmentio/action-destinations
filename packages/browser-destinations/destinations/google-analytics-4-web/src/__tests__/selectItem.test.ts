@@ -15,6 +15,9 @@ const subscriptions: Subscription[] = [
       item_list_name: {
         '@path': '$.properties.item_list_name'
       },
+      send_to: {
+        '@path': '$.properties.send_to'
+      },
       items: [
         {
           item_name: {
@@ -61,7 +64,70 @@ describe('GoogleAnalytics4Web.selectItem', () => {
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
 
-  test('GA4 selectItem Event', async () => {
+  test('GA4 selectItem Event when send to is false', async () => {
+    const context = new Context({
+      event: 'Select Item',
+      type: 'track',
+      properties: {
+        item_list_id: 12321,
+        item_list_name: 'Monopoly: 3rd Edition',
+        send_to: false,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+
+    await selectItemEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('select_item'),
+      expect.objectContaining({
+        item_list_id: 12321,
+        item_list_name: 'Monopoly: 3rd Edition',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        send_to: 'default'
+      })
+    )
+  })
+  test('GA4 selectItem Event when send to is true', async () => {
+    const context = new Context({
+      event: 'Select Item',
+      type: 'track',
+      properties: {
+        item_list_id: 12321,
+        item_list_name: 'Monopoly: 3rd Edition',
+        send_to: true,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+
+    await selectItemEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('select_item'),
+      expect.objectContaining({
+        item_list_id: 12321,
+        item_list_name: 'Monopoly: 3rd Edition',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        send_to: settings.measurementID
+      })
+    )
+  })
+
+  test('GA4 selectItem Event when send to is undefined', async () => {
     const context = new Context({
       event: 'Select Item',
       type: 'track',
@@ -86,7 +152,8 @@ describe('GoogleAnalytics4Web.selectItem', () => {
       expect.objectContaining({
         item_list_id: 12321,
         item_list_name: 'Monopoly: 3rd Edition',
-        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }]
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        send_to: 'default'
       })
     )
   })

@@ -126,6 +126,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testBatchAction(actionSlug, {
       events,
       useDefaultMappings: true,
+      // The email field defaults to traits.email when not otherwise set. This results in an undefined value for the email field in our snapshots
+      // We do not send email: undefined downstream to Braze as actions will filter that out automatically
       mapping: {
         external_id: {
           '@path': '$.userId'
@@ -188,6 +190,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testBatchAction(actionSlug, {
       events,
       useDefaultMappings: true,
+      // The email field defaults to traits.email when not otherwise set. This results in an undefined value for the email field in our snapshots
+      // We do not send email: undefined downstream to Braze as actions will filter that out automatically
       mapping: {
         external_id: {
           '@path': '$.userId'

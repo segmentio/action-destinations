@@ -50,13 +50,6 @@ export const destination: BrowserDestinationDefinition<Settings, Wisepops> = {
       type: 'automatic'
     },
     {
-      name: trackGoal.title,
-      subscribe: trackGoal.defaultSubscription!,
-      partnerAction: 'trackGoal',
-      mapping: defaultValues(trackGoal.fields),
-      type: 'automatic'
-    },
-    {
       name: trackPage.title,
       subscribe: trackPage.defaultSubscription!,
       partnerAction: 'trackPage',

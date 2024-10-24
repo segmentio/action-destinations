@@ -93,6 +93,7 @@ export interface Payload {
      * Item quantity.
      */
     quantity?: number
+    [k: string]: unknown
   }[]
   /**
    * The monetary value of the event.
@@ -110,4 +111,8 @@ export interface Payload {
   user_properties?: {
     [k: string]: unknown
   }
+  /**
+   * If the send_to parameter is not set, events are routed to all Tag Ids (AW-xxx, G-xxx) set via Google Tag
+   */
+  send_to?: boolean
 }

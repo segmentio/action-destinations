@@ -42,11 +42,12 @@ const action: ActionDefinition<Settings, Payload> = {
         'If the data is present in a Traits section, use this to map the attributes of a Traits Section (optional) ',
       type: 'object'
     },
-    email: {
-      label: 'Email',
-      description: 'Do Not Modify - Email is required',
+    uniqueRecipientId: {
+      label: 'UniqueRecipientId',
+      description:
+        'The field to be used to uniquely identify the Recipient in Acoustic. This field is required with Email preferred but not required.',
       type: 'string',
-      format: 'email',
+      format: 'text',
       required: true,
       default: {
         '@if': {
@@ -76,10 +77,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload }) => {
-    const email = get(payload, 'email', '')
+    const uniqRecip = get(payload, 'uniqueRecipientId', '')
 
-    if (!email) {
-      throw new IntegrationError('Email Not Found, invalid Event received.', 'INVALID_EVENT_HAS_NO_EMAIL', 400)
+    if (!uniqRecip) {
+      throw new IntegrationError(
+        'Unique Recipient Id Not Found, invalid Event received.',
+        'INVALID_EVENT_HAS_NO_UNIQUERECIPIENTID',
+        400
+      )
     }
 
     if (!payload.context && !payload.traits && !payload.properties)
@@ -92,10 +97,13 @@ const action: ActionDefinition<Settings, Payload> = {
     validateSettings(settings)
 
     //Parse Event-Payload into an Update
-    const csvRows = addUpdateEvents(payload, email)
+    const parsed = addUpdateEvents(payload, uniqRecip)
+    let jsonData = ''
+
+    jsonData = JSON.stringify(parsed.propertiesTraitsKV)
 
     //Set File Store Name
-    const fileName = settings.fileNamePrefix + `${new Date().toISOString().replace(/(\.|-|:)/g, '_')}` + '.csv'
+    const fileName = settings.fileNamePrefix + `${new Date().toISOString().replace(/(\.|-|:)/g, '_')}` + '.json'
 
     const method = 'PUT'
     const opts = await generateS3RequestOptions(
@@ -103,7 +111,7 @@ const action: ActionDefinition<Settings, Payload> = {
       settings.s3_region,
       fileName,
       method,
-      csvRows,
+      jsonData,
       settings.s3_access_key,
       settings.s3_secret
     )

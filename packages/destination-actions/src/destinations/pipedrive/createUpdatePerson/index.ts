@@ -60,11 +60,13 @@ const action: ActionDefinition<Settings, Payload> = {
     visible_to: {
       label: 'Visible To',
       description:
-        'Visibility of the Person. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user.',
-      type: 'integer',
+        "Visibility of the Person. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
+      type: 'string',
       choices: [
-        { label: 'Owner & followers (private)', value: 1 },
-        { label: 'Entire company (shared)', value: 3 }
+        { label: 'Owner & followers (private)', value: '1' },
+        { label: 'Entire company (shared)', value: '3' },
+        { label: "Owner's visibility group and sub-groups", value: '5' },
+        { label: 'Entire company', value: '7' }
       ],
       required: false
     },

@@ -50,6 +50,7 @@ Object {
       "identifiers": Object {
         "custom": Object {
           "segment_anonymous_id": "Q!Q[jv1Wi&s0",
+          "testType": "Q!Q[jv1Wi&s0",
         },
         "email": "dobaj@zuzpini.nc",
         "phone_number": "Q!Q[jv1Wi&s0",
@@ -81,6 +82,7 @@ Object {
       "identifiers": Object {
         "custom": Object {
           "segment_anonymous_id": "Q!Q[jv1Wi&s0",
+          "testType": "Q!Q[jv1Wi&s0",
         },
         "uuid": "Q!Q[jv1Wi&s0",
       },

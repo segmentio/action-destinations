@@ -2,9 +2,9 @@
 
 exports[`Testing snapshot for Usermotion's identify destination action: all fields 1`] = `
 Object {
+  "anonymousId": "m5@snjS^ncZB*",
   "id": "m5@snjS^ncZB*",
   "properties": Object {
-    "anonymousId": "m5@snjS^ncZB*",
     "email": "gi@kigot.bh",
     "testType": "m5@snjS^ncZB*",
   },

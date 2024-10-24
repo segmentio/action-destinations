@@ -3,7 +3,9 @@
 exports[`Testing snapshot for Usermotion's track destination action: all fields 1`] = `
 Object {
   "anonymousId": "D7eiUOIRWs#EuRzn@d)n",
-  "email": "riknonolu@refe.sa",
+  "context": Object {
+    "testType": "D7eiUOIRWs#EuRzn@d)n",
+  },
   "event": "D7eiUOIRWs#EuRzn@d)n",
   "properties": Object {
     "testType": "D7eiUOIRWs#EuRzn@d)n",
@@ -14,8 +16,8 @@ Object {
 
 exports[`Testing snapshot for Usermotion's track destination action: required fields 1`] = `
 Object {
+  "context": Object {},
   "event": "D7eiUOIRWs#EuRzn@d)n",
   "properties": Object {},
-  "userId": "D7eiUOIRWs#EuRzn@d)n",
 }
 `;

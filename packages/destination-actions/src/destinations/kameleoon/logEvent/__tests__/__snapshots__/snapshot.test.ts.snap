@@ -2,6 +2,7 @@
 
 exports[`Testing snapshot for Kameleoon's logEvent destination action: all fields 1`] = `
 Object {
+  "anonymousId": "wNACk[QgaEuFPK",
   "context": Object {
     "testType": "wNACk[QgaEuFPK",
   },
@@ -13,6 +14,7 @@ Object {
   },
   "timestamp": Any<String>,
   "type": "wNACk[QgaEuFPK",
+  "userId": "wNACk[QgaEuFPK",
 }
 `;
 

@@ -90,7 +90,11 @@ class PipedriveClient {
       return cachedFields
     }
     const response = await this._request<PipedriveFields>(
-      `https://${this.settings.domain}.pipedrive.com/api/v1/${pipedriveFieldMap[item]}`
+      `https://${this.settings.domain}.pipedrive.com/api/v1/${pipedriveFieldMap[item]}`,
+      {
+        method: 'GET',
+        skipResponseCloning: true
+      }
     )
     const body = response.data
     const fields = body.data.map((f) => ({

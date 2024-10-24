@@ -38,7 +38,9 @@ export function bucketTestHooks() {
   })
 
   beforeEach(() => {
-    nock('https://cdn.jsdelivr.net').get('/npm/@bucketco/tracking-sdk@2').reply(200, bucketTestMock)
+    nock('https://cdn.jsdelivr.net')
+      .get((uri) => uri.startsWith('/npm/@bucketco/tracking-sdk@'))
+      .reply(200, bucketTestMock)
   })
 
   afterEach(function () {
@@ -46,8 +48,9 @@ export function bucketTestHooks() {
       // @ts-expect-error no-unsafe-call
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       this.test.error(new Error('Not all nock interceptors were used!'))
-      nock.cleanAll()
     }
+
+    nock.cleanAll()
   })
 
   afterAll(() => {

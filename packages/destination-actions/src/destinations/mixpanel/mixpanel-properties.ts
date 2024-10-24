@@ -344,6 +344,7 @@ export const eventProperties: Record<string, InputField> = {
     label: 'Event context',
     description: 'An object of key-value pairs that provides useful context about the event.',
     type: 'object',
+    unsafe_hidden: true,
     default: {
       '@path': '$.context'
     }
@@ -387,6 +388,15 @@ export const eventProperties: Record<string, InputField> = {
     label: 'Batch Data to Mixpanel',
     description: 'Set as true to ensure Segment sends data to Mixpanel in batches.',
     default: true
+  },
+  batch_size: {
+    label: 'Batch Size',
+    description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+    type: 'number',
+    required: false,
+    default: 1000,
+    minimum: 1,
+    maximum: 2000
   },
   userAgentData: {
     label: 'User Agent Data',

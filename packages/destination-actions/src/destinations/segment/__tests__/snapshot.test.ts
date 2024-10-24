@@ -1,16 +1,13 @@
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
-import nock from 'nock'
 import { TransactionContext } from '@segment/actions-core/destination-kit'
-import { DEFAULT_SEGMENT_ENDPOINT } from '../properties'
 
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'segment'
 
 const settingsData = {
-  source_write_key: 'test-source-write-key',
-  endpoint: DEFAULT_SEGMENT_ENDPOINT
+  source_write_key: 'test-source-write-key'
 }
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
@@ -19,19 +16,6 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
       const [eventData, _] = generateTestData(seedName, destination, action, true)
-
-      nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(201)
-      nock(/.*/)
-        .persist()
-        .patch(/.*/)
-        .reply(200, {
-          id: '801',
-          properties: {
-            lifecyclestage: eventData.lifecyclestage
-          }
-        })
-      nock(/.*/).persist().put(/.*/).reply(200)
 
       const transactionContext: TransactionContext = {
         transaction: {},
@@ -42,30 +26,16 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         properties: eventData
       })
 
-      try {
-        const responses = await testDestination.testAction(actionSlug, {
-          event: event,
-          mapping: event.properties,
-          settings: settingsData,
-          auth: undefined,
-          transactionContext
-        })
+      await testDestination.testAction(actionSlug, {
+        event: event,
+        mapping: event.properties,
+        settings: settingsData,
+        auth: undefined,
+        transactionContext
+      })
 
-        const request = responses[0].request
-        const rawBody = await request.text()
-
-        try {
-          const json = JSON.parse(rawBody)
-          expect(json).toMatchSnapshot()
-          return
-        } catch (err) {
-          expect(rawBody).toMatchSnapshot()
-        }
-
-        expect(request.headers).toMatchSnapshot()
-      } catch (e) {
-        expect(e).toMatchSnapshot()
-      }
+      const testDestinationResults = testDestination.results
+      expect(testDestinationResults[testDestinationResults.length - 1]).toMatchSnapshot()
     })
 
     it(`${actionSlug} action - all fields`, async () => {
@@ -78,45 +48,20 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         setTransaction: (key, value) => ({ [key]: value })
       }
 
-      nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(201)
-      nock(/.*/)
-        .persist()
-        .patch(/.*/)
-        .reply(200, {
-          id: '801',
-          properties: {
-            lifecyclestage: eventData.lifecyclestage
-          }
-        })
-      nock(/.*/).persist().put(/.*/).reply(200)
-
       const event = createTestEvent({
         properties: eventData
       })
 
-      try {
-        const responses = await testDestination.testAction(actionSlug, {
-          event: event,
-          mapping: event.properties,
-          settings: settingsData,
-          auth: undefined,
-          transactionContext
-        })
+      await testDestination.testAction(actionSlug, {
+        event: event,
+        mapping: event.properties,
+        settings: settingsData,
+        auth: undefined,
+        transactionContext
+      })
 
-        const request = responses[0].request
-        const rawBody = await request.text()
-
-        try {
-          const json = JSON.parse(rawBody)
-          expect(json).toMatchSnapshot()
-          return
-        } catch (err) {
-          expect(rawBody).toMatchSnapshot()
-        }
-      } catch (e) {
-        expect(e).toMatchSnapshot()
-      }
+      const testDestinationResults = testDestination.results
+      expect(testDestinationResults[testDestinationResults.length - 1]).toMatchSnapshot()
     })
   }
 })

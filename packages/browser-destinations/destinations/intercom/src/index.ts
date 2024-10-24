@@ -1,7 +1,7 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import { initialBoot, initScript } from './init-script'
+import { initialBoot, initScript, initSettings } from './init-script'
 
 import { Intercom } from './api'
 import trackEvent from './trackEvent'
@@ -12,6 +12,10 @@ import { defaultValues } from '@segment/actions-core'
 declare global {
   interface Window {
     Intercom: Intercom
+    intercomSettings: {
+      app_id: string
+      installation_type?: string
+    }
   }
 }
 
@@ -90,6 +94,7 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   initialize: async ({ settings }, deps) => {
     //initialize Intercom
     initScript({ appId: settings.appId })
+    initSettings({ appId: settings.appId })
     const preloadedIntercom = window.Intercom
     initialBoot(settings.appId, { api_base: settings.apiBase })
 

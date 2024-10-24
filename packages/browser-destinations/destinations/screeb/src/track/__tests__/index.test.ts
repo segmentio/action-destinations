@@ -62,7 +62,7 @@ describe('track', () => {
     )
 
     expect(window.$screeb.q).toStrictEqual([
-      ['init', 'fake-website-id'],
+      ['init', 'fake-website-id', { "identity": {"id": null}}],
       ['event.track', 'event-name', { prop1: 1, prop2: 'pickle sandwish' }]
     ])
   })

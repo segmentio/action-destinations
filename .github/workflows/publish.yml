@@ -7,11 +7,13 @@ on:
   push:
     branches:
       - main
+      - release
 
 jobs:
   build-and-publish:
     env:
       HUSKY: 0
+      NX_DISABLE_DB: true
     if: startsWith(github.event.head_commit.message, 'Publish') == true
     runs-on: ubuntu-20.04
 
@@ -22,24 +24,17 @@ jobs:
         node-version: [18.x]
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GH_PAT }}
+      - uses: actions/checkout@v4
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
-      - name: Use Github Personal Access Token
-        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
-
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build
         run: NODE_ENV=production yarn build
@@ -55,4 +50,34 @@ jobs:
 
       - name: Publish
         run: |
-          yarn lerna publish from-git --yes --allowBranch=main --loglevel=verbose --dist-tag latest
+          yarn lerna publish from-package --yes --allowBranch=main --loglevel=verbose --dist-tag latest
+
+  release:
+    needs: build-and-publish # comment when testing locally with https://github.com/nektos/act
+
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled to ensure the commit history for the repository is available to the action
+          fetch-tags: true
+
+      - name: Setup git credentials
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate Release Tag
+        id: get-release-tag
+        run: ./scripts/generate-release-tags.sh
+
+      - name: Create Github Release
+        id: create-github-release
+        uses: actions/github-script@v7
+        env:
+          RELEASE_TAG: ${{ steps.get-release-tag.outputs.release-tag }}
+        with:
+          script: |
+            const script = require('./scripts/github-action/create-github-release.js')
+            await script({github, context, core, exec})

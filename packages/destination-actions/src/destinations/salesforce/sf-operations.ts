@@ -1,8 +1,9 @@
-import { IntegrationError, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import { IntegrationError, ModifiedResponse, RequestClient, RefreshAccessTokenResult } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
-import { DynamicFieldResponse } from '@segment/actions-core'
+import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
+import { Settings } from './generated-types'
 
 export const API_VERSION = 'v53.0'
 
@@ -25,6 +26,77 @@ const validateSOQLOperator = (operator: string | undefined): SOQLOperator => {
   }
 
   return operator
+}
+
+export const generateSalesforceRequest = async (settings: Settings, request: RequestClient) => {
+  if (!settings.auth_password || !settings.username) {
+    return request
+  }
+
+  const { accessToken } = await authenticateWithPassword(
+    settings.username,
+    settings.auth_password,
+    settings.security_token,
+    settings.isSandbox
+  )
+
+  const passwordRequestClient = createRequestClient({
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  return passwordRequestClient
+}
+
+/**
+ * Salesforce requires that the password provided for authentication be a concatenation of the
+ * user password + the user security token.
+ * For more info see: https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_username_password_flow.htm&type=5
+ */
+const constructPassword = (password: string, securityToken?: string): string => {
+  let combined = ''
+  if (password) {
+    combined = password
+  }
+
+  if (securityToken) {
+    combined = password + securityToken
+  }
+
+  return combined
+}
+
+export const authenticateWithPassword = async (
+  username: string,
+  auth_password: string,
+  security_token?: string,
+  isSandbox?: boolean
+): Promise<RefreshAccessTokenResult> => {
+  const clientId = process.env.SALESFORCE_CLIENT_ID
+  const clientSecret = process.env.SALESFORCE_CLIENT_SECRET
+
+  if (!clientId || !clientSecret) {
+    throw new IntegrationError('Missing Salesforce client ID or client secret', 'Missing Credentials', 400)
+  }
+
+  const newRequest = createRequestClient()
+
+  const loginUrl = isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
+  const password = constructPassword(auth_password, security_token)
+
+  const res = await newRequest<SalesforceRefreshTokenResponse>(`${loginUrl}/services/oauth2/token`, {
+    method: 'post',
+    body: new URLSearchParams({
+      grant_type: 'password',
+      client_id: clientId,
+      client_secret: clientSecret,
+      username: username,
+      password
+    })
+  })
+
+  return { accessToken: res.data.access_token }
 }
 
 interface Records {
@@ -61,6 +133,10 @@ interface SalesforceError {
       }
     ]
   }
+}
+
+interface SalesforceRefreshTokenResponse {
+  access_token: string
 }
 
 type SOQLOperator = 'OR' | 'AND'
@@ -151,6 +227,8 @@ export default class Salesforce {
       return await this.bulkUpsert(payloads, sobject)
     } else if (payloads[0].operation === 'update') {
       return await this.bulkUpdate(payloads, sobject)
+    } else if (payloads[0].operation === 'create') {
+      return await this.bulkInsert(payloads, sobject)
     }
 
     if (payloads[0].operation === 'delete') {
@@ -160,12 +238,34 @@ export default class Salesforce {
         400
       )
     }
+  }
 
-    throw new IntegrationError(
-      `Unsupported operation: Bulk API does not support the create operation`,
-      'Unsupported operation',
-      400
-    )
+  bulkHandlerWithSyncMode = async (payloads: GenericPayload[], sobject: string, syncMode: string | undefined) => {
+    if (!payloads[0].enable_batching) {
+      throwBulkMismatchError()
+    }
+
+    if (syncMode === undefined) {
+      throw new IntegrationError('syncMode is required', 'Undefined syncMode', 400)
+    }
+
+    if (syncMode === 'delete') {
+      throw new IntegrationError(
+        `Unsupported operation: Bulk API does not support the delete operation`,
+        'Unsupported operation',
+        400
+      )
+    }
+
+    if (syncMode === 'upsert') {
+      return await this.bulkUpsert(payloads, sobject)
+    } else if (syncMode === 'update') {
+      return await this.bulkUpdate(payloads, sobject)
+    } else if (syncMode === 'add') {
+      // Sync Mode does not have a "create" operation. We call it "add".
+      // "add" will be transformed into "create" in the bulkInsert function.
+      return await this.bulkInsert(payloads, sobject)
+    }
   }
 
   customObjectName = async (): Promise<DynamicFieldResponse> => {
@@ -200,6 +300,11 @@ export default class Salesforce {
         }
       }
     }
+  }
+
+  private bulkInsert = async (payloads: GenericPayload[], sobject: string) => {
+    // The idField is purposely passed as an empty string since the field is not required.
+    return this.handleBulkJob(payloads, sobject, '', 'insert')
   }
 
   private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
@@ -237,7 +342,7 @@ export default class Salesforce {
     operation: string
   ): Promise<ModifiedResponse<unknown>> {
     // construct the CSV data to catch errors before creating a bulk job
-    const csv = buildCSVData(payloads, idField)
+    const csv = buildCSVData(payloads, idField, operation)
     const jobId = await this.createBulkJob(sobject, idField, operation)
     try {
       await this.uploadBulkCSV(jobId, csv)
@@ -256,16 +361,21 @@ export default class Salesforce {
   }
 
   private createBulkJob = async (sobject: string, externalIdFieldName: string, operation: string) => {
+    const jsonData: { object: string; contentType: 'CSV'; operation: string; externalIdFieldName?: string } = {
+      object: sobject,
+      contentType: 'CSV',
+      operation: operation
+    }
+
+    if (operation === 'update' || operation === 'upsert') {
+      jsonData.externalIdFieldName = externalIdFieldName
+    }
+
     const res = await this.request<CreateJobResponseData>(
       `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`,
       {
         method: 'post',
-        json: {
-          object: sobject,
-          externalIdFieldName: externalIdFieldName,
-          contentType: 'CSV',
-          operation: operation
-        }
+        json: jsonData
       }
     )
 

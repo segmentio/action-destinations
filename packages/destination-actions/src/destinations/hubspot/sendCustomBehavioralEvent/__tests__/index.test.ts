@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
 import Destination from '../../index'
 import { HUBSPOT_BASE_URL } from '../../properties'
 
@@ -400,5 +400,92 @@ describe('HubSpot.sendCustomBehavioralEvent', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(204)
     expect(responses[0].options.json).toMatchSnapshot()
+  })
+
+  it('should dynamically fetch eventNames', async () => {
+    nock(HUBSPOT_BASE_URL)
+      .get(`/events/v3/event-definitions`)
+      .reply(200, {
+        total: 2,
+        results: [
+          {
+            labels: {
+              singular: 'Viewed Car',
+              plural: null
+            },
+            description: 'An event that fires when visitor views a car listing in the online inventory',
+            archived: false,
+            primaryObjectId: '0-1',
+            trackingType: 'MANUAL',
+            name: 'viewed_car',
+            id: '22036509',
+            fullyQualifiedName: 'pe24288748_viewed_car',
+            primaryObject: null,
+            createdAt: '2023-12-29T09:19:48.711Z',
+            objectTypeId: '6-22036509',
+            properties: [],
+            associations: [],
+            createdUserId: 1229008
+          },
+          {
+            labels: {
+              singular: 'Car features',
+              plural: null
+            },
+            description: 'An event that fires when visitor views a car features',
+            archived: false,
+            primaryObjectId: '0-1',
+            trackingType: 'MANUAL',
+            name: 'car_features',
+            id: '22436142',
+            fullyQualifiedName: 'pe24288748_car_features',
+            primaryObject: null,
+            createdAt: '2024-01-10T12:31:49.368Z',
+            objectTypeId: '6-22436142',
+            properties: [],
+            associations: [],
+            createdUserId: 1229008
+          }
+        ]
+      })
+
+    //Dynamically Fetch eventNames
+    const eventNameResponses = (await testDestination.executeDynamicField('sendCustomBehavioralEvent', 'eventName', {
+      payload: {},
+      settings: {}
+    })) as DynamicFieldResponse
+
+    expect(eventNameResponses.choices.length).toBe(2)
+    expect(eventNameResponses.choices).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'viewed_car',
+          value: 'pe24288748_viewed_car'
+        }),
+        expect.objectContaining({
+          label: 'car_features',
+          value: 'pe24288748_car_features'
+        })
+      ])
+    )
+  })
+
+  it('should return error message and code if dynamic fetch fails', async () => {
+    const errorResponse = {
+      status: '401',
+      message: 'Unable to fetch schemas',
+      correlationId: 'da20ed7c-1834-43c8-8d29-c8f65c411bc2',
+      category: 'EXPIRED_AUTHENTICATION'
+    }
+    nock(HUBSPOT_BASE_URL).get(`/events/v3/event-definitions`).reply(401, errorResponse)
+    const payload = {}
+    const responses = (await testDestination.executeDynamicField('sendCustomBehavioralEvent', 'eventName', {
+      payload: payload,
+      settings: {}
+    })) as DynamicFieldResponse
+
+    expect(responses.choices.length).toBe(0)
+    expect(responses.error?.message).toEqual(errorResponse.message)
+    expect(responses.error?.code).toEqual(errorResponse.status)
   })
 })

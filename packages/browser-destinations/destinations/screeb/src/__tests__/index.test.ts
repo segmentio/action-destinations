@@ -36,6 +36,6 @@ describe('Screeb initialization', () => {
     await event.load(Context.system(), {} as Analytics)
     expect(destination.initialize).toHaveBeenCalled()
 
-    expect(window.$screeb.q).toStrictEqual([['init', 'fake-website-id']])
+    expect(window.$screeb.q).toStrictEqual([['init', 'fake-website-id', { "identity": {"id": null}} ]])
   })
 })

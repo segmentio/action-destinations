@@ -63,7 +63,7 @@ describe('group', () => {
     )
 
     expect(window.$screeb.q).toStrictEqual([
-      ['init', 'fake-website-id'],
+      ['init', 'fake-website-id', { "identity": {"id": null}}],
       ['identity.group.assign', undefined, 'group-name', { plan: 'free' }]
     ])
   })
@@ -102,7 +102,7 @@ describe('group', () => {
     )
 
     expect(window.$screeb.q).toStrictEqual([
-      ['init', 'fake-website-id'],
+      ['init', 'fake-website-id', { "identity": {"id": null}}],
       ['identity.group.assign', 'cohort', 'group-name', { plan: 'free', group_type: 'cohort' }]
     ])
   })

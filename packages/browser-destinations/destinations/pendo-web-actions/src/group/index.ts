@@ -2,6 +2,7 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { PendoSDK, PendoOptions } from '../types'
+import { removeNestedObject, AnyObject, getSubstringDifference } from '../utils'
 
 const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
   title: 'Send Group Event',
@@ -21,11 +22,12 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
     },
     accountId: {
       label: 'Account ID',
-      description: 'Pendo Account ID',
+      description:
+        'Pendo Account ID. Maps to Segment groupId.  Note: If you plan to change this, enable the setting "Use custom Segment group trait for Pendo account id"',
       type: 'string',
       required: true,
       default: { '@path': '$.groupId' },
-      readOnly: true
+      readOnly: false
     },
     accountData: {
       label: 'Account Metadata',
@@ -33,7 +35,7 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       type: 'object',
       required: false,
       default: { '@path': '$.traits' },
-      readOnly: true
+      readOnly: false
     },
     parentAccountData: {
       label: 'Parent Account Metadata',
@@ -52,22 +54,40 @@ const action: BrowserActionDefinition<Settings, PendoSDK, Payload> = {
       required: false
     }
   },
-  perform: (pendo, event) => {
-    const payload: PendoOptions = {
+  perform: (pendo, { mapping, payload }) => {
+    // remove parentAccountData field data from the accountData if the paths overlap
+
+    type pathMapping = {
+      '@path': string
+    }
+
+    const parentAccountDataMapping = mapping && (mapping.parentAccountData as pathMapping)?.['@path']
+    const accountDataMapping = mapping && (mapping.accountData as pathMapping)?.['@path']
+
+    const difference: string | null = getSubstringDifference(parentAccountDataMapping, accountDataMapping)
+
+    let accountData = undefined
+    if (difference !== null) {
+      accountData = removeNestedObject(payload.accountData as AnyObject, difference)
+    } else {
+      accountData = payload.accountData
+    }
+
+    const pendoPayload: PendoOptions = {
       visitor: {
-        id: event.payload.visitorId
+        id: payload.visitorId
       },
       account: {
-        ...event.payload.accountData,
-        id: event.payload.accountId
+        ...accountData,
+        id: payload.accountId
       }
     }
 
-    if (event.payload.parentAccountData) {
-      payload.parentAccount = event.payload.parentAccountData
+    if (payload.parentAccountData) {
+      pendoPayload.parentAccount = payload.parentAccountData
     }
 
-    pendo.identify(payload)
+    pendo.identify(pendoPayload)
   }
 }
 

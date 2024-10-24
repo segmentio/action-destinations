@@ -1,11 +1,16 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { defaultValues } from '@segment/actions-core'
+import { DEFAULT_REQUEST_TIMEOUT, defaultValues } from '@segment/actions-core'
 import createAlias from './createAlias'
+import createAlias2 from './createAlias2'
 import identifyUser from './identifyUser'
+import identifyUser2 from './identifyUser2'
 import trackEvent from './trackEvent'
 import trackPurchase from './trackPurchase'
 import updateUserProfile from './updateUserProfile'
+import trackEvent2 from './trackEvent2'
+import trackPurchase2 from './trackPurchase2'
+import updateUserProfile2 from './updateUserProfile2'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Braze Cloud Mode (Actions)',
@@ -41,8 +46,10 @@ const destination: DestinationDefinition<Settings> = {
           { label: 'US-06	(https://dashboard-06.braze.com)', value: 'https://rest.iad-06.braze.com' },
           { label: 'US-07	(https://dashboard-07.braze.com)', value: 'https://rest.iad-07.braze.com' },
           { label: 'US-08	(https://dashboard-08.braze.com)', value: 'https://rest.iad-08.braze.com' },
+          { label: 'US-09	(https://dashboard-09.braze.com)', value: 'https://rest.iad-09.braze.com' },
           { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'https://rest.fra-01.braze.eu' },
-          { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'https://rest.fra-02.braze.eu' }
+          { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'https://rest.fra-02.braze.eu' },
+          { label: 'ID-01 (https://dashboard-01.braze.id)', value: 'https://rest.apse-01.braze.id' }
         ],
         default: 'https://rest.iad-01.braze.com',
         required: true
@@ -61,7 +68,8 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         Authorization: `Bearer ${settings.api_key}`
-      }
+      },
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     }
   },
   actions: {
@@ -69,7 +77,12 @@ const destination: DestinationDefinition<Settings> = {
     trackEvent,
     trackPurchase,
     createAlias,
-    identifyUser
+    identifyUser,
+    identifyUser2,
+    trackEvent2,
+    trackPurchase2,
+    updateUserProfile2,
+    createAlias2
   },
   presets: [
     {
@@ -152,6 +165,18 @@ const destination: DestinationDefinition<Settings> = {
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Journeys Step Transition Track',
+      partnerAction: 'trackEvent',
+      mapping: {
+        ...defaultValues(trackEvent.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }

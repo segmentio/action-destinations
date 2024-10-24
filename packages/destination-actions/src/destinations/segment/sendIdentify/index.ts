@@ -18,10 +18,13 @@ import {
   screen,
   locale,
   location,
-  traits
+  traits,
+  message_id,
+  consent,
+  validateConsentObject,
+  address
 } from '../segment-properties'
-import { SEGMENT_ENDPOINTS } from '../properties'
-import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../errors'
+import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Identify',
@@ -45,20 +48,26 @@ const action: ActionDefinition<Settings, Payload> = {
     user_agent,
     timezone,
     group_id,
-    traits
+    traits,
+    message_id,
+    consent,
+    address
   },
-  perform: (request, { payload, settings, features, statsContext }) => {
+  perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
+    const isValidConsentObject = validateConsentObject(payload?.consent)
 
     const identifyPayload = {
       userId: payload?.user_id,
       anonymousId: payload?.anonymous_id,
       timestamp: payload?.timestamp,
+      messageId: payload?.message_id,
       context: {
         app: payload?.application,
         campaign: payload?.campaign_parameters,
+        consent: isValidConsentObject ? { ...payload?.consent } : {},
         device: payload?.device,
         ip: payload?.ip_address,
         locale: payload?.locale,
@@ -72,28 +81,14 @@ const action: ActionDefinition<Settings, Payload> = {
         groupId: payload?.group_id
       },
       traits: {
-        ...payload?.traits
-      }
+        ...payload?.traits,
+        ...(payload.address ? { address: payload.address } : {})
+      },
+      type: 'identify'
     }
 
-    // Throw an error if endpoint is not defined or invalid
-    if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      throw InvalidEndpointSelectedThrowableError
-    }
-
-    // Return transformed payload without sending it to TAPI endpoint
-    if (features && features['actions-segment-tapi-internal-enabled']) {
-      statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendIdentify'])
-      const payload = { ...identifyPayload, type: 'identify' }
-      return { batch: [payload] }
-    }
-
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-
-    return request(`${selectedSegmentEndpoint}/identify`, {
-      method: 'POST',
-      json: identifyPayload
-    })
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, 'action:sendIdentify'])
+    return { batch: [identifyPayload] }
   }
 }
 

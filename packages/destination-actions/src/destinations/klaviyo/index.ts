@@ -1,5 +1,10 @@
-import { IntegrationError, AudienceDestinationDefinition, PayloadValidationError } from '@segment/actions-core'
-import type { Settings } from './generated-types'
+import {
+  IntegrationError,
+  AudienceDestinationDefinition,
+  PayloadValidationError,
+  APIError
+} from '@segment/actions-core'
+import type { Settings, AudienceSettings } from './generated-types'
 
 import { API_URL } from './config'
 import upsertProfile from './upsertProfile'
@@ -7,9 +12,13 @@ import addProfileToList from './addProfileToList'
 import removeProfileFromList from './removeProfileFromList'
 import trackEvent from './trackEvent'
 import orderCompleted from './orderCompleted'
+import subscribeProfile from './subscribeProfile'
 import { buildHeaders } from './functions'
+import removeProfile from './removeProfile'
 
-const destination: AudienceDestinationDefinition<Settings> = {
+import unsubscribeProfile from './unsubscribeProfile'
+
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Klaviyo (Actions)',
   slug: 'actions-klaviyo',
   mode: 'cloud',
@@ -55,7 +64,14 @@ const destination: AudienceDestinationDefinition<Settings> = {
       headers: buildHeaders(settings.api_key)
     }
   },
-  audienceFields: {},
+  audienceFields: {
+    listId: {
+      label: 'List Id',
+      description: `Insert the ID of the default list that you'd like to subscribe users to when you call .identify().
+       NOTE: List ID takes precedence set within Actions.`,
+      type: 'string'
+    }
+  },
   audienceConfig: {
     mode: {
       type: 'synced',
@@ -64,6 +80,12 @@ const destination: AudienceDestinationDefinition<Settings> = {
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
       const apiKey = createAudienceInput.settings.api_key
+      const defaultAudienceId = createAudienceInput.audienceSettings?.listId
+
+      if (defaultAudienceId) {
+        return { externalId: defaultAudienceId }
+      }
+
       if (!audienceName) {
         throw new PayloadValidationError('Missing audience name value')
       }
@@ -89,8 +111,16 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const apiKey = getAudienceInput.settings.api_key
       const response = await request(`${API_URL}/lists/${listId}`, {
         method: 'GET',
-        headers: buildHeaders(apiKey)
+        headers: buildHeaders(apiKey),
+        throwHttpErrors: false
       })
+
+      if (!response.ok) {
+        const errorResponse = await response.json()
+        const klaviyoErrorDetail = errorResponse.errors[0].detail
+        throw new APIError(klaviyoErrorDetail, response.status)
+      }
+
       const r = await response.json()
       const externalId = r.data.id
 
@@ -112,7 +142,10 @@ const destination: AudienceDestinationDefinition<Settings> = {
     addProfileToList,
     removeProfileFromList,
     trackEvent,
-    orderCompleted
+    orderCompleted,
+    subscribeProfile,
+    unsubscribeProfile,
+    removeProfile
   }
 }
 

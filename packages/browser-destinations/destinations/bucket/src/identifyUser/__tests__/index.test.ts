@@ -61,7 +61,7 @@ describe('Bucket.user', () => {
     )
 
     expect(getBucketCallLog()).toStrictEqual([
-      { method: 'init', args: ['testTrackingKey'] },
+      { method: 'init', args: ['testTrackingKey', {}] },
       {
         method: 'user',
         args: [

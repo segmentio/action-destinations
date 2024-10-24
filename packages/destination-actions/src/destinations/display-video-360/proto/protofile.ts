@@ -450,6 +450,8 @@ export class UpdateUsersDataRequest extends Message<UpdateUsersDataRequest> {
   ): boolean {
     return proto2.util.equals(UpdateUsersDataRequest, a, b)
   }
+
+  process_consent: boolean = false
 }
 
 /**

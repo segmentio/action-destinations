@@ -8,6 +8,9 @@ on:
 
 jobs:
   install-and-test:
+    env:
+      HUSKY: 0
+      NX_DISABLE_DB: true
     runs-on: ubuntu-20.04
 
     timeout-minutes: 20
@@ -17,17 +20,14 @@ jobs:
         node-version: [18.x]
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: yarn
 
       - name: Install
-        run: yarn install --frozen-lockfile --ignore-optional
-
-      - name: Bootstrap
-        run: yarn bootstrap --no-ci
+        run: yarn install --frozen-lockfile
 
       - name: Test
         run: yarn test

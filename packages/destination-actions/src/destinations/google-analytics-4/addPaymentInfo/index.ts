@@ -9,7 +9,8 @@ import {
   convertTimestamp,
   getMobileStreamParams,
   getWebStreamParams,
-  sendData
+  sendData,
+  formatConsent
 } from '../ga4-functions'
 import {
   user_id,
@@ -25,7 +26,9 @@ import {
   timestamp_micros,
   params,
   data_stream_type,
-  app_instance_id
+  app_instance_id,
+  ad_user_data_consent,
+  ad_personalization_consent
 } from '../ga4-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -48,7 +51,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     user_properties: user_properties,
     engagement_time_msec: engagement_time_msec,
-    params: params
+    params: params,
+    ad_user_data_consent: ad_user_data_consent,
+    ad_personalization_consent: ad_personalization_consent
   },
   perform: (request, { payload, settings }) => {
     const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
@@ -120,7 +125,11 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       ],
       ...formatUserProperties(payload.user_properties),
-      timestamp_micros: convertTimestamp(payload.timestamp_micros)
+      timestamp_micros: convertTimestamp(payload.timestamp_micros),
+      ...formatConsent({
+        ad_personalization_consent: payload.ad_personalization_consent,
+        ad_user_data_consent: payload.ad_user_data_consent
+      })
     }
 
     return sendData(request, stream_params.search_params, request_object)

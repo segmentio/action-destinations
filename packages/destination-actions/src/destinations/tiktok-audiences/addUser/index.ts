@@ -21,7 +21,7 @@ import { TikTokAudiences } from '../api'
 // TODO: Remove on cleanup.
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Add Users',
+  title: 'Add Users (Legacy)',
   description: 'Add contacts from an Engage Audience to a TikTok Audience Segment.',
   defaultSubscription: 'event = "Audience Entered"',
   fields: {

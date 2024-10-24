@@ -1,5 +1,6 @@
 import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
-import { USER_UPLOAD_ENDPOINT } from './constants'
+import { OAUTH_URL, USER_UPLOAD_ENDPOINT, SEGMENT_DMP_ID } from './constants'
+import type { RefreshTokenResponse } from './types'
 
 import {
   UserIdType,
@@ -10,25 +11,57 @@ import {
 } from './proto/protofile'
 
 import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
-import type { AudienceSettings, Settings } from './generated-types'
+import type { AudienceSettings } from './generated-types'
 
-export const buildHeaders = (audienceSettings: AudienceSettings | undefined, settings: Settings) => {
-  if (!audienceSettings || !settings) {
+type DV360AuthCredentials = { refresh_token: string; access_token: string; client_id: string; client_secret: string }
+
+export const getAuthSettings = (): DV360AuthCredentials => {
+  return {
+    refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN,
+    client_id: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID,
+    client_secret: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET
+  } as DV360AuthCredentials
+}
+
+// Use the refresh token to get a new access token.
+// Refresh tokens, Client_id and secret are long-lived and belong to the DMP.
+// Given the short expiration time of access tokens, we need to refresh them periodically.
+export const getAuthToken = async (request: RequestClient, settings: DV360AuthCredentials) => {
+  if (!settings.refresh_token) {
+    throw new IntegrationError('Refresh token is missing', 'INVALID_REQUEST_DATA', 400)
+  }
+
+  const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: settings.refresh_token,
+      client_id: settings.client_id,
+      client_secret: settings.client_secret,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  return data.access_token
+}
+
+export const buildHeaders = (audienceSettings: AudienceSettings | undefined, accessToken: string) => {
+  if (!audienceSettings || !accessToken) {
     throw new IntegrationError('Bad Request', 'INVALID_REQUEST_DATA', 400)
   }
 
   return {
     // @ts-ignore - TS doesn't know about the oauth property
-    Authorization: `Bearer ${settings?.oauth?.accessToken}`,
+    Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
-    'Login-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
+    'Login-Customer-Id': `products/DATA_PARTNER/customers/${SEGMENT_DMP_ID}`,
+    'Linked-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
   }
 }
 
 export const assembleRawOps = (payload: UpdateHandlerPayload, operation: ListOperation): UserOperation[] => {
   const rawOperations = []
   const audienceId = parseInt(payload.external_audience_id.split('/').pop() || '-1')
-  const isDelete = operation === 'remove' ? true : false
+  const isDelete = operation === 'remove'
 
   if (payload.google_gid) {
     rawOperations.push({
@@ -50,9 +83,9 @@ export const assembleRawOps = (payload: UpdateHandlerPayload, operation: ListOpe
     })
   }
 
-  if (payload.anonymous_id) {
+  if (payload.partner_provided_id) {
     rawOperations.push({
-      UserId: payload.anonymous_id,
+      UserId: payload.partner_provided_id,
       UserIdType: UserIdType.PARTNER_PROVIDED_ID,
       UserListId: audienceId,
       Delete: isDelete
@@ -130,7 +163,7 @@ export const createUpdateRequest = (
         userId: rawOp.UserId,
         userIdType: rawOp.UserIdType,
         userListId: BigInt(rawOp.UserListId),
-        delete: !!rawOp.Delete
+        delete: rawOp.Delete
       })
 
       if (!op) {
@@ -140,6 +173,9 @@ export const createUpdateRequest = (
       updateRequest.ops.push(op)
     })
   })
+
+  // Backed by deletion and suppression features in Segment.
+  updateRequest.process_consent = true
 
   return updateRequest
 }

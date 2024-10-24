@@ -15,6 +15,9 @@ const subscriptions: Subscription[] = [
       value: {
         '@path': '$.properties.value'
       },
+      send_to: {
+        '@path': '$.properties.send_to'
+      },
       items: [
         {
           item_name: {
@@ -61,7 +64,68 @@ describe('GoogleAnalytics4Web.addToCart', () => {
     await trackEventPlugin.load(Context.system(), {} as Analytics)
   })
 
-  test('GA4 addToCart Event', async () => {
+  test('GA4 addToCart Event when send to is false', async () => {
+    const context = new Context({
+      event: 'Add To Cart',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        send_to: false,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+    await addToCartEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('add_to_cart'),
+      expect.objectContaining({
+        currency: 'USD',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10,
+        send_to: 'default'
+      })
+    )
+  })
+  test('GA4 addToCart Event when send to is true', async () => {
+    const context = new Context({
+      event: 'Add To Cart',
+      type: 'track',
+      properties: {
+        currency: 'USD',
+        value: 10,
+        send_to: true,
+        products: [
+          {
+            product_id: '12345',
+            name: 'Monopoly: 3rd Edition',
+            currency: 'USD'
+          }
+        ]
+      }
+    })
+    await addToCartEvent.track?.(context)
+
+    expect(mockGA4).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('add_to_cart'),
+      expect.objectContaining({
+        currency: 'USD',
+        items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
+        value: 10,
+        send_to: settings.measurementID
+      })
+    )
+  })
+
+  test('GA4 addToCart Event when send to is undefined', async () => {
     const context = new Context({
       event: 'Add To Cart',
       type: 'track',
@@ -85,7 +149,8 @@ describe('GoogleAnalytics4Web.addToCart', () => {
       expect.objectContaining({
         currency: 'USD',
         items: [{ currency: 'USD', item_id: '12345', item_name: 'Monopoly: 3rd Edition' }],
-        value: 10
+        value: 10,
+        send_to: 'default'
       })
     )
   })
