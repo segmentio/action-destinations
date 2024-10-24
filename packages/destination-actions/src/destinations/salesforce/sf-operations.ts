@@ -1,11 +1,12 @@
 import { IntegrationError, ModifiedResponse, RequestClient, RefreshAccessTokenResult } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
+import { Payload as CustomObjectExternalIdPayload } from './customObjectExternalId/generated-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 
-export const API_VERSION = 'v53.0'
+export const API_VERSION = 'v62.0'
 
 /**
  * This error is triggered if the bulkHandler is ever triggered when the enable_batching setting is false.
@@ -259,9 +260,13 @@ export default class Salesforce {
 
     if (syncMode === 'upsert') {
       return await this.bulkUpsert(payloads, sobject)
-    } else if (syncMode === 'update') {
+    }
+
+    if (syncMode === 'update') {
       return await this.bulkUpdate(payloads, sobject)
-    } else if (syncMode === 'add') {
+    }
+
+    if (syncMode === 'add') {
       // Sync Mode does not have a "create" operation. We call it "add".
       // "add" will be transformed into "create" in the bulkInsert function.
       return await this.bulkInsert(payloads, sobject)
@@ -300,6 +305,18 @@ export default class Salesforce {
         }
       }
     }
+  }
+
+  upsertCustomObject = async (payload: CustomObjectExternalIdPayload, customObjectName: string) => {
+    const result = await this.request(
+      `${this.instanceUrl}services/data/${API_VERSION}/sobjects/${customObjectName}/${payload.externalIdField}/${payload.externalIdValue}`,
+      {
+        method: 'patch',
+        json: payload.customFields
+      }
+    )
+
+    return result
   }
 
   private bulkInsert = async (payloads: GenericPayload[], sobject: string) => {
