@@ -11,7 +11,7 @@ describe('Drip', () => {
       nock('https://api-staging.getdrip.com').get('/v2/user').reply(200, {})
 
       const settings: Settings = {
-        apiKey: 'testkey'
+        apiKey: 'key'
       }
 
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()

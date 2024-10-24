@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 
 import { baseUrl } from './constants'
 
-// import track from './track'
+import track from './track'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Drip',
@@ -34,7 +34,7 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    // track
+    track
   }
 }
 
