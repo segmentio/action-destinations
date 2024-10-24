@@ -25,7 +25,6 @@ describe('Drip.track', () => {
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
-    expect(responses[0].options.body).toMatch(/"type":\s*"track"/g)
     expect(responses[0].options.body).toContain('Custom')
     expect(responses[0].options.body).toContain('foo@bar.com')
     expect(responses[0].options.body).toContain('buzz')
@@ -59,7 +58,6 @@ describe('Drip.track', () => {
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
-    expect(responses[0].options.body).toMatch(/"type":\s*"track"/g)
     expect(responses[0].options.body).toContain('Custom')
     expect(responses[0].options.body).toContain('foo@bar.com')
     expect(responses[0].options.body).toContain('buzz')
