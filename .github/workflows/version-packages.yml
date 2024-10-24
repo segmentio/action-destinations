@@ -32,6 +32,7 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
+      id-token: write
     steps:
       - name: Echo Inputs
         run: |
@@ -64,7 +65,11 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Build
-        run: NODE_ENV=production yarn build
+        uses: ./.github/actions/build-with-cache
+        with:
+          aws-region: ${{ secrets.CACHE_AWS_REGION }}
+          cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
+          cache-bucket: ${{ secrets.CACHE_BUCKET }}
 
       - name: Version Packages
         run: yarn lerna version minor --yes --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private

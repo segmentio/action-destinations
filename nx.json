@@ -23,6 +23,20 @@
       "inputs": ["default", "^production"],
       "dependsOn": ["build"],
       "cache": true
+    },
+    "lint": {
+      "inputs": ["default"],
+      "dependsOn": ["build"],
+      "cache": true
+    }
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@pellegrims/nx-remotecache-s3",
+      "options": {
+        "cacheableOperations": ["build", "test", "lint"],
+        "forcePathStyle": true
+      }
     }
   },
   "defaultBase": "main"

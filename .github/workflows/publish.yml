@@ -11,6 +11,8 @@ on:
 
 jobs:
   build-and-publish:
+    permissions:
+      id-token: write
     env:
       HUSKY: 0
       NX_DISABLE_DB: true
@@ -37,7 +39,11 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Build
-        run: NODE_ENV=production yarn build
+        uses: ./.github/actions/build-with-cache
+        with:
+          aws-region: ${{ secrets.CACHE_AWS_REGION }}
+          cache-role-to-assume: ${{ secrets.CACHE_ROLE_TO_ASSUME }}
+          cache-bucket: ${{ secrets.CACHE_BUCKET }}
 
       - name: Fetch Latest Tags
         run: |
