@@ -2,7 +2,18 @@
 
 exports[`Testing snapshot for actions-drip destination: identify action - all fields 1`] = `
 Object {
+  "custom_fields": Object {
+    "testType": "sJ%o4C6Z5FWE)u^v8eTR",
+  },
   "email": "amjo@ka.ar",
+  "ip_address": "251.65.124.230",
+  "sms_number": "sJ%o4C6Z5FWE)u^v8eTR",
+  "status": "sJ%o4C6Z5FWE)u^v8eTR",
+  "status_updated_at": "2021-02-01T00:00:00.000Z",
+  "tags": Object {
+    "testType": "sJ%o4C6Z5FWE)u^v8eTR",
+  },
+  "time_zone": "sJ%o4C6Z5FWE)u^v8eTR",
 }
 `;
 

@@ -10,9 +10,21 @@ export interface Payload {
    */
   ip?: string
   /**
+   * The person's sms number.
+   */
+  sms?: string
+  /**
    * The person's timezone.
    */
   timezone?: string
+  /**
+   * The person's status.
+   */
+  status?: string
+  /**
+   * The timestamp associated with the update to a person's status.
+   */
+  status_updated_at?: string | number
   /**
    * Tags to add to a person's profile.
    */

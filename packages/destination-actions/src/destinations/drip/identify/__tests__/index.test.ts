@@ -24,7 +24,10 @@ describe('Drip.track', () => {
     })
 
     const body = {
-      email: 'foo@bar.com'
+      email: 'foo@bar.com',
+      ip_address: '8.8.8.8', // This could be wrong. Is this the IP address of the client, or segment?
+      time_zone: 'Europe/Amsterdam',
+      status: 'unsubscribed'
     }
 
     expect(responses.length).toBe(1)
@@ -52,7 +55,10 @@ describe('Drip.track', () => {
     const body = {
       subscribers: [
         {
-          email: 'foo@bar.com'
+          email: 'foo@bar.com',
+          ip_address: '8.8.8.8', // This could be wrong. Is this the IP address of the client, or segment?
+          time_zone: 'Europe/Amsterdam',
+          status: 'unsubscribed'
         }
       ]
     }

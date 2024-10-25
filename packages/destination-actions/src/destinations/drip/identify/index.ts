@@ -3,23 +3,17 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { baseUrl, headers } from '../utils'
 
-// data = {}
-// data[:email] = args[0] if args[0].is_a? String
-// data.merge!(args.last) if args.last.is_a? Hash
-// raise ArgumentError, 'email: or id: or bigcommerce_subscriber_id: parameter required' if missing_subscriber_identifier(data)
-// make_json_api_request :post, "v2/#{account_id}/subscribers", private_generate_resource("subscribers", data)
-
-// 'email',
-// 'tags',
-// 'new_email', can we ignore this?
-// 'ip_address',
-// 'time_zone',
-// 'potential_lead',
-// 'prospect'
-
 const person: (payload: Payload) => any = (payload) => {
   return {
-    email: payload.email
+    email: payload.email,
+    ip_address: payload.ip,
+    sms_number: payload.sms,
+    time_zone: payload.timezone,
+    status: payload.status,
+    status_updated_at: payload.status_updated_at,
+    tags: payload.tags,
+    custom_fields: payload.customFields
+    // prospect: true // omit for now, lead scoring is not promoted by our product
   }
 }
 
@@ -41,7 +35,15 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'IP Address',
       required: false,
       type: 'string',
+      format: 'ipv4',
       default: { '@path': '$.context.ip' }
+    },
+    sms: {
+      description: "The person's sms number.",
+      label: 'SMS Number',
+      required: false,
+      type: 'string',
+      default: { '@path': '$.traits.sms' }
     },
     timezone: {
       description: "The person's timezone.",
@@ -50,7 +52,28 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: { '@path': '$.context.timezone' }
     },
+    status: {
+      description: "The person's status.",
+      label: 'Status',
+      required: false,
+      type: 'string',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.status' },
+          then: { '@path': '$.traits.status' },
+          else: 'unsubscribed'
+        }
+      }
+    },
+    status_updated_at: {
+      description: "The timestamp associated with the update to a person's status.",
+      label: 'Status Updated At',
+      required: false,
+      type: 'datetime',
+      default: { '@path': '$.traits.status_updated_at' }
+    },
     tags: {
+      // Can we omit remove_tags?
       description: "Tags to add to a person's profile.",
       label: 'Tags',
       required: false,
