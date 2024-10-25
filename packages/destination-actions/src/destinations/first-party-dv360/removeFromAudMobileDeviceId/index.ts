@@ -7,7 +7,7 @@ import { editDeviceMobileIds } from '../functions'
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Remove Customer Match Members - Mobile Device Id List',
   description: 'Remove customer match members in Google Display & Video 360 Mobile Device Id List Audience.',
-  defaultSubscription: 'event = "Audience Entered',
+  defaultSubscription: 'event = "Audience Entered"',
   fields: {
     mobileDeviceIds: { ...mobileDeviceIds },
     external_id: { ...external_id },

@@ -71,10 +71,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       statsTags?.push(`slug:${destination.slug}`)
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
-      //Get access token
-      const authSettings = getAuthSettings()
-      const token = await getAuthToken(_request, authSettings)
-
       // Validate required fields and throws errors if any are missing.
       if (!audienceName) {
         statsTags?.push('error:missing-settings')
@@ -99,6 +95,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing audience type value', 'MISSING_REQUIRED_FIELD', 400)
       }
+
+      //Get access token
+      const authSettings = getAuthSettings()
+      const token = await getAuthToken(_request, authSettings)
 
       // Make API request to create the audience
       const response = await createAudienceRequest(_request, {
