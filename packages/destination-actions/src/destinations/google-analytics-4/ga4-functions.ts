@@ -1,6 +1,7 @@
 import { ErrorCodes, IntegrationError, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from './constants'
 import { DataStreamParams } from './ga4-types'
+import { Consent } from './ga4-types'
 
 // Google expects currency to be a 3-letter ISO 4217 format
 export function verifyCurrency(currency: string): void {
@@ -107,4 +108,17 @@ export async function sendData(request: RequestClient, search_params: string, pa
     method: 'POST',
     json: payload
   })
+}
+
+export const formatConsent = (consent: Consent): object | undefined => {
+  if (!consent.ad_user_data_consent && !consent.ad_personalization_consent) {
+    return undefined
+  }
+
+  return {
+    consent: {
+      ad_user_data: consent.ad_user_data_consent,
+      ad_personalization: consent.ad_personalization_consent
+    }
+  }
 }

@@ -691,4 +691,72 @@ describe('GA4', () => {
       ).rejects.toThrowError('Client ID is required for web streams')
     })
   })
+
+  it('should append user_properties correctly', async () => {
+    nock('https://www.google-analytics.com/mp/collect')
+      .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+      .reply(201, {})
+
+    const event = createTestEvent({
+      event: 'Checkout Started',
+      userId: 'abc123',
+      timestamp: '2022-06-22T22:20:58.905Z',
+      anonymousId: 'anon-2134',
+      type: 'track',
+      properties: {
+        product_id: '12345abcde',
+        name: 'Quadruple Stack Oreos, 52 ct',
+        currency: 'USD',
+        price: 12.99,
+        quantity: 1,
+        products: [
+          {
+            product_id: '507f1f77bcf86cd799439011',
+            sku: '45790-32',
+            name: 'Monopoly: 3rd Edition',
+            price: 19,
+            quantity: 1,
+            category: 'Games',
+            url: 'https://www.example.com/product/path',
+            image_url: 'https://www.example.com/product/path.jpg'
+          }
+        ]
+      }
+    })
+    const responses = await testDestination.testAction('beginCheckout', {
+      event,
+      settings: {
+        apiSecret,
+        measurementId
+      },
+      mapping: {
+        client_id: {
+          '@path': '$.anonymousId'
+        },
+        user_properties: {
+          hello: 'world',
+          a: '1',
+          b: '2',
+          c: '3'
+        },
+        items: [
+          {
+            item_name: {
+              '@path': `$.properties.products.0.name`
+            },
+            item_category: {
+              '@path': `$.properties.products.0.category`
+            }
+          }
+        ],
+        ad_user_data_consent: 'GRANTED',
+        ad_personalization_consent: 'GRANTED'
+      },
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"begin_checkout\\",\\"params\\":{\\"currency\\":\\"USD\\",\\"items\\":[{\\"item_name\\":\\"Monopoly: 3rd Edition\\",\\"item_category\\":\\"Games\\"}],\\"engagement_time_msec\\":1}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}},\\"timestamp_micros\\":1655936458905000,\\"consent\\":{\\"ad_user_data\\":\\"GRANTED\\",\\"ad_personalization\\":\\"GRANTED\\"}}"`
+    )
+  })
 })

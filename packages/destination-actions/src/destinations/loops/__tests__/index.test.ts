@@ -25,7 +25,7 @@ describe('Loops', () => {
   })
   describe('deletes', () => {
     it('should support gdpr deletes', async () => {
-      nock('https://app.loops.so/api/v1').delete('/contacts/delete').reply(200, {})
+      nock('https://app.loops.so/api/v1').post('/contacts/delete').reply(200, {})
       if (testDestination.onDelete) {
         const response = await testDestination.onDelete(
           { type: 'track', userId: 'sloth@segment.com' },

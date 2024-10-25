@@ -47,7 +47,8 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Sync Engage Audience to Rokt',
       subscribe: 'type = "track" or type = "identify"',
       partnerAction: 'upsertCustomAudiences',
-      mapping: defaultValues(upsertCustomAudiences.fields)
+      mapping: defaultValues(upsertCustomAudiences.fields),
+      type: 'automatic'
     }
   ]
 }

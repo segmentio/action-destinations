@@ -2,9 +2,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { WhatsAppMessageSender } from './whatsapp-sender'
+import { WhatsAppMessageSender } from './WhatsAppMessageSender'
 
-const action: ActionDefinition<Settings, Payload> = {
+export const actionDefinition: ActionDefinition<Settings, Payload> = {
   title: 'Send WhatsApp',
   description: 'Send WhatsApp using Twilio',
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
@@ -58,6 +58,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       required: false,
       default: true
+    },
+    segmentComputationId: {
+      label: 'Segment Computation ID',
+      description: 'Segment computation ID',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.context.personas.computation_id'
+      }
     },
     externalIds: {
       label: 'External IDs',
@@ -124,16 +133,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    const { settings, payload, statsContext, logger } = data
-    const statsClient = statsContext?.statsClient
-    const tags = statsContext?.tags || []
-    if (!settings.region) {
-      settings.region = 'us-west-1'
-    }
-    tags.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`, `region:${settings.region}`, `channel:whatsapp`)
-
-    return new WhatsAppMessageSender(request, payload, settings, statsClient, tags, logger, data).send()
+    return new WhatsAppMessageSender(request, data).perform()
   }
 }
 
-export default action
+export default actionDefinition

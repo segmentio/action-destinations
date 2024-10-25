@@ -2,10 +2,10 @@ import page from '../pageobjects/page'
 import { expect } from 'expect'
 import { listDestinations } from '../server/utils'
 
-// '688' is actions-core, we don't want to test it as a destination here
+// actions-plugins is just a shared chunk, we don't want to test it as a destination here
 const allDestinations = listDestinations()
   .map((el) => el.dirPath)
-  .filter((el) => el !== '688')
+  .filter((el) => el !== 'actions-plugin')
 
 describe('Bundles are capable of being parsed and loaded without errors', () => {
   for (const destination of allDestinations) {

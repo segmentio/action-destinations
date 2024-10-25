@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { ApiRegions } from '../../utils'
+import { ApiRegions } from '../../common/utils'
 
 const testDestination = createTestIntegration(Destination)
 const MIXPANEL_API_SECRET = 'test-api-key'
@@ -13,7 +13,7 @@ describe('Mixpanel.groupIdentifyUser', () => {
     const event = createTestEvent({
       timestamp,
       groupId: 'test-group-id',
-      traits: { hello: 'world', company: 'Mixpanel', name: 'test' }
+      traits: { hello: 'world', company: 'Mixpanel', name: 'test', created_at: timestamp }
     })
 
     nock('https://api.mixpanel.com').post('/groups').reply(200, {})
@@ -40,7 +40,8 @@ describe('Mixpanel.groupIdentifyUser', () => {
           $set: {
             hello: 'world',
             company: 'Mixpanel',
-            $name: 'test'
+            $name: 'test',
+            $created: timestamp
           }
         })
       })

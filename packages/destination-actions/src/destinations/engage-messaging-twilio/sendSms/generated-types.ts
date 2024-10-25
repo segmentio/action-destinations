@@ -44,6 +44,14 @@ export interface Payload {
    */
   traitEnrichment?: boolean
   /**
+   * Send to any subscription status other than unsubscribed
+   */
+  sendBasedOnOptOut?: boolean
+  /**
+   * Segment computation ID
+   */
+  segmentComputationId?: string
+  /**
    * An array of user profile identity information.
    */
   externalIds?: {

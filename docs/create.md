@@ -119,7 +119,7 @@ With this minimal configuration, the destination can connect to the Segment App'
 
 ```js
 import type { Settings } from './generated-types'
-import type { BrowserDestinationDefinition } from '../../lib/browser-destinations'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '../../runtime/shim'
 
 // Declare global to access your client

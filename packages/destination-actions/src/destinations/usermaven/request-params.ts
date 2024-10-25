@@ -86,11 +86,19 @@ export const resolveRequestPayload = (settings: Settings, payload: Record<string
   }
 
   // Resolve local_tz_offset property, we can get local_tz_offset from the payload context.timezone
-  // And we need to convert the timezone (e.g: Europe/Amsterdam) to the offset (e.g: +0200)
+  // And we need to convert the timezone (e.g: Europe/Amsterdam) to the offset (e.g: -60)
   if (payload?.timezone) {
-    properties.local_tz_offset = new Date()
-      .toLocaleString('en-US', { timeZone: payload.timezone, timeZoneName: 'short' })
-      .split(' ')[2]
+    const now = new Date()
+    const dateInTimezone = new Date(
+      now.toLocaleString('en-US', {
+        timeZone: payload.timezone,
+        hour12: false
+      })
+    )
+    //Turns the time into the number of minutes since the epoch
+    const offset = (now.getTime() - dateInTimezone.getTime()) / (1000 * 60)
+    const offsetMinutes = Math.round(offset)
+    properties.local_tz_offset = offsetMinutes
     delete properties.timezone
   }
 

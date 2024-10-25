@@ -5,6 +5,20 @@ import { isObject } from './real-type-of'
 import type https from 'https'
 import { StatsContext } from './destination-kit'
 
+const defaultRequestTimeout = 10_000
+// making this configurable will allow some environments to support a longer/shorter timeout
+if (
+  globalThis.process != null &&
+  typeof globalThis.process.env === 'object' &&
+  globalThis.process.env.DEFAULT_REQUEST_TIMEOUT
+) {
+  const parsedDefaultTimeout = parseInt(globalThis.process.env.DEFAULT_REQUEST_TIMEOUT, 10)
+  if (!Number.isNaN(parsedDefaultTimeout) && parsedDefaultTimeout > 0) {
+    defaultRequestTimeout
+  }
+}
+export const DEFAULT_REQUEST_TIMEOUT = defaultRequestTimeout
+
 /**
  * The supported request options you can use with the request client
  */
@@ -242,7 +256,7 @@ class RequestClient {
       ...options,
       method: getRequestMethod(options.method ?? 'get'),
       throwHttpErrors: options.throwHttpErrors !== false,
-      timeout: options.timeout ?? 10000
+      timeout: options.timeout ?? DEFAULT_REQUEST_TIMEOUT
     } as NormalizedOptions
 
     // Timeout support. Use our own abort controller so consumers can pass in their own `signal`

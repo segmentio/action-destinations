@@ -283,6 +283,55 @@ export const eventProperties: Record<string, InputField> = {
       '@path': '$.context.userAgent'
     }
   },
+  advertising_id: {
+    label: 'Advertising ID',
+    type: 'string',
+    description: 'Advertising ID',
+    required: false,
+    default: {
+      '@path': '$.context.device.advertisingId'
+    }
+  },
+  ad_tracking_enabled: {
+    label: 'Ad Tracking Enabled',
+    type: 'string',
+    description: 'Ad Tracking Enabled (true or false)',
+    required: false,
+    default: {
+      '@path': '$.context.device.adTrackingEnabled'
+    }
+  },
+  timezone: {
+    label: 'Timezone',
+    type: 'string',
+    description: 'The event timezone',
+    required: false,
+    default: {
+      '@path': '$.context.timezone'
+    }
+  },
+  app_platform: {
+    label: 'App Platform',
+    type: 'string',
+    description: 'The App Platform, if applicable',
+    required: false,
+    default: {
+      '@path': '$.context.app.platform'
+    }
+  },
+  name: {
+    label: 'Event Original Name',
+    type: 'string',
+    description: 'The Event Original Name, if applicable',
+    required: false,
+    default: {
+      '@if': {
+        exists: { '@path': '$.event' },
+        then: { '@path': '$.event' },
+        else: { '@path': '$.name' }
+      }
+    }
+  },
   event_properties: {
     label: 'Event Properties',
     type: 'object',
@@ -295,6 +344,7 @@ export const eventProperties: Record<string, InputField> = {
     label: 'Event context',
     description: 'An object of key-value pairs that provides useful context about the event.',
     type: 'object',
+    unsafe_hidden: true,
     default: {
       '@path': '$.context'
     }
@@ -338,6 +388,64 @@ export const eventProperties: Record<string, InputField> = {
     label: 'Batch Data to Mixpanel',
     description: 'Set as true to ensure Segment sends data to Mixpanel in batches.',
     default: true
+  },
+  batch_size: {
+    label: 'Batch Size',
+    description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+    type: 'number',
+    required: false,
+    default: 1000,
+    minimum: 1,
+    maximum: 2000
+  },
+  userAgentData: {
+    label: 'User Agent Data',
+    type: 'object',
+    description: 'The user agent data of device sending the event',
+    properties: {
+      mobile: {
+        label: 'Mobile',
+        type: 'boolean'
+      },
+      platform: {
+        label: 'Platform',
+        type: 'string'
+      },
+      architecture: {
+        label: 'Architecture',
+        type: 'string'
+      },
+      bitness: {
+        label: 'Bitness',
+        type: 'string'
+      },
+      model: {
+        label: 'Model',
+        type: 'string'
+      },
+      platformVersion: {
+        label: 'PlatformVersion',
+        type: 'string'
+      },
+      uaFullVersion: {
+        label: 'UaFullVersion',
+        type: 'string'
+      },
+      wow64: {
+        label: 'wow64',
+        type: 'boolean'
+      }
+    },
+    default: {
+      mobile: { '@path': '$.context.userAgentData.mobile' },
+      platform: { '@path': '$.context.userAgentData.platform' },
+      architecture: { '@path': '$.context.userAgentData.architecture' },
+      bitness: { '@path': '$.context.userAgentData.bitness' },
+      model: { '@path': '$.context.userAgentData.model' },
+      platformVersion: { '@path': '$.context.userAgentData.platformVersion' },
+      uaFullVersion: { '@path': '$.context.userAgentData.uaFullVersion' },
+      wow64: { '@path': '$.context.userAgentData.wow64' }
+    }
   }
 }
 

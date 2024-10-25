@@ -1,8 +1,11 @@
 import dayjs from '../../lib/dayjs'
-const BULK_EVENTS_BASE_URL = 'https://events.launchdarkly.com/events/bulk'
+import { Settings } from './generated-types'
+export const DEFAULT_EVENTS_HOST_NAME = 'events.launchdarkly.com'
+const BULK_EVENTS_PATH = 'events/bulk'
 
-export const getEventsUrl = (clientID: string) => {
-  return `${BULK_EVENTS_BASE_URL}/${clientID}`
+export const getEventsUrl = (settings: Settings) => {
+  const { client_id, events_host_name } = settings
+  return `https://${events_host_name || DEFAULT_EVENTS_HOST_NAME}/${BULK_EVENTS_PATH}/${client_id}`
 }
 
 export const parseTimestamp = (ts?: string | number): number => {

@@ -26,6 +26,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.computation_class'
       }
     },
+    append_arrays: {
+      label: 'Append Array Fields',
+      type: 'boolean',
+      description: 'If enabled, new data for array fields will be appended to the existing values in Insider.',
+      default: false
+    },
     email: {
       label: 'Email',
       description: "User's email address for including/excluding from custom audience",

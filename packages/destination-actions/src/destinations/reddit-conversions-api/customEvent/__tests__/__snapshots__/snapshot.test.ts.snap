@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for RedditConversionsApi's customEvent destination action: all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "1dc[GGJK6O%*76J4O6Mz",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "7b1d43d3d43059efd3e755045cf79aa9a554bc456f4c10d1915ccb5d79345b4a",
+        "currency": "USD",
+        "item_count": 8361377294974976,
+        "products": Array [
+          Object {
+            "category": "1dc[GGJK6O%*76J4O6Mz",
+            "id": "1dc[GGJK6O%*76J4O6Mz",
+            "name": "1dc[GGJK6O%*76J4O6Mz",
+          },
+        ],
+        "value_decimal": 83613772949749.77,
+      },
+      "event_type": Object {
+        "custom_event_name": "1dc[GGJK6O%*76J4O6Mz",
+        "tracking_type": "Custom",
+      },
+      "user": Object {
+        "aaid": "7b1d43d3d43059efd3e755045cf79aa9a554bc456f4c10d1915ccb5d79345b4a",
+        "data_processing_options": Object {
+          "country": "VN",
+          "modes": Array [
+            "LDU",
+          ],
+          "region": "1dc[GGJK6O%*76J4O6Mz",
+        },
+        "email": "4a032ff520e2ddbb4f3467c73e41b1f94bda5faf9c9080ac7f0d0e83156d9c99",
+        "external_id": "7b1d43d3d43059efd3e755045cf79aa9a554bc456f4c10d1915ccb5d79345b4a",
+        "ip_address": "7b1d43d3d43059efd3e755045cf79aa9a554bc456f4c10d1915ccb5d79345b4a",
+        "screen_dimensions": Object {
+          "height": 8361377294974976,
+          "width": 8361377294974976,
+        },
+        "user_agent": "1dc[GGJK6O%*76J4O6Mz",
+        "uuid": "1dc[GGJK6O%*76J4O6Mz",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+  "test_mode": false,
+}
+`;
+
+exports[`Testing snapshot for RedditConversionsApi's customEvent destination action: required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "1dc[GGJK6O%*76J4O6Mz",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "7b1d43d3d43059efd3e755045cf79aa9a554bc456f4c10d1915ccb5d79345b4a",
+      },
+      "event_type": Object {
+        "custom_event_name": "1dc[GGJK6O%*76J4O6Mz",
+        "tracking_type": "Custom",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+  "test_mode": false,
+}
+`;

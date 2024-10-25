@@ -1,0 +1,137 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: customEvent action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "Q1Q49h4LP@",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "4fbe858b31ee34144cc3d009fd4636ef20fb342e095570d49a9898bb8d77598e",
+        "currency": "EUR",
+        "item_count": -2840640572358656,
+        "products": Array [
+          Object {
+            "category": "Q1Q49h4LP@",
+            "id": "Q1Q49h4LP@",
+            "name": "Q1Q49h4LP@",
+          },
+        ],
+        "value_decimal": -28406405723586.56,
+      },
+      "event_type": Object {
+        "custom_event_name": "Q1Q49h4LP@",
+        "tracking_type": "Custom",
+      },
+      "user": Object {
+        "aaid": "4fbe858b31ee34144cc3d009fd4636ef20fb342e095570d49a9898bb8d77598e",
+        "data_processing_options": Object {
+          "country": "GM",
+          "modes": Array [
+            "LDU",
+          ],
+          "region": "Q1Q49h4LP@",
+        },
+        "email": "8614950525b98787b31febe07634987a801175f098b60c83bd3903bff1ec3eed",
+        "external_id": "4fbe858b31ee34144cc3d009fd4636ef20fb342e095570d49a9898bb8d77598e",
+        "ip_address": "4fbe858b31ee34144cc3d009fd4636ef20fb342e095570d49a9898bb8d77598e",
+        "screen_dimensions": Object {
+          "height": -2840640572358656,
+          "width": -2840640572358656,
+        },
+        "user_agent": "Q1Q49h4LP@",
+        "uuid": "Q1Q49h4LP@",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+  "test_mode": true,
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: customEvent action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "Q1Q49h4LP@",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "4fbe858b31ee34144cc3d009fd4636ef20fb342e095570d49a9898bb8d77598e",
+      },
+      "event_type": Object {
+        "custom_event_name": "Q1Q49h4LP@",
+        "tracking_type": "Custom",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+  "test_mode": true,
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: standardEvent action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "gT6gXh8ga!%xhI",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "f136d03523cc17ecdfe2a4df68a819e5e98f6981316b7e50e1a8b34b018c70ae",
+        "currency": "GBP",
+        "item_count": 2091000289820672,
+        "products": Array [
+          Object {
+            "category": "gT6gXh8ga!%xhI",
+            "id": "gT6gXh8ga!%xhI",
+            "name": "gT6gXh8ga!%xhI",
+          },
+        ],
+        "value_decimal": 20910002898206.72,
+      },
+      "event_type": Object {
+        "tracking_type": "AddToWishlist",
+      },
+      "user": Object {
+        "aaid": "f136d03523cc17ecdfe2a4df68a819e5e98f6981316b7e50e1a8b34b018c70ae",
+        "data_processing_options": Object {
+          "country": "MU",
+          "modes": Array [
+            "LDU",
+          ],
+          "region": "gT6gXh8ga!%xhI",
+        },
+        "email": "6ad9c50c3cf54b266add9d94147959c9b024ebf821a18f6e860a01ad33a7b5cf",
+        "external_id": "f136d03523cc17ecdfe2a4df68a819e5e98f6981316b7e50e1a8b34b018c70ae",
+        "ip_address": "f136d03523cc17ecdfe2a4df68a819e5e98f6981316b7e50e1a8b34b018c70ae",
+        "screen_dimensions": Object {
+          "height": 2091000289820672,
+          "width": 2091000289820672,
+        },
+        "user_agent": "gT6gXh8ga!%xhI",
+        "uuid": "gT6gXh8ga!%xhI",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+  "test_mode": false,
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: standardEvent action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "gT6gXh8ga!%xhI",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "f136d03523cc17ecdfe2a4df68a819e5e98f6981316b7e50e1a8b34b018c70ae",
+      },
+      "event_type": Object {
+        "tracking_type": "AddToWishlist",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+  "test_mode": false,
+}
+`;

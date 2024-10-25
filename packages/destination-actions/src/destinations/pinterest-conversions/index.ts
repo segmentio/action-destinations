@@ -39,7 +39,7 @@ const destination: DestinationDefinition<Settings> = {
                 {
                   event_name: 'checkout',
                   action_source: 'app_ios',
-                  event_time: 1678203524,
+                  event_time: Math.floor(Date.now() / 1000),
                   event_id: 'test_eventId',
                   user_data: {
                     em: ['411e44ce1261728ffd2c0686e44e3fffe413c0e2c5adc498bc7da883d476b9c8']
@@ -73,7 +73,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'add_to_cart'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Checkout',
@@ -82,7 +83,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'checkout'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Lead',
@@ -91,7 +93,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'lead'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Page Visit',
@@ -100,7 +103,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'page_visit'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Search',
@@ -109,7 +113,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'search'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Sign Up',
@@ -118,7 +123,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'signup'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'View Category',
@@ -127,7 +133,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'view_category'
-      }
+      },
+      type: 'automatic'
     },
     {
       name: 'Watch Video',
@@ -136,7 +143,8 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
         event_name: 'watch_video'
-      }
+      },
+      type: 'automatic'
     }
   ],
   actions: {

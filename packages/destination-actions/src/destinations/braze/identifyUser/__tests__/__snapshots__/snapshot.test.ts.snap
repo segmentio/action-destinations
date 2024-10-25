@@ -11,10 +11,25 @@ Object {
       },
     },
   ],
+  "merge_behavior": "merge",
 }
 `;
 
 exports[`Testing snapshot for Braze's identifyUser destination action: required fields 1`] = `
+Object {
+  "aliases_to_identify": Array [
+    Object {
+      "external_id": "L6iTV8uKjdSaPxy2fjx9",
+      "user_alias": Object {
+        "alias_label": "L6iTV8uKjdSaPxy2fjx9",
+        "alias_name": "L6iTV8uKjdSaPxy2fjx9",
+      },
+    },
+  ],
+}
+`;
+
+exports[`all fields - backwards compatibility testing 1`] = `
 Object {
   "aliases_to_identify": Array [
     Object {

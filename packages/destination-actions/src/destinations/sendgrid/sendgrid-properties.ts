@@ -94,8 +94,23 @@ const transformValuesToAcceptedDataTypes = (data: any): any => {
   return tranformedData
 }
 
+// Validate the payload of each contact
+export const validatePayload = (payload: Payload) => {
+  // Validate that 1 of the 4 identifier fields is included in the payload
+  if (!payload.primary_email && !payload.phone_number_id && !payload.external_id && !payload.anonymous_id) {
+    throw new IntegrationError(
+      'Contact must have at least one identifying field included (email, phone_number_id, external_id, anonymous_id).',
+      'Invalid value',
+      400
+    )
+  }
+}
+
 export const convertPayload = (payload: Payload, accountCustomFields: CustomField[]) => {
   const { state, primary_email, enable_batching, customFields, ...rest } = payload
+
+  // Validate that each contact payload is correct (i.e. contains 1 of the 4 identifier fields)
+  validatePayload(payload)
 
   // If there are any custom fields, convert their key from sendgrid Name to sendgrid ID if needed
   const updatedCustomFields = customFields

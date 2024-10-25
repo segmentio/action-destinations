@@ -1,10 +1,18 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { user_id, anonymous_id, group_id, traits, engage_space } from '../segment-properties'
-import { generateSegmentAPIAuthHeaders } from '../helperFunctions'
-import { SEGMENT_ENDPOINTS } from '../properties'
-import { MissingUserOrAnonymousIdThrowableError, InvalidEndpointSelectedThrowableError } from '../errors'
+import {
+  user_id,
+  anonymous_id,
+  group_id,
+  traits,
+  engage_space,
+  timestamp,
+  message_id,
+  consent,
+  validateConsentObject
+} from '../segment-properties'
+import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Identify',
@@ -16,39 +24,40 @@ const action: ActionDefinition<Settings, Payload> = {
     user_id,
     anonymous_id,
     group_id,
-    traits
+    traits,
+    timestamp,
+    message_id,
+    consent
   },
-  perform: (request, { payload, settings }) => {
+  perform: (_request, { payload, statsContext }) => {
     if (!payload.anonymous_id && !payload.user_id) {
       throw MissingUserOrAnonymousIdThrowableError
     }
-    const groupPayload: Object = {
+
+    const isValidConsentObject = validateConsentObject(payload?.consent)
+
+    const identityPayload: Object = {
       userId: payload?.user_id,
       anonymousId: payload?.anonymous_id,
       groupId: payload?.group_id,
+      messageId: payload?.message_id,
       traits: {
         ...payload?.traits
       },
+      timestamp: payload?.timestamp,
       integrations: {
         // Setting 'integrations.All' to false will ensure that we don't send events
         // to any destinations which is connected to the Segment Profiles space.
         All: false
+      },
+      type: 'identify',
+      context: {
+        consent: isValidConsentObject ? { ...payload?.consent } : {}
       }
     }
 
-    // Throw an error if endpoint is not defined or invalid
-    if (!settings.endpoint || !(settings.endpoint in SEGMENT_ENDPOINTS)) {
-      throw InvalidEndpointSelectedThrowableError
-    }
-
-    const selectedSegmentEndpoint = SEGMENT_ENDPOINTS[settings.endpoint].url
-    return request(`${selectedSegmentEndpoint}/identify`, {
-      method: 'POST',
-      json: groupPayload,
-      headers: {
-        authorization: generateSegmentAPIAuthHeaders(payload.engage_space)
-      }
-    })
+    statsContext?.statsClient?.incr('tapi_internal', 1, [...statsContext.tags, `action:sendIdentify`])
+    return { batch: [identityPayload] }
   }
 }
 

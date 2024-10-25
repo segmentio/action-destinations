@@ -86,7 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
       url: payload.url,
       ip: payload.ip,
       user_agent: payload.userAgent,
-      library: payload?.library ? JSON.stringify(payload.library) : null
+      library: JSON.stringify(payload.library)
     })
 
     return request(`https://verifi.podscribe.com/tag?${params}`)

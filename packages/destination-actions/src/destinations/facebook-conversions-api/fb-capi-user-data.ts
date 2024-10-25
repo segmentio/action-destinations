@@ -1,7 +1,8 @@
-import { InputField } from '@segment/actions-core/src/destination-kit/types'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 import { createHash } from 'crypto'
 import { US_STATE_CODES, COUNTRY_CODES } from './constants'
 import { Payload } from './addToCart/generated-types'
+import isEmpty from 'lodash/isEmpty'
 
 // Implementation of Facebook user data object
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
@@ -16,7 +17,8 @@ export const user_data_field: InputField = {
       label: 'External ID',
       description:
         'Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.',
-      type: 'string'
+      type: 'string',
+      multiple: true // changed the type from string to array of strings.
     },
     email: {
       label: 'Email',
@@ -105,6 +107,18 @@ export const user_data_field: InputField = {
       description: 'The ID issued by Facebook when a person first logs into an instance of an app.',
       type: 'integer'
     },
+    anonId: {
+      label: 'Install ID (anon_id)',
+      description:
+        'This field represents unique application installation instances. Note: This parameter is for app events only.',
+      type: 'string'
+    },
+    madId: {
+      label: 'Advertiser ID (madid)',
+      description:
+        'Your mobile advertiser ID, the advertising ID from an Android device or the Advertising Identifier (IDFA) from an Apple device.',
+      type: 'string'
+    },
     partner_id: {
       label: 'Partner ID',
       description: 'The ID issued by Facebook identity partner.',
@@ -165,23 +179,36 @@ export const user_data_field: InputField = {
 
 type UserData = Pick<Payload, 'user_data'>
 
-const hash = (value: string | undefined): string | undefined => {
-  if (value === undefined) return
+const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
 
+const hash = (value: string | string[] | undefined): string | string[] | undefined => {
+  if (value === undefined || !value.length) return
+
+  if (typeof value == 'string') {
+    if (isHashedInformation(value)) return value
+    return hashValue(value)
+  }
+
+  return value.map((el: string) => (isHashedInformation(el) ? el : hashValue(el)))
+}
+const hashValue = (val: string): string => {
   const hash = createHash('sha256')
-  hash.update(value)
+  hash.update(val)
   return hash.digest('hex')
 }
 
-// Normalization of user data properties according to Facebooks specifications.
-// https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
+/**
+ * Normalization of user data properties according to Facebooks specifications.
+ * @param payload
+ * @see https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
+ */
 export const normalize_user_data = (payload: UserData) => {
   if (payload.user_data.email) {
     // Regex removes all whitespace in the string.
     payload.user_data.email = payload.user_data.email.replace(/\s/g, '').toLowerCase()
   }
 
-  if (payload.user_data.phone) {
+  if (payload.user_data.phone && !isHashedInformation(payload.user_data.phone)) {
     // Regex removes all non-numeric characters from the string.
     payload.user_data.phone = payload.user_data.phone.replace(/\D/g, '')
   }
@@ -230,14 +257,20 @@ export const normalize_user_data = (payload: UserData) => {
     }
   }
 
-  if (payload.user_data.externalId) {
-    payload.user_data.externalId = payload.user_data.externalId.replace(/\s/g, '').toLowerCase()
+  if (!isEmpty(payload.user_data?.externalId)) {
+    // TO handle the backward compatibility where externalId can be string
+    if (typeof payload.user_data?.externalId === 'string') {
+      payload.user_data.externalId = [payload.user_data?.externalId]
+    }
+    payload.user_data.externalId = payload.user_data.externalId?.map((el: string) =>
+      el.replace(/\s/g, '').toLowerCase()
+    )
   }
 }
 
 export const hash_user_data = (payload: UserData): Object => {
   normalize_user_data(payload)
-
+  // Hashing this is recommended but not required
   return {
     em: hash(payload.user_data?.email),
     ph: hash(payload.user_data?.phone),
@@ -249,13 +282,15 @@ export const hash_user_data = (payload: UserData): Object => {
     st: hash(payload.user_data?.state),
     zp: hash(payload.user_data?.zip),
     country: hash(payload.user_data?.country),
-    external_id: hash(payload.user_data?.externalId), // Hashing this is recommended but not required.
+    external_id: hash(payload.user_data?.externalId), //to provide support for externalId as string and array both
     client_ip_address: payload.user_data?.client_ip_address,
     client_user_agent: payload.user_data?.client_user_agent,
     fbc: payload.user_data?.fbc,
     fbp: payload.user_data?.fbp,
     subscription_id: payload.user_data?.subscriptionID,
     lead_id: payload.user_data?.leadID,
+    anon_id: payload.user_data?.anonId,
+    madid: payload.user_data?.madId,
     fb_login_id: payload.user_data?.fbLoginID,
     partner_id: payload.user_data?.partner_id,
     partner_name: payload.user_data?.partner_name

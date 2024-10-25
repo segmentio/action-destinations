@@ -7,6 +7,7 @@ import { parseUserAgentProperties } from '../user-agent'
 import { mergeUserProperties } from '../merge-user-properties'
 import { AmplitudeEvent } from '../logEvent'
 import { getEndpointByRegion } from '../regional-endpoints'
+import { userAgentData } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -241,11 +242,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.library.name'
       }
-    }
+    },
+    userAgentData
   },
 
   perform: (request, { payload, settings }) => {
-    const { utm_properties, referrer, userAgent, userAgentParsing, min_id_length, library, ...rest } = payload
+    const { utm_properties, referrer, userAgent, userAgentParsing, userAgentData, min_id_length, library, ...rest } =
+      payload
 
     let options
     const properties = rest as AmplitudeEvent
@@ -272,7 +275,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const identification = JSON.stringify({
       // Conditionally parse user agent using amplitude's library
-      ...(userAgentParsing && parseUserAgentProperties(userAgent)),
+      ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
       // Make sure any top-level properties take precedence over user-agent properties
       ...removeUndefined(properties),
       library: 'segment'

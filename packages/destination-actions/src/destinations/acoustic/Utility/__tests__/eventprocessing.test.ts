@@ -1,5 +1,9 @@
 import { parseSections, addUpdateEvents } from '../eventprocessing'
 
+//import { IntegrationError } from '@segment/actions-core'
+//import get from 'lodash/get'
+//import { Payload } from '../receiveEvents/generated-types'
+
 jest.mock('@segment/actions-core')
 jest.mock('lodash/flatten')
 jest.mock('lodash/get')
@@ -17,7 +21,7 @@ describe('parseSections', () => {
     //const parseResults: { [key: string]: string } = {}
 
     const section = {
-      email: 'jhaltiw@gmail.com',
+      email: 'acmetest@gmail.com',
       action_source: 'system_generated',
       cart_id: 'fff7b1597270349875cffad3852067ab',
       category: 'Shopify (Littledata)',
@@ -30,7 +34,7 @@ describe('parseSections', () => {
       price: 31.98,
       products: [
         {
-          brand: 'Pura',
+          brand: 'Acme',
           category: 'Fragrance',
           image_url: 'https://cdn.shopify.com/s/files/1/0023/0021/5405/products/SimplyLavender_Prod_1.jpg?v=1649347142',
           name: 'Simply Lavender',
@@ -42,7 +46,7 @@ describe('parseSections', () => {
           shopify_product_id: '1542783500397',
           shopify_variant_id: '14369408221293',
           sku: 'NGL',
-          url: 'https://pura-scents.myshopify.com/products/simply-lavender',
+          url: 'https://acme-scents.myshopify.com/products/simply-lavender',
           variant: 'Simply Lavender'
         },
         {
@@ -58,7 +62,7 @@ describe('parseSections', () => {
           shopify_product_id: '3979374755949',
           shopify_variant_id: '29660017000557',
           sku: 'MXV',
-          url: 'https://pura-scents.myshopify.com/products/grapefruit',
+          url: 'https://acme-scents.myshopify.com/products/grapefruit',
           variant: 'Grapefruit'
         }
       ],
@@ -69,7 +73,7 @@ describe('parseSections', () => {
     } as object as { [key: string]: string }
 
     const outcome = {
-      email: 'jhaltiw@gmail.com',
+      email: 'acmetest@gmail.com',
       action_source: 'system_generated',
       cart_id: 'fff7b1597270349875cffad3852067ab',
       category: 'Shopify (Littledata)',
@@ -80,7 +84,7 @@ describe('parseSections', () => {
       presentment_amount: '31.98',
       presentment_currency: 'USD',
       price: 31.98,
-      'products.0.brand': 'Pura',
+      'products.0.brand': 'Acme',
       'products.0.category': 'Fragrance',
       'products.0.image_url':
         'https://cdn.shopify.com/s/files/1/0023/0021/5405/products/SimplyLavender_Prod_1.jpg?v=1649347142',
@@ -93,7 +97,7 @@ describe('parseSections', () => {
       'products.0.shopify_product_id': '1542783500397',
       'products.0.shopify_variant_id': '14369408221293',
       'products.0.sku': 'NGL',
-      'products.0.url': 'https://pura-scents.myshopify.com/products/simply-lavender',
+      'products.0.url': 'https://acme-scents.myshopify.com/products/simply-lavender',
       'products.0.variant': 'Simply Lavender',
       'products.1.brand': 'NEST New York',
       'products.1.category': 'Fragrance',
@@ -108,7 +112,7 @@ describe('parseSections', () => {
       'products.1.shopify_product_id': '3979374755949',
       'products.1.shopify_variant_id': '29660017000557',
       'products.1.sku': 'MXV',
-      'products.1.url': 'https://pura-scents.myshopify.com/products/grapefruit',
+      'products.1.url': 'https://acme-scents.myshopify.com/products/grapefruit',
       'products.1.variant': 'Grapefruit',
       sent_from: 'Littledata app',
       shipping_method: 'Standard Shipping (5-7 days)',
@@ -123,7 +127,7 @@ describe('parseSections', () => {
     //const parseResults: { [key: string]: string } = {}
 
     const section = {
-      email: 'jhaltiw@gmail.com',
+      email: 'acmeTest@gmail.com',
       action_source: 'system_generated',
       cart_id: 'fff7b1597270349875cffad3852067ab',
       category: 'Shopify (Littledata)',
@@ -136,7 +140,7 @@ describe('parseSections', () => {
       price: 31.98,
       products: [
         {
-          brand: 'Pura',
+          brand: 'acme',
           category: 'Fragrance',
           image_url: 'https://cdn.shopify.com/s/files/1/0023/0021/5405/products/SimplyLavender_Prod_1.jpg?v=1649347142',
           name: 'Simply Lavender',
@@ -148,7 +152,7 @@ describe('parseSections', () => {
           shopify_product_id: '1542783500397',
           shopify_variant_id: '14369408221293',
           sku: 'NGL',
-          url: 'https://pura-scents.myshopify.com/products/simply-lavender',
+          url: 'https://acme-scents.myshopify.com/products/simply-lavender',
           variant: 'Simply Lavender'
         },
         {
@@ -164,7 +168,7 @@ describe('parseSections', () => {
           shopify_product_id: '3979374755949',
           shopify_variant_id: '29660017000557',
           sku: 'MXV',
-          url: 'https://pura-scents.myshopify.com/products/grapefruit',
+          url: 'https://acme-scents.myshopify.com/products/grapefruit',
           variant: 'Grapefruit'
         }
       ],
@@ -187,7 +191,7 @@ describe('addUpdateEvents', () => {
     // const retValue = await addUpdateEvents(request,payload,settings,auth,email);
 
     const payload = {
-      email: 'jhaltiw99@gmail.com',
+      email: 'acmeTest99@gmail.com',
       type: 'track',
       timestamp: '2023-02-12T15:07:21.381Z',
       context: {
@@ -206,13 +210,13 @@ describe('addUpdateEvents', () => {
             postalCode: '29609',
             state: 'sc'
           },
-          email: 'jhaltiw@gmail.com',
+          email: 'acmeTest@gmail.com',
           firstName: 'james',
-          lastName: 'haltiwanger'
+          lastName: 'acmeTest'
         }
       },
       properties: {
-        email: 'jhaltiw@gmail.com',
+        email: 'acmeTest@gmail.com',
         action_source: 'system_generated',
         cart_id: 'fff7b1597270349875cffad3852067ab',
         category: 'Shopify (Littledata)',
@@ -225,7 +229,7 @@ describe('addUpdateEvents', () => {
         price: 31.98,
         products: [
           {
-            brand: 'Pura',
+            brand: 'acme',
             category: 'Fragrance',
             image_url:
               'https://cdn.shopify.com/s/files/1/0023/0021/5405/products/SimplyLavender_Prod_1.jpg?v=1649347142',
@@ -238,7 +242,7 @@ describe('addUpdateEvents', () => {
             shopify_product_id: '1542783500397',
             shopify_variant_id: '14369408221293',
             sku: 'NGL',
-            url: 'https://pura-scents.myshopify.com/products/simply-lavender',
+            url: 'https://acme-scents.myshopify.com/products/simply-lavender',
             variant: 'Simply Lavender'
           },
           {
@@ -254,7 +258,7 @@ describe('addUpdateEvents', () => {
             shopify_product_id: '3979374755949',
             shopify_variant_id: '29660017000557',
             sku: 'MXV',
-            url: 'https://pura-scents.myshopify.com/products/grapefruit',
+            url: 'https://acme-scents.myshopify.com/products/grapefruit',
             variant: 'Grapefruit'
           }
         ],
@@ -265,6 +269,6 @@ describe('addUpdateEvents', () => {
       }
     }
 
-    expect(addUpdateEvents(payload, 'jhaltiw@gmail.com', 100)).toMatchSnapshot()
+    expect(addUpdateEvents(payload, 'acmeTest@gmail.com', 100)).toMatchSnapshot()
   })
 })

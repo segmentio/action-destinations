@@ -6,12 +6,15 @@ type SegmentEventWithExternalIds = SegmentEvent & {
     id: string
     type: 'email' | 'phone'
     isSubscribed: boolean | null
+    unsubscribeLink?: string
+    preferencesLink?: string
     collection: 'users'
     encoding: 'none'
     channelType?: 'sms' | 'whatsapp'
     groups?: {
       id: string
       isSubscribed: boolean | null
+      groupUnsubscribeLink?: string
     }[]
   }[]
 }
@@ -66,12 +69,15 @@ export function createMessagingTestEvent(
           [
             {
               id: uuidv4(),
-              isSubscribed: true
+              isSubscribed: true,
+              groupUnsubscribeLink: 'group_unsubscribe_link'
             }
           ] || undefined,
         id: uuidv4() + '@unittest.com',
         isSubscribed: true,
-        type: 'email'
+        type: 'email',
+        unsubscribeLink: 'unsubscribe_link',
+        preferencesLink: 'preferences_link'
       }
     ],
     ...event

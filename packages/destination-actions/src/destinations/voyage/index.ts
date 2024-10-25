@@ -18,7 +18,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       }
-    },
+    }
   },
 
   extendRequest: ({ settings }) => {
@@ -34,7 +34,8 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Order Placed Event',
       subscribe: 'type = "track"',
       partnerAction: 'trackOrderPlaced',
-      mapping: defaultValues(trackOrderPlaced.fields)
+      mapping: defaultValues(trackOrderPlaced.fields),
+      type: 'automatic'
     }
   ],
 

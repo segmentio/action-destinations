@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.170.0",
+  "version": "3.338.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -23,11 +23,11 @@
     "registry": "https://registry.npmjs.org"
   },
   "scripts": {
-    "build": "yarn clean && yarn tsc -b tsconfig.build.json",
+    "build": "yarn tsc -b tsconfig.build.json",
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
-    "test": "jest --coverage",
+    "test": "jest",
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
@@ -39,21 +39,33 @@
   },
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@bufbuild/buf": "^1.28.0",
+    "@bufbuild/protobuf": "^1.4.2",
+    "@bufbuild/protoc-gen-es": "^1.4.2",
     "@segment/a1-notation": "^2.1.4",
-    "@segment/actions-core": "^3.66.0",
-    "@segment/actions-shared": "^1.48.0",
+    "@segment/actions-core": "^3.139.0",
+    "@segment/actions-shared": "^1.120.0",
     "@types/node": "^18.11.15",
+    "ajv-formats": "^2.1.1",
     "aws4": "^1.12.0",
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
     "escape-goat": "^3",
     "google-libphonenumber": "^3.2.31",
-    "liquidjs": "^9.37.0",
+    "kafkajs": "^2.2.4",
+    "liquidjs": "^10.8.4",
     "lodash": "^4.17.21",
+    "lru-cache": "10.4.3",
     "ssh2-sftp-client": "^9.1.0"
   },
   "jest": {
     "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    },
     "testEnvironment": "node",
     "modulePathIgnorePatterns": [
       "<rootDir>/dist/"
@@ -69,6 +81,11 @@
     ],
     "coverageReporters": [
       "lcov"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/",
+      "__tests__/__helpers__/"
     ]
   },
   "gitHead": "9c04e12c4a0e81f6b68dca0a297fb2c0209d2431"

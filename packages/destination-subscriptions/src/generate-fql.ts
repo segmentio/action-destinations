@@ -47,6 +47,10 @@ const fqlExpression = (name: string, operator: Operator, value: string | boolean
     case '<=':
     case '>=':
       return `${name} ${operator} ${Number(value)}`
+    case 'number_equals':
+      return `${name} = ${Number(value)}`
+    case 'number_not_equals':
+      return `${name} != ${Number(value)}`
     default:
       return `${name} ${operator} ${stringifyValue(value)}`
   }
@@ -62,6 +66,22 @@ const stringifyGroupNode = (node: GroupCondition): string => {
       return stringifyChildNode(childNode)
     })
     .join(` ${node.operator} `)
+}
+
+/**
+ * https://segment.com/docs/api/public-api/fql/#escaping-field-paths
+ * If a character in a field path is not alphanumeric, underscore, or dash, it
+ * must be escaped with a backslash.
+ * We also do not escape periods because we cannot yet distinguish if they
+ * are literal periods - we assume they are meant to delineate the path.
+ *
+ * FQL correctly translates : properties.product\ 1.price -> properties['product 1'].price
+ */
+const escapeFieldPathWithBackslash = (value: string) => {
+  if (typeof value === 'string') {
+    return value.replace(/[^a-zA-Z0-9._-]/g, '\\$&')
+  }
+  return value
 }
 
 const stringifyChildNode = (
@@ -90,17 +110,20 @@ const stringifyChildNode = (
     }
 
     case 'event-property': {
-      result += fqlExpression(`properties.${node.name}`, node.operator, node.value)
+      const escapedName = escapeFieldPathWithBackslash(node.name)
+      result += fqlExpression(`properties.${escapedName}`, node.operator, node.value)
       break
     }
 
     case 'event-trait': {
-      result += fqlExpression(`traits.${node.name}`, node.operator, node.value)
+      const escapedName = escapeFieldPathWithBackslash(node.name)
+      result += fqlExpression(`traits.${escapedName}`, node.operator, node.value)
       break
     }
 
     case 'event-context': {
-      result += fqlExpression(`context.${node.name}`, node.operator, node.value)
+      const escapedName = escapeFieldPathWithBackslash(node.name)
+      result += fqlExpression(`context.${escapedName}`, node.operator, node.value)
       break
     }
 
