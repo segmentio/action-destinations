@@ -77,7 +77,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       type: 'string',
-      format: 'email',
       allowNull: true,
       description: 'Email address of the user',
       label: 'Email address',
