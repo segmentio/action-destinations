@@ -11,7 +11,7 @@ const person: (payload: Payload) => any = (payload) => {
     time_zone: payload.timezone,
     status: payload.status,
     status_updated_at: payload.status_updated_at,
-    tags: payload.tags,
+    // tags: payload.tags,
     custom_fields: payload.customFields
     // prospect: true // omit for now, lead scoring is not promoted by our product
   }
@@ -72,14 +72,14 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'datetime',
       default: { '@path': '$.traits.status_updated_at' }
     },
-    tags: {
-      // Can we omit remove_tags?
-      description: "Tags to add to a person's profile.",
-      label: 'Tags',
-      required: false,
-      type: 'object', // array of strings
-      default: { '@path': '$.properties.tags' }
-    },
+    // tags: {
+    //   // Can we omit remove_tags?
+    //   description: "Tags to add to a person's profile.",
+    //   label: 'Tags',
+    //   required: false,
+    //   type: 'array', // array of strings
+    //   default: { '@path': '$.properties.tags' }
+    // },
     customFields: {
       description: "Custom fields to add to a person's profile.",
       label: 'Custom fields',
