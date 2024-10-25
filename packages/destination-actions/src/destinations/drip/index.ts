@@ -1,9 +1,11 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import { baseUrl } from './constants'
+import { baseUrl, headers } from './utils'
 
 import track from './track'
+
+// import identify from './identify'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Drip',
@@ -22,19 +24,16 @@ const destination: DestinationDefinition<Settings> = {
     },
 
     testAuthentication: async (request, { settings }) => {
-      const encodedApiKey = Buffer.from(`${settings.apiKey}:`).toString('base64')
-
       return await request(`${baseUrl}/v2/user`, {
         method: 'GET',
-        headers: {
-          Authorization: `Basic ${encodedApiKey}`
-        }
+        headers: headers(settings)
       })
     }
   },
 
   actions: {
-    track
+    track,
+    // identify
   }
 }
 

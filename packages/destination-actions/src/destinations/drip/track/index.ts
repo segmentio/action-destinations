@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types' // Get these to generate
 
-import { baseUrl } from '../constants'
+import { baseUrl, headers } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
@@ -21,31 +21,21 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Action',
       required: true,
       type: 'string',
-      default: {
-        '@path': '$.event'
-      }
+      default: { '@path': '$.event' }
     },
     properties: {
       description: 'A JSON object containing additional properties that will be associated with the event.',
       label: 'Properties',
       required: false,
       type: 'object',
-      default: {
-        '@path': '$.properties'
-      }
+      default: { '@path': '$.properties' }
     }
   },
 
   perform: (request, { settings, payload }) => {
-    const encodedApiKey = Buffer.from(`${settings.apiKey}:`).toString('base64')
-
     return request(`${baseUrl}/v2/3977335/events`, {
       method: 'POST',
-      headers: {
-        Authorization: `Basic ${encodedApiKey}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'Segment'
-      },
+      headers: headers(settings),
       json: {
         events: [
           {
