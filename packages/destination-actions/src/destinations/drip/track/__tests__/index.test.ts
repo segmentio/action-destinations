@@ -31,7 +31,7 @@ describe('Drip.track', () => {
     // TODO: not-match cases?
   })
 
-  it('should track events with default mappings', async () => {
+  it('should track events with mappings', async () => {
     nock('https://api-staging.getdrip.com').post('/v2/3977335/events').reply(200, {})
 
     const event = createTestEvent({

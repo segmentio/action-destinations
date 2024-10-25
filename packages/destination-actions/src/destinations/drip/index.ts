@@ -4,8 +4,7 @@ import type { Settings } from './generated-types'
 import { baseUrl, headers } from './utils'
 
 import track from './track'
-
-// import identify from './identify'
+import identify from './identify'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Drip',
@@ -33,7 +32,7 @@ const destination: DestinationDefinition<Settings> = {
 
   actions: {
     track,
-    // identify
+    identify
   }
 }
 
