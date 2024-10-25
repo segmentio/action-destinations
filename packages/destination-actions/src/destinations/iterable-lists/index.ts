@@ -101,7 +101,7 @@ async function getAudience(
     headers: { 'Api-Key': settings.apiKey }
   })
 
-  const json = (await response.data) as GetAudienceResp
+  const json: GetAudienceResp = (await response.data) as GetAudienceResp
   const audience = json.lists.find((list: { id: number; name: string }) => list.name === audienceKey)
   return audience?.id.toString() ?? undefined
 }
