@@ -52,23 +52,27 @@ function cleanPropObj(
 
     if (typeof value === 'boolean' || typeof value === 'number') {
       cleanObj[cleanKey] = value
-    } else if (typeof value === 'string' && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
+    } else if (
+      typeof value === 'string' &&
+      (value.toLowerCase().trim() === 'true' || value.toLowerCase().trim() === 'false')
+    ) {
       // If the value can be cast to a boolean
-      cleanObj[cleanKey] = value.toLowerCase() === 'true'
+      cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
     } else if (!isNaN(Number(value)) && value !== '' && value !== null) {
       // If the value can be cast to a number
       cleanObj[cleanKey] = Number(value)
     } else if (typeof value === 'object' && value !== null) {
       // If the value is an object
-      cleanObj[cleanKey] = JSON.stringify(value)
+      cleanObj[cleanKey] = JSON.stringify(value).trim()
     } else if (value === null || typeof value === 'undefined') {
       // We can't correctly figure out the type of a property the value is null, so we exclude it
       delete cleanObj[cleanKey]
     } else {
       // If the value is anything else then stringify it
-      cleanObj[cleanKey] = String(value)
+      cleanObj[cleanKey] = String(value).trim()
     }
   })
+
   return cleanObj
 }
 

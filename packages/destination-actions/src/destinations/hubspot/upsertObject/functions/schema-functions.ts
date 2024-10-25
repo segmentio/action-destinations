@@ -131,8 +131,7 @@ export function compareSchemas(
   })
 
   return {
-    match:
-      schema1.properties.length > 0 || schema1.sensitiveProperties.length > 0 ? 'properties_missing' : 'full_match',
+    match: missingProps.length > 0 || missingSensitiveProps.length > 0 ? 'properties_missing' : 'full_match',
     missingProperties: missingProps,
     missingSensitiveProperties: missingSensitiveProps
   }

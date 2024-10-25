@@ -65,11 +65,9 @@ const send = async (
 
   const cachedSchema = getSchemaFromCache(schema.object_details.object_type, subscriptionMetadata, statsContext)
   statsContext?.statsClient?.incr(`cache.get.${cachedSchema === undefined ? 'miss' : 'hit'}`, 1, statsContext?.tags)
-  console.log(`cache.get.${cachedSchema === undefined ? 'miss' : 'hit'}`)
 
   const cacheSchemaDiff = compareSchemas(schema, cachedSchema, statsContext)
   statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
-  console.log(`cache.diff.${cacheSchemaDiff.match}`)
 
   switch (cacheSchemaDiff.match) {
     case SchemaMatch.FullMatch: {
@@ -91,12 +89,12 @@ const send = async (
 
       switch (hubspotSchemaDiff.match) {
         case SchemaMatch.FullMatch: {
-          await saveSchemaToCache(schema)
+          await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
           break
         }
         case SchemaMatch.PropertiesMissing: {
           await createProperties(client, hubspotSchemaDiff, propertyGroup)
-          await saveSchemaToCache(schema)
+          await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
           break
         }
         case SchemaMatch.NoMatch: {

@@ -19,7 +19,6 @@ export function getSchemaFromCache(
 ): CachableSchema | undefined {
   if (!subscriptionMetadata || !subscriptionMetadata?.actionConfigId) {
     statsContext?.statsClient?.incr('cache.get.error', 1, statsContext?.tags)
-    console.log('cache.get.error')
     return undefined
   }
 
@@ -34,11 +33,9 @@ export async function saveSchemaToCache(
 ) {
   if (!subscriptionMetadata || !subscriptionMetadata?.actionConfigId) {
     statsContext?.statsClient?.incr('cache.save.error', 1, statsContext?.tags)
-    console.log('cache.save.error')
     return
   }
 
   cache.set(getKey(schema.object_details.object_type, subscriptionMetadata), schema)
   statsContext?.statsClient?.incr('cache.save.success', 1, statsContext?.tags)
-  console.log('cache.save.success')
 }
