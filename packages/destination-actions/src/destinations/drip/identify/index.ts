@@ -19,9 +19,7 @@ import { baseUrl, headers } from '../utils'
 
 const person: (payload: Payload) => any = (payload) => {
   return {
-    email: payload.email,
-    action: payload.action,
-    properties: payload.properties
+    email: payload.email
   }
 }
 

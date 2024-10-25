@@ -23,12 +23,19 @@ describe('Drip.track', () => {
       useDefaultMappings: true
     })
 
+    const body = {
+      events: [
+        {
+          email: 'foo@bar.com',
+          action: 'Custom',
+          properties: { fizz: 'buzz' }
+        }
+      ]
+    }
+
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
-    expect(responses[0].options.body).toContain('Custom')
-    expect(responses[0].options.body).toContain('foo@bar.com')
-    expect(responses[0].options.body).toContain('buzz')
-    // TODO: not-match cases?
+    expect(responses[0].options.body).toBe(JSON.stringify(body))
   })
 
   it('should track events with mappings', async () => {
@@ -56,11 +63,18 @@ describe('Drip.track', () => {
       }
     })
 
+    const body = {
+      events: [
+        {
+          email: 'foo@bar.com',
+          action: 'Custom',
+          properties: { fizz: 'buzz' }
+        }
+      ]
+    }
+
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
-    expect(responses[0].options.body).toContain('Custom')
-    expect(responses[0].options.body).toContain('foo@bar.com')
-    expect(responses[0].options.body).toContain('buzz')
-    // TODO: not-match cases?
+    expect(responses[0].options.body).toBe(JSON.stringify(body))
   })
 })

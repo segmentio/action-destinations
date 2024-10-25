@@ -23,46 +23,44 @@ describe('Drip.track', () => {
       useDefaultMappings: true
     })
 
+    const body = {
+      email: 'foo@bar.com'
+    }
+
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
-    expect(responses[0].options.body).toContain('Custom')
-    expect(responses[0].options.body).toContain('foo@bar.com')
-    expect(responses[0].options.body).toContain('buzz')
-    // TODO: not-match cases?
+    expect(responses[0].options.body).toBe(JSON.stringify(body))
   })
 
-  // it('should identify with mappings', async () => {
-  //   nock('https://api-staging.getdrip.com').post('/v2/3977335/events').reply(200, {})
+  // TODO: should identify with mappings
 
-  //   const event = createTestEvent({
-  //     event: 'Custom',
-  //     traits: { properties: { fizz: 'buzz' } },
-  //     properties: { email: 'foo@bar.com', action: 'Custom' }
-  //   })
+  it('should batch identify with default mappings', async () => {
+    nock('https://api-staging.getdrip.com').post('/v2/3977335/subscribers/batches').reply(200, {})
 
-  //   const responses = await testDestination.testAction('identify', {
-  //     settings: settings,
-  //     event: event,
-  //     mapping: {
-  //       action: {
-  //         '@path': '$.properties.action'
-  //       },
-  //       email: {
-  //         '@path': '$.properties.email'
-  //       },
-  //       properties: {
-  //         '@path': '$.traits.properties'
-  //       }
-  //     }
-  //   })
+    const event = createTestEvent({
+      event: 'Custom',
+      traits: { email: 'foo@bar.com' },
+      properties: { fizz: 'buzz' }
+    })
 
-  //   expect(responses.length).toBe(1)
-  //   expect(responses[0].status).toBe(200)
-  //   expect(responses[0].options.body).toContain('Custom')
-  //   expect(responses[0].options.body).toContain('foo@bar.com')
-  //   expect(responses[0].options.body).toContain('buzz')
-  //   // TODO: not-match cases?
-  // })
+    const responses = await testDestination.testBatchAction('identify', {
+      settings: settings,
+      events: [event],
+      useDefaultMappings: true
+    })
 
-  // TODO: batch
+    const body = {
+      subscribers: [
+        {
+          email: 'foo@bar.com'
+        }
+      ]
+    }
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.body).toBe(JSON.stringify(body))
+  })
+
+  // TODO: should batch identify with mappings
 })

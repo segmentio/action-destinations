@@ -1,8 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-drip destination: identify action - all fields 1`] = `Object {}`;
+exports[`Testing snapshot for actions-drip destination: identify action - all fields 1`] = `
+Object {
+  "email": "amjo@ka.ar",
+}
+`;
 
-exports[`Testing snapshot for actions-drip destination: identify action - required fields 1`] = `Object {}`;
+exports[`Testing snapshot for actions-drip destination: identify action - required fields 1`] = `
+Object {
+  "email": "amjo@ka.ar",
+}
+`;
 
 exports[`Testing snapshot for actions-drip destination: track action - all fields 1`] = `
 Object {
