@@ -1,4 +1,11 @@
-import { ActionDefinition, RequestClient, omit, MultiStatusResponse } from '@segment/actions-core'
+import {
+  ActionDefinition,
+  RequestClient,
+  omit,
+  MultiStatusResponse,
+  HTTPError,
+  ModifiedResponse
+} from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from '../mixpanel-types'
@@ -57,30 +64,41 @@ const getPurchaseEventsFromPayload = (payload: Payload, settings: Settings): Mix
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const multiStatusResponse = new MultiStatusResponse()
-  let events: MixpanelEvent[] = []
-  if (payload.length === 1) {
-    events = getPurchaseEventsFromPayload(payload[0], settings).flat()
-  } else {
-    payload.forEach((value, index) => {
-      if (!value.event) {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: 'Event name is required'
-        })
-      } else {
-        multiStatusResponse.setSuccessResponseAtIndex(index, {
-          status: 200,
-          sent: String(value),
-          body: 'Event sent successfully'
-        })
-        const purchaseEvents = getPurchaseEventsFromPayload(value, settings).flat()
-        events.push(...purchaseEvents)
-      }
-    })
-  }
+  const events: MixpanelEvent[] = []
+  payload.forEach((value, index) => {
+    const purchaseEvents = getPurchaseEventsFromPayload(value, settings).flat()
+    if (!value.event) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Event name is required'
+      })
+    } else {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        sent: String(value),
+        body: 'Event sent successfully'
+      })
+    }
+    events.push(...purchaseEvents)
+    return purchaseEvents
+  })
 
-  const response = request<MixpanelTrackApiResponseType>(
+  try {
+    await callMixpanelApi(request, settings, events)
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorResponse = error.response as ModifiedResponse<MixpanelTrackApiResponseType>
+      await handleMixPanelApiResponse(transformPayloadsType(payload), errorResponse, multiStatusResponse)
+    } else {
+      throw error
+    }
+  }
+  return multiStatusResponse
+}
+
+const callMixpanelApi = async (request: RequestClient, settings: Settings, events: MixpanelEvent[]) => {
+  return await request<MixpanelTrackApiResponseType>(
     `${getApiServerUrl(settings.apiRegion)}/import?strict=${settings.strictMode ?? `1`}`,
     {
       method: 'post',
@@ -90,9 +108,6 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
       }
     }
   )
-
-  await handleMixPanelApiResponse(transformPayloadsType(payload), await response, multiStatusResponse)
-  return multiStatusResponse
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -120,7 +135,8 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
-    return processData(request, settings, [payload])
+    const event = getPurchaseEventsFromPayload(payload, settings).flat()
+    return await callMixpanelApi(request, settings, event)
   },
 
   performBatch: async (request, { settings, payload }) => {

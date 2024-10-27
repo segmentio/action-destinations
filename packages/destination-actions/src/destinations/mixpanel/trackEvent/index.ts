@@ -1,4 +1,11 @@
-import { ActionDefinition, JSONLikeObject, MultiStatusResponse, RequestClient } from '@segment/actions-core'
+import {
+  ActionDefinition,
+  HTTPError,
+  JSONLikeObject,
+  MultiStatusResponse,
+  RequestClient,
+  ModifiedResponse
+} from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from '../mixpanel-types'
@@ -19,31 +26,39 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const multiStatusResponse = new MultiStatusResponse()
-  let events
-  if (!Array.isArray(payload)) {
-    // Run the function for a single event
-    events = getEventFromPayload(payload, settings)
-  } else {
-    events = payload.map((value, index) => {
-      if (!value.event) {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: 'Event name is required'
-        })
-      } else {
-        const event = getEventFromPayload(value, settings)
-        multiStatusResponse.setSuccessResponseAtIndex(index, {
-          status: 200,
-          sent: event as JSONLikeObject,
-          body: 'Event sent successfully'
-        })
-        return event
-      }
-    })
+  const events: MixpanelEvent[] = payload.map((value, index) => {
+    const event = getEventFromPayload(value, settings)
+    if (!value.event) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Event name is required'
+      })
+    } else {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        sent: event as JSONLikeObject,
+        body: 'Event sent successfully'
+      })
+    }
+    return event
+  })
+  try {
+    await callMixpanelApi(request, settings, events)
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorResponse = error.response as ModifiedResponse<MixpanelTrackApiResponseType>
+      await handleMixPanelApiResponse(transformPayloadsType(payload), errorResponse, multiStatusResponse)
+    } else {
+      throw error
+    }
   }
 
-  const response = request<MixpanelTrackApiResponseType>(
+  return multiStatusResponse
+}
+
+const callMixpanelApi = async (request: RequestClient, settings: Settings, events: MixpanelEvent[]) => {
+  return await request<MixpanelTrackApiResponseType>(
     `${getApiServerUrl(settings.apiRegion)}/import?strict=${settings.strictMode ?? `1`}`,
     {
       method: 'post',
@@ -53,9 +68,6 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
       }
     }
   )
-
-  await handleMixPanelApiResponse(transformPayloadsType(payload), await response, multiStatusResponse)
-  return multiStatusResponse
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -81,7 +93,8 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
-    return processData(request, settings, [payload])
+    const events = getEventFromPayload(payload, settings)
+    return await callMixpanelApi(request, settings, [events])
   }
 }
 
