@@ -121,25 +121,24 @@ export function transformPayloadsType(obj: object[]) {
 }
 
 export async function handleMixPanelApiResponse(
-  payloadCount: Number,
+  payloadCount: number,
   apiResponse: ModifiedResponse<MixpanelTrackApiResponseType>,
   multiStatusResponse: MultiStatusResponse
 ) {
-  const errorResponse = apiResponse
-  if (errorResponse.data.code === 400) {
-    errorResponse.data.failed_records?.map((data) => {
+  if (apiResponse.data.code === 400) {
+    apiResponse.data.failed_records?.map((data) => {
       multiStatusResponse.setErrorResponseAtIndex(data.index, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: data.message
       })
     })
-  } else {
+  } else if (apiResponse.data.code !== 200) {
     for (let i = 0; i < payloadCount; i++) {
       multiStatusResponse.pushErrorResponse({
-        status: errorResponse.data.code,
+        status: apiResponse.data.code,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: errorResponse.data.error ?? 'Payload validation error'
+        errormessage: apiResponse.data.error ?? 'Payload validation error'
       })
     }
   }

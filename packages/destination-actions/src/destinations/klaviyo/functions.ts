@@ -54,7 +54,7 @@ export async function getListIdDynamicData(request: RequestClient): Promise<Dyna
       nextPage: '',
       error: {
         message: (err as APIError).message ?? 'Unknown error',
-        code: (err as APIError).status + '' ?? 'Unknown error'
+        code: (err as APIError).status + ''
       }
     }
   }
