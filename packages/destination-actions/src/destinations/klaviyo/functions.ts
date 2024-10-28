@@ -5,8 +5,10 @@ import {
   IntegrationError,
   PayloadValidationError,
   MultiStatusResponse,
-  HTTPError
+  HTTPError,
+  ErrorCodes
 } from '@segment/actions-core'
+import { JSONLikeObject } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
 import { Settings } from './generated-types'
 import {
@@ -27,13 +29,12 @@ import {
   KlaviyoProfile
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
+import { Payload as TrackEventPayload } from './trackEvent/generated-types'
+import dayjs from '../../lib/dayjs'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 import { eventBulkCreateRegex, profileBulkImportRegex } from './properties'
-import { Payload as AddProfileToListPayload } from './addProfileToList/generated-types'
-import { Payload as TrackEventPayload } from './trackEvent/generated-types'
-import { JSONLikeObject } from '@segment/actions-core/'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
-import dayjs from 'dayjs'
+import { Payload as AddProfileToListPayload } from './addProfileToList/generated-types'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -54,7 +55,7 @@ export async function getListIdDynamicData(request: RequestClient): Promise<Dyna
       nextPage: '',
       error: {
         message: (err as APIError).message ?? 'Unknown error',
-        code: (err as APIError).status + ''
+        code: (err as APIError).status + '' ?? 'Unknown error'
       }
     }
   }
@@ -157,7 +158,6 @@ export const createImportJobPayload = (profiles: Payload[], listId?: string): { 
       : {})
   }
 })
-
 export const constructBulkProfileImportPayload = (
   profiles: KlaviyoProfile[],
   listId?: string
@@ -172,6 +172,7 @@ export const constructBulkProfileImportPayload = (
     ...(listId ? { relationships: { lists: { data: [{ type: 'list', id: listId }] } } } : {})
   }
 })
+
 export const sendImportJobRequest = async (request: RequestClient, importJobPayload: { data: ImportJobPayload }) => {
   await request(`${API_URL}/profile-bulk-import-jobs/`, {
     method: 'POST',
@@ -480,34 +481,40 @@ export async function sendBatchedTrackEvent(request: RequestClient, payloads: Tr
   const multiStatusResponse = new MultiStatusResponse()
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayloads(payloads, multiStatusResponse)
   // if there are no payloads with valid phone number/email/external_id, return multiStatusResponse
-  if (filteredPayloads.length) {
-    const payloadToSend = {
-      data: {
-        type: 'event-bulk-create-job',
-        attributes: {
-          'events-bulk-create': {
-            data: filteredPayloads
-          }
+  if (!filteredPayloads.length) {
+    return multiStatusResponse
+  }
+  const payloadToSend = {
+    data: {
+      type: 'event-bulk-create-job',
+      attributes: {
+        'events-bulk-create': {
+          data: filteredPayloads
         }
       }
     }
+  }
 
-    try {
-      await request(`${API_URL}/event-bulk-create-jobs/`, {
-        method: 'POST',
-        json: payloadToSend
-      })
-    } catch (err: any) {
+  try {
+    await request(`${API_URL}/event-bulk-create-jobs/`, {
+      method: 'POST',
+      json: payloadToSend
+    })
+  } catch (err) {
+    if (err instanceof HTTPError) {
+      const errorResponse = await err?.response?.json()
       handleKlaviyoAPIErrorResponse(
         payloads as object as JSONLikeObject[],
-        await err?.response?.json(),
+        errorResponse,
         multiStatusResponse,
         validPayloadIndicesBitmap,
         eventBulkCreateRegex
       )
+    } else {
+      // Bubble up the error and let Actions Framework handle it
+      throw err
     }
   }
-
   return multiStatusResponse
 }
 
@@ -516,8 +523,7 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
   const validPayloadIndicesBitmap: number[] = []
 
   payloads.forEach((payload, originalBatchIndex) => {
-    const { country_code, phone_number, external_id, email, anonymous_id } = payload.profile
-
+    const { email, phone_number, external_id, anonymous_id, country_code } = payload.profile
     if (!email && !phone_number && !external_id && !anonymous_id) {
       multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
         status: 400,
@@ -545,7 +551,7 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
       delete payload?.profile?.country_code
     }
 
-    const profileToAdd = constructProfilePayload(payload)
+    const profileToAdd = constructBulkCreateEventPayload(payload)
     filteredPayloads.push(profileToAdd as JSONLikeObject)
     validPayloadIndicesBitmap.push(originalBatchIndex)
     multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
@@ -558,7 +564,7 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
   return { filteredPayloads, validPayloadIndicesBitmap }
 }
 
-function constructProfilePayload(payload: TrackEventPayload) {
+function constructBulkCreateEventPayload(payload: TrackEventPayload) {
   return {
     type: 'event-bulk-create',
     attributes: {
@@ -595,19 +601,19 @@ function constructProfilePayload(payload: TrackEventPayload) {
 
 function handleKlaviyoAPIErrorResponse(
   payloads: JSONLikeObject[],
-  response: any,
+  response: KlaviyoAPIErrorResponse,
   multiStatusResponse: MultiStatusResponse,
   validPayloadIndicesBitmap: number[],
   regex: RegExp
 ) {
   if (response?.errors && Array.isArray(response.errors)) {
     const invalidIndexSet = new Set<number>()
-    response.errors.forEach((error: KlaviyoAPIErrorResponse) => {
+    response.errors.forEach((error: KlaviyoAPIError) => {
       const indexInOriginalPayload = getIndexFromErrorPointer(error.source.pointer, validPayloadIndicesBitmap, regex)
       if (indexInOriginalPayload !== -1 && !multiStatusResponse.isErrorResponseAtIndex(indexInOriginalPayload)) {
         multiStatusResponse.setErrorResponseAtIndex(indexInOriginalPayload, {
           status: error.status,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          // errortype will be inferred from the error.response.status
           errormessage: error.detail,
           sent: payloads[indexInOriginalPayload],
           body: JSON.stringify(error)
@@ -618,7 +624,10 @@ function handleKlaviyoAPIErrorResponse(
 
     for (const index of validPayloadIndicesBitmap) {
       if (!invalidIndexSet.has(index)) {
-        multiStatusResponse.setSuccessResponseAtIndex(index, {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          errormessage:
+            "This event wasn't delivered because of few bad events in the same batch to Klaviyo. This will be retried",
+          errortype: ErrorCodes.RETRYABLE_BATCH_FAILURE,
           status: 429,
           sent: payloads[index],
           body: 'Retry'
