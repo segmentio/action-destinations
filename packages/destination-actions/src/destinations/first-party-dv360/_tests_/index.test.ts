@@ -239,7 +239,6 @@ describe('Edit Customer Match Members - Mobile Device ID List', () => {
       })
       .matchHeader('Authorization', 'Bearer temp-token')
       .reply(200, { firstAndThirdPartyAudienceId: 'audience-id-123' })
-    console.log('event:', event)
     const result = await testDestination.testAction('addToAudMobileDeviceId', {
       event,
       useDefaultMappings: true
