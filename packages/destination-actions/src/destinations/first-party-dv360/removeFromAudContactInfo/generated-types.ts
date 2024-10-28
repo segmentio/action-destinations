@@ -33,4 +33,12 @@ export interface Payload {
    * The Advertiser ID associated with the DV360 Audience.
    */
   advertiser_id?: string
+  /**
+   * Enable batching of requests.
+   */
+  enable_batching: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size: number
 }
