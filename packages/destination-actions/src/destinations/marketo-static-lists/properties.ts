@@ -82,9 +82,9 @@ export const batch_size: InputField = {
   label: 'Batch Size',
   description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
   type: 'number',
-  default: 250,
+  default: 300000,
   minimum: 1,
-  maximum: 300,
+  maximum: 300000,
   unsafe_hidden: false,
   required: true
 }
