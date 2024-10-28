@@ -91,6 +91,7 @@ export const enable_batching: InputField = {
   required: true
 }
 
+//Max set based on google documenation maximum: https://developers.google.com/display-video/api/reference/rest/v3/firstAndThirdPartyAudiences#ContactInfo
 export const batch_size: InputField = {
   label: 'Batch Size',
   description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',

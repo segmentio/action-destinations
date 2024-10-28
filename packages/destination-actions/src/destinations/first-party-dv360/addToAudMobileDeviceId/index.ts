@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { advertiser_id, external_id, mobileDeviceIds } from '../properties'
+import { advertiser_id, external_id, mobileDeviceIds, enable_batching, batch_size } from '../properties'
 import { editDeviceMobileIds } from '../functions'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
@@ -11,7 +11,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   fields: {
     mobileDeviceIds: { ...mobileDeviceIds },
     external_id: { ...external_id },
-    advertiser_id: { ...advertiser_id }
+    advertiser_id: { ...advertiser_id },
+    enable_batching: { ...enable_batching },
+    batch_size: { ...batch_size }
   },
   perform: async (request, { payload, statsContext }) => {
     statsContext?.statsClient?.incr('editCustomerMatchMembers', 1, statsContext?.tags)
