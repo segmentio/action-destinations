@@ -163,3 +163,5 @@ export const country_code: InputField = {
   }
 }
 export const profileBulkImportRegex = /\/data\/attributes\/profiles\/data\/(\d+)/
+export const emailRegex =
+  /^(?!.*\.\.)(?!.*\.$)(?!.*@{2,})(?!.*@\.)(?!.*\.$)(?=.{1,256})[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/

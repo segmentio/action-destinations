@@ -115,6 +115,15 @@ describe('MultiStatus', () => {
           properties: {
             list_id: '123'
           }
+        }),
+        //Event with invalid Email
+        createTestEvent({
+          type: 'track',
+          timestamp,
+          properties: {
+            email: 'invalid_email@gmail..com',
+            list_id: '123'
+          }
         })
       ]
 
@@ -137,6 +146,14 @@ describe('MultiStatus', () => {
         errormessage: 'One of External ID, Phone Number or Email is required.',
         errorreporter: 'DESTINATION'
       })
+
+      // The third event fails as pre-request validation fails for having invalid email
+      expect(response[2]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Email format is invalid.Please ensure it follows the standard format',
+        errorreporter: 'DESTINATION'
+      })
     })
 
     it('should successfully handle a batch of events with failure response from Klaviyo API', async () => {
@@ -148,7 +165,7 @@ describe('MultiStatus', () => {
             status: 400,
             code: 'invalid',
             title: 'Invalid input.',
-            detail: 'Invalid email address',
+            detail: 'Invalid input',
             source: {
               pointer: '/data/attributes/profiles/data/0/attributes/email'
             },
@@ -165,7 +182,7 @@ describe('MultiStatus', () => {
           type: 'track',
           timestamp,
           properties: {
-            email: 'invalid_email',
+            email: 'gk@gmail.com',
             list_id: '123'
           }
         }),
@@ -189,30 +206,35 @@ describe('MultiStatus', () => {
       // The first doesn't fail as there is no error reported by Braze API
       expect(response[0]).toMatchObject({
         status: 400,
-        errortype: 'BAD_REQUEST',
-        errormessage: 'Invalid email address',
+        errormessage: 'Bad Request',
         sent: {
-          email: 'invalid_email',
+          email: 'gk@gmail.com',
           list_id: '123',
           properties: {
-            email: 'invalid_email',
+            email: 'gk@gmail.com',
             list_id: '123'
           }
         },
-        body: '{"id":"752f7ece-af20-44e0-aa3a-b13290d98e72","status":400,"code":"invalid","title":"Invalid input.","detail":"Invalid email address","source":{"pointer":"/data/attributes/profiles/data/0/attributes/email"},"links":{},"meta":{}}'
+        body: '{"errors":[{"id":"752f7ece-af20-44e0-aa3a-b13290d98e72","status":400,"code":"invalid","title":"Invalid input.","detail":"Invalid input","source":{"pointer":"/data/attributes/profiles/data/0/attributes/email"},"links":{},"meta":{}}]}',
+        errortype: 'BAD_REQUEST',
+        errorreporter: 'DESTINATION'
       })
 
-      // The second event fails as Braze API reports an error
+      // // The second event fails as Braze API reports an error
       expect(response[1]).toMatchObject({
-        status: 429,
+        status: 400,
+        errormessage: 'Bad Request',
         sent: {
           list_id: '123',
-          external_id: 'Xi1234',
           properties: {
-            external_id: 'Xi1234'
-          }
+            external_id: 'Xi1234',
+            list_id: '123'
+          },
+          external_id: 'Xi1234'
         },
-        body: 'Retry'
+        body: '{"errors":[{"id":"752f7ece-af20-44e0-aa3a-b13290d98e72","status":400,"code":"invalid","title":"Invalid input.","detail":"Invalid input","source":{"pointer":"/data/attributes/profiles/data/0/attributes/email"},"links":{},"meta":{}}]}',
+        errortype: 'BAD_REQUEST',
+        errorreporter: 'DESTINATION'
       })
     })
 

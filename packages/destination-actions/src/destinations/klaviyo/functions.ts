@@ -23,12 +23,11 @@ import {
   UnsubscribeEventData,
   GroupedProfiles,
   AdditionalAttributes,
-  KlaviyoAPIErrorResponse,
   KlaviyoProfile
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { profileBulkImportRegex } from './properties'
+import { emailRegex } from './properties'
 import { Payload as AddProfileToListPayload } from './addProfileToList/generated-types'
 import { JSONLikeObject } from '@segment/actions-core'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
@@ -473,49 +472,22 @@ export function processPhoneNumber(initialPhoneNumber?: string, country_code?: s
 
   return phone_number
 }
-
-function handleKlaviyoAPIErrorResponse(
+async function updateMultiStatusWithKlaviyoErrors(
   payloads: JSONLikeObject[],
-  response: any,
+  err: any,
   multiStatusResponse: MultiStatusResponse,
-  validPayloadIndicesBitmap: number[],
-  regex: RegExp
+  validPayloadIndicesBitmap: number[]
 ) {
-  if (response?.errors && Array.isArray(response.errors)) {
-    const invalidIndexSet = new Set<number>()
-    response.errors.forEach((error: KlaviyoAPIErrorResponse) => {
-      const indexInOriginalPayload = getIndexFromErrorPointer(error.source.pointer, validPayloadIndicesBitmap, regex)
-      if (indexInOriginalPayload !== -1 && !multiStatusResponse.isErrorResponseAtIndex(indexInOriginalPayload)) {
-        multiStatusResponse.setErrorResponseAtIndex(indexInOriginalPayload, {
-          status: error.status,
-          // errortype will be inferred from the error.response.status
-          errormessage: error.detail,
-          sent: payloads[indexInOriginalPayload],
-          body: JSON.stringify(error)
-        })
-        invalidIndexSet.add(indexInOriginalPayload)
-      }
+  const errorResponse = await err?.response?.json()
+  payloads.forEach((payload, index) => {
+    multiStatusResponse.setErrorResponseAtIndex(validPayloadIndicesBitmap[index], {
+      status: err?.response?.status || 400,
+      // errortype will be inferred from status
+      errormessage: err?.response?.statusText,
+      sent: payload,
+      body: JSON.stringify(errorResponse)
     })
-
-    for (const index of validPayloadIndicesBitmap) {
-      if (!invalidIndexSet.has(index)) {
-        multiStatusResponse.setSuccessResponseAtIndex(index, {
-          status: 429,
-          sent: payloads[index],
-          body: 'Retry'
-        })
-      }
-    }
-  }
-}
-
-function getIndexFromErrorPointer(pointer: string, validPayloadIndicesBitmap: number[], regex: RegExp) {
-  const match = regex.exec(pointer)
-  if (match && match[1]) {
-    const index = parseInt(match[1], 10)
-    return validPayloadIndicesBitmap[index] !== undefined ? validPayloadIndicesBitmap[index] : -1
-  }
-  return -1
+  })
 }
 
 function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
@@ -546,12 +518,23 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
     payload.phone_number = validPhoneNumber
     delete payload.country_code
   }
+  if (email) {
+    if (!emailRegex.test(email)) {
+      response.error = {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Email format is invalid.Please ensure it follows the standard format'
+      }
+      return response
+    }
+  }
 
   const { list_id, enable_batching, batch_size, country_code, ...attributes } = payload
 
   response.validPayload = { type: 'profile', attributes: attributes as JSONLikeObject }
   return response
 }
+
 function validateAndPrepareBatchedProfileImportPayloads(
   payloads: AddProfileToListPayload[],
   multiStatusResponse: MultiStatusResponse
@@ -593,18 +576,16 @@ export async function sendBatchedProfileImportJobRequest(request: RequestClient,
   )
   try {
     await sendImportJobRequest(request, importJobPayload)
-  } catch (err) {
-    if (err instanceof HTTPError) {
-      const errorResponse = await err?.response?.json()
-      handleKlaviyoAPIErrorResponse(
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      await updateMultiStatusWithKlaviyoErrors(
         payloads as object as JSONLikeObject[],
-        errorResponse,
+        error,
         multiStatusResponse,
-        validPayloadIndicesBitmap,
-        profileBulkImportRegex
+        validPayloadIndicesBitmap
       )
     } else {
-      throw err // Bubble up the error
+      throw error // Bubble up the error
     }
   }
   return multiStatusResponse
