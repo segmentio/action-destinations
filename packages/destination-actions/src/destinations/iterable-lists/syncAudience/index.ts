@@ -37,7 +37,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       description:
         'Comma delimited list containing names of additional traits or identifiers to sync to Iterable. You will need to ensure these traits or obects are included via Event Settings >> Customized Setup.',
       required: false,
-      type: 'string'
+      type: 'object'
     },
     traitsOrProperties: {
       label: 'Traits or Properties',
@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     },
     segmentAudienceKey: {
       label: 'Segment Audience Key',
-      description: 'Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy',
+      description: 'Segment Audience Key. Maps to the Iterable List "Name" when the list is created in Iterable.',
       type: 'string',
       unsafe_hidden: true,
       required: true,

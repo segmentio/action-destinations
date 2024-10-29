@@ -37,13 +37,13 @@ export class IterableListsClient {
       if (payload.traitsOrProperties[payload.segmentAudienceKey] === true) {
         const subscriber = {
           email: payload?.email ?? undefined,
-          dataFields: payload?.dataFields?.split(',').reduce((acc: { [key: string]: unknown }, item: string) => {
-            acc[item.trim()] = payload.traitsOrProperties[item.trim()]
-            return acc
-          }, {}),
           userId: payload?.userId ?? undefined,
           preferUserId: true
         } as Subscriber
+
+        if (payload?.dataFields) {
+          subscriber.dataFields = payload.dataFields as Record<string, null | boolean | string | number | object>
+        }
 
         if (subscribersGroup.has(listId)) {
           subscribersGroup.get(listId)?.push(subscriber)
