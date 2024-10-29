@@ -186,7 +186,6 @@ export enum HttpErrorCodes {
 }
 
 export enum CustomErrorCodes {
-  RETRYABLE_BATCH_FAILURE = 'RETRYABLE_BATCH_FAILURE',
   // Invalid API Key or Access Token
   INVALID_AUTHENTICATION = 'INVALID_AUTHENTICATION',
   // Payload is missing a field or has invalid value
