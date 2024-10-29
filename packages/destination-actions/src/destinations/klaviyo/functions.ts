@@ -628,7 +628,7 @@ function handleKlaviyoAPIErrorResponse(
         multiStatusResponse.setErrorResponseAtIndex(index, {
           errormessage:
             "This event wasn't delivered because of few bad events in the same batch to Klaviyo. This will be retried",
-          errortype: ErrorCodes.RETRYABLE_BATCH_FAILURE,
+          errortype: ErrorCodes.RETRYABLE_ERROR,
           status: 429,
           sent: payloads[index],
           body: 'Retry'
