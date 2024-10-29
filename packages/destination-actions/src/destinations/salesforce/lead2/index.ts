@@ -56,6 +56,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Last Name',
       description: "The lead's last name. **This is required to create a lead.**",
       type: 'string',
+      required: {
+        match: 'all',
+        conditions: [{ fieldKey: 'operation', operator: 'is', value: 'create' }]
+      },
       default: {
         '@if': {
           exists: { '@path': '$.traits.last_name' },

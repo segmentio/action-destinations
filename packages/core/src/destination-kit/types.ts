@@ -168,7 +168,7 @@ export interface InputFieldJSONSchema {
         label: string
       }>
   /** Whether or not the field is required */
-  required?: boolean
+  required?: boolean | DependsOnConditions
   /**
    * Optional definition for the properties of `type: 'object'` fields
    * (also arrays of objects when using `multiple: true`)
