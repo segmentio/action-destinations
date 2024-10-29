@@ -46,20 +46,19 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
 
     // Process unhashed_identifier_data first
     if (payload.unhashed_identifier_data) {
-      for (const key in payload.unhashed_identifier_data) {
-        if (Object.prototype.hasOwnProperty.call(payload.unhashed_identifier_data, key)) {
-          headers.add(key)
-          row.push(`"${hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`)
-        }
+      for (const key of Object.keys(payload.unhashed_identifier_data)) {
+        headers.add(key)
+        row.push(`"${hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`)
       }
     }
 
-    // Process identifier_data, skipping keys that have already been processed
     if (payload.identifier_data) {
-      for (const key in payload.identifier_data) {
-        if (Object.prototype.hasOwnProperty.call(payload.identifier_data, key) && !headers.has(key)) {
-          headers.add(key)
-          row.push(enquoteIdentifier(String(payload.identifier_data[key])))
+      for (const key of Object.keys(payload.identifier_data)) {
+        // if a key exists in both identifier_data and unhashed_identifier_data
+        // the value from identifier_data will be skipped, prioritizing the unhashed_identifier_data value.
+        if (!(payload.unhashed_identifier_data && key in payload.unhashed_identifier_data)) {
+          headers.add(key) // Track header
+          row.push(enquoteIdentifier(String(payload.identifier_data[key]))) // Add value to row
         }
       }
     }
@@ -120,4 +119,4 @@ const normalize = (key: string, value: string): string => {
   return value
 }
 
-export { generateFile, enquoteIdentifier, normalize }
+export { generateFile, enquoteIdentifier, normalize, hash }
