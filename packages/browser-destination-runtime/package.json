@@ -62,7 +62,7 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "^3.136.0"
+    "@segment/actions-core": "^3.139.0"
   },
   "devDependencies": {
     "@segment/analytics-next": "*"
