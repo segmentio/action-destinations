@@ -29,9 +29,9 @@ const getAudienceInput = {
 
 // Mock environment variables
 beforeAll(() => {
-  process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN = 'mock-refresh-token'
-  process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID = 'mock-client-id'
-  process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET = 'mock-client-secret'
+  process.env.ACTIONS_FIRST_PARTY_DV360_REFRESH_TOKEN = 'mock-refresh-token'
+  process.env.ACTIONS_FIRST_PARTY_DV360_CLIENT_ID = 'mock-client-id'
+  process.env.ACTIONS_FIRST_PARTY_DV360_CLIENT_SECRET = 'mock-client-secret'
 })
 
 // Mock token request
