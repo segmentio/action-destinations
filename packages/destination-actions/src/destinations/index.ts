@@ -186,6 +186,7 @@ register('66f2b0818aa856d4d2d87f90', './postscript')
 register('66f2b0f961bb2128729079bb', './reddit-audiences')
 register('67051b748c30a5c1360144ff', './snap-audiences')
 register('67051afe356a52d3cf4dfb95', './optimizely-web')
+register('6720ddceaa24532723b39d63', './singlestore')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
