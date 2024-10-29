@@ -130,7 +130,6 @@ export async function handleMixPanelApiResponse(
     apiResponse.data.failed_records?.map((data) => {
       multiStatusResponse.setErrorResponseAtIndex(data.index, {
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: data.message
       })
     })
@@ -138,7 +137,6 @@ export async function handleMixPanelApiResponse(
     for (let i = 0; i < payloadCount; i++) {
       multiStatusResponse.setErrorResponseAtIndex(i, {
         status: apiResponse.data.code,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: apiResponse.data.error ?? 'Payload validation error',
         sent: events[i],
         body: apiResponse.data.error

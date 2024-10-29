@@ -163,7 +163,6 @@ describe('MultiStatus', () => {
         },
         {
           status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: "'properties.time' is invalid: must be specified as seconds since epoch",
           errorreporter: 'DESTINATION'
         }
@@ -196,13 +195,11 @@ describe('MultiStatus', () => {
       expect(response).toMatchObject([
         {
           status: 401,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: 'Unauthorized',
           errorreporter: 'DESTINATION'
         },
         {
           status: 401,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: 'Unauthorized',
           errorreporter: 'DESTINATION'
         }
@@ -303,14 +300,12 @@ describe('MultiStatus', () => {
 
       expect(response[0]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: "The root value is missing the required field 'event'.",
         errorreporter: 'INTEGRATIONS'
       })
 
       expect(response[1]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: "The root value is missing the required field 'event'.",
         errorreporter: 'INTEGRATIONS'
       })
@@ -357,13 +352,11 @@ describe('MultiStatus', () => {
       expect(response).toMatchObject([
         {
           status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: "'properties.time' is invalid: must be specified as seconds since epoch",
           errorreporter: 'DESTINATION'
         },
         {
           status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: "'properties.time' is invalid: must be specified as seconds since epoch",
           errorreporter: 'DESTINATION'
         }
@@ -397,13 +390,11 @@ describe('MultiStatus', () => {
       expect(response).toMatchObject([
         {
           status: 401,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: 'Unauthorized',
           errorreporter: 'DESTINATION'
         },
         {
           status: 401,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: 'Unauthorized',
           errorreporter: 'DESTINATION'
         }
