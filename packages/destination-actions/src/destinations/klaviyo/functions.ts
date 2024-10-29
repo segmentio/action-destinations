@@ -8,7 +8,6 @@ import {
   HTTPError,
   ErrorCodes
 } from '@segment/actions-core'
-import { JSONLikeObject } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
 import { Settings } from './generated-types'
 import {
@@ -25,16 +24,18 @@ import {
   UnsubscribeEventData,
   GroupedProfiles,
   AdditionalAttributes,
-  KlaviyoAPIErrorResponse,
-  KlaviyoProfile
+  KlaviyoProfile,
+  KlaviyoAPIErrorResponse
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import dayjs from '../../lib/dayjs'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { eventBulkCreateRegex, profileBulkImportRegex } from './properties'
-import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
+import { eventBulkCreateRegex } from './properties'
+import { emailRegex } from './properties'
 import { Payload as AddProfileToListPayload } from './addProfileToList/generated-types'
+import { JSONLikeObject } from '@segment/actions-core'
+import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -674,12 +675,23 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
     payload.phone_number = validPhoneNumber
     delete payload.country_code
   }
+  if (email) {
+    if (!emailRegex.test(email)) {
+      response.error = {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Email format is invalid.Please ensure it follows the standard format'
+      }
+      return response
+    }
+  }
 
   const { list_id, enable_batching, batch_size, country_code, ...attributes } = payload
 
   response.validPayload = { type: 'profile', attributes: attributes as JSONLikeObject }
   return response
 }
+
 function validateAndPrepareBatchedProfileImportPayloads(
   payloads: AddProfileToListPayload[],
   multiStatusResponse: MultiStatusResponse
@@ -721,19 +733,35 @@ export async function sendBatchedProfileImportJobRequest(request: RequestClient,
   )
   try {
     await sendImportJobRequest(request, importJobPayload)
-  } catch (err) {
-    if (err instanceof HTTPError) {
-      const errorResponse = await err?.response?.json()
-      handleKlaviyoAPIErrorResponse(
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      await updateMultiStatusWithKlaviyoErrors(
         payloads as object as JSONLikeObject[],
-        errorResponse,
+        error,
         multiStatusResponse,
-        validPayloadIndicesBitmap,
-        profileBulkImportRegex
+        validPayloadIndicesBitmap
       )
     } else {
-      throw err // Bubble up the error
+      throw error // Bubble up the error
     }
   }
   return multiStatusResponse
+}
+
+async function updateMultiStatusWithKlaviyoErrors(
+  payloads: JSONLikeObject[],
+  err: any,
+  multiStatusResponse: MultiStatusResponse,
+  validPayloadIndicesBitmap: number[]
+) {
+  const errorResponse = await err?.response?.json()
+  payloads.forEach((payload, index) => {
+    multiStatusResponse.setErrorResponseAtIndex(validPayloadIndicesBitmap[index], {
+      status: err?.response?.status || 400,
+      // errortype will be inferred from status
+      errormessage: err?.response?.statusText,
+      sent: payload,
+      body: JSON.stringify(errorResponse)
+    })
+  })
 }
