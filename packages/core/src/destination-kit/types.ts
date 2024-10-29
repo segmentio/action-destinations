@@ -102,7 +102,13 @@ export interface DynamicFieldItem {
 }
 
 /** The shape of authentication and top-level settings */
-export interface GlobalSetting extends Omit<InputField, 'allowNull' | 'additionalProperties' | 'dynamic'> {
+export interface GlobalSetting
+  extends Omit<
+    InputField,
+    | 'additionalProperties' // Settings cannot be an object
+    | 'defaultObjectUI' // Settings cannot be an object
+    | 'dynamic' // This type is redeclared
+  > {
   /** A subset of the available DestinationMetadataOption types */
   type: 'boolean' | 'string' | 'password' | 'number'
   /**
