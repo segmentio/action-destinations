@@ -40,7 +40,7 @@ export const batch_size: InputField = {
   type: 'number',
   required: false,
   unsafe_hidden: true,
-  default: 10000
+  default: 1000
 }
 
 export const first_name: InputField = {
@@ -163,4 +163,5 @@ export const country_code: InputField = {
   }
 }
 export const eventBulkCreateRegex = /\/data\/attributes\/events-bulk-create\/data\/(\d+)/
-export const profileBulkImportRegex = /\/data\/attributes\/profiles\/data\/(\d+)/
+export const emailRegex =
+  /^(?!.*\.\.)(?!.*\.$)(?!.*@{2,})(?!.*@\.)(?!.*\.$)(?=.{1,256})[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/

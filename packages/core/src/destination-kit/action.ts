@@ -23,7 +23,7 @@ import { HTTPError, NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
-import { ErrorCodes, IntegrationError, MultiStatusErrorReporter } from '../errors'
+import { ErrorCodes, getErrorCodeFromHttpStatus, IntegrationError, MultiStatusErrorReporter } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
 import {
   Logger,
@@ -747,6 +747,10 @@ export class ActionDestinationErrorResponse {
   private data: ActionDestinationErrorResponseType
   public constructor(data: ActionDestinationErrorResponseType) {
     this.data = data
+    // If the error type is not set, try to infer it from the status code
+    if (!this.data.errortype) {
+      this.data.errortype = getErrorCodeFromHttpStatus(this.data.status)
+    }
   }
   public value(): ActionDestinationErrorResponseType {
     return this.data
