@@ -150,10 +150,10 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
         ad_personalization?: ConsentParamsArg
       } = {}
       if (payload.ads_storage_consent_state) {
-        consentParams.ad_storage = payload.ads_storage_consent_state as ConsentParamsArg
+        consentParams.ad_storage = payload.ads_storage_consent_state.toLowerCase() as ConsentParamsArg
       }
       if (payload.analytics_storage_consent_state) {
-        consentParams.analytics_storage = payload.analytics_storage_consent_state as ConsentParamsArg
+        consentParams.analytics_storage = payload.analytics_storage_consent_state.toLowerCase() as ConsentParamsArg
       }
       if (payload.ad_user_data_consent_state) {
         consentParams.ad_user_data = payload.ad_user_data_consent_state as ConsentParamsArg
