@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-friendbuy",
-  "version": "1.70.1-staging-5a1a8b003.0",
+  "version": "1.70.1-staging-b38fe2021.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,9 +15,9 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "3.139.1-staging-5a1a8b003.0",
-    "@segment/actions-shared": "1.120.1-staging-5a1a8b003.0",
-    "@segment/browser-destination-runtime": "1.68.1-staging-5a1a8b003.0"
+    "@segment/actions-core": "3.139.1-staging-b38fe2021.0",
+    "@segment/actions-shared": "1.120.1-staging-b38fe2021.0",
+    "@segment/browser-destination-runtime": "1.68.1-staging-b38fe2021.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
