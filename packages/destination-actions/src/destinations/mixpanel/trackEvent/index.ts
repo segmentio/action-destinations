@@ -28,11 +28,19 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
   const multiStatusResponse = new MultiStatusResponse()
   const events: MixpanelEvent[] = payload.map((value, index) => {
     const event = getEventFromPayload(value, settings)
-    multiStatusResponse.setSuccessResponseAtIndex(index, {
-      status: 200,
-      sent: event as JSONLikeObject,
-      body: 'Ok'
-    })
+    if (!value.event) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Event name is required'
+      })
+    } else {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        sent: event as JSONLikeObject,
+        body: 'Event sent successfully'
+      })
+    }
     return event
   })
   try {
@@ -40,7 +48,7 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
   } catch (error) {
     if (error instanceof HTTPError) {
       const errorResponse = error.response as ModifiedResponse<MixpanelTrackApiResponseType>
-      await handleMixPanelApiResponse(transformPayloadsType(payload), errorResponse, multiStatusResponse, events)
+      await handleMixPanelApiResponse(transformPayloadsType(payload), errorResponse, multiStatusResponse)
     } else {
       throw error
     }

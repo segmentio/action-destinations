@@ -188,8 +188,6 @@ function formatHS(type: HSPropType, fieldType: HSPropFieldType): HSPropTypeField
     return HSPropTypeFieldType.DateTimeDate
   } else if (type === 'enumeration' && fieldType === 'booleancheckbox') {
     return HSPropTypeFieldType.EnumerationBooleanCheckbox
-  } else if (type === 'string' && fieldType === 'textarea') {
-    return HSPropTypeFieldType.StringTextArea
   }
   throw new IntegrationError('Property type not supported', 'HUBSPOT_PROPERTY_TYPE_NOT_SUPPORTED', 400)
 }
@@ -604,16 +602,6 @@ function checkForIncompatiblePropTypes(prop: Prop, hubspotProp?: Result) {
     return
   }
 
-  if (
-    hubspotProp.fieldType === 'textarea' &&
-    hubspotProp.type === 'string' &&
-    prop.fieldType === 'text' &&
-    prop.type === 'string'
-  ) {
-    // string:text is OK to match to string:textarea
-    return
-  }
-
   throw new IntegrationError(
     `Payload property with name ${prop.name} has a different type to the property in HubSpot. Expected: type = ${prop.type} fieldType = ${prop.fieldType}. Received: type = ${hubspotProp.type} fieldType = ${hubspotProp.fieldType}`,
     'HUBSPOT_PROPERTY_TYPE_MISMATCH',
@@ -650,7 +638,6 @@ export async function createProperties(client: Client, schemaDiff: SchemaDiff, p
           fieldType: 'number'
         }
       case HSPropTypeFieldType.StringText:
-      case HSPropTypeFieldType.StringTextArea:
         return {
           name: prop.name,
           label: prop.name,

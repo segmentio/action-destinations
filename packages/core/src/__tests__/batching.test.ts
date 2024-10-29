@@ -426,15 +426,8 @@ describe('MultiStatus', () => {
 
     expect(multiStatusResponse.length()).toBe(8)
 
-    // Unset the responses at index 4 and 5
     multiStatusResponse.unsetResponseAtIndex(4)
     multiStatusResponse.unsetResponseAtIndex(5)
-
-    // Push an error response without error type, should be inferred from the status code
-    multiStatusResponse.pushErrorResponse({
-      status: 404,
-      errormessage: "The requested resource couldn't be found"
-    })
 
     expect(multiStatusResponse.getAllResponses()).toMatchInlineSnapshot(`
       Array [
@@ -510,13 +503,6 @@ describe('MultiStatus', () => {
               "user_id": "user004",
             },
             "status": 400,
-          },
-        },
-        ActionDestinationErrorResponse {
-          "data": Object {
-            "errormessage": "The requested resource couldn't be found",
-            "errortype": "NOT_FOUND",
-            "status": 404,
           },
         },
       ]

@@ -46,15 +46,6 @@ describe('MultiStatus', () => {
             externalId: 'test-external-id'
           }
         }),
-        // Valid Event
-        createTestEvent({
-          type: 'identify',
-          receivedAt,
-          traits: {
-            name: 'Example User Two',
-            email: 'user@example.com'
-          }
-        }),
         // Event without any user identifier
         createTestEvent({
           type: 'identify',
@@ -77,17 +68,11 @@ describe('MultiStatus', () => {
         body: 'success'
       })
 
-      // The second event doesn't fail as there is no error reported by Braze API
-      expect(response[1]).toMatchObject({
-        status: 200,
-        body: 'success'
-      })
-
       // The third event fails as pre-request validation fails for not having a valid user identifier
-      expect(response[2]).toMatchObject({
+      expect(response[1]).toMatchObject({
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" is required.',
+        errormessage: 'One of "external_id" or "user_alias" or "braze_id" is required.',
         errorreporter: 'DESTINATION'
       })
     })
@@ -144,7 +129,7 @@ describe('MultiStatus', () => {
       expect(response[1]).toMatchObject({
         status: 400,
         errormessage: 'a test error occurred',
-        errortype: 'BAD_REQUEST',
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
         errorreporter: 'DESTINATION'
       })
     })
@@ -200,13 +185,13 @@ describe('MultiStatus', () => {
         {
           status: 400,
           errormessage: "Valid data must be provided in the 'attributes', 'events', or 'purchases' fields.",
-          errortype: 'BAD_REQUEST',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errorreporter: 'DESTINATION'
         },
         {
           status: 400,
           errormessage: "Valid data must be provided in the 'attributes', 'events', or 'purchases' fields.",
-          errortype: 'BAD_REQUEST',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errorreporter: 'DESTINATION'
         }
       ])
@@ -216,9 +201,6 @@ describe('MultiStatus', () => {
   describe('trackPurchase', () => {
     const mapping = {
       time: receivedAt,
-      email: {
-        '@path': '$.properties.email'
-      },
       external_id: {
         '@path': '$.properties.externalId'
       },
@@ -238,28 +220,6 @@ describe('MultiStatus', () => {
           receivedAt,
           properties: {
             externalId: 'test-external-id',
-            products: [
-              {
-                product_id: 'test-product-id',
-                currency: 'USD',
-                price: 99.99,
-                quantity: 1
-              },
-              {
-                product_id: 'test-product-id',
-                currency: 'USD',
-                price: 99.99,
-                quantity: 1
-              }
-            ]
-          }
-        }),
-        createTestEvent({
-          event: 'Order Completed',
-          type: 'track',
-          receivedAt,
-          properties: {
-            email: 'user@example.com',
             products: [
               {
                 product_id: 'test-product-id',
@@ -316,24 +276,19 @@ describe('MultiStatus', () => {
         body: 'success'
       })
 
+      // The second event fails as it doesn't have any products
       expect(response[1]).toMatchObject({
-        status: 200,
-        body: 'success'
-      })
-
-      // The third event fails as it doesn't have any products
-      expect(response[2]).toMatchObject({
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'This event was not sent to Braze because it did not contain any products.',
         errorreporter: 'DESTINATION'
       })
 
-      // The forth event fails as pre-request validation fails for not having a valid user identifier
-      expect(response[3]).toMatchObject({
+      // The third event fails as pre-request validation fails for not having a valid user identifier
+      expect(response[2]).toMatchObject({
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" is required.',
+        errormessage: 'One of "external_id" or "user_alias" or "braze_id" is required.',
         errorreporter: 'DESTINATION'
       })
     })
@@ -425,7 +380,7 @@ describe('MultiStatus', () => {
       // The first event fails as it expands to 2 request items and one of them fails
       expect(response[0]).toMatchObject({
         status: 400,
-        errortype: 'BAD_REQUEST',
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'a test error occurred',
         errorreporter: 'DESTINATION'
       })
@@ -534,13 +489,13 @@ describe('MultiStatus', () => {
         {
           status: 400,
           errormessage: "Valid data must be provided in the 'attributes', 'events', or 'purchases' fields.",
-          errortype: 'BAD_REQUEST',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errorreporter: 'DESTINATION'
         },
         {
           status: 400,
           errormessage: "Valid data must be provided in the 'attributes', 'events', or 'purchases' fields.",
-          errortype: 'BAD_REQUEST',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errorreporter: 'DESTINATION'
         },
         {
@@ -587,15 +542,6 @@ describe('MultiStatus', () => {
             externalId: 'test-external-id'
           }
         }),
-        createTestEvent({
-          type: 'identify',
-          receivedAt,
-          traits: {
-            firstName: 'Example',
-            lastName: 'User',
-            email: 'user@example.com'
-          }
-        }),
         // Event without any user identifier
         createTestEvent({
           type: 'identify',
@@ -619,17 +565,11 @@ describe('MultiStatus', () => {
         body: 'success'
       })
 
-      // The second event doesn't fail as there is no error reported by Braze API
-      expect(response[1]).toMatchObject({
-        status: 200,
-        body: 'success'
-      })
-
       // The third event fails as pre-request validation fails for not having a valid user identifier
-      expect(response[2]).toMatchObject({
+      expect(response[1]).toMatchObject({
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" is required.',
+        errormessage: 'One of "external_id" or "user_alias" or "braze_id" is required.',
         errorreporter: 'DESTINATION'
       })
     })
@@ -688,7 +628,7 @@ describe('MultiStatus', () => {
       expect(response[1]).toMatchObject({
         status: 400,
         errormessage: 'a test error occurred',
-        errortype: 'BAD_REQUEST',
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
         errorreporter: 'DESTINATION'
       })
     })
@@ -746,13 +686,13 @@ describe('MultiStatus', () => {
         {
           status: 400,
           errormessage: "Valid data must be provided in the 'attributes', 'events', or 'purchases' fields.",
-          errortype: 'BAD_REQUEST',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errorreporter: 'DESTINATION'
         },
         {
           status: 400,
           errormessage: "Valid data must be provided in the 'attributes', 'events', or 'purchases' fields.",
-          errortype: 'BAD_REQUEST',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errorreporter: 'DESTINATION'
         }
       ])

@@ -47,10 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const group_id = payload.traits[group_key] || payload.group_id
 
     const traits = {
-      ...omit(payload.traits, ['created', 'createdAt', 'created_at', 'name']),
-      // transform to Mixpanel reserved property
-      $name: payload.traits.name,
-      $created: payload.traits.created ?? payload.traits.createdAt ?? payload.traits.created_at
+      ...omit(payload.traits, ['name']),
+      $name: payload.traits.name // transform to Mixpanel reserved property
     }
     const data = {
       $token: settings.projectToken,

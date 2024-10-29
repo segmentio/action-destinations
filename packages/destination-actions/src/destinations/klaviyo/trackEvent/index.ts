@@ -4,9 +4,9 @@ import type { Payload } from './generated-types'
 
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
-import { processPhoneNumber } from '../functions'
-import { country_code } from '../properties'
-import dayjs from 'dayjs'
+import { batch_size, enable_batching, country_code } from '../properties'
+import { processPhoneNumber, sendBatchedTrackEvent } from '../functions'
+import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',

@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import dayjs from '../../../lib/dayjs'
 import { MixpanelEventProperties } from '../mixpanel-types'
-import { getBrowser, getBrowserVersion } from '../common/utils'
+import { getBrowser, getBrowserVersion, cheapGuid } from '../common/utils'
 
 const mixpanelReservedProperties = ['time', 'id', '$anon_id', 'distinct_id', '$group_id', '$insert_id', '$user_id']
 
@@ -39,7 +39,7 @@ export function getEventProperties(payload: Payload, settings: Settings): Mixpan
     $device_name: payload.device_name,
     $group_id: payload.group_id,
     $identified_id: payload.user_id,
-    $insert_id: payload.insert_id,
+    $insert_id: payload.insert_id ?? cheapGuid(),
     $ios_ifa: payload.idfa,
     $lib_version: payload.library_version,
     $locale: payload.language,

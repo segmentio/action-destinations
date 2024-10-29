@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 const ACCESS_TOKEN_URL = 'https://accounts.snapchat.com/login/oauth2/access_token'
@@ -64,21 +64,27 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       name: 'Sync Audience with Email',
       subscribe: 'type = "track" and context.traits.email exists',
       partnerAction: 'syncAudience',
-      mapping: { ...defaultValues(syncAudience.fields), schema_type: 'EMAIL_SHA256' },
+      mapping: {
+        schema_type: 'EMAIL_SHA256'
+      },
       type: 'automatic'
     },
     {
       name: 'Sync Audience with Phone',
       subscribe: 'type = "track" and properties.phone exists',
       partnerAction: 'syncAudience',
-      mapping: { ...defaultValues(syncAudience.fields), schema_type: 'PHONE_SHA256' },
+      mapping: {
+        schema_type: 'PHONE_SHA256'
+      },
       type: 'automatic'
     },
     {
       name: 'Sync Audience with Mobile AD ID',
       subscribe: 'type = "track" and context.device.advertisingId exists',
       partnerAction: 'syncAudience',
-      mapping: { ...defaultValues(syncAudience.fields), schema_type: 'MOBILE_AD_ID_SHA256' },
+      mapping: {
+        schema_type: 'MOBILE_AD_ID_SHA256'
+      },
       type: 'automatic'
     }
   ],

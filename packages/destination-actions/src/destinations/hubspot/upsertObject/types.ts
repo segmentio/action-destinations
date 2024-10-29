@@ -29,8 +29,7 @@ export const HSPropTypeFieldType = {
   NumberNumber: 'number:number',
   DateTimeDate: 'datetime:date',
   DateDate: 'date:date',
-  EnumerationBooleanCheckbox: 'enumeration:booleancheckbox',
-  StringTextArea: 'string:textarea'
+  EnumerationBooleanCheckbox: 'enumeration:booleancheckbox'
 } as const
 
 export type HSPropTypeFieldType = typeof HSPropTypeFieldType[keyof typeof HSPropTypeFieldType]
@@ -50,8 +49,7 @@ export const HSPropFieldType = {
   Number: 'number',
   Date: 'date',
   BooleanCheckbox: 'booleancheckbox',
-  Select: 'select',
-  TextArea: 'textarea'
+  Select: 'select'
 } as const
 
 export type HSPropFieldType = typeof HSPropFieldType[keyof typeof HSPropFieldType]
