@@ -5,7 +5,8 @@ import {
   TransactionContext,
   EngageDestinationCache,
   ActionHookType,
-  SubscriptionMetadata
+  SubscriptionMetadata,
+  RequestFn
 } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONLikeObject, JSONObject } from '../json-object'
@@ -101,7 +102,7 @@ export interface DynamicFieldItem {
 }
 
 /** The shape of authentication and top-level settings */
-export interface GlobalSetting extends Omit<InputField, 'allowNull' | 'additionalProperties'> {
+export interface GlobalSetting extends Omit<InputField, 'allowNull' | 'additionalProperties' | 'dynamic'> {
   /** A subset of the available DestinationMetadataOption types */
   type: 'boolean' | 'string' | 'password' | 'number'
   /**
@@ -115,6 +116,8 @@ export interface GlobalSetting extends Omit<InputField, 'allowNull' | 'additiona
     label: string
   }>
   default?: string | number | boolean
+
+  dynamic?: RequestFn<Record<string, boolean | string | number>, {}>
 }
 
 /** The supported field type names */
