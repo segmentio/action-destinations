@@ -13,7 +13,6 @@
   },
   "scripts": {
     "alpha": "lerna version prerelease --allow-branch $(git branch --show-current) --preid $(git branch --show-current) --no-push --no-git-tag-version",
-    "bootstrap": "lerna bootstrap",
     "browser": "yarn workspace @segment/browser-destinations",
     "build": "nx run-many -t build && yarn build:browser-bundles",
     "build:browser-bundles": "nx build @segment/destinations-manifest && nx build-web @segment/browser-destinations",
@@ -61,7 +60,7 @@
     "karma-jasmine": "^5.1.0",
     "karma-webkit-launcher": "^2.0.0",
     "karma-webpack": "^5.0.0",
-    "lerna": "^6.5.0",
+    "lerna": "^8.1.8",
     "lint-staged": "^10.5.3",
     "open": "^8.4.0",
     "os-browserify": "^0.3.0",

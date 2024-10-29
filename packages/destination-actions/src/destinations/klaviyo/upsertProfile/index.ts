@@ -247,7 +247,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
 
     if (!email && !phone_number && !external_id) {
-      throw new PayloadValidationError(`One of External ID, Phone Number and Email is required.`)
+      throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }
 
     const profileData: ProfileData = {

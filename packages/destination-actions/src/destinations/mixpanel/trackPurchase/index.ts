@@ -4,7 +4,8 @@ import {
   omit,
   MultiStatusResponse,
   HTTPError,
-  ModifiedResponse
+  ModifiedResponse,
+  JSONLikeObject
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -65,21 +66,16 @@ const getPurchaseEventsFromPayload = (payload: Payload, settings: Settings): Mix
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const multiStatusResponse = new MultiStatusResponse()
   const events: MixpanelEvent[] = []
+  const sentEvents: JSONLikeObject[] = []
   payload.forEach((value, index) => {
     const purchaseEvents = getPurchaseEventsFromPayload(value, settings).flat()
-    if (!value.event) {
-      multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Event name is required'
-      })
-    } else {
-      multiStatusResponse.setSuccessResponseAtIndex(index, {
-        status: 200,
-        sent: String(value),
-        body: 'Event sent successfully'
-      })
-    }
+
+    multiStatusResponse.setSuccessResponseAtIndex(index, {
+      status: 200,
+      sent: value as object as JSONLikeObject,
+      body: 'Event sent successfully'
+    })
+    sentEvents.push(purchaseEvents as object as JSONLikeObject)
     events.push(...purchaseEvents)
     return purchaseEvents
   })
@@ -89,7 +85,7 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
   } catch (error) {
     if (error instanceof HTTPError) {
       const errorResponse = error.response as ModifiedResponse<MixpanelTrackApiResponseType>
-      await handleMixPanelApiResponse(transformPayloadsType(payload), errorResponse, multiStatusResponse)
+      await handleMixPanelApiResponse(transformPayloadsType(payload), errorResponse, multiStatusResponse, sentEvents)
     } else {
       throw error
     }
