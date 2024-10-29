@@ -22,7 +22,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy
+   * Segment Audience Key. Maps to the Iterable List "Name" when the list is created in Iterable.
    */
   segmentAudienceKey: string
   /**
