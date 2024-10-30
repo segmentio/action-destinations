@@ -64,7 +64,7 @@ jobs:
 
       - name: Version Packages
         run: |
-          # action is minor for main branch and patch for other branches
+          # minor version bump for main branch and patch for hotfixes
           if [ "${{ github.event.inputs.base_branch }}" == "main" ]; then
             yarn lerna version minor --yes --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private
           else
