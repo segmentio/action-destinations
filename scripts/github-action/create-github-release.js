@@ -81,7 +81,8 @@ async function getReleaseTag(core, exec) {
     'describe',
     '--abbrev=0',
     '--tags',
-    '--match=release-*'
+    '--match=release-*',
+    '--match=hotfix-*'
   ])
   if (exitCode !== 0) {
     // if the release tag is not found, then we cannot proceed further
@@ -227,7 +228,7 @@ function formatTable(prs, tableConfig, title = '') {
     `
 }
 /*
-  * Map PR with affected destinations
+ * Map PR with affected destinations
  */
 function mapPRWithAffectedDestinations(pr) {
   let affectedDestinations = []
