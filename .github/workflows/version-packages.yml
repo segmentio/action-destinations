@@ -12,10 +12,6 @@ on:
         description: 'Base branch to create PR to'
         required: true
         default: 'main'
-        type: choice
-        options:
-          - main
-          - release
       run_id:
         description: 'Unique identifier for the run'
         required: false
@@ -29,9 +25,6 @@ jobs:
       HUSKY: 0
       NX_DISABLE_DB: true
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: write
     steps:
       - name: Echo Inputs
         run: |
@@ -66,8 +59,13 @@ jobs:
       - name: Build
         run: NODE_ENV=production yarn build
 
-      - name: Version Packages
+      - name: Version Packages - Minor bump
+        if: startsWith('${{ github.event.inputs.branch }}', 'hotfix/') != true
         run: yarn lerna version minor --yes --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private
+
+      - name: Version Packages - Patch bump
+        if: startsWith('${{ github.event.inputs.branch }}', 'hotfix/') == true
+        run: yarn lerna version patch --yes --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private
 
       - name: Commit and push
         id: commit_and_push
