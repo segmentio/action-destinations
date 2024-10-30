@@ -6,7 +6,6 @@ const testDestination = createTestIntegration(Sprig)
 
 describe('Sprig.trackEvent', () => {
   it('should create valid event payload', async () => {
-    // TODO: Test your action
     const event = createTestEvent({
       name: "Test Sprig Event",
       userId: "1234",

@@ -48,11 +48,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
     return request('https://api.sprig.com/v2/users', {
       method: 'POST',
       headers: {
