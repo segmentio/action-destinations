@@ -25,6 +25,9 @@ jobs:
       HUSKY: 0
       NX_DISABLE_DB: true
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
     steps:
       - name: Echo Inputs
         run: |
