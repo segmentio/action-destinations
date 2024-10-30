@@ -43,4 +43,38 @@ describe('Sprig.identifyUsers', () => {
       }
     })
   })
+  it('should flatten a double nested object correctly', async () => {
+    const event = createTestEvent({
+      type: 'identify',
+      userId: '1234',
+      traits: {
+        customerDetails: {
+          name: {
+            first: "Bob",
+            last: "Smith"
+          },
+          birthdate: "2002-02-03"
+        }
+      }
+    })
+    nock('https://api.sprig.com/v2').post('/users').reply(200, {})
+    const responses = await testDestination.testAction('identifyUser', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        apiKey: "TEST-API-KEY"
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject({
+      "userId": "1234",
+      "attributes": {
+        "customerDetails.name.first": "Bob",
+        "customerDetails.name.last": "Smith",
+        "customerDetails.birthdate": "2002-02-03",
+      }
+    })
+  })
 })
