@@ -11,9 +11,6 @@ Object {
 
 exports[`Testing snapshot for Sprig's identifyUser destination action: required fields 1`] = `
 Object {
-  "attributes": Object {
-    "testType": "hOFNL2ws[z[aEmV4l*6",
-  },
   "userId": "hOFNL2ws[z[aEmV4l*6",
 }
 `;

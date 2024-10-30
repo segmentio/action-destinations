@@ -20,7 +20,10 @@ const flattenObj = (obj: { [k: string]: any }, keys = [] as string[]) : {[k: str
 }
 
 const payloadTransform = (payload: Payload) => {
-  payload.attributes = flattenObj(payload.attributes)
+  if (payload.attributes && Object.keys(payload.attributes).length > 0) { 
+    payload.attributes = flattenObj(payload.attributes)
+  }
+  console.log(payload)
   return payload
 }
 
@@ -40,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
     attributes: {
       description: 'The traits payload to attribute to the userId.',
       label: 'Attributes',
-      required: true,
+      required: false,
       type: 'object',
       default: {
         '@path': '$.traits'
