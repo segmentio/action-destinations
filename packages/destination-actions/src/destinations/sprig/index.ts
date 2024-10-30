@@ -50,19 +50,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
-  onDelete: async (_request, { settings, payload }) => {
-    return _request('https://api.sprig.com/v2/purge/visitors', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${settings.apiKey}`
-      },
-      json: {
-        externalUserIds: [payload.userId],
-        delaySeconds: 0
-      }
-    })
-  },
   presets,
   actions: {
     identifyUser,

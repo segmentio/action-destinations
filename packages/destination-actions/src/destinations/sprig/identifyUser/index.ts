@@ -23,7 +23,6 @@ const payloadTransform = (payload: Payload) => {
   if (payload.attributes && Object.keys(payload.attributes).length > 0) { 
     payload.attributes = flattenObj(payload.attributes)
   }
-  console.log(payload)
   return payload
 }
 
