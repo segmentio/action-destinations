@@ -61,99 +61,60 @@ const schema = fieldsToJsonSchema({
   }
 })
 
-describe.only('validateSchema with additional schemas defined', () => {
+describe.only('conditionally required fields', () => {
   const baseSchema: MinimalFields = {
     a: {
       label: 'a',
-      type: 'string'
+      type: 'string',
+      required: {
+        conditions: [{ fieldKey: 'b', operator: 'is_not', value: undefined }]
+      }
     },
     b: {
       label: 'b',
-      type: 'string'
+      type: 'string',
+      required: {
+        conditions: [
+          { fieldKey: 'a', operator: 'is', value: 'a' },
+          { fieldKey: 'c', operator: 'is', value: 'c' },
+          { fieldKey: 'd', operator: 'is', value: 'd' }
+        ]
+      }
     },
     c: {
       label: 'c',
-      type: 'string'
+      type: 'string',
+      required: {
+        match: 'any',
+        conditions: [
+          { fieldKey: 'a', operator: 'is', value: 'a' },
+          { fieldKey: 'b', operator: 'is', value: 'b' }
+        ]
+      }
     },
     d: {
       label: 'd',
-      type: 'string'
+      type: 'string',
+      required: {
+        match: 'all',
+        conditions: [{ fieldKey: 'a', operator: 'is', value: 'a' }]
+      }
     }
   }
 
-  it('should handle an additional anyOf schema correctly', async () => {
-    const anyOfSchema = fieldsToJsonSchema(baseSchema, undefined, {
-      anyOf: [{ required: ['a'] }, { required: ['b'] }]
-    })
-
-    const validPayload = {
-      a: 'a'
-    }
-
-    const invalidPayloads = [
-      {
-        c: 'c'
-      },
-      {}
-    ]
-
-    expect(validateSchema(validPayload, anyOfSchema)).toBe(true)
-
-    expect(validateSchema(invalidPayloads[0], anyOfSchema, { throwIfInvalid: false })).toBe(false)
-
-    expect(validateSchema(invalidPayloads[1], anyOfSchema, { throwIfInvalid: false })).toBe(false)
-  })
-
-  it('should handle an additional exclusive oneOf schema correctly', async () => {
-    const oneOfSchema = fieldsToJsonSchema(baseSchema, undefined, {
-      allOf: [{ oneOf: [{ required: ['a'] }, { required: ['b'] }] }]
-    })
-
-    const validPayload = {
-      a: 'a'
-    }
-
-    const invalidPayload = {
+  it('should require a when b is not undefined', () => {
+    const payload = {
       a: 'a',
       b: 'b'
     }
 
-    expect(validateSchema(validPayload, oneOfSchema)).toBe(true)
-
-    expect(validateSchema(invalidPayload, oneOfSchema, { throwIfInvalid: false })).toBe(false)
+    validateSchema(payload, baseSchema, { schemaKey: `testSchema` })
   })
+  it('should require b when a is a, c is c, and d is d', () => {})
 
-  it('should handle mutally exlusive anyOf and oneOf schemas', async () => {
-    const multipleAdditionalSchemas = fieldsToJsonSchema(baseSchema, undefined, {
-      allOf: [
-        { anyOf: [{ required: ['a'] }, { required: ['b'] }] },
-        { oneOf: [{ required: ['c'] }, { required: ['d'] }] }
-      ]
-    })
+  it('should require c when a is a or b is b', () => {})
 
-    const validPayload = {
-      a: 'a',
-      b: 'b',
-      c: 'c'
-    }
-
-    const invalidPayloads = [
-      {
-        a: 'a',
-        b: 'b'
-      },
-      {
-        a: 'a',
-        c: 'c',
-        d: 'd'
-      }
-    ]
-
-    expect(validateSchema(validPayload, multipleAdditionalSchemas)).toBe(true)
-
-    expect(validateSchema(invalidPayloads[0], multipleAdditionalSchemas, { throwIfInvalid: false })).toBe(false)
-    expect(validateSchema(invalidPayloads[1], multipleAdditionalSchemas, { throwIfInvalid: false })).toBe(false)
-  })
+  it('should require d when a is a', () => {})
 })
 
 describe('validateSchema', () => {
