@@ -1,8 +1,10 @@
 import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
-
-import addToList from './addToList'
-import { createAudienceRequest, getAudienceRequest } from './functions'
+import { createAudienceRequest, getAudienceRequest, getAuthSettings, getAuthToken } from './functions'
+import removeFromAudContactInfo from './removeFromAudContactInfo'
+import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
+import addToAudContactInfo from './addToAudContactInfo'
+import addToAudMobileDeviceId from './addToAudMobileDeviceId'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'First Party Dv360',
@@ -45,20 +47,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       required: true,
       description:
         'The duration in days that an entry remains in the audience after the qualifying event. If the audience has no expiration, set the value of this field to 10000. Otherwise, the set value must be greater than 0 and less than or equal to 540.'
-    },
-    token: {
-      type: 'string',
-      label: 'Auth Token',
-      required: true,
-      description: 'temp until we build authentication flow'
-    }
-  },
-
-  authentication: {
-    scheme: 'custom',
-    fields: {},
-    testAuthentication: (_request) => {
-      return { status: 'succeeded' }
     }
   },
 
@@ -76,7 +64,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const membershipDurationDays = audienceSettings?.membershipDurationDays
       const audienceType = audienceSettings?.audienceType
       const appId = audienceSettings?.appId
-      const token = audienceSettings?.token // Temporary token variable
 
       // Update statistics tags and sends a call metric to Datadog. Ensures that datadog is infomred 'createAudience' operation was invoked
       const statsName = 'createAudience'
@@ -109,6 +96,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing audience type value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
+      //Get access token
+      const authSettings = getAuthSettings()
+      const token = await getAuthToken(_request, authSettings)
+
       // Make API request to create the audience
       const response = await createAudienceRequest(_request, {
         advertiserId,
@@ -133,13 +124,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { audienceSettings, statsContext } = getAudienceInput
       const audienceId = getAudienceInput.externalId
       const advertiserId = audienceSettings?.advertiserId?.trim()
-      const token = audienceSettings?.token // Temporary token variable
 
       // Update statistics tags and sends a call metric to Datadog. Ensures that datadog is infomred 'getAudience' operation was invoked
       const statsName = 'getAudience'
       const { statsClient, tags: statsTags } = statsContext || {}
       statsTags?.push(`slug:${destination.slug}`)
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
+
+      //Get access token
+      const authSettings = getAuthSettings()
+      const token = await getAuthToken(_request, authSettings)
 
       if (!advertiserId) {
         statsTags?.push('error:missing-settings')
@@ -172,14 +166,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
 
-  onDelete: async (_request, _) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-  },
-
   actions: {
-    addToList
+    addToAudContactInfo,
+    addToAudMobileDeviceId,
+    removeFromAudContactInfo,
+    removeFromAudMobileDeviceId
   }
 }
 
