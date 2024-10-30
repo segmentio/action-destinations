@@ -53,7 +53,7 @@ Array [
       "mp_lib": "Segment Actions: pNBru",
       "segment_source_name": "pNBru",
       "testType": "pNBru",
-      "time": 1612137600000,
+      "time": null,
       "timezone": "pNBru",
       "utm_campaign": "pNBru",
       "utm_content": "pNBru",
@@ -83,7 +83,7 @@ Array [
       "distinct_id": "pNBru",
       "id": "pNBru",
       "segment_source_name": "pNBru",
-      "time": 1234556,
+      "time": null,
     },
   },
 ]
