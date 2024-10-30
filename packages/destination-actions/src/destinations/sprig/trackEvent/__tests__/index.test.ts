@@ -4,7 +4,7 @@ import Sprig from '../../index'
 
 const testDestination = createTestIntegration(Sprig)
 
-describe('Sprig.trackUser', () => {
+describe('Sprig.trackEvent', () => {
   it('should create valid event payload', async () => {
     // TODO: Test your action
     const event = createTestEvent({
