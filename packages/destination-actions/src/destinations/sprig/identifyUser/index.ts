@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-const isPlainObj = (o) =>
+const isPlainObj = (o: object | string) =>
   Boolean(
     o &&
       o.constructor &&
@@ -10,13 +10,13 @@ const isPlainObj = (o) =>
       Object.prototype.hasOwnProperty.call(o.constructor.prototype, 'isPrototypeOf')
   )
 
-const flattenObj = (obj, keys = []) => {
+const flattenObj = (obj: { [k: string]: any }, keys = [] as string[]) : {[k: string]: any } => {
   return Object.keys(obj).reduce((acc, key) => {
     return Object.assign(
       acc,
       isPlainObj(obj[key]) ? flattenObj(obj[key], keys.concat(key)) : { [keys.concat(key).join('.')]: obj[key] }
     )
-  }, {})
+  }, {} as {[k: string]: unknown })
 }
 
 const payloadTransform = (payload: Payload) => {

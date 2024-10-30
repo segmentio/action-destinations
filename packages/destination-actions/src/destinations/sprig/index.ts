@@ -55,7 +55,7 @@ const destination: DestinationDefinition<Settings> = {
     // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
     // provided in the payload. If your destination does not support GDPR deletion you should not
     // implement this function and should remove it completely.
-    return request('https://api.sprig.com/v2/purge/visitors', {
+    return _request('https://api.sprig.com/v2/purge/visitors', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${settings.apiKey}`
