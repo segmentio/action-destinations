@@ -84,13 +84,9 @@ export interface Payload {
    */
   send_at?: string
   /**
-   * Reply to details.
+   * Reply to details. If left empty 'Reply To' settings will be taken from the 'From' field values.
    */
   reply_to: {
-    /**
-     * Whether "reply to" settings are the same as "from"
-     */
-    reply_to_equals_from: boolean
     /**
      * The email to reply to.
      */

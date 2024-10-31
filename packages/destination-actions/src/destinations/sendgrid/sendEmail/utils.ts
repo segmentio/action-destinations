@@ -35,8 +35,8 @@ export async function send(request: RequestClient, payload: Payload) {
     ],
     from: { email: payload.from.email, name: payload.from?.name ?? undefined },
     reply_to: {
-      email: (payload.reply_to.reply_to_equals_from ? payload.from.email : payload.reply_to.email) as string,
-      name: payload.reply_to.reply_to_equals_from ? payload.from.name : payload.reply_to.name
+      email: payload.reply_to?.email ?? payload.from.email,
+      name: payload.reply_to?.name ?? payload.from.name ?? undefined
     },
     template_id: payload.template_id,
     categories: payload.categories,
@@ -88,10 +88,6 @@ function validate(payload: Payload) {
     throw new PayloadValidationError(
       'Template ID must refer to a Dynamic Template. Dynamic Template IDs start with "d-"'
     )
-  }
-
-  if (!payload.reply_to.reply_to_equals_from && !payload.reply_to.email) {
-    throw new PayloadValidationError("'Reply To >> Email' must be provided if 'Reply To Equals From' is set to true")
   }
 
   if (Object.keys(payload?.headers ?? {}).some((key) => RESERVED_HEADERS.includes(key))) {

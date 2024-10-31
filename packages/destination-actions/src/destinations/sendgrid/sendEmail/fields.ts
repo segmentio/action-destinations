@@ -29,6 +29,14 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
+    },
+    default: {
+      email: {
+        '@path': '$.properties.from_email'
+      },
+      name: {
+        '@path': '$.properties.from_name'
+      }
     }
   },
   to: {
@@ -52,6 +60,19 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
+    },
+    default: {
+      '@arrayPath': [
+        '$.properties',
+        {
+          email: {
+            '@path': '$.email'
+          },
+          name: {
+            '@path': '$.name'
+          }
+        }
+      ]
     }
   },
   cc: {
@@ -75,6 +96,19 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
+    },
+    default: {
+      '@arrayPath': [
+        '$.properties',
+        {
+          email: {
+            '@path': '$.cc_email'
+          },
+          name: {
+            '@path': '$.cc_name'
+          }
+        }
+      ]
     }
   },
   bcc: {
@@ -98,6 +132,19 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
+    },
+    default: {
+      '@arrayPath': [
+        '$.properties',
+        {
+          email: {
+            '@path': '$.bcc_email'
+          },
+          name: {
+            '@path': '$.bcc_name'
+          }
+        }
+      ]
     }
   },
   headers: {
@@ -143,33 +190,24 @@ export const fields: Record<string, InputField> = {
   },
   reply_to: {
     label: 'Reply To',
-    description: 'Reply to details.',
+    description: "Reply to details. If left empty 'Reply To' settings will be taken from the 'From' field values.",
     type: 'object',
     required: true,
     additionalProperties: false,
     defaultObjectUI: 'keyvalue',
     properties: {
-      reply_to_equals_from: {
-        label: 'Reply To Equals From',
-        description: 'Whether "reply to" settings are the same as "from"',
-        type: 'boolean',
-        required: true
-      },
       email: {
         label: 'Email',
-        description: 'The email to reply to.',
+        description: "The email to reply to.",
         type: 'string',
         required: false
       },
       name: {
         label: 'Name',
-        description: 'The name to reply to.',
+        description: "The name to reply to.",
         type: 'string',
         required: false
       }
-    },
-    default: {
-      reply_to_equals_from: true
     }
   },
   subscription_tracking: {
