@@ -35,7 +35,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     dataFields: {
       label: 'Additional traits or identifiers',
       description:
-        'Comma delimited list containing names of additional traits or identifiers to sync to Iterable. You will need to ensure these traits or obects are included via Event Settings >> Customized Setup.',
+        'Additional traits or identifiers to sync to Iterable. You will need to ensure these traits or objects are included via Event Settings > Customized Setup.',
       required: false,
       type: 'object'
     },
