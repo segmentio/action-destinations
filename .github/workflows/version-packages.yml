@@ -59,8 +59,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Build
-        run: NODE_ENV=production yarn build
+      # - name: Build
+      #   run: NODE_ENV=production yarn build
 
       - name: Version Packages
         run: |
