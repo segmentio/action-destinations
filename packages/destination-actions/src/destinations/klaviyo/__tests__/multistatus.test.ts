@@ -1,4 +1,4 @@
-import { SegmentEvent, createTestEvent, createTestIntegration, ErrorCodes } from '@segment/actions-core'
+import { SegmentEvent, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import nock from 'nock'
 import { API_URL } from '../config'
 import Braze from '../index'
@@ -202,7 +202,7 @@ describe('MultiStatus', () => {
         status: 429,
         errormessage:
           "This event wasn't delivered because of few bad events in the same batch to Klaviyo. This will be retried",
-        errortype: ErrorCodes.RETRYABLE_BATCH_FAILURE,
+        errortype: 'RETRYABLE_BATCH_FAILURE',
         sent: {
           profile: {
             external_id: 'Xi1234'
