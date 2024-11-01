@@ -1,5 +1,6 @@
 import { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
+import { Payload } from './generated-types'
 import {
   GET_TEMPLATES_URL,
   TRUNCATE_CHAR_LENGTH,
@@ -131,8 +132,8 @@ export async function dynamicGroupId(request: RequestClient): Promise<DynamicFie
     return {
       choices: response.data.map((group: ResultItem) => {
         return {
-          label: `${group.id} - ${group.name}`,
-          value: `${group.id} - ${group.name}`
+          label: `${group.name} [${group.id}]`,
+          value: `${group.name} [${group.id}]`
         }
       })
     }
@@ -238,14 +239,10 @@ export async function dynamicTemplateId(request: RequestClient): Promise<Dynamic
                 version.name.length > TRUNCATE_CHAR_LENGTH
                   ? `${version.name.slice(0, TRUNCATE_CHAR_LENGTH)}...`
                   : version.name
-              const truncatedSubject =
-                version.subject.length > TRUNCATE_CHAR_LENGTH
-                  ? `${version.subject.slice(0, TRUNCATE_CHAR_LENGTH)}...`
-                  : version.subject
 
               return {
-                label: `${truncatedTemplateName} - ${truncatedVersionName} - ${truncatedSubject}`,
-                value: version.template_id
+                label: `${truncatedTemplateName} - ${truncatedVersionName} [${version.template_id}]`,
+                value: `${truncatedTemplateName} - ${truncatedVersionName} [${version.template_id}]`
               }
             })
         })

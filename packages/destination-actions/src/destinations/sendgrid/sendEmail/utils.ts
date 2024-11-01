@@ -12,7 +12,8 @@ import {
 export async function send(request: RequestClient, payload: Payload) {
   validate(payload)
 
-  const groupId = getIntFromString(payload.group_id)
+  const groupId = parseIntFromString(payload.group_id)
+  const templateId = parseTemplateId(payload.template_id)
 
   const json: SendEmailReq = {
     personalizations: [
@@ -38,7 +39,7 @@ export async function send(request: RequestClient, payload: Payload) {
       email: payload.reply_to?.email ?? payload.from.email,
       name: payload.reply_to?.name ?? payload.from.name ?? undefined
     },
-    template_id: payload.template_id,
+    template_id: templateId as string,
     categories: payload.categories,
     asm: typeof groupId === 'number' ? { group_id: groupId } : undefined,
     ip_pool_name: payload.ip_pool_name,
@@ -63,20 +64,30 @@ function toUnixTS(date: string | undefined): number | undefined {
   return new Date(date).getTime()
 }
 
-function getIntFromString(value: string | undefined): number | undefined {
-  const regex = /^\d+/
-  const match = regex.exec(value ?? '')
-  if (match) {
-    const maybeInt = parseInt(match[0], 10)
-    if (!isNaN(maybeInt)) {
-      return maybeInt
-    }
+export function parseIntFromString(value: string | undefined): number | undefined {
+  if(!value) {
+    return undefined
   }
-  return undefined
+  
+  const extractNumber = (regex: RegExp, value: string): number | null => {
+    const match = regex.exec(value)
+    return match ? parseInt(match[1], 10) : null
+  }
+
+  return extractNumber(/^(\d+)/, value) ?? extractNumber(/\[(\d+)\]/, value) ?? undefined
+}
+
+export function parseTemplateId(value: string): string | null {
+  if(value.startsWith('d-')){
+    return value.split(' ')[0]
+  }
+  const regex = /\[(.*?)\]/
+  const match = regex.exec(value)
+  return match ? match[1] : null
 }
 
 function validate(payload: Payload) {
-  if (payload.group_id && typeof getIntFromString(payload.group_id) !== 'number') {
+  if (payload.group_id && typeof parseIntFromString(payload.group_id) !== 'number') {
     throw new PayloadValidationError('Group ID value must be a numberic (integer) string')
   }
 
@@ -84,12 +95,13 @@ function validate(payload: Payload) {
     throw new PayloadValidationError('From email must be from the selected domain')
   }
 
-  if (!payload.template_id.startsWith('d-')) {
+  const templateId = parseTemplateId(payload.template_id)
+  if(templateId == null || !templateId.startsWith('d-')) {
     throw new PayloadValidationError(
-      'Template ID must refer to a Dynamic Template. Dynamic Template IDs start with "d-"'
+      'Template must refer to a Dynamic Template. Dynamic Template IDs start with "d-"'
     )
   }
-
+  
   if (Object.keys(payload?.headers ?? {}).some((key) => RESERVED_HEADERS.includes(key))) {
     throw new PayloadValidationError(
       `Headers cannot contain any of the following reserved headers: ${RESERVED_HEADERS.join(', ')}`

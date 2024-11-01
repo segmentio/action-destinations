@@ -141,9 +141,8 @@ export const fields: Record<string, InputField> = {
     dynamic: true
   },
   template_id: {
-    label: 'Template ID',
-    description:
-      "The template ID to use for the email. This must be for a Dynamic Template and should start with a 'd-'",
+    label: 'Dynamic Template',
+    description: "The Dynamic Template to use for the email.",
     type: 'string',
     required: true,
     dynamic: true,
