@@ -32,7 +32,7 @@ import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import dayjs from '../../lib/dayjs'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 import { eventBulkCreateRegex } from './properties'
-import { emailRegex } from './properties'
+// import { emailRegex } from './properties'
 import { Payload as AddProfileToListPayload } from './addProfileToList/generated-types'
 import { JSONLikeObject } from '@segment/actions-core'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
@@ -554,16 +554,16 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
       payload.profile.phone_number = validPhoneNumber
       delete payload?.profile?.country_code
     }
-    if (email) {
-      if (!emailRegex.test(email)) {
-        multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: 'Email format is invalid.Please ensure it follows the standard format'
-        })
-        return
-      }
-    }
+    // if (email) {
+    //   if (!emailRegex.test(email)) {
+    //     multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+    //       status: 400,
+    //       errortype: 'PAYLOAD_VALIDATION_FAILED',
+    //       errormessage: 'Email format is invalid.Please ensure it follows the standard format'
+    //     })
+    //     return
+    //   }
+    // }
 
     const profileToAdd = constructBulkCreateEventPayload(payload)
     filteredPayloads.push(profileToAdd as JSONLikeObject)
@@ -688,16 +688,16 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
     payload.phone_number = validPhoneNumber
     delete payload.country_code
   }
-  if (email) {
-    if (!emailRegex.test(email)) {
-      response.error = {
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Email format is invalid.Please ensure it follows the standard format'
-      }
-      return response
-    }
-  }
+  // if (email) {
+  //   if (!emailRegex.test(email)) {
+  //     response.error = {
+  //       status: 400,
+  //       errortype: 'PAYLOAD_VALIDATION_FAILED',
+  //       errormessage: 'Email format is invalid.Please ensure it follows the standard format'
+  //     }
+  //     return response
+  //   }
+  // }
 
   const { list_id, enable_batching, batch_size, country_code, ...attributes } = payload
 
