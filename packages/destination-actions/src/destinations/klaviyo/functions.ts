@@ -499,7 +499,10 @@ export async function sendBatchedTrackEvent(request: RequestClient, payloads: Tr
   try {
     await request(`${API_URL}/event-bulk-create-jobs/`, {
       method: 'POST',
-      json: payloadToSend
+      json: payloadToSend,
+      headers: {
+        revision: '2024-10-15'
+      }
     })
   } catch (err) {
     if (err instanceof HTTPError) {
@@ -550,6 +553,16 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
       // Update the payload's phone number with the validated format
       payload.profile.phone_number = validPhoneNumber
       delete payload?.profile?.country_code
+    }
+    if (email) {
+      if (!emailRegex.test(email)) {
+        multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: 'Email format is invalid.Please ensure it follows the standard format'
+        })
+        return
+      }
     }
 
     const profileToAdd = constructBulkCreateEventPayload(payload)
@@ -618,7 +631,7 @@ function handleKlaviyoAPIErrorResponse(
           errormessage: error.detail,
           sent: payloads[indexInOriginalPayload],
           body: JSON.stringify(error)
-        })
+        } as ActionDestinationErrorResponseType)
         invalidIndexSet.add(indexInOriginalPayload)
       }
     })
@@ -628,7 +641,7 @@ function handleKlaviyoAPIErrorResponse(
         multiStatusResponse.setErrorResponseAtIndex(index, {
           errormessage:
             "This event wasn't delivered because of few bad events in the same batch to Klaviyo. This will be retried",
-          errortype: ErrorCodes.RETRYABLE_ERROR,
+          errortype: 'RETRYABLE_BATCH_FAILURE' as keyof typeof ErrorCodes,
           status: 429,
           sent: payloads[index],
           body: 'Retry'
@@ -762,6 +775,6 @@ async function updateMultiStatusWithKlaviyoErrors(
       errormessage: err?.response?.statusText,
       sent: payload,
       body: JSON.stringify(errorResponse)
-    })
+    } as ActionDestinationErrorResponseType)
   })
 }
