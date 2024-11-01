@@ -93,7 +93,13 @@ async function getReleaseTag(core, exec) {
 
 // Extract packages published in the current release
 async function extractPackageNames(sha, exec, core) {
-  const { stdout, stderr, exitCode } = await exec.getExecOutput('git', ['show', '--pretty=""', '--name-only', sha])
+  const { stdout, stderr, exitCode } = await exec.getExecOutput('git', [
+    'diff-tree',
+    '--no-commit-id',
+    '--name-only',
+    sha,
+    '-r'
+  ])
   if (exitCode !== 0) {
     // if the package tags are not found, then we cannot proceed further
     core.error(`Failed to extract package tags: ${stderr}`)
