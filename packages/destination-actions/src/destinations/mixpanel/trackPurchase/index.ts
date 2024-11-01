@@ -83,8 +83,8 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
   try {
     await callMixpanelApi(request, settings, events)
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorResponse = error.response as ModifiedResponse<MixpanelTrackApiResponseType>
+    if (error as HTTPError) {
+      const errorResponse = (error as HTTPError).response as ModifiedResponse<MixpanelTrackApiResponseType>
       await handleMixPanelApiResponse(transformPayloadsType(payload), errorResponse, multiStatusResponse, sentEvents)
     } else {
       throw error
