@@ -94,6 +94,15 @@ describe('MultiStatus', () => {
         createTestEvent({
           type: 'track',
           timestamp
+        }),
+        //Event with invalid Email
+        createTestEvent({
+          type: 'track',
+          timestamp,
+          properties: {
+            email: 'invalid_email@gmail..com',
+            list_id: '123'
+          }
         })
       ]
 
@@ -116,6 +125,13 @@ describe('MultiStatus', () => {
         errormessage: 'One of External ID, Anonymous ID, Phone Number or Email is required.',
         errorreporter: 'DESTINATION'
       })
+      // The third event fails as pre-request validation fails for having invalid email
+      expect(response[2]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Email format is invalid.Please ensure it follows the standard format',
+        errorreporter: 'DESTINATION'
+      })
     })
 
     it('should successfully handle a batch of events with failure response from Klaviyo API', async () => {
@@ -127,7 +143,7 @@ describe('MultiStatus', () => {
             status: 400,
             code: 'invalid',
             title: 'Invalid input.',
-            detail: 'Invalid email address',
+            detail: 'Invalid input',
             source: {
               pointer: '/data/attributes/events-bulk-create/data/0/attributes/email'
             },
@@ -144,7 +160,7 @@ describe('MultiStatus', () => {
           type: 'track',
           timestamp,
           properties: {
-            email: 'invalid_email'
+            email: 'gk@gmail.com'
           }
         }),
         // Valid Event
@@ -167,18 +183,18 @@ describe('MultiStatus', () => {
       expect(response[0]).toMatchObject({
         status: 400,
         errortype: 'BAD_REQUEST',
-        errormessage: 'Invalid email address',
+        errormessage: 'Invalid input',
         sent: {
           profile: {
-            email: 'invalid_email'
+            email: 'gk@gmail.com'
           },
           metric_name: 'Test Event',
           properties: {
-            email: 'invalid_email'
+            email: 'gk@gmail.com'
           },
           time: timestamp
         },
-        body: '{"id":"752f7ece-af20-44e0-aa3a-b13290d98e72","status":400,"code":"invalid","title":"Invalid input.","detail":"Invalid email address","source":{"pointer":"/data/attributes/events-bulk-create/data/0/attributes/email"},"links":{},"meta":{}}'
+        body: '{"id":"752f7ece-af20-44e0-aa3a-b13290d98e72","status":400,"code":"invalid","title":"Invalid input.","detail":"Invalid input","source":{"pointer":"/data/attributes/events-bulk-create/data/0/attributes/email"},"links":{},"meta":{}}'
       })
 
       // The second event fails as Braze API reports an error
