@@ -1,7 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { batch_size, enable_batching, country_code } from '../properties'
@@ -93,7 +92,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     enable_batching: { ...enable_batching },
-    batch_size: { ...batch_size }
+    batch_size: { ...batch_size, default: 1000 }
   },
   perform: (request, { payload }) => {
     const { email, phone_number: initialPhoneNumber, external_id, anonymous_id, country_code } = payload.profile
@@ -130,7 +129,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     }
-
     return request(`${API_URL}/events/`, {
       method: 'POST',
       json: eventData
