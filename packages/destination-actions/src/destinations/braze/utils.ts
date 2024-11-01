@@ -1,4 +1,4 @@
-import { JSONLikeObject, ModifiedResponse, MultiStatusResponse, omit } from '@segment/actions-core'
+import { ErrorCodes, JSONLikeObject, ModifiedResponse, MultiStatusResponse, omit } from '@segment/actions-core'
 import { IntegrationError, RequestClient, removeUndefined } from '@segment/actions-core'
 import dayjs from 'dayjs'
 import { Settings } from './generated-types'
@@ -8,6 +8,7 @@ import { Payload as TrackPurchasePayload } from './trackPurchase/generated-types
 import { Payload as UpdateUserProfilePayload } from './updateUserProfile/generated-types'
 import { getUserAlias } from './userAlias'
 import { HTTPError } from '@segment/actions-core'
+import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
 type DateInput = string | Date | number | null | undefined
 type DateOutput = string | undefined | null
 
@@ -575,7 +576,7 @@ async function handleBrazeAPIResponse(
 
         multiStatusResponse.setErrorResponseAtIndex(indexInOriginalPayload, {
           status: 400,
-          errortype: 'BAD_REQUEST',
+          errortype: 'BAD_REQUEST' as keyof typeof ErrorCodes,
           errormessage: error.type,
           sent: payloads[indexInOriginalPayload],
           body: error.type
@@ -610,7 +611,7 @@ async function handleBrazeAPIResponse(
             (error?.response as ModifiedResponse<BrazeTrackUserAPIResponse>)?.data?.message ?? error.message,
           sent: payloads[i],
           body: parsedErrors[i].size > 0 ? Array.from(parsedErrors[i]).join(', ') : undefined
-        })
+        } as ActionDestinationErrorResponseType)
       }
     } else {
       // Bubble up the error and let Actions Framework handle it

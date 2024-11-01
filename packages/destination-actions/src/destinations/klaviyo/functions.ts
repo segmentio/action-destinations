@@ -5,7 +5,8 @@ import {
   IntegrationError,
   PayloadValidationError,
   MultiStatusResponse,
-  HTTPError
+  HTTPError,
+  ErrorCodes
 } from '@segment/actions-core'
 import { JSONLikeObject } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
@@ -30,7 +31,8 @@ import { Payload } from './upsertProfile/generated-types'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import dayjs from '../../lib/dayjs'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { eventBulkCreateRegex } from './properties'
+import { emailRegex, eventBulkCreateRegex } from './properties'
+import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -480,7 +482,10 @@ export async function sendBatchedTrackEvent(request: RequestClient, payloads: Tr
   try {
     await request(`${API_URL}/event-bulk-create-jobs/`, {
       method: 'POST',
-      json: payloadToSend
+      json: payloadToSend,
+      headers: {
+        revision: '2024-10-15'
+      }
     })
   } catch (err) {
     if (err instanceof HTTPError) {
@@ -531,6 +536,16 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
       // Update the payload's phone number with the validated format
       payload.profile.phone_number = validPhoneNumber
       delete payload?.profile?.country_code
+    }
+    if (email) {
+      if (!emailRegex.test(email)) {
+        multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: 'Email format is invalid.Please ensure it follows the standard format'
+        })
+        return
+      }
     }
 
     const profileToAdd = constructBulkCreateEventPayload(payload)
@@ -599,14 +614,17 @@ function handleKlaviyoAPIErrorResponse(
           errormessage: error.detail,
           sent: payloads[indexInOriginalPayload],
           body: JSON.stringify(error)
-        })
+        } as ActionDestinationErrorResponseType)
         invalidIndexSet.add(indexInOriginalPayload)
       }
     })
 
     for (const index of validPayloadIndicesBitmap) {
       if (!invalidIndexSet.has(index)) {
-        multiStatusResponse.setSuccessResponseAtIndex(index, {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          errormessage:
+            "This event wasn't delivered because of few bad events in the same batch to Klaviyo. This will be retried",
+          errortype: 'RETRYABLE_BATCH_FAILURE' as keyof typeof ErrorCodes,
           status: 429,
           sent: payloads[index],
           body: 'Retry'
