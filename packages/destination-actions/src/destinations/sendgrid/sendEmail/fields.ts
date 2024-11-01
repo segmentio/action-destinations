@@ -7,7 +7,8 @@ export const fields: Record<string, InputField> = {
       'The domain to use for the email. This field is optional but recommended. If you do not provide a domain, Sendgrid will attempt to send the email based on the from address, and may fail if the domain in the from address is not validated.',
     type: 'string',
     required: false,
-    dynamic: true
+    dynamic: true,
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   },
   from: {
     label: 'From',
@@ -96,19 +97,6 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
-    },
-    default: {
-      '@arrayPath': [
-        '$.properties',
-        {
-          email: {
-            '@path': '$.cc_email'
-          },
-          name: {
-            '@path': '$.cc_name'
-          }
-        }
-      ]
     }
   },
   bcc: {
@@ -132,19 +120,6 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
-    },
-    default: {
-      '@arrayPath': [
-        '$.properties',
-        {
-          email: {
-            '@path': '$.bcc_email'
-          },
-          name: {
-            '@path': '$.bcc_name'
-          }
-        }
-      ]
     }
   },
   headers: {
@@ -162,7 +137,8 @@ export const fields: Record<string, InputField> = {
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue',
-    additionalProperties: true
+    additionalProperties: true,
+    dynamic: true
   },
   template_id: {
     label: 'Template ID',
@@ -170,7 +146,8 @@ export const fields: Record<string, InputField> = {
       "The template ID to use for the email. This must be for a Dynamic Template and should start with a 'd-'",
     type: 'string',
     required: true,
-    dynamic: true
+    dynamic: true,
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   },
   custom_args: {
     label: 'Custom Args',
@@ -315,14 +292,16 @@ export const fields: Record<string, InputField> = {
     description: 'Send email with an ip pool.',
     type: 'string',
     required: false,
-    dynamic: true
+    dynamic: true,
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   },
   group_id: {
     label: 'Group ID',
     description: 'Specify a Group ID',
     type: 'string',
     required: false,
-    dynamic: true
+    dynamic: true,
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   },
   sandbox_mode: {
     label: 'Sandbox Mode',

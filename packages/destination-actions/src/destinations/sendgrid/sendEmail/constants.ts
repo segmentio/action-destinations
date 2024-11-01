@@ -30,3 +30,5 @@ export const GET_IP_POOLS_URL = 'https://api.sendgrid.com/v3/ips/pools'
 export const GET_VALID_DOMAINS_URL = 'https://api.sendgrid.com/v3/whitelabel/domains?limit=200'
 
 export const GET_GROUP_IDS_URL = 'https://api.sendgrid.com/v3/asm/groups'
+
+export const GET_TEMPLATE_CONTENT_URL = 'https://api.sendgrid.com/v3/templates/'

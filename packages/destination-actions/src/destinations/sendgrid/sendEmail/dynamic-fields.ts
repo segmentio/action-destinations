@@ -5,7 +5,8 @@ import {
   TRUNCATE_CHAR_LENGTH,
   GET_IP_POOLS_URL,
   GET_VALID_DOMAINS_URL,
-  GET_GROUP_IDS_URL
+  GET_GROUP_IDS_URL,
+  GET_TEMPLATE_CONTENT_URL
 } from './constants'
 
 interface ResultError {
@@ -15,6 +16,97 @@ interface ResultError {
       errors: {
         message: string
       }[]
+    }
+  }
+}
+
+export async function dynamicTemplateData(request: RequestClient, payload: Payload): Promise<DynamicFieldResponse> {
+  interface ResultItem {
+    id: string
+    template_id: string
+    active: number
+    name: string
+    html_content: string
+    plain_content?: string
+    subject?: string
+    thumbnail_url?: string
+  }
+  interface ResponseType {
+    data: {
+      id: string
+      name: string
+      generation: string
+      versions: ResultItem[]
+    }
+  }
+
+  interface ResultError {
+    data: {
+      error: string
+    }
+  }
+  
+  if(!payload.template_id) {
+    throw new Error('Template ID Field required before Dynamic Template Data fields can be configured')
+  }
+
+  try {
+    const response: ResponseType = await request(`${GET_TEMPLATE_CONTENT_URL}${payload.template_id}`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
+
+    if(response.data.generation !== 'dynamic') {
+      throw new Error('Template ID provided is not a dynamic template')
+    }
+
+    const version = response.data.versions.find((version: ResultItem) => version.active === 1)
+
+    if(!version) {  
+      throw new Error('No active version found for the provided template')
+    }
+
+    if(!version.html_content || version.html_content.length === 0) {  
+      throw new Error('Returned template has no content')
+    }
+
+    const extractTokens = (content: string | undefined ): string[] => [...(content ?? "").matchAll(/{{{?(\w+)}{0,3}}}/g)].map(match => match[1])
+
+    const uniqueTokens: string[] = [
+      ...new Set([
+        ...extractTokens(version.html_content),
+        ...extractTokens(version.plain_content),
+        ...extractTokens(version.subject),
+        ...extractTokens(version.thumbnail_url)
+      ])
+    ]
+
+    // remove token keys that are already selected 
+    const selectedTokens: string[] = Object.keys(payload.dynamic_template_data ?? {})
+
+    const filteredTokens: string[] = uniqueTokens.filter(token => !selectedTokens.includes(token));
+
+    if(filteredTokens.length === 0) {
+      throw new Error('No dynamic fields found in the provided template')
+    }
+
+    return {
+      choices: filteredTokens.map(token => {
+        return {
+          label: token,
+          value: token
+        }
+      })
+    }
+
+  } catch (err) {
+    const error = err as ResultError
+    return {
+      choices: [],
+      error: {
+        message: error.data.error ?? 'Unknown error: dynamicTemplateData',
+        code: "404"
+      }
     }
   }
 }
