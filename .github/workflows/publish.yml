@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - main
-      - release
+      - hotfix/*
 
 jobs:
   build-and-publish:
@@ -48,9 +48,9 @@ jobs:
           npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
           npm whoami
 
-      - name: Publish
-        run: |
-          yarn lerna publish from-package --yes --allowBranch=main --loglevel=verbose --dist-tag latest
+      # - name: Publish
+      #   run: |
+      #     yarn lerna publish from-package --yes --allowBranch=main --loglevel=verbose --dist-tag latest
 
   release:
     needs: build-and-publish # comment when testing locally with https://github.com/nektos/act

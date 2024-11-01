@@ -12,10 +12,6 @@ on:
         description: 'Base branch to create PR to'
         required: true
         default: 'main'
-        type: choice
-        options:
-          - main
-          - release
       run_id:
         description: 'Unique identifier for the run'
         required: false
