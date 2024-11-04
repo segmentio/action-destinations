@@ -472,6 +472,18 @@ export function processPhoneNumber(initialPhoneNumber?: string, country_code?: s
 
   return phone_number
 }
+/**
+ * Updates the multi-status response with error information from Klaviyo for a batch of payloads.
+ *
+ * This function is designed to handle errors returned by a bulk operation in Klaviyo.
+ * It marks the entire batch as failed since granular retries are not supported in bulk operations.
+ *
+ * @param {JSONLikeObject[]} payloads - An array of payloads that were sent in the bulk operation.
+ * @param {any} err - The error object received from the Klaviyo API response.
+ * @param {MultiStatusResponse} multiStatusResponse - The object responsible for storing the status of each payload.
+ * @param {number[]} validPayloadIndicesBitmap - An array of indices indicating which payloads were valid.
+ *
+ */
 async function updateMultiStatusWithKlaviyoErrors(
   payloads: JSONLikeObject[],
   err: any,
