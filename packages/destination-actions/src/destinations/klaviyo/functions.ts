@@ -736,7 +736,7 @@ export async function sendBatchedProfileImportJobRequest(request: RequestClient,
     payloads,
     multiStatusResponse
   )
-
+  // return early
   if (!filteredPayloads.length) {
     return multiStatusResponse
   }
