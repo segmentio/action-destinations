@@ -1,7 +1,7 @@
 import { omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-// import dayjs from '../../../lib/dayjs'
+import dayjs from '../../../lib/dayjs'
 import { MixpanelEventProperties } from '../mixpanel-types'
 import { getBrowser, getBrowserVersion, cheapGuid } from '../common/utils'
 
@@ -9,7 +9,7 @@ const mixpanelReservedProperties = ['time', 'id', '$anon_id', 'distinct_id', '$g
 
 export function getEventProperties(payload: Payload, settings: Settings): MixpanelEventProperties {
   const datetime = payload.time
-  const time = Number(datetime) ?? 2022
+  const time = datetime && dayjs.utc(datetime).isValid() ? dayjs.utc(datetime).valueOf() : Date.now()
   const utm = payload.utm_properties || {}
   let browser, browserVersion
   if (payload.userAgent) {

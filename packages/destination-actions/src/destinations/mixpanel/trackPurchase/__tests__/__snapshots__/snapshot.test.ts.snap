@@ -53,7 +53,7 @@ Array [
       "mp_lib": "Segment Actions: *P3(DdQMdBkiT",
       "segment_source_name": "*P3(DdQMdBkiT",
       "testType": "*P3(DdQMdBkiT",
-      "time": null,
+      "time": 1612137600000,
       "timezone": "*P3(DdQMdBkiT",
       "utm_campaign": "*P3(DdQMdBkiT",
       "utm_content": "*P3(DdQMdBkiT",
@@ -83,7 +83,7 @@ Array [
       "distinct_id": "*P3(DdQMdBkiT",
       "id": "*P3(DdQMdBkiT",
       "segment_source_name": "*P3(DdQMdBkiT",
-      "time": null,
+      "time": 1234556,
     },
   },
 ]
