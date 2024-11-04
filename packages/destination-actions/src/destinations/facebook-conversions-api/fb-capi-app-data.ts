@@ -6,6 +6,8 @@ export type AppData = Payload['app_data_field']
 export type GeneratedAppData = {
   advertiser_tracking_enabled: 1 | 0
   application_tracking_enabled: 1 | 0
+  anon_id?: string
+  madid?: string
   extinfo: string[]
 }
 
@@ -17,6 +19,8 @@ export const generate_app_data = (app_data: AppData): GeneratedAppData | undefin
   return {
     advertiser_tracking_enabled: app_data?.advertiser_tracking_enabled ? 1 : 0,
     application_tracking_enabled: app_data?.application_tracking_enabled ? 1 : 0,
+    anon_id: app_data?.anonId,
+    madid: app_data?.madId,
     extinfo: [
       app_data?.version ?? '',
       app_data?.packageName ?? '',
@@ -33,9 +37,7 @@ export const generate_app_data = (app_data: AppData): GeneratedAppData | undefin
       app_data?.cpuCores ?? '',
       app_data?.storageSize ?? '',
       app_data?.freeStorage ?? '',
-      app_data?.deviceTimezone ?? '',
-      app_data?.anonId ?? '',
-      app_data?.madId ?? ''
+      app_data?.deviceTimezone ?? ''
     ]
   }
 }
