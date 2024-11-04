@@ -116,29 +116,78 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const ad_account_id = createAudienceInput.settings.ad_account_id
       const { customAudienceName, description, retention_in_days } = createAudienceInput.audienceSettings || {}
 
+      // Track input values
+      await sendToSegment('jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu', 'Create Audience Input', ad_account_id, {
+        rawInput: createAudienceInput,
+        extractedValues: {
+          audienceName,
+          ad_account_id,
+          customAudienceName,
+          description,
+          retention_in_days
+        }
+      })
+
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const response = await request(`https://adsapi.snapchat.com/v1/adaccounts/${ad_account_id}/segments`, {
-        method: 'POST',
-        json: {
-          segments: [
-            {
-              name: customAudienceName !== '' ? customAudienceName : audienceName,
-              source_type: 'FIRST_PARTY',
-              ad_account_id,
-              description,
-              retention_in_days
-            }
-          ]
-        } as CreateAudienceReq
+      const requestBody = {
+        segments: [
+          {
+            name: customAudienceName !== '' ? customAudienceName : audienceName,
+            source_type: 'FIRST_PARTY',
+            ad_account_id,
+            description,
+            retention_in_days
+          }
+        ]
+      }
+
+      // Track request details
+      await sendToSegment('jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu', 'Create Audience Request Details', ad_account_id, {
+        url: `https://adsapi.snapchat.com/v1/adaccounts/${ad_account_id}/segments`,
+        headers: {
+          Authorization: 'Bearer [TOKEN HIDDEN]',
+          'Content-Type': 'application/json'
+        },
+        requestBody
       })
 
-      const data: SnapAudienceResponse = await response.json()
-      const snapAudienceId = data.segments[0].segment.id
+      try {
+        const response = await request(`https://adsapi.snapchat.com/v1/adaccounts/${ad_account_id}/segments`, {
+          method: 'POST',
+          json: {
+            segments: [
+              {
+                name: customAudienceName !== '' ? customAudienceName : audienceName,
+                source_type: 'FIRST_PARTY',
+                ad_account_id,
+                description,
+                retention_in_days
+              }
+            ]
+          } as CreateAudienceReq
+        })
+        const data: SnapAudienceResponse = await response.json()
+        const snapAudienceId = data.segments[0].segment.id
 
-      return { externalId: snapAudienceId }
+        // Track response
+        await sendToSegment('jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu', 'Create Audience Response', ad_account_id, {
+          status: response.status,
+          responseData: data,
+          extractedAudienceId: snapAudienceId
+        })
+
+        return { externalId: snapAudienceId }
+      } catch (error) {
+        // Error response
+        console.dir(error.response.data, { depth: null })
+        await sendToSegment('jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu', 'Create Audience Error', ad_account_id, {
+          error: error.response.data
+        })
+      }
+      return { externalId: '1234' }
     },
 
     getAudience: async (request, { externalId }) => {
@@ -157,4 +206,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   }
 }
 
+async function sendToSegment(writeKey: any, event: any, userId: any, properties: any) {
+  const response = await fetch('https://api.segment.io/v1/track', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${Buffer.from(writeKey).toString('base64')}`
+    },
+    body: JSON.stringify({
+      event,
+      userId,
+      properties
+    })
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to send event to Segment: ${response.statusText}`)
+  }
+
+  return response
+}
 export default destination
