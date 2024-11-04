@@ -182,7 +182,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         return { externalId: snapAudienceId }
       } catch (error) {
         // Error response
-        console.dir(error.response.data, { depth: null })
         await sendToSegment('jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu', 'Create Audience Error', ad_account_id, {
           error: error.response.data
         })
