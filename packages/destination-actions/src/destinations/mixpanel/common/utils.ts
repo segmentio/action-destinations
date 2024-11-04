@@ -130,7 +130,9 @@ export async function handleMixPanelApiResponse(
     apiResponse.data.failed_records?.map((data) => {
       multiStatusResponse.setErrorResponseAtIndex(data.index, {
         status: 400,
-        errormessage: data.message
+        errormessage: data.message,
+        sent: data,
+        body: events[data.index]
       })
     })
   } else if (apiResponse.data.code !== 200) {
