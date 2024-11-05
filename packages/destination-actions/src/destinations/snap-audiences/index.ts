@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues, IntegrationError, RequestClient } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 const ACCESS_TOKEN_URL = 'https://accounts.snapchat.com/login/oauth2/access_token'
@@ -117,16 +117,22 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { customAudienceName, description, retention_in_days } = createAudienceInput.audienceSettings || {}
 
       // Track input values
-      await sendToSegment('jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu', 'Create Audience Input', ad_account_id, {
-        rawInput: createAudienceInput,
-        extractedValues: {
-          audienceName,
-          ad_account_id,
-          customAudienceName,
-          description,
-          retention_in_days
-        }
-      })
+      await sendToSegment(
+        'jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu',
+        'Create Audience Input',
+        ad_account_id,
+        {
+          rawInput: createAudienceInput,
+          extractedValues: {
+            audienceName,
+            ad_account_id,
+            customAudienceName,
+            description,
+            retention_in_days
+          }
+        },
+        request
+      )
 
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
@@ -145,14 +151,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       // Track request details
-      await sendToSegment('jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu', 'Create Audience Request Details', ad_account_id, {
-        url: `https://adsapi.snapchat.com/v1/adaccounts/${ad_account_id}/segments`,
-        headers: {
-          Authorization: 'Bearer [TOKEN HIDDEN]',
-          'Content-Type': 'application/json'
+      await sendToSegment(
+        'jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu',
+        'Create Audience Request Details',
+        ad_account_id,
+        {
+          url: `https://adsapi.snapchat.com/v1/adaccounts/${ad_account_id}/segments`,
+          headers: {
+            Authorization: 'Bearer [TOKEN HIDDEN]',
+            'Content-Type': 'application/json'
+          },
+          requestBody
         },
-        requestBody
-      })
+        request
+      )
 
       try {
         const response = await request(`https://adsapi.snapchat.com/v1/adaccounts/${ad_account_id}/segments`, {
@@ -173,18 +185,30 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const snapAudienceId = data.segments[0].segment.id
 
         // Track response
-        await sendToSegment('jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu', 'Create Audience Response', ad_account_id, {
-          status: response.status,
-          responseData: data,
-          extractedAudienceId: snapAudienceId
-        })
+        await sendToSegment(
+          'jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu',
+          'Create Audience Response',
+          ad_account_id,
+          {
+            status: response.status,
+            responseData: data,
+            extractedAudienceId: snapAudienceId
+          },
+          request
+        )
 
         return { externalId: snapAudienceId }
       } catch (error) {
         // Error response
-        await sendToSegment('jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu', 'Create Audience Error', ad_account_id, {
-          error: error.response.data
-        })
+        await sendToSegment(
+          'jsYMXBFcHxTHnNfZfwQo5FsL8jVRrjAu',
+          'Create Audience Error',
+          ad_account_id,
+          {
+            error: error.response.data
+          },
+          request
+        )
       }
       return { externalId: '1234' }
     },
@@ -205,18 +229,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   }
 }
 
-async function sendToSegment(writeKey: any, event: any, userId: any, properties: any) {
-  const response = await fetch('https://api.segment.io/v1/track', {
+async function sendToSegment(writeKey: any, event: string, userId: string, properties: any, request: RequestClient) {
+  const response = await request('https://api.segment.io/v1/track', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Basic ${Buffer.from(writeKey).toString('base64')}`
     },
-    body: JSON.stringify({
+    json: {
       event,
       userId,
       properties
-    })
+    }
   })
 
   if (!response.ok) {
