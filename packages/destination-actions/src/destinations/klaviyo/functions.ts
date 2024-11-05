@@ -596,6 +596,19 @@ function constructBulkCreateEventPayload(payload: TrackEventPayload) {
   }
 }
 
+/**
+ * Handles the error response from the Klaviyo API and updates the status of each payload accordingly.
+ * This function processes the `errors` array from the Klaviyo API response, identifies which payloads
+ * failed based on their error pointers, and sets an appropriate error response for each payload. If some
+ * events in a batch are invalid, it marks the rest as "retryable" if they are part of the same batch.
+ *
+ * @param {JSONLikeObject[]} payloads - An array of payloads that were sent to the Klaviyo API.
+ * @param {KlaviyoAPIErrorResponse} response - The error response from the Klaviyo API.
+ * @param {MultiStatusResponse} multiStatusResponse - An object used to store and track the status of each payload.
+ * @param {number[]} validPayloadIndicesBitmap - A bitmap of indices representing valid payloads in the `payloads` array.
+ * @param {RegExp} regex - A regular expression used to parse the error pointers to find the index of the corresponding payload.
+ */
+
 function handleKlaviyoAPIErrorResponse(
   payloads: JSONLikeObject[],
   response: KlaviyoAPIErrorResponse,

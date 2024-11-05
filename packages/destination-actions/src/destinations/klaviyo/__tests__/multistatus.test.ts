@@ -1,11 +1,11 @@
 import { SegmentEvent, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import nock from 'nock'
 import { API_URL } from '../config'
-import Braze from '../index'
+import Klaviyo from '../index'
 
 beforeEach(() => nock.cleanAll())
 
-const testDestination = createTestIntegration(Braze)
+const testDestination = createTestIntegration(Klaviyo)
 
 const settings = {
   api_key: 'my-api-key'
@@ -179,7 +179,7 @@ describe('MultiStatus', () => {
         mapping
       })
 
-      // The first doesn't fail as there is no error reported by Braze API
+      // The first doesn't fail as there is no error reported by Klaviyo API
       expect(response[0]).toMatchObject({
         status: 400,
         errortype: 'BAD_REQUEST',
@@ -197,7 +197,7 @@ describe('MultiStatus', () => {
         body: '{"id":"752f7ece-af20-44e0-aa3a-b13290d98e72","status":400,"code":"invalid","title":"Invalid input.","detail":"Invalid input","source":{"pointer":"/data/attributes/events-bulk-create/data/0/attributes/email"},"links":{},"meta":{}}'
       })
 
-      // The second event fails as Braze API reports an error
+      // The second event fails as Klaviyo API reports an error
       expect(response[1]).toMatchObject({
         status: 429,
         sent: {
