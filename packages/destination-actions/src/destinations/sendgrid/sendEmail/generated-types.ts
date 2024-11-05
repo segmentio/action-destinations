@@ -70,7 +70,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The template ID to use for the email. This must be for a Dynamic Template and should start with a 'd-'
+   * The Dynamic Template to use for the email.
    */
   template_id: string
   /**
