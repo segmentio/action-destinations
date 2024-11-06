@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.93.1-staging-38bd54e36.0",
+  "version": "1.93.1-staging-4458160f3.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -25,7 +25,7 @@
     "@segment/analytics-browser-actions-devrev": "1.56.1-staging-de129bb53.0",
     "@segment/analytics-browser-actions-friendbuy": "1.70.1-staging-de129bb53.0",
     "@segment/analytics-browser-actions-fullstory": "1.71.1-staging-de129bb53.0",
-    "@segment/analytics-browser-actions-google-analytics-4": "1.76.1-staging-38bd54e36.0",
+    "@segment/analytics-browser-actions-google-analytics-4": "1.76.1-staging-4458160f3.0",
     "@segment/analytics-browser-actions-google-campaign-manager": "1.60.1-staging-de129bb53.0",
     "@segment/analytics-browser-actions-heap": "1.69.1-staging-de129bb53.0",
     "@segment/analytics-browser-actions-hubspot": "1.69.1-staging-de129bb53.0",
