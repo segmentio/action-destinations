@@ -134,8 +134,8 @@ export function handleMixPanelApiResponse(
       multiStatusResponse.setErrorResponseAtIndex(data.index, {
         status: 400,
         errormessage: data.message,
-        sent: data,
-        body: events[data.index]
+        sent: events[data.index],
+        body: data
       })
     })
   }
@@ -143,7 +143,7 @@ export function handleMixPanelApiResponse(
     for (let i = 0; i < payloadCount; i++) {
       multiStatusResponse.setErrorResponseAtIndex(i, {
         status: apiResponse.data.code,
-        errormessage: apiResponse.data.error ?? 'Payload validation error',
+        errormessage: apiResponse.data.error ?? 'Unknown error from Mixpanel',
         sent: events[i],
         body: apiResponse.data.error
       })
