@@ -20,23 +20,13 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
       description:
         'Consent state indicated by the user for ad cookies. Value must be “granted” or “denied.” This is only used if the Enable Consent Mode setting is on.',
       label: 'Ads Storage Consent State',
-      type: 'string',
-      choices: [
-        { label: 'Granted', value: 'granted' },
-        { label: 'Denied', value: 'denied' }
-      ],
-      default: undefined
+      type: 'string'
     },
     analytics_storage_consent_state: {
       description:
         'Consent state indicated by the user for ad cookies. Value must be “granted” or “denied.” This is only used if the Enable Consent Mode setting is on.',
       label: 'Analytics Storage Consent State',
-      type: 'string',
-      choices: [
-        { label: 'Granted', value: 'granted' },
-        { label: 'Denied', value: 'denied' }
-      ],
-      default: undefined
+      type: 'string'
     },
     ad_user_data_consent_state: {
       description:
