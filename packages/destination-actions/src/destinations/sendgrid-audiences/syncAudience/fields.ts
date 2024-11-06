@@ -22,55 +22,15 @@ export const fields: Record<string, InputField> = {
       '@path': '$.context.personas.external_audience_id'
     }
   },
-  primary_email: {
-    label: 'Email Address',
-    description: `The contact's email address.`,
+  segment_audience_key: {
+    label: 'Audience Key',
+    description: 'Segment Audience key',
     type: 'string',
-    allowNull: true,
-    required: false,
+    unsafe_hidden: true,
+    required: true,
     default: {
-      '@if': {
-        exists: { '@path': '$.traits.email' },
-        then: { '@path': '$.traits.email' },
-        else: { '@path': '$.properties.email' }
-      }
+      '@path': '$.context.personas.computation_key'
     }
-  },
-  phone_number_id: {
-    label: 'Phone Number ID',
-    description: `Primary Phone Number used to identify a Contact. This must be a valid phone number.`,
-    type: 'string',
-    allowNull: true,
-    required: false,
-    default: {
-      '@if': {
-        exists: { '@path': '$.traits.phone' },
-        then: { '@path': '$.traits.phone' },
-        else: { '@path': '$.properties.phone' }
-      }
-    }
-  },
-  external_id: {
-    label: 'External ID',
-    description: `The contact's External ID.`,
-    type: 'string',
-    allowNull: true,
-    required: false,
-    default: {
-      '@if': {
-        exists: { '@path': '$.traits.external_id' },
-        then: { '@path': '$.traits.external_id' },
-        else: { '@path': '$.properties.external_id' }
-      }
-    }
-  },
-  anonymous_id: {
-    label: 'Anonymous ID ',
-    description: `The contact's Anonymous ID.`,
-    type: 'string',
-    allowNull: true,
-    required: false,
-    default: { '@path': '$.anonymousId' }
   },
   traits_or_props: {
     label: 'Traits or properties object',
@@ -86,19 +46,33 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
+  primary_email: {
+    label: 'Email Address',
+    description: `The contact's email address.`,
+    type: 'string',
+    required: true,
+    default: {
+      '@if': {
+        exists: { '@path': '$.traits.email' },
+        then: { '@path': '$.traits.email' },
+        else: { '@path': '$.properties.email' }
+      }
+    }
+  },
   enable_batching: {
     type: 'boolean',
     label: 'Batch events',
-    description:
-      'When enabled, the action will batch events before sending them to LaunchDarkly. In most cases, batching should be enabled.',
-    required: false,
+    description: 'When enabled, the action will batch events before sending them to Sendgrid.',
+    unsafe_hidden: true,
+    required: true,
     default: true
   },
   batch_size: {
     type: 'number',
     label: 'Max batch size',
     description: 'The maximum number of events to batch when sending data to Reddit.',
+    unsafe_hidden: true,
     required: false,
-    default: 2500
+    default: 200
   }
 }

@@ -54,12 +54,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           method: 'POST',
           throwHttpErrors: false,
           json: {
-            name: createAudienceInput.audienceSettings.listName ?? createAudienceInput.audienceName 
+            name: createAudienceInput?.audienceSettings?.listName ?? createAudienceInput.audienceName 
           } as CreateAudienceReq
         }
       )
       const json = await response.json()
-      return { externalId: json.data.id }
+      return { externalId: json.id }
     },
     async getAudience(_, getAudienceInput) {
       return {

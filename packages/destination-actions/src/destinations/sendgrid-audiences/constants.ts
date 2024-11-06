@@ -2,6 +2,6 @@ export const CREATE_LIST_URL = 'https://api.sendgrid.com/v3/marketing/lists'
 
 export const UPSERT_CONTACTS_URL = 'https://api.sendgrid.com/v3/marketing/contacts'
 
-export const GET_ALL_LISTS_URL = 'https:test.com' // get lists before starting to populate 
+export const REMOVE_CONTACTS_FROM_LIST_URL = 'https://api.sendgrid.com/v3/marketing/lists/{list_id}/contacts?contact_ids={contact_ids}'
 
-
+export const GET_CONTACT_BY_EMAIL_URL = 'https://api.sendgrid.com/v3/marketing/contacts/search/emails'
