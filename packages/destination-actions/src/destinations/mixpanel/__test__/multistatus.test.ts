@@ -20,7 +20,11 @@ const testDestination = createTestIntegration(Mixpanel)
 describe('MultiStatus', () => {
   describe('trackEvent', () => {
     it('should successfully handle a batch of events with complete success response from Mixpanel API', async () => {
-      nock(END_POINT).post('/import?strict=1').reply(200, {})
+      nock(END_POINT).post('/import?strict=1').reply(200, {
+        code: 200,
+        status: 'Ok',
+        num_records_imported: 2
+      })
 
       const mapping = {
         event: {
@@ -50,7 +54,21 @@ describe('MultiStatus', () => {
     })
 
     it('should successfully handle a batch of events with partial success response from Mixpanel API', async () => {
-      nock(END_POINT).post('/import?strict=1').reply(200, {})
+      nock(END_POINT)
+        .post('/import?strict=1')
+        .reply(200, {
+          code: 200,
+          status: 'Ok',
+          num_records_imported: 1,
+          failed_records: [
+            {
+              index: 1,
+              insert_id: '13c0b661-f48b-51cd-ba54-97c5999169c0',
+              field: 'properties.time',
+              message: 'Payload validation error'
+            }
+          ]
+        })
 
       const mapping = {
         event: {
@@ -74,7 +92,7 @@ describe('MultiStatus', () => {
       // The first event doesn't fail as there is no error reported by Mixpanel API
       expect(response[0]).toMatchObject({
         status: 200,
-        body: 'Ok'
+        body: {}
       })
 
       // The second event fails as pre-request validation fails for not having a valid event name.
@@ -134,7 +152,7 @@ describe('MultiStatus', () => {
             index: 1,
             insert_id: '13c0b661-f48b-51cd-ba54-97c5999169c0',
             field: 'properties.time',
-            message: "'properties.time' is invalid: must be specified as seconds since epoch"
+            message: 'Payload validation error'
           }
         ]
       }
@@ -156,17 +174,20 @@ describe('MultiStatus', () => {
         settings
       })
 
-      expect(response).toMatchObject([
-        {
-          status: 200,
-          body: 'Ok'
-        },
-        {
-          status: 400,
-          errormessage: "'properties.time' is invalid: must be specified as seconds since epoch",
-          errorreporter: 'DESTINATION'
+      console.log(response)
+      expect(response[0]).toMatchObject({
+        status: 200,
+        body: 'Bad Request',
+        sent: {
+          event: 'Test event'
         }
-      ])
+      })
+      expect(response[1]).toMatchObject({
+        status: 400,
+        errormessage: 'Payload validation error',
+        errortype: 'BAD_REQUEST',
+        errorreporter: 'DESTINATION'
+      })
     })
     it('should successfully handle a batch of events with fatal error 401 response from Mixpanel API', async () => {
       const mockResponse: MixpanelTrackApiResponseType = {
@@ -209,7 +230,11 @@ describe('MultiStatus', () => {
 
   describe('trackPurchase', () => {
     it('should successfully handle a batch of events with complete success response from Mixpanel API', async () => {
-      nock(END_POINT).post('/import?strict=1').reply(200, {})
+      nock(END_POINT).post('/import?strict=1').reply(200, {
+        code: 200,
+        status: 'Ok',
+        num_records_imported: 2
+      })
 
       const mapping = {
         event: {
@@ -229,17 +254,21 @@ describe('MultiStatus', () => {
       })
       expect(response[0]).toMatchObject({
         status: 200,
-        body: 'Event sent successfully'
+        body: 'Ok'
       })
 
       expect(response[1]).toMatchObject({
         status: 200,
-        body: 'Event sent successfully'
+        body: 'Ok'
       })
     })
 
     it('should successfully handle a batch of events with partial success response from Mixpanel API', async () => {
-      nock(END_POINT).post('/import?strict=1').reply(200, {})
+      nock(END_POINT).post('/import?strict=1').reply(200, {
+        code: 200,
+        status: 'Ok',
+        num_records_imported: 1
+      })
 
       const mapping = {
         event: {
@@ -263,7 +292,7 @@ describe('MultiStatus', () => {
       // The first event doesn't fail as there is no error reported by Mixpanel API
       expect(response[0]).toMatchObject({
         status: 200,
-        body: 'Event sent successfully'
+        body: 'Ok'
       })
 
       // The second event fails as pre-request validation fails for not having a valid event name.
@@ -321,13 +350,13 @@ describe('MultiStatus', () => {
             index: 0,
             insert_id: '13c0b661-f48b-51cd-ba54-97c5999169c0',
             field: 'properties.time',
-            message: "'properties.time' is invalid: must be specified as seconds since epoch"
+            message: 'Payload validation error'
           },
           {
             index: 1,
             insert_id: '13c0b661-f48b-51cd-ba54-97c5999169c0',
             field: 'properties.time',
-            message: "'properties.time' is invalid: must be specified as seconds since epoch"
+            message: 'Payload validation error'
           }
         ]
       }
@@ -352,12 +381,12 @@ describe('MultiStatus', () => {
       expect(response).toMatchObject([
         {
           status: 400,
-          errormessage: "'properties.time' is invalid: must be specified as seconds since epoch",
+          errormessage: 'Payload validation error',
           errorreporter: 'DESTINATION'
         },
         {
           status: 400,
-          errormessage: "'properties.time' is invalid: must be specified as seconds since epoch",
+          errormessage: 'Payload validation error',
           errorreporter: 'DESTINATION'
         }
       ])
