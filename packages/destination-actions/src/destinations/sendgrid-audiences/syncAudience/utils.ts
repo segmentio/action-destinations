@@ -37,8 +37,6 @@ export async function send(request: RequestClient, payload: Payload[]) {
       .filter((query) => query !== "")    
       .join(' OR ')
 
-    console.log(query)
-
     const response = await request<SearchContactsResp>(SEARCH_CONTACTS_URL, {
       method: 'post',
       json: {
@@ -47,8 +45,6 @@ export async function send(request: RequestClient, payload: Payload[]) {
     })
 
     const contact_ids = response.data.result.map(item => item.id)
-
-    console.log(contact_ids)
 
     const url = REMOVE_CONTACTS_FROM_LIST_URL.replace('{list_id}', remove[0].external_audience_id).replace('{contact_ids}', contact_ids.join(','))
 
