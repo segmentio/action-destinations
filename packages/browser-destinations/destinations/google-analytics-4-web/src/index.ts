@@ -213,6 +213,7 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
     }
 
     window.gtag('js', new Date())
+    console.log('settings', settings)
     if (settings.enableConsentMode) {
       const consent: {
         ad_storage: ConsentParamsArg

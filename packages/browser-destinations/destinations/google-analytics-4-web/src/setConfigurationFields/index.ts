@@ -129,6 +129,7 @@ const action: BrowserActionDefinition<Settings, Function, Payload> = {
     params: params
   },
   perform: (gtag, { payload, settings }) => {
+    console.log(payload)
     const checkCookiePathDefaultValue =
       settings.cookiePath != undefined && settings.cookiePath?.length !== 1 && settings.cookiePath !== '/'
 
