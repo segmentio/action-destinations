@@ -6,7 +6,7 @@ type ConsentParamsArg = 'granted' | 'denied' | undefined
 
 const defaultCookieExpiryInSecond = 63072000
 const defaultCookieDomain = 'auto'
-// Change from unknown to the partner SDK types
+// Change from unknown to the partner SDK types.
 const action: BrowserActionDefinition<Settings, Function, Payload> = {
   title: 'Set Configuration Fields',
   description: 'Set custom values for the GA4 configuration fields.',
