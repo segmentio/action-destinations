@@ -14,18 +14,17 @@ export interface UpsertContactsReq {
   }>
 }
 
-export interface GetContactsByEmailReq {
-  emails: string[]
-}
-
-export interface GetContactsByEmailResp {
-  result: {
-    [email: string]: {
-      contact: {
-        id: string
-        email: string
-        list_ids: string[]
-      }
-    }
-  }
+export interface SearchContactsResp {
+  result: Array<{
+    id: string
+    external_id?: string
+    email?: string
+    phone_number_id?: string
+    anonymous_id?: string
+  }& (
+    | { external_id: string }
+    | { email: string }
+    | { phone_number_id: string }
+    | { anonymous_id: string }
+  )>
 }

@@ -46,16 +46,50 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
-  primary_email: {
+  email: {
     label: 'Email Address',
     description: `The contact's email address.`,
     type: 'string',
-    required: true,
+    required: false,
     default: {
       '@if': {
         exists: { '@path': '$.traits.email' },
         then: { '@path': '$.traits.email' },
         else: { '@path': '$.properties.email' }
+      }
+    }
+  },
+  anonymous_id: {
+    label: 'Anonymous ID',
+    description: `The contact's anonymous ID.`,
+    type: 'string',
+    required: false,
+    default: { '@path': '$.anonymousId' }
+  },
+  external_id: {
+    label: 'External ID',
+    description: `The contact's external ID.`,
+    type: 'string',
+    required: false,
+    default: {
+      '@if': {
+        exists: { '@path': '$.traits.external_id' },
+        then: { '@path': '$.traits.external_id' },
+        else: { '@path': '$.properties.external_id' }
+      }
+    }
+  },
+  phone_number_id: {
+    label: 'Phone Number ID',
+    description: `The contact's primary phone number. Should include the country code e.g. +19876543213.`,
+    type: 'string',
+    allowNull: true,
+    required: false,
+    default: {
+      '@if': {
+        exists: { '@path': '$.traits.phone' },
+        then: { '@path': '$.traits.phone' },
+        else: { '@path': '$.properties.phone' }
       }
     }
   },

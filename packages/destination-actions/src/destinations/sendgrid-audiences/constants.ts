@@ -5,3 +5,5 @@ export const UPSERT_CONTACTS_URL = 'https://api.sendgrid.com/v3/marketing/contac
 export const REMOVE_CONTACTS_FROM_LIST_URL = 'https://api.sendgrid.com/v3/marketing/lists/{list_id}/contacts?contact_ids={contact_ids}'
 
 export const GET_CONTACT_BY_EMAIL_URL = 'https://api.sendgrid.com/v3/marketing/contacts/search/emails'
+
+export const SEARCH_CONTACTS_URL = 'https://api.sendgrid.com/v3/marketing/contacts/search'

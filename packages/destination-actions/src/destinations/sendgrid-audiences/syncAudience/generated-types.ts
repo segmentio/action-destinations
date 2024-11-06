@@ -22,7 +22,19 @@ export interface Payload {
   /**
    * The contact's email address.
    */
-  primary_email: string
+  email?: string
+  /**
+   * The contact's anonymous ID.
+   */
+  anonymous_id?: string
+  /**
+   * The contact's external ID.
+   */
+  external_id?: string
+  /**
+   * The contact's primary phone number. Should include the country code e.g. +19876543213.
+   */
+  phone_number_id?: string | null
   /**
    * When enabled, the action will batch events before sending them to Sendgrid.
    */
