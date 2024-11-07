@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core'
+import { MAX_BATCH_SIZE } from '../constants'
 
 export const fields: Record<string, InputField> = {
   segment_computation_action: {
@@ -108,6 +109,6 @@ export const fields: Record<string, InputField> = {
     description: 'The maximum number of events to batch when sending data to Reddit.',
     unsafe_hidden: true,
     required: false,
-    default: 100
+    default: MAX_BATCH_SIZE
   }
 }

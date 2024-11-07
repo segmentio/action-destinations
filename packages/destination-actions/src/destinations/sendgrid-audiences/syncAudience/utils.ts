@@ -1,7 +1,8 @@
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
-import { UPSERT_CONTACTS_URL, SEARCH_CONTACTS_URL, REMOVE_CONTACTS_FROM_LIST_URL } from '../constants'
+import { UPSERT_CONTACTS_URL, SEARCH_CONTACTS_URL, REMOVE_CONTACTS_FROM_LIST_URL, MAX_CHUNK_SIZE_SEARCH, MAX_CHUNK_SIZE_REMOVE } from '../constants'
 import { UpsertContactsReq, SearchContactsResp } from '../types'
+import chunk from 'lodash/chunk'
 
 export async function send(request: RequestClient, payload: Payload[]) {
   
@@ -37,28 +38,68 @@ export async function send(request: RequestClient, payload: Payload[]) {
   if(remove.length>0) {
     const identifiers: (keyof Payload)[] = ['email', 'phone_number_id', 'external_id', 'anonymous_id']
 
-    const query = identifiers
-      .map((identifier) => getQueryPart(identifier, remove))
-      .filter((query) => query !== "")    
-      .join(' OR ')
+    const chunks = chunkPayloads(remove)
 
-    const response = await request<SearchContactsResp>(SEARCH_CONTACTS_URL, {
-      method: 'post',
-      json: {
-        query
-      }
-    })
+    const queries = chunks.map((c) =>
+      identifiers
+        .map((identifier) => getQueryPart(identifier, c))
+        .filter((query) => query !== "")
+        .join(' OR ')
+    )
 
-    const contact_ids = response.data.result.map(item => item.id)
+    const responses = await Promise.all(
+      queries.map((query) =>
+        request<SearchContactsResp>(SEARCH_CONTACTS_URL, {
+          method: 'post',
+          json: {
+            query
+          }
+        })
+      )
+    )
 
-    const url = REMOVE_CONTACTS_FROM_LIST_URL.replace('{list_id}', remove[0].external_audience_id).replace('{contact_ids}', contact_ids.join(','))
+    const contact_ids = responses.flatMap((response) => response.data.result.map((item) => item.id))
 
-    if(contact_ids.length>0){
-      await request(url, {
-        method: 'delete'
+    const chunkedContactIds = chunk(contact_ids, MAX_CHUNK_SIZE_REMOVE)
+
+    const listId = remove[0].external_audience_id
+
+    await Promise.all(
+      chunkedContactIds.map(async (c) => {
+        const url = REMOVE_CONTACTS_FROM_LIST_URL.replace('{list_id}', listId).replace('{contact_ids}', c.join(','))
+        if (c.length > 0) {
+          await request(url, {
+            method: 'delete',
+          })
+        }
       })
-    }
+    )
   }
+}
+
+function chunkPayloads(payloads: Payload[]): Payload[][] {
+  const chunks: Payload[][] = []
+  let currentChunk: Payload[] = []
+  let currentChunkSize = 0
+
+  for (const payload of payloads) {
+    const idCount = [payload.email, payload.phone_number_id, payload.external_id, payload.anonymous_id].filter(Boolean).length
+
+    if (currentChunkSize + idCount > MAX_CHUNK_SIZE_SEARCH) {
+      chunks.push(currentChunk)
+      currentChunk = []
+      currentChunkSize = 0
+    }
+
+    currentChunk.push(payload)
+    currentChunkSize += idCount
+  }
+
+  if (currentChunk.length) { 
+    chunks.push(currentChunk)
+  }
+
+  return chunks
 }
 
 function getQueryPart(identifier: keyof Payload, payloads: Payload[]): string {
