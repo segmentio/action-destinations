@@ -1,18 +1,11 @@
-import {
-  ActionDefinition,
-  HTTPError,
-  JSONLikeObject,
-  MultiStatusResponse,
-  RequestClient,
-  ModifiedResponse
-} from '@segment/actions-core'
+import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from '../mixpanel-types'
 import { getApiServerUrl } from '../common/utils'
 import { getEventProperties } from './functions'
 import { eventProperties } from '../mixpanel-properties'
-import { MixpanelTrackApiResponseType, handleMixPanelApiResponse, transformPayloadsType } from '../common/utils'
+import { MixpanelTrackApiResponseType, handleMixPanelApiResponse } from '../common/utils'
 
 const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEvent => {
   const event: MixpanelEvent = {
@@ -25,31 +18,20 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
 }
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
-  const multiStatusResponse = new MultiStatusResponse()
-  const events: MixpanelEvent[] = payload.map((value, index) => {
-    const event = getEventFromPayload(value, settings)
-    multiStatusResponse.setSuccessResponseAtIndex(index, {
-      status: 200,
-      sent: event as JSONLikeObject,
-      body: 'Ok'
-    })
-    return event
+  const events: MixpanelEvent[] = payload.map((value) => {
+    return getEventFromPayload(value, settings)
   })
-  try {
-    await callMixpanelApi(request, settings, events)
-  } catch (error) {
-    if (error as HTTPError) {
-      const errorResponse = (error as HTTPError).response as ModifiedResponse<MixpanelTrackApiResponseType>
-      await handleMixPanelApiResponse(transformPayloadsType(payload), errorResponse, multiStatusResponse, events)
-    } else {
-      throw error
-    }
-  }
-
+  const response = await callMixpanelApi(request, settings, events, false)
+  const multiStatusResponse = handleMixPanelApiResponse(payload.length, response, events)
   return multiStatusResponse
 }
 
-const callMixpanelApi = async (request: RequestClient, settings: Settings, events: MixpanelEvent[]) => {
+const callMixpanelApi = async (
+  request: RequestClient,
+  settings: Settings,
+  events: MixpanelEvent[],
+  throwHttpErrors: boolean
+) => {
   return await request<MixpanelTrackApiResponseType>(
     `${getApiServerUrl(settings.apiRegion)}/import?strict=${settings.strictMode ?? `1`}`,
     {
@@ -57,7 +39,8 @@ const callMixpanelApi = async (request: RequestClient, settings: Settings, event
       json: events,
       headers: {
         authorization: `Basic ${Buffer.from(`${settings.apiSecret}:`).toString('base64')}`
-      }
+      },
+      throwHttpErrors: throwHttpErrors
     }
   )
 }
@@ -86,7 +69,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { settings, payload }) => {
     const events = getEventFromPayload(payload, settings)
-    return await callMixpanelApi(request, settings, [events])
+    return await callMixpanelApi(request, settings, [events], true)
   }
 }
 

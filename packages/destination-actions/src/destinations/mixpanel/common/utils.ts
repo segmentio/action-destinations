@@ -115,34 +115,40 @@ export type MixpanelTrackApiResponseType = {
   }[]
 }
 
-export function transformPayloadsType(obj: object[]) {
-  const jsonObj = obj as JSONLikeObject[]
-  return jsonObj.length
-}
-
-export async function handleMixPanelApiResponse(
+export function handleMixPanelApiResponse(
   payloadCount: number,
   apiResponse: ModifiedResponse<MixpanelTrackApiResponseType>,
-  multiStatusResponse: MultiStatusResponse,
   events: JSONLikeObject[]
 ) {
-  if (apiResponse.data.code === 400) {
+  const multiStatusResponse = new MultiStatusResponse()
+  if (apiResponse.data.code === 400 || apiResponse.data.code === 200) {
+    for (let i = 0; i < payloadCount; i++) {
+      multiStatusResponse.setSuccessResponseAtIndex(i, {
+        status: 200,
+        body: apiResponse.data.status ?? 'Ok',
+        sent: events[i]
+      })
+    }
+
     apiResponse.data.failed_records?.map((data) => {
       multiStatusResponse.setErrorResponseAtIndex(data.index, {
         status: 400,
         errormessage: data.message,
-        sent: data,
-        body: events[data.index]
+        sent: events[data.index],
+        body: data
       })
     })
-  } else if (apiResponse.data.code !== 200) {
+  }
+  if (apiResponse.data.code !== 200 && apiResponse.data.code !== 400) {
     for (let i = 0; i < payloadCount; i++) {
       multiStatusResponse.setErrorResponseAtIndex(i, {
         status: apiResponse.data.code,
-        errormessage: apiResponse.data.error ?? 'Payload validation error',
+        errormessage: apiResponse.data.error ?? 'Unknown error from Mixpanel',
         sent: events[i],
         body: apiResponse.data.error
       })
     }
   }
+
+  return multiStatusResponse
 }
