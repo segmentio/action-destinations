@@ -37,9 +37,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     listName: {
       label: 'List Name',
-      description: 'An list name to create Sendgrid. Overrides the Segment Audience name.',
+      description: 'A list name to create in Sendgrid. If not provided the Segment Audience name will be used.',
       type: 'string',
-      required: true
+      required: false
     }
   },
   audienceConfig: {

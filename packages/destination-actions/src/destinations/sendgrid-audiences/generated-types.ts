@@ -10,7 +10,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * An list name to create Sendgrid. Overrides the Segment Audience name.
+   * A list name to create in Sendgrid. If not provided the Segment Audience name will be used.
    */
-  listName: string
+  listName?: string
 }
