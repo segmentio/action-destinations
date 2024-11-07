@@ -85,7 +85,6 @@ export const fields: Record<string, InputField> = {
     label: 'Phone Number ID',
     description: `The contact's primary phone number. Should include the country code e.g. +19876543213.`,
     type: 'string',
-    allowNull: true,
     required: false,
     default: {
       '@if': {

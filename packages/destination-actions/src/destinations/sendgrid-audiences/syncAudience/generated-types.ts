@@ -34,7 +34,7 @@ export interface Payload {
   /**
    * The contact's primary phone number. Should include the country code e.g. +19876543213.
    */
-  phone_number_id?: string | null
+  phone_number_id?: string
   /**
    * When enabled, the action will batch events before sending them to Sendgrid.
    */
