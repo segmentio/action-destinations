@@ -3,7 +3,8 @@ import { InputField } from '@segment/actions-core'
 export const fields: Record<string, InputField> = {
   segment_computation_action: {
     label: 'Segment Computation Class',
-    description: "Segment computation class used to determine if input event is from an Engage Audience'. Value must be = 'audience'.",
+    description:
+      "Segment computation class used to determine if input event is from an Engage Audience'. Value must be = 'audience'.",
     type: 'string',
     unsafe_hidden: true,
     required: true,
@@ -107,6 +108,6 @@ export const fields: Record<string, InputField> = {
     description: 'The maximum number of events to batch when sending data to Reddit.',
     unsafe_hidden: true,
     required: false,
-    default: 200
+    default: 100
   }
 }
