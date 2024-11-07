@@ -27,7 +27,6 @@ import {
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { emailRegex } from './properties'
 import { Payload as AddProfileToListPayload } from './addProfileToList/generated-types'
 import { JSONLikeObject } from '@segment/actions-core'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
@@ -529,16 +528,6 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
     }
     payload.phone_number = validPhoneNumber
     delete payload.country_code
-  }
-  if (email) {
-    if (!emailRegex.test(email)) {
-      response.error = {
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Email format is invalid.Please ensure it follows the standard format'
-      }
-      return response
-    }
   }
 
   const { list_id, enable_batching, batch_size, country_code, ...attributes } = payload

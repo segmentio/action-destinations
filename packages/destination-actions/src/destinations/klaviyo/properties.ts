@@ -18,7 +18,8 @@ export const email: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.traits.email'
-  }
+  },
+  format: 'email'
 }
 
 export const external_id: InputField = {
@@ -162,5 +163,3 @@ export const country_code: InputField = {
     ]
   }
 }
-export const emailRegex =
-  /^(?!.*\.\.)(?!.*\.$)(?!.*@{2,})(?!.*@\.)(?!.*\.$)(?=.{1,256})[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/

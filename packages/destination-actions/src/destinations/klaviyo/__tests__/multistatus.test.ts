@@ -151,8 +151,8 @@ describe('MultiStatus', () => {
       expect(response[2]).toMatchObject({
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'Email format is invalid.Please ensure it follows the standard format',
-        errorreporter: 'DESTINATION'
+        errormessage: 'Email must be a valid email address string but it was not.',
+        errorreporter: 'INTEGRATIONS'
       })
     })
 
