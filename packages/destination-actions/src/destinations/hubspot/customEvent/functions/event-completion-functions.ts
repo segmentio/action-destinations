@@ -1,6 +1,6 @@
-import { Client } from './client'
-import { Payload } from './generated-types'
-import { EventCompletionReq } from './types'
+import { Client } from '../client'
+import { Payload } from '../generated-types'
+import { EventCompletionReq } from '../types'
 
 export async function sendEvent(client: Client, fullyQualifiedName: string, payload: Payload) {
   const { record_details, properties, occurred_at: occurredAt } = payload

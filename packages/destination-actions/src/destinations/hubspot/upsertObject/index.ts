@@ -1,28 +1,21 @@
-import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import { Client } from './client'
 import { AssociationSyncMode, SyncMode, SchemaMatch } from './types'
-import {
-  dynamicReadAssociationLabels,
-  dynamicReadIdFields,
-  dynamicReadObjectTypes,
-  dynamicReadPropertyGroups,
-  dynamicReadProperties
-} from './dynamic-fields'
+import { dynamicFields } from './functions/dynamic-field-functions'
+import { getSchemaFromCache, saveSchemaToCache } from './functions/cache-functions'
+import { validate } from './functions/validation-functions'
+import { objectSchema, compareSchemas } from './functions/schema-functions'
+import { sendFromRecords } from './functions/hubspot-record-functions'
 import {
   sendAssociatedRecords,
-  compareToCache,
-  compareToHubspot,
   createAssociationPayloads,
-  createProperties,
-  objectSchema,
-  saveSchemaToCache,
-  sendAssociations,
-  sendFromRecords,
-  validate
-} from './utils'
+  sendAssociations
+} from './functions/hubspot-association-functions'
+import { getSchemaFromHubspot, createProperties } from './functions/hubspot-properties-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object V2',
@@ -41,102 +34,24 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     ...commonFields
   },
-  dynamicFields: {
-    object_details: {
-      object_type: async (request) => {
-        return await dynamicReadObjectTypes(request)
-      },
-      id_field_name: async (request, { payload }) => {
-        const fromObjectType = payload?.object_details?.object_type
-
-        if (!fromObjectType) {
-          throw new Error("Select a value from the 'Object Type' field")
-        }
-
-        return await dynamicReadIdFields(request, fromObjectType)
-      },
-      property_group: async (request, { payload }) => {
-        const fromObjectType = payload?.object_details?.object_type
-
-        if (!fromObjectType) {
-          throw new Error("Select a value from the 'Object Type' field")
-        }
-
-        return await dynamicReadPropertyGroups(request, fromObjectType)
-      }
-    },
-    properties: {
-      __keys__: async (request, { payload }) => {
-        const fromObjectType = payload?.object_details?.object_type
-
-        if (!fromObjectType) {
-          throw new Error("Select a value from the 'Object Type' field")
-        }
-
-        return await dynamicReadProperties(request, fromObjectType, false)
-      }
-    },
-    sensitive_properties: {
-      __keys__: async (request, { payload }) => {
-        const fromObjectType = payload?.object_details?.object_type
-
-        if (!fromObjectType) {
-          throw new Error("Select a value from the 'Object Type' field")
-        }
-
-        return await dynamicReadProperties(request, fromObjectType, true)
-      }
-    },
-    associations: {
-      object_type: async (request) => {
-        return await dynamicReadObjectTypes(request)
-      },
-      association_label: async (request, { dynamicFieldContext, payload }) => {
-        const selectedIndex = dynamicFieldContext?.selectedArrayIndex
-
-        if (selectedIndex === undefined) {
-          throw new Error('Selected array index is missing')
-        }
-
-        const fromObjectType = payload?.object_details?.object_type
-        const toObjectType = payload?.associations?.[selectedIndex]?.object_type
-
-        if (!fromObjectType) {
-          throw new Error("Select a value from the from 'Object Type' field")
-        }
-
-        if (!toObjectType) {
-          throw new Error("Select a value from the 'To Object Type' field")
-        }
-
-        return await dynamicReadAssociationLabels(request, fromObjectType, toObjectType)
-      },
-      id_field_name: async (request, { dynamicFieldContext, payload }) => {
-        const selectedIndex = dynamicFieldContext?.selectedArrayIndex
-
-        if (selectedIndex === undefined) {
-          throw new Error('Selected array index is missing')
-        }
-
-        const toObjectType = payload?.associations?.[selectedIndex]?.object_type
-
-        if (!toObjectType) {
-          throw new Error("Select a value from the 'To Object Type' field")
-        }
-
-        return await dynamicReadIdFields(request, toObjectType)
-      }
-    }
+  dynamicFields,
+  perform: async (request, { payload, syncMode, subscriptionMetadata, statsContext }) => {
+    statsContext?.tags?.push('action:custom_object')
+    return await send(request, [payload], syncMode as SyncMode, subscriptionMetadata, statsContext)
   },
-  perform: async (request, { payload, syncMode }) => {
-    return await send(request, [payload], syncMode as SyncMode)
-  },
-  performBatch: async (request, { payload, syncMode }) => {
-    return await send(request, payload, syncMode as SyncMode)
+  performBatch: async (request, { payload, syncMode, subscriptionMetadata, statsContext }) => {
+    statsContext?.tags?.push('action:custom_object_batch')
+    return await send(request, payload, syncMode as SyncMode, subscriptionMetadata, statsContext)
   }
 }
 
-const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncMode) => {
+const send = async (
+  request: RequestClient,
+  payloads: Payload[],
+  syncMode: SyncMode,
+  subscriptionMetadata?: SubscriptionMetadata,
+  statsContext?: StatsContext
+) => {
   const {
     object_details: { object_type: objectType, property_group: propertyGroup },
     association_sync_mode: assocationSyncMode
@@ -148,7 +63,11 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
 
   const schema = objectSchema(validPayloads, objectType)
 
-  const cacheSchemaDiff = await compareToCache(schema)
+  const cachedSchema = getSchemaFromCache(schema.object_details.object_type, subscriptionMetadata, statsContext)
+  statsContext?.statsClient?.incr(`cache.get.${cachedSchema === undefined ? 'miss' : 'hit'}`, 1, statsContext?.tags)
+
+  const cacheSchemaDiff = compareSchemas(schema, cachedSchema, statsContext)
+  statsContext?.statsClient?.incr(`cache.diff.${cacheSchemaDiff.match}`, 1, statsContext?.tags)
 
   switch (cacheSchemaDiff.match) {
     case SchemaMatch.FullMatch: {
@@ -165,16 +84,17 @@ const send = async (request: RequestClient, payloads: Payload[], syncMode: SyncM
 
     case SchemaMatch.PropertiesMissing:
     case SchemaMatch.NoMatch: {
-      const hubspotSchemaDiff = await compareToHubspot(client, schema)
+      const hubspotSchema = await getSchemaFromHubspot(client, schema)
+      const hubspotSchemaDiff = compareSchemas(schema, hubspotSchema, statsContext)
 
       switch (hubspotSchemaDiff.match) {
         case SchemaMatch.FullMatch: {
-          await saveSchemaToCache(schema)
+          await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
           break
         }
         case SchemaMatch.PropertiesMissing: {
           await createProperties(client, hubspotSchemaDiff, propertyGroup)
-          await saveSchemaToCache(schema)
+          await saveSchemaToCache(schema, subscriptionMetadata, statsContext)
           break
         }
         case SchemaMatch.NoMatch: {
