@@ -46,7 +46,7 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
       data: {
         type: 'event',
         attributes: {
-          properties: { ...product, ...orderEventData.data.attributes.properties },
+          properties: { ...orderEventData.data.attributes.properties, ...product },
           unique_id: uuidv4(),
           metric: {
             data: {
