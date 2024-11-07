@@ -19,7 +19,9 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         email: {
           label: 'Email',
-          type: 'string'
+          type: 'string',
+          description: `The user's email to send to Klavio.`,
+          format: 'email'
         },
         phone_number: {
           label: 'Phone Number',

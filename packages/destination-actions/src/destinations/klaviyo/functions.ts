@@ -31,7 +31,7 @@ import { Payload } from './upsertProfile/generated-types'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import dayjs from '../../lib/dayjs'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
-import { emailRegex, eventBulkCreateRegex } from './properties'
+import { eventBulkCreateRegex } from './properties'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
@@ -536,16 +536,6 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
       // Update the payload's phone number with the validated format
       payload.profile.phone_number = validPhoneNumber
       delete payload?.profile?.country_code
-    }
-    if (email) {
-      if (!emailRegex.test(email)) {
-        multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: 'Email format is invalid.Please ensure it follows the standard format'
-        })
-        return
-      }
     }
 
     const profileToAdd = constructBulkCreateEventPayload(payload)
