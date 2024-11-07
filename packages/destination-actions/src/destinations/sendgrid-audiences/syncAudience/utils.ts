@@ -4,7 +4,8 @@ import { UPSERT_CONTACTS_URL, SEARCH_CONTACTS_URL, REMOVE_CONTACTS_FROM_LIST_URL
 import { UpsertContactsReq, SearchContactsResp } from '../types'
 
 export async function send(request: RequestClient, payload: Payload[]) {
-  payload.map((item) => validate(item, payload.length > 1))
+  
+  const payloads = validate(payload)
 
   const { add, remove } = ((payloads: Payload[]) => 
     payloads.reduce<{ add: Payload[]; remove: Payload[] }>(
@@ -14,15 +15,19 @@ export async function send(request: RequestClient, payload: Payload[]) {
       },
       { add: [], remove: [] }
     )
-  )(payload)
+  )(payloads)
   
   if(add.length>0) {
     const json: UpsertContactsReq = {
       list_ids: [add[0].external_audience_id],
       contacts: add.map((payload) => ({
-        email: payload.email
+        email: payload.email ?? undefined,
+        phone_number_id: payload.phone_number_id ?? undefined,
+        external_id: payload.external_id ?? undefined,
+        anonymous_id: payload.anonymous_id ?? undefined
       })) as UpsertContactsReq['contacts']
-    }   
+    } 
+    
     await request(UPSERT_CONTACTS_URL, {
       method: 'put',
       json
@@ -65,12 +70,29 @@ function getQueryPart(identifier: keyof Payload, payloads: Payload[]): string {
   return part
 }
 
-function validate(payload: Payload, isBatch: boolean) {
-  if(payload.external_audience_id == null) {
+function validate(payloads: Payload[]): Payload[] {
+  if(payloads[0].external_audience_id == null) {
     throw new PayloadValidationError('external_audience_id value is missing from payload')
   }
 
-  if(!isBatch && !payload.email && !payload.anonymous_id && !payload.external_id && !payload.phone_number_id) {
-    throw new PayloadValidationError('At least one of email, anonymous_id, external_id or phone_number_id is required')
+  const isBatch = payloads.length > 1
+  
+  const validPayloads = payloads.filter((p) => {
+    const hasRequiredField = [p.email, p.anonymous_id, p.external_id, p.phone_number_id].some(Boolean)
+    if(!hasRequiredField) {
+      if(!isBatch) {
+        throw new PayloadValidationError('At least one of email, anonymous_id, external_id or phone_number_id is required')
+      }
+      else {
+        return false 
+      }
+    }  
+    return true
+  })
+
+  if(validPayloads.length == 0) {
+    throw new PayloadValidationError('No valid payloads found')
   }
+
+  return validPayloads
 }
