@@ -46,7 +46,7 @@ export async function send(request: RequestClient, payload: Payload) {
       subscription_tracking: payload.subscription_tracking ?? undefined,
       ganalytics: payload.google_analytics ?? undefined
     },
-    mail_settings: typeof payload.sandbox_mode === 'boolean' ? { sandbox_mode: payload.sandbox_mode } : undefined
+    mail_settings: typeof payload.sandbox_mode === 'boolean' ? { sandbox_mode: { enable: payload.sandbox_mode} } : undefined
   }
 
   return await request(SEND_EMAIL_URL, {

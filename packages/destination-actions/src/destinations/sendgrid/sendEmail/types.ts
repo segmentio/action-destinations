@@ -47,6 +47,8 @@ export interface SendEmailReq {
     }
   }
   mail_settings?: {
-    sandbox_mode?: boolean
+    sandbox_mode?: {
+      enable: boolean
+    }
   }
 }
