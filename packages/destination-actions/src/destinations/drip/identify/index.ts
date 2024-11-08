@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Custom fields',
       required: false,
       type: 'object', // dictionary of strings to strings
-      default: { '@path': '$.properties.customFields' }
+      default: { '@path': '$.properties.custom_fields' }
     },
     email: {
       description: "The person's email address.",
