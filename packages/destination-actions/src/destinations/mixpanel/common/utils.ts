@@ -1,6 +1,7 @@
 export enum ApiRegions {
   US = 'US 🇺🇸',
-  EU = 'EU 🇪🇺'
+  EU = 'EU 🇪🇺',
+  IN = 'IN 🇮🇳'
 }
 
 export enum StrictMode {
@@ -15,8 +16,10 @@ export function getConcatenatedName(firstName: unknown, lastName: unknown, name:
 export function getApiServerUrl(apiRegion: string | undefined) {
   if (apiRegion == ApiRegions.EU) {
     return 'https://api-eu.mixpanel.com'
+  } else if (apiRegion == ApiRegions.IN) {
+    return 'https://api-in.mixpanel.com'
   }
-  return 'https://api.mixpanel.com'
+  return 'https://api.mixpanel.com' // Default US endpoint
 }
 
 export function getBrowser(userAgent: string): string {
