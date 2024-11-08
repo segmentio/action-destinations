@@ -12,7 +12,6 @@ const person = (payload: Payload) => {
     status_updated_at: payload.statusUpdatedAt,
     tags: payload.tags?.split(',').map((tag) => tag.trim()),
     time_zone: payload.timezone
-    // prospect: true // omit for now, lead scoring is not promoted by our product
   }
 }
 
