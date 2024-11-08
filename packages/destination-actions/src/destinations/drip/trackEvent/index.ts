@@ -5,6 +5,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Track event in Drip',
+  defaultSubscription: 'type = "track"',
   fields: {
     email: {
       description: "The person's email address.",
