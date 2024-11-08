@@ -16,7 +16,8 @@ export function getConcatenatedName(firstName: unknown, lastName: unknown, name:
 export function getApiServerUrl(apiRegion: string | undefined) {
   if (apiRegion == ApiRegions.EU) {
     return 'https://api-eu.mixpanel.com'
-  } else if (apiRegion == ApiRegions.IN) {
+  }
+  if (apiRegion == ApiRegions.IN) {
     return 'https://api-in.mixpanel.com'
   }
   return 'https://api.mixpanel.com' // Default US endpoint
