@@ -16,8 +16,7 @@ describe('Drip.trackEvent', () => {
 
     const event = createTestEvent({
       action: 'Custom',
-      email: 'foo@bar.com',
-      properties: { fizz: 'buzz' }
+      properties: { fizz: 'buzz', email: 'test@example.com' }
     })
 
     const responses = await testDestination.testAction('trackEvent', {
@@ -29,9 +28,9 @@ describe('Drip.trackEvent', () => {
     const body = {
       events: [
         {
-          email: 'foo@bar.com',
+          email: 'test@example.com',
           action: 'Custom',
-          properties: { fizz: 'buzz' }
+          properties: { fizz: 'buzz', email: 'test@example.com' }
         }
       ]
     }

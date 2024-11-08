@@ -18,7 +18,7 @@ export interface Payload {
   /**
    * The person's sms number.
    */
-  sms?: string
+  phone?: string
   /**
    * The person's subscription status.
    */
@@ -26,7 +26,7 @@ export interface Payload {
   /**
    * The timestamp associated with the update to a person's status.
    */
-  statusUpdatedAt?: string | number
+  status_updated_at?: string | number
   /**
    * Tags to add to a person's profile. Should be a comma separated list. e.g. "tag1,tag2".
    */

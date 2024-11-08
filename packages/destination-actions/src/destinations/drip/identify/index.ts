@@ -7,9 +7,9 @@ const person = (payload: Payload) => {
     custom_fields: payload.custom_fields,
     email: payload.email,
     ip_address: payload.ip,
-    sms_number: payload.sms,
+    sms_number: payload.phone,
     status: payload.status,
-    status_updated_at: payload.statusUpdatedAt,
+    status_updated_at: payload.status_updated_at,
     tags: payload.tags?.split(',').map((tag) => tag.trim()),
     time_zone: payload.timezone
   }
@@ -43,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
       format: 'ipv4',
       default: { '@path': '$.context.ip' }
     },
-    sms: {
+    phone: {
       description: "The person's sms number.",
       label: 'SMS Number',
       required: false,
@@ -63,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    statusUpdatedAt: {
+    status_updated_at: {
       description: "The timestamp associated with the update to a person's status.",
       label: 'Status Updated At',
       required: false,

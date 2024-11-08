@@ -21,9 +21,9 @@ describe('Drip.identify', () => {
       },
       traits: {
         email: 'test@example.com',
-        sms: '1234567890',
+        phone: '1234567890',
         status: 'unsubscribed',
-        statusUpdatedAt: '2021-01-01T00:00:00Z'
+        status_updated_at: '2021-01-01T00:00:00Z'
       },
       properties: {
         custom_fields: { fizz: 'buzz' },
@@ -98,7 +98,7 @@ describe('Drip.identify', () => {
         properties: {
           email: 'test@example.com',
           status: 'active',
-          statusUpdatedAt: '2023-01-01T00:00:00Z',
+          status_updated_at: '2023-01-01T00:00:00Z',
           custom_fields: {
             plan: 'premium',
             company: 'Acme Inc'
@@ -118,8 +118,8 @@ describe('Drip.identify', () => {
         status: {
           '@path': '$.traits.properties.status'
         },
-        statusUpdatedAt: {
-          '@path': '$.traits.properties.statusUpdatedAt'
+        status_updated_at: {
+          '@path': '$.traits.properties.status_updated_at'
         },
         custom_fields: {
           '@path': '$.traits.properties.custom_fields'

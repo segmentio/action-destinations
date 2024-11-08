@@ -7,26 +7,26 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Track event in Drip',
   defaultSubscription: 'type = "track"',
   fields: {
-    email: {
-      description: "The person's email address.",
-      label: 'Email Address',
-      required: true,
-      type: 'string',
-      format: 'email',
-     default: {
-        '@if': {
-          exists: { '@path': '$.properties.email' },
-          then: { '@path': '$.properties.email' },
-          else: { '@path': '$.context.traits.email' }
-        }
-      }
-    },
     action: {
       description: 'The name of the action.',
       label: 'Action',
       required: true,
       type: 'string',
       default: { '@path': '$.action' }
+    },
+    email: {
+      description: "The person's email address.",
+      label: 'Email Address',
+      required: true,
+      type: 'string',
+      format: 'email',
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.email' },
+          then: { '@path': '$.properties.email' },
+          else: { '@path': '$.context.traits.email' }
+        }
+      }
     },
     properties: {
       description: 'A JSON object containing additional properties that will be associated with the event.',
