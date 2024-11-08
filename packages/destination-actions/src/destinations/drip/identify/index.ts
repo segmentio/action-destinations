@@ -49,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'SMS Number',
       required: false,
       type: 'string',
-      default: { '@path': '$.traits.sms' }
+      default: { '@path': '$.traits.phone' }
     },
     status: {
       description: "The person's status.",
