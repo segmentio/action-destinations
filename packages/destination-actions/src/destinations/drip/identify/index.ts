@@ -69,7 +69,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Status Updated At',
       required: false,
       type: 'datetime',
-      default: { '@path': '$.traits.statusUpdatedAt' }
+      default: { '@path': '$.traits.status_updated_at' }
     },
     tags: {
       description: "Tags to add to a person's profile.",
