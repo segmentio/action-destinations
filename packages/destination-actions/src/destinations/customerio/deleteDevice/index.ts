@@ -6,7 +6,7 @@ import { sendBatch, sendSingle } from '../utils'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Delete Device',
   description: `Delete a person's device.`,
-  defaultSubscription: 'event = "Application Uninstalled"',
+  defaultSubscription: 'event = "Application Uninstalled" or event = "Device Deleted"',
   fields: {
     person_id: {
       label: 'Person ID',

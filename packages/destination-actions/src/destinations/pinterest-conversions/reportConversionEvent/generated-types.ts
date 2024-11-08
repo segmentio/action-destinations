@@ -85,6 +85,14 @@ export interface Payload {
      * A two-letter country code in lowercase.
      */
     country?: string[]
+    /**
+     * The unique identifier stored in _epik cookie on your domain or &epik= query parameter in the URL.
+     */
+    click_id?: string | null
+    /**
+     * A unique identifier of visitors' information defined by third party partners.
+     */
+    partner_id?: string | null
   }
   /**
    * Object containing customer information data.
@@ -109,7 +117,7 @@ export interface Payload {
       /**
        * The id of the Item
        */
-      id?: number
+      id?: string
       /**
        * The price of the Item
        */

@@ -8,6 +8,10 @@ export interface Payload {
     email?: string
     phone_number?: string
     /**
+     * Country Code in ISO 3166-1 alpha-2 format. If provided, this will be used to validate and automatically format Phone Number field in E.164 format accepted by Klaviyo.
+     */
+    country_code?: string
+    /**
      * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system.
      */
     external_id?: string
@@ -48,4 +52,8 @@ export interface Payload {
   products?: {
     [k: string]: unknown
   }[]
+  /**
+   * Name of the event. This will be used as the metric name in Klaviyo.
+   */
+  event_name?: string
 }

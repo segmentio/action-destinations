@@ -2,6 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import postToCourier from './postToCourier'
+import audienceToList from './audienceToList'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Courier (Actions)',
@@ -34,11 +35,27 @@ const destination: DestinationDefinition<Settings> = {
         ],
         required: true
       }
+    },
+    testAuthentication: (request, { settings }) => {
+      const domain = getDomain(settings.region)
+      return request(`${domain}/debug`, { method: 'POST', headers: { Authorization: `Bearer ${settings.apiKey}` } })
     }
   },
   actions: {
-    postToCourier
+    postToCourier,
+    audienceToList
+  },
+  extendRequest({ settings }) {
+    return {
+      headers: {
+        Authorization: `Bearer ${settings.apiKey}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'SegmentCourier'
+      }
+    }
   }
 }
+
+export const getDomain = (region: string) => `https://api.${region === 'EU' ? 'eu.' : ''}courier.com`
 
 export default destination

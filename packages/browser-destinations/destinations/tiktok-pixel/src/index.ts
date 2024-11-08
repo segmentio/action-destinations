@@ -6,6 +6,8 @@ import { defaultValues } from '@segment/actions-core'
 import { TikTokPixel } from './types'
 import { initScript } from './init-script'
 
+import identify from './identify'
+
 declare global {
   interface Window {
     ttq: TikTokPixel
@@ -63,6 +65,15 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
   slug: 'actions-tiktok-pixel',
   mode: 'device',
   presets: [
+    {
+      name: 'Page View',
+      subscribe: 'type = "page"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        event: 'Pageview'
+      },
+      type: 'automatic'
+    },
     {
       name: 'Complete Payment',
       subscribe: 'event = "Order Completed"',
@@ -218,6 +229,12 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
       description:
         'In order to help facilitate advertiser\'s compliance with the right to opt-out of sale and sharing of personal data under certain U.S. state privacy laws, TikTok offers a Limited Data Use ("LDU") feature. For more information, please refer to TikTok\'s [documentation page](https://business-api.tiktok.com/portal/docs?id=1770092377990145).'
     },
+    autoPageView: {
+      label: 'Fire TikTok Pixel Pageview event on page load.',
+      type: 'boolean',
+      description: 'If true, TikTok Pixel will fire a "Pageview" event whenevent the pixel is loaded on the page.',
+      default: true
+    },
     useExistingPixel: {
       // TODO: HOW TO DELETE (reusing will not include Segment Partner name)
       label: '[Deprecated] Use Existing Pixel',
@@ -235,7 +252,8 @@ export const destination: BrowserDestinationDefinition<Settings, TikTokPixel> = 
     return window.ttq
   },
   actions: {
-    reportWebEvent
+    reportWebEvent,
+    identify
   }
 }
 

@@ -1,10 +1,8 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-
-import add from './add'
-
-import remove from './remove'
+import { adAccountId } from './fbca-properties'
+import sync from './sync'
 
 export const FACEBOOK_API_VERSION = 'v17.0'
 const EXTERNAL_ID_KEY = 'id'
@@ -18,14 +16,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      placeholder: {
-        label: 'Placeholder',
-        description: 'Placeholder',
-        type: 'string'
-      }
-    },
-    refreshAccessToken: async () => {
-      return { accessToken: 'TODO: Implement this' }
+      retlAdAccountId: adAccountId
     }
   },
   extendRequest({ auth }) {
@@ -36,12 +27,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   audienceFields: {
-    adAccountId: {
-      type: 'string',
-      label: 'Advertiser Account ID',
-      description: 'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762).',
-      required: true
-    },
+    engageAdAccountId: adAccountId,
     audienceDescription: {
       type: 'string',
       label: 'Description',
@@ -56,7 +42,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
-      const adAccountId = createAudienceInput.audienceSettings?.adAccountId
+      const adAccountId = createAudienceInput.audienceSettings?.engageAdAccountId
       const audienceDescription = createAudienceInput.audienceSettings?.audienceDescription
 
       if (!audienceName) {
@@ -112,8 +98,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   actions: {
-    add,
-    remove
+    sync
   }
 }
 

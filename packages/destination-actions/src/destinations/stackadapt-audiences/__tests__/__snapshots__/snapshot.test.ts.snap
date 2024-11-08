@@ -1,0 +1,143 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardAudienceEvent action - all fields 1`] = `
+Object {
+  "query": "mutation {
+      upsertProfiles(
+        input: {
+          advertiserId: 84GW[vK%wv2xv@UF5iy,
+          externalProvider: \\"segmentio\\",
+          syncId: \\"7bcb527cec5517b1155595cd74dc96b6db6ed1d0c54b91ebe04297f3524bd775\\",
+          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
+        }
+      ) {
+        userErrors {
+          message
+        }
+      }
+      upsertProfileMapping(
+        input: {
+          advertiserId: 84GW[vK%wv2xv@UF5iy,
+          mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
+          mappableType: \\"segmentio\\",
+        }
+      ) {
+        userErrors {
+          message
+        }
+      }
+      upsertExternalAudienceMapping(
+        input: {
+          advertiserId: 84GW[vK%wv2xv@UF5iy,
+          mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\"},{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"name\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\"}]\\",
+          mappableType: \\"segmentio\\"
+        }
+      ) {
+        userErrors {
+          message
+        }
+      }
+    }",
+}
+`;
+
+exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardAudienceEvent action - required fields 1`] = `
+Object {
+  "query": "mutation {
+      upsertProfiles(
+        input: {
+          advertiserId: 84GW[vK%wv2xv@UF5iy,
+          externalProvider: \\"segmentio\\",
+          syncId: \\"7bcb527cec5517b1155595cd74dc96b6db6ed1d0c54b91ebe04297f3524bd775\\",
+          profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"84GW[vK%wv2xv@UF5iy\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
+        }
+      ) {
+        userErrors {
+          message
+        }
+      }
+      upsertProfileMapping(
+        input: {
+          advertiserId: 84GW[vK%wv2xv@UF5iy,
+          mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
+          mappableType: \\"segmentio\\",
+        }
+      ) {
+        userErrors {
+          message
+        }
+      }
+      upsertExternalAudienceMapping(
+        input: {
+          advertiserId: 84GW[vK%wv2xv@UF5iy,
+          mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\"},{\\\\\\"incoming_key\\\\\\":\\\\\\"audienceName\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"name\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\"}]\\",
+          mappableType: \\"segmentio\\"
+        }
+      ) {
+        userErrors {
+          message
+        }
+      }
+    }",
+}
+`;
+
+exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardProfile action - all fields 1`] = `
+Object {
+  "query": "mutation {
+      upsertProfiles(
+        input: {
+          advertiserId: PsAwlRv%,
+          externalProvider: \\"segmentio\\",
+          syncId: \\"1187e62a973b77faa5387b91939d70295b25063e3439b583b997efa92d9c8e78\\",
+          profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"zobbufpop@usliz.mh\\\\\\",\\\\\\"firstName\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"lastName\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"city\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"country\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"state\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"postalCode\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"birthDay\\\\\\":null,\\\\\\"birthMonth\\\\\\":null}]\\"
+        }
+      ) {
+        userErrors {
+          message
+        }
+      }
+      upsertProfileMapping(
+        input: {
+          advertiserId: PsAwlRv%,
+          mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
+          mappableType: \\"segmentio\\",
+        }
+      ) {
+        userErrors {
+          message
+        }
+      }
+    }",
+}
+`;
+
+exports[`Testing snapshot for actions-stackadapt-audiences destination: forwardProfile action - required fields 1`] = `
+Object {
+  "query": "mutation {
+      upsertProfiles(
+        input: {
+          advertiserId: PsAwlRv%,
+          externalProvider: \\"segmentio\\",
+          syncId: \\"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\\",
+          profiles: \\"[]\\"
+        }
+      ) {
+        userErrors {
+          message
+        }
+      }
+      upsertProfileMapping(
+        input: {
+          advertiserId: PsAwlRv%,
+          mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
+          mappableType: \\"segmentio\\",
+        }
+      ) {
+        userErrors {
+          message
+        }
+      }
+    }",
+}
+`;

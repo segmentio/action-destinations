@@ -1,3 +1,6 @@
+import { StatsContext } from '@segment/actions-core/destination-kit'
+import { Features } from '@segment/actions-core/mapping-kit'
+
 export interface CartItemInterface {
   productId?: string
   quantity?: number
@@ -118,4 +121,61 @@ export interface PartialErrorResponse {
     message: string
   }
   results: {}[]
+}
+
+export interface UserList {
+  userList: {
+    resourceName: string
+    id: string
+    name: string
+  }
+}
+
+export interface UserListResponse {
+  results: Array<UserList>
+  fieldMask: string
+}
+
+export interface CreateAudienceInput {
+  audienceName: string
+  settings: {
+    customerId?: string
+    conversionTrackingId?: string
+    oauth?: {
+      refresh_token?: string
+    }
+  }
+  audienceSettings: {
+    external_id_type?: string
+    app_id?: string
+    supports_conversions?: boolean
+  }
+  statsContext?: StatsContext
+  features?: Features
+}
+
+export interface GetAudienceInput {
+  externalId: string
+  settings: {
+    customerId?: string
+    conversionTrackingId?: string
+    oauth?: {
+      refresh_token?: string
+    }
+  }
+  audienceSettings: {
+    external_id_type: string
+    app_id?: string
+  }
+  statsContext?: StatsContext
+  features?: Features
+}
+
+export interface CreateGoogleAudienceResponse {
+  resourceName?: string
+  results: Array<{ resourceName: string }>
+}
+
+export interface AudienceSettings {
+  external_id_type: string
 }

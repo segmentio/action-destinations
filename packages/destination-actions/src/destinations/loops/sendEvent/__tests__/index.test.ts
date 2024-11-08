@@ -54,4 +54,27 @@ describe('Loops.sendEvent', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
   })
+
+  it('should work with event properties', async () => {
+    const testPayload = {
+      userId: 'some-id-1',
+      eventName: 'signup',
+      eventProperties: {
+        someField: true, // boolean
+        someField1: 'hello', // string
+        someField2: '2024-04-01T10:09:65Z' // date
+      }
+    }
+    nock('https://app.loops.so/api/v1').post('/events/send', testPayload).reply(200, {
+      success: true
+    })
+
+    const responses = await testDestination.testAction('sendEvent', {
+      mapping: testPayload,
+      settings: { apiKey: LOOPS_API_KEY }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+  })
 })

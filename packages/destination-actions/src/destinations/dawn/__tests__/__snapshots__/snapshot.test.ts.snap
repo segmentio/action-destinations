@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-dawn-analytics destination: identifyUser action - all fields 1`] = `
+Array [
+  Object {
+    "traits": Object {
+      "testType": "A!A[)aQ1bPCAxNDA%v",
+    },
+    "user_id": "A!A[)aQ1bPCAxNDA%v",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-dawn-analytics destination: identifyUser action - required fields 1`] = `
+Array [
+  Object {
+    "traits": Object {},
+    "user_id": "A!A[)aQ1bPCAxNDA%v",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-dawn-analytics destination: track action - all fields 1`] = `
+Array [
+  Object {
+    "event": "xFLEOM#Z99&[(6Hfm",
+    "properties": Object {
+      "testType": "xFLEOM#Z99&[(6Hfm",
+    },
+    "user_id": "xFLEOM#Z99&[(6Hfm",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-dawn-analytics destination: track action - required fields 1`] = `
+Array [
+  Object {
+    "event": "xFLEOM#Z99&[(6Hfm",
+    "properties": Object {},
+    "user_id": "xFLEOM#Z99&[(6Hfm",
+  },
+]
+`;

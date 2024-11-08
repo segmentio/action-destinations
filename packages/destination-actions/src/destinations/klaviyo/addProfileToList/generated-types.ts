@@ -6,6 +6,10 @@ export interface Payload {
    */
   email?: string
   /**
+   * Individual's phone number in E.164 format. If SMS is not enabled and if you use Phone Number as identifier, then you have to provide one of Email or External ID.
+   */
+  phone_number?: string
+  /**
    * 'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'
    */
   list_id: string
@@ -60,4 +64,8 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * Country Code in ISO 3166-1 alpha-2 format. If provided, this will be used to validate and automatically format Phone Number field in E.164 format accepted by Klaviyo.
+   */
+  country_code?: string
 }

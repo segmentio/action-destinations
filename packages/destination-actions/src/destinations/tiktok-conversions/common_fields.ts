@@ -52,6 +52,90 @@ export const commonFields: Record<string, InputField> = {
       }
     }
   },
+  first_name: {
+    label: 'First Name',
+    description:
+      'The first name of the customer. The name should be in lowercase without any punctuation. Special characters are allowed.',
+    type: 'string',
+    default: {
+      '@if': {
+        exists: { '@path': '$.properties.first_name' },
+        then: { '@path': '$.properties.first_name' },
+        else: { '@path': '$.context.traits.first_name' }
+      }
+    }
+  },
+  last_name: {
+    label: 'Last Name',
+    description:
+      'The last name of the customer. The name should be in lowercase without any punctuation. Special characters are allowed.',
+    type: 'string',
+    default: {
+      '@if': {
+        exists: { '@path': '$.properties.last_name' },
+        then: { '@path': '$.properties.last_name' },
+        else: { '@path': '$.context.traits.last_name' }
+      }
+    }
+  },
+  address: {
+    label: 'Address',
+    type: 'object',
+    description: 'The address of the customer.',
+    additionalProperties: false,
+    properties: {
+      city: {
+        label: 'City',
+        type: 'string',
+        description: "The customer's city."
+      },
+      country: {
+        label: 'Country',
+        type: 'string',
+        description: "The customer's country."
+      },
+      zip_code: {
+        label: 'Zip Code',
+        type: 'string',
+        description: "The customer's Zip Code."
+      },
+      state: {
+        label: 'State',
+        type: 'string',
+        description: "The customer's State."
+      }
+    },
+    default: {
+      city: {
+        '@if': {
+          exists: { '@path': '$.properties.address.city' },
+          then: { '@path': '$.properties.address.city' },
+          else: { '@path': '$.context.traits.address.city' }
+        }
+      },
+      country: {
+        '@if': {
+          exists: { '@path': '$.properties.address.country' },
+          then: { '@path': '$.properties.address.country' },
+          else: { '@path': '$.context.traits.address.country' }
+        }
+      },
+      zip_code: {
+        '@if': {
+          exists: { '@path': '$.properties.address.postal_code' },
+          then: { '@path': '$.properties.address.postal_code' },
+          else: { '@path': '$.context.traits.address.postal_code' }
+        }
+      },
+      state: {
+        '@if': {
+          exists: { '@path': '$.properties.address.state' },
+          then: { '@path': '$.properties.address.state' },
+          else: { '@path': '$.context.traits.address.state' }
+        }
+      }
+    }
+  },
   order_id: {
     label: 'Order ID',
     type: 'string',
@@ -199,7 +283,10 @@ export const commonFields: Record<string, InputField> = {
     description:
       'Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.',
     type: 'string',
-    choices: [ { label: 'product', value: 'product' }, { label: 'product_group', value: 'product_group' }],
+    choices: [
+      { label: 'product', value: 'product' },
+      { label: 'product_group', value: 'product_group' }
+    ],
     default: 'product'
   },
   currency: {

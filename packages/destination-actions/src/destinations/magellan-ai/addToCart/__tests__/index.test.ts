@@ -8,7 +8,9 @@ const pixelToken = '123abc'
 const requiredFields = {
   value: 1234.56,
   currency: 'AUD',
-  quantity: 10
+  quantity: 10,
+  ip: '12.34.56.78',
+  ua: 'Foo Bar User Agent'
 }
 const optionalFields = {
   productId: 'product_id_0123',
