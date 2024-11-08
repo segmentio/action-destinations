@@ -6,7 +6,7 @@ export interface Payload {
    */
   userId: string
   /**
-   * The traits payload to attribute to the userId.
+   * The traits to attribute to the userId.
    */
   attributes?: {
     [k: string]: unknown
