@@ -1,4 +1,4 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import type { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import trackEvent from './trackEvent'
@@ -33,6 +33,23 @@ const destination: DestinationDefinition<Settings> = {
       })
     }
   },
+
+  presets: [
+    {
+      name: 'Identify',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identify',
+      mapping: defaultValues(identify.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Track event',
+      subscribe: 'type = "track"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
+    }
+  ],
 
   extendRequest({ settings }) {
     return {
