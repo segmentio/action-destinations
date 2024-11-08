@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Tags to add to a person's profile. Should be a comma separated list. e.g. "tag1,tag2".',
       label: 'Tags',
       required: false,
-      type: 'string', // comma separated string list of tags e.g. "tag1,tag2"
+      type: 'string',
       default: { '@path': '$.properties.tags' }
     },
     timezone: {
