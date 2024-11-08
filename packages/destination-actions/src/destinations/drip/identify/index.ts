@@ -52,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.traits.phone' }
     },
     status: {
-      description: "The person's status.",
+      description: "The person's subscription status.",
       label: 'Status',
       required: false,
       type: 'string',
