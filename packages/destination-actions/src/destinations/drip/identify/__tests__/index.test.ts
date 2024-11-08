@@ -26,7 +26,7 @@ describe('Drip.identify', () => {
         statusUpdatedAt: '2021-01-01T00:00:00Z'
       },
       properties: {
-        customFields: { fizz: 'buzz' },
+        custom_fields: { fizz: 'buzz' },
         tags: 'tag1,tag2'
       }
     })
@@ -99,7 +99,7 @@ describe('Drip.identify', () => {
           email: 'test@example.com',
           status: 'active',
           statusUpdatedAt: '2023-01-01T00:00:00Z',
-          customFields: {
+          custom_fields: {
             plan: 'premium',
             company: 'Acme Inc'
           },
@@ -121,8 +121,8 @@ describe('Drip.identify', () => {
         statusUpdatedAt: {
           '@path': '$.traits.properties.statusUpdatedAt'
         },
-        customFields: {
-          '@path': '$.traits.properties.customFields'
+        custom_fields: {
+          '@path': '$.traits.properties.custom_fields'
         },
         tags: {
           '@path': '$.traits.properties.tags'

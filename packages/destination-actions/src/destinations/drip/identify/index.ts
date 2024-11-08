@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const person = (payload: Payload) => {
   return {
-    custom_fields: payload.customFields,
+    custom_fields: payload.custom_fields,
     email: payload.email,
     ip_address: payload.ip,
     sms_number: payload.sms,
@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Identify person in Drip',
   defaultSubscription: 'type = "identify"',
   fields: {
-    customFields: {
+    custom_fields: {
       description: "Custom fields to add to a person's profile.",
       label: 'Custom fields',
       required: false,
@@ -71,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.traits.status_updated_at' }
     },
     tags: {
-      description: 'Tags to add to a person's profile. Should be a comma separated list. e.g. "tag1,tag2".',
+      description: 'Tags to add to a person\'s profile. Should be a comma separated list. e.g. "tag1,tag2".',
       label: 'Tags',
       required: false,
       type: 'string',

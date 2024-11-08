@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * Custom fields to add to a person's profile.
    */
-  customFields?: {
+  custom_fields?: {
     [k: string]: unknown
   }
   /**
@@ -20,7 +20,7 @@ export interface Payload {
    */
   sms?: string
   /**
-   * The person's status.
+   * The person's subscription status.
    */
   status?: string
   /**
@@ -28,7 +28,7 @@ export interface Payload {
    */
   statusUpdatedAt?: string | number
   /**
-   * Tags to add to a person's profile.
+   * Tags to add to a person's profile. Should be a comma separated list. e.g. "tag1,tag2".
    */
   tags?: string
   /**
