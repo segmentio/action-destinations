@@ -19,6 +19,7 @@ const person = (payload: Payload) => {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
   description: 'Identify person in Drip',
+  defaultSubscription: 'type = "identify"',
   fields: {
     customFields: {
       description: "Custom fields to add to a person's profile.",
