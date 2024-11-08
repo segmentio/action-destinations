@@ -13,7 +13,13 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       type: 'string',
       format: 'email',
-      default: { '@path': '$.email' }
+     default: {
+        '@if': {
+          exists: { '@path': '$.properties.email' },
+          then: { '@path': '$.properties.email' },
+          else: { '@path': '$.context.traits.email' }
+        }
+      }
     },
     action: {
       description: 'The name of the action.',
