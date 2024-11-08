@@ -13,8 +13,7 @@ describe('Drip', () => {
       // This should match your authentication.fields
       const authData = {
         apiKey: 'abc123',
-        accountId: '42',
-        endpoint: 'https://api.getdrip.com/v2'
+        accountId: '42'
       }
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()

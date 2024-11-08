@@ -13,22 +13,15 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      apiKey: {
-        label: 'API Key',
-        description: 'API key for your Drip account. You can find this in your Drip account settings.',
-        type: 'string',
-        required: true
-      },
-      endpoint: {
-        label: 'Custom API Endpoint',
-        description: 'The standard Drip API, the endpoint is https://api.getdrip.com/v2/.',
-        type: 'string',
-        required: false,
-        default: 'https://api.getdrip.com/v2'
-      },
       accountId: {
         label: 'Account ID',
         description: 'Account ID for your Drip account. You can find this in your Drip account settings.',
+        type: 'string',
+        required: true
+      },
+      apiKey: {
+        label: 'API Key',
+        description: 'API key for your Drip account. You can find this in your Drip account settings.',
         type: 'string',
         required: true
       }
@@ -48,7 +41,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
 
   actions: {
     trackEvent,

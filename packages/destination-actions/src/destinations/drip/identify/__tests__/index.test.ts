@@ -4,9 +4,8 @@ import Destination from '../../index'
 import { Settings } from '../../generated-types'
 
 const settings: Settings = {
-  apiKey: 'key',
-  endpoint: 'https://api.getdrip.com/v2',
-  accountId: '2445926'
+  accountId: '2445926',
+  apiKey: 'key'
 }
 
 const testDestination = createTestIntegration(Destination)
