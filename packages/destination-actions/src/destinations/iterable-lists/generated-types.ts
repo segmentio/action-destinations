@@ -18,7 +18,7 @@ export interface AudienceSettings {
    */
   globalUnsubscribe?: boolean
   /**
-   * Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.
+   * The numeric Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.
    */
-  campaignId?: string
+  campaignId?: number
 }

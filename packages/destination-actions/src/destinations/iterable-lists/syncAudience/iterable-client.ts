@@ -13,19 +13,16 @@ export class IterableListsClient {
   globalUnsubscribe?: boolean
   campaignId?: number
 
-  constructor(request: RequestClient, settings: Settings, audienceSettings: AudienceSettings | undefined) {
-    if (!audienceSettings) {
-      throw new PayloadValidationError('AudienceSettings missing from payload')
-    }
+  constructor(request: RequestClient, settings: Settings, audienceSettings?: AudienceSettings | undefined) {
     this.request = request
     this.apiKey = settings.apiKey
-    ;(this.updateExistingUsersOnly =
-      typeof audienceSettings.updateExistingUsersOnly === 'boolean'
+    this.updateExistingUsersOnly =
+      typeof audienceSettings?.updateExistingUsersOnly === 'boolean'
         ? audienceSettings.updateExistingUsersOnly
-        : undefined),
-      (this.globalUnsubscribe =
-        typeof audienceSettings.globalUnsubscribe === 'boolean' ? audienceSettings.globalUnsubscribe : undefined),
-      (this.campaignId = audienceSettings.campaignId ? Number(audienceSettings.campaignId) : undefined)
+        : undefined
+    this.globalUnsubscribe =
+      typeof audienceSettings?.globalUnsubscribe === 'boolean' ? audienceSettings.globalUnsubscribe : undefined
+    this.campaignId = typeof audienceSettings?.campaignId === 'number' ? audienceSettings.campaignId : undefined
   }
 
   async processPayload(payloads: Payload[]) {
