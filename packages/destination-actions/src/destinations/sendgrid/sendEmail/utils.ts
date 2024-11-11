@@ -36,8 +36,8 @@ export async function send(request: RequestClient, payload: Payload) {
     ],
     from: { email: payload.from.email, name: payload.from?.name ?? undefined },
     reply_to: {
-      email: payload.reply_to?.email ?? payload.from.email,
-      name: payload.reply_to?.name ?? payload.from.name ?? undefined
+      email: payload?.reply_to?.email ?? payload.from.email,
+      name: payload?.reply_to?.name ?? payload.from.name ?? undefined
     },
     template_id: templateId as string,
     categories: payload.categories,

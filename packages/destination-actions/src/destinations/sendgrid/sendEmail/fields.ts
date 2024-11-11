@@ -168,7 +168,7 @@ export const fields: Record<string, InputField> = {
     label: 'Reply To',
     description: "Reply to details. If left empty 'Reply To' settings will be taken from the 'From' field values.",
     type: 'object',
-    required: true,
+    required: false,
     additionalProperties: false,
     defaultObjectUI: 'keyvalue',
     properties: {

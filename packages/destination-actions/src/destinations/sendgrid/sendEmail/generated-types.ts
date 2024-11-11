@@ -86,7 +86,7 @@ export interface Payload {
   /**
    * Reply to details. If left empty 'Reply To' settings will be taken from the 'From' field values.
    */
-  reply_to: {
+  reply_to?: {
     /**
      * The email to reply to.
      */
