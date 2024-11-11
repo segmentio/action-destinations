@@ -46,8 +46,8 @@ export async function dynamicTemplateData(request: RequestClient, payload: Paylo
       error: string
     }
   }
-  
-  if(!payload.template_id) {
+
+  if (!payload.template_id) {
     throw new Error('Template ID Field required before Dynamic Template Data fields can be configured')
   }
 
@@ -57,21 +57,22 @@ export async function dynamicTemplateData(request: RequestClient, payload: Paylo
       skipResponseCloning: true
     })
 
-    if(response.data.generation !== 'dynamic') {
+    if (response.data.generation !== 'dynamic') {
       throw new Error('Template ID provided is not a dynamic template')
     }
 
     const version = response.data.versions.find((version: ResultItem) => version.active === 1)
 
-    if(!version) {  
+    if (!version) {
       throw new Error('No active version found for the provided template')
     }
 
-    if(!version.html_content || version.html_content.length === 0) {  
+    if (!version.html_content || version.html_content.length === 0) {
       throw new Error('Returned template has no content')
     }
 
-    const extractTokens = (content: string | undefined ): string[] => [...(content ?? "").matchAll(/{{{?(\w+)}{0,3}}}/g)].map(match => match[1])
+    const extractTokens = (content: string | undefined): string[] =>
+      [...(content ?? '').matchAll(/{{{?(\w+)}{0,3}}}/g)].map((match) => match[1])
 
     const uniqueTokens: string[] = [
       ...new Set([
@@ -82,31 +83,30 @@ export async function dynamicTemplateData(request: RequestClient, payload: Paylo
       ])
     ]
 
-    // remove token keys that are already selected 
+    // remove token keys that are already selected
     const selectedTokens: string[] = Object.keys(payload.dynamic_template_data ?? {})
 
-    const filteredTokens: string[] = uniqueTokens.filter(token => !selectedTokens.includes(token));
+    const filteredTokens: string[] = uniqueTokens.filter((token) => !selectedTokens.includes(token))
 
-    if(filteredTokens.length === 0) {
+    if (filteredTokens.length === 0) {
       throw new Error('No dynamic fields found in the provided template')
     }
 
     return {
-      choices: filteredTokens.map(token => {
+      choices: filteredTokens.map((token) => {
         return {
           label: token,
           value: token
         }
       })
     }
-
   } catch (err) {
     const error = err as ResultError
     return {
       choices: [],
       error: {
         message: error.data.error ?? 'Unknown error: dynamicTemplateData',
-        code: "404"
+        code: '404'
       }
     }
   }
@@ -176,8 +176,8 @@ export async function dynamicDomain(request: RequestClient): Promise<DynamicFiel
         .filter((domain: ResultItem) => domain.valid === true)
         .map((domain: ResultItem) => {
           return {
-            label: `${domain.subdomain}.${domain.domain}`,
-            value: `${domain.subdomain}.${domain.domain}`
+            label: `${domain.domain}`,
+            value: `${domain.domain}`
           }
         })
     }

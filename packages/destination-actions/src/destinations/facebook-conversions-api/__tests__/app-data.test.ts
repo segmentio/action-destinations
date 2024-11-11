@@ -30,16 +30,18 @@ describe('FacebookConversionsApi', () => {
     delete sampleAppDataIncomplete.carrier
     delete sampleAppDataIncomplete.deviceTimezone
 
-    it('generated app data should always have a length 18 exinfo array', () => {
+    // app data should always have a length 16 array. Do not change this without first verifying something has changed with facebook.
+    // A previous issue arose where we sent length 18 arrays and event delivery silently failed.
+    it('generated app data should always have a length 16 exinfo array', () => {
       let appData: GeneratedAppData | undefined = generate_app_data(sampleAppDataComplete)
       if (appData) {
-        expect(appData.extinfo.length).toBe(18)
+        expect(appData.extinfo.length).toBe(16)
       }
       expect(appData).toBeDefined()
 
       appData = generate_app_data(sampleAppDataIncomplete)
       if (appData) {
-        expect(appData.extinfo.length).toBe(18)
+        expect(appData.extinfo.length).toBe(16)
       }
       expect(appData).toBeDefined()
     })

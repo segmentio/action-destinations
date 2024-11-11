@@ -12,9 +12,6 @@ Object {
     "email": "from@gmail.com",
   },
   "ip_pool_name": "!s3p^",
-  "mail_settings": Object {
-    "sandbox_mode": true,
-  },
   "personalizations": Array [
     Object {
       "bcc": Array [
@@ -51,22 +48,6 @@ Object {
     "name": "!s3p^",
   },
   "template_id": "d-1234567890",
-  "tracking_settings": Object {
-    "ganalytics": Object {
-      "enable": true,
-      "utm_campaign": "!s3p^",
-      "utm_content": "!s3p^",
-      "utm_medium": "!s3p^",
-      "utm_source": "!s3p^",
-      "utm_term": "!s3p^",
-    },
-    "subscription_tracking": Object {
-      "enable": true,
-      "html": "!s3p^",
-      "substitution_tag": "!s3p^",
-      "text": "!s3p^",
-    },
-  },
 }
 `;
 
@@ -89,6 +70,5 @@ Object {
     "email": "oz@ogmeftik.fj",
   },
   "template_id": "d-1234567890",
-  "tracking_settings": Object {},
 }
 `;
