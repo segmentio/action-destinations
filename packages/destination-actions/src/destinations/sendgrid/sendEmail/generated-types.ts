@@ -97,7 +97,7 @@ export interface Payload {
     name?: string
   }
   /**
-   * Categories for the email.
+   * Categories for the email. Accepts a single string or array of strings.
    */
   categories?: string[]
   /**

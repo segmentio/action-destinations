@@ -188,7 +188,7 @@ export const fields: Record<string, InputField> = {
   },
   categories: {
     label: 'Categories',
-    description: 'Categories for the email.',
+    description: 'Categories for the email. Accepts a single string or array of strings.',
     type: 'string',
     multiple: true,
     required: false
