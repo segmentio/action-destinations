@@ -188,7 +188,9 @@ const expectedSendgridPayload = {
     }
   },
   mail_settings: {
-    sandbox_mode: false
+    sandbox_mode: {
+      enable:false
+    }
   }
 }
 

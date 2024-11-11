@@ -83,8 +83,8 @@ export async function dynamicDomain(request: RequestClient): Promise<DynamicFiel
         .filter((domain: ResultItem) => domain.valid === true)
         .map((domain: ResultItem) => {
           return {
-            label: `${domain.subdomain}.${domain.domain}`,
-            value: `${domain.subdomain}.${domain.domain}`
+            label: `${domain.domain}`,
+            value: `${domain.domain}`
           }
         })
     }

@@ -13,7 +13,9 @@ Object {
   },
   "ip_pool_name": "!s3p^",
   "mail_settings": Object {
-    "sandbox_mode": true,
+    "sandbox_mode": Object {
+      "enable": true,
+    },
   },
   "personalizations": Array [
     Object {
