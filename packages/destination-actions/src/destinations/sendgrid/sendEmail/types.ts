@@ -30,25 +30,4 @@ export interface SendEmailReq {
     group_id: number
   }
   ip_pool_name?: string
-  tracking_settings?: {
-    subscription_tracking?: {
-      enable: boolean
-      text?: string
-      html?: string
-      substitution_tag?: string
-    }
-    ganalytics?: {
-      enable: boolean
-      utm_source?: string
-      utm_medium?: string
-      utm_term?: string
-      utm_content?: string
-      utm_campaign?: string
-    }
-  }
-  mail_settings?: {
-    sandbox_mode?: {
-      enable: boolean
-    }
-  }
 }

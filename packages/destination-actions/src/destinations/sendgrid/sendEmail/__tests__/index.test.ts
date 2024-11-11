@@ -16,15 +16,6 @@ const validPayload = {
   messageId: 'aaa-bbb-ccc',
   type: 'track',
   userId: 'user_id_1',
-  context: {
-    campaign: {
-      source: 'source1',
-      medium: 'medium1',
-      term: 'term1',
-      content: 'content1',
-      name: 'name1'
-    }
-  },
   properties: {
     from: {
       email: 'billyjoe@yellowstone.com',
@@ -75,16 +66,9 @@ const validPayload = {
     reply_to: {
       reply_to_equals_from: true
     },
-    subscription_tracking: {
-      enable: false
-    },
     categories: ['category1', 'category2'],
-    google_analytics: {
-      enable: true
-    },
     ip_pool_name: 'ip_pool_name1',
-    group_id: '123 - blah',
-    sandbox_mode: false
+    group_id: '123 - blah'
   }
 } as Partial<SegmentEvent>
 const mapping = {
@@ -97,19 +81,9 @@ const mapping = {
   template_id: { '@path': '$.properties.template_id' },
   custom_args: { '@path': '$.properties.custom_args' },
   reply_to: { '@path': '$.properties.reply_to' },
-  subscription_tracking: { '@path': '$.properties.subscription_tracking' },
   categories: { '@path': '$.properties.categories' },
-  google_analytics: {
-    enable: { '@path': '$.properties.google_analytics.enable' },
-    utm_source: { '@path': '$.context.campaign.source' },
-    utm_medium: { '@path': '$.context.campaign.medium' },
-    utm_term: { '@path': '$.context.campaign.term' },
-    utm_content: { '@path': '$.context.campaign.content' },
-    utm_campaign: { '@path': '$.context.campaign.name' }
-  },
   ip_pool_name: { '@path': '$.properties.ip_pool_name' },
   group_id: { '@path': '$.properties.group_id' },
-  sandbox_mode: { '@path': '$.properties.sandbox_mode' },
   send_at: { '@path': '$.properties.send_at' }
 }
 const expectedSendgridPayload = {
@@ -173,25 +147,7 @@ const expectedSendgridPayload = {
   asm: {
     group_id: 123
   },
-  ip_pool_name: 'ip_pool_name1',
-  tracking_settings: {
-    subscription_tracking: {
-      enable: false
-    },
-    ganalytics: {
-      enable: true,
-      utm_source: 'source1',
-      utm_medium: 'medium1',
-      utm_term: 'term1',
-      utm_content: 'content1',
-      utm_campaign: 'name1'
-    }
-  },
-  mail_settings: {
-    sandbox_mode: {
-      enable:false
-    }
-  }
+  ip_pool_name: 'ip_pool_name1'
 }
 
 beforeEach((done) => {

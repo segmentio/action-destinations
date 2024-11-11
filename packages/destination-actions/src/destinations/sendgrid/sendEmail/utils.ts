@@ -41,12 +41,7 @@ export async function send(request: RequestClient, payload: Payload) {
     template_id: payload.template_id,
     categories: payload.categories,
     asm: typeof groupId === 'number' ? { group_id: groupId } : undefined,
-    ip_pool_name: payload.ip_pool_name,
-    tracking_settings: {
-      subscription_tracking: payload.subscription_tracking ?? undefined,
-      ganalytics: payload.google_analytics ?? undefined
-    },
-    mail_settings: typeof payload.sandbox_mode === 'boolean' ? { sandbox_mode: { enable: payload.sandbox_mode} } : undefined
+    ip_pool_name: payload.ip_pool_name
   }
 
   return await request(SEND_EMAIL_URL, {
