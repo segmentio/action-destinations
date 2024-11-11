@@ -15,6 +15,7 @@ import {
   ModifiedResponse,
   RequestClient,
   IntegrationError,
+  RetryableError,
   PayloadValidationError,
   DynamicFieldResponse
 } from '@segment/actions-core'
@@ -30,10 +31,31 @@ export const API_VERSION = 'v17'
 export const CANARY_API_VERSION = 'v17'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 
+type GoogleAdsErrorData = {
+  data: {
+    error: {
+      code: number
+      details: [
+        {
+          '@type': string
+          errors: [
+            {
+              errorCode: { databaseError: string }
+              message: string
+            }
+          ]
+        }
+      ]
+      message: string
+      status: string
+    }
+  }
+}
 export class GoogleAdsError extends HTTPError {
   response: Response & {
     status: string
     statusText: string
+    data: GoogleAdsErrorData
   }
 }
 
@@ -514,7 +536,6 @@ const createOfflineUserJob = async (
     return (response.data as any).resourceName
   } catch (error) {
     statsContext?.statsClient?.incr('error.createJob', 1, statsContext?.tags)
-    console.log(error)
     throw new IntegrationError(
       (error as GoogleAdsError).response?.statusText,
       'INVALID_RESPONSE',
@@ -549,11 +570,26 @@ const addOperations = async (
     return response.data
   } catch (error) {
     statsContext?.statsClient?.incr('error.addOperations', 1, statsContext?.tags)
-    throw new IntegrationError(
-      (error as GoogleAdsError).response?.statusText,
-      'INVALID_RESPONSE',
-      (error as GoogleAdsError).response?.status
-    )
+
+    // Google throws 400 error for CONCURRENT_MODIFICATION error which is a retryable error
+    // We rewrite this error to a 500 so that Centrifuge can retry the request
+    for (const errorDetails of (error as GoogleAdsError).response?.data?.data?.error?.details) {
+      for (const errorItem of errorDetails.errors) {
+        if (errorItem?.errorCode?.databaseError) {
+          throw new RetryableError(
+            errorItem?.message ??
+              'Multiple requests were attempting to modify the same resource at once. Retry the request.',
+            500
+          )
+        }
+      }
+
+      throw new IntegrationError(
+        (error as GoogleAdsError).response?.statusText,
+        'INVALID_RESPONSE',
+        (error as GoogleAdsError).response?.status
+      )
+    }
   }
 }
 
