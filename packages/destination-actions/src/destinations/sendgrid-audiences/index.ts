@@ -5,7 +5,7 @@ import { CREATE_LIST_URL } from './constants'
 import { CreateAudienceReq, CreateAudienceResp } from './types'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'SendGrid Lists',
+  name: 'SendGrid Audiences',
   slug: 'actions-sendgrid-audiences',
   mode: 'cloud',
   description: 'Sync Segment Engage Audiences to Sengrid Lists.',
@@ -48,16 +48,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const response = await request<CreateAudienceResp>(
-        CREATE_LIST_URL,
-        {
-          method: 'POST',
-          throwHttpErrors: false,
-          json: {
-            name: createAudienceInput?.audienceSettings?.listName ?? createAudienceInput.audienceName 
-          } as CreateAudienceReq
-        }
-      )
+      const response = await request<CreateAudienceResp>(CREATE_LIST_URL, {
+        method: 'POST',
+        throwHttpErrors: false,
+        json: {
+          name: createAudienceInput?.audienceSettings?.listName ?? createAudienceInput.audienceName
+        } as CreateAudienceReq
+      })
       const json = await response.json()
       return { externalId: json.id }
     },
