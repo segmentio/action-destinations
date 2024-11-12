@@ -4,7 +4,7 @@ import type { Payload } from './generated-types';
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Events',
-  description: 'Use the Custom Events API to send user actions to use in the Attentive Segment Builder and Journey Builder for both email and text messages.',
+  description: 'Send user actions to Attentive',
   fields: {
     type: {
       label: 'Type',
