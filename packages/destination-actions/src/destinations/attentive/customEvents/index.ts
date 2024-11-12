@@ -47,7 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: 'Email of the user associated with the action. This field is required if either phone or an externalIdentifier is not provided.',
+      description: 'The user's email address. Required if none of 'Client User ID', 'Phone' or 'External Event Id' are provided.',
       type: 'string',
       required: false,
     default: {
