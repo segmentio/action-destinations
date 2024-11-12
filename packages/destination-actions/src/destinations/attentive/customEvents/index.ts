@@ -59,10 +59,11 @@ default: {
 }
     },
     clientUserId: {
-      label: 'clientUserId',
-      description: '(optional) Your primary ID for a user. This field is required if either phone, email, or a customIdentifier is not provided.',
+      label: 'Client User ID',
+      description: "A primary ID for a user. Required if none of 'Phone', 'Email' or 'External Event Id' are provided.',
       type: 'string',
       required: false,
+      default: { '@path': '$.userId' }
     },
     customIdentifiers: {
       label: 'customIdentifiers',
