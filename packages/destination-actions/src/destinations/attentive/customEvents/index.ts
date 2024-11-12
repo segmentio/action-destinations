@@ -41,7 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone: {
       label: 'Phone',
-      description: 'Phone number of the user associated with the action. E.164 format is required. This field is required if either email or an externalIdentifier is not provided.',
+      description: "The user's phone number in E.164 format. Required if none of 'Client User ID', 'Email' or 'External Event Id' are provided.",
       type: 'string',
       required: false,
     },
