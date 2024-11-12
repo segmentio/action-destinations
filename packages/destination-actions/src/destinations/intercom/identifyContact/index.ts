@@ -25,6 +25,15 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'External ID',
       default: {
         '@path': '$.userId'
+      },
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'role',
+            operator: 'is',
+            value: 'user'
+          }
+        ]
       }
     },
     email: {
@@ -34,6 +43,15 @@ const action: ActionDefinition<Settings, Payload> = {
       format: 'email',
       default: {
         '@path': '$.traits.email'
+      },
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'role',
+            operator: 'is',
+            value: 'user'
+          }
+        ]
       }
     },
     phone: {

@@ -2,7 +2,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
 import nock from 'nock'
-import { TransactionContext } from '@segment/actions-core/src/destination-kit'
+import { TransactionContext } from '@segment/actions-core/destination-kit'
 
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-hubspot-cloud'
@@ -35,6 +35,9 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const event = createTestEvent({
         properties: eventData
       })
+
+      // @ts-ignore
+      event["__segment_internal_sync_mode"] = 'upsert'
 
       try {
         const responses = await testDestination.testAction(actionSlug, {

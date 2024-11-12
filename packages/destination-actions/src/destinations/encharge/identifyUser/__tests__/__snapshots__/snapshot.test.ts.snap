@@ -59,6 +59,12 @@ Headers {
     "user-agent": Array [
       "Segment (Actions)",
     ],
+    "x-encharge-token": Array [
+      "!zPu!rE#Y@H[7(",
+    ],
+    "x-segment-actions": Array [
+      "1",
+    ],
   },
 }
 `;

@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { StatsClient, StatsContext } from '@segment/actions-core/src/destination-kit'
+import { StatsClient, StatsContext } from '@segment/actions-core/destination-kit'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {

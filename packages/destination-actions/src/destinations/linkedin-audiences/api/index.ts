@@ -32,7 +32,7 @@ export class LinkedInAudiences {
       searchParams: {
         q: 'account',
         account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
-        sourceSegmentId: payload.source_segment_id || '',
+        sourceSegmentId: payload.personas_audience_key || '',
         sourcePlatform: LINKEDIN_SOURCE_PLATFORM
       }
     })
@@ -44,9 +44,8 @@ export class LinkedInAudiences {
       json: {
         name: payload.dmp_segment_name,
         sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
-        sourceSegmentId: payload.source_segment_id,
+        sourceSegmentId: payload.personas_audience_key,
         account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
-        accessPolicy: 'PRIVATE',
         type: 'USER',
         destinations: [
           {

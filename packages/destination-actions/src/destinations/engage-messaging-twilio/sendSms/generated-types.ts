@@ -16,7 +16,15 @@ export interface Payload {
   /**
    * Message to send
    */
-  body: string
+  body?: string
+  /**
+   * Media to attach to message
+   */
+  media?: string[]
+  /**
+   * Content template SID for Twilio Content API
+   */
+  contentSid?: string
   /**
    * Additional custom arguments that will be opaquely sent back on webhook events
    */
@@ -36,6 +44,14 @@ export interface Payload {
    */
   traitEnrichment?: boolean
   /**
+   * Send to any subscription status other than unsubscribed
+   */
+  sendBasedOnOptOut?: boolean
+  /**
+   * Segment computation ID
+   */
+  segmentComputationId?: string
+  /**
    * An array of user profile identity information.
    */
   externalIds?: {
@@ -47,6 +63,10 @@ export interface Payload {
      * The external ID contact type.
      */
     type?: string
+    /**
+     * The external ID contact channel type (SMS, WHATSAPP, etc).
+     */
+    channelType?: string
     /**
      * The subscription status for the identity.
      */
@@ -62,4 +82,8 @@ export interface Payload {
    * Time of when the actual event happened.
    */
   eventOccurredTS?: string
+  /**
+   * The Segment messageId
+   */
+  messageId?: string
 }

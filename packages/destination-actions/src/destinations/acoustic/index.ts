@@ -1,7 +1,12 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import receiveEvents from './receiveEvents'
+import { getAccessToken } from './Utility/tablemaintutilities'
 
+const mod = `
+Last-Modified: 06.28.2023 16.15.37
+`
+//May 30th, refactor for additional Customers
 export interface refreshTokenResult {
   access_token: string
   token_type: string
@@ -9,7 +14,7 @@ export interface refreshTokenResult {
   expires_in: number
 }
 
-/** used in the quick setup dialog for Mapping */
+/** Used in the quick setup dialog for Mapping */
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track Calls',
@@ -24,7 +29,8 @@ const presets: DestinationDefinition['presets'] = [
           else: { '@path': '$.context.traits.email' }
         }
       }
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Identify Calls',
@@ -39,7 +45,8 @@ const presets: DestinationDefinition['presets'] = [
           else: { '@path': '$.context.traits.email' }
         }
       }
-    }
+    },
+    type: 'automatic'
   }
 ]
 
@@ -48,18 +55,18 @@ const destination: DestinationDefinition<Settings> = {
   slug: 'actions-acoustic-campaign',
   mode: 'cloud',
   authentication: {
-    scheme: 'oauth-managed',
+    scheme: 'oauth2',
     fields: {
-      a_pod: {
+      pod: {
         label: 'Pod',
-        description: 'Pod Number of Campaign Instance',
+        description: 'Pod Number for API Endpoint',
         default: '2',
         type: 'string',
         required: true
       },
-      a_region: {
+      region: {
         label: 'Region',
-        description: 'Region where Pod is hosted, either US, EU, AP, or CA',
+        description: 'Region for API Endpoint, either US, EU, AP, or CA',
         choices: [
           { label: 'US', value: 'US' },
           { label: 'EU', value: 'EU' },
@@ -70,53 +77,59 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      a_attributesMax: {
+      tableName: {
+        label: 'Acoustic Segment Table Name',
+        description: `The Segment Table Name in Acoustic Campaign Data dialog.`,
+        default: 'Segment Events Table Name',
+        type: 'string',
+        required: true
+      },
+      tableListId: {
+        label: 'Acoustic Segment Table List Id',
+        description: 'The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign',
+        default: '',
+        type: 'string',
+        required: true
+      },
+      a_clientId: {
+        label: 'Acoustic App Definition ClientId',
+        description: 'The Client Id from the App definition dialog in Acoustic Campaign',
+        default: '',
+        type: 'string',
+        required: true
+      },
+      a_clientSecret: {
+        label: 'Acoustic App Definition ClientSecret',
+        description: 'The Client Secret from the App definition dialog in Acoustic Campaign',
+        default: '',
+        type: 'password',
+        required: true
+      },
+      a_refreshToken: {
+        label: 'Acoustic App Access Definition RefreshToken',
+        description: 'The RefreshToken provided when defining access for the App in Acoustic Campaign',
+        default: '',
+        type: 'password',
+        required: true
+      },
+      attributesMax: {
         label: 'Properties Max',
-        description: 'Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
-        default: 30,
+        description:
+          'A safety against mapping too many attributes into the Event, Event will be ignored if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
+        default: 15,
         type: 'number',
         required: false
       },
-      a_events_table_list_id: {
-        label: 'Acoustic Segment Events Table List Id',
-        description: 'The Segment Events Table List Id from the Database dialog in Acoustic Campaign',
-        default: '',
+      version: {
+        label: `Version:`,
+        description: `${mod}`,
+        default: `Version 3.1   (nodeJS: ${process.version})`,
         type: 'string',
         required: false
       }
     },
-
-    refreshAccessToken: async (request, { settings, auth }) => {
-      // Return a request that refreshes the access_token if the API supports it
-
-      const at = await request<refreshTokenResult>(
-        `https://api-campaign-${settings.a_region}-${settings.a_pod}.goacoustic.com/oauth/token`,
-        {
-          method: 'POST',
-          body: new URLSearchParams({
-            refresh_token: auth.refreshToken,
-            client_id: auth.clientId,
-            client_secret: auth.clientSecret,
-            grant_type: 'refresh_token'
-          }),
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
-        }
-      )
-      return { accessToken: at.data.access_token }
-    }
-  },
-  extendRequest: ({ settings, auth }) => {
-    return {
-      headers: {
-        // Authorization: `Bearer ${auth?.accessToken}`,
-        'Content-Type': 'text/xml',
-        'user-agent': `Segment (checkforRT on Pod ${settings.a_pod}_${auth?.accessToken})`,
-        Connection: 'keep-alive',
-        'Accept-Encoding': 'gzip, deflate, br',
-        Accept: '*/*'
-      }
+    refreshAccessToken: async (request, { settings }) => {
+      return await getAccessToken(request, settings)
     }
   },
   presets,

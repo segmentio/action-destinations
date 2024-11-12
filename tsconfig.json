@@ -16,10 +16,11 @@
     "experimentalDecorators": true,
     "skipLibCheck": true
   },
-  "exclude": ["dist", "templates"],
+  "exclude": ["dist", "templates", "scripts"],
   "references": [
     { "path": "./packages/ajv-human-errors/tsconfig.build.json" },
     { "path": "./packages/browser-destinations/tsconfig.build.json" },
+    { "path": "./packages/browser-destination-runtime/tsconfig.build.json" },
     { "path": "./packages/core/tsconfig.build.json" },
     { "path": "./packages/destination-actions/tsconfig.build.json" },
     { "path": "./packages/destination-subscriptions/tsconfig.build.json" },

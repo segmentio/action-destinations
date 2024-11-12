@@ -227,4 +227,20 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * Free-form dictionary of traits that describe the user or group of users.
+   */
+  traits?: {
+    [k: string]: unknown
+  }
+  /**
+   * The Segment messageId.
+   */
+  message_id?: string
+  /**
+   * Segment event consent category preferences.
+   */
+  consent?: {
+    [k: string]: unknown
+  }
 }

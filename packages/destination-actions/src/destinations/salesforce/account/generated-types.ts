@@ -2,23 +2,27 @@
 
 export interface Payload {
   /**
-   * The Salesforce operation performed. The available operations are Create, Update or Upsert records in Salesforce.
+   * The Salesforce operation performed. The available operations are Create, Delete, Update or Upsert records in Salesforce.
    */
   operation: string
   /**
-   * If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 1000 before sending to Salesforce. *Enabling Bulk API is not compatible with the `create` operation*.
+   * If true, events are sent to [Salesforce’s Bulk API 2.0](https://developer.salesforce.com/docs/atlas.en-us.api_asynch.meta/api_asynch/asynch_api_intro.htm) rather than their streaming REST API. Once enabled, Segment will collect events into batches of 5000 before sending to Salesforce.
    */
   enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
   /**
    * This field affects how Segment uses the record matchers to query Salesforce records. By default, Segment uses the "OR" operator to query Salesforce for a record. If you would like to query Salesforce records using a combination of multiple record matchers, change this to "AND".
    */
   recordMatcherOperator?: string
   /**
-   * The fields used to find Salesforce records for updates. **This is required if the operation is Update or Upsert.**
+   * The fields used to find Salesforce records for updates. **This is required if the operation is Delete, Update or Upsert.**
    *
    *   Any field can function as a matcher, including Record ID, External IDs, standard fields and custom fields. On the left-hand side, input the Salesforce field API name. On the right-hand side, map the Segment field that contains the value.
    *
-   *   If multiple records are found, no updates will be made. **Please use fields that result in unique records.**
+   *   If multiple records are found, no changes will be made. **Please use fields that result in unique records.**
    *
    *   ---
    *

@@ -203,5 +203,41 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
+
+    it('should rethrow the original error if error object does not contain error_statuses key', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          email: 'janedoe@gmail.com',
+          orderId: '123',
+          firstName: 'Bob John',
+          lastName: 'Smith',
+          phone: '14150000000',
+          address: {
+            street: '123 Market Street',
+            city: 'San Francisco',
+            state: 'CA',
+            postalCode: '94000',
+            country: 'USA'
+          }
+        }
+      })
+
+      nock('https://www.google.com/ads/event/api/v1')
+        .post(`?conversion_tracking_id=${conversionTrackingId}`)
+        .reply(400, {})
+
+      await expect(
+        testDestination.testAction('postConversion', {
+          event,
+          mapping: { conversion_label: conversionLabel },
+          useDefaultMappings: true,
+          settings: {
+            conversionTrackingId
+          }
+        })
+      ).rejects.toHaveProperty('response.status', 400)
+    })
   })
 })

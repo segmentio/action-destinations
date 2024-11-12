@@ -25,4 +25,8 @@ export interface Settings {
    * Source ID
    */
   sourceId: string
+  /**
+   * The region where the email is originating from
+   */
+  region?: string
 }

@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * GWEN API key. Can be found [here](http://gwen.insertcoin.se/iam/api-token)
+   * GWEN API key. Can be found [here](http://gwen.insertcoin.se/iam/api-token) (login required)
    */
   apiKey: string
 }

@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
 import { CohortChanges } from '../braze-cohorts-types'
-import { StateContext } from '@segment/actions-core/src/destination-kit'
+import { StateContext } from '@segment/actions-core/destination-kit'
 import isEmpty from 'lodash/isEmpty'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -47,7 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
     cohort_id: {
       label: 'Cohort ID',
       description: 'The Cohort Identifier',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_id'
@@ -56,7 +57,8 @@ const action: ActionDefinition<Settings, Payload> = {
     cohort_name: {
       label: 'Cohort Name',
       description: 'The name of Cohort',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.context.personas.computation_key'
@@ -92,7 +94,8 @@ const action: ActionDefinition<Settings, Payload> = {
     time: {
       label: 'Time',
       description: 'When the event occurred.',
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       required: true,
       default: {
         '@path': '$.timestamp'

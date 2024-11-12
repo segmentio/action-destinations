@@ -9,7 +9,8 @@ const presets: DestinationDefinition['presets'] = [
     name: 'Track User Actions',
     subscribe: 'type = "track"',
     partnerAction: 'trackEvent',
-    mapping: defaultValues(trackEvent.fields)
+    mapping: defaultValues(trackEvent.fields),
+    type: 'automatic'
   },
   {
     name: 'Page Calls',
@@ -17,14 +18,15 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'trackEvent',
     mapping: {
       ...defaultValues(trackEvent.fields),
-      action_name: {
+      event_name: {
         '@if': {
-          exists: { '@path': '$.properties.action_name' },
-          then: { '@path': '$.properties.action_name' },
+          exists: { '@path': '$.name' },
+          then: { '@path': '$.name' },
           else: { '@path': '$.properties.title' }
         }
       }
-    }
+    },
+    type: 'automatic'
   },
   {
     name: 'Screen Calls',
@@ -32,14 +34,15 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'trackEvent',
     mapping: {
       ...defaultValues(trackEvent.fields),
-      action_name: {
+      event_name: {
         '@if': {
-          exists: { '@path': '$.properties.action_name' },
-          then: { '@path': '$.properties.action_name' },
+          exists: { '@path': '$.name' },
+          then: { '@path': '$.name' },
           else: { '@path': '$.properties.title' }
         }
       }
-    }
+    },
+    type: 'automatic'
   }
 ]
 

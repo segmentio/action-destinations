@@ -2,7 +2,7 @@ import { ActionDefinition, RequestClient, omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from '../mixpanel-types'
-import { getApiServerUrl, cheapGuid } from '../utils'
+import { getApiServerUrl, cheapGuid } from '../common/utils'
 import { getEventProperties } from '../trackEvent/functions'
 import { eventProperties, productsProperties } from '../mixpanel-properties'
 import dayjs from '../../../lib/dayjs'
@@ -51,11 +51,11 @@ const getPurchaseEventsFromPayload = (payload: Payload, settings: Settings): Mix
 
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const events = payload.map((value) => getPurchaseEventsFromPayload(value, settings)).flat()
-  return request(`${ getApiServerUrl(settings.apiRegion) }/import?strict=${ settings.strictMode ?? `1` }`, {
+  return request(`${getApiServerUrl(settings.apiRegion)}/import?strict=${settings.strictMode ?? `1`}`, {
     method: 'post',
     json: events,
     headers: {
-      authorization: `Basic ${ Buffer.from(`${ settings.apiSecret }:`).toString('base64') }`
+      authorization: `Basic ${Buffer.from(`${settings.apiSecret}:`).toString('base64')}`
     }
   })
 }

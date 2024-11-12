@@ -9,9 +9,11 @@ import {
   traits,
   validateLookup,
   enable_batching,
-  recordMatcherOperator
+  recordMatcherOperator,
+  batch_size,
+  hideIfDeleteOperation
 } from '../sf-properties'
-import Salesforce from '../sf-operations'
+import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 
 const OBJECT_NAME = 'Lead'
 
@@ -23,6 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
     operation: operation,
     recordMatcherOperator: recordMatcherOperator,
     enable_batching: enable_batching,
+    batch_size: batch_size,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
@@ -36,7 +39,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.company' },
           else: { '@path': '$.properties.company' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     last_name: {
       label: 'Last Name',
@@ -48,7 +52,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.last_name' },
           else: { '@path': '$.properties.last_name' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     first_name: {
       label: 'First Name',
@@ -60,7 +65,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.first_name' },
           else: { '@path': '$.properties.first_name' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     email: {
       label: 'Email',
@@ -72,7 +78,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.properties.email' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     city: {
       label: 'City',
@@ -84,7 +91,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.city' },
           else: { '@path': '$.properties.address.city' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     postal_code: {
       label: 'Postal Code',
@@ -96,7 +104,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.postal_code' },
           else: { '@path': '$.properties.address.postal_code' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     country: {
       label: 'Country',
@@ -108,7 +117,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.country' },
           else: { '@path': '$.properties.address.country' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     street: {
       label: 'Street',
@@ -120,7 +130,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.street' },
           else: { '@path': '$.properties.address.street' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     state: {
       label: 'State',
@@ -132,12 +143,13 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.address.state' },
           else: { '@path': '$.properties.address.state' }
         }
-      }
+      },
+      depends_on: hideIfDeleteOperation
     },
     customFields: customFields
   },
   perform: async (request, { settings, payload }) => {
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (payload.operation === 'create') {
       if (!payload.last_name) {
@@ -158,9 +170,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return await sf.upsertRecord(payload, OBJECT_NAME)
     }
+
+    if (payload.operation === 'delete') {
+      return await sf.deleteRecord(payload, OBJECT_NAME)
+    }
   },
   performBatch: async (request, { settings, payload }) => {
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (payload[0].operation === 'upsert') {
       if (!payload[0].last_name) {

@@ -19,6 +19,14 @@ export interface Payload {
    */
   amount: number
   /**
+   * The batch number of the gift up to 50 characters (including the batch prefix).
+   */
+  batch_number?: string
+  /**
+   * The batch prefix of the gift. If provided, must include at least one letter. Required when Batch Number has a value, and defaults to "API" if no value is provided.
+   */
+  batch_prefix?: string
+  /**
    * The check date in ISO-8601 format.
    */
   check_date?: string | number
@@ -27,13 +35,29 @@ export interface Payload {
    */
   check_number?: string
   /**
+   * The constituency value of the gift. If no value is provided, the default constituency of the donor will be used.
+   */
+  constituency?: string
+  /**
    * The gift date in ISO-8601 format.
    */
   date?: string | number
   /**
+   * Indicates whether to use default fundraiser credits.
+   */
+  default_fundraiser_credits?: boolean
+  /**
+   * Indicates whether to use default soft credits.
+   */
+  default_soft_credits?: boolean
+  /**
    * The ID of the fund associated with the gift.
    */
   fund_id: string
+  /**
+   * The gift code. Available values are the entries in the Gift Code table.
+   */
+  gift_code?: string
   /**
    * The status of the gift. Available values are "Active", "Held", "Terminated", "Completed", and "Cancelled".
    */
@@ -93,6 +117,10 @@ export interface Payload {
     start_date?: string | number
   }
   /**
+   * Notes to track special details about a gift such as the motivation behind it or a detailed description of a gift-in-kind. Limited to 255 characters.
+   */
+  reference?: string
+  /**
    * The subtype of the gift.
    */
   subtype?: string
@@ -118,6 +146,10 @@ export interface Payload {
    */
   constituent_birthdate?: string | number
   /**
+   * The birthplace of the constituent.
+   */
+  constituent_birthplace?: string
+  /**
    * The ID of the constituent.
    */
   constituent_id?: string
@@ -131,17 +163,33 @@ export interface Payload {
     type?: string
   }
   /**
+   * The ethnicity of the constituent.
+   */
+  constituent_ethnicity?: string
+  /**
    * The constituent's first name up to 50 characters.
    */
   constituent_first?: string
+  /**
+   * The constituent's former name up to 100 characters.
+   */
+  constituent_former_name?: string
   /**
    * The constituent's gender.
    */
   constituent_gender?: string
   /**
+   * Indicates whether the constituent gives anonymously.
+   */
+  constituent_gives_anonymously?: boolean
+  /**
    * The constituent's income.
    */
   constituent_income?: string
+  /**
+   * The constituent's industry.
+   */
+  constituent_industry?: string
   /**
    * The constituent's last name up to 100 characters. This is required to create a constituent.
    */
@@ -150,6 +198,10 @@ export interface Payload {
    * The organization-defined identifier for the constituent.
    */
   constituent_lookup_id?: string
+  /**
+   * The constituent's marital status. Available values are the entries in the Marital Status table.
+   */
+  constituent_marital_status?: string
   /**
    * The constituent's online presence.
    */
@@ -167,4 +219,28 @@ export interface Payload {
     primary?: boolean
     type?: string
   }
+  /**
+   * The constituent's preferred name up to 50 characters.
+   */
+  constituent_preferred_name?: string
+  /**
+   * The religion of the constituent.
+   */
+  constituent_religion?: string
+  /**
+   * The constituent's primary suffix. Available values are the entries in the Suffixes table.
+   */
+  constituent_suffix?: string
+  /**
+   * The constituent's secondary suffix. Available values are the entries in the Suffixes table.
+   */
+  constituent_suffix_2?: string
+  /**
+   * The constituent's primary title. Available values are the entries in the Titles table.
+   */
+  constituent_title?: string
+  /**
+   * The constituent's secondary title. Available values are the entries in the Titles table.
+   */
+  constituent_title_2?: string
 }

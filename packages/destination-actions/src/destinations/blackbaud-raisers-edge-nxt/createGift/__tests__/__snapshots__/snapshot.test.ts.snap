@@ -7,11 +7,23 @@ Object {
     "m": "2",
     "y": "2021",
   },
+  "birthplace": "O#lbz",
+  "ethnicity": "O#lbz",
   "first": "O#lbz",
+  "former_name": "O#lbz",
   "gender": "O#lbz",
+  "gives_anonymously": true,
   "income": "O#lbz",
+  "industry": "O#lbz",
   "last": "O#lbz",
   "lookup_id": "O#lbz",
+  "marital_status": "O#lbz",
+  "preferred_name": "O#lbz",
+  "religion": "O#lbz",
+  "suffix": "O#lbz",
+  "suffix_2": "O#lbz",
+  "title": "O#lbz",
+  "title_2": "O#lbz",
 }
 `;
 

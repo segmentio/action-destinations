@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Prodeology's track destination action: all fields 1`] = `
+Object {
+  "anonymousId": "c^vP[G2edJi33c",
+  "context": Object {
+    "testType": "c^vP[G2edJi33c",
+  },
+  "event": "c^vP[G2edJi33c",
+  "messageId": "c^vP[G2edJi33c",
+  "properties": Object {
+    "testType": "c^vP[G2edJi33c",
+  },
+  "timestamp": Any<String>,
+  "userId": "c^vP[G2edJi33c",
+}
+`;
+
+exports[`Testing snapshot for Prodeology's track destination action: required fields 1`] = `
+Object {
+  "event": "c^vP[G2edJi33c",
+  "messageId": "c^vP[G2edJi33c",
+  "timestamp": Any<String>,
+}
+`;

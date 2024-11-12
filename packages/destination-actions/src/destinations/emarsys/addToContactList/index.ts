@@ -1,5 +1,4 @@
-import { IntegrationError, RetryableError } from '@segment/actions-core'
-import type { ActionDefinition } from '@segment/actions-core'
+import { RetryableError, PayloadValidationError, APIError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -46,10 +45,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    if (!data?.payload?.key_field) throw new IntegrationError('Missing key field')
-
-    if (!data?.payload?.key_value) throw new IntegrationError('Missing key value')
-
     data.payload.contactlistid = parseInt(data.payload.contactlistid.toString().replace(/[^0-9]/g, ''))
 
     if (data.payload.contactlistid > 0) {
@@ -68,19 +63,23 @@ const action: ActionDefinition<Settings, Payload> = {
           try {
             const body = await response.json()
             if (body.replyCode === 0) return response
-            else throw new IntegrationError('Something went wrong while adding to contact list')
+            else
+              throw new APIError(
+                `Something went wrong while adding to contact list: ${body?.replyText ?? 'UNKNOWN'}`,
+                500
+              )
           } catch (err) {
-            throw new IntegrationError('Invalid JSON response')
+            throw new APIError('Invalid JSON response', 400)
           }
         case 400:
-          throw new IntegrationError('The contact could not be removed from the contact list')
+          throw new APIError('The contact could not be removed from the contact list', 400)
         case 429:
           throw new RetryableError('Rate limit reached.')
         default:
           throw new RetryableError('There seems to be an API issue.')
       }
     } else {
-      throw new IntegrationError('ContactlistId must be >0')
+      throw new PayloadValidationError('ContactlistId must be >0')
     }
   },
   performBatch: async (request, data) => {

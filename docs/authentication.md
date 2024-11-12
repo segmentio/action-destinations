@@ -98,20 +98,25 @@ const destination = {
 }
 ```
 
-## OAuth2 Authentication Scheme
+## OAuth 2.0 Managed Authentication Scheme
 
-_oauth authentication is not generally available to external partners as part of Developer Center Pilot. Please contact Segment team if you require it._
+OAuth 2.0 Managed Authentication scheme is the model to be used for destination APIs which support [OAuth 2.0](https://oauth.net/2/). You’ll be able to define a `refreshAccessToken` function if you want the framework to refresh expired tokens.
 
-OAuth2 Authentication scheme is the model to be used for destination APIs which support [OAuth 2.0](https://oauth.net/2/). You’ll be able to define a `refreshAccessToken` function if you want the framework to refresh expired tokens.
+You will have a new `auth` object available in `extendRequest` and `refreshAccessToken` which will surface your destination’s accessToken, refreshToken, clientId and clientSecret (these last two only available in `refreshAccessToken`). Most destination APIs expect the access token to be used as part of the authorization header in every request. You can use `extendRequest` to define that header.
 
-You will have a new `auth` object available in `extendRequest` and `refreshAccessToken` which will surface your destination’s accessToken, refreshToken, clientId and clientSecret (these last two only available in `refreshAccessToken`).
+Once your Actions code is deployed and you've received an invitation to manage the destination within our developer portal, you can then provide Segment with the following OAuth parameters.
 
-Most destination APIs expect the access token to be used as part of the authorization header in every request. You can use `extendRequest` to define that header.
+- Client ID
+- Client Secret
+- Authorization server URL
+  - Specify where to send users to authenticate with your API.
+- Access token server URL
+  - Enter the API endpoint URL where Segment sends the approval code on user redirect.
 
 ```
 
 authentication: {
-    scheme: 'oauth2',
+    scheme: 'oauth-managed',
     fields: {
       subdomain: {
         type: 'string',
@@ -147,8 +152,6 @@ authentication: {
     }
   }
 ```
-
-<em>**Note:** OAuth directly depends on the oauth providers available in Segment's internal OAuth Service. Please contact Segment if you require OAuth for your destination.</em>
 
 ## Unsupported Authentication Schemes
 

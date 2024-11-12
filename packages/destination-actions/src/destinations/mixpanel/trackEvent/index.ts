@@ -2,7 +2,7 @@ import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from '../mixpanel-types'
-import { getApiServerUrl } from '../utils'
+import { getApiServerUrl } from '../common/utils'
 import { getEventProperties } from './functions'
 import { eventProperties } from '../mixpanel-properties'
 
@@ -19,11 +19,11 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
 const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
   const events = payload.map((value) => getEventFromPayload(value, settings))
 
-  return request(`${ getApiServerUrl(settings.apiRegion) }/import?strict=${ settings.strictMode ?? `1` }`, {
+  return request(`${getApiServerUrl(settings.apiRegion)}/import?strict=${settings.strictMode ?? `1`}`, {
     method: 'post',
     json: events,
     headers: {
-      authorization: `Basic ${ Buffer.from(`${ settings.apiSecret }:`).toString('base64') }`
+      authorization: `Basic ${Buffer.from(`${settings.apiSecret}:`).toString('base64')}`
     }
   })
 }

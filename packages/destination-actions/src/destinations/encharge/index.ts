@@ -15,7 +15,7 @@ import addTag from './addTag'
 import removeTag from './removeTag'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Encharge Cloud (Actions)',
+  name: 'Encharge (Actions)',
   slug: 'encharge-cloud-actions',
   mode: 'cloud',
 
@@ -33,18 +33,17 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (request) => {
       return request(`${enchargeRestAPIBase}/v1/accounts/info`)
-    },
-    extendRequest: ({ settings }: { settings: Settings }) => {
-      return {
-        headers: {
-          'X-Encharge-Token': settings.apiKey,
-          'Content-Type': 'application/json',
-          'X-Segment-Actions': '1'
-        }
+    }
+  },
+  extendRequest: ({ settings }: { settings: Settings }) => {
+    return {
+      headers: {
+        'X-Encharge-Token': settings.apiKey,
+        'Content-Type': 'application/json',
+        'X-Segment-Actions': '1'
       }
     }
   },
-
   onDelete: deleteUser,
   description:
     'Encharge is a marketing automation platform that enables B2B SaaS companies to automate their marketing processes to increase customer engagement, retention, and revenue.',
@@ -53,31 +52,36 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'trackEvent',
       name: 'Track Event',
       subscribe: 'type = "track"',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       partnerAction: 'identifyUser',
       name: 'Identify User',
       subscribe: 'type = "identify"',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     },
     {
       partnerAction: 'trackPageView',
       name: 'Track Page View',
       subscribe: 'type = "page"',
-      mapping: defaultValues(trackPageView.fields)
+      mapping: defaultValues(trackPageView.fields),
+      type: 'automatic'
     },
     {
       partnerAction: 'aliasUser',
       name: 'Alias User',
       subscribe: 'type = "alias"',
-      mapping: defaultValues(aliasUser.fields)
+      mapping: defaultValues(aliasUser.fields),
+      type: 'automatic'
     },
     {
       partnerAction: 'createUpdateObject',
       name: 'Create or Update Object',
       subscribe: 'type = "group"',
-      mapping: defaultValues(createUpdateObject.fields)
+      mapping: defaultValues(createUpdateObject.fields),
+      type: 'automatic'
     }
   ],
 

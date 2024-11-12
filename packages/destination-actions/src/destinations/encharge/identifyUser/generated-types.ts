@@ -8,13 +8,13 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The type of event.
-   */
-  type: string
-  /**
    * The email address of the user.
    */
   email?: string
+  /**
+   * The type of event.
+   */
+  type: string
   /**
    * An anonymous identifier for this user.
    */

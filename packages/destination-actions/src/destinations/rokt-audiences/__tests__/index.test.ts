@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
+import { CONSTANTS } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -15,13 +16,13 @@ const MOCK_TOKEN_RESPONSE = {
 describe('Rokt Audiences', () => {
   describe('testAuthentication', () => {
     it('should validate valid auth token', async () => {
-      nock('https://data.stage.rokt.com/').get('/api/1.0/auth-check').reply(200, MOCK_TOKEN_RESPONSE)
+      nock(CONSTANTS.ROKT_API_BASE_URL).get(CONSTANTS.ROKT_API_AUTH_ENDPOINT).reply(200, MOCK_TOKEN_RESPONSE)
       const settings = VALID_SETTINGS
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
     })
 
     it('should test that authentication fails', async () => {
-      nock('https://data.stage.rokt.com/').get('/api/1.0/auth-check').reply(401)
+      nock(CONSTANTS.ROKT_API_BASE_URL).get(CONSTANTS.ROKT_API_AUTH_ENDPOINT).reply(401)
       const settings = VALID_SETTINGS
       await expect(testDestination.testAuthentication(settings)).rejects.toThrowError('')
     })

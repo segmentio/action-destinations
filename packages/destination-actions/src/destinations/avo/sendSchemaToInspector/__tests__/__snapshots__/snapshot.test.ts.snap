@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Avo's sendSchemaToInspector destination action: all fields 1`] = `
+Array [
+  Object {
+    "appName": "NU$O%!ms2wKE]8XsN5@)",
+    "appVersion": "NU$O%!ms2wKE]8XsN5@)",
+    "createdAt": "NU$O%!ms2wKE]8XsN5@)",
+    "eventHash": null,
+    "eventId": null,
+    "eventName": "NU$O%!ms2wKE]8XsN5@)",
+    "eventProperties": Array [
+      Object {
+        "propertyName": "testType",
+        "propertyType": "string",
+      },
+    ],
+    "libPlatform": "Segment",
+    "libVersion": "1.0.0",
+    "messageId": "NU$O%!ms2wKE]8XsN5@)",
+    "sessionId": "_",
+    "type": "event",
+  },
+]
+`;
+
+exports[`Testing snapshot for Avo's sendSchemaToInspector destination action: expect app Version to be extracted from property when set in settings 1`] = `
+Array [
+  Object {
+    "appName": "NU$O%!ms2wKE]8XsN5@)",
+    "appVersion": "2.0.3",
+    "createdAt": "NU$O%!ms2wKE]8XsN5@)",
+    "eventHash": null,
+    "eventId": null,
+    "eventName": "NU$O%!ms2wKE]8XsN5@)",
+    "eventProperties": Array [
+      Object {
+        "propertyName": "testType",
+        "propertyType": "string",
+      },
+    ],
+    "libPlatform": "Segment",
+    "libVersion": "1.0.0",
+    "messageId": "NU$O%!ms2wKE]8XsN5@)",
+    "sessionId": "_",
+    "type": "event",
+  },
+]
+`;
+
+exports[`Testing snapshot for Avo's sendSchemaToInspector destination action: required fields 1`] = `
+Array [
+  Object {
+    "appName": "unnamed Segment app",
+    "appVersion": "unversioned",
+    "createdAt": "NU$O%!ms2wKE]8XsN5@)",
+    "eventHash": null,
+    "eventId": null,
+    "eventName": "NU$O%!ms2wKE]8XsN5@)",
+    "eventProperties": Array [
+      Object {
+        "propertyName": "testType",
+        "propertyType": "string",
+      },
+    ],
+    "libPlatform": "Segment",
+    "libVersion": "1.0.0",
+    "messageId": "NU$O%!ms2wKE]8XsN5@)",
+    "sessionId": "_",
+    "type": "event",
+  },
+]
+`;

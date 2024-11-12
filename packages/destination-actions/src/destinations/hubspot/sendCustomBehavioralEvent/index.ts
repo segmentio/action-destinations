@@ -1,8 +1,9 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, DynamicFieldResponse, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
-import { flattenObject } from '../helperFunctions'
+import { flattenObject, transformEventName, GetCustomEventResponse } from '../utils'
+import { HubSpotError } from '../errors'
 
 interface CustomBehavioralEvent {
   eventName: string
@@ -23,6 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Please input the full internal event name including the `pe` prefix (i.e. `pe<HubID>_event_name`). Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).',
       type: 'string',
+      dynamic: true,
       required: true
     },
     occurredAt: {
@@ -67,15 +69,60 @@ const action: ActionDefinition<Settings, Payload> = {
       defaultObjectUI: 'keyvalue:only'
     }
   },
-  perform: (request, { payload }) => {
+  dynamicFields: {
+    eventName: async (request): Promise<DynamicFieldResponse> => {
+      try {
+        const result: GetCustomEventResponse = await request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions`, {
+          method: 'get',
+          skipResponseCloning: true
+        })
+        const choices = result.data.results.map((event) => {
+          return { value: event.fullyQualifiedName, label: event.name }
+        })
+        return {
+          choices
+        }
+      } catch (err) {
+        const code: string = (err as HubSpotError)?.response?.status
+          ? String((err as HubSpotError).response.status)
+          : '500'
+
+        return {
+          choices: [],
+          error: {
+            message: (err as HubSpotError)?.response?.data?.message ?? 'Unknown error',
+            code: code
+          }
+        }
+      }
+    }
+  },
+  perform: (request, { payload, settings }) => {
+    const eventName = transformEventName(payload.eventName)
+
     const event: CustomBehavioralEvent = {
-      eventName: payload.eventName,
+      eventName: eventName,
       occurredAt: payload.occurredAt,
       utk: payload.utk,
       email: payload.email,
       objectId: payload.objectId,
       properties: flattenObject(payload.properties)
     }
+
+    const hubId = settings?.portalId
+    const regExp = /^pe\d+_.*/
+
+    if (!hubId && !regExp.exec(event?.eventName)) {
+      throw new PayloadValidationError(`EventName should begin with pe<hubId>_`)
+    }
+    if (hubId && !event?.eventName.startsWith(`pe${hubId}_`)) {
+      throw new PayloadValidationError(`EventName should begin with pe${hubId}_`)
+    }
+
+    if (!payload.utk && !payload.email && !payload.objectId) {
+      throw new PayloadValidationError(`One of the following parameters: email, user token, or objectId is required`)
+    }
+
     return request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
       method: 'post',
       json: event

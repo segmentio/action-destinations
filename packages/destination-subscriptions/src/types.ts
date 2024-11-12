@@ -73,6 +73,7 @@ export type Operator =
   | '<='
   | '>'
   | '>='
+  | 'number_equals'
   | 'contains'
   | 'not_contains'
   | 'starts_with'
@@ -83,6 +84,7 @@ export type Operator =
   | 'not_exists'
   | 'is_true'
   | 'is_false'
+  | 'number_not_equals'
 
 export type ConditionType =
   | 'group'

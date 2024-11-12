@@ -1,1 +1,1 @@
-export const apiBaseUrl = 'https://cf-blast-iconic.livelikecdn.com/api/v1'
+export const apiBaseUrl = 'https://cf-blast.livelikecdn.com/api/v1'

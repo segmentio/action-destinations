@@ -70,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const { url, options } = customEventRequestParams(settings, {
       userId,
       eventName: name,
-      eventData: normalizePropertyNames(properties),
+      eventData: normalizePropertyNames(properties, { typeSuffix: true }),
       timestamp: utcTimestamp && utcTimestamp.isValid() ? utcTimestamp.toISOString() : undefined,
       useRecentSession,
       sessionUrl

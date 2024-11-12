@@ -1,6 +1,7 @@
 import { ErrorCodes, IntegrationError, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { CURRENCY_ISO_CODES } from './constants'
 import { DataStreamParams } from './ga4-types'
+import { Consent } from './ga4-types'
 
 // Google expects currency to be a 3-letter ISO 4217 format
 export function verifyCurrency(currency: string): void {
@@ -16,6 +17,8 @@ export function verifyParams(params: object | undefined): void {
   }
 
   Object.entries(params).forEach(([key, value]) => {
+    // Google will allow array objects for an items list
+    if (key == 'items' && value instanceof Array) return
     if (value instanceof Array) {
       throw new PayloadValidationError(
         `Param [${key}] has unsupported value of type [Array]. GA4 does not accept null, array, or object values for event parameters and item parameters.`
@@ -105,4 +108,17 @@ export async function sendData(request: RequestClient, search_params: string, pa
     method: 'POST',
     json: payload
   })
+}
+
+export const formatConsent = (consent: Consent): object | undefined => {
+  if (!consent.ad_user_data_consent && !consent.ad_personalization_consent) {
+    return undefined
+  }
+
+  return {
+    consent: {
+      ad_user_data: consent.ad_user_data_consent,
+      ad_personalization: consent.ad_personalization_consent
+    }
+  }
 }

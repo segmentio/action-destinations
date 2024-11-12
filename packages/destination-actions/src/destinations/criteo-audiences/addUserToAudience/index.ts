@@ -1,5 +1,5 @@
 import { ActionDefinition } from '@segment/actions-core'
-import { getAudienceId, patchAudience, hash } from '../criteo-audiences'
+import { getContactListId, patchContactList, hash } from '../criteo-audiences'
 import type { Operation, ClientCredentials } from '../criteo-audiences'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -29,10 +29,10 @@ const getOperationFromPayload = async (
     if (email) add_user_list.push(email)
   }
 
-  const audience_id = await getAudienceId(request, advertiser_id, audience_key, credentials)
+  const contactlist_id = await getContactListId(request, advertiser_id, audience_key, credentials)
   const operation: Operation = {
     operation_type: "add",
-    audience_id: audience_id,
+    contactlist_id: contactlist_id,
     user_list: add_user_list,
   }
   return operation;
@@ -48,7 +48,7 @@ const processPayload = async (
     client_secret: settings.client_secret
   }
   const operation: Operation = await getOperationFromPayload(request, settings.advertiser_id, payload, credentials);
-  return await patchAudience(request, operation, credentials)
+  return await patchContactList(request, operation, credentials)
 }
 
 const action: ActionDefinition<Settings, Payload> = {

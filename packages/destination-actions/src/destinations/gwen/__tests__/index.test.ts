@@ -20,7 +20,7 @@ describe('Gwen', () => {
     it('invalid api token', async () => {
       nock(baseURL)
         .post('')
-        .reply(200, { data: { errors: [{ message: "Access Denied!  You don't have permission for this action!" }] } })
+        .reply(200, { errors: [{ message: "Access Denied!  You don't have permission for this action!" }] })
 
       const authData = {
         apiKey: 'no-api-key'

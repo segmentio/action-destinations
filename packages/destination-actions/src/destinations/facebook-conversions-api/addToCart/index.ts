@@ -17,11 +17,13 @@ import {
   data_processing_options,
   data_processing_options_country,
   data_processing_options_state,
-  dataProcessingOptions
+  dataProcessingOptions,
+  test_event_code
 } from '../fb-capi-properties'
 import { CURRENCY_ISO_CODES } from '../constants'
 import { hash_user_data, user_data_field } from '../fb-capi-user-data'
 import { get_api_version } from '../utils'
+import { generate_app_data, app_data_field } from '../fb-capi-app-data'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Cart',
@@ -31,6 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
     action_source: { ...action_source, required: true },
     event_time: { ...event_time, required: true },
     user_data: user_data_field,
+    app_data_field: app_data_field,
     content_ids: content_ids,
     content_name: content_name,
     content_type: content_type,
@@ -61,7 +64,8 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_data: custom_data,
     data_processing_options: data_processing_options,
     data_processing_options_country: data_processing_options_country,
-    data_processing_options_state: data_processing_options_state
+    data_processing_options_state: data_processing_options_state,
+    test_event_code: test_event_code
   },
 
   perform: (request, { payload, settings, features, statsContext }) => {
@@ -96,6 +100,8 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.data_processing_options_state
     )
 
+    const testEventCode = payload.test_event_code || settings.testEventCode
+
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
       {
@@ -118,12 +124,13 @@ const action: ActionDefinition<Settings, Payload> = {
                 contents: payload.contents,
                 content_type: payload.content_type
               },
+              app_data: generate_app_data(payload.app_data_field),
               data_processing_options: data_options,
               data_processing_options_country: country_code,
               data_processing_options_state: state_code
             }
           ],
-          ...(settings.testEventCode && { test_event_code: settings.testEventCode })
+          ...(testEventCode && { test_event_code: testEventCode })
         }
       }
     )

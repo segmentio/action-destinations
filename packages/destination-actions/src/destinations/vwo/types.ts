@@ -5,6 +5,11 @@ export type vwoPayload = {
     event: {
       props: {
         vwo_og_event?: string
+        $visitor?: {
+          props: {
+            [k: string]: unknown
+          }
+        }
         page: {
           [k: string]: unknown
         }
@@ -20,7 +25,9 @@ export type vwoPayload = {
       time: number
     }
     visitor?: {
-      [k: string]: unknown
+      props: {
+        [k: string]: unknown
+      }
     }
     sessionId: number
   }
@@ -34,10 +41,10 @@ export type commonPayload = {
     [k: string]: unknown
   }
   vwoUuid: string
-  page: {
+  page?: {
     [k: string]: unknown
   }
   ip?: string
-  userAgent: string
-  timestamp: string
+  userAgent?: string
+  timestamp?: string
 }

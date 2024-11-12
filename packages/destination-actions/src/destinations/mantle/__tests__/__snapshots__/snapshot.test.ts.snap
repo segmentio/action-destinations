@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-mantle destination: identify action - all fields 1`] = `
+Object {
+  "customFields": Object {
+    "testType": "f$gKO(@kXal",
+  },
+  "email": "cothe@kogufo.as",
+  "myshopifyDomain": "f$gKO(@kXal",
+  "name": "f$gKO(@kXal",
+  "platform": "shopify",
+  "platformId": "f$gKO(@kXal",
+  "platformPlanName": "f$gKO(@kXal",
+}
+`;
+
+exports[`Testing snapshot for actions-mantle destination: identify action - required fields 1`] = `
+Object {
+  "myshopifyDomain": "f$gKO(@kXal",
+  "platform": "shopify",
+  "platformId": "f$gKO(@kXal",
+}
+`;
+
+exports[`Testing snapshot for actions-mantle destination: pushEvent action - all fields 1`] = `
+Object {
+  "customerId": "1ebNi5n[1Ax",
+  "event_id": "1ebNi5n[1Ax",
+  "event_name": "1ebNi5n[1Ax",
+  "properties": Object {
+    "testType": "1ebNi5n[1Ax",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
+
+exports[`Testing snapshot for actions-mantle destination: pushEvent action - required fields 1`] = `
+Object {
+  "customerId": "1ebNi5n[1Ax",
+  "event_name": "1ebNi5n[1Ax",
+  "properties": Object {},
+}
+`;

@@ -1,0 +1,2 @@
+export const EMAIL_SCHEMA_NAME = 'EMAIL_SHA256'
+export const MAID_SCHEMA_NAME = 'MAID_SHA256' 

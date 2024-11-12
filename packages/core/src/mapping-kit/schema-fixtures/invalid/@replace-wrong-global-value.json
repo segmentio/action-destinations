@@ -1,0 +1,11 @@
+{
+  "mapping": {
+    "@replace": {
+      "pattern": "+",
+      "replacement": "-",
+      "value": { "@path": "$.a" },
+      "global": "bla"
+    }
+  },
+  "expectError": "/@replace/global should be a boolean but it is a string."
+}

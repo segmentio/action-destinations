@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for RedditConversionsApi's standardEvent destination action: all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "a@UzPN)1pp@tLb)vQZ2s",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "7da4d4522d67f6ca1c1b0654c2d91c916a22667a5d34fa75c7cdcbe0c1b452ce",
+        "currency": "USD",
+        "item_count": 8501184792887296,
+        "products": Array [
+          Object {
+            "category": "a@UzPN)1pp@tLb)vQZ2s",
+            "id": "a@UzPN)1pp@tLb)vQZ2s",
+            "name": "a@UzPN)1pp@tLb)vQZ2s",
+          },
+        ],
+        "value_decimal": 85011847928872.95,
+      },
+      "event_type": Object {
+        "tracking_type": "SignUp",
+      },
+      "user": Object {
+        "aaid": "7da4d4522d67f6ca1c1b0654c2d91c916a22667a5d34fa75c7cdcbe0c1b452ce",
+        "data_processing_options": Object {
+          "country": "WF",
+          "modes": Array [
+            "LDU",
+          ],
+          "region": "a@UzPN)1pp@tLb)vQZ2s",
+        },
+        "email": "b6887231da112cb08515e502cb0eb06a342f2efb3372c2841368397664844f4e",
+        "external_id": "7da4d4522d67f6ca1c1b0654c2d91c916a22667a5d34fa75c7cdcbe0c1b452ce",
+        "ip_address": "7da4d4522d67f6ca1c1b0654c2d91c916a22667a5d34fa75c7cdcbe0c1b452ce",
+        "screen_dimensions": Object {
+          "height": 8501184792887296,
+          "width": 8501184792887296,
+        },
+        "user_agent": "a@UzPN)1pp@tLb)vQZ2s",
+        "uuid": "a@UzPN)1pp@tLb)vQZ2s",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+  "test_mode": false,
+}
+`;
+
+exports[`Testing snapshot for RedditConversionsApi's standardEvent destination action: required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "a@UzPN)1pp@tLb)vQZ2s",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "7da4d4522d67f6ca1c1b0654c2d91c916a22667a5d34fa75c7cdcbe0c1b452ce",
+      },
+      "event_type": Object {
+        "tracking_type": "SignUp",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+  "test_mode": false,
+}
+`;

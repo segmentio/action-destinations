@@ -58,7 +58,6 @@ describe('GA4', () => {
           apiSecret,
           measurementId
         },
-        features: { 'actions-google-analytics-4-add-timestamp': true },
         mapping: {
           client_id: {
             '@path': '$.anonymousId'
@@ -420,7 +419,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             client_id: {
               '@path': '$.anonymousId'
@@ -488,7 +486,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-verify-params-feature': true },
           mapping: {
             client_id: {
               '@path': '$.anonymousId'
@@ -544,7 +541,8 @@ describe('GA4', () => {
                 engagement_time_msec: 1
               }
             }
-          ]
+          ],
+          timestamp_micros: 1655936458905000
         })
         .reply(201, {})
 
@@ -592,7 +590,6 @@ describe('GA4', () => {
             apiSecret,
             firebaseAppId
           },
-          features: { 'actions-google-analytics-4-add-timestamp': true },
           mapping: {
             data_stream_type: DataStreamType.MobileApp
           },
@@ -608,7 +605,6 @@ describe('GA4', () => {
           settings: {
             apiSecret
           },
-          features: { 'actions-google-analytics-4-add-timestamp': true },
           useDefaultMappings: true
         })
       ).rejects.toThrowError('Measurement ID is required for web streams')
@@ -622,7 +618,6 @@ describe('GA4', () => {
             apiSecret,
             measurementId
           },
-          features: { 'actions-google-analytics-4-add-timestamp': true },
           mapping: {
             client_id: {
               '@path': '$.traits.dummy'
@@ -632,5 +627,81 @@ describe('GA4', () => {
         })
       ).rejects.toThrowError('Client ID is required for web streams')
     })
+  })
+
+  it('should append consent correctly', async () => {
+    nock('https://www.google-analytics.com/mp/collect')
+      .post(`?measurement_id=${measurementId}&api_secret=${apiSecret}`)
+      .reply(201, {})
+
+    const event = createTestEvent({
+      event: 'Product List Viewed',
+      userId: 'abc123',
+      timestamp: '2022-06-22T22:20:58.905Z',
+      anonymousId: 'anon-2134',
+      type: 'track',
+      properties: {
+        products: [
+          {
+            product_id: '12345abcde',
+            name: 'Quadruple Stack Oreos, 52 ct',
+            currency: 'USD',
+            price: 12.99,
+            quantity: 1
+          }
+        ]
+      }
+    })
+    const responses = await testDestination.testAction('viewItemList', {
+      event,
+      settings: {
+        apiSecret,
+        measurementId
+      },
+      mapping: {
+        client_id: {
+          '@path': '$.anonymousId'
+        },
+        data_stream_type: DataStreamType.Web,
+        timestamp_micros: {
+          '@path': '$.timestamp'
+        },
+        engagement_time_msec: 2,
+        user_properties: {
+          hello: 'world',
+          a: '1',
+          b: '2',
+          c: '3'
+        },
+        items: [
+          {
+            item_name: {
+              '@path': `$.properties.products.0.name`
+            },
+            item_id: {
+              '@path': `$.properties.products.0.product_id`
+            },
+            currency: {
+              '@path': `$.properties.products.0.currency`
+            },
+            price: {
+              '@path': `$.properties.products.0.price`
+            },
+            quantity: {
+              '@path': `$.properties.products.0.quantity`
+            }
+          }
+        ],
+        ad_user_data_consent: 'GRANTED',
+        ad_personalization_consent: 'GRANTED'
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(201)
+
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"client_id\\":\\"anon-2134\\",\\"events\\":[{\\"name\\":\\"view_item_list\\",\\"params\\":{\\"items\\":[{\\"item_name\\":\\"Quadruple Stack Oreos, 52 ct\\",\\"item_id\\":\\"12345abcde\\",\\"currency\\":\\"USD\\",\\"price\\":12.99,\\"quantity\\":1}],\\"engagement_time_msec\\":2}}],\\"user_properties\\":{\\"hello\\":{\\"value\\":\\"world\\"},\\"a\\":{\\"value\\":\\"1\\"},\\"b\\":{\\"value\\":\\"2\\"},\\"c\\":{\\"value\\":\\"3\\"}},\\"timestamp_micros\\":1655936458905000,\\"consent\\":{\\"ad_user_data\\":\\"GRANTED\\",\\"ad_personalization\\":\\"GRANTED\\"}}"`
+    )
   })
 })

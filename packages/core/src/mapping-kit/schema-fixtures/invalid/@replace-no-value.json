@@ -1,0 +1,8 @@
+{
+  "mapping": {
+    "@replace": {
+      "pattern": "bla"
+    }
+  },
+  "expectError": "/@replace should have field \"value\" but it doesn't."
+}

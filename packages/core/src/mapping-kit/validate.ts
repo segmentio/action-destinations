@@ -2,6 +2,7 @@ import AggregateError from 'aggregate-error'
 import { CustomError } from 'ts-custom-error'
 import { isDirective } from './is-directive'
 import { isObject, realTypeOf, Dictionary } from '../real-type-of'
+import { MAX_PATTERN_LENGTH, MAX_REPLACEMENT_LENGTH } from './index'
 
 class ValidationError extends CustomError {
   constructor(message: string, stack: string[] = []) {
@@ -105,10 +106,65 @@ function validateDirectiveOrString(v: unknown, stack: string[] = []) {
   }
 }
 
+function validateDirectiveOrObject(v: unknown, stack: string[] = []) {
+  const type = realTypeOrDirective(v)
+  switch (type) {
+    case 'directive':
+      return validateDirective(v, stack)
+    case 'object':
+      return validateObject(v, stack)
+    default:
+      throw new ValidationError(
+        `should be a object or a mapping directive but it is ${indefiniteArticle(type)} ${type}`,
+        stack
+      )
+  }
+}
+
+type validator = (v: unknown, stack: string[]) => void
+function chain(...validators: validator[]) {
+  return (v: unknown, stack: string[] = []) => {
+    validators.forEach((validate) => {
+      validate(v, stack)
+    })
+  }
+}
+
+function validateStringLength(min: number, max: number) {
+  return (v: unknown, stack: string[] = []) => {
+    if (typeof v == 'string' && v.length < min) {
+      throw new ValidationError(`should be a string of length ${min} or greater`, stack)
+    }
+
+    if (typeof v == 'string' && v.length > max) {
+      throw new ValidationError(`should be a string of length ${max} or less`, stack)
+    }
+    return
+  }
+}
+
 function validateString(v: unknown, stack: string[] = []) {
   const type = realTypeOrDirective(v)
   if (type !== 'string') {
     throw new ValidationError(`should be a string but it is ${indefiniteArticle(type)} ${type}`, stack)
+  }
+  return
+}
+
+function validateAllowedStrings(...allowed: string[]) {
+  return (v: unknown, stack: string[] = []) => {
+    validateString(v, stack)
+    const str = v as string
+    if (!allowed.includes(str.toLowerCase())) {
+      throw new ValidationError(`should be one of ${allowed.join(', ')} but it is ${JSON.stringify(str)}`, stack)
+    }
+  }
+}
+
+function validateBoolean(v: unknown, stack: string[] = []) {
+  const type = realTypeOrDirective(v)
+  if (type !== 'boolean') {
+    throw new ValidationError(`should be a boolean but it is ${indefiniteArticle(type)} ${type}`, stack)
   }
   return
 }
@@ -135,7 +191,7 @@ function validateObject(value: unknown, stack: string[] = []) {
     try {
       validate(obj[k], [...stack, k])
     } catch (e) {
-      errors.push(e)
+      errors.push(e as Error)
     }
   })
 
@@ -170,7 +226,7 @@ function validateObjectWithFields(input: unknown, fields: ValidateFields, stack:
         }
       }
     } catch (error) {
-      errors.push(error)
+      errors.push(error as Error)
     }
   })
 
@@ -196,11 +252,12 @@ function directive(names: string[] | string, fn: DirectiveValidator): void {
       try {
         fn(v, [...stack, name])
       } catch (e) {
+        const err: Error = e as Error
         if (e instanceof ValidationError || e instanceof AggregateError) {
           throw e
         }
 
-        throw new ValidationError(e.message, stack)
+        throw new ValidationError(err.message, stack)
       }
     }
   })
@@ -229,6 +286,20 @@ directive('@case', (v, stack) => {
   )
 })
 
+directive('@replace', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      pattern: { required: chain(validateString, validateStringLength(1, MAX_PATTERN_LENGTH)) },
+      replacement: { optional: chain(validateString, validateStringLength(0, MAX_REPLACEMENT_LENGTH)) },
+      value: { required: validateDirectiveOrString },
+      ignorecase: { optional: validateBoolean },
+      global: { optional: validateBoolean }
+    },
+    stack
+  )
+})
+
 directive('@arrayPath', (v, stack) => {
   const data = v as [unknown, unknown]
   validateArray(data, stack)
@@ -240,11 +311,63 @@ directive('@path', (v, stack) => {
   validateDirectiveOrString(v, stack)
 })
 
+directive('@json', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      value: { required: validateDirectiveOrRaw },
+      mode: { required: validateAllowedStrings('encode', 'decode') }
+    },
+    stack
+  )
+})
+
+directive('@flatten', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      separator: { optional: validateString },
+      value: { required: validateDirectiveOrRaw }
+    },
+    stack
+  )
+})
+
+directive('@merge', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      direction: { optional: validateAllowedStrings('left', 'right') },
+      objects: { required: validateArray }
+    },
+    stack
+  )
+  const data = (v as Record<string, unknown>).objects as unknown[]
+  data.forEach((obj) => {
+    validateDirectiveOrObject(obj)
+  })
+})
+
 directive('@template', (v, stack) => {
   validateDirectiveOrString(v, stack)
 })
 
 directive('@literal', (v, stack) => {
+  validateDirectiveOrRaw(v, stack)
+})
+
+directive('@transform', (v, stack) => {
+  validateObjectWithFields(
+    v,
+    {
+      apply: { required: validateDirectiveOrObject },
+      mapping: { required: validateDirectiveOrObject }
+    },
+    stack
+  )
+})
+
+directive('@excludeWhenNull', (v, stack) => {
   validateDirectiveOrRaw(v, stack)
 })
 

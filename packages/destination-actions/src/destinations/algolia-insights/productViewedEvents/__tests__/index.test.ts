@@ -53,7 +53,6 @@ describe('AlgoliaInsights.productViewedEvents', () => {
       type: 'track',
       event: 'Product Viewed',
       properties: {
-        query_id: '1234',
         search_index: 'fashion_1',
         product_id: '9876'
       },
@@ -61,5 +60,20 @@ describe('AlgoliaInsights.productViewedEvents', () => {
     })
     const algoliaEvent = await testAlgoliaDestination(event)
     expect(algoliaEvent.timestamp).toBe(new Date(event.timestamp as string).valueOf())
+  })
+
+  it('should pass queryId if present', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Product Viewed',
+      properties: {
+        query_id: '1234',
+        search_index: 'fashion_1',
+        product_id: '9876'
+      },
+      userId: undefined
+    })
+    const algoliaEvent = await testAlgoliaDestination(event)
+    expect(algoliaEvent.queryID).toBe(event.properties?.query_id)
   })
 })

@@ -10,13 +10,20 @@
     "lib": ["es2020", "dom"],
     "baseUrl": ".",
     "paths": {
-      "@segment/actions-core/*": ["../core/src/*"]
+      "@segment/actions-core": ["../core/src"],
+      "@segment/actions-core/*": ["../core/src/*"],
+      "@segment/actions-shared": ["../actions-shared/src"],
+      "@segment/action-destinations": ["../destination-actions/src"],
+      "@segment/destination-subscriptions": ["../destination-subscriptions/src"],
+      "@segment/browser-destination-runtime": ["../browser-destination-runtime/src"],
+      "@segment/browser-destination-runtime/*": ["../browser-destination-runtime/src/*"]
     }
   },
   "exclude": ["**/__tests__/**/*.ts"],
   "include": ["src"],
   "references": [
     { "path": "../core/tsconfig.build.json" },
-    { "path": "../destination-subscriptions/tsconfig.build.json" }
+    { "path": "../destination-subscriptions/tsconfig.build.json" },
+    { "path": "../browser-destination-runtime/tsconfig.build.json" }
   ]
 }

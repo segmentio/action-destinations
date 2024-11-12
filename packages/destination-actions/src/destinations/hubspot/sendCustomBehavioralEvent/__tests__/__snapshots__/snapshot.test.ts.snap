@@ -1,37 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for HubSpot's sendCustomBehavioralEvent destination action: all fields 1`] = `
-Object {
-  "email": "mur@lumbafat.ad",
-  "eventName": "9B#[dv&Iy",
-  "objectId": "9B#[dv&Iy",
-  "occurredAt": "2021-02-01T00:00:00.000Z",
-  "properties": Object {
-    "testType": "9B#[dv&Iy",
-  },
-  "utk": "9B#[dv&Iy",
-}
-`;
+exports[`Testing snapshot for HubSpot's sendCustomBehavioralEvent destination action: all fields 1`] = `[PayloadValidationError: EventName should begin with pe9B#[dv&Iy_]`;
 
-exports[`Testing snapshot for HubSpot's sendCustomBehavioralEvent destination action: required fields 1`] = `
-Object {
-  "email": "hello@world.com",
-  "eventName": "9B#[dv&Iy",
-}
-`;
-
-exports[`Testing snapshot for HubSpot's sendCustomBehavioralEvent destination action: required fields 2`] = `
-Headers {
-  Symbol(map): Object {
-    "authorization": Array [
-      "Bearer undefined",
-    ],
-    "content-type": Array [
-      "application/json",
-    ],
-    "user-agent": Array [
-      "Segment (Actions)",
-    ],
-  },
-}
-`;
+exports[`Testing snapshot for HubSpot's sendCustomBehavioralEvent destination action: required fields 1`] = `[PayloadValidationError: EventName should begin with pe9B#[dv&Iy_]`;

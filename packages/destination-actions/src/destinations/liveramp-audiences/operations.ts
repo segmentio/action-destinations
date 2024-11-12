@@ -1,0 +1,128 @@
+import { RequestClient, ExecuteInput } from '@segment/actions-core'
+import { createHash } from 'crypto'
+import type { Payload as s3Payload } from './audienceEnteredS3/generated-types'
+import type { Payload as sftpPayload } from './audienceEnteredSftp/generated-types'
+
+// Type definitions
+export type RawData = {
+  context?: {
+    personas?: {
+      computation_key?: string
+      computation_class?: string
+      computation_id?: string
+    }
+  }
+}
+
+export type ProcessDataInput<T extends s3Payload | sftpPayload> = {
+  request: RequestClient
+  payloads: T[]
+  features?: Record<string, boolean>
+  rawData?: RawData[]
+}
+
+export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unknown> = ExecuteInput<
+  Settings,
+  Payload,
+  AudienceSettings
+> & { rawData?: RawData }
+
+/*
+Generates the LiveRamp ingestion file. Expected format:
+liveramp_audience_key[1],identifier_data[0..n]
+*/
+function generateFile(payloads: s3Payload[] | sftpPayload[]) {
+  // Using a Set to keep track of headers
+  const headers = new Set<string>()
+  headers.add('audience_key')
+
+  // Declare rows as an empty Buffer
+  let rows = Buffer.from('')
+
+  // Prepare data rows
+  for (let i = 0; i < payloads.length; i++) {
+    const payload = payloads[i]
+    const row: string[] = [enquoteIdentifier(payload.audience_key)]
+
+    // Using a set to keep track of unhashed_identifier_data keys that have already been processed
+    // This guarantees that when both hashed and unhashed keys share the same key-value pair the unhashed one
+    // takes precedence.
+    const unhashedKeys = new Set<string>()
+
+    // Process unhashed_identifier_data first
+    if (payload.unhashed_identifier_data) {
+      for (const key of Object.keys(payload.unhashed_identifier_data)) {
+        headers.add(key)
+        unhashedKeys.add(key)
+        row.push(`"${hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`)
+      }
+    }
+
+    if (payload.identifier_data) {
+      for (const key of Object.keys(payload.identifier_data)) {
+        // if a key exists in both identifier_data and unhashed_identifier_data
+        // the value from identifier_data will be skipped, prioritizing the unhashed_identifier_data value.
+        if (!(payload.unhashed_identifier_data && unhashedKeys.has(key))) {
+          headers.add(key) // Track header
+          row.push(enquoteIdentifier(String(payload.identifier_data[key]))) // Add value to row
+        }
+      }
+    }
+
+    rows = Buffer.concat([rows, Buffer.from(row.join(payload.delimiter) + (i + 1 === payloads.length ? '' : '\n'))])
+  }
+
+  // Add headers to the beginning of the file contents
+  rows = Buffer.concat([Buffer.from(Array.from(headers).join(payloads[0].delimiter) + '\n'), rows])
+
+  const filename = payloads[0].filename
+  return { filename, fileContents: rows }
+}
+
+/*
+  To avoid collision with delimeters, we should surround identifiers with quotation marks.
+  https://docs.liveramp.com/connect/en/formatting-file-data.html#idm45998667347936
+
+  Examples:
+  LCD TV -> "LCD TV"
+  LCD TV,50" -> "LCD TV,50"""
+*/
+function enquoteIdentifier(identifier: string) {
+  return `"${String(identifier).replace(/"/g, '""')}"`
+}
+
+const hash = (value: string): string => {
+  const hash = createHash('sha256')
+  hash.update(value)
+  return hash.digest('hex')
+}
+
+/*
+  Identifiers need to be hashed according to LiveRamp spec's:
+  https://docs.liveramp.com/connect/en/formatting-identifiers.html
+*/
+const normalize = (key: string, value: string): string => {
+  switch (key) {
+    case 'phone_number': {
+      // Remove all country extensions, parentheses, and hyphens before hashing.
+      // For example, if the input phone number is "+1 (555) 123-4567", convert that to "5551234567" before hashing.
+
+      // This regex matches the country code in the first group, and captures the remaining digits.
+      // because the captures are optional, the regex works correctly even if some parts of the phone number are missing.
+      const phoneRegex = /(?:\+1)?\s*\(?\s*(\d+)\s*-?\)?\s*(\d+)\s*-?\s*(\d+)/
+      const match = phoneRegex.exec(value)
+      if (!match || match.length < 4) return value
+
+      // Drop the ALL capture. Return the rest of captures joined together.
+      return match.slice(1).join('')
+    }
+
+    case 'email': {
+      return value.toLowerCase().trim()
+    }
+  }
+
+  return value
+}
+
+export { generateFile, enquoteIdentifier, normalize, hash }

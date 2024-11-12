@@ -10,7 +10,8 @@ import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
-  description: 'TODO',
+  description:
+    'Report events directly to Pinterest. Data shared can power Pinterest solutions that will help evaluate ads effectiveness and improve content, targeting, and placement of future ads.',
   fields: {
     event_name: {
       label: 'Event Name',
@@ -24,9 +25,10 @@ const action: ActionDefinition<Settings, Payload> = {
         { label: 'Lead', value: 'lead' },
         { label: 'Page Visit', value: 'page_visit' },
         { label: 'Search', value: 'search' },
-        { label: 'Sign Up', value: 'sign_up' },
+        { label: 'Sign Up', value: 'signup' },
         { label: 'View Category', value: 'view_category' },
-        { label: 'Watch Video', value: 'watch_video' }
+        { label: 'Watch Video', value: 'watch_video' },
+        { label: 'Custom', value: 'custom' }
       ]
     },
     action_source: {
@@ -198,7 +200,7 @@ function createPinterestPayload(payload: Payload) {
       user_data: hash_user_data({ user_data: payload.user_data }),
       custom_data: {
         currency: payload?.custom_data?.currency,
-        value: payload?.custom_data?.value,
+        value: String(payload?.custom_data?.value),
         content_ids: payload.custom_data?.content_ids,
         contents: payload.custom_data?.contents,
         num_items: payload.custom_data?.num_items,

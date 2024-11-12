@@ -2,9 +2,10 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { defaultValues } from '@segment/actions-core'
 
+import pageVisit from './pageVisit'
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
-import pageVisit from './pageVisit'
+import syncAudience from './syncAudience'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'VWO Cloud Mode (Actions)',
@@ -15,19 +16,29 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     },
     {
       name: 'Page Visit',
       subscribe: 'type = "page"',
       partnerAction: 'pageVisit',
-      mapping: defaultValues(pageVisit.fields)
+      mapping: defaultValues(pageVisit.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Sync Audience',
+      subscribe: 'event = "Audience Entered" or event = "Audience Exited"',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'automatic'
     }
   ],
   authentication: {
@@ -38,6 +49,23 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Enter your VWO Account ID',
         type: 'number',
         required: true
+      },
+      apikey: {
+        label: 'VWO SDK Key',
+        description: 'VWO Fullstack SDK Key. It is mandatory when using the VWO Fullstack suite.',
+        type: 'string',
+        required: false
+      },
+      region: {
+        label: 'Region',
+        description: 'VWO Region to sync data to. Default is US',
+        type: 'string',
+        choices: [
+          { label: 'US', value: 'US' },
+          { label: 'Europe', value: 'EU' },
+          { label: 'Asia', value: 'AS' }
+        ],
+        default: 'US'
       }
     },
     testAuthentication: (_request, { settings }) => {
@@ -52,7 +80,8 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     trackEvent,
     identifyUser,
-    pageVisit
+    pageVisit,
+    syncAudience
   }
 }
 

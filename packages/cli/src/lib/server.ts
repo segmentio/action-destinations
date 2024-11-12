@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import http from 'http'
-import { once } from 'lodash'
+import { isEmpty, isNil, mapValues, omitBy, once } from 'lodash'
 import logger from './logger'
 import path from 'path'
 import { loadDestination } from './destinations'
@@ -10,11 +10,19 @@ import {
   Destination,
   DestinationDefinition as CloudDestinationDefinition,
   HTTPError,
-  ModifiedResponse
+  ModifiedResponse,
+  JSONObject,
+  AudienceDestinationDefinition
 } from '@segment/actions-core'
 import asyncHandler from './async-handler'
 import getExchanges from './summarize-http'
 import { AggregateAjvError } from '../../../ajv-human-errors/src/aggregate-ajv-error'
+import {
+  ActionHookType,
+  ActionHookResponse,
+  AudienceDestinationConfigurationWithCreateGet,
+  RequestFn
+} from '@segment/actions-core/destination-kit'
 interface ResponseError extends Error {
   status?: number
 }
@@ -71,9 +79,10 @@ const port = parseInt(process.env.PORT ?? '', 10) || DEFAULT_PORT
 const server = http.createServer(app)
 const destinationSlug = process.env.DESTINATION as string
 const directory = process.env.DIRECTORY as string
+const entryPath = (process.env.ENTRY as string) || 'index.ts'
 
 // For now, include the slug in the path, but when we support external repos, we'll have to change this
-const targetDirectory = path.join(process.cwd(), directory, destinationSlug, 'index.ts')
+const targetDirectory = path.join(process.cwd(), directory, destinationSlug, entryPath)
 
 const gracefulShutdown = once((exitCode: number) => {
   logger.info('Server stopping...')
@@ -146,6 +155,11 @@ app.use((req, res, next) => {
 function setupRoutes(def: DestinationDefinition | null): void {
   const destination = new Destination(def as CloudDestinationDefinition)
   const supportsDelete = destination.onDelete
+  const audienceDef = destination?.definition as AudienceDestinationDefinition
+  const audienceSettings = audienceDef.audienceConfig !== undefined
+  const audienceConfigWithGetCreate = audienceDef.audienceConfig as AudienceDestinationConfigurationWithCreateGet
+  const supportsCreateAudience = !!(audienceSettings && audienceConfigWithGetCreate.createAudience)
+  const supportsGetAudience = !!(audienceSettings && audienceConfigWithGetCreate.getAudience)
 
   const router = express.Router()
 
@@ -203,6 +217,62 @@ function setupRoutes(def: DestinationDefinition | null): void {
     })
   )
 
+  if (supportsCreateAudience) {
+    router.post(
+      '/createAudience',
+      asyncHandler(async (req: express.Request, res: express.Response) => {
+        try {
+          const data = await destination.createAudience(req.body)
+          res.status(200).json(data)
+        } catch (e) {
+          const error = e as HTTPError
+          const message = (await error?.response?.json()) ?? error.message
+          res.status(400).json({
+            ok: false,
+            error: message
+          })
+        }
+      })
+    )
+  }
+
+  if (supportsGetAudience) {
+    router.post(
+      '/getAudience',
+      asyncHandler(async (req: express.Request, res: express.Response) => {
+        try {
+          const data = await destination.getAudience(req.body)
+          res.status(200).json(data)
+        } catch (e) {
+          const error = e as HTTPError
+          const message = (await error?.response?.json()) ?? error.message
+          res.status(400).json({
+            ok: false,
+            error: message
+          })
+        }
+      })
+    )
+  }
+
+  router.post(
+    '/refreshAccessToken',
+    asyncHandler(async (req: express.Request, res: express.Response) => {
+      try {
+        const settings = {}
+        const data = await destination.refreshAccessToken(settings, req.body)
+        res.status(200).json({ ok: true, data })
+      } catch (e) {
+        const error = e as HTTPError
+        const message = (await error?.response?.json()) ?? error.message
+        res.status(400).json({
+          ok: false,
+          error: message
+        })
+      }
+    })
+  )
+
   for (const actionSlug of Object.keys(destination.actions)) {
     router.post(
       `/${actionSlug}`,
@@ -215,16 +285,26 @@ function setupRoutes(def: DestinationDefinition | null): void {
             return res.status(400).send(msg)
           }
 
+          let mapping = req.body.mapping || {}
+          const fields = action.definition.fields
+          const defaultMappings = omitBy(mapValues(fields, 'default'), isNil)
+          mapping = { ...defaultMappings, ...mapping } as JSONObject
+          if (isEmpty(mapping)) mapping = null
+
           const eventParams = {
             data: req.body.payload || {},
             settings: req.body.settings || {},
-            mapping: req.body.mapping || req.body.payload || {},
-            auth: req.body.auth || {}
+            audienceSettings: req.body.payload?.context?.personas?.audience_settings || {},
+            mapping: mapping || req.body.payload || {},
+            auth: req.body.auth || {},
+            features: req.body.features || {},
+            subscriptionMetadata: req.body.subscriptionMetadata || {}
           }
 
           if (Array.isArray(eventParams.data)) {
-            // If no mapping is provided default to using the first payload across all events.
-            eventParams.mapping = req.body.mapping ?? eventParams.data[0] ?? {}
+            // If no mapping or default mapping is provided, default to using the first payload across all events.
+            eventParams.mapping = mapping || eventParams.data[0] || {}
+            eventParams.audienceSettings = req.body.payload[0]?.context?.personas?.audience_settings || {}
             await action.executeBatch(eventParams)
           } else {
             await action.execute(eventParams)
@@ -253,7 +333,8 @@ function setupRoutes(def: DestinationDefinition | null): void {
                 settings: req.body.settings || {},
                 payload: req.body.payload || {},
                 page: req.body.page || 1,
-                auth: req.body.auth || {}
+                auth: req.body.auth || {},
+                audienceSettings: req.body.audienceSettings || {}
               }
               const action = destination.actions[actionSlug]
               const result = await action.executeDynamicField(field, data)
@@ -268,6 +349,78 @@ function setupRoutes(def: DestinationDefinition | null): void {
             }
           })
         )
+      }
+    }
+
+    if (definition.hooks) {
+      for (const hookName in definition.hooks) {
+        router.post(
+          `/${actionSlug}/hooks/${hookName}`,
+          asyncHandler(async (req: express.Request, res: express.Response) => {
+            try {
+              const data = {
+                settings: req.body.settings || {},
+                payload: req.body.payload || {},
+                page: req.body.page || 1,
+                auth: req.body.auth || {},
+                audienceSettings: req.body.audienceSettings || {},
+                hookInputs: req.body.hookInputs || {},
+                hookOutputs: req.body.hookOutputs || {}
+              }
+
+              const action = destination.actions[actionSlug]
+              const result: ActionHookResponse<any> = await action.executeHook(hookName as ActionHookType, data)
+
+              if (result.error) {
+                throw result.error
+              }
+
+              return res.status(200).json(result)
+            } catch (err) {
+              return res.status(500).json([err])
+            }
+          })
+        )
+
+        const inputFields = definition.hooks?.[hookName as ActionHookType]?.inputFields
+        const dynamicInputs: Record<string, Function> = {}
+        if (inputFields) {
+          for (const fieldKey in inputFields) {
+            const field = inputFields[fieldKey]
+            if (field.dynamic && typeof field.dynamic === 'function') {
+              dynamicInputs[fieldKey] = field.dynamic
+            }
+          }
+        }
+
+        for (const fieldKey in dynamicInputs) {
+          router.post(
+            `/${actionSlug}/hooks/${hookName}/dynamic/${fieldKey}`,
+            asyncHandler(async (req: express.Request, res: express.Response) => {
+              try {
+                const data = {
+                  settings: req.body.settings || {},
+                  payload: req.body.payload || {},
+                  page: req.body.page || 1,
+                  auth: req.body.auth || {},
+                  audienceSettings: req.body.audienceSettings || {},
+                  hookInputs: req.body.hookInputs || {}
+                }
+                const action = destination.actions[actionSlug]
+                const dynamicFn = dynamicInputs[fieldKey] as RequestFn<any, any, any, any>
+                const result = await action.executeDynamicField(fieldKey, data, dynamicFn)
+
+                if (result.error) {
+                  throw result.error
+                }
+
+                return res.status(200).json(result)
+              } catch (err) {
+                return res.status(500).json([err])
+              }
+            })
+          )
+        }
       }
     }
   }

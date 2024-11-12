@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { ApiRegions } from '../../utils'
+import { ApiRegions } from '../../common/utils'
 
 const testDestination = createTestIntegration(Destination)
 const MIXPANEL_API_SECRET = 'test-api-key'
@@ -11,7 +11,8 @@ const timestamp = '2021-08-17T15:21:15.449Z'
 describe('Mixpanel.identifyUser', () => {
   it('should validate action fields', async () => {
     const event = createTestEvent({
-      timestamp, traits: {
+      timestamp,
+      traits: {
         abc: '123',
         created: '2022-10-12T00:00:00.000Z',
         email: 'joe@mixpanel.com',
@@ -19,7 +20,7 @@ describe('Mixpanel.identifyUser', () => {
         lastName: 'Doe',
         username: 'Joe Doe',
         phone: '12345678',
-        name: 'Joe',
+        name: 'Joe'
       }
     })
 
@@ -75,20 +76,23 @@ describe('Mixpanel.identifyUser', () => {
 
   it('name should automatically be derived from the firstName and lastName traits if they are defined.', async () => {
     const event = createTestEvent({
-      timestamp, traits: {
+      timestamp,
+      traits: {
         firstName: 'Joe',
         lastName: 'Doe'
       }
     })
 
     const event2 = createTestEvent({
-      timestamp, traits: {
+      timestamp,
+      traits: {
         firstName: 'Joe'
       }
     })
 
     const event3 = createTestEvent({
-      timestamp, traits: {
+      timestamp,
+      traits: {
         lastName: 'Doe'
       }
     })
@@ -270,7 +274,7 @@ describe('Mixpanel.identifyUser', () => {
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
         apiSecret: MIXPANEL_API_SECRET,
-        sourceName: 'example segment source name',
+        sourceName: 'example segment source name'
       }
     })
     expect(responses.length).toBe(2)
