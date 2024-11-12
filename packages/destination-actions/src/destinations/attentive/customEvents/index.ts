@@ -33,7 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
     occurredAt: {
       label: 'Occurred At',
       description: 'Timestamp of when the action occurred in ISO 8601 format.',
-      type: 'string', // Keep 'string', as <date-time> is not a valid type in TypeScript.
+      type: 'string', 
       required: false,
         default: {
             '@path': '$.timestamp'
