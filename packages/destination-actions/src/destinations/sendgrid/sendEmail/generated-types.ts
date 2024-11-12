@@ -70,7 +70,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The template ID to use for the email. This must be for a Dynamic Template and should start with a 'd-'
+   * The Dynamic Template to use for the email.
    */
   template_id: string
   /**
@@ -84,13 +84,9 @@ export interface Payload {
    */
   send_at?: string
   /**
-   * Reply to details.
+   * Reply to details. If left empty 'Reply To' settings will be taken from the 'From' field values.
    */
-  reply_to: {
-    /**
-     * Whether "reply to" settings are the same as "from"
-     */
-    reply_to_equals_from: boolean
+  reply_to?: {
     /**
      * The email to reply to.
      */
@@ -101,59 +97,9 @@ export interface Payload {
     name?: string
   }
   /**
-   * Allows you to insert a subscription management link at the bottom of the text and HTML bodies of your email.
-   */
-  subscription_tracking?: {
-    /**
-     * Indicates if this setting is enabled
-     */
-    enable: boolean
-    /**
-     * Text to be appended to the email with the subscription tracking link.
-     */
-    text?: string
-    /**
-     * HTML to be appended to the email with the subscription tracking link.
-     */
-    html?: string
-    /**
-     * A tag that will be replaced with the unsubscribe URL. If this property is used, it will override both the text and html properties.
-     */
-    substitution_tag?: string
-  }
-  /**
-   * Categories for the email.
+   * Categories for the email. Accepts a single string or array of strings.
    */
   categories?: string[]
-  /**
-   * Allows you to enable tracking provided by Google Analytics.
-   */
-  google_analytics?: {
-    /**
-     * Indicates if this setting is enabled
-     */
-    enable: boolean
-    /**
-     * Name of the referrer source. (e.g., Google, SomeDomain.com, or Marketing Email)
-     */
-    utm_source?: string
-    /**
-     * Name of the marketing medium. (e.g., Email)
-     */
-    utm_medium?: string
-    /**
-     * Used to identify any paid keywords.
-     */
-    utm_term?: string
-    /**
-     * Used to differentiate your campaign from advertisements.
-     */
-    utm_content?: string
-    /**
-     * The name of the campaign.
-     */
-    utm_campaign?: string
-  }
   /**
    * Send email with an ip pool.
    */
@@ -162,8 +108,4 @@ export interface Payload {
    * Specify a Group ID
    */
   group_id?: string
-  /**
-   * Sandbox Mode allows you to send a test email to ensure that your request body is valid and formatted correctly.
-   */
-  sandbox_mode?: boolean
 }
