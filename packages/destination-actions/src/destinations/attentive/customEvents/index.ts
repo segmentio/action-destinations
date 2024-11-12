@@ -44,6 +44,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The user's phone number in E.164 format. Required if none of 'Client User ID', 'Email' or 'External Event Id' are provided.",
       type: 'string',
       required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.phone' },
+          then: { '@path': '$.properties.phone' },
+          else: { '@path': '$.context.traits.phone' }
+        }
+}
     },
     email: {
       label: 'Email',
