@@ -32,7 +32,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     occurredAt: {
       label: 'Occurred At',
-      description: 'Timestamp of when the action occurred in ISO 8601 format.',
+      description: 'Timestamp for the event, ISO 8601 format.',
       type: 'string', 
       required: false,
         default: {
