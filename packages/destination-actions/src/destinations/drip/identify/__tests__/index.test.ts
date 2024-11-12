@@ -23,9 +23,7 @@ describe('Drip.identify', () => {
         email: 'test@example.com',
         phone: '1234567890',
         status: 'unsubscribed',
-        status_updated_at: '2021-01-01T00:00:00Z'
-      },
-      properties: {
+        status_updated_at: '2021-01-01T00:00:00Z',
         custom_fields: { fizz: 'buzz' },
         tags: 'tag1,tag2'
       }

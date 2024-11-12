@@ -25,7 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Custom fields',
       required: false,
       type: 'object', // dictionary of strings to strings
-      default: { '@path': '$.properties.custom_fields' }
+      default: { '@path': '$.traits.custom_fields' }
     },
     email: {
       description: "The person's email address.",
@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Tags',
       required: false,
       type: 'string',
-      default: { '@path': '$.properties.tags' }
+      default: { '@path': '$.traits.tags' }
     },
     timezone: {
       description: "The person's timezone.",
