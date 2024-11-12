@@ -50,9 +50,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The user's email address. Required if none of 'Client User ID', 'Phone' or 'External Event Id' are provided.',
       type: 'string',
       required: false,
-    default: {
-        '@path': '$.email'
-    }
+default: {
+        '@if': {
+          exists: { '@path': '$.properties.email' },
+          then: { '@path': '$.properties.email' },
+          else: { '@path': '$.context.traits.email' }
+        }
+}
     },
     clientUserId: {
       label: 'clientUserId',
