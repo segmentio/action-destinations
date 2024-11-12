@@ -13,7 +13,7 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       apiKey: {
         label: 'API Key',
-        description: 'API key used to authorize sending data to Attentive.',
+        description: 'Your Attentive API Key.',
         type: 'string',
         required: true,
       },
