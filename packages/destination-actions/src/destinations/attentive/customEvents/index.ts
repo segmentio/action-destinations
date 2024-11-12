@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     externalEventId: {
       label: 'External Event Id',
-      description: 'A unique identifier representing this specific event. A UUID is recommended.',
+      description: 'A unique identifier for the event.',
       type: 'string',
       required: false,
     },
