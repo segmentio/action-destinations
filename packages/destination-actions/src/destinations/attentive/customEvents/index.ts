@@ -17,7 +17,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     properties: {
       label: 'Properties',
-      description: 'Any metadata associated with the event.',
+      description: 'Metadata to associate with the event.',
       type: 'object',
       required: false,
         default: {
