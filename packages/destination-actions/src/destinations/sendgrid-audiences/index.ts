@@ -5,7 +5,7 @@ import { CREATE_LIST_URL } from './constants'
 import { CreateAudienceReq, CreateAudienceResp } from './types'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'SendGrid Audiences',
+  name: 'SendGrid Lists (Actions)',
   slug: 'actions-sendgrid-audiences',
   mode: 'cloud',
   description: 'Sync Segment Engage Audiences to Sengrid Lists.',

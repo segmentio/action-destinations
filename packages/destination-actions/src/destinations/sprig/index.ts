@@ -6,7 +6,7 @@ import identifyUser from './identifyUser'
 import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Sprig',
+  name: 'Sprig (Actions)',
   slug: 'actions-sprig',
   mode: 'cloud',
   description: 'Send Segment analytics events and user profile data to Sprig.',
