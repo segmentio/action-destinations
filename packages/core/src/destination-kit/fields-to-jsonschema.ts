@@ -1,5 +1,5 @@
 import { JSONSchema4, JSONSchema4Type, JSONSchema4TypeName } from 'json-schema'
-import type { InputField, GlobalSetting, FieldTypeName, Optional, DependsOnConditions } from './types'
+import type { InputField, GlobalSetting, FieldTypeName, Optional, DependsOnConditions, FieldCondition } from './types'
 
 function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema4TypeName[] {
   switch (type) {
@@ -54,8 +54,48 @@ export function groupConditionsToJsonSchema(
   return schema
 }
 
+export function singleConditionToJsonSchema(fieldKey: string, condition: DependsOnConditions): JSONSchema4 | undefined {
+  let jsonCondition: JSONSchema4 | undefined = undefined
+
+  condition.conditions.forEach((innerCondition) => {
+    console.log('innerCondition:', innerCondition)
+
+    if (innerCondition.operator === 'is') {
+      jsonCondition = {
+        if: {
+          properties: { [(innerCondition as FieldCondition).fieldKey]: { const: innerCondition.value } }
+        },
+        then: {
+          required: [fieldKey]
+        }
+      }
+    } else if (innerCondition.operator === 'is_not') {
+      jsonCondition = {
+        if: {
+          properties: { [(innerCondition as FieldCondition).fieldKey]: { const: innerCondition.value } }
+        },
+        else: {
+          required: [fieldKey]
+        }
+      }
+    }
+  })
+
+  return jsonCondition
+}
+
 export function conditionsToJsonSchema(conditions: Record<string, DependsOnConditions>): JSONSchema4 {
-  return {}
+  const additionalSchema: JSONSchema4[] = []
+
+  for (const [fieldKey, condition] of Object.entries(conditions)) {
+    const jsonCondition = singleConditionToJsonSchema(fieldKey, condition)
+    console.log('jsonCondition:', jsonCondition)
+    if (jsonCondition) {
+      additionalSchema.push(jsonCondition)
+    }
+  }
+
+  return { allOf: additionalSchema }
 }
 
 export function fieldsToJsonSchema(
@@ -149,8 +189,10 @@ export function fieldsToJsonSchema(
     properties[key] = schema
 
     // Grab all the field keys with `required: true`
-    if (field.required) {
+    if (field.required === true) {
       required.push(key)
+    } else if (field.required && typeof field.required === 'object') {
+      conditions[key] = field.required
     }
   }
 

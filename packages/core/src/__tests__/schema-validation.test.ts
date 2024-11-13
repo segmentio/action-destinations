@@ -1,5 +1,6 @@
 import { validateSchema } from '../schema-validation'
 import { MinimalFields, fieldsToJsonSchema } from '../destination-kit/fields-to-jsonschema'
+import { InputField } from '../destination-kit/types'
 
 const schema = fieldsToJsonSchema({
   a: {
@@ -61,7 +62,64 @@ const schema = fieldsToJsonSchema({
   }
 })
 
-describe.only('validateSchema with additional schemas defined', () => {
+describe.only('conditionally required fields', () => {
+  const mockActionFields: Record<string, InputField> = {}
+
+  describe.only('should validate a single conditional requirement', () => {
+    mockActionFields['a'] = {
+      label: 'a',
+      type: 'string',
+      required: true,
+      description: 'a'
+    }
+
+    mockActionFields['b'] = {
+      label: 'b',
+      type: 'string',
+      description: 'b',
+      required: {
+        conditions: [{ fieldKey: 'a', operator: 'is', value: 'a_value' }]
+      }
+    }
+
+    mockActionFields['c'] = {
+      label: 'c',
+      type: 'string',
+      description: 'c',
+      required: {
+        conditions: [{ fieldKey: 'a', operator: 'is_not', value: 'a_value' }]
+      }
+    }
+
+    const schema = fieldsToJsonSchema(mockActionFields)
+
+    it.only('should validate b', async () => {
+      const b_required_mappings = [{ a: 'a_value' }, { a: 'a_value', b: 'b_value' }]
+      // const b_not_required_mapping = [{ 'a': 'not_a_value' }, { 'a': 'not_a_value', 'b': 'b_value' }]
+
+      console.log('schema', JSON.stringify(schema))
+
+      let isValid
+      isValid = validateSchema(b_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(false)
+
+      isValid = validateSchema(b_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+    })
+
+    it('should validate c', async () => {})
+  })
+
+  it('should validate multiple conditional requirements on a single field', async () => {})
+
+  it('should validate when multiple fields have non-overlapping conditional requirements', async () => {})
+
+  it('should validate when multiple fields have overlapping conditional requirements', async () => {})
+
+  it('should validate when a field is conditionally required based on the value of sync mode', async () => {})
+})
+
+describe.skip('validateSchema with additional schemas defined', () => {
   const baseSchema: MinimalFields = {
     a: {
       label: 'a',
