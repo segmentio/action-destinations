@@ -113,7 +113,6 @@
     }
   },
   "dependencies": {
-    "chance": "^1.1.8",
-    "yarn": "^1.22.22"
+    "chance": "^1.1.8"
   }
 }
