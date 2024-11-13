@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Action',
       required: true,
       type: 'string',
-      default: { '@path': '$.action' }
+      default: { '@path': '$.event' }
     },
     email: {
       description: "The person's email address.",

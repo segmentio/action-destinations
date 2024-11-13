@@ -15,7 +15,7 @@ describe('Drip.trackEvent', () => {
     nock('https://api.getdrip.com').post('/v2/2445926/events').reply(200, {})
 
     const event = createTestEvent({
-      action: 'Custom',
+      event: 'Custom',
       properties: { fizz: 'buzz', email: 'test@example.com' }
     })
 
