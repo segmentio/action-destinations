@@ -6,7 +6,25 @@ export interface Payload {
    */
   type: string
   /**
-   * Any metadata associated with the event.
+   * Identifiers for the user. At least one identifier is required. Custom identifiers can also be added as additional key:value pairs.
+   */
+  userIdentifiers: {
+    /**
+     * The user's phone number in E.164 format.
+     */
+    phone?: string
+    /**
+     * The user's email address.
+     */
+    email?: string
+    /**
+     * A primary ID for a user.
+     */
+    clientUserId?: string
+    [k: string]: unknown
+  }
+  /**
+   * Metadata to associate with the event.
    */
   properties?: {
     [k: string]: unknown
@@ -16,25 +34,7 @@ export interface Payload {
    */
   externalEventId?: string
   /**
-   * Timestamp of when the action occurred in ISO 8601 format.
+   * Timestamp for the event, ISO 8601 format.
    */
   occurredAt?: string
-  /**
-   * Phone number of the user associated with the action. E.164 format is required. This field is required if either email or an externalIdentifier is not provided.
-   */
-  phone?: string
-  /**
-   * Email of the user associated with the action. This field is required if either phone or an externalIdentifier is not provided.
-   */
-  email?: string
-  /**
-   * (optional) Your primary ID for a user. This field is required if either phone, email, or a customIdentifier is not provided.
-   */
-  clientUserId?: string
-  /**
-   * (optional) Namespaced custom identifiers and their values. This field is required if either phone, email, or a clientUserId is not provided.
-   */
-  customIdentifiers?: {
-    [k: string]: unknown
-  }
 }

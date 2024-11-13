@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-attentive destination: customEvents action - all fields 1`] = `
+Object {
+  "externalEventId": "8SUbDnttlMunV@",
+  "occurredAt": "8SUbDnttlMunV@",
+  "properties": Object {
+    "testType": "8SUbDnttlMunV@",
+  },
+  "type": "8SUbDnttlMunV@",
+  "user": Object {
+    "email": "ijiredor@idwopaf.ms",
+    "externalIdentifiers": Object {
+      "clientUserId": "8SUbDnttlMunV@",
+      "customIdentifiers": Object {},
+    },
+    "phone": "8SUbDnttlMunV@",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-attentive destination: customEvents action - required fields 1`] = `
+Object {
+  "type": "8SUbDnttlMunV@",
+  "user": Object {
+    "externalIdentifiers": Object {},
+  },
+}
+`;

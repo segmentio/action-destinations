@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * API key used to authorize sending data to Attentive.
+   * Your Attentive API Key.
    */
   apiKey: string
 }
