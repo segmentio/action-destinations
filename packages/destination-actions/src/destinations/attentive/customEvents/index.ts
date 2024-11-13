@@ -5,6 +5,7 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Events',
   description: 'Send user actions to Attentive',
+  defaultSubscription: 'type = "track"',
   fields: {
     type: {
       label: 'Type',
@@ -89,7 +90,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'External Event Id',
       description: 'A unique identifier representing this specific event. A UUID is recommended.',
       type: 'string',
-      required: false
+      required: false, 
+      default: {
+        '@path': '$.messageId'
+      }
     },
     occurredAt: {
       label: 'Occurred At',
