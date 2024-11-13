@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Events',
-  description: 'Send user actions to Attentive',
+  description: 'Send user analytics events to Attentive',
   defaultSubscription: 'type = "track"',
   fields: {
     type: {
