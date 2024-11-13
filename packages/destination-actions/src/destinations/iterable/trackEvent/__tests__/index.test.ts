@@ -64,6 +64,41 @@ describe('Iterable.trackEvent', () => {
       })
     })
 
+    it('converts a "true" and "false" to boolean, and "1234" to numbers', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        userId: 'user1234',
+        properties: {
+          boolean_prop: 'true',
+          boolean_prop2: 'false',
+          number_prop: '1234',
+          non_number_prop: '1234 x',
+          nested_number_prop: { nested_num: '9876', nested_bool: 'false', nested_string: 'hello' },
+          array_prop: ['12345', 'hellobye', 'true', 'false']
+        }
+      })
+
+      nock('https://api.iterable.com/api').post('/events/track').reply(200, {})
+
+      const responses = await testDestination.testAction('trackEvent', {
+        event,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].options.json).toMatchObject({
+        userId: 'user1234',
+        dataFields: {
+          boolean_prop: true,
+          boolean_prop2: false,
+          number_prop: 1234,
+          non_number_prop: '1234 x',
+          nested_number_prop: { nested_num: 9876, nested_bool: false, nested_string: 'hello' },
+          array_prop: [12345, 'hellobye', true, false]
+        }
+      })
+    })
+
     it('does not modify a yyyy-mm-dd date', async () => {
       const event = createTestEvent({
         type: 'track',
@@ -138,7 +173,7 @@ describe('Iterable.trackEvent', () => {
       expect(responses[0].options.json).toMatchObject({
         userId: 'user1234',
         dataFields: {
-          badDate1: '1234',
+          badDate1: 1234,
           badDate2: '1234-12',
           badDate3: '1234-12-00',
           badDate4: '1234-12-99',

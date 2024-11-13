@@ -30,25 +30,32 @@ function dateToIterableDateStringFormat(isoDateStr: string) {
 
 /**
  * Recursively converts all ISO date strings in an object to the format accepted by Iterable's API.
+ * Also converts 'true' and 'false' strings to boolean values and numeric strings to numbers.
  * @param {Object} obj - The object to be converted.
  * @returns {Object} The converted object.
  */
-export function convertDatesInObject(obj: Record<string, unknown>) {
+export function correctDataFields(obj: Record<string, unknown>) {
   if (typeof obj !== 'object' || obj === null) {
     return obj
   }
   for (const prop in obj) {
     const value = obj[prop]
-    if (typeof value === 'string' && isoDateRegExp.test(value)) {
-      // Don't convert the value to a Date if it's a date-only string
-      const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/
-      if (dateOnlyRegex.test(value)) {
-        obj[prop] = value // Keep the date-only string as is
-      } else {
-        obj[prop] = dateToIterableDateStringFormat(value)
+    if (typeof value === 'string') {
+      if (isoDateRegExp.test(value)) {
+        // Don't convert the value to a Date if it's a date-only string
+        const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/
+        if (dateOnlyRegex.test(value)) {
+          obj[prop] = value // Keep the date-only string as is
+        } else {
+          obj[prop] = dateToIterableDateStringFormat(value)
+        }
+      } else if (['true', 'false'].includes(value)) {
+        obj[prop] = value === 'true'
+      } else if (!isNaN(Number(value)) && value !== '' && value !== null) {
+        obj[prop] = Number(value)
       }
     } else if (typeof value === 'object' && value !== null) {
-      convertDatesInObject(value as Record<string, unknown>)
+      correctDataFields(value as Record<string, unknown>)
     } else {
       obj[prop] = value
     }
@@ -79,7 +86,7 @@ export function transformItems(items: UpdateCart['items']): CommerceItem[] {
 
   return items.map(({ dataFields, categories, ...rest }) => ({
     ...rest,
-    dataFields: convertDatesInObject(omit(rest, reservedItemKeys) || {}),
+    dataFields: correctDataFields(omit(rest, reservedItemKeys) || {}),
     ...(categories && { categories: [categories] })
   }))
 }

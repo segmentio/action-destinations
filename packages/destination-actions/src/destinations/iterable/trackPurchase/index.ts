@@ -16,7 +16,7 @@ import {
   CommerceItem,
   DataCenterLocation
 } from '../shared-fields'
-import { transformItems, convertDatesInObject, getRegionalEndpoint } from '../utils'
+import { transformItems, correctDataFields, getRegionalEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Purchase',
@@ -130,8 +130,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const phoneNumber = user.phoneNumber
     delete user.phoneNumber
 
-    const formattedDataFields = convertDatesInObject(dataFields ?? {})
-    const formattedUserDataFields = convertDatesInObject(user.dataFields ?? {})
+    const formattedDataFields = correctDataFields(dataFields ?? {})
+    const formattedUserDataFields = correctDataFields(user.dataFields ?? {})
 
     const trackPurchaseRequest: TrackPurchaseRequest = {
       ...payload,

@@ -11,7 +11,7 @@ import {
   EVENT_DATA_FIELDS,
   DataCenterLocation
 } from '../shared-fields'
-import { convertDatesInObject, getRegionalEndpoint } from '../utils'
+import { correctDataFields, getRegionalEndpoint } from '../utils'
 
 interface TrackEventRequest {
   email?: string
@@ -31,7 +31,7 @@ interface BulkTrackEventRequest {
 }
 
 const transformIterableEventPayload = (payload: Payload): TrackEventRequest => {
-  const formattedDataFields = convertDatesInObject(payload.dataFields ?? {})
+  const formattedDataFields = correctDataFields(payload.dataFields ?? {})
   return {
     ...payload,
     dataFields: formattedDataFields,

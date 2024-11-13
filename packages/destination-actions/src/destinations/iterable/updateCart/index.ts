@@ -11,7 +11,7 @@ import {
   CommerceItem,
   DataCenterLocation
 } from '../shared-fields'
-import { transformItems, convertDatesInObject, getRegionalEndpoint } from '../utils'
+import { transformItems, correctDataFields, getRegionalEndpoint } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Cart Updates',
@@ -82,7 +82,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const phoneNumber = user.phoneNumber
     delete user.phoneNumber
 
-    const formattedDataFields = convertDatesInObject(user.dataFields ?? {})
+    const formattedDataFields = correctDataFields(user.dataFields ?? {})
 
     const updateCartRequest: UpdateCartRequest = {
       user: {

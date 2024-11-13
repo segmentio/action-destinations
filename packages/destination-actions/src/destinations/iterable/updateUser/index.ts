@@ -9,7 +9,7 @@ import {
   USER_PHONE_NUMBER_FIELD,
   DataCenterLocation
 } from '../shared-fields'
-import { convertDatesInObject, getRegionalEndpoint } from '../utils'
+import { correctDataFields, getRegionalEndpoint } from '../utils'
 
 interface UserUpdateRequestPayload {
   email?: string
@@ -29,7 +29,7 @@ const transformIterableUserPayload: (payload: Payload) => UserUpdateRequestPaylo
   const phoneNumber = payload.phoneNumber
   delete payload.phoneNumber
 
-  const formattedDataFields = convertDatesInObject(payload.dataFields ?? {})
+  const formattedDataFields = correctDataFields(payload.dataFields ?? {})
   const userUpdateRequest: UserUpdateRequestPayload = {
     ...payload,
     dataFields: {
