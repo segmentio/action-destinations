@@ -1,6 +1,7 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { CustomEvent, User } from './types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Events',
@@ -118,26 +119,28 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('At least one user identifier is required.')
     }
 
+    const json: CustomEvent = {
+      type,
+      properties,
+      externalEventId,
+      occurredAt,
+      user: {
+        phone,
+        email,
+        ...(clientUserId || customIdentifiers
+          ? {
+              externalIdentifiers: {
+                ...(clientUserId ? { clientUserId } : {}),
+                ...(customIdentifiers ? { customIdentifiers } : {})
+              }
+            }
+          : {})
+      } as User
+    }
+
     return request('https://api.attentivemobile.com/v1/events/custom', {
       method: 'post',
-      json: {
-        type,
-        properties,
-        externalEventId,
-        occurredAt,
-        user: {
-          phone,
-          email,
-          ...(clientUserId || customIdentifiers
-            ? {
-                externalIdentifiers: {
-                  ...(clientUserId ? { clientUserId } : {}),
-                  ...(customIdentifiers ? { customIdentifiers } : {})
-                }
-              }
-            : {})
-        }
-      }
+      json
     })
   }
 }
