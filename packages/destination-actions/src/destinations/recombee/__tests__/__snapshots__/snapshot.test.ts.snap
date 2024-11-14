@@ -23,40 +23,24 @@ Object {
 
 exports[`Testing snapshot for actions-recombee destination: addCartAddition action - all fields 1`] = `
 Object {
-  "requests": Array [
-    Object {
-      "method": "POST",
-      "params": Object {
-        "additionalData": Object {
-          "testType": "fSK%!$(3gz2peZ!&@L@D",
-        },
-        "amount": 85450379273175.05,
-        "cascadeCreate": true,
-        "itemId": "fSK%!$(3gz2peZ!&@L@D",
-        "price": 85450379273175.05,
-        "recommId": "fSK%!$(3gz2peZ!&@L@D",
-        "timestamp": "fSK%!$(3gz2peZ!&@L@D",
-        "userId": "fSK%!$(3gz2peZ!&@L@D",
-      },
-      "path": "/cartadditions/",
-    },
-  ],
+  "additionalData": Object {
+    "testType": "fSK%!$(3gz2peZ!&@L@D",
+  },
+  "amount": 85450379273175.05,
+  "cascadeCreate": true,
+  "itemId": "fSK%!$(3gz2peZ!&@L@D",
+  "price": 85450379273175.05,
+  "recommId": "fSK%!$(3gz2peZ!&@L@D",
+  "timestamp": "fSK%!$(3gz2peZ!&@L@D",
+  "userId": "fSK%!$(3gz2peZ!&@L@D",
 }
 `;
 
 exports[`Testing snapshot for actions-recombee destination: addCartAddition action - required fields 1`] = `
 Object {
-  "requests": Array [
-    Object {
-      "method": "POST",
-      "params": Object {
-        "cascadeCreate": true,
-        "itemId": "fSK%!$(3gz2peZ!&@L@D",
-        "userId": "fSK%!$(3gz2peZ!&@L@D",
-      },
-      "path": "/cartadditions/",
-    },
-  ],
+  "cascadeCreate": true,
+  "itemId": "fSK%!$(3gz2peZ!&@L@D",
+  "userId": "fSK%!$(3gz2peZ!&@L@D",
 }
 `;
 

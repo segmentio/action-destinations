@@ -16,7 +16,7 @@ const SETTINGS: Settings = {
 describe('addCartAddition', () => {
   it('should validate action fields', async () => {
     nock('https://rapi-eu-west.recombee.com/')
-      .post(`/${DATABASE_ID}/batch/`)
+      .post(`/${DATABASE_ID}/cartadditions/`)
       .query({
         hmac_timestamp: /.*/,
         hmac_sign: /.*/
@@ -38,24 +38,16 @@ describe('addCartAddition', () => {
     })
 
     expect(await response[0].request.json()).toMatchObject({
-      requests: [
-        {
-          method: 'POST',
-          path: '/cartadditions/',
-          params: {
-            userId: 'user-id',
-            itemId: 'product-id',
-            timestamp: '2021-09-01T00:00:00.000Z',
-            cascadeCreate: true
-          }
-        }
-      ]
+      userId: 'user-id',
+      itemId: 'product-id',
+      timestamp: '2021-09-01T00:00:00.000Z',
+      cascadeCreate: true
     })
   })
 
   it('should validate action fields with recommId and additionalData', async () => {
     nock('https://rapi-eu-west.recombee.com/')
-      .post(`/${DATABASE_ID}/batch/`)
+      .post(`/${DATABASE_ID}/cartadditions/`)
       .query({
         hmac_timestamp: /.*/,
         hmac_sign: /.*/
@@ -90,107 +82,14 @@ describe('addCartAddition', () => {
     })
 
     expect(await response[0].request.json()).toMatchObject({
-      requests: [
-        {
-          method: 'POST',
-          path: '/cartadditions/',
-          params: {
-            userId: 'user-id',
-            itemId: 'product-id',
-            timestamp: '2021-09-01T00:00:00.000Z',
-            cascadeCreate: true,
-            recommId,
-            additionalData: {
-              region: 'region'
-            }
-          }
-        }
-      ]
-    })
-  })
-
-  it('should validate action fields with multiple items', async () => {
-    nock('https://rapi-eu-west.recombee.com/')
-      .post(`/${DATABASE_ID}/batch/`)
-      .query({
-        hmac_timestamp: /.*/,
-        hmac_sign: /.*/
-      })
-      .reply(200, [
-        { code: 200, json: 'ok' },
-        { code: 200, json: 'ok' }
-      ])
-
-    const event = createTestEvent({
       userId: 'user-id',
-      properties: {
-        products: [
-          {
-            product_id: 'item-1',
-            quantity: 1,
-            price: 100
-          },
-          {
-            product_id: 'item-2',
-            quantity: 2,
-            price: 200
-          }
-        ]
-      },
-      timestamp: '2021-09-01T00:00:00.000Z'
-    })
-
-    const response = await testDestination.testAction('addCartAddition', {
-      event,
-      settings: SETTINGS,
-      useDefaultMappings: true,
-      mapping: {
-        items: {
-          '@arrayPath': [
-            '$.properties.products',
-            {
-              itemId: {
-                '@path': '$.product_id'
-              },
-              amount: {
-                '@path': '$.quantity'
-              },
-              price: {
-                '@path': '$.price'
-              }
-            }
-          ]
-        }
+      itemId: 'product-id',
+      timestamp: '2021-09-01T00:00:00.000Z',
+      cascadeCreate: true,
+      recommId,
+      additionalData: {
+        region: 'region'
       }
-    })
-
-    expect(await response[0].request.json()).toMatchObject({
-      requests: [
-        {
-          method: 'POST',
-          path: '/cartadditions/',
-          params: {
-            userId: 'user-id',
-            itemId: 'item-1',
-            timestamp: '2021-09-01T00:00:00.000Z',
-            cascadeCreate: true,
-            amount: 1,
-            price: 100
-          }
-        },
-        {
-          method: 'POST',
-          path: '/cartadditions/',
-          params: {
-            userId: 'user-id',
-            itemId: 'item-2',
-            timestamp: '2021-09-01T00:00:00.000Z',
-            cascadeCreate: true,
-            amount: 2,
-            price: 200
-          }
-        }
-      ]
     })
   })
 

@@ -324,4 +324,61 @@ describe('Order Completed', () => {
     const res = await testDestination.testAction('orderCompleted', { event, mapping, settings })
     expect(res[0].options.body).toMatchSnapshot()
   })
+
+  it('should override event properties with product properties', async () => {
+    const products = [
+      {
+        value: 10,
+        name: 'product uno'
+      }
+    ]
+
+    const profile = { email: 'test@example.com', phone_number: '+14155552671' }
+    const properties = { key: 'value', name: 'Order Completed' }
+    const metricName = 'Order Completed'
+    const value = 10
+    const eventName = 'Order Completed'
+
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: '2022-01-01T00:00:00.000Z'
+    })
+
+    const mapping = {
+      profile,
+      metric_name: metricName,
+      properties,
+      value,
+      products: products,
+      event_name: eventName
+    }
+
+    const requestBodyForEvent = createRequestBody(properties, value, metricName, profile)
+
+    nock(`${API_URL}`).post(`/events/`, requestBodyForEvent).reply(202, {})
+
+    nock(`${API_URL}`)
+      .post(`/events/`, (body) => {
+        // Validate that body has the correct structure using function
+        // Can’t use an object because unique_id is randomly generated
+        return (
+          body.data &&
+          body.data.type === `event` &&
+          body.data.attributes &&
+          body.data.attributes.properties &&
+          // check that product name is overriden
+          body.data.attributes.properties.name === 'product uno' &&
+          typeof body.data.attributes.unique_id === `string` &&
+          body.data.attributes.metric &&
+          body.data.attributes.metric.data &&
+          body.data.attributes.metric.data.type === `metric` &&
+          body.data.attributes.metric.data.attributes &&
+          body.data.attributes.metric.data.attributes.name === `Ordered Product` &&
+          body.data.attributes.profile
+        )
+      })
+      .reply(200, {})
+
+    await expect(testDestination.testAction(`orderCompleted`, { event, mapping, settings })).resolves.not.toThrowError()
+  })
 })

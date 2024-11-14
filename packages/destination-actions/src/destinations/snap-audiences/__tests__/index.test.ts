@@ -20,6 +20,15 @@ const createAudienceInput = {
 
 describe('Snap Audiences', () => {
   describe('createAudience', () => {
+    beforeEach(() => {
+      // Catch all Segment API requests and return 200
+      nock('https://api.segment.io').persist().post('/v1/track').reply(200)
+    })
+
+    afterEach(() => {
+      nock.cleanAll()
+    })
+
     it('should fail if Segment audience name is available', async () => {
       createAudienceInput.audienceName = ''
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)

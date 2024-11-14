@@ -56,7 +56,6 @@ const destination: DestinationDefinition<Settings> = {
           'URI of the Recombee API that should be used. *Keep this field empty unless you are calling the Recombee cluster based in a specific region or you were assigned a custom URI by the Recombee Support team.*',
         type: 'string',
         required: false,
-        format: 'hostname',
         depends_on: {
           conditions: [
             {
@@ -93,6 +92,13 @@ const destination: DestinationDefinition<Settings> = {
         ...defaultValues(addDetailView.fields),
         ...ecommerceIdMapping
       },
+      type: 'automatic'
+    },
+    {
+      name: 'Track - Ecommerce - Product Added',
+      subscribe: 'type = "track" and event = "Product Added"',
+      partnerAction: 'addCartAddition',
+      mapping: defaultValues(addCartAddition.fields),
       type: 'automatic'
     },
     {

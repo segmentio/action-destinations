@@ -24,9 +24,9 @@ export function interactionFields(interactionName: string): Record<string, Input
 export const ecommerceIdMapping = {
   itemId: {
     '@if': {
-      exists: { '@path': '$.product_id' },
-      then: { '@path': '$.product_id' },
-      else: { '@path': '$.sku' }
+      exists: { '@path': '$.properties.product_id' },
+      then: { '@path': '$.properties.product_id' },
+      else: { '@path': '$.properties.sku' }
     }
   }
 }

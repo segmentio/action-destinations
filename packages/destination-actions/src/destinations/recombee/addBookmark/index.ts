@@ -7,7 +7,7 @@ import { interactionFields } from '../commonFields'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Bookmark',
   description: 'Adds a bookmark of the given item made by the given user.',
-  defaultSubscription: 'type = "track" and ( event = "Product Added to Wishlist" or event = "Product Shared" )',
+  defaultSubscription: 'type = "track" and event = "Product Added to Wishlist"',
   fields: {
     userId: {
       label: 'User ID',
