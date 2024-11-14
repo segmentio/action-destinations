@@ -58,8 +58,6 @@ export function singleConditionToJsonSchema(fieldKey: string, condition: Depends
   let jsonCondition: JSONSchema4 | undefined = undefined
 
   condition.conditions.forEach((innerCondition) => {
-    console.log('innerCondition:', innerCondition)
-
     if (innerCondition.operator === 'is') {
       jsonCondition = {
         if: {
@@ -72,12 +70,14 @@ export function singleConditionToJsonSchema(fieldKey: string, condition: Depends
     } else if (innerCondition.operator === 'is_not') {
       jsonCondition = {
         if: {
-          properties: { [(innerCondition as FieldCondition).fieldKey]: { const: innerCondition.value } }
+          properties: { [(innerCondition as FieldCondition).fieldKey]: { not: { const: innerCondition.value } } }
         },
-        else: {
+        then: {
           required: [fieldKey]
         }
       }
+    } else {
+      throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
     }
   })
 
@@ -89,7 +89,7 @@ export function conditionsToJsonSchema(conditions: Record<string, DependsOnCondi
 
   for (const [fieldKey, condition] of Object.entries(conditions)) {
     const jsonCondition = singleConditionToJsonSchema(fieldKey, condition)
-    console.log('jsonCondition:', jsonCondition)
+
     if (jsonCondition) {
       additionalSchema.push(jsonCondition)
     }

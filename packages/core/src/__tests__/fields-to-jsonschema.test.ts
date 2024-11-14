@@ -30,6 +30,7 @@ describe('conditionally required field schema generation', () => {
             },
             then: { "required": ["b"] }
          */
+    expect(schema).toMatchInlineSnapshot(``)
   })
 
   it('should generate a schema when one field depends on multiple other fields', async () => {
@@ -68,6 +69,7 @@ describe('conditionally required field schema generation', () => {
           },
           then: { required: [ 'c' ] }
          */
+    expect(schema).toMatchInlineSnapshot(``)
   })
 
   it('should generate a schema when multiple fields depend on one field', async () => {})
@@ -78,3 +80,5 @@ describe('conditionally required field schema generation', () => {
 
   it('should generate a schema when a field is required based on the value of syncMode', async () => {})
 })
+
+describe('conditionally required field validation', () => {})
