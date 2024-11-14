@@ -20,7 +20,7 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
   const actionColName = payloads[0]?.audience_action_column_name
   const batchColName = payloads[0]?.batch_size_column_name
 
-  const maxBatchSize = 10_000
+  const maxBatchSize = 100_000
   if (batchSize > maxBatchSize) {
     throw new IntegrationError(`Batch size cannot exceed ${maxBatchSize}`, 'Invalid Payload', 400)
   }
