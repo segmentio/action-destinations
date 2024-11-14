@@ -6,10 +6,10 @@ import {
   getListIdDynamicData,
   getProfiles,
   processPhoneNumber,
-  removeProfileFromList,
-  validateAndConvertPhoneNumber
+  removeBulkProfilesFromList,
+  removeProfileFromList
 } from '../functions'
-import { country_code, enable_batching } from '../properties'
+import { batch_size, country_code, enable_batching } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Profile',
@@ -36,6 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true
     },
     enable_batching: { ...enable_batching },
+    batch_size: { ...batch_size, default: 1000 },
     phone_number: {
       label: 'Phone Number',
       description: `Individual's phone number in E.164 format. If SMS is not enabled and if you use Phone Number as identifier, then you have to provide one of Email or External ID.`,
@@ -66,32 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return await removeProfileFromList(request, profileIds, list_id)
   },
   performBatch: async (request, { payload }) => {
-    // Filtering out profiles that do not contain either an email, valid phone_number or external_id.
-    const filteredPayload = payload.filter((profile) => {
-      // Validate and convert the phone number using the provided country code
-      const validPhoneNumber = validateAndConvertPhoneNumber(profile.phone_number, profile.country_code)
-
-      // If the phone number is valid, update the profile's phone number with the validated format
-      if (validPhoneNumber) {
-        profile.phone_number = validPhoneNumber
-      }
-      // If the phone number is invalid (null), exclude this profile
-      else if (validPhoneNumber === null) {
-        return false
-      }
-      return profile.email || profile.external_id || profile.phone_number
-    })
-    const listId = filteredPayload[0]?.list_id
-    const emails = filteredPayload.map((profile) => profile.email).filter((email) => email) as string[]
-    const externalIds = filteredPayload
-      .map((profile) => profile.external_id)
-      .filter((external_id) => external_id) as string[]
-    const phoneNumbers = filteredPayload
-      .map((profile) => profile.phone_number)
-      .filter((phone_number) => phone_number) as string[]
-
-    const profileIds = await getProfiles(request, emails, externalIds, phoneNumbers)
-    return await removeProfileFromList(request, profileIds, listId)
+    return await removeBulkProfilesFromList(request, payload)
   }
 }
 
