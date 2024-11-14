@@ -3,7 +3,10 @@ import {
   RequestClient,
   DynamicFieldResponse,
   IntegrationError,
-  PayloadValidationError
+  PayloadValidationError,
+  JSONLikeObject,
+  MultiStatusResponse,
+  HTTPError
 } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
 import { Settings } from './generated-types'
@@ -23,7 +26,9 @@ import {
   AdditionalAttributes
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
+import { Payload as RemoveProfilePayload } from './removeProfile/generated-types'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -450,4 +455,128 @@ export function processPhoneNumber(initialPhoneNumber?: string, country_code?: s
   }
 
   return phone_number
+}
+/**
+ * Updates the multi-status response with error information from Klaviyo for a batch of payloads.
+ *
+ * This function is designed to handle errors returned by a bulk operation in Klaviyo.
+ * It marks the entire batch as failed since granular retries are not supported in bulk operations.
+ *
+ * @param {JSONLikeObject[]} payloads - An array of payloads that were sent in the bulk operation.
+ * @param {any} err - The error object received from the Klaviyo API response.
+ * @param {MultiStatusResponse} multiStatusResponse - The object responsible for storing the status of each payload.
+ * @param {number[]} validPayloadIndicesBitmap - An array of indices indicating which payloads were valid.
+ *
+ */
+async function updateMultiStatusWithKlaviyoErrors(
+  payloads: JSONLikeObject[],
+  err: any,
+  multiStatusResponse: MultiStatusResponse,
+  validPayloadIndicesBitmap: number[]
+) {
+  const errorResponse = await err?.response?.json()
+  payloads.forEach((payload, index) => {
+    multiStatusResponse.setErrorResponseAtIndex(validPayloadIndicesBitmap[index], {
+      status: err?.response?.status || 400,
+      // errortype will be inferred from status
+      errormessage: err?.response?.statusText,
+      sent: payload,
+      body: JSON.stringify(errorResponse)
+    })
+  })
+}
+
+export async function removeBulkProfilesFromList(request: RequestClient, payloads: RemoveProfilePayload[]) {
+  const multiStatusResponse = new MultiStatusResponse()
+
+  const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPrepareRemoveBulkProfilePayloads(
+    payloads,
+    multiStatusResponse
+  )
+  // if there are no payloads with valid phone number/email/external_id, return multiStatusResponse
+  if (!filteredPayloads.length) {
+    return multiStatusResponse
+  }
+
+  const emails = extractField(filteredPayloads, 'email')
+  const externalIds = extractField(filteredPayloads, 'external_id')
+  const phoneNumbers = extractField(filteredPayloads, 'phone_number')
+
+  // console.log(emails, externalIds, phoneNumbers, payloads)
+  const listId = filteredPayloads[0]?.list_id as string
+
+  try {
+    const profileIds = await getProfiles(request, emails, externalIds, phoneNumbers)
+    await removeProfileFromList(request, profileIds, listId)
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      await updateMultiStatusWithKlaviyoErrors(
+        payloads as object as JSONLikeObject[],
+        error,
+        multiStatusResponse,
+        validPayloadIndicesBitmap
+      )
+    } else {
+      throw error // Bubble up the error
+    }
+  }
+  return multiStatusResponse
+}
+
+function extractField(payloads: JSONLikeObject[], field: string): string[] {
+  return payloads.map((profile) => profile[field]).filter(Boolean) as string[]
+}
+
+function validateAndPrepareRemoveBulkProfilePayloads(
+  payloads: RemoveProfilePayload[],
+  multiStatusResponse: MultiStatusResponse
+) {
+  const filteredPayloads: JSONLikeObject[] = []
+  const validPayloadIndicesBitmap: number[] = []
+
+  payloads.forEach((payload, originalBatchIndex) => {
+    const { validPayload, error } = validateAndConstructRemoveProfilePayloads(payload)
+    if (error) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, error)
+    } else {
+      filteredPayloads.push(validPayload as JSONLikeObject)
+      validPayloadIndicesBitmap.push(originalBatchIndex)
+      multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
+        status: 200,
+        sent: validPayload as JSONLikeObject,
+        body: 'success'
+      })
+    }
+  })
+  return { filteredPayloads, validPayloadIndicesBitmap }
+}
+
+function validateAndConstructRemoveProfilePayloads(payload: RemoveProfilePayload): {
+  validPayload?: JSONLikeObject
+  error?: ActionDestinationErrorResponseType
+} {
+  const { phone_number, email, external_id } = payload
+  const response: { validPayload?: JSONLikeObject; error?: ActionDestinationErrorResponseType } = {}
+  if (!email && !phone_number && !external_id) {
+    response.error = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'One of External ID, Phone Number or Email is required.'
+    }
+    return response
+  }
+
+  if (phone_number) {
+    const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, payload.country_code as string)
+    if (!validPhoneNumber) {
+      response.error = {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Phone number could not be converted to E.164 format.'
+      }
+      return response
+    }
+    payload.phone_number = validPhoneNumber
+  }
+  return { validPayload: payload as object as JSONLikeObject }
 }
