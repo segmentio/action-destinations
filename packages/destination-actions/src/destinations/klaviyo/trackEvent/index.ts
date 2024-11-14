@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { batch_size, enable_batching, country_code } from '../properties'
-import { processPhoneNumber, sendBatchedTrackEvent } from '../functions'
+import { processPhoneNumber } from '../functions'
 import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -135,7 +135,8 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
   performBatch: (request, { payload }) => {
-    return sendBatchedTrackEvent(request, payload)
+    console.log(request, payload)
+    // return sendBatchedTrackEvent(request, payload)
   }
 }
 

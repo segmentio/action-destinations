@@ -1,7 +1,7 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { createProfile, addProfileToList, processPhoneNumber, sendBatchedProfileImportJobRequest } from '../functions'
+import { createProfile, addProfileToList, processPhoneNumber } from '../functions'
 import {
   email,
   external_id,
@@ -58,7 +58,8 @@ const action: ActionDefinition<Settings, Payload> = {
     return await addProfileToList(request, profileId, list_id)
   },
   performBatch: async (request, { payload }) => {
-    return sendBatchedProfileImportJobRequest(request, payload)
+    console.log(request, payload)
+    // return sendBatchedProfileImportJobRequest(request, payload)
   }
 }
 
