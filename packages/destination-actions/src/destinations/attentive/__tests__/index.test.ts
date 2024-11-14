@@ -15,11 +15,6 @@ describe('Attentive', () => {
         .matchHeader('Authorization', `Bearer ${apiKey}`)
         .reply(200, {})
 
-      // Provide the required API key in authData
-      const authData = {
-        apiKey:  // replace with a valid key or mock key as needed
-      }
-
       // Test that the authentication does not throw any error
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
