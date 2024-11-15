@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { IntegrationError, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../../index'
-import { API_URL } from '../../config'
+import { API_URL } from '../../../config'
 
 const testDestination = createTestIntegration(Definition)
 

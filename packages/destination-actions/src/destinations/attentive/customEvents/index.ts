@@ -43,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
         email: {
           label: 'Email',
           description: "The user's email address.",
-          type: 'string',
+          type: 'email',
           required: false,
           default: {
             '@if': {
@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
         clientUserId: {
           label: 'Client User ID',
           description: 'A primary ID for a user.',
-          type: 'string',
+          type: 'uuid',
           required: false
         }
       },
