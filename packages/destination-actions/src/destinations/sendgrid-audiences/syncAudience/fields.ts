@@ -52,6 +52,7 @@ export const fields: Record<string, InputField> = {
     label: 'Email Address',
     description: `The contact's email address.`,
     type: 'string',
+    format: 'email',
     required: false,
     default: {
       '@if': {
