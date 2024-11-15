@@ -57,7 +57,8 @@ export function groupConditionsToJsonSchema(
 export function singleConditionToJsonSchema(fieldKey: string, condition: DependsOnConditions): JSONSchema4 | undefined {
   let jsonCondition: JSONSchema4 | undefined = undefined
 
-  condition.conditions.forEach((innerCondition) => {
+  if (condition.conditions.length === 1) {
+    const innerCondition = condition.conditions[0]
     if (innerCondition.operator === 'is') {
       jsonCondition = {
         if: {
@@ -79,7 +80,27 @@ export function singleConditionToJsonSchema(fieldKey: string, condition: Depends
     } else {
       throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
     }
+
+    return jsonCondition
+  }
+
+  const innerConditionArray: JSONSchema4[] = []
+  condition.conditions.forEach((innerCondition) => {
+    if (innerCondition.operator === 'is') {
+      innerConditionArray.push({
+        properties: { [(innerCondition as FieldCondition).fieldKey]: { const: innerCondition.value } }
+      })
+    } else if (innerCondition.operator === 'is_not') {
+      innerConditionArray.push({
+        properties: { [(innerCondition as FieldCondition).fieldKey]: { not: { const: innerCondition.value } } }
+      })
+    } else {
+      throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
+    }
   })
+  const innerIfStatement: JSONSchema4 =
+    condition.match === 'any' ? { anyOf: innerConditionArray } : { allOf: innerConditionArray }
+  jsonCondition = { if: innerIfStatement, then: { required: [fieldKey] } }
 
   return jsonCondition
 }
