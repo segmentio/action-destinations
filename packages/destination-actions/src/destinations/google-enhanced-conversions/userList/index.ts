@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
     choices: [
       { label: 'Adds users to the connected Google Customer Match User List', value: 'add' },
       { label: 'Remove users from the connected Google Customer Match User List', value: 'delete' },
-      { label: 'Mirror users in the connected Google Customer Match User List', value: 'mirror' }
+      { label: 'Add and remove users in the connected Google Customer Match User List', value: 'mirror' }
     ]
   },
   fields: {
