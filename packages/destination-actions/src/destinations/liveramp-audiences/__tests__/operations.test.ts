@@ -241,7 +241,7 @@ describe('Test operations', () => {
 
       const result = generateFile(payloads)
 
-      const expectedFileContents = `audience_key,email,example_identifier\n"aud001"\n"aud002","973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b"\n"aud003","973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b","66a0acf498240ea61ce3ce698c5a30eb6824242b39695f8689d7c32499c79748"`
+      const expectedFileContents = `audience_key,email,example_identifier\n"aud001",,\n"aud002","973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b",\n"aud003","973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b","66a0acf498240ea61ce3ce698c5a30eb6824242b39695f8689d7c32499c79748"`
 
       expect(result).toMatchObject({
         filename: 'test_file_name.csv',
@@ -399,6 +399,282 @@ describe('Test operations', () => {
 
       const result = generateFile(payloads)
       const expected = `audience_key,email\n${enquoteIdentifier('1016')},${enquoteIdentifier(hashedUnhashedEmail)}`
+
+      expect(result.fileContents.toString()).toBe(expected)
+    })
+
+    it('adds empty values for missing fields across different payloads', () => {
+      const payloads: Payload[] = [
+        {
+          audience_key: 'test_audience',
+          filename: 'my_file',
+          delimiter: ',',
+          unhashed_identifier_data: {},
+          identifier_data: {
+            first_name: 'liveramp 01',
+            email: 'liveramp-test-01@gmailx.com',
+            liveramp_test: true
+          },
+          enable_batching: true
+        },
+        {
+          audience_key: 'test_audience',
+          filename: 'my_file',
+          delimiter: ',',
+          unhashed_identifier_data: {},
+          identifier_data: {
+            email: 'liveramp-test-02@gmailx.com',
+            liveramp_test: true
+          },
+          enable_batching: true
+        }
+      ]
+
+      const result = generateFile(payloads)
+
+      const expected = [
+        `audience_key,first_name,email,liveramp_test`,
+        `${enquoteIdentifier('test_audience')},${enquoteIdentifier('liveramp 01')},${enquoteIdentifier(
+          'liveramp-test-01@gmailx.com'
+        )},${enquoteIdentifier('true')}`,
+        `${enquoteIdentifier('test_audience')},,${enquoteIdentifier('liveramp-test-02@gmailx.com')},${enquoteIdentifier(
+          'true'
+        )}`
+      ].join('\n')
+
+      expect(result.fileContents.toString()).toBe(expected)
+    })
+
+    it('handles unique fields only present in one payload', () => {
+      const payloads: Payload[] = [
+        {
+          audience_key: 'test_audience',
+          filename: 'my_file',
+          delimiter: ',',
+          unhashed_identifier_data: {},
+          identifier_data: {
+            first_name: 'liveramp 01',
+            email: 'liveramp-test-01@gmailx.com',
+            liveramp_test: true
+          },
+          enable_batching: true
+        },
+        {
+          audience_key: 'test_audience',
+          filename: 'my_file',
+          delimiter: ',',
+          unhashed_identifier_data: { unique_value: '424242' }, // unique_value only in this payload
+          identifier_data: {
+            liveramp_test: true
+          },
+          enable_batching: true
+        }
+      ]
+
+      const hashedUniqueValue = hash(normalize('unique_value', '424242'))
+      const result = generateFile(payloads)
+
+      // Expected headers are audience_key, first_name, email, liveramp_test, unique_value
+      const expected = [
+        `audience_key,first_name,email,liveramp_test,unique_value`,
+        `${enquoteIdentifier('test_audience')},${enquoteIdentifier('liveramp 01')},${enquoteIdentifier(
+          'liveramp-test-01@gmailx.com'
+        )},${enquoteIdentifier('true')},`,
+        `${enquoteIdentifier('test_audience')},,,${enquoteIdentifier('true')},${enquoteIdentifier(hashedUniqueValue)}` // Row with unique_value
+      ].join('\n')
+
+      expect(result.fileContents.toString()).toBe(expected)
+    })
+
+    it('handles entirely empty payloads, filling in empty cells appropriately', () => {
+      const payloads: Payload[] = [
+        {
+          audience_key: 'test_audience',
+          filename: 'my_file',
+          delimiter: ',',
+          unhashed_identifier_data: {},
+          identifier_data: {},
+          enable_batching: true
+        }
+      ]
+
+      const result = generateFile(payloads)
+
+      const expected = [`audience_key`, `${enquoteIdentifier('test_audience')}`].join('\n')
+
+      expect(result.fileContents.toString()).toBe(expected)
+    })
+
+    it('correctly handles payloads with missing fields, unique fields, and completely empty payloads', () => {
+      const payloads: Payload[] = [
+        {
+          audience_key: 'test_audience',
+          filename: 'my_file',
+          delimiter: ',',
+          unhashed_identifier_data: {},
+          identifier_data: {
+            first_name: 'liveramp 01',
+            email: 'liveramp-test-01@gmailx.com',
+            liveramp_test: true
+          },
+          enable_batching: true
+        },
+        {
+          audience_key: 'test_audience',
+          filename: 'my_file',
+          delimiter: ',',
+          unhashed_identifier_data: {
+            country: 'US'
+          },
+          identifier_data: {
+            email: 'liveramp-test-02@gmailx.com',
+            liveramp_test: true
+          },
+          enable_batching: true
+        },
+        {
+          audience_key: 'test_audience',
+          filename: 'my_file',
+          delimiter: ',',
+          unhashed_identifier_data: { unique_value: 'only_in_third' },
+          identifier_data: {
+            liveramp_test: true
+          },
+          enable_batching: true
+        },
+        {
+          audience_key: 'test_audience',
+          filename: 'my_file',
+          delimiter: ',',
+          unhashed_identifier_data: {},
+          identifier_data: {},
+          enable_batching: true
+        }
+      ]
+
+      const result = generateFile(payloads)
+
+      const hashedCountry = hash(normalize('country', 'US'))
+      const hashedUniqueValue = hash(normalize('unique_value', 'only_in_third'))
+
+      const expected = [
+        `audience_key,first_name,email,liveramp_test,country,unique_value`,
+        `${enquoteIdentifier('test_audience')},${enquoteIdentifier('liveramp 01')},${enquoteIdentifier(
+          'liveramp-test-01@gmailx.com'
+        )},${enquoteIdentifier('true')},,`,
+        `${enquoteIdentifier('test_audience')},,${enquoteIdentifier('liveramp-test-02@gmailx.com')},${enquoteIdentifier(
+          'true'
+        )},${enquoteIdentifier(hashedCountry)},`,
+        `${enquoteIdentifier('test_audience')},,,${enquoteIdentifier('true')},,${enquoteIdentifier(hashedUniqueValue)}`,
+        `${enquoteIdentifier('test_audience')},,,,,`
+      ].join('\n')
+      expect(result.fileContents.toString()).toBe(expected)
+    })
+
+    // Test generated from LiveRamp's own example file
+    // https://docs.liveramp.com/connect/en/file-formatting-examples.html#:~:text=The%20%22Under25%22%20field%20value%20is%20%22NULL%22%20rather%20than%20being%20left%20empty.
+    // and ./__fixtures__/liveramp-good-example.csv
+    it('generates correct CSV output from payloads matching provided data', () => {
+      const payloads: Payload[] = [
+        {
+          audience_key: '35938495',
+          identifier_data: {
+            FIRSTNAME: 'Jane',
+            LASTNAME: 'Doe',
+            ADDRESS1: '100 Main St',
+            ADDRESS2: 'Apt. A',
+            CITY: 'Anytown',
+            STATE: 'CA',
+            ZIP: '123454545',
+            SHOPPERSCORE: '54',
+            LOVESDOGS: '1',
+            UNDER25: '1',
+            FAVORITECOLOR: 'Green'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        },
+        {
+          audience_key: '103578302',
+          identifier_data: {
+            FIRSTNAME: 'John',
+            LASTNAME: 'Dough',
+            ADDRESS1: '123 Any St',
+            CITY: 'Anytown',
+            STATE: 'CA',
+            ZIP: '123456565',
+            SHOPPERSCORE: '87',
+            LOVESDOGS: '1',
+            FAVORITECOLOR: 'Blue'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        },
+        {
+          audience_key: '902833740',
+          identifier_data: {
+            FIRSTNAME: 'Sam',
+            LASTNAME: 'Sample',
+            ADDRESS1: '555 New Rd',
+            ADDRESS2: 'Fl 17',
+            CITY: 'Mysteryville',
+            STATE: 'OK',
+            ZIP: '957352436',
+            SHOPPERSCORE: '36',
+            UNDER25: '1',
+            FAVORITECOLOR: 'Red'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        },
+        {
+          audience_key: '328697301',
+          identifier_data: {
+            FIRSTNAME: 'Sarah',
+            LASTNAME: 'Sampel',
+            ADDRESS1: '987 Imaginary Ln',
+            CITY: 'Buffetown',
+            STATE: 'MI',
+            ZIP: '436237235',
+            SHOPPERSCORE: '99',
+            FAVORITECOLOR: 'Blue'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        },
+        {
+          audience_key: '993802274',
+          identifier_data: {
+            FIRSTNAME: 'Dolly',
+            LASTNAME: 'Data',
+            ADDRESS1: '456 Center Ave',
+            CITY: 'Newtown',
+            STATE: 'NE',
+            ZIP: '586452778',
+            SHOPPERSCORE: '12',
+            LOVESDOGS: '1',
+            FAVORITECOLOR: 'Yellow'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        }
+      ]
+
+      const result = generateFile(payloads)
+
+      const expected = [
+        'audience_key,FIRSTNAME,LASTNAME,ADDRESS1,ADDRESS2,CITY,STATE,ZIP,SHOPPERSCORE,LOVESDOGS,UNDER25,FAVORITECOLOR',
+        '"35938495","Jane","Doe","100 Main St","Apt. A","Anytown","CA","123454545","54","1","1","Green"',
+        '"103578302","John","Dough","123 Any St",,"Anytown","CA","123456565","87","1",,"Blue"',
+        '"902833740","Sam","Sample","555 New Rd","Fl 17","Mysteryville","OK","957352436","36",,"1","Red"',
+        '"328697301","Sarah","Sampel","987 Imaginary Ln",,"Buffetown","MI","436237235","99",,,"Blue"',
+        '"993802274","Dolly","Data","456 Center Ave",,"Newtown","NE","586452778","12","1",,"Yellow"'
+      ].join('\n')
 
       expect(result.fileContents.toString()).toBe(expected)
     })
