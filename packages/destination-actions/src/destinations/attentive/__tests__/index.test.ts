@@ -6,6 +6,10 @@ import Definition from '../index'
 const testDestination = createTestIntegration(Definition)
 const apiKey = 'fake-api-key'
 
+export const authData = {
+  api_key: apiKey
+}
+
 describe('Attentive', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
