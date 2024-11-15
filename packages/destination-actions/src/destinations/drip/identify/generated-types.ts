@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Custom fields to add to a person's profile.
+   * Custom fields to add to a person's profile. Non string values will be stringified.
    */
   custom_fields?: {
     [k: string]: unknown
@@ -28,7 +28,7 @@ export interface Payload {
    */
   status_updated_at?: string | number
   /**
-   * Tags to add to a person's profile. Should be a comma separated list. e.g. "tag1,tag2".
+   * Comma delimited list of tags to add to a person's profile. e.g. "tag1,tag2".
    */
   tags?: string
   /**

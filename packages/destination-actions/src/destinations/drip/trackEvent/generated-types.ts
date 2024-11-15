@@ -10,7 +10,7 @@ export interface Payload {
    */
   email: string
   /**
-   * A JSON object containing additional properties that will be associated with the event.
+   * Additional properties associated with the event.
    */
   properties?: {
     [k: string]: unknown

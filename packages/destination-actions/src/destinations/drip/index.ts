@@ -1,8 +1,6 @@
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
 import trackEvent from './trackEvent'
-
 import identify from './identify'
 
 const destination: DestinationDefinition<Settings> = {
@@ -10,7 +8,6 @@ const destination: DestinationDefinition<Settings> = {
   slug: 'actions-drip',
   mode: 'cloud',
   description: 'Send Segment events to Drip',
-
   authentication: {
     scheme: 'custom',
     fields: {
@@ -33,7 +30,6 @@ const destination: DestinationDefinition<Settings> = {
       })
     }
   },
-
   presets: [
     {
       name: 'Identify',
@@ -50,7 +46,6 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     }
   ],
-
   extendRequest({ settings }) {
     return {
       headers: {
