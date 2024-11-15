@@ -1,17 +1,21 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 
+// Create a test integration using the Definition file
 const testDestination = createTestIntegration(Definition)
+const apiKey = 'fake-api-key'
 
 describe('Attentive', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+      // Mock the Attentive API endpoint for authentication
+      nock('https://api.attentivemobile.com')
+        .get('/v1/me')
+        .matchHeader('Authorization', `Bearer ${apiKey}`)
+        .reply(200, {})
 
-      // This should match your authentication.fields
-      const authData = {}
-
+      // Test that the authentication does not throw any error
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
   })
