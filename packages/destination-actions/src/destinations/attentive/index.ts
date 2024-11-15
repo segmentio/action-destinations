@@ -1,7 +1,15 @@
-import type { DestinationDefinition } from '@segment/actions-core';
-import type { Settings } from './generated-types';
+import type { DestinationDefinition } from '@segment/actions-core'
+import type { Settings } from './generated-types'
 
-import customEvents from './customEvents';
+import customEvents from './customEvents'
+
+import customAttributes from './customAttributes'
+
+import productView from './productView'
+
+import addToCart from './addToCart'
+
+import purchase from './purchase'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Attentive',
@@ -15,8 +23,8 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         description: 'API key used to authorize sending data to Attentive.',
         type: 'string',
-        required: true,
-      },
+        required: true
+      }
     },
     testAuthentication: async (request, { settings }) => {
       // Return a request that tests/validates the user's credentials.
@@ -24,25 +32,28 @@ const destination: DestinationDefinition<Settings> = {
       return request('https://api.attentivemobile.com/v1/me', {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${settings.apiKey}`,
-        },
-      });
-    },
+          Authorization: `Bearer ${settings.apiKey}`
+        }
+      })
+    }
   },
 
   extendRequest({ settings }) {
     return {
       headers: {
         Authorization: `Bearer ${settings.apiKey}`,
-        'Content-Type': 'application/json',
-      },
-    };
+        'Content-Type': 'application/json'
+      }
+    }
   },
 
   actions: {
     customEvents,
-  },
-};
+    customAttributes,
+    productView,
+    addToCart,
+    purchase
+  }
+}
 
-export default destination;
-
+export default destination
