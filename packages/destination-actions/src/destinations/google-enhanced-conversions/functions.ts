@@ -464,9 +464,15 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
   }
   // Map user data to Google Ads API format
   for (const payload of payloads) {
-    if (payload.event_name == 'Audience Entered' || syncMode == 'add') {
+    if (
+      syncMode === 'add' ||
+      (syncMode === 'mirror' && (payload.event_name === 'Audience Entered' || payload.event_name === 'new'))
+    ) {
       addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
-    } else if (payload.event_name == 'Audience Exited' || syncMode == 'delete') {
+    } else if (
+      syncMode === 'delete' ||
+      (syncMode === 'mirror' && (payload.event_name === 'Audience Exited' || payload.event_name === 'deleted'))
+    ) {
       removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
     }
   }
