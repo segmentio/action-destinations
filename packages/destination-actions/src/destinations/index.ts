@@ -189,6 +189,7 @@ register('67051afe356a52d3cf4dfb95', './optimizely-web')
 register('6720ddceaa24532723b39d63', './singlestore')
 register('67339023f603663d5132f0d0', './sprig')
 register('67338e95bf70aed334093dae', './sendgrid-audiences')
+register('673b62169b3342fbe0fc28da', './drip')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
