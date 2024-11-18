@@ -434,7 +434,15 @@ describe.only('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
-
+      /**
+       *  expecting an object with:
+       *  required: [ 'a' ],
+       *  allOf: [
+       *  {   if: { properties: { a: { const: 'a_value' } } }, then: { required: [ 'b' ] } },
+       * {   if: { properties: { c: { const: 'c_value' } } }, then: { required: [ 'b' ] } },
+       * {   if: { properties: { d: { const: 'd_value' } } }, then: { required: [ 'b' ] } }
+       * ]
+       */
       const b_required_mappings = [
         { a: 'a_value', c: 'c_value', d: 'd_value' },
         { a: 'a_value', c: 'c_value', d: 'd_value', b: 'b_value' }
