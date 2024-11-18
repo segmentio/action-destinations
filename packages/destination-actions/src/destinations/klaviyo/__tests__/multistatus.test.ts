@@ -48,9 +48,35 @@ describe('MultiStatus', () => {
         '@path': '$.properties.external_id'
       }
     }
+    const responseData = {
+      data: {
+        type: 'profile-bulk-import-job',
+        id: 'ZXo4dlZ1X21haW50ZW5hbmNlLnRNMm5PYy4xNzMxOTQxODcyLmhibkMzZw',
+        attributes: {
+          status: 'queued',
+          created_at: '2024-11-18T14:57:52.454354+00:00',
+          total_count: 1,
+          completed_count: 0,
+          failed_count: 0,
+          completed_at: null,
+          expires_at: '2024-11-25T14:57:52.454354+00:00',
+          started_at: null
+        },
+        relationships: {
+          lists: {
+            data: [
+              {
+                type: 'list',
+                id: 'WNyUbB'
+              }
+            ]
+          }
+        }
+      }
+    }
 
     it("should successfully handle those payload where phone_number is invalid and couldn't be converted to E164 format", async () => {
-      nock(API_URL).post('/profile-bulk-import-jobs/').reply(202, {})
+      nock(API_URL).post('/profile-bulk-import-jobs/').reply(202, responseData)
 
       const events: SegmentEvent[] = [
         // Event with invalid phone_number
@@ -61,7 +87,7 @@ describe('MultiStatus', () => {
             country_code: 'IN',
             phone_number: '701271',
             email: 'valid@gmail.com',
-            list_id: '123'
+            list_id: 'WNyUbB'
           }
         }),
         // Valid Event
@@ -70,7 +96,7 @@ describe('MultiStatus', () => {
           timestamp,
           properties: {
             email: 'valid@gmail.com',
-            list_id: '123'
+            list_id: 'WNyUbB'
           }
         })
       ]
@@ -92,12 +118,12 @@ describe('MultiStatus', () => {
       // The Second event doesn't fail as there is no error reported by Klaviyo API
       expect(response[1]).toMatchObject({
         status: 200,
-        body: 'success'
+        body: JSON.stringify(responseData)
       })
     })
 
     it('should successfully handle a batch of events with complete success response from Klaviyo API', async () => {
-      nock(API_URL).post('/profile-bulk-import-jobs/').reply(200, { success: true })
+      nock(API_URL).post('/profile-bulk-import-jobs/').reply(200, responseData)
 
       const events: SegmentEvent[] = [
         // Valid Event
@@ -106,14 +132,14 @@ describe('MultiStatus', () => {
           timestamp,
           properties: {
             email: 'valid@gmail.com',
-            list_id: '123'
+            list_id: 'WNyUbB'
           }
         }),
         // Event without any user identifier
         createTestEvent({
           type: 'track',
           properties: {
-            list_id: '123'
+            list_id: 'WNyUbB'
           }
         }),
         //Event with invalid Email
@@ -122,7 +148,7 @@ describe('MultiStatus', () => {
           timestamp,
           properties: {
             email: 'invalid_email@gmail..com',
-            list_id: '123'
+            list_id: 'WNyUbB'
           }
         })
       ]
@@ -136,7 +162,7 @@ describe('MultiStatus', () => {
       // The first event doesn't fail as there is no error reported by Klaviyo API
       expect(response[0]).toMatchObject({
         status: 200,
-        body: 'success'
+        body: JSON.stringify(responseData)
       })
 
       // The second event fails as pre-request validation fails for not having any user identifier

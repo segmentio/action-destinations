@@ -169,7 +169,7 @@ export const constructBulkProfileImportPayload = (
   }
 })
 export const sendImportJobRequest = async (request: RequestClient, importJobPayload: { data: ImportJobPayload }) => {
-  await request(`${API_URL}/profile-bulk-import-jobs/`, {
+  return await request(`${API_URL}/profile-bulk-import-jobs/`, {
     method: 'POST',
     headers: {
       revision: '2023-10-15.pre'
@@ -550,11 +550,6 @@ function validateAndPrepareBatchedProfileImportPayloads(
     } else {
       filteredPayloads.push(validPayload as JSONLikeObject)
       validPayloadIndicesBitmap.push(originalBatchIndex)
-      multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
-        status: 200,
-        sent: validPayload as JSONLikeObject,
-        body: 'success'
-      })
     }
   })
 
@@ -576,7 +571,8 @@ export async function sendBatchedProfileImportJobRequest(request: RequestClient,
     payloads[0]?.list_id
   )
   try {
-    await sendImportJobRequest(request, importJobPayload)
+    const response = await sendImportJobRequest(request, importJobPayload)
+    updateMultiStatusWithSuccessData(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
   } catch (error) {
     if (error instanceof HTTPError) {
       await updateMultiStatusWithKlaviyoErrors(
@@ -590,4 +586,19 @@ export async function sendBatchedProfileImportJobRequest(request: RequestClient,
     }
   }
   return multiStatusResponse
+}
+
+export function updateMultiStatusWithSuccessData(
+  filteredPayloads: JSONLikeObject[],
+  validPayloadIndicesBitmap: number[],
+  multiStatusResponse: MultiStatusResponse,
+  response: any
+) {
+  filteredPayloads.forEach((payload, index) => {
+    multiStatusResponse.setSuccessResponseAtIndex(validPayloadIndicesBitmap[index], {
+      status: 200,
+      sent: payload,
+      body: JSON.stringify(response?.data)
+    })
+  })
 }
