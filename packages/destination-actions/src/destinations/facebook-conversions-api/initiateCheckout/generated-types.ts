@@ -148,10 +148,6 @@ export interface Payload {
      */
     deviceName?: string
     /**
-     * This field represents unique application installation instances. Note: This parameter is for app events only.
-     */
-    anonId?: string
-    /**
      * Your mobile advertiser ID, the advertising ID from an Android device or the Advertising Identifier (IDFA) from an Apple device.
      */
     madId?: string
