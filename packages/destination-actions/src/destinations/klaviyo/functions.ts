@@ -480,13 +480,14 @@ export async function sendBatchedTrackEvent(request: RequestClient, payloads: Tr
   }
 
   try {
-    await request(`${API_URL}/event-bulk-create-jobs/`, {
+    const response = await request(`${API_URL}/event-bulk-create-jobs/`, {
       method: 'POST',
       json: payloadToSend,
       headers: {
         revision: '2024-10-15'
       }
     })
+    updateMultiStatusWithSuccessData(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
   } catch (err) {
     if (err instanceof HTTPError) {
       const errorResponse = await err?.response?.json()
@@ -541,11 +542,6 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
     const profileToAdd = constructBulkCreateEventPayload(payload)
     filteredPayloads.push(profileToAdd as JSONLikeObject)
     validPayloadIndicesBitmap.push(originalBatchIndex)
-    multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
-      status: 200,
-      sent: profileToAdd as JSONLikeObject,
-      body: 'success'
-    })
   })
 
   return { filteredPayloads, validPayloadIndicesBitmap }
@@ -644,4 +640,25 @@ function getIndexFromErrorPointer(pointer: string, validPayloadIndicesBitmap: nu
     return validPayloadIndicesBitmap[index] !== undefined ? validPayloadIndicesBitmap[index] : -1
   }
   return -1
+}
+/**
+ * Updates the multi-status response with success data for each payload.
+ * @param {JSONLikeObject[]} filteredPayloads The list of filtered payloads to process.
+ * @param {number[]} validPayloadIndicesBitmap A bitmap of valid payload indices.
+ * @param {MultiStatusResponse} multiStatusResponse The multi-status response object to update.
+ * @param {any} response The response from the import job request containing the data.
+ */
+export function updateMultiStatusWithSuccessData(
+  filteredPayloads: JSONLikeObject[],
+  validPayloadIndicesBitmap: number[],
+  multiStatusResponse: MultiStatusResponse,
+  response: any
+) {
+  filteredPayloads.forEach((payload, index) => {
+    multiStatusResponse.setSuccessResponseAtIndex(validPayloadIndicesBitmap[index], {
+      status: 200,
+      sent: payload,
+      body: JSON.stringify(response?.data)
+    })
+  })
 }

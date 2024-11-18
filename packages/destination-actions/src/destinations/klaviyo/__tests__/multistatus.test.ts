@@ -74,7 +74,7 @@ describe('MultiStatus', () => {
       // The Second event doesn't fail as there is no error reported by Klaviyo API
       expect(response[1]).toMatchObject({
         status: 200,
-        body: 'success'
+        body: '{}'
       })
     })
 
@@ -115,7 +115,7 @@ describe('MultiStatus', () => {
       // The first event doesn't fail as there is no error reported by Klaviyo API
       expect(response[0]).toMatchObject({
         status: 200,
-        body: 'success'
+        body: '{}'
       })
 
       // The second event fails as pre-request validation fails for not having any user identifier
