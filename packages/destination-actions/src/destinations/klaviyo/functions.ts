@@ -30,6 +30,7 @@ import { Payload } from './upsertProfile/generated-types'
 import { Payload as RemoveProfilePayload } from './removeProfile/generated-types'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
+import { Payload as AddProfileToListPayload } from './addProfileToList/generated-types'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -594,4 +595,95 @@ function validateAndConstructRemoveProfilePayloads(payload: RemoveProfilePayload
     payload.phone_number = validPhoneNumber
   }
   return { validPayload: payload as object as JSONLikeObject }
+}
+
+function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
+  validPayload?: JSONLikeObject
+  error?: ActionDestinationErrorResponseType
+} {
+  const { phone_number, email, external_id } = payload
+  const response: { validPayload?: JSONLikeObject; error?: ActionDestinationErrorResponseType } = {}
+  if (!email && !phone_number && !external_id) {
+    response.error = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'One of External ID, Phone Number or Email is required.'
+    }
+    return response
+  }
+
+  if (phone_number) {
+    const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, payload.country_code as string)
+    if (!validPhoneNumber) {
+      response.error = {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Phone number could not be converted to E.164 format.'
+      }
+      return response
+    }
+    payload.phone_number = validPhoneNumber
+    delete payload.country_code
+  }
+
+  const { list_id, enable_batching, batch_size, country_code, ...attributes } = payload
+
+  response.validPayload = { type: 'profile', attributes: attributes as JSONLikeObject }
+  return response
+}
+
+function validateAndPrepareBatchedProfileImportPayloads(
+  payloads: AddProfileToListPayload[],
+  multiStatusResponse: MultiStatusResponse
+) {
+  const filteredPayloads: JSONLikeObject[] = []
+  const validPayloadIndicesBitmap: number[] = []
+
+  payloads.forEach((payload, originalBatchIndex) => {
+    const { validPayload, error } = validateAndConstructProfilePayload(payload)
+    if (error) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, error)
+    } else {
+      filteredPayloads.push(validPayload as JSONLikeObject)
+      validPayloadIndicesBitmap.push(originalBatchIndex)
+      multiStatusResponse.setSuccessResponseAtIndex(originalBatchIndex, {
+        status: 200,
+        sent: validPayload as JSONLikeObject,
+        body: 'success'
+      })
+    }
+  })
+
+  return { filteredPayloads, validPayloadIndicesBitmap }
+}
+
+export async function sendBatchedProfileImportJobRequest(request: RequestClient, payloads: AddProfileToListPayload[]) {
+  const multiStatusResponse = new MultiStatusResponse()
+  const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPrepareBatchedProfileImportPayloads(
+    payloads,
+    multiStatusResponse
+  )
+
+  if (!filteredPayloads.length) {
+    return multiStatusResponse
+  }
+  const importJobPayload = constructBulkProfileImportPayload(
+    filteredPayloads as unknown as KlaviyoProfile[],
+    payloads[0]?.list_id
+  )
+  try {
+    await sendImportJobRequest(request, importJobPayload)
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      await updateMultiStatusWithKlaviyoErrors(
+        payloads as object as JSONLikeObject[],
+        error,
+        multiStatusResponse,
+        validPayloadIndicesBitmap
+      )
+    } else {
+      throw error // Bubble up the error
+    }
+  }
+  return multiStatusResponse
 }
