@@ -5,7 +5,8 @@ import {
   TransactionContext,
   EngageDestinationCache,
   ActionHookType,
-  SubscriptionMetadata
+  SubscriptionMetadata,
+  RequestFn
 } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONLikeObject, JSONObject } from '../json-object'
@@ -101,15 +102,15 @@ export interface DynamicFieldItem {
 }
 
 /** The shape of authentication and top-level settings */
-export interface GlobalSetting {
-  /** A short, human-friendly label for the field */
-  label: string
-  /** A human-friendly description of the field */
-  description: string
+export interface GlobalSetting
+  extends Omit<
+    InputField,
+    | 'additionalProperties' // Settings cannot be an object
+    | 'defaultObjectUI' // Settings cannot be an object
+    | 'dynamic' // This type is redeclared
+  > {
   /** A subset of the available DestinationMetadataOption types */
   type: 'boolean' | 'string' | 'password' | 'number'
-  /** Whether or not the field accepts more than one of its `type` */
-  multiple?: boolean
   /**
    * A predefined set of options for the setting.
    * Only relevant for `type: 'string'` or `type: 'number'`.
@@ -120,11 +121,9 @@ export interface GlobalSetting {
     /** A human-friendly label for the option */
     label: string
   }>
-  required?: boolean
   default?: string | number | boolean
-  properties?: InputField['properties']
-  format?: InputField['format']
-  depends_on?: InputField['depends_on']
+
+  dynamic?: RequestFn<Record<string, boolean | string | number>, {}>
 }
 
 /** The supported field type names */
