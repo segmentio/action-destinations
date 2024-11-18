@@ -9,6 +9,7 @@ import {
   GET_GROUP_IDS_URL,
   GET_TEMPLATE_CONTENT_URL
 } from './constants'
+import { parseTemplateId } from './utils'
 
 interface ResultError {
   response: {
@@ -51,8 +52,14 @@ export async function dynamicTemplateData(request: RequestClient, payload: Paylo
     throw new Error('Template ID Field required before Dynamic Template Data fields can be configured')
   }
 
+  const templateId = parseTemplateId(payload.template_id ?? '')
+
+  if (templateId == null || !templateId.startsWith('d-')) {
+    throw new Error('Template must refer to a Dynamic Template. Dynamic Template IDs start with "d-"')
+  }
+
   try {
-    const response: ResponseType = await request(`${GET_TEMPLATE_CONTENT_URL}${payload.template_id}`, {
+    const response: ResponseType = await request(`${GET_TEMPLATE_CONTENT_URL}${templateId}`, {
       method: 'GET',
       skipResponseCloning: true
     })
