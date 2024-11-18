@@ -271,6 +271,67 @@ describe('SendgridAudiences.syncAudience', () => {
     expect(responses[2].status).toBe(200)
   })
 
+  it('should retry upserting to add Contacts after Sendgrid initially rejects some emails', async () => {
+    const badPayload = JSON.parse(JSON.stringify(addPayload))
+    badPayload.traits.email = 'not_a_valid_email_address@gmail.com'
+    delete badPayload.traits?.external_id
+    delete badPayload.traits?.phone
+    badPayload.anonymousId = null
+
+    const events = [createTestEvent(addPayload), createTestEvent(badPayload)]
+
+    const addBatchExpectedPayload = {
+      list_ids: ['sg_audience_id_12345'],
+      contacts: [
+        {
+          email: 'testemail@gmail.com',
+          external_id: 'some_external_id',
+          phone_number_id: '+353123456789',
+          anonymous_id: 'some_anonymous_id'
+        },
+        {
+          email: 'not_a_valid_email_address@gmail.com' // technically this is a valid email, but the first mock response will mark it as invalid for test purposes
+        }
+      ]
+    }
+
+    const addBatchExpectedPayload2 = {
+      list_ids: ['sg_audience_id_12345'],
+      contacts: [
+        {
+          email: 'testemail@gmail.com',
+          external_id: 'some_external_id',
+          phone_number_id: '+353123456789',
+          anonymous_id: 'some_anonymous_id'
+        }
+      ]
+    }
+
+    const responseError = {
+      status: 400,
+      errors: [
+        {
+          field: 'contacts[0].identifier',
+          message: "email 'not_a_valid_email_address@gmail.com' is not valid" // mark the email as invalid so that it is removed from the next request payload
+        }
+      ]
+    }
+
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addBatchExpectedPayload).reply(400, responseError)
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addBatchExpectedPayload2).reply(200, {})
+
+    const responses = await testDestination.testBatchAction('syncAudience', {
+      events,
+      settings,
+      useDefaultMappings: true,
+      mapping
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(400)
+    expect(responses[1].status).toBe(200)
+  })
+
   it('should throw an error if a non batch payload is missing identifiers', async () => {
     const badPayload = JSON.parse(JSON.stringify(addPayload))
     delete badPayload.traits?.email
