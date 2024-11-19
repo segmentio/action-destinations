@@ -132,8 +132,8 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(clientUserId || customIdentifiers
           ? {
               externalIdentifiers: {
-                ...(clientUserId ? { clientUserId } : {}),
-                ...(customIdentifiers ? { customIdentifiers } : {})
+                ...(clientUserId ? { clientUserId } : undefined),
+                ...(Object.entries(customIdentifiers).length>0 ? { customIdentifiers } : undefined)
               }
             }
           : {})
