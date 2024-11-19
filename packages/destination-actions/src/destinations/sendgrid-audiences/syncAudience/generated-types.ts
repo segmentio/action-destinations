@@ -36,6 +36,43 @@ export interface Payload {
    */
   phone_number_id?: string
   /**
+   * Additional user attributes to be included in the request.
+   */
+  user_attributes?: {
+    /**
+     * The contact's first name.
+     */
+    first_name?: string
+    /**
+     * The contact's last name.
+     */
+    last_name?: string
+    /**
+     * The contact's address line 1.
+     */
+    address_line_1?: string
+    /**
+     * The contact's address line 2.
+     */
+    address_line_2?: string
+    /**
+     * The contact's city.
+     */
+    city?: string
+    /**
+     * The contact's state, province, or region.
+     */
+    state_province_region?: string
+    /**
+     * The contact's country.
+     */
+    country?: string
+    /**
+     * The contact's postal code.
+     */
+    postal_code?: string
+  }
+  /**
    * When enabled, the action will batch events before sending them to Sendgrid.
    */
   enable_batching: boolean

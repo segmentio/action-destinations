@@ -61,6 +61,15 @@ const mapping = {
   anonymous_id: { '@path': '$.anonymousId' },
   external_id: { '@path': '$.traits.external_id' },
   phone_number_id: { '@path': '$.traits.phone' },
+  user_attributes: {
+    first_name: { '@path': '$.traits.first_name' },
+    last_name: { '@path': '$.traits.last_name' },
+    address_line_1: { '@path': '$.traits.street' },
+    city: { '@path': '$.traits.city' },
+    state_province_region: { '@path': '$.traits.state' },
+    country: { '@path': '$.traits.country' },
+    postal_code: { '@path': '$.traits.postal_code' }
+  },
   enable_batching: true,
   batch_size: 200
 }
@@ -87,6 +96,51 @@ describe('SendgridAudiences.syncAudience', () => {
     const event = createTestEvent(addPayload)
 
     nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addExpectedPayload).reply(200, {})
+    const responses = await testDestination.testAction('syncAudience', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      mapping
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+  })
+
+  it('should upsert a single Contact with user attributes, and add it to a Sendgrid list correctly', async () => { 
+    const event = createTestEvent({ 
+      ...addPayload, 
+      traits: { 
+        ...addPayload.traits, 
+        first_name: 'fname', 
+        last_name: 'lname', 
+        street: '123 Main St',
+        city: 'SF', 
+        state: 'CA',
+        country: 'US',
+        postal_code: "N88EU" 
+      } 
+    })
+
+    const addExpectedPayloadWithAttributes = {
+      ...addExpectedPayload,
+      contacts: [
+        {
+          email: 'testemail@gmail.com',
+          external_id: 'some_external_id',
+          phone_number_id: '+353123456789',
+          anonymous_id: 'some_anonymous_id',
+          first_name: 'fname',
+          last_name: 'lname',
+          address_line_1: '123 Main St',
+          city: 'SF', 
+          state_province_region: 'CA',
+          country: 'US',
+          postal_code: "N88EU" 
+        }
+      ]
+    }
+
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addExpectedPayloadWithAttributes).reply(200, {})
     const responses = await testDestination.testAction('syncAudience', {
       event,
       settings,

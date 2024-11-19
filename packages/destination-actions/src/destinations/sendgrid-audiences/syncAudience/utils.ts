@@ -127,9 +127,11 @@ function createPayload(payloads: Payload[], externalAudienceId: string): UpsertC
       email: payload.email ?? undefined,
       phone_number_id: payload.phone_number_id ?? undefined,
       external_id: payload.external_id ?? undefined,
-      anonymous_id: payload.anonymous_id ?? undefined
+      anonymous_id: payload.anonymous_id ?? undefined,
+      ...payload.user_attributes
     })) as UpsertContactsReq['contacts']
   }
+
   return json
 }
 

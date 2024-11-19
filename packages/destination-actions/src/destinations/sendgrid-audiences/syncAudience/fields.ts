@@ -95,6 +95,114 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
+  user_attributes: {
+    label: 'User Attributes',
+    description: `Additional user attributes to be included in the request.`,
+    type: 'object',
+    required: false,
+    defaultObjectUI: 'keyvalue',
+    additionalProperties: false,
+    properties: {
+      first_name: {
+        label: 'First Name',
+        description: `The contact's first name.`,
+        type: 'string'
+      },
+      last_name: {
+        label: 'Last Name',
+        description: `The contact's last name.`,
+        type: 'string'
+      },
+      address_line_1: {
+        label: 'Address Line 1',
+        description: `The contact's address line 1.`,
+        type: 'string'
+      },
+      address_line_2: {
+        label: 'Address Line 2',
+        description: `The contact's address line 2.`,
+        type: 'string'
+      },
+      city: {
+        label: 'City',
+        description: `The contact's city.`,
+        type: 'string'
+      },
+      state_province_region: {  
+        label: 'State/Province/Region',
+        description: `The contact's state, province, or region.`,
+        type: 'string'
+      },
+      country: {
+        label: 'Country',
+        description: `The contact's country.`,
+        type: 'string'
+      },
+      postal_code: {
+        label: 'Postal Code',
+        description: `The contact's postal code.`,
+        type: 'string'
+      }
+    },
+    default: {
+      first_name: {       
+        '@if': {
+          exists: { '@path': '$.traits.first_name' },
+          then: { '@path': '$.traits.first_name' },
+          else: { '@path': '$.properties.first_name' }
+        } 
+      },
+      last_name: {       
+        '@if': {
+          exists: { '@path': '$.traits.last_name' },
+          then: { '@path': '$.traits.last_name' },
+          else: { '@path': '$.properties.last_name' }
+        } 
+      },
+      address_line_1: {       
+        '@if': {
+          exists: { '@path': '$.traits.street' },
+          then: { '@path': '$.traits.street' },
+          else: { '@path': '$.properties.street' }
+        } 
+      },
+      address_line_2: {       
+        '@if': {
+          exists: { '@path': '$.traits.address_line_2' },
+          then: { '@path': '$.traits.address_line_2' },
+          else: { '@path': '$.properties.address_line_2' }
+        } 
+      },
+      city: {       
+        '@if': {
+          exists: { '@path': '$.traits.city' },
+          then: { '@path': '$.traits.city' },
+          else: { '@path': '$.properties.city' }
+        } 
+      },
+      state_province_region: {       
+        '@if': {
+          exists: { '@path': '$.traits.state' },
+          then: { '@path': '$.traits.state' },
+          else: { '@path': '$.properties.state' }
+        } 
+      },
+      country: {       
+        '@if': {
+          exists: { '@path': '$.traits.country' },
+          then: { '@path': '$.traits.country' },
+          else: { '@path': '$.properties.country' }
+        } 
+      },
+      postal_code: {       
+        '@if': {
+          exists: { '@path': '$.traits.postal_code' },
+          then: { '@path': '$.traits.postal_code' },
+          else: { '@path': '$.properties.postal_code' }
+        } 
+      }
+    }
+  },
   enable_batching: {
     type: 'boolean',
     label: 'Batch events',
