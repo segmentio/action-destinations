@@ -24,7 +24,15 @@ describe('Drip.identify', () => {
         phone: '1234567890',
         status: 'unsubscribed',
         status_updated_at: '2021-01-01T00:00:00Z',
-        custom_fields: { fizz: 'buzz', numb:1234, bool:true, oppBool:false, arr: ["hello", 1234, false], obj: { key: 'value' }, null: null },
+        custom_fields: {
+          fizz: 'buzz',
+          numb: 1234,
+          bool: true,
+          oppBool: false,
+          arr: ['hello', 1234, false],
+          obj: { key: 'value' },
+          null: null
+        },
         tags: 'tag1,tag2'
       }
     })
@@ -36,14 +44,25 @@ describe('Drip.identify', () => {
     })
 
     const body = {
-      custom_fields: { fizz: 'buzz', numb:"1234", bool:"true", oppBool:"false", arr: "[\"hello\",1234,false]", obj: "{\"key\":\"value\"}" },
-      email: 'test@example.com',
-      ip_address: '127.0.0.1',
-      sms_number: '1234567890',
-      status: 'unsubscribed',
-      status_updated_at: '2021-01-01T00:00:00Z',
-      tags: ['tag1', 'tag2'],
-      time_zone: 'Europe/Amsterdam'
+      subscribers: [
+        {
+          custom_fields: {
+            fizz: 'buzz',
+            numb: '1234',
+            bool: 'true',
+            oppBool: 'false',
+            arr: '["hello",1234,false]',
+            obj: '{"key":"value"}'
+          },
+          email: 'test@example.com',
+          ip_address: '127.0.0.1',
+          sms_number: '1234567890',
+          status: 'unsubscribed',
+          status_updated_at: '2021-01-01T00:00:00Z',
+          tags: ['tag1', 'tag2'],
+          time_zone: 'Europe/Amsterdam'
+        }
+      ]
     }
 
     expect(responses.length).toBe(1)
