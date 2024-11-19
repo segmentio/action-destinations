@@ -205,7 +205,7 @@ export const fields: Record<string, InputField> = {
   },
   custom_fields: {
     label: 'Custom Fields',
-    description: `Custom Fields to be added. The Custom Fields must already be defined in Sendgrid.`,
+    description: `Custom Field values to be added to the Contact. The Custom Fields must already be defined in Sendgrid. Custom Field values must be string, numbers or dates.`,
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue',
