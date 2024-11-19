@@ -1,6 +1,15 @@
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
+import { createClientAsync, Client } from 'soap'
+
+const SUBDOMAIN = `segment4.my.salesforce.com`
+const WSDL_URL = `https://${SUBDOMAIN}.soap.marketingcloudapis.com/etframework.wsdl`
+
+
+export async function createClient(): Promise<Client> {
+  return createClientAsync(WSDL_URL)
+}
 
 export function upsertRows(
   request: RequestClient,
