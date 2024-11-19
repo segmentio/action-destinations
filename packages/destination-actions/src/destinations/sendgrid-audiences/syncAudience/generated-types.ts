@@ -73,6 +73,12 @@ export interface Payload {
     postal_code?: string
   }
   /**
+   * Custom Fields to be added. The Custom Fields must already be defined in Sendgrid.
+   */
+  custom_fields?: {
+    [k: string]: unknown
+  }
+  /**
    * When enabled, the action will batch events before sending them to Sendgrid.
    */
   enable_batching: boolean

@@ -203,6 +203,16 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
+  custom_fields: {
+    label: 'Custom Fields',
+    description: `Custom Fields to be added. The Custom Fields must already be defined in Sendgrid.`,
+    type: 'object',
+    required: false,
+    defaultObjectUI: 'keyvalue',
+    additionalProperties: true,
+    dynamic: true,
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+  },
   enable_batching: {
     type: 'boolean',
     label: 'Batch events',
