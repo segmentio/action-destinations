@@ -70,6 +70,7 @@ const mapping = {
     country: { '@path': '$.traits.country' },
     postal_code: { '@path': '$.traits.postal_code' }
   },
+  custom_fields: { '@path': '$.traits.custom_fields' },
   enable_batching: true,
   batch_size: 200
 }
@@ -106,7 +107,7 @@ describe('SendgridAudiences.syncAudience', () => {
     expect(responses[0].status).toBe(200)
   })
 
-  it('should upsert a single Contact with user attributes, and add it to a Sendgrid list correctly', async () => { 
+  it('should upsert a single Contact with user attributes and custom fields, and add it to a Sendgrid list correctly', async () => { 
     const event = createTestEvent({ 
       ...addPayload, 
       traits: { 
@@ -117,7 +118,14 @@ describe('SendgridAudiences.syncAudience', () => {
         city: 'SF', 
         state: 'CA',
         country: 'US',
-        postal_code: "N88EU" 
+        postal_code: "N88EU",
+        custom_fields: {
+          custom_field_1: 'custom_field_1_value',
+          custom_field_2: 2345,
+          custom_field_3: '2024-01-01T00:00:00.000Z',
+          custom_field_4: false, // should be removed 
+          custom_field_5: null // should be removed
+        }
       } 
     })
 
@@ -135,7 +143,12 @@ describe('SendgridAudiences.syncAudience', () => {
           city: 'SF', 
           state_province_region: 'CA',
           country: 'US',
-          postal_code: "N88EU" 
+          postal_code: "N88EU",
+          custom_fields: {
+            custom_field_1: 'custom_field_1_value',
+            custom_field_2: 2345,
+            custom_field_3: '2024-01-01T00:00:00.000Z'
+          }
         }
       ]
     }

@@ -2,8 +2,9 @@
 import { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { GET_CUSTOM_FIELDS_URL } from '../constants'
+import { Payload } from './generated-types'
 
-export async function dynamicCustomFields(request: RequestClient): Promise<DynamicFieldResponse> {
+export async function dynamicCustomFields(request: RequestClient, payload: Payload): Promise<DynamicFieldResponse> {
     interface ResultItem {
         id: string
         name: string
@@ -18,7 +19,8 @@ export async function dynamicCustomFields(request: RequestClient): Promise<Dynam
         response: {
           data: {
             errors: Array<{ message: string }>
-          }
+          },
+          status: number
         }
     }
 
@@ -28,22 +30,26 @@ export async function dynamicCustomFields(request: RequestClient): Promise<Dynam
         skipResponseCloning: true
       })
   
+      const allFields = response.data.custom_fields.map(field => field.name)
+      const selectedFields = new Set(Object.keys(payload.custom_fields ?? {}))
+      const availableFields = allFields.filter(field => !selectedFields.has(field))
+      
       return {
-        choices: response.data.custom_fields.map((field) => {
-          return {
-            label: field.name,
-            value: field.name
-          }
-        })
+        choices: availableFields.map(
+          fieldName => ({ 
+            label: fieldName, 
+            value: fieldName 
+          })
+        )
       }
+
     } catch (err) {      
-      console.log(err)
       const error = err as ResultError
       return {
         choices: [],
         error: {
           message: error.response.data.errors.map((e) => e.message).join(';')  ?? 'Unknown error: dynamicCustomFields',
-          code: "404"
+          code: String(error.response.status)
         }
       }
     }

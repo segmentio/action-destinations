@@ -210,8 +210,7 @@ export const fields: Record<string, InputField> = {
     required: false,
     defaultObjectUI: 'keyvalue',
     additionalProperties: true,
-    dynamic: true,
-    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+    dynamic: true
   },
   enable_batching: {
     type: 'boolean',

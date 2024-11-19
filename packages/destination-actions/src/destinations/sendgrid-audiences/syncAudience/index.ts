@@ -12,14 +12,12 @@ const action: ActionDefinition<Settings, Payload> = {
   fields,
   dynamicFields: {
     custom_fields: {
-      __keys__: async (request) => {
-        return await dynamicCustomFields(request)
+      __keys__: async (request, { payload }) => {
+        return await dynamicCustomFields(request, payload)
       }
-    },
+    }
   },
   perform: async (request, { payload }) => {
-    const x = await dynamicCustomFields(request)
-    console.log(JSON.stringify(x))  
     return await send(request, [payload])
   },
   performBatch: async (request, { payload }) => {
