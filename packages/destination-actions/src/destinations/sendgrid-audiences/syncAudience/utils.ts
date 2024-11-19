@@ -108,6 +108,17 @@ function validate(payloads: Payload[], ignoreErrors: boolean, invalidEmails?: st
       )
     }
 
+    if (p.user_attributes) {
+      p.user_attributes = Object.fromEntries(
+        Object.entries(p.user_attributes ?? {}).map(([key, value]) => {
+          if (typeof value !== 'string') {
+            return [key, String(value)]
+          }
+          return [key, value]
+        })
+      );
+    }
+
     const hasRequiredField = [p.email, p.anonymous_id, p.external_id, p.phone_number_id].some(Boolean)
     if (!hasRequiredField && !ignoreErrors) {
       throw new PayloadValidationError(

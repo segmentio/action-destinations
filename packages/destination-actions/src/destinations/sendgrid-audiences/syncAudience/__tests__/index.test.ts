@@ -65,6 +65,7 @@ const mapping = {
     first_name: { '@path': '$.traits.first_name' },
     last_name: { '@path': '$.traits.last_name' },
     address_line_1: { '@path': '$.traits.street' },
+    address_line_2: { '@path': '$.traits.address_line_2' },
     city: { '@path': '$.traits.city' },
     state_province_region: { '@path': '$.traits.state' },
     country: { '@path': '$.traits.country' },
@@ -115,6 +116,7 @@ describe('SendgridAudiences.syncAudience', () => {
         first_name: 'fname', 
         last_name: 'lname', 
         street: '123 Main St',
+        address_line_2: 123456, // should be stringified
         city: 'SF', 
         state: 'CA',
         country: 'US',
@@ -140,6 +142,7 @@ describe('SendgridAudiences.syncAudience', () => {
           first_name: 'fname',
           last_name: 'lname',
           address_line_1: '123 Main St',
+          address_line_2: '123456',
           city: 'SF', 
           state_province_region: 'CA',
           country: 'US',
