@@ -18,7 +18,7 @@ export interface Payload {
      */
     email?: string
     /**
-     * A primary ID for a user.
+     * A primary ID for a user. Should be a UUID.
      */
     clientUserId?: string
     [k: string]: unknown
@@ -30,7 +30,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * A unique identifier representing this specific event. A UUID is recommended.
+   * A unique identifier representing this specific event. Should be a UUID format.
    */
   externalEventId?: string
   /**

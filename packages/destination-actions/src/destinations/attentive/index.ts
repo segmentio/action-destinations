@@ -6,7 +6,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Attentive',
   slug: 'actions-attentive',
   mode: 'cloud',
-  description: 'Send Segment anallytics event data to Attentive.',
+  description: 'Send Segment analytics events to Attentive.',
   authentication: {
     scheme: 'custom',
     fields: {

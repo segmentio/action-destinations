@@ -5,13 +5,12 @@ import { CustomEvent, User } from './types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Events',
-  description: 'Send user analytics events to Attentive',
+  description: 'Send Segment analytics events to Attentive.',
   defaultSubscription: 'type = "track"',
   fields: {
     type: {
       label: 'Type',
-      description:
-        'The type of event. This name is case sensitive. "Order shipped" and "Order Shipped" would be considered different event types.',
+      description: 'The type of event. This name is case sensitive. "Order shipped" and "Order Shipped" would be considered different event types.',
       type: 'string',
       required: true,
       default: {
@@ -20,8 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     userIdentifiers: {
       label: 'User Identifiers',
-      description:
-        'At least one identifier is required. Custom identifiers can be added as additional key:value pairs.',
+      description: 'At least one identifier is required. Custom identifiers can be added as additional key:value pairs.',
       type: 'object',
       required: true,
       additionalProperties: true,
@@ -31,32 +29,18 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Phone',
           description: "The user's phone number in E.164 format.",
           type: 'string',
-          required: false,
-          default: {
-            '@if': {
-              exists: { '@path': '$.properties.phone' },
-              then: { '@path': '$.properties.phone' },
-              else: { '@path': '$.context.traits.phone' }
-            }
-          }
+          required: false
         },
         email: {
           label: 'Email',
           description: "The user's email address.",
           type: 'string',
           format: 'email',
-          required: false,
-          default: {
-            '@if': {
-              exists: { '@path': '$.properties.email' },
-              then: { '@path': '$.properties.email' },
-              else: { '@path': '$.context.traits.email' }
-            }
-          }
+          required: false
         },
         clientUserId: {
           label: 'Client User ID',
-          description: 'A primary ID for a user.',
+          description: 'A primary ID for a user. Should be a UUID.',
           type: 'string',
           format: 'uuid',
           required: false
@@ -65,16 +49,16 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         phone: {
           '@if': {
-            exists: { '@path': '$.properties.phone' },
-            then: { '@path': '$.properties.phone' },
-            else: { '@path': '$.context.traits.phone' }
+            exists: { '@path': '$.context.traits.phone' },
+            then: { '@path': '$.context.traits.phone' },
+            else: { '@path': '$.properties.phone' }
           }
         },
         email: {
           '@if': {
-            exists: { '@path': '$.properties.email' },
-            then: { '@path': '$.properties.email' },
-            else: { '@path': '$.context.traits.email' }
+            exists: { '@path': '$.context.traits.email' },
+            then: { '@path': '$.context.traits.email' },
+            else: { '@path': '$.properties.email' }
           }
         },
         clientUserId: { '@path': '$.userId' }
@@ -91,8 +75,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     externalEventId: {
       label: 'External Event Id',
-      description: 'A unique identifier representing this specific event. A UUID is recommended.',
+      description: 'A unique identifier representing this specific event. Should be a UUID format.',
       type: 'string',
+      format: 'uuid',
       required: false,
       default: {
         '@path': '$.messageId'

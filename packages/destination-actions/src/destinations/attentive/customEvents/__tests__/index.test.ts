@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidationError } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 
@@ -13,14 +13,13 @@ const settings: Settings = {
 const validPayload = {
   timestamp: timestamp,
   event: 'Event Type 1',
-  messageId: 'message_id_1',
+  messageId: '123e4567-e89b-12d3-a456-426614174000',
   type: 'track',
-  userId: 'user_id_1',
+  userId: '123e4567-e89b-12d3-a456-426614174000',
   context: {
     traits: {
       phone: '+3538675765689',
-      email: 'test@test.com',
-      clientUserId: '123e4567-e89b-12d3-a456-426614174000'
+      email: 'test@test.com'
     }
   },
   properties: {
@@ -34,7 +33,7 @@ const mapping = {
   userIdentifiers: {
     phone: { '@path': '$.context.traits.phone' },
     email: { '@path': '$.context.traits.email' },
-    clientUserId: { '@path': '$.context.traits.clientUserId' }
+    clientUserId: { '@path': '$.userId' }
   },
   properties: { '@path': '$.properties' },
   externalEventId: { '@path': '$.messageId' },
@@ -47,7 +46,7 @@ const expectedPayload = {
     tracking_url: 'https://tracking-url.com',
     product_name: 'Product X'
   },
-  externalEventId: 'message_id_1',
+  externalEventId: '123e4567-e89b-12d3-a456-426614174000',
   occurredAt: '2024-01-08T13:52:50.212Z',
   user: {
     phone: '+3538675765689',
@@ -81,14 +80,15 @@ describe('Attentive.customEvents', () => {
     expect(responses[0].status).toBe(200)
   })
 
-  it('should throw error if invalid parameter in request query or body', async () => {
+  it('should throw error if no identifiers provided', async () => {
     const badPayload = {
-      ...validPayload,
-      extraParameterKey: 'extraParameterValue'
+      ...validPayload
     }
-    const event = createTestEvent(badPayload)
+    delete badPayload?.context?.traits?.phone
+    delete badPayload?.context?.traits?.email
+    badPayload.userId = undefined
 
-    nock('https://api.attentivemobile.com').post('/v1/events/custom', expectedPayload).reply(400, {})
+    const event = createTestEvent(badPayload)
 
     await expect(
       testDestination.testAction('customEvents', {
@@ -97,6 +97,6 @@ describe('Attentive.customEvents', () => {
         useDefaultMappings: true,
         mapping
       })
-    ).rejects.toThrowError(new PayloadValidationError('Invalid parameter in request query or body'))
+    ).rejects.toThrowError(new PayloadValidationError('At least one user identifier is required.'))
   })
 })
