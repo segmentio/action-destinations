@@ -22,7 +22,7 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
 
   const maxBatchSize = 100_000
   if (batchSize > maxBatchSize) {
-    throw new IntegrationError(`Batch size cannot exceed ${maxBatchSize}`, 'Invalid Payload', 400)
+    throw new IntegrationError(`Batch size cannot exceed ${maxBatchSize}.`, 'Invalid Payload', 400)
   }
 
   // Generate a unique ID at the start of the sync
