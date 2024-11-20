@@ -73,7 +73,7 @@ export interface Payload {
     postal_code?: string
   }
   /**
-   * Custom Fields to be added. The Custom Fields must already be defined in Sendgrid.
+   * Custom Field values to be added to the Contact. The Custom Fields must already be defined in Sendgrid. Custom Field values must be string, numbers or dates.
    */
   custom_fields?: {
     [k: string]: unknown
