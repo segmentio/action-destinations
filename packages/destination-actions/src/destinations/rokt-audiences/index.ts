@@ -19,13 +19,13 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       rpub: {
         label: 'Rokt public key',
-        description: 'Rokt public key, starts with `rpub-`.',
+        description: 'Rokt public key, starts with `rpub-`',
         type: 'string',
         required: true
       },
       rsec: {
         label: 'Rokt secret key',
-        description: 'Rokt secret key, starts with `rsec-`.',
+        description: 'Rokt secret key, starts with `rsec-`',
         type: 'password',
         required: true
       },
@@ -34,14 +34,22 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Rokt ID assigned to your particular account.',
         type: 'string',
         required: true
+      },
+      customAudienceListName: {
+        label: 'Custom Audience List Name',
+        description: 'Name to assign to custom audience list within the Rokt Platform.',
+        type: 'string',
+        required: true
       }
     },
-
     testAuthentication: async (request, { settings }) => {
       return request(CONSTANTS.ROKT_API_BASE_URL + CONSTANTS.ROKT_API_AUTH_ENDPOINT, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           Authorization: `Basic ${btoa(settings.rpub + ':' + settings.rsec)}`
+        },
+        json: {
+          accountId: settings.accountid
         }
       })
     }

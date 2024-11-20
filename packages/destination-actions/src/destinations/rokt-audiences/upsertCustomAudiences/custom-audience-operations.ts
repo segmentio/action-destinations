@@ -59,6 +59,7 @@ const getCustomAudienceOperations = (payload: Payload[], settings: Settings): Cu
 
   // build operation request to be sent to Rokt api
   const custom_audience_ops: CustomAudienceOperation[] = []
+
   audience_map.forEach((action_map_values: Map<string, string[]>, list: string) => {
     // key will be audience list
     // value will map of action=>email_list

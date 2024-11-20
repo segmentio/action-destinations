@@ -8,7 +8,8 @@ const testDestination = createTestIntegration(Definition)
 const VALID_SETTINGS = {
   rpub: 'rpub-***',
   rsec: 'rsec-***',
-  accountid: '8675309'
+  accountid: '8675309',
+  customAudienceListName: 'my-list-name'
 }
 
 const MOCK_TOKEN_RESPONSE = {
@@ -20,13 +21,13 @@ describe('Rokt Audiences', () => {
     it('should validate proper rpub-rsec credentials', async () => {
       nock(CONSTANTS.ROKT_API_BASE_URL).get(CONSTANTS.ROKT_API_AUTH_ENDPOINT).reply(200, MOCK_TOKEN_RESPONSE)
       const settings = VALID_SETTINGS
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError() // TODO: Update needed here
+      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError() // TODO: Update needed here?
     })
 
     it('should test that authentication fails', async () => {
       nock(CONSTANTS.ROKT_API_BASE_URL).get(CONSTANTS.ROKT_API_AUTH_ENDPOINT).reply(401)
       const settings = VALID_SETTINGS
-      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError('') // TODO: Update needed here
+      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError('') // TODO: Update needed here?
     })
   })
 })
