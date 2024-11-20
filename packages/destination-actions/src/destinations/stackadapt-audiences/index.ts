@@ -62,7 +62,6 @@ const destination: DestinationDefinition<Settings> = {
   onDelete: async (request, { payload }) => {
     const userId = payload.userId
     const formattedExternalIds = `["${userId}"]`
-
     const syncId = sha256hash(String(userId))
 
     const mutation = `mutation {
@@ -78,31 +77,25 @@ const destination: DestinationDefinition<Settings> = {
       }
     }`
 
-    try {
-      const response = await request(GQL_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: mutation })
-      })
+    const response = await request(GQL_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: mutation })
+    })
 
-      const result = await response.json()
-
-      if (result.data.deleteProfilesWithExternalIds.userErrors.length > 0) {
-        const errorMessages = result.data.deleteProfilesWithExternalIds.userErrors.map((e: any) => e.message).join(', ')
-        throw new IntegrationError(`Profile deletion was not successful: ${errorMessages}`, 'DELETE_FAILED', 400)
+    const result: {
+      data: {
+        deleteProfilesWithExternalIds: {
+          userErrors: { message: string }[]
+        }
       }
+    } = await response.json()
 
-      return result
-    } catch (error) {
-      if (error instanceof IntegrationError) {
-        throw error
-      }
-      throw new IntegrationError(
-        `Unexpected error occurred in onDelete: ${error instanceof Error ? error.message : String(error)}`,
-        'UNKNOWN_ERROR',
-        400
-      )
+    if (result.data.deleteProfilesWithExternalIds.userErrors.length > 0) {
+      const errorMessages = result.data.deleteProfilesWithExternalIds.userErrors.map((e) => e.message).join(', ')
+      throw new IntegrationError(`Profile deletion was not successful: ${errorMessages}`, 'DELETE_FAILED', 400)
     }
+    return result
   },
 
   actions: {
