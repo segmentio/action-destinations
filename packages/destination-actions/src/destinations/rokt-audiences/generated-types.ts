@@ -13,8 +13,4 @@ export interface Settings {
    * Rokt ID assigned to your particular account.
    */
   accountid: string
-  /**
-   * Name to assign to custom audience list within the Rokt Platform.
-   */
-  customAudienceListName: string
 }
