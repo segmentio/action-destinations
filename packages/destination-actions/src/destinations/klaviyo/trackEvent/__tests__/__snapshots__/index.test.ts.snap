@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Track Event should not pass time property in API when it is not mapped or defined 1`] = `"{\\"data\\":{\\"type\\":\\"event\\",\\"attributes\\":{\\"properties\\":{\\"key\\":\\"value\\"},\\"value\\":10,\\"unique_id\\":\\"text-example-xyz\\",\\"metric\\":{\\"data\\":{\\"type\\":\\"metric\\",\\"attributes\\":{\\"name\\":\\"event_name\\"}}},\\"profile\\":{\\"data\\":{\\"type\\":\\"profile\\",\\"attributes\\":{\\"anonymous_id\\":\\"an0nym0u51d\\"}}}}}}"`;
+
+exports[`Track Event should not throw an error when the time property has more than three digits in the milliseconds and should convert the time to ISO format. 1`] = `"{\\"data\\":{\\"type\\":\\"event\\",\\"attributes\\":{\\"properties\\":{\\"key\\":\\"value\\"},\\"time\\":\\"2024-09-11T20:08:49.891Z\\",\\"value\\":10,\\"unique_id\\":\\"text-example-xyz\\",\\"metric\\":{\\"data\\":{\\"type\\":\\"metric\\",\\"attributes\\":{\\"name\\":\\"event_name\\"}}},\\"profile\\":{\\"data\\":{\\"type\\":\\"profile\\",\\"attributes\\":{\\"anonymous_id\\":\\"an0nym0u51d\\"}}}}}}"`;

@@ -8,23 +8,19 @@ export interface Payload {
     /**
      * The type of Hubspot Object to add/update a record for.
      */
-    from_object_type: string
+    object_type: string
     /**
      * The name of the ID field for the record.
      */
-    from_id_field_name: string
+    id_field_name: string
     /**
      * The ID value for the record.
      */
-    from_id_field_value: string
+    id_field_value: string
     /**
      * Segment can new create properties on the object if needed. To enable this select the property group for Segment to add new properties to. To disable leave this field blank.
      */
-    from_property_group?: string
-    /**
-     * The Hubspot Record ID of the To record. Used when associating to other records
-     */
-    from_record_id?: string
+    property_group?: string
   }
   /**
    * Properties to set on the record.
@@ -35,7 +31,7 @@ export interface Payload {
   /**
    * Sensitive Properties to set on the record.
    */
-  sensitiveProperties?: {
+  sensitive_properties?: {
     [k: string]: unknown
   }
   /**
@@ -49,7 +45,7 @@ export interface Payload {
     /**
      * The type of associated Hubspot Object.
      */
-    to_object_type: string
+    object_type: string
     /**
      * The type of Association between the two records. The Association must already exist in Hubspot.
      */
@@ -57,19 +53,11 @@ export interface Payload {
     /**
      * The name of the unique field Segment will use as an identifier when associating the record to another record. The unique field name must already exist on the Object in Hubspot.
      */
-    to_id_field_name: string
+    id_field_name: string
     /**
      * The value of the identifier for the record to be associated with
      */
-    to_id_field_value: string
-    /**
-     * The Hubspot Record ID of the record to be associated with
-     */
-    to_record_id?: string
-    /**
-     * The Hubspot Record ID of the From record. Used when associating to the To record.
-     */
-    from_record_id?: string
+    id_field_value?: string
   }[]
   /**
    * By default Segment batches events to Hubspot.

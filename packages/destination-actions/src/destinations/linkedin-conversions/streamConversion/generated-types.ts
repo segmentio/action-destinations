@@ -48,6 +48,14 @@ export interface Payload {
     title?: string
     countryCode?: string
   }
+  /**
+   * Enable batching of requests.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
 // Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
 
@@ -55,7 +63,7 @@ export interface HookBundle {
   onMappingSave: {
     inputs?: {
       /**
-       * The ad account to use for the conversion event.
+       * The ad account to use when creating the conversion event. (When updating a conversion rule after initially creating it, changes to this field will be ignored. LinkedIn does not allow Ad Account IDs to be updated for a conversion rule.)
        */
       adAccountId: string
       /**

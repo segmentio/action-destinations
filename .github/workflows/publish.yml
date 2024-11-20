@@ -7,12 +7,13 @@ on:
   push:
     branches:
       - main
-      - release
+      - hotfix/**
 
 jobs:
   build-and-publish:
     env:
       HUSKY: 0
+      NX_DISABLE_DB: true
     if: startsWith(github.event.head_commit.message, 'Publish') == true
     runs-on: ubuntu-20.04
 
@@ -49,7 +50,7 @@ jobs:
 
       - name: Publish
         run: |
-          yarn lerna publish from-package --yes --allowBranch=main --loglevel=verbose --dist-tag latest
+          yarn lerna publish from-package --yes --loglevel=verbose --dist-tag latest
 
   release:
     needs: build-and-publish # comment when testing locally with https://github.com/nektos/act
@@ -67,7 +68,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Generate Release Tag
+      - name: Generate Tags
         id: get-release-tag
         run: ./scripts/generate-release-tags.sh
 
@@ -80,3 +81,22 @@ jobs:
           script: |
             const script = require('./scripts/github-action/create-github-release.js')
             await script({github, context, core, exec})
+
+  # When hotfix is merged back to main, we tag all the packages that were changed in the hotfix commit.
+  tag-hotfix:
+    if: startsWith(github.event.head_commit.message, 'Hotfix:') == true && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate Package Specific Tags
+        id: get-release-tag
+        run: ./scripts/generate-package-tags.sh

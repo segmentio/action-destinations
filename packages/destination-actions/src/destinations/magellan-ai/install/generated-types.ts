@@ -10,14 +10,6 @@ export interface Payload {
    */
   app: string
   /**
-   * The IPv4 address of the end user who installed the app (Note: Segment does not support collecting IPv6 addresses)
-   */
-  ip: string
-  /**
-   * The user agent of the end user who installed the app (Note: not sent by the iOS Segment agent)
-   */
-  ua: string
-  /**
    * When the event occurred, in ISO 8601 format
    */
   ts: string
@@ -41,4 +33,12 @@ export interface Payload {
    * The ID for Vendors, on iOS devices
    */
   idfv?: string
+  /**
+   * The IPv4 address of the end user (Note: Segment does not support collecting IPv6 addresses)
+   */
+  ip: string
+  /**
+   * The user agent of the end user (Note: not collected by the iOS Segment agent)
+   */
+  ua: string
 }

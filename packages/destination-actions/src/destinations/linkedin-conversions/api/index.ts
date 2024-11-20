@@ -1,4 +1,10 @@
-import { RequestClient, ModifiedResponse, DynamicFieldResponse, ActionHookResponse } from '@segment/actions-core'
+import {
+  RequestClient,
+  ModifiedResponse,
+  DynamicFieldResponse,
+  ActionHookResponse,
+  PayloadValidationError
+} from '@segment/actions-core'
 import { BASE_URL, DEFAULT_POST_CLICK_LOOKBACK_WINDOW, DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW } from '../constants'
 import type {
   ProfileAPIResponse,
@@ -26,6 +32,35 @@ interface ConversionRuleUpdateValues {
 interface UserID {
   idType: 'SHA256_EMAIL' | 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID' | 'AXCIOM_ID' | 'ORACLE_MOAT_ID'
   idValue: string
+}
+
+function validate(payload: Payload, conversionTime: number) {
+  // Check if the timestamp is within the past 90 days
+  const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
+  if (conversionTime < ninetyDaysAgo) {
+    throw new PayloadValidationError('Timestamp should be within the past 90 days.')
+  }
+
+  if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID) {
+    throw new PayloadValidationError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
+  }
+}
+
+function isNotEpochTimestampInMilliseconds(timestamp: string) {
+  if (typeof timestamp === 'string' && !isNaN(Number(timestamp))) {
+    const convertedTimestamp = Number(timestamp)
+    const startDate = new Date('1970-01-01T00:00:00Z').getTime()
+    const endDate = new Date('2100-01-01T00:00:00Z').getTime()
+    if (Number.isSafeInteger(convertedTimestamp) && convertedTimestamp >= startDate && convertedTimestamp <= endDate) {
+      return false
+    }
+  }
+  return true
+}
+
+function convertToEpochMillis(timestamp: string) {
+  const date = new Date(timestamp)
+  return date.getTime()
 }
 
 export class LinkedInConversions {
@@ -434,6 +469,37 @@ export class LinkedInConversions {
           userIds,
           userInfo: payload.userInfo
         }
+      }
+    })
+  }
+
+  async batchConversionAdd(payloads: Payload[]): Promise<ModifiedResponse> {
+    return this.request(`${BASE_URL}/conversionEvents`, {
+      method: 'post',
+      headers: {
+        'X-RestLi-Method': 'BATCH_CREATE'
+      },
+      json: {
+        elements: [
+          ...payloads.map((payload) => {
+            const conversionTime = isNotEpochTimestampInMilliseconds(payload.conversionHappenedAt)
+              ? convertToEpochMillis(payload.conversionHappenedAt)
+              : Number(payload.conversionHappenedAt)
+            validate(payload, conversionTime)
+
+            const userIds = this.buildUserIdsArray(payload)
+            return {
+              conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
+              conversionHappenedAt: conversionTime,
+              conversionValue: payload.conversionValue,
+              eventId: payload.eventId,
+              user: {
+                userIds,
+                userInfo: payload.userInfo
+              }
+            }
+          })
+        ]
       }
     })
   }

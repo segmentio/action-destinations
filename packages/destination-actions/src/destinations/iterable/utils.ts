@@ -17,11 +17,14 @@ function dateToIterableDateStringFormat(isoDateStr: string) {
   if (!isoDateRegExp.test(isoDateStr)) {
     return null // not a valid ISO string
   }
+
+  // Process full datetime strings
   const date = new Date(isoDateStr)
   if (date instanceof Date && !isNaN(date.valueOf())) {
     const dateString = date.toISOString().replace('T', ' ').split('.')[0]
     return `${dateString} +00:00`
   }
+
   return null
 }
 
@@ -35,15 +38,15 @@ export function convertDatesInObject(obj: Record<string, unknown>) {
     return obj
   }
   for (const prop in obj) {
-    let value = obj[prop]
+    const value = obj[prop]
     if (typeof value === 'string' && isoDateRegExp.test(value)) {
-      const dateValue = new Date(value)
-      if (!isNaN(dateValue.valueOf())) {
-        value = dateValue
+      // Don't convert the value to a Date if it's a date-only string
+      const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/
+      if (dateOnlyRegex.test(value)) {
+        obj[prop] = value // Keep the date-only string as is
+      } else {
+        obj[prop] = dateToIterableDateStringFormat(value)
       }
-    }
-    if (value instanceof Date) {
-      obj[prop] = dateToIterableDateStringFormat(value.toISOString())
     } else if (typeof value === 'object' && value !== null) {
       convertDatesInObject(value as Record<string, unknown>)
     } else {
@@ -89,7 +92,9 @@ const regionBaseUrls = {
 
 export const apiEndpoints = {
   updateUser: '/api/users/update',
+  bulkUpdateUser: '/api/users/bulkUpdate',
   trackEvent: '/api/events/track',
+  bulkTrackEvent: '/api/events/trackBulk',
   updateCart: '/api/commerce/updateCart',
   trackPurchase: '/api/commerce/trackPurchase',
   getWebhooks: '/api/webhooks'

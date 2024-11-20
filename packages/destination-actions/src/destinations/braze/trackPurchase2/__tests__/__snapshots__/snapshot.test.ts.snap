@@ -1,0 +1,124 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Braze's trackPurchase2 destination action: all fields 1`] = `
+Object {
+  "purchases": Array [
+    Object {
+      "_update_existing_only": false,
+      "app_id": "*LF&3!JRCMg]",
+      "braze_id": "*LF&3!JRCMg]",
+      "currency": "BYR",
+      "email": "am@pujeud.li",
+      "external_id": "*LF&3!JRCMg]",
+      "price": -10569831132692.48,
+      "product_id": "*LF&3!JRCMg]",
+      "properties": Object {
+        "testType": "*LF&3!JRCMg]",
+      },
+      "quantity": -1056983113269248,
+      "time": "2021-02-01T00:00:00.000Z",
+      "user_alias": Object {
+        "alias_label": "*LF&3!JRCMg]",
+        "alias_name": "*LF&3!JRCMg]",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's trackPurchase2 destination action: it should work with batched events 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer my-api-key",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-braze-batch": Array [
+      "true",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's trackPurchase2 destination action: it should work with batched events 2`] = `
+Object {
+  "purchases": Array [
+    Object {
+      "_update_existing_only": false,
+      "app_id": "my-app-id",
+      "braze_id": undefined,
+      "currency": "USD",
+      "email": undefined,
+      "external_id": "user1234",
+      "price": 100,
+      "product_id": "Bowflex Treadmill 10",
+      "properties": Object {},
+      "quantity": 1,
+      "time": "2021-08-03T17:40:04.055Z",
+      "user_alias": undefined,
+    },
+    Object {
+      "_update_existing_only": false,
+      "app_id": "my-app-id",
+      "braze_id": undefined,
+      "currency": "USD",
+      "email": undefined,
+      "external_id": "user1234",
+      "price": 200,
+      "product_id": "Bowflex Treadmill 20",
+      "properties": Object {},
+      "quantity": 2,
+      "time": "2021-08-03T17:40:04.055Z",
+      "user_alias": undefined,
+    },
+    Object {
+      "_update_existing_only": false,
+      "app_id": "my-app-id",
+      "braze_id": undefined,
+      "currency": "USD",
+      "email": undefined,
+      "external_id": "user1234",
+      "price": 300,
+      "product_id": "Bowflex Treadmill 30",
+      "properties": Object {},
+      "quantity": 3,
+      "time": "2021-08-03T17:40:04.055Z",
+      "user_alias": undefined,
+    },
+    Object {
+      "_update_existing_only": false,
+      "app_id": "my-app-id",
+      "braze_id": undefined,
+      "currency": "USD",
+      "email": undefined,
+      "external_id": "user1234",
+      "price": 400,
+      "product_id": "Bowflex Treadmill 40",
+      "properties": Object {},
+      "quantity": 4,
+      "time": "2021-08-03T17:40:04.055Z",
+      "user_alias": undefined,
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's trackPurchase2 destination action: required fields 1`] = `
+Object {
+  "purchases": Array [
+    Object {
+      "_update_existing_only": false,
+      "app_id": "*LF&3!JRCMg]",
+      "braze_id": "*LF&3!JRCMg]",
+      "currency": "USD",
+      "external_id": "*LF&3!JRCMg]",
+      "price": -10569831132692.48,
+      "product_id": "*LF&3!JRCMg]",
+      "properties": Object {},
+      "time": "2021-02-01T00:00:00.000Z",
+    },
+  ],
+}
+`;

@@ -5,13 +5,16 @@ import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { EventData } from '../types'
 import { v4 as uuidv4 } from '@lukeed/uuid'
+import { processPhoneNumber } from '../functions'
+import { country_code } from '../properties'
+import dayjs from 'dayjs'
 
 const createEventData = (payload: Payload) => ({
   data: {
     type: 'event',
     attributes: {
       properties: { ...payload.properties },
-      time: payload.time,
+      time: payload.time ? dayjs(payload.time).toISOString() : undefined,
       value: payload.value,
       unique_id: payload.unique_id,
       metric: {
@@ -43,7 +46,7 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
       data: {
         type: 'event',
         attributes: {
-          properties: { ...product, ...orderEventData.data.attributes.properties },
+          properties: { ...orderEventData.data.attributes.properties, ...product },
           unique_id: uuidv4(),
           metric: {
             data: {
@@ -86,6 +89,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Phone Number',
           type: 'string'
         },
+        country_code: { ...country_code },
         external_id: {
           label: 'External Id',
           description:
@@ -145,11 +149,21 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'List of products purchased in the order.',
       multiple: true,
       type: 'object'
+    },
+    event_name: {
+      label: 'Event Name',
+      description: 'Name of the event. This will be used as the metric name in Klaviyo.',
+      default: 'Order Completed',
+      type: 'string'
     }
   },
 
   perform: async (request, { payload }) => {
-    const { email, phone_number, external_id, anonymous_id } = payload.profile
+    const { email, phone_number: initialPhoneNumber, external_id, anonymous_id, country_code } = payload.profile
+
+    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
+    payload.profile.phone_number = phone_number
+    delete payload?.profile?.country_code
 
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')

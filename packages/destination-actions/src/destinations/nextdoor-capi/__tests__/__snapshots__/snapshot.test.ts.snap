@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-nextdoor-capi destination: sendConversion action - all fields 1`] = `
+Object {
+  "action_source": "chat",
+  "action_source_url": "@SQ$NFo^ou^GY",
+  "app": Object {
+    "app_id": "@SQ$NFo^ou^GY",
+    "app_tracking_enabled": false,
+    "app_version": "@SQ$NFo^ou^GY",
+    "platform": "android",
+  },
+  "client_id": "@SQ$NFo^ou^GY",
+  "custom": Object {
+    "delivery_category": "curbside",
+    "order_id": "@SQ$NFo^ou^GY",
+    "order_value": "TJS11159858975866.88",
+    "product_context": Array [
+      Object {
+        "id": "@SQ$NFo^ou^GY",
+        "item_price": 11159858975866.88,
+        "quantity": 11159858975866.88,
+      },
+    ],
+  },
+  "customer": Object {
+    "city": "5aa34886f7f3741de8460690b636f4c8b7c2044df88e2e8adbb4f7e6f8534931",
+    "click_id": "test_click_id",
+    "client_ip_address": "5feaf188de296cd3b17f7c66fd3a2aec9b694815f2b1180631f7b52f57029777",
+    "country": "9b202ecbc6d45c6d8901d989a918878397a3eb9d00e8f48022fc051b19d21a1d",
+    "date_of_birth": "c5cc05628d64ef65fa81b1fb6ed9cb4bd5dd8bf94d95a4fb9c1540b5adac00ed",
+    "email": "f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a",
+    "first_name": "a8cfcd74832004951b4408cdb0a5dbcd8c7e52d43f7fe244bf720582e05241da",
+    "last_name": "fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7",
+    "phone_number": "c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646",
+    "pixel_id": "@SQ$NFo^ou^GY",
+    "state": "4b650e5c4785025dee7bd65e3c5c527356717d7a1c0bfef5b4ada8ca1e9cbe17",
+    "street_address": "948595bd0490ff9590917af8a8e7f12121e2eb021e3bb17bade16b60d80b9072",
+    "zip_code": "e73ac16e69f060ee98b0fda5f66f48c4648ee26950e9bab3a097389853fd859e",
+  },
+  "delivery_optimization": false,
+  "event_id": "@SQ$NFo^ou^GY",
+  "event_name": "custom_conversion_7",
+  "event_time": "@SQ$NFo^ou^GY",
+  "event_timezone": "@SQ$NFo^ou^GY",
+  "partner_id": "segment",
+  "test_event": "false",
+}
+`;
+
+exports[`Testing snapshot for actions-nextdoor-capi destination: sendConversion action - required fields 1`] = `
+Object {
+  "action_source": "chat",
+  "app": Object {},
+  "client_id": "@SQ$NFo^ou^GY",
+  "custom": Object {},
+  "customer": Object {
+    "pixel_id": "@SQ$NFo^ou^GY",
+  },
+  "delivery_optimization": false,
+  "event_id": "@SQ$NFo^ou^GY",
+  "event_name": "custom_conversion_7",
+  "event_time": "@SQ$NFo^ou^GY",
+  "partner_id": "segment",
+  "test_event": "false",
+}
+`;

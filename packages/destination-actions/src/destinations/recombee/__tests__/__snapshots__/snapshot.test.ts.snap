@@ -1,0 +1,212 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-recombee destination: addBookmark action - all fields 1`] = `
+Object {
+  "additionalData": Object {
+    "testType": "7(iq3vwM",
+  },
+  "cascadeCreate": true,
+  "itemId": "7(iq3vwM",
+  "recommId": "7(iq3vwM",
+  "timestamp": "7(iq3vwM",
+  "userId": "7(iq3vwM",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: addBookmark action - required fields 1`] = `
+Object {
+  "cascadeCreate": true,
+  "itemId": "7(iq3vwM",
+  "userId": "7(iq3vwM",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: addCartAddition action - all fields 1`] = `
+Object {
+  "additionalData": Object {
+    "testType": "fSK%!$(3gz2peZ!&@L@D",
+  },
+  "amount": 85450379273175.05,
+  "cascadeCreate": true,
+  "itemId": "fSK%!$(3gz2peZ!&@L@D",
+  "price": 85450379273175.05,
+  "recommId": "fSK%!$(3gz2peZ!&@L@D",
+  "timestamp": "fSK%!$(3gz2peZ!&@L@D",
+  "userId": "fSK%!$(3gz2peZ!&@L@D",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: addCartAddition action - required fields 1`] = `
+Object {
+  "cascadeCreate": true,
+  "itemId": "fSK%!$(3gz2peZ!&@L@D",
+  "userId": "fSK%!$(3gz2peZ!&@L@D",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: addDetailView action - all fields 1`] = `
+Object {
+  "additionalData": Object {
+    "testType": "VhiOfa#s6#B[CQDV",
+  },
+  "cascadeCreate": true,
+  "duration": 4043918945550336,
+  "itemId": "VhiOfa#s6#B[CQDV",
+  "recommId": "VhiOfa#s6#B[CQDV",
+  "timestamp": "VhiOfa#s6#B[CQDV",
+  "userId": "VhiOfa#s6#B[CQDV",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: addDetailView action - required fields 1`] = `
+Object {
+  "cascadeCreate": true,
+  "itemId": "VhiOfa#s6#B[CQDV",
+  "userId": "VhiOfa#s6#B[CQDV",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: addPurchase action - all fields 1`] = `
+Object {
+  "requests": Array [
+    Object {
+      "method": "POST",
+      "params": Object {
+        "additionalData": Object {
+          "testType": "!D2A1H%v%jv&r",
+        },
+        "amount": 3316018504007.68,
+        "cascadeCreate": true,
+        "itemId": "!D2A1H%v%jv&r",
+        "price": 3316018504007.68,
+        "profit": 3316018504007.68,
+        "recommId": "!D2A1H%v%jv&r",
+        "timestamp": "!D2A1H%v%jv&r",
+        "userId": "!D2A1H%v%jv&r",
+      },
+      "path": "/purchases/",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: addPurchase action - required fields 1`] = `
+Object {
+  "requests": Array [
+    Object {
+      "method": "POST",
+      "params": Object {
+        "cascadeCreate": true,
+        "itemId": "!D2A1H%v%jv&r",
+        "userId": "!D2A1H%v%jv&r",
+      },
+      "path": "/purchases/",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: addRating action - all fields 1`] = `
+Object {
+  "additionalData": Object {
+    "testType": "X9m9Urlsqof(&*PN!s",
+  },
+  "cascadeCreate": true,
+  "itemId": "X9m9Urlsqof(&*PN!s",
+  "rating": 63040185947914.24,
+  "recommId": "X9m9Urlsqof(&*PN!s",
+  "timestamp": "X9m9Urlsqof(&*PN!s",
+  "userId": "X9m9Urlsqof(&*PN!s",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: addRating action - required fields 1`] = `
+Object {
+  "cascadeCreate": true,
+  "itemId": "X9m9Urlsqof(&*PN!s",
+  "rating": 63040185947914.24,
+  "userId": "X9m9Urlsqof(&*PN!s",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: deleteBookmark action - all fields 1`] = `
+Object {
+  "itemId": "Sy@zJ0^",
+  "timestamp": "Sy@zJ0^",
+  "userId": "Sy@zJ0^",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: deleteBookmark action - required fields 1`] = `
+Object {
+  "itemId": "Sy@zJ0^",
+  "userId": "Sy@zJ0^",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: deleteCartAddition action - all fields 1`] = `
+Object {
+  "itemId": "BGNilpbMGk^JyT",
+  "timestamp": "BGNilpbMGk^JyT",
+  "userId": "BGNilpbMGk^JyT",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: deleteCartAddition action - required fields 1`] = `
+Object {
+  "itemId": "BGNilpbMGk^JyT",
+  "userId": "BGNilpbMGk^JyT",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: mergeUsers action - all fields 1`] = `Object {}`;
+
+exports[`Testing snapshot for actions-recombee destination: mergeUsers action - required fields 1`] = `Object {}`;
+
+exports[`Testing snapshot for actions-recombee destination: setViewPortion action - all fields 1`] = `
+Object {
+  "additionalData": Object {
+    "testType": "D9^z[P*Zv",
+  },
+  "cascadeCreate": true,
+  "itemId": "D9^z[P*Zv",
+  "portion": -42971588743659.52,
+  "recommId": "D9^z[P*Zv",
+  "sessionId": "D9^z[P*Zv",
+  "timestamp": "D9^z[P*Zv",
+  "userId": "D9^z[P*Zv",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: setViewPortion action - required fields 1`] = `
+Object {
+  "cascadeCreate": true,
+  "itemId": "D9^z[P*Zv",
+  "portion": -42971588743659.52,
+  "userId": "D9^z[P*Zv",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: setViewPortionFromWatchTime action - all fields 1`] = `
+Object {
+  "additionalData": Object {
+    "testType": "gpLV6!FLD#$6^LR77nTN",
+  },
+  "cascadeCreate": true,
+  "itemId": "gpLV6!FLD#$6^LR77nTN",
+  "portion": 1,
+  "recommId": "gpLV6!FLD#$6^LR77nTN",
+  "sessionId": "gpLV6!FLD#$6^LR77nTN",
+  "timestamp": "gpLV6!FLD#$6^LR77nTN",
+  "userId": "gpLV6!FLD#$6^LR77nTN",
+}
+`;
+
+exports[`Testing snapshot for actions-recombee destination: setViewPortionFromWatchTime action - required fields 1`] = `
+Object {
+  "cascadeCreate": true,
+  "itemId": "gpLV6!FLD#$6^LR77nTN",
+  "portion": 1,
+  "userId": "gpLV6!FLD#$6^LR77nTN",
+}
+`;

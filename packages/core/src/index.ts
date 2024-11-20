@@ -39,8 +39,12 @@ export {
   PayloadValidationError,
   SelfTimeoutError,
   APIError,
-  ErrorCodes
+  ErrorCodes,
+  HttpErrorCodes,
+  CustomErrorCodes,
+  getErrorCodeFromHttpStatus
 } from './errors'
+export { retry } from './retry'
 export { get } from './get'
 export { omit } from './omit'
 export { removeUndefined } from './remove-undefined'
@@ -76,7 +80,8 @@ export type {
   MinimalInputField,
   StateContext,
   StatsContext,
-  Preset
+  Preset,
+  Result
 } from './destination-kit'
 
 export type {
@@ -93,3 +98,9 @@ export type { JSONPrimitive, JSONValue, JSONObject, JSONArray, JSONLike, JSONLik
 export type { SegmentEvent } from './segment-event'
 
 export type { RequestClient } from './create-request-client'
+
+export {
+  ActionDestinationSuccessResponse,
+  ActionDestinationErrorResponse,
+  MultiStatusResponse
+} from './destination-kit/action'

@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
     lookup_field: { ...lookup_field },
     field_value: { ...field_value },
     enable_batching: { ...enable_batching },
-    batch_size: { ...batch_size },
+    batch_size: { ...batch_size, default: 300, maximum: 300 },
     event_name: { ...event_name }
   },
   perform: async (request, { settings, payload, statsContext }) => {

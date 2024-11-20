@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for AccoilAnalytics's screen destination action: all fields 1`] = `
+Object {
+  "name": "dg5QIgqHqC16WoHx",
+  "timestamp": Any<String>,
+  "type": "screen",
+  "userId": "dg5QIgqHqC16WoHx",
+}
+`;
+
+exports[`Testing snapshot for AccoilAnalytics's screen destination action: required fields 1`] = `
+Object {
+  "timestamp": Any<String>,
+  "type": "screen",
+}
+`;

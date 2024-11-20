@@ -12,18 +12,18 @@ on:
         description: 'Base branch to create PR to'
         required: true
         default: 'main'
-        type: choice
-        options:
-          - main
-          - release
       run_id:
         description: 'Unique identifier for the run'
         required: false
 
 jobs:
   build-and-version-packages:
+    strategy:
+      matrix:
+        node-version: [18.x]
     env:
       HUSKY: 0
+      NX_DISABLE_DB: true
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -52,7 +52,7 @@ jobs:
           git push origin ${{ github.event.inputs.branch }}
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile --ignore-optional
+        run: yarn install --frozen-lockfile
 
       - name: Configure git
         run: |
@@ -63,7 +63,13 @@ jobs:
         run: NODE_ENV=production yarn build
 
       - name: Version Packages
-        run: yarn lerna version minor --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private --yes
+        run: |
+          # minor version bump for main branch and patch for hotfixes
+          if [ "${{ github.event.inputs.base_branch }}" == "main" ]; then
+            yarn lerna version minor --yes --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private
+          else
+            yarn lerna version patch --yes --allow-branch ${{ github.event.inputs.branch }} --no-git-tag-version --no-commit-hooks --no-private
+          fi
 
       - name: Commit and push
         id: commit_and_push

@@ -10,42 +10,40 @@ export const commonFields: Record<string, InputField> = {
     defaultObjectUI: 'keyvalue:only',
     additionalProperties: false,
     properties: {
-      from_object_type: {
+      object_type: {
         label: 'Object Type',
         description: 'The type of Hubspot Object to add/update a record for.',
         type: 'string',
         required: true,
-        dynamic: true
+        allowNull: false,
+        dynamic: true,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
-      from_id_field_name: {
+      id_field_name: {
         label: 'Object ID Field Name',
         description: 'The name of the ID field for the record.',
         type: 'string',
         required: true,
-        dynamic: true
+        allowNull: false,
+        dynamic: true,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
-      from_id_field_value: {
+      id_field_value: {
         label: 'Object ID Field Value',
         description: 'The ID value for the record.',
         type: 'string',
-        required: true
+        required: true,
+        allowNull: false
       },
-      from_property_group: {
+      property_group: {
         label: 'Property Group',
         description:
           'Segment can new create properties on the object if needed. To enable this select the property group for Segment to add new properties to. To disable leave this field blank.',
         type: 'string',
         required: false,
         default: undefined,
-        dynamic: true
-      },
-      from_record_id: {
-        label: 'From Object Record ID - Hidden field',
-        description: 'The Hubspot Record ID of the To record. Used when associating to other records',
-        type: 'string',
-        unsafe_hidden: true,
-        required: false,
-        default: undefined
+        dynamic: true,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       }
     }
   },
@@ -58,7 +56,7 @@ export const commonFields: Record<string, InputField> = {
     dynamic: true,
     additionalProperties: true
   },
-  sensitiveProperties: {
+  sensitive_properties: {
     label: 'Sensitive Properties',
     description: 'Sensitive Properties to set on the record.',
     type: 'object',
@@ -77,7 +75,8 @@ export const commonFields: Record<string, InputField> = {
     choices: [
       { label: 'Create', value: 'upsert' },
       { label: 'Do not create', value: 'read' }
-    ]
+    ],
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   },
   associations: {
     label: 'Associations',
@@ -88,49 +87,39 @@ export const commonFields: Record<string, InputField> = {
     defaultObjectUI: 'arrayeditor',
     additionalProperties: false,
     properties: {
-      to_object_type: {
+      object_type: {
         label: 'To Object Type',
         description: 'The type of associated Hubspot Object.',
         type: 'string',
         required: true,
-        dynamic: true
+        dynamic: true,
+        allowNull: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
       association_label: {
         label: 'Association Label',
         description: 'The type of Association between the two records. The Association must already exist in Hubspot.',
         type: 'string',
         required: true,
-        dynamic: true
+        dynamic: true,
+        allowNull: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
-      to_id_field_name: {
+      id_field_name: {
         label: 'To Object ID Field Name',
         description:
           'The name of the unique field Segment will use as an identifier when associating the record to another record. The unique field name must already exist on the Object in Hubspot.',
         type: 'string',
         required: true,
-        dynamic: true
+        dynamic: true,
+        allowNull: false,
+        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
       },
-      to_id_field_value: {
+      id_field_value: {
         label: 'To Object ID Field Value',
         description: 'The value of the identifier for the record to be associated with',
         type: 'string',
-        required: true
-      },
-      to_record_id: {
-        label: 'To Object Record ID - Hidden field',
-        description: 'The Hubspot Record ID of the record to be associated with',
-        type: 'string',
-        unsafe_hidden: true,
-        required: false,
-        default: undefined
-      },
-      from_record_id: {
-        label: 'From Object Record ID - Hidden field',
-        description: 'The Hubspot Record ID of the From record. Used when associating to the To record.',
-        type: 'string',
-        unsafe_hidden: true,
-        required: false,
-        default: undefined
+        required: false
       }
     }
   },

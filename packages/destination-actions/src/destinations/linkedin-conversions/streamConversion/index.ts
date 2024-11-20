@@ -18,7 +18,8 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       inputFields: {
         adAccountId: {
           label: 'Ad Account',
-          description: 'The ad account to use for the conversion event.',
+          description:
+            'The ad account to use when creating the conversion event. (When updating a conversion rule after initially creating it, changes to this field will be ignored. LinkedIn does not allow Ad Account IDs to be updated for a conversion rule.)',
           type: 'string',
           required: true,
           dynamic: async (request) => {
@@ -279,6 +280,20 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           required: false
         }
       }
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'Enable batching of requests.',
+      type: 'boolean',
+      default: true,
+      unsafe_hidden: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      default: 5000,
+      unsafe_hidden: true
     }
   },
   perform: async (request, { payload, hookOutputs }) => {
@@ -301,6 +316,22 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
 
     try {
       return linkedinApiClient.streamConversionEvent(payload, conversionTime)
+    } catch (error) {
+      throw handleRequestError(error)
+    }
+  },
+  performBatch: async (request, { payload: payloads, hookOutputs }) => {
+    const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
+    const conversionRuleId = hookOutputs?.onMappingSave?.outputs?.id
+
+    if (!conversionRuleId) {
+      throw new PayloadValidationError('Conversion Rule ID is required.')
+    }
+
+    linkedinApiClient.setConversionRuleId(conversionRuleId)
+
+    try {
+      return linkedinApiClient.batchConversionAdd(payloads)
     } catch (error) {
       throw handleRequestError(error)
     }

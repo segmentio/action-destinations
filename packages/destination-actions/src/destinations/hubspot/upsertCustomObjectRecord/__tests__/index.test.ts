@@ -610,6 +610,62 @@ describe('HubSpot.upsertCustomObjectRecord', () => {
     })
   })
 
+  it('should trim string properties', async () => {
+    nock(endpoint).post(/.*/).reply(201, {})
+
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Apply Discount',
+      properties: {
+        couponCode: ' TEST1234', // leading space deliberately added
+        discountPercentage: '10% ', // trailing space deliberately added
+        customPropertyOne: [1, 2, 3, 4, 5],
+        customPropertyTwo: {
+          a: 1,
+          b: 2,
+          c: 3
+        },
+        customPropertyThree: [1, 'two', true, { four: 4 }]
+      }
+    })
+
+    const responses = await testDestination.testAction('upsertCustomObjectRecord', {
+      event,
+      mapping: {
+        objectType: 'p11223344_discount',
+        createNewCustomRecord: true,
+        properties: {
+          coupon_code: {
+            '@path': '$.properties.couponCode'
+          },
+          discount_percent: {
+            '@path': '$.properties.discountPercentage'
+          },
+          custom_property_1: {
+            '@path': '$.properties.customPropertyOne'
+          },
+          custom_property_2: {
+            '@path': '$.properties.customPropertyTwo'
+          },
+          custom_property_3: {
+            '@path': '$.properties.customPropertyThree'
+          }
+        }
+      }
+    })
+
+    expect(responses).toHaveLength(1)
+    expect(responses[0].options.json).toMatchObject({
+      properties: {
+        coupon_code: 'TEST1234',
+        discount_percent: '10%',
+        custom_property_1: '1;2;3;4;5',
+        custom_property_2: '{"a":1,"b":2,"c":3}',
+        custom_property_3: '1;two;true;{"four":4}'
+      }
+    })
+  })
+
   it('Should handle flattening of array while updating a custom object record', async () => {
     // Mock: Search Custom Object Record with custom Search Fields
     nock(HUBSPOT_BASE_URL)

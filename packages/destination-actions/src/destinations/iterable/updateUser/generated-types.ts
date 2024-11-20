@@ -23,4 +23,12 @@ export interface Payload {
    * If you'd like to merge (rather than overwrite) a user profile's top-level objects with the values provided for them in the request body, set mergeNestedObjects to true.
    */
   mergeNestedObjects?: boolean
+  /**
+   * When enabled, Segment will send data to Iterable in batches of up to 1001
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }

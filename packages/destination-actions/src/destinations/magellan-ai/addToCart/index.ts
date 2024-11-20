@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { buildPerformer } from '../utils'
-import { productFields } from '../schema'
+import { clientFields, productFields } from '../schema'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to Cart',
@@ -17,7 +17,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.properties.quantity' },
       required: true
     },
-    ...productFields
+    ...productFields,
+    ...clientFields
   },
   perform: buildPerformer('add_to_cart')
 }

@@ -10,9 +10,11 @@ export interface Payload {
    */
   userId?: string
   /**
-   * Specify additional traits or identifiers to sync to Iterable. You will need to ensure these traits or obects are included via Event Settings >> Customized Setup.
+   * Additional traits or identifiers to sync to Iterable. You will need to ensure these traits or objects are included via Event Settings > Customized Setup.
    */
-  dataFields?: string[]
+  dataFields?: {
+    [k: string]: unknown
+  }
   /**
    * Traits or Properties object from the identify() or track() call emitted by Engage
    */
@@ -20,7 +22,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy
+   * Segment Audience Key. Maps to the Iterable List "Name" when the list is created in Iterable.
    */
   segmentAudienceKey: string
   /**

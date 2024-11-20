@@ -18,24 +18,23 @@ const createAudienceInput = {
     customer_desc: CUST_DESC
   },
   audienceName: '',
-  audienceSettings: {
-    personas: {
-      computation_key: AUDIENCE_KEY,
-      computation_id: AUDIENCE_ID
-    }
+  audienceSettings: {},
+  personas: {
+    computation_key: AUDIENCE_KEY,
+    computation_id: AUDIENCE_ID,
+    namespace: 'spa_12124214124'
   }
 }
+const testDestination = createTestIntegration(Destination)
 
 describe('Yahoo Audiences', () => {
   describe('createAudience() function', () => {
-    let testDestination: any
     const OLD_ENV = process.env
     beforeEach(() => {
       jest.resetModules() // Most important - it clears the cache
       process.env = { ...OLD_ENV } // Make a copy
       process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_SECRET = 'yoda'
       process.env.ACTIONS_YAHOO_AUDIENCES_TAXONOMY_CLIENT_ID = 'luke'
-      testDestination = createTestIntegration(Destination)
     })
 
     afterAll(() => {

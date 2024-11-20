@@ -18,7 +18,8 @@ import {
   data_processing_options,
   data_processing_options_country,
   data_processing_options_state,
-  dataProcessingOptions
+  dataProcessingOptions,
+  test_event_code
 } from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 import { generate_app_data, app_data_field } from '../fb-capi-app-data'
@@ -69,7 +70,8 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_data: custom_data,
     data_processing_options: data_processing_options,
     data_processing_options_country: data_processing_options_country,
-    data_processing_options_state: data_processing_options_state
+    data_processing_options_state: data_processing_options_state,
+    test_event_code: test_event_code
   },
   perform: (request, { payload, settings, features, statsContext }) => {
     if (payload.currency && !CURRENCY_ISO_CODES.has(payload.currency)) {
@@ -103,6 +105,8 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.data_processing_options_state
     )
 
+    const testEventCode = payload.test_event_code || settings.testEventCode
+
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
       {
@@ -131,7 +135,7 @@ const action: ActionDefinition<Settings, Payload> = {
               data_processing_options_state: state_code
             }
           ],
-          ...(settings.testEventCode && { test_event_code: settings.testEventCode })
+          ...(testEventCode && { test_event_code: testEventCode })
         }
       }
     )

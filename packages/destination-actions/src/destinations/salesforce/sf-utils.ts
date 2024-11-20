@@ -101,12 +101,14 @@ const buildHeaders = (headerMap: Map<string, [[CSVData, number]]>): string => {
  * @param payloads Each payload in the batch.
  * @param headerMap Represents each column in the CSV file.
  * @param n The size of the batch.
+ * @param operation Represents the way the data will flow into the destination.
  * @returns The data rows of the CSV file.
  */
 const buildCSVFromHeaderMap = (
   payloads: GenericPayload[],
   headerMap: Map<string, [[CSVData, number]]>,
-  n: number
+  n: number,
+  operation: string | undefined
 ): string => {
   let rows = ''
 
@@ -127,29 +129,38 @@ const buildCSVFromHeaderMap = (
       }
     }
 
-    if (payloads[i].operation === 'create') {
+    // We are choosing to continue to check payloads[i].operation here to minimize
+    // the blast radious of the V2 update. payloads[i].operation is a mapping setting while operation
+    // comes directly from the syncMode setting chosen by the user.
+    // It's extremely unlikely (or impossible) that from a given payload of N size, M elements will have different operation.
+    // In any case, the statement below keeps the original code intact while starting to support the new syncMode setting.
+    // operation "create" comes from the mapping setting and "insert" is the converted value of the "add" mapping.
+    operation = payloads[i].operation || operation
+
+    if (operation === 'create' || operation === 'insert') {
       // Remove the trailing comma from the row, there is no unique ID to append
       row = row.substring(0, row.length - 1)
       rows += `${row}\n`
     } else {
-      const uniqueIdValue = getUniqueIdValue(payloads[i])
+      const uniqueIdValue = getUniqueIdValue(payloads[i], operation)
       rows += `${row}"${uniqueIdValue}"\n`
     }
   }
   return rows
 }
 
-const getUniqueIdValue = (payload: GenericPayload): string => {
+const getUniqueIdValue = (payload: GenericPayload, operation: string | undefined): string => {
+  operation = payload.operation || operation
   if (
     payload.enable_batching &&
-    payload.operation === 'upsert' &&
+    operation === 'upsert' &&
     payload.bulkUpsertExternalId &&
     payload.bulkUpsertExternalId.externalIdValue
   ) {
     return payload.bulkUpsertExternalId.externalIdValue
   }
 
-  if (payload.enable_batching && payload.operation === 'update' && payload.bulkUpdateRecordId) {
+  if (payload.enable_batching && operation === 'update' && payload.bulkUpdateRecordId) {
     return payload.bulkUpdateRecordId
   }
 
@@ -160,18 +171,23 @@ const getUniqueIdValue = (payload: GenericPayload): string => {
  *
  * @param payloads Each payload in the batch.
  * @param uniqueIdName The name of the field that contains the external ID, or 'Id' when being used for bulk update.
+ * @param operation Represents the way the data will flow into the destination.
  * @returns The complete CSV to send to Salesforce.
  */
-export const buildCSVData = (payloads: GenericPayload[], uniqueIdName: string): string => {
+export const buildCSVData = (
+  payloads: GenericPayload[],
+  uniqueIdName: string,
+  operation: string | undefined
+): string => {
   const headerMap = buildHeaderMap(payloads)
   let csv = buildHeaders(headerMap)
 
-  if (payloads[0].operation === 'create') {
+  if (operation === 'insert') {
     // Remove the trailing comma, since there is no unique ID to append
     csv = csv.substring(0, csv.length - 1)
   }
 
-  csv += `${uniqueIdName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length)
+  csv += `${uniqueIdName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length, operation)
 
   return csv
 }

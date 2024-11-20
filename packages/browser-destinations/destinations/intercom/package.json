@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-intercom",
-  "version": "1.60.0",
+  "version": "1.74.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,9 +15,9 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.127.0",
-    "@segment/actions-shared": "^1.108.0",
-    "@segment/browser-destination-runtime": "^1.56.0"
+    "@segment/actions-core": "^3.140.0",
+    "@segment/actions-shared": "^1.121.0",
+    "@segment/browser-destination-runtime": "^1.69.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"

@@ -6,6 +6,7 @@ Object {
   "email": "bivjag@ennaato.st",
   "firstName": "3dQ7ER]1HKW",
   "lastName": "3dQ7ER]1HKW",
+  "mailingLists": Object {},
   "source": "3dQ7ER]1HKW",
   "subscribed": true,
   "testType": "3dQ7ER]1HKW",
@@ -16,6 +17,7 @@ Object {
 
 exports[`Testing snapshot for actions-loops destination: createOrUpdateContact action - required fields 1`] = `
 Object {
+  "mailingLists": Object {},
   "userId": "3dQ7ER]1HKW",
 }
 `;

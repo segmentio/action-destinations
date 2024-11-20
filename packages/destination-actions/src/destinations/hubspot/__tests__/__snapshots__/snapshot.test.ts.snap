@@ -1,5 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Testing snapshot for actions-hubspot-cloud destination: customEvent action - all fields 1`] = `[TypeError: Cannot read properties of undefined (reading 'find')]`;
+
+exports[`Testing snapshot for actions-hubspot-cloud destination: customEvent action - required fields 1`] = `[PayloadValidationError: object_id is required and must be numeric]`;
+
 exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - all fields 1`] = `[PayloadValidationError: EventName should begin with peNTxWtuPi(z!bOHmgT^*3_]`;
 
 exports[`Testing snapshot for actions-hubspot-cloud destination: sendCustomBehavioralEvent action - required fields 1`] = `[PayloadValidationError: EventName should begin with peNTxWtuPi(z!bOHmgT^*3_]`;
@@ -87,6 +91,6 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for actions-hubspot-cloud destination: upsertObject action - all fields 1`] = `[Error: Invalid sync mode]`;
+exports[`Testing snapshot for actions-hubspot-cloud destination: upsertObject action - all fields 1`] = `[TypeError: Cannot read properties of undefined (reading 'flatMap')]`;
 
-exports[`Testing snapshot for actions-hubspot-cloud destination: upsertObject action - required fields 1`] = `[Error: Invalid sync mode]`;
+exports[`Testing snapshot for actions-hubspot-cloud destination: upsertObject action - required fields 1`] = `[TypeError: Cannot read properties of undefined (reading 'flatMap')]`;

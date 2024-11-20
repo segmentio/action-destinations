@@ -6,6 +6,7 @@ Object {
   "email": "macepa@tariviz.sm",
   "firstName": "IAIhDY9yOUxjQs(FSFfe",
   "lastName": "IAIhDY9yOUxjQs(FSFfe",
+  "mailingLists": Object {},
   "source": "IAIhDY9yOUxjQs(FSFfe",
   "subscribed": false,
   "testType": "IAIhDY9yOUxjQs(FSFfe",
@@ -16,6 +17,7 @@ Object {
 
 exports[`Testing snapshot for Loops's createOrUpdateContact destination action: required fields 1`] = `
 Object {
+  "mailingLists": Object {},
   "userId": "IAIhDY9yOUxjQs(FSFfe",
 }
 `;

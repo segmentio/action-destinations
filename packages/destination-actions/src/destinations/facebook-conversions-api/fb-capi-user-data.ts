@@ -107,6 +107,18 @@ export const user_data_field: InputField = {
       description: 'The ID issued by Facebook when a person first logs into an instance of an app.',
       type: 'integer'
     },
+    anonId: {
+      label: 'Install ID (anon_id)',
+      description:
+        'This field represents unique application installation instances. Note: This parameter is for app events only.',
+      type: 'string'
+    },
+    madId: {
+      label: 'Advertiser ID (madid)',
+      description:
+        'Your mobile advertiser ID, the advertising ID from an Android device or the Advertising Identifier (IDFA) from an Apple device.',
+      type: 'string'
+    },
     partner_id: {
       label: 'Partner ID',
       description: 'The ID issued by Facebook identity partner.',
@@ -277,6 +289,8 @@ export const hash_user_data = (payload: UserData): Object => {
     fbp: payload.user_data?.fbp,
     subscription_id: payload.user_data?.subscriptionID,
     lead_id: payload.user_data?.leadID,
+    anon_id: payload.user_data?.anonId,
+    madid: payload.user_data?.madId,
     fb_login_id: payload.user_data?.fbLoginID,
     partner_id: payload.user_data?.partner_id,
     partner_name: payload.user_data?.partner_name
