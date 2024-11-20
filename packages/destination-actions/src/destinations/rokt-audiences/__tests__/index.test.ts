@@ -6,7 +6,9 @@ import { CONSTANTS } from '../constants'
 const testDestination = createTestIntegration(Definition)
 
 const VALID_SETTINGS = {
-  apiKey: 'key'
+  rpub: 'rpub-***',
+  rsec: 'rsec-***',
+  accountid: '8675309'
 }
 
 const MOCK_TOKEN_RESPONSE = {
@@ -15,16 +17,16 @@ const MOCK_TOKEN_RESPONSE = {
 
 describe('Rokt Audiences', () => {
   describe('testAuthentication', () => {
-    it('should validate valid auth token', async () => {
+    it('should validate proper rpub-rsec credentials', async () => {
       nock(CONSTANTS.ROKT_API_BASE_URL).get(CONSTANTS.ROKT_API_AUTH_ENDPOINT).reply(200, MOCK_TOKEN_RESPONSE)
       const settings = VALID_SETTINGS
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
+      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError() // TODO: Update needed here
     })
 
     it('should test that authentication fails', async () => {
       nock(CONSTANTS.ROKT_API_BASE_URL).get(CONSTANTS.ROKT_API_AUTH_ENDPOINT).reply(401)
       const settings = VALID_SETTINGS
-      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError('')
+      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError('') // TODO: Update needed here
     })
   })
 })
