@@ -7,7 +7,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Drip (Actions)',
   slug: 'actions-drip',
   mode: 'cloud',
-  description: 'Send Segment events to Drip',
+  description: 'Send Segment analytics events and user profile details to Drip.',
   authentication: {
     scheme: 'custom',
     fields: {
