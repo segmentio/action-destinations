@@ -502,7 +502,6 @@ export async function removeBulkProfilesFromList(request: RequestClient, payload
   const externalIds = extractField(filteredPayloads, 'external_id')
   const phoneNumbers = extractField(filteredPayloads, 'phone_number')
 
-  // console.log(emails, externalIds, phoneNumbers, payloads)
   const listId = filteredPayloads[0]?.list_id as string
 
   try {

@@ -3,7 +3,6 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../../index'
 import { API_URL } from '../../config'
 import { AggregateAjvError } from '@segment/ajv-human-errors'
-// import * as Functions from '../../functions'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -13,19 +12,6 @@ export const settings = {
   api_key: apiKey
 }
 const listId = 'XYZABC'
-
-// const requestBody = {
-//   data: [
-//     {
-//       type: 'profile',
-//       id: 'XYZABC'
-//     },
-//     {
-//       type: 'profile',
-//       id: 'XYZABD'
-//     }
-//   ]
-// }
 
 describe('Remove List from Profile', () => {
   it('should throw error if no external_id/email or phone_number is provided', async () => {
