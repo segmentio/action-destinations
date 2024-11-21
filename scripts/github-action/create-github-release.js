@@ -1,14 +1,22 @@
 // This is a github action script and can be run only from github actions. To run this script locally, you need to mock the github object and context object.
 module.exports = async ({ github, context, core, exec }) => {
-  let { GITHUB_SHA, DRY_RUN } = process.env
+  let { GITHUB_SHA, DRY_RUN, GITHUB_REF } = process.env
+
+  // Get the branch name from the GITHUB_REF
+  const branchName = GITHUB_REF.split('/').pop()
+  const isHotfixBranch = branchName.startsWith('hotfix/')
 
   if (Boolean(DRY_RUN)) {
     core.info('Running in dry-run mode')
   }
 
-  // Get the last two commits that have the word "Publish" in the commit message along with the date
-  const [newPublish, previousPublish] = await getPreviousTwoPublishCommits(core, exec)
-  const prs = await getPRsBetweenCommits(github, context, core, previousPublish, newPublish)
+  let prs = []
+  // Retrieve PRs merged between the last two publish commits only for normal releases
+  if (!isHotfixBranch) {
+    // Get the last two commits that have the word "Publish" in the commit message along with the date
+    const [newPublish, previousPublish] = await getPreviousTwoPublishCommits(core, exec)
+    prs = await getPRsBetweenCommits(github, context, core, previousPublish, newPublish)
+  }
 
   // Get tag for the current release from the git repository
   const newReleaseTag = await getReleaseTag(core, exec)
