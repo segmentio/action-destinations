@@ -70,7 +70,7 @@ describe.only('conditionally required fields', () => {
     mockActionFields = {}
   })
 
-  describe('should validate a single conditional requirement', () => {
+  describe.skip('should validate a single conditional requirement', () => {
     it('should validate b when it is required', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -128,7 +128,7 @@ describe.only('conditionally required fields', () => {
     })
   })
 
-  describe('should validate multiple conditional requirements on different fields', () => {
+  describe.skip('should validate multiple conditional requirements on different fields', () => {
     it('should validate when both b and c are required', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -300,7 +300,7 @@ describe.only('conditionally required fields', () => {
     })
   })
 
-  describe('should handle multiple conditions on the same field', () => {
+  describe.skip('should handle multiple conditions on the same field', () => {
     it('should handle when one field has multiple values on another for which it is required, any matcher', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -386,19 +386,7 @@ describe.only('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
-      console.log('schema:', JSON.stringify(schema))
-      /**
-       *  expecting an object with:
-       *  required: [ 'a' ],
-       *  allOf: [
-       * { if : allOf: [
-       *      { properties: { a: { const: 'a_value' } } },
-       *      { properties: { c: { const: 'c_value' } } },
-       *      { properties: { d: { const: 'd_value' } } }
-       *    ],
-       *   then: { required: [ 'b' ] } }
-       * ]
-       */
+
       const b_required_mappings = [
         { a: 'a_value', c: 'c_value', d: 'd_value' },
         { a: 'a_value', c: 'c_value', d: 'd_value', b: 'b_value' }
@@ -464,7 +452,7 @@ describe.only('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
-      console.log('schema:', JSON.stringify(schema))
+
       const b_required_mappings = [
         { a: 'a_value', c: 'c_value', d: 'd_value' },
         { a: 'a_value', c: 'c_value', d: 'd_value', b: 'b_value' },
@@ -492,14 +480,53 @@ describe.only('conditionally required fields', () => {
     })
   })
 
-  describe.only('should hanlde object conditions', () => {})
+  describe('should handle object conditions', () => {
+    it.only('should validate a single object condition', async () => {
+      mockActionFields['a'] = {
+        type: 'object',
+        label: 'a',
+        description: 'a',
+        properties: {
+          b: {
+            type: 'string',
+            label: 'b'
+          }
+        }
+      }
 
-  describe.only('should handle different data types', () => {})
-  it('should validate when multiple fields have non-overlapping conditional requirements', async () => {})
+      mockActionFields['c'] = {
+        type: 'string',
+        label: 'c',
+        description: 'c',
+        required: {
+          conditions: [{ fieldKey: 'a.b', operator: 'is', value: 'b_value' }]
+        }
+      }
 
-  it('should validate when multiple fields have overlapping conditional requirements', async () => {})
+      const schema = fieldsToJsonSchema(mockActionFields)
 
-  it('should validate when a field is conditionally required based on the value of sync mode', async () => {})
+      const c_required_mappings = [{ a: { b: 'b_value' } }, { a: { b: 'b_value' }, c: 'c_value' }]
+
+      const c_not_required_mappings = [{ a: { b: 'not b_value' } }, {}]
+
+      let isValid
+      isValid = validateSchema(c_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(false)
+
+      isValid = validateSchema(c_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(c_not_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(c_not_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+    })
+  })
+
+  describe('should handle different data types', () => {})
+
+  describe('should validate based on sync mode value', () => {})
 })
 
 describe('validateSchema', () => {

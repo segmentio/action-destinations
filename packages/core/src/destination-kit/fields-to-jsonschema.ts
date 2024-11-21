@@ -59,6 +59,43 @@ export function singleConditionToJsonSchema(fieldKey: string, condition: Depends
 
   if (condition.conditions.length === 1) {
     const innerCondition = condition.conditions[0]
+    const dependentFieldKey = (innerCondition as FieldCondition).fieldKey
+    if (dependentFieldKey.split('.').length > 1) {
+      const [parentKey, childKey] = dependentFieldKey.split('.')
+
+      if (innerCondition.operator === 'is') {
+        jsonCondition = {
+          if: {
+            properties: {
+              [parentKey]: { properties: { [childKey]: { const: innerCondition.value } }, required: [childKey] }
+            },
+            required: [parentKey]
+          },
+          then: {
+            required: [fieldKey]
+          }
+        }
+      } else if (innerCondition.operator === 'is_not') {
+        jsonCondition = {
+          if: {
+            properties: {
+              [parentKey]: {
+                properties: { [childKey]: { not: { const: innerCondition.value } } },
+                required: [childKey]
+              }
+            },
+            required: [parentKey]
+          },
+          then: {
+            required: [fieldKey]
+          }
+        }
+      } else {
+        throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
+      }
+      return jsonCondition
+    }
+
     if (innerCondition.operator === 'is') {
       jsonCondition = {
         if: {
@@ -84,18 +121,43 @@ export function singleConditionToJsonSchema(fieldKey: string, condition: Depends
     return jsonCondition
   }
 
-  // if (condition.match === 'any') {
   const innerConditionArray: JSONSchema4[] = []
   condition.conditions.forEach((innerCondition) => {
+    const dependentFieldKey = (innerCondition as FieldCondition).fieldKey
+    console.log('dependentFieldKey:', dependentFieldKey)
+    if (dependentFieldKey.split('.').length > 1) {
+      console.log('handling object dependency')
+      const [parentKey, childKey] = dependentFieldKey.split('.')
+
+      if (innerCondition.operator === 'is') {
+        innerConditionArray.push({
+          properties: { [parentKey]: { properties: { [childKey]: { const: innerCondition.value } } } },
+          required: [`${childKey}`]
+        })
+      } else if (innerCondition.operator === 'is_not') {
+        innerConditionArray.push({
+          properties: { [parentKey]: { properties: { [childKey]: { not: { const: innerCondition.value } } } } },
+          required: [`${childKey}`]
+        })
+      } else {
+        throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
+      }
+      const innerIfStatement: JSONSchema4 =
+        condition.match === 'any' ? { anyOf: innerConditionArray } : { allOf: innerConditionArray }
+      jsonCondition = { if: innerIfStatement, then: { required: [fieldKey] } }
+
+      return jsonCondition
+    }
+
     if (innerCondition.operator === 'is') {
       innerConditionArray.push({
-        properties: { [(innerCondition as FieldCondition).fieldKey]: { const: innerCondition.value } },
-        required: [`${(innerCondition as FieldCondition).fieldKey}`]
+        properties: { [dependentFieldKey]: { const: innerCondition.value } },
+        required: [`${dependentFieldKey}`]
       })
     } else if (innerCondition.operator === 'is_not') {
       innerConditionArray.push({
-        properties: { [(innerCondition as FieldCondition).fieldKey]: { not: { const: innerCondition.value } } },
-        required: [`${(innerCondition as FieldCondition).fieldKey}`]
+        properties: { [dependentFieldKey]: { not: { const: innerCondition.value } } },
+        required: [`${dependentFieldKey}`]
       })
     } else {
       throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
@@ -106,7 +168,6 @@ export function singleConditionToJsonSchema(fieldKey: string, condition: Depends
   jsonCondition = { if: innerIfStatement, then: { required: [fieldKey] } }
 
   return jsonCondition
-  // }
 }
 
 export function conditionsToJsonSchema(conditions: Record<string, DependsOnConditions>): JSONSchema4 {
@@ -122,6 +183,10 @@ export function conditionsToJsonSchema(conditions: Record<string, DependsOnCondi
     if (jsonCondition) {
       additionalSchema.push(jsonCondition)
     }
+  }
+
+  if (additionalSchema.length === 0) {
+    return {}
   }
 
   return { allOf: additionalSchema }
