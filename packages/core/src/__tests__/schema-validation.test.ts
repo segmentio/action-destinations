@@ -480,8 +480,8 @@ describe.only('conditionally required fields', () => {
     })
   })
 
-  describe('should handle object conditions', () => {
-    it.only('should validate a single object condition', async () => {
+  describe.only('should handle object conditions', () => {
+    it('should validate a single object condition', async () => {
       mockActionFields['a'] = {
         type: 'object',
         label: 'a',
@@ -508,6 +508,48 @@ describe.only('conditionally required fields', () => {
       const c_required_mappings = [{ a: { b: 'b_value' } }, { a: { b: 'b_value' }, c: 'c_value' }]
 
       const c_not_required_mappings = [{ a: { b: 'not b_value' } }, {}]
+
+      let isValid
+      isValid = validateSchema(c_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(false)
+
+      isValid = validateSchema(c_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(c_not_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(c_not_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+    })
+
+    it('should validate a single object condition with an is_not operator', async () => {
+      mockActionFields['a'] = {
+        type: 'object',
+        label: 'a',
+        description: 'a',
+        properties: {
+          b: {
+            type: 'string',
+            label: 'b'
+          }
+        }
+      }
+
+      mockActionFields['c'] = {
+        type: 'string',
+        label: 'c',
+        description: 'c',
+        required: {
+          conditions: [{ fieldKey: 'a.b', operator: 'is_not', value: 'b_value' }]
+        }
+      }
+
+      const schema = fieldsToJsonSchema(mockActionFields)
+
+      const c_required_mappings = [{ a: { b: 'not b_value' } }, { a: { b: 'not b_value' }, c: 'c_value' }]
+
+      const c_not_required_mappings = [{ a: { b: 'b_value' }, c: 'c_value' }, { a: { b: 'b_value' } }]
 
       let isValid
       isValid = validateSchema(c_required_mappings[0], schema, { throwIfInvalid: false })
