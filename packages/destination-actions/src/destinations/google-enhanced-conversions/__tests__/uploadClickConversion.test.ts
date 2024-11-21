@@ -47,11 +47,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -94,11 +94,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"e63a1ca2fcb2a9d4c7db0dfae9e63d86c7cdbb7cfdba742848f50f38d460a5ec\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -141,11 +141,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"e63a1ca2fcb2a9d4c7db0dfae9e63d86c7cdbb7cfdba742848f50f38d460a5ec\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -205,12 +205,76 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(2)
       expect(responses[1].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(2)
       expect(responses[1].status).toBe(201)
+    })
+
+    it('custom variables will not be set if either gbraid or wbraid are set', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gbraid: '54321',
+          orderId: '1234',
+          total: '200',
+          currency: 'USD',
+          products: [
+            {
+              product_id: '1234',
+              quantity: 3,
+              price: 10.99
+            }
+          ]
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/googleAds:searchStream`)
+        .post('')
+        .reply(200, [
+          {
+            results: [
+              {
+                conversionCustomVariable: {
+                  resourceName: 'customers/1234/conversionCustomVariables/123445',
+                  id: '123445',
+                  name: 'username'
+                }
+              }
+            ]
+          }
+        ])
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(201, { results: [{}] })
+
+      const responses = await testDestination.testAction('uploadClickConversion', {
+        event,
+        mapping: {
+          conversion_action: '12345',
+          gbraid: {
+            '@path': '$.properties.gbraid'
+          },
+          custom_variables: {
+            username: 'spongebob'
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gbraid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[]}],\\"partialFailure\\":true}"`
+      )
+
+      expect(responses[0].status).toBe(201)
     })
 
     it('fails if customerId not set - basic', async () => {
@@ -294,11 +358,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -342,11 +406,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"e63a1ca2fcb2a9d4c7db0dfae9e63d86c7cdbb7cfdba742848f50f38d460a5ec\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -434,11 +498,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -482,11 +546,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"1dba01a96da19f6df771cff07e0a8d822126709b82ae7adc6a3839b3aaa68a16\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -575,10 +639,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}}],\\"partialFailure\\":true}"`
       )
-      expect(responses.length).toBe(1)
+
       expect(responses[0].status).toBe(201)
     })
 
@@ -685,11 +750,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -748,11 +813,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"e63a1ca2fcb2a9d4c7db0dfae9e63d86c7cdbb7cfdba742848f50f38d460a5ec\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"e63a1ca2fcb2a9d4c7db0dfae9e63d86c7cdbb7cfdba742848f50f38d460a5ec\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -811,11 +876,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"e63a1ca2fcb2a9d4c7db0dfae9e63d86c7cdbb7cfdba742848f50f38d460a5ec\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"e63a1ca2fcb2a9d4c7db0dfae9e63d86c7cdbb7cfdba742848f50f38d460a5ec\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -886,11 +951,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(2)
       expect(responses[1].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(2)
       expect(responses[1].status).toBe(201)
     })
 
@@ -1005,11 +1070,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -1069,11 +1134,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"e63a1ca2fcb2a9d4c7db0dfae9e63d86c7cdbb7cfdba742848f50f38d460a5ec\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"e63a1ca2fcb2a9d4c7db0dfae9e63d86c7cdbb7cfdba742848f50f38d460a5ec\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -1191,11 +1256,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -1257,11 +1322,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"},{\\"hashedPhoneNumber\\":\\"64eab4e4d9e8e4f801e34d4f9043494ac3ccf778fb428dcbb555e632bb29d84b\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"},{\\"hashedPhoneNumber\\":\\"1dba01a96da19f6df771cff07e0a8d822126709b82ae7adc6a3839b3aaa68a16\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}}],\\"partialFailure\\":true}"`
       )
 
-      expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
 
@@ -1382,10 +1447,11 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
+      expect(responses.length).toBe(1)
       expect(responses[0].options.body).toMatchInlineSnapshot(
         `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}}],\\"partialFailure\\":true}"`
       )
-      expect(responses.length).toBe(1)
+
       expect(responses[0].status).toBe(201)
     })
   })

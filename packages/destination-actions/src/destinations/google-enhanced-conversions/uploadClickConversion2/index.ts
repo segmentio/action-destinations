@@ -201,7 +201,7 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_variables: {
       label: 'Custom Variables',
       description:
-        'The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables) ',
+        'The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value. Will be unset whether either gbraid or wbraid are set. See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables) ',
       type: 'object',
       additionalProperties: true,
       defaultObjectUI: 'keyvalue:only'
@@ -315,7 +315,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       // Retrieves all of the custom variables that the customer has created in their Google Ads account
-      if (payload.custom_variables) {
+      if (payload.custom_variables && !payload.gbraid && !payload.wbraid) {
         const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
         if (customVariableIds?.data?.length) {
           request_object.customVariables = formatCustomVariables(
