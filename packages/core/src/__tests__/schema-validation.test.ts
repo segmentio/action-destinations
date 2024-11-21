@@ -62,6 +62,7 @@ const schema = fieldsToJsonSchema({
   }
 })
 
+// Note: For easier debugging of these test cases you can switch `throwIfInvalid` to `true` to see the AJV error message
 describe.only('conditionally required fields', () => {
   let mockActionFields: Record<string, InputField> = {}
 
@@ -69,7 +70,7 @@ describe.only('conditionally required fields', () => {
     mockActionFields = {}
   })
 
-  describe.skip('should validate a single conditional requirement', () => {
+  describe('should validate a single conditional requirement', () => {
     it('should validate b when it is required', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -89,8 +90,6 @@ describe.only('conditionally required fields', () => {
 
       const schema = fieldsToJsonSchema(mockActionFields)
       const b_required_mappings = [{ a: 'a_value' }, { a: 'a_value', b: 'b_value' }]
-
-      console.log('schema', JSON.stringify(schema))
 
       let isValid
       isValid = validateSchema(b_required_mappings[0], schema, { throwIfInvalid: false })
@@ -129,7 +128,7 @@ describe.only('conditionally required fields', () => {
     })
   })
 
-  describe.skip('should validate multiple conditional requirements on different fields', () => {
+  describe('should validate multiple conditional requirements on different fields', () => {
     it('should validate when both b and c are required', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -301,8 +300,8 @@ describe.only('conditionally required fields', () => {
     })
   })
 
-  describe.only('should handle multiple conditions on the same field', () => {
-    it.only('should handle when one field has multiple values on another for which it is required, any matcher', async () => {
+  describe('should handle multiple conditions on the same field', () => {
+    it('should handle when one field has multiple values on another for which it is required, any matcher', async () => {
       mockActionFields['a'] = {
         label: 'a',
         type: 'string',
@@ -351,55 +350,7 @@ describe.only('conditionally required fields', () => {
       expect(isValid).toBe(true)
     })
 
-    it.skip('should handle when one field has multiple values on another for which it is required, all matcher', async () => {
-      mockActionFields['a'] = {
-        label: 'a',
-        type: 'string',
-        required: true,
-        description: 'a'
-      }
-
-      mockActionFields['b'] = {
-        label: 'b',
-        type: 'string',
-        description: 'b',
-        required: {
-          match: 'all',
-          conditions: [
-            { fieldKey: 'a', operator: 'is', value: 'a_value' },
-            { fieldKey: 'a', operator: 'is', value: 'a_value2' }
-          ]
-        }
-      }
-
-      const schema = fieldsToJsonSchema(mockActionFields)
-      console.log('schema:', JSON.stringify(schema))
-      const b_required_mappings = [
-        { a: 'a_value' },
-        { a: 'a_value', b: 'b_value' },
-        { a: 'a_value2' },
-        { a: 'a_value2', b: 'b_value' }
-      ]
-
-      const b_not_required_mapping = { a: 'b is not required' }
-
-      let isValid
-      isValid = validateSchema(b_required_mappings[0], schema, { throwIfInvalid: false })
-      expect(isValid).toBe(false)
-
-      isValid = validateSchema(b_required_mappings[1], schema, { throwIfInvalid: false })
-      expect(isValid).toBe(true)
-
-      isValid = validateSchema(b_required_mappings[2], schema, { throwIfInvalid: false })
-      expect(isValid).toBe(false)
-
-      isValid = validateSchema(b_required_mappings[3], schema, { throwIfInvalid: false })
-      expect(isValid).toBe(true)
-
-      isValid = validateSchema(b_not_required_mapping, schema, { throwIfInvalid: false })
-      expect(isValid).toBe(true)
-    })
-
+    // fail
     it('should handle when one field has multiple conditions for multiple other fields', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -434,13 +385,17 @@ describe.only('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      console.log('schema:', JSON.stringify(schema))
       /**
        *  expecting an object with:
        *  required: [ 'a' ],
        *  allOf: [
-       *  {   if: { properties: { a: { const: 'a_value' } } }, then: { required: [ 'b' ] } },
-       * {   if: { properties: { c: { const: 'c_value' } } }, then: { required: [ 'b' ] } },
-       * {   if: { properties: { d: { const: 'd_value' } } }, then: { required: [ 'b' ] } }
+       * { if : allOf: [
+       *      { properties: { a: { const: 'a_value' } } },
+       *      { properties: { c: { const: 'c_value' } } },
+       *      { properties: { d: { const: 'd_value' } } }
+       *    ],
+       *   then: { required: [ 'b' ] } }
        * ]
        */
       const b_required_mappings = [
@@ -448,7 +403,7 @@ describe.only('conditionally required fields', () => {
         { a: 'a_value', c: 'c_value', d: 'd_value', b: 'b_value' }
       ]
 
-      const b_not_required_mappings = [{ a: 'a_value', c: 'c_value', d: 'd_value' }, { a: 'a' }]
+      const b_not_required_mappings = [{ a: 'a_value', d: 'd_value' }, { a: 'a' }, { a: 'a', b: 'b' }]
 
       let isValid
       isValid = validateSchema(b_required_mappings[0], schema, { throwIfInvalid: false })
@@ -462,8 +417,12 @@ describe.only('conditionally required fields', () => {
 
       isValid = validateSchema(b_not_required_mappings[1], schema, { throwIfInvalid: false })
       expect(isValid).toBe(true)
+
+      isValid = validateSchema(b_not_required_mappings[2], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
     })
 
+    // fail
     it('should handle when one field has multiple conditions for multiple other fields with an any matcher', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -504,7 +463,7 @@ describe.only('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
-
+      console.log('schema:', JSON.stringify(schema))
       const b_required_mappings = [
         { a: 'a_value', c: 'c_value', d: 'd_value' },
         { a: 'a_value', c: 'c_value', d: 'd_value', b: 'b_value' },
