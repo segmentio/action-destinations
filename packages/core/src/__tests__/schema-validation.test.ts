@@ -364,6 +364,7 @@ describe.only('conditionally required fields', () => {
         type: 'string',
         description: 'b',
         required: {
+          // infered match: 'all'
           conditions: [
             { fieldKey: 'a', operator: 'is', value: 'a_value' },
             { fieldKey: 'c', operator: 'is', value: 'c_value' },
@@ -486,7 +487,7 @@ describe.only('conditionally required fields', () => {
       isValid = validateSchema(b_required_mappings[3], schema, { throwIfInvalid: false })
       expect(isValid).toBe(true)
 
-      isValid = validateSchema(b_not_required_mapping, schema, { throwIfInvalid: false })
+      isValid = validateSchema(b_not_required_mapping, schema, { throwIfInvalid: true })
       expect(isValid).toBe(true)
     })
   })
