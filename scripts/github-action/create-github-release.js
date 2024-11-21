@@ -3,7 +3,7 @@ module.exports = async ({ github, context, core, exec }) => {
   let { GITHUB_SHA, DRY_RUN, GITHUB_REF } = process.env
 
   // Get the branch name from the GITHUB_REF
-  const branchName = GITHUB_REF.split('/').pop()
+  const branchName = GITHUB_REF.replace('refs/heads/', '')
   const isHotfixBranch = branchName.startsWith('hotfix/')
 
   if (Boolean(DRY_RUN)) {
