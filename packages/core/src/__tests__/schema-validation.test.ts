@@ -350,7 +350,6 @@ describe.only('conditionally required fields', () => {
       expect(isValid).toBe(true)
     })
 
-    // fail
     it('should handle when one field has multiple conditions for multiple other fields', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -411,7 +410,6 @@ describe.only('conditionally required fields', () => {
       expect(isValid).toBe(true)
     })
 
-    // fail
     it('should handle when one field has multiple conditions for multiple other fields with an any matcher', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -550,6 +548,244 @@ describe.only('conditionally required fields', () => {
       const c_required_mappings = [{ a: { b: 'not b_value' } }, { a: { b: 'not b_value' }, c: 'c_value' }]
 
       const c_not_required_mappings = [{ a: { b: 'b_value' }, c: 'c_value' }, { a: { b: 'b_value' } }]
+
+      let isValid
+      isValid = validateSchema(c_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(false)
+
+      isValid = validateSchema(c_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(c_not_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(c_not_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+    })
+
+    it('should validate multiple object conditions', async () => {
+      mockActionFields['a'] = {
+        type: 'object',
+        label: 'a',
+        description: 'a',
+        properties: {
+          b: {
+            type: 'string',
+            label: 'b'
+          },
+          c: {
+            type: 'string',
+            label: 'c'
+          }
+        }
+      }
+
+      mockActionFields['d'] = {
+        type: 'string',
+        label: 'd',
+        description: 'd',
+        required: {
+          // infered match: 'all'
+          conditions: [
+            { fieldKey: 'a.b', operator: 'is', value: 'b_value' },
+            { fieldKey: 'a.c', operator: 'is', value: 'c_value' }
+          ]
+        }
+      }
+
+      const schema = fieldsToJsonSchema(mockActionFields)
+      console.log('schema:', JSON.stringify(schema, null, 2))
+
+      const d_required_mappings = [
+        { a: { b: 'b_value', c: 'c_value' } },
+        { a: { b: 'b_value', c: 'c_value' }, d: 'd_value' }
+      ]
+
+      const d_not_required_mappings = [
+        { a: { b: 'b_value', c: 'not c_value' } },
+        { a: { b: 'not b_value', c: 'c_value' } },
+        { a: { b: 'not b_value', c: 'not c_value' } },
+        { a: { b: 'b_value' }, d: 'd_value' }
+      ]
+
+      let isValid
+      isValid = validateSchema(d_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(false)
+
+      isValid = validateSchema(d_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(d_not_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(d_not_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(d_not_required_mappings[2], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(d_not_required_mappings[3], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+    })
+
+    it('should validate multiple object conditions with an any matcher', async () => {
+      mockActionFields['a'] = {
+        type: 'object',
+        label: 'a',
+        description: 'a',
+        properties: {
+          b: {
+            type: 'string',
+            label: 'b'
+          },
+          c: {
+            type: 'string',
+            label: 'c'
+          }
+        }
+      }
+
+      mockActionFields['d'] = {
+        type: 'string',
+        label: 'd',
+        description: 'd',
+        required: {
+          match: 'any',
+          conditions: [
+            { fieldKey: 'a.b', operator: 'is', value: 'b_value' },
+            { fieldKey: 'a.c', operator: 'is', value: 'c_value' }
+          ]
+        }
+      }
+
+      mockActionFields['e'] = {
+        type: 'string',
+        label: 'e',
+        description: 'e'
+      }
+
+      const schema = fieldsToJsonSchema(mockActionFields)
+
+      const d_required_mappings = [
+        { a: { b: 'b_value', c: 'c_value' } },
+        { a: { b: 'b_value', c: 'c_value' }, d: 'd_value' },
+        { a: { b: 'b_value' }, d: 'd_value' },
+        { a: { c: 'c_value' }, d: 'd_value' }
+      ]
+
+      const d_not_required_mappings = [{ a: {} }, { e: 'e_value' }]
+
+      let isValid
+      isValid = validateSchema(d_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(false)
+
+      isValid = validateSchema(d_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(d_required_mappings[2], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(d_required_mappings[3], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(d_not_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(d_not_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+    })
+
+    it('should validate multiple object conditions where an object and a field are referenced', async () => {
+      mockActionFields['a'] = {
+        type: 'object',
+        label: 'a',
+        description: 'a',
+        properties: {
+          b: {
+            type: 'string',
+            label: 'b'
+          },
+          c: {
+            type: 'string',
+            label: 'c'
+          }
+        }
+      }
+
+      mockActionFields['d'] = {
+        type: 'string',
+        label: 'd',
+        description: 'd'
+      }
+
+      mockActionFields['e'] = {
+        type: 'string',
+        label: 'e',
+        description: 'e',
+        required: {
+          conditions: [
+            { fieldKey: 'a.b', operator: 'is', value: 'b_value' },
+            { fieldKey: 'd', operator: 'is', value: 'd_value' }
+          ]
+        }
+      }
+
+      const schema = fieldsToJsonSchema(mockActionFields)
+
+      const d_required_mappings = [
+        { a: { b: 'b_value' }, d: 'd_value' },
+        { a: { b: 'b_value' }, d: 'd_value', b: 'b_value' }
+      ]
+
+      const d_not_required_mappings = [
+        { a: { b: 'b_value' }, c: 'not c_value' },
+        { a: { b: 'not b_value' }, c: 'c_value' },
+        { a: { b: 'not b_value' }, c: 'not c_value' },
+        { a: { b: 'b_value' }, d: 'd_value' }
+      ]
+
+      let isValid
+      isValid = validateSchema(d_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(false)
+
+      isValid = validateSchema(d_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(d_not_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(d_not_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(d_not_required_mappings[2], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(d_not_required_mappings[3], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+    })
+
+    it('should validate when referencing a child field which is not explicitly defined in properties', async () => {
+      mockActionFields['a'] = {
+        type: 'object',
+        label: 'a',
+        description: 'a',
+        additionalProperties: true
+      }
+
+      mockActionFields['c'] = {
+        type: 'string',
+        label: 'c',
+        description: 'c',
+        required: {
+          conditions: [{ fieldKey: 'a.b', operator: 'is', value: 'b_value' }]
+        }
+      }
+
+      const schema = fieldsToJsonSchema(mockActionFields)
+
+      const c_required_mappings = [{ a: { b: 'b_value' } }, { a: { b: 'b_value' }, c: 'c_value' }]
+
+      const c_not_required_mappings = [{ a: { b: 'not b_value' } }, { a: { z: 'z_value' } }]
 
       let isValid
       isValid = validateSchema(c_required_mappings[0], schema, { throwIfInvalid: false })
