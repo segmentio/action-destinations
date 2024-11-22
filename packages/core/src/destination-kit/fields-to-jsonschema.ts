@@ -54,11 +54,39 @@ export function groupConditionsToJsonSchema(
   return schema
 }
 
+const handleUndefinedConditionValue = (dependantFieldKey: string, fieldKey: string, operator: 'is' | 'is_not') => {
+  if (operator === 'is') {
+    return {
+      if: {
+        not: {
+          required: [dependantFieldKey]
+        }
+      },
+      then: {
+        required: [fieldKey]
+      }
+    }
+  } else if (operator === 'is_not') {
+    return {
+      if: {
+        required: [dependantFieldKey]
+      },
+      then: {
+        required: [fieldKey]
+      }
+    }
+  } else {
+    throw new Error(`Unsupported conditionally required field operator: ${operator}`)
+  }
+}
+
 export function singleConditionToJsonSchema(fieldKey: string, condition: DependsOnConditions): JSONSchema4 | undefined {
   let jsonCondition: JSONSchema4 | undefined = undefined
 
   if (condition.conditions.length === 1) {
     const innerCondition = condition.conditions[0]
+
+    // object handling
     const dependentFieldKey = (innerCondition as FieldCondition).fieldKey
     if (dependentFieldKey.split('.').length > 1) {
       const [parentKey, childKey] = dependentFieldKey.split('.')
@@ -97,6 +125,10 @@ export function singleConditionToJsonSchema(fieldKey: string, condition: Depends
     }
 
     if (innerCondition.operator === 'is') {
+      if (innerCondition.value === undefined) {
+        return handleUndefinedConditionValue(innerCondition.fieldKey, fieldKey, 'is')
+      }
+
       jsonCondition = {
         if: {
           properties: { [(innerCondition as FieldCondition).fieldKey]: { const: innerCondition.value } }
@@ -106,6 +138,10 @@ export function singleConditionToJsonSchema(fieldKey: string, condition: Depends
         }
       }
     } else if (innerCondition.operator === 'is_not') {
+      if (innerCondition.value === undefined) {
+        return handleUndefinedConditionValue(innerCondition.fieldKey, fieldKey, 'is_not')
+      }
+
       jsonCondition = {
         if: {
           properties: { [(innerCondition as FieldCondition).fieldKey]: { not: { const: innerCondition.value } } }
