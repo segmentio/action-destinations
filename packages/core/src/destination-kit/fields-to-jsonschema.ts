@@ -160,9 +160,7 @@ export function singleConditionToJsonSchema(fieldKey: string, condition: Depends
   const innerConditionArray: JSONSchema4[] = []
   condition.conditions.forEach((innerCondition) => {
     const dependentFieldKey = (innerCondition as FieldCondition).fieldKey
-    console.log('dependentFieldKey:', dependentFieldKey)
     if (dependentFieldKey.split('.').length > 1) {
-      console.log('handling object dependency')
       const [parentKey, childKey] = dependentFieldKey.split('.')
 
       if (innerCondition.operator === 'is') {
