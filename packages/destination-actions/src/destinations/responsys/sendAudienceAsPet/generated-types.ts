@@ -14,14 +14,14 @@ export interface Payload {
      */
     CUSTOMER_ID_?: string
     /**
-     * Recipient ID (RIID). RIID is required if Email Address is empty.
+     * Recipient ID (RIID). RIID is required if Email Address and Customer ID are empty. Only use it if the corresponding profile already exists in Responsys.
      */
     RIID_?: string
   }
   /**
-   * The name of the folder where the new Profile Extension Table will be created.
+   * The name of the folder where the new Profile Extension Table will be created. Overrides the default folder name in Settings.
    */
-  folder_name: string
+  folder_name?: string
   /**
    * The PET (Profile Extension Table) name. The default value is the audience key in Segment.
    */
@@ -42,7 +42,7 @@ export interface Payload {
   timestamp?: string | number
   /**
    * A delay of the selected seconds will be added before retrying a failed request.
-   *                     Max delay allowed is 600 secs (10 mins). The default is 0 seconds.
+   *                 Max delay allowed is 600 secs (10 mins). The default is 0 seconds.
    */
   retry?: number
 }

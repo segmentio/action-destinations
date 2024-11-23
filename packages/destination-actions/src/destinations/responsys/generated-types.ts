@@ -22,9 +22,13 @@ export interface Settings {
    */
   baseUrl: string
   /**
+   * Name of the folder where the Profile Extension Table is located.
+   */
+  defaultFolderName?: string
+  /**
    * Name of the Profile Extension Table's Contact List.
    */
-  profileListName: string
+  profileListName?: string
   /**
    * Profile Extension Table (PET) Name. Required if using the "Send Custom Traits" Action.
    */

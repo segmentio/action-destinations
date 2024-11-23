@@ -2,7 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { enable_batching, batch_size } from '../shared-properties'
-import { sendCustomTraits, getUserDataFieldNames, validateCustomTraits, validateListMemberPayload } from '../utils'
+import { sendCustomTraits, getUserDataFieldNames, testConditionsToRetry, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -116,7 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, data) => {
     const { payload, settings, statsContext } = data
     const userDataFieldNames: string[] = getUserDataFieldNames(data as unknown as Data)
-    validateCustomTraits({
+    testConditionsToRetry({
       profileExtensionTable: settings.profileExtensionTable,
       timestamp: payload.timestamp,
       statsContext: statsContext,
@@ -130,7 +130,7 @@ const action: ActionDefinition<Settings, Payload> = {
   performBatch: async (request, data) => {
     const { payload, settings, statsContext } = data
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
-    validateCustomTraits({
+    testConditionsToRetry({
       profileExtensionTable: settings.profileExtensionTable,
       timestamp: payload[0].timestamp,
       statsContext: statsContext,

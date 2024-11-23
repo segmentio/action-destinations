@@ -10,7 +10,6 @@ import {
 } from './types'
 import {
   RequestClient,
-  IntegrationError,
   PayloadValidationError,
   RetryableError,
   StatsContext,
@@ -18,8 +17,7 @@ import {
 } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-export const validateCustomTraits = ({
-  profileExtensionTable,
+export const testConditionsToRetry = ({
   timestamp,
   statsContext,
   retry
@@ -40,19 +38,6 @@ export const validateCustomTraits = ({
     if (statsClient && statsTag) {
       statsClient?.incr('responsysShouldRetryFALSE', 1, statsTag)
     }
-  }
-  if (
-    !(
-      typeof profileExtensionTable !== 'undefined' &&
-      profileExtensionTable !== null &&
-      profileExtensionTable.trim().length > 0
-    )
-  ) {
-    throw new IntegrationError(
-      'Send Custom Traits Action requires "PET Name" setting field to be populated',
-      'PET_NAME_SETTING_MISSING',
-      400
-    )
   }
 }
 
@@ -80,7 +65,7 @@ export const getUserDataFieldNames = (data: Data): string[] => {
   return Object.keys((data as unknown as Data).rawMapping.userData)
 }
 
-const stringifyObject = (obj: Record<string, unknown>): Record<string, string> => {
+export const stringifyObject = (obj: Record<string, unknown>): Record<string, string> => {
   const stringifiedObj: Record<string, string> = {}
   for (const key in obj) {
     stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : (obj[key] as string)

@@ -29,7 +29,7 @@ export const createPet = async (request: RequestClient, settings: Settings, payl
   const requestBody = {
     profileExtension: {
       objectName: payload.pet_name,
-      folderName: payload.folder_name
+      folderName: payload.folder_name || settings.defaultFolderName
     },
     fields: [
       {
@@ -150,10 +150,8 @@ const updateProfileListMembers = async (request: RequestClient, settings: Settin
     for (const fieldName of fieldNames) {
       const resolvedFieldName = fieldName as 'EMAIL_ADDRESS_' | 'CUSTOMER_ID_' | 'RIID_'
       if (payload.userData && payload.userData[resolvedFieldName]) {
-        if (payload.userData && payload.userData[resolvedFieldName]) {
-          const value = payload.userData[resolvedFieldName]
-          record.push(value || '')
-        }
+        const value = payload.userData[resolvedFieldName]
+        record.push(value || '')
       }
     }
 
