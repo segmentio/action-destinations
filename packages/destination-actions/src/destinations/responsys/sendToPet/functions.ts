@@ -29,7 +29,7 @@ export const createPet = async (
 ) => {
   const petFields = fields.map((field) => {
     return {
-      fieldName: field,
+      fieldName: field.substring(0, 30),
       fieldType: 'STR500'
     }
   })

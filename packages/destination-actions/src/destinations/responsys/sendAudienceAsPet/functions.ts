@@ -33,7 +33,7 @@ export const createPet = async (request: RequestClient, settings: Settings, payl
     },
     fields: [
       {
-        fieldName: payload.pet_name,
+        fieldName: payload.pet_name.substring(0, 30),
         fieldType: 'STR500'
       }
     ]
