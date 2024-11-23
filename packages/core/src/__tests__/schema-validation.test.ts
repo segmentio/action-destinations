@@ -1056,7 +1056,7 @@ describe.only('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
-
+      console.log('schema:', JSON.stringify(schema, null, 2))
       const b_required_mappings = [
         { a: undefined },
         { a: undefined, b: undefined },
