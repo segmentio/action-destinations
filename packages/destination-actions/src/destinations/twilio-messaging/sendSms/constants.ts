@@ -1,0 +1,1 @@
+export const SEND_SMS_URL = `https://api.twilio.com/2010-04-01/Accounts/{accountSID}/Messages.json`
