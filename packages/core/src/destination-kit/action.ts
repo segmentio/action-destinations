@@ -542,9 +542,16 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
           // Check if response is a failed response
           if (response instanceof ActionDestinationErrorResponse) {
+            const responseValue = response.value()
+
+            // Check if the error has a 'sent' or 'body' field set, we assume it to be an error from the API Call
+            // Else we assume it to be an error from the Integration validations
             multiStatusResponse[i] = {
-              ...response.value(),
-              errorreporter: MultiStatusErrorReporter.DESTINATION
+              ...responseValue,
+              errorreporter:
+                responseValue.sent || responseValue.body
+                  ? MultiStatusErrorReporter.DESTINATION
+                  : MultiStatusErrorReporter.INTEGRATIONS
             }
 
             // Add datadog stats for events that are discarded by Destination

@@ -101,6 +101,24 @@ function validate(payloads: Payload[], ignoreErrors: boolean, invalidEmails?: st
     if (p.email && invalidEmails?.includes(p.email)) {
       delete p.email
     }
+
+    if (p.custom_fields) {
+      p.custom_fields = Object.fromEntries(
+        Object.entries(p.custom_fields).filter(([_, value]) => typeof value === 'string' || typeof value === 'number')
+      )
+    }
+
+    if (p.user_attributes) {
+      p.user_attributes = Object.fromEntries(
+        Object.entries(p.user_attributes ?? {}).map(([key, value]) => {
+          if (typeof value !== 'string') {
+            return [key, String(value)]
+          }
+          return [key, value]
+        })
+      );
+    }
+
     const hasRequiredField = [p.email, p.anonymous_id, p.external_id, p.phone_number_id].some(Boolean)
     if (!hasRequiredField && !ignoreErrors) {
       throw new PayloadValidationError(
@@ -127,9 +145,14 @@ function createPayload(payloads: Payload[], externalAudienceId: string): UpsertC
       email: payload.email ?? undefined,
       phone_number_id: payload.phone_number_id ?? undefined,
       external_id: payload.external_id ?? undefined,
-      anonymous_id: payload.anonymous_id ?? undefined
+      anonymous_id: payload.anonymous_id ?? undefined,
+      ...payload.user_attributes,
+      custom_fields: payload.custom_fields && Object.keys(payload.custom_fields).length > 0
+      ? payload.custom_fields
+      : undefined
     })) as UpsertContactsReq['contacts']
   }
+
   return json
 }
 

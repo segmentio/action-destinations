@@ -23,7 +23,9 @@ export function flatten(
       const flattened = flatten(data[key] as Properties, `${prefix}_${key}`, skipList, keyTransformation)
       result = { ...result, ...flattened }
     } else {
-      result[keyTransformation(`${prefix}_${key}`.replace(/^_/, ''))] = data[key] as JSONPrimitive
+      result[keyTransformation(`${prefix}_${key}`.replace(/^_/, ''))] = (
+        typeof data[key] === 'string' ? (data[key] as string).trim() : data[key]
+      ) as JSONPrimitive
     }
   }
   return result
