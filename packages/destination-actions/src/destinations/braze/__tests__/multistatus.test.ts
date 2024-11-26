@@ -88,7 +88,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" is required.',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'INTEGRATIONS'
       })
     })
 
@@ -326,7 +326,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'This event was not sent to Braze because it did not contain any products.',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'INTEGRATIONS'
       })
 
       // The forth event fails as pre-request validation fails for not having a valid user identifier
@@ -334,7 +334,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" is required.',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'INTEGRATIONS'
       })
     })
 
@@ -441,7 +441,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'This event was not sent to Braze because it did not contain any products.',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'INTEGRATIONS'
       })
     })
 
@@ -547,7 +547,7 @@ describe('MultiStatus', () => {
           status: 400,
           errormessage: 'This event was not sent to Braze because it did not contain any products.',
           errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errorreporter: 'DESTINATION'
+          errorreporter: 'INTEGRATIONS'
         }
       ])
     })
@@ -630,7 +630,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" is required.',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'INTEGRATIONS'
       })
     })
 
@@ -809,13 +809,13 @@ describe('MultiStatus', () => {
       expect(response).toMatchObject([
         {
           errormessage: 'Invalid syncMode, must be set to "add" or "update"',
-          errorreporter: 'DESTINATION',
+          errorreporter: 'INTEGRATIONS',
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           status: 400
         },
         {
           errormessage: 'Invalid syncMode, must be set to "add" or "update"',
-          errorreporter: 'DESTINATION',
+          errorreporter: 'INTEGRATIONS',
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           status: 400
         }
@@ -880,13 +880,13 @@ describe('MultiStatus', () => {
       expect(response).toMatchObject([
         {
           errormessage: 'Invalid syncMode, must be set to "add" or "update"',
-          errorreporter: 'DESTINATION',
+          errorreporter: 'INTEGRATIONS',
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           status: 400
         },
         {
           errormessage: 'Invalid syncMode, must be set to "add" or "update"',
-          errorreporter: 'DESTINATION',
+          errorreporter: 'INTEGRATIONS',
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           status: 400
         }
@@ -947,13 +947,13 @@ describe('MultiStatus', () => {
       expect(response).toMatchObject([
         {
           errormessage: 'Invalid syncMode, must be set to "add" or "update"',
-          errorreporter: 'DESTINATION',
+          errorreporter: 'INTEGRATIONS',
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           status: 400
         },
         {
           errormessage: 'Invalid syncMode, must be set to "add" or "update"',
-          errorreporter: 'DESTINATION',
+          errorreporter: 'INTEGRATIONS',
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           status: 400
         }
