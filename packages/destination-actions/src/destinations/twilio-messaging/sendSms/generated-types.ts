@@ -24,7 +24,7 @@ export interface Payload {
   /**
    * The SID of the pre-defined template to use. The tempalte must already exist in Twilio. Variables can be referenced with {{variable}}.
    */
-  templateSID?: string
+  templateSid?: string
   /**
    * Variables to be used in the template.
    */

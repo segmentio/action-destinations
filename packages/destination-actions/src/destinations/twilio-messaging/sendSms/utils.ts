@@ -66,3 +66,12 @@ export function validate (payload: Payload): Payload {
 
     return payload
 }
+
+export function parseFieldValue(value: string | undefined | null): string | undefined {
+    if(!value) {
+        return undefined
+    }
+    const regex = /\[(.*?)\]/
+    const match = regex.exec(value)
+    return match ? match[1] : value
+}

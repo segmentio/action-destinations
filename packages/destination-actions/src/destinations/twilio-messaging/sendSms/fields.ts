@@ -21,7 +21,7 @@ export const fields: Record<string, InputField> = {
     },
     from: {
       label: 'From',
-      description: 'The Twilio Phone Number, Short Code, or Messaging Service to send SMS from.',
+      description: 'The Twilio phone number (E.164) or short code for sending SMS/MMS. If not in the dropdown, enter it directly and ensure it supports SMS/MMS.',
       type: 'string',
       dynamic: true,
       required: false,
@@ -29,7 +29,7 @@ export const fields: Record<string, InputField> = {
     },
     messagingServiceSid: {
       label: 'Messaging Service SID',
-      description: 'The SID of the messaging service to use.',
+      description: 'The SID of the messaging service to use. If not in the dropdown, enter it directly.',
       type: 'string',
       dynamic: true,
       required: false,
@@ -47,9 +47,9 @@ export const fields: Record<string, InputField> = {
       ],
       default: 'inline'
     },
-    templateSID: {
+    templateSid: {
       label: 'Pre-defined Template SID',
-      description: 'The SID of the pre-defined template to use. The tempalte must already exist in Twilio. Variables can be referenced with {{variable}}.',
+      description: 'The SID of the pre-defined template to use. The template must already exist in Twilio. If not in the dropdown, enter it directly.',
       type: 'string',
       dynamic: true,
       required: false,
