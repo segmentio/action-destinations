@@ -1,6 +1,7 @@
 import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-types'
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
 import { Payload as ListMemberPayload } from './upsertListMember/generated-types'
+
 import {
   ResponsysRecordData,
   ResponsysCustomTraitsRequestBody,
@@ -145,9 +146,7 @@ export const upsertListMembers = async (
 
   const records: string[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
-      return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
-        ? (userData as Record<string, string>)[fieldName]
-        : ''
+      return fieldName in userData ? (userData as Record<string, string>)[fieldName] : ''
     })
   })
 
@@ -164,11 +163,14 @@ export const upsertListMembers = async (
     insertOnNoMatch: settings.insertOnNoMatch,
     updateOnMatch: settings.updateOnMatch,
     matchColumnName1: settings.matchColumnName1 + '_',
-    matchColumnName2: settings.matchColumnName2 ? settings.matchColumnName2 + '_' : '',
     matchOperator: settings.matchOperator,
     optoutValue: settings.optoutValue,
     rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
     defaultPermissionStatus: settings.defaultPermissionStatus
+  }
+
+  if (settings.matchColumnName2) {
+    mergeRule.matchColumnName2 = settings.matchColumnName2 + '_'
   }
 
   const requestBody: ResponsysListMemberRequestBody = {

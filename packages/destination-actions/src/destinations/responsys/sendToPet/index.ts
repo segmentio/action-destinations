@@ -5,7 +5,8 @@ import type { Payload } from './generated-types'
 import { enable_batching, batch_size, recipient_data, retry, folder_name } from '../shared-properties'
 import { getUserDataFieldNames, testConditionsToRetry, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
-import { sendToPet } from './functions'
+import { getUserDataFields, sendToPet } from './functions'
+import { ValidatedPayload } from './types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send to PET (Profile Extension Table)',
@@ -33,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Timestamp',
       description: 'The timestamp of when the event occurred.',
       type: 'datetime',
-      required: true,
+      required: false,
       unsafe_hidden: true,
       default: {
         '@path': '$.timestamp'
@@ -45,6 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const { payload, settings, statsContext } = data
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
+    const userDataFields = getUserDataFields(data as unknown as Data)
 
     testConditionsToRetry({
       timestamp: payload.timestamp,
@@ -68,9 +70,21 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    validateListMemberPayload(payload.userData)
+    console.log('userDataFields', userDataFields)
+    validateListMemberPayload(
+      userDataFields as {
+        EMAIL_ADDRESS_?: string
+        RIID_?: string
+        CUSTOMER_ID_?: string
+      }
+    )
 
-    return sendToPet(request, [payload], settings, userDataFieldNames)
+    const validatedPayload: ValidatedPayload = {
+      ...payload,
+      validatedUserData: userDataFields
+    }
+
+    return sendToPet(request, [validatedPayload], settings, userDataFieldNames)
   },
 
   performBatch: async (request, data) => {
@@ -78,15 +92,20 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    const validatedPayloads = []
+    const validatedPayloads: ValidatedPayload[] = []
     for (const item of payload) {
       const profileExtensionTable = String(item.pet_name || settings.profileExtensionTable)
       if (!profileExtensionTable || profileExtensionTable.trim().length === 0) {
         continue
       }
 
+      const userDataFields = getUserDataFields(data as unknown as Data)
+
       if (item.userData.EMAIL_ADDRESS_ || item.userData.RIID_ || item.userData.CUSTOMER_ID_) {
-        validatedPayloads.push(item)
+        validatedPayloads.push({
+          ...item,
+          validatedUserData: userDataFields
+        })
       }
     }
 

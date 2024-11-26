@@ -1,8 +1,12 @@
 import { ModifiedResponse, RequestClient } from '@segment/actions-core/*'
 import { Settings } from '../generated-types'
-import { Payload } from './generated-types'
-import { sendDebugMessageToSegmentSource, stringifyObject } from '../utils'
-import { ResponsysCustomTraitsRequestBody, ResponsysRecordData } from '../types'
+import { sendDebugMessageToSegmentSource, stringifyObject, upsertListMembers } from '../utils'
+import { Data as UserData, ResponsysCustomTraitsRequestBody, ResponsysRecordData } from '../types'
+import { ValidatedPayload } from './types'
+
+export const getUserDataFields = (data: UserData): { [key: string]: unknown } => {
+  return Object.assign({}, (data as unknown as UserData).rawMapping.userData)
+}
 
 export const getAllPets = async (
   request: RequestClient,
@@ -45,20 +49,21 @@ export const createPet = async (
   const path = `/rest/api/v1.3/lists/${settings.profileListName}/listExtensions`
   const endpoint = new URL(path, settings.baseUrl)
 
-  const response = await request(endpoint.href, {
+  await request(endpoint.href, {
     method: 'POST',
     body: JSON.stringify(requestBody)
   })
-
-  return response
 }
 
 export const sendToPet = async (
   request: RequestClient,
-  payload: Payload[],
+  payload: ValidatedPayload[],
   settings: Settings,
   userDataFieldNames: string[]
 ) => {
+  // First, update the profile list. No PETs will accept records from non-existing profiles.
+  await upsertListMembers(request, payload, settings, userDataFieldNames)
+
   // petRecords[folderName][petName] = [record1, record2, ...]
   const folderRecords: {
     [key: string]: {
@@ -83,7 +88,10 @@ export const sendToPet = async (
       folderRecords[folderName][petName] = []
     }
 
-    folderRecords[folderName][petName].push(item.stringify ? stringifyObject(item.userData) : item.userData)
+    // folderRecords[folderName][petName].push(item.stringify ? stringifyObject(item.userData) : item.userData)
+    folderRecords[folderName][petName].push(
+      item.stringify ? stringifyObject(item.validatedUserData) : item.validatedUserData
+    )
   }
 
   const allPets = await getAllPets(request, settings)
@@ -103,9 +111,7 @@ export const sendToPet = async (
 
       const resolvedRecords: string[][] = records.map((userData) => {
         return userDataFieldNames.map((fieldName) => {
-          return fieldName in (userData as Record<string, string>)
-            ? (userData as Record<string, string>)[fieldName]
-            : ''
+          return fieldName in userData ? (userData as Record<string, string>)[fieldName] : ''
         })
       })
 
@@ -128,6 +134,7 @@ export const sendToPet = async (
 
       const response = await request(endpoint.href, {
         method: 'POST',
+        skipResponseCloning: true,
         body: JSON.stringify(requestBody)
       })
 
