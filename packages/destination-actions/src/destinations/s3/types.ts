@@ -15,6 +15,6 @@ export interface RawMapping {
 }
 
 export interface ColumnHeader {
-  cleanName: string 
+  cleanName: string
   originalName: string
 }

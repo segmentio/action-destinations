@@ -80,11 +80,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
 
     async createAudience(request, createAudienceInput) {
-      const {
-        settings,
-        audienceSettings: { audience_name } = {},
-        personas
-      } = createAudienceInput
+      const { settings, audienceSettings: { audience_name } = {}, personas } = createAudienceInput
 
       if (!audience_name) {
         throw new IntegrationError('Missing Audience Name', 'MISSING_REQUIRED_FIELD', 400)

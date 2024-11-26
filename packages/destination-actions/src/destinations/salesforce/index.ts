@@ -9,6 +9,7 @@ import contact from './contact'
 import account from './account'
 import { authenticateWithPassword } from './sf-operations'
 
+import customObjectExternalId from './customObjectExternalId'
 import lead2 from './lead2'
 import contact2 from './contact2'
 import cases2 from './cases2'
@@ -126,6 +127,7 @@ const destination: DestinationDefinition<Settings> = {
     contact,
     opportunity,
     account,
+    customObjectExternalId,
     lead2,
     customObject2,
     account2,
