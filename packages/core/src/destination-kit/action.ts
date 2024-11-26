@@ -144,6 +144,12 @@ export interface ActionDefinition<
     >
   }
 
+  /**
+   * A function which returns a WSDL string which will be used to initialize a SOAP API client.
+   * This function may optionally make an async request to pull the WSDL.
+   */
+  soapAPIConfiguration?: RequestFn<undefined, undefined, string>
+
   /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
   syncMode?: SyncModeDefinition
 }
