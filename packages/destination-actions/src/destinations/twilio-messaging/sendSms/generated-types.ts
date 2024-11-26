@@ -42,6 +42,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * The URL of the media to include with the message. Must be a valid media URL. Accepts a single URL or an array of URLs.
+   */
+  media_url?: string[]
+  /**
    * The number of seconds between 1-36000 that the message is valid for. Default is 36000. If the message is not delivered within this time, it will not be delivered.
    */
   validity_period?: number

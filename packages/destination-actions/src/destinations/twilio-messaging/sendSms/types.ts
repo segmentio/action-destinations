@@ -3,25 +3,32 @@ export type SMS_PAYLOAD = {
   To: string
   SendAt?: string
   ValidityPeriod?: number
-} & (Sender & Template)
+} 
+| (Sender & InlineTemplate) 
+| (Sender & InlineTemplate & MediaMessage) 
+| (Sender & MediaMessage) 
+| (Sender & PredefinedTemplate) 
+| (Sender & PredefinedTemplate & MediaMessage)
 
 type Sender = FromPhone | FromMessagingService
 
-type Template = InlineTemplate | PredefinedTemplate
-
-export type PredefinedTemplate = {
-    ContentSid: string
-    ContentVariables: Record<string, string>
-}
-   
-export type InlineTemplate = {
-    Body: string
-}
-
-export type FromMessagingService = {
+type FromMessagingService = {
     MessagingServiceSid: string
 }
 
-export type FromPhone = {
+type FromPhone = {
     From: string
+}
+
+type PredefinedTemplate = {
+    ContentSid: string
+    ContentVariables?: Record<string, string>
+}
+   
+type InlineTemplate = {
+    Body: string
+}
+
+type MediaMessage = {
+    MediaUrl: string[]
 }
