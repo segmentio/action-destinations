@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { key, id, keys, enable_batching, batch_size, values_dataExtensionFields } from '../sfmc-properties'
 import { upsertRows } from '../sfmc-operations'
-import { createClient } from 'soap'
+import { createClientAsync } from 'soap'
 
 interface WSDL_REQUEST {
   wsdl: string
@@ -12,7 +12,11 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event to Data Extension',
   description: 'Upsert events as rows into an existing data extension in Salesforce Marketing Cloud.',
   soapAPIConfiguration: async (): Promise<string> => {
-    const client = await createClient('../salesforce-soap-wsdl.xml', () => {})
+    console.log('Creating client sfmc')
+    const client = await createClientAsync('packages/destination-actions/src/destinations/salesforce-marketing-cloud/salesforce-soap-wsdl.xml')
+    console.log('describe', client.describe())
+
+    return 'Client created'
   },
   hooks: {
     onMappingSave: {

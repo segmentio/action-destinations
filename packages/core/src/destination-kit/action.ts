@@ -148,7 +148,7 @@ export interface ActionDefinition<
    * A function which returns a WSDL string which will be used to initialize a SOAP API client.
    * This function may optionally make an async request to pull the WSDL.
    */
-  soapAPIConfiguration?: RequestFn<undefined, undefined, string>
+  soapAPIConfiguration?: RequestFn<Settings, {}, string>
 
   /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
   syncMode?: SyncModeDefinition
@@ -619,6 +619,16 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     return { dynamicHandlerPath, dynamicFieldContext }
+  }
+
+  async executeSOAPCongifuration(): Promise<string> {
+    const fn = this.definition.soapAPIConfiguration
+
+    if (typeof fn !== 'function') {
+      throw new IntegrationError('No SOAP API configuration function found.', 'NotImplemented', 501)
+    }
+
+    return (await this.performRequest(fn, {settings: {} as Settings, payload: {} as Payload})) as string
   }
 
   async executeDynamicField(
