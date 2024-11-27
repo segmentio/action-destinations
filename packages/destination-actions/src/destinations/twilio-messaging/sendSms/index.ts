@@ -16,7 +16,6 @@ const action: ActionDefinition<Settings, Payload> = {
       return await dynamicFromPhoneNumber(request, settings)
     },
     messagingServiceSid: async (request, {settings}) => {
-    
       return await dynamicMessagingServiceSid(request, settings)
     },
     templateSid: async (request, {payload}) => {
@@ -29,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, {payload, settings}) => {
-    const url = SEND_SMS_URL.replace('{accountSid}', settings.accountSID)
+
     const { 
       toPhoneNumber, 
       senderType, 
@@ -51,18 +50,17 @@ const action: ActionDefinition<Settings, Payload> = {
       ...(validityPeriod ? { ValidityPeriod: validityPeriod } : {}),
       ...(senderType === SENDER_TYPE.PHONE_NUMBER ? { From: fromPhoneNumber } : {}),
       ...(senderType === SENDER_TYPE.MESSAGING_SERVICE ? { MessagingServiceSid: messagingServiceSid } : {}),
-      ...(templateType === TEMPLATE_TYPE.PRE_DEFINED ? { ContentSid: templateSid, ...(contentVariables ? { ContentVariables: contentVariables } : {}) } : {}),
+      ...(templateType === TEMPLATE_TYPE.PRE_DEFINED ? { ContentSid: templateSid, ...(contentVariables ? { ContentVariables: JSON.stringify(contentVariables) } : {}) } : {}),
       ...(templateType === TEMPLATE_TYPE.INLINE && inlineBody ? { Body: encodeURIComponent(inlineBody.replace(TOKEN_REGEX, (_, key) => String(inlineVariables?.[key] ?? '')))} : ""),
       ...(urls.length > 0 ? { MediaUrl: urls } : [])
     } as SMS_PAYLOAD
 
     const encodedSmsBody = new URLSearchParams()
-
     Object.entries(smsBody).forEach(([key, value]) => {
         encodedSmsBody.append(key, String(value))
     })
 
-    return await request(url, {
+    return await request(SEND_SMS_URL.replace('{accountSid}', settings.accountSID), {
       method: 'post',
       body: encodedSmsBody.toString()
     })

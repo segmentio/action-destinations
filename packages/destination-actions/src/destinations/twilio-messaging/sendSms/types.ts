@@ -22,7 +22,7 @@ type FromPhone = {
 
 type PredefinedTemplate = {
     ContentSid: string
-    ContentVariables?: Record<string, string>
+    ContentVariables?: string
 }
    
 type InlineTemplate = {
