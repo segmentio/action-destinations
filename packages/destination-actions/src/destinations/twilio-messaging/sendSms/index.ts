@@ -1,11 +1,11 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { SEND_SMS_URL, TOKEN_REGEX } from './constants'
+import { SEND_SMS_URL, TOKEN_REGEX, TEMPLATE_TYPE, SENDER_TYPE } from './constants'
 import { SMS_PAYLOAD } from './types'
-import { validate, parseFieldValue } from './utils'
+import { validate } from './utils'
 import { fields } from './fields'
-import { dynamicPhoneNumber, dynamicMessagingServiceSid, dynamictemplateSid, dynamicContentVariables } from './dynamic-fields'
+import { dynamicPhoneNumber, dynamicMessagingServiceSid, dynamicTemplateSid, dynamicContentVariables } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send SMS or MMS',
@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return await dynamicMessagingServiceSid(request, settings)
     },
     templateSid: async (request, {payload}) => {
-      return await dynamictemplateSid(request, payload)
+      return await dynamicTemplateSid(request, payload)
     },
     contentVariables: {
       __keys__: async (request, { payload }) => {
@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, {payload, settings}) => {
-    const url = SEND_SMS_URL.replace('{accountSID}', settings.accountSID)
+    const url = SEND_SMS_URL.replace('{accountSid}', settings.accountSID)
     const { 
       to, 
       senderType, 
@@ -49,19 +49,19 @@ const action: ActionDefinition<Settings, Payload> = {
       To: to,
       ...(sendAt ? { SendAt: sendAt } : {}),
       ...(validityPeriod ? { ValidityPeriod: validityPeriod } : {}),
-      ...(senderType === 'phone-number' ? { From: phoneNumber } : {}),
-      ...(senderType === 'messaging-service' ? { MessagingServiceSid: parseFieldValue(messagingServiceSid) } : {}),
-      ...(templateType === 'pre-defined' ? { ContentSid: parseFieldValue(templateSid), ContentVariables: contentVariables } : {}),
-      ...(templateType === 'inline' && inlineBody ? { Body: encodeURIComponent(inlineBody.replace(TOKEN_REGEX, (_, key) => String(inlineVariables?.[key] ?? '')))} : ""),
-      ...(urls)
+      ...(senderType === SENDER_TYPE.PHONE_NUMBER ? { From: phoneNumber } : {}),
+      ...(senderType === SENDER_TYPE.MESSAGING_SERVICE ? { MessagingServiceSid: messagingServiceSid } : {}),
+      ...(templateType === TEMPLATE_TYPE.PRE_DEFINED ? { ContentSid: templateSid, ...(contentVariables ? { ContentVariables: contentVariables } : {}) } : {}),
+      ...(templateType === TEMPLATE_TYPE.INLINE && inlineBody ? { Body: encodeURIComponent(inlineBody.replace(TOKEN_REGEX, (_, key) => String(inlineVariables?.[key] ?? '')))} : ""),
+      ...(urls.length > 0 ? { MediaUrl: urls } : [])
     } as SMS_PAYLOAD
- 
+
     const encodedSmsBody = new URLSearchParams()
-    
+
     Object.entries(smsBody).forEach(([key, value]) => {
         encodedSmsBody.append(key, String(value))
     })
-console.log(encodedSmsBody.toString())
+
     return await request(url, {
       method: 'post',
       body: encodedSmsBody.toString()

@@ -15,3 +15,17 @@ export const GET_MESSAGING_SERVICE_SIDS_URL = 'https://messaging.twilio.com/v1/S
 export const GET_TEMPLATES_URL = 'https://content.twilio.com/v1/Content?PageSize=1000'
 
 export const GET_TEMPLATE_VARIABLES_URL = 'https://content.twilio.com/v1/Content/{contentSid}'
+
+export const TEMPLATE_TYPE = {
+    PRE_DEFINED: 'Pre-defined',
+    INLINE: 'Inline'
+} as const
+  
+export type TEMPLATE_TYPE = typeof TEMPLATE_TYPE[keyof typeof TEMPLATE_TYPE]
+
+export const SENDER_TYPE = {
+    PHONE_NUMBER: 'Phone number',
+    MESSAGING_SERVICE: 'Messaging Service'
+} as const
+  
+export type SENDER_TYPE = typeof SENDER_TYPE[keyof typeof SENDER_TYPE]

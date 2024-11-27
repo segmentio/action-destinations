@@ -122,7 +122,7 @@ export async function dynamicMessagingServiceSid(request: RequestClient, setting
   }
 }
 
-export async function dynamictemplateSid(request: RequestClient, payload: Payload): Promise<DynamicFieldResponse> {
+export async function dynamicTemplateSid(request: RequestClient, payload: Payload): Promise<DynamicFieldResponse> {
   interface ResultItem {
     friendly_name: string
     sid: string
@@ -144,7 +144,6 @@ export async function dynamictemplateSid(request: RequestClient, payload: Payloa
   }
 
   const { templateType } = payload
-
   const urls = validateMediaUrls(payload)
 
   if(!templateType) {

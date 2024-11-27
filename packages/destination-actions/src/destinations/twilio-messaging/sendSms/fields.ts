@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core'
+import { TEMPLATE_TYPE, SENDER_TYPE } from './constants'
 
 export const fields: Record<string, InputField> = {
     to: {
@@ -14,10 +15,10 @@ export const fields: Record<string, InputField> = {
       type: 'string',
       required: true,
       choices: [
-        { label: 'Phone number', value: 'phone-number' },
-        { label: 'Messaging Service', value: 'messaging-service' }
+        { label: SENDER_TYPE.PHONE_NUMBER, value: SENDER_TYPE.PHONE_NUMBER },
+        { label: SENDER_TYPE.MESSAGING_SERVICE, value: SENDER_TYPE.MESSAGING_SERVICE }
       ],
-      default: 'phone-number'
+      default: SENDER_TYPE.PHONE_NUMBER
     },
     phoneNumber: {
       label: 'Phone number',
@@ -43,10 +44,10 @@ export const fields: Record<string, InputField> = {
       type: 'string',
       required: true,
       choices: [
-        { label: 'Pre-defined', value: 'pre-defined' },
-        { label: 'Inline', value: 'inline' }
+        { label: TEMPLATE_TYPE.PRE_DEFINED, value: TEMPLATE_TYPE.PRE_DEFINED },
+        { label: TEMPLATE_TYPE.INLINE, value: TEMPLATE_TYPE.INLINE }
       ],
-      default: 'pre-defined'
+      default: TEMPLATE_TYPE.PRE_DEFINED
     },
     templateSid: {
       label: 'Content Template',
@@ -54,7 +55,6 @@ export const fields: Record<string, InputField> = {
       type: 'string',
       dynamic: true,
       required: false,
-      default: undefined,
       allowNull: false,
       disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
     },
@@ -83,8 +83,7 @@ export const fields: Record<string, InputField> = {
       dynamic: true,
       required: false,
       defaultObjectUI: 'keyvalue',
-      additionalProperties: true,
-      default: undefined 
+      additionalProperties: true
     },
     inlineBody: {
       label: 'Inline Template',
@@ -112,12 +111,12 @@ export const fields: Record<string, InputField> = {
     },
     validityPeriod: {
       label: 'Validity Period',
-      description: 'The number of seconds between 1-36000 that the message is valid for. Default is 36000. If the message is not delivered within this time, it will not be delivered.',
+      description: 'The number of seconds between 1-14400 that the message is valid for. Default is 14400. If the message is not delivered within this time, it will not be delivered.',
       type: 'number',
       required: false,
       minimum: 1,
-      maximum: 36000,
-      default: 36000
+      maximum: 14400,
+      default: 14400
     },
     sendAt: {
       label: 'Send At',
