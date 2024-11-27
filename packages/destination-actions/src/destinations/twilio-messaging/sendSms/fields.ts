@@ -26,7 +26,17 @@ export const fields: Record<string, InputField> = {
       type: 'string',
       dynamic: true,
       required: false,
-      default: undefined
+      default: undefined,
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'senderType',
+            operator: 'is',
+            value: SENDER_TYPE.PHONE_NUMBER
+          }
+        ]
+      }
     },
     messagingServiceSid: {
       label: 'Messaging Service SID',
@@ -36,7 +46,17 @@ export const fields: Record<string, InputField> = {
       required: false,
       default: undefined,
       allowNull: false,
-      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'senderType',
+            operator: 'is',
+            value: SENDER_TYPE.MESSAGING_SERVICE
+          }
+        ]
+      }
     },
     templateType: {
       label: 'Template Type',
@@ -56,7 +76,17 @@ export const fields: Record<string, InputField> = {
       dynamic: true,
       required: false,
       allowNull: false,
-      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'templateType',
+            operator: 'is',
+            value: TEMPLATE_TYPE.PRE_DEFINED
+          }
+        ]
+      }
     },
     mediaUrls: {
       label: 'Media URLs',
@@ -74,6 +104,16 @@ export const fields: Record<string, InputField> = {
           allowNull: false,
           disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
         }
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'templateType',
+            operator: 'is',
+            value: TEMPLATE_TYPE.PRE_DEFINED
+          }
+        ]
       }
     },
     contentVariables: {
@@ -83,7 +123,17 @@ export const fields: Record<string, InputField> = {
       dynamic: true,
       required: false,
       defaultObjectUI: 'keyvalue',
-      additionalProperties: true
+      additionalProperties: true,
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'templateType',
+            operator: 'is',
+            value: TEMPLATE_TYPE.PRE_DEFINED
+          }
+        ]
+      }
     },
     inlineBody: {
       label: 'Inline Template',
@@ -91,14 +141,34 @@ export const fields: Record<string, InputField> = {
       type: 'text',
       format: 'text',
       required: false,
-      default: undefined 
+      default: undefined,
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'templateType',
+            operator: 'is',
+            value: TEMPLATE_TYPE.INLINE
+          }
+        ]
+      }
     },
     inlineMediaUrls: {
       label: 'Inline Media URLs',
       description: 'The URLs of the media to include with the message. The URLs should be publicly accessible. Accepts a single URL or array of URLs.',
       type: 'string',
       multiple: true,
-      required: false
+      required: false,
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'templateType',
+            operator: 'is',
+            value: TEMPLATE_TYPE.INLINE
+          }
+        ]
+      }
     },
     inlineVariables: {
       label: 'Inline Variables',
@@ -107,7 +177,17 @@ export const fields: Record<string, InputField> = {
       required: false,
       defaultObjectUI: 'keyvalue',
       additionalProperties: true,
-      default: undefined 
+      default: undefined,
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'templateType',
+            operator: 'is',
+            value: TEMPLATE_TYPE.INLINE
+          }
+        ]
+      }
     },
     validityPeriod: {
       label: 'Validity Period',
