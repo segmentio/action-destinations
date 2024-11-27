@@ -6,25 +6,34 @@ export interface Payload {
    */
   to: string
   /**
-   * Choose the sender of the SMS.
+   * Select Sender Type
    */
-  chooseSender: string
+  senderType: string
   /**
-   * The Twilio Phone Number, Short Code, or Messaging Service to send SMS from.
+   * The Twilio phone number (E.164) or short code for sending SMS/MMS. If not in the dropdown, enter it directly and ensure it supports SMS/MMS.
    */
-  from?: string
+  phoneNumber?: string
   /**
-   * The SID of the messaging service to use.
+   * The SID of the messaging service to use. If not in the dropdown, enter it directly.
    */
   messagingServiceSid?: string
   /**
-   * Choose the type of template to use. Inline allows for the message to be defined in the Body field. Pre-defined template uses a template that is already defined in Twilio.
+   * Inicate if a pre-defined Content Template should be used, or if the message body should be specified inline.
    */
-  chooseTemplateType: string
+  templateType: string
   /**
-   * The SID of the pre-defined template to use. The tempalte must already exist in Twilio. Variables can be referenced with {{variable}}.
+   * The SID of the pre-defined Twilio SMS or MMS template to use.
    */
   templateSid?: string
+  /**
+   * The URLs of the media to include with the message. The URLs should be configured in the Content Template.
+   */
+  mediaUrls?: {
+    /**
+     * The URL of the media to include with the message.
+     */
+    url: string
+  }[]
   /**
    * Variables to be used in the template.
    */
@@ -34,7 +43,11 @@ export interface Payload {
   /**
    * The message to send. Template Variables values can be referenced using {{variable}} format. e.g. Hello {{first_name}}!.
    */
-  body: string
+  inlineBody?: string
+  /**
+   * The URLs of the media to include with the message. The URLs should be publicly accessible. Accepts a single URL or array of URLs.
+   */
+  inlineMediaUrls?: string[]
   /**
    * Variables to be used in the template.
    */
@@ -42,15 +55,11 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The URL of the media to include with the message. Must be a valid media URL. Accepts a single URL or an array of URLs.
-   */
-  media_url?: string[]
-  /**
    * The number of seconds between 1-36000 that the message is valid for. Default is 36000. If the message is not delivered within this time, it will not be delivered.
    */
-  validity_period?: number
+  validityPeriod?: number
   /**
    * The time that Twilio will send the message. Must be in ISO 8601 format.
    */
-  send_at?: string
+  sendAt?: string
 }

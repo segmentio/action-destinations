@@ -9,7 +9,7 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
   description: 'Send SMS using Twilio',
   authentication: {
-    scheme: 'custom',
+    scheme: 'basic',
     fields: {
       accountSID: {
         label: 'Twilio Account SID',
@@ -46,11 +46,9 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest: ({ settings }) => {
-    const authToken = Buffer.from(`${settings.apiKeySID}:${settings.apiKeySecret}`).toString('base64')
     return {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      username: settings.accountSID,
-      password: authToken
+      username: settings.apiKeySID,
+      password: settings.apiKeySecret
     }
   },
   actions: {

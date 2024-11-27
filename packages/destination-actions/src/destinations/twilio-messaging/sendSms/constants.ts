@@ -1,4 +1,4 @@
-export const SEND_SMS_URL = 'https://api.twilio.com/2010-04-01/Accounts/{accountSID}/Messages.json'
+export const SEND_SMS_URL = 'https://api.twilio.com/2010-04-01/Accounts/{accountSid}/Messages.json'
 
 export const TOKEN_REGEX = /{(.*?)}/g   // matches tokens for the inline template
 
