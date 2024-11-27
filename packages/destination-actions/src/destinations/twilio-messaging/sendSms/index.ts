@@ -5,15 +5,15 @@ import { SEND_SMS_URL, TOKEN_REGEX, TEMPLATE_TYPE, SENDER_TYPE } from './constan
 import { SMS_PAYLOAD } from './types'
 import { validate } from './utils'
 import { fields } from './fields'
-import { dynamicPhoneNumber, dynamicMessagingServiceSid, dynamicTemplateSid, dynamicContentVariables } from './dynamic-fields'
+import { dynamicFromPhoneNumber, dynamicMessagingServiceSid, dynamicTemplateSid, dynamicContentVariables } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send SMS or MMS',
-  description: "Send an SMS or MMS using Twilio's REST API.",
+  description: "Send SMS or MMS messages using Twilio's REST API.",
   fields,
   dynamicFields: {
-    phoneNumber: async (request, {settings}) => {
-      return await dynamicPhoneNumber(request, settings)
+    fromPhoneNumber: async (request, {settings}) => {
+      return await dynamicFromPhoneNumber(request, settings)
     },
     messagingServiceSid: async (request, {settings}) => {
     
@@ -31,9 +31,9 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, {payload, settings}) => {
     const url = SEND_SMS_URL.replace('{accountSid}', settings.accountSID)
     const { 
-      to, 
+      toPhoneNumber, 
       senderType, 
-      phoneNumber, 
+      fromPhoneNumber, 
       messagingServiceSid, 
       templateType, 
       templateSid, 
@@ -46,10 +46,10 @@ const action: ActionDefinition<Settings, Payload> = {
     } = validate(payload)
 
     const smsBody = {
-      To: to,
+      To: toPhoneNumber,
       ...(sendAt ? { SendAt: sendAt } : {}),
       ...(validityPeriod ? { ValidityPeriod: validityPeriod } : {}),
-      ...(senderType === SENDER_TYPE.PHONE_NUMBER ? { From: phoneNumber } : {}),
+      ...(senderType === SENDER_TYPE.PHONE_NUMBER ? { From: fromPhoneNumber } : {}),
       ...(senderType === SENDER_TYPE.MESSAGING_SERVICE ? { MessagingServiceSid: messagingServiceSid } : {}),
       ...(templateType === TEMPLATE_TYPE.PRE_DEFINED ? { ContentSid: templateSid, ...(contentVariables ? { ContentVariables: contentVariables } : {}) } : {}),
       ...(templateType === TEMPLATE_TYPE.INLINE && inlineBody ? { Body: encodeURIComponent(inlineBody.replace(TOKEN_REGEX, (_, key) => String(inlineVariables?.[key] ?? '')))} : ""),

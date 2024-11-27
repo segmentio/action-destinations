@@ -1,6 +1,6 @@
 import { PayloadValidationError } from '@segment/actions-core/*'
 import { Payload } from './generated-types'
-import { E164_REGEX, MESSAGING_SERVICE_SID_REGEX, TEMPLATE_SID_REGEX, TEMPLATE_TYPE, SENDER_TYPE } from './constants'
+import { E164_REGEX, FIELD_REGEX, MESSAGING_SERVICE_SID_REGEX, TEMPLATE_SID_REGEX, TEMPLATE_TYPE, SENDER_TYPE } from './constants'
 
 export function validate (payload: Payload): Payload & { urls: string[] } {
     const { 
@@ -10,8 +10,8 @@ export function validate (payload: Payload): Payload & { urls: string[] } {
     } = payload
 
     let {
-        phoneNumber,
-        to,
+        fromPhoneNumber,
+        toPhoneNumber,
         templateSid,
         messagingServiceSid
     } = payload 
@@ -20,19 +20,19 @@ export function validate (payload: Payload): Payload & { urls: string[] } {
     const urls = validateMediaUrls(payload)
     numMediaUrls = urls.length
 
-    to = to.trim()
-    if(!E164_REGEX.test(to)){
+    toPhoneNumber = toPhoneNumber.trim()
+    if(!E164_REGEX.test(toPhoneNumber)){
         throw new PayloadValidationError("'To' field should be a valid phone number in E.164 format")
     }
 
     if(senderType === SENDER_TYPE.PHONE_NUMBER) {
-        phoneNumber = phoneNumber?.trim()
+        fromPhoneNumber = fromPhoneNumber?.trim()
 
-        if(!phoneNumber){
+        if(!fromPhoneNumber){
             throw new PayloadValidationError("'From' field is required when choosing sender as From")
         }
 
-        if(!E164_REGEX.test(phoneNumber)){
+        if(!E164_REGEX.test(fromPhoneNumber)){
             throw new PayloadValidationError("'From' field should be a valid phone number in E.164 format")
         }
     }
@@ -61,15 +61,14 @@ export function validate (payload: Payload): Payload & { urls: string[] } {
         throw new PayloadValidationError("At least one of 'Inline Template' or 'Media URL' fields are required when 'Template Type' = Inline")
     }
 
-    return { ...payload, urls, templateSid }
+    return { ...payload, fromPhoneNumber, toPhoneNumber, templateSid, messagingServiceSid, urls}
 }
 
 export function parseFieldValue(value: string | undefined | null): string | undefined {
     if(!value) {
         return undefined
     }
-    const regex = /\[(.*?)\]/
-    const match = regex.exec(value)
+    const match = FIELD_REGEX.exec(value)
     return match ? match[1] : value
 }
 

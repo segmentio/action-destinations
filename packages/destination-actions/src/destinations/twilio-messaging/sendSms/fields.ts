@@ -2,9 +2,9 @@ import { InputField } from '@segment/actions-core'
 import { TEMPLATE_TYPE, SENDER_TYPE } from './constants'
 
 export const fields: Record<string, InputField> = {
-    to: {
-      label: 'To',
-      description: 'The number to send the SMS to. Must be in E.164 format. e.g. +14155552671.',
+    toPhoneNumber: {
+      label: 'To phone number',
+      description: 'The number to send the SMS to (E.164 format).',
       type: 'string',
       required: true,
       default: undefined 
@@ -20,9 +20,9 @@ export const fields: Record<string, InputField> = {
       ],
       default: SENDER_TYPE.PHONE_NUMBER
     },
-    phoneNumber: {
-      label: 'Phone number',
-      description: 'The Twilio phone number (E.164) or short code for sending SMS/MMS. If not in the dropdown, enter it directly and ensure it supports SMS/MMS.',
+    fromPhoneNumber: {
+      label: 'From phone number',
+      description: 'The Twilio phone number (E.164 format) or short code for sending SMS/MMS. If not in the dropdown, enter it directly and ensure the number supports SMS/MMS.',
       type: 'string',
       dynamic: true,
       required: false,

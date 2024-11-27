@@ -15,7 +15,7 @@ interface ResultError {
   }
 }
 
-export async function dynamicPhoneNumber(request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> {
+export async function dynamicFromPhoneNumber(request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> {
     interface ResultItem {
       phone_number: string
       capabilities: {

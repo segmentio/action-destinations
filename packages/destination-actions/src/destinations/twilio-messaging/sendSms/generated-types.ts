@@ -2,17 +2,17 @@
 
 export interface Payload {
   /**
-   * The number to send the SMS to. Must be in E.164 format. e.g. +14155552671.
+   * The number to send the SMS to (E.164 format).
    */
-  to: string
+  toPhoneNumber: string
   /**
    * Select Sender Type
    */
   senderType: string
   /**
-   * The Twilio phone number (E.164) or short code for sending SMS/MMS. If not in the dropdown, enter it directly and ensure it supports SMS/MMS.
+   * The Twilio phone number (E.164 format) or short code for sending SMS/MMS. If not in the dropdown, enter it directly and ensure the number supports SMS/MMS.
    */
-  phoneNumber?: string
+  fromPhoneNumber?: string
   /**
    * The SID of the messaging service to use. If not in the dropdown, enter it directly.
    */
@@ -55,7 +55,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The number of seconds between 1-36000 that the message is valid for. Default is 36000. If the message is not delivered within this time, it will not be delivered.
+   * The number of seconds between 1-14400 that the message is valid for. Default is 14400. If the message is not delivered within this time, it will not be delivered.
    */
   validityPeriod?: number
   /**

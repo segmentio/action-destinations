@@ -1,5 +1,7 @@
 export const SEND_SMS_URL = 'https://api.twilio.com/2010-04-01/Accounts/{accountSid}/Messages.json'
 
+export const FIELD_REGEX = /\[(.*?)\]/
+
 export const TOKEN_REGEX = /{(.*?)}/g   // matches tokens for the inline template
 
 export const E164_REGEX = /^\+?[1-9]\d{1,14}$/
