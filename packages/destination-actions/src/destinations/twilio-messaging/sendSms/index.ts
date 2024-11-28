@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { SEND_SMS_URL, TOKEN_REGEX, TEMPLATE_TYPE, SENDER_TYPE } from './constants'
+import { ACCOUNT_SID_TOKEN, SEND_SMS_URL, TOKEN_REGEX, TEMPLATE_TYPE, SENDER_TYPE } from './constants'
 import { SMS_PAYLOAD } from './types'
 import { validate } from './utils'
 import { fields } from './fields'
@@ -64,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
         encodedSmsBody.append(key, String(value))
     })
 
-    return await request(SEND_SMS_URL.replace('{accountSid}', settings.accountSID), {
+    return await request(SEND_SMS_URL.replace(ACCOUNT_SID_TOKEN, settings.accountSID), {
       method: 'post',
       body: encodedSmsBody.toString()
     })

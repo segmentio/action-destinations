@@ -1,7 +1,7 @@
 
 import { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
-import { GET_INCOMING_PHONE_NUMBERS_URL, GET_MESSAGING_SERVICE_SIDS_URL, GET_TEMPLATES_URL, GET_TEMPLATE_VARIABLES_URL, GET_TEMPLATE_URL } from './constants'
+import { CONTENT_SID_TOKEN, ACCOUNT_SID_TOKEN, GET_INCOMING_PHONE_NUMBERS_URL, GET_MESSAGING_SERVICE_SIDS_URL, GET_TEMPLATES_URL, GET_TEMPLATE_VARIABLES_URL, GET_TEMPLATE_URL } from './constants'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 import { parseFieldValue } from './utils'
@@ -60,7 +60,7 @@ export async function dynamicFromPhoneNumber(request: RequestClient, settings: S
       }
     }
    
-    const response = await getData<ResponseType>(request, GET_INCOMING_PHONE_NUMBERS_URL.replace('{accountSid}', settings.accountSID))
+    const response = await getData<ResponseType>(request, GET_INCOMING_PHONE_NUMBERS_URL.replace(ACCOUNT_SID_TOKEN, settings.accountSID))
 
     if(isErrorResponse(response)) {
       return response
@@ -95,7 +95,7 @@ export async function dynamicMessagingServiceSid(request: RequestClient, setting
     }
   }
 
-  const response = await getData<ResponseType>(request, GET_MESSAGING_SERVICE_SIDS_URL.replace('{accountSid}', settings.accountSID))
+  const response = await getData<ResponseType>(request, GET_MESSAGING_SERVICE_SIDS_URL.replace(ACCOUNT_SID_TOKEN, settings.accountSID))
 
   if(isErrorResponse(response)) {
     return response
@@ -195,7 +195,7 @@ export async function dynamicMediaUrls(request: RequestClient, payload: Payload)
     return createErrorResponse('Invalid Template SID. SID should match with the pattern HX[0-9a-fA-F]{32}')
   }
 
-  const response = await getData<ResponseType>(request, GET_TEMPLATE_URL.replace('{contentSid}', templateSid as string))
+  const response = await getData<ResponseType>(request, GET_TEMPLATE_URL.replace(CONTENT_SID_TOKEN, templateSid as string))
 
   if(isErrorResponse(response)) {
     return response
@@ -239,7 +239,7 @@ export async function dynamicContentVariables(request: RequestClient, payload: P
     return createErrorResponse("Select a value from the 'Pre-defined Template SID' field first")
   }
 
-  const response = await getData<ResponseType>(request, GET_TEMPLATE_VARIABLES_URL.replace('{contentSid}', templateSid))  
+  const response = await getData<ResponseType>(request, GET_TEMPLATE_VARIABLES_URL.replace(CONTENT_SID_TOKEN, templateSid))  
 
   if(isErrorResponse(response)) {
     return response
