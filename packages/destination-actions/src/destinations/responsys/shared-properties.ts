@@ -68,7 +68,7 @@ export const retry: InputField = {
   default: 0
 }
 
-export const enable_batching: InputField = {
+export const use_responsys_async_api: InputField = {
   label: 'Use Responsys Async API',
   description: 'Once enabled, Segment will collect events into batches of 200 before sending to Responsys.',
   type: 'boolean',

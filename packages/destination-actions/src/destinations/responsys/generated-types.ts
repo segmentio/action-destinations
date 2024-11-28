@@ -30,7 +30,7 @@ export interface Settings {
    */
   profileListName?: string
   /**
-   * Profile Extension Table (PET) Name. Required if using the "Send Custom Traits" Action.
+   * Default Profile Extension Table (PET) Name. Required if using the "Send Custom Traits" Action. Can be overridden in the mapping.
    */
   profileExtensionTable?: string
   /**

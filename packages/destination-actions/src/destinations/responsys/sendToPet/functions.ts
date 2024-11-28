@@ -1,12 +1,9 @@
 import { ModifiedResponse, RequestClient } from '@segment/actions-core/*'
 import { Settings } from '../generated-types'
-import { sendDebugMessageToSegmentSource, stringifyObject, upsertListMembers } from '../utils'
-import { Data as UserData, ResponsysCustomTraitsRequestBody, ResponsysRecordData } from '../types'
-import { ValidatedPayload } from './types'
-
-export const getUserDataFields = (data: UserData): { [key: string]: unknown } => {
-  return Object.assign({}, (data as unknown as UserData).rawMapping.userData)
-}
+import { getAsyncResponse, sendDebugMessageToSegmentSource, stringifyObject, upsertListMembers } from '../utils'
+import { ResponsysCustomTraitsRequestBody, ResponsysRecordData, UpsertProfileListResponse } from '../types'
+import { Payload } from './generated-types'
+import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 
 export const getAllPets = async (
   request: RequestClient,
@@ -57,12 +54,16 @@ export const createPet = async (
 
 export const sendToPet = async (
   request: RequestClient,
-  payload: ValidatedPayload[],
+  authTokens: AuthTokens,
+  payload: Payload[],
   settings: Settings,
   userDataFieldNames: string[]
 ) => {
   // First, update the profile list. No PETs will accept records from non-existing profiles.
-  await upsertListMembers(request, payload, settings, userDataFieldNames)
+  const usingAsyncApi = payload.length > 0 ? payload[0].use_responsys_async_api : false
+  await upsertListMembers(request, authTokens, payload, settings, usingAsyncApi)
+  // Take a break.
+  await new Promise((resolve) => setTimeout(resolve, 1000))
 
   // petRecords[folderName][petName] = [record1, record2, ...]
   const folderRecords: {
@@ -88,13 +89,12 @@ export const sendToPet = async (
       folderRecords[folderName][petName] = []
     }
 
-    // folderRecords[folderName][petName].push(item.stringify ? stringifyObject(item.userData) : item.userData)
-    folderRecords[folderName][petName].push(
-      item.stringify ? stringifyObject(item.validatedUserData) : item.validatedUserData
-    )
+    folderRecords[folderName][petName].push(item.stringify ? stringifyObject(item.userData) : item.userData)
   }
 
   const allPets = await getAllPets(request, settings)
+  // Take a break.
+  await new Promise((resolve) => setTimeout(resolve, 1000))
 
   const responses: ModifiedResponse<unknown>[] = []
   for (const [folderName, petRecords] of Object.entries(folderRecords)) {
@@ -106,6 +106,8 @@ export const sendToPet = async (
 
       if (!correspondingPet) {
         await createPet(request, settings, petName, userDataFieldNames, folderName)
+        // Take a break.
+        await new Promise((resolve) => setTimeout(resolve, 1000))
         allPets.push({ objectName: petName, folderName })
       }
 
@@ -124,22 +126,32 @@ export const sendToPet = async (
       const requestBody: ResponsysCustomTraitsRequestBody = {
         recordData,
         insertOnNoMatch: settings.insertOnNoMatch,
-        updateOnMatch: settings.updateOnMatch,
+        updateOnMatch: settings.updateOnMatch || 'REPLACE_ALL',
         matchColumnName1: settings.matchColumnName1,
         matchColumnName2: settings.matchColumnName2 || ''
       }
-      const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${petName}/members`
 
+      const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/v1.3/lists/${
+        settings.profileListName
+      }/listExtensions/${petName}/members`
       const endpoint = new URL(path, settings.baseUrl)
 
-      const response = await request(endpoint.href, {
+      const response: ModifiedResponse<UpsertProfileListResponse> = await request(endpoint.href, {
         method: 'POST',
         skipResponseCloning: true,
         body: JSON.stringify(requestBody)
       })
+      // Take a break.
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      if (usingAsyncApi) {
+        const requestId = response.data.requestId
+        const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
+        await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
+      }
 
       await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
-      responses.push(response)
+      responses.push(response as ModifiedResponse<unknown>)
     }
 
     return responses

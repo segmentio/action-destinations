@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { enable_batching, batch_size } from '../shared-properties'
+import { use_responsys_async_api, batch_size } from '../shared-properties'
 import { upsertListMembers, getUserDataFieldNames, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
 
@@ -71,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: false
     },
-    enable_batching: enable_batching,
+    enable_batching: use_responsys_async_api,
     batch_size: batch_size
   },
 

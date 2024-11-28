@@ -2,17 +2,17 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { enable_batching, batch_size, recipient_data, retry, folder_name } from '../shared-properties'
+import { use_responsys_async_api, batch_size, recipient_data, retry, folder_name } from '../shared-properties'
 import { getUserDataFieldNames, testConditionsToRetry, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
-import { getUserDataFields, sendToPet } from './functions'
-import { ValidatedPayload } from './types'
+import { sendToPet } from './functions'
+import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send to PET (Profile Extension Table)',
   description: 'Send values to a Profile Extension Table in Responsys.',
   fields: {
-    userData: recipient_data,
+    userData: { ...recipient_data, additionalProperties: true },
     folder_name: folder_name,
     pet_name: {
       label: 'Profile Extension Table Name',
@@ -20,15 +20,6 @@ const action: ActionDefinition<Settings, Payload> = {
         'The PET (Profile Extension Table) name. Overrides the default Profile Extension Table name in Settings.',
       type: 'string',
       required: false
-    },
-    enable_batching: enable_batching,
-    batch_size: batch_size,
-    stringify: {
-      label: 'Stringify Recipient Data',
-      description: 'If true, all Recipient data will be converted to strings before being sent to Responsys.',
-      type: 'boolean',
-      required: true,
-      default: false
     },
     timestamp: {
       label: 'Timestamp',
@@ -40,16 +31,24 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       }
     },
+    use_responsys_async_api: use_responsys_async_api,
+    batch_size: batch_size,
+    stringify: {
+      label: 'Stringify Recipient Data',
+      description: 'If true, all Recipient data will be converted to strings before being sent to Responsys.',
+      type: 'boolean',
+      required: true,
+      default: false
+    },
     retry: retry
   },
   perform: async (request, data) => {
-    const { payload, settings, statsContext } = data
+    const { payload, settings, statsContext, auth } = data
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
-    const userDataFields = getUserDataFields(data as unknown as Data)
 
     testConditionsToRetry({
-      timestamp: payload.timestamp,
+      timestamp: payload.timestamp || new Date().toISOString(),
       statsContext: statsContext,
       retry: payload.retry
     })
@@ -70,52 +69,35 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    console.log('userDataFields', userDataFields)
-    validateListMemberPayload(
-      userDataFields as {
-        EMAIL_ADDRESS_?: string
-        RIID_?: string
-        CUSTOMER_ID_?: string
-      }
-    )
+    validateListMemberPayload(payload.userData)
 
-    const validatedPayload: ValidatedPayload = {
-      ...payload,
-      validatedUserData: userDataFields
-    }
-
-    return sendToPet(request, [validatedPayload], settings, userDataFieldNames)
+    return sendToPet(request, auth as AuthTokens, [payload], settings, userDataFieldNames)
   },
 
   performBatch: async (request, data) => {
-    const { payload, settings, statsContext } = data
+    const { payload, settings, statsContext, auth } = data
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    const validatedPayloads: ValidatedPayload[] = []
+    const validatedPayloads: Payload[] = []
     for (const item of payload) {
       const profileExtensionTable = String(item.pet_name || settings.profileExtensionTable)
       if (!profileExtensionTable || profileExtensionTable.trim().length === 0) {
         continue
       }
 
-      const userDataFields = getUserDataFields(data as unknown as Data)
-
       if (item.userData.EMAIL_ADDRESS_ || item.userData.RIID_ || item.userData.CUSTOMER_ID_) {
-        validatedPayloads.push({
-          ...item,
-          validatedUserData: userDataFields
-        })
+        validatedPayloads.push(item)
       }
     }
 
     testConditionsToRetry({
-      timestamp: validatedPayloads[0].timestamp,
+      timestamp: validatedPayloads[0].timestamp || new Date().toISOString(),
       statsContext: statsContext,
       retry: validatedPayloads[0].retry
     })
 
-    return sendToPet(request, validatedPayloads, settings, userDataFieldNames)
+    return sendToPet(request, auth as AuthTokens, validatedPayloads, settings, userDataFieldNames)
   }
 }
 

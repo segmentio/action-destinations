@@ -17,6 +17,7 @@ export interface Payload {
      * Recipient ID (RIID). RIID is required if Email Address and Customer ID are empty. Only use it if the corresponding profile already exists in Responsys.
      */
     RIID_?: string
+    [k: string]: unknown
   }
   /**
    * The name of the folder where the new Profile Extension Table will be created. Overrides the default folder name in Settings.
@@ -27,9 +28,13 @@ export interface Payload {
    */
   pet_name?: string
   /**
+   * The timestamp of when the event occurred.
+   */
+  timestamp?: string | number
+  /**
    * Once enabled, Segment will collect events into batches of 200 before sending to Responsys.
    */
-  enable_batching?: boolean
+  use_responsys_async_api?: boolean
   /**
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
@@ -38,10 +43,6 @@ export interface Payload {
    * If true, all Recipient data will be converted to strings before being sent to Responsys.
    */
   stringify: boolean
-  /**
-   * The timestamp of when the event occurred.
-   */
-  timestamp: string | number
   /**
    * A delay of the selected seconds will be added before retrying a failed request.
    *                 Max delay allowed is 600 secs (10 mins). The default is 0 seconds.

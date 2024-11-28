@@ -7,16 +7,19 @@ import {
   ResponsysCustomTraitsRequestBody,
   ResponsysMergeRule,
   ResponsysListMemberRequestBody,
-  Data
+  Data,
+  UpsertProfileListResponse
 } from './types'
 import {
   RequestClient,
   PayloadValidationError,
   RetryableError,
   StatsContext,
-  ModifiedResponse
+  ModifiedResponse,
+  createRequestClient
 } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 
 export const testConditionsToRetry = ({
   timestamp,
@@ -138,17 +141,33 @@ export const sendCustomTraits = async (
 
 export const upsertListMembers = async (
   request: RequestClient,
+  authTokens: AuthTokens,
   payload: ListMemberPayload[],
   settings: Settings,
-  userDataFieldNames: string[]
+  usingAsyncApi = true
 ) => {
   const userDataArray = payload.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
+  const userDataFieldNames: string[] = [
+    'EMAIL_ADDRESS_',
+    'CUSTOMER_ID_',
+    'MOBILE_NUMBER_',
+    'EMAIL_MD5_HASH_',
+    'EMAIL_SHA256_HASH_'
+  ]
 
-  const records: string[][] = userDataArray.map((userData) => {
-    return userDataFieldNames.map((fieldName) => {
-      return fieldName in userData ? (userData as Record<string, string>)[fieldName] : ''
-    })
-  })
+  const records: string[][] = []
+  for (const item of userDataArray) {
+    const record: string[] = []
+    for (const fieldName of userDataFieldNames) {
+      if (fieldName in item) {
+        record.push((item as Record<string, string>)[fieldName])
+      } else {
+        record.push('')
+      }
+    }
+
+    records.push(record)
+  }
 
   const recordData: ResponsysRecordData = {
     fieldNames: userDataFieldNames,
@@ -160,7 +179,7 @@ export const upsertListMembers = async (
     htmlValue: settings.htmlValue,
     optinValue: settings.optinValue,
     textValue: settings.textValue,
-    insertOnNoMatch: settings.insertOnNoMatch,
+    insertOnNoMatch: settings.insertOnNoMatch || false,
     updateOnMatch: settings.updateOnMatch,
     matchColumnName1: settings.matchColumnName1 + '_',
     matchOperator: settings.matchOperator,
@@ -178,14 +197,30 @@ export const upsertListMembers = async (
     mergeRule
   }
 
-  const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/members`
-
+  const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/v1.3/lists/${settings.profileListName}/members`
   const endpoint = new URL(path, settings.baseUrl)
 
-  const response = await request(endpoint.href, {
+  const headers = {
+    headers: {
+      authorization: `${authTokens.accessToken}`,
+      'Content-Type': 'application/json'
+    }
+  }
+  const secondRequest = createRequestClient(headers)
+  const response: ModifiedResponse<UpsertProfileListResponse> = await secondRequest(endpoint.href, {
     method: 'POST',
     body: JSON.stringify(requestBody)
   })
+
+  // If request was done through Responsys Async API, we need to fetch the response from
+  // another endpoint to get the real processing response.
+  if (usingAsyncApi) {
+    const requestId = response.data.requestId
+    const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
+
+    await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
+    return asyncResponse
+  }
 
   await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
   return response
@@ -194,7 +229,7 @@ export const upsertListMembers = async (
 export const sendDebugMessageToSegmentSource = async (
   request: RequestClient,
   requestBody: ResponsysCustomTraitsRequestBody,
-  response: ModifiedResponse<unknown>,
+  response: ModifiedResponse<any>,
   settings: Settings
 ) => {
   if (settings.segmentWriteKey && settings.segmentWriteKeyRegion) {
@@ -228,4 +263,26 @@ export const sendDebugMessageToSegmentSource = async (
       // do nothing
     }
   }
+}
+
+export const getAsyncResponse = async (
+  requestId: string,
+  authTokens: AuthTokens,
+  settings: Settings
+): Promise<ModifiedResponse<unknown>> => {
+  const headers = {
+    headers: {
+      authorization: `${authTokens.accessToken}`,
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const operationResponseEndpoint = new URL(`/rest/asyncApi/v1.3/requests/${requestId}`, settings.baseUrl)
+  const request = createRequestClient(headers)
+  const asyncResponse = await request(operationResponseEndpoint.href, {
+    method: 'GET',
+    skipResponseCloning: true
+  })
+
+  return asyncResponse
 }
