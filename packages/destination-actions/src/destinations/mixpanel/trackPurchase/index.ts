@@ -107,8 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
-    const event = getPurchaseEventsFromPayload(payload, settings).flat()
-    return await callMixpanelApi(request, settings, event, false)
+    return processData(request, settings, [payload])
   },
 
   performBatch: async (request, { settings, payload }) => {

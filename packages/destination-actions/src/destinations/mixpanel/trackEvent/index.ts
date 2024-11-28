@@ -68,8 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
-    const events = getEventFromPayload(payload, settings)
-    return await callMixpanelApi(request, settings, [events], true)
+    return processData(request, settings, [payload])
   }
 }
 
