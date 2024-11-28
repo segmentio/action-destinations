@@ -131,7 +131,7 @@ describe('forwardProfile', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
+                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
                 mappableType: \\"segmentio\\",
               }
             ) {
@@ -194,7 +194,7 @@ describe('forwardProfile', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
+                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
                 mappableType: \\"segmentio\\",
               }
             ) {
@@ -242,7 +242,7 @@ describe('forwardProfile', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false},{\\\\\\"incoming_key\\\\\\":\\\\\\"customField\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"customField\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false},{\\\\\\"incoming_key\\\\\\":\\\\\\"numberCustomField\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"numberCustomField\\\\\\",\\\\\\"type\\\\\\":\\\\\\"number\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
+                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false},{\\\\\\"incoming_key\\\\\\":\\\\\\"customField\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"customField\\\\\\",\\\\\\"label\\\\\\":\\\\\\"Custom Field\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false},{\\\\\\"incoming_key\\\\\\":\\\\\\"numberCustomField\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"numberCustomField\\\\\\",\\\\\\"label\\\\\\":\\\\\\"Number Custom Field\\\\\\",\\\\\\"type\\\\\\":\\\\\\"number\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
                 mappableType: \\"segmentio\\",
               }
             ) {
@@ -290,7 +290,7 @@ describe('forwardProfile', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
+                mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
                 mappableType: \\"segmentio\\",
               }
             ) {

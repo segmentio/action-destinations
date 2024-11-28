@@ -352,9 +352,19 @@ const multiStatusCompatibleDestination: DestinationDefinition<JSONObject> = {
           label: 'Email',
           description: 'The user email',
           type: 'string'
+        },
+        phone: {
+          label: 'Phone',
+          description: 'The user phone number',
+          type: 'string'
         }
       },
       perform: (_request, { payload }) => {
+        // Emulate an API error
+        if (payload.phone) {
+          throw new IntegrationError('Phone number validation failed', 'Invalid Phone Number', 400)
+        }
+
         if (payload.email) {
           throw new IntegrationError('Email is required', 'Missing required fields', 400)
         }
@@ -367,6 +377,21 @@ const multiStatusCompatibleDestination: DestinationDefinition<JSONObject> = {
       performBatch: (_request, { payload }) => {
         const response = new MultiStatusResponse()
         payload.forEach((event) => {
+          // Emulate an API error
+          if (event?.phone) {
+            response.pushErrorResponse({
+              status: 400,
+              errortype: ErrorCodes.BAD_REQUEST,
+              errormessage: 'Phone number validation failed',
+              sent: event,
+              body: {
+                events_processed: 0,
+                message: 'Phone number validation failed'
+              }
+            })
+            return
+          }
+
           if (event?.email) {
             response.pushSuccessResponse({
               body: {},
@@ -1803,6 +1828,15 @@ describe('destination kit', () => {
             email: 'user.one@example.com'
           },
           receivedAt
+        },
+        {
+          // Valid Event with emulated rejection
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {
+            phone: '1234567890'
+          },
+          receivedAt
         }
       ]
 
@@ -1813,7 +1847,8 @@ describe('destination kit', () => {
           partnerAction: 'trackEvent',
           mapping: {
             name: { '@path': '$.event' },
-            email: { '@path': '$.properties.email' }
+            email: { '@path': '$.properties.email' },
+            phone: { '@path': '$.properties.phone' }
           }
         }
       }
@@ -1856,7 +1891,7 @@ describe('destination kit', () => {
               },
               Object {
                 "errormessage": "Email is required",
-                "errorreporter": "DESTINATION",
+                "errorreporter": "INTEGRATIONS",
                 "errortype": "PAYLOAD_VALIDATION_FAILED",
                 "status": 400,
               },
@@ -1864,6 +1899,20 @@ describe('destination kit', () => {
                 "body": Object {},
                 "sent": Object {},
                 "status": 200,
+              },
+              Object {
+                "body": Object {
+                  "events_processed": 0,
+                  "message": "Phone number validation failed",
+                },
+                "errormessage": "Phone number validation failed",
+                "errorreporter": "DESTINATION",
+                "errortype": "BAD_REQUEST",
+                "sent": Object {
+                  "name": "Add to Cart",
+                  "phone": "1234567890",
+                },
+                "status": 400,
               },
             ],
           },

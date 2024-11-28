@@ -43,7 +43,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Email address',
       description: "The user's email address",
       type: 'string',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       required: false,
       default: {
         '@if': {
@@ -61,7 +61,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.traits.ios_idfa' },
           then: { '@path': '$.traits.ios_idfa' },
-          else: { '@path': '$.context.traits.ios_idfa' }
+          else: { '@path': '$.properties.ios_idfa' }
         }
       }
     },
@@ -73,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
         '@if': {
           exists: { '@path': '$.traits.android_idfa' },
           then: { '@path': '$.traits.android_idfa' },
-          else: { '@path': '$.context.traits.android_idfa' }
+          else: { '@path': '$.properties.android_idfa' }
         }
       }
     },

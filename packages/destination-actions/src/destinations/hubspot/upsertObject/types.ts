@@ -79,7 +79,7 @@ export interface Prop {
   typeFieldType: HSPropTypeFieldType
 }
 
-export interface Schema {
+export interface CachableSchema {
   object_details: {
     object_type: string
     id_field_name: string
@@ -90,18 +90,15 @@ export interface Schema {
 
 export interface SchemaDiff {
   match: SchemaMatch
-  object_details: {
-    object_type: string
-    id_field_name: string
-  }
-  missingProperties: Prop[]
-  missingSensitiveProperties: Prop[]
+  missingProperties?: Prop[]
+  missingSensitiveProperties?: Prop[]
 }
 
 export interface ReadPropsResp {
   results: Array<Result>
-  status: number
+  status: string
   statusText: string
+  message?: string
 }
 
 export interface Result {
