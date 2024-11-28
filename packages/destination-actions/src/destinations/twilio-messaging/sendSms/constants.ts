@@ -16,6 +16,8 @@ export const GET_MESSAGING_SERVICE_SIDS_URL = 'https://messaging.twilio.com/v1/S
 
 export const GET_TEMPLATES_URL = 'https://content.twilio.com/v1/Content?PageSize=1000'
 
+export const GET_TEMPLATE_URL = 'https://content.twilio.com/v1/Content/{contentSid}'
+
 export const GET_TEMPLATE_VARIABLES_URL = 'https://content.twilio.com/v1/Content/{contentSid}'
 
 export const TEMPLATE_TYPE = {

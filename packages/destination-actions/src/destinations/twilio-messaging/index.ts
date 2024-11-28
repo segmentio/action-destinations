@@ -47,6 +47,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest: ({ settings }) => {
     return {
+      'Content-Type': 'application/x-www-form-urlencoded',
       username: settings.apiKeySID,
       password: settings.apiKeySecret
     }

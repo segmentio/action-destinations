@@ -5,7 +5,7 @@ import { SEND_SMS_URL, TOKEN_REGEX, TEMPLATE_TYPE, SENDER_TYPE } from './constan
 import { SMS_PAYLOAD } from './types'
 import { validate } from './utils'
 import { fields } from './fields'
-import { dynamicFromPhoneNumber, dynamicMessagingServiceSid, dynamicTemplateSid, dynamicContentVariables } from './dynamic-fields'
+import { dynamicFromPhoneNumber, dynamicMessagingServiceSid, dynamicTemplateSid, dynamicMediaUrls, dynamicContentVariables } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send SMS or MMS',
@@ -21,6 +21,11 @@ const action: ActionDefinition<Settings, Payload> = {
     templateSid: async (request, {payload}) => {
       return await dynamicTemplateSid(request, payload)
     },
+    mediaUrls: {
+      url: async (request, {payload}) => {
+        return await dynamicMediaUrls(request, payload)
+      }
+    },
     contentVariables: {
       __keys__: async (request, { payload }) => {
         return await dynamicContentVariables(request, payload)
@@ -28,7 +33,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, {payload, settings}) => {
-
     const { 
       toPhoneNumber, 
       senderType, 

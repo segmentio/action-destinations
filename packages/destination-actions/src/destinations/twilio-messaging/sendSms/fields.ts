@@ -112,6 +112,16 @@ export const fields: Record<string, InputField> = {
             fieldKey: 'templateType',
             operator: 'is',
             value: TEMPLATE_TYPE.PRE_DEFINED
+          },
+          {
+            fieldKey: 'templateSid',
+            operator: 'is_not',
+            value: undefined
+          },
+          {
+            fieldKey: 'templateSid',
+            operator: 'is_not',
+            value: ''
           }
         ]
       }
