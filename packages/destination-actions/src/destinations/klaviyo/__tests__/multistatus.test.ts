@@ -101,7 +101,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'Phone number could not be converted to E.164 format.',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'INTEGRATIONS'
       })
 
       // The Second event doesn't fail as there is no error reported by Klaviyo API
@@ -290,7 +290,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'Phone number could not be converted to E.164 format.',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'INTEGRATIONS'
       })
 
       // The second event fails as pre-request validation fails for not having any user identifier
@@ -298,7 +298,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'One of External ID, Phone Number or Email is required.',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'INTEGRATIONS'
       })
     })
   })
@@ -387,7 +387,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'Phone number could not be converted to E.164 format.',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'INTEGRATIONS'
       })
 
       // The Second event doesn't fail as there is no error reported by Klaviyo API
@@ -577,7 +577,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'Phone number could not be converted to E.164 format.',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'INTEGRATIONS'
       })
 
       // The second event fails as pre-request validation fails for not having any user identifier
@@ -585,7 +585,7 @@ describe('MultiStatus', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'One of External ID, Phone Number or Email is required.',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'INTEGRATIONS'
       })
     })
     it('should successfully mark the payload as success when there is no profileIds', async () => {
