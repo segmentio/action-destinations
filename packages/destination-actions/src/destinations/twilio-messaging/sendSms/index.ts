@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...(senderType === SENDER_TYPE.MESSAGING_SERVICE ? { MessagingServiceSid: messagingServiceSid } : {}),
       ...(templateType === TEMPLATE_TYPE.PRE_DEFINED ? { ContentSid: templateSid, ...(contentVariables ? { ContentVariables: JSON.stringify(contentVariables) } : {}) } : {}),
       ...(templateType === TEMPLATE_TYPE.INLINE && inlineBody ? { Body: encodeURIComponent(inlineBody.replace(TOKEN_REGEX, (_, key) => String(inlineVariables?.[key] ?? '')))} : ""),
-      ...(urls.length > 0 ? { MediaUrl: urls } : [])
+      ...(urls.length > 0 ? { MediaUrl: urls } : {})
     } as SMS_PAYLOAD
 
     const encodedSmsBody = new URLSearchParams()
