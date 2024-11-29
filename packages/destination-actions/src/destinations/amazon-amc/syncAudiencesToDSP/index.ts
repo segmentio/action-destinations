@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID } from '../utils'
 import { createHash } from 'crypto'
 import { AudienceRecord, HashedPIIObject } from '../types'
-import { PayloadValidationError } from '@segment/actions-core/'
+import { PayloadValidationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences to DSP',
