@@ -24,16 +24,25 @@ export const GET_TEMPLATE_URL = `https://content.twilio.com/v1/Content/${CONTENT
 
 export const GET_TEMPLATE_VARIABLES_URL = `https://content.twilio.com/v1/Content/${CONTENT_SID_TOKEN}`
 
-export const TEMPLATE_TYPE = {
-    PRE_DEFINED: 'Pre-defined',
-    INLINE: 'Inline'
+export const MESSAGE_TYPE = {
+    INLINE: { value: 'Inline', template_name: undefined, has_media:true },
+    TEXT: { value: 'Text', template_name: 'twilio/text', has_media:false },
+    MEDIA: { value: 'Media', template_name: 'twilio/media', has_media:true },
+    QUICK_REPLY: { value: 'Quick Reply', template_name: 'twilio/quick-reply', has_media:false },
+    CALL_TO_ACTION: { value: 'Call to Action', template_name: 'twilio/call-to-action', has_media:false },
+    LIST_PICKER: { value: 'List Picker', template_name: 'twilio/list-picker', has_media:false },
+    CARD: { value: 'Card', template_name: 'twilio/card', has_media:true },
+    WHATSAPP_CARD: { value: 'WhatsApp Card', template_name: 'whatsapp/card', has_media:true },
+    WHATSAPP_AUTHENTICATION: { value: 'WhatsApp Authentication', template_name: 'whatsapp/authentication', has_media:false },
+    CATALOG: { value: 'Catalog', template_name: 'twilio/catalog', has_media:false }
 } as const
-  
-export type TEMPLATE_TYPE = typeof TEMPLATE_TYPE[keyof typeof TEMPLATE_TYPE]
+
+export type MessageType = Exclude<
+  typeof MESSAGE_TYPE[keyof typeof MESSAGE_TYPE]['template_name'],
+  undefined
+>
 
 export const SENDER_TYPE = {
     PHONE_NUMBER: 'Phone number',
     MESSAGING_SERVICE: 'Messaging Service'
-} as const
-  
-export type SENDER_TYPE = typeof SENDER_TYPE[keyof typeof SENDER_TYPE]
+}

@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { TEMPLATE_TYPE, SENDER_TYPE } from './constants'
+import { MESSAGE_TYPE, SENDER_TYPE } from './constants'
 
 export const fields: Record<string, InputField> = {
     toPhoneNumber: {
@@ -58,20 +58,17 @@ export const fields: Record<string, InputField> = {
         ]
       }
     },
-    templateType: {
-      label: 'Template Type',
-      description: 'Inicate if a pre-defined Content Template should be used, or if the message body should be specified inline.',
+    messageType: {
+      label: 'Message Type',
+      description: 'Select the Twilio message type to use.',
       type: 'string',
       required: true,
-      choices: [
-        { label: TEMPLATE_TYPE.PRE_DEFINED, value: TEMPLATE_TYPE.PRE_DEFINED },
-        { label: TEMPLATE_TYPE.INLINE, value: TEMPLATE_TYPE.INLINE }
-      ],
-      default: TEMPLATE_TYPE.PRE_DEFINED
+      choices: Object.values(MESSAGE_TYPE).map((template) => ({ label: template.value, value: template.value })),
+      default: MESSAGE_TYPE.INLINE.value
     },
     templateSid: {
-      label: 'Content Template',
-      description: "The SID of the pre-defined Twilio SMS or MMS template to use.",
+      label: 'Template SID',
+      description: "The SID of the Content Template to use.",
       type: 'string',
       dynamic: true,
       required: false,
@@ -81,9 +78,9 @@ export const fields: Record<string, InputField> = {
         match: 'all',
         conditions: [
           {
-            fieldKey: 'templateType',
-            operator: 'is',
-            value: TEMPLATE_TYPE.PRE_DEFINED
+            fieldKey: 'messageType',
+            operator: 'is_not',
+            value: MESSAGE_TYPE.INLINE.value
           }
         ]
       }
@@ -109,19 +106,9 @@ export const fields: Record<string, InputField> = {
         match: 'all',
         conditions: [
           {
-            fieldKey: 'templateType',
+            fieldKey: 'messageType',
             operator: 'is',
-            value: TEMPLATE_TYPE.PRE_DEFINED
-          },
-          {
-            fieldKey: 'templateSid',
-            operator: 'is_not',
-            value: undefined
-          },
-          {
-            fieldKey: 'templateSid',
-            operator: 'is_not',
-            value: ''
+            value: Object.values(MESSAGE_TYPE).filter((t) => t.has_media).map((template) => ({ label: template.value, value: template.value })),
           }
         ]
       }
@@ -138,16 +125,16 @@ export const fields: Record<string, InputField> = {
         match: 'all',
         conditions: [
           {
-            fieldKey: 'templateType',
-            operator: 'is',
-            value: TEMPLATE_TYPE.PRE_DEFINED
+            fieldKey: 'messageType',
+            operator: 'is_not',
+            value: MESSAGE_TYPE.INLINE.value
           }
         ]
       }
     },
     inlineBody: {
       label: 'Inline Template',
-      description: 'The message to send. Template Variables values can be referenced using {{variable}} format. e.g. Hello {{first_name}}!.',
+      description: 'Define the message to be sent inline. Template Variables values can be referenced using {{variable}} format. e.g. Hello {{first_name}}!.',
       type: 'text',
       format: 'text',
       required: false,
@@ -156,9 +143,9 @@ export const fields: Record<string, InputField> = {
         match: 'all',
         conditions: [
           {
-            fieldKey: 'templateType',
+            fieldKey: 'messageType',
             operator: 'is',
-            value: TEMPLATE_TYPE.INLINE
+            value: MESSAGE_TYPE.INLINE.value
           }
         ]
       }
@@ -173,9 +160,9 @@ export const fields: Record<string, InputField> = {
         match: 'all',
         conditions: [
           {
-            fieldKey: 'templateType',
+            fieldKey: 'messageType',
             operator: 'is',
-            value: TEMPLATE_TYPE.INLINE
+            value: MESSAGE_TYPE.INLINE.value
           }
         ]
       }
@@ -192,9 +179,9 @@ export const fields: Record<string, InputField> = {
         match: 'all',
         conditions: [
           {
-            fieldKey: 'templateType',
+            fieldKey: 'messageType',
             operator: 'is',
-            value: TEMPLATE_TYPE.INLINE
+            value: MESSAGE_TYPE.INLINE.value
           }
         ]
       }

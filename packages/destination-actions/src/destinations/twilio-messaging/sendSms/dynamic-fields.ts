@@ -1,7 +1,7 @@
 
 import { RequestClient } from '@segment/actions-core'
-import { DynamicFieldResponse } from '@segment/actions-core'
-import { CONTENT_SID_TOKEN, ACCOUNT_SID_TOKEN, GET_INCOMING_PHONE_NUMBERS_URL, GET_MESSAGING_SERVICE_SIDS_URL, GET_TEMPLATES_URL, GET_TEMPLATE_VARIABLES_URL, GET_TEMPLATE_URL } from './constants'
+import { DynamicFieldResponse, JSONObject } from '@segment/actions-core'
+import { TOKEN_REGEX, CONTENT_SID_TOKEN, ACCOUNT_SID_TOKEN, GET_INCOMING_PHONE_NUMBERS_URL, GET_MESSAGING_SERVICE_SIDS_URL, GET_TEMPLATES_URL, GET_TEMPLATE_VARIABLES_URL, GET_TEMPLATE_URL, MESSAGE_TYPE, MessageType } from './constants'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 import { parseFieldValue } from './utils'
@@ -124,24 +124,16 @@ export async function dynamicTemplateSid(request: RequestClient, payload: Payloa
         friendly_name: string
         sid: string
         types: {
-          "twilio/text"?: {
-            body: string
-          },
-          "twilio/media"?: {
-            body: string
-          }
+          [key in MessageType]: JSONObject
         }
       }>
     }
   }
 
-  const { templateType } = payload
+  const { messageType } = payload
 
-  if(!templateType) {
-    return createErrorResponse('Select a Template Type first.')
-  }
-  if(templateType === 'inline') {
-    return createErrorResponse("To select a pre-defined template, set the Template Type field to 'Pre-defined' first.")
+  if(messageType === MESSAGE_TYPE.INLINE.value ) {
+    return createErrorResponse("Inline messages do not use 'pre-defined' Content templates.")
   }
 
   const response = await getData<ResponseType>(request, GET_TEMPLATES_URL)
@@ -156,9 +148,11 @@ export async function dynamicTemplateSid(request: RequestClient, payload: Payloa
     return createErrorResponse('No templates found. Please create a Content Template in Twilio first.') 
   }
 
+  const messageTypeName = MESSAGE_TYPE[messageType as keyof typeof MESSAGE_TYPE].template_name as string
+
   return { 
     choices: contents
-      .filter((c) => c.types['twilio/text'] || c.types['twilio/media'])
+      .filter((c) => c.types[messageTypeName as MessageType])
       .map((c) => ({
         label: `${c.friendly_name} [${c.sid}]`,
         value: `${c.friendly_name} [${c.sid}]`,
@@ -173,20 +167,18 @@ export async function dynamicMediaUrls(request: RequestClient, payload: Payload)
       sid: string
       types: {
         "twilio/media"?: {
-          body: string
+          body?: string
           media: string[]
         }
       }
     }
   }
 
-  const { templateType, templateSid, mediaUrls } = payload
+  const { messageType, mediaUrls } = payload
+  const templateSid = parseFieldValue(payload.templateSid)
 
-  if(!templateType) {
-    return createErrorResponse('Select a Template Type first.')
-  }
-  if(templateType === 'inline') {
-    return createErrorResponse("To select a pre-defined template, set the Template Type field to 'Pre-defined' first.")
+  if(messageType === MESSAGE_TYPE.INLINE.value ) {
+    return createErrorResponse("use the 'Inline Media URLs' field for specifying Media URLs for an inline message.")
   }
   if([undefined, '', null].includes(templateSid)) {
     return createErrorResponse('Select a Template SID first.')
@@ -227,16 +219,14 @@ export async function dynamicContentVariables(request: RequestClient, payload: P
   
   interface ResponseType {
     data: {
-      variables: {
-        [key: string]: string
-      }
+      types: JSONObject
     }
   }
 
   const templateSid = parseFieldValue(payload.templateSid)
 
   if (!templateSid) {
-    return createErrorResponse("Select a value from the 'Pre-defined Template SID' field first")
+    return createErrorResponse("Select a value from the 'Content Template' field first")
   }
 
   const response = await getData<ResponseType>(request, GET_TEMPLATE_VARIABLES_URL.replace(CONTENT_SID_TOKEN, templateSid))  
@@ -245,14 +235,15 @@ export async function dynamicContentVariables(request: RequestClient, payload: P
     return response
   }
 
-  const variables = response.data.variables ?? {}
+  const types = response?.data?.types ?? {}
+  const variables = [...JSON.stringify(types).matchAll(TOKEN_REGEX)].map(match => match[1])
 
-  if(Object.keys(variables).length === 0) { 
+  if(variables.length === 0) { 
     return createErrorResponse('No variables found for this Content item. If variable are required please createthem in Twilio first.')
   }
 
   const selectedVariables: string[] = Object.keys(payload.contentVariables ?? {}).filter(key => key.trim() !== '')
-  const filteredVariables: string[] = Object.keys(variables).filter((v) => !selectedVariables.includes(v))
+  const filteredVariables: string[] = variables.filter((v) => !selectedVariables.includes(v))
 
   return {
       choices: filteredVariables.map((key) => ({

@@ -20,7 +20,7 @@ export interface Payload {
   /**
    * Inicate if a pre-defined Content Template should be used, or if the message body should be specified inline.
    */
-  templateType: string
+  messageType: string
   /**
    * The SID of the pre-defined Twilio SMS or MMS template to use.
    */

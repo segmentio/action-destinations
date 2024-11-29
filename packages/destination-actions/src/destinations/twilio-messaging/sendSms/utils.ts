@@ -1,67 +1,70 @@
 import { PayloadValidationError } from '@segment/actions-core/*'
 import { Payload } from './generated-types'
-import { E164_REGEX, FIELD_REGEX, MESSAGING_SERVICE_SID_REGEX, TEMPLATE_SID_REGEX, TEMPLATE_TYPE, SENDER_TYPE } from './constants'
+import { TOKEN_REGEX, E164_REGEX, FIELD_REGEX, MESSAGING_SERVICE_SID_REGEX, TEMPLATE_SID_REGEX, MESSAGE_TYPE, SENDER_TYPE } from './constants'
 
-export function validate (payload: Payload): Payload & { urls: string[] } {
+export function validate (payload: Payload): Payload {
     const { 
-        senderType, 
-        templateType, 
-        inlineBody, 
+        messageType, 
+        senderType,
     } = payload
 
     let {
         fromPhoneNumber,
         toPhoneNumber,
-        templateSid,
-        messagingServiceSid
+        messagingServiceSid,
+        templateSid
     } = payload 
-    
-    let numMediaUrls = 0
-    const urls = validateMediaUrls(payload)
-    numMediaUrls = urls.length
 
-    toPhoneNumber = toPhoneNumber.trim()
-    if(!E164_REGEX.test(toPhoneNumber)){
-        throw new PayloadValidationError("'To' field should be a valid phone number in E.164 format")
+    const validateToPhoneNumber = () => {
+        toPhoneNumber = toPhoneNumber.trim()
+        if(!E164_REGEX.test(toPhoneNumber)){
+            throw new PayloadValidationError("'To' field should be a valid phone number in E.164 format")
+        }
+        return toPhoneNumber
     }
 
-    if(senderType === SENDER_TYPE.PHONE_NUMBER) {
-        fromPhoneNumber = fromPhoneNumber?.trim()
-
-        if(!fromPhoneNumber){
-            throw new PayloadValidationError("'From' field is required when choosing sender as From")
+    const validateFromPhoneNumber = () => {
+        if(senderType === SENDER_TYPE.PHONE_NUMBER) {
+            fromPhoneNumber = fromPhoneNumber?.trim()
+            if(!fromPhoneNumber){
+                throw new PayloadValidationError("'From' field is required when choosing sender as From")
+            }
+            if(!E164_REGEX.test(fromPhoneNumber)){
+                throw new PayloadValidationError("'From' field should be a valid phone number in E.164 format")
+            }
         }
-
-        if(!E164_REGEX.test(fromPhoneNumber)){
-            throw new PayloadValidationError("'From' field should be a valid phone number in E.164 format")
-        }
-    }
-    
-    if (senderType === SENDER_TYPE.MESSAGING_SERVICE) {
-        messagingServiceSid = parseFieldValue(messagingServiceSid)
-        if (!messagingServiceSid) {
-            throw new PayloadValidationError("'Messaging Service SID' field is required when 'Choose Sender' field = Messaging Service SID");
-        }
-        if (!MESSAGING_SERVICE_SID_REGEX.test(messagingServiceSid ?? "")) {
-            throw new PayloadValidationError("'Messaging Service SID' field value should start with 'MG' followed by 32 hexadecimal characters, totaling 34 characters.");
-        }
-    }
-    
-    if (templateType === TEMPLATE_TYPE.PRE_DEFINED) {
-        templateSid = parseFieldValue(templateSid)
-        if (!templateSid && numMediaUrls === 0) {
-            throw new PayloadValidationError("At least one of 'Pre-defined Template SID' or 'Media URL' fields are required when 'Template Type' = Pre-defined");
-        }
-        if (templateSid && !TEMPLATE_SID_REGEX.test(templateSid)) {
-            throw new PayloadValidationError("Template SID should start with 'HX' followed by 32 hexadecimal characters.");
-        }
+        return fromPhoneNumber ?? undefined
     }
 
-    if(templateType === TEMPLATE_TYPE.INLINE && !inlineBody && (numMediaUrls === 0)) {
-        throw new PayloadValidationError("At least one of 'Inline Template' or 'Media URL' fields are required when 'Template Type' = Inline")
+    const validateMessagingServiceSid = () => {
+        if(senderType === SENDER_TYPE.MESSAGING_SERVICE) {
+            messagingServiceSid = parseFieldValue(messagingServiceSid)
+            if (!messagingServiceSid) {
+                throw new PayloadValidationError("'Messaging Service SID' field is required when 'Choose Sender' field = Messaging Service SID");
+            }
+            if (!MESSAGING_SERVICE_SID_REGEX.test(messagingServiceSid ?? "")) {
+                throw new PayloadValidationError("'Messaging Service SID' field value should start with 'MG' followed by 32 hexadecimal characters, totaling 34 characters.");
+            }
+        }
+        return messagingServiceSid ?? undefined
     }
 
-    return { ...payload, fromPhoneNumber, toPhoneNumber, templateSid, messagingServiceSid, urls}
+    const validateTemplateSid = () => {
+        if(messageType !== MESSAGE_TYPE.INLINE.value) {
+            templateSid = parseFieldValue(templateSid)
+            if (templateSid && !TEMPLATE_SID_REGEX.test(templateSid)) {
+                throw new PayloadValidationError("Template SID should start with 'HX' followed by 32 hexadecimal characters.");
+            }
+        }
+        return templateSid ?? undefined
+    }
+
+    toPhoneNumber = validateToPhoneNumber()
+    fromPhoneNumber = validateFromPhoneNumber()
+    messagingServiceSid = validateMessagingServiceSid()
+    templateSid = validateTemplateSid()
+
+    return { ...payload, fromPhoneNumber, toPhoneNumber, templateSid, messagingServiceSid}
 }
 
 export function parseFieldValue(value: string | undefined | null): string | undefined {
@@ -72,12 +75,15 @@ export function parseFieldValue(value: string | undefined | null): string | unde
     return match ? match[1] : value
 }
 
-export function validateMediaUrls(payload: Payload): string[]{
-    const { templateType, mediaUrls, inlineMediaUrls } = payload
-    const urls: string[]  = templateType === TEMPLATE_TYPE.PRE_DEFINED ? mediaUrls?.map((item) => item.url) ?? [] : inlineMediaUrls?.filter((item) => item.trim() !== '') ?? []
+export function replaceTokens(str: string, tokens: {[k: string]:unknown} | undefined): string {
+    return str.replace(TOKEN_REGEX, (_, key) => String(tokens?.[key] ?? ''))
+}
+
+export function validateMediaUrls(urls: string[]) {
     if(urls.length > 10){
         throw new PayloadValidationError('Media URL cannot contain more than 10 URLs')
-    }
+    }  
+
     urls.filter(url => url.trim() !== "").some(url => {
         try {
             new URL(url)
@@ -85,6 +91,5 @@ export function validateMediaUrls(payload: Payload): string[]{
         } catch {
             throw new PayloadValidationError(`Media URL ${url} is not a valid URL.`)
         }
-    })   
-    return urls
+    }) 
 }
