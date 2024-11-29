@@ -5,6 +5,9 @@ export interface Payload {
    * Properties of the profile that triggered this event.
    */
   profile: {
+    /**
+     * The user's email to send to Klavio.
+     */
     email?: string
     phone_number?: string
     /**
