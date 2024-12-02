@@ -150,7 +150,6 @@ async function processPayload(
 function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: AudienceSettings) {
   const records: AudienceRecord[] = []
   const { audienceId } = payloads[0]
-  // const externalUserIdPattern = /^[0-9a-zA-Z\-\_]{1,128}$/
   payloads.forEach((payload: Payload) => {
     // Check if the externalUserId matches the pattern
     if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
