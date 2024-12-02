@@ -209,56 +209,6 @@ export function singleFieldConditionsToJsonSchema(
 
   if (singleFieldConditions.conditions.length === 1) {
     return fieldConditionSingleDependencyToJsonSchema(singleFieldConditions.conditions[0], fieldKey)
-    // const innerCondition = singleFieldConditions.conditions[0]
-
-    // // object handling
-    // const dependentFieldKey = (innerCondition as FieldCondition).fieldKey
-    // if (dependentFieldKey.split('.').length > 1) {
-    //   const [parentKey, childKey] = dependentFieldKey.split('.')
-
-    //   if (innerCondition.operator === 'is') {
-    //     jsonCondition = objectConditionToJSONSchema(parentKey, childKey, fieldKey, innerCondition.value as string, 'is')
-    //   } else if (innerCondition.operator === 'is_not') {
-    //     jsonCondition = objectConditionToJSONSchema(
-    //       parentKey,
-    //       childKey,
-    //       fieldKey,
-    //       innerCondition.value as string,
-    //       'is_not'
-    //     )
-    //   } else {
-    //     throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
-    //   }
-    //   return jsonCondition
-    // }
-
-    // if (innerCondition.operator === 'is') {
-    //   if (innerCondition.value === undefined) {
-    //     return undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, 'is')
-    //   }
-
-    //   jsonCondition = simpleConditionToJSONSchema(
-    //     (innerCondition as FieldCondition).fieldKey,
-    //     fieldKey,
-    //     innerCondition.value as string,
-    //     'is'
-    //   )
-    // } else if (innerCondition.operator === 'is_not') {
-    //   if (innerCondition.value === undefined) {
-    //     return undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, 'is_not')
-    //   }
-
-    //   jsonCondition = simpleConditionToJSONSchema(
-    //     (innerCondition as FieldCondition).fieldKey,
-    //     fieldKey,
-    //     innerCondition.value as string,
-    //     'is_not'
-    //   )
-    // } else {
-    //   throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
-    // }
-
-    // return jsonCondition
   }
 
   const innerConditionArray: JSONSchema4[] = []
