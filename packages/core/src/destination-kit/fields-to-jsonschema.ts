@@ -348,6 +348,17 @@ export function fieldsToJsonSchema(
     }
   }
 
+  // When generating types for the generated-types.ts file conditions are ignored
+  if (options?.tsType === true) {
+    return {
+      $schema: 'http://json-schema.org/schema#',
+      type: 'object',
+      additionalProperties: options?.additionalProperties || false,
+      properties,
+      required
+    }
+  }
+
   return {
     $schema: 'http://json-schema.org/schema#',
     type: 'object',
