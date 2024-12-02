@@ -18,15 +18,15 @@ export interface Payload {
    */
   messagingServiceSid?: string
   /**
-   * Inicate if a pre-defined Content Template should be used, or if the message body should be specified inline.
+   * Select the Twilio message type to use.
    */
   messageType: string
   /**
-   * The SID of the pre-defined Twilio SMS or MMS template to use.
+   * The SID of the Content Template to use.
    */
-  templateSid?: string
+  contentSid?: string
   /**
-   * The URLs of the media to include with the message. The URLs should be configured in the Content Template.
+   * The URLs of the media to include with the message. The URLs should be configured in the Content Template in Twilio.
    */
   mediaUrls?: {
     /**
@@ -35,21 +35,21 @@ export interface Payload {
     url: string
   }[]
   /**
-   * Variables to be used in the template.
+   * Variables to be used in the Content Template. The Variables must be defined in the Content Template in Twilio.
    */
   contentVariables?: {
     [k: string]: unknown
   }
   /**
-   * The message to send. Template Variables values can be referenced using {{variable}} format. e.g. Hello {{first_name}}!.
+   * Define an inline message body to be sent. Variables values can be referenced using {{variable}} format. e.g. Hello {{first_name}}!.
    */
   inlineBody?: string
   /**
-   * The URLs of the media to include with the message. The URLs should be publicly accessible. Accepts a single URL or array of URLs.
+   * The URLs of the media to sent with the inline message. The URLs must be publicaly accessible.
    */
   inlineMediaUrls?: string[]
   /**
-   * Variables to be used in the template.
+   * Variables to be send with the inline message. e.g. 'first_name' would match with {{first_name}} in the Inline Template message body.
    */
   inlineVariables?: {
     [k: string]: unknown

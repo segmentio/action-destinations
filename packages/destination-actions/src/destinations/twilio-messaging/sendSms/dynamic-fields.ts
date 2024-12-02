@@ -1,10 +1,21 @@
 
 import { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse, JSONObject } from '@segment/actions-core'
-import { TOKEN_REGEX, CONTENT_SID_TOKEN, ACCOUNT_SID_TOKEN, GET_INCOMING_PHONE_NUMBERS_URL, GET_MESSAGING_SERVICE_SIDS_URL, GET_TEMPLATES_URL, GET_TEMPLATE_VARIABLES_URL, GET_TEMPLATE_URL, MESSAGE_TYPE, MessageType } from './constants'
+import { 
+  TOKEN_REGEX, 
+  CONTENT_SID_TOKEN, 
+  ACCOUNT_SID_TOKEN, 
+  GET_INCOMING_PHONE_NUMBERS_URL, 
+  GET_MESSAGING_SERVICE_SIDS_URL, 
+  GET_ALL_CONTENTS_URL, 
+  GET_CONTENT_VARIABLES_URL, 
+  GET_CONTENT_URL, 
+  INLINE_MESSAGE_TYPES, 
+  PREDEFINED_MESSAGE_TYPES } from './constants'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { parseFieldValue } from './utils'
+import { parseFieldValue, validateContentSid } from './utils'
+import { MessageTypeName } from './types'
 
 interface ResultError {
   response: {
@@ -117,14 +128,14 @@ export async function dynamicMessagingServiceSid(request: RequestClient, setting
   }
 }
 
-export async function dynamicTemplateSid(request: RequestClient, payload: Payload): Promise<DynamicFieldResponse> {
+export async function dynamicContentSid(request: RequestClient, payload: Payload): Promise<DynamicFieldResponse> {
   interface ResponseType {
     data: {
       contents: Array<{
         friendly_name: string
         sid: string
         types: {
-          [key in MessageType]: JSONObject
+          [key in MessageTypeName]: JSONObject
         }
       }>
     }
@@ -132,11 +143,11 @@ export async function dynamicTemplateSid(request: RequestClient, payload: Payloa
 
   const { messageType } = payload
 
-  if(messageType === MESSAGE_TYPE.INLINE.value ) {
-    return createErrorResponse("Inline messages do not use 'pre-defined' Content templates.")
+  if(messageType === INLINE_MESSAGE_TYPES.INLINE.friendly_name ) {
+    return createErrorResponse("Inline messages do not use 'pre-defined' Content Templates.")
   }
 
-  const response = await getData<ResponseType>(request, GET_TEMPLATES_URL)
+  const response = await getData<ResponseType>(request, GET_ALL_CONTENTS_URL)
 
   if(isErrorResponse(response)) {
     return response
@@ -145,17 +156,17 @@ export async function dynamicTemplateSid(request: RequestClient, payload: Payloa
   const contents = response.data.contents ?? []
 
   if(contents.length === 0) { 
-    return createErrorResponse('No templates found. Please create a Content Template in Twilio first.') 
+    return createErrorResponse('No Content Templates found. Please create a Content Template in Twilio first.') 
   }
 
-  const messageTypeName = MESSAGE_TYPE[messageType as keyof typeof MESSAGE_TYPE].template_name as string
+  const name = Object.values(PREDEFINED_MESSAGE_TYPES).find(type => type.friendly_name === messageType)?.name as MessageTypeName
 
   return { 
     choices: contents
-      .filter((c) => c.types[messageTypeName as MessageType])
+      .filter((c) => c.types[name])
       .map((c) => ({
         label: `${c.friendly_name} [${c.sid}]`,
-        value: `${c.friendly_name} [${c.sid}]`,
+        value: `${c.friendly_name} [${c.sid}]`
       })) 
   }
 }
@@ -166,8 +177,7 @@ export async function dynamicMediaUrls(request: RequestClient, payload: Payload)
       friendly_name: string
       sid: string
       types: {
-        "twilio/media"?: {
-          body?: string
+        [key in MessageTypeName]: {
           media: string[]
         }
       }
@@ -175,25 +185,27 @@ export async function dynamicMediaUrls(request: RequestClient, payload: Payload)
   }
 
   const { messageType, mediaUrls } = payload
-  const templateSid = parseFieldValue(payload.templateSid)
+  const contentSid = parseFieldValue(payload.contentSid)
 
-  if(messageType === MESSAGE_TYPE.INLINE.value ) {
-    return createErrorResponse("use the 'Inline Media URLs' field for specifying Media URLs for an inline message.")
+  if(messageType === INLINE_MESSAGE_TYPES.INLINE.friendly_name ) {
+    return createErrorResponse("Use the 'Inline Media URLs' field for specifying Media URLs for an inline message.")
   }
-  if([undefined, '', null].includes(templateSid)) {
-    return createErrorResponse('Select a Template SID first.')
+  if([undefined, '', null].includes(contentSid)) {
+    return createErrorResponse("Select 'Content Template SID' first.")
   }
-  if(/^HX[0-9a-fA-F]{32}$/.test(templateSid as string) === false){
-    return createErrorResponse('Invalid Template SID. SID should match with the pattern HX[0-9a-fA-F]{32}')
+  if(validateContentSid(contentSid as string) === false){
+    return createErrorResponse('Invalid Content Template SID. SID should match with the pattern HX[0-9a-fA-F]{32}')
   }
 
-  const response = await getData<ResponseType>(request, GET_TEMPLATE_URL.replace(CONTENT_SID_TOKEN, templateSid as string))
+  const response = await getData<ResponseType>(request, GET_CONTENT_URL.replace(CONTENT_SID_TOKEN, contentSid as string))
 
   if(isErrorResponse(response)) {
     return response
   }
 
-  const urls = response.data?.types?.['twilio/media']?.media ?? []
+  const name = Object.values(PREDEFINED_MESSAGE_TYPES).find(type => type.friendly_name === messageType)?.name as MessageTypeName
+
+  const urls = response.data?.types?.[name]?.media ?? []
 
   if(urls.length === 0) { 
     return createErrorResponse ('No Media URLs found for this Content Template. If media files are required please create them in Twilio first.')
@@ -223,13 +235,13 @@ export async function dynamicContentVariables(request: RequestClient, payload: P
     }
   }
 
-  const templateSid = parseFieldValue(payload.templateSid)
+  const contentSid = parseFieldValue(payload.contentSid)
 
-  if (!templateSid) {
-    return createErrorResponse("Select a value from the 'Content Template' field first")
+  if (!contentSid) {
+    return createErrorResponse("Select from 'Content Template' field first")
   }
 
-  const response = await getData<ResponseType>(request, GET_TEMPLATE_VARIABLES_URL.replace(CONTENT_SID_TOKEN, templateSid))  
+  const response = await getData<ResponseType>(request, GET_CONTENT_VARIABLES_URL.replace(CONTENT_SID_TOKEN, contentSid))  
 
   if(isErrorResponse(response)) {
     return response
@@ -239,7 +251,7 @@ export async function dynamicContentVariables(request: RequestClient, payload: P
   const variables = [...JSON.stringify(types).matchAll(TOKEN_REGEX)].map(match => match[1])
 
   if(variables.length === 0) { 
-    return createErrorResponse('No variables found for this Content item. If variable are required please createthem in Twilio first.')
+    return createErrorResponse('No Variables found for the selected Content Template. If variable are required please createthem in Twilio first.')
   }
 
   const selectedVariables: string[] = Object.keys(payload.contentVariables ?? {}).filter(key => key.trim() !== '')

@@ -6,41 +6,44 @@ export const SEND_SMS_URL = `https://api.twilio.com/2010-04-01/Accounts/${ACCOUN
 
 export const FIELD_REGEX = /\[(.*?)\]/
 
-export const TOKEN_REGEX = /{(.*?)}/g   // matches tokens for the inline template
+export const TOKEN_REGEX = /{{(.*?)}}/g  
 
 export const E164_REGEX = /^\+?[1-9]\d{1,14}$/
 
 export const MESSAGING_SERVICE_SID_REGEX = /^MG[0-9a-fA-F]{32}$/
 
-export const TEMPLATE_SID_REGEX = /^HX[0-9a-fA-F]{32}$/
+export const CONTENT_SID_REGEX = /^HX[0-9a-fA-F]{32}$/
 
 export const GET_INCOMING_PHONE_NUMBERS_URL = `https://api.twilio.com/2010-04-01/Accounts/${ACCOUNT_SID_TOKEN}/IncomingPhoneNumbers.json?PageSize=1000`
 
 export const GET_MESSAGING_SERVICE_SIDS_URL = 'https://messaging.twilio.com/v1/Services?PageSize=1000'
 
-export const GET_TEMPLATES_URL = 'https://content.twilio.com/v1/Content?PageSize=1000'
+export const GET_ALL_CONTENTS_URL = 'https://content.twilio.com/v1/Content?PageSize=1000'
 
-export const GET_TEMPLATE_URL = `https://content.twilio.com/v1/Content/${CONTENT_SID_TOKEN}`
+export const GET_CONTENT_URL = `https://content.twilio.com/v1/Content/${CONTENT_SID_TOKEN}`
 
-export const GET_TEMPLATE_VARIABLES_URL = `https://content.twilio.com/v1/Content/${CONTENT_SID_TOKEN}`
+export const GET_CONTENT_VARIABLES_URL = `https://content.twilio.com/v1/Content/${CONTENT_SID_TOKEN}`
 
-export const MESSAGE_TYPE = {
-    INLINE: { value: 'Inline', template_name: undefined, has_media:true },
-    TEXT: { value: 'Text', template_name: 'twilio/text', has_media:false },
-    MEDIA: { value: 'Media', template_name: 'twilio/media', has_media:true },
-    QUICK_REPLY: { value: 'Quick Reply', template_name: 'twilio/quick-reply', has_media:false },
-    CALL_TO_ACTION: { value: 'Call to Action', template_name: 'twilio/call-to-action', has_media:false },
-    LIST_PICKER: { value: 'List Picker', template_name: 'twilio/list-picker', has_media:false },
-    CARD: { value: 'Card', template_name: 'twilio/card', has_media:true },
-    WHATSAPP_CARD: { value: 'WhatsApp Card', template_name: 'whatsapp/card', has_media:true },
-    WHATSAPP_AUTHENTICATION: { value: 'WhatsApp Authentication', template_name: 'whatsapp/authentication', has_media:false },
-    CATALOG: { value: 'Catalog', template_name: 'twilio/catalog', has_media:false }
+export const PREDEFINED_MESSAGE_TYPES = {
+    TEXT: { friendly_name: 'Text', name: 'twilio/text', supports_media:false },
+    MEDIA: { friendly_name: 'Media', name: 'twilio/media', supports_media:true },
+    QUICK_REPLY: { friendly_name: 'Quick Reply', name: 'twilio/quick-reply', supports_media:false },
+    CALL_TO_ACTION: { friendly_name: 'Call to Action', name: 'twilio/call-to-action', supports_media:false },
+    LIST_PICKER: { friendly_name: 'List Picker', name: 'twilio/list-picker', supports_media:false },
+    CARD: { friendly_name: 'Card', name: 'twilio/card', supports_media:true },
+    WHATSAPP_CARD: { friendly_name: 'WhatsApp Card', name: 'whatsapp/card', supports_media:true },
+    WHATSAPP_AUTHENTICATION: { friendly_name: 'WhatsApp Authentication', name: 'whatsapp/authentication', supports_media:false },
+    CATALOG: { friendly_name: 'Catalog', name: 'twilio/catalog', supports_media:false }
 } as const
 
-export type MessageType = Exclude<
-  typeof MESSAGE_TYPE[keyof typeof MESSAGE_TYPE]['template_name'],
-  undefined
->
+export const INLINE_MESSAGE_TYPES = {
+  INLINE: { friendly_name: 'Inline', name: undefined, supports_media:true }
+} as const
+
+export const ALL_MESSAGE_TYPES = {
+  ...PREDEFINED_MESSAGE_TYPES,
+  ...INLINE_MESSAGE_TYPES
+}
 
 export const SENDER_TYPE = {
     PHONE_NUMBER: 'Phone number',

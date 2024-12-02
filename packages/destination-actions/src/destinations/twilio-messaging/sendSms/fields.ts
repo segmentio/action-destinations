@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { MESSAGE_TYPE, SENDER_TYPE } from './constants'
+import { ALL_MESSAGE_TYPES, SENDER_TYPE } from './constants'
 
 export const fields: Record<string, InputField> = {
     toPhoneNumber: {
@@ -63,11 +63,11 @@ export const fields: Record<string, InputField> = {
       description: 'Select the Twilio message type to use.',
       type: 'string',
       required: true,
-      choices: Object.values(MESSAGE_TYPE).map((template) => ({ label: template.value, value: template.value })),
-      default: MESSAGE_TYPE.INLINE.value
+      choices: Object.values(ALL_MESSAGE_TYPES).map((m) => ({ label: m.friendly_name, value: m.friendly_name })),
+      default: ALL_MESSAGE_TYPES.INLINE.friendly_name
     },
-    templateSid: {
-      label: 'Template SID',
+    contentSid: {
+      label: 'Content Template SID',
       description: "The SID of the Content Template to use.",
       type: 'string',
       dynamic: true,
@@ -80,14 +80,14 @@ export const fields: Record<string, InputField> = {
           {
             fieldKey: 'messageType',
             operator: 'is_not',
-            value: MESSAGE_TYPE.INLINE.value
+            value: ALL_MESSAGE_TYPES.INLINE.friendly_name
           }
         ]
       }
     },
     mediaUrls: {
       label: 'Media URLs',
-      description: 'The URLs of the media to include with the message. The URLs should be configured in the Content Template.',
+      description: 'The URLs of the media to include with the message. The URLs should be configured in the Content Template in Twilio.',
       type: 'object',
       multiple: true,
       required: false,
@@ -108,14 +108,14 @@ export const fields: Record<string, InputField> = {
           {
             fieldKey: 'messageType',
             operator: 'is',
-            value: Object.values(MESSAGE_TYPE).filter((t) => t.has_media).map((template) => ({ label: template.value, value: template.value })),
+            value: Object.values(ALL_MESSAGE_TYPES).filter((t) => t.supports_media).map((t) => ({ label: t.friendly_name, value: t.friendly_name })),
           }
         ]
       }
     },
     contentVariables: {
       label: 'Content Variables',
-      description: 'Variables to be used in the template.',
+      description: 'Variables to be used in the Content Template. The Variables must be defined in the Content Template in Twilio.',
       type: 'object',
       dynamic: true,
       required: false,
@@ -127,14 +127,14 @@ export const fields: Record<string, InputField> = {
           {
             fieldKey: 'messageType',
             operator: 'is_not',
-            value: MESSAGE_TYPE.INLINE.value
+            value: ALL_MESSAGE_TYPES.INLINE.friendly_name
           }
         ]
       }
     },
     inlineBody: {
       label: 'Inline Template',
-      description: 'Define the message to be sent inline. Template Variables values can be referenced using {{variable}} format. e.g. Hello {{first_name}}!.',
+      description: 'Define an inline message body to be sent. Variables values can be referenced using {{variable}} format. e.g. Hello {{first_name}}!.',
       type: 'text',
       format: 'text',
       required: false,
@@ -145,14 +145,14 @@ export const fields: Record<string, InputField> = {
           {
             fieldKey: 'messageType',
             operator: 'is',
-            value: MESSAGE_TYPE.INLINE.value
+            value: ALL_MESSAGE_TYPES.INLINE.friendly_name
           }
         ]
       }
     },
     inlineMediaUrls: {
       label: 'Inline Media URLs',
-      description: 'The URLs of the media to include with the message. The URLs should be publicly accessible. Accepts a single URL or array of URLs.',
+      description: 'The URLs of the media to sent with the inline message. The URLs must be publicaly accessible.',
       type: 'string',
       multiple: true,
       required: false,
@@ -162,14 +162,14 @@ export const fields: Record<string, InputField> = {
           {
             fieldKey: 'messageType',
             operator: 'is',
-            value: MESSAGE_TYPE.INLINE.value
+            value: ALL_MESSAGE_TYPES.INLINE.friendly_name
           }
         ]
       }
     },
     inlineVariables: {
       label: 'Inline Variables',
-      description: 'Variables to be used in the template.',
+      description: "Variables to be send with the inline message. e.g. 'first_name' would match with {{first_name}} in the Inline Template message body.",
       type: 'object',
       required: false,
       defaultObjectUI: 'keyvalue',
@@ -181,7 +181,7 @@ export const fields: Record<string, InputField> = {
           {
             fieldKey: 'messageType',
             operator: 'is',
-            value: MESSAGE_TYPE.INLINE.value
+            value: ALL_MESSAGE_TYPES.INLINE.friendly_name
           }
         ]
       }

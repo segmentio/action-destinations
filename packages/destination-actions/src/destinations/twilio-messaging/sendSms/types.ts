@@ -1,16 +1,13 @@
+import { PREDEFINED_MESSAGE_TYPES } from './constants'
 
-export type SMS_PAYLOAD = {
+export type TWILIO_PAYLOAD = {
   To: string
   SendAt?: string
   ValidityPeriod?: number
-} 
-| (Sender & InlineTemplate) 
-| (Sender & InlineTemplate & MediaMessage) 
-| (Sender & MediaMessage) 
-| (Sender & PredefinedTemplate) 
-| (Sender & PredefinedTemplate & MediaMessage)
+  MediaUrl?: string[]
+} & Sender & MessageType
 
-type Sender = FromPhone | FromMessagingService
+export type Sender = FromPhone | FromMessagingService
 
 type FromMessagingService = {
     MessagingServiceSid: string
@@ -20,15 +17,15 @@ type FromPhone = {
     From: string
 }
 
-type PredefinedTemplate = {
+export type MessageType = ContentTemplateMessage | InlineMessage
+
+type ContentTemplateMessage = {
     ContentSid: string
     ContentVariables?: string
 }
    
-type InlineTemplate = {
+type InlineMessage = {
     Body: string
 }
 
-type MediaMessage = {
-    MediaUrl: string[]
-}
+export type MessageTypeName = typeof PREDEFINED_MESSAGE_TYPES[keyof typeof PREDEFINED_MESSAGE_TYPES]['name']
