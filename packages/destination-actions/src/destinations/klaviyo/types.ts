@@ -1,5 +1,4 @@
-import { HTTPError } from '@segment/actions-core'
-import { Payload } from './upsertProfile/generated-types'
+import { HTTPError, JSONLikeObject } from '@segment/actions-core'
 export class KlaviyoAPIError extends HTTPError {
   response: Response & {
     data: {
@@ -209,7 +208,11 @@ export interface UnsubscribeEventData {
 }
 
 export interface GroupedProfiles {
-  [listId: string]: Payload[]
+  [listId: string]: JSONLikeObject[]
+}
+
+export interface GroupedProfilesWithListMap {
+  [listId: string]: number[]
 }
 
 export interface AdditionalAttributes {
@@ -218,4 +221,22 @@ export interface AdditionalAttributes {
   organization?: string
   title?: string
   image?: string
+}
+export interface KlaviyoAPIErrorResponse {
+  id: string
+  status: number
+  code: string
+  title: string
+  detail: string
+  source: {
+    pointer: string
+    parameter?: string
+  }
+}
+export interface KlaviyoAPIErrorResponse {
+  errors: KlaviyoAPIError[]
+}
+export interface KlaviyoProfile {
+  type: string
+  attributes: ProfileAttributes
 }
