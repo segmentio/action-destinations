@@ -1,5 +1,13 @@
 import { JSONSchema4, JSONSchema4Type, JSONSchema4TypeName } from 'json-schema'
-import type { InputField, GlobalSetting, FieldTypeName, Optional, DependsOnConditions, FieldCondition } from './types'
+import type {
+  InputField,
+  GlobalSetting,
+  FieldTypeName,
+  Optional,
+  DependsOnConditions,
+  FieldCondition,
+  Condition
+} from './types'
 
 function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema4TypeName[] {
   switch (type) {
@@ -139,54 +147,21 @@ const objectConditionToJSONSchema = (
   }
 }
 
-export function singleFieldConditionsToJsonSchema(
-  fieldKey: string,
-  singleFieldConditions: DependsOnConditions
-): JSONSchema4 | undefined {
+export function fieldConditionSingleDependencyToJsonSchema(condition: Condition, fieldKey: string) {
   let jsonCondition: JSONSchema4 | undefined = undefined
+  const innerCondition = condition
 
-  if (singleFieldConditions.conditions.length === 1) {
-    const innerCondition = singleFieldConditions.conditions[0]
-
-    // object handling
-    const dependentFieldKey = (innerCondition as FieldCondition).fieldKey
-    if (dependentFieldKey.split('.').length > 1) {
-      const [parentKey, childKey] = dependentFieldKey.split('.')
-
-      if (innerCondition.operator === 'is') {
-        jsonCondition = objectConditionToJSONSchema(parentKey, childKey, fieldKey, innerCondition.value as string, 'is')
-      } else if (innerCondition.operator === 'is_not') {
-        jsonCondition = objectConditionToJSONSchema(
-          parentKey,
-          childKey,
-          fieldKey,
-          innerCondition.value as string,
-          'is_not'
-        )
-      } else {
-        throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
-      }
-      return jsonCondition
-    }
+  // object handling
+  const dependentFieldKey = (innerCondition as FieldCondition).fieldKey
+  if (dependentFieldKey.split('.').length > 1) {
+    const [parentKey, childKey] = dependentFieldKey.split('.')
 
     if (innerCondition.operator === 'is') {
-      if (innerCondition.value === undefined) {
-        return undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, 'is')
-      }
-
-      jsonCondition = simpleConditionToJSONSchema(
-        (innerCondition as FieldCondition).fieldKey,
-        fieldKey,
-        innerCondition.value as string,
-        'is'
-      )
+      jsonCondition = objectConditionToJSONSchema(parentKey, childKey, fieldKey, innerCondition.value as string, 'is')
     } else if (innerCondition.operator === 'is_not') {
-      if (innerCondition.value === undefined) {
-        return undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, 'is_not')
-      }
-
-      jsonCondition = simpleConditionToJSONSchema(
-        (innerCondition as FieldCondition).fieldKey,
+      jsonCondition = objectConditionToJSONSchema(
+        parentKey,
+        childKey,
         fieldKey,
         innerCondition.value as string,
         'is_not'
@@ -194,8 +169,96 @@ export function singleFieldConditionsToJsonSchema(
     } else {
       throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
     }
-
     return jsonCondition
+  }
+
+  if (innerCondition.operator === 'is') {
+    if (innerCondition.value === undefined) {
+      return undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, 'is')
+    }
+
+    jsonCondition = simpleConditionToJSONSchema(
+      (innerCondition as FieldCondition).fieldKey,
+      fieldKey,
+      innerCondition.value as string,
+      'is'
+    )
+  } else if (innerCondition.operator === 'is_not') {
+    if (innerCondition.value === undefined) {
+      return undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, 'is_not')
+    }
+
+    jsonCondition = simpleConditionToJSONSchema(
+      (innerCondition as FieldCondition).fieldKey,
+      fieldKey,
+      innerCondition.value as string,
+      'is_not'
+    )
+  } else {
+    throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
+  }
+
+  return jsonCondition
+}
+
+export function singleFieldConditionsToJsonSchema(
+  fieldKey: string,
+  singleFieldConditions: DependsOnConditions
+): JSONSchema4 | undefined {
+  let jsonCondition: JSONSchema4 | undefined = undefined
+
+  if (singleFieldConditions.conditions.length === 1) {
+    return fieldConditionSingleDependencyToJsonSchema(singleFieldConditions.conditions[0], fieldKey)
+    // const innerCondition = singleFieldConditions.conditions[0]
+
+    // // object handling
+    // const dependentFieldKey = (innerCondition as FieldCondition).fieldKey
+    // if (dependentFieldKey.split('.').length > 1) {
+    //   const [parentKey, childKey] = dependentFieldKey.split('.')
+
+    //   if (innerCondition.operator === 'is') {
+    //     jsonCondition = objectConditionToJSONSchema(parentKey, childKey, fieldKey, innerCondition.value as string, 'is')
+    //   } else if (innerCondition.operator === 'is_not') {
+    //     jsonCondition = objectConditionToJSONSchema(
+    //       parentKey,
+    //       childKey,
+    //       fieldKey,
+    //       innerCondition.value as string,
+    //       'is_not'
+    //     )
+    //   } else {
+    //     throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
+    //   }
+    //   return jsonCondition
+    // }
+
+    // if (innerCondition.operator === 'is') {
+    //   if (innerCondition.value === undefined) {
+    //     return undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, 'is')
+    //   }
+
+    //   jsonCondition = simpleConditionToJSONSchema(
+    //     (innerCondition as FieldCondition).fieldKey,
+    //     fieldKey,
+    //     innerCondition.value as string,
+    //     'is'
+    //   )
+    // } else if (innerCondition.operator === 'is_not') {
+    //   if (innerCondition.value === undefined) {
+    //     return undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, 'is_not')
+    //   }
+
+    //   jsonCondition = simpleConditionToJSONSchema(
+    //     (innerCondition as FieldCondition).fieldKey,
+    //     fieldKey,
+    //     innerCondition.value as string,
+    //     'is_not'
+    //   )
+    // } else {
+    //   throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
+    // }
+
+    // return jsonCondition
   }
 
   const innerConditionArray: JSONSchema4[] = []
