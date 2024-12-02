@@ -21,16 +21,7 @@ describe('conditionally required field schema generation', () => {
     }
 
     const schema = fieldsToJsonSchema(mockActionFields)
-
-    console.log('schema:', schema)
-    /** expecting an object with:
-         *   required: [ 'a' ],
-            if: {
-                properties: {"a": {"const": "a_value"}}
-            },
-            then: { "required": ["b"] }
-         */
-    expect(schema).toMatchInlineSnapshot(``)
+    expect(schema).toMatchSnapshot()
   })
 
   it('should generate a schema when one field depends on multiple other fields', async () => {
@@ -61,15 +52,7 @@ describe('conditionally required field schema generation', () => {
     }
 
     const schema = fieldsToJsonSchema(mockActionFields)
-
-    console.log('schema:', schema)
-    /** expecting an object with:
-          if: {
-            properties: { a: { const: 'a_value' }, b: { const: 'b_value' } }
-          },
-          then: { required: [ 'c' ] }
-         */
-    expect(schema).toMatchInlineSnapshot(``)
+    expect(schema).toMatchSnapshot()
   })
 
   it('should generate a schema when multiple fields depend on one field', async () => {})

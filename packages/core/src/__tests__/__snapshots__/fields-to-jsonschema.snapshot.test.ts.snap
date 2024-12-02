@@ -1,0 +1,111 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`conditionally required field schema generation should generate a schema when one field depends on another 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": "a_value",
+          },
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+  },
+  "required": Array [
+    "a",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required field schema generation should generate a schema when one field depends on multiple other fields 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "allOf": Array [
+          Object {
+            "properties": Object {
+              "a": Object {
+                "const": "a_value",
+              },
+            },
+            "required": Array [
+              "a",
+            ],
+          },
+          Object {
+            "properties": Object {
+              "b": Object {
+                "const": "b_value",
+              },
+            },
+            "required": Array [
+              "b",
+            ],
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "c",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+    "c": Object {
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "title": "c",
+      "type": "string",
+    },
+  },
+  "required": Array [
+    "a",
+  ],
+  "type": "object",
+}
+`;
