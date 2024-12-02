@@ -70,7 +70,7 @@ describe.only('conditionally required fields', () => {
     mockActionFields = {}
   })
 
-  describe.skip('should validate a single conditional requirement', () => {
+  describe('should validate a single conditional requirement', () => {
     it('should validate b when it is required', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -128,7 +128,7 @@ describe.only('conditionally required fields', () => {
     })
   })
 
-  describe.skip('should validate multiple conditional requirements on different fields', () => {
+  describe('should validate multiple conditional requirements on different fields', () => {
     it('should validate when both b and c are required', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -300,7 +300,7 @@ describe.only('conditionally required fields', () => {
     })
   })
 
-  describe.skip('should handle multiple conditions on the same field', () => {
+  describe('should handle multiple conditions on the same field', () => {
     it('should handle when one field has multiple values on another for which it is required, any matcher', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -563,7 +563,7 @@ describe.only('conditionally required fields', () => {
       expect(isValid).toBe(true)
     })
 
-    it.only('should validate multiple object conditions', async () => {
+    it('should validate multiple object conditions', async () => {
       mockActionFields['a'] = {
         type: 'object',
         label: 'a',
@@ -874,7 +874,7 @@ describe.only('conditionally required fields', () => {
     })
   })
 
-  describe.skip('should handle different data types', () => {
+  describe('should handle different data types', () => {
     it('should validate number fields', async () => {
       mockActionFields['a'] = {
         type: 'number',
