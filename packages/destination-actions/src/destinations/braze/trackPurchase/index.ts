@@ -119,9 +119,6 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true
     }
   },
-  groupConditions: {
-    anyOf: ['external_id', 'user_alias', 'email', 'braze_id']
-  },
   perform: (request, { settings, payload }) => {
     return sendTrackPurchase(request, settings, payload)
   },

@@ -32,35 +32,6 @@ interface SchemaOptions {
   tsType?: boolean
   additionalProperties?: boolean
 }
-export function groupConditionsToJsonSchema(
-  groups: { anyOf?: string[]; oneOf?: string[]; allOf?: string[] } | undefined
-): JSONSchema4 {
-  if (!groups) {
-    return {}
-  }
-
-  const schema: JSONSchema4 = []
-
-  if (groups.anyOf) {
-    schema.anyOf = groups.anyOf.map((fieldKey) => {
-      return { required: [fieldKey] }
-    })
-  }
-
-  if (groups.oneOf) {
-    schema.oneOf = groups.oneOf.map((fieldKey) => {
-      return { required: [fieldKey] }
-    })
-  }
-
-  if (groups.allOf) {
-    schema.allOf = groups.allOf.map((fieldKey) => {
-      return { required: [fieldKey] }
-    })
-  }
-
-  return schema
-}
 
 const undefinedConditionValueToJSONSchema = (
   dependantFieldKey: string,

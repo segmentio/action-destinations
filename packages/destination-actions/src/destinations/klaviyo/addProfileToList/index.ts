@@ -46,9 +46,6 @@ const action: ActionDefinition<Settings, Payload> = {
     properties: { ...properties },
     country_code: { ...country_code }
   },
-  groupConditions: {
-    anyOf: ['email', 'external_id']
-  },
   perform: async (request, { payload }) => {
     const {
       email,
