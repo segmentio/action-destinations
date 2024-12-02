@@ -63,7 +63,7 @@ const schema = fieldsToJsonSchema({
 })
 
 // Note: For easier debugging of these test cases you can switch `throwIfInvalid` to `true` to see the AJV error message
-describe.only('conditionally required fields', () => {
+describe('conditionally required fields', () => {
   let mockActionFields: Record<string, InputField> = {}
 
   beforeEach(() => {
@@ -1221,9 +1221,6 @@ describe('validateSchema', () => {
     const isValid = validateSchema(payload, hiddenSchema, { schemaKey: `testSchema` })
     expect(isValid).toBe(true)
   })
-
-  // For now we always remove unknown keys, until builders have a way to specify the behavior
-  it.todo('should not remove nested keys for valid properties')
 
   it('should coerce properties for more flexible but type-safe inputs', () => {
     const payload = {
