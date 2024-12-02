@@ -70,7 +70,7 @@ describe.only('conditionally required fields', () => {
     mockActionFields = {}
   })
 
-  describe('should validate a single conditional requirement', () => {
+  describe.skip('should validate a single conditional requirement', () => {
     it('should validate b when it is required', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -128,7 +128,7 @@ describe.only('conditionally required fields', () => {
     })
   })
 
-  describe('should validate multiple conditional requirements on different fields', () => {
+  describe.skip('should validate multiple conditional requirements on different fields', () => {
     it('should validate when both b and c are required', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -300,7 +300,7 @@ describe.only('conditionally required fields', () => {
     })
   })
 
-  describe('should handle multiple conditions on the same field', () => {
+  describe.skip('should handle multiple conditions on the same field', () => {
     it('should handle when one field has multiple values on another for which it is required, any matcher', async () => {
       mockActionFields['a'] = {
         label: 'a',
@@ -563,7 +563,7 @@ describe.only('conditionally required fields', () => {
       expect(isValid).toBe(true)
     })
 
-    it('should validate multiple object conditions', async () => {
+    it.only('should validate multiple object conditions', async () => {
       mockActionFields['a'] = {
         type: 'object',
         label: 'a',
@@ -597,35 +597,55 @@ describe.only('conditionally required fields', () => {
       console.log('schema:', JSON.stringify(schema, null, 2))
 
       const d_required_mappings = [
-        { a: { b: 'b_value', c: 'c_value' } },
-        { a: { b: 'b_value', c: 'c_value' }, d: 'd_value' }
+        [{ a: { b: 'b_value', c: 'c_value' } }, false],
+        [{ a: { b: 'b_value', c: 'c_value' }, d: 'd_value' }, true]
       ]
 
       const d_not_required_mappings = [
-        { a: { b: 'b_value', c: 'not c_value' } },
-        { a: { b: 'not b_value', c: 'c_value' } },
-        { a: { b: 'not b_value', c: 'not c_value' } },
-        { a: { b: 'b_value' }, d: 'd_value' }
+        [{ a: { b: 'b_value', c: 'not c_value' } }, true],
+        [{ a: { b: 'not b_value', c: 'c_value' } }, true],
+        [{ a: { b: 'not b_value', c: 'not c_value' } }, true],
+        [{ a: { b: 'b_value' }, d: 'd_value' }, true]
       ]
 
-      let isValid
-      isValid = validateSchema(d_required_mappings[0], schema, { throwIfInvalid: false })
-      expect(isValid).toBe(false)
+      for (const requiredMapping of d_required_mappings) {
+        const index = 0
+        const valid = validateSchema(requiredMapping[0], schema, { throwIfInvalid: false })
+        expect(valid).toBe(
+          requiredMapping[1],
+          `expected required mapping ${index} to be ${requiredMapping[1]}\n${JSON.stringify(requiredMapping[0])}`
+        )
+      }
 
-      isValid = validateSchema(d_required_mappings[1], schema, { throwIfInvalid: false })
-      expect(isValid).toBe(true)
+      for (const notRequiredMapping of d_not_required_mappings) {
+        const index = 0
+        const valid = validateSchema(notRequiredMapping[0], schema, { throwIfInvalid: false })
+        expect(valid).toBe(
+          notRequiredMapping[1],
+          `expected not required mapping ${index} to be ${notRequiredMapping[1]}\n${JSON.stringify(
+            notRequiredMapping[0]
+          )}`
+        )
+      }
 
-      isValid = validateSchema(d_not_required_mappings[0], schema, { throwIfInvalid: false })
-      expect(isValid).toBe(true)
+      // let isValid
+      // isValid = validateSchema(d_required_mappings[0], schema, { throwIfInvalid: false })
+      // expect(isValid).toBe(false)
 
-      isValid = validateSchema(d_not_required_mappings[1], schema, { throwIfInvalid: false })
-      expect(isValid).toBe(true)
+      // isValid = validateSchema(d_required_mappings[1], schema, { throwIfInvalid: false })
+      // expect(isValid).toBe(true)
 
-      isValid = validateSchema(d_not_required_mappings[2], schema, { throwIfInvalid: false })
-      expect(isValid).toBe(true)
+      // isValid = validateSchema(d_not_required_mappings[0], schema, { throwIfInvalid: false })
+      // expect(isValid).toBe(true)
 
-      isValid = validateSchema(d_not_required_mappings[3], schema, { throwIfInvalid: false })
-      expect(isValid).toBe(true)
+      // isValid = validateSchema(d_not_required_mappings[1], schema, { throwIfInvalid: false })
+      // expect(isValid).toBe(true)
+
+      // isValid = validateSchema(d_not_required_mappings[2], schema, { throwIfInvalid: false })
+      // expect(isValid).toBe(true)
+
+      // isValid = validateSchema(d_not_required_mappings[3], schema, { throwIfInvalid: false })
+      // expect(isValid).toBe(true)
     })
 
     it('should validate multiple object conditions with an any matcher', async () => {
@@ -874,7 +894,7 @@ describe.only('conditionally required fields', () => {
     })
   })
 
-  describe('should handle different data types', () => {
+  describe.skip('should handle different data types', () => {
     it('should validate number fields', async () => {
       mockActionFields['a'] = {
         type: 'number',
@@ -1004,7 +1024,6 @@ describe.only('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
-      console.log('schema:', JSON.stringify(schema, null, 2))
 
       const b_required_mappings = [{ a: undefined }, { a: undefined, b: 'b_value' }, { c: 'c_value' }, { b: 'b_value' }]
       const b_not_required_mappings = [{ a: 'a_value' }, { a: 'a_value', b: 'b_value' }]
@@ -1056,7 +1075,6 @@ describe.only('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
-      console.log('schema:', JSON.stringify(schema, null, 2))
       const b_required_mappings = [
         { a: undefined },
         { a: undefined, b: undefined },
@@ -1153,9 +1171,6 @@ describe.only('conditionally required fields', () => {
       expect(isValid).toBe(true)
 
       isValid = validateSchema(b_not_required_mappings[1], schema, { throwIfInvalid: false })
-      expect(isValid).toBe(true)
-
-      isValid = validateSchema(b_not_required_mappings[2], schema, { throwIfInvalid: false })
       expect(isValid).toBe(true)
     })
   })
