@@ -227,29 +227,6 @@ export function singleFieldConditionsToJsonSchema(
       )
       innerConditionArray.push(conditionToJSON)
 
-      // if (innerCondition.operator === 'is') {
-      //   const conditionToJSON = objectConditionToJSONSchema(
-      //     parentKey,
-      //     childKey,
-      //     fieldKey,
-      //     innerCondition.value as string,
-      //     'is',
-      //     true
-      //   )
-      //   innerConditionArray.push(conditionToJSON)
-      // } else if (innerCondition.operator === 'is_not') {
-      //   const conditionToJSON = objectConditionToJSONSchema(
-      //     parentKey,
-      //     childKey,
-      //     fieldKey,
-      //     innerCondition.value as string,
-      //     'is_not',
-      //     true
-      //   )
-      //   innerConditionArray.push(conditionToJSON)
-      // } else {
-      //   throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
-      // }
       const innerIfStatement: JSONSchema4 =
         singleFieldConditions.match === 'any' ? { anyOf: innerConditionArray } : { allOf: innerConditionArray }
       jsonCondition = { if: innerIfStatement, then: { required: [fieldKey] } }
