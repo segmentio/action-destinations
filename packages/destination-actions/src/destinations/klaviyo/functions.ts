@@ -31,6 +31,7 @@ import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 import { Payload as AddProfileToListPayload } from './addProfileToList/generated-types'
 import { JSONLikeObject } from '@segment/actions-core'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
+import { Payload as RemoveProfilePayload } from './removeProfile/generated-types'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -647,4 +648,97 @@ export function updateMultiStatusWithSuccessData(
       body: JSON.stringify(response?.data)
     })
   })
+}
+
+export async function removeBulkProfilesFromList(request: RequestClient, payloads: RemoveProfilePayload[]) {
+  const multiStatusResponse = new MultiStatusResponse()
+
+  const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPrepareRemoveBulkProfilePayloads(
+    payloads,
+    multiStatusResponse
+  )
+  // if there are no payloads with valid phone number/email/external_id, return multiStatusResponse
+  if (!filteredPayloads.length) {
+    return multiStatusResponse
+  }
+
+  const emails = extractField(filteredPayloads, 'email')
+  const externalIds = extractField(filteredPayloads, 'external_id')
+  const phoneNumbers = extractField(filteredPayloads, 'phone_number')
+
+  const listId = filteredPayloads[0]?.list_id as string
+
+  try {
+    const profileIds = await getProfiles(request, emails, externalIds, phoneNumbers)
+    let response = null
+    if (profileIds.length) {
+      response = await removeProfileFromList(request, profileIds, listId)
+    }
+    updateMultiStatusWithSuccessData(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      await updateMultiStatusWithKlaviyoErrors(
+        payloads as object as JSONLikeObject[],
+        error,
+        multiStatusResponse,
+        validPayloadIndicesBitmap
+      )
+    } else {
+      throw error // Bubble up the error
+    }
+  }
+  return multiStatusResponse
+}
+
+function extractField(payloads: JSONLikeObject[], field: string): string[] {
+  return payloads.map((profile) => profile[field]).filter(Boolean) as string[]
+}
+
+function validateAndPrepareRemoveBulkProfilePayloads(
+  payloads: RemoveProfilePayload[],
+  multiStatusResponse: MultiStatusResponse
+) {
+  const filteredPayloads: JSONLikeObject[] = []
+  const validPayloadIndicesBitmap: number[] = []
+
+  payloads.forEach((payload, originalBatchIndex) => {
+    const { validPayload, error } = validateAndConstructRemoveProfilePayloads(payload)
+    if (error) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, error)
+    } else {
+      filteredPayloads.push(validPayload as JSONLikeObject)
+      validPayloadIndicesBitmap.push(originalBatchIndex)
+    }
+  })
+  return { filteredPayloads, validPayloadIndicesBitmap }
+}
+
+function validateAndConstructRemoveProfilePayloads(payload: RemoveProfilePayload): {
+  validPayload?: JSONLikeObject
+  error?: ActionDestinationErrorResponseType
+} {
+  const { phone_number, email, external_id } = payload
+  const response: { validPayload?: JSONLikeObject; error?: ActionDestinationErrorResponseType } = {}
+  if (!email && !phone_number && !external_id) {
+    response.error = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'One of External ID, Phone Number or Email is required.'
+    }
+    return response
+  }
+
+  if (phone_number) {
+    const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, payload.country_code as string)
+    if (!validPhoneNumber) {
+      response.error = {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Phone number could not be converted to E.164 format.'
+      }
+      return response
+    }
+    payload.phone_number = validPhoneNumber
+  }
+  return { validPayload: payload as object as JSONLikeObject }
 }
