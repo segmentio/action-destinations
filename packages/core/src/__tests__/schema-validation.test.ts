@@ -89,6 +89,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
       const b_required_mappings = [{ a: 'a_value' }, { a: 'a_value', b: 'b_value' }]
 
       let isValid
@@ -117,6 +118,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
       const b_not_required_mapping = [{ a: 'not value' }, { a: 'not value', b: 'b_value' }]
 
       let isValid
@@ -164,6 +166,7 @@ describe('conditionally required fields', () => {
       ]
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       let isValid
       isValid = validateSchema(both_required_mappings[0], schema, { throwIfInvalid: false })
@@ -208,6 +211,7 @@ describe('conditionally required fields', () => {
       const b_required_mappings = [{ a: 'a_value' }, { a: 'a_value', b: 'b_value' }]
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       let isValid
       isValid = validateSchema(b_required_mappings[0], schema, { throwIfInvalid: false })
@@ -246,6 +250,7 @@ describe('conditionally required fields', () => {
       const c_required_mappings = [{ a: 'value' }, { a: 'value', c: 'c_value' }]
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       let isValid
       isValid = validateSchema(c_required_mappings[0], schema, { throwIfInvalid: false })
@@ -287,6 +292,7 @@ describe('conditionally required fields', () => {
         { a: 'not value', c: 'c_value' }
       ]
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       let isValid
       isValid = validateSchema(neither_required_mappings[0], schema, { throwIfInvalid: false })
@@ -323,6 +329,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const b_required_mappings = [
         { a: 'a_value' },
@@ -385,6 +392,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const b_required_mappings = [
         { a: 'a_value', c: 'c_value', d: 'd_value' },
@@ -450,6 +458,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const b_required_mappings = [
         { a: 'a_value', c: 'c_value', d: 'd_value' },
@@ -502,6 +511,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const c_required_mappings = [{ a: { b: 'b_value' } }, { a: { b: 'b_value' }, c: 'c_value' }]
 
@@ -544,6 +554,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const c_required_mappings = [{ a: { b: 'not b_value' } }, { a: { b: 'not b_value' }, c: 'c_value' }]
 
@@ -594,6 +605,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const d_required_mappings = [
         { a: { b: 'b_value', c: 'c_value' } },
@@ -664,6 +676,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const d_required_mappings = [
         { a: { b: 'b_value', c: 'c_value' } },
@@ -730,7 +743,8 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
-      console.log('schema', JSON.stringify(schema, null, 2))
+      expect(schema).toMatchSnapshot()
+
       const e_required_mappings = [
         { a: { b: 'b_value' }, d: 'd_value' },
         { a: { b: 'b_value' }, d: 'd_value', e: 'e_value' }
@@ -802,6 +816,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const e_required_mappings = [
         { a: { b: 'b_value' }, c: { d: 'd_value' } },
@@ -853,6 +868,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const c_required_mappings = [{ a: { b: 'b_value' } }, { a: { b: 'b_value' }, c: 'c_value' }]
 
@@ -891,6 +907,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const b_required_mappings = [{ a: 10 }, { a: 10, b: 'b_value' }]
 
@@ -927,6 +944,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const b_required_mappings = [{ a: true }, { a: true, b: 'b_value' }]
 
@@ -964,6 +982,8 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
+
       const b_required_mappings = [{ a: 'a_value' }, { a: 'a_value', b: 'b_value' }]
 
       const b_not_required_mappings = [{}, { b: 'b_value' }, { a: undefined }]
@@ -1003,6 +1023,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const b_required_mappings = [{ a: undefined }, { a: undefined, b: 'b_value' }, { c: 'c_value' }, { b: 'b_value' }]
       const b_not_required_mappings = [{ a: 'a_value' }, { a: 'a_value', b: 'b_value' }]
@@ -1054,6 +1075,8 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
+
       const b_required_mappings = [
         { a: undefined },
         { a: undefined, b: undefined },
@@ -1113,6 +1136,7 @@ describe('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
 
       const b_required_mappings = [
         { a: undefined },
