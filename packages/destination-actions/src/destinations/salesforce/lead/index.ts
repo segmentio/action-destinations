@@ -53,6 +53,15 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.last_name' }
         }
       },
+      required: {
+        conditions: [
+          {
+            fieldKey: 'operation',
+            operator: 'is',
+            value: 'create'
+          }
+        ]
+      },
       depends_on: hideIfDeleteOperation
     },
     first_name: {

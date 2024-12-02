@@ -1,5 +1,13 @@
 import { JSONSchema4, JSONSchema4Type, JSONSchema4TypeName } from 'json-schema'
-import type { InputField, GlobalSetting, FieldTypeName, Optional } from './types'
+import type {
+  InputField,
+  GlobalSetting,
+  FieldTypeName,
+  Optional,
+  DependsOnConditions,
+  FieldCondition,
+  Condition
+} from './types'
 
 function toJsonSchemaType(type: FieldTypeName): JSONSchema4TypeName | JSONSchema4TypeName[] {
   switch (type) {
@@ -25,9 +33,231 @@ interface SchemaOptions {
   additionalProperties?: boolean
 }
 
-export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaOptions): JSONSchema4 {
+const undefinedConditionValueToJSONSchema = (
+  dependantFieldKey: string,
+  fieldKey: string,
+  operator: 'is' | 'is_not',
+  multiple?: boolean
+): JSONSchema4 => {
+  if (operator !== 'is' && operator !== 'is_not') {
+    throw new Error(`Unsupported conditionally required field operator: ${operator}`)
+  }
+
+  const insideIfStatement: JSONSchema4 =
+    operator === 'is' ? { not: { required: [dependantFieldKey] } } : { required: [dependantFieldKey] }
+
+  if (multiple) {
+    return insideIfStatement
+  }
+
+  return {
+    if: insideIfStatement,
+    then: {
+      required: [fieldKey]
+    }
+  }
+}
+
+const simpleConditionToJSONSchema = (
+  dependantFieldKey: string,
+  fieldKey: string,
+  dependantValue: string,
+  operator: 'is' | 'is_not',
+  multiple?: boolean
+): JSONSchema4 => {
+  const dependantValueToJSONSchema: JSONSchema4 =
+    operator === 'is' ? { const: dependantValue } : { not: { const: dependantValue } }
+
+  if (multiple) {
+    return {
+      properties: { [dependantFieldKey]: dependantValueToJSONSchema },
+      required: [dependantFieldKey]
+    }
+  }
+
+  return {
+    if: {
+      properties: { [dependantFieldKey]: dependantValueToJSONSchema }
+    },
+    then: {
+      required: [fieldKey]
+    }
+  }
+}
+
+const objectConditionToJSONSchema = (
+  objectParentKey: string,
+  objectChildKey: string,
+  fieldKey: string,
+  dependantValue: string,
+  operator: 'is' | 'is_not',
+  multiple?: boolean
+): JSONSchema4 => {
+  const dependantValueToJSONSchema: JSONSchema4 =
+    operator === 'is' ? { const: dependantValue } : { not: { const: dependantValue } }
+
+  if (multiple) {
+    return {
+      properties: {
+        [objectParentKey]: { properties: { [objectChildKey]: dependantValueToJSONSchema }, required: [objectChildKey] }
+      },
+      required: [objectParentKey]
+    }
+  }
+
+  return {
+    if: {
+      properties: {
+        [objectParentKey]: { properties: { [objectChildKey]: dependantValueToJSONSchema }, required: [objectChildKey] }
+      },
+      required: [objectParentKey]
+    },
+    then: {
+      required: [fieldKey]
+    }
+  }
+}
+
+export function fieldConditionSingleDependencyToJsonSchema(condition: Condition, fieldKey: string) {
+  let jsonCondition: JSONSchema4 | undefined = undefined
+  const innerCondition = condition
+
+  // object handling
+  const dependentFieldKey = (innerCondition as FieldCondition).fieldKey
+  if (dependentFieldKey.split('.').length > 1) {
+    const [parentKey, childKey] = dependentFieldKey.split('.')
+
+    if (innerCondition.operator === 'is') {
+      jsonCondition = objectConditionToJSONSchema(parentKey, childKey, fieldKey, innerCondition.value as string, 'is')
+    } else if (innerCondition.operator === 'is_not') {
+      jsonCondition = objectConditionToJSONSchema(
+        parentKey,
+        childKey,
+        fieldKey,
+        innerCondition.value as string,
+        'is_not'
+      )
+    } else {
+      throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
+    }
+    return jsonCondition
+  }
+
+  if (innerCondition.operator === 'is') {
+    if (innerCondition.value === undefined) {
+      return undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, 'is')
+    }
+
+    jsonCondition = simpleConditionToJSONSchema(
+      (innerCondition as FieldCondition).fieldKey,
+      fieldKey,
+      innerCondition.value as string,
+      'is'
+    )
+  } else if (innerCondition.operator === 'is_not') {
+    if (innerCondition.value === undefined) {
+      return undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, 'is_not')
+    }
+
+    jsonCondition = simpleConditionToJSONSchema(
+      (innerCondition as FieldCondition).fieldKey,
+      fieldKey,
+      innerCondition.value as string,
+      'is_not'
+    )
+  } else {
+    throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
+  }
+
+  return jsonCondition
+}
+
+export function singleFieldConditionsToJsonSchema(
+  fieldKey: string,
+  singleFieldConditions: DependsOnConditions
+): JSONSchema4 | undefined {
+  let jsonCondition: JSONSchema4 | undefined = undefined
+
+  if (singleFieldConditions.conditions.length === 1) {
+    return fieldConditionSingleDependencyToJsonSchema(singleFieldConditions.conditions[0], fieldKey)
+  }
+
+  const innerConditionArray: JSONSchema4[] = []
+  singleFieldConditions.conditions.forEach((innerCondition) => {
+    const dependentFieldKey = (innerCondition as FieldCondition).fieldKey
+    if (dependentFieldKey.split('.').length > 1) {
+      const [parentKey, childKey] = dependentFieldKey.split('.')
+
+      const conditionToJSON = objectConditionToJSONSchema(
+        parentKey,
+        childKey,
+        fieldKey,
+        innerCondition.value as string,
+        innerCondition.operator,
+        true
+      )
+      innerConditionArray.push(conditionToJSON)
+
+      const innerIfStatement: JSONSchema4 =
+        singleFieldConditions.match === 'any' ? { anyOf: innerConditionArray } : { allOf: innerConditionArray }
+      jsonCondition = { if: innerIfStatement, then: { required: [fieldKey] } }
+
+      return jsonCondition
+    }
+
+    if (innerCondition.value === undefined) {
+      innerConditionArray.push(
+        undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, innerCondition.operator, true)
+      )
+    } else {
+      const conditionToJSON = simpleConditionToJSONSchema(
+        dependentFieldKey,
+        fieldKey,
+        innerCondition.value as string,
+        innerCondition.operator,
+        true
+      )
+      innerConditionArray.push(conditionToJSON)
+    }
+  })
+
+  const innerIfStatement: JSONSchema4 =
+    singleFieldConditions.match === 'any' ? { anyOf: innerConditionArray } : { allOf: innerConditionArray }
+  jsonCondition = { if: innerIfStatement, then: { required: [fieldKey] } }
+
+  return jsonCondition
+}
+
+export function conditionsToJsonSchema(allFieldConditions: Record<string, DependsOnConditions>): JSONSchema4 {
+  const additionalSchema: JSONSchema4[] = []
+
+  for (const [fieldKey, singleFieldCondition] of Object.entries(allFieldConditions)) {
+    const jsonCondition = singleFieldConditionsToJsonSchema(fieldKey, singleFieldCondition)
+
+    if (jsonCondition === undefined) {
+      throw new Error(`Unsupported conditionally required field condition: ${singleFieldCondition}`)
+    }
+
+    if (jsonCondition) {
+      additionalSchema.push(jsonCondition)
+    }
+  }
+
+  if (additionalSchema.length === 0) {
+    return {}
+  }
+
+  return { allOf: additionalSchema }
+}
+
+export function fieldsToJsonSchema(
+  fields: MinimalFields = {},
+  options?: SchemaOptions,
+  additionalSchema?: JSONSchema4
+): JSONSchema4 {
   const required: string[] = []
   const properties: Record<string, JSONSchema4> = {}
+  const conditions: Record<string, DependsOnConditions> = {}
 
   for (const [key, field] of Object.entries(fields)) {
     const schemaType = toJsonSchemaType(field.type)
@@ -111,8 +341,21 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
     properties[key] = schema
 
     // Grab all the field keys with `required: true`
-    if (field.required) {
+    if (field.required === true) {
       required.push(key)
+    } else if (field.required && typeof field.required === 'object') {
+      conditions[key] = field.required
+    }
+  }
+
+  // When generating types for the generated-types.ts file conditions are ignored
+  if (options?.tsType === true) {
+    return {
+      $schema: 'http://json-schema.org/schema#',
+      type: 'object',
+      additionalProperties: options?.additionalProperties || false,
+      properties,
+      required
     }
   }
 
@@ -121,6 +364,8 @@ export function fieldsToJsonSchema(fields: MinimalFields = {}, options?: SchemaO
     type: 'object',
     additionalProperties: options?.additionalProperties || false,
     properties,
-    required
+    required,
+    ...conditionsToJsonSchema(conditions),
+    ...additionalSchema
   }
 }
