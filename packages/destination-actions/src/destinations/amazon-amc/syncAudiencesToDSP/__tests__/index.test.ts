@@ -128,7 +128,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         settings,
         useDefaultMappings: true
       })
-    ).rejects.toThrowError('externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}"}')
+    ).rejects.toThrowError('externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}')
   })
 
   it('should work with batch events', async () => {
@@ -221,7 +221,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         settings,
         useDefaultMappings: true
       })
-    ).rejects.toThrowError('externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}"}')
+    ).rejects.toThrowError('externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}')
   })
 
   it('Handle Error when amazon ads API throw error', async () => {
