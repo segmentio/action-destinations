@@ -2,9 +2,17 @@
 
 export interface Payload {
   /**
-   * The number to send the SMS to (E.164 format).
+   * The channel to send the message on.
+   */
+  channel: string
+  /**
+   * The number to send the message to (E.164 format).
    */
   toPhoneNumber: string
+  /**
+   * A valid Facebook Messenger Page Id or Messenger User Id.
+   */
+  messengerPageUserId?: string
   /**
    * Select Sender Type
    */
@@ -18,9 +26,9 @@ export interface Payload {
    */
   messagingServiceSid?: string
   /**
-   * Select the Twilio message type to use.
+   * Select the Twilio Content Template type to use.
    */
-  messageType: string
+  contentTemplateType: string
   /**
    * The SID of the Content Template to use.
    */
