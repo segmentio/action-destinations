@@ -6,6 +6,7 @@ import { getApiServerUrl, cheapGuid, MixpanelTrackApiResponseType, handleMixPane
 import { getEventProperties } from '../trackEvent/functions'
 import { eventProperties, productsProperties } from '../mixpanel-properties'
 import dayjs from '../../../lib/dayjs'
+import { Features } from '@segment/actions-core/mapping-kit'
 
 const topLevelKeys = [
   'affiliation',
@@ -49,7 +50,7 @@ const getPurchaseEventsFromPayload = (payload: Payload, settings: Settings): Mix
   return [orderCompletedEvent, ...purchaseEvents]
 }
 
-const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
+const processData = async (request: RequestClient, settings: Settings, payload: Payload[], features: Features) => {
   const events: MixpanelEvent[] = []
   const sentEvents: JSONLikeObject[] = []
   payload.forEach((value) => {
@@ -60,7 +61,7 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
   })
   const response = await callMixpanelApi(request, settings, events, false)
   const multiStatusResponse = handleMixPanelApiResponse(payload.length, response, sentEvents)
-  return multiStatusResponse
+  return features && features['mixpanel-multistatus'] ? response : multiStatusResponse
 }
 
 const callMixpanelApi = async (
@@ -106,12 +107,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { settings, payload }) => {
-    return processData(request, settings, [payload])
+  perform: async (request, { settings, payload, features }) => {
+    return processData(request, settings, [payload], features)
   },
 
-  performBatch: async (request, { settings, payload }) => {
-    return processData(request, settings, payload)
+  performBatch: async (request, { settings, payload, features }) => {
+    return processData(request, settings, payload, features)
   }
 }
 

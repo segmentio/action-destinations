@@ -6,6 +6,7 @@ import { getApiServerUrl } from '../common/utils'
 import { getEventProperties } from './functions'
 import { eventProperties } from '../mixpanel-properties'
 import { MixpanelTrackApiResponseType, handleMixPanelApiResponse } from '../common/utils'
+import { Features } from '@segment/actions-core/mapping-kit'
 
 const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEvent => {
   const event: MixpanelEvent = {
@@ -17,13 +18,13 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
   return event
 }
 
-const processData = async (request: RequestClient, settings: Settings, payload: Payload[]) => {
+const processData = async (request: RequestClient, settings: Settings, payload: Payload[], features: Features) => {
   const events: MixpanelEvent[] = payload.map((value) => {
     return getEventFromPayload(value, settings)
   })
   const response = await callMixpanelApi(request, settings, events, false)
   const multiStatusResponse = handleMixPanelApiResponse(payload.length, response, events)
-  return multiStatusResponse
+  return features && features['mixpanel-multistatus'] ? response : multiStatusResponse
 }
 
 const callMixpanelApi = async (
@@ -63,12 +64,12 @@ const action: ActionDefinition<Settings, Payload> = {
     ...eventProperties
   },
 
-  performBatch: async (request, { settings, payload }) => {
-    return processData(request, settings, payload)
+  performBatch: async (request, { settings, payload, features }) => {
+    return processData(request, settings, payload, features)
   },
 
-  perform: async (request, { settings, payload }) => {
-    return processData(request, settings, [payload])
+  perform: async (request, { settings, payload, features }) => {
+    return processData(request, settings, [payload], features)
   }
 }
 
