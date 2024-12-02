@@ -18,13 +18,13 @@ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEven
   return event
 }
 
-const processData = async (request: RequestClient, settings: Settings, payload: Payload[], features: Features) => {
+const processData = async (request: RequestClient, settings: Settings, payload: Payload[], features?: Features) => {
   const events: MixpanelEvent[] = payload.map((value) => {
     return getEventFromPayload(value, settings)
   })
   const response = await callMixpanelApi(request, settings, events, false)
   const multiStatusResponse = handleMixPanelApiResponse(payload.length, response, events)
-  return features && features['mixpanel-multistatus'] ? response : multiStatusResponse
+  return features && features['mixpanel-multistatus'] ? multiStatusResponse : response
 }
 
 const callMixpanelApi = async (

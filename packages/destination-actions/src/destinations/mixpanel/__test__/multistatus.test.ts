@@ -2,8 +2,11 @@ import { SegmentEvent, createTestEvent, createTestIntegration } from '@segment/a
 import nock from 'nock'
 import Mixpanel from '../index'
 import { MixpanelTrackApiResponseType } from '../common/utils'
+import { Features } from '@segment/actions-core/mapping-kit'
 
-beforeEach(() => nock.cleanAll())
+beforeEach(() => {
+  nock.cleanAll()
+})
 
 const settings = {
   projectToken: 'test-api-key',
@@ -37,10 +40,12 @@ describe('MultiStatus', () => {
         createTestEvent({ timestamp, event: 'Test event' })
       ]
 
+      const features: Features = { 'mixpanel-multistatus': true }
       const response = await testDestination.executeBatch('trackEvent', {
         events,
         mapping,
-        settings
+        settings,
+        features
       })
       expect(response[0]).toMatchObject({
         status: 200,
@@ -83,10 +88,12 @@ describe('MultiStatus', () => {
       ]
       delete events[1].event
 
+      const features: Features = { 'mixpanel-multistatus': true }
       const response = await testDestination.executeBatch('trackEvent', {
         events,
         mapping,
-        settings
+        settings,
+        features
       })
 
       // The first event doesn't fail as there is no error reported by Mixpanel API
@@ -121,10 +128,12 @@ describe('MultiStatus', () => {
       delete events[0].event
       delete events[1].event
 
+      const features: Features = { 'mixpanel-multistatus': true }
       const response = await testDestination.executeBatch('trackEvent', {
         events,
         mapping,
-        settings
+        settings,
+        features
       })
 
       expect(response[0]).toMatchObject({
@@ -168,13 +177,14 @@ describe('MultiStatus', () => {
         createTestEvent({ timestamp, event: 'Test event' })
       ]
 
+      const features: Features = { 'mixpanel-multistatus': true }
       const response = await testDestination.executeBatch('trackEvent', {
         events,
         mapping,
-        settings
+        settings,
+        features
       })
 
-      console.log(response)
       expect(response[0]).toMatchObject({
         status: 200,
         body: 'Bad Request',
@@ -207,10 +217,12 @@ describe('MultiStatus', () => {
         createTestEvent({ timestamp, event: 'Test event' })
       ]
 
+      const features: Features = { 'mixpanel-multistatus': true }
       const response = await testDestination.executeBatch('trackEvent', {
         events,
         mapping,
-        settings
+        settings,
+        features
       })
 
       expect(response).toMatchObject([
@@ -247,10 +259,12 @@ describe('MultiStatus', () => {
         createTestEvent({ timestamp, event: 'Test event' })
       ]
 
+      const features: Features = { 'mixpanel-multistatus': true }
       const response = await testDestination.executeBatch('trackPurchase', {
         events,
         mapping,
-        settings
+        settings,
+        features
       })
       expect(response[0]).toMatchObject({
         status: 200,
@@ -283,10 +297,12 @@ describe('MultiStatus', () => {
       ]
       delete events[1].event
 
+      const features: Features = { 'mixpanel-multistatus': true }
       const response = await testDestination.executeBatch('trackPurchase', {
         events,
         mapping,
-        settings
+        settings,
+        features
       })
 
       // The first event doesn't fail as there is no error reported by Mixpanel API
@@ -321,10 +337,12 @@ describe('MultiStatus', () => {
       delete events[0].event
       delete events[1].event
 
+      const features: Features = { 'mixpanel-multistatus': true }
       const response = await testDestination.executeBatch('trackPurchase', {
         events,
         mapping,
-        settings
+        settings,
+        features
       })
 
       expect(response[0]).toMatchObject({
@@ -372,10 +390,12 @@ describe('MultiStatus', () => {
         createTestEvent({ timestamp, event: 'Test event' })
       ]
 
+      const features: Features = { 'mixpanel-multistatus': true }
       const response = await testDestination.executeBatch('trackPurchase', {
         events,
         mapping,
-        settings
+        settings,
+        features
       })
 
       expect(response).toMatchObject([
@@ -410,10 +430,12 @@ describe('MultiStatus', () => {
         createTestEvent({ timestamp, event: 'Test event' })
       ]
 
+      const features: Features = { 'mixpanel-multistatus': true }
       const response = await testDestination.executeBatch('trackPurchase', {
         events,
         mapping,
-        settings
+        settings,
+        features
       })
 
       expect(response).toMatchObject([

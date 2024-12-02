@@ -50,7 +50,7 @@ const getPurchaseEventsFromPayload = (payload: Payload, settings: Settings): Mix
   return [orderCompletedEvent, ...purchaseEvents]
 }
 
-const processData = async (request: RequestClient, settings: Settings, payload: Payload[], features: Features) => {
+const processData = async (request: RequestClient, settings: Settings, payload: Payload[], features?: Features) => {
   const events: MixpanelEvent[] = []
   const sentEvents: JSONLikeObject[] = []
   payload.forEach((value) => {
@@ -61,7 +61,8 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
   })
   const response = await callMixpanelApi(request, settings, events, false)
   const multiStatusResponse = handleMixPanelApiResponse(payload.length, response, sentEvents)
-  return features && features['mixpanel-multistatus'] ? response : multiStatusResponse
+  console.log('features', features && features['mixpanel-multistatus'])
+  return features && features['mixpanel-multistatus'] ? multiStatusResponse : response
 }
 
 const callMixpanelApi = async (
