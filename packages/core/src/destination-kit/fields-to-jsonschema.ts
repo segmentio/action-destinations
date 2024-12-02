@@ -217,27 +217,39 @@ export function singleFieldConditionsToJsonSchema(
     if (dependentFieldKey.split('.').length > 1) {
       const [parentKey, childKey] = dependentFieldKey.split('.')
 
-      if (innerCondition.operator === 'is') {
-        const conditionToJSON = objectConditionToJSONSchema(
-          parentKey,
-          childKey,
-          fieldKey,
-          innerCondition.value as string,
-          'is'
-        )
-        innerConditionArray.push(conditionToJSON)
-      } else if (innerCondition.operator === 'is_not') {
-        const conditionToJSON = objectConditionToJSONSchema(
-          parentKey,
-          childKey,
-          fieldKey,
-          innerCondition.value as string,
-          'is_not'
-        )
-        innerConditionArray.push(conditionToJSON)
-      } else {
-        throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
-      }
+      const conditionToJSON = objectConditionToJSONSchema(
+        parentKey,
+        childKey,
+        fieldKey,
+        innerCondition.value as string,
+        innerCondition.operator,
+        true
+      )
+      innerConditionArray.push(conditionToJSON)
+
+      // if (innerCondition.operator === 'is') {
+      //   const conditionToJSON = objectConditionToJSONSchema(
+      //     parentKey,
+      //     childKey,
+      //     fieldKey,
+      //     innerCondition.value as string,
+      //     'is',
+      //     true
+      //   )
+      //   innerConditionArray.push(conditionToJSON)
+      // } else if (innerCondition.operator === 'is_not') {
+      //   const conditionToJSON = objectConditionToJSONSchema(
+      //     parentKey,
+      //     childKey,
+      //     fieldKey,
+      //     innerCondition.value as string,
+      //     'is_not',
+      //     true
+      //   )
+      //   innerConditionArray.push(conditionToJSON)
+      // } else {
+      //   throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
+      // }
       const innerIfStatement: JSONSchema4 =
         singleFieldConditions.match === 'any' ? { anyOf: innerConditionArray } : { allOf: innerConditionArray }
       jsonCondition = { if: innerIfStatement, then: { required: [fieldKey] } }
