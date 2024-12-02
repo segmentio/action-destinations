@@ -23,7 +23,8 @@ import {
   UnsubscribeEventData,
   GroupedProfiles,
   AdditionalAttributes,
-  KlaviyoProfile
+  KlaviyoProfile,
+  GroupedProfilesWithListMap
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
@@ -50,6 +51,7 @@ export async function getListIdDynamicData(request: RequestClient): Promise<Dyna
       nextPage: '',
       error: {
         message: (err as APIError).message ?? 'Unknown error',
+        // @ts-ignore ignore
         code: (err as APIError).status + '' ?? 'Unknown error'
       }
     }
@@ -403,29 +405,55 @@ export async function createList(request: RequestClient, settings: Settings, lis
   }
 }
 
-export function groupByListId(profiles: Payload[]) {
+export function groupByListId(profiles: Payload[], profilesWithListBitMap: number[]) {
   const grouped: GroupedProfiles = {}
+  const groupedProfilesWithListMap: GroupedProfilesWithListMap = {}
 
-  for (const profile of profiles) {
+  for (const [index, profile] of profiles.entries()) {
     const listId: string = profile.override_list_id || (profile.list_id as string)
     if (!grouped[listId]) {
       grouped[listId] = []
+      groupedProfilesWithListMap[listId] = []
     }
-    grouped[listId].push(profile)
+    grouped[listId].push(profile as JSONLikeObject)
+    groupedProfilesWithListMap[listId].push(profilesWithListBitMap[index])
   }
 
-  return grouped
+  return { grouped, groupedProfilesWithListMap }
 }
 
-export async function processProfilesByGroup(request: RequestClient, groupedProfiles: GroupedProfiles) {
-  const importResponses = await Promise.all(
+export async function processProfilesByGroup(
+  request: RequestClient,
+  groupedProfiles: GroupedProfiles,
+  groupedProfilesWithListMap: { [listId: string]: number[] },
+  multiStatusResponse: MultiStatusResponse
+) {
+  await Promise.all(
     Object.keys(groupedProfiles).map(async (listId) => {
       const profiles = groupedProfiles[listId]
       const importJobPayload = createImportJobPayload(profiles, listId)
-      return await sendImportJobRequest(request, importJobPayload)
+      try {
+        const response = await sendImportJobRequest(request, importJobPayload)
+        updateMultiStatusWithSuccessData(
+          groupedProfiles[listId],
+          groupedProfilesWithListMap[listId],
+          multiStatusResponse,
+          response
+        )
+      } catch (error) {
+        if (error instanceof HTTPError) {
+          await updateMultiStatusWithKlaviyoErrors(
+            groupedProfiles[listId],
+            error,
+            multiStatusResponse,
+            groupedProfilesWithListMap[listId]
+          )
+        } else {
+          throw error
+        }
+      }
     })
   )
-  return importResponses
 }
 
 export function validateAndConvertPhoneNumber(phone?: string, countryCode?: string): string | undefined | null {
@@ -483,7 +511,7 @@ export function processPhoneNumber(initialPhoneNumber?: string, country_code?: s
  * @param {number[]} validPayloadIndicesBitmap - An array of indices indicating which payloads were valid.
  *
  */
-async function updateMultiStatusWithKlaviyoErrors(
+export async function updateMultiStatusWithKlaviyoErrors(
   payloads: JSONLikeObject[],
   err: any,
   multiStatusResponse: MultiStatusResponse,
@@ -505,35 +533,53 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
   validPayload?: JSONLikeObject
   error?: ActionDestinationErrorResponseType
 } {
-  const { phone_number, email, external_id } = payload
   const response: { validPayload?: JSONLikeObject; error?: ActionDestinationErrorResponseType } = {}
-  if (!email && !phone_number && !external_id) {
+
+  const { payload: cleanedPayload, error } = validateProfilePayload(payload)
+
+  if (error) {
+    response.error = error
+    return response
+  }
+
+  const { list_id, enable_batching, batch_size, country_code, ...attributes } = cleanedPayload
+
+  response.validPayload = { type: 'profile', attributes: attributes as JSONLikeObject }
+
+  return response
+}
+
+export function validateProfilePayload(payload: Payload): {
+  payload: Payload
+  error?: ActionDestinationErrorResponseType
+} {
+  const response: { payload?: Payload; error?: ActionDestinationErrorResponseType } = {}
+
+  if (!payload.email && !payload.phone_number && !payload.external_id) {
     response.error = {
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'One of External ID, Phone Number or Email is required.'
     }
-    return response
+    return response as { payload: Payload; error?: ActionDestinationErrorResponseType }
   }
 
-  if (phone_number) {
-    const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, payload.country_code as string)
+  if (payload.phone_number) {
+    const validPhoneNumber = validateAndConvertPhoneNumber(payload.phone_number, payload.country_code as string)
     if (!validPhoneNumber) {
       response.error = {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'Phone number could not be converted to E.164 format.'
       }
-      return response
+      return response as { payload: Payload; error?: ActionDestinationErrorResponseType }
     }
     payload.phone_number = validPhoneNumber
     delete payload.country_code
   }
 
-  const { list_id, enable_batching, batch_size, country_code, ...attributes } = payload
-
-  response.validPayload = { type: 'profile', attributes: attributes as JSONLikeObject }
-  return response
+  response.payload = payload
+  return response as { payload: Payload; error?: ActionDestinationErrorResponseType }
 }
 
 function validateAndPrepareBatchedProfileImportPayloads(
