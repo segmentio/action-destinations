@@ -245,34 +245,19 @@ export function singleFieldConditionsToJsonSchema(
       return jsonCondition
     }
 
-    if (innerCondition.operator === 'is') {
-      if (innerCondition.value === undefined) {
-        innerConditionArray.push(undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, 'is', true))
-      } else {
-        const conditionToJSON = simpleConditionToJSONSchema(
-          dependentFieldKey,
-          fieldKey,
-          innerCondition.value as string,
-          'is',
-          true
-        )
-        innerConditionArray.push(conditionToJSON)
-      }
-    } else if (innerCondition.operator === 'is_not') {
-      if (innerCondition.value === undefined) {
-        innerConditionArray.push(undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, 'is_not', true))
-      } else {
-        const conditionToJSON = simpleConditionToJSONSchema(
-          dependentFieldKey,
-          fieldKey,
-          innerCondition.value as string,
-          'is_not',
-          true
-        )
-        innerConditionArray.push(conditionToJSON)
-      }
+    if (innerCondition.value === undefined) {
+      innerConditionArray.push(
+        undefinedConditionValueToJSONSchema(innerCondition.fieldKey, fieldKey, innerCondition.operator, true)
+      )
     } else {
-      throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
+      const conditionToJSON = simpleConditionToJSONSchema(
+        dependentFieldKey,
+        fieldKey,
+        innerCondition.value as string,
+        innerCondition.operator,
+        true
+      )
+      innerConditionArray.push(conditionToJSON)
     }
   })
 
