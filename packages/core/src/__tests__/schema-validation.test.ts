@@ -594,7 +594,6 @@ describe.only('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
-      console.log('schema:', JSON.stringify(schema, null, 2))
 
       const d_required_mappings = [
         { a: { b: 'b_value', c: 'c_value' } },
@@ -731,36 +730,36 @@ describe.only('conditionally required fields', () => {
       }
 
       const schema = fieldsToJsonSchema(mockActionFields)
-
-      const d_required_mappings = [
+      console.log('schema', JSON.stringify(schema, null, 2))
+      const e_required_mappings = [
         { a: { b: 'b_value' }, d: 'd_value' },
-        { a: { b: 'b_value' }, d: 'd_value', b: 'b_value' }
+        { a: { b: 'b_value' }, d: 'd_value', e: 'e_value' }
       ]
 
-      const d_not_required_mappings = [
+      const e_not_required_mappings = [
         { a: { b: 'b_value' }, c: 'not c_value' },
-        { a: { b: 'not b_value' }, c: 'c_value' },
+        { a: { b: 'not b_value' }, d: 'd_value' },
         { a: { b: 'not b_value' }, c: 'not c_value' },
-        { a: { b: 'b_value' }, d: 'd_value' }
+        { a: { b: 'b_value' }, d: 'not_d_value' }
       ]
 
       let isValid
-      isValid = validateSchema(d_required_mappings[0], schema, { throwIfInvalid: false })
+      isValid = validateSchema(e_required_mappings[0], schema, { throwIfInvalid: false })
       expect(isValid).toBe(false)
 
-      isValid = validateSchema(d_required_mappings[1], schema, { throwIfInvalid: false })
+      isValid = validateSchema(e_required_mappings[1], schema, { throwIfInvalid: false })
       expect(isValid).toBe(true)
 
-      isValid = validateSchema(d_not_required_mappings[0], schema, { throwIfInvalid: false })
+      isValid = validateSchema(e_not_required_mappings[0], schema, { throwIfInvalid: false })
       expect(isValid).toBe(true)
 
-      isValid = validateSchema(d_not_required_mappings[1], schema, { throwIfInvalid: false })
+      isValid = validateSchema(e_not_required_mappings[1], schema, { throwIfInvalid: false })
       expect(isValid).toBe(true)
 
-      isValid = validateSchema(d_not_required_mappings[2], schema, { throwIfInvalid: false })
+      isValid = validateSchema(e_not_required_mappings[2], schema, { throwIfInvalid: false })
       expect(isValid).toBe(true)
 
-      isValid = validateSchema(d_not_required_mappings[3], schema, { throwIfInvalid: false })
+      isValid = validateSchema(e_not_required_mappings[3], schema, { throwIfInvalid: false })
       expect(isValid).toBe(true)
     })
 
