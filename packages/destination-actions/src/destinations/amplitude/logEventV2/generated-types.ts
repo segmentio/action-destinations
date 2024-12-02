@@ -44,7 +44,7 @@ export interface Payload {
    */
   app_version?: string
   /**
-   * Platform of the device.
+   * Platform of the device. If using analytics.js to send events from a Browser and no if no Platform value is provided, the value "Web" will be sent.
    */
   platform?: string
   /**

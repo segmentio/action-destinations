@@ -61,6 +61,17 @@ const mapping = {
   anonymous_id: { '@path': '$.anonymousId' },
   external_id: { '@path': '$.traits.external_id' },
   phone_number_id: { '@path': '$.traits.phone' },
+  user_attributes: {
+    first_name: { '@path': '$.traits.first_name' },
+    last_name: { '@path': '$.traits.last_name' },
+    address_line_1: { '@path': '$.traits.street' },
+    address_line_2: { '@path': '$.traits.address_line_2' },
+    city: { '@path': '$.traits.city' },
+    state_province_region: { '@path': '$.traits.state' },
+    country: { '@path': '$.traits.country' },
+    postal_code: { '@path': '$.traits.postal_code' }
+  },
+  custom_fields: { '@path': '$.traits.custom_fields' },
   enable_batching: true,
   batch_size: 200
 }
@@ -87,6 +98,65 @@ describe('SendgridAudiences.syncAudience', () => {
     const event = createTestEvent(addPayload)
 
     nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addExpectedPayload).reply(200, {})
+    const responses = await testDestination.testAction('syncAudience', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      mapping
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+  })
+
+  it('should upsert a single Contact with user attributes and custom fields, and add it to a Sendgrid list correctly', async () => { 
+    const event = createTestEvent({ 
+      ...addPayload, 
+      traits: { 
+        ...addPayload.traits, 
+        first_name: 'fname', 
+        last_name: 'lname', 
+        street: '123 Main St',
+        address_line_2: 123456, // should be stringified
+        city: 'SF', 
+        state: 'CA',
+        country: 'US',
+        postal_code: "N88EU",
+        custom_fields: {
+          custom_field_1: 'custom_field_1_value',
+          custom_field_2: 2345,
+          custom_field_3: '2024-01-01T00:00:00.000Z',
+          custom_field_4: false, // should be removed 
+          custom_field_5: null // should be removed
+        }
+      } 
+    })
+
+    const addExpectedPayloadWithAttributes = {
+      ...addExpectedPayload,
+      contacts: [
+        {
+          email: 'testemail@gmail.com',
+          external_id: 'some_external_id',
+          phone_number_id: '+353123456789',
+          anonymous_id: 'some_anonymous_id',
+          first_name: 'fname',
+          last_name: 'lname',
+          address_line_1: '123 Main St',
+          address_line_2: '123456',
+          city: 'SF', 
+          state_province_region: 'CA',
+          country: 'US',
+          postal_code: "N88EU",
+          custom_fields: {
+            custom_field_1: 'custom_field_1_value',
+            custom_field_2: 2345,
+            custom_field_3: '2024-01-01T00:00:00.000Z'
+          }
+        }
+      ]
+    }
+
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addExpectedPayloadWithAttributes).reply(200, {})
     const responses = await testDestination.testAction('syncAudience', {
       event,
       settings,
@@ -269,6 +339,67 @@ describe('SendgridAudiences.syncAudience', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[1].status).toBe(200)
     expect(responses[2].status).toBe(200)
+  })
+
+  it('should retry upserting to add Contacts after Sendgrid initially rejects some emails', async () => {
+    const badPayload = JSON.parse(JSON.stringify(addPayload))
+    badPayload.traits.email = 'not_a_valid_email_address@gmail.com'
+    delete badPayload.traits?.external_id
+    delete badPayload.traits?.phone
+    badPayload.anonymousId = null
+
+    const events = [createTestEvent(addPayload), createTestEvent(badPayload)]
+
+    const addBatchExpectedPayload = {
+      list_ids: ['sg_audience_id_12345'],
+      contacts: [
+        {
+          email: 'testemail@gmail.com',
+          external_id: 'some_external_id',
+          phone_number_id: '+353123456789',
+          anonymous_id: 'some_anonymous_id'
+        },
+        {
+          email: 'not_a_valid_email_address@gmail.com' // technically this is a valid email, but the first mock response will mark it as invalid for test purposes
+        }
+      ]
+    }
+
+    const addBatchExpectedPayload2 = {
+      list_ids: ['sg_audience_id_12345'],
+      contacts: [
+        {
+          email: 'testemail@gmail.com',
+          external_id: 'some_external_id',
+          phone_number_id: '+353123456789',
+          anonymous_id: 'some_anonymous_id'
+        }
+      ]
+    }
+
+    const responseError = {
+      status: 400,
+      errors: [
+        {
+          field: 'contacts[0].identifier',
+          message: "email 'not_a_valid_email_address@gmail.com' is not valid" // mark the email as invalid so that it is removed from the next request payload
+        }
+      ]
+    }
+
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addBatchExpectedPayload).reply(400, responseError)
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addBatchExpectedPayload2).reply(200, {})
+
+    const responses = await testDestination.testBatchAction('syncAudience', {
+      events,
+      settings,
+      useDefaultMappings: true,
+      mapping
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(400)
+    expect(responses[1].status).toBe(200)
   })
 
   it('should throw an error if a non batch payload is missing identifiers', async () => {
