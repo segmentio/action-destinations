@@ -139,11 +139,14 @@ const objectConditionToJSONSchema = (
   }
 }
 
-export function singleConditionToJsonSchema(fieldKey: string, condition: DependsOnConditions): JSONSchema4 | undefined {
+export function singleFieldConditionsToJsonSchema(
+  fieldKey: string,
+  singleFieldConditions: DependsOnConditions
+): JSONSchema4 | undefined {
   let jsonCondition: JSONSchema4 | undefined = undefined
 
-  if (condition.conditions.length === 1) {
-    const innerCondition = condition.conditions[0]
+  if (singleFieldConditions.conditions.length === 1) {
+    const innerCondition = singleFieldConditions.conditions[0]
 
     // object handling
     const dependentFieldKey = (innerCondition as FieldCondition).fieldKey
@@ -196,7 +199,7 @@ export function singleConditionToJsonSchema(fieldKey: string, condition: Depends
   }
 
   const innerConditionArray: JSONSchema4[] = []
-  condition.conditions.forEach((innerCondition) => {
+  singleFieldConditions.conditions.forEach((innerCondition) => {
     const dependentFieldKey = (innerCondition as FieldCondition).fieldKey
     if (dependentFieldKey.split('.').length > 1) {
       const [parentKey, childKey] = dependentFieldKey.split('.')
@@ -223,7 +226,7 @@ export function singleConditionToJsonSchema(fieldKey: string, condition: Depends
         throw new Error(`Unsupported conditionally required field operator: ${innerCondition.operator}`)
       }
       const innerIfStatement: JSONSchema4 =
-        condition.match === 'any' ? { anyOf: innerConditionArray } : { allOf: innerConditionArray }
+        singleFieldConditions.match === 'any' ? { anyOf: innerConditionArray } : { allOf: innerConditionArray }
       jsonCondition = { if: innerIfStatement, then: { required: [fieldKey] } }
 
       return jsonCondition
@@ -261,20 +264,20 @@ export function singleConditionToJsonSchema(fieldKey: string, condition: Depends
   })
 
   const innerIfStatement: JSONSchema4 =
-    condition.match === 'any' ? { anyOf: innerConditionArray } : { allOf: innerConditionArray }
+    singleFieldConditions.match === 'any' ? { anyOf: innerConditionArray } : { allOf: innerConditionArray }
   jsonCondition = { if: innerIfStatement, then: { required: [fieldKey] } }
 
   return jsonCondition
 }
 
-export function conditionsToJsonSchema(conditions: Record<string, DependsOnConditions>): JSONSchema4 {
+export function conditionsToJsonSchema(allFieldConditions: Record<string, DependsOnConditions>): JSONSchema4 {
   const additionalSchema: JSONSchema4[] = []
 
-  for (const [fieldKey, condition] of Object.entries(conditions)) {
-    const jsonCondition = singleConditionToJsonSchema(fieldKey, condition)
+  for (const [fieldKey, singleFieldCondition] of Object.entries(allFieldConditions)) {
+    const jsonCondition = singleFieldConditionsToJsonSchema(fieldKey, singleFieldCondition)
 
     if (jsonCondition === undefined) {
-      throw new Error(`Unsupported conditionally required field condition: ${condition}`)
+      throw new Error(`Unsupported conditionally required field condition: ${singleFieldCondition}`)
     }
 
     if (jsonCondition) {
