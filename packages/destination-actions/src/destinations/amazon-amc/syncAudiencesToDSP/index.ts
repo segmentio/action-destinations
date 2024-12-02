@@ -128,7 +128,7 @@ async function processPayload(
   // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
   if (!payloadRecord.records?.length) {
     throw new PayloadValidationError(
-      'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}"}'
+      'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}'
     )
   }
   const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
