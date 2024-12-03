@@ -60,8 +60,10 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
     return purchaseEvents
   })
   const response = await callMixpanelApi(request, settings, events, false)
-  const multiStatusResponse = handleMixPanelApiResponse(payload.length, response, sentEvents)
-  return features && features['mixpanel-multistatus'] ? multiStatusResponse : response
+  if (features && features['mixpanel-multistatus']) {
+    return handleMixPanelApiResponse(payload.length, response, sentEvents)
+  }
+  return response
 }
 
 const callMixpanelApi = async (
