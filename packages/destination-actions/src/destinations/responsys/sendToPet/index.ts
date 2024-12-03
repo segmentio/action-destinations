@@ -37,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Stringify Recipient Data',
       description: 'If true, all Recipient data will be converted to strings before being sent to Responsys.',
       type: 'boolean',
-      required: true,
+      required: false,
       default: false
     },
     retry: retry

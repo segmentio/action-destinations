@@ -204,13 +204,6 @@ describe('Responsys.sendAudienceAsPet', () => {
           .times(3)
           .reply(200, { results: [{}] })
 
-        /* for (const event of events) {
-          ;(event.context as any).personas.audience_settings = {
-            computation_key: 'looney_tunes_audience',
-            external_audience_id: '12345'
-          }
-        } */
-
         const responses = await testDestination.executeBatch('sendAudienceAsPet', actionPayload)
 
         expect(responses.length).toBe(3)

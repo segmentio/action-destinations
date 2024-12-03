@@ -34,7 +34,7 @@ export interface Payload {
   /**
    * If true, all Recipient data will be converted to strings before being sent to Responsys.
    */
-  stringify: boolean
+  stringify?: boolean
   /**
    * Once enabled, Segment will collect events into batches of 200 before sending to Responsys.
    */

@@ -1,9 +1,10 @@
 import { ActionDefinition } from '@segment/actions-core'
+import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
+
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { use_responsys_async_api, batch_size } from '../shared-properties'
-import { upsertListMembers, getUserDataFieldNames, validateListMemberPayload } from '../utils'
-import { Data } from '../types'
+import { upsertListMembers, validateListMemberPayload } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile List Member',
@@ -68,7 +69,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Stringify Recipient Data',
       description: 'If true, all Recipient data will be converted to strings before being sent to Responsys.',
       type: 'boolean',
-      required: true,
+      required: false,
       default: false
     },
     enable_batching: use_responsys_async_api,
@@ -76,17 +77,16 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, data) => {
-    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
-    // const transformedSettings = transformDataFieldValues(data.settings)
+    // const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
     validateListMemberPayload(data.payload.userData)
 
-    return upsertListMembers(request, [data.payload], data.settings, userDataFieldNames)
+    return upsertListMembers(request, data.auth as AuthTokens, [data.payload], data.settings)
   },
 
   performBatch: async (request, data) => {
-    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
+    // const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    return upsertListMembers(request, data.payload, data.settings, userDataFieldNames)
+    return upsertListMembers(request, data.auth as AuthTokens, data.payload, data.settings)
   }
 }
 

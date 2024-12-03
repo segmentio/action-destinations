@@ -63,7 +63,7 @@ export const sendToPet = async (
   const usingAsyncApi = payload.length > 0 ? payload[0].use_responsys_async_api : false
   await upsertListMembers(request, authTokens, payload, settings, usingAsyncApi)
   // Take a break.
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  await new Promise((resolve) => setTimeout(resolve, 700))
 
   // petRecords[folderName][petName] = [record1, record2, ...]
   const folderRecords: {
