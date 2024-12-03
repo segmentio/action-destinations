@@ -81,22 +81,3 @@ jobs:
           script: |
             const script = require('./scripts/github-action/create-github-release.js')
             await script({github, context, core, exec})
-
-  # When hotfix is merged back to main, we tag all the packages that were changed in the hotfix commit.
-  tag-hotfix:
-    if: startsWith(github.event.head_commit.message, 'Hotfix:') == true && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Configure git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Generate Package Specific Tags
-        id: get-release-tag
-        run: ./scripts/generate-package-tags.sh
