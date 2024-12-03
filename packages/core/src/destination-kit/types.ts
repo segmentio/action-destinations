@@ -347,7 +347,7 @@ export type Deletion<Settings, Return = any> = (
 ) => MaybePromise<Return>
 
 /** The supported sync mode values  */
-export const syncModeTypes = ['add', 'update', 'upsert', 'delete'] as const
+export const syncModeTypes = ['add', 'update', 'upsert', 'delete', 'mirror'] as const
 export type SyncMode = typeof syncModeTypes[number]
 
 export interface SyncModeOption {
