@@ -119,7 +119,7 @@ describe('forwardProfile', () => {
             upsertProfiles(
               input: {
                 advertiserId: 23,
-                externalProvider: \\"segmentio\\",
+                externalProvider: \\"SEGMENT_IO\\",
                 syncId: \\"e6a568a61b0264fb8038ae64dbfb72032f7d1f5b32cf54acbe02979d9312f470\\",
                 profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"birthDay\\\\\\":1,\\\\\\"birthMonth\\\\\\":2}]\\"
               }
@@ -182,7 +182,7 @@ describe('forwardProfile', () => {
             upsertProfiles(
               input: {
                 advertiserId: 23,
-                externalProvider: \\"segmentio\\",
+                externalProvider: \\"SEGMENT_IO\\",
                 syncId: \\"e6a568a61b0264fb8038ae64dbfb72032f7d1f5b32cf54acbe02979d9312f470\\",
                 profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"birthDay\\\\\\":1,\\\\\\"birthMonth\\\\\\":2}]\\"
               }
@@ -230,7 +230,7 @@ describe('forwardProfile', () => {
             upsertProfiles(
               input: {
                 advertiserId: 23,
-                externalProvider: \\"segmentio\\",
+                externalProvider: \\"SEGMENT_IO\\",
                 syncId: \\"fab5978d05bc4be0dadaed90eb6372333239e1c0c464a6a62b48d34cbaf676b2\\",
                 profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"admin@stackadapt.com\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"birthDay\\\\\\":1,\\\\\\"birthMonth\\\\\\":2},{\\\\\\"email\\\\\\":\\\\\\"email2@stackadapt.com\\\\\\",\\\\\\"customField\\\\\\":\\\\\\"value\\\\\\",\\\\\\"numberCustomField\\\\\\":123,\\\\\\"userId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
               }
@@ -278,7 +278,7 @@ describe('forwardProfile', () => {
             upsertProfiles(
               input: {
                 advertiserId: 23,
-                externalProvider: \\"segmentio\\",
+                externalProvider: \\"SEGMENT_IO\\",
                 syncId: \\"b9612b9eb0ade5b30e0f474e03e54449e0d108e09306aa1afdf92e2a6267146e\\",
                 profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"previousId\\\\\\":\\\\\\"user-id2\\\\\\"}]\\"
               }

@@ -2,7 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { GQL_ENDPOINT, sha256hash, stringifyJsonWithEscapedQuotes } from '../functions'
 
-const EXTERNAL_PROVIDER = 'segmentio'
+const EXTERNAL_PROVIDER = 'SEGMENT_IO'
 
 const audienceMapping = stringifyJsonWithEscapedQuotes([
   {
