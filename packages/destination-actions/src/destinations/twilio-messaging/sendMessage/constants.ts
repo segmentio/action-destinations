@@ -104,6 +104,8 @@ export const ALL_CONTENT_TYPES = {
   ...INLINE_CONTENT_TYPES
 }
 
+export const CONTENT_TYPE_FRIENDLY_NAMES_SUPPORTING_MEDIA = Object.values(ALL_CONTENT_TYPES).filter((t) => t.supports_media).map((t) => t.friendly_name)
+
 export const SENDER_TYPE = {
   PHONE_NUMBER: 'Phone number',
   MESSAGING_SERVICE: 'Messaging Service'

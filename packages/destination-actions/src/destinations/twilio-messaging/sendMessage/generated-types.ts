@@ -18,7 +18,7 @@ export interface Payload {
    */
   senderType: string
   /**
-   * The Twilio phone number (E.164 format) or short code for sending SMS/MMS. If not in the dropdown, enter it directly and ensure the number supports SMS/MMS.
+   * The Twilio phone number (E.164 format). If not in the dropdown, enter it directly. Please ensure the number supports the selected 'Channel' type.
    */
   fromPhoneNumber?: string
   /**
