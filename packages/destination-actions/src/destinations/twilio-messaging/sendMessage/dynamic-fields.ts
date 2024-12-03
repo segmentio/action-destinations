@@ -150,7 +150,7 @@ export async function dynamicContentTemplateType(payload: Payload): Promise<Dyna
   }
 
   return await Promise.resolve({
-    choices: Object.values(PREDEFINED_CONTENT_TYPES)
+    choices: Object.values({...INLINE_CONTENT_TYPES, ...PREDEFINED_CONTENT_TYPES})
       .filter((t) => t.supported_channels.includes(channel as Channel))
       .map((t) => ({
         label: t.friendly_name,
