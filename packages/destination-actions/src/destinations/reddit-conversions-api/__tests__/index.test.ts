@@ -51,7 +51,6 @@ describe('Reddit Conversions Api', () => {
           custom_event_name: 'Some Custom Event Name'
         }
       })
-      console.log(responses[0].options.json)
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
