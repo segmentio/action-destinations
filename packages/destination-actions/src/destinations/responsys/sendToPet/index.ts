@@ -2,8 +2,8 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { use_responsys_async_api, batch_size, recipient_data, retry, folder_name } from '../shared-properties'
-import { getUserDataFieldNames, testConditionsToRetry, validateListMemberPayload } from '../utils'
+import { use_responsys_async_api, batch_size, recipient_data, folder_name } from '../shared-properties'
+import { getUserDataFieldNames, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
 import { sendToPet } from './functions'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
@@ -39,19 +39,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       required: false,
       default: false
-    },
-    retry: retry
+    }
   },
   perform: async (request, data) => {
-    const { payload, settings, statsContext, auth } = data
+    const { payload, settings, auth } = data
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
-
-    testConditionsToRetry({
-      timestamp: payload.timestamp || new Date().toISOString(),
-      statsContext: statsContext,
-      retry: payload.retry
-    })
 
     const profileExtensionTable = String(payload.pet_name || settings.profileExtensionTable)
 
@@ -75,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, data) => {
-    const { payload, settings, statsContext, auth } = data
+    const { payload, settings, auth } = data
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
@@ -90,12 +83,6 @@ const action: ActionDefinition<Settings, Payload> = {
         validatedPayloads.push(item)
       }
     }
-
-    testConditionsToRetry({
-      timestamp: validatedPayloads[0].timestamp || new Date().toISOString(),
-      statsContext: statsContext,
-      retry: validatedPayloads[0].retry
-    })
 
     return sendToPet(request, auth as AuthTokens, validatedPayloads, settings, userDataFieldNames)
   }
