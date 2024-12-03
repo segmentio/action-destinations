@@ -51,7 +51,7 @@ async function getData<T>(request: RequestClient, url: string): Promise<T | Erro
       method: 'GET',
       skipResponseCloning: true
     })
-    return response as T
+    return response as unknown as T
   } catch (err) {
     const error = err as ResultError
     return createErrorResponse(error.response.data.message, String(error.response.data.status))
