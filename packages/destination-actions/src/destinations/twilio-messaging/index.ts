@@ -1,13 +1,13 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import sendSms from './sendSms'
+import sendMessage from './sendMessage'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Twilio Messaging',
   slug: 'actions-twilio-messaging',
   mode: 'cloud',
-  description: 'Send SMS using Twilio',
+  description: 'Send SMS, MMS, Whatsapp and Messenger messages with Twilio',
   authentication: {
     scheme: 'basic',
     fields: {
@@ -53,7 +53,7 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    sendSms
+    sendMessage
   }
 }
 
