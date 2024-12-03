@@ -11,6 +11,20 @@ import {
 } from '../types'
 import { sendDebugMessageToSegmentSource } from '../utils'
 
+// Rate limits per endpoint.
+// Can be obtained through `/rest/api/ratelimit`, but at the point
+// this project is, there's no good way to calling it without a huge
+// drop in performance.
+// We are using here the most common values observed in our customers.
+
+// updateProfileListMembers (`lists/${settings.profileListName}/members`, POST): 400 requests per minute.
+// Around 1 request every 150ms.
+const upsertListMembersWaitInterval = 150
+
+// sendToPet (`lists/${settings.profileListName}/listExtensions/${petName}/members`, POST): 500 requests per minute.
+// Around 1 request every 120ms.
+const sendToPetWaitInterval = 120
+
 export const petExists = async (request: RequestClient, settings: Settings, computationKey: string) => {
   const path = `/rest/api/v1.3/lists/${settings.profileListName}/listExtensions`
   const endpoint = new URL(path, settings.baseUrl)
@@ -63,6 +77,7 @@ export const updateProfileListAndPet = async (request: RequestClient, settings: 
   } = {}
 
   // First we need to make sure that all users exist in the Profile List.
+  await new Promise((resolve) => setTimeout(resolve, upsertListMembersWaitInterval))
   await updateProfileListMembers(request, settings, payloads)
 
   // This endpoint works better with only one identifier at a time, so we need to split the payloads into groups.
@@ -196,6 +211,7 @@ const sendPetUpdate = async (
   const path = `/rest/api/v1.3/lists/${settings.profileListName}/listExtensions/${computationKey}/members`
   const endpoint = new URL(path, settings.baseUrl)
 
+  await new Promise((resolve) => setTimeout(resolve, sendToPetWaitInterval))
   return request(endpoint.href, {
     method: 'POST',
     body: JSON.stringify(requestBody)

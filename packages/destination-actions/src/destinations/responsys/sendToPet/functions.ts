@@ -1,9 +1,9 @@
 import { ModifiedResponse, RequestClient } from '@segment/actions-core/*'
+import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 import { Settings } from '../generated-types'
 import { getAsyncResponse, sendDebugMessageToSegmentSource, stringifyObject, upsertListMembers } from '../utils'
 import { ResponsysCustomTraitsRequestBody, ResponsysRecordData, UpsertProfileListResponse } from '../types'
 import { Payload } from './generated-types'
-import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 
 export const getAllPets = async (
   request: RequestClient,
@@ -59,11 +59,28 @@ export const sendToPet = async (
   settings: Settings,
   userDataFieldNames: string[]
 ) => {
-  // First, update the profile list. No PETs will accept records from non-existing profiles.
   const usingAsyncApi = payload.length > 0 ? payload[0].use_responsys_async_api : false
+
+  // Rate limits per endpoint.
+  // Can be obtained through `/rest/api/ratelimit`, but at the point
+  // this project is, there's no good way to calling it without a huge
+  // drop in performance.
+  // We are using here the most common values observed in our customers.
+
+  // getAllPets (`lists/${settings.profileListName}/listExtensions`, GET): 1000 requests per minute.
+  // Around 1 request every 60ms.
+  const getAllPetsWaitInterval = 60
+
+  // createPet (`lists/${settings.profileListName}/listExtensions`, POST): 10 requests per minute.
+  // Around 1 request every 6000ms.
+  const createPetWaitInterval = 6000
+
+  // sendToPet (`lists/${settings.profileListName}/listExtensions/${petName}/members`, POST): 500 requests per minute.
+  // Around 1 request every 120ms.
+  const sendToPetWaitInterval = 120
+
+  // First, update the profile list. No PETs will accept records from non-existing profiles.
   await upsertListMembers(request, authTokens, payload, settings, usingAsyncApi)
-  // Take a break.
-  await new Promise((resolve) => setTimeout(resolve, 700))
 
   // petRecords[folderName][petName] = [record1, record2, ...]
   const folderRecords: {
@@ -92,9 +109,9 @@ export const sendToPet = async (
     folderRecords[folderName][petName].push(item.stringify ? stringifyObject(item.userData) : item.userData)
   }
 
-  const allPets = await getAllPets(request, settings)
   // Take a break.
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  await new Promise((resolve) => setTimeout(resolve, getAllPetsWaitInterval))
+  const allPets = await getAllPets(request, settings)
 
   const responses: ModifiedResponse<unknown>[] = []
   for (const [folderName, petRecords] of Object.entries(folderRecords)) {
@@ -105,9 +122,9 @@ export const sendToPet = async (
       )
 
       if (!correspondingPet) {
-        await createPet(request, settings, petName, userDataFieldNames, folderName)
         // Take a break.
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        await new Promise((resolve) => setTimeout(resolve, createPetWaitInterval))
+        await createPet(request, settings, petName, userDataFieldNames, folderName)
         allPets.push({ objectName: petName, folderName })
       }
 
@@ -136,13 +153,15 @@ export const sendToPet = async (
       }/listExtensions/${petName}/members`
       const endpoint = new URL(path, settings.baseUrl)
 
+      // Take a break.
+      // In this particular case, only waiting the regular time is not enough, so
+      // we are waiting twice the time.
+      await new Promise((resolve) => setTimeout(resolve, sendToPetWaitInterval * 2))
       const response: ModifiedResponse<UpsertProfileListResponse> = await request(endpoint.href, {
         method: 'POST',
         skipResponseCloning: true,
         body: JSON.stringify(requestBody)
       })
-      // Take a break.
-      await new Promise((resolve) => setTimeout(resolve, 1000))
 
       if (usingAsyncApi) {
         const requestId = response.data.requestId

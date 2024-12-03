@@ -21,6 +21,14 @@ import {
 import type { Settings } from './generated-types'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 
+export const getRateLimits = async (request: RequestClient, settings: Settings): Promise<ModifiedResponse<any>> => {
+  const endpoint = new URL('/rest/api/ratelimit', settings.baseUrl)
+  return request(endpoint.href, {
+    method: 'GET',
+    skipResponseCloning: true
+  })
+}
+
 export const testConditionsToRetry = ({
   timestamp,
   statsContext,
@@ -206,6 +214,13 @@ export const upsertListMembers = async (
       'Content-Type': 'application/json'
     }
   }
+
+  // Take a break.
+  // upsertListMembers (`lists/${settings.profileListName}/members`, POST): 400 requests per minute.
+  // Around 1 request every 150ms.
+  const upsertListMembersWaitInterval = 150
+  await new Promise((resolve) => setTimeout(resolve, upsertListMembersWaitInterval))
+
   const secondRequest = createRequestClient(headers)
   const response: ModifiedResponse<UpsertProfileListResponse> = await secondRequest(endpoint.href, {
     method: 'POST',

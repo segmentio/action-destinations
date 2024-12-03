@@ -77,15 +77,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, data) => {
-    // const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
     validateListMemberPayload(data.payload.userData)
-
     return upsertListMembers(request, data.auth as AuthTokens, [data.payload], data.settings)
   },
 
   performBatch: async (request, data) => {
-    // const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
-
     return upsertListMembers(request, data.auth as AuthTokens, data.payload, data.settings)
   }
 }

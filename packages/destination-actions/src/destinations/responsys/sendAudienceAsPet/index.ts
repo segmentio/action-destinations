@@ -6,6 +6,20 @@ import { validateListMemberPayload } from '../utils'
 import { createPet, petExists, updateProfileListAndPet } from './functions'
 import { recipient_data, retry } from '../shared-properties'
 
+// Rate limits per endpoint.
+// Can be obtained through `/rest/api/ratelimit`, but at the point
+// this project is, there's no good way to calling it without a huge
+// drop in performance.
+// We are using here the most common values observed in our customers.
+
+// getAllPets (`lists/${settings.profileListName}/listExtensions`, GET): 1000 requests per minute.
+// Around 1 request every 60ms.
+const getAllPetsWaitInterval = 60
+
+// createPet (`lists/${settings.profileListName}/listExtensions`, POST): 10 requests per minute.
+// Around 1 request every 6000ms.
+const createPetWaitInterval = 6000
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Audience as PET (Profile Extension Table)',
   description: 'Send Engage Audience to a separate, newly created Profile Extension Table in Responsys',
@@ -67,8 +81,10 @@ const action: ActionDefinition<Settings, Payload> = {
     const { payload, settings } = data
     validateListMemberPayload(payload.userData)
 
+    await new Promise((resolve) => setTimeout(resolve, getAllPetsWaitInterval))
     const petAlreadyExists = await petExists(request, settings, payload.pet_name)
     if (!petAlreadyExists) {
+      await new Promise((resolve) => setTimeout(resolve, createPetWaitInterval))
       await createPet(request, settings, payload)
     }
 
@@ -89,8 +105,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     // Can we consider that each batch has only one audience key?
+    await new Promise((resolve) => setTimeout(resolve, getAllPetsWaitInterval))
     const petAlreadyExists = await petExists(request, settings, payload[0].pet_name)
     if (!petAlreadyExists) {
+      await new Promise((resolve) => setTimeout(resolve, createPetWaitInterval))
       await createPet(request, settings, payload[0])
     }
 
