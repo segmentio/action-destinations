@@ -9,7 +9,7 @@ export const fields: Record<string, InputField> = {
     required: true,
     choices: [
       { label: 'SMS', value: CHANNELS.SMS },
-      { label: 'SMS', value: CHANNELS.MMS },
+      { label: 'MMS', value: CHANNELS.MMS },
       { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
       { label: 'Facebook Messenger', value: CHANNELS.MESSENGER }
     ],
