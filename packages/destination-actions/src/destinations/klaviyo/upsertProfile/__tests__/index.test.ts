@@ -600,20 +600,6 @@ describe('Upsert Profile Batch', () => {
     expect(response).toHaveLength(1)
   })
 
-  it('should handle errors when sending profiles to Klaviyo', async () => {
-    const events = [createTestEvent({ traits: { email: 'error@example.com' } })]
-
-    nock(API_URL).post('/profile-bulk-import-jobs/').reply(500, { error: 'Server error' })
-
-    await expect(
-      testDestination.testBatchAction('upsertProfile', {
-        settings,
-        events,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrow()
-  })
-
   it('should group profiles by list_id correctly', () => {
     const profiles = [
       { email: 'profile1@example.com', list_id: 'listA', override_list_id: 'overridelistA' },
@@ -622,7 +608,7 @@ describe('Upsert Profile Batch', () => {
       { email: 'profile4@example.com', override_list_id: 'overridelistA' }
     ]
 
-    const grouped = Functions.groupByListId(profiles)
+    const { grouped } = Functions.groupByListId(profiles, [])
 
     expect(Object.keys(grouped)).toEqual(['overridelistA', 'listB', 'listA'])
     expect(grouped['listA']).toHaveLength(1)
