@@ -150,11 +150,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     ...getMediaUrl()
   }))()
 
-  console.log(twilioPayload)
-
   const encodedBody = encode(twilioPayload)
-
-  console.log(encodedBody)
 
   return await request(SEND_SMS_URL.replace(ACCOUNT_SID_TOKEN, settings.accountSID), {
     method: 'post',
