@@ -132,7 +132,7 @@ describe('forwardProfile', () => {
               input: {
                 advertiserId: 23,
                 mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
-                mappableType: \\"segmentio\\",
+                mappableType: \\"SEGMENT_IO\\",
               }
             ) {
               userErrors {
@@ -195,7 +195,7 @@ describe('forwardProfile', () => {
               input: {
                 advertiserId: 23,
                 mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
-                mappableType: \\"segmentio\\",
+                mappableType: \\"SEGMENT_IO\\",
               }
             ) {
               userErrors {
@@ -243,7 +243,7 @@ describe('forwardProfile', () => {
               input: {
                 advertiserId: 23,
                 mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false},{\\\\\\"incoming_key\\\\\\":\\\\\\"customField\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"customField\\\\\\",\\\\\\"label\\\\\\":\\\\\\"Custom Field\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false},{\\\\\\"incoming_key\\\\\\":\\\\\\"numberCustomField\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"numberCustomField\\\\\\",\\\\\\"label\\\\\\":\\\\\\"Number Custom Field\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"number\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
-                mappableType: \\"segmentio\\",
+                mappableType: \\"SEGMENT_IO\\",
               }
             ) {
               userErrors {
@@ -291,7 +291,7 @@ describe('forwardProfile', () => {
               input: {
                 advertiserId: 23,
                 mappingSchema: \\"[{\\\\\\"incoming_key\\\\\\":\\\\\\"userId\\\\\\",\\\\\\"destination_key\\\\\\":\\\\\\"external_id\\\\\\",\\\\\\"label\\\\\\":\\\\\\"User Id\\\\\\",\\\\\\"data_type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"is_pii\\\\\\":false}]\\",
-                mappableType: \\"segmentio\\",
+                mappableType: \\"SEGMENT_IO\\",
               }
             ) {
               userErrors {
