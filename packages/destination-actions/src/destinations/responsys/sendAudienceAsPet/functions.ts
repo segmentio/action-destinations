@@ -182,7 +182,11 @@ const updateProfileListMembers = async (request: RequestClient, settings: Settin
   const mergeRule: ResponsysMergeRule = {
     insertOnNoMatch: true,
     updateOnMatch: 'REPLACE_ALL',
-    matchColumnName1: settings.matchColumnName1 + '_'
+    matchColumnName1: settings.matchColumnName1 + '_',
+    optinValue: settings.optinValue,
+    optoutValue: settings.optoutValue,
+    rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
+    defaultPermissionStatus: payloads[0].default_permission_status || settings.defaultPermissionStatus
   }
 
   const requestBody: ResponsysListMemberRequestBody = {

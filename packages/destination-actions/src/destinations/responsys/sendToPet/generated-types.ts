@@ -43,4 +43,8 @@ export interface Payload {
    * If true, all Recipient data will be converted to strings before being sent to Responsys.
    */
   stringify?: boolean
+  /**
+   * This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.
+   */
+  default_permission_status?: string
 }

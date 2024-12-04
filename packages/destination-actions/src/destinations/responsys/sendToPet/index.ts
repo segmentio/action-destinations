@@ -2,7 +2,13 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
-import { use_responsys_async_api, batch_size, recipient_data, folder_name } from '../shared-properties'
+import {
+  use_responsys_async_api,
+  batch_size,
+  recipient_data,
+  folder_name,
+  default_permission_status
+} from '../shared-properties'
 import { getUserDataFieldNames, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
 import { sendToPet } from './functions'
@@ -39,7 +45,8 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       required: false,
       default: false
-    }
+    },
+    default_permission_status: default_permission_status
   },
   perform: async (request, data) => {
     const { payload, settings, auth } = data

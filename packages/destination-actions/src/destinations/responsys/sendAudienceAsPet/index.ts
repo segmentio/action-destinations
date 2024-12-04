@@ -4,7 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { validateListMemberPayload } from '../utils'
 import { createPet, petExists, updateProfileListAndPet } from './functions'
-import { recipient_data, retry } from '../shared-properties'
+import { default_permission_status, recipient_data, retry } from '../shared-properties'
 
 // Rate limits per endpoint.
 // Can be obtained through `/rest/api/ratelimit`, but at the point
@@ -74,7 +74,8 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.timestamp'
       }
     },
-    retry: retry
+    retry: retry,
+    default_permission_status: default_permission_status
   },
   // https://docs.oracle.com/en/cloud/saas/marketing/responsys-rest-api/op-rest-api-v1.3-lists-listname-listextensions-petname-members-post.html
   perform: async (request, data) => {

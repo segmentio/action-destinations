@@ -43,4 +43,8 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
+  /**
+   * This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.
+   */
+  default_permission_status?: string
 }

@@ -3,7 +3,7 @@ import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { use_responsys_async_api, batch_size } from '../shared-properties'
+import { use_responsys_async_api, batch_size, default_permission_status } from '../shared-properties'
 import { upsertListMembers, validateListMemberPayload } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -73,7 +73,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: false
     },
     enable_batching: use_responsys_async_api,
-    batch_size: batch_size
+    batch_size: batch_size,
+    default_permission_status: default_permission_status
   },
 
   perform: async (request, data) => {

@@ -45,4 +45,8 @@ export interface Payload {
    *                 Max delay allowed is 600 secs (10 mins). The default is 0 seconds.
    */
   retry?: number
+  /**
+   * This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.
+   */
+  default_permission_status?: string
 }

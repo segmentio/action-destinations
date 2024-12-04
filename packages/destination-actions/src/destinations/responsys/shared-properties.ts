@@ -84,3 +84,15 @@ export const batch_size: InputField = {
   unsafe_hidden: true,
   default: 200
 }
+
+export const default_permission_status: InputField = {
+  label: 'Default Permission Status',
+  description:
+    'This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.',
+  type: 'string',
+  required: false,
+  choices: [
+    { label: 'Opt In', value: 'OPTIN' },
+    { label: 'Opt Out', value: 'OPTOUT' }
+  ]
+}

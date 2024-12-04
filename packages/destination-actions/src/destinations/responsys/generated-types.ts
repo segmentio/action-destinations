@@ -72,7 +72,7 @@ export interface Settings {
    */
   rejectRecordIfChannelEmpty?: string
   /**
-   * This value must be specified as either OPTIN or OPTOUT. defaults to OPTOUT.
+   * This value must be specified as either OPTIN or OPTOUT. Defaults to OPTOUT. Can be overridden in the mapping.
    */
   defaultPermissionStatus: string
   /**

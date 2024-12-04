@@ -2,6 +2,7 @@ import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-typ
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
 import { Payload as ListMemberPayload } from './upsertListMember/generated-types'
 
+import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 import {
   ResponsysRecordData,
   ResponsysCustomTraitsRequestBody,
@@ -19,7 +20,20 @@ import {
   createRequestClient
 } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
+
+// Rate limits per endpoint.
+// Can be obtained through `/rest/api/ratelimit`, but at the point
+// this project is, there's no good way to calling it without a huge
+// drop in performance.
+// We are using here the most common values observed in our customers.
+
+// upsertListMembers (`lists/${settings.profileListName}/members`, POST): 400 requests per minute.
+// Around 1 request every 150ms.
+const upsertListMembersWaitInterval = 150
+
+// getAsyncResponse (`requests/${requestId}`, GET): 1000 requests per minute.
+// Around 1 request every 60ms.
+const getAsyncResponseWaitInterval = 60
 
 export const getRateLimits = async (request: RequestClient, settings: Settings): Promise<ModifiedResponse<any>> => {
   const endpoint = new URL('/rest/api/ratelimit', settings.baseUrl)
@@ -193,7 +207,7 @@ export const upsertListMembers = async (
     matchOperator: settings.matchOperator,
     optoutValue: settings.optoutValue,
     rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
-    defaultPermissionStatus: settings.defaultPermissionStatus
+    defaultPermissionStatus: payload[0].default_permission_status || settings.defaultPermissionStatus
   }
 
   if (settings.matchColumnName2) {
@@ -216,9 +230,6 @@ export const upsertListMembers = async (
   }
 
   // Take a break.
-  // upsertListMembers (`lists/${settings.profileListName}/members`, POST): 400 requests per minute.
-  // Around 1 request every 150ms.
-  const upsertListMembersWaitInterval = 150
   await new Promise((resolve) => setTimeout(resolve, upsertListMembersWaitInterval))
 
   const secondRequest = createRequestClient(headers)
@@ -294,6 +305,8 @@ export const getAsyncResponse = async (
 
   const operationResponseEndpoint = new URL(`/rest/asyncApi/v1.3/requests/${requestId}`, settings.baseUrl)
   const request = createRequestClient(headers)
+  // Take a break.
+  await new Promise((resolve) => setTimeout(resolve, getAsyncResponseWaitInterval))
   const asyncResponse = await request(operationResponseEndpoint.href, {
     method: 'GET',
     skipResponseCloning: true
