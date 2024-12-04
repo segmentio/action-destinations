@@ -64,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const profileId = await createProfile(request, email, external_id, phone_number, additionalAttributes)
     return await addProfileToList(request, profileId, list_id)
   },
-  performBatch: async (request, { payload }) => {
+  performBatch: async (request, { payload, statsContext, features }) => {
     // Filtering out profiles that do not contain either an email, external_id or valid phone number.
     payload = payload.filter((profile) => {
       // Validate and convert the phone number using the provided country code
@@ -80,6 +80,16 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return profile.email || profile.external_id || profile.phone_number
     })
+    const statsClient = statsContext?.statsClient
+    const tags = statsContext?.tags
+
+    if (features && features['check-klaviyo-list-id']) {
+      const set = new Set()
+      payload.forEach((profile) => {
+        set.add(profile.list_id)
+      })
+      statsClient?.histogram(`klaviyo_list_id`, set.size, tags)
+    }
     const listId = payload[0]?.list_id
     const importJobPayload = createImportJobPayload(payload, listId)
     return sendImportJobRequest(request, importJobPayload)

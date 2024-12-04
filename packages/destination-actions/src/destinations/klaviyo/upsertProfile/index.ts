@@ -301,7 +301,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: async (request, { payload, hookOutputs }) => {
+  performBatch: async (request, { payload, hookOutputs, statsContext, features }) => {
     const multiStatusResponse = new MultiStatusResponse()
 
     const filteredPayloads: JSONLikeObject[] = []
@@ -318,6 +318,16 @@ const action: ActionDefinition<Settings, Payload> = {
         validPayloadIndicesBitmap.push(originalBatchIndex)
       }
     })
+    const statsClient = statsContext?.statsClient
+    const tags = statsContext?.tags
+
+    if (features && features['check-klaviyo-list-id']) {
+      const set = new Set()
+      payload.forEach((profile) => {
+        if (profile.list_id) set.add(profile.list_id)
+      })
+      statsClient?.histogram(`klaviyo_list_id`, set.size, tags)
+    }
 
     const profilesWithList: Payload[] = []
     const profilesWithoutList: Payload[] = []
