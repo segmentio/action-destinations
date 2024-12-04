@@ -5,12 +5,15 @@ import {
   CONTENT_SID_TOKEN,
   ACCOUNT_SID_TOKEN,
   GET_INCOMING_PHONE_NUMBERS_URL,
+  GET_INCOMING_SHORT_CODES_URL,
   GET_MESSAGING_SERVICE_SIDS_URL,
   GET_ALL_CONTENTS_URL,
   GET_CONTENT_VARIABLES_URL,
   GET_CONTENT_URL,
   INLINE_CONTENT_TYPES,
-  PREDEFINED_CONTENT_TYPES
+  PREDEFINED_CONTENT_TYPES,
+  SENDER_TYPE,
+  CHANNELS
 } from './constants'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
@@ -58,11 +61,38 @@ async function getData<T>(request: RequestClient, url: string): Promise<T | Erro
   }
 }
 
+export async function dynamicSenderType(payload: Payload): Promise<DynamicFieldResponse> {
+  const { channel } = payload
+
+  if (!channel) {
+    return createErrorResponse("Select from 'Channel' field first.")
+  }
+
+  if(channel === CHANNELS.MESSENGER) {
+    return {
+      choices: [
+        { label: SENDER_TYPE.MESSENGER_SENDER_ID, value: SENDER_TYPE.MESSENGER_SENDER_ID },
+        { label: SENDER_TYPE.MESSAGING_SERVICE, value: SENDER_TYPE.MESSAGING_SERVICE }
+      ]
+    }
+  }
+  else {
+    return {
+      choices: [
+        { label: SENDER_TYPE.PHONE_NUMBER, value: SENDER_TYPE.PHONE_NUMBER },
+        { label: SENDER_TYPE.MESSAGING_SERVICE, value: SENDER_TYPE.MESSAGING_SERVICE }
+      ]
+    }
+  }
+}
+
 export async function dynamicFromPhoneNumber(
   request: RequestClient,
+  payload: Payload,
   settings: Settings
 ): Promise<DynamicFieldResponse> {
-  interface ResponseType {
+
+  interface PhoneNumResponseType {
     data: {
       incoming_phone_numbers: Array<{
         phone_number: string
@@ -74,30 +104,66 @@ export async function dynamicFromPhoneNumber(
     }
   }
 
-  const response = await getData<ResponseType>(
+  interface ShortCodeResponseType {
+    data: {
+      short_codes: Array<{
+        short_code: string
+        sms_url: string | null
+      }>
+    }
+  }
+
+  const { channel } = payload
+  const numbers: string[] = []
+  const supportsShortCodes = channel === CHANNELS.SMS || channel === CHANNELS.MMS
+
+  if(channel === CHANNELS.MESSENGER) {
+    return createErrorResponse("Use 'From Messenger Sender ID' field for specifying the sender ID.")
+  }
+
+  if(supportsShortCodes) {
+    const shortCodeResp = await getData<ShortCodeResponseType>(
+      request,
+      GET_INCOMING_SHORT_CODES_URL.replace(ACCOUNT_SID_TOKEN, settings.accountSID)
+    )
+
+    if (isErrorResponse(shortCodeResp)) {
+      return shortCodeResp
+    }
+    
+    const shortCodes: string[] = (shortCodeResp.data?.short_codes
+      .filter((s) => (channel === CHANNELS.MMS && s.sms_url !== null) || channel === CHANNELS.SMS))
+      .map((s) => s.short_code)
+
+    numbers.push(...shortCodes)
+  }
+
+  const PhoneNumResp = await getData<PhoneNumResponseType>(
     request,
     GET_INCOMING_PHONE_NUMBERS_URL.replace(ACCOUNT_SID_TOKEN, settings.accountSID)
   )
 
-  if (isErrorResponse(response)) {
-    return response
+  if (isErrorResponse(PhoneNumResp)) {
+    return PhoneNumResp
   }
 
-  const numbers = response.data.incoming_phone_numbers ?? []
+  const phoneNumbers: string[] = PhoneNumResp.data.incoming_phone_numbers
+    .filter((n) => (channel === CHANNELS.SMS && n.capabilities.sms) || (n.capabilities.mms && channel === CHANNELS.MMS))
+    .map((n) => n.phone_number)
+
+  numbers.push(...phoneNumbers)
+  numbers.sort((a, b) => a.length - b.length || a.localeCompare(b))
 
   if (numbers.length === 0) {
-    return createErrorResponse('No numbers found. Please create a phone number in your Twilio account.')
+    return createErrorResponse(`No phone numbers ${supportsShortCodes ? 'or short codes' : ''} found. Please create a phone number ${supportsShortCodes ? 'or short code' : ''} in your Twilio account.`)
   }
 
   return {
     choices: numbers
-      .filter((n) => {
-        return n.capabilities.sms || n.capabilities.mms
-      })
       .map((n) => {
         return {
-          label: `${n.phone_number}`,
-          value: `${n.phone_number}`
+          label: n,
+          value: n
         }
       })
   }

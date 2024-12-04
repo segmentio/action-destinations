@@ -8,11 +8,11 @@ export interface Payload {
   /**
    * The number to send the message to (E.164 format).
    */
-  toPhoneNumber: string
+  toPhoneNumber?: string
   /**
    * A valid Facebook Messenger Page Id or Messenger User Id.
    */
-  messengerPageUserId?: string
+  toMessengerPageUserId?: string
   /**
    * Select Sender Type
    */
@@ -21,6 +21,10 @@ export interface Payload {
    * The Twilio phone number (E.164 format). If not in the dropdown, enter it directly. Please ensure the number supports the selected 'Channel' type.
    */
   fromPhoneNumber?: string
+  /**
+   * The unique identifier for your Facebook Page, used to send messages via Messenger. You can find this in your Facebook Page settings.
+   */
+  fromMessengerSenderId?: string
   /**
    * The SID of the messaging service to use. If not in the dropdown, enter it directly.
    */

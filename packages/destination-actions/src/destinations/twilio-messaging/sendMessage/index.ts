@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { fields } from './fields'
 import {
+  dynamicSenderType,
   dynamicFromPhoneNumber,
   dynamicMessagingServiceSid,
   dynamicContentSid,
@@ -17,8 +18,11 @@ const action: ActionDefinition<Settings, Payload> = {
   description: "Send messages with Twilio's REST API.",
   fields,
   dynamicFields: {
-    fromPhoneNumber: async (request, { settings }) => {
-      return await dynamicFromPhoneNumber(request, settings)
+    senderType: async (_, { payload }) => {
+      return await dynamicSenderType(payload)
+    },
+    fromPhoneNumber: async (request, { payload, settings }) => {
+      return await dynamicFromPhoneNumber(request, payload, settings)
     },
     messagingServiceSid: async (request, { settings }) => {
       return await dynamicMessagingServiceSid(request, settings)
@@ -40,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { payload, settings }) => {   
+  perform: async (request, { payload, settings }) => { 
     return await send(request, payload, settings)
   }
 }
