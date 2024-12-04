@@ -9,7 +9,7 @@ import {
   ResponsysMergeRule,
   ResponsysListMemberRequestBody,
   Data,
-  UpsertProfileListResponse
+  ResponsysAsyncResponse
 } from './types'
 import {
   RequestClient,
@@ -233,7 +233,7 @@ export const upsertListMembers = async (
   await new Promise((resolve) => setTimeout(resolve, upsertListMembersWaitInterval))
 
   const secondRequest = createRequestClient(headers)
-  const response: ModifiedResponse<UpsertProfileListResponse> = await secondRequest(endpoint.href, {
+  const response: ModifiedResponse<ResponsysAsyncResponse> = await secondRequest(endpoint.href, {
     method: 'POST',
     body: JSON.stringify(requestBody)
   })

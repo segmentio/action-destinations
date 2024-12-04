@@ -6,7 +6,7 @@ export interface Data {
   }
 }
 
-export interface UpsertProfileListResponse {
+export interface ResponsysAsyncResponse {
   requestId: string
 }
 

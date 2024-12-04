@@ -2,7 +2,7 @@ import { ModifiedResponse, RequestClient } from '@segment/actions-core/*'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 import { Settings } from '../generated-types'
 import { getAsyncResponse, sendDebugMessageToSegmentSource, stringifyObject, upsertListMembers } from '../utils'
-import { ResponsysCustomTraitsRequestBody, ResponsysRecordData, UpsertProfileListResponse } from '../types'
+import { ResponsysCustomTraitsRequestBody, ResponsysRecordData, ResponsysAsyncResponse } from '../types'
 import { Payload } from './generated-types'
 
 export const getAllPets = async (
@@ -134,43 +134,49 @@ export const sendToPet = async (
         })
       })
 
-      const recordData: ResponsysRecordData = {
-        fieldNames: userDataFieldNames.map((field) => field.toUpperCase()),
-        records: resolvedRecords,
-        mapTemplateName: ''
+      // Per https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/REST/Async/asyncApi-v1.3-lists-listName-members-post.htm,
+      // we can only send 200 records at a time.
+      for (let i = 0; i < resolvedRecords.length; i += 200) {
+        const chunk = resolvedRecords.slice(i, i + 200)
+        const recordData: ResponsysRecordData = {
+          fieldNames: userDataFieldNames.map((field) => field.toUpperCase()),
+          records: chunk,
+          mapTemplateName: ''
+        }
+
+        const requestBody: ResponsysCustomTraitsRequestBody = {
+          recordData,
+          insertOnNoMatch: settings.insertOnNoMatch,
+          updateOnMatch: settings.updateOnMatch || 'REPLACE_ALL',
+          matchColumnName1: settings.matchColumnName1,
+          matchColumnName2: settings.matchColumnName2 || ''
+        }
+
+        const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/v1.3/lists/${
+          settings.profileListName
+        }/listExtensions/${petName}/members`
+        const endpoint = new URL(path, settings.baseUrl)
+
+        // Take a break.
+        // In this particular case, only waiting the regular time is not enough, so
+        // we are waiting twice the time.
+        await new Promise((resolve) => setTimeout(resolve, sendToPetWaitInterval * 2))
+        const response: ModifiedResponse<ResponsysAsyncResponse> = await request(endpoint.href, {
+          method: 'POST',
+          skipResponseCloning: true,
+          body: JSON.stringify(requestBody)
+        })
+
+        if (usingAsyncApi) {
+          const requestId = response.data.requestId
+          const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
+          await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
+          responses.push(asyncResponse as ModifiedResponse<unknown>)
+        }
+
+        await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
+        responses.push(response as ModifiedResponse<unknown>)
       }
-
-      const requestBody: ResponsysCustomTraitsRequestBody = {
-        recordData,
-        insertOnNoMatch: settings.insertOnNoMatch,
-        updateOnMatch: settings.updateOnMatch || 'REPLACE_ALL',
-        matchColumnName1: settings.matchColumnName1,
-        matchColumnName2: settings.matchColumnName2 || ''
-      }
-
-      const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/v1.3/lists/${
-        settings.profileListName
-      }/listExtensions/${petName}/members`
-      const endpoint = new URL(path, settings.baseUrl)
-
-      // Take a break.
-      // In this particular case, only waiting the regular time is not enough, so
-      // we are waiting twice the time.
-      await new Promise((resolve) => setTimeout(resolve, sendToPetWaitInterval * 2))
-      const response: ModifiedResponse<UpsertProfileListResponse> = await request(endpoint.href, {
-        method: 'POST',
-        skipResponseCloning: true,
-        body: JSON.stringify(requestBody)
-      })
-
-      if (usingAsyncApi) {
-        const requestId = response.data.requestId
-        const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
-        await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
-      }
-
-      await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
-      responses.push(response as ModifiedResponse<unknown>)
     }
 
     return responses

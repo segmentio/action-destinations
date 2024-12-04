@@ -9,6 +9,8 @@ const profileListName = 'TEST_PROFILE_LIST'
 const folderName = 'TEST_FOLDER'
 const petName = 'TEST_PET'
 
+jest.setTimeout(10000)
+
 describe('Responsys.sendToPet', () => {
   describe('Successful scenarios, async endpoints', () => {
     describe('Single event', () => {
@@ -115,10 +117,9 @@ describe('Responsys.sendToPet', () => {
 
         const responses = await testDestination.testAction('sendToPet', actionPayload)
 
-        expect(responses.length).toBe(3)
+        expect(responses.length).toBe(2)
         expect(responses[0].status).toBe(200)
         expect(responses[1].status).toBe(200)
-        expect(responses[2].status).toBe(200)
       })
     })
 

@@ -8,7 +8,7 @@ import {
   ResponsysMatchType,
   ResponsysMergeRule,
   ResponsysRecordData,
-  UpsertProfileListResponse
+  ResponsysAsyncResponse
 } from '../types'
 import { getAsyncResponse, sendDebugMessageToSegmentSource } from '../utils'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
@@ -81,15 +81,15 @@ export const updateProfileListAndPet = async (
       recordsWithUserId: Payload[]
       recordsWithEmail: Payload[]
       recordsWithRiid: Payload[]
-      requestBodyUserId?: ResponsysAudiencePetUpdateRequestBody
-      requestBodyEmail?: ResponsysAudiencePetUpdateRequestBody
-      requestBodyRiid?: ResponsysAudiencePetUpdateRequestBody
+      requestBodyUserId?: ResponsysAudiencePetUpdateRequestBody[]
+      requestBodyEmail?: ResponsysAudiencePetUpdateRequestBody[]
+      requestBodyRiid?: ResponsysAudiencePetUpdateRequestBody[]
     }
   } = {}
 
   // First we need to make sure that all users exist in the Profile List.
   await new Promise((resolve) => setTimeout(resolve, upsertListMembersWaitInterval))
-  await updateProfileListMembers(request, settings, payloads)
+  await updateProfileListMembers(request, authTokens, settings, payloads)
 
   // This endpoint works better with only one identifier at a time, so we need to split the payloads into groups.
   for (const payload of payloads) {
@@ -112,13 +112,21 @@ export const updateProfileListAndPet = async (
 
   for (const [audienceKey, recordCategories] of Object.entries(records)) {
     if (recordCategories.recordsWithUserId.length > 0) {
-      records[audienceKey].requestBodyUserId = buildPetUpdatePayload(recordCategories.recordsWithUserId, 'CUSTOMER_ID')
+      records[audienceKey].requestBodyUserId = buildPetUpdatePayloads(
+        recordCategories.recordsWithUserId,
+        'CUSTOMER_ID',
+        settings
+      )
     }
     if (recordCategories.recordsWithEmail.length > 0) {
-      records[audienceKey].requestBodyEmail = buildPetUpdatePayload(recordCategories.recordsWithEmail, 'EMAIL_ADDRESS')
+      records[audienceKey].requestBodyEmail = buildPetUpdatePayloads(
+        recordCategories.recordsWithEmail,
+        'EMAIL_ADDRESS',
+        settings
+      )
     }
     if (recordCategories.recordsWithRiid.length > 0) {
-      records[audienceKey].requestBodyRiid = buildPetUpdatePayload(recordCategories.recordsWithRiid, 'RIID')
+      records[audienceKey].requestBodyRiid = buildPetUpdatePayloads(recordCategories.recordsWithRiid, 'RIID', settings)
     }
   }
 
@@ -146,7 +154,11 @@ export const updateProfileListAndPet = async (
   return results
 }
 
-const buildPetUpdatePayload = (payloads: Payload[], matchField: ResponsysMatchField) => {
+const buildPetUpdatePayloads = (
+  payloads: Payload[],
+  matchField: ResponsysMatchField,
+  settings: Settings
+): ResponsysAudiencePetUpdateRequestBody[] => {
   const resolvedMatchType = (matchField + '_') as ResponsysMatchType
   const firstPayload = payloads[0]
   const records = payloads.map((payload) => {
@@ -157,21 +169,36 @@ const buildPetUpdatePayload = (payloads: Payload[], matchField: ResponsysMatchFi
     }
   }) as string[][]
 
-  const requestBody = {
-    recordData: {
-      fieldNames: [resolvedMatchType, firstPayload.computation_key.substring(0, 30)],
-      records: records,
-      mapTemplateName: null
-    },
-    insertOnNoMatch: true,
-    updateOnMatch: 'REPLACE_ALL',
-    matchColumnName1: matchField
+  const requestBodies = []
+  // Per https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/REST/Async/asyncApi-v1.3-lists-listName-members-post.htm,
+  // we can only send 200 records at a time.
+  for (let i = 0; i < records.length; i += 200) {
+    const chunk = records.slice(i, i + 200)
+    const requestBody = {
+      recordData: {
+        // Per https://docs.oracle.com/en/cloud/saas/marketing/responsys-user/List_DataTypeFieldname.htm,
+        // the field name should have a maximum of 30 characters.
+        fieldNames: [resolvedMatchType, firstPayload.computation_key.substring(0, 30)],
+        records: chunk,
+        mapTemplateName: null
+      },
+      insertOnNoMatch: settings.insertOnNoMatch,
+      updateOnMatch: settings.updateOnMatch,
+      matchColumnName1: matchField
+    }
+
+    requestBodies.push(requestBody)
   }
 
-  return requestBody
+  return requestBodies
 }
 
-const updateProfileListMembers = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
+const updateProfileListMembers = async (
+  request: RequestClient,
+  authTokens: AuthTokens,
+  settings: Settings,
+  payloads: Payload[]
+) => {
   const fieldNames = ['EMAIL_ADDRESS_', 'CUSTOMER_ID_']
   const records: string[][] = []
 
@@ -188,37 +215,45 @@ const updateProfileListMembers = async (request: RequestClient, settings: Settin
     records.push(record)
   }
 
-  const recordData: ResponsysRecordData = {
-    fieldNames: fieldNames,
-    records: records,
-    mapTemplateName: ''
+  // Per https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/REST/Async/asyncApi-v1.3-lists-listName-members-post.htm,
+  // we can only send 200 records at a time.
+  for (let i = 0; i < records.length; i += 200) {
+    const chunk = records.slice(i, i + 200)
+    const recordData: ResponsysRecordData = {
+      fieldNames: fieldNames,
+      records: chunk,
+      mapTemplateName: ''
+    }
+
+    const mergeRule: ResponsysMergeRule = {
+      insertOnNoMatch: true,
+      updateOnMatch: 'REPLACE_ALL',
+      matchColumnName1: settings.matchColumnName1 + '_',
+      optinValue: settings.optinValue,
+      optoutValue: settings.optoutValue,
+      rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
+      defaultPermissionStatus: payloads[0].default_permission_status || settings.defaultPermissionStatus
+    }
+
+    const requestBody: ResponsysListMemberRequestBody = {
+      recordData,
+      mergeRule
+    }
+
+    const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/members`
+
+    const endpoint = new URL(path, settings.baseUrl)
+
+    const response: ModifiedResponse<ResponsysAsyncResponse> = await request(endpoint.href, {
+      method: 'POST',
+      body: JSON.stringify(requestBody)
+    })
+
+    const requestId = response.data.requestId
+    await new Promise((resolve) => setTimeout(resolve, getAsyncResponseWaitInterval))
+    const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
+    await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
   }
-
-  const mergeRule: ResponsysMergeRule = {
-    insertOnNoMatch: true,
-    updateOnMatch: 'REPLACE_ALL',
-    matchColumnName1: settings.matchColumnName1 + '_',
-    optinValue: settings.optinValue,
-    optoutValue: settings.optoutValue,
-    rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
-    defaultPermissionStatus: payloads[0].default_permission_status || settings.defaultPermissionStatus
-  }
-
-  const requestBody: ResponsysListMemberRequestBody = {
-    recordData,
-    mergeRule
-  }
-
-  const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/members`
-
-  const endpoint = new URL(path, settings.baseUrl)
-
-  const response = await request(endpoint.href, {
-    method: 'POST',
-    body: JSON.stringify(requestBody)
-  })
-
-  await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
 }
 
 const sendPetUpdate = async (
@@ -226,19 +261,25 @@ const sendPetUpdate = async (
   authTokens: AuthTokens,
   settings: Settings,
   computationKey: string,
-  requestBody: ResponsysAudiencePetUpdateRequestBody
-) => {
+  requestBodies: ResponsysAudiencePetUpdateRequestBody[]
+): Promise<ModifiedResponse<unknown>[]> => {
   const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${computationKey}/members`
   const endpoint = new URL(path, settings.baseUrl)
 
-  await new Promise((resolve) => setTimeout(resolve, sendToPetWaitInterval * 2))
-  const response: ModifiedResponse<UpsertProfileListResponse> = await request(endpoint.href, {
-    method: 'POST',
-    body: JSON.stringify(requestBody)
-  })
+  const responses = []
+  for (const requestBody of requestBodies) {
+    await new Promise((resolve) => setTimeout(resolve, sendToPetWaitInterval * 2))
+    const response: ModifiedResponse<ResponsysAsyncResponse> = await request(endpoint.href, {
+      method: 'POST',
+      body: JSON.stringify(requestBodies)
+    })
 
-  const requestId = response.data.requestId
-  await new Promise((resolve) => setTimeout(resolve, getAsyncResponseWaitInterval))
-  const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
-  await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
+    const requestId = response.data.requestId
+    await new Promise((resolve) => setTimeout(resolve, getAsyncResponseWaitInterval))
+    const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
+    await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
+    responses.push(asyncResponse)
+  }
+
+  return responses
 }

@@ -9,6 +9,8 @@ const responsysHost = 'https://123456-api.responsys.ocs.oraclecloud.com'
 const profileListName = 'TEST_PROFILE_LIST'
 const folderName = 'TEST_FOLDER'
 
+jest.setTimeout(10000)
+
 describe('Responsys.sendAudienceAsPet', () => {
   describe('Successful scenarios', () => {
     describe('Single event', () => {
@@ -55,23 +57,30 @@ describe('Responsys.sendAudienceAsPet', () => {
           updateOnMatch: 'REPLACE_ALL',
           defaultPermissionStatus: 'OPTOUT',
           profileListName
+        },
+        auth: {
+          accessToken: 'abcd1234',
+          refreshToken: 'efgh5678'
         }
       }
 
       it('sends an event with default mappings + default settings, PET does not exist yet', async () => {
         nock(responsysHost).get(`/rest/api/v1.3/lists/${profileListName}/listExtensions`).reply(200, [])
 
-        nock(responsysHost)
-          .post(`/rest/api/v1.3/lists/${profileListName}/listExtensions`)
-          .reply(200, { results: [{}] })
+        nock(responsysHost).post(`/rest/api/v1.3/lists/${profileListName}/listExtensions`).reply(200, {})
+
+        nock(responsysHost).post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`).reply(200, {
+          requestId: '23456'
+        })
 
         nock(responsysHost)
-          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`)
-          .reply(200, { results: [{}] })
+          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${audienceKey}/members`)
+          .reply(200, {
+            requestId: '34567'
+          })
 
-        nock(responsysHost)
-          .post(`/rest/api/v1.3/lists/${profileListName}/listExtensions/${audienceKey}/members`)
-          .reply(200, { results: [{}] })
+        nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
+        nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/34567`).reply(200, {})
 
         const responses = await testDestination.testAction('sendAudienceAsPet', actionPayload)
 
@@ -91,13 +100,18 @@ describe('Responsys.sendAudienceAsPet', () => {
             }
           ])
 
-        nock(responsysHost)
-          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`)
-          .reply(200, { results: [{}] })
+        nock(responsysHost).post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`).reply(200, {
+          requestId: '23456'
+        })
 
         nock(responsysHost)
           .post(`/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${audienceKey}/members`)
-          .reply(200, { results: [{}] })
+          .reply(200, {
+            requestId: '34567'
+          })
+
+        nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
+        nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/34567`).reply(200, {})
 
         const responses = await testDestination.testAction('sendAudienceAsPet', actionPayload)
 
@@ -186,23 +200,30 @@ describe('Responsys.sendAudienceAsPet', () => {
             updateOnMatch: 'REPLACE_ALL',
             defaultPermissionStatus: 'OPTOUT',
             profileListName
+          },
+          auth: {
+            accessToken: 'abcd1234',
+            refreshToken: 'efgh5678'
           }
         }
 
         nock(responsysHost).get(`/rest/api/v1.3/lists/${profileListName}/listExtensions`).reply(200, [])
 
-        nock(responsysHost)
-          .post(`/rest/api/v1.3/lists/${profileListName}/listExtensions`)
-          .reply(200, { results: [{}] })
+        nock(responsysHost).post(`/rest/api/v1.3/lists/${profileListName}/listExtensions`).reply(200, {})
+
+        nock(responsysHost).post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`).reply(200, {
+          requestId: '23456'
+        })
 
         nock(responsysHost)
-          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`)
-          .reply(200, { results: [{}] })
-
-        nock(responsysHost)
-          .post(`/rest/api/v1.3/lists/${profileListName}/listExtensions/looney_tunes_audience/members`)
+          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/looney_tunes_audience/members`)
           .times(3)
-          .reply(200, { results: [{}] })
+          .reply(200, {
+            requestId: '34567'
+          })
+
+        nock(responsysHost).persist().get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
+        nock(responsysHost).persist().get(`/rest/asyncApi/v1.3/requests/34567`).reply(200, {})
 
         const responses = await testDestination.executeBatch('sendAudienceAsPet', actionPayload)
 
