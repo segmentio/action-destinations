@@ -6,6 +6,7 @@ export type AppData = Payload['app_data_field']
 export type GeneratedAppData = {
   advertiser_tracking_enabled: 1 | 0
   application_tracking_enabled: 1 | 0
+  madid?: string
   extinfo: string[]
 }
 
@@ -17,6 +18,7 @@ export const generate_app_data = (app_data: AppData): GeneratedAppData | undefin
   return {
     advertiser_tracking_enabled: app_data?.advertiser_tracking_enabled ? 1 : 0,
     application_tracking_enabled: app_data?.application_tracking_enabled ? 1 : 0,
+    madid: app_data?.madId,
     extinfo: [
       app_data?.version ?? '',
       app_data?.packageName ?? '',
@@ -33,9 +35,7 @@ export const generate_app_data = (app_data: AppData): GeneratedAppData | undefin
       app_data?.cpuCores ?? '',
       app_data?.storageSize ?? '',
       app_data?.freeStorage ?? '',
-      app_data?.deviceTimezone ?? '',
-      app_data?.anonId ?? '',
-      app_data?.madId ?? ''
+      app_data?.deviceTimezone ?? ''
     ]
   }
 }
@@ -99,12 +99,6 @@ export const app_data_field: InputField = {
     deviceName: {
       label: 'Device Model Name',
       description: `Example: 'iPhone5,1'.`,
-      type: 'string'
-    },
-    anonId: {
-      label: 'Install ID (anon_id)',
-      description:
-        'This field represents unique application installation instances. Note: This parameter is for app events only.',
       type: 'string'
     },
     madId: {
@@ -197,9 +191,6 @@ export const app_data_field: InputField = {
     },
     deviceTimezone: {
       '@path': '$.context.timezone'
-    },
-    anonId: {
-      '@path': '$.context.anon_id'
     },
     madId: {
       '@path': '$.context.madId'

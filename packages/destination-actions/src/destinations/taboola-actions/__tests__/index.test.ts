@@ -37,7 +37,13 @@ describe('Taboola (actions)', () => {
       const createAudienceInput1 = {
         settings: {
           client_id: 'test_client_id',
-          client_secret: 'test_client'
+          client_secret: 'test_client',
+          audience_identifier: 'audience_name'
+        },
+        personas: {
+          computation_key: 'test_computation_key',
+          computation_id: '2345678iuhgfdcvbjk',
+          namespace: 'test-namespace'
         },
         audienceName: '',
         audienceSettings: {
@@ -82,6 +88,72 @@ describe('Taboola (actions)', () => {
           client_secret: 'test_client'
         },
         audienceName: 'Test Audience',
+        audienceSettings: {
+          ttl_in_hours: 1024,
+          exclude_from_campaigns: false,
+          account_id:accountId
+        }
+      }
+      const r = await testDestination.createAudience(createAudienceInput3)
+      expect(r).toEqual({ externalId: '1234' })
+    })
+
+    it('should create a new Taboola Audience with computation_key', async () => {
+      
+      const expectedCreateAudienceReq = {
+        audience_name:"test_computation_key",
+        ttl_in_hours:1024,
+        exclude_from_campaigns:false
+      }
+      
+      nock('https://backstage.taboola.com').post('/backstage/oauth/token').reply(200, { accessToken: 'some_token' })
+      nock(createAudienceUrl).post('/audience_onboarding/create', expectedCreateAudienceReq).reply(200, { audience_id: '1234' })
+
+      const createAudienceInput3 = {
+        settings: {
+          client_id: 'test_client_id',
+          client_secret: 'test_client',
+          audience_identifier: 'computation_key'
+        },
+        personas: {
+          computation_key: 'test_computation_key',
+          computation_id: '2345678iuhgfdcvbjk',
+          namespace: 'test-namespace'
+        },
+        audienceName: 'Test Audience',
+        audienceSettings: {
+          ttl_in_hours: 1024,
+          exclude_from_campaigns: false,
+          account_id:accountId
+        }
+      }
+      const r = await testDestination.createAudience(createAudienceInput3)
+      expect(r).toEqual({ externalId: '1234' })
+    })
+
+    it('should create a new Taboola Audience with audience_name', async () => {
+      
+      const expectedCreateAudienceReq = {
+        audience_name:"test_audience_name",
+        ttl_in_hours:1024,
+        exclude_from_campaigns:false
+      }
+      
+      nock('https://backstage.taboola.com').post('/backstage/oauth/token').reply(200, { accessToken: 'some_token' })
+      nock(createAudienceUrl).post('/audience_onboarding/create', expectedCreateAudienceReq).reply(200, { audience_id: '1234' })
+
+      const createAudienceInput3 = {
+        settings: {
+          client_id: 'test_client_id',
+          client_secret: 'test_client',
+          audience_identifier: 'audience_name'
+        },
+        personas: {
+          computation_key: 'test_computation_key',
+          computation_id: '2345678iuhgfdcvbjk',
+          namespace: 'test-namespace'
+        },
+        audienceName: 'test_audience_name',
         audienceSettings: {
           ttl_in_hours: 1024,
           exclude_from_campaigns: false,

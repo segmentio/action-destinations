@@ -7,7 +7,7 @@
       "npmClientArgs": ["--ignore-engines", "--ignore-optional"]
     },
     "version": {
-      "allowBranch": ["main", "release"]
+      "allowBranch": ["main", "hotfix/*"]
     }
   }
 }

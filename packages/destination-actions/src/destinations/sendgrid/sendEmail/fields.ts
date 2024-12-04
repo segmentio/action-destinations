@@ -7,7 +7,8 @@ export const fields: Record<string, InputField> = {
       'The domain to use for the email. This field is optional but recommended. If you do not provide a domain, Sendgrid will attempt to send the email based on the from address, and may fail if the domain in the from address is not validated.',
     type: 'string',
     required: false,
-    dynamic: true
+    dynamic: true,
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   },
   from: {
     label: 'From',
@@ -28,6 +29,14 @@ export const fields: Record<string, InputField> = {
         description: 'From name of the sender, displayed to the recipient.',
         type: 'string',
         required: false
+      }
+    },
+    default: {
+      email: {
+        '@path': '$.properties.from_email'
+      },
+      name: {
+        '@path': '$.properties.from_name'
       }
     }
   },
@@ -52,6 +61,19 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
+    },
+    default: {
+      '@arrayPath': [
+        '$.properties',
+        {
+          email: {
+            '@path': '$.email'
+          },
+          name: {
+            '@path': '$.name'
+          }
+        }
+      ]
     }
   },
   cc: {
@@ -115,15 +137,16 @@ export const fields: Record<string, InputField> = {
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue',
-    additionalProperties: true
+    additionalProperties: true,
+    dynamic: true
   },
   template_id: {
-    label: 'Template ID',
-    description:
-      "The template ID to use for the email. This must be for a Dynamic Template and should start with a 'd-'",
+    label: 'Dynamic Template',
+    description: 'The Dynamic Template to use for the email.',
     type: 'string',
     required: true,
-    dynamic: true
+    dynamic: true,
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   },
   custom_args: {
     label: 'Custom Args',
@@ -143,18 +166,12 @@ export const fields: Record<string, InputField> = {
   },
   reply_to: {
     label: 'Reply To',
-    description: 'Reply to details.',
+    description: "Reply to details. If left empty 'Reply To' settings will be taken from the 'From' field values.",
     type: 'object',
-    required: true,
+    required: false,
     additionalProperties: false,
     defaultObjectUI: 'keyvalue',
     properties: {
-      reply_to_equals_from: {
-        label: 'Reply To Equals From',
-        description: 'Whether "reply to" settings are the same as "from"',
-        type: 'boolean',
-        required: true
-      },
       email: {
         label: 'Email',
         description: 'The email to reply to.',
@@ -167,130 +184,29 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
-    },
-    default: {
-      reply_to_equals_from: true
-    }
-  },
-  subscription_tracking: {
-    label: 'Subscription Tracking',
-    description:
-      'Allows you to insert a subscription management link at the bottom of the text and HTML bodies of your email.',
-    type: 'object',
-    required: false,
-    additionalProperties: false,
-    defaultObjectUI: 'keyvalue',
-    properties: {
-      enable: {
-        label: 'Enabled',
-        description: 'Indicates if this setting is enabled',
-        type: 'boolean',
-        required: true
-      },
-      text: {
-        label: 'Text',
-        description: 'Text to be appended to the email with the subscription tracking link.',
-        type: 'string',
-        required: false
-      },
-      html: {
-        label: 'HTML',
-        description: 'HTML to be appended to the email with the subscription tracking link.',
-        type: 'string',
-        required: false
-      },
-      substitution_tag: {
-        label: 'Substitution Tag',
-        description:
-          'A tag that will be replaced with the unsubscribe URL. If this property is used, it will override both the text and html properties.',
-        type: 'string',
-        required: false
-      }
-    },
-    default: {
-      enable: false
     }
   },
   categories: {
     label: 'Categories',
-    description: 'Categories for the email.',
+    description: 'Categories for the email. Accepts a single string or array of strings.',
     type: 'string',
     multiple: true,
     required: false
-  },
-  google_analytics: {
-    label: 'Google Analytics',
-    description: 'Allows you to enable tracking provided by Google Analytics.',
-    type: 'object',
-    required: false,
-    defaultObjectUI: 'keyvalue',
-    additionalProperties: false,
-    properties: {
-      enable: {
-        label: 'Enabled',
-        description: 'Indicates if this setting is enabled',
-        type: 'boolean',
-        required: true
-      },
-      utm_source: {
-        label: 'UTM Source',
-        description: 'Name of the referrer source. (e.g., Google, SomeDomain.com, or Marketing Email)',
-        type: 'string',
-        required: false
-      },
-      utm_medium: {
-        label: 'UTM Medium',
-        description: 'Name of the marketing medium. (e.g., Email)',
-        type: 'string',
-        required: false
-      },
-      utm_term: {
-        label: 'UTM Term',
-        description: 'Used to identify any paid keywords.',
-        type: 'string',
-        required: false
-      },
-      utm_content: {
-        label: 'UTM Content',
-        description: 'Used to differentiate your campaign from advertisements.',
-        type: 'string',
-        required: false
-      },
-      utm_campaign: {
-        label: 'UTM Campaign',
-        description: 'The name of the campaign.',
-        type: 'string',
-        required: false
-      }
-    },
-    default: {
-      enable: true,
-      utm_source: { '@path': '$.context.campaign.source' },
-      utm_medium: { '@path': '$.context.campaign.medium' },
-      utm_term: { '@path': '$.context.campaign.term' },
-      utm_content: { '@path': '$.context.campaign.content' },
-      utm_campaign: { '@path': '$.context.campaign.name' }
-    }
   },
   ip_pool_name: {
     label: 'IP Pool',
     description: 'Send email with an ip pool.',
     type: 'string',
     required: false,
-    dynamic: true
+    dynamic: true,
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   },
   group_id: {
     label: 'Group ID',
     description: 'Specify a Group ID',
     type: 'string',
     required: false,
-    dynamic: true
-  },
-  sandbox_mode: {
-    label: 'Sandbox Mode',
-    description:
-      'Sandbox Mode allows you to send a test email to ensure that your request body is valid and formatted correctly.',
-    type: 'boolean',
-    required: false
+    dynamic: true,
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   }
 }
