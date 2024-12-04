@@ -22,7 +22,9 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
   const events: MixpanelEvent[] = payload.map((value) => {
     return getEventFromPayload(value, settings)
   })
-  const response = await callMixpanelApi(request, settings, events, false)
+  const throwHttpErrors = features && features['mixpanel-multistatus'] ? false : true
+
+  const response = await callMixpanelApi(request, settings, events, throwHttpErrors)
   if (features && features['mixpanel-multistatus']) {
     return handleMixPanelApiResponse(payload.length, response, events)
   }
