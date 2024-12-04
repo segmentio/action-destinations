@@ -27,7 +27,7 @@ interface Mapping {
   incoming_key: string
   destination_key: string
   label: string
-  type: string
+  data_type: string
   is_pii: boolean
 }
 
@@ -115,7 +115,7 @@ function getProfileMappings(customFields: string[], fieldTypes: Record<string, s
       incoming_key: field,
       destination_key: field === 'userId' ? 'external_id' : field,
       label: generateLabel(field),
-      type: fieldTypes[field] ?? 'string',
+      data_type: fieldTypes[field] ?? 'string',
       is_pii: false
     })
   }
