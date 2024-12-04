@@ -96,7 +96,7 @@ describe('Responsys.sendAudienceAsPet', () => {
           .reply(200, { results: [{}] })
 
         nock(responsysHost)
-          .post(`/rest/api/v1.3/lists/${profileListName}/listExtensions/${audienceKey}/members`)
+          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${audienceKey}/members`)
           .reply(200, { results: [{}] })
 
         const responses = await testDestination.testAction('sendAudienceAsPet', actionPayload)

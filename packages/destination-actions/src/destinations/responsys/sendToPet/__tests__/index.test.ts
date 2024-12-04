@@ -115,9 +115,10 @@ describe('Responsys.sendToPet', () => {
 
         const responses = await testDestination.testAction('sendToPet', actionPayload)
 
-        expect(responses.length).toBe(2)
+        expect(responses.length).toBe(3)
         expect(responses[0].status).toBe(200)
         expect(responses[1].status).toBe(200)
+        expect(responses[2].status).toBe(200)
       })
     })
 
