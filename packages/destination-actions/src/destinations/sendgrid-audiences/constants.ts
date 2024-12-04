@@ -13,3 +13,5 @@ export const GET_CONTACT_BY_EMAIL_URL = 'https://api.sendgrid.com/v3/marketing/c
 export const SEARCH_CONTACTS_URL = 'https://api.sendgrid.com/v3/marketing/contacts/search'
 
 export const MAX_CHUNK_SIZE_SEARCH = 50
+
+export const GET_CUSTOM_FIELDS_URL = 'https://api.sendgrid.com/v3/marketing/field_definitions'
