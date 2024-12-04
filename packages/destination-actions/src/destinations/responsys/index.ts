@@ -158,7 +158,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       defaultPermissionStatus: {
         label: 'Default Permission Status',
-        description: 'This value must be specified as either OPTIN or OPTOUT. defaults to OPTOUT.',
+        description:
+          'This value must be specified as either OPTIN or OPTOUT. Defaults to OPTOUT. Can be overridden in the mapping.',
         type: 'string',
         required: true,
         choices: [
