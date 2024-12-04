@@ -1,4 +1,4 @@
-import { RequestClient } from '@segment/actions-core'
+import { ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 import {
@@ -7,9 +7,11 @@ import {
   ResponsysMatchField,
   ResponsysMatchType,
   ResponsysMergeRule,
-  ResponsysRecordData
+  ResponsysRecordData,
+  UpsertProfileListResponse
 } from '../types'
-import { sendDebugMessageToSegmentSource } from '../utils'
+import { getAsyncResponse, sendDebugMessageToSegmentSource } from '../utils'
+import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 
 // Rate limits per endpoint.
 // Can be obtained through `/rest/api/ratelimit`, but at the point
@@ -21,9 +23,13 @@ import { sendDebugMessageToSegmentSource } from '../utils'
 // Around 1 request every 150ms.
 const upsertListMembersWaitInterval = 150
 
-// sendToPet (`lists/${settings.profileListName}/listExtensions/${petName}/members`, POST): 500 requests per minute.
-// Around 1 request every 120ms.
-const sendToPetWaitInterval = 120
+// sendToPet (`lists/${settings.profileListName}/listExtensions/${petName}/members`, POST): 400 requests per minute.
+// Around 1 request every 150ms.
+const sendToPetWaitInterval = 150
+
+// getAsyncResponse (`requests/${requestId}`, GET): 1000 requests per minute.
+// Around 1 request every 60ms.
+const getAsyncResponseWaitInterval = 60
 
 export const petExists = async (request: RequestClient, settings: Settings, computationKey: string) => {
   const path = `/rest/api/v1.3/lists/${settings.profileListName}/listExtensions`
@@ -64,7 +70,12 @@ export const createPet = async (request: RequestClient, settings: Settings, payl
   return response
 }
 
-export const updateProfileListAndPet = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
+export const updateProfileListAndPet = async (
+  request: RequestClient,
+  authTokens: AuthTokens,
+  settings: Settings,
+  payloads: Payload[]
+) => {
   const records: {
     [audienceKey: string]: {
       recordsWithUserId: Payload[]
@@ -116,15 +127,19 @@ export const updateProfileListAndPet = async (request: RequestClient, settings: 
   const results = []
   for (const [computationKey, recordCategories] of Object.entries(records)) {
     if (recordCategories.requestBodyUserId) {
-      results.push(await sendPetUpdate(request, settings, computationKey, recordCategories.requestBodyUserId))
+      results.push(
+        await sendPetUpdate(request, authTokens, settings, computationKey, recordCategories.requestBodyUserId)
+      )
     }
 
     if (recordCategories.requestBodyEmail) {
-      results.push(await sendPetUpdate(request, settings, computationKey, recordCategories.requestBodyEmail))
+      results.push(
+        await sendPetUpdate(request, authTokens, settings, computationKey, recordCategories.requestBodyEmail)
+      )
     }
 
     if (recordCategories.requestBodyRiid) {
-      results.push(await sendPetUpdate(request, settings, computationKey, recordCategories.requestBodyRiid))
+      results.push(await sendPetUpdate(request, authTokens, settings, computationKey, recordCategories.requestBodyRiid))
     }
   }
 
@@ -144,7 +159,7 @@ const buildPetUpdatePayload = (payloads: Payload[], matchField: ResponsysMatchFi
 
   const requestBody = {
     recordData: {
-      fieldNames: [resolvedMatchType, firstPayload.computation_key],
+      fieldNames: [resolvedMatchType, firstPayload.computation_key.substring(0, 30)],
       records: records,
       mapTemplateName: null
     },
@@ -208,16 +223,22 @@ const updateProfileListMembers = async (request: RequestClient, settings: Settin
 
 const sendPetUpdate = async (
   request: RequestClient,
+  authTokens: AuthTokens,
   settings: Settings,
   computationKey: string,
   requestBody: ResponsysAudiencePetUpdateRequestBody
 ) => {
-  const path = `/rest/api/v1.3/lists/${settings.profileListName}/listExtensions/${computationKey}/members`
+  const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/listExtensions/${computationKey}/members`
   const endpoint = new URL(path, settings.baseUrl)
 
-  await new Promise((resolve) => setTimeout(resolve, sendToPetWaitInterval))
-  return request(endpoint.href, {
+  await new Promise((resolve) => setTimeout(resolve, sendToPetWaitInterval * 2))
+  const response: ModifiedResponse<UpsertProfileListResponse> = await request(endpoint.href, {
     method: 'POST',
     body: JSON.stringify(requestBody)
   })
+
+  const requestId = response.data.requestId
+  await new Promise((resolve) => setTimeout(resolve, getAsyncResponseWaitInterval))
+  const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
+  await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
 }

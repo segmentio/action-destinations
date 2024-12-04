@@ -5,6 +5,7 @@ import type { Payload } from './generated-types'
 import { validateListMemberPayload } from '../utils'
 import { createPet, petExists, updateProfileListAndPet } from './functions'
 import { default_permission_status, recipient_data, retry } from '../shared-properties'
+import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 
 // Rate limits per endpoint.
 // Can be obtained through `/rest/api/ratelimit`, but at the point
@@ -79,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   // https://docs.oracle.com/en/cloud/saas/marketing/responsys-rest-api/op-rest-api-v1.3-lists-listname-listextensions-petname-members-post.html
   perform: async (request, data) => {
-    const { payload, settings } = data
+    const { payload, settings, auth } = data
     validateListMemberPayload(payload.userData)
 
     await new Promise((resolve) => setTimeout(resolve, getAllPetsWaitInterval))
@@ -89,11 +90,11 @@ const action: ActionDefinition<Settings, Payload> = {
       await createPet(request, settings, payload)
     }
 
-    return await updateProfileListAndPet(request, settings, [payload])
+    return await updateProfileListAndPet(request, auth as AuthTokens, settings, [payload])
   },
   // https://docs.oracle.com/en/cloud/saas/marketing/responsys-rest-api/op-rest-api-v1.3-lists-listname-listextensions-petname-members-post.html
   performBatch: async (request, data) => {
-    const { payload, settings } = data
+    const { payload, settings, auth } = data
 
     const validPayloads = []
     for (const item of payload) {
@@ -113,7 +114,7 @@ const action: ActionDefinition<Settings, Payload> = {
       await createPet(request, settings, payload[0])
     }
 
-    return await updateProfileListAndPet(request, settings, payload)
+    return await updateProfileListAndPet(request, auth as AuthTokens, settings, payload)
   }
 }
 
