@@ -1,6 +1,12 @@
-import { DestinationDefinition, defaultValues } from '@segment/actions-core'
+import { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import customEvents from './customEvents'
+
+import purchase from './purchase'
+
+import addToCart from './addToCart'
+
+import productView from './productView'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Attentive',
@@ -36,17 +42,11 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    customEvents
-  },
-  presets: [
-    {
-      name: 'Track Event',
-      subscribe: 'type = "track"',
-      partnerAction: 'customEvents',
-      mapping: defaultValues(customEvents.fields),
-      type: 'automatic'
-    }
-  ]
+    customEvents,
+    purchase,
+    addToCart,
+    productView
+  }
 }
 
 export default destination

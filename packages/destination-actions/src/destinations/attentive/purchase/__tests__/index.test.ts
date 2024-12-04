@@ -3,46 +3,37 @@ import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidation
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 import { API_URL, API_VERSION } from '../config'
-import {
-  getCustomEventsTestValidPayload,
-  getCustomEventsTestMapping,
-  getCustomEventsTestExpectedPayload
-} from '../test-data'
+import { getECommEventTestValidPayload, getECommEventTestExpectedPayload } from '../test-data'
 
 let testDestination = createTestIntegration(Definition)
 const timestamp = '2024-01-08T13:52:50.212Z'
-const endpoint = '/events/custom'
+const endpoint = '/events/ecommerce/purchase'
 
 const settings: Settings = {
   apiKey: 'test-api-key'
 }
 
 // Valid payload for testing
-const validPayload = getCustomEventsTestValidPayload(timestamp) as Partial<SegmentEvent>
-
-// Mapping configuration for test transformation
-const mapping = getCustomEventsTestMapping()
+const validPayload = getECommEventTestValidPayload(timestamp) as Partial<SegmentEvent>
 
 // Expected payload for Attentive API
-const expectedPayload = getCustomEventsTestExpectedPayload(validPayload)
+const expectedPayload = getECommEventTestExpectedPayload(validPayload)
 
-beforeEach((done) => {
+beforeEach(() => {
   testDestination = createTestIntegration(Definition)
   nock.cleanAll()
-  done()
 })
 
-describe('Attentive.customEvents', () => {
-  it('should send a custom event to Attentive', async () => {
+describe('Attentive.purchase', () => {
+  it('should send a purchase event to Attentive', async () => {
     const event = createTestEvent(validPayload)
 
     nock(`${API_URL}${API_VERSION}`).post(endpoint, expectedPayload).reply(200, {})
 
-    const responses = await testDestination.testAction('customEvents', {
+    const responses = await testDestination.testAction('purchase', {
       event,
       settings,
-      useDefaultMappings: true,
-      mapping
+      useDefaultMappings: true
     })
 
     expect(responses.length).toBe(1)
@@ -59,11 +50,10 @@ describe('Attentive.customEvents', () => {
     const event = createTestEvent(badPayload)
 
     await expect(
-      testDestination.testAction('customEvents', {
+      testDestination.testAction('purchase', {
         event,
         settings,
-        useDefaultMappings: true,
-        mapping
+        useDefaultMappings: true
       })
     ).rejects.toThrowError(new PayloadValidationError('At least one user identifier is required.'))
   })
