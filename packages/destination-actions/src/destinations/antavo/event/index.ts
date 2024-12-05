@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     account: {
       label: 'Account',
-      description: 'Antavo Account ID — if the multi-account extension is enabled',
+      description: 'Antavo Account ID — if the Multi Accounts extension is enabled',
       type: 'string',
       required: false
     },

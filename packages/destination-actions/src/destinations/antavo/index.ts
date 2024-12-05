@@ -5,7 +5,7 @@ import event from './event'
 import profile from './profile'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Antavo',
+  name: 'Antavo (Actions)',
   slug: 'actions-antavo',
   mode: 'cloud',
   authentication: {
