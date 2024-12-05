@@ -65,7 +65,7 @@ export async function dynamicTemplateData(request: RequestClient, payload: Paylo
     })
 
     if (response.data.generation !== 'dynamic') {
-      throw new Error('Template ID provided is not a dynamic template')
+      throw new Error("Template ID provided in the 'Dynamic Template' field is not for a dynamic template")
     }
 
     const version = response.data.versions.find((version: ResultItem) => version.active === 1)
