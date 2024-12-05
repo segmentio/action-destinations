@@ -14,7 +14,7 @@ const person = (payload: Payload) => {
     })(),
     email: payload.email,
     ip_address: payload.ip,
-    sms_number: payload.phone,
+    phone: payload.phone,
     status: payload.status,
     status_updated_at: payload.status_updated_at,
     tags: payload.tags?.split(',').map((tag) => tag.trim()),

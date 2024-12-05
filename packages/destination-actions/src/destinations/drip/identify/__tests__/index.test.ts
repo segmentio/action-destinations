@@ -56,7 +56,7 @@ describe('Drip.identify', () => {
           },
           email: 'test@example.com',
           ip_address: '127.0.0.1',
-          sms_number: '1234567890',
+          phone: '1234567890',
           status: 'unsubscribed',
           status_updated_at: '2021-01-01T00:00:00Z',
           tags: ['tag1', 'tag2'],
