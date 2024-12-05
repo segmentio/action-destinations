@@ -33,7 +33,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `The Klaviyo list to add the profile to.`,
       type: 'string',
       dynamic: true,
-      required: true
+      required: true,
+      disabledInputMethods: ['function', 'enrichment']
     },
     enable_batching: { ...enable_batching },
     phone_number: {

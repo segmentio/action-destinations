@@ -148,7 +148,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'List',
       description: `The Klaviyo list to add the profile to.`,
       type: 'string',
-      dynamic: true
+      dynamic: true,
+      disabledInputMethods: ['function', 'enrichment']
     },
     batch_size: { ...batch_size },
     override_list_id: {

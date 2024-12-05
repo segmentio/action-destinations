@@ -9,7 +9,8 @@ export const list_id: InputField = {
     '@path': '$.context.personas.external_audience_id'
   },
   unsafe_hidden: true,
-  required: true
+  required: true,
+  disabledInputMethods: ['function', 'enrichment']
 }
 
 export const email: InputField = {

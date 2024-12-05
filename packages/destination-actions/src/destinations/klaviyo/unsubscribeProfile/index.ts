@@ -45,7 +45,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'List Id',
       description: `The Klaviyo list to remove the subscribed profiles from. If no list id is provided, the profile will be unsubscribed from all channels.`,
       type: 'string',
-      dynamic: true
+      dynamic: true,
+      disabledInputMethods: ['function', 'enrichment']
     },
     enable_batching: {
       type: 'boolean',
