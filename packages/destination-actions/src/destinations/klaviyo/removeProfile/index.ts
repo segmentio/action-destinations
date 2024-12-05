@@ -34,7 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       dynamic: true,
       required: true,
-      disabledInputMethods: ['function', 'enrichment']
+      disabledInputMethods: ['function', 'enrichment', 'freeform']
     },
     enable_batching: { ...enable_batching },
     phone_number: {
