@@ -1,5 +1,49 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`conditionally required fields should handle different data types should handle when allowNull is true and the field is null 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "not": Object {
+          "required": Array [
+            "a",
+          ],
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": Array [
+        "string",
+        "null",
+      ],
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
 exports[`conditionally required fields should handle different data types should validate boolean fields 1`] = `
 Object {
   "$schema": "http://json-schema.org/schema#",
