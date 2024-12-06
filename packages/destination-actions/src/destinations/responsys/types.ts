@@ -6,6 +6,10 @@ export interface Data {
   }
 }
 
+export interface ResponsysAsyncResponse {
+  requestId: string
+}
+
 export type ResponsysMatchField = 'CUSTOMER_ID' | 'EMAIL_ADDRESS' | 'RIID'
 export type ResponsysMatchType = 'CUSTOMER_ID_' | 'EMAIL_ADDRESS_' | 'RIID_'
 

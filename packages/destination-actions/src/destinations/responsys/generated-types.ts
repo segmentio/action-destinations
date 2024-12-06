@@ -22,11 +22,15 @@ export interface Settings {
    */
   baseUrl: string
   /**
+   * Name of the folder where the Profile Extension Table is located.
+   */
+  defaultFolderName?: string
+  /**
    * Name of the Profile Extension Table's Contact List.
    */
-  profileListName: string
+  profileListName?: string
   /**
-   * Profile Extension Table (PET) Name. Required if using the "Send Custom Traits" Action.
+   * Default Profile Extension Table (PET) Name. Required if using the "Send Custom Traits" Action. Can be overridden in the mapping.
    */
   profileExtensionTable?: string
   /**
@@ -68,7 +72,7 @@ export interface Settings {
    */
   rejectRecordIfChannelEmpty?: string
   /**
-   * This value must be specified as either OPTIN or OPTOUT. defaults to OPTOUT.
+   * This value must be specified as either OPTIN or OPTOUT. Defaults to OPTOUT. Can be overridden in the mapping.
    */
   defaultPermissionStatus: string
   /**
