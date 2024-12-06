@@ -88,7 +88,6 @@ async function processPayload(
   payloads: Payload[],
   statsContext: StatsContext | undefined
 ) {
-  // validate(settings, payloads)
   validate(settings)
 
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
@@ -124,7 +123,6 @@ async function processPayload(
   return res
 }
 
-// function validate(settings: Settings, payloads: Payload[]): void {
 function validate(settings: Settings): void {
   if (!settings.send_google_advertising_id && !settings.send_email) {
     throw new IntegrationError(
