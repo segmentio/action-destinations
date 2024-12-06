@@ -70,25 +70,6 @@ const createDmpSegmentRequestBody = {
 }
 
 describe('LinkedinAudiences.updateAudience', () => {
-  it('should fail if `personas_audience_key` field does not match the `source_segment_id` field', async () => {
-    await expect(
-      testDestination.testAction('updateAudience', {
-        event,
-        settings: {
-          ad_account_id: '123',
-          send_email: true,
-          send_google_advertising_id: true
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          personas_audience_key: 'mismatched_audience',
-          dmp_user_action: null
-        }
-      })
-    ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
-  })
-
   it('should fail if both `send_email` and `send_google_advertising_id` settings are set to false', async () => {
     await expect(
       testDestination.testAction('updateAudience', {
@@ -139,7 +120,7 @@ describe('LinkedinAudiences.updateAudience', () => {
       .get(/.*/)
       .query(urlParams)
       .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-    nock(`${BASE_URL}/dmpSegments`).post(/.*/, createDmpSegmentRequestBody).reply(200)
+    nock(`${BASE_URL}/dmpSegments`).persist().post(/.*/, createDmpSegmentRequestBody).reply(200)
     nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
 
     await expect(
@@ -183,25 +164,6 @@ describe('LinkedinAudiences.updateAudience', () => {
         }
       })
     ).resolves.not.toThrowError()
-  })
-
-  it('should fail if `personas_audience_key` field does not match the `source_segment_id` field, and `dmp_user_action` is set to auto', async () => {
-    await expect(
-      testDestination.testAction('updateAudience', {
-        event,
-        settings: {
-          ad_account_id: '123',
-          send_email: true,
-          send_google_advertising_id: true
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          personas_audience_key: 'mismatched_audience',
-          dmp_user_action: 'AUTO'
-        }
-      })
-    ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
   })
 
   it('should set action to "ADD" if `dmp_user_action` is "ADD"', async () => {
