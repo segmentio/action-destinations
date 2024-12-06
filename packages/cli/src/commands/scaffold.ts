@@ -8,7 +8,11 @@ import { renderTemplates } from '../lib/templates'
 import fs from 'fs-extra'
 import { camelCase, startCase } from 'lodash'
 import { fieldsToJsonSchema } from '@segment/actions-core'
-import type { InputField, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
+import type {
+  InputField,
+  DestinationDefinition as CloudDestinationDefinition,
+  GlobalSetting
+} from '@segment/actions-core'
 import type { BrowserDestinationDefinition } from '@segment/destinations-manifest'
 import { JSONSchema4 } from 'json-schema'
 import { compile } from 'json-schema-to-typescript'
@@ -253,7 +257,7 @@ export default class Init extends Command {
   }
 }
 
-async function generateTypes(fields: Record<string, InputField> = {}, name: string) {
+async function generateTypes(fields: Record<string, InputField | GlobalSetting> = {}, name: string) {
   const schema = prepareSchema(fields)
 
   return compile(schema, name, {
@@ -262,7 +266,7 @@ async function generateTypes(fields: Record<string, InputField> = {}, name: stri
   })
 }
 
-function prepareSchema(fields: Record<string, InputField>): JSONSchema4 {
+function prepareSchema(fields: Record<string, InputField | GlobalSetting>): JSONSchema4 {
   let schema = fieldsToJsonSchema(fields, { tsType: true })
   // Remove extra properties so it produces cleaner output
   schema = removeExtra(schema)

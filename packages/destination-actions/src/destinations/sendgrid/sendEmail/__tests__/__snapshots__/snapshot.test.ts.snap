@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Sendgrid's sendEmail destination action: all fields 1`] = `
+Object {
+  "asm": Object {
+    "group_id": 343234,
+  },
+  "categories": Array [
+    "!s3p^",
+  ],
+  "from": Object {
+    "email": "from@gmail.com",
+  },
+  "ip_pool_name": "!s3p^",
+  "personalizations": Array [
+    Object {
+      "bcc": Array [
+        Object {
+          "email": "oz@ogmeftik.fj",
+          "name": "!s3p^",
+        },
+      ],
+      "cc": Array [
+        Object {
+          "email": "oz@ogmeftik.fj",
+          "name": "!s3p^",
+        },
+      ],
+      "custom_args": Object {
+        "testType": "!s3p^",
+      },
+      "dynamic_template_data": Object {
+        "testType": "!s3p^",
+      },
+      "headers": Object {
+        "testType": "!s3p^",
+      },
+      "to": Array [
+        Object {
+          "email": "oz@ogmeftik.fj",
+          "name": "!s3p^",
+        },
+      ],
+    },
+  ],
+  "reply_to": Object {
+    "email": "oz@ogmeftik.fj",
+    "name": "!s3p^",
+  },
+  "template_id": "d-1234567890",
+}
+`;
+
+exports[`Testing snapshot for Sendgrid's sendEmail destination action: required fields 1`] = `
+Object {
+  "from": Object {
+    "email": "oz@ogmeftik.fj",
+  },
+  "personalizations": Array [
+    Object {
+      "headers": Object {},
+      "to": Array [
+        Object {
+          "email": "oz@ogmeftik.fj",
+        },
+      ],
+    },
+  ],
+  "reply_to": Object {
+    "email": "oz@ogmeftik.fj",
+  },
+  "template_id": "d-1234567890",
+}
+`;
