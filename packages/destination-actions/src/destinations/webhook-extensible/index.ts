@@ -28,15 +28,18 @@ const destination: DestinationDefinition<SettingsWithDynamicAuth> = {
           'Content-Type': 'application/x-www-form-urlencoded',
           Authorization: `Basic ${Buffer.from(auth.clientId + ':' + auth.clientSecret).toString('base64')}`
         },
-        body: '{"grant_type":"client_credentials"}'
+        body: new URLSearchParams({
+          grant_type: 'client_credentials',
+          scope: settings.dynamicAuthSettings.oauth.scopes
+        })
       })
 
       return { accessToken: res.data.access_token }
     }
   },
-  extendRequest: ({ settings }) => {
+  extendRequest: ({ settings, auth }) => {
     const { dynamicAuthSettings } = settings
-    const accessToken = dynamicAuthSettings?.oauth?.access?.access_token
+    const accessToken = auth?.accessToken ?? dynamicAuthSettings?.oauth?.access?.access_token
     return {
       headers: {
         authorization: `Bearer ${accessToken}`
