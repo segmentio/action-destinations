@@ -22,19 +22,43 @@ const destination: DestinationDefinition<SettingsWithDynamicAuth> = {
       }
     },
     refreshAccessToken: async (request, { settings, auth }) => {
-      const res = await request<RefreshTokenResponse>(settings.dynamicAuthSettings.oauth.refreshTokenUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Basic ${Buffer.from(auth.clientId + ':' + auth.clientSecret).toString('base64')}`
-        },
-        body: new URLSearchParams({
-          grant_type: 'client_credentials',
-          scope: settings.dynamicAuthSettings.oauth.scopes
-        })
-      })
+      let res
+      const { clientId, clientSecret } = auth
+      const { oauth } = settings.dynamicAuthSettings
 
-      return { accessToken: res.data.access_token }
+      if (oauth.type === 'authCode') {
+        res = await request<RefreshTokenResponse>(oauth.refreshTokenServerUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${Buffer.from(clientId + ':' + clientSecret).toString('base64')}`
+          },
+          body: new URLSearchParams({
+            grant_type: 'refresh_token',
+            refresh_token: auth.refreshToken ?? oauth.access.refresh_token,
+            scope: oauth.scopes,
+            client_id: clientId,
+            client_secret: clientSecret
+          })
+        })
+        return {
+          accessToken: res.data.access_token,
+          refreshToken: res.data.refresh_token
+        }
+      } else {
+        res = await request<RefreshTokenResponse>(oauth.refreshTokenServerUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${Buffer.from(clientId + ':' + clientSecret).toString('base64')}`
+          },
+          body: new URLSearchParams({
+            grant_type: 'client_credentials',
+            scope: oauth.scopes
+          })
+        })
+        return { accessToken: res.data.access_token }
+      }
     }
   },
   extendRequest: ({ settings, auth }) => {
