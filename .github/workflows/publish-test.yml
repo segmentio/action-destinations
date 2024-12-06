@@ -72,5 +72,7 @@ jobs:
           script: |
             const cloudManifest = require('./packages/destination-actions/dist/destinations/index.js')
             const browserManifest = require('./packages/destinations-manifest/dist/index.js')
-            console.log(cloudManifest.getDestinationByIdOrKey('snap-audiences').definition.slug)
-            console.log(browserManifest.getDestinationByIdOrKey('hubspot-web').definition.slug)
+            Object.values(browserManifest).forEach((destination) => {
+              console.log(destination.definition.slug)
+            })
+            console.log(cloudManifest.getDestinationByIdOrKey('./snap-audiences').definition.slug)
