@@ -6,7 +6,7 @@ import { sendCustomTraits, getUserDataFieldNames, testConditionsToRetry, validat
 import { Data } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send Custom Traits (Legacy)',
+  title: 'Send Custom Traits',
   description: 'Send Custom Traits to a Profile Extension Table in Responsys',
   defaultSubscription: 'type = "identify"',
   fields: {
