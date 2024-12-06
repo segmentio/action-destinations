@@ -126,11 +126,6 @@ async function processPayload(
 ) {
   const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
   // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
-  if (!payloadRecord.records?.length) {
-    throw new PayloadValidationError(
-      'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}'
-    )
-  }
   const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
 
   const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
@@ -190,6 +185,12 @@ function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: Aud
     }
     records.push(payloadRecord)
   })
+  // When all invalid payloads are being filtered out or discarded because they do not match the externalUserId regular expression pattern.
+  if (!records?.length) {
+    throw new PayloadValidationError(
+      'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}'
+    )
+  }
 
   return {
     records: records,
