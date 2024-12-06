@@ -74,5 +74,3 @@ jobs:
             const browserManifest = require('./packages/destination-manifest/dist/index.js')
             console.log(cloudManifest.getDestinationByIdOrKey('snap-audiences').definition.slug)
             console.log(browserManifest.getDestinationByIdOrKey('hubspot-web').definition.slug)
-            # const script = require('./scripts/github-action/create-github-release.js')
-            # await script({github, context, core, exec,cloudManifest})
