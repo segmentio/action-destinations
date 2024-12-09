@@ -65,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
     )
     return await removeProfileFromList(request, profileIds, list_id)
   },
-  performBatch: async (request, { payload }) => {
+  performBatch: async (request, { payload, features, statsContext }) => {
     // Filtering out profiles that do not contain either an email, valid phone_number or external_id.
     const filteredPayload = payload.filter((profile) => {
       // Validate and convert the phone number using the provided country code
@@ -81,6 +81,17 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return profile.email || profile.external_id || profile.phone_number
     })
+    const statsClient = statsContext?.statsClient
+    const tags = statsContext?.tags
+
+    if (features && features['klaviyo-list-id']) {
+      const set = new Set()
+      payload.forEach((profile) => {
+        set.add(profile.list_id)
+      })
+      statsClient?.histogram(`klaviyo_list_id`, set.size, tags)
+    }
+
     const listId = filteredPayload[0]?.list_id
     const emails = filteredPayload.map((profile) => profile.email).filter((email) => email) as string[]
     const externalIds = filteredPayload

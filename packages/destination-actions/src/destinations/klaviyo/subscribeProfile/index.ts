@@ -94,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: subData
     })
   },
-  performBatch: async (request, { payload }) => {
+  performBatch: async (request, { payload, statsContext, features }) => {
     // remove payloads that have niether email or phone_number
     const filteredPayload = payload.filter((profile) => {
       // Validate and convert the phone number using the provided country code
@@ -136,6 +136,16 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError(
         'Exceeded maximum allowed batches due to unique list_id and custom_source pairings'
       )
+    }
+    const statsClient = statsContext?.statsClient
+    const tags = statsContext?.tags
+
+    if (features && features['klaviyo-list-id']) {
+      const set = new Set()
+      payload.forEach((profile) => {
+        set.add(profile.list_id)
+      })
+      statsClient?.histogram(`klaviyo_list_id`, set.size, tags)
     }
     const requests: Promise<ModifiedResponse<Response>>[] = []
     batches.forEach((key) => {
