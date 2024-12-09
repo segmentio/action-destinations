@@ -26,6 +26,7 @@ const standardFields = new Set([
 interface Mapping {
   incoming_key: string
   destination_key: string
+  label: string
   type: string
   is_pii: boolean
 }
@@ -113,11 +114,27 @@ function getProfileMappings(customFields: string[], fieldTypes: Record<string, s
     mappingSchema.push({
       incoming_key: field,
       destination_key: field === 'userId' ? 'external_id' : field,
+      label: generateLabel(field),
       type: fieldTypes[field] ?? 'string',
       is_pii: false
     })
   }
   return stringifyJsonWithEscapedQuotes(mappingSchema)
+}
+
+function generateLabel(field: string) {
+  // Convert camelCase to "Title Case"
+  let label = field
+    .replace(/([A-Z])/g, ' $1')
+    .trim()
+    .replace(/^./, (str) => str.toUpperCase())
+
+  // Check if the input starts with "audience" and attach "External" if true
+  if (field.startsWith('audience')) {
+    label = `External ${label}`
+  }
+
+  return label
 }
 
 function getType(value: unknown) {

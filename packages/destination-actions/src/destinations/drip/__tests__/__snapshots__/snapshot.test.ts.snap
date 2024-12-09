@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for drip destination: identify action - all fields 1`] = `
+Object {
+  "subscribers": Array [
+    Object {
+      "custom_fields": Object {
+        "testType": "XoS!vJs",
+      },
+      "email": "mivsaj@pu.co.uk",
+      "ip_address": "33.172.51.152",
+      "sms_number": "XoS!vJs",
+      "status": "XoS!vJs",
+      "status_updated_at": "2021-02-01T00:00:00.000Z",
+      "tags": Array [
+        "XoS!vJs",
+      ],
+      "time_zone": "XoS!vJs",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for drip destination: identify action - required fields 1`] = `
+Object {
+  "subscribers": Array [
+    Object {
+      "email": "mivsaj@pu.co.uk",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for drip destination: trackEvent action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "action": "3HuH7[PXcafD",
+      "email": "bigip@rev.vg",
+      "properties": Object {
+        "testType": "3HuH7[PXcafD",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for drip destination: trackEvent action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "action": "3HuH7[PXcafD",
+      "email": "bigip@rev.vg",
+    },
+  ],
+}
+`;

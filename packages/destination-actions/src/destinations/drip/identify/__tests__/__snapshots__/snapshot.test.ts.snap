@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Drip's identify destination action: all fields 1`] = `
+Object {
+  "subscribers": Array [
+    Object {
+      "custom_fields": Object {
+        "testType": "DVw6A7$UK[I",
+      },
+      "email": "okavno@kulusof.bg",
+      "ip_address": "100.102.165.77",
+      "sms_number": "DVw6A7$UK[I",
+      "status": "DVw6A7$UK[I",
+      "status_updated_at": "2021-02-01T00:00:00.000Z",
+      "tags": Array [
+        "DVw6A7$UK[I",
+      ],
+      "time_zone": "DVw6A7$UK[I",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Drip's identify destination action: required fields 1`] = `
+Object {
+  "subscribers": Array [
+    Object {
+      "email": "okavno@kulusof.bg",
+    },
+  ],
+}
+`;

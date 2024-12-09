@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - main
-      - release
+      - hotfix/**
 
 jobs:
   build-and-publish:
@@ -50,7 +50,7 @@ jobs:
 
       - name: Publish
         run: |
-          yarn lerna publish from-package --yes --allowBranch=main --loglevel=verbose --dist-tag latest
+          yarn lerna publish from-package --yes --loglevel=verbose --dist-tag latest
 
   release:
     needs: build-and-publish # comment when testing locally with https://github.com/nektos/act
@@ -68,7 +68,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Generate Release Tag
+      - name: Generate Tags
         id: get-release-tag
         run: ./scripts/generate-release-tags.sh
 

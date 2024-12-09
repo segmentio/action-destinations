@@ -49,8 +49,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     campaignId: {
       label: 'Campaign ID',
-      description: 'Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.',
-      type: 'string',
+      description: 'The numeric Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.',
+      type: 'number',
       required: false
     }
   },

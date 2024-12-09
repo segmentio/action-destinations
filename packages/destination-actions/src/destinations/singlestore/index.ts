@@ -72,7 +72,7 @@ const destination: DestinationDefinition<Settings> = {
         throw new IntegrationError('Destination Id is missing', 'MISSING_DESTINATION_ID', 400)
       }
       const kafkaTopic = createHash('sha256').update(destination_id).digest('hex')
-      const kafkaUsername = createHash('sha256').update(`${destinationId}_user`).digest('hex')
+      const kafkaUsername = createHash('sha256').update(`${destination_id}_user`).digest('hex')
       const kafkaPassword = encryptText(kafkaUsername)
 
       const json: SingleStoreCreateJSON = {

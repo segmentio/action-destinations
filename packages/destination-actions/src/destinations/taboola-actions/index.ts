@@ -24,6 +24,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         description: "The client's secret from your Taboola account.",
         type: 'string',
         required: true
+      },
+      audience_identifier: {
+        label: 'Audience Identifier',
+        description: 'The audience identifier from your Taboola account.',
+        type: 'string',
+        choices: [
+          { label: 'Audience Computation Key', value: 'computation_key' },
+          { label: 'Audience Name', value: 'audience_name' }
+        ],
+        required: false,
+        default: 'computation_key'
       }
     },
     refreshAccessToken: async (request, { settings }) => {
@@ -66,7 +77,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const audienceName = createAudienceInput.audienceName
+      const audienceName =
+        createAudienceInput.settings?.audience_identifier === 'computation_key'
+          ? createAudienceInput.personas?.computation_key
+          : createAudienceInput.audienceName
       const ttlInHours = createAudienceInput.audienceSettings?.ttl_in_hours
       const excludeFromCampaigns = createAudienceInput.audienceSettings?.exclude_from_campaigns
       const accountId = createAudienceInput.audienceSettings?.account_id

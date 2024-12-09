@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidationError } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
+
 import { API_URL, API_VERSION } from '../config'
 import {
   getCustomEventsTestValidPayload,
@@ -55,7 +56,6 @@ describe('Attentive.customEvents', () => {
       context: { traits: {} }, // Remove identifiers
       userId: undefined
     }
-
     const event = createTestEvent(badPayload)
 
     await expect(
