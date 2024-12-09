@@ -10,8 +10,8 @@ describe('Sprig.identifyUsers', () => {
       type: 'identify',
       userId: '1234',
       traits: {
-        firstName: "Bob",
-        lastName: "Smith",
+        firstName: 'Bob',
+        lastName: 'Smith',
         enabledProducts: {
           surveys: true,
           heatmaps: false,
@@ -25,21 +25,21 @@ describe('Sprig.identifyUsers', () => {
       event,
       useDefaultMappings: true,
       settings: {
-        apiKey: "TEST-API-KEY"
+        apiKey: 'TEST-API-KEY'
       }
     })
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.json).toMatchObject({
-      "userId": "1234",
-      "attributes": {
-        "firstName": "Bob",
-        "lastName": "Smith",
-        "enabledProducts.surveys": true,
-        "enabledProducts.heatmaps": false,
-        "enabledProducts.replays": true,
-        "enabledProducts.feedback": true
+      userId: '1234',
+      attributes: {
+        firstName: 'Bob',
+        lastName: 'Smith',
+        'enabledProducts.surveys': true,
+        'enabledProducts.heatmaps': false,
+        'enabledProducts.replays': true,
+        'enabledProducts.feedback': true
       }
     })
   })
@@ -50,10 +50,10 @@ describe('Sprig.identifyUsers', () => {
       traits: {
         customerDetails: {
           name: {
-            first: "Bob",
-            last: "Smith"
+            first: 'Bob',
+            last: 'Smith'
           },
-          birthdate: "2002-02-03"
+          birthdate: '2002-02-03'
         }
       }
     })
@@ -62,18 +62,18 @@ describe('Sprig.identifyUsers', () => {
       event,
       useDefaultMappings: true,
       settings: {
-        apiKey: "TEST-API-KEY"
+        apiKey: 'TEST-API-KEY'
       }
     })
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.json).toMatchObject({
-      "userId": "1234",
-      "attributes": {
-        "customerDetails.name.first": "Bob",
-        "customerDetails.name.last": "Smith",
-        "customerDetails.birthdate": "2002-02-03",
+      userId: '1234',
+      attributes: {
+        'customerDetails.name.first': 'Bob',
+        'customerDetails.name.last': 'Smith',
+        'customerDetails.birthdate': '2002-02-03'
       }
     })
   })
@@ -87,14 +87,14 @@ describe('Sprig.identifyUsers', () => {
       event,
       useDefaultMappings: true,
       settings: {
-        apiKey: "TEST-API-KEY"
+        apiKey: 'TEST-API-KEY'
       }
     })
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.json).toMatchObject({
-      "userId": "1234",
-      "attributes": {}
+      userId: '1234',
+      attributes: {}
     })
   })
 })
