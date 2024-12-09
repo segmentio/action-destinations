@@ -215,6 +215,10 @@ export interface ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings = 
   dynamicFieldContext?: DynamicFieldContext
 }
 
+export interface ExecuteSOAPConfigurationInput<Settings> {
+  settings: Settings
+}
+
 interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, ActionHookValues = any> {
   data: Data
   settings: T
@@ -621,14 +625,14 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return { dynamicHandlerPath, dynamicFieldContext }
   }
 
-  async executeSOAPCongifuration(): Promise<string> {
+  async executeSOAPCongifuration(data: ExecuteSOAPConfigurationInput<Settings>): Promise<string> {
     const fn = this.definition.soapAPIConfiguration
 
     if (typeof fn !== 'function') {
       throw new IntegrationError('No SOAP API configuration function found.', 'NotImplemented', 501)
     }
 
-    return (await this.performRequest(fn, {settings: {} as Settings, payload: {} as Payload})) as string
+    return (await this.performRequest(fn, {settings: data.settings as Settings, payload: {} as Payload})) as string
   }
 
   async executeDynamicField(

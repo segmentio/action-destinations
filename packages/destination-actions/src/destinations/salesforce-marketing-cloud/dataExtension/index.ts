@@ -2,7 +2,7 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { key, id, keys, enable_batching, batch_size, values_dataExtensionFields } from '../sfmc-properties'
-import { upsertRows } from '../sfmc-operations'
+import { upsertRows, getAccessToken } from '../sfmc-operations'
 import { createClientAsync } from 'soap'
 
 interface WSDL_REQUEST {
@@ -11,11 +11,31 @@ interface WSDL_REQUEST {
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event to Data Extension',
   description: 'Upsert events as rows into an existing data extension in Salesforce Marketing Cloud.',
-  soapAPIConfiguration: async (): Promise<string> => {
-    console.log('Creating client sfmc')
+  soapAPIConfiguration: async (request, { settings }): Promise<string> => {
+    console.log('Creating client sfmc') 
     const client = await createClientAsync('packages/destination-actions/src/destinations/salesforce-marketing-cloud/salesforce-soap-wsdl.xml')
     console.log('describe', client.describe())
 
+    console.log('settings', settings)
+    const { access_token, soap_instance_url }  = await getAccessToken(request, settings)
+
+    console.log('soap_instance_url', soap_instance_url)
+    console.log('accessToken', access_token)
+    client.addSoapHeader({
+      fueloauth: access_token
+    })
+
+    client.setEndpoint(soap_instance_url)
+
+    const res = client.describeAllTabs({}, function(err, result) {
+      if (err) {
+        console.error(err)
+      } else {
+        console.log(result)
+      }
+    }, { method: 'get'} )
+
+    console.log('res', res)
     return 'Client created'
   },
   hooks: {
