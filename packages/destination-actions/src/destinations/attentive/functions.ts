@@ -19,7 +19,7 @@ function createUser(
   phone?: string,
   email?: string,
   clientUserId?: string,
-  customIdentifiers?: Record<string, any>
+  customIdentifiers?: Record<string, string>
 ): User {
   return {
     phone,
@@ -57,13 +57,13 @@ export function getCustomEventsTestPayload(timestamp: string): Partial<SegmentEv
 
 export function buildCustomEventObject(
   type: string,
-  properties: Record<string, any>,
+  properties: Record<string, string | number | boolean>,
   externalEventId: string,
   occurredAt: string,
   phone?: string,
   email?: string,
   clientUserId?: string,
-  customIdentifiers?: Record<string, any>
+  customIdentifiers?: Record<string, string>
 ): CustomEventObject {
   return {
     type,
@@ -80,7 +80,7 @@ export function buildECommEventObject(
   phone?: string,
   email?: string,
   clientUserId?: string,
-  customIdentifiers?: Record<string, any>
+  customIdentifiers?: Record<string, string>
 ): eCommEventObject {
   return {
     items,

@@ -5,7 +5,7 @@ export const items: InputField = {
   type: 'object',
   multiple: true,
   required: true,
-  defaultObjectUI: 'keyvalue:only',
+  defaultObjectUI: 'keyvalue',
   additionalProperties: false,
   properties: {
     productId: {
@@ -61,14 +61,19 @@ export const items: InputField = {
     }
   },
   default: {
-    productId: { '@path': '$.products.product_id' },
-    productVariantId: { '@path': '$.products.variant' },
-    productImage: { '@path': '$.products.image_url' },
-    productUrl: { '@path': '$.products.url' },
-    name: { '@path': '$.products.name' },
-    value: { '@path': '$.products.price' },
-    currency: { '@path': '$.currency' },
-    quantity: { '@path': '$.products.quantity' }
+    '@arrayPath': [
+      '$.properties.products',
+      {
+        productId: { '@path': '$.product_id' },
+        productVariantId: { '@path': '$.variant' },
+        productImage: { '@path': '$.image_url' },
+        productUrl: { '@path': '$.url' },
+        name: { '@path': '$.name' },
+        value: { '@path': '$.price' },
+        currency: { '@path': '$.currency' },
+        quantity: { '@path': '$.quantity' }
+      }
+    ]
   }
 }
 
