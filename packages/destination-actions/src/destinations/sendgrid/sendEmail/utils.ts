@@ -51,12 +51,11 @@ export async function send(request: RequestClient, payload: Payload) {
   })
 }
 
-function toUnixTS(date: string | undefined): number | undefined {
-  if (typeof date === 'undefined' || date === null || date === '') {
+export function toUnixTS(date: string | undefined): number | undefined {
+  if (!date) {
     return undefined
   }
-
-  return new Date(date).getTime()
+  return Math.floor(new Date(date).getTime() / 1000)
 }
 
 export function parseIntFromString(value: string | undefined): number | undefined {
@@ -108,6 +107,14 @@ function validate(payload: Payload) {
       )
     }
   })
+
+  if(typeof payload.cc === 'object' && Object.keys(payload.cc).length === 0){
+    delete payload.cc
+  }
+
+  if(typeof payload.bcc === 'object' && Object.keys(payload.bcc).length === 0){
+    delete payload.bcc
+  }
 
   if (payload.send_at) {
     const sendAt = new Date(payload.send_at)
