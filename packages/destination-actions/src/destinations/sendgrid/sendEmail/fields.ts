@@ -97,7 +97,8 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
-    }
+    }, 
+    default: undefined
   },
   bcc: {
     label: 'BCC',
@@ -120,7 +121,8 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
-    }
+    },
+    default: undefined
   },
   headers: {
     label: 'Headers',
