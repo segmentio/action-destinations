@@ -1,9 +1,9 @@
 import { Settings } from './generated-types'
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
-import { S3Client, PutObjectCommandInput, PutObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommandInput, PutObjectCommand, _Error as AWSError } from '@aws-sdk/client-s3'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import * as process from 'process'
-import { ErrorCodes, IntegrationError } from '@segment/actions-core'
+import { ErrorCodes, IntegrationError, RetryableError, APIError } from '@segment/actions-core'
 import { Credentials } from './types'
 
 export class Client {
@@ -53,7 +53,7 @@ export class Client {
 
   async uploadS3(
     settings: Settings,
-    fileContent: string,
+    fileContent: string | Buffer,
     filename_prefix: string,
     s3_aws_folder_name: string,
     fileExtension: string
@@ -100,7 +100,36 @@ export class Client {
       await s3Client.send(new PutObjectCommand(uploadParams))
       return { statusCode: 200, message: 'Upload successful' }
     } catch (err) {
-      throw new Error(`Non-retryable error: ${err}`)
+      if (isAWSError(err)) {
+        // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-client-s3/Interface/_Error/
+        if (err.Code && accessDeniedCodes.has(err.Code)) {
+          throw new APIError(err.Message || err.Code || 'Access denied: ' + err, 403)
+        } else if (err.Code === 'NoSuchBucket') {
+          throw new APIError(err.Message || err.Code || 'No such bucket: ' + err, 404)
+        } else if (err.Code === 'SlowDown') {
+          throw new APIError(err.Message || err.Code || 'Slow down: ' + err, 429)
+        } else {
+          throw new RetryableError(err.Message || err.Code || 'Unknown AWS Put error: ' + err)
+        }
+      } else {
+        throw new Error('Unknown error during AWS PUT: ' + err)
+      }
     }
   }
+}
+
+const accessDeniedCodes = new Set([
+  'AccessDenied',
+  'AccountProblem',
+  'AllAccessDisabled',
+  'InvalidAccessKeyId',
+  'InvalidSecurity',
+  'NotSignedUp',
+  'AmbiguousGrantByEmailAddress',
+  'AuthorizationHeaderMalformed',
+  'RequestExpired'
+])
+
+function isAWSError(err: unknown): err is AWSError {
+  return typeof err === 'object' && err !== null && '$metadata' in err
 }
