@@ -247,7 +247,7 @@ function formatChangeLog(prs, tagsContext, context, cloudDestinationsByDir, brow
 
     https://github.com/${context.repo.owner}/${context.repo.repo}/compare/${releaseDiff}
 
-    <!-- Please do not remove the below comment. 
+    <!-- DON'T DELETE THIS COMMENT
     <affected-destinations>
         ${Array.from(uniqueAffectedSlugs)
           .map((slug) => `${slug}`)
