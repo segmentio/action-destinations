@@ -71,7 +71,7 @@ jobs:
           RELEASE_TAG: ${{ steps.get-release-tag.outputs.release-tag }}
         with:
           script: |
-            const cloudManifest = require('./packages/destination-actions/dist/destinations/index.js')
+            const cloudManifest = require('./packages/destination-actions/dist/destinations/index.js').manifest
             const browserManifest = require('./packages/destinations-manifest/dist/index.js').manifest
             const script = require('./scripts/github-action/create-github-release.js')
             await script({github, context, core, exec, cloudManifest, browserManifest})
