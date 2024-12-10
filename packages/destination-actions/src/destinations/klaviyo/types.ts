@@ -219,3 +219,17 @@ export interface AdditionalAttributes {
   title?: string
   image?: string
 }
+export interface KlaviyoAPIError {
+  id: string
+  status: number
+  code: string
+  title: string
+  detail: string
+  source: {
+    pointer: string
+    parameter?: string
+  }
+}
+export interface KlaviyoAPIErrorResponse {
+  errors: KlaviyoAPIError[]
+}

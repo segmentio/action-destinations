@@ -3,8 +3,12 @@ import {
   RequestClient,
   DynamicFieldResponse,
   IntegrationError,
-  PayloadValidationError
+  PayloadValidationError,
+  MultiStatusResponse,
+  HTTPError,
+  ErrorCodes
 } from '@segment/actions-core'
+import { JSONLikeObject } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
 import { Settings } from './generated-types'
 import {
@@ -20,10 +24,15 @@ import {
   UnsubscribeProfile,
   UnsubscribeEventData,
   GroupedProfiles,
-  AdditionalAttributes
+  AdditionalAttributes,
+  KlaviyoAPIErrorResponse
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
+import { Payload as TrackEventPayload } from './trackEvent/generated-types'
+import dayjs from '../../lib/dayjs'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+import { eventBulkCreateRegex } from './properties'
+import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -450,4 +459,206 @@ export function processPhoneNumber(initialPhoneNumber?: string, country_code?: s
   }
 
   return phone_number
+}
+
+export async function sendBatchedTrackEvent(request: RequestClient, payloads: TrackEventPayload[]) {
+  const multiStatusResponse = new MultiStatusResponse()
+  const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayloads(payloads, multiStatusResponse)
+  // if there are no payloads with valid phone number/email/external_id, return multiStatusResponse
+  if (!filteredPayloads.length) {
+    return multiStatusResponse
+  }
+  const payloadToSend = {
+    data: {
+      type: 'event-bulk-create-job',
+      attributes: {
+        'events-bulk-create': {
+          data: filteredPayloads
+        }
+      }
+    }
+  }
+
+  try {
+    const response = await request(`${API_URL}/event-bulk-create-jobs/`, {
+      method: 'POST',
+      json: payloadToSend,
+      headers: {
+        revision: '2024-10-15'
+      }
+    })
+    updateMultiStatusWithSuccessData(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
+  } catch (err) {
+    if (err instanceof HTTPError) {
+      const errorResponse = await err?.response?.json()
+      handleKlaviyoAPIErrorResponse(
+        payloads as object as JSONLikeObject[],
+        errorResponse,
+        multiStatusResponse,
+        validPayloadIndicesBitmap,
+        eventBulkCreateRegex
+      )
+    } else {
+      // Bubble up the error and let Actions Framework handle it
+      throw err
+    }
+  }
+  return multiStatusResponse
+}
+
+function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusResponse: MultiStatusResponse) {
+  const filteredPayloads: JSONLikeObject[] = []
+  const validPayloadIndicesBitmap: number[] = []
+
+  payloads.forEach((payload, originalBatchIndex) => {
+    const { email, phone_number, external_id, anonymous_id, country_code } = payload.profile
+    if (!email && !phone_number && !external_id && !anonymous_id) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'One of External ID, Anonymous ID, Phone Number or Email is required.'
+      })
+      return
+    }
+
+    if (phone_number) {
+      // Validate and convert the phone number if present
+      const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, country_code as string)
+      // If the phone number is not valid, skip this payload
+      if (!validPhoneNumber) {
+        multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: 'Phone number could not be converted to E.164 format.'
+        })
+        return // Skip this payload
+      }
+
+      // Update the payload's phone number with the validated format
+      payload.profile.phone_number = validPhoneNumber
+      delete payload?.profile?.country_code
+    }
+
+    const profileToAdd = constructBulkCreateEventPayload(payload)
+    filteredPayloads.push(profileToAdd as JSONLikeObject)
+    validPayloadIndicesBitmap.push(originalBatchIndex)
+  })
+
+  return { filteredPayloads, validPayloadIndicesBitmap }
+}
+
+function constructBulkCreateEventPayload(payload: TrackEventPayload) {
+  return {
+    type: 'event-bulk-create',
+    attributes: {
+      profile: {
+        data: {
+          type: 'profile',
+          attributes: payload.profile
+        }
+      },
+      events: {
+        data: [
+          {
+            type: 'event',
+            attributes: {
+              metric: {
+                data: {
+                  type: 'metric',
+                  attributes: {
+                    name: payload.metric_name
+                  }
+                }
+              },
+              properties: { ...payload.properties },
+              time: payload?.time ? dayjs(payload.time).toISOString() : undefined,
+              value: payload.value,
+              unique_id: payload.unique_id
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+
+/**
+ * Handles the error response from the Klaviyo API and updates the status of each payload accordingly.
+ * This function processes the `errors` array from the Klaviyo API response, identifies which payloads
+ * failed based on their error pointers, and sets an appropriate error response for each payload. If some
+ * events in a batch are invalid, it marks the rest as "retryable" if they are part of the same batch.
+ *
+ * @param {JSONLikeObject[]} payloads - An array of payloads that were sent to the Klaviyo API.
+ * @param {KlaviyoAPIErrorResponse} response - The error response from the Klaviyo API.
+ * @param {MultiStatusResponse} multiStatusResponse - An object used to store and track the status of each payload.
+ * @param {number[]} validPayloadIndicesBitmap - A bitmap of indices representing valid payloads in the `payloads` array.
+ * @param {RegExp} regex - A regular expression used to parse the error pointers to find the index of the corresponding payload.
+ */
+
+function handleKlaviyoAPIErrorResponse(
+  payloads: JSONLikeObject[],
+  response: KlaviyoAPIErrorResponse,
+  multiStatusResponse: MultiStatusResponse,
+  validPayloadIndicesBitmap: number[],
+  regex: RegExp
+) {
+  if (response?.errors && Array.isArray(response.errors)) {
+    const invalidIndexSet = new Set<number>()
+    response.errors.forEach((error: KlaviyoAPIError) => {
+      const indexInOriginalPayload = getIndexFromErrorPointer(error.source.pointer, validPayloadIndicesBitmap, regex)
+      if (indexInOriginalPayload !== -1 && !multiStatusResponse.isErrorResponseAtIndex(indexInOriginalPayload)) {
+        multiStatusResponse.setErrorResponseAtIndex(indexInOriginalPayload, {
+          status: error.status,
+          // errortype will be inferred from the error.response.status
+          errormessage: error.detail,
+          sent: payloads[indexInOriginalPayload],
+          body: JSON.stringify(error)
+        } as ActionDestinationErrorResponseType)
+        invalidIndexSet.add(indexInOriginalPayload)
+      }
+    })
+
+    for (const index of validPayloadIndicesBitmap) {
+      if (!invalidIndexSet.has(index)) {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          errormessage:
+            "This event wasn't delivered because of few bad events in the same batch to Klaviyo. This will be retried",
+          errortype: 'RETRYABLE_BATCH_FAILURE' as keyof typeof ErrorCodes,
+          status: 429,
+          sent: payloads[index],
+          body: 'Retry'
+        })
+      }
+    }
+  }
+}
+
+function getIndexFromErrorPointer(pointer: string, validPayloadIndicesBitmap: number[], regex: RegExp) {
+  const match = regex.exec(pointer)
+  if (match && match[1]) {
+    const index = parseInt(match[1], 10)
+    return validPayloadIndicesBitmap[index] !== undefined ? validPayloadIndicesBitmap[index] : -1
+  }
+  return -1
+}
+/**
+ * Updates the multi-status response with success data for each payload.
+ * @param {JSONLikeObject[]} filteredPayloads The list of filtered payloads to process.
+ * @param {number[]} validPayloadIndicesBitmap A bitmap of valid payload indices.
+ * @param {MultiStatusResponse} multiStatusResponse The multi-status response object to update.
+ * @param {any} response The response from the import job request containing the data.
+ */
+export function updateMultiStatusWithSuccessData(
+  filteredPayloads: JSONLikeObject[],
+  validPayloadIndicesBitmap: number[],
+  multiStatusResponse: MultiStatusResponse,
+  response: any
+) {
+  filteredPayloads.forEach((payload, index) => {
+    multiStatusResponse.setSuccessResponseAtIndex(validPayloadIndicesBitmap[index], {
+      status: 200,
+      sent: payload,
+      body: JSON.stringify(response?.data)
+    })
+  })
 }
