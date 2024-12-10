@@ -88,7 +88,6 @@ describe('LinkedinAudiences.updateAudience', () => {
       })
     ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
   })
-
   it('should fail if both `send_email` and `send_google_advertising_id` settings are set to false', async () => {
     await expect(
       testDestination.testAction('updateAudience', {
