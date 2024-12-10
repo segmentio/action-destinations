@@ -5,7 +5,7 @@ import standardEvent from './standardEvent'
 import customEvent from './customEvent'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Reddit Conversions Api',
+  name: 'Reddit Conversions API',
   slug: 'actions-reddit-conversions-api',
   mode: 'cloud',
   description: 'Send Segment events to Reddit Conversions API.',
