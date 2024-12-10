@@ -53,7 +53,7 @@ export class Client {
 
   async uploadS3(
     settings: Settings,
-    fileContent: string,
+    fileContent: string | Buffer,
     filename_prefix: string,
     s3_aws_folder_name: string,
     fileExtension: string
