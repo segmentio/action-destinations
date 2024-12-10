@@ -116,7 +116,7 @@ function validate(payloads: Payload[], ignoreErrors: boolean, invalidEmails?: st
           }
           return [key, value]
         })
-      );
+      )
     }
 
     const hasRequiredField = [p.email, p.anonymous_id, p.external_id, p.phone_number_id].some(Boolean)
@@ -147,9 +147,8 @@ function createPayload(payloads: Payload[], externalAudienceId: string): UpsertC
       external_id: payload.external_id ?? undefined,
       anonymous_id: payload.anonymous_id ?? undefined,
       ...payload.user_attributes,
-      custom_fields: payload.custom_fields && Object.keys(payload.custom_fields).length > 0
-      ? payload.custom_fields
-      : undefined
+      custom_fields:
+        payload.custom_fields && Object.keys(payload.custom_fields).length > 0 ? payload.custom_fields : undefined
     })) as UpsertContactsReq['contacts']
   }
 
