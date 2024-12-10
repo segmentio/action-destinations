@@ -251,7 +251,7 @@ export const fields: Record<string, InputField> = {
     required: false,
     minimum: 1,
     maximum: 14400,
-    default: 14400
+    default: undefined
   },
   sendAt: {
     label: 'Send At',
