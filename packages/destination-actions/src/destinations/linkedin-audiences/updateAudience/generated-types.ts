@@ -18,6 +18,10 @@ export interface Payload {
    */
   google_advertising_id?: string
   /**
+   * A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.
+   */
+  source_segment_id?: string
+  /**
    * The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.
    */
   personas_audience_key: string
