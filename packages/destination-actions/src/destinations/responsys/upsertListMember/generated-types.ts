@@ -34,7 +34,7 @@ export interface Payload {
   /**
    * If true, all Recipient data will be converted to strings before being sent to Responsys.
    */
-  stringify: boolean
+  stringify?: boolean
   /**
    * Once enabled, Segment will collect events into batches of 200 before sending to Responsys.
    */
@@ -43,4 +43,8 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
+  /**
+   * This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.
+   */
+  default_permission_status?: string
 }

@@ -1,8 +1,8 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { enable_batching, batch_size } from '../shared-properties'
-import { sendCustomTraits, getUserDataFieldNames, validateCustomTraits, validateListMemberPayload } from '../utils'
+import { use_responsys_async_api, batch_size } from '../shared-properties'
+import { sendCustomTraits, getUserDataFieldNames, testConditionsToRetry, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -37,7 +37,14 @@ const action: ActionDefinition<Settings, Payload> = {
         CUSTOMER_ID_: { '@path': '$.userId' }
       }
     },
-    enable_batching: enable_batching,
+    pet_name: {
+      label: 'Profile Extension Table Name',
+      description:
+        'The PET (Profile Extension Table) name. Overrides the default Profile Extension Table name in Settings.',
+      type: 'string',
+      required: false
+    },
+    enable_batching: use_responsys_async_api,
     batch_size: batch_size,
     stringify: {
       label: 'Stringify Recipient Data',
@@ -80,12 +87,27 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    validateCustomTraits({
-      profileExtensionTable: settings.profileExtensionTable,
+    testConditionsToRetry({
       timestamp: payload.timestamp,
       statsContext: statsContext,
       retry: payload.retry
     })
+
+    const profileExtensionTable = String(payload.pet_name || settings.profileExtensionTable)
+
+    if (
+      !(
+        typeof profileExtensionTable !== 'undefined' &&
+        profileExtensionTable !== null &&
+        profileExtensionTable.trim().length > 0
+      )
+    ) {
+      throw new IntegrationError(
+        'Send Custom Traits Action requires "PET Name" setting field to be populated',
+        'PET_NAME_SETTING_MISSING',
+        400
+      )
+    }
 
     validateListMemberPayload(payload.userData)
 
@@ -97,14 +119,25 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
-    validateCustomTraits({
-      profileExtensionTable: settings.profileExtensionTable,
-      timestamp: payload[0].timestamp,
+    const validatedPayloads = []
+    for (const item of payload) {
+      const profileExtensionTable = String(item.pet_name || settings.profileExtensionTable)
+      if (!profileExtensionTable || profileExtensionTable.trim().length === 0) {
+        continue
+      }
+
+      if (item.userData.EMAIL_ADDRESS_ || item.userData.RIID_ || item.userData.CUSTOMER_ID_) {
+        validatedPayloads.push(item)
+      }
+    }
+
+    testConditionsToRetry({
+      timestamp: validatedPayloads[0].timestamp,
       statsContext: statsContext,
-      retry: payload[0].retry
+      retry: validatedPayloads[0].retry
     })
 
-    return sendCustomTraits(request, data.payload, data.settings, userDataFieldNames)
+    return sendCustomTraits(request, validatedPayloads, settings, userDataFieldNames)
   }
 }
 
