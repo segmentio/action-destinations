@@ -30,14 +30,6 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
-    },
-    default: {
-      email: {
-        '@path': '$.properties.from_email'
-      },
-      name: {
-        '@path': '$.properties.from_name'
-      }
     }
   },
   to: {
@@ -97,7 +89,7 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
-    }, 
+    },
     default: undefined
   },
   bcc: {
