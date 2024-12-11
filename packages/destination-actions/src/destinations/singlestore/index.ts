@@ -7,7 +7,7 @@ import { createHash } from 'crypto'
 import { encryptText, destinationId, checkChamber } from './util'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Singlestore',
+  name: 'SingleStore',
   slug: 'actions-singlestore',
   mode: 'cloud',
 
