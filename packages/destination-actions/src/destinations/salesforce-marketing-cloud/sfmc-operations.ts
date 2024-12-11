@@ -1,22 +1,17 @@
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
-import { createClientAsync, Client } from 'soap'
 import { Settings } from './generated-types'
-
-const SUBDOMAIN = `segment4.my.salesforce.com`
-const WSDL_URL = `https://${SUBDOMAIN}.soap.marketingcloudapis.com/etframework.wsdl`
 
 interface RefreshTokenResponse {
   access_token: string
   soap_instance_url: string
 }
 
-export async function createClient(): Promise<Client> {
-  return createClientAsync(WSDL_URL)
-}
-
-export async function getAccessToken(request: RequestClient, settings: Settings): Promise<{access_token: string, soap_instance_url: string}> {
+export async function getAccessToken(
+  request: RequestClient,
+  settings: Settings
+): Promise<{ access_token: string; soap_instance_url: string }> {
   const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/v2/token`
   const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
     method: 'POST',
@@ -28,8 +23,7 @@ export async function getAccessToken(request: RequestClient, settings: Settings)
     })
   })
 
-  console.log('oauth res', res)
-  return { access_token: res.data.access_token as string, soap_instance_url: res.data.soap_instance_url as string }
+  return { access_token: res.data.access_token, soap_instance_url: res.data.soap_instance_url }
 }
 
 export function upsertRows(
