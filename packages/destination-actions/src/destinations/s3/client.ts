@@ -112,7 +112,7 @@ export class Client {
           throw new RetryableError(err.Message || err.Code || 'Unknown AWS Put error: ' + err)
         }
       } else {
-        throw new Error('Unknown error during AWS PUT: ' + err)
+        throw new APIError('Unknown error during AWS PUT: ' + err, 500)
       }
     }
   }
