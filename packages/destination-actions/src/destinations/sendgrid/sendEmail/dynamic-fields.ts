@@ -37,6 +37,41 @@ function createErrorResponse(message?: string, code?: string): ErrorResponse {
   }
 }
 
+export function extractVariables(content: string | undefined): string[] {
+  if (!content) {
+    return []
+  }
+
+  const removeIfStartsWith = ['if', 'unless', 'and', 'or', 'equals', 'notEquals', 'lessThan', 'greaterThan', 'each']
+
+  const removeIfMatch = ['else', 'if', 'this', 'insert', 'default', 'length', 'formatDate']
+
+  const regex1 = /{{(.*?)}}/g // matches handlebar expressions
+  const regex2 = /[#/]?"?[\w."]+"?/g // matches words. Deliberately includes " characters which will be removed later
+  const words = [
+    ...new Set(
+      [...content.matchAll(regex1)]
+        .map((match) => match[1])
+        .join(' ')
+        .match(regex2)
+    )
+  ]
+
+  const variables = [
+    ...new Set(
+      words
+        .filter((w) => !removeIfMatch.some((item) => w.startsWith(item))) // remove words that start with any of the items in removeIfMatch
+        .filter((w) => !removeIfStartsWith.some((item) => w.startsWith(`#${item}`) || w.startsWith(`/${item}`))) // remove words that start with any of the items in removeIfStartsWith
+        .map((item) => (item.startsWith('root.') ? item.slice(5).trim() : item)) // remove root. from the start of the word
+        .map((item) => item.split('.')[0]) // remove everything after the first dot. for example: user.username -> user
+        .filter((item) => !item.includes('"')) // remove if word contains " (double quotes) as this implies it is a constant / string and not a variable
+        .filter((item) => isNaN(Number(item))) // remove numeric values
+    )
+  ]
+
+  return variables
+}
+
 export async function dynamicTemplateData(request: RequestClient, payload: Payload): Promise<DynamicFieldResponse> {
   interface ResultItem {
     id: string
@@ -93,15 +128,12 @@ export async function dynamicTemplateData(request: RequestClient, payload: Paylo
       return createErrorResponse('Returned template has no content')
     }
 
-    const extractTokens = (content: string | undefined): string[] =>
-      [...(content ?? '').matchAll(/{{{?(\w+)}{0,3}}}/g)].map((match) => match[1])
-
     const uniqueTokens: string[] = [
       ...new Set([
-        ...extractTokens(version.html_content),
-        ...extractTokens(version.plain_content),
-        ...extractTokens(version.subject),
-        ...extractTokens(version.thumbnail_url)
+        ...extractVariables(version.html_content),
+        ...extractVariables(version.plain_content),
+        ...extractVariables(version.subject),
+        ...extractVariables(version.thumbnail_url)
       ])
     ]
 
@@ -156,7 +188,10 @@ export async function dynamicGroupId(request: RequestClient): Promise<DynamicFie
   } catch (err) {
     const error = err as ResultError
     const code = String(error?.response?.status ?? 500)
-    return createErrorResponse(error?.response?.data?.errors.map((error) => error.message).join(';') ?? 'Unknown error: dynamicGroupId', code)
+    return createErrorResponse(
+      error?.response?.data?.errors.map((error) => error.message).join(';') ?? 'Unknown error: dynamicGroupId',
+      code
+    )
   }
 }
 
@@ -192,7 +227,10 @@ export async function dynamicDomain(request: RequestClient): Promise<DynamicFiel
   } catch (err) {
     const error = err as ResultError
     const code = String(error?.response?.status ?? 500)
-    return createErrorResponse(error?.response?.data?.errors.map((error) => error.message).join(';') ?? 'Unknown error: dynamicDomain', code)
+    return createErrorResponse(
+      error?.response?.data?.errors.map((error) => error.message).join(';') ?? 'Unknown error: dynamicDomain',
+      code
+    )
   }
 }
 
@@ -251,7 +289,10 @@ export async function dynamicTemplateId(request: RequestClient): Promise<Dynamic
   } catch (err) {
     const error = err as ResultError
     const code = String(error?.response?.status ?? 500)
-    return createErrorResponse(error?.response?.data?.errors.map((error) => error.message).join(';') ?? 'Unknown error: dynamicGetTemplates', code)
+    return createErrorResponse(
+      error?.response?.data?.errors.map((error) => error.message).join(';') ?? 'Unknown error: dynamicGetTemplates',
+      code
+    )
   }
 }
 
@@ -281,6 +322,9 @@ export async function dynamicIpPoolNames(request: RequestClient): Promise<Dynami
   } catch (err) {
     const error = err as ResultError
     const code = String(error?.response?.status ?? 500)
-    return createErrorResponse(error?.response?.data?.errors.map((error) => error.message).join(';') ?? 'Unknown error: dynamicIpPoolNames', code)
+    return createErrorResponse(
+      error?.response?.data?.errors.map((error) => error.message).join(';') ?? 'Unknown error: dynamicIpPoolNames',
+      code
+    )
   }
 }
