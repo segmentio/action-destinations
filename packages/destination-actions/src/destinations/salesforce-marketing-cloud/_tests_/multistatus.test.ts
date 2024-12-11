@@ -25,7 +25,7 @@ describe('Multistatus', () => {
       nock(requestUrl).post('').reply(200, {})
 
       const events: SegmentEvent[] = [
-        // Valid Event
+        // Valid Event.
         createTestEvent({
           type: 'track',
           userId: 'harry-1',
