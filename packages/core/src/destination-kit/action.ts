@@ -34,6 +34,7 @@ import {
   SubscriptionMetadata
 } from './index'
 import { get } from '../get'
+import { Client } from 'soap'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -41,8 +42,14 @@ type RequestClient = ReturnType<typeof createRequestClient>
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, ActionHookInputs = any> = (
   request: RequestClient,
-  data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs>
+  data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs>,
+  soapClient?: Client
 ) => MaybePromise<Return>
+
+export type RequestFnForSOAPConfiguration<Settings> = (
+  request: RequestClient,
+  settings: Settings
+) => MaybePromise<Client>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface BaseActionDefinition {
@@ -148,7 +155,7 @@ export interface ActionDefinition<
    * A function which returns a WSDL string which will be used to initialize a SOAP API client.
    * This function may optionally make an async request to pull the WSDL.
    */
-  soapAPIConfiguration?: RequestFn<Settings, {}, string>
+  soapAPIConfiguration?: RequestFnForSOAPConfiguration<Settings>
 
   /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
   syncMode?: SyncModeDefinition
@@ -267,6 +274,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   readonly hookSchemas?: Record<string, JSONSchema4>
   readonly hasBatchSupport: boolean
   readonly hasHookSupport: boolean
+  readonly hasSoapAPISupport: boolean
   // Payloads may be any type so we use `any` explicitly here.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extendRequest: RequestExtension<Settings, any> | undefined
@@ -284,6 +292,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     this.extendRequest = extendRequest
     this.hasBatchSupport = typeof definition.performBatch === 'function'
     this.hasHookSupport = definition.hooks !== undefined
+    this.hasSoapAPISupport = typeof definition.soapAPIConfiguration === 'function'
+
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
       this.schema = fieldsToJsonSchema(definition.fields)
@@ -625,14 +635,16 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return { dynamicHandlerPath, dynamicFieldContext }
   }
 
-  async executeSOAPCongifuration(data: ExecuteSOAPConfigurationInput<Settings>): Promise<string> {
-    const fn = this.definition.soapAPIConfiguration
+  async executeSOAPCongifuration(data: ExecuteSOAPConfigurationInput<Settings>): Promise<Client> {
+    const fn = this.definition.soapAPIConfiguration as RequestFn<Settings, {}, Client>
 
     if (typeof fn !== 'function') {
       throw new IntegrationError('No SOAP API configuration function found.', 'NotImplemented', 501)
     }
 
-    return (await this.performRequest(fn, {settings: data.settings as Settings, payload: {} as Payload})) as string
+    const soapClient = await this.performRequest(fn, { settings: data.settings, payload: {} as Payload })
+
+    return soapClient as Client
   }
 
   async executeDynamicField(
@@ -689,6 +701,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       })
     }
 
+    if (this.hasSoapAPISupport) {
+      const soapClient = await this.executeSOAPCongifuration({ settings: data.settings })
+      return (await this.performRequest(hookFn, data, soapClient)) as ActionHookResponse<any>
+    }
+
     return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>
   }
 
@@ -699,10 +716,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
    */
   private async performRequest<T extends Payload | Payload[]>(
     requestFn: RequestFn<Settings, T, any, AudienceSettings>,
-    data: ExecuteInput<Settings, T, AudienceSettings>
+    data: ExecuteInput<Settings, T, AudienceSettings>,
+    soapClient?: Client
   ): Promise<unknown> {
     const requestClient = this.createRequestClient(data)
-    const response = await requestFn(requestClient, data)
+    const response = await requestFn(requestClient, data, soapClient)
     return this.parseResponse(response)
   }
 

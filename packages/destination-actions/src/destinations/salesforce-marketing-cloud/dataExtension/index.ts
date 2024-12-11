@@ -3,21 +3,20 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { key, id, keys, enable_batching, batch_size, values_dataExtensionFields } from '../sfmc-properties'
 import { upsertRows, getAccessToken } from '../sfmc-operations'
-import { createClientAsync } from 'soap'
+import { Client, createClientAsync } from 'soap'
 
-interface WSDL_REQUEST {
-  wsdl: string
-}
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event to Data Extension',
   description: 'Upsert events as rows into an existing data extension in Salesforce Marketing Cloud.',
-  soapAPIConfiguration: async (request, { settings }): Promise<string> => {
-    console.log('Creating client sfmc') 
-    const client = await createClientAsync('packages/destination-actions/src/destinations/salesforce-marketing-cloud/salesforce-soap-wsdl.xml')
+  soapAPIConfiguration: async (request, settings): Promise<Client> => {
+    console.log('Creating client sfmc')
+    const client = await createClientAsync(
+      'packages/destination-actions/src/destinations/salesforce-marketing-cloud/salesforce-soap-wsdl.xml'
+    )
     console.log('describe', client.describe())
 
     console.log('settings', settings)
-    const { access_token, soap_instance_url }  = await getAccessToken(request, settings)
+    const { access_token, soap_instance_url } = await getAccessToken(request, settings)
 
     console.log('soap_instance_url', soap_instance_url)
     console.log('accessToken', access_token)
@@ -27,16 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     client.setEndpoint(soap_instance_url)
 
-    const res = client.describeAllTabs({}, function(err, result) {
-      if (err) {
-        console.error(err)
-      } else {
-        console.log(result)
-      }
-    }, { method: 'get'} )
-
-    console.log('res', res)
-    return 'Client created'
+    return client
   },
   hooks: {
     onMappingSave: {
@@ -46,13 +36,13 @@ const action: ActionDefinition<Settings, Payload> = {
         operation: {
           label: 'Create a new data extension',
           description: 'Create a new data extension in Salesforce Marketing Cloud.',
-          type: 'boolean',
+          type: 'boolean'
         },
         dataExtensionName: {
           label: 'Data Extension Name',
           description: 'The name of the data extension to create.',
           type: 'string',
-          required: true,
+          required: true
         },
         dataExtensionShape: {
           label: 'Columns to create',
@@ -65,12 +55,12 @@ const action: ActionDefinition<Settings, Payload> = {
             retlColumnName: {
               label: 'RETL Column Name',
               type: 'string',
-              required: true,
+              required: true
             },
             dataExtensionColumnName: {
               label: 'Data Extension Column Name',
               type: 'string',
-              required: true,
+              required: true
             },
             type: {
               label: 'Type',
@@ -80,36 +70,35 @@ const action: ActionDefinition<Settings, Payload> = {
                 { label: 'Text', value: 'text' },
                 { label: 'Number', value: 'number' },
                 { label: 'Date', value: 'date' },
-                { label: 'Boolean', value: 'boolean' },
-              ],
+                { label: 'Boolean', value: 'boolean' }
+              ]
             }
           }
         }
       },
       outputTypes: {},
-      performHook: async (request) => {
-        // const soapClient = createClient()
-        // console.log(soapClient)
+      performHook: async (_request, _, soapClient) => {
+        if (!soapClient) {
+          throw new Error('Soap client not initialized')
+        }
 
-        // // The following is psuedo code
+        const res = soapClient.describeAllTabs(
+          {},
+          function (err: string, result: string) {
+            if (err) {
+              console.error(err)
+            } else {
+              console.log(result)
+            }
+          },
+          { method: 'get' }
+        )
 
-        // // const columns = dataExtensionShape.map((column) => {
-        // //   return {
-        // //     name: column.name,
-        // //     type: column.type,
-        // //   }
-        // // }) 
+        console.log('res', res)
 
-        // // const res = await request(${url}, {
-        // //   method: 'POST',
-        // //   json: {
-        // //     name: dataExtensionName,
-        // //     columns,
-        // //   }
-        // // })
-
-        // return {
-        // }
+        return {
+          successMessage: 'success'
+        }
       }
     }
   },
@@ -121,7 +110,7 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: enable_batching,
     batch_size: batch_size
   },
-  perform: async (request, { settings, payload, hookInputs }) => {
+  perform: async (request, { settings, payload }) => {
     return upsertRows(request, settings.subdomain, [payload])
   },
   performBatch: async (request, { settings, payload }) => {
