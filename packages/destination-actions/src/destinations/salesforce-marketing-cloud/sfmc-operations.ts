@@ -1,4 +1,10 @@
-import { RequestClient, MultiStatusResponse, JSONLikeObject, ModifiedResponse } from '@segment/actions-core'
+import {
+  RequestClient,
+  MultiStatusResponse,
+  JSONLikeObject,
+  ModifiedResponse,
+  IntegrationError
+} from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
 import { ErrorResponse } from './types'
@@ -13,6 +19,13 @@ export async function upsertRows(
   let response: ModifiedResponse | undefined
   const { key, id } = payloads[0]
   if (!key && !id) {
+    if (payloads.length === 1) {
+      throw new IntegrationError(
+        `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`,
+        'Misconfigured required field',
+        400
+      )
+    }
     payloads.forEach((_, index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -49,7 +62,7 @@ export async function upsertRows(
     })
   } catch (error) {
     const err = error as ErrorResponse
-    if (err?.response?.data?.message === 'Not Authorized') {
+    if (err?.response?.data?.message === 'Not Authorized' || payloads.length === 1) {
       throw error
     }
 
@@ -62,7 +75,6 @@ export async function upsertRows(
       })
     })
   }
-  console.log('MSR => ', multiStatusResponse)
 
   if (payloads.length > 1) {
     return multiStatusResponse
