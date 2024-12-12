@@ -180,7 +180,7 @@ describe('Sendgrid.sendEmail', () => {
     expect(tokens).toMatchObject([
       'user',
       'name',
-      'businessName',
+      "businessName",
       'login_url',
       'supportPhone',
       'scoreOne',
