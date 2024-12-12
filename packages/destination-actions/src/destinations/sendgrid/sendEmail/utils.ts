@@ -18,7 +18,7 @@ export async function send(request: RequestClient, payload: Payload) {
   const json: SendEmailReq = {
     personalizations: [
       {
-        to: payload.to.map((to) => ({ email: to.email, name: to?.name ?? undefined })),
+        to: [{ email: payload.to.email, name: payload.to?.name ?? undefined }],
         cc: payload.cc?.map((cc) => ({ email: cc.email, name: cc?.name ?? undefined })) ?? undefined,
         bcc: payload.bcc?.map((bcc) => ({ email: bcc.email, name: bcc?.name ?? undefined })) ?? undefined,
         headers:

@@ -22,6 +22,7 @@ export const fields: Record<string, InputField> = {
         label: 'Email',
         description: 'The email address of the sender.',
         type: 'string',
+        format: 'email',
         required: true
       },
       name: {
@@ -36,7 +37,7 @@ export const fields: Record<string, InputField> = {
     label: 'To',
     description: 'Recipient details.',
     type: 'object',
-    multiple: true,
+    multiple: false,
     required: true,
     additionalProperties: false,
     defaultObjectUI: 'keyvalue',
@@ -44,6 +45,7 @@ export const fields: Record<string, InputField> = {
       email: {
         label: 'Email',
         description: 'The email address of the recipient.',
+        format: 'email',
         type: 'string',
         required: true
       },
@@ -55,17 +57,12 @@ export const fields: Record<string, InputField> = {
       }
     },
     default: {
-      '@arrayPath': [
-        '$.properties',
-        {
-          email: {
-            '@path': '$.email'
-          },
-          name: {
-            '@path': '$.name'
-          }
-        }
-      ]
+      email: {
+        '@path': '$.properties.email'
+      },
+      name: {
+        '@path': '$.properties.name'
+      }
     }
   },
   cc: {
@@ -81,6 +78,7 @@ export const fields: Record<string, InputField> = {
         label: 'Email',
         description: 'The email address of the CC recipient.',
         type: 'string',
+        format: 'email',
         required: true
       },
       name: {
@@ -105,6 +103,7 @@ export const fields: Record<string, InputField> = {
         label: 'Email',
         description: 'The email address of the BCC recipient.',
         type: 'string',
+        format: 'email',
         required: true
       },
       name: {
@@ -170,6 +169,7 @@ export const fields: Record<string, InputField> = {
         label: 'Email',
         description: 'The email to reply to.',
         type: 'string',
+        format: 'email',
         required: false
       },
       name: {
