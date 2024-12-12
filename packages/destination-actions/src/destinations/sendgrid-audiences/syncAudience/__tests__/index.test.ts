@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidationError } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
+import { validatePhone } from '../utils'
 
 let testDestination = createTestIntegration(Definition)
 
@@ -544,5 +545,15 @@ describe('SendgridAudiences.syncAudience', () => {
     expect(responses[2].status).toBe(200)
     expect(responses[3].status).toBe(200)
     expect(responses[4].status).toBe(200)
+  })
+
+  it('phone number should be E.164', async () => {
+    const goodPhone = '+353123456789' // E.164
+    const badPhone = '123456789' // no + 
+    const badPhone2 = '+3531234567890678' // too long
+
+    expect(validatePhone(goodPhone)).toBe(true)
+    expect(validatePhone(badPhone)).toBe(false)
+    expect(validatePhone(badPhone2)).toBe(false)
   })
 })

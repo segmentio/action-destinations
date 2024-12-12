@@ -1,5 +1,7 @@
 export const MAX_BATCH_SIZE = 100
 
+export const GET_LIST_URL = 'https://api.sendgrid.com/v3/marketing/lists'
+
 export const CREATE_LIST_URL = 'https://api.sendgrid.com/v3/marketing/lists'
 
 export const UPSERT_CONTACTS_URL = 'https://api.sendgrid.com/v3/marketing/contacts'

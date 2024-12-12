@@ -5,7 +5,8 @@ import {
   SEARCH_CONTACTS_URL,
   REMOVE_CONTACTS_FROM_LIST_URL,
   MAX_CHUNK_SIZE_SEARCH,
-  MAX_CHUNK_SIZE_REMOVE
+  MAX_CHUNK_SIZE_REMOVE,
+  E164_REGEX
 } from '../constants'
 import { UpsertContactsReq, SearchContactsResp, AddRespError } from '../types'
 import chunk from 'lodash/chunk'
@@ -102,6 +103,10 @@ function validate(payloads: Payload[], ignoreErrors: boolean, invalidEmails?: st
       delete p.email
     }
 
+    if (p.phone_number_id && !validatePhone(p.phone_number_id)) {
+      delete p.phone_number_id
+    }
+
     if (p.custom_fields) {
       p.custom_fields = Object.fromEntries(
         Object.entries(p.custom_fields).filter(([_, value]) => typeof value === 'string' || typeof value === 'number')
@@ -189,4 +194,8 @@ function getQueryPart(identifier: keyof Payload, payloads: Payload[]): string {
 
   const part = values.length > 0 ? `${identifier} IN (${values.map((value) => `'${value}'`).join(',')})` : ''
   return part
+}
+
+export function validatePhone(phone: string): boolean {
+  return E164_REGEX.test(phone)
 }
