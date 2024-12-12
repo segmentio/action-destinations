@@ -39,7 +39,7 @@ describe('Multistatus', () => {
             }
           }
         }),
-        // Valid Event
+        // Valid Event.
         createTestEvent({
           type: 'track',
           userId: 'harry-1',
