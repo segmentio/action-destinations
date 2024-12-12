@@ -21,7 +21,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  presets:[
+  presets: [
     {
       name: 'Track Event',
       subscribe: 'type = "track"',
