@@ -10,7 +10,7 @@ export const FIELD_REGEX = /\[(.*?)\]/
 
 export const TOKEN_REGEX = /{{(.*?)}}/g
 
-export const E164_REGEX = /^\+?[1-9]\d{1,14}$/
+export const E164_REGEX = /^\+[1-9]\d{1,14}$/
 
 export const TWILIO_SHORT_CODE_REGEX = /^[1-9]\d{4,5}$/
 
