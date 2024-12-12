@@ -64,7 +64,23 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     return upsertRows(request, settings.subdomain, [payload])
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, statsContext, features }) => {
+    if (features && features['enable-sfmc-id-key-stats']) {
+      const statsClient = statsContext?.statsClient
+      const tags = statsContext?.tags
+      const setKey = new Set()
+      const setId = new Set()
+      payload.forEach((profile) => {
+        if (profile.id != undefined && profile.id != null) {
+          setId.add(profile.id)
+        }
+        if (profile.key != undefined && profile.key != null) {
+          setKey.add(profile.key)
+        }
+      })
+      statsClient?.histogram(`sfmc_id`, setId.size, tags)
+      statsClient?.histogram(`sfmc_key`, setKey.size, tags)
+    }
     return upsertRows(request, settings.subdomain, payload)
   }
 }

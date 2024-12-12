@@ -1,3 +1,15 @@
+export interface GetListsResp {
+  result: Array<GetListByIDResp>
+  _metadata: {
+    count: number
+  }
+}
+
+export interface GetListByIDResp {
+  id: string
+  name: string
+}
+
 export interface CreateAudienceReq {
   name: string
 }
