@@ -108,11 +108,11 @@ function validate(payload: Payload) {
     }
   })
 
-  if (typeof payload.cc === 'object' && Object.keys(payload.cc).length === 0) {
+  if(typeof payload.cc === 'object' && Object.keys(payload.cc).length === 0){
     delete payload.cc
   }
 
-  if (typeof payload.bcc === 'object' && Object.keys(payload.bcc).length === 0) {
+  if(typeof payload.bcc === 'object' && Object.keys(payload.bcc).length === 0){
     delete payload.bcc
   }
 
