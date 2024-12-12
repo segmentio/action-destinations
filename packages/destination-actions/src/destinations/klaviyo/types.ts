@@ -233,3 +233,7 @@ export interface KlaviyoAPIError {
 export interface KlaviyoAPIErrorResponse {
   errors: KlaviyoAPIError[]
 }
+export interface KlaviyoProfile {
+  type: string
+  attributes: ProfileAttributes
+}

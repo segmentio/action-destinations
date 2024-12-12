@@ -25,12 +25,14 @@ import {
   UnsubscribeEventData,
   GroupedProfiles,
   AdditionalAttributes,
+  KlaviyoProfile,
   KlaviyoAPIErrorResponse
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 import { Payload as TrackEventPayload } from './trackEvent/generated-types'
 import dayjs from '../../lib/dayjs'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+import { Payload as AddProfileToListPayload } from './addProfileToList/generated-types'
 import { eventBulkCreateRegex } from './properties'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
 
@@ -157,6 +159,20 @@ export const createImportJobPayload = (profiles: Payload[], listId?: string): { 
   }
 })
 
+export const constructBulkProfileImportPayload = (
+  profiles: KlaviyoProfile[],
+  listId?: string
+): { data: ImportJobPayload } => ({
+  data: {
+    type: 'profile-bulk-import-job',
+    attributes: {
+      profiles: {
+        data: profiles
+      }
+    },
+    ...(listId ? { relationships: { lists: { data: [{ type: 'list', id: listId }] } } } : {})
+  }
+})
 export const sendImportJobRequest = async (request: RequestClient, importJobPayload: { data: ImportJobPayload }) => {
   return await request(`${API_URL}/profile-bulk-import-jobs/`, {
     method: 'POST',
@@ -459,6 +475,122 @@ export function processPhoneNumber(initialPhoneNumber?: string, country_code?: s
   }
 
   return phone_number
+}
+/**
+ * Updates the multi-status response with error information from Klaviyo for a batch of payloads.
+ *
+ * This function is designed to handle errors returned by a bulk operation in Klaviyo.
+ * It marks the entire batch as failed since granular retries are not supported in bulk operations.
+ *
+ * @param {JSONLikeObject[]} payloads - An array of payloads that were sent in the bulk operation.
+ * @param {any} err - The error object received from the Klaviyo API response.
+ * @param {MultiStatusResponse} multiStatusResponse - The object responsible for storing the status of each payload.
+ * @param {number[]} validPayloadIndicesBitmap - An array of indices indicating which payloads were valid.
+ *
+ */
+async function updateMultiStatusWithKlaviyoErrors(
+  payloads: JSONLikeObject[],
+  err: any,
+  multiStatusResponse: MultiStatusResponse,
+  validPayloadIndicesBitmap: number[]
+) {
+  const errorResponse = await err?.response?.json()
+  payloads.forEach((payload, index) => {
+    multiStatusResponse.setErrorResponseAtIndex(validPayloadIndicesBitmap[index], {
+      status: err?.response?.status || 400,
+      // errortype will be inferred from status
+      errormessage: err?.response?.statusText,
+      sent: payload,
+      body: JSON.stringify(errorResponse)
+    })
+  })
+}
+
+function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
+  validPayload?: JSONLikeObject
+  error?: ActionDestinationErrorResponseType
+} {
+  const { phone_number, email, external_id } = payload
+  const response: { validPayload?: JSONLikeObject; error?: ActionDestinationErrorResponseType } = {}
+  if (!email && !phone_number && !external_id) {
+    response.error = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'One of External ID, Phone Number or Email is required.'
+    }
+    return response
+  }
+
+  if (phone_number) {
+    const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, payload.country_code as string)
+    if (!validPhoneNumber) {
+      response.error = {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Phone number could not be converted to E.164 format.'
+      }
+      return response
+    }
+    payload.phone_number = validPhoneNumber
+    delete payload.country_code
+  }
+
+  const { list_id, enable_batching, batch_size, country_code, ...attributes } = payload
+
+  response.validPayload = { type: 'profile', attributes: attributes as JSONLikeObject }
+  return response
+}
+
+function validateAndPrepareBatchedProfileImportPayloads(
+  payloads: AddProfileToListPayload[],
+  multiStatusResponse: MultiStatusResponse
+) {
+  const filteredPayloads: JSONLikeObject[] = []
+  const validPayloadIndicesBitmap: number[] = []
+
+  payloads.forEach((payload, originalBatchIndex) => {
+    const { validPayload, error } = validateAndConstructProfilePayload(payload)
+    if (error) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, error)
+    } else {
+      filteredPayloads.push(validPayload as JSONLikeObject)
+      validPayloadIndicesBitmap.push(originalBatchIndex)
+    }
+  })
+
+  return { filteredPayloads, validPayloadIndicesBitmap }
+}
+
+export async function sendBatchedProfileImportJobRequest(request: RequestClient, payloads: AddProfileToListPayload[]) {
+  const multiStatusResponse = new MultiStatusResponse()
+  const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPrepareBatchedProfileImportPayloads(
+    payloads,
+    multiStatusResponse
+  )
+
+  if (!filteredPayloads.length) {
+    return multiStatusResponse
+  }
+  const importJobPayload = constructBulkProfileImportPayload(
+    filteredPayloads as unknown as KlaviyoProfile[],
+    payloads[0]?.list_id
+  )
+  try {
+    const response = await sendImportJobRequest(request, importJobPayload)
+    updateMultiStatusWithSuccessData(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      await updateMultiStatusWithKlaviyoErrors(
+        payloads as object as JSONLikeObject[],
+        error,
+        multiStatusResponse,
+        validPayloadIndicesBitmap
+      )
+    } else {
+      throw error // Bubble up the error
+    }
+  }
+  return multiStatusResponse
 }
 
 export async function sendBatchedTrackEvent(request: RequestClient, payloads: TrackEventPayload[]) {
