@@ -16,6 +16,9 @@ const emailTemplate = `<!DOCTYPE html>
             
             <p>Thank you for joining <strong>{{user.leagueName}}</strong>! Your current leagues are:</p>
             
+            <p>Hello {{insert name "default=Customer"}}! Thank you for contacting us about {{insert businessName "your big business"}}.</p>
+            <p>Hello {{insert name "default=Customer"}}! Thank you for contacting us about {{insert businessName 'your small business' "x = this text should not become variable" }}.</p>
+            {{root.user.username | default: "Unknown"}}
             <ul>
               {{#each user.currentLeagues}}
                 <li><strong>{{this.leagueName}}: {{this.leagueParticipants}} members</strong></li>
@@ -176,8 +179,9 @@ describe('Sendgrid.sendEmail', () => {
     const tokens = extractVariables(emailTemplate)
     expect(tokens).toMatchObject([
       'user',
-      'login_url',
       'name',
+      "businessName",
+      'login_url',
       'supportPhone',
       'scoreOne',
       'scoreTwo',
