@@ -6,29 +6,33 @@ export interface Payload {
    */
   channel: string
   /**
-   * The number to send the message to (E.164 format).
-   */
-  toPhoneNumber: string
-  /**
-   * A valid Facebook Messenger Page Id or Messenger User Id.
-   */
-  messengerPageUserId?: string
-  /**
-   * Select Sender Type
+   * The Sender type to use for the message. Depending on the selected 'Channel' this can be a phone number, messaging service, or Messenger sender ID.
    */
   senderType: string
   /**
-   * The Twilio phone number (E.164 format) or short code for sending SMS/MMS. If not in the dropdown, enter it directly and ensure the number supports SMS/MMS.
+   * The Content Template type to use for the message. Selecting "Inline" will allow you to define the message body directly. For all other options a Content Template must be pre-defined in Twilio.
+   */
+  contentTemplateType: string
+  /**
+   * The number to send the message to (E.164 format).
+   */
+  toPhoneNumber?: string
+  /**
+   * A valid Facebook Messenger Page Id or Messenger User Id to send the message to.
+   */
+  toMessengerPageUserId?: string
+  /**
+   * The Twilio phone number (E.164 format) or Short Code. If not in the dropdown, enter it directly. Please ensure the number supports the selected 'Channel' type.
    */
   fromPhoneNumber?: string
+  /**
+   * The unique identifier for your Facebook Page, used to send messages via Messenger. You can find this in your Facebook Page settings.
+   */
+  fromMessengerSenderId?: string
   /**
    * The SID of the messaging service to use. If not in the dropdown, enter it directly.
    */
   messagingServiceSid?: string
-  /**
-   * Select the Twilio Content Template type to use.
-   */
-  contentTemplateType: string
   /**
    * The SID of the Content Template to use.
    */

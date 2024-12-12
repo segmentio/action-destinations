@@ -18,6 +18,10 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
+  /**
    * Individual's phone number in E.164 format. If SMS is not enabled and if you use Phone Number as identifier, then you have to provide one of Email or External ID.
    */
   phone_number?: string
