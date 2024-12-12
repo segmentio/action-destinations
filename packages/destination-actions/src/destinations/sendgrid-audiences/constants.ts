@@ -15,3 +15,5 @@ export const SEARCH_CONTACTS_URL = 'https://api.sendgrid.com/v3/marketing/contac
 export const MAX_CHUNK_SIZE_SEARCH = 50
 
 export const GET_CUSTOM_FIELDS_URL = 'https://api.sendgrid.com/v3/marketing/field_definitions'
+
+export const E164_REGEX = /^\+[1-9]\d{1,14}$/
