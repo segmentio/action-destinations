@@ -40,9 +40,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
       case 'MMS': {
         toPhoneNumber = toPhoneNumber?.trim() ?? ''
         if (!(E164_REGEX.test(toPhoneNumber) || TWILIO_SHORT_CODE_REGEX.test(toPhoneNumber))) {
-          throw new PayloadValidationError(
-            "'To' field should be a valid phone number in E.164 format or a Twilio Short Code"
-          )
+          throw new PayloadValidationError("'To' field should be a valid phone number in E.164 format or a Twilio Short Code");
         }
         return toPhoneNumber
       }
@@ -86,9 +84,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     if (senderType === SENDER_TYPE.MESSENGER_SENDER_ID) {
       fromMessengerSenderId = fromMessengerSenderId?.trim()
       if (!fromMessengerSenderId) {
-        throw new PayloadValidationError(
-          "'From Messenger Sender ID' field is required when sending from a Messenger Sender ID."
-        )
+        throw new PayloadValidationError("'From Messenger Sender ID' field is required when sending from a Messenger Sender ID.")
       }
       return { From: `messenger:${fromMessengerSenderId}` }
     }

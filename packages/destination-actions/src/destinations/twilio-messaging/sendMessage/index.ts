@@ -44,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { payload, settings }) => {
+  perform: async (request, { payload, settings }) => { 
     return await send(request, payload, settings)
   }
 }

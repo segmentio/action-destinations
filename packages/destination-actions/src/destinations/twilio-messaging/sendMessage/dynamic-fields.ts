@@ -68,14 +68,15 @@ export async function dynamicSenderType(payload: Payload): Promise<DynamicFieldR
     return createErrorResponse("Select from 'Channel' field first.")
   }
 
-  if (channel === CHANNELS.MESSENGER) {
+  if(channel === CHANNELS.MESSENGER) {
     return {
       choices: [
         { label: SENDER_TYPE.MESSENGER_SENDER_ID, value: SENDER_TYPE.MESSENGER_SENDER_ID },
         { label: SENDER_TYPE.MESSAGING_SERVICE, value: SENDER_TYPE.MESSAGING_SERVICE }
       ]
     }
-  } else {
+  }
+  else {
     return {
       choices: [
         { label: SENDER_TYPE.PHONE_NUMBER, value: SENDER_TYPE.PHONE_NUMBER },
@@ -90,6 +91,7 @@ export async function dynamicFromPhoneNumber(
   payload: Payload,
   settings: Settings
 ): Promise<DynamicFieldResponse> {
+
   interface PhoneNumResponseType {
     data: {
       incoming_phone_numbers: Array<{
@@ -115,11 +117,11 @@ export async function dynamicFromPhoneNumber(
   const numbers: string[] = []
   const supportsShortCodes = channel === CHANNELS.SMS || channel === CHANNELS.MMS
 
-  if (channel === CHANNELS.MESSENGER) {
+  if(channel === CHANNELS.MESSENGER) {
     return createErrorResponse("Use 'From Messenger Sender ID' field for specifying the sender ID.")
   }
 
-  if (supportsShortCodes) {
+  if(supportsShortCodes) {
     const shortCodeResp = await getData<ShortCodeResponseType>(
       request,
       GET_INCOMING_SHORT_CODES_URL.replace(ACCOUNT_SID_TOKEN, settings.accountSID)
@@ -128,9 +130,9 @@ export async function dynamicFromPhoneNumber(
     if (isErrorResponse(shortCodeResp)) {
       return shortCodeResp
     }
-
-    const shortCodes: string[] = shortCodeResp.data?.short_codes
-      .filter((s) => (channel === CHANNELS.MMS && s.sms_url !== null) || channel === CHANNELS.SMS)
+    
+    const shortCodes: string[] = (shortCodeResp.data?.short_codes
+      .filter((s) => (channel === CHANNELS.MMS && s.sms_url !== null) || channel === CHANNELS.SMS))
       .map((s) => s.short_code)
 
     numbers.push(...shortCodes)
@@ -153,20 +155,17 @@ export async function dynamicFromPhoneNumber(
   numbers.sort((a, b) => a.length - b.length || a.localeCompare(b))
 
   if (numbers.length === 0) {
-    return createErrorResponse(
-      `No phone numbers ${supportsShortCodes ? 'or short codes' : ''} found. Please create a phone number ${
-        supportsShortCodes ? 'or short code' : ''
-      } in your Twilio account.`
-    )
+    return createErrorResponse(`No phone numbers ${supportsShortCodes ? 'or short codes' : ''} found. Please create a phone number ${supportsShortCodes ? 'or short code' : ''} in your Twilio account.`)
   }
 
   return {
-    choices: numbers.map((n) => {
-      return {
-        label: n,
-        value: n
-      }
-    })
+    choices: numbers
+      .map((n) => {
+        return {
+          label: n,
+          value: n
+        }
+      })
   }
 }
 
@@ -217,7 +216,7 @@ export async function dynamicContentTemplateType(payload: Payload): Promise<Dyna
   }
 
   return await Promise.resolve({
-    choices: Object.values({ ...INLINE_CONTENT_TYPES, ...PREDEFINED_CONTENT_TYPES })
+    choices: Object.values({...INLINE_CONTENT_TYPES, ...PREDEFINED_CONTENT_TYPES})
       .filter((t) => t.supported_channels.includes(channel as Channel))
       .map((t) => ({
         label: t.friendly_name,

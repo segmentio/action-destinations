@@ -45,15 +45,20 @@ export function extractVariables(content: string | undefined): string[] {
   const removeIfStartsWith = ['if', 'unless', 'and', 'or', 'equals', 'notEquals', 'lessThan', 'greaterThan', 'each']
   const removeIfMatch = ['else', 'if', 'this', 'insert', 'default', 'length', 'formatDate']
 
-  const regex1 = /{{(.*?)}}/g // matches handlebar expressions. e.g. {{root.user.username | default: "Unknown"}}
+  const regex1 = /{{(.*?)}}/g   // matches handlebar expressions. e.g. {{root.user.username | default: "Unknown"}}
   const regex2 = /(["']).*?\1/g // removes anything between quotes. e.g. {{root.user.username | default: }}
   const regex3 = /[#/]?[\w.]+/g // matches words only. e.g. root.user.username , default
 
-  const words =
-    [...new Set([...content.matchAll(regex1)].map((match) => match[1]))]
-      .map((word) => word.replace(regex2, '').trim())
-      .join(' ')
-      .match(regex3) ?? []
+  const words = [
+    ...new Set(
+      [...content.matchAll(regex1)].map(match => match[1])
+    )
+  ]
+  .map(word => 
+    word.replace(regex2, '').trim()
+  )
+  .join(' ')
+  .match(regex3) ?? []
 
   const variables = [
     ...new Set(
