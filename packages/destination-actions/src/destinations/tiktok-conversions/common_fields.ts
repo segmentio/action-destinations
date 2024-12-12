@@ -245,6 +245,7 @@ export const commonFields: Record<string, InputField> = {
     type: 'object',
     multiple: true,
     description: 'Related item details for the event.',
+    defaultObjectUI: 'keyvalue',
     properties: {
       price: {
         label: 'Price',
