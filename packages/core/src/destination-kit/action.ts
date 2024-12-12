@@ -48,7 +48,7 @@ export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, A
 
 export type RequestFnForSOAPConfiguration<Settings> = (
   request: RequestClient,
-  settings: Settings
+  settings: ExecuteInput<Settings, any, any, any>
 ) => MaybePromise<Client>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -636,13 +636,15 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   }
 
   async executeSOAPCongifuration(data: ExecuteSOAPConfigurationInput<Settings>): Promise<Client> {
-    const fn = this.definition.soapAPIConfiguration as RequestFn<Settings, {}, Client>
+    const fn = this.definition.soapAPIConfiguration
 
     if (typeof fn !== 'function') {
       throw new IntegrationError('No SOAP API configuration function found.', 'NotImplemented', 501)
     }
 
-    const soapClient = await this.performRequest(fn, { settings: data.settings, payload: {} as Payload })
+    const requestData = { settings: data.settings, payload: {} as Payload } as ExecuteInput<Settings, Payload, any>
+
+    const soapClient = await this.performRequest(fn, requestData)
 
     return soapClient as Client
   }
