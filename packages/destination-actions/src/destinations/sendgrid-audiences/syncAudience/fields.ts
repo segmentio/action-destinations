@@ -128,7 +128,7 @@ export const fields: Record<string, InputField> = {
         description: `The contact's city.`,
         type: 'string'
       },
-      state_province_region: {  
+      state_province_region: {
         label: 'State/Province/Region',
         description: `The contact's state, province, or region.`,
         type: 'string'
@@ -145,61 +145,61 @@ export const fields: Record<string, InputField> = {
       }
     },
     default: {
-      first_name: {       
+      first_name: {
         '@if': {
           exists: { '@path': '$.traits.first_name' },
           then: { '@path': '$.traits.first_name' },
           else: { '@path': '$.properties.first_name' }
-        } 
+        }
       },
-      last_name: {       
+      last_name: {
         '@if': {
           exists: { '@path': '$.traits.last_name' },
           then: { '@path': '$.traits.last_name' },
           else: { '@path': '$.properties.last_name' }
-        } 
+        }
       },
-      address_line_1: {       
+      address_line_1: {
         '@if': {
           exists: { '@path': '$.traits.street' },
           then: { '@path': '$.traits.street' },
           else: { '@path': '$.properties.street' }
-        } 
+        }
       },
-      address_line_2: {       
+      address_line_2: {
         '@if': {
           exists: { '@path': '$.traits.address_line_2' },
           then: { '@path': '$.traits.address_line_2' },
           else: { '@path': '$.properties.address_line_2' }
-        } 
+        }
       },
-      city: {       
+      city: {
         '@if': {
           exists: { '@path': '$.traits.city' },
           then: { '@path': '$.traits.city' },
           else: { '@path': '$.properties.city' }
-        } 
+        }
       },
-      state_province_region: {       
+      state_province_region: {
         '@if': {
           exists: { '@path': '$.traits.state' },
           then: { '@path': '$.traits.state' },
           else: { '@path': '$.properties.state' }
-        } 
+        }
       },
-      country: {       
+      country: {
         '@if': {
           exists: { '@path': '$.traits.country' },
           then: { '@path': '$.traits.country' },
           else: { '@path': '$.properties.country' }
-        } 
+        }
       },
-      postal_code: {       
+      postal_code: {
         '@if': {
           exists: { '@path': '$.traits.postal_code' },
           then: { '@path': '$.traits.postal_code' },
           else: { '@path': '$.properties.postal_code' }
-        } 
+        }
       }
     }
   },
@@ -210,7 +210,8 @@ export const fields: Record<string, InputField> = {
     required: false,
     defaultObjectUI: 'keyvalue',
     additionalProperties: true,
-    dynamic: true
+    dynamic: true,
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   },
   enable_batching: {
     type: 'boolean',
