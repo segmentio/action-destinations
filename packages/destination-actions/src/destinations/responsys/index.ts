@@ -5,6 +5,7 @@ import sendAudience from './sendAudience'
 import upsertListMember from './upsertListMember'
 
 import sendAudienceAsPet from './sendAudienceAsPet'
+import sendToPet from './sendToPet'
 
 interface RefreshTokenResponse {
   authToken: string
@@ -45,7 +46,7 @@ const destination: DestinationDefinition<Settings> = {
       userPassword: {
         label: 'Password',
         description: 'Responsys password',
-        type: 'string',
+        type: 'password',
         required: true
       },
       baseUrl: {
@@ -56,15 +57,22 @@ const destination: DestinationDefinition<Settings> = {
         format: 'uri',
         required: true
       },
+      defaultFolderName: {
+        label: 'Default Folder Name',
+        description: 'Name of the folder where the Profile Extension Table is located.',
+        type: 'string',
+        required: false
+      },
       profileListName: {
-        label: 'List Name',
+        label: 'Default Profile List Name',
         description: "Name of the Profile Extension Table's Contact List.",
         type: 'string',
-        required: true
+        required: false
       },
       profileExtensionTable: {
-        label: 'PET Name',
-        description: 'Profile Extension Table (PET) Name. Required if using the "Send Custom Traits" Action.',
+        label: 'Default PET Name',
+        description:
+          'Default Profile Extension Table (PET) Name. Required if using the "Send Custom Traits" Action. Can be overridden in the mapping.',
         type: 'string',
         required: false
       },
@@ -150,7 +158,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       defaultPermissionStatus: {
         label: 'Default Permission Status',
-        description: 'This value must be specified as either OPTIN or OPTOUT. defaults to OPTOUT.',
+        description:
+          'This value must be specified as either OPTIN or OPTOUT. Defaults to OPTOUT. Can be overridden in the mapping.',
         type: 'string',
         required: true,
         choices: [
@@ -220,7 +229,8 @@ const destination: DestinationDefinition<Settings> = {
     sendAudience,
     sendAudienceAsPet,
     sendCustomTraits,
-    upsertListMember
+    upsertListMember,
+    sendToPet
   }
 }
 
