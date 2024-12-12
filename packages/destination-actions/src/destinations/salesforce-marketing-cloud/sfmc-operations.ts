@@ -1,39 +1,43 @@
-import {
-  RequestClient,
-  MultiStatusResponse,
-  JSONLikeObject,
-  ModifiedResponse,
-  IntegrationError
-} from '@segment/actions-core'
+import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
-import { ErrorResponse } from './types'
+import { Settings } from './generated-types'
 
-export async function upsertRows(
+interface RefreshTokenResponse {
+  access_token: string
+  soap_instance_url: string
+}
+
+export async function getAccessToken(
+  request: RequestClient,
+  settings: Settings
+): Promise<{ access_token: string; soap_instance_url: string }> {
+  const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/v2/token`
+  const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
+    method: 'POST',
+    body: new URLSearchParams({
+      account_id: settings.account_id,
+      client_id: settings.client_id,
+      client_secret: settings.client_secret,
+      grant_type: 'client_credentials'
+    })
+  })
+
+  return { access_token: res.data.access_token, soap_instance_url: res.data.soap_instance_url }
+}
+
+export function upsertRows(
   request: RequestClient,
   subdomain: String,
   payloads: payload_dataExtension[] | payload_contactDataExtension[]
 ) {
-  const multiStatusResponse = new MultiStatusResponse()
-  let url: string
-  let response: ModifiedResponse | undefined
   const { key, id } = payloads[0]
   if (!key && !id) {
-    if (payloads.length === 1) {
-      throw new IntegrationError(
-        `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`,
-        'Misconfigured required field',
-        400
-      )
-    }
-    payloads.forEach((_, index) => {
-      multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`
-      })
-    })
-    return multiStatusResponse
+    throw new IntegrationError(
+      `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`,
+      'Misconfigured required field',
+      400
+    )
   }
   const rows: Record<string, any>[] = []
   payloads.forEach((payload: payload_dataExtension | payload_contactDataExtension) => {
@@ -43,43 +47,14 @@ export async function upsertRows(
     })
   })
   if (key) {
-    url = `https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${key}/rowset`
-  } else {
-    url = `https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/${id}/rowset`
-  }
-
-  try {
-    response = await request(url, {
+    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${key}/rowset`, {
       method: 'POST',
       json: rows
     })
-
-    payloads.forEach((payload, index) => {
-      multiStatusResponse.setSuccessResponseAtIndex(index, {
-        status: 200,
-        sent: payload as Object as JSONLikeObject,
-        body: JSON.stringify(response?.data)
-      })
-    })
-  } catch (error) {
-    const err = error as ErrorResponse
-    if (err?.response?.data?.message === 'Not Authorized' || payloads.length === 1) {
-      throw error
-    }
-
-    payloads.forEach((payload, index) => {
-      multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: 400,
-        errormessage: err?.response?.data?.additionalErrors[0]?.message || '',
-        sent: payload as Object as JSONLikeObject,
-        body: JSON.stringify(err)
-      })
+  } else {
+    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/${id}/rowset`, {
+      method: 'POST',
+      json: rows
     })
   }
-
-  if (payloads.length > 1) {
-    return multiStatusResponse
-  }
-
-  return response
 }

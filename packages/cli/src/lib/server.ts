@@ -423,6 +423,26 @@ function setupRoutes(def: DestinationDefinition | null): void {
         }
       }
     }
+
+    if (definition.soapAPIConfiguration) {
+      router.get(
+        `/${actionSlug}/soapConfiguration`,
+        asyncHandler(async (req: express.Request, res: express.Response) => {
+          try {
+            if (definition.soapAPIConfiguration && typeof definition.soapAPIConfiguration === 'function') {
+              const data = {
+                settings: req.body.settings || {}
+              }
+              const action = destination.actions[actionSlug]
+              const result = await action.executeSOAPCongifuration(data)
+              return res.status(200).json(result)
+            }
+          } catch (err) {
+            return res.status(500).json([err])
+          }
+        })
+      )
+    }
   }
 
   app.use(router)
