@@ -266,12 +266,13 @@ export const sendDebugMessageToSegmentSource = async (
   response: ModifiedResponse<any>,
   settings: Settings
 ) => {
-  if (settings.segmentWriteKey && settings.segmentWriteKeyRegion) {
+  const segmentWriteKeyRegion = settings.segmentWriteKeyRegion || 'US'
+  if (settings.segmentWriteKey) {
     try {
       const body = response.data
       await request(
-        settings.segmentWriteKeyRegion === 'EU'
-          ? 'events.eu1.segmentapis.com/v1/track'
+        segmentWriteKeyRegion === 'EU'
+          ? 'https://events.eu1.segmentapis.com/v1/track'
           : 'https://api.segment.io/v1/track',
         {
           method: 'POST',
