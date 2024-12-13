@@ -169,91 +169,87 @@ export const upsertListMembers = async (
   usingAsyncApi = true
 ) => {
   const userDataArray = payload.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
-  const userDataFieldNames: string[] = [
-    'EMAIL_ADDRESS_',
-    'CUSTOMER_ID_',
-    'MOBILE_NUMBER_',
-    'EMAIL_MD5_HASH_',
-    'EMAIL_SHA256_HASH_'
-  ]
 
-  const records: string[][] = []
+  const recordSets: { [key: string]: string[][] } = {}
   for (const item of userDataArray) {
+    const recordSetKey = Object.keys(item).join(',')
     const record: string[] = []
-    for (const fieldName of userDataFieldNames) {
-      if (fieldName in item) {
-        record.push((item as Record<string, string>)[fieldName])
-      } else {
-        record.push('')
-      }
+    for (const fieldName of Object.keys(item)) {
+      record.push((item as Record<string, string>)[fieldName])
     }
 
-    records.push(record)
+    if (recordSetKey in recordSets) {
+      recordSets[recordSetKey].push(record)
+    } else {
+      recordSets[recordSetKey] = [record]
+    }
   }
 
   const responses = []
   // Per https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/REST/Async/asyncApi-v1.3-lists-listName-members-post.htm,
   // we can only send 200 records at a time.
-  for (let i = 0; i < records.length; i += 200) {
-    const chunk = records.slice(i, i + 200)
-    const recordData: ResponsysRecordData = {
-      fieldNames: userDataFieldNames,
-      records: chunk,
-      mapTemplateName: ''
-    }
-
-    const mergeRule: ResponsysMergeRule = {
-      htmlValue: settings.htmlValue,
-      optinValue: settings.optinValue,
-      textValue: settings.textValue,
-      insertOnNoMatch: settings.insertOnNoMatch || false,
-      updateOnMatch: settings.updateOnMatch,
-      matchColumnName1: settings.matchColumnName1 + '_',
-      matchOperator: settings.matchOperator,
-      optoutValue: settings.optoutValue,
-      rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
-      defaultPermissionStatus: payload[0].default_permission_status || settings.defaultPermissionStatus
-    }
-
-    if (settings.matchColumnName2) {
-      mergeRule.matchColumnName2 = settings.matchColumnName2 + '_'
-    }
-
-    const requestBody: ResponsysListMemberRequestBody = {
-      recordData,
-      mergeRule
-    }
-
-    const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/v1.3/lists/${settings.profileListName}/members`
-    const endpoint = new URL(path, settings.baseUrl)
-
-    const headers = {
-      headers: {
-        authorization: `${authTokens.accessToken}`,
-        'Content-Type': 'application/json'
+  for (const [recordSetKey, records] of Object.entries(recordSets)) {
+    for (let i = 0; i < records.length; i += 200) {
+      const chunk = records.slice(i, i + 200)
+      const recordData: ResponsysRecordData = {
+        fieldNames: recordSetKey.split(',').map((field) => field.toUpperCase()),
+        records: chunk,
+        mapTemplateName: ''
       }
-    }
 
-    // Take a break.
-    await new Promise((resolve) => setTimeout(resolve, upsertListMembersWaitInterval))
+      const mergeRule: ResponsysMergeRule = {
+        htmlValue: settings.htmlValue,
+        optinValue: settings.optinValue,
+        textValue: settings.textValue,
+        insertOnNoMatch: settings.insertOnNoMatch || false,
+        updateOnMatch: settings.updateOnMatch,
+        matchColumnName1: settings.matchColumnName1 + '_',
+        matchOperator: settings.matchOperator,
+        optoutValue: settings.optoutValue,
+        rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
+        defaultPermissionStatus: payload[0].default_permission_status || settings.defaultPermissionStatus
+      }
 
-    const secondRequest = createRequestClient(headers)
-    const response: ModifiedResponse<unknown> = await secondRequest(endpoint.href, {
-      method: 'POST',
-      body: JSON.stringify(requestBody)
-    })
+      if (settings.matchColumnName2) {
+        mergeRule.matchColumnName2 = settings.matchColumnName2 + '_'
+      }
 
-    // If request was done through Responsys Async API, we need to fetch the response from
-    // another endpoint to get the real processing response.
-    if (usingAsyncApi) {
-      const requestId = (response as ModifiedResponse<ResponsysAsyncResponse>).data.requestId
-      const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
+      const requestBody: ResponsysListMemberRequestBody = {
+        recordData,
+        mergeRule
+      }
 
-      await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
-      responses.push(asyncResponse)
-    } else {
-      await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
-      responses.push(response)
+      const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/v1.3/lists/${settings.profileListName}/members`
+      const endpoint = new URL(path, settings.baseUrl)
+
+      const headers = {
+        headers: {
+          authorization: `${authTokens.accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+
+      // Take a break.
+      await new Promise((resolve) => setTimeout(resolve, upsertListMembersWaitInterval))
+
+      const secondRequest = createRequestClient(headers)
+      const response: ModifiedResponse<unknown> = await secondRequest(endpoint.href, {
+        method: 'POST',
+        body: JSON.stringify(requestBody)
+      })
+
+      // If request was done through Responsys Async API, we need to fetch the response from
+      // another endpoint to get the real processing response.
+      if (usingAsyncApi) {
+        const requestId = (response as ModifiedResponse<ResponsysAsyncResponse>).data.requestId
+        const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
+
+        await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
+        responses.push(asyncResponse)
+      } else {
+        await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
+        responses.push(response)
+      }
     }
   }
 
