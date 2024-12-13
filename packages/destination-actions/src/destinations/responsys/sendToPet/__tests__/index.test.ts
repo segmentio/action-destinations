@@ -201,6 +201,10 @@ describe('Responsys.sendToPet', () => {
           requestId: '23456'
         })
 
+        nock(responsysHost).post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`).reply(200, {
+          requestId: '45678'
+        })
+
         nock(responsysHost)
           .post(`/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${petName}/members`)
           .reply(200, {
@@ -209,6 +213,7 @@ describe('Responsys.sendToPet', () => {
 
         nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
         nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/34567`).reply(200, {})
+        nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/45678`).reply(200, {})
 
         const responses = await testDestination.executeBatch('sendToPet', actionPayload)
 

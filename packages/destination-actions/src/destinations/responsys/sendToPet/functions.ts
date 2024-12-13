@@ -1,4 +1,4 @@
-import { IntegrationError, ModifiedResponse, RequestClient } from '@segment/actions-core/*'
+import { IntegrationError, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 import { Settings } from '../generated-types'
 import { getAsyncResponse, sendDebugMessageToSegmentSource, stringifyObject, upsertListMembers } from '../utils'
@@ -178,7 +178,7 @@ export const sendToPet = async (
           const requestId = response.data.requestId
           const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
           await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
-          responses.push(asyncResponse as ModifiedResponse<unknown>)
+          responses.push(asyncResponse)
         }
 
         await sendDebugMessageToSegmentSource(request, requestBody, response, settings)

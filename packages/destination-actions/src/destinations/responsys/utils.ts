@@ -175,6 +175,19 @@ export const upsertListMembers = async (
     const recordSetKey = Object.keys(item).join(',')
     const record: string[] = []
     for (const fieldName of Object.keys(item)) {
+      if (
+        ![
+          'EMAIL_ADDRESS_',
+          'EMAIL_MD5_HASH_',
+          'EMAIL_SHA256_HASH_',
+          'RIID_',
+          'CUSTOMER_ID_',
+          'MOBILE_NUMBER_'
+        ].includes(fieldName)
+      ) {
+        continue
+      }
+
       record.push((item as Record<string, string>)[fieldName])
     }
 
