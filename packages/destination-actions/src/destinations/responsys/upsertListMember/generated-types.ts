@@ -18,7 +18,7 @@ export interface Payload {
      */
     EMAIL_SHA256_HASH_?: string
     /**
-     * Recipient ID (RIID).  RIID is required if Email Address is empty.
+     * Recipient ID (RIID). RIID is required if Email Address is empty.
      */
     RIID_?: string
     /**
