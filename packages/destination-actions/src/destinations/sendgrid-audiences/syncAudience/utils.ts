@@ -12,153 +12,204 @@ import { UpsertContactsReq, SearchContactsResp, AddRespError } from '../types'
 import chunk from 'lodash/chunk'
 
 export async function send(request: RequestClient, payload: Payload[]) {
-  const ignoreErrors = payload.length > 1
-
-  const payloads = validate(payload, ignoreErrors)
-
-  if (payloads.length === 0) {
-    throw new PayloadValidationError('No valid payloads found')
+  const payloads = validate(payload)
+  const addPayloads = payloads.filter((p) => p.traits_or_props[p.segment_audience_key] === true)
+  if(addPayloads.length > 0) {
+    await upsertContacts(request, addPayloads, true) 
   }
-
-  const { add, remove } = ((payloads: Payload[]) =>
-    payloads.reduce<{ add: Payload[]; remove: Payload[] }>(
-      (acc, payload) => {
-        acc[payload.traits_or_props[payload.segment_audience_key] ? 'add' : 'remove'].push(payload)
-        return acc
-      },
-      { add: [], remove: [] }
-    ))(payloads)
-
-  if (add.length > 0) {
-    try {
-      await sendRequest(request, add)
-    } catch (error) {
-      const { status, data } = (error as AddRespError).response
-      if (status !== 400) {
-        throw error
-      }
-      const invalidEmails = Array.isArray(data.errors)
-        ? data.errors
-            .map(({ message }) => /email '(.+?)' is not valid/.exec(message)?.[1])
-            .filter((email): email is string => !!email)
-        : []
-      if (invalidEmails.length === 0) {
-        throw error
-      }
-      const add2 = validate(add, true, invalidEmails)
-      if (add2.length > 0) {
-        await sendRequest(request, add2)
-      }
-    }
-  }
-
-  if (remove.length > 0) {
-    const identifiers: (keyof Payload)[] = ['email', 'phone_number_id', 'external_id', 'anonymous_id']
-
-    const chunks = chunkPayloads(remove)
-
-    const queries = chunks.map((c) =>
-      identifiers
-        .map((identifier) => getQueryPart(identifier, c))
-        .filter((query) => query !== '')
-        .join(' OR ')
-    )
-
-    const responses = await Promise.all(
-      queries.map((query) =>
-        request<SearchContactsResp>(SEARCH_CONTACTS_URL, {
-          method: 'post',
-          json: {
-            query
-          }
-        })
-      )
-    )
-
-    const contact_ids = responses.flatMap((response) => response.data.result.map((item) => item.id))
-
-    const chunkedContactIds = chunk(contact_ids, MAX_CHUNK_SIZE_REMOVE)
-
-    const listId = remove[0].external_audience_id
-
-    await Promise.all(
-      chunkedContactIds.map(async (c) => {
-        const url = REMOVE_CONTACTS_FROM_LIST_URL.replace('{list_id}', listId).replace('{contact_ids}', c.join(','))
-        if (c.length > 0) {
-          await request(url, {
-            method: 'delete'
-          })
-        }
-      })
-    )
+ 
+  const removePayloads = payloads.filter((p) => p.traits_or_props[p.segment_audience_key] === false)
+  if(removePayloads.length > 0) {
+    const upsertedRemovePayloads = await upsertContacts(request, removePayloads, false) 
+    await removeFromList(request, upsertedRemovePayloads) 
   }
 }
 
-function validate(payloads: Payload[], ignoreErrors: boolean, invalidEmails?: string[]): Payload[] {
+function validate(payloads: Payload[], invalidEmails?: string[]): Payload[] {
   if (payloads[0].external_audience_id == null) {
     throw new PayloadValidationError('external_audience_id value is missing from payload')
   }
-  const validPayloads = payloads.filter((p) => {
-    if (p.email && invalidEmails?.includes(p.email)) {
-      delete p.email
-    }
 
-    if (p.phone_number_id && !validatePhone(p.phone_number_id)) {
-      delete p.phone_number_id
-    }
+  const validPayloads = payloads.map(payload => validatePayload(payload, invalidEmails)).filter((payload): payload is Payload => payload !== undefined)
 
-    if (p.custom_fields) {
-      p.custom_fields = Object.fromEntries(
-        Object.entries(p.custom_fields).filter(([_, value]) => typeof value === 'string' || typeof value === 'number')
-      )
-    }
+  if (validPayloads.length === 0) {
+    throw new PayloadValidationError('No valid payloads found')
+  }
 
-    if (p.user_attributes) {
-      p.user_attributes = Object.fromEntries(
-        Object.entries(p.user_attributes ?? {}).map(([key, value]) => {
-          if (typeof value !== 'string') {
-            return [key, String(value)]
-          }
-          return [key, value]
-        })
-      )
-    }
-
-    const hasRequiredField = [p.email, p.anonymous_id, p.external_id, p.phone_number_id].some(Boolean)
-    if (!hasRequiredField && !ignoreErrors) {
-      throw new PayloadValidationError(
-        'At least one of email, anonymous_id, external_id or phone_number_id is required'
-      )
-    }
-    return hasRequiredField
-  })
   return validPayloads
 }
 
-async function sendRequest(request: RequestClient, payloads: Payload[]) {
-  const json = createPayload(payloads, payloads[0].external_audience_id)
+function validatePayload(payload: Payload, invalidEmails?: string[]): Payload | undefined {
+  
+  const p = JSON.parse(JSON.stringify(payload))
+  
+  if (p.identifiers.email && invalidEmails?.includes(p.identifiers.email)) {
+    delete p.identifiers.email
+  }
+
+  if (p.identifiers.phone_number_id && !validatePhone(p.identifiers.phone_number_id)) {
+    delete p.identifiers.phone_number_id
+  }
+
+  if (p.user_attributes) {
+    if (p.user_attributes.phone_number && !validatePhone(p.user_attributes.phone_number)) {
+      delete p.user_attributes.phone_number
+    }
+  
+    p.user_attributes = Object.fromEntries(
+      Object.entries(p.user_attributes ?? {}).map(([key, value]) => {
+        if (typeof value !== 'string') {
+          return [key, String(value)]
+        }
+        return [key, value]
+      })
+    )
+  }
+
+  if (p.custom_text_fields) {
+    p.custom_text_fields = Object.fromEntries(
+      Object.entries(p.custom_text_fields).filter(([_, value]) => typeof value === 'string' && value.length > 0)
+    )
+  }
+
+  if (p.custom_number_fields) {
+    p.custom_number_fields = Object.fromEntries(
+      Object.entries(p.custom_number_fields).filter(([_, value]) => typeof value === 'number')
+    )
+  }
+
+  if (p.custom_date_fields) {
+    p.custom_date_fields = Object.fromEntries(
+      Object.entries(p.custom_date_fields)
+        .filter(([_, value]) => typeof value === 'string') 
+        .map(([key, value]) => [key, toDateFormat(value as string)])
+        .filter(([_, value]) => typeof value === 'string') 
+    )
+  }
+
+  const requiredIdentifiers = [
+    p.identifiers.email,
+    p.identifiers.phone_number_id,
+    p.identifiers.external_id,
+    p.identifiers.anonymous_id
+  ]
+
+  return requiredIdentifiers.some(Boolean) ? p : undefined 
+}
+
+function upsertJSON(payloads: Payload[], addToList: boolean): UpsertContactsReq {  
+  const json: UpsertContactsReq = {
+    list_ids: addToList ? [payloads[0].external_audience_id] : [],
+    contacts: payloads.map((payload) => {
+
+      const {
+        identifiers: {
+          email = undefined,
+          phone_number_id = undefined,
+          external_id = undefined,
+          anonymous_id = undefined
+        },
+        user_attributes = undefined,
+        custom_text_fields = undefined,
+        custom_number_fields = undefined,
+        custom_date_fields = undefined
+      } = payload
+      
+      const custom_fields = {
+        ...custom_text_fields,
+        ...custom_number_fields,
+        ...custom_date_fields
+      }
+
+      return {
+        email,
+        phone_number_id,
+        external_id,
+        anonymous_id,
+        ...user_attributes,
+        custom_fields: Object.keys(custom_fields).length > 0 ? custom_fields : undefined
+      }
+    }) as UpsertContactsReq['contacts']
+  }
+
+  return JSON.parse(JSON.stringify(json))
+}
+
+async function upsertContacts(request: RequestClient, payloads: Payload[], addToList: boolean): Promise<Payload[]>{
+  try {
+    const json = upsertJSON(payloads, addToList)
+    await upsertRequest(request, json)
+  } catch (error) {
+    const { status, data } = (error as AddRespError).response
+    if (status !== 400) {
+      throw error
+    }
+    const invalidEmails = Array.isArray(data.errors)
+      ? data.errors
+          .map(({ message }) => /email '(.+?)' is not valid/.exec(message)?.[1])
+          .filter((email): email is string => !!email)
+      : []
+    if (invalidEmails.length === 0) {
+      throw error
+    }
+    payloads = validate(payloads, invalidEmails)
+    const json2 = upsertJSON(payloads, addToList)
+    if (payloads.length > 0) {
+      await upsertRequest(request, json2)
+    }
+  }
+  return payloads
+}
+
+async function upsertRequest(request: RequestClient, json: UpsertContactsReq) {
+  console.log(JSON.stringify(json, null, 2))
   return await request(UPSERT_CONTACTS_URL, {
     method: 'put',
     json
   })
 }
 
-function createPayload(payloads: Payload[], externalAudienceId: string): UpsertContactsReq {
-  const json: UpsertContactsReq = {
-    list_ids: [externalAudienceId],
-    contacts: payloads.map((payload) => ({
-      email: payload.email ?? undefined,
-      phone_number_id: payload.phone_number_id ?? undefined,
-      external_id: payload.external_id ?? undefined,
-      anonymous_id: payload.anonymous_id ?? undefined,
-      ...payload.user_attributes,
-      custom_fields: payload.custom_fields && Object.keys(payload.custom_fields).length > 0
-      ? payload.custom_fields
-      : undefined
-    })) as UpsertContactsReq['contacts']
+async function removeFromList(request: RequestClient, payloads: Payload[]) {
+  if (payloads.length === 0) {
+    return 
   }
 
-  return json
+  const identifierTypes: (keyof Payload['identifiers'])[] = ['email', 'phone_number_id', 'external_id', 'anonymous_id']
+  const chunks = chunkPayloads(payloads)
+
+  const queries = chunks.map((c) =>
+    identifierTypes
+      .map((idType) => getQueryPart(idType, c))
+      .filter((query) => query !== '')
+      .join(' OR ')
+  )
+
+  const responses = await Promise.all(
+    queries.map((query) =>
+      request<SearchContactsResp>(SEARCH_CONTACTS_URL, {
+        method: 'post',
+        json: {
+          query
+        }
+      })
+    )
+  )
+
+  const contact_ids = responses.flatMap((response) => response.data.result.map((item) => item.id))
+  const chunkedContactIds = chunk(contact_ids, MAX_CHUNK_SIZE_REMOVE)
+  const listId = payloads[0].external_audience_id
+
+  await Promise.all(
+    chunkedContactIds.map(async (c) => {
+      const url = REMOVE_CONTACTS_FROM_LIST_URL.replace('{list_id}', listId).replace('{contact_ids}', c.join(','))
+      if (c.length > 0) {
+        console.log(url)
+        await request(url, {
+          method: 'delete'
+        })
+      }
+    })
+  )
 }
 
 function chunkPayloads(payloads: Payload[]): Payload[][] {
@@ -167,7 +218,8 @@ function chunkPayloads(payloads: Payload[]): Payload[][] {
   let currentChunkSize = 0
 
   for (const payload of payloads) {
-    const idCount = [payload.email, payload.phone_number_id, payload.external_id, payload.anonymous_id].filter(
+    const ids = payload.identifiers
+    const idCount = [ids.email, ids.phone_number_id, ids.external_id, ids.anonymous_id].filter(
       Boolean
     ).length
 
@@ -188,10 +240,10 @@ function chunkPayloads(payloads: Payload[]): Payload[][] {
   return chunks
 }
 
-function getQueryPart(identifier: keyof Payload, payloads: Payload[]): string {
+function getQueryPart(identifier: keyof Payload['identifiers'], payloads: Payload[]): string {
   const values = payloads
-    .filter((payload) => payload[identifier] !== undefined && payload[identifier] !== null)
-    .map((payload) => payload[identifier])
+    .filter((payload) => payload.identifiers[identifier] !== undefined && payload.identifiers[identifier] !== null)
+    .map((payload) => payload.identifiers[identifier])
 
   const part = values.length > 0 ? `${identifier} IN (${values.map((value) => `'${value}'`).join(',')})` : ''
   return part
@@ -199,4 +251,9 @@ function getQueryPart(identifier: keyof Payload, payloads: Payload[]): string {
 
 export function validatePhone(phone: string): boolean {
   return E164_REGEX.test(phone)
+}
+
+export function toDateFormat(dateString: string): string | undefined {
+  const date = new Date(dateString)
+  return isNaN(date.getTime()) ? undefined : `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`
 }
