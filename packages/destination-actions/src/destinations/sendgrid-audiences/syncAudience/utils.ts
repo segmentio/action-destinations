@@ -10,6 +10,7 @@ import {
 } from '../constants'
 import { UpsertContactsReq, SearchContactsResp, AddRespError } from '../types'
 import chunk from 'lodash/chunk'
+import { constructBulkProfileImportPayload } from 'src/destinations/klaviyo/functions'
 
 export async function send(request: RequestClient, payload: Payload[]) {
   const payloads = validate(payload)
@@ -161,8 +162,7 @@ async function upsertContacts(request: RequestClient, payloads: Payload[], addTo
   return payloads
 }
 
-async function upsertRequest(request: RequestClient, json: UpsertContactsReq) {
-  console.log(JSON.stringify(json, null, 2))
+async function upsertRequest(request: RequestClient, json: UpsertContactsReq) {  
   return await request(UPSERT_CONTACTS_URL, {
     method: 'put',
     json
@@ -203,7 +203,6 @@ async function removeFromList(request: RequestClient, payloads: Payload[]) {
     chunkedContactIds.map(async (c) => {
       const url = REMOVE_CONTACTS_FROM_LIST_URL.replace('{list_id}', listId).replace('{contact_ids}', c.join(','))
       if (c.length > 0) {
-        console.log(url)
         await request(url, {
           method: 'delete'
         })
