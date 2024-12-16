@@ -10,7 +10,6 @@ import {
 } from '../constants'
 import { UpsertContactsReq, SearchContactsResp, AddRespError } from '../types'
 import chunk from 'lodash/chunk'
-import { constructBulkProfileImportPayload } from 'src/destinations/klaviyo/functions'
 
 export async function send(request: RequestClient, payload: Payload[]) {
   const payloads = validate(payload)
@@ -22,7 +21,7 @@ export async function send(request: RequestClient, payload: Payload[]) {
   const removePayloads = payloads.filter((p) => p.traits_or_props[p.segment_audience_key] === false)
   if(removePayloads.length > 0) {
     const upsertedRemovePayloads = await upsertContacts(request, removePayloads, false) 
-    await removeFromList(request, upsertedRemovePayloads) 
+    await removeFromList(request, upsertedRemovePayloads) // there is no API call to upsert a Contact and also remove them from a list at the same time, so we need to do these operations separately
   }
 }
 
@@ -98,6 +97,32 @@ function validatePayload(payload: Payload, invalidEmails?: string[]): Payload | 
   return requiredIdentifiers.some(Boolean) ? p : undefined 
 }
 
+async function upsertContacts(request: RequestClient, payloads: Payload[], addToList: boolean): Promise<Payload[]>{
+  try {
+    const json = upsertJSON(payloads, addToList)
+    await upsertRequest(request, json) // make the initial upsert request
+  } catch (error) {
+    const { status, data } = (error as AddRespError).response
+    if (status !== 400) {
+      throw error
+    }
+    const invalidEmails = Array.isArray(data.errors)
+      ? data.errors
+          .map(({ message }) => /email '(.+?)' is not valid/.exec(message)?.[1])
+          .filter((email): email is string => !!email)
+      : []
+    if (invalidEmails.length === 0) {
+      throw error
+    }
+    payloads = validate(payloads, invalidEmails)
+    const json2 = upsertJSON(payloads, addToList)
+    if (payloads.length > 0) {
+      await upsertRequest(request, json2) // if the initial upsert request fails, remove the failing emails and make the request again
+    }
+  }
+  return payloads
+}
+
 function upsertJSON(payloads: Payload[], addToList: boolean): UpsertContactsReq {  
   const json: UpsertContactsReq = {
     list_ids: addToList ? [payloads[0].external_audience_id] : [],
@@ -133,33 +158,7 @@ function upsertJSON(payloads: Payload[], addToList: boolean): UpsertContactsReq 
     }) as UpsertContactsReq['contacts']
   }
 
-  return JSON.parse(JSON.stringify(json))
-}
-
-async function upsertContacts(request: RequestClient, payloads: Payload[], addToList: boolean): Promise<Payload[]>{
-  try {
-    const json = upsertJSON(payloads, addToList)
-    await upsertRequest(request, json)
-  } catch (error) {
-    const { status, data } = (error as AddRespError).response
-    if (status !== 400) {
-      throw error
-    }
-    const invalidEmails = Array.isArray(data.errors)
-      ? data.errors
-          .map(({ message }) => /email '(.+?)' is not valid/.exec(message)?.[1])
-          .filter((email): email is string => !!email)
-      : []
-    if (invalidEmails.length === 0) {
-      throw error
-    }
-    payloads = validate(payloads, invalidEmails)
-    const json2 = upsertJSON(payloads, addToList)
-    if (payloads.length > 0) {
-      await upsertRequest(request, json2)
-    }
-  }
-  return payloads
+  return JSON.parse(JSON.stringify(json)) // remove undefined values
 }
 
 async function upsertRequest(request: RequestClient, json: UpsertContactsReq) {  

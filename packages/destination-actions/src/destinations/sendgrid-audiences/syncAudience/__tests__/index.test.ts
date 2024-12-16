@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidationError } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
-import { validatePhone } from '../utils'
+import { validatePhone, toDateFormat } from '../utils'
 
 let testDestination = createTestIntegration(Definition)
 
@@ -649,4 +649,25 @@ describe('SendgridAudiences.syncAudience', () => {
     expect(validatePhone(badPhone)).toBe(false)
     expect(validatePhone(badPhone2)).toBe(false)
   })
+
+  it('dates are formatted correctly to Sendgrid', async () => {
+    const goodDate = "01-01-2024"
+    const goodDate2 = "01-24-2024"
+    const goodDate3 = '2024-01-01T00:00:00.000Z'
+    const goodDate4 = "01/24/2024" // default for ambiguous dates is US ISO 8601 format MM/DD/YYYY
+    const badDate = "13-01-2024"
+    const badDate2 = "24/01/2024"
+    const badDate3 = '+3531234567890678'
+
+    expect(toDateFormat(goodDate)).toBe("01/01/2024")
+    expect(toDateFormat(goodDate2)).toBe("01/24/2024")
+    expect(toDateFormat(goodDate3)).toBe("01/01/2024")
+    expect(toDateFormat(goodDate4)).toBe("01/24/2024")
+    expect(toDateFormat(badDate)).toBe(undefined)
+    expect(toDateFormat(badDate2)).toBe(undefined)
+    expect(toDateFormat(badDate3)).toBe(undefined)
+  })
+
+
+  
 })
