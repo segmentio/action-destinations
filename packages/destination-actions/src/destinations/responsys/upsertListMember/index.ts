@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         RIID_: {
           label: 'Recipient ID',
-          description: 'Recipient ID (RIID).  RIID is required if Email Address is empty.',
+          description: 'Recipient ID (RIID). RIID is required if Email Address is empty.',
           type: 'string',
           required: false
         },

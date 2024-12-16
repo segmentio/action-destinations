@@ -1,5 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+
 import Destination from '../../index'
 import { Settings } from '../../generated-types'
 

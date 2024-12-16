@@ -1,4 +1,4 @@
-import { ModifiedResponse, RequestClient } from '@segment/actions-core/*'
+import { IntegrationError, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 import { Settings } from '../generated-types'
 import { getAsyncResponse, sendDebugMessageToSegmentSource, stringifyObject, upsertListMembers } from '../utils'
@@ -117,9 +117,16 @@ export const sendToPet = async (
   for (const [folderName, petRecords] of Object.entries(folderRecords)) {
     for (const [petName, records] of Object.entries(petRecords)) {
       const correspondingPet = allPets.find(
-        (item: { objectName: string; folderName: string }) =>
-          item.objectName === petName && item.folderName === folderName
+        (item: { objectName: string; folderName: string }) => item.objectName === petName
       )
+
+      if (correspondingPet && correspondingPet.folderName !== folderName) {
+        throw new IntegrationError(
+          `PET ${petName} already exists in another folder: ${correspondingPet.folderName}, not ${folderName}.`,
+          'INVALID_ARGUMENT',
+          400
+        )
+      }
 
       if (!correspondingPet) {
         // Take a break.
@@ -171,7 +178,7 @@ export const sendToPet = async (
           const requestId = response.data.requestId
           const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
           await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
-          responses.push(asyncResponse as ModifiedResponse<unknown>)
+          responses.push(asyncResponse)
         }
 
         await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
