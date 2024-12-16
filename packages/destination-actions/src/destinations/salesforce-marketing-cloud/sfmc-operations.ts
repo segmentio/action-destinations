@@ -1,6 +1,30 @@
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
+import { Settings } from './generated-types'
+
+interface RefreshTokenResponse {
+  access_token: string
+  soap_instance_url: string
+}
+
+export async function getAccessToken(
+  request: RequestClient,
+  settings: Settings
+): Promise<{ access_token: string; soap_instance_url: string }> {
+  const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/v2/token`
+  const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
+    method: 'POST',
+    body: new URLSearchParams({
+      account_id: settings.account_id,
+      client_id: settings.client_id,
+      client_secret: settings.client_secret,
+      grant_type: 'client_credentials'
+    })
+  })
+
+  return { access_token: res.data.access_token, soap_instance_url: res.data.soap_instance_url }
+}
 
 export function upsertRows(
   request: RequestClient,
