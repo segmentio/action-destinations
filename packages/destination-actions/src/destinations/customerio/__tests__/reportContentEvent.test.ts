@@ -13,7 +13,6 @@ describe('CustomerIO', () => {
     type testCase = {
       name: string
       anonymousId: string
-      context?: { [key: string]: any }
       properties: { [key: string]: any }
       expected: { [key: string]: any }
     }
@@ -68,41 +67,6 @@ describe('CustomerIO', () => {
           name: 'clicked_content',
           type: 'person'
         }
-      },
-      {
-        name: 'should use the journeys identifiers',
-        anonymousId: 'unused',
-        context: {
-          journeys: {
-            identifiers: {
-              id: 'user_123'
-            }
-          }
-        },
-        properties: {
-          actionType: 'clicked_content',
-          contentType: 'ctype',
-          contentId: 1,
-          templateId: 1,
-          actionName: 'aname',
-          actionValue: 'avalue'
-        },
-        expected: {
-          action: 'clicked_content',
-          attributes: {
-            anonymous_id: 'unused',
-            contentType: 'ctype',
-            contentId: 1,
-            templateId: 1,
-            actionName: 'aname',
-            actionValue: 'avalue'
-          },
-          identifiers: {
-            id: 'user_123'
-          },
-          name: 'clicked_content',
-          type: 'person'
-        }
       }
     ]
 
@@ -116,7 +80,6 @@ describe('CustomerIO', () => {
           timestamp: now.toISOString(),
           type: 'track',
           event: 'Report Content Event',
-          context: testCase.context,
           properties: testCase.properties
         })
         const responses = await testDestination.testAction('reportContentEvent', {
