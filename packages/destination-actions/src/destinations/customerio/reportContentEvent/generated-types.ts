@@ -23,10 +23,4 @@ export interface Payload {
    * Convert dates to Unix timestamps (seconds since Epoch).
    */
   convert_timestamp?: boolean
-  /**
-   * Non-user-provided context fields needed for auto-track.
-   */
-  context?: {
-    [k: string]: unknown
-  }
 }
