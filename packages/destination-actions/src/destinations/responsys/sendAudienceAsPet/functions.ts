@@ -271,7 +271,7 @@ const sendPetUpdate = async (
     await new Promise((resolve) => setTimeout(resolve, sendToPetWaitInterval * 2))
     const response: ModifiedResponse<ResponsysAsyncResponse> = await request(endpoint.href, {
       method: 'POST',
-      body: JSON.stringify(requestBodies)
+      body: JSON.stringify(requestBody)
     })
 
     const requestId = response.data.requestId
