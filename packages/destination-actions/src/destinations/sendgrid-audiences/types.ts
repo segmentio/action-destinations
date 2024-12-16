@@ -29,6 +29,7 @@ export interface UpsertContactsReq {
       anonymous_id?: string
       first_name?: string
       last_name?: string
+      phone_number?: string
       address_line_1?: string
       address_line_2?: string
       city?: string
@@ -65,3 +66,5 @@ export interface AddRespError {
     }
   }
 }
+
+export type FieldType = 'Text' | 'Number' | 'Date'

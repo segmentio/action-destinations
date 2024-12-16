@@ -48,50 +48,56 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
-  email: {
-    label: 'Email Address',
-    description: `The contact's email address.`,
-    type: 'string',
-    format: 'email',
-    required: false,
-    default: {
-      '@if': {
-        exists: { '@path': '$.traits.email' },
-        then: { '@path': '$.traits.email' },
-        else: { '@path': '$.properties.email' }
+  identifiers: {
+    label: 'Contact Identifiers',
+    description: `Identifiers for the Contact. At least one identifier must be provided.`,
+    type: 'object',
+    required: true,
+    defaultObjectUI: 'keyvalue:only',
+    additionalProperties: false,
+    properties: {
+      email: {
+        label: 'Email Address',
+        description: `The contact's email address.`,
+        type: 'string',
+        format: 'email',
+        required: false
+      },
+      anonymous_id: {
+        label: 'Anonymous ID',
+        description: `The contact's anonymous ID.`,
+        type: 'string',
+        required: false
+      },
+      external_id: {
+        label: 'External ID',
+        description: `The contact's external ID.`,
+        type: 'string',
+        required: false
+      },
+      phone_number_id: {
+        label: 'Phone Number ID',
+        description: `A Contact identifier in the form of a phone number in E.164 format.`,
+        type: 'string',
+        required: false
       }
-    }
-  },
-  anonymous_id: {
-    label: 'Anonymous ID',
-    description: `The contact's anonymous ID.`,
-    type: 'string',
-    required: false,
-    default: { '@path': '$.anonymousId' }
-  },
-  external_id: {
-    label: 'External ID',
-    description: `The contact's external ID.`,
-    type: 'string',
-    required: false,
+    },
     default: {
-      '@if': {
-        exists: { '@path': '$.traits.external_id' },
-        then: { '@path': '$.traits.external_id' },
-        else: { '@path': '$.properties.external_id' }
-      }
-    }
-  },
-  phone_number_id: {
-    label: 'Phone Number ID',
-    description: `The contact's primary phone number. Should include the country code e.g. +19876543213.`,
-    type: 'string',
-    required: false,
-    default: {
-      '@if': {
-        exists: { '@path': '$.traits.phone' },
-        then: { '@path': '$.traits.phone' },
-        else: { '@path': '$.properties.phone' }
+      anonymous_id: { '@path': '$.anonymousId' },
+      external_id: { '@path': '$.userId' },
+      email: {
+        '@if': {
+          exists: { '@path': '$.traits.email' },
+          then: { '@path': '$.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
+      },
+      phone_number_id: {
+        '@if': {
+          exists: { '@path': '$.traits.phone_number_id' },
+          then: { '@path': '$.traits.phone_number_id' },
+          else: { '@path': '$.properties.phone_number_id' }
+        }
       }
     }
   },
@@ -111,6 +117,11 @@ export const fields: Record<string, InputField> = {
       last_name: {
         label: 'Last Name',
         description: `The contact's last name.`,
+        type: 'string'
+      },
+      phone_number: {
+        label: 'Phone Number',
+        description: `The contact's phone number in E.164 format. This phone number is not treated as a Contact identifer (as the Phone Number ID is).`,
         type: 'string'
       },
       address_line_1: {
@@ -159,6 +170,13 @@ export const fields: Record<string, InputField> = {
           else: { '@path': '$.properties.last_name' }
         } 
       },
+      phone_number: {       
+        '@if': {
+          exists: { '@path': '$.traits.phone' },
+          then: { '@path': '$.traits.phone' },
+          else: { '@path': '$.properties.phone' }
+        } 
+      },
       address_line_1: {       
         '@if': {
           exists: { '@path': '$.traits.street' },
@@ -203,9 +221,29 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
-  custom_fields: {
-    label: 'Custom Fields',
-    description: `Custom Field values to be added to the Contact. The Custom Fields must already be defined in Sendgrid. Custom Field values must be string, numbers or dates.`,
+  custom_text_fields: {
+    label: 'Custom Text Fields',
+    description: `Custom Text Field values to be added to the Contact. Values must be in in string format. The custom field must already exit in Sendgrid.`,
+    type: 'object',
+    required: false,
+    defaultObjectUI: 'keyvalue',
+    additionalProperties: true,
+    dynamic: true,
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+  },
+  custom_number_fields: {
+    label: 'Custom Number Fields',
+    description: `Custom Number Field values to be added to the Contact. Values must be inumeric. The custom field must already exit in Sendgrid.`,
+    type: 'object',
+    required: false,
+    defaultObjectUI: 'keyvalue',
+    additionalProperties: true,
+    dynamic: true,
+    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+  },
+  custom_date_fields: {
+    label: 'Custom Date Fields',
+    description: `Custom Date Field values to be added to the Contact. Values must be in ISO 8601 format. e.g. YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss.sssZ. The custom field must already exit in Sendgrid.`,
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue',
