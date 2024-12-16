@@ -57,7 +57,7 @@ export async function dynamicCustomFields(request: RequestClient, payload: Paylo
         choices: remainingFields.map(
           field => ({ 
             label: field.name, 
-            value: `${field.name}:${field.field_type}`
+            value: field.name
           })
         )
       }
