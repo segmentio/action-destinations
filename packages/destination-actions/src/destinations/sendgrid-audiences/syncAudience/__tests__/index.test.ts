@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 import { validatePhone, toDateFormat } from '../utils'
@@ -485,7 +485,7 @@ describe('SendgridAudiences.syncAudience', () => {
         mapping
       })
     ).rejects.toThrowError(
-      new PayloadValidationError(`No valid payloads found`)
+      new IntegrationError(`At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.`, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
     )
   })
 

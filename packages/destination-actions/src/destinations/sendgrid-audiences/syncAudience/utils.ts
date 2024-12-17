@@ -1,4 +1,4 @@
-import { RequestClient, MultiStatusResponse, ErrorCodes, ModifiedResponse, JSONLikeObject } from '@segment/actions-core'
+import { RequestClient, MultiStatusResponse, ErrorCodes, ModifiedResponse, JSONLikeObject, IntegrationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import {
   UPSERT_CONTACTS_URL,
@@ -38,7 +38,16 @@ export async function send(request: RequestClient, payload: Payload[], isBatch: 
     }
   })
 
-  return isBatch ? msResponse : msResponse.getResponseAtIndex(0)
+  if(isBatch){ 
+    return msResponse
+  } else {
+    if(indexedPayloads[0].error){
+      const { status, errortype, errormessage } = indexedPayloads[0].error
+      throw new IntegrationError(errormessage, errortype, status)
+    } else {
+      return 
+    }
+  }
 }
 
 function validate(payloads: IndexedPayload[], invalidEmails?: string[]) {
