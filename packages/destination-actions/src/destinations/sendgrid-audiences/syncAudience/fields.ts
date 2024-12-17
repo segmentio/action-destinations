@@ -83,20 +83,11 @@ export const fields: Record<string, InputField> = {
       }
     },
     default: {
-      anonymous_id: { '@path': '$.anonymousId' },
-      external_id: { '@path': '$.userId' },
       email: {
         '@if': {
           exists: { '@path': '$.traits.email' },
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.properties.email' }
-        }
-      },
-      phone_number_id: {
-        '@if': {
-          exists: { '@path': '$.traits.phone_number_id' },
-          then: { '@path': '$.traits.phone_number_id' },
-          else: { '@path': '$.properties.phone_number_id' }
         }
       }
     }
