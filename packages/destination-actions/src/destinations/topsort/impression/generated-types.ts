@@ -17,4 +17,10 @@ export interface Payload {
    * Identifier of an instance of a resolved auction for a determined product. The length should not exceed 128 characters.
    */
   resolvedBidId: string
+  /**
+   * Additional attribution information.
+   */
+  additionalAttribution?: {
+    [k: string]: unknown
+  }
 }
