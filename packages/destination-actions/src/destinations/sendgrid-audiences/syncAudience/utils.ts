@@ -21,9 +21,9 @@ export async function send(request: RequestClient, payload: Payload[], isBatch: 
 
   validate(indexedPayloads)
 
-  await upsertContacts(request, indexedPayloads, 'add') 
-  await upsertContacts(request, indexedPayloads, 'remove') 
-  await removeFromList(request, indexedPayloads) // there is no API call to upsert a Contact and also remove them from a list at the same time, so we need to do these operations separately
+  await upsertContacts(request, indexedPayloads, 'add') // upsert contacts and add them to the list
+  await upsertContacts(request, indexedPayloads, 'remove') // upsert contacts who will later be removed from the list
+  await removeFromList(request, indexedPayloads) // remove the contacts from the list
 
   indexedPayloads.forEach((p) => {
     if(p.error){
@@ -116,7 +116,7 @@ async function upsertContacts(request: RequestClient, payloads: IndexedPayload[]
   try {
     const json = upsertJSON(payloads, action)
     if(json.contacts.length > 0) {
-      await upsertRequest(request, json) // make the initial upsert request
+      await upsertRequest(request, json) // initial upsert attempt
     }
     return
   } 
@@ -134,10 +134,11 @@ async function upsertContacts(request: RequestClient, payloads: IndexedPayload[]
 
       try {
         if(json2.contacts.length > 0) {
-          await upsertRequest(request, json2) // make second upsert request minus the bad email addresses
+          await upsertRequest(request, json2) // msecond upsert attempt if some emails were invalid from the first attempt
+          return 
         }
-        return 
-      } catch (error) {
+      } 
+      catch {
         assignErrors(payloads, action, status, 'Error occurred while upserting this contact to Sendgrid', ErrorCodes.UNKNOWN_ERROR)
         return
       }
