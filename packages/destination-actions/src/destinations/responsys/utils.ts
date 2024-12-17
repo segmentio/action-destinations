@@ -295,9 +295,9 @@ export const sendDebugMessageToSegmentSource = async (
             properties: {
               body,
               responsysRequest: {
-                ...requestBody,
-                recordCount: requestBody.recordData.records.length
-              }
+                ...requestBody
+              },
+              recordCount: requestBody.recordData.records.length
             },
             anonymousId: '__responsys__API__response__'
           })
