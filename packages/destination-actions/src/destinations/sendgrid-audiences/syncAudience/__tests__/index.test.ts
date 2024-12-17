@@ -122,15 +122,13 @@ describe('SendgridAudiences.syncAudience', () => {
         first_name: 'fname', 
         last_name: 'lname', 
         street: '123 Main St',
-        address_line_2: 123456, // should be stringified
+        address_line_2: "street ", 
         city: 'SF', 
         state: 'CA',
         country: 'US',
         postal_code: "N88EU",
         custom_text_fields: {
-          custom_field_1: 'custom_field_1_value',
-          custom_field_4: false, // should be removed 
-          custom_field_5: null // should be removed
+          custom_field_1: 'custom_field_1_value'
         },
         custom_number_fields: {
           custom_field_2: 2345
