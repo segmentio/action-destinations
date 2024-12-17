@@ -9,6 +9,10 @@ import click from './click'
 
 import purchase from './purchase'
 
+import bannerImpression from './bannerImpression'
+
+import bannerClick from './bannerClick'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Topsort',
   slug: 'actions-topsort',
@@ -46,12 +50,28 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'purchase',
       mapping: defaultValues(purchase.fields),
       type: 'automatic'
+    },
+    {
+      name: 'Banner Impression',
+      subscribe: 'type = "track" and event = "Banner Viewed"',
+      partnerAction: 'bannerImpression',
+      mapping: defaultValues(bannerImpression.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Banner Click',
+      subscribe: 'type = "track" and event = "Banner Clicked"',
+      partnerAction: 'bannerClick',
+      mapping: defaultValues(bannerClick.fields),
+      type: 'automatic'
     }
   ],
   actions: {
     impression,
     click,
-    purchase
+    purchase,
+    bannerImpression,
+    bannerClick
   }
 }
 

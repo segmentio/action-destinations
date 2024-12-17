@@ -4,9 +4,9 @@ import type { Payload } from './generated-types'
 import { TopsortAPIClient } from '../client'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Click',
-  defaultSubscription: 'type = "track" and event = "Product Clicked"',
-  description: 'Send click events to Topsort when a consumer has clicked on a promotable.',
+  title: 'Banner Click',
+  defaultSubscription: 'type = "track" and event = "Banner Clicked"',
+  description: 'Send click events to Topsort when a consumer has clicked on a banner.',
   fields: {
     id: {
       label: 'Event ID',
@@ -40,20 +40,11 @@ const action: ActionDefinition<Settings, Payload> = {
     resolvedBidId: {
       label: 'Resolved Bid ID',
       description:
-        'Identifier of an instance of a resolved auction for a determined product. The length should not exceed 128 characters.',
+        'Identifier of an instance of a resolved auction for a determined banner. The length should not exceed 128 characters.',
       type: 'string',
       required: true,
       default: {
         '@path': '$.properties.resolvedBidId'
-      }
-    },
-    additionalAttribution: {
-      label: 'Additional Attribution',
-      description: 'Additional attribution information.',
-      type: 'object',
-      required: false,
-      default: {
-        '@path': '$.properties.additionalAttribution'
       }
     }
   },
