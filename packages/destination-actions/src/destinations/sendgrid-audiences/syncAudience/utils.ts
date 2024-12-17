@@ -135,8 +135,8 @@ async function upsertContacts(request: RequestClient, payloads: IndexedPayload[]
       try {
         if(json2.contacts.length > 0) {
           await upsertRequest(request, json2) // second upsert attempt if some emails were invalid from the first attempt
-          return 
         }
+        return 
       } 
       catch {
         assignErrors(payloads, action, status, 'Error occurred while upserting this contact to Sendgrid', ErrorCodes.UNKNOWN_ERROR)
@@ -153,6 +153,7 @@ function upsertJSON(payloads: IndexedPayload[], action: Action): UpsertContactsR
     list_ids: action === 'add' ? [payloads[0].external_audience_id] : [],
     contacts: payloads
       .filter((payload) => !payload.error)
+      .filter((payload) => payload.action === action)
       .map((payload) => {
         const {
           identifiers: {
@@ -183,11 +184,11 @@ function upsertJSON(payloads: IndexedPayload[], action: Action): UpsertContactsR
         }
     }) as UpsertContactsReq['contacts']
   }
-
   return JSON.parse(JSON.stringify(json)) // remove undefined values
 }
 
 async function upsertRequest(request: RequestClient, json: UpsertContactsReq) {  
+  console.log(JSON.stringify(json, null, 2))
   return await request(UPSERT_CONTACTS_URL, {
     method: 'put',
     json
@@ -236,6 +237,7 @@ async function removeFromList(request: RequestClient, payloads: IndexedPayload[]
     await Promise.all(
       chunkedContactIds.map(async (c) => {
         const url = REMOVE_CONTACTS_FROM_LIST_URL.replace('{list_id}', listId).replace('{contact_ids}', c.join(','))
+        console.log(url)
         if (c.length > 0) {
           await request(url, {
             method: 'delete'
@@ -256,6 +258,10 @@ function chunkPayloads(payloads: IndexedPayload[]): IndexedPayload[][] {
   let currentChunkSize = 0
 
   for (const payload of payloads) {
+    if (payload.error || payload.action !== 'remove') {
+      continue
+    }
+
     const ids = payload.identifiers
     const idCount = [ids.email, ids.phone_number_id, ids.external_id, ids.anonymous_id].filter(
       Boolean
