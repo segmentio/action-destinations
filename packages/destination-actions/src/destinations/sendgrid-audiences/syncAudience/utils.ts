@@ -134,7 +134,7 @@ async function upsertContacts(request: RequestClient, payloads: IndexedPayload[]
 
       try {
         if(json2.contacts.length > 0) {
-          await upsertRequest(request, json2) // msecond upsert attempt if some emails were invalid from the first attempt
+          await upsertRequest(request, json2) // second upsert attempt if some emails were invalid from the first attempt
           return 
         }
       } 
@@ -296,14 +296,14 @@ export function toDateFormat(dateString: string): string | undefined {
   return isNaN(date.getTime()) ? undefined : `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`
 }
 
-function assignErrors(payloads: IndexedPayload[], action?: Action, statusCode = 400, errorMessage = "Unknown error", errortype: keyof typeof ErrorCodes = ErrorCodes.UNKNOWN_ERROR) {
+function assignErrors(payloads: IndexedPayload[], action?: Action, status = 400, errormessage = "Unknown error", errortype: keyof typeof ErrorCodes = ErrorCodes.UNKNOWN_ERROR) {
   payloads
     .filter((p) => action ? p.action === action : true)
     .forEach((p) => {
       p.error = {
-        errorMessage,
+        errormessage,
         errortype,
-        statusCode,
+        status,
       }
     })
 }
