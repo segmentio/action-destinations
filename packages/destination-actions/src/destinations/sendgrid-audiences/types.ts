@@ -6,9 +6,9 @@ export type Action = 'add' | 'remove'
 export interface IndexedPayload extends Payload {
   index: number,
   error?: {
-    errorMessage: string, 
+    errormessage: string, 
     errortype: keyof typeof ErrorCodes, 
-    statusCode: number
+    status: number
   },
   action?: Action
 }

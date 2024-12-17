@@ -1,4 +1,4 @@
-import { RequestClient, MultiStatusResponse, ErrorCodes, ModifiedResponse } from '@segment/actions-core'
+import { RequestClient, MultiStatusResponse, ErrorCodes, ModifiedResponse, JSONLikeObject } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import {
   UPSERT_CONTACTS_URL,
@@ -23,19 +23,27 @@ export async function send(request: RequestClient, payload: Payload[], isBatch: 
 
   await upsertContacts(request, indexedPayloads, 'add') 
   await upsertContacts(request, indexedPayloads, 'remove') 
-
   await removeFromList(request, indexedPayloads) // there is no API call to upsert a Contact and also remove them from a list at the same time, so we need to do these operations separately
+
+  indexedPayloads.forEach((p) => {
+    if(p.error){
+      const { status, errortype, errormessage } = p.error
+      msResponse.setErrorResponseAtIndex(p.index, { status, errortype, errormessage})
+    } else {
+      msResponse.setSuccessResponseAtIndex(p.index, {
+        status: 200,
+        sent: p as unknown as JSONLikeObject,
+        body: 'success'
+      })
+    }
+  })
+
+  return isBatch ? msResponse : msResponse.getResponseAtIndex(0)
 }
 
 function validate(payloads: IndexedPayload[], invalidEmails?: string[]) {
   if (payloads[0].external_audience_id == null) {
-    payloads.forEach((p) => {
-      p.error = {
-        errorMessage: 'external_audience_id value is missing from payload',
-        errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-        statusCode: 400
-      }
-    })
+    assignErrors(payloads, undefined, 400, 'external_audience_id value is missing from payload', ErrorCodes.PAYLOAD_VALIDATION_FAILED)
     return
   }
 
@@ -47,50 +55,30 @@ function validate(payloads: IndexedPayload[], invalidEmails?: string[]) {
 function validatePayload(payload: IndexedPayload, invalidEmails?: string[]) {
 
   if (payload.identifiers.email && invalidEmails?.includes(payload.identifiers.email)) {
-    payload.error = {
-      errorMessage: `Sendgrid rejected email '${payload.identifiers.email}' as being not valid`,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      statusCode: 400
-    }
+    assignErrors([payload], undefined, 400, `Sendgrid rejected email '${payload.identifiers.email}' as being not valid`, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
     return
   }
 
   if (payload.identifiers.phone_number_id && !validatePhone(payload.identifiers.phone_number_id)) {
-    payload.error = {
-      errorMessage: `phone_number_id '${payload.identifiers.phone_number_id}' is not valid`,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      statusCode: 400
-    }
+    assignErrors([payload], undefined, 400, `phone_number_id '${payload.identifiers.phone_number_id}' is not valid`, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
     return
   }
 
   if (payload.user_attributes?.phone_number && !validatePhone(payload.user_attributes.phone_number)) {
-    payload.error = {
-      errorMessage: `user_attributes.phone_number '${payload.user_attributes.phone_number}' is not valid`,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      statusCode: 400
-    }
+    assignErrors([payload], undefined, 400, `user_attributes.phone_number '${payload.user_attributes.phone_number}' is not valid`, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
     return
   }
 
   for (const [key, value] of Object.entries(payload.custom_text_fields ?? {})) {
     if (typeof value !== 'string') {
-      payload.error = {
-        errorMessage: `custom_text_fields ${key} value ${value} is not a string`,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        statusCode: 400
-      }
+      assignErrors([payload], undefined, 400, `custom_text_fields ${key} value ${value} is not a string`, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
       return
     }
   }
 
   for (const [key, value] of Object.entries(payload.custom_number_fields ?? {})) {
     if (typeof value !== 'number') {
-      payload.error = {
-        errorMessage: `custom_number_fields ${key} value ${value} is not a number`,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        statusCode: 400
-      }
+      assignErrors([payload], undefined, 400, `custom_number_fields ${key} value ${value} is not a number`, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
       return
     }
   }
@@ -98,20 +86,12 @@ function validatePayload(payload: IndexedPayload, invalidEmails?: string[]) {
   if (payload.custom_date_fields) {
     for (const [key, value] of Object.entries(payload.custom_date_fields)) {
       if (typeof value !== 'string') {
-        payload.error = {
-          errorMessage: `custom_number_fields ${key} value ${value} is not a string`,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          statusCode: 400
-        }
+        assignErrors([payload], undefined, 400, `custom_number_fields ${key} value ${value} is not a valid date`, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
         return
       } else {
         const date = toDateFormat(value)
         if (date === undefined) {
-          payload.error = {
-            errorMessage: `custom_date_fields ${key} value ${value} is not a valid date`,
-            errortype: 'PAYLOAD_VALIDATION_FAILED',
-            statusCode: 400
-          }
+          assignErrors([payload], undefined, 400, `custom_number_fields ${key} value ${value} is not a valid date`, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
           return
         }
         payload.custom_date_fields[key] = date
@@ -127,29 +107,12 @@ function validatePayload(payload: IndexedPayload, invalidEmails?: string[]) {
   ]
 
   if(!requiredIdentifiers.some(Boolean)) {
-    payload.error = {
-      errorMessage: 'At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.',
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      statusCode: 400
-    }
+    assignErrors([payload], undefined, 400, 'At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.', ErrorCodes.PAYLOAD_VALIDATION_FAILED)
     return
   }
 }
 
 async function upsertContacts(request: RequestClient, payloads: IndexedPayload[], action: Action){
-
-  const assignUnknwonErrors = (payloads: IndexedPayload[], status: number, action: Action) => {
-    payloads
-      .filter((p) => p.action === action)
-      .forEach((p) => {
-        p.error = {
-          errorMessage: 'Error occurred while upserting this contact to Sendgrid',
-          errortype: ErrorCodes.UNKNOWN_ERROR,
-          statusCode: status,
-        }
-      })
-  }
-
   try {
     const json = upsertJSON(payloads, action)
     if(json.contacts.length > 0) {
@@ -159,7 +122,6 @@ async function upsertContacts(request: RequestClient, payloads: IndexedPayload[]
   } 
   catch (error) {
     const { status, data } = (error as AddRespError).response
-    
     if (status === 400) {
       const invalidEmails = Array.isArray(data.errors)
         ? data.errors
@@ -176,12 +138,11 @@ async function upsertContacts(request: RequestClient, payloads: IndexedPayload[]
         }
         return 
       } catch (error) {
-        assignUnknwonErrors(payloads, status, action)
+        assignErrors(payloads, action, status, 'Error occurred while upserting this contact to Sendgrid', ErrorCodes.UNKNOWN_ERROR)
         return
       }
     } 
-    
-    assignUnknwonErrors(payloads, status, action)
+    assignErrors(payloads, action, status, 'Error occurred while upserting this contact to Sendgrid', ErrorCodes.UNKNOWN_ERROR)
     return
   }
 }
@@ -233,6 +194,7 @@ async function upsertRequest(request: RequestClient, json: UpsertContactsReq) {
 }
 
 async function removeFromList(request: RequestClient, payloads: IndexedPayload[]) {
+  
   if (payloads.length === 0) {
     return 
   }
@@ -261,7 +223,7 @@ async function removeFromList(request: RequestClient, payloads: IndexedPayload[]
       )
     )
   } catch(error){
-    
+    assignErrors(payloads, 'remove', 400, `Error occurred while searching for Contacts in SendGrid`, ErrorCodes.UNKNOWN_ERROR)
     return
   }
 
@@ -269,6 +231,7 @@ async function removeFromList(request: RequestClient, payloads: IndexedPayload[]
   const chunkedContactIds = chunk(contact_ids, MAX_CHUNK_SIZE_REMOVE)
   const listId = payloads[0].external_audience_id
   
+  try {
     await Promise.all(
       chunkedContactIds.map(async (c) => {
         const url = REMOVE_CONTACTS_FROM_LIST_URL.replace('{list_id}', listId).replace('{contact_ids}', c.join(','))
@@ -279,14 +242,16 @@ async function removeFromList(request: RequestClient, payloads: IndexedPayload[]
         }
       })
     )
-  
-
-
+  }
+  catch(error){
+    assignErrors(payloads, 'remove', 400, `Error occurred while removing Contacts from a List in SendGrid`, ErrorCodes.UNKNOWN_ERROR)
+    return
+  }
 }
 
 function chunkPayloads(payloads: IndexedPayload[]): IndexedPayload[][] {
-  const chunks: Payload[][] = []
-  let currentChunk: Payload[] = []
+  const chunks: IndexedPayload[][] = []
+  let currentChunk: IndexedPayload[] = []
   let currentChunkSize = 0
 
   for (const payload of payloads) {
@@ -312,7 +277,7 @@ function chunkPayloads(payloads: IndexedPayload[]): IndexedPayload[][] {
   return chunks
 }
 
-function getQueryPart(identifier: keyof Payload['identifiers'], payloads: Payload[]): string {
+function getQueryPart(identifier: keyof IndexedPayload['identifiers'], payloads: IndexedPayload[]): string {
   const values = payloads
     .filter((payload) => payload.identifiers[identifier] !== undefined && payload.identifiers[identifier] !== null)
     .map((payload) => payload.identifiers[identifier])
@@ -330,13 +295,14 @@ export function toDateFormat(dateString: string): string | undefined {
   return isNaN(date.getTime()) ? undefined : `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`
 }
 
-function setRespErrorStatus(
-  multiStatusResponse: MultiStatusResponse, indexes: number[], errorMessage: string, errortype: keyof typeof ErrorCodes = "PAYLOAD_VALIDATION_FAILED", status = 400) {
-  for (const i of indexes) {
-    multiStatusResponse.setErrorResponseAtIndex(i, {
-      status,
-      errortype,
-      errormessage: errorMessage
-    });
-  }
+function assignErrors(payloads: IndexedPayload[], action?: Action, statusCode = 400, errorMessage = "Unknown error", errortype: keyof typeof ErrorCodes = ErrorCodes.UNKNOWN_ERROR) {
+  payloads
+    .filter((p) => action ? p.action === action : true)
+    .forEach((p) => {
+      p.error = {
+        errorMessage,
+        errortype,
+        statusCode,
+      }
+    })
 }
