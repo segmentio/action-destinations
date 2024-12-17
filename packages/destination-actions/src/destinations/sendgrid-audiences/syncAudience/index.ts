@@ -28,10 +28,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    return await send(request, [payload])
+    return await send(request, [payload], false)
   },
   performBatch: async (request, { payload }) => {
-    return await send(request, payload)
+    return await send(request, payload, true)
   }
 }
 

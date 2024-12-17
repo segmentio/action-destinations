@@ -1,3 +1,18 @@
+import { Payload } from './syncAudience/generated-types'
+import { ErrorCodes } from '@segment/actions-core'
+
+export type Action = 'add' | 'remove'
+
+export interface IndexedPayload extends Payload {
+  index: number,
+  error?: {
+    errorMessage: string, 
+    errortype: keyof typeof ErrorCodes, 
+    statusCode: number
+  },
+  action?: Action
+}
+
 export interface GetListsResp {
   result: Array<GetListByIDResp>
   _metadata: {

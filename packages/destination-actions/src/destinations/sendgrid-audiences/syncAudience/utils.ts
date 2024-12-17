@@ -1,4 +1,4 @@
-import { RequestClient, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, MultiStatusResponse, ErrorCodes, ModifiedResponse } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import {
   UPSERT_CONTACTS_URL,
@@ -8,153 +8,217 @@ import {
   MAX_CHUNK_SIZE_REMOVE,
   E164_REGEX
 } from '../constants'
-import { UpsertContactsReq, SearchContactsResp, AddRespError } from '../types'
+import { IndexedPayload, UpsertContactsReq, SearchContactsResp, AddRespError, Action } from '../types'
 import chunk from 'lodash/chunk'
 
-export async function send(request: RequestClient, payload: Payload[]) {
-  const payloads = validate(payload)
-  const addPayloads = payloads.filter((p) => p.traits_or_props[p.segment_audience_key] === true)
-  if(addPayloads.length > 0) {
-    await upsertContacts(request, addPayloads, true) 
-  }
- 
-  const removePayloads = payloads.filter((p) => p.traits_or_props[p.segment_audience_key] === false)
-  if(removePayloads.length > 0) {
-    const upsertedRemovePayloads = await upsertContacts(request, removePayloads, false) 
-    await removeFromList(request, upsertedRemovePayloads) // there is no API call to upsert a Contact and also remove them from a list at the same time, so we need to do these operations separately
-  }
+export async function send(request: RequestClient, payload: Payload[], isBatch: boolean){
+  const msResponse = new MultiStatusResponse()
+
+  const indexedPayloads: IndexedPayload[] = payload.map((p, index) => ({ ...p, index }))
+  indexedPayloads.forEach((p) => {
+    p.action = p.traits_or_props[p.segment_audience_key] === true ? 'add' : 'remove'
+  })
+
+  validate(indexedPayloads)
+
+  await upsertContacts(request, indexedPayloads, 'add') 
+  await upsertContacts(request, indexedPayloads, 'remove') 
+
+  await removeFromList(request, indexedPayloads) // there is no API call to upsert a Contact and also remove them from a list at the same time, so we need to do these operations separately
 }
 
-function validate(payloads: Payload[], invalidEmails?: string[]): Payload[] {
+function validate(payloads: IndexedPayload[], invalidEmails?: string[]) {
   if (payloads[0].external_audience_id == null) {
-    throw new PayloadValidationError('external_audience_id value is missing from payload')
+    payloads.forEach((p) => {
+      p.error = {
+        errorMessage: 'external_audience_id value is missing from payload',
+        errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+        statusCode: 400
+      }
+    })
+    return
   }
 
-  const validPayloads = payloads.map(payload => validatePayload(payload, invalidEmails)).filter((payload): payload is Payload => payload !== undefined)
-
-  if (validPayloads.length === 0) {
-    throw new PayloadValidationError('No valid payloads found')
-  }
-
-  return validPayloads
+  payloads.forEach((p) => {
+    validatePayload(p, invalidEmails)
+  })
 }
 
-function validatePayload(payload: Payload, invalidEmails?: string[]): Payload | undefined {
-  
-  const p = JSON.parse(JSON.stringify(payload))
-  
-  if (p.identifiers.email && invalidEmails?.includes(p.identifiers.email)) {
-    delete p.identifiers.email
-  }
+function validatePayload(payload: IndexedPayload, invalidEmails?: string[]) {
 
-  if (p.identifiers.phone_number_id && !validatePhone(p.identifiers.phone_number_id)) {
-    delete p.identifiers.phone_number_id
-  }
-
-  if (p.user_attributes) {
-    if (p.user_attributes.phone_number && !validatePhone(p.user_attributes.phone_number)) {
-      delete p.user_attributes.phone_number
+  if (payload.identifiers.email && invalidEmails?.includes(payload.identifiers.email)) {
+    payload.error = {
+      errorMessage: `Sendgrid rejected email '${payload.identifiers.email}' as being not valid`,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      statusCode: 400
     }
-  
-    p.user_attributes = Object.fromEntries(
-      Object.entries(p.user_attributes ?? {}).map(([key, value]) => {
-        if (typeof value !== 'string') {
-          return [key, String(value)]
+    return
+  }
+
+  if (payload.identifiers.phone_number_id && !validatePhone(payload.identifiers.phone_number_id)) {
+    payload.error = {
+      errorMessage: `phone_number_id '${payload.identifiers.phone_number_id}' is not valid`,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      statusCode: 400
+    }
+    return
+  }
+
+  if (payload.user_attributes?.phone_number && !validatePhone(payload.user_attributes.phone_number)) {
+    payload.error = {
+      errorMessage: `user_attributes.phone_number '${payload.user_attributes.phone_number}' is not valid`,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      statusCode: 400
+    }
+    return
+  }
+
+  for (const [key, value] of Object.entries(payload.custom_text_fields ?? {})) {
+    if (typeof value !== 'string') {
+      payload.error = {
+        errorMessage: `custom_text_fields ${key} value ${value} is not a string`,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        statusCode: 400
+      }
+      return
+    }
+  }
+
+  for (const [key, value] of Object.entries(payload.custom_number_fields ?? {})) {
+    if (typeof value !== 'number') {
+      payload.error = {
+        errorMessage: `custom_number_fields ${key} value ${value} is not a number`,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        statusCode: 400
+      }
+      return
+    }
+  }
+
+  if (payload.custom_date_fields) {
+    for (const [key, value] of Object.entries(payload.custom_date_fields)) {
+      if (typeof value !== 'string') {
+        payload.error = {
+          errorMessage: `custom_number_fields ${key} value ${value} is not a string`,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          statusCode: 400
         }
-        return [key, value]
-      })
-    )
-  }
-
-  if (p.custom_text_fields) {
-    p.custom_text_fields = Object.fromEntries(
-      Object.entries(p.custom_text_fields).filter(([_, value]) => typeof value === 'string' && value.length > 0)
-    )
-  }
-
-  if (p.custom_number_fields) {
-    p.custom_number_fields = Object.fromEntries(
-      Object.entries(p.custom_number_fields).filter(([_, value]) => typeof value === 'number')
-    )
-  }
-
-  if (p.custom_date_fields) {
-    p.custom_date_fields = Object.fromEntries(
-      Object.entries(p.custom_date_fields)
-        .filter(([_, value]) => typeof value === 'string') 
-        .map(([key, value]) => [key, toDateFormat(value as string)])
-        .filter(([_, value]) => typeof value === 'string') 
-    )
+        return
+      } else {
+        const date = toDateFormat(value)
+        if (date === undefined) {
+          payload.error = {
+            errorMessage: `custom_date_fields ${key} value ${value} is not a valid date`,
+            errortype: 'PAYLOAD_VALIDATION_FAILED',
+            statusCode: 400
+          }
+          return
+        }
+        payload.custom_date_fields[key] = date
+      }
+    }
   }
 
   const requiredIdentifiers = [
-    p.identifiers.email,
-    p.identifiers.phone_number_id,
-    p.identifiers.external_id,
-    p.identifiers.anonymous_id
+    payload.identifiers.email,
+    payload.identifiers.phone_number_id,
+    payload.identifiers.external_id,
+    payload.identifiers.anonymous_id
   ]
 
-  return requiredIdentifiers.some(Boolean) ? p : undefined 
-}
-
-async function upsertContacts(request: RequestClient, payloads: Payload[], addToList: boolean): Promise<Payload[]>{
-  try {
-    const json = upsertJSON(payloads, addToList)
-    await upsertRequest(request, json) // make the initial upsert request
-  } catch (error) {
-    const { status, data } = (error as AddRespError).response
-    if (status !== 400) {
-      throw error
+  if(!requiredIdentifiers.some(Boolean)) {
+    payload.error = {
+      errorMessage: 'At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.',
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      statusCode: 400
     }
-    const invalidEmails = Array.isArray(data.errors)
-      ? data.errors
-          .map(({ message }) => /email '(.+?)' is not valid/.exec(message)?.[1])
-          .filter((email): email is string => !!email)
-      : []
-    if (invalidEmails.length === 0) {
-      throw error
-    }
-    payloads = validate(payloads, invalidEmails)
-    const json2 = upsertJSON(payloads, addToList)
-    if (payloads.length > 0) {
-      await upsertRequest(request, json2) // if the initial upsert request fails, remove the failing emails and make the request again
-    }
+    return
   }
-  return payloads
 }
 
-function upsertJSON(payloads: Payload[], addToList: boolean): UpsertContactsReq {  
+async function upsertContacts(request: RequestClient, payloads: IndexedPayload[], action: Action){
+
+  const assignUnknwonErrors = (payloads: IndexedPayload[], status: number, action: Action) => {
+    payloads
+      .filter((p) => p.action === action)
+      .forEach((p) => {
+        p.error = {
+          errorMessage: 'Error occurred while upserting this contact to Sendgrid',
+          errortype: ErrorCodes.UNKNOWN_ERROR,
+          statusCode: status,
+        }
+      })
+  }
+
+  try {
+    const json = upsertJSON(payloads, action)
+    if(json.contacts.length > 0) {
+      await upsertRequest(request, json) // make the initial upsert request
+    }
+    return
+  } 
+  catch (error) {
+    const { status, data } = (error as AddRespError).response
+    
+    if (status === 400) {
+      const invalidEmails = Array.isArray(data.errors)
+        ? data.errors
+            .map(({ message }) => /email '(.+?)' is not valid/.exec(message)?.[1])
+            .filter((email): email is string => !!email)
+        : []
+
+      validate(payloads, invalidEmails)
+      const json2 = upsertJSON(payloads, action)
+
+      try {
+        if(json2.contacts.length > 0) {
+          await upsertRequest(request, json2) // make second upsert request minus the bad email addresses
+        }
+        return 
+      } catch (error) {
+        assignUnknwonErrors(payloads, status, action)
+        return
+      }
+    } 
+    
+    assignUnknwonErrors(payloads, status, action)
+    return
+  }
+}
+
+function upsertJSON(payloads: IndexedPayload[], action: Action): UpsertContactsReq {  
   const json: UpsertContactsReq = {
-    list_ids: addToList ? [payloads[0].external_audience_id] : [],
-    contacts: payloads.map((payload) => {
+    list_ids: action === 'add' ? [payloads[0].external_audience_id] : [],
+    contacts: payloads
+      .filter((payload) => !payload.error)
+      .map((payload) => {
+        const {
+          identifiers: {
+            email = undefined,
+            phone_number_id = undefined,
+            external_id = undefined,
+            anonymous_id = undefined
+          },
+          user_attributes = undefined,
+          custom_text_fields = undefined,
+          custom_number_fields = undefined,
+          custom_date_fields = undefined
+        } = payload
+        
+        const custom_fields = {
+          ...custom_text_fields,
+          ...custom_number_fields,
+          ...custom_date_fields
+        }
 
-      const {
-        identifiers: {
-          email = undefined,
-          phone_number_id = undefined,
-          external_id = undefined,
-          anonymous_id = undefined
-        },
-        user_attributes = undefined,
-        custom_text_fields = undefined,
-        custom_number_fields = undefined,
-        custom_date_fields = undefined
-      } = payload
-      
-      const custom_fields = {
-        ...custom_text_fields,
-        ...custom_number_fields,
-        ...custom_date_fields
-      }
-
-      return {
-        email,
-        phone_number_id,
-        external_id,
-        anonymous_id,
-        ...user_attributes,
-        custom_fields: Object.keys(custom_fields).length > 0 ? custom_fields : undefined
-      }
+        return {
+          email,
+          phone_number_id,
+          external_id,
+          anonymous_id,
+          ...user_attributes,
+          custom_fields: Object.keys(custom_fields).length > 0 ? custom_fields : undefined
+        }
     }) as UpsertContactsReq['contacts']
   }
 
@@ -168,12 +232,12 @@ async function upsertRequest(request: RequestClient, json: UpsertContactsReq) {
   })
 }
 
-async function removeFromList(request: RequestClient, payloads: Payload[]) {
+async function removeFromList(request: RequestClient, payloads: IndexedPayload[]) {
   if (payloads.length === 0) {
     return 
   }
 
-  const identifierTypes: (keyof Payload['identifiers'])[] = ['email', 'phone_number_id', 'external_id', 'anonymous_id']
+  const identifierTypes: (keyof IndexedPayload['identifiers'])[] = ['email', 'phone_number_id', 'external_id', 'anonymous_id']
   const chunks = chunkPayloads(payloads)
 
   const queries = chunks.map((c) =>
@@ -183,34 +247,44 @@ async function removeFromList(request: RequestClient, payloads: Payload[]) {
       .join(' OR ')
   )
 
-  const responses = await Promise.all(
-    queries.map((query) =>
-      request<SearchContactsResp>(SEARCH_CONTACTS_URL, {
-        method: 'post',
-        json: {
-          query
-        }
-      })
+  let responses: ModifiedResponse<SearchContactsResp>[] = []
+
+  try{
+    responses = await Promise.all(
+      queries.map((query) =>
+        request<SearchContactsResp>(SEARCH_CONTACTS_URL, {
+          method: 'post',
+          json: {
+            query
+          }
+        })
+      )
     )
-  )
+  } catch(error){
+    
+    return
+  }
 
   const contact_ids = responses.flatMap((response) => response.data.result.map((item) => item.id))
   const chunkedContactIds = chunk(contact_ids, MAX_CHUNK_SIZE_REMOVE)
   const listId = payloads[0].external_audience_id
+  
+    await Promise.all(
+      chunkedContactIds.map(async (c) => {
+        const url = REMOVE_CONTACTS_FROM_LIST_URL.replace('{list_id}', listId).replace('{contact_ids}', c.join(','))
+        if (c.length > 0) {
+          await request(url, {
+            method: 'delete'
+          })
+        }
+      })
+    )
+  
 
-  await Promise.all(
-    chunkedContactIds.map(async (c) => {
-      const url = REMOVE_CONTACTS_FROM_LIST_URL.replace('{list_id}', listId).replace('{contact_ids}', c.join(','))
-      if (c.length > 0) {
-        await request(url, {
-          method: 'delete'
-        })
-      }
-    })
-  )
+
 }
 
-function chunkPayloads(payloads: Payload[]): Payload[][] {
+function chunkPayloads(payloads: IndexedPayload[]): IndexedPayload[][] {
   const chunks: Payload[][] = []
   let currentChunk: Payload[] = []
   let currentChunkSize = 0
@@ -254,4 +328,15 @@ export function validatePhone(phone: string): boolean {
 export function toDateFormat(dateString: string): string | undefined {
   const date = new Date(dateString)
   return isNaN(date.getTime()) ? undefined : `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`
+}
+
+function setRespErrorStatus(
+  multiStatusResponse: MultiStatusResponse, indexes: number[], errorMessage: string, errortype: keyof typeof ErrorCodes = "PAYLOAD_VALIDATION_FAILED", status = 400) {
+  for (const i of indexes) {
+    multiStatusResponse.setErrorResponseAtIndex(i, {
+      status,
+      errortype,
+      errormessage: errorMessage
+    });
+  }
 }
