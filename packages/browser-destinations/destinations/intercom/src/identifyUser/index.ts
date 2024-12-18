@@ -213,7 +213,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     }
 
     // get user's widget options
-    const widgetOptions = getWidgetOptions(payload.hide_default_launcher, Intercom.activator)
+    const widgetOptions = getWidgetOptions(payload.hide_default_launcher, Intercom.custom_launcher_selector)
 
     // create the avatar object
     let avatar = {}

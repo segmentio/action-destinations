@@ -69,7 +69,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     company = { ...company, ...filteredCustomTraits }
 
     // get user's widget options
-    const widgetOptions = getWidgetOptions(event.payload.hide_default_launcher, Intercom.activator)
+    const widgetOptions = getWidgetOptions(event.payload.hide_default_launcher, Intercom.custom_launcher_selector)
 
     //API call
     Intercom('update', {
