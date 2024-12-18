@@ -3,7 +3,7 @@ type method = 'trackEvent' | 'update'
 type IntercomApi = {
   richLinkProperties: string[] | undefined
   appId: string
-  activator: string | undefined
+  custom_launcher_selector: string | undefined
 }
 
 type IntercomFunction = (method: method, ...args: unknown[]) => void

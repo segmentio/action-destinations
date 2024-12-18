@@ -102,7 +102,7 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
 
     window.Intercom.richLinkProperties = settings.richLinkProperties
     window.Intercom.appId = settings.appId
-    window.Intercom.activator = settings.activator
+    window.Intercom.custom_launcher_selector = settings.activator
 
     return window.Intercom
   },
