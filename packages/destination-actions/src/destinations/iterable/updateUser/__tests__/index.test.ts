@@ -117,6 +117,46 @@ describe('Iterable.updateUser', () => {
         }
       })
     })
+
+    it('should format date objects to permissible format', async () => {
+      const d = new Date()
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user1234',
+        receivedAt: d,
+        traits: {
+          phone: '+14158675309'
+        }
+      })
+
+      nock('https://api.iterable.com/api').post('/users/update').reply(200, {})
+
+      const responses = await testDestination.testAction('updateUser', {
+        event,
+        mapping: {
+          phoneNumber: {
+            '@path': '$.traits.phone'
+          },
+          userId: {
+            '@path': '$.userId'
+          },
+          dataFields: {
+            receivedAtDateString: {
+              '@path': '$.receivedAt'
+            }
+          }
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].options.json).toMatchObject({
+        userId: 'user1234',
+        dataFields: {
+          phoneNumber: '+14158675309',
+          receivedAtDateString: `${d.toISOString().replace('T', ' ').split('.')[0]} +00:00`
+        }
+      })
+    })
   })
   describe('performBatch', () => {
     it('works with default mappings', async () => {
