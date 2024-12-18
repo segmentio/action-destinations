@@ -94,7 +94,7 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   initialize: async ({ settings }, deps) => {
     //initialize Intercom
     initScript({ appId: settings.appId })
-    initSettings({ appId: settings.appId })
+    initSettings({ appId: settings.appId, activator: settings.activator })
     const preloadedIntercom = window.Intercom
     initialBoot(settings.appId, { api_base: settings.apiBase })
 
@@ -102,7 +102,7 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
 
     window.Intercom.richLinkProperties = settings.richLinkProperties
     window.Intercom.appId = settings.appId
-    window.Intercom.custom_launcher_selector = settings.activator
+    window.Intercom.activator = settings.activator
 
     return window.Intercom
   },
