@@ -67,9 +67,10 @@ export async function handleMultistatusResponse(
           errormessage: `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`
         })
       })
+      return multiStatusResponse
     }
     const err = error as ErrorResponse
-    if (err?.response?.data?.message === 'Not Authorized' || payloads.length === 1) {
+    if (err?.response?.data?.message === 'Not Authorized') {
       throw error
     }
 
