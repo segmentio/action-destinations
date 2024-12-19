@@ -30,7 +30,7 @@ export interface Payload {
      * The name of the recipient.
      */
     name?: string
-  }[]
+  }
   /**
    * CC recipient details
    */

@@ -1,7 +1,7 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CONSTANTS, RecordsResponseType } from '../utils'
+import { CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID } from '../utils'
 import { createHash } from 'crypto'
 import { AudienceRecord, HashedPIIObject } from '../types'
 
@@ -145,6 +145,11 @@ function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: Aud
   const records: AudienceRecord[] = []
   const { audienceId } = payloads[0]
   payloads.forEach((payload: Payload) => {
+    // Check if the externalUserId matches the pattern
+    if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
+      return // Skip to the next iteration
+    }
+
     const hashedPII: HashedPIIObject = {}
     if (payload.firstName) {
       hashedPII.firstname = normalizeAndHash(payload.firstName)
@@ -179,6 +184,12 @@ function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: Aud
     }
     records.push(payloadRecord)
   })
+  // When all invalid payloads are being filtered out or discarded because they do not match the externalUserId regular expression pattern.
+  if (!records?.length) {
+    throw new PayloadValidationError(
+      'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}'
+    )
+  }
 
   return {
     records: records,

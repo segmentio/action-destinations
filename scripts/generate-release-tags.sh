@@ -52,13 +52,6 @@ else
 fi
 
 
-# For hotfix, we don't tag each package version and we do it when hotfix changes are merged to main branch.
-if [[ $branch == hotfix/* ]];
-then
-  echo "Skipping package tag generation for hotfix branch"
-  exit 0
-fi;
-
 # Generate and push package tags.
 curr_path=$(pwd)
 dir_name=$(dirname $0)

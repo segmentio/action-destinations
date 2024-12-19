@@ -101,3 +101,4 @@ export const getAuthSettings = (settings: SettingsWithOauth): OAuth2ClientCreden
     clientSecret: process.env.ACTIONS_AMAZON_AMC_CLIENT_SECRET
   } as OAuth2ClientCredentials
 }
+export const REGEX_EXTERNALUSERID = /^[0-9a-zA-Z-_]{1,128}$/

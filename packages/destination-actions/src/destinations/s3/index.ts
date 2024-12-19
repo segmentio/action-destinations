@@ -42,7 +42,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest() {
     return {
-      timeout: Math.max(60_000, DEFAULT_REQUEST_TIMEOUT)
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     }
   },
   actions: {
