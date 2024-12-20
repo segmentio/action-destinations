@@ -1,9 +1,7 @@
-import { ActionDefinition, RequestClient, PayloadValidationError } from '@segment/actions-core'
-import type { AudienceSettings, Settings } from '../generated-types'
+import { ActionDefinition } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID } from '../utils'
-import { createHash } from 'crypto'
-import { AudienceRecord, HashedPIIObject } from '../types'
+import { processBatchPayload, processPayload } from '../function'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences to DSP',
@@ -112,98 +110,9 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload, audienceSettings }) => {
     return processPayload(request, settings, [payload], audienceSettings)
   },
-  performBatch: (request, { settings, payload: payloads, audienceSettings }) => {
-    return processPayload(request, settings, payloads, audienceSettings)
+  performBatch: async (request, { settings, payload: payloads, audienceSettings }) => {
+    return await processBatchPayload(request, settings, payloads, audienceSettings)
   }
-}
-
-async function processPayload(
-  request: RequestClient,
-  settings: Settings,
-  payload: Payload[],
-  audienceSettings: AudienceSettings
-) {
-  const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
-  // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
-  const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
-
-  const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
-    method: 'POST',
-    body: payloadString,
-    headers: {
-      'Content-Type': 'application/vnd.amcaudiences.v1+json'
-    }
-  })
-
-  const result = response.data
-  return {
-    result
-  }
-}
-
-function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: AudienceSettings) {
-  const records: AudienceRecord[] = []
-  const { audienceId } = payloads[0]
-  payloads.forEach((payload: Payload) => {
-    // Check if the externalUserId matches the pattern
-    if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
-      return // Skip to the next iteration
-    }
-
-    const hashedPII: HashedPIIObject = {}
-    if (payload.firstName) {
-      hashedPII.firstname = normalizeAndHash(payload.firstName)
-    }
-    if (payload.lastName) {
-      hashedPII.lastname = normalizeAndHash(payload.lastName)
-    }
-    if (payload.address) {
-      hashedPII.address = normalizeAndHash(payload.address)
-    }
-    if (payload.postal) {
-      hashedPII.postal = normalizeAndHash(payload.postal)
-    }
-    if (payload.phone) {
-      hashedPII.phone = normalizeAndHash(payload.phone)
-    }
-    if (payload.city) {
-      hashedPII.city = normalizeAndHash(payload.city)
-    }
-    if (payload.state) {
-      hashedPII.state = normalizeAndHash(payload.state)
-    }
-    if (payload.email) {
-      hashedPII.email = normalizeAndHash(payload.email)
-    }
-
-    const payloadRecord: AudienceRecord = {
-      externalUserId: payload.externalUserId,
-      countryCode: audienceSettings.countryCode,
-      action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
-      hashedPII: [hashedPII]
-    }
-    records.push(payloadRecord)
-  })
-  // When all invalid payloads are being filtered out or discarded because they do not match the externalUserId regular expression pattern.
-  if (!records?.length) {
-    throw new PayloadValidationError(
-      'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}'
-    )
-  }
-
-  return {
-    records: records,
-    audienceId: audienceId
-  }
-}
-
-function normalizeAndHash(data: string) {
-  // Normalize the data
-  const normalizedData = data.toLowerCase().trim() // Example: Convert to lowercase and remove leading/trailing spaces
-  // Hash the normalized data using SHA-256
-  const hash = createHash('sha256')
-  hash.update(normalizedData)
-  return hash.digest('hex')
 }
 
 export default action
