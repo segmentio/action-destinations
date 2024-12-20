@@ -1,9 +1,7 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
-import type { AudienceSettings, Settings } from '../generated-types'
+import { ActionDefinition } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { CONSTANTS, RecordsResponseType } from '../utils'
-import { createHash } from 'crypto'
-import { AudienceRecord, HashedPIIObject } from '../types'
+import { processBatchPayload, processPayload } from '../function'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences to DSP',
@@ -112,119 +110,9 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload, audienceSettings }) => {
     return processPayload(request, settings, [payload], audienceSettings)
   },
-  performBatch: (request, { settings, payload: payloads, audienceSettings }) => {
-    return processPayload(request, settings, payloads, audienceSettings)
+  performBatch: async (request, { settings, payload: payloads, audienceSettings }) => {
+    return await processBatchPayload(request, settings, payloads, audienceSettings)
   }
-}
-
-async function processPayload(
-  request: RequestClient,
-  settings: Settings,
-  payload: Payload[],
-  audienceSettings: AudienceSettings
-) {
-  const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
-  // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
-  const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
-
-  const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
-    method: 'POST',
-    body: payloadString,
-    headers: {
-      'Content-Type': 'application/vnd.amcaudiences.v1+json'
-    }
-  })
-
-  const result = response.data
-  return {
-    result
-  }
-}
-
-// Function to create records for upload
-function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: AudienceSettings) {
-  const records: AudienceRecord[] = []
-  const { audienceId } = payloads[0]
-
-  payloads.forEach((payload: Payload) => {
-    const hashedPII: HashedPIIObject = hashedPayload(payload)
-
-    const payloadRecord: AudienceRecord = {
-      externalUserId: payload.externalUserId,
-      countryCode: audienceSettings.countryCode,
-      action: payload.event_name === 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
-      hashedPII: [hashedPII]
-    }
-
-    records.push(payloadRecord)
-  })
-
-  return {
-    records: records,
-    audienceId: audienceId
-  }
-}
-
-// For data format guidelines, visit: https://advertising.amazon.com/help/GCCXMZYCK4RXWS6C
-
-// General normalization utility function
-function normalize(value: string, allowedChars: RegExp, trim = true, sliceEnd = 0): string {
-  let normalized = value.toLowerCase().replace(allowedChars, '')
-  if (trim) normalized = normalized.trim()
-  if (sliceEnd > 0) normalized = normalized.slice(0, -sliceEnd)
-  const hash = createHash('sha256')
-  hash.update(normalized)
-  return hash.digest('hex')
-}
-
-// Define allowed character patterns
-const alphanumeric = /[^a-z0-9]/g
-const emailAllowed = /[^a-z0-9.@-]/g
-const nonDigits = /[^\d]/g
-
-// Combine city,state,firstName,lastName normalization
-function normalizeStandard(value: string): string {
-  return normalize(value, alphanumeric)
-}
-
-function normalizePhone(phone: string): string {
-  return normalize(phone, nonDigits)
-}
-
-function normalizeEmail(email: string): string {
-  return normalize(email, emailAllowed)
-}
-
-// Main processing function for individual payload
-function hashedPayload(payload: Payload): HashedPIIObject {
-  const hashedPII: HashedPIIObject = {}
-
-  if (payload.firstName) {
-    hashedPII.firstname = normalizeStandard(payload.firstName)
-  }
-  if (payload.lastName) {
-    hashedPII.lastname = normalizeStandard(payload.lastName)
-  }
-  if (payload.address) {
-    hashedPII.address = normalizeStandard(payload.address)
-  }
-  if (payload.postal) {
-    hashedPII.postal = normalizeStandard(payload.postal)
-  }
-  if (payload.phone) {
-    hashedPII.phone = normalizePhone(payload.phone)
-  }
-  if (payload.city) {
-    hashedPII.city = normalizeStandard(payload.city)
-  }
-  if (payload.state) {
-    hashedPII.state = normalizeStandard(payload.state)
-  }
-  if (payload.email) {
-    hashedPII.email = normalizeEmail(payload.email)
-  }
-
-  return hashedPII
 }
 
 export default action

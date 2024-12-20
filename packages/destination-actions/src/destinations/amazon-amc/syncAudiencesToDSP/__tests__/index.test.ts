@@ -37,12 +37,87 @@ const event = createTestEvent({
   userId: 'test-kochar-01',
   writeKey: 'REDACTED'
 })
+const events: SegmentEvent[] = [
+  {
+    ...event,
+    userId: 'invalid@user.com',
+    event: 'Audience Entered',
+    properties: {
+      audience_key: 'example_event_once_30_4_24_1',
+      example_event_once_30_4_24_1: true,
+      email: 'test@gmail.com',
+      first_name: 'gaurav',
+      city: 'Gurgaon',
+      state: 'Haryana'
+    }
+  },
+  {
+    ...event,
+    userId: 'test_kochar-02',
+    event: 'Audience Exited',
+    properties: {
+      audience_key: 'example_event_once_30_4_24_1',
+      example_event_once_30_4_24_1: true,
+      email: 'test.kochar@gmail.com',
+      postal: 'test',
+      address: '#501/2, Test Address',
+      first_name: 'gaurav',
+      last_name: 'kochar',
+      state: 'Haryana',
+      phone: '192293719271',
+      city: ' Test City'
+    }
+  }
+]
+const mapping = {
+  email: {
+    '@path': '$.properties.email'
+  },
+  event_name: {
+    '@path': '$.event'
+  },
+  externalUserId: {
+    '@path': '$.userId'
+  },
+  lastName: {
+    '@path': '$.properties.last_name'
+  },
+  firstName: {
+    '@path': '$.properties.first_name'
+  },
+  audienceId: {
+    '@path': '$.context.personas.external_audience_id'
+  },
+  state: {
+    '@path': '$.properties.state'
+  },
+  postal: {
+    '@path': '$.properties.postal'
+  },
+  city: {
+    '@path': '$.properties.city'
+  },
+  address: {
+    '@path': '$.properties.address'
+  },
+  phone: {
+    '@path': '$.properties.phone'
+  },
+  enable_batching: true
+}
 
 const settings = {
   region: 'https://advertising-api.amazon.com'
 }
 
 describe('AmazonAds.syncAudiencesToDSP', () => {
+  beforeEach(() => {
+    nock.cleanAll()
+    jest.resetAllMocks()
+  })
+  afterEach(() => {
+    jest.resetAllMocks()
+  })
   it('Should add user to audience when Event is Audience Entered', async () => {
     nock(`https://advertising-api.amazon.com`)
       .post('/amc/audiences/records')
@@ -126,7 +201,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].status).toBe(202)
     expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"address":"ebb357a6f604e4d893f034561b06fff712d9dbb7082c4b1808418115c5628017","postal":"516b1543763b8b04f15897aeac07eba66f4e36fdac6945bacb6bdac57e44598a","phone":"e1bfd73a5dc6262163ec42add4ebe0229f929db9b23644c1485dbccd05a36363","city":"61a01e4b10bf579b267bdc16858c932339e8388537363c9c0961bcf5520c8897","state":"7e8eea5cc60980270c9ceb75ce8c087d48d726110fd3d17921f774eefd8e18d8","email":"9d48d2e99a36bd4c11a940050e23a28df9a95007411793d360670bb7113b8468"}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"address":"b1afff5d12bbf57a065ada36e32fef747b5b780efc77e250c3656f9375340793","postal":"516b1543763b8b04f15897aeac07eba66f4e36fdac6945bacb6bdac57e44598a","phone":"e5a9c2de38b55b6bedcbb8a24d302bb67b2bff018ddd4ce2f7e53b809461145e","city":"6f03728dda12764dfb0aef47a8ad1289aa90edc9689ef9e9aee7cd2e8d2ef19f","state":"7e8eea5cc60980270c9ceb75ce8c087d48d726110fd3d17921f774eefd8e18d8","email":"e51e21fe4c09dbd046b84be7e9e894f666d6106b0915403a47bfbc3506e2e1bf"}]}],"audienceId":379909525712777677}'
     )
     expect(response[0].options).toMatchSnapshot()
   })
@@ -155,15 +230,88 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].options).toMatchSnapshot()
   })
 
-  it('should work with batch events', async () => {
+  it('should successfully handle a batch of events with failure response from Amazon AMC API', async () => {
+    nock(`https://advertising-api.amazon.com`)
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(400, { Message: 'STRING_VALUE can not be converted to a Long' })
+
+    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
+      events,
+      settings,
+      mapping
+    })
+    expect(response.length).toBe(2)
+    expect(response[0]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
+      errorreporter: 'INTEGRATIONS'
+    })
+    expect(response[1]).toMatchObject({
+      body: '{"Message":"STRING_VALUE can not be converted to a Long"}',
+      errormessage: 'Bad Request',
+      errorreporter: 'DESTINATION',
+      errortype: 'BAD_REQUEST',
+      sent: {
+        audienceId: '379909525712777677',
+        city: 'Gurgaon',
+        email: 'test@gmail.com',
+        enable_batching: true,
+        event_name: 'Audience Entered',
+        externalUserId: 'invalid@user.com',
+        firstName: 'gaurav',
+        state: 'Haryana'
+      },
+      status: 400
+    })
+  })
+  it('should work with batch events, throws error for invalid event only', async () => {
     nock(`https://advertising-api.amazon.com`)
       .post('/amc/audiences/records')
       .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
       .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
 
+    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
+      events,
+      settings,
+      mapping
+    })
+    expect(response.length).toBe(2)
+    expect(response[0]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
+      errorreporter: 'INTEGRATIONS'
+    })
+    expect(response[1]).toMatchObject({
+      status: 200,
+      sent: {
+        externalUserId: 'test_kochar-02',
+        countryCode: 'US',
+        action: 'DELETE',
+        hashedPII: [
+          {
+            address: '45cfec5f1df1af649d49fc74314d7c9272e2f63ae9119bd3ef4b22a040d98cbc',
+            city: '9cc97f17fbf85d8b631be044749005775aa13bd7f4014d06a15c2c56a7325562',
+            email: 'bd0bcf03735a1a00c6f1dd21c63c5d819e7e450298f301698192e8df90da3bb3',
+            firstname: '44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d',
+            lastname: '4cd1cb0957bc59e698beab9e86f062f2e84138bff5a446e49762da8fe0c2f499',
+            phone: 'c161700d73a5c32b84701ebed43b9febe117ea1ebbd4e150eab92890186fb455',
+            postal: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+            state: '92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'
+          }
+        ]
+      },
+      body: '{"jobRequestId":"1155d3e3-b18c-4b2b-a3b2-26173cdaf770"}'
+    })
+  })
+
+  it('should throw an error when all events are having invalid externalUserId', async () => {
     const events: SegmentEvent[] = [
       {
         ...event,
+        userId: 'invalid+1@user.com',
         event: 'Audience Entered',
         properties: {
           audience_key: 'example_event_once_30_4_24_1',
@@ -176,7 +324,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       },
       {
         ...event,
-        userId: 'test-kochar-02',
+        userId: 'invalid+2@user.com',
         event: 'Audience Exited',
         properties: {
           audience_key: 'example_event_once_30_4_24_1',
@@ -191,33 +339,24 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       }
     ]
 
-    const response = await testDestination.testBatchAction('syncAudiencesToDSP', {
+    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
       events,
       settings,
-      useDefaultMappings: true
+      mapping
     })
 
-    expect(response.length).toBe(1)
-    expect(response[0].status).toBe(202)
-    expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
-    expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","city":"b4c0372af033c406857a420644e46c806280a0bab8246bd0c62c7807f66f794f","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674"}]},{"externalUserId":"test-kochar-02","countryCode":"US","action":"DELETE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","lastname":"4cd1cb0957bc59e698beab9e86f062f2e84138bff5a446e49762da8fe0c2f499","address":"ff376feebdfcc7daf36e6de4c6907b7901ed025abb1ea908800dd929f043fd8c","postal":"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"bd0bcf03735a1a00c6f1dd21c63c5d819e7e450298f301698192e8df90da3bb3"}]}],"audienceId":379909525712777677}'
-    )
-    expect(response[0].options).toMatchSnapshot()
-  })
-
-  it('Handle Error when amazon ads API throw error', async () => {
-    nock(`https://advertising-api.amazon.com`)
-      .post('/amc/audiences/records')
-      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
-      .reply(400, { Message: 'STRING_VALUE can not be converted to a Long' })
-
-    await expect(
-      testDestination.testAction('syncAudiencesToDSP', {
-        event,
-        settings,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError('Bad Request')
+    expect(response.length).toBe(2)
+    expect(response[0]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
+      errorreporter: 'INTEGRATIONS'
+    })
+    expect(response[1]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
+      errorreporter: 'INTEGRATIONS'
+    })
   })
 })
