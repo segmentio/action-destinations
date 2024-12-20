@@ -31,7 +31,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'User email address. Vaule will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.email' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
+      }
     },
     firstName: {
       label: 'First name',
@@ -141,47 +147,25 @@ async function processPayload(
   }
 }
 
+// Function to create records for upload
 function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: AudienceSettings) {
   const records: AudienceRecord[] = []
   const { audienceId } = payloads[0]
+
   payloads.forEach((payload: Payload) => {
     // Check if the externalUserId matches the pattern
     if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
       return // Skip to the next iteration
     }
-
-    const hashedPII: HashedPIIObject = {}
-    if (payload.firstName) {
-      hashedPII.firstname = normalizeAndHash(payload.firstName)
-    }
-    if (payload.lastName) {
-      hashedPII.lastname = normalizeAndHash(payload.lastName)
-    }
-    if (payload.address) {
-      hashedPII.address = normalizeAndHash(payload.address)
-    }
-    if (payload.postal) {
-      hashedPII.postal = normalizeAndHash(payload.postal)
-    }
-    if (payload.phone) {
-      hashedPII.phone = normalizeAndHash(payload.phone)
-    }
-    if (payload.city) {
-      hashedPII.city = normalizeAndHash(payload.city)
-    }
-    if (payload.state) {
-      hashedPII.state = normalizeAndHash(payload.state)
-    }
-    if (payload.email) {
-      hashedPII.email = normalizeAndHash(payload.email)
-    }
+    const hashedPII: HashedPIIObject = hashedPayload(payload)
 
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
-      action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
+      action: payload.event_name === 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
       hashedPII: [hashedPII]
     }
+
     records.push(payloadRecord)
   })
   // When all invalid payloads are being filtered out or discarded because they do not match the externalUserId regular expression pattern.
@@ -196,14 +180,65 @@ function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: Aud
     audienceId: audienceId
   }
 }
+// For data format guidelines, visit: https://advertising.amazon.com/help/GCCXMZYCK4RXWS6C
 
-function normalizeAndHash(data: string) {
-  // Normalize the data
-  const normalizedData = data.toLowerCase().trim() // Example: Convert to lowercase and remove leading/trailing spaces
-  // Hash the normalized data using SHA-256
+// General normalization utility function
+function normalize(value: string, allowedChars: RegExp, trim = true): string {
+  let normalized = value.toLowerCase().replace(allowedChars, '')
+  if (trim) normalized = normalized.trim()
   const hash = createHash('sha256')
-  hash.update(normalizedData)
+  hash.update(normalized)
   return hash.digest('hex')
+}
+
+// Define allowed character patterns
+const alphanumeric = /[^a-z0-9]/g
+const emailAllowed = /[^a-z0-9.@-]/g
+const nonDigits = /[^\d]/g
+
+// Combine city,state,firstName,lastName normalization
+function normalizeStandard(value: string): string {
+  return normalize(value, alphanumeric)
+}
+
+function normalizePhone(phone: string): string {
+  return normalize(phone, nonDigits)
+}
+
+function normalizeEmail(email: string): string {
+  return normalize(email, emailAllowed)
+}
+
+// Main processing function for individual payload
+function hashedPayload(payload: Payload): HashedPIIObject {
+  const hashedPII: HashedPIIObject = {}
+
+  if (payload.firstName) {
+    hashedPII.firstname = normalizeStandard(payload.firstName)
+  }
+  if (payload.lastName) {
+    hashedPII.lastname = normalizeStandard(payload.lastName)
+  }
+  if (payload.address) {
+    hashedPII.address = normalizeStandard(payload.address)
+  }
+  if (payload.postal) {
+    hashedPII.postal = normalizeStandard(payload.postal)
+  }
+  if (payload.phone) {
+    hashedPII.phone = normalizePhone(payload.phone)
+  }
+  if (payload.city) {
+    hashedPII.city = normalizeStandard(payload.city)
+  }
+  if (payload.state) {
+    hashedPII.state = normalizeStandard(payload.state)
+  }
+  if (payload.email) {
+    hashedPII.email = normalizeEmail(payload.email)
+  }
+
+  return hashedPII
 }
 
 export default action
