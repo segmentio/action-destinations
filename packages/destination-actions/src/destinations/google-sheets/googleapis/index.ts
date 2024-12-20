@@ -30,7 +30,6 @@ export class GoogleSheets {
       `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values:batchUpdate`,
       {
         method: 'post',
-        skipResponseCloning: true,
         json: {
           valueInputOption: mappingSettings.dataFormat,
           data: batchPayload
@@ -57,7 +56,6 @@ export class GoogleSheets {
       `https://sheets.googleapis.com/${API_VERSION}/spreadsheets/${mappingSettings.spreadsheetId}/values/${mappingSettings.spreadsheetName}!${range}:append?valueInputOption=${mappingSettings.dataFormat}&insertDataOption=INSERT_ROWS`,
       {
         method: 'post',
-        skipResponseCloning: true,
         json: {
           values: values
         }

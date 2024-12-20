@@ -35,9 +35,10 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     dataFields: {
       label: 'Additional traits or identifiers',
       description:
-        'Additional traits or identifiers to sync to Iterable. You will need to ensure these traits or objects are included via Event Settings > Customized Setup.',
+        'Specify additional traits or identifiers to sync to Iterable. You will need to ensure these traits or obects are included via Event Settings >> Customized Setup.',
       required: false,
-      type: 'object'
+      type: 'string',
+      multiple: true
     },
     traitsOrProperties: {
       label: 'Traits or Properties',
@@ -55,7 +56,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     },
     segmentAudienceKey: {
       label: 'Segment Audience Key',
-      description: 'Segment Audience Key. Maps to the Iterable List "Name" when the list is created in Iterable.',
+      description: 'Segment Audience Key. Maps to the "Name" of the Segment node in Yahoo taxonomy',
       type: 'string',
       unsafe_hidden: true,
       required: true,
@@ -83,12 +84,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   }
 }
 
-const send = async (
-  request: RequestClient,
-  payload: Payload[],
-  settings: Settings,
-  audienceSettings?: AudienceSettings
-) => {
+const send = async ( request: RequestClient, payload: Payload[], settings: Settings, audienceSettings?: AudienceSettings) => {
   const client = new IterableListsClient(request, settings, audienceSettings)
   await client.processPayload(payload)
 }

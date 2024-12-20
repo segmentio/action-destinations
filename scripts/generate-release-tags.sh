@@ -7,10 +7,9 @@ sha=$(git rev-parse HEAD);
 branch=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD);
 message=$(git log -1 --pretty=%B);
 
-# Only generate release tags for main branch and hotfix branches.
-if [[ $branch != "main" &&  ! $branch == hotfix/* ]];
+if [[ $branch != "main" && $branch != "release" ]];
 then
-  echo "Skipping release tag generation as branch is not main or hotfix"
+  echo "Skipping release tag generation as branch is not main or release"
   exit 0
 fi;
 
@@ -27,14 +26,6 @@ then
     exit 1
 fi
 
-# If branch is hotfix, prefix should be hotfix. If not, it should be release.
-if [[ $branch == hotfix/* ]];
-then
-  prefix="hotfix"
-else
-  prefix="release"
-fi
-
 # Generate and push release tag. Release tag format: release-YYYY-MM-DD[.N] e.g. release-2024-01-01
 if ! n=$(git rev-list --count $sha~ --grep "Publish" --since="00:00"); then
     echo 'Failed to compute release tag. Exiting.'
@@ -45,14 +36,18 @@ else
         *) suffix=".$n" ;; # subsequent commits get a suffix, starting with .1
     esac
 
-    tag=$(printf $prefix-$(date '+%Y-%m-%d%%s') $suffix)
+    tag=$(printf release-$(date '+%Y-%m-%d%%s') $suffix)
     echo "Tagging $sha with $tag"
     git tag -a $tag -m "Release $tag" --force
     git push origin $tag
 fi
 
-
-# Generate and push package tags.
-curr_path=$(pwd)
-dir_name=$(dirname $0)
-./$dir_name/generate-package-tags.sh
+# this script assumes the last commit was publish commit and gets all package.json files changed in the last commit
+# and generates tags for each package.json file.
+files=$(git show --pretty="" --name-only HEAD | grep -Ei '^packages/.*package\.json$')
+for file in $files; do
+  tag=$(cat $file | jq -r '.name + "@" + .version')
+  echo "Tagging $sha with $tag"
+  git tag -a $tag -m "Release $tag" --force
+  git push origin $tag
+done

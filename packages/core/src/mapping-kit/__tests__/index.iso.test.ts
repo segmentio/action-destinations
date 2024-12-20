@@ -1073,20 +1073,12 @@ describe('@excludeWhenNull', () => {
     expect(output).toStrictEqual({ anotherField: 1 })
   })
 
-  test('exclude individual null fields in object when applied at object level', () => {
+  test('dont exclude individual null fields in object when applied at object level', () => {
     const output = transform(
       { neat: { '@excludeWhenNull': { '@path': '$.foo' } } },
       { foo: { bar: null, aces: { a: 1, b: 2 } } }
     )
-    expect(output).toStrictEqual({ neat: { aces: { a: 1, b: 2 } } })
-  })
-
-  test('exclude individual deeply nested null fields in object when applied at object level', () => {
-    const output = transform(
-      { neat: { '@excludeWhenNull': { '@path': '$.foo' } } },
-      { foo: { bar: null, aces: { a: 1, b: 2, c: null, d: { a: null, b: null } } } }
-    )
-    expect(output).toStrictEqual({ neat: { aces: { a: 1, b: 2, d: {} } } })
+    expect(output).toStrictEqual({ neat: { bar: null, aces: { a: 1, b: 2 } } })
   })
 
   test('exclude when resolved value is null using transform', () => {
@@ -1145,16 +1137,16 @@ describe('@excludeWhenNull', () => {
               }
             }
           },
+          // These are essentially no-ops bcos they always return non-null objects but good to exercise explicitly
+          jsonNullEncode: { '@excludeWhenNull': { '@json': { mode: 'encode', value: { '@path': '$.foo.bar' } } } },
           transformValue: {
             '@excludeWhenNull': {
               '@transform': {
-                apply: { properties: { '@path': '$.foo' } },
+                apply: { properties: { '@path': '$.foo.bar' } },
                 mapping: { properties: { '@path': '$.properties' } }
               }
             }
-          },
-          // These are essentially no-ops bcos they always return non-null objects but good to exercise explicitly
-          jsonNullEncode: { '@excludeWhenNull': { '@json': { mode: 'encode', value: { '@path': '$.foo.bar' } } } }
+          }
         }
       },
       { foo: { bar: null, aces: { a: 1, b: 2 } } }
@@ -1167,7 +1159,7 @@ describe('@excludeWhenNull', () => {
         transformNull: {},
         transformNull2: {},
         transformValue: {
-          properties: { aces: { a: 1, b: 2 } }
+          properties: null
         }
       }
     })

@@ -29,12 +29,6 @@ export function flattenObject(obj: JSONObject) {
       return
     }
 
-    // Trim string values
-    if (typeof obj[key] === 'string') {
-      flattened[key] = (obj[key] as string).trim()
-      return
-    }
-
     flattened[key] = obj[key]
   })
 

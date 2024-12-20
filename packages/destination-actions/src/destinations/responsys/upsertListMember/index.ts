@@ -1,10 +1,9 @@
 import { ActionDefinition } from '@segment/actions-core'
-import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
-
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { use_responsys_async_api, batch_size, default_permission_status } from '../shared-properties'
-import { upsertListMembers, validateListMemberPayload } from '../utils'
+import { enable_batching, batch_size } from '../shared_properties'
+import { upsertListMembers, getUserDataFieldNames, validateListMemberPayload } from '../utils'
+import { Data } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile List Member',
@@ -40,7 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         RIID_: {
           label: 'Recipient ID',
-          description: 'Recipient ID (RIID). RIID is required if Email Address is empty.',
+          description: 'Recipient ID (RIID).  RIID is required if Email Address is empty.',
           type: 'string',
           required: false
         },
@@ -69,21 +68,25 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Stringify Recipient Data',
       description: 'If true, all Recipient data will be converted to strings before being sent to Responsys.',
       type: 'boolean',
-      required: false,
+      required: true,
       default: false
     },
-    enable_batching: use_responsys_async_api,
-    batch_size: batch_size,
-    default_permission_status: default_permission_status
+    enable_batching: enable_batching,
+    batch_size: batch_size
   },
 
   perform: async (request, data) => {
+    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
+    // const transformedSettings = transformDataFieldValues(data.settings)
     validateListMemberPayload(data.payload.userData)
-    return upsertListMembers(request, data.auth as AuthTokens, [data.payload], data.settings)
+
+    return upsertListMembers(request, [data.payload], data.settings, userDataFieldNames)
   },
 
   performBatch: async (request, data) => {
-    return upsertListMembers(request, data.auth as AuthTokens, data.payload, data.settings)
+    const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
+
+    return upsertListMembers(request, data.payload, data.settings, userDataFieldNames)
   }
 }
 

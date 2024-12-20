@@ -15,10 +15,7 @@ const createAudienceInput = {
   settings: {
     api_key: ''
   },
-  audienceName: '',
-  audienceSettings: {
-    listId: ''
-  }
+  audienceName: ''
 }
 
 const getAudienceInput = {
@@ -99,12 +96,6 @@ describe('Klaviyo (actions)', () => {
       expect(r).toEqual({
         externalId: 'XYZABC'
       })
-    })
-
-    it('Should return list_id if list_id is set in audienceSetting', async () => {
-      createAudienceInput.audienceSettings.listId = 'XYZABC'
-      const r = await testDestination.createAudience(createAudienceInput)
-      expect(r).toEqual({ externalId: 'XYZABC' })
     })
   })
 

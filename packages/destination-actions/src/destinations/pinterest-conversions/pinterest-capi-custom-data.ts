@@ -30,7 +30,7 @@ export const custom_data_field: InputField = {
       properties: {
         id: {
           label: 'Id',
-          type: 'string',
+          type: 'number',
           description: 'The id of the Item'
         },
         item_price: {

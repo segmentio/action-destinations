@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { ApiLookupConfig, getRequestId, performApiLookup } from '../previewApiLookup/apiLookups'
+import { DataFeedCache } from '../../../../../core/src/destination-kit/index'
 import createRequestClient from '../../../../../core/src/create-request-client'
-import { EngageDestinationCache } from '@segment/actions-core/destination-kit'
 
 const profile = {
   traits: {
@@ -37,20 +37,20 @@ const cachedApiLookup = {
   cacheTtl: 60000
 }
 
-const createMockRequestStore = (overrides?: Partial<EngageDestinationCache>) => {
+const createMockRequestStore = (overrides?: Partial<DataFeedCache>) => {
   const mockStore: Record<string, any> = {}
-  const mockEngageDestinationCache: EngageDestinationCache = {
-    setByKey: jest.fn(async (requestId, response) => {
+  const mockDataFeedCache: DataFeedCache = {
+    setRequestResponse: jest.fn(async (requestId, response) => {
       mockStore[requestId] = response
     }),
-    getByKey: jest.fn(async (requestId) => {
+    getRequestResponse: jest.fn(async (requestId) => {
       return mockStore[requestId]
     }),
     maxExpirySeconds: 600000,
-    maxValueSizeBytes: 1000000,
+    maxResponseSizeBytes: 1000000,
     ...overrides
   }
-  return mockEngageDestinationCache
+  return mockDataFeedCache
 }
 
 const request = createRequestClient({})
@@ -155,7 +155,7 @@ describe('api lookups', () => {
     })
 
     it('throws error if response size is too big', async () => {
-      const mockEngageDestinationCache = createMockRequestStore({ maxValueSizeBytes: 1 })
+      const mockDataFeedCache = createMockRequestStore({ maxResponseSizeBytes: 1 })
       const apiLookupRequest = nock(`https://fakeweather.com`)
         .get(`/api/current`)
         .reply(200, {
@@ -165,23 +165,14 @@ describe('api lookups', () => {
         })
 
       await expect(
-        performApiLookup(
-          request,
-          cachedApiLookup,
-          profile,
-          undefined,
-          [],
-          settings,
-          undefined,
-          mockEngageDestinationCache
-        )
+        performApiLookup(request, cachedApiLookup, profile, undefined, [], settings, undefined, mockDataFeedCache)
       ).rejects.toThrowError('Data feed response size too big too cache and caching needed, failing send')
 
       expect(apiLookupRequest.isDone()).toEqual(true)
     })
 
     it('sets cache when cache miss', async () => {
-      const mockEngageDestinationCache = createMockRequestStore()
+      const mockDataFeedCache = createMockRequestStore()
       const apiLookupRequest = nock(`https://fakeweather.com`)
         .get(`/api/current`)
         .reply(200, {
@@ -198,12 +189,12 @@ describe('api lookups', () => {
         [],
         settings,
         undefined,
-        mockEngageDestinationCache
+        mockDataFeedCache
       )
 
       expect(apiLookupRequest.isDone()).toEqual(true)
       const requestId = getRequestId(cachedApiLookup)
-      expect(mockEngageDestinationCache.setByKey).toHaveBeenCalledWith(
+      expect(mockDataFeedCache.setRequestResponse).toHaveBeenCalledWith(
         requestId,
         '{"current":{"temperature":70}}',
         cachedApiLookup.cacheTtl / 1000
@@ -224,9 +215,9 @@ describe('api lookups', () => {
           }
         })
 
-      const mockEngageDestinationCache = createMockRequestStore()
+      const mockDataFeedCache = createMockRequestStore()
       const requestId = getRequestId(cachedApiLookup)
-      await mockEngageDestinationCache.setByKey(requestId, '{"current":{"temperature":70}}', cachedApiLookup.cacheTtl)
+      await mockDataFeedCache.setRequestResponse(requestId, '{"current":{"temperature":70}}', cachedApiLookup.cacheTtl)
 
       const data = await performApiLookup(
         request,
@@ -236,7 +227,7 @@ describe('api lookups', () => {
         [],
         settings,
         undefined,
-        mockEngageDestinationCache
+        mockDataFeedCache
       )
 
       expect(apiLookupRequest.isDone()).toEqual(false)
@@ -251,7 +242,7 @@ describe('api lookups', () => {
       const profiles = [{ traits: { lastName: 'Browning' } }, { traits: { lastName: 'Smith' } }]
 
       it('url is different', async () => {
-        const mockEngageDestinationFeed = createMockRequestStore()
+        const mockDataFeedCache = createMockRequestStore()
         const config: ApiLookupConfig = {
           url: 'https://fakeweather.com/api/current/{{profile.traits.lastName}}',
           method: 'get',
@@ -280,14 +271,14 @@ describe('api lookups', () => {
             [],
             settings,
             undefined,
-            mockEngageDestinationFeed
+            mockDataFeedCache
           )
 
           expect(apiLookupRequest.isDone()).toEqual(true)
 
           const requestId = getRequestId({ ...config, url: `https://fakeweather.com${renderedPath}` })
 
-          expect(mockEngageDestinationFeed.setByKey).toHaveBeenNthCalledWith(
+          expect(mockDataFeedCache.setRequestResponse).toHaveBeenNthCalledWith(
             i + 1,
             requestId,
             `{"current":{"temperature":${profileSpecificTemperature}}}`,
@@ -303,7 +294,7 @@ describe('api lookups', () => {
       })
 
       it('body is different', async () => {
-        const mockEngageDestinationCache = createMockRequestStore()
+        const mockDataFeedCache = createMockRequestStore()
         const config: ApiLookupConfig = {
           url: 'https://fakeweather.com/api/current',
           method: 'post',
@@ -333,14 +324,14 @@ describe('api lookups', () => {
             [],
             settings,
             undefined,
-            mockEngageDestinationCache
+            mockDataFeedCache
           )
 
           expect(apiLookupRequest.isDone()).toEqual(true)
 
           const requestId = getRequestId({ ...config, body: JSON.stringify(renderedBody) })
 
-          expect(mockEngageDestinationCache.setByKey).toHaveBeenNthCalledWith(
+          expect(mockDataFeedCache.setRequestResponse).toHaveBeenNthCalledWith(
             i + 1,
             requestId,
             `{"current":{"temperature":${profileSpecificTemperature}}}`,
@@ -356,7 +347,7 @@ describe('api lookups', () => {
       })
 
       it('headers are different', async () => {
-        const mockEngageDestinationCache = createMockRequestStore()
+        const mockDataFeedCache = createMockRequestStore()
         const config1: ApiLookupConfig = {
           url: 'https://fakeweather.com/api/current',
           method: 'get',
@@ -392,14 +383,14 @@ describe('api lookups', () => {
             [],
             settings,
             undefined,
-            mockEngageDestinationCache
+            mockDataFeedCache
           )
 
           expect(apiLookupRequest.isDone()).toEqual(true)
 
           const requestId = getRequestId({ ...config, headers: config.headers })
 
-          expect(mockEngageDestinationCache.setByKey).toHaveBeenNthCalledWith(
+          expect(mockDataFeedCache.setRequestResponse).toHaveBeenNthCalledWith(
             i + 1,
             requestId,
             `{"current":{"temperature":${configSpecificTemperature}}}`,
@@ -415,7 +406,7 @@ describe('api lookups', () => {
       })
 
       it('methods are different', async () => {
-        const mockEngageDestinationCache = createMockRequestStore()
+        const mockDataFeedCache = createMockRequestStore()
         const config1: ApiLookupConfig = {
           url: 'https://fakeweather.com/api/current',
           method: 'get',
@@ -448,14 +439,14 @@ describe('api lookups', () => {
             [],
             settings,
             undefined,
-            mockEngageDestinationCache
+            mockDataFeedCache
           )
 
           expect(apiLookupRequest.isDone()).toEqual(true)
 
           const requestId = getRequestId({ ...config })
 
-          expect(mockEngageDestinationCache.setByKey).toHaveBeenNthCalledWith(
+          expect(mockDataFeedCache.setRequestResponse).toHaveBeenNthCalledWith(
             i + 1,
             requestId,
             `{"current":{"temperature":${configSpecificTemperature}}}`,
@@ -474,7 +465,7 @@ describe('api lookups', () => {
 
   describe('when cacheTtl = 0', () => {
     it('does not set or lookup cache', async () => {
-      const mockEngageDestinationCache = createMockRequestStore()
+      const mockDataFeedCache = createMockRequestStore()
       const apiLookupRequest = nock(`https://fakeweather.com`)
         .get(`/api/current`)
         .reply(200, {
@@ -491,12 +482,12 @@ describe('api lookups', () => {
         [],
         settings,
         undefined,
-        mockEngageDestinationCache
+        mockDataFeedCache
       )
 
       expect(apiLookupRequest.isDone()).toEqual(true)
-      expect(mockEngageDestinationCache.setByKey).not.toHaveBeenCalled()
-      expect(mockEngageDestinationCache.getByKey).not.toHaveBeenCalled()
+      expect(mockDataFeedCache.setRequestResponse).not.toHaveBeenCalled()
+      expect(mockDataFeedCache.getRequestResponse).not.toHaveBeenCalled()
     })
   })
 })

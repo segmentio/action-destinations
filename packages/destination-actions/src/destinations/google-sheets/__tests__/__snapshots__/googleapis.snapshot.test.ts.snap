@@ -13,7 +13,6 @@ Array [
       ],
     },
     "method": "post",
-    "skipResponseCloning": true,
   },
 ]
 `;
@@ -45,7 +44,6 @@ Array [
       "valueInputOption": "myFormat",
     },
     "method": "post",
-    "skipResponseCloning": true,
   },
 ]
 `;

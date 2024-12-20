@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { buildPerformer } from '../utils'
-import { clientFields, mobileFields } from '../schema'
+import { mobileFields } from '../schema'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom third-party event',
@@ -23,8 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.properties' },
       required: false
     },
-    ...mobileFields,
-    ...clientFields
+    ...mobileFields
   },
   perform: buildPerformer('event')
 }

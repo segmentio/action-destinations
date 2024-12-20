@@ -1,34 +1,19 @@
-import {
-  StateContext,
-  Logger,
-  StatsContext,
-  TransactionContext,
-  EngageDestinationCache,
-  ActionHookType,
-  SubscriptionMetadata,
-  RequestFn
-} from './index'
+import { StateContext, Logger, StatsContext, TransactionContext, DataFeedCache, ActionHookType } from './index'
 import type { RequestOptions } from '../request-client'
-import type { JSONLikeObject, JSONObject } from '../json-object'
+import type { JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
 import type { RequestClient } from '../create-request-client'
 import type { ID } from '../segment-event'
 import { Features } from '../mapping-kit'
-import type { ErrorCodes, MultiStatusErrorReporter } from '../errors'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 export type MaybePromise<T> = T | Promise<T>
 
-/*
-  Note: The Cloud Event object that we receive from Centrifuge contains an array of subscriptions,
-  the result object below is the result of execution of each subscription.
-*/ export interface Result {
+export interface Result {
   output?: JSONObject | string | null | undefined
   error?: JSONObject | null
   // Data to be returned from action
   data?: JSONObject | null
-  // Spec v2 compliant MultiStatus response
-  multistatus?: ResultMultiStatusNode[]
 }
 
 export interface DynamicFieldContext {
@@ -42,9 +27,7 @@ export interface ExecuteInput<
   Settings,
   Payload,
   AudienceSettings = unknown,
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
   ActionHookInputs = any,
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
   ActionHookOutputs = any
 > {
   /** The subscription mapping definition */
@@ -76,11 +59,9 @@ export interface ExecuteInput<
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
-  /** Engage internal use only. DO NOT USE. */
-  readonly engageDestinationCache?: EngageDestinationCache
+  readonly dataFeedCache?: DataFeedCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
-  readonly subscriptionMetadata?: SubscriptionMetadata
 }
 
 export interface DynamicFieldResponse {
@@ -102,15 +83,15 @@ export interface DynamicFieldItem {
 }
 
 /** The shape of authentication and top-level settings */
-export interface GlobalSetting
-  extends Omit<
-    InputField,
-    | 'additionalProperties' // Settings cannot be an object
-    | 'defaultObjectUI' // Settings cannot be an object
-    | 'dynamic' // This type is redeclared
-  > {
+export interface GlobalSetting {
+  /** A short, human-friendly label for the field */
+  label: string
+  /** A human-friendly description of the field */
+  description: string
   /** A subset of the available DestinationMetadataOption types */
   type: 'boolean' | 'string' | 'password' | 'number'
+  /** Whether or not the field accepts more than one of its `type` */
+  multiple?: boolean
   /**
    * A predefined set of options for the setting.
    * Only relevant for `type: 'string'` or `type: 'number'`.
@@ -121,9 +102,11 @@ export interface GlobalSetting
     /** A human-friendly label for the option */
     label: string
   }>
+  required?: boolean
   default?: string | number | boolean
-
-  dynamic?: RequestFn<Record<string, boolean | string | number>, {}>
+  properties?: InputField['properties']
+  format?: InputField['format']
+  depends_on?: InputField['depends_on']
 }
 
 /** The supported field type names */
@@ -249,11 +232,6 @@ export interface InputField extends InputFieldJSONSchema {
    * Determines which input methods are disabled for this field. This is useful when you want to restrict variable selection, freeform entry, etc.
    */
   disabledInputMethods?: FieldInputMethods[]
-
-  /** Minimum value for a field of type 'number' */
-  minimum?: number
-  /** Maximum value for a field of type 'number' */
-  maximum?: number
 }
 
 /** Base interface for conditions  */
@@ -347,7 +325,7 @@ export type Deletion<Settings, Return = any> = (
 ) => MaybePromise<Return>
 
 /** The supported sync mode values  */
-export const syncModeTypes = ['add', 'update', 'upsert', 'delete', 'mirror'] as const
+export const syncModeTypes = ['add', 'update', 'upsert', 'delete'] as const
 export type SyncMode = typeof syncModeTypes[number]
 
 export interface SyncModeOption {
@@ -368,24 +346,3 @@ export interface SyncModeDefinition {
   /** The available sync mode choices */
   choices: SyncModeOption[]
 }
-
-export type ActionDestinationSuccessResponseType = {
-  status: number
-  sent: JSONLikeObject | string
-  body: JSONLikeObject | string
-}
-
-export type ActionDestinationErrorResponseType = {
-  status: number
-  // The `keyof typeof` in the following line allows using string literals that match enum values
-  errortype?: keyof typeof ErrorCodes
-  errormessage: string
-  sent?: JSONLikeObject | string
-  body?: JSONLikeObject | string
-}
-
-export type ResultMultiStatusNode =
-  | ActionDestinationSuccessResponseType
-  | (ActionDestinationErrorResponseType & {
-      errorreporter: MultiStatusErrorReporter
-    })

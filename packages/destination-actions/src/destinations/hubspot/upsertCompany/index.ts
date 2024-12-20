@@ -224,17 +224,17 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Construct company properties
     const companyProperties = {
-      name: payload.name?.trim(),
-      description: payload.description?.trim(),
-      address: payload.address?.trim(),
-      city: payload.city?.trim(),
-      state: payload.state?.trim(),
-      zip: payload.zip?.trim(),
-      domain: payload.domain?.trim(),
-      phone: payload.phone?.trim(),
+      name: payload.name,
+      description: payload.description,
+      address: payload.address,
+      city: payload.city,
+      state: payload.state,
+      zip: payload.zip,
+      domain: payload.domain,
+      phone: payload.phone,
       numberofemployees: payload.numberofemployees,
-      industry: payload.industry?.trim(),
-      lifecyclestage: payload.lifecyclestage?.toLocaleLowerCase().trim(),
+      industry: payload.industry,
+      lifecyclestage: payload.lifecyclestage?.toLocaleLowerCase(),
       [SEGMENT_UNIQUE_IDENTIFIER]: payload.groupid,
       ...flattenObject(payload.properties)
     }

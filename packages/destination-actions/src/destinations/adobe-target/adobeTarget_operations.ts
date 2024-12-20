@@ -46,8 +46,7 @@ export default class AdobeTarget {
         }/profile/update?mbox3rdPartyId=${this.userId}&${objectToQueryString(traits)}`
 
         return this.request(requestUrl, {
-          method: 'POST',
-          skipResponseCloning: true
+          method: 'POST'
         })
       }
     }
@@ -61,7 +60,7 @@ export default class AdobeTarget {
     try {
       await this.request(
         `https://${clientCode}.tt.omtrdc.net/rest/v1/profiles/thirdPartyId/${userId}?client=${clientCode}`,
-        { method: 'get', skipResponseCloning: true }
+        { method: 'get' }
       )
     } catch (error) {
       if (error instanceof Error) {

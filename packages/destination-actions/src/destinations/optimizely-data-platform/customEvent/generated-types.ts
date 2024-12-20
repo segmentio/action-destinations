@@ -55,12 +55,4 @@ export interface Payload {
    * Event timestamp
    */
   timestamp: string
-  /**
-   * Enable batching of event data to Optimizely.
-   */
-  enable_batching?: boolean
-  /**
-   * Number of events to batch before sending to Optimizely.
-   */
-  batch_size?: number
 }

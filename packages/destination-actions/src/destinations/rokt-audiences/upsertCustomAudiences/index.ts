@@ -62,12 +62,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { settings, payload }) => {
-    return processPayload(request, settings, [payload])
+  perform: (request, { payload }) => {
+    return processPayload(request, [payload])
   },
 
-  performBatch: (request, { settings, payload }) => {
-    return processPayload(request, settings, payload)
+  performBatch: (request, { payload }) => {
+    return processPayload(request, payload)
   }
 }
 

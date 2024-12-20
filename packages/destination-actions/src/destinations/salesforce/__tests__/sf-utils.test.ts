@@ -33,12 +33,11 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const csv = buildCSVData(completePayloads, 'test__c', 'upsert')
+      const csv = buildCSVData(completePayloads, 'test__c')
       const expected = `Name,Email,Phone,test__c\n"SpongeBob SquarePants","sponge@seamail.com","555-555-5555","00"\n"Patrick Star","star@seamail.com","555-555-5555","01"\n`
 
       expect(csv).toEqual(expected)
     })
-
     it('should correctly build a CSV from payloads with incomplete data', async () => {
       const incompletePayloads: GenericPayload[] = [
         {
@@ -76,7 +75,7 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const csv = buildCSVData(incompletePayloads, 'test__c', 'upsert')
+      const csv = buildCSVData(incompletePayloads, 'test__c')
       const expected = `Name,MailingState,Phone,Email,FavoriteFood,test__c\n"SpongeBob Squarepants",#N/A,#N/A,"sponge@seamail.com","Krabby Patty","00"\n"Patrick Star",#N/A,"123-456-7890",#N/A,#N/A,"01"\n"Sandy Cheeks","Texas",#N/A,#N/A,#N/A,"11"\n`
 
       expect(csv).toEqual(expected)
@@ -115,7 +114,7 @@ describe('Salesforce Utils', () => {
       ]
 
       expect(() => {
-        buildCSVData(invalidCustomFieldPayloads, 'test__c', 'upsert')
+        buildCSVData(invalidCustomFieldPayloads, 'test__c')
       }).toThrowError(`Invalid character in field name: a,weird,field`)
     })
 
@@ -137,7 +136,7 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const csv = buildCSVData(createPayloads, '', 'insert')
+      const csv = buildCSVData(createPayloads, '')
       const expected = `Name,Phone,Description\n"SpongeBob Squarepants","1234567890","Krusty Krab"\n"Squidward Tentacles","1234567891","Krusty Krab"\n`
 
       expect(csv).toEqual(expected)
@@ -159,7 +158,7 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const csv = buildCSVData(incompleteCreatePayloads, '', 'insert')
+      const csv = buildCSVData(incompleteCreatePayloads, '')
       const expected = `Name,Description,Phone\n"SpongeBob Squarepants",#N/A,"1234567890"\n"Squidward Tentacles","Krusty Krab",#N/A\n`
 
       expect(csv).toEqual(expected)
@@ -185,7 +184,7 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const csv = buildCSVData(updatePayloads, 'Id', 'update')
+      const csv = buildCSVData(updatePayloads, 'Id')
       const expected = `Name,Phone,Description,Id\n"SpongeBob Squarepants","1234567890","Krusty Krab","00"\n"Squidward Tentacles","1234567891","Krusty Krab","01"\n`
 
       expect(csv).toEqual(expected)
@@ -209,7 +208,7 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const csv = buildCSVData(incompleteUpdatePayloads, 'Id', 'Update')
+      const csv = buildCSVData(incompleteUpdatePayloads, 'Id')
       const expected = `Name,Description,Phone,Id\n"SpongeBob Squarepants",#N/A,"1234567890","00"\n"Squidward Tentacles","Krusty Krab",#N/A,"01"\n`
 
       expect(csv).toEqual(expected)
@@ -239,7 +238,7 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const csv = buildCSVData(nullPayloads, 'test__c', 'upsert')
+      const csv = buildCSVData(nullPayloads, 'test__c')
       const expected = `Name,Description,test__c\n"SpongeBob Squarepants",#N/A,"00"\n"Squidward Tentacles",#N/A,"01"\n`
 
       expect(csv).toEqual(expected)
@@ -263,7 +262,7 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const csv = buildCSVData(updatePayloads, 'Id', 'update')
+      const csv = buildCSVData(updatePayloads, 'Id')
       const expected = `Name,Description,Id\n"Sponge """"Bob"""" ""Square"" ""pants""",#N/A,"00"\n"Tentacles, ""Squidward""","Squidward Tentacles is a fictional character in the American animated television series ""SpongeBob SquarePants"".\n He is voiced by actor Rodger Bumpass and first appeared on television in the series' pilot episode on May 1, 1999.","01"\n`
       expect(csv).toEqual(expected)
     })
@@ -292,7 +291,7 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const csv = buildCSVData(updatePayloads, 'Id', 'update')
+      const csv = buildCSVData(updatePayloads, 'Id')
       const expected = `Name,NumberOfEmployees,sellsKrabbyPatties__c,Id\n"Krusty Krab","2","true","00"\n"Chum Bucket","1","false","01"\n`
       expect(csv).toEqual(expected)
     })

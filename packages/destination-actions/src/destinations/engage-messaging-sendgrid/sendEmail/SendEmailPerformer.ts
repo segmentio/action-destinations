@@ -2,7 +2,7 @@ import { ExtId, MessageSendPerformer, OperationContext, ResponseError, track, Pr
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
-import { IntegrationError, ModifiedResponse, RequestOptions } from '@segment/actions-core'
+import { IntegrationError, RequestOptions } from '@segment/actions-core'
 import {
   ApiLookupConfig,
   FLAGON_NAME_DATA_FEEDS,
@@ -111,7 +111,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
     return parsedContent
   }
 
-  async sendToRecepient(emailProfile: ExtId<Payload>): Promise<ModifiedResponse<unknown> | undefined> {
+  async sendToRecepient(emailProfile: ExtId<Payload>) {
     const traits = await this.getProfileTraits()
 
     const profile: Profile = {
@@ -171,7 +171,6 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
             source_id: this.settings.sourceId,
             space_id: this.settings.spaceId,
             user_id: this.payload.userId ?? undefined,
-            message_id: this.getMessageId(),
             __segment_internal_external_id_key__: EXTERNAL_ID_KEY,
             __segment_internal_external_id_value__: profile[EXTERNAL_ID_KEY]
           }
@@ -259,7 +258,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
       },
       json: mailContent
     }
-    //this.statsClient?.set('message_body_size', JSON.stringify(req).length) // Commented due to performance issues
+    this.statsClient?.set('message_body_size', JSON.stringify(req).length)
     const response = await this.request('https://api.sendgrid.com/v3/mail/send', req)
     if (this.payload?.eventOccurredTS != undefined) {
       this.statsClient?.histogram(
@@ -273,23 +272,8 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
 
   @track()
   async getBodyTemplateFromS3(bodyUrl: string) {
-    if (this.isFeatureActive('engage-cache-email-template'))
-      return await this.getOrAddCache(
-        // seems like Redis key size can be up to 512MB, so we should be fine using entire url as a key
-        `email-template:${bodyUrl}`,
-        async () => (await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })).content,
-        {
-          cacheGroup: 'getBodyTemplateFromS3',
-          expiryInSeconds: 4 * 60 * 60, // 4hr
-          // this guarantees that only one instance will try to download the s3 object under same url
-          lockOptions: {
-            lockMaxTimeMs: (this.isLockExpirationExtended() ? 30 : 10) * 60_000, // give it 30 mins to finish downloading s3 object from cloudfront while others are waiting
-            acquireLockMaxWaitTimeMs: 30_000, // 30 secs to acquire lock
-            acquireLockRetryIntervalMs: 1000 //1 sec between lock-retries
-          }
-        }
-      )
-    else return (await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })).content
+    const { content } = await this.request(bodyUrl, { method: 'GET', skipResponseCloning: true })
+    return content
   }
 
   @track()
@@ -381,7 +365,7 @@ export class SendEmailPerformer extends MessageSendPerformer<Settings, Payload> 
           this.tags,
           this.settings,
           this.logger.loggerClient,
-          this.engageDestinationCache
+          this.dataFeedCache
         )
         return { name: apiLookup.name, data }
       })

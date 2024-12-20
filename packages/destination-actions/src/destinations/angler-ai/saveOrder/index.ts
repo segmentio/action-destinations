@@ -1,8 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import { addressDefaultFields, addressProperties } from '../fields/addressFields'
-import { productsFields } from '../fields/productsFields'
 import type { Settings } from '../generated-types'
-import { baseURL, lineItemsEndpoint, ordersEndpoint } from '../routes'
+import { baseURL, ordersEndpoint } from '../routes'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -10,19 +9,6 @@ const action: ActionDefinition<Settings, Payload> = {
   description:
     'Send an order to Angler. Use this Mapping for transactions which may not originate from the browser. E.g. recurring subscriptions.',
   fields: {
-    line_items: {
-      ...productsFields,
-      label: 'Line items',
-      description: 'list of line items associated with the order.',
-      properties: {
-        ...productsFields.properties,
-        quantity: {
-          label: 'Quantity',
-          type: 'number',
-          description: 'Quantity of the item'
-        }
-      }
-    },
     billing_address: {
       type: 'object',
       label: 'Billing Address',
@@ -127,7 +113,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The current subtotal price of the order in the shop currency. The value of this field reflects order edits, returns, and refunds.',
       default: {
-        '@path': '$.properties.subtotal'
+        '@path': '$.properties.current_subtotal_price'
       }
     },
     current_total_discounts: {
@@ -136,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The current total discounts on the order in the shop currency. The value of this field reflects order edits, returns, and refunds.',
       default: {
-        '@path': '$.properties.discount'
+        '@path': '$.properties.current_total_discounts'
       }
     },
     current_total_price: {
@@ -154,7 +140,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The current total taxes charged on the order in the shop currency. The value of this field reflects order edits, returns, or refunds.',
       default: {
-        '@path': '$.properties.tax'
+        '@path': '$.properties.current_total_tax'
       }
     },
     customer_id: {
@@ -316,7 +302,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'ID',
       description: 'The ID of the order, used for API purposes.',
       default: {
-        '@path': '$.properties.order_id'
+        '@path': '$.properties.id'
       }
     },
     landing_site: {
@@ -429,7 +415,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The price of the order in the shop currency after discounts but before shipping, duties, taxes, and tips.',
       default: {
-        '@path': '$.properties.subtotal'
+        '@path': '$.properties.subtotal_price'
       }
     },
     tags: {
@@ -454,7 +440,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Total Discounts',
       description: 'The total discounts applied to the price of the order in the shop currency.',
       default: {
-        '@path': '$.properties.discount'
+        '@path': '$.properties.total_discounts'
       }
     },
     total_line_items_price: {
@@ -479,7 +465,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The sum of all line item prices, discounts, shipping, taxes, and tips in the shop currency. Must be positive.',
       default: {
-        '@path': '$.properties.total'
+        '@path': '$.properties.total_price'
       }
     },
     total_price_usd: {
@@ -495,7 +481,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Total Tax',
       description: 'The sum of all the taxes applied to the order in the shop currency. Must be positive.',
       default: {
-        '@path': '$.properties.tax'
+        '@path': '$.properties.total_tax'
       }
     },
     user_id: {
@@ -542,39 +528,14 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, data) => {
-    const { line_items: lineItems, ...order } = data.payload
-
-    // send line items
-    if (lineItems !== undefined) {
-      const lineItemsPayload = {
-        src: 'SEGMENT',
-        data: lineItems.map((lineItem) => ({
-          id: `${order.id}-${lineItem.variantId}`,
-          product_id: lineItem.id,
-          variant_id: lineItem.variantId,
-          price: lineItem.priceAmount,
-          sku: lineItem.sku,
-          title: lineItem.title,
-          vendor: lineItem.vendor,
-          quantity: lineItem.quantity,
-          order_id: order.id
-        }))
-      }
-      await request(baseURL + lineItemsEndpoint(data.settings.workspaceId), {
-        method: 'post',
-        json: lineItemsPayload
-      })
-    }
-
-    // send order
-    const orderPayload = {
+  perform: (request, data) => {
+    const payload = {
       src: 'SEGMENT',
-      data: [order]
+      data: [data.payload]
     }
     return request(baseURL + ordersEndpoint(data.settings.workspaceId), {
       method: 'post',
-      json: orderPayload
+      json: payload
     })
   }
 }

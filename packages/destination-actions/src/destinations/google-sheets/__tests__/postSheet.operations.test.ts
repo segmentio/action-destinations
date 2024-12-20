@@ -43,9 +43,7 @@ describe('Google Sheets', () => {
           spreadsheet_id: 'spreadsheet_id',
           spreadsheet_name: 'spreadsheet_name',
           data_format: 'data_format',
-          fields: { column1: 'value1', column2: 'value2' },
-          batch_size: 1,
-          batch_bytes: 1
+          fields: { column1: 'value1', column2: 'value2' }
         }
       ]
     }

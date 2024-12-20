@@ -1,13 +1,12 @@
 import type { ActionDefinition, DynamicFieldResponse, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getListIdDynamicData, processPhoneNumber, validateAndConvertPhoneNumber } from '../functions'
+import { getListIdDynamicData } from '../functions'
 
 import { PayloadValidationError } from '@segment/actions-core'
 import { formatSubscribeProfile, formatSubscribeRequestBody } from '../functions'
 import { SubscribeProfile } from '../types'
 import { API_URL } from '../config'
-import { country_code } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Subscribe Profile',
@@ -38,9 +37,6 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.context.traits.phone' }
         }
       }
-    },
-    country_code: {
-      ...country_code
     },
     list_id: {
       label: 'List Id',
@@ -75,9 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { email, phone_number: initialPhoneNumber, consented_at, list_id, custom_source, country_code } = payload
-
-    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
+    const { email, phone_number, consented_at, list_id, custom_source } = payload
     if (!email && !phone_number) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
@@ -94,22 +88,9 @@ const action: ActionDefinition<Settings, Payload> = {
       json: subData
     })
   },
-  performBatch: async (request, { payload, statsContext, features }) => {
+  performBatch: async (request, { payload }) => {
     // remove payloads that have niether email or phone_number
-    const filteredPayload = payload.filter((profile) => {
-      // Validate and convert the phone number using the provided country code
-      const validPhoneNumber = validateAndConvertPhoneNumber(profile.phone_number, profile.country_code)
-
-      // If the phone number is valid, update the profile's phone number with the validated format
-      if (validPhoneNumber) {
-        profile.phone_number = validPhoneNumber
-      }
-      // If the phone number is invalid (null), exclude this profile
-      else if (validPhoneNumber === null) {
-        return false
-      }
-      return profile.email || profile.phone_number
-    })
+    const filteredPayload = payload.filter((profile) => profile.email || profile.phone_number)
 
     // if there are no payloads with phone or email throw error
     if (filteredPayload.length === 0) {
@@ -136,16 +117,6 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError(
         'Exceeded maximum allowed batches due to unique list_id and custom_source pairings'
       )
-    }
-    const statsClient = statsContext?.statsClient
-    const tags = statsContext?.tags
-
-    if (features && features['klaviyo-list-id']) {
-      const set = new Set()
-      payload.forEach((profile) => {
-        set.add(profile.list_id)
-      })
-      statsClient?.histogram(`klaviyo_list_id`, set.size, tags)
     }
     const requests: Promise<ModifiedResponse<Response>>[] = []
     batches.forEach((key) => {

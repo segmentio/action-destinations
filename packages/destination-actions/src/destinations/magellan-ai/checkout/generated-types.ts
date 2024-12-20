@@ -58,12 +58,4 @@ export interface Payload {
      */
     variantName?: string
   }[]
-  /**
-   * The IPv4 address of the end user (Note: Segment does not support collecting IPv6 addresses)
-   */
-  ip: string
-  /**
-   * The user agent of the end user (Note: not collected by the iOS Segment agent)
-   */
-  ua: string
 }

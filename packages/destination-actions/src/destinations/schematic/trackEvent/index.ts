@@ -7,6 +7,39 @@ function snakeCase(str: string) {
   return result.split(' ').join('_').toLowerCase()
 }
 
+/*function handleEvent(str: EventType, object: EventBody, str: apiKey) {
+  const event: Event = {
+    api_key: apiKey,
+    body: eventBody,
+    type: eventType,
+  }
+
+  sendEvent(event);
+}
+
+function sendEvent(event: Event) {
+    const captureUrl = `https://c.schematichq.com/e`;
+    const payload = JSON.stringify(event);
+
+    fetch(captureUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8",
+      },
+      body: payload,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Network response was not ok: ${response.statusText}`,
+          )
+        }
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      })
+  }*/
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Send track events to Schematic',
@@ -41,6 +74,14 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       defaultObjectUI: 'keyvalue',
       additionalProperties: true,
+      properties: {
+        userId: {
+          label: 'User ID',
+          description: 'Your unique ID for your user',
+          type: 'string',
+          required: false
+        }
+      },
       default: {
         userId: { '@path': '$.userId' }
       }

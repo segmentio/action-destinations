@@ -13,17 +13,25 @@
       "!{projectRoot}/**/test/**/*"
     ]
   },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "test"]
+      }
+    }
+  },
   "targetDefaults": {
     "build": {
       "inputs": ["production", "^production"],
-      "dependsOn": ["^build"],
-      "cache": true
+      "dependsOn": ["^build"]
     },
     "test": {
       "inputs": ["default", "^production"],
-      "dependsOn": ["build"],
-      "cache": true
+      "dependsOn": ["build"]
     }
   },
-  "defaultBase": "main"
+  "affected": {
+    "defaultBase": "main"
+  }
 }

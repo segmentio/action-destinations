@@ -53,6 +53,8 @@ describe('POST events', () => {
       mapping: track_mapping
     })
 
+    console.log(responses[0].status)
+
     expect(responses[0].status).toBe(200)
   })
 
@@ -77,6 +79,8 @@ describe('POST events', () => {
       auth,
       mapping: identify_mapping
     })
+
+    console.log(responses[0].status)
 
     expect(responses[0].status).toBe(200)
   })

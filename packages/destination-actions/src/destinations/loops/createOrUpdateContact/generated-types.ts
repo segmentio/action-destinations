@@ -6,7 +6,7 @@ export interface Payload {
    */
   createdAt?: string | number
   /**
-   * Contact attributes maintained by your team.
+   * Attributes maintained by your team.
    */
   customAttributes?: {
     [k: string]: unknown
@@ -23,12 +23,6 @@ export interface Payload {
    * The contact's surname.
    */
   lastName?: string
-  /**
-   * Key-value pairs of mailing list IDs and a boolean denoting if the contact should be added (true) or removed (false) from the list. Input list IDs as keys on the right, and a boolean true or false value on the left.
-   */
-  mailingLists?: {
-    [k: string]: unknown
-  }
   /**
    * The contact's source.
    */

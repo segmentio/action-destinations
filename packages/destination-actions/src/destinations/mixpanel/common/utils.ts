@@ -1,7 +1,6 @@
 export enum ApiRegions {
   US = 'US 🇺🇸',
-  EU = 'EU 🇪🇺',
-  IN = 'IN 🇮🇳'
+  EU = 'EU 🇪🇺'
 }
 
 export enum StrictMode {
@@ -17,10 +16,7 @@ export function getApiServerUrl(apiRegion: string | undefined) {
   if (apiRegion == ApiRegions.EU) {
     return 'https://api-eu.mixpanel.com'
   }
-  if (apiRegion == ApiRegions.IN) {
-    return 'https://api-in.mixpanel.com'
-  }
-  return 'https://api.mixpanel.com' // Default US endpoint
+  return 'https://api.mixpanel.com'
 }
 
 export function getBrowser(userAgent: string): string {

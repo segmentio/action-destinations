@@ -22,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(`https://api.schematichq.com/environments`, {
+      return request(`https://api.schematichq.com/companies`, {
         method: 'GET',
         headers: { 'X-Schematic-Api-Key': `${settings.apiKey}` }
       })

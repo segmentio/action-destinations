@@ -2,7 +2,7 @@ import { createHash } from 'crypto'
 import { IntegrationError } from '@segment/actions-core'
 import { InputField } from '@segment/actions-core'
 import { RequestClient, RequestOptions } from '@segment/actions-core'
-import type { Logger, StatsClient, EngageDestinationCache } from '@segment/actions-core/destination-kit'
+import { Logger, StatsClient, DataFeedCache } from '@segment/actions-core/destination-kit'
 import type { Settings } from '../generated-types'
 import { Liquid as LiquidJs } from 'liquidjs'
 import { Profile, ResponseError } from '@segment/actions-shared'
@@ -23,7 +23,6 @@ export type ApiLookupConfig = {
   shouldRetryOnRetryableError?: boolean
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any -- Expected any type. */
 type LogDataFeedError = (message: string, error?: any) => void
 
 const renderLiquidFields = async (
@@ -66,10 +65,10 @@ export const getRequestId = ({ method, url, body, headers }: ApiLookupConfig) =>
 export const getCachedResponse = async (
   { responseType }: ApiLookupConfig,
   requestId: string,
-  engageDestinationCache: EngageDestinationCache,
+  dataFeedCache: DataFeedCache,
   datafeedTags: string[]
 ) => {
-  const cachedResponse = await engageDestinationCache.getByKey(requestId)
+  const cachedResponse = await dataFeedCache.getRequestResponse(requestId)
   if (!cachedResponse) {
     datafeedTags.push('cache_hit:false')
     return
@@ -90,7 +89,7 @@ export const performApiLookup = async (
   tags: string[],
   settings: Settings,
   logger?: Logger | undefined,
-  engageDestinationCache?: EngageDestinationCache | undefined
+  dataFeedCache?: DataFeedCache | undefined
 ) => {
   const { id, method, headers, cacheTtl, name, shouldRetryOnRetryableError = true } = apiLookupConfig
   const datafeedTags = [
@@ -118,15 +117,15 @@ export const performApiLookup = async (
 
     const requestId = getRequestId({ ...apiLookupConfig, url: renderedUrl, body: renderedBody })
 
-    if (cacheTtl > 0 && !engageDestinationCache) {
+    if (cacheTtl > 0 && !dataFeedCache) {
       logDataFeedError('Data feed cache not available and cache needed')
       datafeedTags.push('cache_set:false')
       throw new IntegrationError('Data feed cache not available and cache needed', 'DATA_FEED_CACHE_NOT_AVAILABLE', 400)
     }
 
     // First check for cached response before calling 3rd party api
-    if (cacheTtl > 0 && engageDestinationCache) {
-      const cachedResponse = await getCachedResponse(apiLookupConfig, requestId, engageDestinationCache, datafeedTags)
+    if (cacheTtl > 0 && dataFeedCache) {
+      const cachedResponse = await getCachedResponse(apiLookupConfig, requestId, dataFeedCache, datafeedTags)
       if (cachedResponse) {
         datafeedTags.push('error:false')
         return cachedResponse
@@ -158,11 +157,11 @@ export const performApiLookup = async (
     }
 
     // Then set the response in cache
-    if (cacheTtl > 0 && engageDestinationCache) {
+    if (cacheTtl > 0 && dataFeedCache) {
       const dataString = JSON.stringify(data)
       const size = Buffer.byteLength(dataString, 'utf-8')
 
-      if (size > engageDestinationCache.maxValueSizeBytes) {
+      if (size > dataFeedCache.maxResponseSizeBytes) {
         datafeedTags.push('error:true', 'reason:response_size_too_big')
         logDataFeedError('Data feed response size too big too cache and caching needed, failing send')
         throw new IntegrationError(
@@ -173,7 +172,7 @@ export const performApiLookup = async (
       }
 
       try {
-        await engageDestinationCache.setByKey(requestId, dataString, cacheTtl / 1000)
+        await dataFeedCache.setRequestResponse(requestId, dataString, cacheTtl / 1000)
         datafeedTags.push('cache_set:true')
       } catch (error) {
         logDataFeedError('Data feed cache set failure', error)

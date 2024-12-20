@@ -10,7 +10,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * When true, Iterable ignores requests for unknown userIds and email addresses. This field is only relevant for non-email based Iterable projects: For email-based projects users will continue to be created in Iterable if a user is added or removed from a List.
+   * Whether to skip operation when the request includes a userId or email that doesn't yet exist in the Iterable project. When true, Iterable ignores requests with unknown userIds and email addresses.
    */
   updateExistingUsersOnly?: boolean
   /**
@@ -18,7 +18,7 @@ export interface AudienceSettings {
    */
   globalUnsubscribe?: boolean
   /**
-   * The numeric Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.
+   * Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.
    */
-  campaignId?: number
+  campaignId?: string
 }

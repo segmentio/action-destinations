@@ -15,7 +15,6 @@ import {
   ModifiedResponse,
   RequestClient,
   IntegrationError,
-  RetryableError,
   PayloadValidationError,
   DynamicFieldResponse
 } from '@segment/actions-core'
@@ -27,35 +26,14 @@ import type { Payload as UserListPayload } from './userList/generated-types'
 import { sha256SmartHash } from '@segment/actions-core'
 import { RefreshTokenResponse } from '.'
 
-export const API_VERSION = 'v17'
-export const CANARY_API_VERSION = 'v17'
+export const API_VERSION = 'v15'
+export const CANARY_API_VERSION = 'v15'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 
-type GoogleAdsErrorData = {
-  data: {
-    error: {
-      code: number
-      details: [
-        {
-          '@type': string
-          errors: [
-            {
-              errorCode: { databaseError: string }
-              message: string
-            }
-          ]
-        }
-      ]
-      message: string
-      status: string
-    }
-  }
-}
 export class GoogleAdsError extends HTTPError {
   response: Response & {
     status: string
     statusText: string
-    data: GoogleAdsErrorData
   }
 }
 
@@ -117,26 +95,6 @@ export async function getCustomVariables(
       }
     }
   )
-}
-
-export function memoizedGetCustomVariables() {
-  const cache: Map<string, Promise<ModifiedResponse<QueryResponse[]>>> = new Map()
-
-  return async (
-    customerId: string,
-    auth: any,
-    request: RequestClient,
-    features: Features | undefined,
-    statsContext: StatsContext | undefined
-  ) => {
-    if (cache.has(customerId)) {
-      return cache.get(customerId)
-    } else {
-      const result = getCustomVariables(customerId, auth, request, features, statsContext)
-      cache.set(customerId, result)
-      return result
-    }
-  }
 }
 
 export async function getConversionActionId(
@@ -235,22 +193,14 @@ export const commonHashedEmailValidation = (email: string): string => {
   return String(hash(email))
 }
 
-export async function getListIds(
-  request: RequestClient,
-  settings: CreateAudienceInput['settings'],
-  auth?: any,
-  features?: Features | undefined,
-  statsContext?: StatsContext
-) {
+export async function getListIds(request: RequestClient, settings: CreateAudienceInput['settings'], auth?: any) {
   const json = {
     query: `SELECT user_list.id, user_list.name FROM user_list`
   }
 
   try {
     const response: ModifiedResponse<UserListResponse> = await request(
-      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-        settings.customerId
-      }/googleAds:search`,
+      `https://googleads.googleapis.com/${API_VERSION}/customers/${settings.customerId}/googleAds:search`,
       {
         method: 'post',
         headers: {
@@ -283,7 +233,6 @@ export async function createGoogleAudience(
   request: RequestClient,
   input: CreateAudienceInput,
   auth: CreateAudienceInput['settings']['oauth'],
-  features?: Features | undefined,
   statsContext?: StatsContext
 ) {
   if (input.audienceSettings.external_id_type === 'MOBILE_ADVERTISING_ID' && !input.audienceSettings.app_id) {
@@ -328,9 +277,7 @@ export async function createGoogleAudience(
   }
 
   const response = await request(
-    `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-      input.settings.customerId
-    }/userLists:mutate`,
+    `https://googleads.googleapis.com/${API_VERSION}/customers/${input.settings.customerId}/userLists:mutate`,
     {
       method: 'post',
       headers: {
@@ -358,7 +305,6 @@ export async function getGoogleAudience(
   settings: CreateAudienceInput['settings'],
   externalId: string,
   auth: CreateAudienceInput['settings']['oauth'],
-  features?: Features | undefined,
   statsContext?: StatsContext
 ) {
   if (
@@ -387,9 +333,7 @@ export async function getGoogleAudience(
   }
 
   const response = await request(
-    `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-      settings.customerId
-    }/googleAds:search`,
+    `https://googleads.googleapis.com/${API_VERSION}/customers/${settings.customerId}/googleAds:search`,
     {
       method: 'post',
       headers: {
@@ -486,17 +430,9 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
   }
   // Map user data to Google Ads API format
   for (const payload of payloads) {
-    if (
-      payload.event_name === 'Audience Entered' ||
-      syncMode === 'add' ||
-      (syncMode === 'mirror' && payload.event_name === 'new')
-    ) {
+    if (payload.event_name == 'Audience Entered' || syncMode == 'add') {
       addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
-    } else if (
-      payload.event_name === 'Audience Exited' ||
-      syncMode === 'delete' ||
-      (syncMode === 'mirror' && payload.event_name === 'deleted')
-    ) {
+    } else if (payload.event_name == 'Audience Exited' || syncMode == 'delete') {
       removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
     }
   }
@@ -508,12 +444,9 @@ const createOfflineUserJob = async (
   payload: UserListPayload,
   settings: CreateAudienceInput['settings'],
   hookListId?: string,
-  features?: Features | undefined,
   statsContext?: StatsContext | undefined
 ) => {
-  const url = `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-    settings.customerId
-  }/offlineUserDataJobs:create`
+  const url = `https://googleads.googleapis.com/${API_VERSION}/customers/${settings.customerId}/offlineUserDataJobs:create`
 
   let external_audience_id = payload.external_audience_id
   if (hookListId) {
@@ -544,6 +477,7 @@ const createOfflineUserJob = async (
     return (response.data as any).resourceName
   } catch (error) {
     statsContext?.statsClient?.incr('error.createJob', 1, statsContext?.tags)
+    console.log(error)
     throw new IntegrationError(
       (error as GoogleAdsError).response?.statusText,
       'INVALID_RESPONSE',
@@ -556,10 +490,9 @@ const addOperations = async (
   request: RequestClient,
   userIdentifiers: any,
   resourceName: string,
-  features?: Features | undefined,
-  statsContext?: StatsContext | undefined
+  statsContext: StatsContext | undefined
 ) => {
-  const url = `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/${resourceName}:addOperations`
+  const url = `https://googleads.googleapis.com/${API_VERSION}/${resourceName}:addOperations`
 
   const json = {
     operations: userIdentifiers,
@@ -578,36 +511,20 @@ const addOperations = async (
     return response.data
   } catch (error) {
     statsContext?.statsClient?.incr('error.addOperations', 1, statsContext?.tags)
-
-    // Google throws 400 error for CONCURRENT_MODIFICATION error which is a retryable error
-    // We rewrite this error to a 500 so that Centrifuge can retry the request
-    for (const errorDetails of (error as GoogleAdsError).response?.data?.data?.error?.details) {
-      for (const errorItem of errorDetails.errors) {
-        if (errorItem?.errorCode?.databaseError) {
-          throw new RetryableError(
-            errorItem?.message ??
-              'Multiple requests were attempting to modify the same resource at once. Retry the request.',
-            500
-          )
-        }
-      }
-
-      throw new IntegrationError(
-        (error as GoogleAdsError).response?.statusText,
-        'INVALID_RESPONSE',
-        (error as GoogleAdsError).response?.status
-      )
-    }
+    throw new IntegrationError(
+      (error as GoogleAdsError).response?.statusText,
+      'INVALID_RESPONSE',
+      (error as GoogleAdsError).response?.status
+    )
   }
 }
 
 const runOfflineUserJob = async (
   request: RequestClient,
   resourceName: string,
-  features?: Features | undefined,
-  statsContext?: StatsContext | undefined
+  statsContext: StatsContext | undefined
 ) => {
-  const url = `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/${resourceName}:run`
+  const url = `https://googleads.googleapis.com/${API_VERSION}/${resourceName}:run`
 
   try {
     const response = await request(url, {
@@ -636,7 +553,6 @@ export const handleUpdate = async (
   hookListId: string,
   hookListType: string,
   syncMode?: string,
-  features?: Features | undefined,
   statsContext?: StatsContext
 ) => {
   const id_type = hookListType ?? audienceSettings.external_id_type
@@ -644,30 +560,21 @@ export const handleUpdate = async (
   const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode)
 
   // Create an offline user data job
-  const resourceName = await createOfflineUserJob(request, payloads[0], settings, hookListId, features, statsContext)
+  const resourceName = await createOfflineUserJob(request, payloads[0], settings, hookListId, statsContext)
 
   // Add operations to the offline user data job
   if (adduserIdentifiers.length > 0) {
-    await addOperations(request, adduserIdentifiers, resourceName, features, statsContext)
+    await addOperations(request, adduserIdentifiers, resourceName, statsContext)
   }
 
   if (removeUserIdentifiers.length > 0) {
-    await addOperations(request, removeUserIdentifiers, resourceName, features, statsContext)
+    await addOperations(request, removeUserIdentifiers, resourceName, statsContext)
   }
 
   // Run the offline user data job
-  const executedJob = await runOfflineUserJob(request, resourceName, features, statsContext)
+  const executedJob = await runOfflineUserJob(request, resourceName, statsContext)
 
   statsContext?.statsClient?.incr('success.offlineUpdateAudience', 1, statsContext?.tags)
 
   return executedJob
-}
-
-/* Enforcing this here since Customer ID is required for the Google Ads API
-  but not for the Enhanced Conversions API. */
-export const verifyCustomerId = (customerId: string | undefined) => {
-  if (!customerId) {
-    throw new PayloadValidationError('Customer ID is required.')
-  }
-  return customerId.replace(/-/g, '')
 }

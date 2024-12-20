@@ -6,14 +6,7 @@ export interface Data {
   }
 }
 
-export interface ResponsysAsyncResponse {
-  requestId: string
-}
-
-export type ResponsysMatchField = 'CUSTOMER_ID' | 'EMAIL_ADDRESS' | 'RIID'
-export type ResponsysMatchType = 'CUSTOMER_ID_' | 'EMAIL_ADDRESS_' | 'RIID_'
-
-export type ResponsysMergeRule = {
+export type MergeRule = {
   /**
    * Value of incoming preferred email format data. For example, 'H' may represent a preference for HTML formatted email.
    */
@@ -60,31 +53,23 @@ export type ResponsysMergeRule = {
   defaultPermissionStatus?: string
 }
 
-export type ResponsysRecordData = {
+export type RecordData = {
   fieldNames: string[]
-  records: string[][]
-  mapTemplateName?: string | null
+  records: unknown[][]
+  mapTemplateName: string
 }
 
-export type ResponsysListMemberRequestBody = {
-  recordData: ResponsysRecordData
+export type ListMemberRequestBody = {
+  recordData: RecordData
 } & {
-  mergeRule: ResponsysMergeRule
+  mergeRule: MergeRule
 }
 
-export type ResponsysCustomTraitsRequestBody = {
-  recordData: ResponsysRecordData
+export type CustomTraitsRequestBody = {
+  recordData: RecordData
 } & {
   insertOnNoMatch?: boolean
   updateOnMatch?: string
   matchColumnName1?: string
   matchColumnName2?: string
 }
-
-export type ResponsysAudiencePetUpdateRequestBody = {
-  recordData: ResponsysRecordData
-} & {
-  insertOnNoMatch: boolean
-  updateOnMatch: string
-  matchColumnName1: string
-} // In PET update there's no `mergeRule` key, the merge rule is the root object

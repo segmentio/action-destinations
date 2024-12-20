@@ -86,14 +86,6 @@ export interface Payload {
      */
     fbLoginID?: number
     /**
-     * This field represents unique application installation instances. Note: This parameter is for app events only.
-     */
-    anonId?: string
-    /**
-     * Your mobile advertiser ID, the advertising ID from an Android device or the Advertising Identifier (IDFA) from an Apple device.
-     */
-    madId?: string
-    /**
      * The ID issued by Facebook identity partner.
      */
     partner_id?: string
@@ -147,10 +139,6 @@ export interface Payload {
      * Example: 'iPhone5,1'.
      */
     deviceName?: string
-    /**
-     * Your mobile advertiser ID, the advertising ID from an Android device or the Advertising Identifier (IDFA) from an Apple device.
-     */
-    madId?: string
     /**
      * Example: 'En_US'.
      */
@@ -218,8 +206,4 @@ export interface Payload {
    * A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Facebook geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.
    */
   data_processing_options_state?: number
-  /**
-   * Use this field to specify that events should be test events rather than actual traffic. You can find your Test Event Code in your Facebook Events Manager under the "Test events" tab. This property overrides the test event code defined in Settings. You'll want to remove your Test Event Code when sending real traffic through this integration.
-   */
-  test_event_code?: string
 }

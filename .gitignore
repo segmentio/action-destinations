@@ -12,7 +12,3 @@ coverage
 
 # playwright
 playwright-report
-
-# NX
-.nx/cache
-.nx/workspace-data

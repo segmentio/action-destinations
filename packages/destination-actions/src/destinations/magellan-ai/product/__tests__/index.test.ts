@@ -7,9 +7,7 @@ const testDestination = createTestIntegration(Destination)
 const pixelToken = '123abc'
 const requiredFields = {
   value: 1099.99,
-  currency: 'CAD',
-  ip: '12.34.56.78',
-  ua: 'Foo Bar User Agent'
+  currency: 'CAD'
 }
 const optionalFields = {
   productId: 'product_id_0123',

@@ -1,4 +1,3 @@
-import btoa from 'btoa-lite'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
@@ -10,40 +9,26 @@ const destination: DestinationDefinition<Settings> = {
   slug: 'actions-rokt-audiences',
   mode: 'cloud',
   description: `
-  This destination allows user to engage audiences using Rokt's Public APIs.
-  User can connect Rokt Audiences (Actions) as a destination to their Engage Audience in Segment,
-  which will create/update custom audiences in the Rokt data platform.
+  This destination allows user to engage audiences using Rokt public API.
+  User can connect Rokt Audiences (Actions) as a destination to their Engage Audience in segment,
+  which will create/update custom audiences in the Rokt data platform.  
   `,
   authentication: {
     scheme: 'custom',
     fields: {
-      rpub: {
-        label: 'Rokt public key',
-        description: 'Rokt public key, starts with `rpub-`',
-        type: 'string',
-        required: true
-      },
-      rsec: {
-        label: 'Rokt secret key',
-        description: 'Rokt secret key, starts with `rsec-`',
+      apiKey: {
+        label: 'API Key provided by Rokt integration',
+        description: 'APIKey used for Rokt API authorization before sending custom audiences data',
         type: 'password',
-        required: true
-      },
-      accountid: {
-        label: 'Rokt Account ID',
-        description: 'Rokt ID assigned to your particular account.',
-        type: 'string',
         required: true
       }
     },
+
     testAuthentication: async (request, { settings }) => {
-      return await request(CONSTANTS.ROKT_API_BASE_URL + CONSTANTS.ROKT_API_AUTH_ENDPOINT, {
-        method: 'POST',
+      return request(CONSTANTS.ROKT_API_BASE_URL + CONSTANTS.ROKT_API_AUTH_ENDPOINT, {
+        method: 'GET',
         headers: {
-          Authorization: `Basic ${btoa(settings.rpub + ':' + settings.rsec)}`
-        },
-        json: {
-          accountId: settings.accountid
+          Authorization: `${settings.apiKey}`
         }
       })
     }
@@ -51,7 +36,7 @@ const destination: DestinationDefinition<Settings> = {
 
   extendRequest({ settings }) {
     return {
-      headers: { Authorization: `Basic ${btoa(settings.rpub + ':' + settings.rsec)}` }
+      headers: { Authorization: `${settings.apiKey}` }
     }
   },
   actions: {

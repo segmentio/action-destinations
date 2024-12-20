@@ -5,23 +5,20 @@ import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { EventData } from '../types'
 import { v4 as uuidv4 } from '@lukeed/uuid'
-import { processPhoneNumber } from '../functions'
-import { country_code } from '../properties'
-import dayjs from 'dayjs'
 
 const createEventData = (payload: Payload) => ({
   data: {
     type: 'event',
     attributes: {
       properties: { ...payload.properties },
-      time: payload.time ? dayjs(payload.time).toISOString() : undefined,
+      time: payload.time,
       value: payload.value,
       unique_id: payload.unique_id,
       metric: {
         data: {
           type: 'metric',
           attributes: {
-            name: 'Order Completed'
+            name: payload.event_name
           }
         }
       },
@@ -46,13 +43,13 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
       data: {
         type: 'event',
         attributes: {
-          properties: { ...orderEventData.data.attributes.properties, ...product },
+          properties: { ...product, ...orderEventData.data.attributes.properties },
           unique_id: uuidv4(),
           metric: {
             data: {
               type: 'metric',
               attributes: {
-                name: 'Ordered Product'
+                name: payload.event_name
               }
             }
           },
@@ -89,7 +86,6 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Phone Number',
           type: 'string'
         },
-        country_code: { ...country_code },
         external_id: {
           label: 'External Id',
           description:
@@ -159,14 +155,14 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload }) => {
-    const { email, phone_number: initialPhoneNumber, external_id, anonymous_id, country_code } = payload.profile
-
-    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
-    payload.profile.phone_number = phone_number
-    delete payload?.profile?.country_code
+    const { email, phone_number, external_id, anonymous_id } = payload.profile
 
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
+    }
+
+    if (!payload.event_name) {
+      payload.event_name = 'Order Completed'
     }
 
     const eventData = createEventData(payload)

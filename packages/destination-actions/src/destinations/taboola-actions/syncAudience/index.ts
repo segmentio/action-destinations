@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       label: 'Email address',
       description: "The user's email address",
       type: 'string',
-      unsafe_hidden: false,
+      unsafe_hidden: true,
       required: false,
       default: {
         '@if': {

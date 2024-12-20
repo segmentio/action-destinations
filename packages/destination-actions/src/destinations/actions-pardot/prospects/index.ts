@@ -191,9 +191,6 @@ const action: ActionDefinition<Settings, Payload> = {
       if (!error.response) {
         throw err
       }
-      // Determine the status code from the response, defaulting to 400 if it's not a number
-      const responseStatusCode = typeof error.response?.status === 'number' ? error.response.status : 400
-      // Used for General Status checking
       const statusCode = error.response.status
       //Pardot error response is a mix of json and xml.
       //Json error response handle the error in body payload.
@@ -203,7 +200,7 @@ const action: ActionDefinition<Settings, Payload> = {
           `Pardot responded witha error code ${data.code}: ${data.message}. This means Pardot has received the call, but consider the payload to be invalid.  To identify the exact error, please refer to ` +
             `https://developer.salesforce.com/docs/marketing/pardot/guide/error-codes.html?q=error#numerical-list-of-error-codes and search for the error code you received.`,
           'PARDOT_ERROR',
-          responseStatusCode
+          400
         )
       }
       //XML error response handles the error in headers.

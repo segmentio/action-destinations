@@ -1,29 +1,26 @@
 import type { RequestClient } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 import { CONSTANTS } from '../constants'
 /**
  * CustomAudienceOperation is a custom type to encapsulate the request body params
- * for inserting/updating custom audience list in Rokt data platform
- * @accountid the Rokt account
+ * for inserting/updating custom audience list in rokt data platform
  * @action [include, exclude]
- * @list custom audience name ( or list ) in Rokt data platform
+ * @list custom audience name ( or list ) in rokt data platform
  * @emails list of user emails to be included/excluded from custom audience list
  */
 type CustomAudienceOperation = {
-  accountId: string
   action: string
   list: string
   emails: string[]
 }
 
 /**
- * getCustomAudienceOperations parses event payloads from segment to convert to request object for Rokt api
+ * getCustomAudienceOperations parses event payloads from segment to convert to request object for rokt api
  * @payload payload of events
  */
 
-const getCustomAudienceOperations = (payload: Payload[], settings: Settings): CustomAudienceOperation[] => {
+const getCustomAudienceOperations = (payload: Payload[]): CustomAudienceOperation[] => {
   // map to handle different audiences in the batch
   // this will contain audience_name=>[action=>emails]
   const audience_map = new Map<string, Map<string, string[]>>([])
@@ -57,15 +54,13 @@ const getCustomAudienceOperations = (payload: Payload[], settings: Settings): Cu
     }
   }
 
-  // build operation request to be sent to Rokt api
+  // build operation request to be sent to rokt api
   const custom_audience_ops: CustomAudienceOperation[] = []
-
   audience_map.forEach((action_map_values: Map<string, string[]>, list: string) => {
     // key will be audience list
     // value will map of action=>email_list
     action_map_values.forEach((emails: string[], action: string) => {
       const custom_audience_op: CustomAudienceOperation = {
-        accountId: settings.accountid,
         list: list,
         action: action,
         emails: emails
@@ -77,19 +72,19 @@ const getCustomAudienceOperations = (payload: Payload[], settings: Settings): Cu
 }
 
 /**
- * Takes an array of events of type Payload, decides whether event is meant for include/exclude action of Rokt api
+ * Takes an array of events of type Payload, decides whether event is meant for include/exclude action of rokt api
  * and then pushes the event to proper list to build request body.
  * @param request request object used to perform HTTP calls
  * @param events array of events containing Rokt custom audience details
  */
-async function processPayload(request: RequestClient, settings: Settings, events: Payload[]) {
-  const custom_audience_ops: CustomAudienceOperation[] = getCustomAudienceOperations(events, settings)
+async function processPayload(request: RequestClient, events: Payload[]) {
+  const custom_audience_ops: CustomAudienceOperation[] = getCustomAudienceOperations(events)
   const promises = []
 
   for (const op of custom_audience_ops) {
     if (op.emails.length > 0) {
-      // if emails are present for action, send to Rokt. Push to list of promises
-      // There will be max 2 promises for 2 http requests ( include & exclude actions )
+      // if emails are present for action, send to rokt. Push to list of promises
+      // There will be max 2 promies for 2 http reuests ( include & exclude actions )
       promises.push(
         request(CONSTANTS.ROKT_API_BASE_URL + CONSTANTS.ROKT_API_CUSTOM_AUDIENCE_ENDPOINT, {
           method: 'POST',

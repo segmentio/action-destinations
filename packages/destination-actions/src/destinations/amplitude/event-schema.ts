@@ -90,8 +90,7 @@ export const eventSchema: Record<string, InputField> = {
   platform: {
     label: 'Platform',
     type: 'string',
-    description:
-      'Platform of the device. If using analytics.js to send events from a Browser and no if no Platform value is provided, the value "Web" will be sent.',
+    description: 'Platform of the device.',
     default: {
       '@path': '$.context.device.type'
     }

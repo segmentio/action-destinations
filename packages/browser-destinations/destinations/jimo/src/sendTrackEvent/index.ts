@@ -1,9 +1,9 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
-import { JimoClient } from 'src/types'
+import { JimoSDK } from 'src/types'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
-const action: BrowserActionDefinition<Settings, JimoClient, Payload> = {
+const action: BrowserActionDefinition<Settings, JimoSDK, Payload> = {
   title: 'Send Track Event',
   description: 'Submit an event to Jimo',
   defaultSubscription: 'type = "track"',
@@ -68,14 +68,11 @@ const action: BrowserActionDefinition<Settings, JimoClient, Payload> = {
     const { event_name, userId, anonymousId, timestamp, messageId, properties } = payload
     const receivedAt = timestamp
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    jimo
-      .client()
-      .push([
-        'do',
-        'segmentio:track',
-        [{ event: event_name, userId, anonymousId, messageId, timestamp, receivedAt, properties }]
-      ])
+    jimo.push([
+      'do',
+      'segmentio:track',
+      [{ event: event_name, userId, anonymousId, messageId, timestamp, receivedAt, properties }]
+    ])
     window.dispatchEvent(new CustomEvent(`jimo-segmentio-track:${event_name}`))
   }
 }

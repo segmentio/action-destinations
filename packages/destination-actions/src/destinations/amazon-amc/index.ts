@@ -4,6 +4,7 @@ import type { Settings, AudienceSettings } from './generated-types'
 import {
   AudiencePayload,
   extractNumberAndSubstituteWithStringValue,
+  getAuthSettings,
   getAuthToken,
   REGEX_ADVERTISERID,
   REGEX_AUDIENCEID
@@ -178,16 +179,28 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       if (ttl) {
-        payload.metadata.ttl = ttl
+        const timeToLive = Number(ttl)
+        if (!timeToLive) {
+          throw new IntegrationError('TTL:-String can not be converted to Number', 'INVALID_TTL_VALUE', 400)
+        }
+        payload.metadata.ttl = timeToLive
       }
 
       if (cpm_cents && currency) {
+        const cpmCents = Number(cpm_cents)
+        if (!cpmCents) {
+          throw new IntegrationError('CPM_CENTS:-String can not be converted to Number', 'INVALID_CPMCENTS_VALUE', 400)
+        }
         payload.metadata.audienceFees = []
         payload.metadata?.audienceFees.push({
           currency,
-          cpmCents: cpm_cents
+          cpmCents: cpmCents
         })
       }
+
+      // @ts-ignore - TS doesn't know about the oauth property
+      const authSettings = getAuthSettings(settings)
+      const authToken = await getAuthToken(request, createAudienceInput.settings, authSettings)
 
       let payloadString = JSON.stringify(payload)
       // Regular expression to find a advertiserId numeric string and replace the quoted advertiserId string with an unquoted number
@@ -198,7 +211,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         method: 'POST',
         body: payloadString,
         headers: {
-          'Content-Type': 'application/vnd.amcaudiences.v1+json'
+          'Content-Type': 'application/vnd.amcaudiences.v1+json',
+          authorization: `Bearer ${authToken}`
         }
       })
 
@@ -215,11 +229,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audience_id = getAudienceInput.externalId
       const { settings } = getAudienceInput
       const endpoint = settings.region
+
       if (!audience_id) {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
+      // @ts-ignore - TS doesn't know about the oauth property
+      const authSettings = getAuthSettings(settings)
+      const authToken = await getAuthToken(request, settings, authSettings)
       const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          authorization: `Bearer ${authToken}`
+        }
       })
       const res = await response.text()
       // Regular expression to find a audienceId number and replace the audienceId with quoted string

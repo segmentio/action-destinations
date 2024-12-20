@@ -2,58 +2,13 @@
 
 export interface Payload {
   /**
-   * list of line items associated with the order.
-   */
-  line_items?: {
-    /**
-     * A globally unique identifier for the item.
-     */
-    id?: string
-    /**
-     * Identifier for the variant of the product
-     */
-    variantId?: string
-    /**
-     * The location of the image as a URL.
-     */
-    imageSrc?: string
-    /**
-     * The price of the product variant.
-     */
-    priceAmount?: number
-    /**
-     * The SKU (stock keeping unit) associated with the variant.
-     */
-    sku?: string
-    /**
-     * The product variant's title.
-     */
-    title?: string
-    /**
-     * The product variant's untranslated title.
-     */
-    untranslatedTitle?: string
-    /**
-     * The product's vendor name.
-     */
-    vendor?: string
-    /**
-     * The product type specified by the merchant.
-     */
-    type?: string
-    /**
-     * The relative URL of the product.
-     */
-    url?: string
-    /**
-     * Quantity of the item
-     */
-    quantity?: number
-  }[]
-  /**
    * The mailing address associated with the payment method.
    */
   billing_address?: {
+    /**
+     * A unique identifier for the address.
+     */
+    id?: string
     /**
      * The customer's mailing address.
      */
@@ -67,6 +22,10 @@ export interface Payload {
      */
     city?: string
     /**
+     * The customer's company.
+     */
+    company?: string
+    /**
      * The customer's country.
      */
     country?: string
@@ -75,6 +34,18 @@ export interface Payload {
      */
     country_code?: string
     /**
+     * The customer's normalized country name.
+     */
+    country_name?: string
+    /**
+     * A unique identifier for the customer.
+     */
+    customer_id?: string
+    /**
+     * Whether this address is the default address for the customer.
+     */
+    default?: boolean
+    /**
      * The customer's first name.
      */
     first_name?: string
@@ -82,6 +53,10 @@ export interface Payload {
      * The customer's last name.
      */
     last_name?: string
+    /**
+     * The customer's first and last names.
+     */
+    name?: string
     /**
      * The customer's phone number at this address.
      */
@@ -98,6 +73,38 @@ export interface Payload {
      * The customer's postal code, also known as zip, postcode, Eircode, etc
      */
     zip?: string
+    /**
+     * Hashed value of first name in SHA256 (lower case).
+     */
+    hashed_first_name?: string
+    /**
+     * Hashed value of last name in SHA256 (lower case).
+     */
+    hashed_last_name?: string
+    /**
+     * Hashed value of phone in SHA256 (lower case).
+     */
+    hashed_phone?: string
+    /**
+     * Hashed value of address1 in SHA256 (lower case).
+     */
+    hashed_address1?: string
+    /**
+     * Hashed value of address2 in SHA256 (lower case).
+     */
+    hashed_address2?: string
+    /**
+     * Hashed value of city in SHA256 (lower case).
+     */
+    hashed_city?: string
+    /**
+     * Hashed value of zip in SHA256 (lower case).
+     */
+    hashed_zip?: string
+    /**
+     * Hashed value of country code in SHA256 (lower case).
+     */
+    hashed_country_code?: string
   }
   /**
    * The IP address of the browser used by the customer when they placed the order. Both IPv4 and IPv6 are supported.
@@ -275,6 +282,10 @@ export interface Payload {
    */
   shipping_address?: {
     /**
+     * A unique identifier for the address.
+     */
+    id?: string
+    /**
      * The customer's mailing address.
      */
     address1?: string
@@ -287,6 +298,10 @@ export interface Payload {
      */
     city?: string
     /**
+     * The customer's company.
+     */
+    company?: string
+    /**
      * The customer's country.
      */
     country?: string
@@ -295,6 +310,18 @@ export interface Payload {
      */
     country_code?: string
     /**
+     * The customer's normalized country name.
+     */
+    country_name?: string
+    /**
+     * A unique identifier for the customer.
+     */
+    customer_id?: string
+    /**
+     * Whether this address is the default address for the customer.
+     */
+    default?: boolean
+    /**
      * The customer's first name.
      */
     first_name?: string
@@ -302,6 +329,10 @@ export interface Payload {
      * The customer's last name.
      */
     last_name?: string
+    /**
+     * The customer's first and last names.
+     */
+    name?: string
     /**
      * The customer's phone number at this address.
      */
@@ -318,6 +349,38 @@ export interface Payload {
      * The customer's postal code, also known as zip, postcode, Eircode, etc
      */
     zip?: string
+    /**
+     * Hashed value of first name in SHA256 (lower case).
+     */
+    hashed_first_name?: string
+    /**
+     * Hashed value of last name in SHA256 (lower case).
+     */
+    hashed_last_name?: string
+    /**
+     * Hashed value of phone in SHA256 (lower case).
+     */
+    hashed_phone?: string
+    /**
+     * Hashed value of address1 in SHA256 (lower case).
+     */
+    hashed_address1?: string
+    /**
+     * Hashed value of address2 in SHA256 (lower case).
+     */
+    hashed_address2?: string
+    /**
+     * Hashed value of city in SHA256 (lower case).
+     */
+    hashed_city?: string
+    /**
+     * Hashed value of zip in SHA256 (lower case).
+     */
+    hashed_zip?: string
+    /**
+     * Hashed value of country code in SHA256 (lower case).
+     */
+    hashed_country_code?: string
   }
   /**
    * The ID of the order placed on the originating platform.

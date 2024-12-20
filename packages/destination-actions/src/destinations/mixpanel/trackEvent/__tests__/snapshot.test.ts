@@ -53,7 +53,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
-      properties: { ...eventData, batch_size: 1000 }
+      properties: eventData
     })
 
     const responses = await testDestination.testAction(actionSlug, {

@@ -33,9 +33,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       try {
         const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot({
-          timestamp: expect.any(String)
-        })
+        expect(json).toMatchSnapshot()
         return
       } catch (err) {
         expect(rawBody).toMatchSnapshot()
@@ -69,20 +67,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       try {
         const json = JSON.parse(rawBody)
-
-        const expectedSnapshot: any = {
-          timestamp: expect.any(String)
-        }
-
-        // Add the `traits` object conditionally if it exists in the received data
-        if (json.traits && json.traits.createdAt) {
-          expectedSnapshot.traits = {
-            createdAt: expect.any(String)
-          }
-        }
-
-        expect(json).toMatchSnapshot(expectedSnapshot)
-
+        expect(json).toMatchSnapshot()
         return
       } catch (err) {
         expect(rawBody).toMatchSnapshot()
