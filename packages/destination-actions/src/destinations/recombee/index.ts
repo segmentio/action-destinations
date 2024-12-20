@@ -85,7 +85,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Track - Ecommerce - Product Viewed',
+      name: 'Ecommerce - Product Viewed',
       subscribe: 'type = "track" and event = "Product Viewed"',
       partnerAction: 'addDetailView',
       mapping: {
@@ -95,14 +95,14 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Track - Ecommerce - Product Added',
+      name: 'Ecommerce - Product Added',
       subscribe: 'type = "track" and event = "Product Added"',
       partnerAction: 'addCartAddition',
       mapping: defaultValues(addCartAddition.fields),
       type: 'automatic'
     },
     {
-      name: 'Track - Ecommerce - Product Removed',
+      name: 'Ecommerce - Product Removed',
       subscribe: 'type = "track" and event = "Product Removed"',
       partnerAction: 'deleteCartAddition',
       mapping: {
@@ -112,14 +112,14 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Track - Ecommerce - Order Completed',
+      name: 'Ecommerce - Order Completed',
       subscribe: 'type = "track" and event = "Order Completed"',
       partnerAction: 'addPurchase',
       mapping: defaultValues(addPurchase.fields),
       type: 'automatic'
     },
     {
-      name: 'Track - Ecommerce - Product Added to Wishlist',
+      name: 'Ecommerce - Product Added to Wishlist',
       subscribe: 'type = "track" and event = "Product Added to Wishlist"',
       partnerAction: 'addBookmark',
       mapping: {
@@ -129,7 +129,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Track - Ecommerce - Product Removed from Wishlist',
+      name: 'Ecommerce - Product Removed from Wishlist',
       subscribe: 'type = "track" and event = "Product Removed from Wishlist"',
       partnerAction: 'deleteBookmark',
       mapping: {
@@ -139,7 +139,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Track - Ecommerce - Product Shared',
+      name: 'Ecommerce - Product Shared',
       subscribe: 'type = "track" and event = "Product Shared"',
       partnerAction: 'addBookmark',
       mapping: {
@@ -149,7 +149,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Track - Video - Video Playback Started',
+      name: 'Video - Playback Started',
       subscribe: 'type = "track" and event = "Video Playback Started"',
       partnerAction: 'setViewPortion',
       mapping: {
@@ -160,7 +160,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Track - Video - Video Content Playing',
+      name: 'Video - Content Playing',
       subscribe: 'type = "track" and event = "Video Content Playing"',
       partnerAction: 'setViewPortionFromWatchTime',
       mapping: {
@@ -170,7 +170,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Track - Video - Video Playback Paused',
+      name: 'Video - Playback Paused',
       subscribe: 'type = "track" and event = "Video Playback Paused"',
       partnerAction: 'setViewPortionFromWatchTime',
       mapping: {
@@ -180,7 +180,7 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
-      name: 'Track - Video - Video Playback Completed',
+      name: 'Video - Playback Completed',
       subscribe: 'type = "track" and event = "Video Playback Completed"',
       partnerAction: 'setViewPortion',
       mapping: {
