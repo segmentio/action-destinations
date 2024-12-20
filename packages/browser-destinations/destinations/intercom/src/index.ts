@@ -94,7 +94,7 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   initialize: async ({ settings }, deps) => {
     //initialize Intercom
     initScript({ appId: settings.appId })
-    initSettings({ appId: settings.appId })
+    initSettings({ appId: settings.appId, activator: settings.activator })
     const preloadedIntercom = window.Intercom
     initialBoot(settings.appId, { api_base: settings.apiBase })
 
