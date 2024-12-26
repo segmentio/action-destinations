@@ -42,7 +42,7 @@ export function upsertRows(
   }
 }
 
-export async function handleMultistatusResponse(
+export async function executeUpsertWithMultiStatus(
   request: RequestClient,
   subdomain: String,
   payloads: payload_dataExtension[] | payload_contactDataExtension[]
@@ -70,7 +70,7 @@ export async function handleMultistatusResponse(
       return multiStatusResponse
     }
     const err = error as ErrorResponse
-    if (err?.response?.data?.message === 'Not Authorized') {
+    if (err?.response?.status === 401) {
       throw error
     }
 
