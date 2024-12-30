@@ -33,7 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           allowNull: true,
           default: {
-            '@path': '$.traits.email_address'
+            '@path': '$.traits.email'
           }
         },
         $email_marketing: {
@@ -41,10 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
           description:
             "The profile's marketing emails subscription. You can set it to subscribed , unsubscribed , or null to reset the marketing emails subscription.",
           type: 'string',
-          allowNull: true,
-          default: {
-            '@path': '$.traits.email_marketing'
-          }
+          allowNull: true
         },
         $phone_number: {
           label: 'Phone Number',
@@ -60,10 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
           description:
             "The profile's marketing SMS subscription. You can set it to subscribed , unsubscribed , or null to reset the marketing SMS subscription.",
           type: 'string',
-          allowNull: true,
-          default: {
-            '@path': '$.traits.sms_marketing'
-          }
+          allowNull: true
         },
         $language: {
           label: 'Language',
@@ -80,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           allowNull: true,
           default: {
-            '@path': '$.traits.region'
+            '@path': '$.context.location.country'
           }
         },
         $timezone: {
@@ -90,7 +84,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           allowNull: true,
           default: {
-            '@path': '$.traits.timezone'
+            '@path': '$.context.timezone'
           }
         },
         properties: {
@@ -152,10 +146,27 @@ function buildProfileJson(data: Payload): Payload[] {
 
   // Extract custom properties with batch size limitation
   const customProperties = data.attributes?.properties || {}
+  Object.keys(attributes).forEach((key) => {
+    delete customProperties[key]
+  })
+
   const limitedProperties = Object.keys(customProperties)
-    .slice(0, batchSize)
+    .slice(0, batchSize) // Limite la taille à 'batchSize'
     .reduce((obj: Record<string, any>, key: string) => {
-      obj[key] = customProperties[key]
+      const value = customProperties[key]
+      // Check if the value is an ISO 8601 date and add 'date()' prefix to the key
+      if (isISO8601Date(value as string)) {
+        console.dir('value date = ' + value, { depth: null })
+        obj[`date(${key})`] = value
+      }
+      // Check if the value is a valid URL and add 'url()' prefix to the key
+      else if (isValidUrl(value as string)) {
+        console.dir('value url = ' + value, { depth: null })
+        obj[`url(${key})`] = value
+      } else {
+        obj[key] = value
+      }
+
       return obj
     }, {})
 
@@ -169,6 +180,18 @@ function buildProfileJson(data: Payload): Payload[] {
       attributes: fullAttributes
     }
   ]
+}
+
+// Utility function to check if a string is in ISO 8601 date format
+function isISO8601Date(value: string): boolean {
+  const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3,6})?Z$/
+  return typeof value === 'string' && iso8601Regex.test(value)
+}
+
+// Utility function to check if a string is a valid URL
+function isValidUrl(value: string): boolean {
+  const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i
+  return typeof value === 'string' && urlRegex.test(value)
 }
 
 export default action

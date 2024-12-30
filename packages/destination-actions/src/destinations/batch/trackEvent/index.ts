@@ -38,12 +38,15 @@ const action: ActionDefinition<Settings, Payload> = {
             '@path': '$.event'
           }
         },
-        /*time: {
+        time: {
           label: 'Time',
-          description: "The time an event occurred. It has to respect the RFC 3339 format.",
-          type: 'string',
-          allowNull: true
-        },*/
+          description: 'The time an event occurred. It has to respect the RFC 3339 format.',
+          type: 'datetime',
+          allowNull: true,
+          default: {
+            '@path': '$.receivedAt'
+          }
+        },
         attributes: {
           label: 'attributes',
           description: "An object containing all event's attributes",
