@@ -246,7 +246,6 @@ async function removeFromList(request: RequestClient, payloads: IndexedPayload[]
     await Promise.all(
       chunkedContactIds.map(async (c) => {
         const url = REMOVE_CONTACTS_FROM_LIST_URL.replace('{list_id}', listId).replace('{contact_ids}', c.join(','))
-        console.log(url)
         if (c.length > 0) {
           await request(url, {
             method: 'delete'

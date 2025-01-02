@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 import { validatePhone, toDateFormat } from '../utils'
@@ -487,7 +487,7 @@ describe('SendgridAudiences.syncAudience', () => {
     )
   })
 
-  it('should throw an error if a all payloads in a batch are invalid', async () => {
+  it('should return multistatus response with all errors if all payloads in a batch are invalid', async () => {
     const badPayload = JSON.parse(JSON.stringify(addPayload))
     delete badPayload.traits?.email
     delete badPayload.traits?.external_id
@@ -496,16 +496,24 @@ describe('SendgridAudiences.syncAudience', () => {
 
     const badPayload2 = JSON.parse(JSON.stringify(badPayload))
 
+    const responseError = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.',
+      errorreporter: 'INTEGRATIONS'
+    }
+
     const events = [createTestEvent(badPayload), createTestEvent(badPayload2)]
 
-    await expect(
-      testDestination.testBatchAction('syncAudience', {
-        events,
-        settings,
-        useDefaultMappings: true,
-        mapping
-      })
-    ).rejects.toThrowError(new PayloadValidationError(`No valid payloads found`))
+    const responses = await testDestination.executeBatch('syncAudience', {
+      events,
+      settings,
+      mapping
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[0]).toMatchObject(responseError)
+    expect(responses[1]).toMatchObject(responseError)
   })
 
   it('should do multiple search and a single remove request for large batch with many identifiers but less than 100 contacts', async () => {
@@ -665,7 +673,5 @@ describe('SendgridAudiences.syncAudience', () => {
     expect(toDateFormat(badDate2)).toBe(undefined)
     expect(toDateFormat(badDate3)).toBe(undefined)
   })
-
-
   
 })
