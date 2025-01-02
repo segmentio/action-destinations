@@ -19,7 +19,12 @@ describe('Braze Cloud Mode (Actions)', () => {
 
       const event = createTestEvent({
         type: 'identify',
-        receivedAt
+        receivedAt,
+        integrations: {
+          ['Braze Cloud Mode (Actions)']: {
+            braze_id: 'test_braze_123'
+          } as any
+        }
       })
 
       const responses = await testDestination.testAction('updateUserProfile', {
@@ -27,7 +32,6 @@ describe('Braze Cloud Mode (Actions)', () => {
         settings,
         useDefaultMappings: true
       })
-
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
