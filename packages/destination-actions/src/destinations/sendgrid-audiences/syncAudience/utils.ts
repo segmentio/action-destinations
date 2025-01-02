@@ -130,6 +130,7 @@ async function upsertContacts(request: RequestClient, payloads: IndexedPayload[]
     return
   } 
   catch (error) {
+    console.log(error)
     const { status, data } = (error as AddRespError).response
     if (status === 400) {
       const invalidEmails = Array.isArray(data.errors)
