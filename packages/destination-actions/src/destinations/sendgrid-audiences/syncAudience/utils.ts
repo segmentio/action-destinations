@@ -14,16 +14,17 @@ import chunk from 'lodash/chunk'
 export async function send(request: RequestClient, payload: Payload[], isBatch: boolean){
   const msResponse = new MultiStatusResponse()
 
-  const indexedPayloads: IndexedPayload[] = payload.map((p, index) => ({ ...p, index }))
-  indexedPayloads.forEach((p) => {
-    p.action = p.traits_or_props[p.segment_audience_key] === true ? 'add' : 'remove'
-  })
+  const indexedPayloads: IndexedPayload[] = payload.map((p, index) => ({
+    ...p,
+    index,
+    action: p.traits_or_props[p.segment_audience_key] === true ? 'add' : 'remove'
+  }))
 
   validate(indexedPayloads)
 
-  await upsertContacts(request, indexedPayloads, 'add') // upsert contacts and add them to the list
-  await upsertContacts(request, indexedPayloads, 'remove') // upsert contacts who will later be removed from the list
-  await removeFromList(request, indexedPayloads) // remove the contacts from the list
+  await upsertContacts(request, indexedPayloads, 'add') // upsert contacts and add them to the SendGrid List
+  await upsertContacts(request, indexedPayloads, 'remove') // upsert contacts who will later be removed from the SendGrid List
+  await removeFromList(request, indexedPayloads) // remove the contacts from the SendGrid List
 
   indexedPayloads.forEach((p) => {
     if(p.error){
@@ -130,7 +131,6 @@ async function upsertContacts(request: RequestClient, payloads: IndexedPayload[]
     return
   } 
   catch (error) {
-    console.log(error)
     const { status, data } = (error as AddRespError).response
     if (status === 400) {
       const invalidEmails = Array.isArray(data.errors)
@@ -198,7 +198,6 @@ function upsertJSON(payloads: IndexedPayload[], action: Action): UpsertContactsR
 }
 
 async function upsertRequest(request: RequestClient, json: UpsertContactsReq) {  
-  console.log(JSON.stringify(json, null, 2))
   return await request(UPSERT_CONTACTS_URL, {
     method: 'put',
     json
