@@ -229,14 +229,14 @@ describe('SendgridAudiences.syncAudience', () => {
     }
 
     nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertAddBatchExpectedPayload).reply(200, {})
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
-    expect(responses.length).toBe(1)
+    expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(200)
+    expect(responses[1].status).toBe(200)
   })
 
   it('should remove a single Contact from a Sendgrid list correctly', async () => {
@@ -318,17 +318,15 @@ describe('SendgridAudiences.syncAudience', () => {
 
     nock('https://api.sendgrid.com').delete(deletePath).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
-    expect(responses.length).toBe(3)
+    expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(200)
     expect(responses[1].status).toBe(200)
-    expect(responses[2].status).toBe(200)
   })
 
   it('should add and remove multiple Contacts from a Sendgrid list correctly', async () => {
@@ -392,10 +390,9 @@ describe('SendgridAudiences.syncAudience', () => {
 
     nock('https://api.sendgrid.com').delete(deletePath).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
@@ -452,19 +449,26 @@ describe('SendgridAudiences.syncAudience', () => {
       ]
     }
 
+    const multiStatusRespError = {
+      "status": 400,
+      "errortype": "PAYLOAD_VALIDATION_FAILED",
+      "errormessage": "Sendgrid rejected email 'not_a_valid_email_address@gmail.com' as being not valid",
+      "errorreporter": "INTEGRATIONS"
+    }
+
     nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertAddBatchExpectedPayload).reply(400, responseError)
     nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addBatchExpectedPayload2).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
     expect(responses.length).toBe(2)
-    expect(responses[0].status).toBe(400)
-    expect(responses[1].status).toBe(200)
+    expect(responses[0].status).toBe(200)
+    expect(responses[1].status).toBe(400)
+    expect(responses[1]).toMatchObject(multiStatusRespError)
   })
 
   it('should throw an error if a non batch payload is missing identifiers', async () => {
@@ -563,19 +567,16 @@ describe('SendgridAudiences.syncAudience', () => {
 
     nock('https://api.sendgrid.com').delete(deletePath).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
-    expect(responses.length).toBe(5)
-    expect(responses[0].status).toBe(200)
-    expect(responses[1].status).toBe(200)
-    expect(responses[2].status).toBe(200)
-    expect(responses[3].status).toBe(200)
-    expect(responses[4].status).toBe(200)
+    expect(responses.length).toBe(30)
+    for(let i = 0; i < 30; i++) {
+      expect(responses[i].status).toBe(200)
+    }
   })
 
   it('should do multiple search and a multiple remove requests for large batch with many identifiers and more than 100 contacts', async () => {
@@ -630,20 +631,16 @@ describe('SendgridAudiences.syncAudience', () => {
     nock('https://api.sendgrid.com').delete(deletePath).reply(200, {})
     nock('https://api.sendgrid.com').delete(deletePath2).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
-    expect(responses.length).toBe(6)
-    expect(responses[0].status).toBe(200)
-    expect(responses[1].status).toBe(200)
-    expect(responses[2].status).toBe(200)
-    expect(responses[3].status).toBe(200)
-    expect(responses[4].status).toBe(200)
-    expect(responses[5].status).toBe(200)
+    expect(responses.length).toBe(120)
+    for(let i = 0; i < 120; i++) {
+      expect(responses[i].status).toBe(200)
+    }
   })
 
   it('phone number should be E.164', async () => {
