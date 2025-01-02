@@ -1,6 +1,5 @@
 import { HeapApi } from './types'
 import { Subscription } from '@segment/browser-destination-runtime/types'
-import nock from 'nock'
 
 export const HEAP_TEST_ENV_ID = '1'
 
@@ -18,6 +17,7 @@ export const createMockedHeapJsSdk = (): HeapApi => {
     addUserProperties: jest.fn()
   }
 }
+
 export const trackEventSubscription: Subscription = {
   partnerAction: 'trackEvent',
   name: 'Track Event',
@@ -58,8 +58,4 @@ export const identifyUserSubscription: Subscription = {
       '@path': '$.traits'
     }
   }
-}
-
-export const mockHeapJsHttpRequest = (): void => {
-  nock('https://cdn.heapanalytics.com').get(`/js/heap-${HEAP_TEST_ENV_ID}.js`).reply(200, {})
 }
