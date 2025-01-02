@@ -15,6 +15,7 @@ declare global {
     intercomSettings: {
       app_id: string
       installation_type?: string
+      custom_launcher_selector?: string
     }
   }
 }
