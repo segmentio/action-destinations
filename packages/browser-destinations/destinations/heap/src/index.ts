@@ -105,12 +105,7 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
     initScript(settings.appId, config)
 
     if (isDefined(settings.hostname)) {
-      try {
-        await deps.loadScript(`https://${settings.hostname}/config/${settings.appId}/heap_config.js`)
-      } catch {
-        // fall back to loading from Heap's CDN if self-hosted script is not found
-        await deps.loadScript(`https://cdn.us.heap-api.com/config/${settings.appId}/heap_config.js`)
-      }
+      await deps.loadScript(`https://${settings.hostname}/config/${settings.appId}/heap_config.js`)
     } else {
       await deps.loadScript(`https://cdn.us.heap-api.com/config/${settings.appId}/heap_config.js`)
     }
