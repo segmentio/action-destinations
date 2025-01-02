@@ -1,15 +1,17 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import { HeapApi, UserConfig } from './types'
+import type { HeapApi, HeapMethods, UserConfig } from './types'
 import { defaultValues } from '@segment/actions-core'
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
+import { initScript } from './init-script'
 import { isDefined } from './utils'
 
 declare global {
   interface Window {
-    heap: HeapApi
+    heapReadyCb: Array<{ name: HeapMethods; fn: () => void }>
+    heap: Record<HeapMethods, (...args: any[]) => void> & HeapApi
   }
 }
 
@@ -58,9 +60,16 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
       required: false
     },
     trackingServer: {
-      label: 'Tracking Server',
+      label: 'Tracking Server (deprecated)',
       description:
-        'This is an optional setting. This is used to set up first-party data collection. For most cased this should not be set. For more information visit the heap [docs page](https://developers.heap.io/docs/set-up-first-party-data-collection-in-heap).',
+        'This is an optional setting. This is used to set up first-party data collection. For most cased this should not be set. For more information visit the heap [docs page](https://developers.heap.io/docs/set-up-first-party-data-collection-in-heap). This field is deprecated in favor of "ingestServer".',
+      type: 'string',
+      required: false
+    },
+    ingestServer: {
+      label: 'Ingest Server',
+      description:
+        'This is an optional setting. This is used to set up first-party data collection. For most cased this should not be set. For more information visit the heap [docs page](https://developers.heap.io/docs/web#ingestserver).',
       type: 'string',
       required: false
     },
@@ -89,24 +98,25 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
       disableTextCapture: settings.disableTextCapture || false,
       secureCookie: settings.secureCookie || false
     }
-
-    if (settings.trackingServer) {
-      config.trackingServer = settings.trackingServer
+    if (settings.ingestServer) {
+      config.ingestServer = settings.ingestServer
     }
 
-    // heap.appid and heap.config must be set before loading heap.js.
-    window.heap = window.heap || []
-    window.heap.appid = settings.appId
-    window.heap.config = config
+    initScript(settings.appId, config)
 
     if (isDefined(settings.hostname)) {
-      await deps.loadScript(`https://${settings.hostname}/js/heap-${settings.appId}.js`)
+      try {
+        await deps.loadScript(`https://${settings.hostname}/config/${settings.appId}/heap_config.js`)
+      } catch {
+        // fall back to loading from Heap's CDN if self-hosted script is not found
+        await deps.loadScript(`https://cdn.us.heap-api.com/config/${settings.appId}/heap_config.js`)
+      }
     } else {
-      await deps.loadScript(`https://cdn.heapanalytics.com/js/heap-${settings.appId}.js`)
+      await deps.loadScript(`https://cdn.us.heap-api.com/config/${settings.appId}/heap_config.js`)
     }
 
     // Explained here: https://stackoverflow.com/questions/14859058/why-does-the-segment-io-loader-script-push-method-names-args-onto-a-queue-which
-    await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'heap'), 100)
+    await deps.resolveWhen(() => window.heap.loaded === true, 300)
 
     return window.heap
   },
