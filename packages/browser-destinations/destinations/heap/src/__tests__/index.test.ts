@@ -41,7 +41,7 @@ describe('Heap', () => {
     await event.load(Context.system(), {} as Analytics)
 
     expect(destination.initialize).toHaveBeenCalled()
-    expect(window.heap.appid).toEqual(HEAP_TEST_ENV_ID)
+    expect(window.heap.envId).toEqual(HEAP_TEST_ENV_ID)
     expect(loadScript).toHaveBeenCalledWith(`https://cdn.us.heap-api.com/config/${HEAP_TEST_ENV_ID}/heap_config.js`)
   })
 
@@ -58,7 +58,7 @@ describe('Heap', () => {
     await event.load(Context.system(), {} as Analytics)
 
     expect(destination.initialize).toHaveBeenCalled()
-    expect(window.heap.appid).toEqual(HEAP_TEST_ENV_ID)
+    expect(window.heap.envId).toEqual(HEAP_TEST_ENV_ID)
     expect(loadScript).toHaveBeenCalledWith(`https://cdn.heapanalytics.com/js/heap-${HEAP_TEST_ENV_ID}.js`)
   })
 
@@ -74,7 +74,7 @@ describe('Heap', () => {
     await event.load(Context.system(), {} as Analytics)
 
     expect(destination.initialize).toHaveBeenCalled()
-    expect(window.heap.appid).toEqual(HEAP_TEST_ENV_ID)
+    expect(window.heap.envId).toEqual(HEAP_TEST_ENV_ID)
     expect(loadScript).toHaveBeenCalledWith(`https://cdn.heapanalytics.com/config/${HEAP_TEST_ENV_ID}/heap_config.js`)
   })
 })

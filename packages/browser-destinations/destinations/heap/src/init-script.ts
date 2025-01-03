@@ -14,7 +14,6 @@ export const initScript = (envId: string, config: UserConfig) => {
     envId: string,
     clientConfig: UserConfig = { disableTextCapture: false, secureCookie: false }
   ): void {
-    window.heap.appid = envId
     window.heap.envId = envId
     window.heap.clientConfig = clientConfig
     window.heap.clientConfig.shouldFetchServerConfig = false
