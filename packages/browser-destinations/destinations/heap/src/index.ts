@@ -48,35 +48,35 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
     disableTextCapture: {
       label: 'Global data redaction via Disabling Text Capture',
       description:
-        'Setting to true will redact all target text on your website. For more information visit the heap [docs page](https://developers.heap.io/docs/web#global-data-redaction-via-disabling-text-capture).',
+        'Setting to true will redact all target text on your website. For more information visit the Heap [docs page](https://developers.heap.io/docs/web#global-data-redaction-via-disabling-text-capture).',
       type: 'boolean',
       required: false
     },
     secureCookie: {
       label: 'Secure Cookie',
       description:
-        'This option is turned off by default to accommodate websites not served over HTTPS. If your application uses HTTPS, we recommend enabling secure cookies to prevent Heap cookies from being observed by unauthorized parties. For more information visit the heap [docs page](https://developers.heap.io/docs/web#securecookie).',
+        'This option is turned off by default to accommodate websites not served over HTTPS. If your application uses HTTPS, we recommend enabling secure cookies to prevent Heap cookies from being observed by unauthorized parties. For more information visit the Heap [docs page](https://developers.heap.io/docs/web#securecookie).',
       type: 'boolean',
       required: false
     },
     trackingServer: {
       label: 'Tracking Server (deprecated)',
       description:
-        'This is an optional setting. This is used to set up first-party data collection. For most cased this should not be set. For more information visit the heap [docs page](https://developers.heap.io/docs/set-up-first-party-data-collection-in-heap). This field is deprecated in favor of "ingestServer".',
+        'This is an optional setting. This is used to set up first-party data collection. For most cased this should not be set. For more information visit the Heap [docs page](https://developers.heap.io/docs/set-up-first-party-data-collection-in-heap). This field is deprecated in favor of `ingestServer`. If `trackingServer` is set and `ingestServer` is not set, then the Classic SDK will be loaded. If both are set, `ingestServer` will take precedence, and the latest stable version of the Heap SDK will be loaded.',
       type: 'string',
       required: false
     },
     ingestServer: {
       label: 'Ingest Server',
       description:
-        'This is an optional setting. This is used to set up first-party data collection. For most cased this should not be set. For more information visit the heap [docs page](https://developers.heap.io/docs/web#ingestserver).',
+        'This is an optional setting. This is used to set up first-party data collection. For most cased this should not be set. For more information visit the Heap [docs page](https://developers.heap.io/docs/web#ingestserver).',
       type: 'string',
       required: false
     },
     hostname: {
       label: 'Hostname',
       description:
-        'This is an optional setting used to set the host that loads heap-js. This setting is used when heapJS is self-hosted. In most cased this should be left unset. The hostname should not contain https or app id it will be populated like so: https://${hostname}/js/heap-${appId}.js. For more information visit the heap [docs page](https://developers.heap.io/docs/self-hosting-heapjs).',
+        'This is an optional setting used to set the host that loads the Heap SDK. This setting is used when the Heap SDK is self-hosted. In most cased this should be left unset. The hostname should not contain https or app id. When _both_ `hostname` and `trackingServer` are set, the Classic SDK will be loaded via: `https://${hostname}/js/heap-${appId}.js`. If `hostname` is set and `trackingServer` is not set, then the latest version of the Heap SDK will be loaded via: `https://${settings.hostname}/config/${settings.appId}/heap_config.js`. For more information visit the Heap [docs page](https://developers.heap.io/docs/self-hosting-heapjs).',
       type: 'string',
       required: false
     },
@@ -104,9 +104,16 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
 
     initScript(settings.appId, config)
 
-    if (isDefined(settings.hostname)) {
+    // if both hostname and trackingServer are set, load classic SDK from hostname
+    if (isDefined(settings.hostname) && isDefined(settings.trackingServer)) {
+      await deps.loadScript(`https://${settings.hostname}/js/heap-${settings.appId}.js`)
+    }
+    // if only hostname is set, load latest version of SDK from hostname
+    else if (isDefined(settings.hostname) && !isDefined(settings.trackingServer)) {
       await deps.loadScript(`https://${settings.hostname}/config/${settings.appId}/heap_config.js`)
-    } else {
+    }
+    // default to loading latest version of SDK from heap CDN
+    else {
       await deps.loadScript(`https://cdn.us.heap-api.com/config/${settings.appId}/heap_config.js`)
     }
 
