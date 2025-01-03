@@ -1,5 +1,4 @@
 import type { HeapApi } from './types'
-import nock from 'nock'
 
 export const HEAP_TEST_ENV_ID = '1'
 
@@ -78,8 +77,4 @@ export const identifyUserSubscription = {
       '@path': '$.traits'
     }
   }
-}
-
-export const mockHeapJsHttpRequest = (): void => {
-  nock('https://cdn.heapanalytics.com').get(`/js/heap-${HEAP_TEST_ENV_ID}.js`).reply(200, {})
 }
