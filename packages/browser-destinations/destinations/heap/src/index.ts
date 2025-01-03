@@ -96,10 +96,10 @@ export const destination: BrowserDestinationDefinition<Settings, HeapApi> = {
 
     const config: UserConfig = {
       disableTextCapture: settings.disableTextCapture || false,
-      secureCookie: settings.secureCookie || false
-    }
-    if (settings.ingestServer) {
-      config.ingestServer = settings.ingestServer
+      secureCookie: settings.secureCookie || false,
+      ...(settings.ingestServer && { ingestServer: settings.ingestServer }),
+      // For backward compatibility. See https://developers.heap.io/docs/web#ingestserver
+      ...(settings.trackingServer && { trackingServer: settings.trackingServer })
     }
 
     initScript(settings.appId, config)
