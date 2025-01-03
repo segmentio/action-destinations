@@ -25,7 +25,7 @@ describe('Multistatus', () => {
       nock(requestUrl).post('').reply(200, {})
 
       const events: SegmentEvent[] = [
-        // Valid Event.
+        // Valid Event
         createTestEvent({
           type: 'track',
           userId: 'harry-1',
@@ -39,7 +39,7 @@ describe('Multistatus', () => {
             }
           }
         }),
-        // Valid Event.
+        // Valid Event
         createTestEvent({
           type: 'track',
           userId: 'harry-1',
@@ -71,56 +71,56 @@ describe('Multistatus', () => {
         body: {}
       })
     })
-    // it('should handle the case where both key and id are missing', async () => {
-    //   const events: SegmentEvent[] = [
-    //     createTestEvent({
-    //       type: 'track',
-    //       userId: 'harry-1',
-    //       properties: {
-    //         keys: {
-    //           id: 'HS1'
-    //         },
-    //         values: {
-    //           name: 'Harry Styles'
-    //         }
-    //       }
-    //     }),
-    //     createTestEvent({
-    //       type: 'track',
-    //       userId: 'harry-2',
-    //       properties: {
-    //         keys: {
-    //           id: 'HP1'
-    //         },
-    //         values: {
-    //           name: 'Harry Potter'
-    //         }
-    //       }
-    //     }) // No key and id provided
-    //   ]
+    it('should handle the case where both key and id are missing', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-1',
+          properties: {
+            keys: {
+              id: 'HS1'
+            },
+            values: {
+              name: 'Harry Styles'
+            }
+          }
+        }),
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-2',
+          properties: {
+            keys: {
+              id: 'HP1'
+            },
+            values: {
+              name: 'Harry Potter'
+            }
+          }
+        }) // No key and id provided
+      ]
 
-    //   const response = await testDestination.executeBatch('dataExtension', {
-    //     events,
-    //     settings,
-    //     mapping
-    //   })
+      const response = await testDestination.executeBatch('dataExtension', {
+        events,
+        settings,
+        mapping
+      })
 
-    //   expect(response[0]).toMatchObject({
-    //     status: 400,
-    //     errortype: 'PAYLOAD_VALIDATION_FAILED',
-    //     errormessage:
-    //       'In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.',
-    //     errorreporter: 'INTEGRATIONS'
-    //   })
+      expect(response[0]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage:
+          'In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.',
+        errorreporter: 'INTEGRATIONS'
+      })
 
-    //   expect(response[1]).toMatchObject({
-    //     status: 400,
-    //     errortype: 'PAYLOAD_VALIDATION_FAILED',
-    //     errormessage:
-    //       'In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.',
-    //     errorreporter: 'INTEGRATIONS'
-    //   })
-    // })
+      expect(response[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage:
+          'In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.',
+        errorreporter: 'INTEGRATIONS'
+      })
+    })
     it('should handle multistatus errors when some events fail with specific error messages', async () => {
       const errorResponse = {
         status: 400,
@@ -273,16 +273,18 @@ describe('Multistatus', () => {
 
       expect(response[0]).toMatchObject({
         status: 400,
-        errortype: 'BAD_REQUEST',
-        errormessage: '',
-        errorreporter: 'DESTINATION'
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage:
+          'In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.',
+        errorreporter: 'INTEGRATIONS'
       })
 
       expect(response[1]).toMatchObject({
         status: 400,
-        errortype: 'BAD_REQUEST',
-        errormessage: '',
-        errorreporter: 'DESTINATION'
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage:
+          'In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.',
+        errorreporter: 'INTEGRATIONS'
       })
     })
 

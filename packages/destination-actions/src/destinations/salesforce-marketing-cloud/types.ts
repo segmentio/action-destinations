@@ -14,6 +14,7 @@ interface ErrorResponseData {
   errorcode: number
   documentation: string
   data: ErrorData
+  status: number
 }
 
 export interface ErrorResponse {

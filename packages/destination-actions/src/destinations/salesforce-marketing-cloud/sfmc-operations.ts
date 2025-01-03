@@ -42,7 +42,7 @@ export function upsertRows(
   }
 }
 
-export async function handleMultistatusResponse(
+export async function executeUpsertWithMultiStatus(
   request: RequestClient,
   subdomain: String,
   payloads: payload_dataExtension[] | payload_contactDataExtension[]
@@ -55,7 +55,7 @@ export async function handleMultistatusResponse(
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
         sent: payload as Object as JSONLikeObject,
-        body: JSON.stringify(response?.data)
+        body: response?.data as JSONLikeObject
       })
     })
   } catch (error) {
@@ -67,23 +67,25 @@ export async function handleMultistatusResponse(
           errormessage: `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`
         })
       })
+      return multiStatusResponse
     }
     const err = error as ErrorResponse
-    if (err?.response?.data?.message === 'Not Authorized' || payloads.length === 1) {
+    if (err?.response?.status === 401) {
       throw error
     }
+
+    const errData = err?.response?.data
+    const additionalError =
+      err?.response?.data?.additionalErrors &&
+      err.response.data.additionalErrors.length > 0 &&
+      err.response.data.additionalErrors
 
     payloads.forEach((payload, index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
-        errormessage:
-          (err?.response?.data?.additionalErrors &&
-            err.response.data.additionalErrors.length > 0 &&
-            err.response.data.additionalErrors[0].message) ||
-          err?.response?.data?.message ||
-          '',
+        errormessage: additionalError ? additionalError[0].message : errData?.message || '',
         sent: payload as Object as JSONLikeObject,
-        body: JSON.stringify(err)
+        body: additionalError ? (additionalError as Object as JSONLikeObject) : (errData as Object as JSONLikeObject)
       })
     })
   }
