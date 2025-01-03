@@ -122,11 +122,11 @@ function validatePayload(payload: IndexedPayload, invalidEmails?: string[]) {
   }
 }
 
-async function upsertContacts(request: RequestClient, payloads: IndexedPayload[], action: Action){
+async function upsertContacts(request: RequestClient, payloads: IndexedPayload[], action: Action) {
   try {
     const json = upsertJSON(payloads, action)
-    if(json.contacts.length > 0) {
-      await upsertRequest(request, json) // initial upsert attempt
+    if (json.contacts.length > 0) {
+      await upsertRequest(request, json)
     }
     return
   } 
@@ -139,22 +139,22 @@ async function upsertContacts(request: RequestClient, payloads: IndexedPayload[]
             .filter((email): email is string => !!email)
         : []
 
-      validate(payloads, invalidEmails)
-      const json2 = upsertJSON(payloads, action)
-
-      try {
-        if(json2.contacts.length > 0) {
-          await upsertRequest(request, json2) // second upsert attempt if some emails were invalid from the first attempt
-        }
-        return 
-      } 
-      catch {
-        assignErrors(payloads, action, status, 'Error occurred while upserting this contact to Sendgrid', ErrorCodes.UNKNOWN_ERROR)
+      if(invalidEmails.length >= 0){
+        // if at least one email is rejected by SendGrid, we will retry the batch later without the invalid emails
+        payloads.forEach(p => {
+          const email = p.identifiers.email
+          if (email && invalidEmails.includes(email)) {
+            assignErrors([p], action, status, `SendGrid rejected email address ${email} as invalid`, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+          } else {
+            assignErrors([p], action, 429, 'Batch payload rejected by SendGrid due to at least one invalid email. Batch payload will be retried without the invalid email(s).', ErrorCodes.RETRYABLE_ERROR)
+          }
+        })
         return
       }
-    } 
+    }
+
     assignErrors(payloads, action, status, 'Error occurred while upserting this contact to Sendgrid', ErrorCodes.UNKNOWN_ERROR)
-    return
+    return 
   }
 }
 

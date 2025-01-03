@@ -403,7 +403,7 @@ describe('SendgridAudiences.syncAudience', () => {
     expect(responses[3].status).toBe(200)
   })
 
-  it('should retry upserting to add Contacts after Sendgrid initially rejects some emails', async () => {
+  it('should throw 429s if batch contains at least one email which SendGrid rejects as invalid', async () => {
     const badPayload = JSON.parse(JSON.stringify(addPayload))
     badPayload.traits.email = 'not_a_valid_email_address@gmail.com'
     delete badPayload.traits?.external_id
@@ -449,10 +449,17 @@ describe('SendgridAudiences.syncAudience', () => {
       ]
     }
 
-    const multiStatusRespError = {
+    const multiStatusRespError1 = {
+      "status": 429,
+      "errortype": "RETRYABLE_ERROR",
+      "errormessage": "Batch payload rejected by SendGrid due to at least one invalid email. Batch payload will be retried without the invalid email(s).",
+      "errorreporter": "INTEGRATIONS"
+    }
+
+    const multiStatusRespError2 = {
       "status": 400,
       "errortype": "PAYLOAD_VALIDATION_FAILED",
-      "errormessage": "Sendgrid rejected email 'not_a_valid_email_address@gmail.com' as being not valid",
+      "errormessage": "SendGrid rejected email address not_a_valid_email_address@gmail.com as invalid",
       "errorreporter": "INTEGRATIONS"
     }
 
@@ -466,9 +473,10 @@ describe('SendgridAudiences.syncAudience', () => {
     })
 
     expect(responses.length).toBe(2)
-    expect(responses[0].status).toBe(200)
+    expect(responses[0].status).toBe(429)
     expect(responses[1].status).toBe(400)
-    expect(responses[1]).toMatchObject(multiStatusRespError)
+    expect(responses[0]).toMatchObject(multiStatusRespError1)
+    expect(responses[1]).toMatchObject(multiStatusRespError2)
   })
 
   it('should throw an error if a non batch payload is missing identifiers', async () => {
