@@ -1,5 +1,5 @@
-import { HeapApi } from './types'
-import { Subscription } from '@segment/browser-destination-runtime/types'
+import type { HeapApi } from './types'
+import nock from 'nock'
 
 export const HEAP_TEST_ENV_ID = '1'
 
@@ -14,11 +14,31 @@ export const createMockedHeapJsSdk = (): HeapApi => {
     load: jest.fn(),
     track: jest.fn(),
     identify: jest.fn(),
-    addUserProperties: jest.fn()
+    addUserProperties: jest.fn(),
+    init: jest.fn(),
+    startTracking: jest.fn(),
+    stopTracking: jest.fn(),
+    resetIdentity: jest.fn(),
+    identifyHashed: jest.fn(),
+    getSessionId: jest.fn(),
+    getUserId: jest.fn(),
+    getIdentity: jest.fn(),
+    addEventProperties: jest.fn(),
+    removeEventProperty: jest.fn(),
+    clearEventProperties: jest.fn(),
+    addAccountProperties: jest.fn(),
+    addAdapter: jest.fn(),
+    addTransformer: jest.fn(),
+    addTransformerFn: jest.fn(),
+    onReady: jest.fn(),
+    addPageviewProperties: jest.fn(),
+    removePageviewProperty: jest.fn(),
+    clearPageviewProperties: jest.fn(),
+    trackPageview: jest.fn()
   }
 }
 
-export const trackEventSubscription: Subscription = {
+export const trackEventSubscription = {
   partnerAction: 'trackEvent',
   name: 'Track Event',
   enabled: true,
@@ -42,7 +62,7 @@ export const trackEventSubscription: Subscription = {
   }
 }
 
-export const identifyUserSubscription: Subscription = {
+export const identifyUserSubscription = {
   partnerAction: 'identifyUser',
   name: 'Identify User',
   enabled: true,
@@ -58,4 +78,8 @@ export const identifyUserSubscription: Subscription = {
       '@path': '$.traits'
     }
   }
+}
+
+export const mockHeapJsHttpRequest = (): void => {
+  nock('https://cdn.heapanalytics.com').get(`/js/heap-${HEAP_TEST_ENV_ID}.js`).reply(200, {})
 }

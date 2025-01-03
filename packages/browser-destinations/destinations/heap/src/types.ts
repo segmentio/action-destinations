@@ -13,7 +13,7 @@ type EventProperties = {
   [key: string]: unknown
 }
 
-export type HeapApi = {
+export type HeapApi = Record<HeapMethods, (...args: any[]) => void> & {
   appid: string
   envId: string
   track: (eventName: string, eventProperties: EventProperties, library?: string) => void

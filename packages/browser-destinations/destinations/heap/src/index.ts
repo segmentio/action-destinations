@@ -11,7 +11,7 @@ import { isDefined } from './utils'
 declare global {
   interface Window {
     heapReadyCb: Array<{ name: HeapMethods; fn: () => void }>
-    heap: Record<HeapMethods, (...args: any[]) => void> & HeapApi
+    heap: HeapApi
   }
 }
 
