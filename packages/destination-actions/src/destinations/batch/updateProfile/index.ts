@@ -151,7 +151,7 @@ function buildProfileJson(data: Payload): Payload[] {
   })
 
   const limitedProperties = Object.keys(customProperties)
-    .slice(0, batchSize) // Limite la taille à 'batchSize'
+    .slice(0, batchSize) // Limit the size to batchSize
     .reduce((obj: Record<string, any>, key: string) => {
       const value = customProperties[key]
       // Check if the value is an ISO 8601 date and add 'date()' prefix to the key

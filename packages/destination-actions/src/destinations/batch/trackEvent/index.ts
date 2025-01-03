@@ -87,41 +87,66 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function buildProfileJsonWithEvents(data: Payload) {
-  // Parcourir les événements et obtenir la taille du lot pour chaque événement
+  // Browse events and obtain the batch size for each event
   const events = (data.events || []).map((event: any) => {
-    // Récupérer la taille du lot pour cet événement (par défaut à 15 si non spécifiée)
+    // Retrieve the batch size for this event (default 15 if not specified)
     const eventAttributesBatchSize = event.event_attributes_batch_size || 15
 
-    // Récupérer les attributs de l'événement
+    // Retrieve event attributes
     const eventAttributes = event.attributes || {}
 
-    // Limiter les attributs de l'événement en fonction de la taille du lot
+    // Limit event attributes according to batch size
     const limitedEventAttributes = Object.keys(eventAttributes)
-      .slice(0, eventAttributesBatchSize)
+      .slice(0, eventAttributesBatchSize) // Limite la taille à 'batchSize'
       .reduce((obj: Record<string, any>, key: string) => {
-        obj[key] = eventAttributes[key]
+        const value = eventAttributes[key]
+        // Check if the value is an ISO 8601 date and add 'date()' prefix to the key
+        if (isISO8601Date(value as string)) {
+          console.dir('value date = ' + value, { depth: null })
+          obj[`date(${key})`] = value
+        }
+        // Check if the value is a valid URL and add 'url()' prefix to the key
+        else if (isValidUrl(value as string)) {
+          console.dir('value url = ' + value, { depth: null })
+          obj[`url(${key})`] = value
+        } else {
+          obj[key] = value
+        }
+
         return obj
       }, {})
 
-    // Retourner l'événement avec ses attributs limités
+    // Return the event with its limited attributes
     return {
       name: event.name,
       attributes: limitedEventAttributes
     }
   })
 
-  // Récupération des identifiants
+  // Recovery of identifiers
   const identifiers = {
     custom_id: data.identifiers?.custom_id || '' // Assurer que custom_id soit une chaîne non nulle
   }
 
-  // Retourner le JSON final avec les identifiants, attributs et événements
+  // Return the final JSON with identifiers, attributes and events
   return [
     {
       identifiers: identifiers,
       events: events
     }
   ]
+}
+
+// Utility function to check if a string is in ISO 8601 date format
+function isISO8601Date(value: string): boolean {
+  const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3,6})?Z$/
+  return typeof value === 'string' && iso8601Regex.test(value)
+}
+
+// Utility function to check if a string is a valid URL
+function isValidUrl(value: string): boolean {
+  const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i
+  return typeof value === 'string' && urlRegex.test(value)
 }
 
 export default action
