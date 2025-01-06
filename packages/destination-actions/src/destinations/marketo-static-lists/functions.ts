@@ -1,4 +1,12 @@
-import { IntegrationError, RetryableError, RequestClient, StatsContext } from '@segment/actions-core'
+import {
+  MultiStatusResponse,
+  ErrorCodes,
+  IntegrationError,
+  RetryableError,
+  RequestClient,
+  StatsContext
+} from '@segment/actions-core'
+import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kit/types'
 import { Settings } from './generated-types'
 import { Payload as AddToListPayload } from './addToList/generated-types'
 import { Payload as RemoveFromListPayload } from './removeFromList/generated-types'
@@ -20,6 +28,7 @@ import {
   CREATE_LIST_ENDPOINT,
   GET_LIST_ENDPOINT
 } from './constants'
+import { JSONLikeObject } from '@segment/actions-core'
 
 // Keep only the scheme and host from the endpoint
 // Marketo UI shows endpoint with trailing "/rest", which we don't want
@@ -30,6 +39,51 @@ export function formatEndpoint(endpoint: string) {
 export async function addToList(
   request: RequestClient,
   settings: Settings,
+  payload: AddToListPayload,
+  statsContext?: StatsContext,
+  hookOutputs?: { id: string; name: string }
+) {
+  // If the list ID is provided in the hook outputs, use it
+  const list_id = hookOutputs?.id ?? payload.external_id
+
+  if (!list_id) {
+    const errormessage = 'No list ID found in payload'
+    throw new IntegrationError(errormessage, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
+  }
+
+  const api_endpoint = formatEndpoint(settings.api_endpoint)
+
+  const csvData = formatData([payload])
+  const csvSize = Buffer.byteLength(csvData, 'utf8')
+  if (csvSize > CSV_LIMIT) {
+    const errormessage = `CSV data size exceeds limit of ${CSV_LIMIT} bytes`
+    statsContext?.statsClient?.incr('addToAudience.error', 1, statsContext?.tags)
+    throw new IntegrationError(errormessage, 'PAYLOAD_TOO_LARGE', 400)
+  }
+
+  const url =
+    api_endpoint + BULK_IMPORT_ENDPOINT.replace('externalId', list_id).replace('fieldToLookup', payload.lookup_field)
+
+  const response = await request<MarketoBulkImportResponse>(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'multipart/form-data; boundary=--SEGMENT-DATA--'
+    },
+    body: createFormData(csvData)
+  })
+
+  if (!response.data.success) {
+    statsContext?.statsClient?.incr('addToAudience.error', 1, statsContext?.tags)
+    parseErrorResponse(response.data)
+  }
+
+  statsContext?.statsClient?.incr('addToAudience.success', 1, statsContext?.tags)
+  return response.data
+}
+
+export async function addToListBatch(
+  request: RequestClient,
+  settings: Settings,
   payloads: AddToListPayload[],
   statsContext?: StatsContext,
   hookOutputs?: { id: string; name: string }
@@ -38,7 +92,11 @@ export async function addToList(
   const list_id = hookOutputs?.id ?? payloads[0].external_id
 
   if (!list_id) {
-    throw new IntegrationError('No list ID found in payload', 'INVALID_REQUEST_DATA', 400)
+    return buildMultiStatusErrorResponse(payloads.length, {
+      status: 400,
+      errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+      errormessage: 'No list ID found in payload'
+    })
   }
 
   const api_endpoint = formatEndpoint(settings.api_endpoint)
@@ -46,8 +104,12 @@ export async function addToList(
   const csvData = formatData(payloads)
   const csvSize = Buffer.byteLength(csvData, 'utf8')
   if (csvSize > CSV_LIMIT) {
-    statsContext?.statsClient?.incr('addToAudience.error', 1, statsContext?.tags)
-    throw new IntegrationError(`CSV data size exceeds limit of ${CSV_LIMIT} bytes`, 'INVALID_REQUEST_DATA', 400)
+    statsContext?.statsClient?.incr('addToAudience.error', payloads.length, statsContext?.tags)
+    return buildMultiStatusErrorResponse(payloads.length, {
+      status: 400,
+      errortype: ErrorCodes.PAYLOAD_TOO_LARGE,
+      errormessage: `CSV data size exceeds limit of ${CSV_LIMIT} bytes`
+    })
   }
 
   const url =
@@ -63,21 +125,94 @@ export async function addToList(
   })
 
   if (!response.data.success) {
-    statsContext?.statsClient?.incr('addToAudience.error', 1, statsContext?.tags)
-    parseErrorResponse(response.data)
+    statsContext?.statsClient?.incr('addToAudience.error', payloads.length, statsContext?.tags)
+    return parseErrorResponseBatch(response.data, payloads.length)
   }
-  statsContext?.statsClient?.incr('addToAudience.success', 1, statsContext?.tags)
-  return response.data
+
+  statsContext?.statsClient?.incr('addToAudience.success', payloads.length, statsContext?.tags)
+
+  // Build a MultiStatusResponse and return it
+  const multiStatusResponse = new MultiStatusResponse()
+
+  for (let i = 0; i < payloads.length; i++) {
+    multiStatusResponse.setSuccessResponseAtIndex(i, {
+      status: 200,
+      // CSV data could be as large as 10 MB, so we truncate it to upto 50 characters
+      sent: `${csvData.substring(0, 50)}...`,
+      // response.data is an API Response, we can safely cast it to JSONLikeObject
+      body: response.data as unknown as JSONLikeObject
+    })
+  }
+
+  return multiStatusResponse
 }
 
 export async function removeFromList(
+  request: RequestClient,
+  settings: Settings,
+  payload: RemoveFromListPayload,
+  statsContext?: StatsContext
+) {
+  if (!payload.external_id) {
+    throw new IntegrationError('No "external_id" found in payload', ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
+  }
+
+  const api_endpoint = formatEndpoint(settings.api_endpoint)
+  const usersToRemove = extractFilterData([payload])
+
+  const getLeadsUrl =
+    api_endpoint +
+    GET_LEADS_ENDPOINT.replace('field', payload.lookup_field).replace(
+      'emailsToFilter',
+      encodeURIComponent(usersToRemove)
+    )
+
+  // Get lead ids from Marketo
+  const getLeadsResponse = await request<MarketoGetLeadsResponse>(getLeadsUrl, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+
+  if (!getLeadsResponse.data.success) {
+    statsContext?.statsClient?.incr('removeFromAudience.error', 1, statsContext?.tags)
+    parseErrorResponse(getLeadsResponse.data)
+  }
+
+  const leadIds = extractLeadIds(getLeadsResponse.data.result)
+
+  const deleteLeadsUrl =
+    api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', payload.external_id).replace('idsToDelete', leadIds)
+
+  // DELETE lead ids from list in Marketo
+  const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+
+  if (!deleteLeadsResponse.data.success) {
+    statsContext?.statsClient?.incr('removeFromAudience.error', 1, statsContext?.tags)
+    parseErrorResponse(deleteLeadsResponse.data)
+  }
+  statsContext?.statsClient?.incr('removeFromAudience.success', 1, statsContext?.tags)
+  return deleteLeadsResponse.data
+}
+
+export async function removeFromListBatch(
   request: RequestClient,
   settings: Settings,
   payloads: RemoveFromListPayload[],
   statsContext?: StatsContext
 ) {
   if (!payloads[0].external_id) {
-    throw new IntegrationError('No external_id found in payload', 'INVALID_REQUEST_DATA', 400)
+    return buildMultiStatusErrorResponse(payloads.length, {
+      status: 400,
+      errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+      errormessage: 'No "external_id" found in payload'
+    })
   }
 
   const api_endpoint = formatEndpoint(settings.api_endpoint)
@@ -99,8 +234,8 @@ export async function removeFromList(
   })
 
   if (!getLeadsResponse.data.success) {
-    statsContext?.statsClient?.incr('removeFromAudience.error', 1, statsContext?.tags)
-    parseErrorResponse(getLeadsResponse.data)
+    statsContext?.statsClient?.incr('removeFromAudience.error', payloads.length, statsContext?.tags)
+    return parseErrorResponseBatch(getLeadsResponse.data, payloads.length)
   }
 
   const leadIds = extractLeadIds(getLeadsResponse.data.result)
@@ -117,11 +252,24 @@ export async function removeFromList(
   })
 
   if (!deleteLeadsResponse.data.success) {
-    statsContext?.statsClient?.incr('removeFromAudience.error', 1, statsContext?.tags)
-    parseErrorResponse(deleteLeadsResponse.data)
+    statsContext?.statsClient?.incr('removeFromAudience.error', payloads.length, statsContext?.tags)
+    return parseErrorResponse(deleteLeadsResponse.data)
   }
-  statsContext?.statsClient?.incr('removeFromAudience.success', 1, statsContext?.tags)
-  return deleteLeadsResponse.data
+  statsContext?.statsClient?.incr('removeFromAudience.success', payloads.length, statsContext?.tags)
+
+  // Build a MultiStatusResponse and return it
+  const multiStatusResponse = new MultiStatusResponse()
+
+  for (let i = 0; i < payloads.length; i++) {
+    multiStatusResponse.setSuccessResponseAtIndex(i, {
+      status: 200,
+      sent: '',
+      // response.data is an API Response, we can safely cast it to JSONLikeObject
+      body: deleteLeadsResponse.data as unknown as JSONLikeObject
+    })
+  }
+
+  return multiStatusResponse
 }
 
 function createFormData(csvData: string) {
@@ -159,14 +307,40 @@ function extractLeadIds(leads: MarketoLeads[]) {
 
 function parseErrorResponse(response: MarketoResponse) {
   if (response.errors[0].code === '601' || response.errors[0].code === '602') {
-    throw new IntegrationError(response.errors[0].message, 'INVALID_OAUTH_TOKEN', 401)
+    throw new IntegrationError(response.errors[0].message, 'INVALID_AUTHENTICATION', 401)
   }
+
   if (response.errors[0].code === '1019') {
     throw new RetryableError(
       'Error while attempting to upload users to the list in Marketo. This batch will be retried.'
     )
   }
-  throw new IntegrationError(response.errors[0].message, 'INVALID_RESPONSE', 400)
+
+  throw new IntegrationError(response.errors[0].message, 'NOT_ACCEPTABLE', 400)
+}
+
+function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
+  if (response.errors[0].code === '601' || response.errors[0].code === '602') {
+    return buildMultiStatusErrorResponse(payloadSize, {
+      status: 401,
+      errortype: ErrorCodes.INVALID_AUTHENTICATION,
+      errormessage: response.errors[0].message
+    })
+  }
+
+  if (response.errors[0].code === '1019') {
+    return buildMultiStatusErrorResponse(payloadSize, {
+      status: 500,
+      errortype: ErrorCodes.RETRYABLE_ERROR,
+      errormessage: 'Error while attempting to upload users to the list in Marketo. This batch will be retried.'
+    })
+  }
+
+  return buildMultiStatusErrorResponse(payloadSize, {
+    status: 400,
+    errortype: ErrorCodes.NOT_ACCEPTABLE,
+    errormessage: response.errors[0].message
+  })
 }
 
 export async function getAccessToken(request: RequestClient, settings: Settings) {
@@ -276,4 +450,14 @@ export async function createList(request: RequestClient, input: CreateListInput,
   statsClient?.incr('createAudience.success', 1, statsTags)
 
   return listId
+}
+
+const buildMultiStatusErrorResponse = (payloadSize: number, error: ActionDestinationErrorResponseType) => {
+  const multiStatusResponse = new MultiStatusResponse()
+
+  for (let i = 0; i < payloadSize; i++) {
+    multiStatusResponse.setErrorResponseAtIndex(i, error)
+  }
+
+  return multiStatusResponse
 }
