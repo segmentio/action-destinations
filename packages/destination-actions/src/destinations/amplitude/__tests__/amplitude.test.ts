@@ -183,13 +183,13 @@ describe('Amplitude', () => {
             event_type: 'Order Completed',
             revenue: 1_999,
             event_properties: event.properties,
-            library: 'segment'
+            library: 'analytics.js'
           }),
           expect.objectContaining({
             event_type: 'Product Purchased',
             // @ts-ignore i know what i'm doing
             event_properties: event.properties.products[0],
-            library: 'segment'
+            library: 'analytics.js'
           })
         ])
       })
@@ -435,7 +435,8 @@ describe('Amplitude', () => {
               "event_type": "Test Event",
               "ip": "8.8.8.8",
               "language": "en-US",
-              "library": "segment",
+              "library": "analytics.js",
+              "library2": "analytics.js",
               "location_lat": 40.2964197,
               "location_lng": -76.9411617,
               "os_name": "iOS",
@@ -489,7 +490,8 @@ describe('Amplitude', () => {
               "event_type": "Test Event",
               "ip": "8.8.8.8",
               "language": "en-US",
-              "library": "segment",
+              "library": "analytics.js",
+              "library2": "analytics.js",
               "location_lat": 40.2964197,
               "location_lng": -76.9411617,
               "os_name": "iOS",
@@ -647,7 +649,7 @@ describe('Amplitude', () => {
           expect.objectContaining({
             event_type: 'Order Completed',
             event_properties: event.properties,
-            library: 'segment'
+            library: 'analytics.js'
           }),
           expect.objectContaining({
             event_type: 'Product Purchased',
@@ -656,7 +658,7 @@ describe('Amplitude', () => {
             quantity: 2,
             // @ts-ignore i know what i'm doing
             event_properties: event.properties.products[0],
-            library: 'segment'
+            library: 'analytics.js'
           })
         ])
       })
@@ -704,7 +706,7 @@ describe('Amplitude', () => {
           expect.objectContaining({
             event_type: 'Order Completed',
             event_properties: event.properties,
-            library: 'segment'
+            library: 'analytics.js'
           }),
           expect.objectContaining({
             event_type: 'Product Purchased',
@@ -713,14 +715,14 @@ describe('Amplitude', () => {
             quantity: 2,
             // @ts-ignore i know what i'm doing
             event_properties: event.properties.products[0],
-            library: 'segment'
+            library: 'analytics.js'
           }),
           expect.objectContaining({
             event_type: 'Product Purchased',
             revenue: 1_999,
             // @ts-ignore i know what i'm doing
             event_properties: event.properties.products[1],
-            library: 'segment'
+            library: 'analytics.js'
           })
         ])
       })
@@ -758,7 +760,7 @@ describe('Amplitude', () => {
           expect.objectContaining({
             event_type: 'Order Completed',
             event_properties: event.properties,
-            library: 'segment'
+            library: 'analytics.js'
           }),
           expect.objectContaining({
             event_type: 'Product Purchased',
@@ -767,7 +769,7 @@ describe('Amplitude', () => {
             quantity: 2,
             // @ts-ignore i know what i'm doing
             event_properties: event.properties.products[0],
-            library: 'segment'
+            library: 'analytics.js'
           })
         ])
       })
@@ -955,7 +957,7 @@ describe('Amplitude', () => {
           expect.objectContaining({
             event_type: 'Order Completed',
             event_properties: event.properties,
-            library: 'segment'
+            library: 'analytics.js'
           })
         ])
       })
@@ -1158,7 +1160,8 @@ describe('Amplitude', () => {
               "event_type": "Test Event",
               "ip": "8.8.8.8",
               "language": "en-US",
-              "library": "segment",
+              "library": "analytics.js",
+              "library2": "analytics.js",
               "location_lat": 40.2964197,
               "location_lng": -76.9411617,
               "os_name": "iOS",
@@ -1212,7 +1215,8 @@ describe('Amplitude', () => {
               "event_type": "Test Event",
               "ip": "8.8.8.8",
               "language": "en-US",
-              "library": "segment",
+              "library": "analytics.js",
+              "library2": "analytics.js",
               "location_lat": 40.2964197,
               "location_lng": -76.9411617,
               "os_name": "iOS",
@@ -1459,7 +1463,7 @@ describe('Amplitude', () => {
           expect.objectContaining({
             event_type: 'Order Completed',
             event_properties: event.properties,
-            library: 'segment'
+            library: 'analytics.js'
           })
         ])
       })
@@ -1662,7 +1666,8 @@ describe('Amplitude', () => {
               "event_type": "Test Event",
               "ip": "8.8.8.8",
               "language": "en-US",
-              "library": "segment",
+              "library": "analytics.js",
+              "library2": "analytics.js",
               "location_lat": 40.2964197,
               "location_lng": -76.9411617,
               "os_name": "iOS",
@@ -1716,7 +1721,8 @@ describe('Amplitude', () => {
               "event_type": "Test Event",
               "ip": "8.8.8.8",
               "language": "en-US",
-              "library": "segment",
+              "library": "analytics.js",
+              "library2": "analytics.js",
               "location_lat": 40.2964197,
               "location_lng": -76.9411617,
               "os_name": "iOS",
@@ -2005,7 +2011,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9\\",\\"device_manufacturer\\":\\"Apple\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9\\",\\"device_manufacturer\\":\\"Apple\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library2\\":\\"analytics.js\\",\\"platform\\":\\"Web\\",\\"library\\":\\"analytics.js\\"}",
             "options",
             "undefined",
           ],
@@ -2079,7 +2085,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9\\",\\"device_manufacturer\\":\\"Apple\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9\\",\\"device_manufacturer\\":\\"Apple\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library2\\":\\"analytics.js\\",\\"platform\\":\\"Web\\",\\"library\\":\\"analytics.js\\"}",
             "options",
             "undefined",
           ],
@@ -2266,7 +2272,7 @@ describe('Amplitude', () => {
             "api_key",
             "",
             "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9\\",\\"device_manufacturer\\":\\"Apple\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
+            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9\\",\\"device_manufacturer\\":\\"Apple\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"library2\\":\\"analytics.js\\",\\"platform\\":\\"Web\\",\\"library\\":\\"analytics.js\\"}",
             "options",
             "undefined",
           ],
@@ -2358,7 +2364,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
+            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"analytics.js\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
             "options",
             "undefined",
           ],
@@ -2385,7 +2391,7 @@ describe('Amplitude', () => {
             "api_key",
             "undefined",
             "identification",
-            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
+            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"analytics.js\\"}]",
             "options",
             "undefined",
           ],
@@ -2417,7 +2423,7 @@ describe('Amplitude', () => {
             "api_key",
             "",
             "identification",
-            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
+            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"analytics.js\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
             "options",
             "undefined",
           ],
@@ -2449,7 +2455,7 @@ describe('Amplitude', () => {
             "api_key",
             "",
             "identification",
-            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
+            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"analytics.js\\"}]",
             "options",
             "undefined",
           ],

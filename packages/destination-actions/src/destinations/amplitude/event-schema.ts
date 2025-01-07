@@ -299,6 +299,15 @@ export const eventSchema: Record<string, InputField> = {
       'Amplitude will deduplicate subsequent events sent with this ID we have already seen before within the past 7 days. Amplitude recommends generating a UUID or using some combination of device ID, user ID, event type, event ID, and time.'
   },
   library: {
+    label: '[DEPRECATED AND HIDDEN - USE library2 field instead]',
+    type: 'string',
+    unsafe_hidden: true,
+    description: '[DEPRECATED AND HIDDEN - USE library2 field instead] - The name of the library that generated the event.',
+    default: {
+      '@path': '$.context.library.name'
+    }
+  },
+  library2: {
     label: 'Library',
     type: 'string',
     description: 'The name of the library that generated the event.',

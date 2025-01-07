@@ -267,7 +267,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...removeUndefined(properties),
         // Conditionally track revenue with main event
         ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
-        library: 'segment'
+        library: payload?.library2 ?? 'segment'
       }
     ]
 
@@ -279,7 +279,7 @@ const action: ActionDefinition<Settings, Payload> = {
         event_properties: product,
         event_type: 'Product Purchased',
         insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined,
-        library: 'segment'
+        library: payload?.library2 ?? 'segment'
       })
     }
 

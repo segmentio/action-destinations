@@ -236,6 +236,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'integer'
     },
     library: {
+      label: '[DEPRECATED AND HIDDEN - USE library2 field instead]',
+      type: 'string',
+      unsafe_hidden: true,
+      description: '[DEPRECATED AND HIDDEN - USE library2 field instead] - The name of the library that generated the event.',
+      default: {
+        '@path': '$.context.library.name'
+      }
+    },
+    library2: {
       label: 'Library',
       type: 'string',
       description: 'The name of the library that generated the event.',
@@ -278,7 +287,7 @@ const action: ActionDefinition<Settings, Payload> = {
       ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
       // Make sure any top-level properties take precedence over user-agent properties
       ...removeUndefined(properties),
-      library: 'segment'
+      library: payload?.library2 ?? 'segment',
     })
 
     return request(getEndpointByRegion('identify', settings.endpoint), {

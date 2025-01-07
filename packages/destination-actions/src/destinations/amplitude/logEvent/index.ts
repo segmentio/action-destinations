@@ -213,7 +213,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
-        library: 'segment'
+        library: payload?.library2 ?? 'segment'
       }
     ]
 

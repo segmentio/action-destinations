@@ -112,9 +112,13 @@ export interface Payload {
    */
   min_id_length?: number | null
   /**
-   * The name of the library that generated the event.
+   * [DEPRECATED AND HIDDEN - USE library2 field instead] - The name of the library that generated the event.
    */
   library?: string
+  /**
+   * The name of the library that generated the event.
+   */
+  library2?: string
   /**
    * The user agent data of device sending the event
    */

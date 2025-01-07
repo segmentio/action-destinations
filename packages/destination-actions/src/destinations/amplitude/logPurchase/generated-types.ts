@@ -152,9 +152,13 @@ export interface Payload {
    */
   insert_id?: string
   /**
-   * The name of the library that generated the event.
+   * [DEPRECATED AND HIDDEN - USE library2 field instead] - The name of the library that generated the event.
    */
   library?: string
+  /**
+   * The name of the library that generated the event.
+   */
+  library2?: string
   /**
    * The list of products purchased.
    */

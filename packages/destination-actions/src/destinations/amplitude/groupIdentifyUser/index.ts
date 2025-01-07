@@ -74,6 +74,14 @@ const action: ActionDefinition<Settings, Payload> = {
         'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
       allowNull: true,
       type: 'integer'
+    },
+    library2: {
+      label: 'Library',
+      type: 'string',
+      description: 'The name of the library that generated the event.',
+      default: {
+        '@path': '$.context.library.name'
+      }
     }
   },
   perform: async (request, { payload, settings }) => {
@@ -94,7 +102,7 @@ const action: ActionDefinition<Settings, Payload> = {
             device_id: payload.device_id,
             groups: groupAssociation,
             insert_id: payload.insert_id,
-            library: 'segment',
+            library: payload?.library2 ?? 'segment',
             time: dayjs.utc(payload.time).valueOf(),
             user_id: payload.user_id,
             user_properties: groupAssociation
@@ -114,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
             group_properties: payload.group_properties,
             group_value: payload.group_value,
             group_type: payload.group_type,
-            library: 'segment'
+            library: payload?.library2 ?? 'segment',
           }
         ]),
         options
