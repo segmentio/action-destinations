@@ -27,7 +27,7 @@ export function initScript({
         cc = c && typeof c === 'object' ? c : {}
       } catch (e) {}
       var stT = cc.stT === 'session' ? w.sessionStorage : w.localStorage
-      code = {
+      var code = {
         nonce: v && v.nonce,
         use_existing_jquery: function () {
           return typeof use_existing_jquery !== 'undefined' ? use_existing_jquery : undefined
@@ -42,7 +42,10 @@ export function initScript({
           return '{' + (cc.hES || hide_element_style) + '}'
         },
         hide_element: function () {
-          if (performance.getEntriesByName('first-contentful-paint')[0]) {
+          if (
+            typeof performance.getEntriesByName === 'function' &&
+            performance.getEntriesByName('first-contentful-paint')[0]
+          ) {
             return ''
           }
           return typeof cc.hE === 'string' ? cc.hE : hide_element
