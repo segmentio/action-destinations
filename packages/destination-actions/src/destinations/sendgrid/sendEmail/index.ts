@@ -13,7 +13,7 @@ import {
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send email with Dynamic Template',
-  description: 'Send email to recipient(s) using a Dynamic Template in Sendgrid',
+  description: 'Send Email to recipient(s) using a Dynamic Template in Sendgrid',
   fields,
   dynamicFields: {
     template_id: async (request) => {

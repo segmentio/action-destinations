@@ -3,7 +3,7 @@ import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidation
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 import { RESERVED_HEADERS } from '../constants'
-import { parseTemplateId, parseIntFromString } from '../utils'
+import { parseTemplateId, parseIntFromString, toUnixTS } from '../utils'
 
 let testDestination = createTestIntegration(Definition)
 
@@ -182,6 +182,12 @@ describe('Sendgrid.sendEmail', () => {
     expect(parseIntFromString('123456787654.234567')).toBe(123456787654)
     expect(parseIntFromString('123456787654')).toBe(123456787654)
     expect(parseIntFromString('')).toBe(undefined)
+  })
+
+  it('send_at date should be 10 char epoch', async () => {
+    const date = '2024-01-08T13:52:50.212Z'
+    const epoch = toUnixTS(date)
+    expect(epoch).toBe(1704721970)
   })
 
   it('should throw error if bad headers', async () => {

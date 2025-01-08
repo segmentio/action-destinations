@@ -16,13 +16,13 @@ Object {
     Object {
       "bcc": Array [
         Object {
-          "email": "oz@ogmeftik.fj",
+          "email": "tik@did.mr",
           "name": "!s3p^",
         },
       ],
       "cc": Array [
         Object {
-          "email": "oz@ogmeftik.fj",
+          "email": "tik@did.mr",
           "name": "!s3p^",
         },
       ],
@@ -37,14 +37,14 @@ Object {
       },
       "to": Array [
         Object {
-          "email": "oz@ogmeftik.fj",
+          "email": "tik@did.mr",
           "name": "!s3p^",
         },
       ],
     },
   ],
   "reply_to": Object {
-    "email": "oz@ogmeftik.fj",
+    "email": "tik@did.mr",
     "name": "!s3p^",
   },
   "template_id": "d-1234567890",
@@ -54,20 +54,20 @@ Object {
 exports[`Testing snapshot for Sendgrid's sendEmail destination action: required fields 1`] = `
 Object {
   "from": Object {
-    "email": "oz@ogmeftik.fj",
+    "email": "tik@did.mr",
   },
   "personalizations": Array [
     Object {
       "headers": Object {},
       "to": Array [
         Object {
-          "email": "oz@ogmeftik.fj",
+          "email": "tik@did.mr",
         },
       ],
     },
   ],
   "reply_to": Object {
-    "email": "oz@ogmeftik.fj",
+    "email": "tik@did.mr",
   },
   "template_id": "d-1234567890",
 }
