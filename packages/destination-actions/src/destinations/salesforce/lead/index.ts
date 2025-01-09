@@ -11,7 +11,8 @@ import {
   enable_batching,
   recordMatcherOperator,
   batch_size,
-  hideIfDeleteOperation
+  hideIfDeleteOperation,
+  requiredIfCreateOperation
 } from '../sf-properties'
 import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 
@@ -53,15 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.last_name' }
         }
       },
-      required: {
-        conditions: [
-          {
-            fieldKey: 'operation',
-            operator: 'is',
-            value: 'create'
-          }
-        ]
-      },
+      required: requiredIfCreateOperation,
       depends_on: hideIfDeleteOperation
     },
     first_name: {
