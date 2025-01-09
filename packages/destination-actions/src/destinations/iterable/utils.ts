@@ -47,6 +47,8 @@ export function convertDatesInObject(obj: Record<string, unknown>) {
       } else {
         obj[prop] = dateToIterableDateStringFormat(value)
       }
+    } else if (value instanceof Date) {
+      obj[prop] = dateToIterableDateStringFormat(value.toISOString())
     } else if (typeof value === 'object' && value !== null) {
       convertDatesInObject(value as Record<string, unknown>)
     } else {

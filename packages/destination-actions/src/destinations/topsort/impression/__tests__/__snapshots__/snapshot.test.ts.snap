@@ -4,6 +4,9 @@ exports[`Testing snapshot for Topsort's impression destination action: all field
 Object {
   "impressions": Array [
     Object {
+      "additionalAttribution": Object {
+        "testType": "13(ufD",
+      },
       "id": "13(ufD",
       "occurredAt": "2021-02-01T00:00:00.000Z",
       "opaqueUserId": "13(ufD",
