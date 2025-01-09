@@ -38,7 +38,7 @@ export interface Payload {
     /**
      * The email address of the CC recipient.
      */
-    email: string
+    email?: string
     /**
      * The name of the CC recipient.
      */
@@ -51,7 +51,7 @@ export interface Payload {
     /**
      * The email address of the BCC recipient.
      */
-    email: string
+    email?: string
     /**
      * The name of the BCC recipient.
      */

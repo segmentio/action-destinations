@@ -79,7 +79,7 @@ export const fields: Record<string, InputField> = {
         description: 'The email address of the CC recipient.',
         type: 'string',
         format: 'email',
-        required: true
+        required: false
       },
       name: {
         label: 'Name',
@@ -88,7 +88,19 @@ export const fields: Record<string, InputField> = {
         required: false
       }
     },
-    default: undefined
+    default: {
+      '@arrayPath': [
+        '$.properties',
+        {
+          email: {
+            '@path': '$.cc_email'
+          },
+          name: {
+            '@path': '$.cc_name'
+          }
+        }
+      ]
+    }
   },
   bcc: {
     label: 'BCC',
@@ -104,7 +116,7 @@ export const fields: Record<string, InputField> = {
         description: 'The email address of the BCC recipient.',
         type: 'string',
         format: 'email',
-        required: true
+        required: false
       },
       name: {
         label: 'Name',
@@ -113,7 +125,19 @@ export const fields: Record<string, InputField> = {
         required: false
       }
     },
-    default: undefined
+    default: {
+      '@arrayPath': [
+        '$.properties',
+        {
+          email: {
+            '@path': '$.bcc_email'
+          },
+          name: {
+            '@path': '$.bcc_name'
+          }
+        }
+      ]
+    }
   },
   headers: {
     label: 'Headers',
