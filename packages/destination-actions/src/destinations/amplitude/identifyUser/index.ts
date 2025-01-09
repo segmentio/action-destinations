@@ -256,7 +256,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, settings }) => {
-    const { utm_properties, referrer, userAgent, userAgentParsing, userAgentData, min_id_length, library, ...rest } =
+    const { utm_properties, referrer, userAgent, userAgentParsing, userAgentData, min_id_length, library, library2, ...rest } =
       payload
 
     let options
@@ -287,17 +287,23 @@ const action: ActionDefinition<Settings, Payload> = {
       ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
       // Make sure any top-level properties take precedence over user-agent properties
       ...removeUndefined(properties),
-      library: payload?.library2 ?? 'segment',
+      library: library2 ?? 'segment',
     })
 
-    return request(getEndpointByRegion('identify', settings.endpoint), {
-      method: 'post',
-      body: new URLSearchParams({
-        api_key: settings.apiKey,
-        identification,
-        options
-      } as Record<string, string>)
-    })
+    console.log(new URLSearchParams({
+      api_key: settings.apiKey,
+      identification,
+      options
+    } as Record<string, string>))
+
+    // return request(getEndpointByRegion('identify', settings.endpoint), {
+    //   method: 'post',
+    //   body: new URLSearchParams({
+    //     api_key: settings.apiKey,
+    //     identification,
+    //     options
+    //   } as Record<string, string>)
+    // })
   }
 }
 

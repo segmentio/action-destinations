@@ -174,6 +174,7 @@ const action: ActionDefinition<Settings, Payload> = {
       referrer,
       min_id_length,
       library,
+      library2,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
@@ -213,7 +214,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
-        library: payload?.library2 ?? 'segment'
+        library: library2 ?? 'segment'
       }
     ]
 
