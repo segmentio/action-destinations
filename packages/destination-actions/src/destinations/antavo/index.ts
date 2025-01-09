@@ -13,13 +13,13 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       stack: {
         label: 'Stack',
-        description: 'Antavo stack',
+        description: 'The Antavo Loyalty Engine stack where your brand resides',
         type: 'string',
         required: true
       },
       api_key: {
         label: 'API Key',
-        description: 'Antavo brand API key',
+        description: 'The Antavo brand API key supplied to your brand in Antavo Loyalty Engine',
         type: 'password',
         required: true
       }

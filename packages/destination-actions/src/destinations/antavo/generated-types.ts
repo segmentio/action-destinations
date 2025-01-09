@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * Antavo stack
+   * The Antavo Loyalty Engine stack where your brand resides
    */
   stack: string
   /**
-   * Antavo brand API key
+   * The Antavo brand API key supplied to your brand in Antavo Loyalty Engine
    */
   api_key: string
 }
