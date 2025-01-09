@@ -4,8 +4,8 @@ import type { Settings } from './generated-types'
 
 import addToList from './addToList'
 import removeFromList from './removeFromList'
-import { MarketoListResponse, GET_LIST_ENDPOINT } from './constants'
-import { createList, formatEndpoint, getAccessToken } from './functions'
+import { MarketoListResponse, RefreshTokenResponse, GET_LIST_ENDPOINT, OAUTH_ENDPOINT } from './constants'
+import { createList, formatEndpoint } from './functions'
 
 const destination: AudienceDestinationDefinition<Settings> = {
   name: 'Marketo Static Lists (Actions)',
@@ -41,7 +41,17 @@ const destination: AudienceDestinationDefinition<Settings> = {
       }
     },
     refreshAccessToken: async (request, { settings }) => {
-      return { accessToken: await getAccessToken(request, settings) }
+      const api_endpoint = formatEndpoint(settings.api_endpoint)
+      const response = await request<RefreshTokenResponse>(`${api_endpoint}/${OAUTH_ENDPOINT}`, {
+        method: 'POST',
+        body: new URLSearchParams({
+          client_id: settings.client_id,
+          client_secret: settings.client_secret,
+          grant_type: 'client_credentials'
+        })
+      })
+
+      return { accessToken: response.data.access_token }
     }
   },
   extendRequest({ auth }) {
@@ -70,16 +80,10 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const statsClient = getAudienceInput?.statsContext?.statsClient
       const statsTags = getAudienceInput?.statsContext?.tags
 
-      // Get access token
-      const accessToken = await getAccessToken(request, getAudienceInput.settings)
-
       const getListUrl = endpoint + GET_LIST_ENDPOINT.replace('listId', listId)
 
       const getListResponse = await request<MarketoListResponse>(getListUrl, {
-        method: 'GET',
-        headers: {
-          authorization: `Bearer ${accessToken}`
-        }
+        method: 'GET'
       })
 
       if (!getListResponse.data.success && getListResponse.data.errors) {
