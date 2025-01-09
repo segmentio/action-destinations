@@ -11,17 +11,27 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify" or type = "track"',
   fields,
   dynamicFields: {
-    custom_fields: {
+    custom_text_fields: {
       __keys__: async (request, { payload }) => {
-        return await dynamicCustomFields(request, payload)
+        return await dynamicCustomFields(request, payload, "Text")
+      }
+    },
+    custom_number_fields: {
+      __keys__: async (request, { payload }) => {
+        return await dynamicCustomFields(request, payload, "Number")
+      }
+    },
+    custom_date_fields: {
+      __keys__: async (request, { payload }) => {
+        return await dynamicCustomFields(request, payload, "Date")
       }
     }
   },
   perform: async (request, { payload }) => {
-    return await send(request, [payload])
+    return await send(request, [payload], false)
   },
   performBatch: async (request, { payload }) => {
-    return await send(request, payload)
+    return await send(request, payload, true)
   }
 }
 

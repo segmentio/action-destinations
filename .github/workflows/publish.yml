@@ -25,6 +25,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -32,6 +35,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
+
+      - name: Setup git credentials
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
@@ -52,22 +60,6 @@ jobs:
         run: |
           yarn lerna publish from-package --yes --loglevel=verbose --dist-tag latest
 
-  release:
-    needs: build-and-publish # comment when testing locally with https://github.com/nektos/act
-
-    runs-on: ubuntu-20.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Shallow clones should be disabled to ensure the commit history for the repository is available to the action
-          fetch-tags: true
-
-      - name: Setup git credentials
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
       - name: Generate Tags
         id: get-release-tag
         run: ./scripts/generate-release-tags.sh
@@ -79,24 +71,7 @@ jobs:
           RELEASE_TAG: ${{ steps.get-release-tag.outputs.release-tag }}
         with:
           script: |
+            const cloudManifest = require('./packages/destination-actions/dist/destinations/index.js').manifest
+            const browserManifest = require('./packages/destinations-manifest/dist/index.js').manifest
             const script = require('./scripts/github-action/create-github-release.js')
-            await script({github, context, core, exec})
-
-  # When hotfix is merged back to main, we tag all the packages that were changed in the hotfix commit.
-  tag-hotfix:
-    if: startsWith(github.event.head_commit.message, 'Hotfix:') == true && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Configure git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Generate Package Specific Tags
-        id: get-release-tag
-        run: ./scripts/generate-package-tags.sh
+            await script({github, context, core, exec, cloudManifest, browserManifest})

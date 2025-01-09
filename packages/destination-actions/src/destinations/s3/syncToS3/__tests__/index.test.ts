@@ -144,6 +144,6 @@ describe('generateFile', () => {
 
   it('should generate a CSV file with correct content', () => {
     const result = generateFile(payloads, headers, ',', 'audience_action', 'batch_size')
-    expect(result).toEqual(output)
+    expect(result.toString()).toEqual(output)
   })
 })

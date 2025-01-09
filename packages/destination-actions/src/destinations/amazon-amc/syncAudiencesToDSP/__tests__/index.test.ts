@@ -59,7 +59,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].status).toBe(202)
     expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
     )
     expect(response[0].options).toMatchSnapshot()
   })
@@ -90,7 +90,43 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].status).toBe(202)
     expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","phone":"63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"15b436489faf367dadf946cfe311d44b6621814e1aacc4f8acfdf0c29a068b11"}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","phone":"63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
+    )
+    expect(response[0].options).toMatchSnapshot()
+  })
+
+  it('Normalise and Hash input with extra characters and spaces', async () => {
+    nock(`https://advertising-api.amazon.com`)
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+
+    const response = await testDestination.testAction('syncAudiencesToDSP', {
+      event: {
+        ...event,
+        properties: {
+          audience_key: 'rajul_vadera_test',
+          rajul_vadera_test: true,
+          firstName: 'Rajul',
+          lastName: 'Vadera',
+          address: '456 Anime Blvd. Apt 1',
+          city: 'Osaka City',
+          state: 'California',
+          postal: '90002',
+          email: 'vadera.rajul+segment@example.com',
+          phone: '+555-987-6543',
+          event_name: 'Audience Entered'
+        }
+      },
+      settings,
+      useDefaultMappings: true
+    })
+
+    expect(response.length).toBe(1)
+    expect(response[0].status).toBe(202)
+    expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+    expect(response[0].options.body).toBe(
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"address":"ebb357a6f604e4d893f034561b06fff712d9dbb7082c4b1808418115c5628017","postal":"516b1543763b8b04f15897aeac07eba66f4e36fdac6945bacb6bdac57e44598a","phone":"e1bfd73a5dc6262163ec42add4ebe0229f929db9b23644c1485dbccd05a36363","city":"61a01e4b10bf579b267bdc16858c932339e8388537363c9c0961bcf5520c8897","state":"7e8eea5cc60980270c9ceb75ce8c087d48d726110fd3d17921f774eefd8e18d8","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
     )
     expect(response[0].options).toMatchSnapshot()
   })
@@ -114,9 +150,21 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].status).toBe(202)
     expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"DELETE","hashedPII":[{}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"DELETE","hashedPII":[{"email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
     )
     expect(response[0].options).toMatchSnapshot()
+  })
+  it('should throw an error when an event has invalid externalUserId', async () => {
+    await expect(
+      testDestination.testAction('syncAudiencesToDSP', {
+        event: {
+          ...event,
+          userId: 'invalid+1@user.com'
+        },
+        settings,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrowError('externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}')
   })
 
   it('should work with batch events', async () => {
@@ -128,6 +176,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     const events: SegmentEvent[] = [
       {
         ...event,
+        userId: 'invalid@user.com',
         event: 'Audience Entered',
         properties: {
           audience_key: 'example_event_once_30_4_24_1',
@@ -140,7 +189,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       },
       {
         ...event,
-        userId: 'test-kochar-02',
+        userId: 'test_kochar-02',
         event: 'Audience Exited',
         properties: {
           audience_key: 'example_event_once_30_4_24_1',
@@ -165,9 +214,50 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].status).toBe(202)
     expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
     expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","city":"b4c0372af033c406857a420644e46c806280a0bab8246bd0c62c7807f66f794f","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674"}]},{"externalUserId":"test-kochar-02","countryCode":"US","action":"DELETE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","lastname":"4cd1cb0957bc59e698beab9e86f062f2e84138bff5a446e49762da8fe0c2f499","address":"45cfec5f1df1af649d49fc74314d7c9272e2f63ae9119bd3ef4b22a040d98cbc","postal":"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"bd0bcf03735a1a00c6f1dd21c63c5d819e7e450298f301698192e8df90da3bb3"}]}],"audienceId":379909525712777677}'
+      '{"records":[{"externalUserId":"test_kochar-02","countryCode":"US","action":"DELETE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","lastname":"4cd1cb0957bc59e698beab9e86f062f2e84138bff5a446e49762da8fe0c2f499","address":"ff376feebdfcc7daf36e6de4c6907b7901ed025abb1ea908800dd929f043fd8c","postal":"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
     )
     expect(response[0].options).toMatchSnapshot()
+  })
+
+  it('should throw an error when all events are having invalid externalUserId', async () => {
+    const events: SegmentEvent[] = [
+      {
+        ...event,
+        userId: 'invalid+1@user.com',
+        event: 'Audience Entered',
+        properties: {
+          audience_key: 'example_event_once_30_4_24_1',
+          example_event_once_30_4_24_1: true,
+          email: 'test@gmail.com',
+          first_name: 'gaurav',
+          city: 'Gurgaon',
+          state: 'Haryana'
+        }
+      },
+      {
+        ...event,
+        userId: 'invalid+2@user.com',
+        event: 'Audience Exited',
+        properties: {
+          audience_key: 'example_event_once_30_4_24_1',
+          example_event_once_30_4_24_1: true,
+          email: 'test.kochar@gmail.com',
+          postal: 'test',
+          address: '#501/2, Test Address',
+          first_name: 'gaurav',
+          last_name: 'kochar',
+          state: 'Haryana'
+        }
+      }
+    ]
+
+    await expect(
+      testDestination.testBatchAction('syncAudiencesToDSP', {
+        events,
+        settings,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrowError('externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}')
   })
 
   it('Handle Error when amazon ads API throw error', async () => {

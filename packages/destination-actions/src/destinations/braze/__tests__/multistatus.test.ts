@@ -569,7 +569,11 @@ describe('MultiStatus', () => {
         '@path': '$.traits.externalId'
       },
       braze_id: {
-        '@path': '$.traits.brazeId'
+        '@if': {
+          exists: { '@path': '$.integrations.Braze Cloud Mode (Actions).braze_id' },
+          then: { '@path': '$.integrations.Braze Cloud Mode (Actions).braze_id' },
+          else: { '@path': '$.traits.braze_id' }
+        }
       }
     }
 
@@ -596,6 +600,15 @@ describe('MultiStatus', () => {
             email: 'user@example.com'
           }
         }),
+        createTestEvent({
+          type: 'identify',
+          receivedAt,
+          traits: {
+            firstName: 'Example',
+            lastName: 'User',
+            braze_id: 'test-braze-id'
+          }
+        }),
         // Event without any user identifier
         createTestEvent({
           type: 'identify',
@@ -618,15 +631,23 @@ describe('MultiStatus', () => {
         status: 200,
         body: 'success'
       })
-
       // The second event doesn't fail as there is no error reported by Braze API
       expect(response[1]).toMatchObject({
         status: 200,
         body: 'success'
       })
 
-      // The third event fails as pre-request validation fails for not having a valid user identifier
+      // The Third event doesn't fail as there is no error reported by Braze API
       expect(response[2]).toMatchObject({
+        status: 200,
+        body: 'success',
+        sent: expect.objectContaining({
+          braze_id: 'test-braze-id'
+        })
+      })
+
+      // The Fourth event fails as pre-request validation fails for not having a valid user identifier
+      expect(response[3]).toMatchObject({
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" is required.',

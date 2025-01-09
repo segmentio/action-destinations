@@ -18,9 +18,13 @@ export async function send(request: RequestClient, payload: Payload) {
   const json: SendEmailReq = {
     personalizations: [
       {
-        to: payload.to.map((to) => ({ email: to.email, name: to?.name ?? undefined })),
-        cc: payload.cc?.map((cc) => ({ email: cc.email, name: cc?.name ?? undefined })) ?? undefined,
-        bcc: payload.bcc?.map((bcc) => ({ email: bcc.email, name: bcc?.name ?? undefined })) ?? undefined,
+        to: [{ email: payload.to.email, name: payload.to?.name ?? undefined }],
+        cc: payload.cc
+          ?.filter((cc): cc is { email: string; name?: string } => cc.email !== undefined)
+          .map((cc) => ({ email: cc.email, name: cc.name ?? undefined })) ?? undefined,
+        bcc: payload.bcc
+          ?.filter((bcc): bcc is { email: string; name?: string } => bcc.email !== undefined)
+          .map((bcc) => ({ email: bcc.email, name: bcc.name ?? undefined })) ?? undefined,
         headers:
           Object.entries(payload?.headers ?? {}).reduce((acc, [key, value]) => {
             acc[key] = String(value)
@@ -51,12 +55,11 @@ export async function send(request: RequestClient, payload: Payload) {
   })
 }
 
-function toUnixTS(date: string | undefined): number | undefined {
-  if (typeof date === 'undefined' || date === null || date === '') {
+export function toUnixTS(date: string | undefined): number | undefined {
+  if (!date) {
     return undefined
   }
-
-  return new Date(date).getTime()
+  return Math.floor(new Date(date).getTime() / 1000)
 }
 
 export function parseIntFromString(value: string | undefined): number | undefined {
@@ -108,6 +111,16 @@ function validate(payload: Payload) {
       )
     }
   })
+
+  payload.cc = payload?.cc?.filter(obj => Object.keys(obj).length > 0)
+  if(typeof payload.cc === 'object' && Object.keys(payload.cc).length === 0){
+    delete payload.cc
+  }
+
+  payload.bcc = payload?.bcc?.filter(obj => Object.keys(obj).length > 0)
+  if(typeof payload.bcc === 'object' && Object.keys(payload.bcc).length === 0){
+    delete payload.bcc
+  }
 
   if (payload.send_at) {
     const sendAt = new Date(payload.send_at)
