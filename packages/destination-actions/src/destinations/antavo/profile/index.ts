@@ -11,7 +11,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Customer ID',
       description: 'User ID, selected in Antavo as customer identifier',
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@path': '$.userId'
+      }
     },
     account: {
       label: 'Account',
@@ -70,14 +73,30 @@ const action: ActionDefinition<Settings, Payload> = {
         },
       },
       default: {
-        first_name: '',
-        last_name: '',
-        email: '',
-        birth_date: '',
-        gender: '',
-        language: '',
-        phone: '',
-        mobile_phone: '',
+        first_name: {
+          '@path': '$.traits.first_name'
+        },
+        last_name: {
+          '@path': '$.traits.last_name'
+        },
+        email: {
+          '@path': '$.traits.email'
+        },
+        birth_date: {
+          '@path': '$.traits.birthday'
+        },
+        gender: {
+          '@path': '$.traits.gender'
+        },
+        language: {
+          '@path': '$.traits.language'
+        },
+        phone: {
+          '@path': '$.traits.phone'
+        },
+        mobile_phone: {
+          '@path': '$.traits.mobile_phone'
+        }
       }
     },
   },

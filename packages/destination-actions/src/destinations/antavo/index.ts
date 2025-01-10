@@ -13,32 +13,18 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       stack: {
         label: 'Stack',
-        description: 'Antavo stack',
+        description: 'The Antavo Loyalty Engine stack where your brand resides',
         type: 'string',
         required: true
       },
       api_key: {
         label: 'API Key',
-        description: 'Antavo brand API key',
+        description: 'The Antavo brand API key supplied to your brand in Antavo Loyalty Engine',
         type: 'password',
         required: true
       }
-    },
-    testAuthentication: () => {
-      return true
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
     }
   },
-
-  onDelete: async () => {
-    return true
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-  },
-
   actions: {
     event,
     profile

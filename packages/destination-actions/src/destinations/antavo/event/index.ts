@@ -11,7 +11,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Customer ID',
       description: 'User ID, selected in Antavo as customer identifier',
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@path': '$.userId'
+      }
     },
     action: {
       label: 'Action',
