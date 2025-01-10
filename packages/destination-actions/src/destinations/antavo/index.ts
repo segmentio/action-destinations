@@ -25,7 +25,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
   actions: {
     event,
     profile
