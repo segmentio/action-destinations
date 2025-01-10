@@ -183,6 +183,68 @@ describe('Multistatus', () => {
         errorreporter: 'DESTINATION'
       })
     })
+    it('should handle multistatus errors and set correct status code', async () => {
+      const errorResponse = {
+        status: 429,
+        message: 'Invalid keys',
+        additionalErrors: [
+          {
+            message: 'No record found'
+          }
+        ]
+      }
+
+      nock(requestUrl).post('').reply(429, errorResponse)
+
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-1',
+          properties: {
+            id: '1234567890',
+            keys: {
+              id: 'HS1' // Valid key
+            },
+            values: {
+              name: 'Harry Styles'
+            }
+          }
+        }),
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-2',
+          properties: {
+            id: '1234567890',
+            keys: {
+              id: 'HS2' // Invalid key
+            },
+            values: {
+              name: 'Harry Potter'
+            }
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('dataExtension', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response[0]).toMatchObject({
+        status: 429,
+        errortype: 'TOO_MANY_REQUESTS',
+        errormessage: 'No record found',
+        errorreporter: 'DESTINATION'
+      })
+
+      expect(response[1]).toMatchObject({
+        status: 429,
+        errortype: 'TOO_MANY_REQUESTS',
+        errormessage: 'No record found',
+        errorreporter: 'DESTINATION'
+      })
+    })
   })
 
   describe('contactDataExtension', () => {
@@ -349,6 +411,71 @@ describe('Multistatus', () => {
         status: 400,
         errortype: 'BAD_REQUEST',
         errormessage: 'No record found for ID: HS2',
+        errorreporter: 'DESTINATION'
+      })
+    })
+
+    it('should handle multistatus errors and set correct status code', async () => {
+      const errorResponse = {
+        status: 429,
+        message: 'Invalid keys',
+        additionalErrors: [
+          {
+            message: 'No record found'
+          }
+        ]
+      }
+
+      nock(requestUrl).post('').reply(429, errorResponse)
+
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-1',
+          properties: {
+            id: '1234567890',
+            keys: {
+              contactKey: 'harry-1',
+              id: 'HS1'
+            },
+            values: {
+              name: 'Harry Styles'
+            }
+          }
+        }),
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-2',
+          properties: {
+            id: '1234567890',
+            keys: {
+              contactKey: 'harry-2',
+              id: 'HS2'
+            },
+            values: {
+              name: 'Harry Potter'
+            }
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('contactDataExtension', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response[0]).toMatchObject({
+        status: 429,
+        errortype: 'TOO_MANY_REQUESTS',
+        errormessage: 'No record found',
+        errorreporter: 'DESTINATION'
+      })
+
+      expect(response[1]).toMatchObject({
+        status: 429,
+        errortype: 'TOO_MANY_REQUESTS',
+        errormessage: 'No record found',
         errorreporter: 'DESTINATION'
       })
     })
