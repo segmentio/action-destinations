@@ -10,8 +10,7 @@ import {
   enable_batching2,
   recordMatcherOperator2,
   batch_size2,
-  hideIfDeleteSyncMode,
-  requiredIfCreateOperation
+  hideIfDeleteSyncMode
 } from '../sf-properties'
 import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 
@@ -64,7 +63,6 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.last_name' }
         }
       },
-      required: requiredIfCreateOperation,
       depends_on: hideIfDeleteSyncMode
     },
     first_name: {
