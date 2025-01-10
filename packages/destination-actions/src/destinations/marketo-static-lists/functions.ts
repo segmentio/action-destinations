@@ -321,11 +321,9 @@ function parseErrorResponse(response: MarketoResponse) {
 
 function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
   if (response.errors[0].code === '601' || response.errors[0].code === '602') {
-    return buildMultiStatusErrorResponse(payloadSize, {
-      status: 401,
-      errortype: ErrorCodes.INVALID_AUTHENTICATION,
-      errormessage: response.errors[0].message
-    })
+    // An INVALID_AUTHENTICATION error is thrown instead of returning a MultiStatusResponse
+    // Refreshing the access token in Client Credentials flow is triggered by this error
+    throw new IntegrationError(response.errors[0].message, 'INVALID_AUTHENTICATION', 401)
   }
 
   if (response.errors[0].code === '1019') {
