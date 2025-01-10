@@ -28,7 +28,7 @@ import {
   CREATE_LIST_ENDPOINT,
   GET_LIST_ENDPOINT
 } from './constants'
-import { JSONLikeObject } from '@segment/actions-core/*'
+import { JSONLikeObject } from '@segment/actions-core'
 
 // Keep only the scheme and host from the endpoint
 // Marketo UI shows endpoint with trailing "/rest", which we don't want
