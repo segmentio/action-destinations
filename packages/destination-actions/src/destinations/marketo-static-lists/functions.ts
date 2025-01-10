@@ -51,7 +51,7 @@ export async function addToList(
     const errormessage = 'No list ID found in payload'
 
     if (isBatchPayload) {
-      setMultiStatusErrorResponse(payloads.length, {
+      return setMultiStatusErrorResponse(payloads.length, {
         status: 400,
         errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
         errormessage
@@ -69,7 +69,8 @@ export async function addToList(
     const errormessage = `CSV data size exceeds limit of ${CSV_LIMIT} bytes`
 
     if (isBatchPayload) {
-      setMultiStatusErrorResponse(payloads.length, {
+      statsContext?.statsClient?.incr('addToAudience.error', payloads.length, statsContext?.tags)
+      return setMultiStatusErrorResponse(payloads.length, {
         status: 400,
         errortype: ErrorCodes.PAYLOAD_TOO_LARGE,
         errormessage
