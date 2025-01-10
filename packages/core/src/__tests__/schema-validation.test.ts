@@ -1177,7 +1177,7 @@ describe('conditionally required fields', () => {
       expect(isValid).toBe(true)
     })
 
-    it.only('should handle when allowNull is true and the field is null', async () => {
+    it('should handle when allowNull is true and the field is null', async () => {
       mockActionFields['a'] = {
         type: 'string',
         label: 'a',

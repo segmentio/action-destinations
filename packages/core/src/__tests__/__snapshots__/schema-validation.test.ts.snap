@@ -7,11 +7,22 @@ Object {
   "allOf": Array [
     Object {
       "if": Object {
-        "not": Object {
-          "required": Array [
-            "a",
-          ],
-        },
+        "anyOf": Array [
+          Object {
+            "not": Object {
+              "required": Array [
+                "a",
+              ],
+            },
+          },
+          Object {
+            "properties": Object {
+              "a": Object {
+                "type": "null",
+              },
+            },
+          },
+        ],
       },
       "then": Object {
         "required": Array [
@@ -251,11 +262,22 @@ Object {
   "allOf": Array [
     Object {
       "if": Object {
-        "not": Object {
-          "required": Array [
-            "a",
-          ],
-        },
+        "anyOf": Array [
+          Object {
+            "not": Object {
+              "required": Array [
+                "a",
+              ],
+            },
+          },
+          Object {
+            "properties": Object {
+              "a": Object {
+                "type": "null",
+              },
+            },
+          },
+        ],
       },
       "then": Object {
         "required": Array [
@@ -292,8 +314,21 @@ Object {
   "allOf": Array [
     Object {
       "if": Object {
-        "required": Array [
-          "a",
+        "allOf": Array [
+          Object {
+            "required": Array [
+              "a",
+            ],
+          },
+          Object {
+            "not": Object {
+              "properties": Object {
+                "a": Object {
+                  "type": "null",
+                },
+              },
+            },
+          },
         ],
       },
       "then": Object {

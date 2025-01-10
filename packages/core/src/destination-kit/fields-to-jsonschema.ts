@@ -50,8 +50,20 @@ const undefinedConditionValueToJSONSchema = (
     return insideIfStatement
   }
 
+  if (operator === 'is') {
+    const fieldIsNull: JSONSchema4 = { properties: { [dependantFieldKey]: { type: 'null' } } }
+    return {
+      if: { anyOf: [insideIfStatement, fieldIsNull] },
+      then: {
+        required: [fieldKey]
+      }
+    }
+  }
+
+  // operator === 'is_not'
+  const fieldIsNotNull: JSONSchema4 = { not: { properties: { [dependantFieldKey]: { type: 'null' } } } }
   return {
-    if: insideIfStatement,
+    if: { allOf: [insideIfStatement, fieldIsNotNull] },
     then: {
       required: [fieldKey]
     }
