@@ -961,7 +961,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
           return false
         }
       }
-      return response
+      return true
     }
     return await retry<Result[]>(run, { retries: MAX_ATTEMPTS, onFailedAttempt, shouldRetry })
   }
