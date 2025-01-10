@@ -1154,50 +1154,7 @@ Object {
 }
 `;
 
-exports[`conditionally required fields should validate a single conditional requirement should validate b when it is not required 1`] = `
-Object {
-  "$schema": "http://json-schema.org/schema#",
-  "additionalProperties": false,
-  "allOf": Array [
-    Object {
-      "if": Object {
-        "properties": Object {
-          "a": Object {
-            "const": "a_value",
-          },
-        },
-      },
-      "then": Object {
-        "required": Array [
-          "b",
-        ],
-      },
-    },
-  ],
-  "properties": Object {
-    "a": Object {
-      "default": undefined,
-      "description": "a",
-      "format": undefined,
-      "title": "a",
-      "type": "string",
-    },
-    "b": Object {
-      "default": undefined,
-      "description": "b",
-      "format": undefined,
-      "title": "b",
-      "type": "string",
-    },
-  },
-  "required": Array [
-    "a",
-  ],
-  "type": "object",
-}
-`;
-
-exports[`conditionally required fields should validate a single conditional requirement should validate b when it is required 1`] = `
+exports[`conditionally required fields should validate a single conditional requirement should validate b when it is required and when it is not required 1`] = `
 Object {
   "$schema": "http://json-schema.org/schema#",
   "additionalProperties": false,
