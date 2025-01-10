@@ -74,7 +74,11 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
       for (const key of Object.keys(payload.unhashed_identifier_data)) {
         const index = headerArray.indexOf(key)
         unhashedKeys.add(key)
-        row[index] = `"${hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`
+        if (key === 'phone_number') {
+          row[index] = `"${hashPhoneNumber(normalize(key, String(payload.unhashed_identifier_data[key])))}"`
+        } else {
+          row[index] = `"${hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`
+        }
       }
     }
 
@@ -119,6 +123,12 @@ const hash = (value: string): string => {
   return hash.digest('hex')
 }
 
+const hashPhoneNumber = (value: string): string => {
+  const hash = createHash('sha1')
+  hash.update(value)
+  return hash.digest('hex')
+}
+
 /*
   Identifiers need to be hashed according to LiveRamp spec's:
   https://docs.liveramp.com/connect/en/formatting-identifiers.html
@@ -147,4 +157,4 @@ const normalize = (key: string, value: string): string => {
   return value
 }
 
-export { generateFile, enquoteIdentifier, normalize, hash }
+export { generateFile, enquoteIdentifier, normalize, hash, hashPhoneNumber }
