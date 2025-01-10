@@ -22,6 +22,8 @@ import {
   REMOVE_USERS_ENDPOINT,
   MarketoResponse,
   CreateListInput,
+  OAUTH_ENDPOINT,
+  RefreshTokenResponse,
   MarketoListResponse,
   CREATE_LIST_ENDPOINT,
   GET_LIST_ENDPOINT
@@ -319,12 +321,11 @@ function parseErrorResponse(response: MarketoResponse) {
 
 function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
   if (response.errors[0].code === '601' || response.errors[0].code === '602') {
-    throw new IntegrationError(response.errors[0].message, 'INVALID_AUTHENTICATION', 401)
-    // return buildMultiStatusErrorResponse(payloadSize, {
-    //   status: 401,
-    //   errortype: ErrorCodes.INVALID_AUTHENTICATION,
-    //   errormessage: response.errors[0].message
-    // })
+    return buildMultiStatusErrorResponse(payloadSize, {
+      status: 401,
+      errortype: ErrorCodes.INVALID_AUTHENTICATION,
+      errormessage: response.errors[0].message
+    })
   }
 
   if (response.errors[0].code === '1019') {
@@ -342,13 +343,31 @@ function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number)
   })
 }
 
+export async function getAccessToken(request: RequestClient, settings: Settings) {
+  const api_endpoint = formatEndpoint(settings.api_endpoint)
+  const res = await request<RefreshTokenResponse>(`${api_endpoint}/${OAUTH_ENDPOINT}`, {
+    method: 'POST',
+    body: new URLSearchParams({
+      client_id: settings.client_id,
+      client_secret: settings.client_secret,
+      grant_type: 'client_credentials'
+    })
+  })
+
+  return res.data.access_token
+}
+
 export async function getList(request: RequestClient, settings: Settings, id: string) {
+  const accessToken = await getAccessToken(request, settings)
   const endpoint = formatEndpoint(settings.api_endpoint)
 
   const getListUrl = endpoint + GET_LIST_ENDPOINT.replace('listId', id)
 
   const getListResponse = await request<MarketoListResponse>(getListUrl, {
-    method: 'GET'
+    method: 'GET',
+    headers: {
+      authorization: `Bearer ${accessToken}`
+    }
   })
 
   if (!getListResponse.data.success && getListResponse.data.errors) {
@@ -379,23 +398,23 @@ export async function createList(request: RequestClient, input: CreateListInput,
   // Format Marketo base endpoint
   const endpoint = formatEndpoint(input.settings.api_endpoint)
 
+  // Get access token
+  const accessToken = await getAccessToken(request, input.settings)
+
   const getFolderUrl =
     endpoint + GET_FOLDER_ENDPOINT.replace('folderName', encodeURIComponent(input.settings.folder_name))
 
   // Get folder ID by name
   const getFolderResponse = await request<MarketoListResponse>(getFolderUrl, {
-    method: 'GET'
+    method: 'GET',
+    headers: {
+      authorization: `Bearer ${accessToken}`
+    }
   })
 
   // Since the API will return 200 we need to parse the response to see if it failed.
   if (!getFolderResponse.data.success && getFolderResponse.data.errors) {
     statsClient?.incr('createAudience.error', 1, statsTags)
-
-    // Handle authentication errors
-    if (getFolderResponse.data.errors[0].code === '601' || getFolderResponse.data.errors[0].code === '602') {
-      throw new IntegrationError(getFolderResponse.data.errors[0].message, 'INVALID_AUTHENTICATION', 401)
-    }
-
     throw new IntegrationError(`${getFolderResponse.data.errors[0].message}`, 'INVALID_RESPONSE', 400)
   }
 
@@ -416,17 +435,14 @@ export async function createList(request: RequestClient, input: CreateListInput,
 
   // Create list in given folder
   const createListResponse = await request<MarketoListResponse>(createListUrl, {
-    method: 'POST'
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${accessToken}`
+    }
   })
 
   if (!createListResponse.data.success && createListResponse.data.errors) {
     statsClient?.incr('createAudience.error', 1, statsTags)
-
-    // Handle authentication errors
-    if (getFolderResponse.data.errors[0].code === '601' || getFolderResponse.data.errors[0].code === '602') {
-      throw new IntegrationError(getFolderResponse.data.errors[0].message, 'INVALID_AUTHENTICATION', 401)
-    }
-
     throw new IntegrationError(`${createListResponse.data.errors[0].message}`, 'INVALID_RESPONSE', 400)
   }
 
