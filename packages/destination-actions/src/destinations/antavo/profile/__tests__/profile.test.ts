@@ -136,7 +136,7 @@ describe('Antavo (Actions)', () => {
         api_key: 'testApiKey'
       })
     })
-    it('Handle request without optional field', async () => {
+    it('Handle request without optional fields', async () => {
       nock(`https://api.${settings.stack}.antavo.com`)
         .post('/v1/webhook/segment')
         .reply(202, {})
