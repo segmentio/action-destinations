@@ -51,11 +51,12 @@ export async function executeUpsertWithMultiStatus(
   let response: ModifiedResponse | undefined
   try {
     response = await upsertRows(request, subdomain, payloads)
+    const responseData = response?.data as JSONLikeObject[]
     payloads.forEach((payload, index) => {
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
         sent: payload as Object as JSONLikeObject,
-        body: response?.data as JSONLikeObject
+        body: responseData[index] as Object as JSONLikeObject
       })
     })
   } catch (error) {
@@ -82,7 +83,7 @@ export async function executeUpsertWithMultiStatus(
 
     payloads.forEach((payload, index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: 400,
+        status: err?.response?.status || 400,
         errormessage: additionalError ? additionalError[0].message : errData?.message || '',
         sent: payload as Object as JSONLikeObject,
         body: additionalError ? (additionalError as Object as JSONLikeObject) : (errData as Object as JSONLikeObject)
