@@ -1,4 +1,4 @@
-import { enquoteIdentifier, generateFile, hash, normalize } from '../operations'
+import { enquoteIdentifier, generateFile, hash, normalize, hashPhoneNumber } from '../operations'
 import type { Payload } from '../audienceEnteredSftp/generated-types'
 
 describe('Test operations', () => {
@@ -6,6 +6,20 @@ describe('Test operations', () => {
     it('produces consistent SHA-256 hash for a given input', () => {
       const input = 'test input'
       expect(hash(input)).toBe('9dfe6f15d1ab73af898739394fd22fd72a03db01834582f24bb2e1c66c7aaeae')
+    })
+  })
+
+  describe('hashPhoneNumber', () => {
+    it('produces consistent SHA-1 hash for a given phone number', () => {
+      const phoneNumber = '123-456-7890'
+      expect(hashPhoneNumber(phoneNumber)).toBe('d94cf047843c27e4ebf4495804dfb264a2181d45')
+    })
+  })
+
+  describe('hashEmail', () => {
+    it('produces consistent SHA-256 hash for a given email address', () => {
+      const email = 'user@example.com'
+      expect(hash(email)).toBe('b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514')
     })
   })
 
