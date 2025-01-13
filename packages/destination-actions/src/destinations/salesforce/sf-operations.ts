@@ -1,9 +1,18 @@
-import { IntegrationError, ModifiedResponse, RequestClient, RefreshAccessTokenResult } from '@segment/actions-core'
+import {
+  IntegrationError,
+  ModifiedResponse,
+  RequestClient,
+  RefreshAccessTokenResult,
+  StatsContext
+} from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
+import { Features } from '@segment/actions-core/mapping-kit'
+
+const FLAGON_FORCE_ERROR_NAME = 'salesforce-bulk-force-error'
 
 export const API_VERSION = 'v53.0'
 
@@ -218,17 +227,22 @@ export default class Salesforce {
     return await this.baseDelete(recordId, sobject)
   }
 
-  bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
+  bulkHandler = async (
+    payloads: GenericPayload[],
+    sobject: string,
+    features?: Features,
+    statsContext?: StatsContext
+  ) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
     }
 
     if (payloads[0].operation === 'upsert') {
-      return await this.bulkUpsert(payloads, sobject)
+      return await this.bulkUpsert(payloads, sobject, features, statsContext)
     } else if (payloads[0].operation === 'update') {
-      return await this.bulkUpdate(payloads, sobject)
+      return await this.bulkUpdate(payloads, sobject, features, statsContext)
     } else if (payloads[0].operation === 'create') {
-      return await this.bulkInsert(payloads, sobject)
+      return await this.bulkInsert(payloads, sobject, features, statsContext)
     }
 
     if (payloads[0].operation === 'delete') {
@@ -302,12 +316,22 @@ export default class Salesforce {
     }
   }
 
-  private bulkInsert = async (payloads: GenericPayload[], sobject: string) => {
+  private bulkInsert = async (
+    payloads: GenericPayload[],
+    sobject: string,
+    features?: Features,
+    statsContext?: StatsContext
+  ) => {
     // The idField is purposely passed as an empty string since the field is not required.
-    return this.handleBulkJob(payloads, sobject, '', 'insert')
+    return this.handleBulkJob(payloads, sobject, '', 'insert', features, statsContext)
   }
 
-  private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
+  private bulkUpsert = async (
+    payloads: GenericPayload[],
+    sobject: string,
+    features?: Features,
+    statsContext?: StatsContext
+  ) => {
     if (
       !payloads[0].bulkUpsertExternalId ||
       !payloads[0].bulkUpsertExternalId.externalIdName ||
@@ -320,10 +344,15 @@ export default class Salesforce {
       )
     }
     const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
-    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert')
+    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert', features, statsContext)
   }
 
-  private bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
+  private bulkUpdate = async (
+    payloads: GenericPayload[],
+    sobject: string,
+    features?: Features,
+    statsContext?: StatsContext
+  ) => {
     if (!payloads[0].bulkUpdateRecordId) {
       throw new IntegrationError(
         'Undefined bulkUpdateRecordId when using bulkUpdate operation',
@@ -332,14 +361,16 @@ export default class Salesforce {
       )
     }
 
-    return this.handleBulkJob(payloads, sobject, 'Id', 'update')
+    return this.handleBulkJob(payloads, sobject, 'Id', 'update', features, statsContext)
   }
 
   private async handleBulkJob(
     payloads: GenericPayload[],
     sobject: string,
     idField: string,
-    operation: string
+    operation: string,
+    features?: Features,
+    statsContext?: StatsContext
   ): Promise<ModifiedResponse<unknown>> {
     // construct the CSV data to catch errors before creating a bulk job
     const csv = buildCSVData(payloads, idField, operation)
@@ -357,7 +388,20 @@ export default class Salesforce {
       })
       throw err
     }
-    return await this.closeBulkJob(jobId)
+
+    try {
+      if (features && features[FLAGON_FORCE_ERROR_NAME]) {
+        throw new IntegrationError('Forcing an error to test error handling', 'Forcing an error', 400)
+      }
+      return await this.closeBulkJob(jobId)
+    } catch (err) {
+      const statsClient = statsContext?.statsClient
+      const tags = statsContext?.tags
+
+      tags?.push('jobId:' + jobId)
+      statsClient?.incr('bulkJobError', 1, tags)
+      throw new IntegrationError('Failed to close bulk job', `Failed to close bulk job: ${jobId}`, 500)
+    }
   }
 
   private createBulkJob = async (sobject: string, externalIdFieldName: string, operation: string) => {
