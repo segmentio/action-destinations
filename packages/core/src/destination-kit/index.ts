@@ -415,6 +415,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   readonly actions: PartnerActions<Settings, any, AudienceSettings>
   readonly responses: DecoratedResponse[]
   readonly settingsSchema?: JSONSchema4
+  multiStatusResponses: ResultMultiStatusNode[]
   onDelete?: (event: SegmentEvent, settings: JSONObject, options?: OnEventOptions) => Promise<Result>
 
   constructor(destination: DestinationDefinition<Settings>) {
@@ -424,6 +425,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     this.actions = {}
     this.authentication = destination.authentication
     this.responses = []
+    this.multiStatusResponses = []
 
     if (this.definition.onDelete) {
       this.onDelete = this._onDelete

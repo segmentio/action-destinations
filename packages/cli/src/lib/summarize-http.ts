@@ -1,4 +1,5 @@
-import { DecoratedResponse as Response } from '@segment/actions-core'
+import { MultiStatusResponse, DecoratedResponse as Response } from '@segment/actions-core'
+import { ResultMultiStatusNode } from '@segment/actions-core/destination-kittypes'
 
 export interface Exchange {
   request: RequestToDestination
@@ -27,6 +28,16 @@ export default async function getExchanges(responses: Response[]): Promise<Excha
       request: await summarizeRequest(response),
       response: summarizeResponse(response)
     })
+  }
+
+  return requests
+}
+
+export async function getMultiStatusExchanges(responses: ResultMultiStatusNode[]) {
+  const requests: ResultMultiStatusNode[] = []
+
+  for (const response of responses) {
+    requests.push(response)
   }
 
   return requests

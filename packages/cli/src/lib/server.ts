@@ -15,7 +15,7 @@ import {
   AudienceDestinationDefinition
 } from '@segment/actions-core'
 import asyncHandler from './async-handler'
-import getExchanges from './summarize-http'
+import getExchanges, { getMultiStatusExchanges } from './summarize-http'
 import { AggregateAjvError } from '../../../ajv-human-errors/src/aggregate-ajv-error'
 import {
   ActionHookType,
@@ -305,12 +305,13 @@ function setupRoutes(def: DestinationDefinition | null): void {
             // If no mapping or default mapping is provided, default to using the first payload across all events.
             eventParams.mapping = mapping || eventParams.data[0] || {}
             eventParams.audienceSettings = req.body.payload[0]?.context?.personas?.audience_settings || {}
-            await action.executeBatch(eventParams)
+            const res = await action.executeBatch(eventParams)
+            destination.multiStatusResponses = res
           } else {
             await action.execute(eventParams)
           }
 
-          const debug = await getExchanges(destination.responses)
+          const debug = await getMultiStatusExchanges(destination.multiStatusResponses)
           return res.status(200).json(debug)
         } catch (err) {
           const output = marshalError(err as ResponseError)
