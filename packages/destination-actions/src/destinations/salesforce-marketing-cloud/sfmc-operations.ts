@@ -65,7 +65,7 @@ export async function executeUpsertWithMultiStatus(
         multiStatusResponse.setErrorResponseAtIndex(index, {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`
+          errormessage: `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined;`
         })
       })
       return multiStatusResponse
