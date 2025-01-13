@@ -300,7 +300,7 @@ function extractFilterData(payloads: RemoveFromListPayload[]) {
   return data
 }
 
-function extractLeadIds(leads: MarketoLeads[]) {
+function extractLeadIds(leads: MarketoLeads[] = []) {
   const ids = leads.map((lead) => `${lead.id}`).join(',')
   return ids
 }
