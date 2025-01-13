@@ -484,7 +484,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     const onFailedAttempt = async (error: ResponseError | HTTPError) => {
-      settings = await this.handleAuthError(error, settings)
+      settings = await this.handleError(error, settings)
     }
     return await retry(run, { retries: 2, onFailedAttempt })
   }
@@ -510,7 +510,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     const onFailedAttempt = async (error: ResponseError | HTTPError) => {
-      settings = await this.handleAuthError(error, settings)
+      settings = await this.handleError(error, settings)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -902,7 +902,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     const onFailedAttempt = async (error: ResponseError | HTTPError) => {
-      settings = await this.handleAuthError(error, settings, options)
+      settings = await this.handleError(error, settings, options)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -932,7 +932,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onFailedAttempt = async (error: any) => {
-      settings = await this.handleAuthError(error, settings, options)
+      settings = await this.handleError(error, settings, options)
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -954,10 +954,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         const isOAuthDestination =
           this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed'
         if (attemptCount <= MAX_ATTEMPTS && has401Errors && isOAuthDestination) {
-          const newTokens = await this.refreshTokenAndGetNewToken(settings, options)
-          // Update new access-token in cache and in settings.
-          await options?.onTokenRefresh?.(newTokens)
-          settings = updateOAuthSettings(settings, newTokens)
+          await this.handleAuthError(settings, options)
           return false
         }
       }
@@ -996,7 +993,11 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
    * @returns {Promise<JSONObject>} - The updated settings object.
    * @throws {ResponseError | HTTPError} - If reauthentication is not needed or token refresh fails.
    */
-  async handleAuthError(error: ResponseError | HTTPError, settings: JSONObject, options?: OnEventOptions) {
+  async handleError(
+    error: ResponseError | HTTPError,
+    settings: JSONObject,
+    options?: OnEventOptions
+  ): Promise<JSONObject> {
     const statusCode = (error as ResponseError).status ?? (error as HTTPError)?.response?.status ?? 500
     const needsReauthentication =
       statusCode === 401 &&
@@ -1004,6 +1005,16 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     if (!needsReauthentication) {
       throw error
     }
+    return this.handleAuthError(settings, options)
+  }
+
+  /**
+   * Handles the authentication error by refreshing the token and updating the settings.
+   * @param {JSONObject} settings - The current settings object.
+   * @returns {Promise<JSONObject>} - The updated settings object.
+   * @returns
+   */
+  async handleAuthError(settings: JSONObject, options?: OnEventOptions) {
     const newTokens = await this.refreshTokenAndGetNewToken(settings, options)
     // Update new access-token in cache and in settings.
     await options?.onTokenRefresh?.(newTokens)
