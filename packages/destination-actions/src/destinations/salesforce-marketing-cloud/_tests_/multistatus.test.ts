@@ -22,7 +22,8 @@ const mapping = {
 describe('Multistatus', () => {
   describe('dataExtension', () => {
     it('should successfully handle a batch of events with complete success response from SFMC API', async () => {
-      nock(requestUrl).post('').reply(200, {})
+      const responseData = [{ message: 'Success for event 1' }, { message: 'Success for event 2' }]
+      nock(requestUrl).post('').reply(200, responseData)
 
       const events: SegmentEvent[] = [
         // Valid Event
@@ -63,12 +64,12 @@ describe('Multistatus', () => {
 
       expect(response[0]).toMatchObject({
         status: 200,
-        body: {}
+        body: { message: 'Success for event 1' }
       })
 
       expect(response[1]).toMatchObject({
         status: 200,
-        body: {}
+        body: { message: 'Success for event 2' }
       })
     })
     it('should handle the case where both key and id are missing', async () => {
@@ -249,7 +250,8 @@ describe('Multistatus', () => {
 
   describe('contactDataExtension', () => {
     it('should successfully handle a batch of events with complete success response from SFMC API', async () => {
-      nock(requestUrl).post('').reply(200, {})
+      const responseData = [{ message: 'Success for event 1' }, { message: 'Success for event 2' }]
+      nock(requestUrl).post('').reply(200, responseData)
 
       const events: SegmentEvent[] = [
         createTestEvent({
@@ -288,12 +290,12 @@ describe('Multistatus', () => {
 
       expect(response[0]).toMatchObject({
         status: 200,
-        body: {}
+        body: { message: 'Success for event 1' }
       })
 
       expect(response[1]).toMatchObject({
         status: 200,
-        body: {}
+        body: { message: 'Success for event 2' }
       })
     })
 

@@ -56,7 +56,7 @@ export async function executeUpsertWithMultiStatus(
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
         sent: payload as Object as JSONLikeObject,
-        body: responseData[index] as Object as JSONLikeObject
+        body: responseData[index] ? (responseData[index] as Object as JSONLikeObject) : {}
       })
     })
   } catch (error) {
