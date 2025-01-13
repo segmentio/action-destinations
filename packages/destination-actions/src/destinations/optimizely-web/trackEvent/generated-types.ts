@@ -54,12 +54,16 @@ export interface Payload {
    * Tags to send with the event
    */
   tags?: {
+    /**
+     * Currency code for revenue. Defaults to USD.
+     */
+    currency?: string
     [k: string]: unknown
   }
   /**
-   * Additional properties to send with the event. Properties must be defined in Optimizely before they can be sent.
+   * Standard event properties to send with the event.
    */
-  properties?: {
+  standardEventProperties?: {
     /**
      * The revenue amount associated with this event For example, to represent $23.42, this field would be set to 23.42.
      */
@@ -72,10 +76,43 @@ export interface Payload {
      * An aggregatable "count" associated with this event; for example, a number of video views or items in a shopping cart.
      */
     quantity?: number
+  }
+  /**
+   * Additioanl custom string event properties to send with the event. These must be defined in Optimizely before they can be sent.
+   */
+  customStringProperties?: {
     /**
-     * Currency code for revenue. Defaults to USD.
+     * Category of the event
      */
-    currency?: string
+    Category?: string
+    /**
+     * Subcategory of the event
+     */
+    Subcategory?: string
+    /**
+     * Text of the event
+     */
+    Text?: string
+    /**
+     * URL of the event
+     */
+    URL?: string
+    /**
+     * SKU of the event
+     */
+    SKU?: string
+    [k: string]: unknown
+  }
+  /**
+   * Additioanl custom numeric event properties to send with the event. These must be defined in Optimizely before they can be sent.
+   */
+  customNumericProperties?: {
+    [k: string]: unknown
+  }
+  /**
+   * Additioanl custom boolean event properties to send with the event. These must be defined in Optimizely before they can be sent.
+   */
+  customBooleanProperties?: {
     [k: string]: unknown
   }
   /**

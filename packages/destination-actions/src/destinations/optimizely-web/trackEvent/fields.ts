@@ -14,13 +14,7 @@ export const fields: Record<string, InputField> = {
       "The unique identifier for the user. The value should be taken from the optimizelyEndUserId cookie, or it can be collected using window.optimizely.get('visitor').visitorId. If using the BYOID feature pass in the value of the ID for your user.",
     type: 'string',
     required: true,
-    default: {
-      '@if': {
-        exists: { '@path': '$.integrations.actions-optimizely-web.end_user_id' },
-        then: { '@path': '$.integrations.actions-optimizely-web.end_user_id' },
-        else: { '@path': '$.properties.end_user_id' }
-      }
-    }
+    default: { '@path': '$.properties.end_user_id' }
   },
   anonymizeIP: {
     label: 'Anonymize IP',
@@ -40,7 +34,7 @@ export const fields: Record<string, InputField> = {
       createEventIfNotFound: {
         label: 'Create If Not Found',
         description:
-          'If needed, Segment can define new Custom Events and Pages in Optimizely. If you do not want Segment to create new events, select "Do not create".',
+          'Segment can create new Custom Events and Pages in Optimizely, along with custom properties. However, once an event is defined by Segment, its properties cannot be modified. If you prefer to prevent Segment from creating new events, select the "Do not create" option.',
         type: 'string',
         required: true,
         choices: [
@@ -128,15 +122,28 @@ export const fields: Record<string, InputField> = {
     type: 'object',
     required: false,
     additionalProperties: true,
-    defaultObjectUI: 'keyvalue'
+    defaultObjectUI: 'keyvalue',
+    properties: {
+      currency: {
+        label: 'Currency',
+        description: 'Currency code for revenue. Defaults to USD.',
+        type: 'string',
+        required: false,
+        default: 'USD'
+      }
+    },
+    default: {
+      currency: {
+        '@path': '$.properties.currency'
+      }
+    }
   },
-  properties: {
-    label: 'Properties',
-    description:
-      'Additional properties to send with the event. Properties must be defined in Optimizely before they can be sent.',
+  standardEventProperties: {
+    label: 'Standard Event Properties',
+    description: 'Standard event properties to send with the event.',
     type: 'object',
     required: false,
-    additionalProperties: true,
+    additionalProperties: false,
     defaultObjectUI: 'keyvalue',
     properties: {
       revenue: {
@@ -158,13 +165,6 @@ export const fields: Record<string, InputField> = {
           'An aggregatable "count" associated with this event; for example, a number of video views or items in a shopping cart.',
         type: 'integer',
         required: false
-      },
-      currency: {
-        label: 'Currency',
-        description: 'Currency code for revenue. Defaults to USD.',
-        type: 'string',
-        required: false,
-        default: 'USD'
       }
     },
     default: {
@@ -176,11 +176,97 @@ export const fields: Record<string, InputField> = {
       },
       quantity: {
         '@path': '$.properties.quantity'
-      },
-      currency: {
-        '@path': '$.properties.currency'
       }
     }
+  },
+  customStringProperties: {
+    label: 'Custom Properties (string)',
+    description:
+      'Additional custom string event properties to send with the event. These must be defined in Optimizely before they can be sent.',
+    type: 'object',
+    required: false,
+    additionalProperties: true,
+    defaultObjectUI: 'keyvalue',
+    properties: {
+      Category: {
+        label: 'Category',
+        description: 'Category of the event',
+        type: 'string',
+        required: false
+      },
+      Subcategory: {
+        label: 'Subcategory',
+        description: 'Subcategory of the event',
+        type: 'string',
+        required: false
+      },
+      Text: {
+        label: 'Text',
+        description: 'Text of the event',
+        type: 'string',
+        required: false
+      },
+      URL: {
+        label: 'URL',
+        description: 'URL of the event',
+        type: 'string',
+        required: false
+      },
+      SKU: {
+        label: 'SKU',
+        description: 'SKU of the event',
+        type: 'string',
+        required: false
+      }
+    },
+    default: {
+      Category: {
+        '@path': '$.properties.category'
+      },
+      Subcategory: {
+        '@path': '$.properties.subcategory'
+      },
+      Text: {
+        '@path': '$.properties.text'
+      },
+      URL: {
+        '@path': '$.properties.url'
+      },
+      SKU: {
+        '@path': '$.properties.sku'
+      }
+    }
+  },
+  customNumericProperties: {
+    label: 'Custom Properties (numeric)',
+    description:
+      'Additioanl custom numeric event properties to send with the event. These must be defined in Optimizely before they can be sent.',
+    type: 'object',
+    required: false,
+    additionalProperties: true,
+    defaultObjectUI: 'keyvalue',
+    properties: {
+      testNum: {
+        label: 'Test Num Prop',
+        description: 'Test Num Prop',
+        type: 'number',
+        required: false
+      }
+    },
+    default: {
+      testNum: {
+        '@path': '$.properties.custom_num_prop'
+      }
+    }
+  },
+  customBooleanProperties: {
+    label: 'Custom Properties (boolean)',
+    description:
+      'Additioanl custom boolean event properties to send with the event. These must be defined in Optimizely before they can be sent.',
+    type: 'object',
+    required: false,
+    additionalProperties: true,
+    defaultObjectUI: 'keyvalue'
   },
   sessionId: {
     label: 'Session ID',

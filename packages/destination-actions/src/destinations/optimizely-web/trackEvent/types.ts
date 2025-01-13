@@ -1,10 +1,27 @@
+import { Payload } from './generated-types'
+
+export type Type = typeof TRACK | typeof PAGE
+
+export type UnixTimestamp13 = number & { __type: 'UnixTimestamp13' }
+
+export interface OptEventProperties {
+  [key: string]: string | number | boolean
+}
+
+export interface ValidPayload extends Payload {
+  unixTimestamp13: UnixTimestamp13
+  optEventProperties?: OptEventProperties
+  type: Type
+  key: string | undefined
+}
+
 import { TRACK, PAGE } from './constants'
 
 export interface SendEventJSON {
   account_id: string
   project_id?: number
   anonymize_ip: boolean
-  client_name: 'Segment Optimizely Web Destination'
+  client_name: 'twilio_segment/optimizely_web_destination'
   client_version: string
   enrich_decisions: true
   visitors: Array<Visitor>
@@ -25,24 +42,20 @@ export interface Snapshot {
 export interface Event {
   entity_id: string
   key?: string
-  timestamp: UnixTimestamp13
-  uuid: string
-  type: EventType
+  quantity?: number
   revenue?: number
-  value?: number
   tags: {
-    quantity?: number
     currency?: string
-    $opt_event_properties?: {
-      [key: string]: string | number | boolean
-    }
+    $opt_event_properties?: OptEventProperties
     [key: string]: string | number | { [key: string]: string | number | boolean } | undefined
   }
+  timestamp: UnixTimestamp13
+  type: EventType
+  uuid: string
+  value?: number
 }
 
 export type EventType = 'view_activated' | 'other'
-
-export type UnixTimestamp13 = number & { __type: 'UnixTimestamp13' }
 
 export interface EventItem {
   id: number
@@ -50,16 +63,27 @@ export interface EventItem {
   name: string
 }
 
+export type EventProperties = Array<{
+  data_type: 'string' | 'boolean' | 'number'
+  name: string
+}>
+
+export interface EventItemWithProps extends EventItem {
+  event_properties: EventProperties
+}
+
 export interface CreateEventJSON {
   category: string
   event_type: string
   key: string
   name?: string
+  event_properties?: Array<{
+    data_type: 'string' | 'boolean' | 'number'
+    name: string
+  }>
 }
 
 export interface CreatePageJSON extends CreateEventJSON {
   edit_url: string
   project_id: number
 }
-
-export type Type = typeof TRACK | typeof PAGE

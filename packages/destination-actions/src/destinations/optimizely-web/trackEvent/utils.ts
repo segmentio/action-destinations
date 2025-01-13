@@ -1,36 +1,50 @@
 import type { Payload } from './generated-types'
 import { Settings } from '../generated-types'
-import { IntegrationError, PayloadValidationError, RequestClient } from '@segment/actions-core'
-import { Event, UnixTimestamp13, EventItem, Type, SendEventJSON } from './types'
-import { SUPPORTED_TYPES, PAGE } from './constants'
+import { PayloadValidationError, RequestClient } from '@segment/actions-core'
+import {
+  ValidPayload,
+  UnixTimestamp13,
+  OptEventProperties,
+  EventItem,
+  EventProperties,
+  EventItemWithProps,
+  Type,
+  SendEventJSON
+} from './types'
+import { SUPPORTED_TYPES, PAGE, MAX_CUSTOM_PROPS_PER_EVENT } from './constants'
 import { OptimizelyWebClient } from './client'
 import snakeCase from 'lodash/snakeCase'
 
 export async function send(request: RequestClient, settings: Settings, payload: Payload) {
-  const { unixTimestamp13, restProperties, value, revenue, quantity, currency, tags } = validate(payload)
+  const validPayload = validate(payload)
 
   const {
-    endUserId,
-    sessionId: session_id,
+    unixTimestamp13,
+    optEventProperties,
     uuid,
+    endUserId: visitor_id,
+    anonymizeIP: anonymize_ip,
     eventMatching: { eventId, eventKey, shouldSnakeCaseEventKey },
-    eventType
-  } = payload
+    tags,
+    standardEventProperties: { revenue, value, quantity } = {},
+    type,
+    sessionId: session_id
+  } = validPayload
 
   const client = new OptimizelyWebClient(request, settings)
 
-  const entity_id = eventId ?? (await getEventid(client, payload))
+  const entity_id = eventId ?? (await getEventid(client, validPayload))
 
   const body: SendEventJSON = {
     account_id: settings.optimizelyAccountId,
     project_id: settings.projectID,
-    anonymize_ip: payload.anonymizeIP,
-    client_name: 'Segment Optimizely Web Destination',
+    anonymize_ip,
+    client_name: 'twilio_segment/optimizely_web_destination',
     client_version: '1.0.0',
     enrich_decisions: true,
     visitors: [
       {
-        visitor_id: endUserId,
+        visitor_id,
         session_id,
         attributes: [],
         snapshots: [
@@ -39,18 +53,19 @@ export async function send(request: RequestClient, settings: Settings, payload: 
             events: [
               {
                 entity_id,
-                key: cleanKey(eventType as Type, shouldSnakeCaseEventKey, eventKey),
-                timestamp: unixTimestamp13,
-                uuid,
-                type: eventType === PAGE ? 'view_activated' : 'other',
-                revenue: revenue ? revenue * 100 : undefined,
-                value,
+                key: cleanKey(type, shouldSnakeCaseEventKey, eventKey),
+                quantity,
+                revenue: typeof revenue === 'number' ? revenue * 100 : undefined,
                 tags: {
-                  quantity,
-                  currency,
-                  $opt_event_properties: restProperties as Event['tags']['$opt_event_properties'],
-                  ...tags
-                }
+                  ...tags,
+                  ...(Object.keys(optEventProperties ?? {}).length > 0 && {
+                    $opt_event_properties: optEventProperties
+                  })
+                },
+                timestamp: unixTimestamp13,
+                type: type === PAGE ? 'view_activated' : 'other',
+                uuid,
+                value
               }
             ]
           }
@@ -62,13 +77,15 @@ export async function send(request: RequestClient, settings: Settings, payload: 
   return await client.sendEvent(body)
 }
 
-export function validate(payload: Payload) {
+export function validate(payload: Payload): ValidPayload {
   const {
-    eventMatching: { eventKey, eventId },
+    eventMatching: { eventKey, eventId, shouldSnakeCaseEventKey },
     eventType,
     tags,
     timestamp,
-    properties: { value, revenue, quantity, currency, ...restProperties } = {}
+    customStringProperties,
+    customNumericProperties,
+    customBooleanProperties
   } = payload
 
   if (!eventKey && !eventId) {
@@ -81,32 +98,54 @@ export function validate(payload: Payload) {
     )
   }
 
+  const type: Type = eventType as Type
+
   const unixTimestamp13: UnixTimestamp13 = new Date(timestamp as string).getTime() as UnixTimestamp13
 
   if (unixTimestamp13.toString().length !== 13) {
     throw new PayloadValidationError('Unable to convert timestamp into 13 digit Unix timestamp')
   }
 
-  if (!areAllPropertiesPrimitive(restProperties, ['string', 'number', 'boolean'])) {
-    throw new PayloadValidationError('Event properties must be of type string, number or boolean')
+  if (!validatePropType(customStringProperties, ['string'])) {
+    throw new PayloadValidationError('Custom String Properties must be of type string')
   }
 
-  if (!areAllPropertiesPrimitive(tags as Record<string, unknown>, ['string', 'number'])) {
+  if (!validatePropType(customNumericProperties, ['number'])) {
+    throw new PayloadValidationError('Custom Numeric Properties must be of type number')
+  }
+
+  if (!validatePropType(customBooleanProperties, ['boolean'])) {
+    throw new PayloadValidationError('Custom Boolean Properties must be of type boolean')
+  }
+
+  if (!validatePropType(tags as Record<string, unknown>, ['string', 'number'])) {
     throw new PayloadValidationError('Tags must be of type string or number')
   }
 
+  const key = cleanKey(type, shouldSnakeCaseEventKey, eventKey)
+
+  const optEventProperties = getCustomProps(payload)
+
   return {
+    ...payload,
     unixTimestamp13,
-    restProperties,
-    value,
-    revenue,
-    quantity,
-    currency,
-    tags
+    optEventProperties,
+    type,
+    key
   }
 }
 
-export function areAllPropertiesPrimitive(
+function getCustomProps(payload: Payload): OptEventProperties {
+  const { customStringProperties, customNumericProperties, customBooleanProperties } = payload
+
+  return {
+    ...customStringProperties,
+    ...customNumericProperties,
+    ...customBooleanProperties
+  } as OptEventProperties
+}
+
+export function validatePropType(
   obj: Record<string, unknown> | undefined,
   typesToCheck: Array<'string' | 'boolean' | 'number'> = ['string', 'boolean', 'number']
 ): boolean {
@@ -119,39 +158,33 @@ export function areAllPropertiesPrimitive(
   })
 }
 
-export async function getEventid(client: OptimizelyWebClient, payload: Payload): Promise<string> {
+export async function getEventid(client: OptimizelyWebClient, payload: ValidPayload): Promise<string> {
   const {
-    category,
-    eventMatching: { createEventIfNotFound, eventKey, shouldSnakeCaseEventKey },
-    eventType,
-    pageUrl
+    eventMatching: { createEventIfNotFound, eventId },
+    type,
+    key
   } = payload
 
-  if (!eventKey) {
-    throw new PayloadValidationError('Event key is required to get the event id')
+  let event_id = eventId ?? (await searchDefinedEvents(client, key as string, type))
+
+  if (event_id === undefined && createEventIfNotFound !== 'CREATE') {
+    throw new PayloadValidationError(
+      `Event with key = ${key} not found in Optimizely. The "Create If Not Found" field is set to "Do not create", which prevents Segment from defining the event in Optimizely.`
+    )
   }
 
-  const key = cleanKey(eventType as Type, shouldSnakeCaseEventKey, eventKey) as string
-
-  const name = eventKey
-
-  let event = getEventFromCache(key)
-
-  if (event === undefined) {
-    if (createEventIfNotFound === 'CREATE') {
-      event = await ensureEventSchema(client, key, name, category, eventType as Type, pageUrl)
-    } else {
-      throw new PayloadValidationError(
-        `Event with key = ${key} not found in Optimizely. "Create If Not Found" field set to "Do not create" which prevents Segment from creating the event.`
-      )
-    }
+  if (event_id === undefined) {
+    const newEventItemWithProps = await defineNewEvent(client, key as string, payload)
+    event_id = newEventItemWithProps.id.toString()
+    compareProps(payload.optEventProperties, newEventItemWithProps.event_properties, event_id)
+  } else {
+    await validatePropertyDefinitions(client, event_id, payload)
   }
 
-  if (!event) {
+  if (!event_id) {
     throw new PayloadValidationError(`Error attempting to find event with key = ${key} in Optimizely`)
   }
-
-  return event.id.toString()
+  return event_id
 }
 
 export function cleanKey(eventType: Type, shouldSnakeCaseEventKey: boolean, key?: string): string | undefined {
@@ -162,42 +195,65 @@ export function cleanKey(eventType: Type, shouldSnakeCaseEventKey: boolean, key?
   return eventType === PAGE ? maybeSnakeKey.replace(/[^a-zA-Z0-9_]/g, '_') : maybeSnakeKey
 }
 
-export function getEventFromCache(key: string): EventItem | undefined {
-  return getEventsFromCache().find((event: EventItem) => {
+export async function searchDefinedEvents(
+  client: OptimizelyWebClient,
+  key: string,
+  type: Type
+): Promise<string | undefined> {
+  const response = await client.getCustomEvents(type)
+  const eventItems: EventItem[] = await response.json()
+  const event = eventItems.find((event: EventItem) => {
     return event.key === key
+  })
+  return event?.id.toString() ?? undefined
+}
+
+export async function validatePropertyDefinitions(
+  client: OptimizelyWebClient,
+  event_id: string,
+  payload: ValidPayload
+) {
+  const { optEventProperties } = payload
+  const response = await client.getCustomEvent(event_id)
+  const eventItem: EventItemWithProps = await response.json()
+  const definedProps = eventItem.event_properties ?? []
+  compareProps(optEventProperties, definedProps, event_id)
+}
+
+function compareProps(
+  optEventProperties: OptEventProperties = {},
+  definedProps: EventProperties = [],
+  event_id: string
+) {
+  Object.entries(optEventProperties ?? {}).forEach(([k, v]) => {
+    const match = definedProps.find((p) => p.name == k)
+    if (!match) {
+      throw new PayloadValidationError(
+        `Property: '${k}' is not defined in Optimizely event with event_id: '${event_id}'`
+      )
+    }
+    if (match.data_type !== typeof v) {
+      throw new PayloadValidationError(
+        `Property: '${k}' is of type ${typeof v} but defined in Optimizely event with event_id: '${event_id}' as ${
+          match.data_type
+        }`
+      )
+    }
   })
 }
 
-export function getEventsFromCache(): EventItem[] {
-  return []
-}
-
-export async function ensureEventSchema(
+export async function defineNewEvent(
   client: OptimizelyWebClient,
   key: string,
-  name: string,
-  category: string,
-  type: Type,
-  pageUrl?: string
-): Promise<EventItem> {
-  let event = await (async () => {
-    const response = await client.getCustomEvents(type)
-    const eventItems: EventItem[] = await response.json()
-
-    return eventItems.find((event: EventItem) => {
-      return event.key === key
-    })
-  })()
-
-  if (event === undefined) {
-    event = await (async () => {
-      const response = await client.createCustomEvent(key, name, category, type, pageUrl)
-      const event = await response.json()
-      return event
-    })()
+  payload: ValidPayload
+): Promise<EventItemWithProps> {
+  const { optEventProperties = {}, category, type, pageUrl } = payload
+  if (Object.keys(optEventProperties).length > MAX_CUSTOM_PROPS_PER_EVENT) {
+    throw new PayloadValidationError(
+      `Optimizely supports a maximum of ${MAX_CUSTOM_PROPS_PER_EVENT} custom properties per event.`
+    )
   }
-  if (!event) {
-    throw new IntegrationError(`Unable to create event with key ${key} in Optimizely`, 'EVENT_CREATION_ERROR', 400)
-  }
+  const response = await client.createCustomEvent(key, category, type, optEventProperties, pageUrl)
+  const event = await response.json()
   return event
 }

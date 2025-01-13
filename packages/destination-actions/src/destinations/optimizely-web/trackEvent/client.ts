@@ -1,6 +1,14 @@
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Settings } from '../generated-types'
-import { EventItem, CreateEventJSON, CreatePageJSON, SendEventJSON, Type } from './types'
+import {
+  OptEventProperties,
+  EventItem,
+  EventItemWithProps,
+  CreateEventJSON,
+  CreatePageJSON,
+  SendEventJSON,
+  Type
+} from './types'
 import { TRACK, PAGE } from './constants'
 
 export class OptimizelyWebClient {
@@ -16,6 +24,7 @@ export class OptimizelyWebClient {
       type === TRACK
         ? `https://api.optimizely.com/v2/events?per_page=100&include_classic=false&project_id=${this.settings.projectID}`
         : `https://api.optimizely.com/v2/pages?per_page=100&project_id=${this.settings.projectID}`
+
     return await this.request<EventItem[]>(url, {
       method: 'GET',
       headers: {
@@ -26,7 +35,26 @@ export class OptimizelyWebClient {
     })
   }
 
-  async createCustomEvent(key: string, name: string, category: string, type: Type, edit_url?: string) {
+  async getCustomEvent(event_id: string) {
+    const url = `https://api.optimizely.com/v2/events/${event_id}?include_classic=false`
+
+    return await this.request<EventItemWithProps>(url, {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        accept: 'application/json',
+        authorization: `Bearer ${this.settings.optimizelyApiKey}`
+      }
+    })
+  }
+
+  async createCustomEvent(
+    key: string,
+    category: string,
+    type: Type,
+    optEventProperties: OptEventProperties,
+    edit_url?: string
+  ) {
     const url =
       type === TRACK
         ? `https://api.optimizely.com/v2/projects/${this.settings.projectID}/custom_events`
@@ -37,15 +65,21 @@ export class OptimizelyWebClient {
     }
 
     const json = {
-      key,
-      name: name,
       category,
       event_type: 'custom',
+      key,
+      name: key,
+      event_properties: optEventProperties
+        ? Object.keys(optEventProperties).map((key) => ({
+            data_type: typeof optEventProperties[key],
+            name: key
+          }))
+        : undefined,
       edit_url: type === PAGE && edit_url ? edit_url : undefined,
       project_id: type === PAGE ? this.settings.projectID : undefined
     }
 
-    return await this.request<EventItem>(url, {
+    return await this.request<EventItemWithProps>(url, {
       method: 'POST',
       json: json as CreateEventJSON | CreatePageJSON,
       headers: {
