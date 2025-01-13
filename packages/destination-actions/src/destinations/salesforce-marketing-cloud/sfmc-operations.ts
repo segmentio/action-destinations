@@ -71,9 +71,6 @@ export async function executeUpsertWithMultiStatus(
       return multiStatusResponse
     }
     const err = error as ErrorResponse
-    if (err?.response?.status === 401) {
-      throw error
-    }
 
     const errData = err?.response?.data
     const additionalError =
@@ -83,7 +80,7 @@ export async function executeUpsertWithMultiStatus(
 
     payloads.forEach((payload, index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: err?.response?.status || 400,
+        status: err?.response?.status || 500,
         errormessage: additionalError ? additionalError[0].message : errData?.message || '',
         sent: payload as Object as JSONLikeObject,
         body: additionalError ? (additionalError as Object as JSONLikeObject) : (errData as Object as JSONLikeObject)
