@@ -400,7 +400,7 @@ export default class Salesforce {
 
       tags?.push('jobId:' + jobId)
       statsClient?.incr('bulkJobError', 1, tags)
-      throw new IntegrationError('Failed to close bulk job', `Failed to close bulk job: ${jobId}`, 500)
+      throw new IntegrationError(`Failed to close bulk job: ${jobId}`, `Failed to close bulk job: ${jobId}`, 500)
     }
   }
 
