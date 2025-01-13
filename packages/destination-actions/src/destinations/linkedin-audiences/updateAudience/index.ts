@@ -4,6 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { createHash } from 'crypto'
 import { LinkedInAudiences } from '../api'
+import { LinkedInAudiencePayload } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Segment',
@@ -35,6 +36,47 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.context.traits.email' }
         }
+      }
+    },
+    first_name: {
+      label: 'User First Name',
+      description: "The user's first name to send to LinkedIn.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.firstName'
+      }
+    },
+    last_name: {
+      label: 'User Last Name',
+      description: "The user's last name to send to LinkedIn.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.lastName'
+      }
+    },
+    title: {
+      label: 'User Title',
+      description: "The user's title to send to LinkedIn.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.title'
+      }
+    },
+    company: {
+      label: 'User Company',
+      description: "The user's company to send to LinkedIn.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.company'
+      }
+    },
+    country: {
+      label: 'User Country',
+      description:
+        "The user's country to send to LinkedIn. This field accepts an ISO standardized two letter country code e.g. US.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.country'
       }
     },
     google_advertising_id: {
@@ -181,24 +223,46 @@ async function createDmpSegment(
   return headers['x-linkedin-id']
 }
 
-function extractUsers(settings: Settings, payloads: Payload[]) {
-  const elements: Record<string, unknown>[] = []
+function extractUsers(settings: Settings, payloads: Payload[]): LinkedInAudiencePayload[] {
+  const elements: LinkedInAudiencePayload[] = []
 
   payloads.forEach((payload: Payload) => {
     if (!payload.email && !payload.google_advertising_id) {
       return
     }
 
-    elements.push({
+    const linkedinAudiencePayload: LinkedInAudiencePayload = {
       action: getAction(payload),
       userIds: getUserIds(settings, payload)
-    })
+    }
+
+    if (payload.first_name) {
+      linkedinAudiencePayload.firstName = payload.first_name
+    }
+
+    if (payload.last_name) {
+      linkedinAudiencePayload.lastName = payload.last_name
+    }
+
+    if (payload.title) {
+      linkedinAudiencePayload.title = payload.title
+    }
+
+    if (payload.company) {
+      linkedinAudiencePayload.company = payload.company
+    }
+
+    if (payload.country) {
+      linkedinAudiencePayload.country = payload.country
+    }
+
+    elements.push(linkedinAudiencePayload)
   })
 
   return elements
 }
 
-function getAction(payload: Payload) {
+function getAction(payload: Payload): 'ADD' | 'REMOVE' {
   const { dmp_user_action = 'AUTO' } = payload
 
   if (dmp_user_action === 'ADD') {
@@ -218,10 +282,12 @@ function getAction(payload: Payload) {
       return 'REMOVE'
     }
   }
+
+  return 'ADD'
 }
 
 function getUserIds(settings: Settings, payload: Payload): Record<string, string>[] {
-  const users = []
+  const userIds = []
 
   if (payload.email && settings.send_email === true) {
     let email = payload.email
@@ -230,20 +296,20 @@ function getUserIds(settings: Settings, payload: Payload): Record<string, string
       email = createHash('sha256').update(payload.email).digest('hex')
     }
 
-    users.push({
+    userIds.push({
       idType: 'SHA256_EMAIL',
       idValue: email
     })
   }
 
   if (payload.google_advertising_id && settings.send_google_advertising_id === true) {
-    users.push({
+    userIds.push({
       idType: 'GOOGLE_AID',
       idValue: payload.google_advertising_id
     })
   }
 
-  return users
+  return userIds
 }
 
 export default action
