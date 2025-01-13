@@ -720,6 +720,59 @@ Object {
 }
 `;
 
+exports[`conditionally required fields should handle object conditions should validate an inner conditionally required property on an object correctly 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "$schema": "http://json-schema.org/schema#",
+      "additionalProperties": false,
+      "allOf": Array [
+        Object {
+          "if": Object {
+            "properties": Object {
+              "a": Object {
+                "const": "a_value",
+              },
+            },
+          },
+          "then": Object {
+            "required": Array [
+              "c",
+            ],
+          },
+        },
+      ],
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "properties": Object {
+        "c": Object {
+          "default": undefined,
+          "description": "c",
+          "format": undefined,
+          "title": "c",
+          "type": "string",
+        },
+      },
+      "required": Array [],
+      "title": "b",
+      "type": "object",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
 exports[`conditionally required fields should handle object conditions should validate multiple object conditions 1`] = `
 Object {
   "$schema": "http://json-schema.org/schema#",

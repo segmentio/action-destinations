@@ -828,6 +828,49 @@ describe('conditionally required fields', () => {
       expect(isValid).toBe(true)
     })
 
+    it.only('should validate an inner conditionally required property on an object correctly', async () => {
+      mockActionFields['a'] = {
+        type: 'string',
+        label: 'a',
+        description: 'a'
+      }
+
+      mockActionFields['b'] = {
+        type: 'object',
+        label: 'b',
+        description: 'b',
+        properties: {
+          c: {
+            type: 'string',
+            label: 'c',
+            description: 'c',
+            required: {
+              conditions: [{ fieldKey: 'a', operator: 'is', value: 'a_value' }]
+            }
+          }
+        }
+      }
+
+      const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
+
+      const c_required_mappings = [{ a: 'a_value' }, { a: 'a_value', b: { c: 'c_value' } }]
+      const c_not_required_mappings = [{ a: 'not a_value' }, { a: 'not a_value', b: { c: 'c_value' } }]
+
+      let isValid
+      isValid = validateSchema(c_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(false)
+
+      isValid = validateSchema(c_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(c_not_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(c_not_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+    })
+
     it('should validate when referencing a child field which is not explicitly defined in properties', async () => {
       mockActionFields['a'] = {
         type: 'object',
