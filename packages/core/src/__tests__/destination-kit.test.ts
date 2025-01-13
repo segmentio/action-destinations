@@ -1940,6 +1940,7 @@ describe('destination kit', () => {
       const mockRefreshToken = jest.fn().mockReturnValue({
         accessToken: 'new-access-token'
       })
+      const mockOnTokenRefresh = jest.fn().mockReturnValue(Promise.resolve())
       const destinationWithOAuth = {
         ...multiStatusCompatibleDestination,
         authentication: {
@@ -1988,10 +1989,12 @@ describe('destination kit', () => {
 
       multiStatusDestination.refreshAccessToken = mockRefreshToken
 
-      const response = await multiStatusDestination.onBatch(events, settings, {})
+      const response = await multiStatusDestination.onBatch(events, settings, {
+        onTokenRefresh: mockOnTokenRefresh
+      })
       // assert that the refresh token was called once
       expect(mockRefreshToken).toHaveBeenCalledTimes(1)
-
+      expect(mockOnTokenRefresh).toHaveBeenCalledWith(expect.objectContaining({ accessToken: 'new-access-token' }))
       expect(response).toMatchInlineSnapshot(`
         Array [
           Object {
@@ -2016,6 +2019,7 @@ describe('destination kit', () => {
       const mockRefreshToken = jest.fn().mockReturnValue({
         accessToken: 'new-access-token'
       })
+      const mockOnTokenRefresh = jest.fn().mockReturnValue(Promise.resolve())
       const destinationWithOAuth = {
         ...multiStatusCompatibleDestination,
         authentication: {
@@ -2064,10 +2068,13 @@ describe('destination kit', () => {
 
       multiStatusDestination.refreshAccessToken = mockRefreshToken
 
-      const response = await multiStatusDestination.onBatch(events, settings, {})
+      const response = await multiStatusDestination.onBatch(events, settings, {
+        onTokenRefresh: mockOnTokenRefresh
+      })
       // assert that the refresh token was called once
       expect(mockRefreshToken).toHaveBeenCalledTimes(1)
-
+      // assert that the onTokenRefresh was called once
+      expect(mockOnTokenRefresh).toHaveBeenCalledWith(expect.objectContaining({ accessToken: 'new-access-token' }))
       expect(response).toMatchInlineSnapshot(`
         Array [
           Object {
