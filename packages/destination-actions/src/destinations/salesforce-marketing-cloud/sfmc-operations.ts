@@ -9,6 +9,17 @@ import { Payload as payload_dataExtension } from './dataExtension/generated-type
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
 import { ErrorResponse } from './types'
 
+function generateRows(payloads: payload_dataExtension[] | payload_contactDataExtension[]): Record<string, any>[] {
+  const rows: Record<string, any>[] = []
+  payloads.forEach((payload: payload_dataExtension | payload_contactDataExtension) => {
+    rows.push({
+      keys: payload.keys,
+      values: payload.values
+    })
+  })
+  return rows
+}
+
 export function upsertRows(
   request: RequestClient,
   subdomain: String,
@@ -22,13 +33,7 @@ export function upsertRows(
       400
     )
   }
-  const rows: Record<string, any>[] = []
-  payloads.forEach((payload: payload_dataExtension | payload_contactDataExtension) => {
-    rows.push({
-      keys: payload.keys,
-      values: payload.values
-    })
-  })
+  const rows = generateRows(payloads)
   if (key) {
     return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${key}/rowset`, {
       method: 'POST',
@@ -49,28 +54,34 @@ export async function executeUpsertWithMultiStatus(
 ): Promise<MultiStatusResponse> {
   const multiStatusResponse = new MultiStatusResponse()
   let response: ModifiedResponse | undefined
+  const rows = generateRows(payloads)
   try {
     response = await upsertRows(request, subdomain, payloads)
-    const responseData = response?.data as JSONLikeObject[]
-    payloads.forEach((payload, index) => {
-      multiStatusResponse.setSuccessResponseAtIndex(index, {
-        status: 200,
-        sent: payload as Object as JSONLikeObject,
-        body: responseData[index] as Object as JSONLikeObject
+    if (response) {
+      const responseData = response.data as JSONLikeObject[]
+      payloads.forEach((_, index) => {
+        multiStatusResponse.setSuccessResponseAtIndex(index, {
+          status: 200,
+          sent: rows[index] as Object as JSONLikeObject,
+          body: responseData[index] ? (responseData[index] as Object as JSONLikeObject) : {}
+        })
       })
-    })
+    }
   } catch (error) {
     if (error instanceof IntegrationError && error.code === 'Misconfigured required field') {
       payloads.forEach((_, index) => {
         multiStatusResponse.setErrorResponseAtIndex(index, {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined;`
+          errormessage: `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`
         })
       })
       return multiStatusResponse
     }
     const err = error as ErrorResponse
+    if (err?.response?.status === 401) {
+      throw error
+    }
 
     const errData = err?.response?.data
     const additionalError =
@@ -78,11 +89,25 @@ export async function executeUpsertWithMultiStatus(
       err.response.data.additionalErrors.length > 0 &&
       err.response.data.additionalErrors
 
-    payloads.forEach((payload, index) => {
+    payloads.forEach((_, index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: err?.response?.status || 500,
+        status: err?.response?.status || 400,
         errormessage: additionalError ? additionalError[0].message : errData?.message || '',
-        sent: payload as Object as JSONLikeObject,
+        sent: rows[index] as Object as JSONLikeObject,
+        /*
+        Setting the error response body to the additionalError array as there is no way to determine which error corresponds to which event. 
+        We receive an array of errors, but some errors may not be repeated even if they occur in multiple events, while others may be.
+    
+        Additionally, there is no consistent order to the errors in the array. For example, errors like 
+        'At least one existing field is required in the values property' consistently appear at the top of the array.
+    
+        Furthermore, every event that is processed correctly before the first erroneous event is accepted. 
+        However, any events that occur after the first error, regardless of whether they are correct or not, are rejected. 
+        This means that all valid events following the first error will not be processed.
+
+        For more information, please refer to: 
+        https://salesforce.stackexchange.com/questions/292770/import-contacts-sfmc-via-api-vs-ftp/292774#292774
+        */
         body: additionalError ? (additionalError as Object as JSONLikeObject) : (errData as Object as JSONLikeObject)
       })
     })

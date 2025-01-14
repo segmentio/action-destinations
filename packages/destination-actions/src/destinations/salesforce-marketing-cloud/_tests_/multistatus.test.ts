@@ -22,7 +22,8 @@ const mapping = {
 describe('Multistatus', () => {
   describe('dataExtension', () => {
     it('should successfully handle a batch of events with complete success response from SFMC API', async () => {
-      nock(requestUrl).post('').reply(200, {})
+      const responseData = [{ message: 'Success for event 1' }, { message: 'Success for event 2' }]
+      nock(requestUrl).post('').reply(200, responseData)
 
       const events: SegmentEvent[] = [
         // Valid Event
@@ -44,12 +45,12 @@ describe('Multistatus', () => {
           type: 'track',
           userId: 'harry-1',
           properties: {
-            id: '1234567890',
+            id: '123456789',
             keys: {
-              id: 'HS1'
+              id: 'HP1'
             },
             values: {
-              name: 'Harry Styles'
+              name: 'Harry Potter'
             }
           }
         })
@@ -63,12 +64,28 @@ describe('Multistatus', () => {
 
       expect(response[0]).toMatchObject({
         status: 200,
-        body: {}
+        sent: {
+          keys: {
+            id: 'HS1'
+          },
+          values: {
+            name: 'Harry Styles'
+          }
+        },
+        body: { message: 'Success for event 1' }
       })
 
       expect(response[1]).toMatchObject({
         status: 200,
-        body: {}
+        body: { message: 'Success for event 2' },
+        sent: {
+          keys: {
+            id: 'HP1'
+          },
+          values: {
+            name: 'Harry Potter'
+          }
+        }
       })
     })
     it('should handle the case where both key and id are missing', async () => {
@@ -235,21 +252,38 @@ describe('Multistatus', () => {
         status: 429,
         errortype: 'TOO_MANY_REQUESTS',
         errormessage: 'No record found',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'DESTINATION',
+        sent: {
+          keys: {
+            id: 'HS1'
+          },
+          values: {
+            name: 'Harry Styles'
+          }
+        }
       })
 
       expect(response[1]).toMatchObject({
         status: 429,
         errortype: 'TOO_MANY_REQUESTS',
         errormessage: 'No record found',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'DESTINATION',
+        sent: {
+          keys: {
+            id: 'HS2'
+          },
+          values: {
+            name: 'Harry Potter'
+          }
+        }
       })
     })
   })
 
   describe('contactDataExtension', () => {
     it('should successfully handle a batch of events with complete success response from SFMC API', async () => {
-      nock(requestUrl).post('').reply(200, {})
+      const responseData = [{ message: 'Success for event 1' }, { message: 'Success for event 2' }]
+      nock(requestUrl).post('').reply(200, responseData)
 
       const events: SegmentEvent[] = [
         createTestEvent({
@@ -288,12 +322,30 @@ describe('Multistatus', () => {
 
       expect(response[0]).toMatchObject({
         status: 200,
-        body: {}
+        sent: {
+          keys: {
+            contactKey: 'harry-1',
+            id: 'HS1'
+          },
+          values: {
+            name: 'Harry Styles'
+          }
+        },
+        body: { message: 'Success for event 1' }
       })
 
       expect(response[1]).toMatchObject({
         status: 200,
-        body: {}
+        sent: {
+          keys: {
+            contactKey: 'harry-2',
+            id: 'HP1'
+          },
+          values: {
+            name: 'Harry Potter'
+          }
+        },
+        body: { message: 'Success for event 2' }
       })
     })
 
@@ -469,14 +521,32 @@ describe('Multistatus', () => {
         status: 429,
         errortype: 'TOO_MANY_REQUESTS',
         errormessage: 'No record found',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'DESTINATION',
+        sent: {
+          keys: {
+            contactKey: 'harry-1',
+            id: 'HS1'
+          },
+          values: {
+            name: 'Harry Styles'
+          }
+        }
       })
 
       expect(response[1]).toMatchObject({
         status: 429,
         errortype: 'TOO_MANY_REQUESTS',
         errormessage: 'No record found',
-        errorreporter: 'DESTINATION'
+        errorreporter: 'DESTINATION',
+        sent: {
+          keys: {
+            contactKey: 'harry-2',
+            id: 'HS2'
+          },
+          values: {
+            name: 'Harry Potter'
+          }
+        }
       })
     })
   })
