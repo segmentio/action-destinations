@@ -348,6 +348,15 @@ export function fieldsToJsonSchema(
           ...fieldsToJsonSchema(field.properties, { additionalProperties: field?.additionalProperties || false })
         }
       }
+
+      for (const [propertyKey, objectField] of Object.entries(field.properties)) {
+        if (objectField.required === true) {
+          continue
+        } else if (objectField.required && typeof objectField.required === 'object') {
+          const dotNotationKey = `${key}.${propertyKey}`
+          conditions[dotNotationKey] = objectField.required
+        }
+      }
     }
 
     properties[key] = schema
