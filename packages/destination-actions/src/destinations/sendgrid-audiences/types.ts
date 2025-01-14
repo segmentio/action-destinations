@@ -4,12 +4,12 @@ import { ErrorCodes } from '@segment/actions-core'
 export type Action = 'add' | 'remove'
 
 export interface IndexedPayload extends Payload {
-  index: number
+  index: number,
   error?: {
-    errormessage: string
-    errortype: keyof typeof ErrorCodes
+    errormessage: string, 
+    errortype: keyof typeof ErrorCodes, 
     status: number
-  }
+  },
   action?: Action
 }
 

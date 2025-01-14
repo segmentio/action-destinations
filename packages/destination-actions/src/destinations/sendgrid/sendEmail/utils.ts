@@ -19,14 +19,12 @@ export async function send(request: RequestClient, payload: Payload) {
     personalizations: [
       {
         to: [{ email: payload.to.email, name: payload.to?.name ?? undefined }],
-        cc:
-          payload.cc
-            ?.filter((cc): cc is { email: string; name?: string } => cc.email !== undefined)
-            .map((cc) => ({ email: cc.email, name: cc.name ?? undefined })) ?? undefined,
-        bcc:
-          payload.bcc
-            ?.filter((bcc): bcc is { email: string; name?: string } => bcc.email !== undefined)
-            .map((bcc) => ({ email: bcc.email, name: bcc.name ?? undefined })) ?? undefined,
+        cc: payload.cc
+          ?.filter((cc): cc is { email: string; name?: string } => cc.email !== undefined)
+          .map((cc) => ({ email: cc.email, name: cc.name ?? undefined })) ?? undefined,
+        bcc: payload.bcc
+          ?.filter((bcc): bcc is { email: string; name?: string } => bcc.email !== undefined)
+          .map((bcc) => ({ email: bcc.email, name: bcc.name ?? undefined })) ?? undefined,
         headers:
           Object.entries(payload?.headers ?? {}).reduce((acc, [key, value]) => {
             acc[key] = String(value)
@@ -114,13 +112,13 @@ function validate(payload: Payload) {
     }
   })
 
-  payload.cc = payload?.cc?.filter((obj) => Object.keys(obj).length > 0)
-  if (typeof payload.cc === 'object' && Object.keys(payload.cc).length === 0) {
+  payload.cc = payload?.cc?.filter(obj => Object.keys(obj).length > 0)
+  if(typeof payload.cc === 'object' && Object.keys(payload.cc).length === 0){
     delete payload.cc
   }
 
-  payload.bcc = payload?.bcc?.filter((obj) => Object.keys(obj).length > 0)
-  if (typeof payload.bcc === 'object' && Object.keys(payload.bcc).length === 0) {
+  payload.bcc = payload?.bcc?.filter(obj => Object.keys(obj).length > 0)
+  if(typeof payload.bcc === 'object' && Object.keys(payload.bcc).length === 0){
     delete payload.bcc
   }
 

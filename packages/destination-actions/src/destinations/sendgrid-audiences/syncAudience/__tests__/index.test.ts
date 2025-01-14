@@ -1,11 +1,5 @@
 import nock from 'nock'
-import {
-  createTestEvent,
-  createTestIntegration,
-  SegmentEvent,
-  IntegrationError,
-  ErrorCodes
-} from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 import { validatePhone, toDateFormat } from '../utils'
@@ -120,19 +114,19 @@ describe('SendgridAudiences.syncAudience', () => {
     expect(responses[0].status).toBe(200)
   })
 
-  it('should upsert a single Contact with user attributes and custom fields, and add it to a Sendgrid list correctly', async () => {
-    const event = createTestEvent({
-      ...addPayload,
-      traits: {
-        ...addPayload.traits,
-        first_name: 'fname',
-        last_name: 'lname',
+  it('should upsert a single Contact with user attributes and custom fields, and add it to a Sendgrid list correctly', async () => { 
+    const event = createTestEvent({ 
+      ...addPayload, 
+      traits: { 
+        ...addPayload.traits, 
+        first_name: 'fname', 
+        last_name: 'lname', 
         street: '123 Main St',
-        address_line_2: 'address line 2',
-        city: 'SF',
+        address_line_2: "address line 2", 
+        city: 'SF', 
         state: 'CA',
         country: 'US',
-        postal_code: 'N88EU',
+        postal_code: "N88EU",
         custom_text_fields: {
           custom_field_1: 'custom_field_1_value'
         },
@@ -140,9 +134,9 @@ describe('SendgridAudiences.syncAudience', () => {
           custom_field_2: 2345
         },
         custom_date_fields: {
-          custom_field_3: '2024-01-01T00:00:00.000Z'
+          custom_field_3: '2024-01-01T00:00:00.000Z',
         }
-      }
+      } 
     })
 
     const addExpectedPayloadWithAttributes = {
@@ -157,14 +151,14 @@ describe('SendgridAudiences.syncAudience', () => {
           last_name: 'lname',
           address_line_1: '123 Main St',
           address_line_2: 'address line 2',
-          city: 'SF',
+          city: 'SF', 
           state_province_region: 'CA',
           country: 'US',
-          postal_code: 'N88EU',
+          postal_code: "N88EU",
           custom_fields: {
             custom_field_1: 'custom_field_1_value',
             custom_field_2: 2345,
-            custom_field_3: '01/01/2024'
+            custom_field_3: "01/01/2024"
           }
         }
       ]
@@ -456,23 +450,20 @@ describe('SendgridAudiences.syncAudience', () => {
     }
 
     const multiStatusRespError1 = {
-      status: 429,
-      errortype: 'RETRYABLE_ERROR',
-      errormessage:
-        'Batch payload rejected by SendGrid due to at least one invalid email. Batch payload will be retried without the invalid email(s).',
-      errorreporter: 'INTEGRATIONS'
+      "status": 429,
+      "errortype": "RETRYABLE_ERROR",
+      "errormessage": "Batch payload rejected by SendGrid due to at least one invalid email. Batch payload will be retried without the invalid email(s).",
+      "errorreporter": "INTEGRATIONS"
     }
 
     const multiStatusRespError2 = {
-      status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage: 'SendGrid rejected email address not_a_valid_email_address@gmail.com as invalid',
-      errorreporter: 'INTEGRATIONS'
+      "status": 400,
+      "errortype": "PAYLOAD_VALIDATION_FAILED",
+      "errormessage": "SendGrid rejected email address not_a_valid_email_address@gmail.com as invalid",
+      "errorreporter": "INTEGRATIONS"
     }
 
-    nock('https://api.sendgrid.com')
-      .put('/v3/marketing/contacts', upsertAddBatchExpectedPayload)
-      .reply(400, responseError)
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertAddBatchExpectedPayload).reply(400, responseError)
     nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addBatchExpectedPayload2).reply(200, {})
 
     const responses = await testDestination.executeBatch('syncAudience', {
@@ -504,11 +495,7 @@ describe('SendgridAudiences.syncAudience', () => {
         mapping
       })
     ).rejects.toThrowError(
-      new IntegrationError(
-        `At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.`,
-        ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-        400
-      )
+      new IntegrationError(`At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.`, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
     )
   })
 
@@ -524,8 +511,7 @@ describe('SendgridAudiences.syncAudience', () => {
     const responseError = {
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage:
-        'At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.',
+      errormessage: 'At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.',
       errorreporter: 'INTEGRATIONS'
     }
 
@@ -556,12 +542,14 @@ describe('SendgridAudiences.syncAudience', () => {
 
     const upsertNoAddBatchExpectedPayload = {
       list_ids: [],
-      contacts: Array.from({ length: 30 }, (_, i) => ({
-        email: `test${i + 1}@gmail.com`,
-        external_id: `some_external_id_${i + 1}`,
-        phone_number_id: `+35312345678${i + 1}`,
-        anonymous_id: `some_anonymous_id_${i + 1}`
-      }))
+      contacts: Array.from({ length: 30 }, (_, i) => (
+        {
+          email: `test${i + 1}@gmail.com`,
+          external_id: `some_external_id_${i + 1}`,
+          phone_number_id: `+35312345678${i + 1}`,
+          anonymous_id: `some_anonymous_id_${i + 1}`
+        }
+      ))
     }
 
     const events = payloads.map(createTestEvent)
@@ -594,7 +582,7 @@ describe('SendgridAudiences.syncAudience', () => {
     })
 
     expect(responses.length).toBe(30)
-    for (let i = 0; i < 30; i++) {
+    for(let i = 0; i < 30; i++) {
       expect(responses[i].status).toBe(200)
     }
   })
@@ -613,9 +601,11 @@ describe('SendgridAudiences.syncAudience', () => {
 
     const upsertNoAddBatchExpectedPayload = {
       list_ids: [],
-      contacts: Array.from({ length: 120 }, (_, i) => ({
-        email: `test${i + 1}@gmail.com`
-      }))
+      contacts: Array.from({ length: 120 }, (_, i) => (
+        {
+          email: `test${i + 1}@gmail.com`
+        }
+      ))
     }
 
     const events = payloads.map(createTestEvent)
@@ -656,14 +646,14 @@ describe('SendgridAudiences.syncAudience', () => {
     })
 
     expect(responses.length).toBe(120)
-    for (let i = 0; i < 120; i++) {
+    for(let i = 0; i < 120; i++) {
       expect(responses[i].status).toBe(200)
     }
   })
 
   it('phone number should be E.164', async () => {
     const goodPhone = '+353123456789' // E.164
-    const badPhone = '123456789' // no +
+    const badPhone = '123456789' // no + 
     const badPhone2 = '+3531234567890678' // too long
 
     expect(validatePhone(goodPhone)).toBe(true)
@@ -672,20 +662,21 @@ describe('SendgridAudiences.syncAudience', () => {
   })
 
   it('dates are formatted correctly to Sendgrid', async () => {
-    const goodDate = '01-01-2024'
-    const goodDate2 = '01-24-2024'
+    const goodDate = "01-01-2024"
+    const goodDate2 = "01-24-2024"
     const goodDate3 = '2024-01-01T00:00:00.000Z'
-    const goodDate4 = '01/24/2024' // default for ambiguous dates is US ISO 8601 format MM/DD/YYYY
-    const badDate = '13-01-2024'
-    const badDate2 = '24/01/2024'
+    const goodDate4 = "01/24/2024" // default for ambiguous dates is US ISO 8601 format MM/DD/YYYY
+    const badDate = "13-01-2024"
+    const badDate2 = "24/01/2024"
     const badDate3 = '+3531234567890678'
 
-    expect(toDateFormat(goodDate)).toBe('01/01/2024')
-    expect(toDateFormat(goodDate2)).toBe('01/24/2024')
-    expect(toDateFormat(goodDate3)).toBe('01/01/2024')
-    expect(toDateFormat(goodDate4)).toBe('01/24/2024')
+    expect(toDateFormat(goodDate)).toBe("01/01/2024")
+    expect(toDateFormat(goodDate2)).toBe("01/24/2024")
+    expect(toDateFormat(goodDate3)).toBe("01/01/2024")
+    expect(toDateFormat(goodDate4)).toBe("01/24/2024")
     expect(toDateFormat(badDate)).toBe(undefined)
     expect(toDateFormat(badDate2)).toBe(undefined)
     expect(toDateFormat(badDate3)).toBe(undefined)
   })
+  
 })
