@@ -12,8 +12,8 @@ import {
 } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send email with Dynamic Template',
-  description: 'Send Email to recipient(s) using a Dynamic Template in Sendgrid',
+  title: 'Send Email with Dynamic Template',
+  description: 'Send email to recipient(s) using a Dynamic Template in Sendgrid',
   fields,
   dynamicFields: {
     template_id: async (request) => {
