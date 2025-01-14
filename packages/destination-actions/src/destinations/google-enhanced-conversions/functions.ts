@@ -231,8 +231,15 @@ export const commonHashedEmailValidation = (email: string): string => {
   if (!(fullFormats.email as RegExp).test(email)) {
     throw new PayloadValidationError("Email provided doesn't seem to be in a valid format.")
   }
+  const googleDomain = new RegExp('^(gmail|googlemail).s*', 'g')
+  let normalizedEmail = email.toLowerCase().trim()
+  const emailParts = normalizedEmail.split('@')
+  if (emailParts.length > 1 && emailParts[1].match(googleDomain)) {
+    emailParts[0] = emailParts[0].replace('.', '')
+    normalizedEmail = `${emailParts[0]}@${emailParts[1]}`
+  }
 
-  return String(hash(email))
+  return String(hash(normalizedEmail))
 }
 
 export async function getListIds(
