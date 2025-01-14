@@ -1,5 +1,11 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidationError } from '@segment/actions-core'
+import {
+  createTestEvent,
+  createTestIntegration,
+  SegmentEvent,
+  IntegrationError,
+  ErrorCodes
+} from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 import { validatePhone, toDateFormat } from '../utils'
@@ -114,31 +120,29 @@ describe('SendgridAudiences.syncAudience', () => {
     expect(responses[0].status).toBe(200)
   })
 
-  it('should upsert a single Contact with user attributes and custom fields, and add it to a Sendgrid list correctly', async () => { 
-    const event = createTestEvent({ 
-      ...addPayload, 
-      traits: { 
-        ...addPayload.traits, 
-        first_name: 'fname', 
-        last_name: 'lname', 
+  it('should upsert a single Contact with user attributes and custom fields, and add it to a Sendgrid list correctly', async () => {
+    const event = createTestEvent({
+      ...addPayload,
+      traits: {
+        ...addPayload.traits,
+        first_name: 'fname',
+        last_name: 'lname',
         street: '123 Main St',
-        address_line_2: 123456, // should be stringified
-        city: 'SF', 
+        address_line_2: 'address line 2',
+        city: 'SF',
         state: 'CA',
         country: 'US',
-        postal_code: "N88EU",
+        postal_code: 'N88EU',
         custom_text_fields: {
-          custom_field_1: 'custom_field_1_value',
-          custom_field_4: false, // should be removed 
-          custom_field_5: null // should be removed
+          custom_field_1: 'custom_field_1_value'
         },
         custom_number_fields: {
           custom_field_2: 2345
         },
         custom_date_fields: {
-          custom_field_3: '2024-01-01T00:00:00.000Z',
+          custom_field_3: '2024-01-01T00:00:00.000Z'
         }
-      } 
+      }
     })
 
     const addExpectedPayloadWithAttributes = {
@@ -152,15 +156,15 @@ describe('SendgridAudiences.syncAudience', () => {
           first_name: 'fname',
           last_name: 'lname',
           address_line_1: '123 Main St',
-          address_line_2: '123456',
-          city: 'SF', 
+          address_line_2: 'address line 2',
+          city: 'SF',
           state_province_region: 'CA',
           country: 'US',
-          postal_code: "N88EU",
+          postal_code: 'N88EU',
           custom_fields: {
             custom_field_1: 'custom_field_1_value',
             custom_field_2: 2345,
-            custom_field_3: "01/01/2024"
+            custom_field_3: '01/01/2024'
           }
         }
       ]
@@ -231,14 +235,14 @@ describe('SendgridAudiences.syncAudience', () => {
     }
 
     nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertAddBatchExpectedPayload).reply(200, {})
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
-    expect(responses.length).toBe(1)
+    expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(200)
+    expect(responses[1].status).toBe(200)
   })
 
   it('should remove a single Contact from a Sendgrid list correctly', async () => {
@@ -320,17 +324,15 @@ describe('SendgridAudiences.syncAudience', () => {
 
     nock('https://api.sendgrid.com').delete(deletePath).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
-    expect(responses.length).toBe(3)
+    expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(200)
     expect(responses[1].status).toBe(200)
-    expect(responses[2].status).toBe(200)
   })
 
   it('should add and remove multiple Contacts from a Sendgrid list correctly', async () => {
@@ -394,10 +396,9 @@ describe('SendgridAudiences.syncAudience', () => {
 
     nock('https://api.sendgrid.com').delete(deletePath).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
@@ -408,7 +409,7 @@ describe('SendgridAudiences.syncAudience', () => {
     expect(responses[3].status).toBe(200)
   })
 
-  it('should retry upserting to add Contacts after Sendgrid initially rejects some emails', async () => {
+  it('should throw 429s if batch contains at least one email which SendGrid rejects as invalid', async () => {
     const badPayload = JSON.parse(JSON.stringify(addPayload))
     badPayload.traits.email = 'not_a_valid_email_address@gmail.com'
     delete badPayload.traits?.external_id
@@ -454,19 +455,37 @@ describe('SendgridAudiences.syncAudience', () => {
       ]
     }
 
-    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertAddBatchExpectedPayload).reply(400, responseError)
+    const multiStatusRespError1 = {
+      status: 429,
+      errortype: 'RETRYABLE_ERROR',
+      errormessage:
+        'Batch payload rejected by SendGrid due to at least one invalid email. Batch payload will be retried without the invalid email(s).',
+      errorreporter: 'INTEGRATIONS'
+    }
+
+    const multiStatusRespError2 = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'SendGrid rejected email address not_a_valid_email_address@gmail.com as invalid',
+      errorreporter: 'INTEGRATIONS'
+    }
+
+    nock('https://api.sendgrid.com')
+      .put('/v3/marketing/contacts', upsertAddBatchExpectedPayload)
+      .reply(400, responseError)
     nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addBatchExpectedPayload2).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
     expect(responses.length).toBe(2)
-    expect(responses[0].status).toBe(400)
-    expect(responses[1].status).toBe(200)
+    expect(responses[0].status).toBe(429)
+    expect(responses[1].status).toBe(400)
+    expect(responses[0]).toMatchObject(multiStatusRespError1)
+    expect(responses[1]).toMatchObject(multiStatusRespError2)
   })
 
   it('should throw an error if a non batch payload is missing identifiers', async () => {
@@ -485,11 +504,15 @@ describe('SendgridAudiences.syncAudience', () => {
         mapping
       })
     ).rejects.toThrowError(
-      new PayloadValidationError(`No valid payloads found`)
+      new IntegrationError(
+        `At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.`,
+        ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+        400
+      )
     )
   })
 
-  it('should throw an error if a all payloads in a batch are invalid', async () => {
+  it('should return multistatus response with all errors if all payloads in a batch are invalid', async () => {
     const badPayload = JSON.parse(JSON.stringify(addPayload))
     delete badPayload.traits?.email
     delete badPayload.traits?.external_id
@@ -498,16 +521,25 @@ describe('SendgridAudiences.syncAudience', () => {
 
     const badPayload2 = JSON.parse(JSON.stringify(badPayload))
 
+    const responseError = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage:
+        'At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.',
+      errorreporter: 'INTEGRATIONS'
+    }
+
     const events = [createTestEvent(badPayload), createTestEvent(badPayload2)]
 
-    await expect(
-      testDestination.testBatchAction('syncAudience', {
-        events,
-        settings,
-        useDefaultMappings: true,
-        mapping
-      })
-    ).rejects.toThrowError(new PayloadValidationError(`No valid payloads found`))
+    const responses = await testDestination.executeBatch('syncAudience', {
+      events,
+      settings,
+      mapping
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[0]).toMatchObject(responseError)
+    expect(responses[1]).toMatchObject(responseError)
   })
 
   it('should do multiple search and a single remove request for large batch with many identifiers but less than 100 contacts', async () => {
@@ -524,14 +556,12 @@ describe('SendgridAudiences.syncAudience', () => {
 
     const upsertNoAddBatchExpectedPayload = {
       list_ids: [],
-      contacts: Array.from({ length: 30 }, (_, i) => (
-        {
-          email: `test${i + 1}@gmail.com`,
-          external_id: `some_external_id_${i + 1}`,
-          phone_number_id: `+35312345678${i + 1}`,
-          anonymous_id: `some_anonymous_id_${i + 1}`
-        }
-      ))
+      contacts: Array.from({ length: 30 }, (_, i) => ({
+        email: `test${i + 1}@gmail.com`,
+        external_id: `some_external_id_${i + 1}`,
+        phone_number_id: `+35312345678${i + 1}`,
+        anonymous_id: `some_anonymous_id_${i + 1}`
+      }))
     }
 
     const events = payloads.map(createTestEvent)
@@ -557,19 +587,16 @@ describe('SendgridAudiences.syncAudience', () => {
 
     nock('https://api.sendgrid.com').delete(deletePath).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
-    expect(responses.length).toBe(5)
-    expect(responses[0].status).toBe(200)
-    expect(responses[1].status).toBe(200)
-    expect(responses[2].status).toBe(200)
-    expect(responses[3].status).toBe(200)
-    expect(responses[4].status).toBe(200)
+    expect(responses.length).toBe(30)
+    for (let i = 0; i < 30; i++) {
+      expect(responses[i].status).toBe(200)
+    }
   })
 
   it('should do multiple search and a multiple remove requests for large batch with many identifiers and more than 100 contacts', async () => {
@@ -586,11 +613,9 @@ describe('SendgridAudiences.syncAudience', () => {
 
     const upsertNoAddBatchExpectedPayload = {
       list_ids: [],
-      contacts: Array.from({ length: 120 }, (_, i) => (
-        {
-          email: `test${i + 1}@gmail.com`
-        }
-      ))
+      contacts: Array.from({ length: 120 }, (_, i) => ({
+        email: `test${i + 1}@gmail.com`
+      }))
     }
 
     const events = payloads.map(createTestEvent)
@@ -624,25 +649,21 @@ describe('SendgridAudiences.syncAudience', () => {
     nock('https://api.sendgrid.com').delete(deletePath).reply(200, {})
     nock('https://api.sendgrid.com').delete(deletePath2).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
-    expect(responses.length).toBe(6)
-    expect(responses[0].status).toBe(200)
-    expect(responses[1].status).toBe(200)
-    expect(responses[2].status).toBe(200)
-    expect(responses[3].status).toBe(200)
-    expect(responses[4].status).toBe(200)
-    expect(responses[5].status).toBe(200)
+    expect(responses.length).toBe(120)
+    for (let i = 0; i < 120; i++) {
+      expect(responses[i].status).toBe(200)
+    }
   })
 
   it('phone number should be E.164', async () => {
     const goodPhone = '+353123456789' // E.164
-    const badPhone = '123456789' // no + 
+    const badPhone = '123456789' // no +
     const badPhone2 = '+3531234567890678' // too long
 
     expect(validatePhone(goodPhone)).toBe(true)
@@ -651,23 +672,20 @@ describe('SendgridAudiences.syncAudience', () => {
   })
 
   it('dates are formatted correctly to Sendgrid', async () => {
-    const goodDate = "01-01-2024"
-    const goodDate2 = "01-24-2024"
+    const goodDate = '01-01-2024'
+    const goodDate2 = '01-24-2024'
     const goodDate3 = '2024-01-01T00:00:00.000Z'
-    const goodDate4 = "01/24/2024" // default for ambiguous dates is US ISO 8601 format MM/DD/YYYY
-    const badDate = "13-01-2024"
-    const badDate2 = "24/01/2024"
+    const goodDate4 = '01/24/2024' // default for ambiguous dates is US ISO 8601 format MM/DD/YYYY
+    const badDate = '13-01-2024'
+    const badDate2 = '24/01/2024'
     const badDate3 = '+3531234567890678'
 
-    expect(toDateFormat(goodDate)).toBe("01/01/2024")
-    expect(toDateFormat(goodDate2)).toBe("01/24/2024")
-    expect(toDateFormat(goodDate3)).toBe("01/01/2024")
-    expect(toDateFormat(goodDate4)).toBe("01/24/2024")
+    expect(toDateFormat(goodDate)).toBe('01/01/2024')
+    expect(toDateFormat(goodDate2)).toBe('01/24/2024')
+    expect(toDateFormat(goodDate3)).toBe('01/01/2024')
+    expect(toDateFormat(goodDate4)).toBe('01/24/2024')
     expect(toDateFormat(badDate)).toBe(undefined)
     expect(toDateFormat(badDate2)).toBe(undefined)
     expect(toDateFormat(badDate3)).toBe(undefined)
   })
-
-
-  
 })

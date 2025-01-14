@@ -29,7 +29,13 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'User email address. Vaule will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.email' }
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
+      }
     },
     firstName: {
       label: 'First name',

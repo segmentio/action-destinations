@@ -14,7 +14,7 @@ import { batch_size, country_code, enable_batching } from '../properties'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Profile',
   description: 'Remove profile from list',
-  defaultSubscription: 'event = "Identify"',
+  defaultSubscription: 'type = "Identify"',
   fields: {
     email: {
       label: 'Email',

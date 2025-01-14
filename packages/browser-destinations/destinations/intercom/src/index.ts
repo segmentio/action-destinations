@@ -15,6 +15,7 @@ declare global {
     intercomSettings: {
       app_id: string
       installation_type?: string
+      custom_launcher_selector?: string
     }
   }
 }
@@ -94,7 +95,7 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   initialize: async ({ settings }, deps) => {
     //initialize Intercom
     initScript({ appId: settings.appId })
-    initSettings({ appId: settings.appId })
+    initSettings({ appId: settings.appId, activator: settings.activator })
     const preloadedIntercom = window.Intercom
     initialBoot(settings.appId, { api_base: settings.apiBase })
 

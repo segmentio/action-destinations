@@ -1,49 +1,49 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
-import { SegmentEvent } from '@segment/actions-core/*'
 
 const testDestination = createTestIntegration(Destination)
 const timestamp = new Date('Thu Jun 10 2024 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
 const responsysHost = 'https://123456-api.responsys.ocs.oraclecloud.com'
 const profileListName = 'TEST_PROFILE_LIST'
 const folderName = 'TEST_FOLDER'
+const petName = 'TEST_PET'
 
 jest.setTimeout(10000)
 
-describe('Responsys.sendAudienceAsPet', () => {
-  describe('Successful scenarios', () => {
+describe('Responsys.sendToPet', () => {
+  describe('Successful scenarios, async endpoints', () => {
     describe('Single event', () => {
-      const audienceKey = 'looney_tunes_audience'
       const event = createTestEvent({
-        timestamp,
         type: 'identify',
-        context: {
-          personas: {
-            computation_key: audienceKey
-          }
-        },
+        userId: '12345',
         traits: {
-          email: 'daffy@warnerbros.com',
-          firstName: 'Daffy',
-          lastName: 'Duck'
-        },
-        userId: '12345'
+          personalized1: 'value 1',
+          personalized2: 'value 2',
+          personalized3: 'value 3'
+        }
       })
 
       const actionPayload = {
         event,
         mapping: {
           folder_name: folderName,
-          pet_name: {
-            '@path': '$.context.personas.computation_key'
-          },
+          pet_name: petName,
           userData: {
             EMAIL_ADDRESS_: {
               '@path': '$.traits.email'
             },
             CUSTOMER_ID_: {
               '@path': '$.userId'
+            },
+            PERSONALIZED1: {
+              '@path': '$.traits.personalized1'
+            },
+            PERSONALIZED2: {
+              '@path': '$.traits.personalized2'
+            },
+            PERSONALIZED3: {
+              '@path': '$.traits.personalized3'
             }
           }
         },
@@ -74,7 +74,7 @@ describe('Responsys.sendAudienceAsPet', () => {
         })
 
         nock(responsysHost)
-          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${audienceKey}/members`)
+          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${petName}/members`)
           .reply(200, {
             requestId: '34567'
           })
@@ -82,13 +82,12 @@ describe('Responsys.sendAudienceAsPet', () => {
         nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
         nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/34567`).reply(200, {})
 
-        const responses = await testDestination.testAction('sendAudienceAsPet', actionPayload)
+        const responses = await testDestination.testAction('sendToPet', actionPayload)
 
-        expect(responses.length).toBe(4)
+        expect(responses.length).toBe(3)
         expect(responses[0].status).toBe(200)
         expect(responses[1].status).toBe(200)
         expect(responses[2].status).toBe(200)
-        expect(responses[3].status).toBe(200)
       })
 
       it('sends an event with default mappings + default settings, PET exists', async () => {
@@ -96,7 +95,10 @@ describe('Responsys.sendAudienceAsPet', () => {
           .get(`/rest/api/v1.3/lists/${profileListName}/listExtensions`)
           .reply(200, [
             {
-              profileExtension: { objectName: audienceKey }
+              profileExtension: {
+                objectName: petName,
+                folderName: folderName
+              }
             }
           ])
 
@@ -105,7 +107,7 @@ describe('Responsys.sendAudienceAsPet', () => {
         })
 
         nock(responsysHost)
-          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${audienceKey}/members`)
+          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${petName}/members`)
           .reply(200, {
             requestId: '34567'
           })
@@ -113,12 +115,11 @@ describe('Responsys.sendAudienceAsPet', () => {
         nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
         nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/34567`).reply(200, {})
 
-        const responses = await testDestination.testAction('sendAudienceAsPet', actionPayload)
+        const responses = await testDestination.testAction('sendToPet', actionPayload)
 
-        expect(responses.length).toBe(3)
+        expect(responses.length).toBe(2)
         expect(responses[0].status).toBe(200)
         expect(responses[1].status).toBe(200)
-        expect(responses[2].status).toBe(200)
       })
     })
 
@@ -127,58 +128,33 @@ describe('Responsys.sendAudienceAsPet', () => {
         {
           timestamp,
           type: 'identify',
-          context: {
-            personas: {
-              computation_key: 'looney_tunes_audience'
-            }
-          },
           traits: {
-            email: 'bugs@warnerbros.com'
+            email: 'bugs@warnerbros.com',
+            personalized1: 'value 1',
+            personalized2: 'value 2',
+            personalized3: 'value 3'
           },
           anonymousId: 'abcdef-abcd-1234-1234-1234'
         },
         {
           timestamp,
           type: 'identify',
-          context: {
-            personas: {
-              computation_key: 'looney_tunes_audience'
-            }
-          },
           traits: {
-            email: 'daffy@warnerbros.com'
+            email: 'daffy@warnerbros.com',
+            personalized1: 'value 4',
+            personalized2: 'value 5',
+            personalized3: 'value 6'
           },
           userId: '12345'
-        },
-        {
-          timestamp,
-          type: 'identify',
-          context: {
-            personas: {
-              computation_key: 'looney_tunes_audience'
-            }
-          },
-          traits: {
-            riid: '123456'
-          },
-          anonymousId: 'abcdef-abcd-2345-1234-3456'
         }
       ]
 
-      it('sends events with different match keys', async () => {
+      it('sends an event with default mappings + default settings, PET does not exist yet', async () => {
         const actionPayload = {
           events,
           mapping: {
             folder_name: folderName,
-            pet_name: {
-              '@path': '$.context.personas.computation_key'
-            },
-            computation_key: {
-              '@path': '$.context.personas.computation_key'
-            },
-            traits_or_props: {
-              '@path': '$.traits'
-            },
+            pet_name: petName,
             userData: {
               EMAIL_ADDRESS_: {
                 '@path': '$.traits.email'
@@ -188,8 +164,18 @@ describe('Responsys.sendAudienceAsPet', () => {
               },
               RIID_: {
                 '@path': '$.traits.riid'
+              },
+              PERSONALIZED1: {
+                '@path': '$.traits.personalized1'
+              },
+              PERSONALIZED2: {
+                '@path': '$.traits.personalized2'
+              },
+              PERSONALIZED3: {
+                '@path': '$.traits.personalized3'
               }
-            }
+            },
+            use_responsys_async_api: true
           },
           settings: {
             baseUrl: responsysHost,
@@ -215,22 +201,25 @@ describe('Responsys.sendAudienceAsPet', () => {
           requestId: '23456'
         })
 
+        nock(responsysHost).post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`).reply(200, {
+          requestId: '45678'
+        })
+
         nock(responsysHost)
-          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/looney_tunes_audience/members`)
-          .times(3)
+          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/listExtensions/${petName}/members`)
           .reply(200, {
             requestId: '34567'
           })
 
-        nock(responsysHost).persist().get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
-        nock(responsysHost).persist().get(`/rest/asyncApi/v1.3/requests/34567`).reply(200, {})
+        nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
+        nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/34567`).reply(200, {})
+        nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/45678`).reply(200, {})
 
-        const responses = await testDestination.executeBatch('sendAudienceAsPet', actionPayload)
+        const responses = await testDestination.executeBatch('sendToPet', actionPayload)
 
-        expect(responses.length).toBe(3)
+        expect(responses.length).toBe(2)
         expect(responses[0].status).toBe(200)
         expect(responses[1].status).toBe(200)
-        expect(responses[2].status).toBe(200)
       })
     })
   })

@@ -35,6 +35,50 @@ export async function processPayload(
   }
 }
 
+/**
+ * Creates a payload to upload records to the audience service.
+ *
+ * This function constructs the payload by validating externalUserId and normalizing
+ * the personal identifiable information (PII) of each record.
+ *
+ * @param {Payload[]} payloads - The list of payloads to be processed.
+ * @param {AudienceSettings} audienceSettings - Audience-specific settings, such as country code.
+ *
+ * @returns {Object} - The constructed payload object containing the records and audienceId.
+ *
+ * @throws {PayloadValidationError} - Throws an error if any externalUserId does not
+ *    match the expected pattern.
+ */
+export function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: AudienceSettings) {
+  const records: AudienceRecord[] = []
+  const { audienceId } = payloads[0]
+  payloads.forEach((payload: Payload) => {
+    // Check if the externalUserId matches the pattern
+    if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
+      return // Skip to the next iteration
+    }
+    const hashedPII = hashedPayload(payload)
+    const payloadRecord: AudienceRecord = {
+      externalUserId: payload.externalUserId,
+      countryCode: audienceSettings.countryCode,
+      action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
+      hashedPII: [hashedPII]
+    }
+    records.push(payloadRecord)
+  })
+  // When all invalid payloads are being filtered out or discarded because they do not match the externalUserId regular expression pattern.
+  if (!records?.length) {
+    throw new PayloadValidationError(
+      'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}'
+    )
+  }
+
+  return {
+    records: records,
+    audienceId: audienceId
+  }
+}
+
 function validateAndPreparePayload(
   payloads: Payload[],
   multiStatusResponse: MultiStatusResponse,
@@ -53,7 +97,7 @@ function validateAndPreparePayload(
       return
     }
 
-    const hashedPII = normalizeAndHashPII(payload)
+    const hashedPII = hashedPayload(payload)
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
@@ -143,70 +187,9 @@ export function updateMultiStatusWithSuccessData(
     multiStatusResponse.setSuccessResponseAtIndex(validPayloadIndicesBitmap[index], {
       status: 200,
       sent: payload as object as JSONLikeObject,
-      body: JSON.stringify(response?.data) || 'success'
+      body: response?.data || 'success'
     })
   })
-}
-/**
- * Creates a payload to upload records to the audience service.
- *
- * This function constructs the payload by validating externalUserId and normalizing
- * the personal identifiable information (PII) of each record.
- *
- * @param {Payload[]} payloads - The list of payloads to be processed.
- * @param {AudienceSettings} audienceSettings - Audience-specific settings, such as country code.
- *
- * @returns {Object} - The constructed payload object containing the records and audienceId.
- *
- * @throws {PayloadValidationError} - Throws an error if any externalUserId does not
- *    match the expected pattern.
- */
-export function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: AudienceSettings) {
-  const records: AudienceRecord[] = []
-  const { audienceId } = payloads[0]
-  payloads.forEach((payload: Payload) => {
-    // Check if the externalUserId matches the pattern
-    if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
-      return // Skip to the next iteration
-    }
-    const hashedPII = normalizeAndHashPII(payload)
-    const payloadRecord: AudienceRecord = {
-      externalUserId: payload.externalUserId,
-      countryCode: audienceSettings.countryCode,
-      action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
-      hashedPII: [hashedPII]
-    }
-    records.push(payloadRecord)
-  })
-  // When all invalid payloads are being filtered out or discarded because they do not match the externalUserId regular expression pattern.
-  if (!records?.length) {
-    throw new PayloadValidationError(
-      'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}'
-    )
-  }
-
-  return {
-    records: records,
-    audienceId: audienceId
-  }
-}
-/**
- * Normalizes and hashes a string using the SHA-256 algorithm.
- *
- * This function performs the following:
- * 1. Normalizes the string by converting it to lowercase and trimming any spaces.
- * 2. Hashes the normalized string using the SHA-256 algorithm.
- *
- * @param {string} data - The string to be normalized and hashed.
- *
- * @returns {string} - The resulting SHA-256 hash of the normalized string.
- */
-function normalizeAndHash(data: string) {
-  const normalizedData = data.toLowerCase().trim() // Example: Convert to lowercase and remove leading/trailing spaces
-  // Hash the normalized data using SHA-256
-  const hash = createHash('sha256')
-  hash.update(normalizedData)
-  return hash.digest('hex')
 }
 
 /**
@@ -233,9 +216,38 @@ async function updateMultiStatusWithAmazonErrors(
       // errortype will be inferred from status
       errormessage: err?.response?.statusText,
       sent: payload,
-      body: JSON.stringify(errorResponse)
+      body: errorResponse
     })
   })
+}
+
+// For data format guidelines, visit: https://advertising.amazon.com/help/GCCXMZYCK4RXWS6C
+
+// General normalization utility function
+function normalize(value: string, allowedChars: RegExp, trim = true): string {
+  let normalized = value.toLowerCase().replace(allowedChars, '')
+  if (trim) normalized = normalized.trim()
+  const hash = createHash('sha256')
+  hash.update(normalized)
+  return hash.digest('hex')
+}
+
+// Define allowed character patterns
+const alphanumeric = /[^a-z0-9]/g
+const emailAllowed = /[^a-z0-9.@-]/g
+const nonDigits = /[^\d]/g
+
+// Combine city,state,firstName,lastName normalization
+function normalizeStandard(value: string): string {
+  return normalize(value, alphanumeric)
+}
+
+function normalizePhone(phone: string): string {
+  return normalize(phone, nonDigits)
+}
+
+function normalizeEmail(email: string): string {
+  return normalize(email, emailAllowed)
 }
 
 /**
@@ -248,31 +260,33 @@ async function updateMultiStatusWithAmazonErrors(
  *
  * @returns {HashedPIIObject} - The object containing the hashed PII fields.
  */
-function normalizeAndHashPII(payload: Payload): HashedPIIObject {
+
+function hashedPayload(payload: Payload): HashedPIIObject {
   const hashedPII: HashedPIIObject = {}
+
   if (payload.firstName) {
-    hashedPII.firstname = normalizeAndHash(payload.firstName)
+    hashedPII.firstname = normalizeStandard(payload.firstName)
   }
   if (payload.lastName) {
-    hashedPII.lastname = normalizeAndHash(payload.lastName)
+    hashedPII.lastname = normalizeStandard(payload.lastName)
   }
   if (payload.address) {
-    hashedPII.address = normalizeAndHash(payload.address)
+    hashedPII.address = normalizeStandard(payload.address)
   }
   if (payload.postal) {
-    hashedPII.postal = normalizeAndHash(payload.postal)
+    hashedPII.postal = normalizeStandard(payload.postal)
   }
   if (payload.phone) {
-    hashedPII.phone = normalizeAndHash(payload.phone)
+    hashedPII.phone = normalizePhone(payload.phone)
   }
   if (payload.city) {
-    hashedPII.city = normalizeAndHash(payload.city)
+    hashedPII.city = normalizeStandard(payload.city)
   }
   if (payload.state) {
-    hashedPII.state = normalizeAndHash(payload.state)
+    hashedPII.state = normalizeStandard(payload.state)
   }
   if (payload.email) {
-    hashedPII.email = normalizeAndHash(payload.email)
+    hashedPII.email = normalizeEmail(payload.email)
   }
 
   return hashedPII

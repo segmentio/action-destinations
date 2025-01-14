@@ -47,6 +47,7 @@ describe('Intercom (actions)', () => {
     expect(window.intercomSettings).toBeDefined()
     expect(window.intercomSettings.app_id).toEqual('topSecretKey')
     expect(window.intercomSettings.installation_type).toEqual('s')
+    expect(window.intercomSettings.custom_launcher_selector).toEqual('#test')
 
     const scripts = window.document.querySelectorAll('script')
     expect(scripts).toMatchInlineSnapshot(`
