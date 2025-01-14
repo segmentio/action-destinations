@@ -143,4 +143,4 @@ const normalize = (key: string, value: string): string => {
   return value
 }
 
-export { generateFile, enquoteIdentifier, normalize, hash, hashPhoneNumber }
+export { generateFile, enquoteIdentifier, normalize }

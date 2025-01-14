@@ -85,7 +85,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload, features, rawData }: ExecuteInputRaw<Settings, Payload, RawData>) => {
-    console.log('Payload1', payload)
     return processData({
       request,
       payloads: [payload],
