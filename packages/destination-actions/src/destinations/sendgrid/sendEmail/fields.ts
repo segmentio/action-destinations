@@ -72,7 +72,7 @@ export const fields: Record<string, InputField> = {
     multiple: true,
     required: false,
     additionalProperties: false,
-    defaultObjectUI: 'keyvalue',
+    defaultObjectUI: 'arrayeditor',
     properties: {
       email: {
         label: 'Email',
@@ -87,19 +87,6 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
-    },
-    default: {
-      '@arrayPath': [
-        '$.properties',
-        {
-          email: {
-            '@path': '$.cc_email'
-          },
-          name: {
-            '@path': '$.cc_name'
-          }
-        }
-      ]
     }
   },
   bcc: {
@@ -109,7 +96,7 @@ export const fields: Record<string, InputField> = {
     multiple: true,
     required: false,
     additionalProperties: false,
-    defaultObjectUI: 'keyvalue',
+    defaultObjectUI: 'arrayeditor',
     properties: {
       email: {
         label: 'Email',
@@ -124,19 +111,6 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: false
       }
-    },
-    default: {
-      '@arrayPath': [
-        '$.properties',
-        {
-          email: {
-            '@path': '$.bcc_email'
-          },
-          name: {
-            '@path': '$.bcc_name'
-          }
-        }
-      ]
     }
   },
   headers: {
