@@ -48,7 +48,7 @@ export { retry } from './retry'
 export { get } from './get'
 export { omit } from './omit'
 export { removeUndefined } from './remove-undefined'
-export { sha256SmartHash, SmartHashing } from './hashing-utils'
+export { sha256SmartHash, SmartHashing, sha1Hash } from './hashing-utils'
 export { time, duration } from './time'
 
 export { realTypeOf, isObject, isArray, isString } from './real-type-of'
