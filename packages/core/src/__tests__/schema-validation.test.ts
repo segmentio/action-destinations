@@ -282,6 +282,49 @@ describe('conditionally required fields', () => {
       isValid = validateSchema(neither_required_mappings[2], schema, { throwIfInvalid: false })
       expect(isValid).toBe(true)
     })
+
+    it('should validate when two fields depend on each other', async () => {
+      mockActionFields['a'] = {
+        label: 'a',
+        type: 'string',
+        required: {
+          conditions: [{ fieldKey: 'b', operator: 'is', value: undefined }]
+        },
+        description: 'a'
+      }
+
+      mockActionFields['b'] = {
+        label: 'b',
+        type: 'string',
+        description: 'b',
+        required: {
+          conditions: [{ fieldKey: 'a', operator: 'is', value: undefined }]
+        }
+      }
+
+      const b_required_mappings = [{ a: 'a_value' }, { a: 'a_value', b: 'b_value' }]
+      const a_required_mappings = [{ b: 'b_value' }, { a: 'a_value', b: 'b_value' }]
+      const both_required = {}
+
+      const schema = fieldsToJsonSchema(mockActionFields)
+      expect(schema).toMatchSnapshot()
+
+      let isValid
+      isValid = validateSchema(b_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(b_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(a_required_mappings[0], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(a_required_mappings[1], schema, { throwIfInvalid: false })
+      expect(isValid).toBe(true)
+
+      isValid = validateSchema(both_required, schema, { throwIfInvalid: false })
+      expect(isValid).toBe(false)
+    })
   })
 
   describe('should handle multiple conditions on the same field', () => {
