@@ -18,7 +18,7 @@ export interface Payload {
    */
   eventMatching: {
     /**
-     * If needed, Segment can define new Custom Events and Pages in Optimizely. If you do not want Segment to create new events, select "Do not create".
+     * Segment can create new Custom Events and Pages in Optimizely, along with custom properties. However, once an event is defined by Segment, its properties cannot be modified. If you prefer to prevent Segment from creating new events, select the "Do not create" option.
      */
     createEventIfNotFound: string
     /**
@@ -43,7 +43,7 @@ export interface Payload {
    */
   category: string
   /**
-   * Timestampt for when the event took place
+   * Timestamp for when the event took place
    */
   timestamp: string | number
   /**
@@ -78,7 +78,7 @@ export interface Payload {
     quantity?: number
   }
   /**
-   * Additioanl custom string event properties to send with the event. These must be defined in Optimizely before they can be sent.
+   * Additional custom string event properties to send with the event. These must be defined in Optimizely before they can be sent.
    */
   customStringProperties?: {
     /**
@@ -107,6 +107,10 @@ export interface Payload {
    * Additioanl custom numeric event properties to send with the event. These must be defined in Optimizely before they can be sent.
    */
   customNumericProperties?: {
+    /**
+     * Test Num Prop
+     */
+    testNum?: number
     [k: string]: unknown
   }
   /**

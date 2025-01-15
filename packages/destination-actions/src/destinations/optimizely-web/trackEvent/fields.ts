@@ -103,7 +103,7 @@ export const fields: Record<string, InputField> = {
   },
   timestamp: {
     label: 'Timestamp',
-    description: 'Timestampt for when the event took place',
+    description: 'Timestamp for when the event took place',
     type: 'datetime',
     required: true,
     default: { '@path': '$.timestamp' }
