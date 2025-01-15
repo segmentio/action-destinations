@@ -724,6 +724,29 @@ exports[`conditionally required fields should handle object conditions should va
 Object {
   "$schema": "http://json-schema.org/schema#",
   "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": "a_value",
+          },
+        },
+      },
+      "then": Object {
+        "properties": Object {
+          "b": Object {
+            "required": Array [
+              "c",
+            ],
+          },
+        },
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
   "properties": Object {
     "a": Object {
       "default": undefined,
@@ -735,22 +758,6 @@ Object {
     "b": Object {
       "$schema": "http://json-schema.org/schema#",
       "additionalProperties": false,
-      "allOf": Array [
-        Object {
-          "if": Object {
-            "properties": Object {
-              "a": Object {
-                "const": "a_value",
-              },
-            },
-          },
-          "then": Object {
-            "required": Array [
-              "c",
-            ],
-          },
-        },
-      ],
       "default": undefined,
       "description": "b",
       "format": undefined,
@@ -763,7 +770,6 @@ Object {
           "type": "string",
         },
       },
-      "required": Array [],
       "title": "b",
       "type": "object",
     },

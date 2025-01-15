@@ -828,7 +828,7 @@ describe('conditionally required fields', () => {
       expect(isValid).toBe(true)
     })
 
-    it.only('should validate an inner conditionally required property on an object correctly', async () => {
+    it('should validate an inner conditionally required property on an object correctly', async () => {
       mockActionFields['a'] = {
         type: 'string',
         label: 'a',
