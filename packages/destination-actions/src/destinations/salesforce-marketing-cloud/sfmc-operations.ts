@@ -79,9 +79,6 @@ export async function executeUpsertWithMultiStatus(
       return multiStatusResponse
     }
     const err = error as ErrorResponse
-    if (err?.response?.status === 401) {
-      throw error
-    }
 
     const errData = err?.response?.data
     const additionalError =
