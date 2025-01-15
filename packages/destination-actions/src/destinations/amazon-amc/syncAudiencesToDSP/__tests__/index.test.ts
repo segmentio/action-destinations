@@ -266,14 +266,21 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       errorreporter: 'DESTINATION',
       errortype: 'BAD_REQUEST',
       sent: {
-        audienceId: '379909525712777677',
-        city: 'Gurgaon',
-        email: 'test@gmail.com',
-        enable_batching: true,
-        event_name: 'Audience Entered',
-        externalUserId: 'invalid@user.com',
-        firstName: 'gaurav',
-        state: 'Haryana'
+        externalUserId: 'test_kochar-02',
+        countryCode: 'US',
+        action: 'DELETE',
+        hashedPII: [
+          {
+            address: 'ff376feebdfcc7daf36e6de4c6907b7901ed025abb1ea908800dd929f043fd8c',
+            city: 'f082719d0f0d6fd81e6c92b72e0a6b7f101066852ec11a1efac762c299a50c6d',
+            email: 'bd0bcf03735a1a00c6f1dd21c63c5d819e7e450298f301698192e8df90da3bb3',
+            firstname: '44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d',
+            lastname: '4cd1cb0957bc59e698beab9e86f062f2e84138bff5a446e49762da8fe0c2f499',
+            phone: 'c161700d73a5c32b84701ebed43b9febe117ea1ebbd4e150eab92890186fb455',
+            postal: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+            state: '92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'
+          }
+        ]
       },
       status: 400
     })
@@ -297,7 +304,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       errorreporter: 'INTEGRATIONS'
     })
     expect(response[1]).toMatchObject({
-      status: 200,
+      status: 202,
       sent: {
         externalUserId: 'test_kochar-02',
         countryCode: 'US',

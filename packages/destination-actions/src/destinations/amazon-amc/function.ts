@@ -1,10 +1,4 @@
-import {
-  HTTPError,
-  JSONLikeObject,
-  MultiStatusResponse,
-  PayloadValidationError,
-  RequestClient
-} from '@segment/actions-core'
+import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { createHash } from 'crypto'
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
@@ -141,33 +135,21 @@ export async function processBatchPayload(
     return multiStatusResponse
   }
 
-  try {
-    const payloadString = JSON.stringify({ audienceId: payloads[0].audienceId, records: filteredPayloads }).replace(
-      /"audienceId":"(\d+)"/,
-      '"audienceId":$1'
-    )
+  const payloadString = JSON.stringify({ audienceId: payloads[0].audienceId, records: filteredPayloads }).replace(
+    /"audienceId":"(\d+)"/,
+    '"audienceId":$1'
+  )
 
-    const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
-      method: 'POST',
-      body: payloadString,
-      headers: {
-        'Content-Type': 'application/vnd.amcaudiences.v1+json'
-      }
-    })
-    updateMultiStatusWithSuccessData(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
-  } catch (error) {
-    if (error instanceof HTTPError) {
-      await updateMultiStatusWithAmazonErrors(
-        payloads as object as JSONLikeObject[],
-        error,
-        multiStatusResponse,
-        validPayloadIndicesBitmap
-      )
-    } else {
-      throw error // Bubble up the error
+  const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
+    method: 'POST',
+    body: payloadString,
+    throwHttpErrors: false,
+    headers: {
+      'Content-Type': 'application/vnd.amcaudiences.v1+json'
     }
-  }
-  return multiStatusResponse
+  })
+
+  return updateMultiStatusResponses(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
 }
 
 /**
@@ -177,48 +159,30 @@ export async function processBatchPayload(
  * @param {MultiStatusResponse} multiStatusResponse The multi-status response object to update.
  * @param {any} response The response from the import job request containing the data.
  */
-export function updateMultiStatusWithSuccessData(
+export function updateMultiStatusResponses(
   filteredPayloads: AudienceRecord[],
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse,
   response: any
 ) {
   filteredPayloads.forEach((payload, index) => {
-    multiStatusResponse.setSuccessResponseAtIndex(validPayloadIndicesBitmap[index], {
-      status: 200,
-      sent: payload as object as JSONLikeObject,
-      body: response?.data || 'success'
-    })
+    const indexBitmap = validPayloadIndicesBitmap[index]
+    if (response.ok) {
+      multiStatusResponse.setSuccessResponseAtIndex(indexBitmap, {
+        status: response.status || 200,
+        sent: payload as object as JSONLikeObject,
+        body: response?.data || 'success'
+      })
+    } else {
+      multiStatusResponse.setErrorResponseAtIndex(indexBitmap, {
+        status: response?.status || 400,
+        errormessage: response?.statusText,
+        sent: payload as object as JSONLikeObject,
+        body: response?.data
+      })
+    }
   })
-}
-
-/**
- * Updates the multi-status response with error information from Amazon for a batch of payloads.
- *
- * This function is designed to handle errors returned by Amazon.
- *
- * @param {JSONLikeObject[]} payloads - An array of payloads that were sent in the bulk operation.
- * @param {any} err - The error object received from the Amazon API response.
- * @param {MultiStatusResponse} multiStatusResponse - The object responsible for storing the status of each payload.
- * @param {number[]} validPayloadIndicesBitmap - An array of indices indicating which payloads were valid.
- *
- */
-async function updateMultiStatusWithAmazonErrors(
-  payloads: JSONLikeObject[],
-  err: any,
-  multiStatusResponse: MultiStatusResponse,
-  validPayloadIndicesBitmap: number[]
-) {
-  const errorResponse = await err?.response?.json()
-  payloads.forEach((payload, index) => {
-    multiStatusResponse.setErrorResponseAtIndex(validPayloadIndicesBitmap[index], {
-      status: err?.response?.status || 400,
-      // errortype will be inferred from status
-      errormessage: err?.response?.statusText,
-      sent: payload,
-      body: errorResponse
-    })
-  })
+  return multiStatusResponse
 }
 
 // For data format guidelines, visit: https://advertising.amazon.com/help/GCCXMZYCK4RXWS6C
