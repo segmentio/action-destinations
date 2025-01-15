@@ -14,7 +14,13 @@ export const fields: Record<string, InputField> = {
       "The unique identifier for the user. The value should be taken from the optimizelyEndUserId cookie, or it can be collected using window.optimizely.get('visitor').visitorId. If using the BYOID feature pass in the value of the ID for your user.",
     type: 'string',
     required: true,
-    default: { '@path': '$.properties.end_user_id' }
+    default: {
+      '@if': {
+        exists: { '@path': '$.properties.end_user_id' },
+        then: { '@path': '$.properties.end_user_id' },
+        else: { '@path': '$.integrations.Optimizely Web (Actions).end_user_id' }
+      }
+    }
   },
   anonymizeIP: {
     label: 'Anonymize IP',
@@ -24,17 +30,17 @@ export const fields: Record<string, InputField> = {
     default: true,
     disabledInputMethods: ['enrichment', 'freeform', 'function', 'literal', 'variable']
   },
-  eventMatching: {
-    label: 'Event Matching',
+  eventSyncConfig: {
+    label: 'Event Syncing Configuration',
     description:
-      "Specify how Segment should match the Segment event to an Optimizely event, as well as specify if Segment should create new Custom Events and Pages in Optimizely if they don't exist.",
+      "Specify how Segment should sync Segment events to Optimizely events, as well as specify if Segment should create new Custom Events and Pages in Optimizely if they don't exist.",
     type: 'object',
     required: true,
     properties: {
       createEventIfNotFound: {
         label: 'Create If Not Found',
         description:
-          'Segment can create new Custom Events and Pages in Optimizely, along with custom properties. However, once an event is defined by Segment, its properties cannot be modified. If you prefer to prevent Segment from creating new events, select the "Do not create" option.',
+          'Segment can define new Custom Events in Optimizely, along with their custom properties. However once an event is defined by Segment its properties cannot be modified.',
         type: 'string',
         required: true,
         choices: [
@@ -76,31 +82,6 @@ export const fields: Record<string, InputField> = {
       eventId: { '@path': '$.properties.event_id' }
     }
   },
-  pageUrl: {
-    label: 'Page URL',
-    description: 'The URL of the page where the event occurred. Used if Segment creates a Page in Optimizely.',
-    type: 'string',
-    required: false,
-    default: { '@path': '$.context.page.url' }
-  },
-  category: {
-    label: 'Event Category',
-    description: 'Event Category',
-    type: 'string',
-    required: true,
-    choices: [
-      { label: 'add_to_cart', value: 'add_to_cart' },
-      { label: 'save', value: 'save' },
-      { label: 'search', value: 'search' },
-      { label: 'share', value: 'share' },
-      { label: 'purchase', value: 'purchase' },
-      { label: 'convert', value: 'convert' },
-      { label: 'sign_up', value: 'sign_up' },
-      { label: 'subscribe', value: 'subscribe' },
-      { label: 'other', value: 'other' }
-    ],
-    default: 'other'
-  },
   timestamp: {
     label: 'Timestamp',
     description: 'Timestamp for when the event took place',
@@ -108,35 +89,13 @@ export const fields: Record<string, InputField> = {
     required: true,
     default: { '@path': '$.timestamp' }
   },
-  eventType: {
-    label: 'Event Type',
-    description: 'The type of Segment event',
-    type: 'string',
-    unsafe_hidden: true,
-    required: true,
-    default: { '@path': '$.type' }
-  },
   tags: {
     label: 'Tags',
     description: 'Tags to send with the event',
     type: 'object',
     required: false,
     additionalProperties: true,
-    defaultObjectUI: 'keyvalue',
-    properties: {
-      currency: {
-        label: 'Currency',
-        description: 'Currency code for revenue. Defaults to USD.',
-        type: 'string',
-        required: false,
-        default: 'USD'
-      }
-    },
-    default: {
-      currency: {
-        '@path': '$.properties.currency'
-      }
-    }
+    defaultObjectUI: 'keyvalue'
   },
   standardEventProperties: {
     label: 'Standard Event Properties',
@@ -244,20 +203,7 @@ export const fields: Record<string, InputField> = {
     type: 'object',
     required: false,
     additionalProperties: true,
-    defaultObjectUI: 'keyvalue',
-    properties: {
-      testNum: {
-        label: 'Test Num Prop',
-        description: 'Test Num Prop',
-        type: 'number',
-        required: false
-      }
-    },
-    default: {
-      testNum: {
-        '@path': '$.properties.custom_num_prop'
-      }
-    }
+    defaultObjectUI: 'keyvalue'
   },
   customBooleanProperties: {
     label: 'Custom Properties (boolean)',

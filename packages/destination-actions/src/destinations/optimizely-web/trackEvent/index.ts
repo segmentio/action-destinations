@@ -6,8 +6,8 @@ import { send } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: 'Send a Segment track or page event to Optimizely',
-  defaultSubscription: 'type = "track" or type = "page"',
+  description: 'Send a Segment track event to Optimizely',
+  defaultSubscription: 'type = "track"',
   fields,
   perform: async (request, { payload, settings }) => {
     return await send(request, settings, payload)

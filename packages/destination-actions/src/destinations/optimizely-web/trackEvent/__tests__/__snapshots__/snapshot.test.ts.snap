@@ -44,7 +44,7 @@ exports[`Testing snapshot for OptimizelyWeb's trackEvent destination action: req
 Object {
   "account_id": "PXs*Kr1gqV9(",
   "anonymize_ip": true,
-  "client_name": "Segment Optimizely Web Destination",
+  "client_name": "twilio_segment/optimizely_web_destination",
   "client_version": "1.0.0",
   "enrich_decisions": true,
   "project_id": -9262421990440.96,
@@ -58,9 +58,7 @@ Object {
             Object {
               "entity_id": "custom_event_id_1",
               "key": "custom_event_1",
-              "tags": Object {
-                "$opt_event_properties": Object {},
-              },
+              "tags": Object {},
               "timestamp": 1612137600000,
               "type": "other",
               "uuid": "PXs*Kr1gqV9(",

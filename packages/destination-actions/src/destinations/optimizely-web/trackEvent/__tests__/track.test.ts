@@ -36,7 +36,7 @@ const mapping = {
   uuid: { '@path': '$.messageId' },
   endUserId: { '@path': '$.properties.end_user_id' },
   anonymizeIP: true,
-  eventMatching: {
+  eventSyncConfig: {
     createEventIfNotFound: 'CREATE',
     shouldSnakeCaseEventKey: false,
     eventKey: { '@path': '$.event' },
@@ -165,7 +165,7 @@ describe('OptimizelyWeb.trackEvent', () => {
 
       const mappingSnakeCase = {
         ...mapping,
-        eventMatching: { ...mapping.eventMatching, shouldSnakeCaseEventKey: true }
+        eventSyncConfig: { ...mapping.eventSyncConfig, shouldSnakeCaseEventKey: true }
       }
 
       const sendEventJSONSnakeCase = {

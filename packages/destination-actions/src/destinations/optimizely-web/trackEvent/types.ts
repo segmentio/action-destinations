@@ -1,7 +1,5 @@
 import { Payload } from './generated-types'
 
-export type Type = typeof TRACK | typeof PAGE
-
 export type UnixTimestamp13 = number & { __type: 'UnixTimestamp13' }
 
 export interface OptEventProperties {
@@ -11,11 +9,8 @@ export interface OptEventProperties {
 export interface ValidPayload extends Payload {
   unixTimestamp13: UnixTimestamp13
   optEventProperties?: OptEventProperties
-  type: Type
   key: string | undefined
 }
-
-import { TRACK, PAGE } from './constants'
 
 export interface SendEventJSON {
   account_id: string
@@ -50,12 +45,10 @@ export interface Event {
     [key: string]: string | number | { [key: string]: string | number | boolean } | undefined
   }
   timestamp: UnixTimestamp13
-  type: EventType
+  type: 'other'
   uuid: string
   value?: number
 }
-
-export type EventType = 'view_activated' | 'other'
 
 export interface EventItem {
   id: number
@@ -81,9 +74,4 @@ export interface CreateEventJSON {
     data_type: 'string' | 'boolean' | 'number'
     name: string
   }>
-}
-
-export interface CreatePageJSON extends CreateEventJSON {
-  edit_url: string
-  project_id: number
 }

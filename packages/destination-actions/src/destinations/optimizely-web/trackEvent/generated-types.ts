@@ -14,11 +14,11 @@ export interface Payload {
    */
   anonymizeIP: boolean
   /**
-   * Specify how Segment should match the Segment event to an Optimizely event, as well as specify if Segment should create new Custom Events and Pages in Optimizely if they don't exist.
+   * Specify how Segment should sync Segment events to Optimizely events, as well as specify if Segment should create new Custom Events and Pages in Optimizely if they don't exist.
    */
-  eventMatching: {
+  eventSyncConfig: {
     /**
-     * Segment can create new Custom Events and Pages in Optimizely, along with custom properties. However, once an event is defined by Segment, its properties cannot be modified. If you prefer to prevent Segment from creating new events, select the "Do not create" option.
+     * Segment can define new Custom Events in Optimizely, along with their custom properties. However once an event is defined by Segment its properties cannot be modified.
      */
     createEventIfNotFound: string
     /**
@@ -35,29 +35,13 @@ export interface Payload {
     eventId?: string
   }
   /**
-   * The URL of the page where the event occurred. Used if Segment creates a Page in Optimizely.
-   */
-  pageUrl?: string
-  /**
-   * Event Category
-   */
-  category: string
-  /**
    * Timestamp for when the event took place
    */
   timestamp: string | number
   /**
-   * The type of Segment event
-   */
-  eventType: string
-  /**
    * Tags to send with the event
    */
   tags?: {
-    /**
-     * Currency code for revenue. Defaults to USD.
-     */
-    currency?: string
     [k: string]: unknown
   }
   /**
@@ -107,10 +91,6 @@ export interface Payload {
    * Additioanl custom numeric event properties to send with the event. These must be defined in Optimizely before they can be sent.
    */
   customNumericProperties?: {
-    /**
-     * Test Num Prop
-     */
-    testNum?: number
     [k: string]: unknown
   }
   /**

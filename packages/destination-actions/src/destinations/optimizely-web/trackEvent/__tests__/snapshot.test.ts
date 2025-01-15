@@ -25,7 +25,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: {
         ...event.properties,
-        eventMatching: {
+        eventSyncConfig: {
           eventId: 'custom_event_id_1',
           eventKey: 'Custom_Event_1',
           createEventIfNotFound: 'CREATE',
@@ -67,7 +67,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: {
         ...event.properties,
-        eventMatching: {
+        eventSyncConfig: {
           eventId: 'custom_event_id_1',
           eventKey: 'Custom_Event_1',
           createEventIfNotFound: 'CREATE',
