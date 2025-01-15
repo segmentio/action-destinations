@@ -40,7 +40,6 @@ export interface Event {
   quantity?: number
   revenue?: number
   tags: {
-    currency?: string
     $opt_event_properties?: OptEventProperties
     [key: string]: string | number | { [key: string]: string | number | boolean } | undefined
   }
