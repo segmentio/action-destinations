@@ -17,12 +17,24 @@ export function getEventProperties(payload: Payload, settings: Settings): Mixpan
     browserVersion = getBrowserVersion(payload.userAgent)
   }
   const integration = payload.context?.integration as Record<string, string>
+
+  // When the `distinct_id` property is undefined we add the property in as a blank string,
+  // so that we can support Mixpanel events that aren't tied to a specific user.
+  //
+  // The `distinct_id` property is, according to documentation, supposed to
+  // ALWAYS be present, either with an identifying value or with an empty
+  // string value to denote that the event should be excluded from behavioral
+  // analysis.
+  //
+  // @see https://developer.mixpanel.com/reference/import-events#propertiesdistinct_id
+  const distinct_id = payload.distinct_id ?? ''
+
   return {
     time: time,
     ip: payload.ip,
     id: payload.distinct_id,
     $anon_id: payload.anonymous_id,
-    distinct_id: payload.distinct_id,
+    distinct_id,
     $app_build_number: payload.app_build,
     $app_version_string: payload.app_version,
     $app_namespace: payload.app_namespace,
