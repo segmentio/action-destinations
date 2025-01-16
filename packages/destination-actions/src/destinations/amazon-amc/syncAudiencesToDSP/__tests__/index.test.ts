@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { SegmentEvent } from '@segment/actions-core/*'
+import { InvalidAuthenticationError } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 const event = createTestEvent({
@@ -377,5 +378,19 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
       errorreporter: 'INTEGRATIONS'
     })
+  })
+  it('Should throw an InvalidAuthenticationError when Batch API throws Unathorized', async () => {
+    nock(`https://advertising-api.amazon.com`)
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(401, { statusText: 'Unauthorized', ok: false })
+
+    await expect(
+      testDestination.executeBatch('syncAudiencesToDSP', {
+        events,
+        settings,
+        mapping
+      })
+    ).rejects.toThrowError(new InvalidAuthenticationError('Unauthorized'))
   })
 })

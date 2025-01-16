@@ -1,3 +1,4 @@
+import { InvalidAuthenticationError } from '@segment/actions-core'
 import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { createHash } from 'crypto'
 import { AudienceSettings, Settings } from './generated-types'
@@ -148,6 +149,9 @@ export async function processBatchPayload(
       'Content-Type': 'application/vnd.amcaudiences.v1+json'
     }
   })
+  if (!response.ok && response.status == 401) {
+    throw new InvalidAuthenticationError(response.statusText)
+  }
 
   return updateMultiStatusResponses(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
 }
