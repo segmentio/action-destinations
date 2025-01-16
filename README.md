@@ -267,7 +267,7 @@ interface InputField {
   dynamic?: boolean
 
   /** Whether or not the field is required */
-  required?: boolean
+  required?: boolean | DependsOnConditions
 
   /**
    * Optional definition for the properties of `type: 'object'` fields
@@ -357,6 +357,72 @@ const destination = {
 ```
 
 In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
+
+## Required Fields
+
+You may configure a field to either be always required, not required, or conditionally required. Validation for required fields is performed both when a user is configuring a mapping in the UI and when an event payload is delivered through a `perform` block.
+
+**An example of each possible value for `required`**
+
+```js
+const destination = {
+  actions: {
+    readmeAction: {
+      fields: {
+        operation: {
+          label: 'An operation for the readme action',
+          required: true // This field is always required and any payloads omitting it will fail
+        },
+        creationName: {
+          label: "The name of the resource to create, required when operation = 'create'",
+          required: {
+            // This field is required only when the 'operation' field has the value 'create'
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'operation',
+                operator: 'is',
+                value: 'create'
+              }
+            ]
+          }
+        },
+        email: {
+          label: 'The customer email',
+          required: false // This field is not required. This is the same as not including the 'required' property at all
+        }
+      }
+    }
+  }
+}
+```
+
+**Examples of valid and invalid payloads for the fields above**
+
+```json
+// This payload is valid since the only required field, 'operation', is defined.
+{
+  "operation": "update"
+}
+```
+
+```json
+// This payload is invalid since 'creationName' is required because 'operation' is 'create'
+{
+  "operation": "create"
+}
+// This error will be thrown:
+"message": "The root value is missing the required field 'creationName'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is valid since the two required fields, 'operation' and 'creationName' are defined.
+{
+  "operation": "create",
+  "creationName": "readme",
+  "email": "read@me.com"
+}
+```
 
 ## Dynamic Fields
 
