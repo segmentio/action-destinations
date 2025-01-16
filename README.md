@@ -390,6 +390,28 @@ const destination = {
         email: {
           label: 'The customer email',
           required: false // This field is not required. This is the same as not including the 'required' property at all
+        },
+        userIdentifiers: {
+          phone: {
+            label: 'The customer phone number',
+            required: {
+              // If email is not provided then a phone number is required
+              conditions: [{ fieldKey: 'email', operator: 'is', value: undefined }]
+            }
+          },
+          countryCode: {
+            label: 'The country code for the customer phone number',
+            required: {
+              // If a userIdentifiers.phone is provided then the country code is also required
+              conditions: [
+                {
+                  fieldKey: 'userIdentifiers.phone', // Dot notation may be used to address object fields.
+                  operator: 'is_not',
+                  value: undefined
+                }
+              ]
+            }
+          }
         }
       }
     }
@@ -402,14 +424,16 @@ const destination = {
 ```json
 // This payload is valid since the only required field, 'operation', is defined.
 {
-  "operation": "update"
+  "operation": "update",
+  "email": "read@me.com"
 }
 ```
 
 ```json
 // This payload is invalid since 'creationName' is required because 'operation' is 'create'
 {
-  "operation": "create"
+  "operation": "create",
+  "email": "read@me.com"
 }
 // This error will be thrown:
 "message": "The root value is missing the required field 'creationName'. The root value must match \"then\" schema."
@@ -421,6 +445,36 @@ const destination = {
   "operation": "create",
   "creationName": "readme",
   "email": "read@me.com"
+}
+```
+
+```json
+// This payload is invalid since 'phone' is required when 'email' is missing.
+{
+  "operation": "update",
+}
+// This error will be thrown:
+"message": "The root value is missing the required field 'phone'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is invalid since 'countryCode' is required when 'phone' is defined
+{
+  "operation": "update",
+  "userIdentifiers": { "phone": "619-555-5555" }
+}
+// This error will be thrown:
+"message": "The root value is missing the required field 'countryCode'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is valid since all conditionally required fields are included
+{
+  "operation": "update",
+  "userIdentifiers": {
+    "phone": "619-555-5555",
+    "countryCode": "+1"
+  }
 }
 ```
 
