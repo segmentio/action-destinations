@@ -477,7 +477,7 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
       }
       if (payload.phone) {
         identifiers.push({
-          hashedPhoneNumber: formatPhone(payload.phone, payload.country_code)
+          hashedPhoneNumber: formatPhone(payload.phone, payload.phone_country_code)
         })
       }
       if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
