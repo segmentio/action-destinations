@@ -112,13 +112,13 @@ function validate(payload: Payload) {
     }
   })
 
-  payload.cc = payload?.cc?.filter(obj => Object.keys(obj).length > 0)
-  if(typeof payload.cc === 'object' && Object.keys(payload.cc).length === 0){
+  payload.cc = payload?.cc?.filter(obj => obj?.email && obj.email.trim() !== '')
+  if (Array.isArray(payload.cc) && payload.cc.length === 0) {
     delete payload.cc
   }
 
-  payload.bcc = payload?.bcc?.filter(obj => Object.keys(obj).length > 0)
-  if(typeof payload.bcc === 'object' && Object.keys(payload.bcc).length === 0){
+  payload.bcc = payload?.bcc?.filter(obj => obj?.email && obj.email.trim() !== '')
+  if (Array.isArray(payload.bcc) && payload.bcc.length === 0) {
     delete payload.bcc
   }
 

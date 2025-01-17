@@ -139,38 +139,3 @@ Object {
   "timeout": 10000,
 }
 `;
-
-exports[`AmazonAds.syncAudiencesToDSP should work with batch events 1`] = `
-Object {
-  "afterResponse": Array [
-    [Function],
-    [Function],
-    [Function],
-  ],
-  "beforeRequest": Array [
-    [Function],
-  ],
-  "body": "{\\"records\\":[{\\"externalUserId\\":\\"test_kochar-02\\",\\"countryCode\\":\\"US\\",\\"action\\":\\"DELETE\\",\\"hashedPII\\":[{\\"firstname\\":\\"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d\\",\\"lastname\\":\\"4cd1cb0957bc59e698beab9e86f062f2e84138bff5a446e49762da8fe0c2f499\\",\\"address\\":\\"ff376feebdfcc7daf36e6de4c6907b7901ed025abb1ea908800dd929f043fd8c\\",\\"postal\\":\\"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08\\",\\"state\\":\\"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d\\",\\"email\\":\\"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151\\"}]}],\\"audienceId\\":379909525712777677}",
-  "headers": Headers {
-    Symbol(map): Object {
-      "amazon-advertising-api-clientid": Array [
-        "",
-      ],
-      "authorization": Array [
-        "Bearer undefined",
-      ],
-      "content-type": Array [
-        "application/vnd.amcaudiences.v1+json",
-      ],
-      "user-agent": Array [
-        "Segment (Actions)",
-      ],
-    },
-  },
-  "method": "POST",
-  "signal": AbortSignal {},
-  "statsContext": Object {},
-  "throwHttpErrors": true,
-  "timeout": 10000,
-}
-`;
