@@ -1,6 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
+import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import upsertContactProfile from './upsertContactProfile'
 
 const destination: DestinationDefinition<Settings> = {
@@ -10,7 +10,27 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'custom',
-    fields: {},
+    fields: {
+      api_key: {
+        label: 'API Key',
+        description: 'Ortto API key',
+        type: 'password',
+        required: true
+      },
+      region: {
+        label: 'Region',
+        description: 'The region where your Ortto account lives.',
+        type: 'string',
+        choices: [
+          { label: 'AU', value: 'au' },
+          { label: 'EU', value: 'eu' },
+          { label: 'US', value: 'us' },
+          { label: 'Local', value: 'local' }
+        ],
+        default: 'local',
+        required: true
+      }
+    },
     testAuthentication: (request) => {
       // Return a request that tests/validates the user's credentials.
       // If you do not have a way to validate the authentication fields safely,
@@ -25,7 +45,14 @@ const destination: DestinationDefinition<Settings> = {
     // implement this function and should remove it completely.
     return true
   },
-
+  extendRequest({ settings }) {
+    return {
+      headers: {
+        Authorization: `Bearer ${settings.api_key}`
+      },
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
+    }
+  },
   actions: {
     upsertContactProfile
   }

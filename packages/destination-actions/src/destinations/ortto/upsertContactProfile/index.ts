@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { Ortto } from '../options'
+import OrttoClient from '../ortto-client'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Contact',
@@ -148,17 +148,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, data) => {
-    return request(`${Ortto.BASE_URL}`, {
-      method: 'post',
-      json: data.payload
-    })
+  perform: async (request, { settings, payload }) => {
+    const client: OrttoClient = new OrttoClient(request)
+    return await client.upsertContact(settings, payload)
   },
-  performBatch: (request, data) => {
-    return request(`${Ortto.BASE_URL}`, {
-      method: 'post',
-      json: data.payload
-    })
+  performBatch: async (request, { settings, payload }) => {
+    const client: OrttoClient = new OrttoClient(request)
+    return await client.upsertContacts(settings, payload)
   }
 }
 
