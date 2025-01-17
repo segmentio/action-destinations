@@ -215,7 +215,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       required: true,
       unsafe_hidden: true,
       default: { '@path': '$.context.personas.computation_class' },
-      choices: [{ label: 'Audience', value: 'audience' },{ label: 'journey_stepp', value: 'journey_step' }]
+      choices: [{ label: 'Audience', value: 'audience' },{ label: 'journey_step', value: 'journey_step' }]
     }
   },
 
