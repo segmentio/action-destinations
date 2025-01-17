@@ -1,6 +1,6 @@
 import { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 
-export const LINKEDIN_API_VERSION = '202401'
+export const LINKEDIN_API_VERSION = '202411'
 export const BASE_URL = 'https://api.linkedin.com/rest'
 export const LINKEDIN_SOURCE_PLATFORM = 'SEGMENT'
 
