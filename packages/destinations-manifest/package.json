@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.98.0",
+  "version": "1.99.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -48,7 +48,7 @@
     "@segment/analytics-browser-actions-upollo": "^1.71.0",
     "@segment/analytics-browser-actions-userpilot": "^1.71.0",
     "@segment/analytics-browser-actions-utils": "^1.71.0",
-    "@segment/analytics-browser-actions-vwo": "^1.73.0",
+    "@segment/analytics-browser-actions-vwo": "^1.74.0",
     "@segment/analytics-browser-actions-wiseops": "^1.72.0",
     "@segment/analytics-browser-hubble-web": "^1.57.0",
     "@segment/browser-destination-runtime": "^1.70.0"
