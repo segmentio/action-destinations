@@ -558,8 +558,6 @@ describe('Snap Conversions API ', () => {
         }
       })
 
-      console.log(custom_data)
-
       expect(action_source).toEqual('app')
       expect(event_name).toEqual('PURCHASE')
       expect(event_id).toEqual(testEvent.messageId)
