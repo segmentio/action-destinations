@@ -59,7 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw error
     }
   },
-  performBatch: (request, { payload, statsContext }) => {
+  performBatch: (request, { payload, statsContext, features }) => {
     // Expect these to be the same across the payloads
     const { url, method, headers } = payload[0]
     const uniqueURLs = new Set()
@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const statsClient = statsContext?.statsClient
-    if (statsClient) {
+    if (statsClient && features && features['webhook-unique-urls']) {
       const tags = statsContext?.tags ?? []
       statsClient?.histogram('webhook_unique_urls', uniqueURLs.size, [...tags])
     }
