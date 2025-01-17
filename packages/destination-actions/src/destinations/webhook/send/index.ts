@@ -59,9 +59,20 @@ const action: ActionDefinition<Settings, Payload> = {
       throw error
     }
   },
-  performBatch: (request, { payload }) => {
+  performBatch: (request, { payload, statsContext }) => {
     // Expect these to be the same across the payloads
     const { url, method, headers } = payload[0]
+    const uniqueURLs = new Set()
+    for (const { url } of payload) {
+      uniqueURLs.add(url)
+    }
+
+    const statsClient = statsContext?.statsClient
+    if (statsClient) {
+      const tags = statsContext?.tags ?? []
+      statsClient?.histogram('webhook_unique_urls', uniqueURLs.size, [...tags])
+    }
+
     try {
       return request(url, {
         method: method as RequestMethod,
