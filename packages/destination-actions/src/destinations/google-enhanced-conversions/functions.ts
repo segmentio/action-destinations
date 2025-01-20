@@ -432,14 +432,16 @@ const formatEmail = (email: string): string => {
 
 // Standardize phone number to E.164 format, This format represents a phone number as a number up to fifteen digits
 // in length starting with a + sign, for example, +12125650000 or +442070313000.
-function formatToE164(phoneNumber: string, defaultCountryCode: string): string {
+// exported for unit testing
+export function formatToE164(phoneNumber: string, countryCode: string): string {
   // Remove any non-numeric characters
   const numericPhoneNumber = phoneNumber.replace(/\D/g, '')
 
   // Check if the phone number starts with the country code
   let formattedPhoneNumber = numericPhoneNumber
-  if (!numericPhoneNumber.startsWith(defaultCountryCode)) {
-    formattedPhoneNumber = defaultCountryCode + numericPhoneNumber
+  const formattedCountryCode = countryCode.replace(/\D/g, '')
+  if (!numericPhoneNumber.startsWith(formattedCountryCode)) {
+    formattedPhoneNumber = formattedCountryCode + numericPhoneNumber
   }
 
   // Ensure the formatted phone number starts with '+'
@@ -450,8 +452,8 @@ function formatToE164(phoneNumber: string, defaultCountryCode: string): string {
   return formattedPhoneNumber
 }
 
-const formatPhone = (phone: string): string => {
-  const formattedPhone = formatToE164(phone, '1')
+const formatPhone = (phone: string, countryCode?: string): string => {
+  const formattedPhone = formatToE164(phone, countryCode ?? '+1')
   return sha256SmartHash(formattedPhone)
 }
 
@@ -475,7 +477,7 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
       }
       if (payload.phone) {
         identifiers.push({
-          hashedPhoneNumber: formatPhone(payload.phone)
+          hashedPhoneNumber: formatPhone(payload.phone, payload.phone_country_code)
         })
       }
       if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
