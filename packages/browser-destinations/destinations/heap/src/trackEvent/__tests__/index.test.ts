@@ -1,11 +1,6 @@
 import { Analytics, Context, Plugin } from '@segment/analytics-next'
 import heapDestination from '../../index'
-import {
-  createMockedHeapJsSdk,
-  HEAP_TEST_ENV_ID,
-  mockHeapJsHttpRequest,
-  trackEventSubscription
-} from '../../test-utilities'
+import { createMockedHeapJsSdk, HEAP_TEST_ENV_ID, trackEventSubscription } from '../../test-utilities'
 import { HEAP_SEGMENT_BROWSER_LIBRARY_NAME } from '../../constants'
 
 describe('#trackEvent', () => {
@@ -16,7 +11,6 @@ describe('#trackEvent', () => {
   let identifySpy: jest.SpyInstance
 
   beforeAll(async () => {
-    mockHeapJsHttpRequest()
     window.heap = createMockedHeapJsSdk()
 
     eventWithUnrolling = (
