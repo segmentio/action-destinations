@@ -551,11 +551,23 @@ const createOfflineUserJob = async (
     return (response.data as any).resourceName
   } catch (error) {
     statsContext?.statsClient?.incr('error.createJob', 1, statsContext?.tags)
-    throw new IntegrationError(
-      (error as GoogleAdsError).response?.statusText,
-      'INVALID_RESPONSE',
-      (error as GoogleAdsError).response?.status
-    )
+
+    // Google throws 400 error for CONCURRENT_MODIFICATION error which is a retryable error
+    // We rewrite this error to a 500 so that Centrifuge can retry the request
+    const errors = (error as GoogleAdsError).response?.data?.error?.details ?? []
+    for (const errorDetails of errors) {
+      for (const errorItem of errorDetails.errors) {
+        if (errorItem?.errorCode?.databaseError) {
+          throw new RetryableError(
+            errorItem?.message ??
+              'Multiple requests were attempting to modify the same resource at once. Retry the request.',
+            500
+          )
+        }
+      }
+    }
+
+    throw error
   }
 }
 
@@ -599,13 +611,9 @@ const addOperations = async (
           )
         }
       }
-
-      throw new IntegrationError(
-        (error as GoogleAdsError).response?.statusText,
-        'INVALID_RESPONSE',
-        (error as GoogleAdsError).response?.status
-      )
     }
+
+    throw error
   }
 }
 
@@ -628,11 +636,22 @@ const runOfflineUserJob = async (
     return response.data
   } catch (error) {
     statsContext?.statsClient?.incr('error.runJob', 1, statsContext?.tags)
-    throw new IntegrationError(
-      (error as GoogleAdsError).response?.statusText,
-      'INVALID_RESPONSE',
-      (error as GoogleAdsError).response?.status
-    )
+    // Google throws 400 error for CONCURRENT_MODIFICATION error which is a retryable error
+    // We rewrite this error to a 500 so that Centrifuge can retry the request
+    const errors = (error as GoogleAdsError).response?.data?.error?.details ?? []
+    for (const errorDetails of errors) {
+      for (const errorItem of errorDetails.errors) {
+        if (errorItem?.errorCode?.databaseError) {
+          throw new RetryableError(
+            errorItem?.message ??
+              'Multiple requests were attempting to modify the same resource at once. Retry the request.',
+            500
+          )
+        }
+      }
+    }
+
+    throw error
   }
 }
 
