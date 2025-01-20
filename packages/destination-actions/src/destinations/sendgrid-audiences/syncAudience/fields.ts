@@ -87,7 +87,7 @@ export const fields: Record<string, InputField> = {
         '@if': {
           exists: { '@path': '$.traits.email' },
           then: { '@path': '$.traits.email' },
-          else: { '@path': '$.properties.email' }
+          else: { '@path': '$.context.traits.email' }
         }
       }
     }
