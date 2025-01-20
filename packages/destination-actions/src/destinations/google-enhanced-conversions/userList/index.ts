@@ -69,13 +69,8 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    phone_country_code: {
-      label: 'Phone Number Country Code',
-      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
-      type: 'string'
-    },
     country_code: {
-      label: 'Address Country Code',
+      label: 'Country Code',
       description: "2-letter country code in ISO-3166-1 alpha-2 of the user's address",
       type: 'string'
     },

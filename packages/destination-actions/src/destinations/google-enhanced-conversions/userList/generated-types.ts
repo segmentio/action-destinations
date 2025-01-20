@@ -18,10 +18,6 @@ export interface Payload {
    */
   phone?: string
   /**
-   * The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.
-   */
-  phone_country_code?: string
-  /**
    * 2-letter country code in ISO-3166-1 alpha-2 of the user's address
    */
   country_code?: string
