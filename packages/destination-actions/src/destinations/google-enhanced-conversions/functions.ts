@@ -32,23 +32,21 @@ export const CANARY_API_VERSION = 'v17'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 
 type GoogleAdsErrorData = {
-  data: {
-    error: {
-      code: number
-      details: [
-        {
-          '@type': string
-          errors: [
-            {
-              errorCode: { databaseError: string }
-              message: string
-            }
-          ]
-        }
-      ]
-      message: string
-      status: string
-    }
+  error: {
+    code: number
+    details: [
+      {
+        '@type': string
+        errors: [
+          {
+            errorCode: { databaseError: string }
+            message: string
+          }
+        ]
+      }
+    ]
+    message: string
+    status: string
   }
 }
 export class GoogleAdsError extends HTTPError {
@@ -590,7 +588,8 @@ const addOperations = async (
 
     // Google throws 400 error for CONCURRENT_MODIFICATION error which is a retryable error
     // We rewrite this error to a 500 so that Centrifuge can retry the request
-    for (const errorDetails of (error as GoogleAdsError).response?.data?.data?.error?.details) {
+    const errors = (error as GoogleAdsError).response?.data?.error?.details ?? []
+    for (const errorDetails of errors) {
       for (const errorItem of errorDetails.errors) {
         if (errorItem?.errorCode?.databaseError) {
           throw new RetryableError(
