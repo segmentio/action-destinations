@@ -443,27 +443,24 @@ describe('GoogleEnhancedConversions', () => {
       nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
         .post(/.*/)
         .reply(400, {
-          data: {
-            error: {
-              code: 400,
-              details: [
-                {
-                  '@type': 'type.googleapis.com/google.ads.googleads.v17.errors.GoogleAdsFailure',
-                  errors: [
-                    {
-                      errorCode: {
-                        databaseError: 'CONCURRENT_MODIFICATION'
-                      },
-                      message:
-                        'Multiple requests were attempting to modify the same resource at once. Retry the request.'
-                    }
-                  ],
-                  requestId: 'OZ5_72C-3qFN9a87mjE7_w'
-                }
-              ],
-              message: 'Request contains an invalid argument.',
-              status: 'INVALID_ARGUMENT'
-            }
+          error: {
+            code: 400,
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v17.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      databaseError: 'CONCURRENT_MODIFICATION'
+                    },
+                    message: 'Multiple requests were attempting to modify the same resource at once. Retry the request.'
+                  }
+                ],
+                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
+              }
+            ],
+            message: 'Request contains an invalid argument.',
+            status: 'INVALID_ARGUMENT'
           }
         })
 
