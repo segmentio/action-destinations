@@ -5,10 +5,6 @@ import ora from 'ora'
 import { getManifest, DestinationDefinition } from '../lib/destinations'
 import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
 
-const isDefined = (value: any): boolean => {
-  return value !== null && value !== undefined
-}
-
 export default class Validate extends Command {
   private spinner: ora.Ora = ora()
   private isInvalid = false
