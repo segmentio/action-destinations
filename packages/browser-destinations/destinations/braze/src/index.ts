@@ -18,22 +18,20 @@ declare global {
   }
 }
 
-const defaultVersion = '4.10'
+const defaultVersion = '5.6'
 
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Identify Calls',
     subscribe: 'type = "identify" or type = "group"',
     partnerAction: 'updateUserProfile',
-    mapping: defaultValues(updateUserProfile.fields),
-    type: 'automatic'
+    mapping: defaultValues(updateUserProfile.fields)
   },
   {
     name: 'Order Completed calls',
     subscribe: 'type = "track" and event = "Order Completed"',
     partnerAction: 'trackPurchase',
-    mapping: defaultValues(trackPurchase.fields),
-    type: 'automatic'
+    mapping: defaultValues(trackPurchase.fields)
   },
   {
     name: 'Track Calls',
@@ -47,8 +45,7 @@ const presets: DestinationDefinition['presets'] = [
       eventProperties: {
         '@path': '$.properties'
       }
-    },
-    type: 'automatic'
+    }
   }
 ]
 
@@ -93,6 +90,10 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         {
           value: '5.4',
           label: '5.4'
+        },
+        {
+          value: '5.6',
+          label: '5.6'
         }
       ],
       default: defaultVersion,
@@ -137,7 +138,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
     },
     allowUserSuppliedJavascript: {
       description:
-        'To indicate that you trust the Braze dashboard users to write non-malicious Javascript click actions, set this property to true. If enableHtmlInAppMessages is true, this option will also be set to true. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)',
+        'To indicate that you trust the Braze dashboard users to write non-malicious Javascript click actions, set this property to true. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)',
       label: 'Allow User Supplied Javascript',
       default: false,
       type: 'boolean',
