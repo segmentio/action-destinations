@@ -66,7 +66,6 @@ export async function addToList(
 
   const response = await request<MarketoBulkImportResponse>(url, {
     method: 'POST',
-    throwHttpErrors: false,
     headers: {
       'Content-Type': 'multipart/form-data; boundary=--SEGMENT-DATA--'
     },
@@ -171,7 +170,6 @@ export async function removeFromList(
   // Get lead ids from Marketo
   const getLeadsResponse = await request<MarketoGetLeadsResponse>(getLeadsUrl, {
     method: 'GET',
-    throwHttpErrors: false,
     headers: {
       'Content-Type': 'application/json'
     }
@@ -190,7 +188,6 @@ export async function removeFromList(
   // DELETE lead ids from list in Marketo
   const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {
     method: 'DELETE',
-    throwHttpErrors: false,
     headers: {
       'Content-Type': 'application/json'
     }
@@ -370,7 +367,6 @@ export async function getList(request: RequestClient, settings: Settings, id: st
 
   const getListResponse = await request<MarketoListResponse>(getListUrl, {
     method: 'GET',
-    throwHttpErrors: false,
     headers: {
       authorization: `Bearer ${accessToken}`
     }
@@ -413,7 +409,6 @@ export async function createList(request: RequestClient, input: CreateListInput,
   // Get folder ID by name
   const getFolderResponse = await request<MarketoListResponse>(getFolderUrl, {
     method: 'GET',
-    throwHttpErrors: false,
     headers: {
       authorization: `Bearer ${accessToken}`
     }
@@ -443,7 +438,6 @@ export async function createList(request: RequestClient, input: CreateListInput,
   // Create list in given folder
   const createListResponse = await request<MarketoListResponse>(createListUrl, {
     method: 'POST',
-    throwHttpErrors: false,
     headers: {
       authorization: `Bearer ${accessToken}`
     }
