@@ -86,17 +86,7 @@
     }
   },
   "lint-staged": {
-    "**/{browser-destinations,destinations}/**/*.ts": [
-      "./bin/run generate:types -p",
-      "git add **/generated-types.ts"
-    ],
-    "!(**/templates/**)/*.ts": [
-      "eslint --fix --cache",
-      "prettier --write"
-    ],
-    "*.{yml,md,json}": [
-      "prettier --write"
-    ]
+
   },
   "prettier": {
     "semi": false,
