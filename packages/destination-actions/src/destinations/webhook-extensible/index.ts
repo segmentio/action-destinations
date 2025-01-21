@@ -63,7 +63,12 @@ const destination: DestinationDefinition<SettingsWithDynamicAuth> = {
   },
   extendRequest: ({ settings, auth }) => {
     const { dynamicAuthSettings } = settings
-    const accessToken = auth?.accessToken ?? dynamicAuthSettings?.oauth?.access?.access_token
+    let accessToken
+    if (dynamicAuthSettings.bearer) {
+      accessToken = dynamicAuthSettings.bearer.bearerToken
+    } else {
+      accessToken = auth?.accessToken ?? dynamicAuthSettings?.oauth?.access?.access_token
+    }
     return {
       headers: {
         authorization: `Bearer ${accessToken}`
