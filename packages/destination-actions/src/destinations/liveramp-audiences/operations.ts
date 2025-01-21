@@ -1,7 +1,6 @@
-import { RequestClient, ExecuteInput } from '@segment/actions-core'
+import { RequestClient, ExecuteInput, sha1Hash, sha256SmartHash } from '@segment/actions-core'
 import type { Payload as s3Payload } from './audienceEnteredS3/generated-types'
 import type { Payload as sftpPayload } from './audienceEnteredSftp/generated-types'
-import { sha1Hash, sha256SmartHash } from '@segment/actions-core/hashing-utils'
 
 // Type definitions
 export type RawData = {
