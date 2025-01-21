@@ -1,7 +1,6 @@
 import { SegmentEvent, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import nock from 'nock'
 import MarketoStaticList from '../index'
-// import { BrazeTrackUserAPIResponse } from '../utils'
 
 beforeEach(() => nock.cleanAll())
 
@@ -50,7 +49,7 @@ describe('MultiStatus', () => {
         anonymousId: '04618777717597463653257185356814720321',
         messageId: 'api-2PglAN7SNoZT2a0A70Yqxu0pSpW',
         properties: {
-          email: 'test@example.org'
+          email: 'test1@example.org'
         },
         context: {
           personas: {
@@ -67,7 +66,7 @@ describe('MultiStatus', () => {
         anonymousId: '04618777717597463653257185356814720321',
         messageId: 'api-2PglAN7SNoZT2a0A70Yqxu0pSpW',
         properties: {
-          email: 'test@example.org'
+          email: 'test2@example.org'
         },
         context: {
           personas: {
@@ -163,7 +162,7 @@ describe('MultiStatus', () => {
           warnings: [],
           errors: []
         },
-        sent: 'email\ntest@example.org\ntest@example.org...'
+        sent: 'test1@example.org'
       })
 
       expect(response[1]).toMatchObject({
@@ -174,7 +173,7 @@ describe('MultiStatus', () => {
           warnings: [],
           errors: []
         },
-        sent: 'email\ntest@example.org\ntest@example.org...'
+        sent: 'test2@example.org'
       })
     })
   })
@@ -206,7 +205,7 @@ describe('MultiStatus', () => {
         anonymousId: '04618777717597463653257185356814720321',
         messageId: 'api-2PglAN7SNoZT2a0A70Yqxu0pSpW',
         properties: {
-          email: 'test@example.org'
+          email: 'test1@example.org'
         },
         context: {
           personas: {
@@ -223,7 +222,7 @@ describe('MultiStatus', () => {
         anonymousId: '04618777717597463653257185356814720321',
         messageId: 'api-2PglAN7SNoZT2a0A70Yqxu0pSpW',
         properties: {
-          email: 'test@example.org'
+          email: 'test2@example.org'
         },
         context: {
           personas: {
@@ -238,7 +237,7 @@ describe('MultiStatus', () => {
 
     it('should throw error for invalid access token', async () => {
       nock(settings.api_endpoint)
-        .get('/rest/v1/leads.json?filterType=email&filterValues=test%40example.org%2Ctest%40example.org')
+        .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
         .reply(200, {
           requestId: '0001#1234f2f3e4',
           success: false,
@@ -262,7 +261,7 @@ describe('MultiStatus', () => {
 
     it('should return multistatus for any other error', async () => {
       nock(settings.api_endpoint)
-        .get('/rest/v1/leads.json?filterType=email&filterValues=test%40example.org%2Ctest%40example.org')
+        .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
         .reply(200, {
           requestId: '0001#1234f2f3e4',
           success: false,
@@ -299,7 +298,7 @@ describe('MultiStatus', () => {
 
     it('should return multistatus for success', async () => {
       nock(settings.api_endpoint)
-        .get('/rest/v1/leads.json?filterType=email&filterValues=test%40example.org%2Ctest%40example.org')
+        .get('/rest/v1/leads.json?filterType=email&filterValues=test1%40example.org%2Ctest2%40example.org')
         .reply(200, {
           requestId: '0001#1234f2f3e4',
           success: true,
@@ -336,7 +335,7 @@ describe('MultiStatus', () => {
           warnings: [],
           errors: []
         },
-        sent: ''
+        sent: 'id=1'
       })
 
       expect(response[1]).toMatchObject({
@@ -347,7 +346,7 @@ describe('MultiStatus', () => {
           warnings: [],
           errors: []
         },
-        sent: ''
+        sent: 'id=2'
       })
     })
   })

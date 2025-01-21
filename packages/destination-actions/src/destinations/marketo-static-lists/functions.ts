@@ -53,7 +53,7 @@ export async function addToList(
 
   const api_endpoint = formatEndpoint(settings.api_endpoint)
 
-  const csvData = formatData([payload])
+  const [csvData] = formatData([payload])
   const csvSize = Buffer.byteLength(csvData, 'utf8')
   if (csvSize > CSV_LIMIT) {
     const errormessage = `CSV data size exceeds limit of ${CSV_LIMIT} bytes`
@@ -66,6 +66,7 @@ export async function addToList(
 
   const response = await request<MarketoBulkImportResponse>(url, {
     method: 'POST',
+    throwHttpErrors: false,
     headers: {
       'Content-Type': 'multipart/form-data; boundary=--SEGMENT-DATA--'
     },
@@ -101,7 +102,7 @@ export async function addToListBatch(
 
   const api_endpoint = formatEndpoint(settings.api_endpoint)
 
-  const csvData = formatData(payloads)
+  const [csvData, csvDataItems] = formatData(payloads)
   const csvSize = Buffer.byteLength(csvData, 'utf8')
   if (csvSize > CSV_LIMIT) {
     statsContext?.statsClient?.incr('addToAudience.error', payloads.length, statsContext?.tags)
@@ -118,6 +119,7 @@ export async function addToListBatch(
 
   const response = await request<MarketoBulkImportResponse>(url, {
     method: 'POST',
+    throwHttpErrors: false,
     headers: {
       'Content-Type': 'multipart/form-data; boundary=--SEGMENT-DATA--'
     },
@@ -137,8 +139,7 @@ export async function addToListBatch(
   for (let i = 0; i < payloads.length; i++) {
     multiStatusResponse.setSuccessResponseAtIndex(i, {
       status: 200,
-      // CSV data could be as large as 10 MB, so we truncate it to upto 50 characters
-      sent: `${csvData.substring(0, 50)}...`,
+      sent: csvDataItems[i] ?? '',
       // response.data is an API Response, we can safely cast it to JSONLikeObject
       body: response.data as unknown as JSONLikeObject
     })
@@ -170,6 +171,7 @@ export async function removeFromList(
   // Get lead ids from Marketo
   const getLeadsResponse = await request<MarketoGetLeadsResponse>(getLeadsUrl, {
     method: 'GET',
+    throwHttpErrors: false,
     headers: {
       'Content-Type': 'application/json'
     }
@@ -188,6 +190,7 @@ export async function removeFromList(
   // DELETE lead ids from list in Marketo
   const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {
     method: 'DELETE',
+    throwHttpErrors: false,
     headers: {
       'Content-Type': 'application/json'
     }
@@ -228,6 +231,7 @@ export async function removeFromListBatch(
   // Get lead ids from Marketo
   const getLeadsResponse = await request<MarketoGetLeadsResponse>(getLeadsUrl, {
     method: 'GET',
+    throwHttpErrors: false,
     headers: {
       'Content-Type': 'application/json'
     }
@@ -246,6 +250,7 @@ export async function removeFromListBatch(
   // DELETE lead ids from list in Marketo
   const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {
     method: 'DELETE',
+    throwHttpErrors: false,
     headers: {
       'Content-Type': 'application/json'
     }
@@ -263,7 +268,7 @@ export async function removeFromListBatch(
   for (let i = 0; i < payloads.length; i++) {
     multiStatusResponse.setSuccessResponseAtIndex(i, {
       status: 200,
-      sent: '',
+      sent: getLeadsResponse.data.result[i].id ? `id=${getLeadsResponse.data.result[i].id}` : '',
       // response.data is an API Response, we can safely cast it to JSONLikeObject
       body: deleteLeadsResponse.data as unknown as JSONLikeObject
     })
@@ -278,18 +283,20 @@ function createFormData(csvData: string) {
   return formData
 }
 
-function formatData(payloads: AddToListPayload[]) {
+function formatData(payloads: AddToListPayload[]): [string, string[]] {
   if (payloads.length === 0) {
-    return ''
+    return ['', []]
   }
 
   const allKeys = [...new Set(payloads.flatMap((payload) => Object.keys(payload.data)))]
   const header = allKeys.join(',')
-  const csvData = payloads
-    .map((payload) => allKeys.map((key) => payload.data[key as keyof typeof payload.data] || '').join(','))
-    .join('\n')
+  const csvDataItems = payloads.map((payload) =>
+    allKeys.map((key) => payload.data[key as keyof typeof payload.data] || '').join(',')
+  )
 
-  return `${header}\n${csvData}`
+  const csvData = csvDataItems.join('\n')
+
+  return [`${header}\n${csvData}`, csvDataItems]
 }
 
 function extractFilterData(payloads: RemoveFromListPayload[]) {
@@ -363,6 +370,7 @@ export async function getList(request: RequestClient, settings: Settings, id: st
 
   const getListResponse = await request<MarketoListResponse>(getListUrl, {
     method: 'GET',
+    throwHttpErrors: false,
     headers: {
       authorization: `Bearer ${accessToken}`
     }
@@ -405,6 +413,7 @@ export async function createList(request: RequestClient, input: CreateListInput,
   // Get folder ID by name
   const getFolderResponse = await request<MarketoListResponse>(getFolderUrl, {
     method: 'GET',
+    throwHttpErrors: false,
     headers: {
       authorization: `Bearer ${accessToken}`
     }
@@ -434,6 +443,7 @@ export async function createList(request: RequestClient, input: CreateListInput,
   // Create list in given folder
   const createListResponse = await request<MarketoListResponse>(createListUrl, {
     method: 'POST',
+    throwHttpErrors: false,
     headers: {
       authorization: `Bearer ${accessToken}`
     }
