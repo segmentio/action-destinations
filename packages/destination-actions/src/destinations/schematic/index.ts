@@ -49,6 +49,12 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     }
   ],
+  onDelete: async (request, { payload, settings }) => {
+    return request(`${settings.endpoint}/users/${payload.userId}`, {
+      method: 'delete',
+      json: true
+    })
+  },
   extendRequest: ({ settings }) => {
     return {
       headers: { Authorization: `Bearer ${settings.apiKey}` }
