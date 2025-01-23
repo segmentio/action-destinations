@@ -430,7 +430,11 @@ function setupRoutes(def: DestinationDefinition | null): void {
   // Construct a list of all the available routes to stdout
   const routes: string[] = []
   for (const r of router.stack) {
-    for (const [m, enabled] of Object.entries(r.route.methods)) {
+    if (!r.route) {
+      continue
+    }
+
+    for (const [m, enabled] of Object.entries((r.route as unknown as any).methods)) {
       if (enabled && r.route.path !== '/manifest') {
         routes.push(`  ${m.toUpperCase()} ${r.route.path}`)
       }

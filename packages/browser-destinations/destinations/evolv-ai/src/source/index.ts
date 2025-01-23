@@ -3,6 +3,12 @@ import { extractAllocations } from './allocations'
 import { Allocation } from '../types'
 import { prepareEvent } from './events'
 
+declare global {
+  interface Window {
+    analytics: any
+  }
+}
+
 async function emit(eventType: string, allocation: Allocation) {
   if (eventType !== 'confirmed') return
 
