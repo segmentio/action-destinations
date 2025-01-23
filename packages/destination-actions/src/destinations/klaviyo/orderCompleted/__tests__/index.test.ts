@@ -226,7 +226,6 @@ describe('Order Completed', () => {
 
     const mapping = {
       profile,
-      metric_name: metricName,
       properties,
       value,
       products: products,
