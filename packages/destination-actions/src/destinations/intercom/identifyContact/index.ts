@@ -1,4 +1,4 @@
-import { ActionDefinition, RequestClient, RetryableError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, RetryableError, HTTPError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { convertValidTimestamp, getUniqueIntercomContact } from '../util'
 import type { Payload } from './generated-types'
@@ -129,7 +129,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return await createIntercomContact(request, payload)
     } catch (error) {
-      if (error?.response?.status === 409) {
+      if ((error as HTTPError)?.response?.status === 409) {
         // The contact already exists but the Intercom cache most likely wasn't updated yet
         throw new RetryableError(
           'Contact was reported duplicated but could not be searched for, probably due to Intercom search cache not being updated'
