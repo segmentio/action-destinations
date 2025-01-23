@@ -8,29 +8,33 @@ export default class OrttoClient {
     this.request = request
   }
 
-  upsertContact = async (settings: Settings, payload: UpsertContactPayload) => {
-    const url = this.getEndpoint(settings.region)
-    return this.request(url, {
-      method: 'post',
-      json: payload
-    })
-  }
-
   upsertContacts = async (settings: Settings, payloads: UpsertContactPayload[]) => {
-    const url = this.getEndpoint(settings.region)
+    const url = this.getEndpoint(settings.api_key).concat('/s')
     return this.request(url, {
       method: 'post',
       json: payloads
     })
   }
 
-  private getEndpoint(region: string): string {
-    if (region == '' || region == undefined) {
-      throw new IntegrationError(`Undefined region`, 'Undefined region', 400)
+  private getEndpoint(apiKey: string): string {
+    return 'http://localhost:8327'
+    if (!apiKey) {
+      throw new IntegrationError(`Invalid API key`, 'missing_api_key', 400)
     }
-    if (region == 'local') {
-      return 'https://alexg-inspect.frp-http.ortto.dev/'
+    const idx = apiKey.indexOf('-')
+    if (idx != 3) {
+      throw new IntegrationError(`Invalid API key`, 'invalid_format', 400)
     }
-    return `https://segment-integration-api-${region}.ortto.app/`
+
+    let env = ''
+    if (apiKey.charAt(0) == 's') {
+      env = '-stg'
+    }
+    const region = apiKey.substring(1, idx).trim()
+    if (region.length != 2) {
+      throw new IntegrationError(`Invalid API key`, 'invalid_region', 400)
+    }
+
+    return `https://segment-action-api-${region}.ortto${env}.app`
   }
 }

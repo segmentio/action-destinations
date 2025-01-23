@@ -8,17 +8,32 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Update contact profile',
   defaultSubscription: 'type = "identify"',
   fields: {
+    timestamp: {
+      label: 'Timestamp',
+      description: 'Event timestamp',
+      type: 'string',
+      readOnly: true,
+      unsafe_hidden: true,
+      format: 'date-time',
+      default: {
+        '@path': '$.timestamp'
+      }
+    },
+    message_id: {
+      label: 'Message ID',
+      description: 'Message ID',
+      type: 'string',
+      readOnly: true,
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.messageId'
+      }
+    },
     enable_batching: {
       type: 'boolean',
       label: 'Batch data',
       description: 'When enabled, events will be sent to Ortto in batches for improved efficiency.',
-      default: false
-    },
-    create_if_not_found: {
-      type: 'boolean',
-      label: 'Create if not found',
-      default: true,
-      description: 'Creates a new contact profile if one does not already exist.'
+      default: true
     },
     user_id: {
       label: 'User ID',
@@ -36,40 +51,11 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.anonymousId'
       }
     },
-    email: {
-      label: 'Email',
-      description: "The contact's email address",
-      placeholder: 'john.smith@example.com',
-      type: 'string',
-      format: 'email',
-      default: { '@path': '$.traits.email' }
-    },
-    phone: {
-      label: 'Phone Number',
-      description: "The contact's phone number",
-      placeholder: '+61 159011100',
-      type: 'string',
-      format: 'text',
-      default: { '@path': '$.traits.phone' }
-    },
-    first_name: {
-      label: 'First Name',
-      description: "The contact's first name",
-      placeholder: 'John',
-      type: 'string',
-      default: { '@path': '$.traits.firstName' }
-    },
-    last_name: {
-      label: 'Last Name',
-      description: "The contact's last name",
-      placeholder: 'Smith',
-      type: 'string',
-      default: { '@path': '$.traits.lastName' }
-    },
     geo_mode: {
       label: 'Geolocation mode',
       description: "Specifies how to assign the contact's location",
       default: 'none',
+      type: 'string',
       choices: [
         { label: 'IP Address', value: 'ip' },
         { label: 'Location', value: 'location' },
@@ -126,7 +112,7 @@ const action: ActionDefinition<Settings, Payload> = {
         country: { '@path': '$.traits.address.country' },
         state: { '@path': '$.traits.address.state' },
         city: { '@path': '$.traits.address.city' },
-        post_code: { '@path': '$.traits.address.postalCode' }
+        post_code: { '@path': '$.traits.address.postal_code' }
       },
       depends_on: {
         match: 'all',
@@ -143,14 +129,45 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Custom contact traits',
       description: 'An object containing key-value pairs representing custom properties assigned to contact profile',
       type: 'object',
+      defaultObjectUI: 'keyvalue',
+      properties: {
+        email: {
+          label: 'Email',
+          description: "The contact's email address",
+          placeholder: 'john.smith@example.com',
+          type: 'string',
+          format: 'email'
+        },
+        phone: {
+          label: 'Phone Number',
+          description: "The contact's phone number",
+          placeholder: '+61 159011100',
+          type: 'string'
+        },
+        first_name: {
+          label: 'First Name',
+          description: "The contact's first name",
+          placeholder: 'John',
+          type: 'string'
+        },
+        last_name: {
+          label: 'Last Name',
+          description: "The contact's last name",
+          placeholder: 'Smith',
+          type: 'string'
+        }
+      },
       default: {
-        '@path': '$.traits'
+        email: { '@path': '$.traits.email' },
+        phone: { '@path': '$.traits.phone' },
+        first_name: { '@path': '$.traits.first_name' },
+        last_name: { '@path': '$.traits.last_name' }
       }
     }
   },
   perform: async (request, { settings, payload }) => {
     const client: OrttoClient = new OrttoClient(request)
-    return await client.upsertContact(settings, payload)
+    return await client.upsertContacts(settings, [payload])
   },
   performBatch: async (request, { settings, payload }) => {
     const client: OrttoClient = new OrttoClient(request)

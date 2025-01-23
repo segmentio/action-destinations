@@ -16,19 +16,6 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Ortto API key',
         type: 'password',
         required: true
-      },
-      region: {
-        label: 'Region',
-        description: 'The region where your Ortto account lives.',
-        type: 'string',
-        choices: [
-          { label: 'AU', value: 'au' },
-          { label: 'EU', value: 'eu' },
-          { label: 'US', value: 'us' },
-          { label: 'Local', value: 'local' }
-        ],
-        default: 'local',
-        required: true
       }
     },
     testAuthentication: (request) => {
@@ -46,6 +33,7 @@ const destination: DestinationDefinition<Settings> = {
     return true
   },
   extendRequest({ settings }) {
+    settings.api_key = ''
     return {
       headers: {
         Authorization: `Bearer ${settings.api_key}`
