@@ -1,4 +1,4 @@
-import { RequestClient } from '@segment/actions-core'
+import { DynamicFieldResponse, HTTPError, RequestClient } from '@segment/actions-core'
 import { VisitorAttribute, Event, ProjectConfig } from '../types'
 import type { Settings } from '../generated-types'
 import reduceRight from 'lodash/reduceRight'
@@ -51,7 +51,7 @@ function isValidValue(value: unknown) {
   return ['string', 'number', 'boolean'].includes(typeof value)
 }
 
-export async function getEventKeys(request: RequestClient, settings: Settings) {
+export async function getEventKeys(request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> {
   try {
     const response = await request<ProjectConfig>(settings.dataFileUrl, {
       skipResponseCloning: true
@@ -67,8 +67,8 @@ export async function getEventKeys(request: RequestClient, settings: Settings) {
     return {
       choices: [],
       error: {
-        message: err?.response?.statusText ?? 'Unknown error',
-        code: err?.response?.status ?? 'Unknown code'
+        message: (err as HTTPError)?.response?.statusText ?? 'Unknown error',
+        code: `${(err as HTTPError)?.response?.status ?? 'Unknown code'}`
       }
     }
   }

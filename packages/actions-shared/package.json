@@ -14,7 +14,7 @@
     "package.json"
   ],
   "engines": {
-    "node": "14 || ^18.12"
+    "node": "^18.18"
   },
   "engineStrict": true,
   "license": "MIT",
@@ -38,10 +38,10 @@
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
     "@segment/actions-core": "^3.142.0",
-    "cheerio": "^1.0.0-rc.10",
-    "dayjs": "^1.10.7",
+    "cheerio": "^1.0.0",
+    "dayjs": "^1.11.13",
     "escape-goat": "^3",
-    "liquidjs": "^10.8.4",
+    "liquidjs": "^10.16.7",
     "lodash": "^4.17.21"
   },
   "jest": {

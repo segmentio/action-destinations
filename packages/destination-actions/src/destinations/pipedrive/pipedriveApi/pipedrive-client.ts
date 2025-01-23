@@ -1,5 +1,5 @@
 import { Settings } from '../generated-types'
-import type { ExecuteInput, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import type { DynamicFieldItem, ExecuteInput, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import get from 'lodash/get'
 import { ActivityTypes, PipedriveFields } from './domain'
 import { DynamicFieldResponse } from '@segment/actions-core'
@@ -45,7 +45,7 @@ interface SearchRequest<T extends ItemType> {
   field_key: string
 }
 
-const cache = {}
+const cache: Record<string, DynamicFieldItem[]> = {}
 
 class PipedriveClient {
   private settings: Settings
@@ -85,9 +85,12 @@ class PipedriveClient {
   }
 
   async getFields(item: keyof PipedriveFieldTypes): Promise<DynamicFieldResponse> {
-    const cachedFields = get(cache, item, [])
+    const cachedFields = cache[item] ?? []
+
     if (cachedFields.length > 0) {
-      return cachedFields
+      return {
+        choices: cachedFields
+      }
     }
     const response = await this._request<PipedriveFields>(
       `https://${this.settings.domain}.pipedrive.com/api/v1/${pipedriveFieldMap[item]}`,
@@ -97,16 +100,16 @@ class PipedriveClient {
       }
     )
     const body = response.data
-    const fields = body.data.map((f) => ({
+    const fields: DynamicFieldItem[] = body.data.map((f) => ({
       label: f.name,
       value: f.key
     }))
-    const record = {
-      choices: fields,
-      pagination: {}
+
+    cache[item] = fields
+
+    return {
+      choices: cachedFields
     }
-    cachedFields[item] = record
-    return record
   }
 
   async getActivityTypes(): Promise<DynamicFieldResponse> {
@@ -118,10 +121,11 @@ class PipedriveClient {
       label: f.name,
       value: f.key_string
     }))
-    const record = {
-      choices: fields,
-      pagination: {}
+
+    const record: DynamicFieldResponse = {
+      choices: fields
     }
+
     return record
   }
 
