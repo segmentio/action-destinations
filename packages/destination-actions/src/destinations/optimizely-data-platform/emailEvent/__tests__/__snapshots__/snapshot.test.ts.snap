@@ -11,7 +11,7 @@ Array [
     "type": "email",
     "user_identifiers": Object {
       "anonymousId": "4v7TZkJBZ*J1n#7wW@T%",
-      "email": "wi@ilcichu.sd",
+      "email": "wi@ilcichu.sc",
       "optimizely_vuid": "4v7TZkJBZ*J1n#7wW@T%",
       "userId": "4v7TZkJBZ*J1n#7wW@T%",
     },
@@ -29,7 +29,7 @@ Array [
     "timestamp": "4v7TZkJBZ*J1n#7wW@T%",
     "type": "email",
     "user_identifiers": Object {
-      "email": "wi@ilcichu.sd",
+      "email": "wi@ilcichu.sc",
     },
   },
 ]
