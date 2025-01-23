@@ -56,7 +56,9 @@ const destination: DestinationDefinition<Settings> = {
         'X-Schematic-Api-Key': `${settings.apiKey}`
       },
       json: {
-        key: payload.userId
+        keys: {
+          userId: payload.userId
+        }
       }
     })
   },
