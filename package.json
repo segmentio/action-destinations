@@ -9,7 +9,7 @@
     ]
   },
   "engines": {
-    "node": "^18.18"
+    "node": "^18.18 || ^22.12"
   },
   "scripts": {
     "alpha": "lerna version prerelease --allow-branch $(git branch --show-current) --preid $(git branch --show-current) --no-push --no-git-tag-version",
@@ -50,7 +50,7 @@
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-jest": "^25.7.0",
     "eslint-plugin-lodash": "^7.4.0",
-    "express": "^4.21.0",
+    "express": "^4.21.2",
     "husky": "^7.0.4",
     "jest": "^27.5.1",
     "jest-browser-globals": "^25.1.0-beta",
