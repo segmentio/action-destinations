@@ -392,7 +392,7 @@ describe('GoogleEnhancedConversions', () => {
       )
     })
 
-    it('handles concurrent_modification error correctly', async () => {
+    it('handles concurrent_modification error correctly from addOperations API', async () => {
       const events: SegmentEvent[] = [
         createTestEvent({
           timestamp,
@@ -441,6 +441,196 @@ describe('GoogleEnhancedConversions', () => {
         .reply(200, { data: 'offlineDataJob' })
 
       nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(400, {
+          error: {
+            code: 400,
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v17.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      databaseError: 'CONCURRENT_MODIFICATION'
+                    },
+                    message: 'Multiple requests were attempting to modify the same resource at once. Retry the request.'
+                  }
+                ],
+                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
+              }
+            ],
+            message: 'Request contains an invalid argument.',
+            status: 'INVALID_ARGUMENT'
+          }
+        })
+
+      const responses = testDestination.testBatchAction('userList', {
+        events,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      await expect(responses).rejects.toThrowError(RetryableError)
+    })
+
+    it('handles concurrent_modification error correctly from create offlineUserDataJobs API', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          properties: {
+            gclid: '54321',
+            email: 'test@gmail.com',
+            orderId: '1234',
+            phone: '1234567890',
+            firstName: 'Jane',
+            lastName: 'Doe',
+            currency: 'USD',
+            value: '123',
+            address: {
+              street: '123 Street SW',
+              city: 'San Diego',
+              state: 'CA',
+              postalCode: '982004'
+            }
+          }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          properties: {
+            gclid: '54321',
+            email: 'test@gmail.com',
+            orderId: '1234',
+            phone: '1234567890',
+            firstName: 'Jane',
+            lastName: 'Doe',
+            currency: 'USD',
+            value: '123',
+            address: {
+              street: '123 Street SW',
+              city: 'San Diego',
+              state: 'CA',
+              postalCode: '982004'
+            }
+          }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(400, {
+          error: {
+            code: 400,
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v17.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      databaseError: 'CONCURRENT_MODIFICATION'
+                    },
+                    message: 'Multiple requests were attempting to modify the same resource at once. Retry the request.'
+                  }
+                ],
+                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
+              }
+            ],
+            message: 'Request contains an invalid argument.',
+            status: 'INVALID_ARGUMENT'
+          }
+        })
+
+      const responses = testDestination.testBatchAction('userList', {
+        events,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      await expect(responses).rejects.toThrowError(RetryableError)
+    })
+
+    it('handles concurrent_modification error correctly from run offlineUserDataJobs API', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          properties: {
+            gclid: '54321',
+            email: 'test@gmail.com',
+            orderId: '1234',
+            phone: '1234567890',
+            firstName: 'Jane',
+            lastName: 'Doe',
+            currency: 'USD',
+            value: '123',
+            address: {
+              street: '123 Street SW',
+              city: 'San Diego',
+              state: 'CA',
+              postalCode: '982004'
+            }
+          }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          properties: {
+            gclid: '54321',
+            email: 'test@gmail.com',
+            orderId: '1234',
+            phone: '1234567890',
+            firstName: 'Jane',
+            lastName: 'Doe',
+            currency: 'USD',
+            value: '123',
+            address: {
+              street: '123 Street SW',
+              city: 'San Diego',
+              state: 'CA',
+              postalCode: '982004'
+            }
+          }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
         .post(/.*/)
         .reply(400, {
           error: {
