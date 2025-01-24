@@ -67,6 +67,10 @@ export interface HookBundle {
        */
       adAccountId: string
       /**
+       * Choose whether to create a new conversion rule or use an existing one. If you choose to create a new rule we will display the list of fields required to create a rule. If you choose to select an existing rule we will provide a drop down with all conversion rules that exist in your ad account for you to choose from.
+       */
+      operation: string
+      /**
        * Select one or more advertising campaigns from your ad account to associate with the configured conversion rule. Segment will only add the selected campaigns to the conversion rule. Deselecting a campaign will not disassociate it from the conversion rule.
        */
       campaignId?: string[]
