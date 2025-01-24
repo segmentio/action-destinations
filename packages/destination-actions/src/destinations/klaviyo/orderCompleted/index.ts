@@ -21,7 +21,7 @@ const createEventData = (payload: Payload) => ({
         data: {
           type: 'metric',
           attributes: {
-            name: payload.event_name
+            name: payload.event_name ?? 'Order Completed'
           }
         }
       },
@@ -52,7 +52,7 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
             data: {
               type: 'metric',
               attributes: {
-                name: payload.product_event_name
+                name: payload.product_event_name ?? 'Ordered Product'
               }
             }
           },
