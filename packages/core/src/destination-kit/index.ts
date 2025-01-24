@@ -259,6 +259,7 @@ export interface BasicAuthentication<Settings> extends Authentication<Settings> 
  */
 export interface OAuth2Authentication<Settings> extends Authentication<Settings> {
   scheme: 'oauth2'
+  oauthGrantType?: 'authorization_code' | 'client_credentials' | null
   /** A function that is used to refresh the access token
    * @todo look into merging input and oauthConfig so we can keep all the request functions with the same method signature (2 arguments)
    */
@@ -273,6 +274,7 @@ export interface OAuth2Authentication<Settings> extends Authentication<Settings>
  */
 export interface OAuthManagedAuthentication<Settings> extends Authentication<Settings> {
   scheme: 'oauth-managed'
+  oauthGrantType?: 'authorization_code' | 'client_credentials' | null
   /** A function that is used to refresh the access token
    */
   refreshAccessToken?: (
