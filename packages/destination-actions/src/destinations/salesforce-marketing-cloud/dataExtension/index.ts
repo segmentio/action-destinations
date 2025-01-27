@@ -9,11 +9,8 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event to Data Extension',
   description: 'Upsert events as rows into an existing data extension in Salesforce Marketing Cloud.',
   soapAPIConfiguration: async (request, { settings }): Promise<Client> => {
-    const client = await createClientAsync(
-      'packages/destination-actions/src/destinations/salesforce-marketing-cloud/salesforce-soap-wsdl.xml'
-    )
-
     const { access_token, soap_instance_url } = await getAccessToken(request, settings)
+    const client = await createClientAsync(`${soap_instance_url}ETFramework.wsdl`)
 
     client.addSoapHeader({
       fueloauth: access_token
