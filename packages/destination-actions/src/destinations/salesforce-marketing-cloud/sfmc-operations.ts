@@ -23,10 +23,11 @@ function generateRows(payloads: payload_dataExtension[] | payload_contactDataExt
 export function upsertRows(
   request: RequestClient,
   subdomain: String,
-  payloads: payload_dataExtension[] | payload_contactDataExtension[]
+  payloads: payload_dataExtension[] | payload_contactDataExtension[],
+  dataExtensionId?: string,
+  dataExtensionKey?: string
 ) {
-  const { key, id } = payloads[0]
-  if (!key && !id) {
+  if (!dataExtensionKey && !dataExtensionId) {
     throw new IntegrationError(
       `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`,
       'Misconfigured required field',
@@ -34,13 +35,16 @@ export function upsertRows(
     )
   }
   const rows = generateRows(payloads)
-  if (key) {
-    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${key}/rowset`, {
-      method: 'POST',
-      json: rows
-    })
+  if (dataExtensionKey) {
+    return request(
+      `https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${dataExtensionKey}/rowset`,
+      {
+        method: 'POST',
+        json: rows
+      }
+    )
   } else {
-    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/${id}/rowset`, {
+    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/${dataExtensionId}/rowset`, {
       method: 'POST',
       json: rows
     })
@@ -50,13 +54,15 @@ export function upsertRows(
 export async function executeUpsertWithMultiStatus(
   request: RequestClient,
   subdomain: String,
-  payloads: payload_dataExtension[] | payload_contactDataExtension[]
+  payloads: payload_dataExtension[] | payload_contactDataExtension[],
+  dataExtensionId?: string,
+  dataExtensionKey?: string
 ): Promise<MultiStatusResponse> {
   const multiStatusResponse = new MultiStatusResponse()
   let response: ModifiedResponse | undefined
   const rows = generateRows(payloads)
   try {
-    response = await upsertRows(request, subdomain, payloads)
+    response = await upsertRows(request, subdomain, payloads, dataExtensionId, dataExtensionKey)
     if (response) {
       const responseData = response.data as JSONLikeObject[]
       payloads.forEach((_, index) => {
