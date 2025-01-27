@@ -17,17 +17,19 @@ export const contactKeyAPIEvent: InputField = {
 }
 
 export const key: InputField = {
-  label: 'Data Extension Key',
+  label: 'DEPRECATED: Data Extension Key',
   description:
-    'The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.',
-  type: 'string'
+    'Note: This field should be considered deprecated in favor of the hook input field "Data Extension ID". For backwards compatibility the field will not be deleted, and is instead hidden. The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.',
+  type: 'string',
+  unsafe_hidden: true
 }
 
 export const id: InputField = {
-  label: 'Data Extension ID',
+  label: 'DEPRECATED: Data Extension ID',
   description:
-    'The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.',
-  type: 'string'
+    'Note: This field should be considered deprecated in favor of the hook input field "Data Extension ID". For backwards compatibility the field will not be deleted, and is instead hidden. The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.',
+  type: 'string',
+  unsafe_hidden: true
 }
 
 export const keys: InputField = {

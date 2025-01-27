@@ -16,10 +16,22 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size: batch_size
   },
   perform: async (request, { settings, payload }) => {
-    return upsertRows(request, settings.subdomain, [payload])
+    const dataExtensionId = 'todo: pull from hook outputs'
+    const deprecated_dataExtensionKey = payload.key
+
+    return upsertRows(request, settings.subdomain, [payload], dataExtensionId, deprecated_dataExtensionKey)
   },
   performBatch: async (request, { settings, payload }) => {
-    return executeUpsertWithMultiStatus(request, settings.subdomain, payload)
+    const dataExtensionId = 'todo: pull from hook outputs'
+    const deprecated_dataExtensionKey = payload[0].key
+
+    return executeUpsertWithMultiStatus(
+      request,
+      settings.subdomain,
+      payload,
+      dataExtensionId,
+      deprecated_dataExtensionKey
+    )
   }
 }
 
