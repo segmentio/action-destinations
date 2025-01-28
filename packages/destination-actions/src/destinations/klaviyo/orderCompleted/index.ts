@@ -153,14 +153,14 @@ const action: ActionDefinition<Settings, Payload> = {
     event_name: {
       label: 'Event Name',
       description:
-        'Name of the event. This will be used as the metric name in Klaviyo.It must be configured in Klaviyo.',
+        'Name of the event. This will be used as the metric name for order completed event sent to Klaviyo. It must be configured in Klaviyo.',
       default: 'Order Completed',
       type: 'string'
     },
     product_event_name: {
       label: 'Product Event Name',
       description:
-        'Name of the Product Event. This will be used as the metric name for Product event in Klaviyo.It must be configured in Klaviyo.',
+        'Name of the Product Event. This will be used as the metric name for each ordered product configured in the product list sent to Klaviyo. It must be configured in Klaviyo.',
       default: 'Ordered Product',
       type: 'string'
     }
