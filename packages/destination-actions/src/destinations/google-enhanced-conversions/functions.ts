@@ -418,18 +418,6 @@ export async function getGoogleAudience(
   return response.data as UserListResponse
 }
 
-const formatEmail = (email: string): string => {
-  const googleDomain = new RegExp('^(gmail|googlemail).s*', 'g')
-  let normalizedEmail = email.toLowerCase().trim()
-  const emailParts = normalizedEmail.split('@')
-  if (emailParts.length > 1 && emailParts[1].match(googleDomain)) {
-    emailParts[0] = emailParts[0].replace('.', '')
-    normalizedEmail = `${emailParts[0]}@${emailParts[1]}`
-  }
-
-  return sha256SmartHash(normalizedEmail)
-}
-
 // Standardize phone number to E.164 format, This format represents a phone number as a number up to fifteen digits
 // in length starting with a + sign, for example, +12125650000 or +442070313000.
 // exported for unit testing
@@ -472,7 +460,7 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
       const identifiers = []
       if (payload.email) {
         identifiers.push({
-          hashedEmail: formatEmail(payload.email)
+          hashedEmail: commonHashedEmailValidation(payload.email)
         })
       }
       if (payload.phone) {
