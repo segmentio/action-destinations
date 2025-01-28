@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.11]
 
     steps:
       # See nx recipe: https://nx.dev/recipes/ci/monorepo-ci-github-actions
