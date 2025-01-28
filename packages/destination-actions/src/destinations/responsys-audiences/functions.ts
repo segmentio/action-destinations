@@ -1,7 +1,18 @@
-import { RequestClient } from '@segment/actions-core/*'
+import { createRequestClient, ModifiedResponse, RequestClient } from '@segment/actions-core/*'
 
 import { Settings } from './generated-types'
-import { RefreshTokenResponse } from './types'
+import { RefreshTokenResponse, ResponsysCustomTraitsRequestBody } from './types'
+import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
+
+// Rate limits per endpoint.
+// Can be obtained through `/rest/api/ratelimit`, but at the point
+// this project is, there's no good way to calling it without a huge
+// drop in performance.
+// We are using here the most common values observed in our customers.
+
+// getAsyncResponse (`requests/${requestId}`, GET): 1000 requests per minute.
+// Around 1 request every 60ms.
+const getAsyncResponseWaitInterval = 60
 
 export const getAuthToken = async (request: RequestClient, settings: Settings): Promise<string> => {
   const baseUrl = settings.baseUrl?.replace(/\/$/, '')
@@ -94,4 +105,68 @@ export const getAllPets = async (
   })
 
   return response.data as { profileExtension: { objectName: string } }[]
+}
+
+export const sendDebugMessageToSegmentSource = async (
+  request: RequestClient,
+  requestBody: ResponsysCustomTraitsRequestBody,
+  response: ModifiedResponse<any>,
+  settings: Settings
+) => {
+  const segmentWriteKeyRegion = settings.segmentWriteKeyRegion || 'US'
+  if (settings.segmentWriteKey) {
+    try {
+      const body = response.data
+      await request(
+        segmentWriteKeyRegion === 'EU'
+          ? 'https://events.eu1.segmentapis.com/v1/track'
+          : 'https://api.segment.io/v1/track',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: 'Basic ' + Buffer.from(settings.segmentWriteKey + ': ').toString('base64'),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            type: 'track',
+            event: 'Responsys Response Message Received',
+            properties: {
+              body,
+              responsysRequest: {
+                ...requestBody
+              },
+              recordCount: requestBody.recordData.records.length
+            },
+            anonymousId: '__responsys__API__response__'
+          })
+        }
+      )
+    } catch (error) {
+      // do nothing
+    }
+  }
+}
+
+export const getAsyncResponse = async (
+  requestId: string,
+  authTokens: AuthTokens,
+  settings: Settings
+): Promise<ModifiedResponse<unknown>> => {
+  const headers = {
+    headers: {
+      authorization: `${authTokens.accessToken}`,
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const operationResponseEndpoint = new URL(`/rest/asyncApi/v1.3/requests/${requestId}`, settings.baseUrl)
+  const request = createRequestClient(headers)
+  // Take a break.
+  await new Promise((resolve) => setTimeout(resolve, getAsyncResponseWaitInterval))
+  const asyncResponse = await request(operationResponseEndpoint.href, {
+    method: 'GET',
+    skipResponseCloning: true
+  })
+
+  return asyncResponse
 }

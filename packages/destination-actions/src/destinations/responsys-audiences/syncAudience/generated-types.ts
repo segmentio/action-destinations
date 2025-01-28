@@ -2,6 +2,23 @@
 
 export interface Payload {
   /**
+   * Record data that represents field names and corresponding values for each profile.
+   */
+  recipientData: {
+    /**
+     * The user's email address.
+     */
+    EMAIL_ADDRESS_?: string
+    /**
+     * Responsys Customer ID.
+     */
+    CUSTOMER_ID_?: string
+    /**
+     * Recipient ID (RIID). RIID is required if Email Address and Customer ID are empty. Only use it if the corresponding profile already exists in Responsys.
+     */
+    RIID_?: string
+  }
+  /**
    * A unique identifier assigned to a specific audience in Segment.
    */
   computation_key: string

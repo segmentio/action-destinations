@@ -7,6 +7,46 @@ const action: ActionDefinition<Settings, Payload> = {
   description:
     'Sync the Audience, merging profiles with the configured Profile List, and updating the subscription status in the configure PET (Profile Extension Table).',
   fields: {
+    recipientData: {
+      label: 'Recipient Data',
+      description: 'Record data that represents field names and corresponding values for each profile.',
+      type: 'object',
+      defaultObjectUI: 'keyvalue',
+      required: true,
+      additionalProperties: false,
+      properties: {
+        EMAIL_ADDRESS_: {
+          label: 'Email address',
+          description: "The user's email address.",
+          type: 'string',
+          format: 'email',
+          required: false
+        },
+        CUSTOMER_ID_: {
+          label: 'Customer ID',
+          description: 'Responsys Customer ID.',
+          type: 'string',
+          required: false
+        },
+        RIID_: {
+          label: 'Recipient ID',
+          description:
+            'Recipient ID (RIID). RIID is required if Email Address and Customer ID are empty. Only use it if the corresponding profile already exists in Responsys.',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        EMAIL_ADDRESS_: {
+          '@if': {
+            exists: { '@path': '$.traits.email' },
+            then: { '@path': '$.traits.email' },
+            else: { '@path': '$.context.traits.email' }
+          }
+        },
+        CUSTOMER_ID_: { '@path': '$.userId' }
+      }
+    },
     computation_key: {
       label: 'Segment Audience Key',
       description: 'A unique identifier assigned to a specific audience in Segment.',
