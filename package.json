@@ -78,8 +78,7 @@
   "resolutions": {
     "**/@size-limit/preset-small-lib/**/glob-parent": "^6.0.1",
     "**/analytics-next/**/dot-prop": "^4.2.1",
-    "ansi-regex": "5.0.1",
-    "undici": "7.3.0"
+    "ansi-regex": "5.0.1"
   },
   "husky": {
     "hooks": {
