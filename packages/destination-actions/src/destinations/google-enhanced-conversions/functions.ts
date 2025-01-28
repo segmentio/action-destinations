@@ -561,7 +561,8 @@ const handleGoogleAdsError = (error: any) => {
   const errors = (error as GoogleAdsError).response?.data?.error?.details ?? []
   for (const errorDetails of errors) {
     for (const errorItem of errorDetails.errors) {
-      if (errorItem?.errorCode?.databaseError) {
+      // https://developers.google.com/google-ads/api/reference/rpc/v17/DatabaseErrorEnum.DatabaseError
+      if (errorItem?.errorCode?.databaseError === 'CONCURRENT_MODIFICATION') {
         throw new RetryableError(
           errorItem?.message ??
             'Multiple requests were attempting to modify the same resource at once. Retry the request.',
