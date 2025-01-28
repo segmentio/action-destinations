@@ -18,7 +18,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     datetime: {
       type: "datetime",
-      format: "date-time",
       label: "Event Timestamp",
       description: "Timestamp of event",
       required: true,
@@ -26,7 +25,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     interaction_type: {
       type: "string",
-      format: "text",
       label: "Event Type",
       description: "type of interaction (page view, add to cart, etc).",
       required: true,
@@ -35,7 +33,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     utm_campaign: {
       type: "string",
-      format: "text",
       label: "UTM Campaign",
       description: "UTM campaign parameter associated with event.",
       required: false,
@@ -43,7 +40,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     utm_medium: {
       type: "string",
-      format: "text",
       label: "UTM Medium",
       description: "UTM medium parameter associated with event.",
       required: false,
@@ -51,7 +47,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     utm_source: {
       type: "string",
-      format: "text",
       label: "UTM Source",
       description: "UTM source parameter associated with event.",
       required: false,
@@ -59,7 +54,6 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     stream_key: {
       type: "string",
-      format: "text",
       label: "Stream Key",
       description: "Dataset label, should be left as default unless directed otherwise",
       required: true,
