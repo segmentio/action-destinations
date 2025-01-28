@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/destination-kit/types'
+import { InputField, FieldTypeName } from '@segment/actions-core/destination-kit/types'
 
 export const contactKey: InputField = {
   label: 'Contact Key',
@@ -95,4 +95,76 @@ export const batch_size: InputField = {
    * And: inc-sev3-6609-sfmc-timeouts-in-bulk-batching-2023-10-23
    *  */
   default: 10
+}
+
+// The following properties represent hook inputs for the create data extension hook
+export const categoryId = {
+  label: 'Category ID (Folder ID)',
+  description: 'The identifier for the folder that contains the data extension.',
+  type: 'string' as FieldTypeName,
+  required: true
+}
+
+export const name = {
+  label: 'Data Extension Name',
+  description: 'The name of the data extension.',
+  type: 'string' as FieldTypeName,
+  required: true
+}
+export const description = {
+  label: 'Data Extension Description',
+  description: 'The description of the data extension.',
+  type: 'string' as FieldTypeName,
+}
+
+export const columns: Omit<InputField, 'dynamic'> & {
+  dynamic?: undefined // Typescript hack, this field will not be dynamic
+} = {
+  label: 'Data Extension Fields',
+  description: 'A list of fields to create in the data extension.',
+  type: 'object' as FieldTypeName,
+  multiple: true,
+  defaultObjectUI: 'arrayeditor',
+  additionalProperties: true,
+  properties: {
+    name: {
+      label: 'Field Name',
+      description: 'The name of the field.',
+      type: 'string',
+      required: true
+    },
+    type: {
+      label: 'Field Type',
+      description: 'The data type of the field.',
+      type: 'string',
+      required: true,
+      choices: [
+        { label: 'Text', value: 'Text' },
+        // todo add more
+      ]
+    },
+    isNullable: {
+      label: 'Is Nullable',
+      description: 'Whether the field can be null.',
+      type: 'boolean',
+      required: true
+    },
+    isPrimaryKey: {
+      label: 'Is Primary Key',
+      description: 'Whether the field is a primary key.',
+      type: 'boolean',
+      required: true
+    },
+    length: {
+      label: 'Field Length',
+      description: 'The length of the field.',
+      type: 'integer',
+      required: true
+    },
+    description: {
+      label: 'Field Description',
+      description: 'The description of the field.',
+      type: 'string'
+    },
+  },
 }

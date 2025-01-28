@@ -3,11 +3,13 @@ import {
   MultiStatusResponse,
   JSONLikeObject,
   ModifiedResponse,
-  IntegrationError
+  IntegrationError,
+  ActionHookResponse
 } from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
 import { ErrorResponse } from './types'
+import { HookBundle as DataExtensionCreationInput } from './dataExtension/generated-types'
 
 function generateRows(payloads: payload_dataExtension[] | payload_contactDataExtension[]): Record<string, any>[] {
   const rows: Record<string, any>[] = []
@@ -119,4 +121,41 @@ export async function executeUpsertWithMultiStatus(
     })
   }
   return multiStatusResponse
+}
+
+const dataExtensionRequest = async (
+  request: RequestClient,
+  subdomain: string,
+  hookInputs: DataExtensionCreationInput['onMappingSave']['inputs']
+): Promise<{ id: string, error?: Error }> => {
+
+  return { id: 'todo' }
+}
+
+export async function createDataExtension(
+  request: RequestClient,
+  subdomain: string,
+  hookInputs: DataExtensionCreationInput['onMappingSave']['inputs']
+): Promise<ActionHookResponse<{ id: string, name: string}>> {
+  if(!hookInputs) {
+    return {
+      error: { message: 'No inputs provided', code: 'ERROR' }
+    }
+  }
+
+  const { id, error } = await dataExtensionRequest(request, subdomain, hookInputs)
+
+  if (error) {
+    return {
+      error: { message: JSON.stringify(error), code: 'ERROR' }
+    }
+  }
+
+  return {
+    successMessage: `Data Extension ${hookInputs.name} created successfully with ID ${id}`,
+    savedData: {
+      id,
+      name: hookInputs.name
+    }
+  }
 }
