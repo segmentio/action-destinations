@@ -5,7 +5,8 @@ import destination from '../../index'
 const testDestination = createTestIntegration(destination)
 const settings = {
   stack: 'test-stack',
-  api_key: 'testApiKey'
+  api_key: 'testApiKey',
+  api_secret: 'testApiSecret'
 }
 
 describe('Antavo (Actions)', () => {
@@ -72,8 +73,7 @@ describe('Antavo (Actions)', () => {
           phone: '123456',
           mobile_phone: '654321'
         },
-        action: 'profile',
-        api_key: 'testApiKey'
+        action: 'profile'
       })
     })
     it('Handle request without default mappings', async () => {
@@ -132,8 +132,7 @@ describe('Antavo (Actions)', () => {
           phone: '123456',
           mobile_phone: '654321'
         },
-        action: 'profile',
-        api_key: 'testApiKey'
+        action: 'profile'
       })
     })
     it('Handle request without optional fields', async () => {
@@ -189,8 +188,7 @@ describe('Antavo (Actions)', () => {
           phone: '123456',
           mobile_phone: '654321'
         },
-        action: 'profile',
-        api_key: 'testApiKey'
+        action: 'profile'
       })
     })
     it('Throw error for missing required field: customer', async () => {

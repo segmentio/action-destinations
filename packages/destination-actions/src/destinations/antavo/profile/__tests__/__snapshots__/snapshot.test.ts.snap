@@ -4,7 +4,6 @@ exports[`Testing snapshot for Antavo's profile destination action: all fields 1`
 Object {
   "account": "x7T1S",
   "action": "profile",
-  "api_key": "x7T1S",
   "customer": "x7T1S",
   "data": Object {
     "birth_date": "x7T1S",
@@ -22,7 +21,6 @@ Object {
 exports[`Testing snapshot for Antavo's profile destination action: required fields 1`] = `
 Object {
   "action": "profile",
-  "api_key": "x7T1S",
   "customer": "x7T1S",
   "data": Object {},
 }

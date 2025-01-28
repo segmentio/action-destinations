@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { acceptedMethods, Escher } from '../escher/escher'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Profile updates',
@@ -70,7 +71,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Mobile phone',
           description: 'Customer\'s mobile phone number',
           type: 'string'
-        },
+        }
       },
       default: {
         first_name: {
@@ -98,20 +99,28 @@ const action: ActionDefinition<Settings, Payload> = {
           '@path': '$.traits.mobile_phone'
         }
       }
-    },
+    }
   },
   perform: (request, data) => {
+    const escher = new Escher(
+      data.settings.stack,
+      data.settings.api_key,
+      data.settings.api_secret
+    )
     const url = `https://api.${data.settings.stack}.antavo.com/v1/webhook/segment`
     const payload = {
       ...data.payload,
-      action: 'profile',
-      api_key: data.settings.api_key
+      action: 'profile'
     }
+    const options = {
+      headers: {},
+      host: `api.${data.settings.stack}.antavo.com`,
+      method: 'POST' as acceptedMethods,
+      url: url
+    }
+    const signedOptions = escher.signRequest(options, payload)
 
-    return request(url, {
-      method: 'post',
-      json: payload
-    })
+    return request(url, signedOptions)
   }
 }
 
