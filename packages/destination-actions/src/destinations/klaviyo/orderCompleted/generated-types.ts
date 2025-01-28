@@ -53,11 +53,11 @@ export interface Payload {
     [k: string]: unknown
   }[]
   /**
-   * Name of the event. This will be used as the metric name in Klaviyo.It must be configured in Klaviyo.
+   * Name of the event. This will be used as the metric name for order completed event sent to Klaviyo. It must be configured in Klaviyo.
    */
   event_name?: string
   /**
-   * Name of the Product Event. This will be used as the metric name for Product event in Klaviyo.It must be configured in Klaviyo.
+   * Name of the Product Event. This will be used as the metric name for each ordered product configured in the product list sent to Klaviyo. It must be configured in Klaviyo.
    */
   product_event_name?: string
 }
