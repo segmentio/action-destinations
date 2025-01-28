@@ -1,8 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { key, id, keys, enable_batching, batch_size, values_contactFields } from '../sfmc-properties'
-import { executeUpsertWithMultiStatus, upsertRows } from '../sfmc-operations'
+import { key, id, keys, enable_batching, batch_size, values_contactFields, categoryId, name, description, columns } from '../sfmc-properties'
+import { executeUpsertWithMultiStatus, upsertRows, createDataExtension } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Contact to Data Extension',
@@ -29,6 +29,35 @@ const action: ActionDefinition<Settings, Payload> = {
     values: values_contactFields,
     enable_batching: enable_batching,
     batch_size: batch_size
+  },
+  hooks: {
+    onMappingSave: {
+      label: 'Create Data Extension',
+      description: 'Create a new data extension in Salesforce Marketing Cloud.',
+      inputFields: {
+        categoryId,
+        name,
+        description,
+        columns
+      },
+      outputTypes: {
+        id: {
+          label: 'Data Extension ID',
+          description: 'The identifier for the data extension.',
+          type: 'string',
+          required: true
+        },
+        name: {
+          label: 'Data Extension Name',
+          description: 'The name of the data extension.',
+          type: 'string',
+          required: true
+        }
+      },
+      performHook: async (request, { settings, hookInputs }) => {
+        return await createDataExtension(request, settings.subdomain, hookInputs)
+      }
+    }
   },
   perform: async (request, { settings, payload }) => {
     const dataExtensionId = 'todo: pull from hook outputs'
