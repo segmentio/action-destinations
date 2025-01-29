@@ -416,7 +416,7 @@ describe.each([
           })
           fail('Test should throw an error')
         } catch (e) {
-          expect((e as unknown as any).message).toBe(
+          expect((e as any).message).toBe(
             'Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked.'
           )
           expectErrorLogged(`Emails with gmailx.com, yahoox.com, aolx.com, and hotmailx.com domains are blocked`)
