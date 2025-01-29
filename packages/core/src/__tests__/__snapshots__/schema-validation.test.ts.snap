@@ -1,0 +1,1592 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`conditionally required fields should handle different data types should handle when allowNull is true and the field is null 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "anyOf": Array [
+          Object {
+            "not": Object {
+              "required": Array [
+                "a",
+              ],
+            },
+          },
+          Object {
+            "properties": Object {
+              "a": Object {
+                "type": "null",
+              },
+            },
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": Array [
+        "string",
+        "null",
+      ],
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle different data types should validate boolean fields 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": true,
+          },
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "boolean",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle different data types should validate number fields 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": 10,
+          },
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "number",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle different data types should validate when multiple values of a condition are undefined 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "allOf": Array [
+          Object {
+            "not": Object {
+              "required": Array [
+                "a",
+              ],
+            },
+          },
+          Object {
+            "not": Object {
+              "required": Array [
+                "b",
+              ],
+            },
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "c",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+    "c": Object {
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "title": "c",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle different data types should validate when multiple values of a condition are undefined, any matcher 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "anyOf": Array [
+          Object {
+            "not": Object {
+              "required": Array [
+                "a",
+              ],
+            },
+          },
+          Object {
+            "not": Object {
+              "required": Array [
+                "b",
+              ],
+            },
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "c",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+    "c": Object {
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "title": "c",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle different data types should validate when the value of a condition is undefined, is operator 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "anyOf": Array [
+          Object {
+            "not": Object {
+              "required": Array [
+                "a",
+              ],
+            },
+          },
+          Object {
+            "properties": Object {
+              "a": Object {
+                "type": "null",
+              },
+            },
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle different data types should validate when the value of a condition is undefined, is_not operator 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "allOf": Array [
+          Object {
+            "required": Array [
+              "a",
+            ],
+          },
+          Object {
+            "not": Object {
+              "properties": Object {
+                "a": Object {
+                  "type": "null",
+                },
+              },
+            },
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle multiple conditions on the same field should handle when one field has multiple conditions for multiple other fields 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "allOf": Array [
+          Object {
+            "properties": Object {
+              "a": Object {
+                "const": "a_value",
+              },
+            },
+            "required": Array [
+              "a",
+            ],
+          },
+          Object {
+            "properties": Object {
+              "c": Object {
+                "const": "c_value",
+              },
+            },
+            "required": Array [
+              "c",
+            ],
+          },
+          Object {
+            "properties": Object {
+              "d": Object {
+                "const": "d_value",
+              },
+            },
+            "required": Array [
+              "d",
+            ],
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+    "c": Object {
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "title": "c",
+      "type": "string",
+    },
+    "d": Object {
+      "default": undefined,
+      "description": "d",
+      "format": undefined,
+      "title": "d",
+      "type": "string",
+    },
+  },
+  "required": Array [
+    "a",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle multiple conditions on the same field should handle when one field has multiple conditions for multiple other fields with an any matcher 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "anyOf": Array [
+          Object {
+            "properties": Object {
+              "a": Object {
+                "const": "a_value",
+              },
+            },
+            "required": Array [
+              "a",
+            ],
+          },
+          Object {
+            "properties": Object {
+              "c": Object {
+                "const": "c_value",
+              },
+            },
+            "required": Array [
+              "c",
+            ],
+          },
+          Object {
+            "properties": Object {
+              "d": Object {
+                "const": "d_value",
+              },
+            },
+            "required": Array [
+              "d",
+            ],
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+    "c": Object {
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "title": "c",
+      "type": "string",
+    },
+    "d": Object {
+      "default": undefined,
+      "description": "d",
+      "format": undefined,
+      "title": "d",
+      "type": "string",
+    },
+    "e": Object {
+      "default": undefined,
+      "description": "e",
+      "format": undefined,
+      "title": "e",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle multiple conditions on the same field should handle when one field has multiple values on another for which it is required, any matcher 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "anyOf": Array [
+          Object {
+            "properties": Object {
+              "a": Object {
+                "const": "a_value",
+              },
+            },
+            "required": Array [
+              "a",
+            ],
+          },
+          Object {
+            "properties": Object {
+              "a": Object {
+                "const": "a_value2",
+              },
+            },
+            "required": Array [
+              "a",
+            ],
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+  },
+  "required": Array [
+    "a",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle object conditions should validate a single object condition 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "properties": Object {
+              "b": Object {
+                "const": "b_value",
+              },
+            },
+            "required": Array [
+              "b",
+            ],
+          },
+        },
+        "required": Array [
+          "a",
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "c",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "$schema": "http://json-schema.org/schema#",
+      "additionalProperties": false,
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "properties": Object {
+        "b": Object {
+          "default": undefined,
+          "description": undefined,
+          "format": undefined,
+          "title": "b",
+          "type": "string",
+        },
+      },
+      "required": Array [],
+      "title": "a",
+      "type": "object",
+    },
+    "c": Object {
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "title": "c",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle object conditions should validate a single object condition with an is_not operator 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "properties": Object {
+              "b": Object {
+                "not": Object {
+                  "const": "b_value",
+                },
+              },
+            },
+            "required": Array [
+              "b",
+            ],
+          },
+        },
+        "required": Array [
+          "a",
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "c",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "$schema": "http://json-schema.org/schema#",
+      "additionalProperties": false,
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "properties": Object {
+        "b": Object {
+          "default": undefined,
+          "description": undefined,
+          "format": undefined,
+          "title": "b",
+          "type": "string",
+        },
+      },
+      "required": Array [],
+      "title": "a",
+      "type": "object",
+    },
+    "c": Object {
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "title": "c",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle object conditions should validate an inner conditionally required property on an object correctly 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": "a_value",
+          },
+        },
+      },
+      "then": Object {
+        "properties": Object {
+          "b": Object {
+            "required": Array [
+              "c",
+            ],
+          },
+        },
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "$schema": "http://json-schema.org/schema#",
+      "additionalProperties": false,
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "properties": Object {
+        "c": Object {
+          "default": undefined,
+          "description": "c",
+          "format": undefined,
+          "title": "c",
+          "type": "string",
+        },
+      },
+      "title": "b",
+      "type": "object",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle object conditions should validate multiple object conditions 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "allOf": Array [
+          Object {
+            "properties": Object {
+              "a": Object {
+                "properties": Object {
+                  "b": Object {
+                    "const": "b_value",
+                  },
+                },
+                "required": Array [
+                  "b",
+                ],
+              },
+            },
+            "required": Array [
+              "a",
+            ],
+          },
+          Object {
+            "properties": Object {
+              "a": Object {
+                "properties": Object {
+                  "c": Object {
+                    "const": "c_value",
+                  },
+                },
+                "required": Array [
+                  "c",
+                ],
+              },
+            },
+            "required": Array [
+              "a",
+            ],
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "d",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "$schema": "http://json-schema.org/schema#",
+      "additionalProperties": false,
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "properties": Object {
+        "b": Object {
+          "default": undefined,
+          "description": undefined,
+          "format": undefined,
+          "title": "b",
+          "type": "string",
+        },
+        "c": Object {
+          "default": undefined,
+          "description": undefined,
+          "format": undefined,
+          "title": "c",
+          "type": "string",
+        },
+      },
+      "required": Array [],
+      "title": "a",
+      "type": "object",
+    },
+    "d": Object {
+      "default": undefined,
+      "description": "d",
+      "format": undefined,
+      "title": "d",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle object conditions should validate multiple object conditions where an object and a field are referenced 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "allOf": Array [
+          Object {
+            "properties": Object {
+              "a": Object {
+                "properties": Object {
+                  "b": Object {
+                    "const": "b_value",
+                  },
+                },
+                "required": Array [
+                  "b",
+                ],
+              },
+            },
+            "required": Array [
+              "a",
+            ],
+          },
+          Object {
+            "properties": Object {
+              "d": Object {
+                "const": "d_value",
+              },
+            },
+            "required": Array [
+              "d",
+            ],
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "e",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "$schema": "http://json-schema.org/schema#",
+      "additionalProperties": false,
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "properties": Object {
+        "b": Object {
+          "default": undefined,
+          "description": undefined,
+          "format": undefined,
+          "title": "b",
+          "type": "string",
+        },
+        "c": Object {
+          "default": undefined,
+          "description": undefined,
+          "format": undefined,
+          "title": "c",
+          "type": "string",
+        },
+      },
+      "required": Array [],
+      "title": "a",
+      "type": "object",
+    },
+    "d": Object {
+      "default": undefined,
+      "description": "d",
+      "format": undefined,
+      "title": "d",
+      "type": "string",
+    },
+    "e": Object {
+      "default": undefined,
+      "description": "e",
+      "format": undefined,
+      "title": "e",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle object conditions should validate multiple object conditions where multiple objects are referenced 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "allOf": Array [
+          Object {
+            "properties": Object {
+              "a": Object {
+                "properties": Object {
+                  "b": Object {
+                    "const": "b_value",
+                  },
+                },
+                "required": Array [
+                  "b",
+                ],
+              },
+            },
+            "required": Array [
+              "a",
+            ],
+          },
+          Object {
+            "properties": Object {
+              "c": Object {
+                "properties": Object {
+                  "d": Object {
+                    "const": "d_value",
+                  },
+                },
+                "required": Array [
+                  "d",
+                ],
+              },
+            },
+            "required": Array [
+              "c",
+            ],
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "e",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "$schema": "http://json-schema.org/schema#",
+      "additionalProperties": false,
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "properties": Object {
+        "b": Object {
+          "default": undefined,
+          "description": undefined,
+          "format": undefined,
+          "title": "b",
+          "type": "string",
+        },
+      },
+      "required": Array [],
+      "title": "a",
+      "type": "object",
+    },
+    "c": Object {
+      "$schema": "http://json-schema.org/schema#",
+      "additionalProperties": false,
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "properties": Object {
+        "d": Object {
+          "default": undefined,
+          "description": undefined,
+          "format": undefined,
+          "title": "d",
+          "type": "string",
+        },
+      },
+      "required": Array [],
+      "title": "c",
+      "type": "object",
+    },
+    "e": Object {
+      "default": undefined,
+      "description": "e",
+      "format": undefined,
+      "title": "e",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle object conditions should validate multiple object conditions with an any matcher 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "anyOf": Array [
+          Object {
+            "properties": Object {
+              "a": Object {
+                "properties": Object {
+                  "b": Object {
+                    "const": "b_value",
+                  },
+                },
+                "required": Array [
+                  "b",
+                ],
+              },
+            },
+            "required": Array [
+              "a",
+            ],
+          },
+          Object {
+            "properties": Object {
+              "a": Object {
+                "properties": Object {
+                  "c": Object {
+                    "const": "c_value",
+                  },
+                },
+                "required": Array [
+                  "c",
+                ],
+              },
+            },
+            "required": Array [
+              "a",
+            ],
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "d",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "$schema": "http://json-schema.org/schema#",
+      "additionalProperties": false,
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "properties": Object {
+        "b": Object {
+          "default": undefined,
+          "description": undefined,
+          "format": undefined,
+          "title": "b",
+          "type": "string",
+        },
+        "c": Object {
+          "default": undefined,
+          "description": undefined,
+          "format": undefined,
+          "title": "c",
+          "type": "string",
+        },
+      },
+      "required": Array [],
+      "title": "a",
+      "type": "object",
+    },
+    "d": Object {
+      "default": undefined,
+      "description": "d",
+      "format": undefined,
+      "title": "d",
+      "type": "string",
+    },
+    "e": Object {
+      "default": undefined,
+      "description": "e",
+      "format": undefined,
+      "title": "e",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should handle object conditions should validate when referencing a child field which is not explicitly defined in properties 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "properties": Object {
+              "b": Object {
+                "const": "b_value",
+              },
+            },
+            "required": Array [
+              "b",
+            ],
+          },
+        },
+        "required": Array [
+          "a",
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "c",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "object",
+    },
+    "c": Object {
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "title": "c",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should validate a single conditional requirement should validate b when it is required and when it is not required 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": "a_value",
+          },
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+  },
+  "required": Array [
+    "a",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should validate multiple conditional requirements on different fields should validate when both b and c are required 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": "a_value",
+          },
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "not": Object {
+              "const": "value",
+            },
+          },
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "c",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+    "c": Object {
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "title": "c",
+      "type": "string",
+    },
+  },
+  "required": Array [
+    "a",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should validate multiple conditional requirements on different fields should validate when neither b nor c are required 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": "a_value",
+          },
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": "value",
+          },
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "c",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+    "c": Object {
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "title": "c",
+      "type": "string",
+    },
+  },
+  "required": Array [
+    "a",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should validate multiple conditional requirements on different fields should validate when only b is required 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": "a_value",
+          },
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": "value",
+          },
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "c",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+    "c": Object {
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "title": "c",
+      "type": "string",
+    },
+  },
+  "required": Array [
+    "a",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should validate multiple conditional requirements on different fields should validate when only c is required 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": "a_value",
+          },
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+    Object {
+      "if": Object {
+        "properties": Object {
+          "a": Object {
+            "const": "value",
+          },
+        },
+      },
+      "then": Object {
+        "required": Array [
+          "c",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+    "c": Object {
+      "default": undefined,
+      "description": "c",
+      "format": undefined,
+      "title": "c",
+      "type": "string",
+    },
+  },
+  "required": Array [
+    "a",
+  ],
+  "type": "object",
+}
+`;
+
+exports[`conditionally required fields should validate multiple conditional requirements on different fields should validate when two fields depend on each other 1`] = `
+Object {
+  "$schema": "http://json-schema.org/schema#",
+  "additionalProperties": false,
+  "allOf": Array [
+    Object {
+      "if": Object {
+        "anyOf": Array [
+          Object {
+            "not": Object {
+              "required": Array [
+                "b",
+              ],
+            },
+          },
+          Object {
+            "properties": Object {
+              "b": Object {
+                "type": "null",
+              },
+            },
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "a",
+        ],
+      },
+    },
+    Object {
+      "if": Object {
+        "anyOf": Array [
+          Object {
+            "not": Object {
+              "required": Array [
+                "a",
+              ],
+            },
+          },
+          Object {
+            "properties": Object {
+              "a": Object {
+                "type": "null",
+              },
+            },
+          },
+        ],
+      },
+      "then": Object {
+        "required": Array [
+          "b",
+        ],
+      },
+    },
+  ],
+  "properties": Object {
+    "a": Object {
+      "default": undefined,
+      "description": "a",
+      "format": undefined,
+      "title": "a",
+      "type": "string",
+    },
+    "b": Object {
+      "default": undefined,
+      "description": "b",
+      "format": undefined,
+      "title": "b",
+      "type": "string",
+    },
+  },
+  "required": Array [],
+  "type": "object",
+}
+`;
