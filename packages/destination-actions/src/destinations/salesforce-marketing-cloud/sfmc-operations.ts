@@ -120,36 +120,101 @@ export async function executeUpsertWithMultiStatus(
   return multiStatusResponse
 }
 
+interface DataExtensionField {}
+
+interface DataExtensionCreationResponse {
+  data: {
+    id?: string
+    name?: string
+    key?: string
+    message?: string
+    errorcode?: number
+  }
+}
+
 const dataExtensionRequest = async (
   request: RequestClient,
   subdomain: string,
   hookInputs: DataExtensionCreationInput['onMappingSave']['inputs']
-): Promise<{ id: string, error?: Error }> => {
+): Promise<{ id: string; key: string; error?: string }> => {
+  if (!hookInputs) {
+    return { id: '', key: '', error: 'No inputs provided' }
+  }
 
-  return { id: 'todo' }
+  if (!hookInputs.columns) {
+    return { id: '', key: '', error: 'No columns provided' }
+  }
+
+  const fields: DataExtensionField[] = hookInputs.columns.map((column, i) => {
+    return {
+      name: column.name,
+      type: column.type,
+      isNullable: column.isNullable,
+      isPrimaryKey: column.isPrimaryKey,
+      length: column.length,
+      description: column.description || '',
+      // these are required but we don't give the user an option
+      ordinal: i,
+      isTemplateField: false,
+      isHidden: false,
+      isReadOnly: false,
+      isInheritable: false,
+      isOverridable: false,
+      mustOverride: false
+    }
+  })
+
+  try {
+    const response = await request<DataExtensionCreationResponse>(
+      `https://${subdomain}.rest.marketingcloudapis.com/data/v1/customobjects`,
+      {
+        method: 'POST',
+        json: {
+          name: hookInputs.name,
+          description: hookInputs.description,
+          categoryId: hookInputs.categoryId,
+          fields
+        }
+      }
+    )
+
+    console.log('res', response)
+
+    if (response.status !== 201) {
+      return { id: '', key: '', error: `Failed to create Data Extension: ${response.data.message}` }
+    }
+
+    return { id: response.data.id, key: response.data.key }
+  } catch (error) {
+    console.log('error', JSON.stringify(error, null, 2))
+    console.log('error.response', JSON.stringify(error.response, null, 2))
+    console.log('error.response.data', JSON.stringify(error.response.data, null, 2))
+    console.log('error.response.data.message', JSON.stringify(error.response.data.message, null, 2))
+    return { id: '', key: '', error: error.response.data.message }
+  }
 }
 
 export async function createDataExtension(
   request: RequestClient,
   subdomain: string,
   hookInputs: DataExtensionCreationInput['onMappingSave']['inputs']
-): Promise<ActionHookResponse<{ id: string, name: string}>> {
-  if(!hookInputs) {
+): Promise<ActionHookResponse<{ id: string; name: string }>> {
+  if (!hookInputs) {
     return {
       error: { message: 'No inputs provided', code: 'ERROR' }
     }
   }
 
-  const { id, error } = await dataExtensionRequest(request, subdomain, hookInputs)
+  const { id, key, error } = await dataExtensionRequest(request, subdomain, hookInputs)
 
   if (error) {
     return {
-      error: { message: JSON.stringify(error), code: 'ERROR' }
+      error: { message: error, code: 'ERROR' }
     }
   }
 
   return {
-    successMessage: `Data Extension ${hookInputs.name} created successfully with ID ${id}`,
+    successMessage: `Data Extension ${hookInputs.name} created successfully with External Key ${key}`,
     savedData: {
       id,
       name: hookInputs.name

@@ -50,7 +50,7 @@ export interface HookBundle {
       /**
        * A list of fields to create in the data extension.
        */
-      fields?: {
+      columns?: {
         /**
          * The name of the field.
          */

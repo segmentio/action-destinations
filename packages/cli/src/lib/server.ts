@@ -259,7 +259,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
     '/refreshAccessToken',
     asyncHandler(async (req: express.Request, res: express.Response) => {
       try {
-        const settings = {}
+        const settings = req.body.settings || {}
         const data = await destination.refreshAccessToken(settings, req.body)
         res.status(200).json({ ok: true, data })
       } catch (e) {
