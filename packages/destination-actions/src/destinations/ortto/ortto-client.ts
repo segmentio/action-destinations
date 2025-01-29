@@ -16,7 +16,7 @@ export default class OrttoClient {
         throw new IntegrationError(`Either user ID or anonymous ID must be specified`, 'missing_id', 400)
       }
     }
-    const url = this.getEndpoint(settings.api_key)
+    const url = this.getEndpoint(settings.api_key).concat('/s/identify')
     return this.request(url, {
       method: 'POST',
       json: payloads
@@ -38,7 +38,7 @@ export default class OrttoClient {
     if (filtered.length == 0) {
       return
     }
-    const url = this.getEndpoint(settings.api_key)
+    const url = this.getEndpoint(settings.api_key).concat('/s/track')
     return this.request(url, {
       method: 'POST',
       json: filtered
@@ -46,7 +46,7 @@ export default class OrttoClient {
   }
 
   testAuth = async (settings: Settings) => {
-    const url = this.getEndpoint(settings.api_key)
+    const url = this.getEndpoint(settings.api_key).concat('/s/me')
     return this.request(url, {
       method: 'GET'
     })
@@ -70,6 +70,6 @@ export default class OrttoClient {
       throw new IntegrationError(`Invalid API key`, 'invalid_region', 400)
     }
 
-    return `https://segment-action-api-${region}.ortto${env}.app/s`
+    return `https://segment-action-api-${region}.ortto${env}.app`
   }
 }
