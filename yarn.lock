@@ -5100,7 +5100,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/ssh2-sftp-client@^9.0.4":
+"@types/ssh2-sftp-client@^9.0.0":
   version "9.0.4"
   resolved "https://registry.yarnpkg.com/@types/ssh2-sftp-client/-/ssh2-sftp-client-9.0.4.tgz#203c2281b84635797d85fa78f684e00169d5f758"
   integrity sha512-gnIn56MTB9W3A3hPL/1sHI23t8YwcE3eVYa1O2XjT9vaqimFdtNHxyQiy5Y78+ociQTKazMSD8YyMEO4QjNMrg==
