@@ -136,7 +136,7 @@ const dataExtensionRequest = async (
   request: RequestClient,
   subdomain: string,
   hookInputs: DataExtensionCreationInput['onMappingSave']['inputs']
-): Promise<{ id: string; key: string; error?: string }> => {
+): Promise<{ id?: string; key?: string; error?: string }> => {
   if (!hookInputs) {
     return { id: '', key: '', error: 'No inputs provided' }
   }
@@ -181,15 +181,14 @@ const dataExtensionRequest = async (
     console.log('res', response)
 
     if (response.status !== 201) {
-      return { id: '', key: '', error: `Failed to create Data Extension: ${response.data.message}` }
+      return { id: '', key: '', error: `Failed to create Data Extension` }
     }
 
-    return { id: response.data.id, key: response.data.key }
+    return {
+      id: (response as DataExtensionCreationResponse).data.id,
+      key: (response as DataExtensionCreationResponse).data.key
+    }
   } catch (error) {
-    console.log('error', JSON.stringify(error, null, 2))
-    console.log('error.response', JSON.stringify(error.response, null, 2))
-    console.log('error.response.data', JSON.stringify(error.response.data, null, 2))
-    console.log('error.response.data.message', JSON.stringify(error.response.data.message, null, 2))
     return { id: '', key: '', error: error.response.data.message }
   }
 }
@@ -207,9 +206,9 @@ export async function createDataExtension(
 
   const { id, key, error } = await dataExtensionRequest(request, subdomain, hookInputs)
 
-  if (error) {
+  if (error || !id || !key) {
     return {
-      error: { message: error, code: 'ERROR' }
+      error: { message: error || 'Unknown Error', code: 'ERROR' }
     }
   }
 
