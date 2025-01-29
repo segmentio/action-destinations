@@ -14,6 +14,26 @@ export interface Payload {
    */
   email?: string
   /**
+   * The user's first name to send to LinkedIn.
+   */
+  first_name?: string
+  /**
+   * The user's last name to send to LinkedIn.
+   */
+  last_name?: string
+  /**
+   * The user's title to send to LinkedIn.
+   */
+  title?: string
+  /**
+   * The user's company to send to LinkedIn.
+   */
+  company?: string
+  /**
+   * The user's country to send to LinkedIn. This field accepts an ISO standardized two letter country code e.g. US.
+   */
+  country?: string
+  /**
    * The user's Google Advertising ID to send to LinkedIn.
    */
   google_advertising_id?: string
