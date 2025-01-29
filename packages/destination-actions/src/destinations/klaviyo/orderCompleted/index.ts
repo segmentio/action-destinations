@@ -21,7 +21,7 @@ const createEventData = (payload: Payload) => ({
         data: {
           type: 'metric',
           attributes: {
-            name: 'Order Completed'
+            name: payload.event_name ?? 'Order Completed'
           }
         }
       },
@@ -52,7 +52,7 @@ const sendProductRequests = async (payload: Payload, orderEventData: EventData, 
             data: {
               type: 'metric',
               attributes: {
-                name: 'Ordered Product'
+                name: payload.product_event_name ?? 'Ordered Product'
               }
             }
           },
@@ -152,8 +152,16 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     event_name: {
       label: 'Event Name',
-      description: 'Name of the event. This will be used as the metric name in Klaviyo.',
+      description:
+        'Name of the event. This will be used as the metric name for order completed event sent to Klaviyo. It must be configured in Klaviyo.',
       default: 'Order Completed',
+      type: 'string'
+    },
+    product_event_name: {
+      label: 'Product Event Name',
+      description:
+        'Name of the Product Event. This will be used as the metric name for each ordered product configured in the product list sent to Klaviyo. It must be configured in Klaviyo.',
+      default: 'Ordered Product',
       type: 'string'
     }
   },
