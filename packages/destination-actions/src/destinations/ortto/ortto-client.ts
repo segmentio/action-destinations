@@ -1,6 +1,7 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload as UpsertContactPayload } from './upsertContactProfile/generated-types'
+import { Payload as EventPayload } from './trackActivity/generated-types'
 
 export default class OrttoClient {
   request: RequestClient
@@ -9,15 +10,49 @@ export default class OrttoClient {
   }
 
   upsertContacts = async (settings: Settings, payloads: UpsertContactPayload[]) => {
-    const url = this.getEndpoint(settings.api_key).concat('/s')
+    for (let i = 0; i < payloads.length; i++) {
+      const event = payloads[i]
+      if (!event.anonymous_id && !event.user_id) {
+        throw new IntegrationError(`Either user ID or anonymous ID must be specified`, 'missing_id', 400)
+      }
+    }
+    const url = this.getEndpoint(settings.api_key)
     return this.request(url, {
-      method: 'post',
+      method: 'POST',
       json: payloads
     })
   }
 
+  sendActivities = async (settings: Settings, payloads: EventPayload[]) => {
+    const filtered: EventPayload[] = []
+    for (let i = 0; i < payloads.length; i++) {
+      const event = payloads[i]
+      if (!event.anonymous_id && !event.user_id) {
+        throw new IntegrationError(`Either user ID or anonymous ID must be specified`, 'missing_id', 400)
+      }
+      if (event.namespace === 'ortto.com') {
+        continue
+      }
+      filtered.push(event)
+    }
+    if (filtered.length == 0) {
+      return
+    }
+    const url = this.getEndpoint(settings.api_key)
+    return this.request(url, {
+      method: 'POST',
+      json: filtered
+    })
+  }
+
+  testAuth = async (settings: Settings) => {
+    const url = this.getEndpoint(settings.api_key)
+    return this.request(url, {
+      method: 'GET'
+    })
+  }
+
   private getEndpoint(apiKey: string): string {
-    return 'http://localhost:8327'
     if (!apiKey) {
       throw new IntegrationError(`Invalid API key`, 'missing_api_key', 400)
     }
@@ -35,6 +70,6 @@ export default class OrttoClient {
       throw new IntegrationError(`Invalid API key`, 'invalid_region', 400)
     }
 
-    return `https://segment-action-api-${region}.ortto${env}.app`
+    return `https://segment-action-api-${region}.ortto${env}.app/s`
   }
 }

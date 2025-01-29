@@ -2,6 +2,9 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import upsertContactProfile from './upsertContactProfile'
+import OrttoClient from './ortto-client'
+
+import trackActivity from './trackActivity'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Ortto',
@@ -18,22 +21,12 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
-      return true
+    testAuthentication: async (request, { settings }) => {
+      const client: OrttoClient = new OrttoClient(request)
+      return await client.testAuth(settings)
     }
   },
-
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-    return true
-  },
   extendRequest({ settings }) {
-    settings.api_key = ''
     return {
       headers: {
         Authorization: `Bearer ${settings.api_key}`
@@ -42,7 +35,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    upsertContactProfile
+    upsertContactProfile,
+    trackActivity
   }
 }
 
