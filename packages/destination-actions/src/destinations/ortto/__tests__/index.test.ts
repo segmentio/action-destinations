@@ -1,18 +1,41 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration, InvalidAuthenticationError } from '@segment/actions-core'
 import Definition from '../index'
+import { API_VERSION } from '../ortto-client'
 
 const testDestination = createTestIntegration(Definition)
-
 describe('Ortto', () => {
-  describe('testAuthentication', () => {
-    it('should validate authentication inputs', async () => {
-      nock('https://your.destination.endpoint').get('*').reply(200, {})
+  describe('authentication', () => {
+    it('should reject empty api keys', async () => {
+      try {
+        await testDestination.testAuthentication({ api_key: '' })
+      } catch (err) {
+        expect(err instanceof InvalidAuthenticationError)
+      }
+    })
 
-      // This should match your authentication.fields
-      const authData = {}
+    it('should reject whitespace api keys', async () => {
+      try {
+        await testDestination.testAuthentication({ api_key: '    ' })
+      } catch (err) {
+        expect(err instanceof InvalidAuthenticationError)
+      }
+    })
 
-      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+    it('should reject invalid api keys', async () => {
+      try {
+        await testDestination.testAuthentication({ api_key: 'invalid' })
+      } catch (err) {
+        expect(err instanceof InvalidAuthenticationError)
+      }
+    })
+
+    it('should accept valid api keys', async () => {
+      nock('https://segment-action-api-au.ortto.app')
+        .get(`/${API_VERSION}/me`)
+        .matchHeader('authorization', `Bearer pau-key`)
+        .reply(200, {})
+      await expect(testDestination.testAuthentication({ api_key: 'pau-key' })).resolves.not.toThrowError()
     })
   })
 })

@@ -1,8 +1,15 @@
-import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { InvalidAuthenticationError, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload as UpsertContactPayload } from './upsertContactProfile/generated-types'
 import { Payload as EventPayload } from './trackActivity/generated-types'
 
+export const API_VERSION = 'v1'
+
+export const Errors: Record<string, string> = {
+  MissingIDs: `Either user ID or anonymous ID must be specified`,
+  InvalidAPIKey: `Invalid API key`,
+  MissingEventName: `Missing event name`
+}
 export default class OrttoClient {
   request: RequestClient
   constructor(request: RequestClient) {
@@ -10,13 +17,15 @@ export default class OrttoClient {
   }
 
   upsertContacts = async (settings: Settings, payloads: UpsertContactPayload[]) => {
+    const cleaned = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
       if (!event.anonymous_id && !event.user_id) {
-        throw new IntegrationError(`Either user ID or anonymous ID must be specified`, 'missing_id', 400)
+        throw new PayloadValidationError(Errors.MissingIDs)
       }
+      cleaned.push(this.removeEmpty(event))
     }
-    const url = this.getEndpoint(settings.api_key).concat('/s/identify')
+    const url = this.getEndpoint(settings.api_key).concat('/identify')
     return this.request(url, {
       method: 'POST',
       json: payloads
@@ -24,21 +33,24 @@ export default class OrttoClient {
   }
 
   sendActivities = async (settings: Settings, payloads: EventPayload[]) => {
-    const filtered: EventPayload[] = []
+    const filtered = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
       if (!event.anonymous_id && !event.user_id) {
-        throw new IntegrationError(`Either user ID or anonymous ID must be specified`, 'missing_id', 400)
+        throw new PayloadValidationError(Errors.MissingIDs)
+      }
+      if (!event.event || event.event.trim() === '') {
+        throw new PayloadValidationError(Errors.MissingEventName)
       }
       if (event.namespace === 'ortto.com') {
         continue
       }
-      filtered.push(event)
+      filtered.push(this.removeEmpty(event))
     }
     if (filtered.length == 0) {
       return
     }
-    const url = this.getEndpoint(settings.api_key).concat('/s/track')
+    const url = this.getEndpoint(settings.api_key).concat(`/track`)
     return this.request(url, {
       method: 'POST',
       json: filtered
@@ -46,7 +58,7 @@ export default class OrttoClient {
   }
 
   testAuth = async (settings: Settings) => {
-    const url = this.getEndpoint(settings.api_key).concat('/s/me')
+    const url = this.getEndpoint(settings.api_key).concat('/me')
     return this.request(url, {
       method: 'GET'
     })
@@ -54,11 +66,11 @@ export default class OrttoClient {
 
   private getEndpoint(apiKey: string): string {
     if (!apiKey) {
-      throw new IntegrationError(`Invalid API key`, 'missing_api_key', 400)
+      throw new InvalidAuthenticationError(Errors.InvalidAPIKey)
     }
     const idx = apiKey.indexOf('-')
     if (idx != 3) {
-      throw new IntegrationError(`Invalid API key`, 'invalid_format', 400)
+      throw new InvalidAuthenticationError(Errors.InvalidAPIKey)
     }
 
     let env = ''
@@ -67,9 +79,18 @@ export default class OrttoClient {
     }
     const region = apiKey.substring(1, idx).trim()
     if (region.length != 2) {
-      throw new IntegrationError(`Invalid API key`, 'invalid_region', 400)
+      throw new InvalidAuthenticationError(Errors.InvalidAPIKey)
     }
 
-    return `https://segment-action-api-${region}.ortto${env}.app`
+    return `https://segment-action-api-${region}.ortto${env}.app/${API_VERSION}`
+  }
+
+  private removeEmpty<T extends {}>(obj: T): Partial<T> {
+    return Object.fromEntries(
+      Object.entries(obj)
+        .filter(([key, value]) => key !== '' && value != null && value !== undefined)
+        .map(([key, value]) => [key, value instanceof Object ? this.removeEmpty(value) : value])
+        .filter(([_, value]) => !(typeof value === 'object' && value !== null && Object.keys(value).length === 0))
+    ) as Partial<T>
   }
 }

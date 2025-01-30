@@ -10,10 +10,6 @@ export interface Payload {
    */
   message_id?: string
   /**
-   * When enabled, events will be sent to Ortto in batches for improved efficiency.
-   */
-  enable_batching?: boolean
-  /**
    * The unique user identifier
    */
   user_id?: string
@@ -22,13 +18,17 @@ export interface Payload {
    */
   anonymous_id?: string
   /**
+   * When enabled, events will be sent to Ortto in batches for improved efficiency.
+   */
+  enable_batching?: boolean
+  /**
    * Specifies how to assign the contact's location
    */
   geo_mode?: string
   /**
    * The contact's IP address
    */
-  ip?: string
+  ip?: string | null
   /**
    * The contact's location
    */
