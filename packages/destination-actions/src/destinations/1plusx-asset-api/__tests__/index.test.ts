@@ -208,7 +208,6 @@ describe('1Plusx Asset Api', () => {
         useDefaultMappings: false
       })
 
-      console.log(responses[0].options.json)
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({

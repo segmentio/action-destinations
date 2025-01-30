@@ -76,7 +76,6 @@ describe('Friendbuy.trackPurchase', () => {
       // auth,
     })
 
-    // console.log(JSON.stringify(r, null, 2))
     expect(r.length).toBe(2) // auth request + trackPurchase request
     expect(r[1].options.json).toEqual({
       orderId,
@@ -126,7 +125,6 @@ describe('Friendbuy.trackPurchase', () => {
       // auth,
     })
 
-    // console.log(JSON.stringify(r, null, 2))
     expect(r.length).toBe(1) // (no auth request +) trackPurchase request
     expect(r[0].options.json).toMatchObject({
       orderId: '12345',

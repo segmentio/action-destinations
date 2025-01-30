@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-friendbuy",
-  "version": "1.72.0",
+  "version": "1.74.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,9 +15,9 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.141.0",
-    "@segment/actions-shared": "^1.122.0",
-    "@segment/browser-destination-runtime": "^1.70.0"
+    "@segment/actions-core": "^3.143.0",
+    "@segment/actions-shared": "^1.124.0",
+    "@segment/browser-destination-runtime": "^1.72.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"

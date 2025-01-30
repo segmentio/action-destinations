@@ -1,5 +1,4 @@
-import { RequestClient, ExecuteInput } from '@segment/actions-core'
-import { createHash } from 'crypto'
+import { RequestClient, ExecuteInput, sha1Hash, sha256SmartHash } from '@segment/actions-core'
 import type { Payload as s3Payload } from './audienceEnteredS3/generated-types'
 import type { Payload as sftpPayload } from './audienceEnteredSftp/generated-types'
 
@@ -74,7 +73,13 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
       for (const key of Object.keys(payload.unhashed_identifier_data)) {
         const index = headerArray.indexOf(key)
         unhashedKeys.add(key)
-        row[index] = `"${hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`
+        /*Identifiers need to be hashed according to LiveRamp spec's: https://docs.liveramp.com/connect/en/formatting-identifiers.html 
+        Phone Number requires SHA1 and email uses sha256 */
+        if (key === 'phone_number') {
+          row[index] = `"${sha1Hash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`
+        } else {
+          row[index] = `"${sha256SmartHash(normalize(key, String(payload.unhashed_identifier_data[key])))}"`
+        }
       }
     }
 
@@ -113,16 +118,6 @@ function enquoteIdentifier(identifier: string) {
   return `"${String(identifier).replace(/"/g, '""')}"`
 }
 
-const hash = (value: string): string => {
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
-}
-
-/*
-  Identifiers need to be hashed according to LiveRamp spec's:
-  https://docs.liveramp.com/connect/en/formatting-identifiers.html
-*/
 const normalize = (key: string, value: string): string => {
   switch (key) {
     case 'phone_number': {
@@ -140,11 +135,11 @@ const normalize = (key: string, value: string): string => {
     }
 
     case 'email': {
-      return value.toLowerCase().trim()
+      return value.toLowerCase().replace(/\s+/g, '')
     }
   }
 
   return value
 }
 
-export { generateFile, enquoteIdentifier, normalize, hash }
+export { generateFile, enquoteIdentifier, normalize }
