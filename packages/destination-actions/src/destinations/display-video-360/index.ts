@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 
 import type { Settings, AudienceSettings } from './generated-types'
 
@@ -166,7 +166,34 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   actions: {
     addToAudience,
     removeFromAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Entered',
+      partnerAction: 'addToAudience',
+      mapping: {
+        ...defaultValues(addToAudience.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    },
+
+    {
+      name: 'Entities Audience Exited',
+      partnerAction: 'removeFromAudience',
+      mapping: {
+        ...defaultValues(removeFromAudience.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_exited_track'
+    }
+  ]
 }
 
 export default destination

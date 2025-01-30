@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, RequestClient, IntegrationError, defaultValues } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { GET_LIST_URL, CREATE_LIST_URL } from './constants'
@@ -79,9 +79,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     }
   },
+
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: {
+        ...defaultValues(syncAudience.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export async function getAudienceIdByName(request: RequestClient, name: string): Promise<string | undefined> {

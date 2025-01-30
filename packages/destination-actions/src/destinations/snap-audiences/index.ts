@@ -59,7 +59,23 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     }
   },
+
+  actions: {
+    syncAudience
+  },
   presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: {
+        ...defaultValues(syncAudience.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
     {
       name: 'Sync Audience with Email',
       subscribe: 'type = "track" and context.traits.email exists',
@@ -223,9 +239,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       return { externalId: snapAudienceId }
     }
-  },
-  actions: {
-    syncAudience
   }
 }
 
