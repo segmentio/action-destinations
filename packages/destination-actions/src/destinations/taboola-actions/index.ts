@@ -1,6 +1,6 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import { TaboolaClient } from './syncAudience/client'
 
 import syncAudience from './syncAudience'
@@ -30,8 +30,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         description: 'The audience identifier from your Taboola account.',
         type: 'string',
         choices: [
-          {label: 'Audience Computation Key', value: 'computation_key'},
-          {label: 'Audience Name', value: 'audience_name'}
+          { label: 'Audience Computation Key', value: 'computation_key' },
+          { label: 'Audience Name', value: 'audience_name' }
         ],
         required: false,
         default: 'computation_key'
@@ -77,7 +77,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const audienceName = createAudienceInput.settings?.audience_identifier === 'computation_key' ? createAudienceInput.personas?.computation_key : createAudienceInput.audienceName
+      const audienceName =
+        createAudienceInput.settings?.audience_identifier === 'computation_key'
+          ? createAudienceInput.personas?.computation_key
+          : createAudienceInput.audienceName
       const ttlInHours = createAudienceInput.audienceSettings?.ttl_in_hours
       const excludeFromCampaigns = createAudienceInput.audienceSettings?.exclude_from_campaigns
       const accountId = createAudienceInput.audienceSettings?.account_id
@@ -141,7 +144,21 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: {
+        ...defaultValues(syncAudience.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination

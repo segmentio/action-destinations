@@ -1,5 +1,5 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import addToList from './addToList'
@@ -97,7 +97,34 @@ const destination: AudienceDestinationDefinition<Settings> = {
   actions: {
     addToList,
     removeFromList
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Entered',
+      partnerAction: 'addToList',
+      mapping: {
+        ...defaultValues(addToList.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    },
+
+    {
+      name: 'Entities Audience Exited',
+      partnerAction: 'removeFromList',
+      mapping: {
+        ...defaultValues(removeFromList.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_exited_track'
+    }
+  ]
 }
 
 export default destination

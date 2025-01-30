@@ -1,5 +1,5 @@
 import type { AudienceDestinationDefinition, ModifiedResponse } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
@@ -168,6 +168,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   actions: {
     updateSegment
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'updateSegment',
+      mapping: {
+        ...defaultValues(updateSegment.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 export default destination

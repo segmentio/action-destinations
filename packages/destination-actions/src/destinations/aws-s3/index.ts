@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 
 import syncAudienceToCSV from './syncAudienceToCSV'
@@ -94,9 +94,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       return { externalId: audience_id }
     }
   },
+
   actions: {
     syncAudienceToCSV
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudienceToCSV',
+      mapping: {
+        ...defaultValues(syncAudienceToCSV.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination
