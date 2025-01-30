@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
 import uploadCallConversion from './uploadCallConversion'
@@ -174,7 +174,22 @@ const destination: AudienceDestinationDefinition<Settings> = {
     uploadClickConversion2,
     uploadCallConversion2,
     userList
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'uploadConversionAdjustment',
+      mapping: {
+        // TODO: See if we use the original or the v2 action
+        ...defaultValues(uploadConversionAdjustment.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination

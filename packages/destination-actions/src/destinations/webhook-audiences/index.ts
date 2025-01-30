@@ -2,7 +2,7 @@ import type { ActionDefinition, AudienceDestinationDefinition } from '@segment/a
 import type { Settings, AudienceSettings } from './generated-types'
 
 import send from '../webhook/send'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import { createHmac } from 'crypto'
 import { Payload } from './send.types'
 const externalIdKey = 'externalId'
@@ -159,7 +159,21 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
       }
     } as ActionDefinition<Settings, Payload>
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'send',
+      mapping: {
+        ...defaultValues(send.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 const parseExtraSettingsJson = (extraSettingsJson?: string): object => {
