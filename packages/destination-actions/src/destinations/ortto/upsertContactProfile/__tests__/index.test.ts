@@ -9,11 +9,12 @@ import {
 import Destination from '../../index'
 import { Errors, API_VERSION } from '../../ortto-client'
 import { Settings } from '../../generated-types'
+import { TEST_API_KEY } from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 
 const settings: Settings = {
-  api_key: 'pau-key'
+  api_key: TEST_API_KEY
 }
 
 const validPayload = {
@@ -48,14 +49,8 @@ describe('Ortto.upsertContactProfile', () => {
 
   it('should fail with missing ids', async () => {
     const event = createTestEvent({
-      type: 'identify',
       userId: '',
-      anonymousId: '',
-      messageId: 'message_id',
-      traits: {
-        first_name: 'John',
-        last_name: 'Smith'
-      }
+      anonymousId: ''
     })
     await expect(
       testDestination.testAction('upsertContactProfile', {

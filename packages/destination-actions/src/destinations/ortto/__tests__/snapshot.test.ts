@@ -2,6 +2,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
 import nock from 'nock'
+import { TEST_API_KEY } from '../utils'
 
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-ortto'
@@ -11,7 +12,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
     it(`${actionSlug} action - required fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
-      const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+      const [eventData] = generateTestData(seedName, destination, action, true)
 
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(200)
@@ -24,7 +25,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
         mapping: event.properties,
-        settings: settingsData,
+        settings: { api_key: TEST_API_KEY },
         auth: undefined
       })
 
@@ -45,7 +46,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
     it(`${actionSlug} action - all fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
-      const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+      const [eventData] = generateTestData(seedName, destination, action, false)
 
       nock(/.*/).persist().get(/.*/).reply(200)
       nock(/.*/).persist().post(/.*/).reply(200)
@@ -58,7 +59,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
         mapping: event.properties,
-        settings: settingsData,
+        settings: { api_key: TEST_API_KEY },
         auth: undefined
       })
 

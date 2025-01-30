@@ -2,6 +2,7 @@ import { InvalidAuthenticationError, PayloadValidationError, RequestClient } fro
 import { Settings } from './generated-types'
 import { Payload as UpsertContactPayload } from './upsertContactProfile/generated-types'
 import { Payload as EventPayload } from './trackActivity/generated-types'
+import { cleanObject } from './utils'
 
 export const API_VERSION = 'v1'
 
@@ -23,7 +24,7 @@ export default class OrttoClient {
       if (!event.anonymous_id && !event.user_id) {
         throw new PayloadValidationError(Errors.MissingIDs)
       }
-      cleaned.push(this.removeEmpty(event))
+      cleaned.push(cleanObject(event))
     }
     const url = this.getEndpoint(settings.api_key).concat('/identify')
     return this.request(url, {
@@ -45,7 +46,7 @@ export default class OrttoClient {
       if (event.namespace === 'ortto.com') {
         continue
       }
-      filtered.push(this.removeEmpty(event))
+      filtered.push(cleanObject(event))
     }
     if (filtered.length == 0) {
       return
@@ -83,14 +84,5 @@ export default class OrttoClient {
     }
 
     return `https://segment-action-api-${region}.ortto${env}.app/${API_VERSION}`
-  }
-
-  private removeEmpty<T extends {}>(obj: T): Partial<T> {
-    return Object.fromEntries(
-      Object.entries(obj)
-        .filter(([key, value]) => key !== '' && value != null && value !== undefined)
-        .map(([key, value]) => [key, value instanceof Object ? this.removeEmpty(value) : value])
-        .filter(([_, value]) => !(typeof value === 'object' && value !== null && Object.keys(value).length === 0))
-    ) as Partial<T>
   }
 }

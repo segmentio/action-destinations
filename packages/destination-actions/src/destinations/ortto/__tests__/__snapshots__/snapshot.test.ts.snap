@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-ortto destination: trackActivity action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "]25AcEh01MO",
+    "contact_profile": Object {
+      "geo_mode": "location",
+      "ip": "107.255.187.198",
+      "location": Object {},
+      "traits": Object {},
+    },
+    "enable_batching": true,
+    "event": "]25AcEh01MO",
+    "message_id": "]25AcEh01MO",
+    "namespace": "]25AcEh01MO",
+    "properties": Object {
+      "testType": "]25AcEh01MO",
+    },
+    "timestamp": "2125-06-22T08:21:01.417Z",
+    "user_id": "]25AcEh01MO",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-ortto destination: trackActivity action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "]25AcEh01MO",
+    "event": "]25AcEh01MO",
+    "message_id": "]25AcEh01MO",
+    "user_id": "]25AcEh01MO",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-ortto destination: upsertContactProfile action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "TBOtXZm4yQy]54s",
+    "enable_batching": false,
+    "geo_mode": "location",
+    "ip": "169.155.93.138",
+    "location": Object {
+      "city": "TBOtXZm4yQy]54s",
+      "country": "TBOtXZm4yQy]54s",
+      "post_code": "TBOtXZm4yQy]54s",
+      "state": "TBOtXZm4yQy]54s",
+    },
+    "message_id": "TBOtXZm4yQy]54s",
+    "timestamp": "2086-08-12T02:15:40.692Z",
+    "traits": Object {
+      "email": "cu@wolpawwe.me",
+      "first_name": "TBOtXZm4yQy]54s",
+      "last_name": "TBOtXZm4yQy]54s",
+      "phone": "TBOtXZm4yQy]54s",
+    },
+    "user_id": "TBOtXZm4yQy]54s",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-ortto destination: upsertContactProfile action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "TBOtXZm4yQy]54s",
+    "message_id": "TBOtXZm4yQy]54s",
+    "user_id": "TBOtXZm4yQy]54s",
+  },
+]
+`;
