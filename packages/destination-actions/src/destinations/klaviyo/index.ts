@@ -107,14 +107,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     async getAudience(request, getAudienceInput) {
-      let listId = getAudienceInput.externalId
+      const listId = getAudienceInput.externalId
       const apiKey = getAudienceInput.settings.api_key
 
       const defaultAudienceId = getAudienceInput.audienceSettings?.listId
-
-      if (defaultAudienceId) {
-        listId = defaultAudienceId
-      }
 
       const response = await request(`${API_URL}/lists/${listId}`, {
         method: 'GET',
@@ -126,6 +122,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const errorResponse = await response.json()
         const klaviyoErrorDetail = errorResponse.errors[0].detail
         throw new APIError(klaviyoErrorDetail, response.status)
+      }
+
+      if (defaultAudienceId) {
+        return { externalId: defaultAudienceId }
       }
 
       const r = await response.json()
