@@ -66,6 +66,9 @@ export default class OrttoClient {
   }
 
   private getEndpoint(apiKey: string): string {
+    if (process?.env?.ORTTO_LOCAL_ENDPOINT) {
+      return `${process?.env?.ORTTO_LOCAL_ENDPOINT}/${API_VERSION}`
+    }
     if (!apiKey) {
       throw new InvalidAuthenticationError(Errors.InvalidAPIKey)
     }

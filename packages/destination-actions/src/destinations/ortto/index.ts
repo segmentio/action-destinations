@@ -27,6 +27,9 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest({ settings }) {
+    if (process?.env?.ORTTO_API_KEY) {
+      settings.api_key = process?.env?.ORTTO_API_KEY
+    }
     return {
       headers: {
         Authorization: `Bearer ${settings.api_key}`
