@@ -107,11 +107,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     async getAudience(request, getAudienceInput) {
-      const listId = getAudienceInput.externalId
+      let listId = getAudienceInput.externalId
       const apiKey = getAudienceInput.settings.api_key
 
       const defaultAudienceId = getAudienceInput.audienceSettings?.listId
-
+      if (defaultAudienceId) {
+        listId = defaultAudienceId
+      }
       const response = await request(`${API_URL}/lists/${listId}`, {
         method: 'GET',
         headers: buildHeaders(apiKey),
