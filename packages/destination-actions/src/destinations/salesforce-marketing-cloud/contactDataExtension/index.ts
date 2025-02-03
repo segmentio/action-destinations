@@ -1,7 +1,18 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { key, id, keys, enable_batching, batch_size, values_contactFields, categoryId, name, description, columns } from '../sfmc-properties'
+import {
+  key,
+  id,
+  keys,
+  enable_batching,
+  batch_size,
+  values_contactFields,
+  categoryId,
+  name,
+  description,
+  columns
+} from '../sfmc-properties'
 import { executeUpsertWithMultiStatus, upsertRows, createDataExtension } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -55,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       performHook: async (request, { settings, hookInputs }) => {
-        return await createDataExtension(request, settings.subdomain, hookInputs)
+        return await createDataExtension(request, settings.subdomain, hookInputs, settings)
       }
     }
   },
