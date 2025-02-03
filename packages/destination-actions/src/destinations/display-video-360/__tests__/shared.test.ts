@@ -135,9 +135,11 @@ describe('shared', () => {
     })
 
     it('should return an array of UserOperation objects with Android Advertising ID', () => {
-      oneMockPayload.mobile_advertising_id = '3b6e47b314374ba2b3c9446e4d0cd1e5'
-
-      const results = assembleRawOps(oneMockPayload, 'remove')
+      const mockPayload = {
+        ...oneMockPayload,
+        mobile_advertising_id: '3b6e47b314374ba2b3c9446e4d0cd1e5'
+      }
+      const results = assembleRawOps(mockPayload, 'remove')
       expect(results).toEqual([
         {
           UserId: 'CAESEHIV8HXNp0pFdHgi2rElMfk',
