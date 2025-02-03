@@ -61,11 +61,9 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest({ auth }) {
-    const accessToken = auth?.accessToken || process.env.LOCAL_ACCESS_TOKEN
-    console.log('accessToken', accessToken)
     return {
       headers: {
-        authorization: `Bearer ${accessToken}`
+        authorization: `Bearer ${auth?.accessToken}`
       }
     }
   },
