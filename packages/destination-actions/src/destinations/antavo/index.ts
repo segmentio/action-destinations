@@ -22,6 +22,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The Antavo brand API key supplied to your brand in Antavo Loyalty Engine',
         type: 'password',
         required: true
+      },
+      api_secret: {
+        label: 'API Secret',
+        description: 'Antavo brand API secret',
+        type: 'password',
+        required: true
       }
     }
   },
