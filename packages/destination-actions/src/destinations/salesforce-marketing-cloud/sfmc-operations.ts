@@ -10,6 +10,7 @@ import { Payload as payload_dataExtension } from './dataExtension/generated-type
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
 import { ErrorResponse } from './types'
 import { HookBundle as DataExtensionCreationInput } from './dataExtension/generated-types'
+import { Settings } from './generated-types'
 
 function generateRows(payloads: payload_dataExtension[] | payload_contactDataExtension[]): Record<string, any>[] {
   const rows: Record<string, any>[] = []
@@ -135,10 +136,30 @@ interface DataExtensionCreationResponse {
   }
 }
 
+interface RefreshTokenResponse {
+  access_token: string
+  instance_url: string
+}
+
+const getAccessToken = async (request: RequestClient, settings: Settings): Promise<string> => {
+  const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/v2/token`
+  const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
+    method: 'POST',
+    body: new URLSearchParams({
+      account_id: settings.account_id,
+      client_id: settings.client_id,
+      client_secret: settings.client_secret,
+      grant_type: 'client_credentials'
+    })
+  })
+
+  return res.data.access_token
+}
+
 const dataExtensionRequest = async (
   request: RequestClient,
-  subdomain: string,
-  hookInputs: DataExtensionCreationInput['onMappingSave']['inputs']
+  hookInputs: DataExtensionCreationInput['onMappingSave']['inputs'],
+  auth: { subdomain: string; accessToken: string }
 ): Promise<{ id?: string; key?: string; error?: string }> => {
   if (!hookInputs) {
     return { id: '', key: '', error: 'No inputs provided' }
@@ -169,7 +190,7 @@ const dataExtensionRequest = async (
 
   try {
     const response = await request<DataExtensionCreationResponse>(
-      `https://${subdomain}.rest.marketingcloudapis.com/data/v1/customobjects`,
+      `https://${auth.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects`,
       {
         method: 'POST',
         json: {
@@ -177,6 +198,9 @@ const dataExtensionRequest = async (
           description: hookInputs.description,
           categoryId: hookInputs.categoryId,
           fields
+        },
+        headers: {
+          authorization: `Bearer ${auth.accessToken}`
         }
       }
     )
@@ -199,7 +223,8 @@ const dataExtensionRequest = async (
 export async function createDataExtension(
   request: RequestClient,
   subdomain: string,
-  hookInputs: DataExtensionCreationInput['onMappingSave']['inputs']
+  hookInputs: DataExtensionCreationInput['onMappingSave']['inputs'],
+  settings: Settings
 ): Promise<ActionHookResponse<{ id: string; name: string }>> {
   if (!hookInputs) {
     return {
@@ -207,7 +232,9 @@ export async function createDataExtension(
     }
   }
 
-  const { id, key, error } = await dataExtensionRequest(request, subdomain, hookInputs)
+  const accessToken = await getAccessToken(request, settings)
+
+  const { id, key, error } = await dataExtensionRequest(request, hookInputs, { subdomain, accessToken })
 
   if (error || !id || !key) {
     return {
