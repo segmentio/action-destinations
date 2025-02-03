@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { SegmentEvent } from '@segment/actions-core/*'
+import { InvalidAuthenticationError } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 const event = createTestEvent({
@@ -37,12 +38,87 @@ const event = createTestEvent({
   userId: 'test-kochar-01',
   writeKey: 'REDACTED'
 })
+const events: SegmentEvent[] = [
+  {
+    ...event,
+    userId: 'invalid@user.com',
+    event: 'Audience Entered',
+    properties: {
+      audience_key: 'example_event_once_30_4_24_1',
+      example_event_once_30_4_24_1: true,
+      email: 'test@gmail.com',
+      first_name: 'gaurav',
+      city: 'Gurgaon',
+      state: 'Haryana'
+    }
+  },
+  {
+    ...event,
+    userId: 'test_kochar-02',
+    event: 'Audience Exited',
+    properties: {
+      audience_key: 'example_event_once_30_4_24_1',
+      example_event_once_30_4_24_1: true,
+      email: ' test.kochar+@gmail.com ',
+      postal: ' test ',
+      address: '#501/2, Test Address',
+      first_name: 'gaurav',
+      last_name: ' kochar ',
+      state: ' Haryana ',
+      phone: ' (19)2293719271',
+      city: ' Test City '
+    }
+  }
+]
+const mapping = {
+  email: {
+    '@path': '$.properties.email'
+  },
+  event_name: {
+    '@path': '$.event'
+  },
+  externalUserId: {
+    '@path': '$.userId'
+  },
+  lastName: {
+    '@path': '$.properties.last_name'
+  },
+  firstName: {
+    '@path': '$.properties.first_name'
+  },
+  audienceId: {
+    '@path': '$.context.personas.external_audience_id'
+  },
+  state: {
+    '@path': '$.properties.state'
+  },
+  postal: {
+    '@path': '$.properties.postal'
+  },
+  city: {
+    '@path': '$.properties.city'
+  },
+  address: {
+    '@path': '$.properties.address'
+  },
+  phone: {
+    '@path': '$.properties.phone'
+  },
+  enable_batching: true
+}
 
 const settings = {
   region: 'https://advertising-api.amazon.com'
 }
 
 describe('AmazonAds.syncAudiencesToDSP', () => {
+  beforeEach(() => {
+    nock.cleanAll()
+    jest.resetAllMocks()
+  })
+  afterEach(() => {
+    jest.resetAllMocks()
+  })
   it('Should add user to audience when Event is Audience Entered', async () => {
     nock(`https://advertising-api.amazon.com`)
       .post('/amc/audiences/records')
@@ -167,56 +243,88 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     ).rejects.toThrowError('externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}')
   })
 
-  it('should work with batch events', async () => {
+  it('should successfully handle a batch of events with failure response from Amazon AMC API', async () => {
+    nock(`https://advertising-api.amazon.com`)
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(400, { Message: 'STRING_VALUE can not be converted to a Long' })
+
+    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
+      events,
+      settings,
+      mapping
+    })
+    expect(response.length).toBe(2)
+    expect(response[0]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
+      errorreporter: 'INTEGRATIONS'
+    })
+    expect(response[1]).toMatchObject({
+      body: { Message: 'STRING_VALUE can not be converted to a Long' },
+      errormessage: 'Bad Request',
+      errorreporter: 'DESTINATION',
+      errortype: 'BAD_REQUEST',
+      sent: {
+        externalUserId: 'test_kochar-02',
+        countryCode: 'US',
+        action: 'DELETE',
+        hashedPII: [
+          {
+            address: 'ff376feebdfcc7daf36e6de4c6907b7901ed025abb1ea908800dd929f043fd8c',
+            city: 'f082719d0f0d6fd81e6c92b72e0a6b7f101066852ec11a1efac762c299a50c6d',
+            email: 'bd0bcf03735a1a00c6f1dd21c63c5d819e7e450298f301698192e8df90da3bb3',
+            firstname: '44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d',
+            lastname: '4cd1cb0957bc59e698beab9e86f062f2e84138bff5a446e49762da8fe0c2f499',
+            phone: 'c161700d73a5c32b84701ebed43b9febe117ea1ebbd4e150eab92890186fb455',
+            postal: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+            state: '92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'
+          }
+        ]
+      },
+      status: 400
+    })
+  })
+  it('should work with batch events, throws error for invalid event only', async () => {
     nock(`https://advertising-api.amazon.com`)
       .post('/amc/audiences/records')
       .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
       .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
 
-    const events: SegmentEvent[] = [
-      {
-        ...event,
-        userId: 'invalid@user.com',
-        event: 'Audience Entered',
-        properties: {
-          audience_key: 'example_event_once_30_4_24_1',
-          example_event_once_30_4_24_1: true,
-          email: 'test@gmail.com',
-          first_name: 'gaurav',
-          city: 'Gurgaon',
-          state: 'Haryana'
-        }
-      },
-      {
-        ...event,
-        userId: 'test_kochar-02',
-        event: 'Audience Exited',
-        properties: {
-          audience_key: 'example_event_once_30_4_24_1',
-          example_event_once_30_4_24_1: true,
-          email: 'test.kochar@gmail.com',
-          postal: 'test',
-          address: '#501/2, Test Address',
-          first_name: 'gaurav',
-          last_name: 'kochar',
-          state: 'Haryana'
-        }
-      }
-    ]
-
-    const response = await testDestination.testBatchAction('syncAudiencesToDSP', {
+    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
       events,
       settings,
-      useDefaultMappings: true
+      mapping
     })
-
-    expect(response.length).toBe(1)
-    expect(response[0].status).toBe(202)
-    expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
-    expect(response[0].options.body).toBe(
-      '{"records":[{"externalUserId":"test_kochar-02","countryCode":"US","action":"DELETE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","lastname":"4cd1cb0957bc59e698beab9e86f062f2e84138bff5a446e49762da8fe0c2f499","address":"ff376feebdfcc7daf36e6de4c6907b7901ed025abb1ea908800dd929f043fd8c","postal":"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
-    )
-    expect(response[0].options).toMatchSnapshot()
+    expect(response.length).toBe(2)
+    expect(response[0]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
+      errorreporter: 'INTEGRATIONS'
+    })
+    expect(response[1]).toMatchObject({
+      status: 202,
+      sent: {
+        externalUserId: 'test_kochar-02',
+        countryCode: 'US',
+        action: 'DELETE',
+        hashedPII: [
+          {
+            address: 'ff376feebdfcc7daf36e6de4c6907b7901ed025abb1ea908800dd929f043fd8c',
+            city: 'f082719d0f0d6fd81e6c92b72e0a6b7f101066852ec11a1efac762c299a50c6d',
+            email: 'bd0bcf03735a1a00c6f1dd21c63c5d819e7e450298f301698192e8df90da3bb3',
+            firstname: '44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d',
+            lastname: '4cd1cb0957bc59e698beab9e86f062f2e84138bff5a446e49762da8fe0c2f499',
+            phone: 'c161700d73a5c32b84701ebed43b9febe117ea1ebbd4e150eab92890186fb455',
+            postal: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+            state: '92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'
+          }
+        ]
+      },
+      body: { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' }
+    })
   })
 
   it('should throw an error when all events are having invalid externalUserId', async () => {
@@ -251,27 +359,38 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       }
     ]
 
-    await expect(
-      testDestination.testBatchAction('syncAudiencesToDSP', {
-        events,
-        settings,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError('externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}')
-  })
+    const response = await testDestination.executeBatch('syncAudiencesToDSP', {
+      events,
+      settings,
+      mapping
+    })
 
-  it('Handle Error when amazon ads API throw error', async () => {
+    expect(response.length).toBe(2)
+    expect(response[0]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
+      errorreporter: 'INTEGRATIONS'
+    })
+    expect(response[1]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'externalUserId must satisfy regular expression pattern: [0-9a-zA-Z\\-\\_]{1,128}}',
+      errorreporter: 'INTEGRATIONS'
+    })
+  })
+  it('Should throw an InvalidAuthenticationError when Batch API throws Unathorized', async () => {
     nock(`https://advertising-api.amazon.com`)
       .post('/amc/audiences/records')
       .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
-      .reply(400, { Message: 'STRING_VALUE can not be converted to a Long' })
+      .reply(401, { statusText: 'Unauthorized', ok: false })
 
     await expect(
-      testDestination.testAction('syncAudiencesToDSP', {
-        event,
+      testDestination.executeBatch('syncAudiencesToDSP', {
+        events,
         settings,
-        useDefaultMappings: true
+        mapping
       })
-    ).rejects.toThrowError('Bad Request')
+    ).rejects.toThrowError(new InvalidAuthenticationError('Unauthorized'))
   })
 })

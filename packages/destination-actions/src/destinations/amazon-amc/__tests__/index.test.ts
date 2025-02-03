@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { HTTPError } from '@segment/actions-core/*'
-import { AUTHORIZATION_URL } from '../utils'
+import { AUTHORIZATION_URL, TTL_MAX_VALUE } from '../utils'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -133,7 +133,7 @@ describe('Amazon-Ads (actions)', () => {
         audienceName: 'Test Audience',
         audienceSettings: {
           ...audienceSettings,
-          ttl: '12345678',
+          ttl: 34300800,
           currency: 'USD',
           cpmCents: 'invalid cpm cents'
         }
@@ -141,6 +141,23 @@ describe('Amazon-Ads (actions)', () => {
 
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
         'CPM Cents must be a number but it was a string.'
+      )
+    })
+
+    it('Should throw an error when TTL is greater than 34300800', async () => {
+      const createAudienceInput = {
+        settings,
+        audienceName: 'Test Audience',
+        audienceSettings: {
+          ...audienceSettings,
+          ttl: 44300801,
+          currency: 'USD',
+          cpmCents: 2424222
+        }
+      }
+
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
+        `TTL must have value less than or equal to ${TTL_MAX_VALUE}`
       )
     })
 

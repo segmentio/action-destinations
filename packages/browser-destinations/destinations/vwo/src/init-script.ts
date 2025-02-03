@@ -15,7 +15,7 @@ export function initScript({
         settings_tolerance = settingsTolerance,
         hide_element = 'body',
         hide_element_style =
-          'opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;transition:none !important;',
+          'transition:none;',
         f = false,
         w = window,
         d = document,
@@ -25,7 +25,7 @@ export function initScript({
       try {
         var c = JSON.parse(localStorage.getItem('_vwo_' + account_id + '_config'))
         cc = c && typeof c === 'object' ? c : {}
-      } catch (e) {}
+      } catch (e) { }
       var stT = cc.stT === 'session' ? w.sessionStorage : w.localStorage
       var code = {
         nonce: v && v.nonce,
