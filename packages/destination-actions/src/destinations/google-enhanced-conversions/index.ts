@@ -178,10 +178,9 @@ const destination: AudienceDestinationDefinition<Settings> = {
   presets: [
     {
       name: 'Entities Audience Membership Changed',
-      partnerAction: 'uploadConversionAdjustment',
+      partnerAction: 'userList',
       mapping: {
-        // TODO: See if we use the original or the v2 action
-        ...defaultValues(uploadConversionAdjustment.fields),
+        ...defaultValues(userList.fields),
         properties: {
           '@path': '$.properties'
         }
