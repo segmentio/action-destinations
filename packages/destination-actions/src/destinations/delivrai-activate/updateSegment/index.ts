@@ -147,7 +147,6 @@ async function process_payload(
         Authorization: `Bearer ${token}`
       }
     }).catch((err) => {
-      console.log(err)
       throw new APIError(
         'HTTP error: ' + err?.response?.statusText || 'Something went wrong',
         err?.response?.status || 500
