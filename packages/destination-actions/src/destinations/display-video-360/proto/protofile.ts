@@ -429,7 +429,15 @@ export class UpdateUsersDataRequest extends Message<UpdateUsersDataRequest> {
   static readonly typeName = 'UpdateUsersDataRequest'
   static readonly fields: FieldList = proto2.util.newFieldList(() => [
     { no: 1, name: 'ops', kind: 'message', T: UserDataOperation, repeated: true },
-    { no: 2, name: 'send_notifications', kind: 'scalar', T: 8 /* ScalarType.BOOL */, opt: true, default: false }
+    { no: 2, name: 'send_notifications', kind: 'scalar', T: 8 /* ScalarType.BOOL */, opt: true, default: false },
+    {
+      no: 3,
+      name: 'process_consent',
+      kind: 'scalar',
+      T: 8 /* ScalarType.BOOL */,
+      opt: true,
+      default: false
+    }
   ])
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpdateUsersDataRequest {
@@ -451,7 +459,12 @@ export class UpdateUsersDataRequest extends Message<UpdateUsersDataRequest> {
     return proto2.util.equals(UpdateUsersDataRequest, a, b)
   }
 
-  process_consent: boolean = false
+  /**
+   * https://developers.google.com/authorized-buyers/rtb/bulk-uploader#process_consent_in_bulk_upload_request
+   *
+   * @generated from field: optional bool process_consent = 3 [default = true];
+   */
+  processConsent: boolean = false
 }
 
 /**
