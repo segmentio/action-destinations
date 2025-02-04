@@ -459,6 +459,11 @@ export class UpdateUsersDataRequest extends Message<UpdateUsersDataRequest> {
     return proto2.util.equals(UpdateUsersDataRequest, a, b)
   }
 
+  /**
+   * https://developers.google.com/authorized-buyers/rtb/bulk-uploader#process_consent_in_bulk_upload_request
+   *
+   * @generated from field: optional bool process_consent = 3 [default = true];
+   */
   processConsent: boolean = false
 }
 
