@@ -220,7 +220,7 @@ const dataExtensionRequest = async (
   }
 }
 
-export async function createDataExtension(
+async function createDataExtension(
   request: RequestClient,
   subdomain: string,
   hookInputs: DataExtensionCreationInput['onMappingSave']['inputs'],
@@ -248,5 +248,16 @@ export async function createDataExtension(
       id,
       name: hookInputs.name
     }
+  }
+}
+
+export const selectOrCreateDataExtension = async (
+  request: RequestClient,
+  subdomain: string,
+  hookInputs: DataExtensionCreationInput['onMappingSave']['inputs'],
+  settings: Settings
+) => {
+  if (hookInputs.operation === 'create') {
+    return await createDataExtension(request, subdomain, hookInputs, settings)
   }
 }

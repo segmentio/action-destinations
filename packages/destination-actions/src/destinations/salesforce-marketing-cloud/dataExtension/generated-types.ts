@@ -34,59 +34,6 @@ export interface Payload {
 
 export interface HookBundle {
   onMappingSave: {
-    inputs?: {
-      /**
-       * The identifier for the folder that contains the data extension.
-       */
-      categoryId: string
-      /**
-       * The name of the data extension.
-       */
-      name: string
-      /**
-       * The description of the data extension.
-       */
-      description?: string
-      /**
-       * A list of fields to create in the data extension.
-       */
-      columns?: {
-        /**
-         * The name of the field.
-         */
-        name: string
-        /**
-         * The data type of the field.
-         */
-        type: string
-        /**
-         * Whether the field can be null.
-         */
-        isNullable: boolean
-        /**
-         * Whether the field is a primary key.
-         */
-        isPrimaryKey: boolean
-        /**
-         * The length of the field.
-         */
-        length: number
-        /**
-         * The description of the field.
-         */
-        description?: string
-        [k: string]: unknown
-      }[]
-    }
-    outputs?: {
-      /**
-       * The identifier for the data extension.
-       */
-      id: string
-      /**
-       * The name of the data extension.
-       */
-      name: string
-    }
+    [k: string]: unknown
   }
 }
