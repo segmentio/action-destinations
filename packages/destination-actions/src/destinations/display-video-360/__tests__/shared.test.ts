@@ -135,9 +135,11 @@ describe('shared', () => {
     })
 
     it('should return an array of UserOperation objects with Android Advertising ID', () => {
-      oneMockPayload.mobile_advertising_id = '3b6e47b314374ba2b3c9446e4d0cd1e5'
-
-      const results = assembleRawOps(oneMockPayload, 'remove')
+      const mockPayload = {
+        ...oneMockPayload,
+        mobile_advertising_id: '3b6e47b314374ba2b3c9446e4d0cd1e5'
+      }
+      const results = assembleRawOps(mockPayload, 'remove')
       expect(results).toEqual([
         {
           UserId: 'CAESEHIV8HXNp0pFdHgi2rElMfk',
@@ -199,6 +201,10 @@ describe('shared', () => {
     it('should create an UpdateUsersDataRequest object with the correct number of operations', () => {
       const r = createUpdateRequest(manyMockPayloads, 'add')
       expect(r.ops.length).toEqual(5)
+      expect(r.processConsent).toEqual(true)
+      expect(r.toJsonString()).toMatchInlineSnapshot(
+        `"{\\"ops\\":[{\\"userId\\":\\"CAESEHIV8HXNp0pFdHgi2rElMfk\\",\\"userIdType\\":\\"GOOGLE_USER_ID\\",\\"userListId\\":\\"456\\",\\"delete\\":false},{\\"userId\\":\\"3b6e47b3-1437-4ba2-b3c9-446e4d0cd1e5\\",\\"userIdType\\":\\"IDFA\\",\\"userListId\\":\\"456\\",\\"delete\\":false},{\\"userId\\":\\"my-anon-id-42\\",\\"userIdType\\":\\"PARTNER_PROVIDED_ID\\",\\"userListId\\":\\"456\\",\\"delete\\":false},{\\"userId\\":\\"my-anon-id-43\\",\\"userIdType\\":\\"PARTNER_PROVIDED_ID\\",\\"userListId\\":\\"456\\",\\"delete\\":false},{\\"userId\\":\\"XNp0pFdHgi2rElMfk\\",\\"userIdType\\":\\"GOOGLE_USER_ID\\",\\"userListId\\":\\"456\\",\\"delete\\":false}],\\"processConsent\\":true}"`
+      )
     })
 
     it('should throw an error when unable to create UpdateUsersDataRequest', () => {
