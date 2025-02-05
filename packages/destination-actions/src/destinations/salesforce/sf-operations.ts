@@ -395,8 +395,8 @@ export default class Salesforce {
       }
       return await this.closeBulkJob(jobId)
     } catch (err) {
-      const message = (err as any).response?.data?.message || 'Failed to parse message'
-      const code = (err as any).response?.data?.errorCode || 'Failed to parse code'
+      const message = err.response?.data[0]?.message || 'Failed to parse message'
+      const code = err.response?.data[0]?.errorCode || 'Failed to parse code'
 
       const statsClient = statsContext?.statsClient
       const tags = statsContext?.tags
@@ -448,8 +448,9 @@ export default class Salesforce {
     })
   }
 
-  private closeBulkJob = async (jobId: string) => {
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`, {
+  private closeBulkJob = async (_jobId: string) => {
+    const fakeJobId = 'fakeJobId'
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${fakeJobId}`, {
       method: 'PATCH',
       json: {
         state: 'UploadComplete'
