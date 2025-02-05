@@ -6,7 +6,13 @@ export const list_id: InputField = {
   description: `'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'`,
   type: 'string',
   default: {
-    '@path': '$.context.personas.external_audience_id'
+    '@if': {
+      exists: {
+        '@path': '$.context.personas.audience_settings.listId'
+      },
+      then: { '@path': '$.context.personas.audience_settings.listId' },
+      else: { '@path': '$.context.personas.external_audience_id' }
+    }
   },
   unsafe_hidden: true,
   required: true,
