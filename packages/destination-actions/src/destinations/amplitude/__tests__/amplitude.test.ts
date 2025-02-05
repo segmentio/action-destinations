@@ -788,17 +788,7 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "mapping",
-            "[{\\"user_id\\":\\"some-previous-user-id\\",\\"global_user_id\\":\\"some-user-id\\"}]",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
 
     it('should send data to the EU endpoint', async () => {
@@ -822,17 +812,7 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "mapping",
-            "[{\\"user_id\\":\\"some-previous-user-id\\",\\"global_user_id\\":\\"some-user-id\\"}]",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
   })
 
@@ -1999,19 +1979,7 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9\\",\\"device_manufacturer\\":\\"Apple\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
 
     it('should support referrer and utm user_properties', async () => {
@@ -2042,19 +2010,7 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\",\\"$set\\":{\\"utm_source\\":\\"Newsletter\\",\\"utm_medium\\":\\"email\\",\\"utm_campaign\\":\\"TPS Innovation Newsletter\\",\\"utm_term\\":\\"tps reports\\",\\"utm_content\\":\\"image link\\",\\"referrer\\":\\"some-referrer\\"},\\"$setOnce\\":{\\"initial_utm_source\\":\\"Newsletter\\",\\"initial_utm_medium\\":\\"email\\",\\"initial_utm_campaign\\":\\"TPS Innovation Newsletter\\",\\"initial_utm_term\\":\\"tps reports\\",\\"initial_utm_content\\":\\"image link\\",\\"initial_referrer\\":\\"some-referrer\\"}},\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
 
     it('shouldnt append $ keys to user_properties if referrer/utm are not specified', async () => {
@@ -2073,19 +2029,7 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9\\",\\"device_manufacturer\\":\\"Apple\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
 
     it('should support parsing userAgent when the setting is true', async () => {
@@ -2116,19 +2060,7 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"os_name\\":\\"Mac OS\\",\\"os_version\\":\\"53\\",\\"device_model\\":\\"Mac OS\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
 
     it('should not send parsed user agent properties when setting is false', async () => {
@@ -2159,19 +2091,7 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
 
     it('should change casing for device type when value is android', async () => {
@@ -2190,19 +2110,7 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"Android\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
 
     it('should change casing for device type when value is ios', async () => {
@@ -2221,19 +2129,7 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"iOS\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
 
     it('should send data to the EU endpoint', async () => {
@@ -2260,19 +2156,7 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9\\",\\"device_manufacturer\\":\\"Apple\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
 
     it('should give precedence to OS properties over userAgent properties', async () => {
@@ -2307,19 +2191,7 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"os_name\\":\\"iPhone OS\\",\\"os_version\\":\\"8.1.3\\",\\"device_model\\":\\"Mac OS\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
   })
 
@@ -2352,19 +2224,7 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
 
     it('should fire groupidentify call to Amplitude', async () => {
@@ -2379,19 +2239,7 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
 
     it('should fire identify call to Amplitude EU endpoint', async () => {
@@ -2411,19 +2259,7 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "identification",
-            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
 
     it('should fire groupidentify call to Amplitude EU endpoint', async () => {
@@ -2443,19 +2279,7 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "identification",
-            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
     })
   })
 

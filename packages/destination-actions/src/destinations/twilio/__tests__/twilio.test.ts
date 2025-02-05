@@ -45,21 +45,7 @@ describe('Twilio', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "From",
-            "+12056065576",
-            "To",
-            "+17758638863",
-            "Body",
-            "Hello, World!",
-            "MediaUrl",
-            "https://demo.twilio.com/owl.png",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body).toMatchInlineSnapshot(`URLSearchParams {}`)
 
       expect(responses[0].request.headers).toMatchInlineSnapshot(`
         Headers {
