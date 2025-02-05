@@ -89,8 +89,8 @@ Object {
         input: {
           advertiserId: PsAwlRv%,
           externalProvider: \\"SEGMENT_IO\\",
-          syncId: \\"1187e62a973b77faa5387b91939d70295b25063e3439b583b997efa92d9c8e78\\",
-          profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"zobbufpop@usliz.mh\\\\\\",\\\\\\"firstName\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"lastName\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"city\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"country\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"state\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"postalCode\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"birthDay\\\\\\":null,\\\\\\"birthMonth\\\\\\":null}]\\"
+          syncId: \\"2038fd066b625f77d8bc0745fa0b269a1d013648c5534d7b96cd6bb8149aa8d9\\",
+          profiles: \\"[{\\\\\\"email\\\\\\":\\\\\\"zobbufpop@usliz.mg\\\\\\",\\\\\\"firstName\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"lastName\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"city\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"country\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"state\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"postalCode\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"userId\\\\\\":\\\\\\"PsAwlRv%\\\\\\",\\\\\\"birthDay\\\\\\":null,\\\\\\"birthMonth\\\\\\":null}]\\"
         }
       ) {
         userErrors {

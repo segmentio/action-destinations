@@ -52,7 +52,7 @@ Object {
         ],
         "customer": Object {
           "dob": "HJmV*",
-          "email": "ladu@pe.me",
+          "email": "ladu@pe.md",
           "firstName": "HJmV*",
           "id": "HJmV*",
           "lastName": "HJmV*",
@@ -218,7 +218,7 @@ Object {
             "zip": "ThtPtJ2v(7[yo[",
           },
           "currencyCode": "ThtPtJ2v(7[yo[",
-          "email": "woglad@famhenwip.qa",
+          "email": "woglad@famhenwip.py",
           "lineItems": Array [
             Object {
               "discountAllocations": Array [
@@ -299,7 +299,7 @@ Object {
         ],
         "customer": Object {
           "dob": "ThtPtJ2v(7[yo[",
-          "email": "woglad@famhenwip.qa",
+          "email": "woglad@famhenwip.py",
           "firstName": "ThtPtJ2v(7[yo[",
           "id": "ThtPtJ2v(7[yo[",
           "lastName": "ThtPtJ2v(7[yo[",
@@ -569,7 +569,7 @@ Object {
             "zip": "#p#iS",
           },
           "currencyCode": "#p#iS",
-          "email": "ali@so.td",
+          "email": "ali@so.tc",
           "lineItems": Array [
             Object {
               "discountAllocations": Array [
@@ -676,7 +676,7 @@ Object {
         ],
         "customer": Object {
           "dob": "#p#iS",
-          "email": "ali@so.td",
+          "email": "ali@so.tc",
           "firstName": "#p#iS",
           "id": "#p#iS",
           "lastName": "#p#iS",
@@ -1246,7 +1246,7 @@ Object {
         "province_code": "g[^FhJnb(lsNz",
         "zip": "g[^FhJnb(lsNz",
       },
-      "email": "zav@eja.hm",
+      "email": "zav@eja.hk",
       "email_marketing_consent": Object {
         "consent_updated_at": "g[^FhJnb(lsNz",
         "opt_in_level": "g[^FhJnb(lsNz",

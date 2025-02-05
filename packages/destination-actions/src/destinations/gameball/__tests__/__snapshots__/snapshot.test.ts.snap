@@ -68,7 +68,7 @@ Object {
 
 exports[`Testing snapshot for actions-gameball destination: trackEvent action - all fields 1`] = `
 Object {
-  "email": "kokoczi@daf.jp",
+  "email": "kokoczi@daf.jo",
   "events": Object {
     "SBnT[CD": Object {
       "testType": "SBnT[CD",
@@ -93,7 +93,7 @@ Object {
   "discountCodes": Array [
     "![r@Ajo",
   ],
-  "email": "hunako@cemvouf.ht",
+  "email": "hunako@cemvouf.hr",
   "extra": Object {
     "testType": "![r@Ajo",
   },
