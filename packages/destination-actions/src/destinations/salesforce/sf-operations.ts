@@ -10,9 +10,7 @@ import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
-import { Features } from '@segment/actions-core/mapping-kit'
-
-const FLAGON_FORCE_ERROR_NAME = 'salesforce-bulk-force-error'
+import { Logger } from '@segment/actions-core/destination-kit'
 
 export const API_VERSION = 'v53.0'
 
@@ -227,22 +225,17 @@ export default class Salesforce {
     return await this.baseDelete(recordId, sobject)
   }
 
-  bulkHandler = async (
-    payloads: GenericPayload[],
-    sobject: string,
-    features?: Features,
-    statsContext?: StatsContext
-  ) => {
+  bulkHandler = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext, logger?: Logger) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
     }
 
     if (payloads[0].operation === 'upsert') {
-      return await this.bulkUpsert(payloads, sobject, features, statsContext)
+      return await this.bulkUpsert(payloads, sobject, statsContext, logger)
     } else if (payloads[0].operation === 'update') {
-      return await this.bulkUpdate(payloads, sobject, features, statsContext)
+      return await this.bulkUpdate(payloads, sobject, statsContext, logger)
     } else if (payloads[0].operation === 'create') {
-      return await this.bulkInsert(payloads, sobject, features, statsContext)
+      return await this.bulkInsert(payloads, sobject, statsContext, logger)
     }
 
     if (payloads[0].operation === 'delete') {
@@ -319,18 +312,18 @@ export default class Salesforce {
   private bulkInsert = async (
     payloads: GenericPayload[],
     sobject: string,
-    features?: Features,
-    statsContext?: StatsContext
+    statsContext?: StatsContext,
+    logger?: Logger
   ) => {
     // The idField is purposely passed as an empty string since the field is not required.
-    return this.handleBulkJob(payloads, sobject, '', 'insert', features, statsContext)
+    return this.handleBulkJob(payloads, sobject, '', 'insert', statsContext, logger)
   }
 
   private bulkUpsert = async (
     payloads: GenericPayload[],
     sobject: string,
-    features?: Features,
-    statsContext?: StatsContext
+    statsContext?: StatsContext,
+    logger?: Logger
   ) => {
     if (
       !payloads[0].bulkUpsertExternalId ||
@@ -344,14 +337,14 @@ export default class Salesforce {
       )
     }
     const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
-    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert', features, statsContext)
+    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert', statsContext, logger)
   }
 
   private bulkUpdate = async (
     payloads: GenericPayload[],
     sobject: string,
-    features?: Features,
-    statsContext?: StatsContext
+    statsContext?: StatsContext,
+    logger?: Logger
   ) => {
     if (!payloads[0].bulkUpdateRecordId) {
       throw new IntegrationError(
@@ -361,7 +354,7 @@ export default class Salesforce {
       )
     }
 
-    return this.handleBulkJob(payloads, sobject, 'Id', 'update', features, statsContext)
+    return this.handleBulkJob(payloads, sobject, 'Id', 'update', statsContext, logger)
   }
 
   private async handleBulkJob(
@@ -369,8 +362,8 @@ export default class Salesforce {
     sobject: string,
     idField: string,
     operation: string,
-    features?: Features,
-    statsContext?: StatsContext
+    statsContext?: StatsContext,
+    logger?: Logger
   ): Promise<ModifiedResponse<unknown>> {
     // construct the CSV data to catch errors before creating a bulk job
     const csv = buildCSVData(payloads, idField, operation)
@@ -385,22 +378,32 @@ export default class Salesforce {
       // with useful information before the connection closes.
       this.closeBulkJob(jobId).catch((_) => {
         // ignore close error to avoid masking the root error
+        const message = err.response?.data[0]?.message || 'Failed to parse message'
+        const code = err.response?.data[0]?.errorCode || 'Failed to parse code'
+
+        const statsClient = statsContext?.statsClient
+        const tags = statsContext?.tags
+        tags?.push('jobId:' + jobId)
+        statsClient?.incr('bulkJobError.caughUploadError', 1, tags)
+        logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
       })
       throw err
     }
 
     try {
-      if (features && features[FLAGON_FORCE_ERROR_NAME]) {
-        throw new IntegrationError('Forcing an error to test error handling', 'Forcing an error', 400)
-      }
       return await this.closeBulkJob(jobId)
     } catch (err) {
+      const message = err.response?.data[0]?.message || 'Failed to parse message'
+      const code = err.response?.data[0]?.errorCode || 'Failed to parse code'
+
       const statsClient = statsContext?.statsClient
       const tags = statsContext?.tags
 
       tags?.push('jobId:' + jobId)
       statsClient?.incr('bulkJobError', 1, tags)
-      throw new IntegrationError(`Failed to close bulk job: ${jobId}`, `Failed to close bulk job: ${jobId}`, 500)
+      logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
+
+      throw err
     }
   }
 
@@ -441,8 +444,9 @@ export default class Salesforce {
     })
   }
 
-  private closeBulkJob = async (jobId: string) => {
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`, {
+  private closeBulkJob = async (_jobId: string) => {
+    const fakeJobId = 'fakeJobId'
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${fakeJobId}`, {
       method: 'PATCH',
       json: {
         state: 'UploadComplete'
