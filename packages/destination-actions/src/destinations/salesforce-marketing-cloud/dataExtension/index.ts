@@ -16,7 +16,7 @@ import {
   dataExtensionKey,
   dataExtensionId
 } from '../sfmc-properties'
-import { executeUpsertWithMultiStatus, upsertRows, selectOrCreateDataExtension } from '../sfmc-operations'
+import { executeUpsertWithMultiStatus, upsertRows, selectOrCreateDataExtension, getDataExtensions } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event to Data Extension',
@@ -36,7 +36,13 @@ const action: ActionDefinition<Settings, Payload> = {
       inputFields: {
         operation,
         dataExtensionKey,
-        dataExtensionId,
+        dataExtensionId: { 
+          ...dataExtensionId, 
+          dynamic: async (request, { dynamicFieldContext, settings }) => {
+            const query = dynamicFieldContext?.query
+            return await getDataExtensions(request, settings.subdomain, settings, query)
+          }
+        },
         categoryId,
         name,
         description,

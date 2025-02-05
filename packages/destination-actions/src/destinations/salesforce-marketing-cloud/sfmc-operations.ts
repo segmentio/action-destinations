@@ -4,12 +4,15 @@ import {
   JSONLikeObject,
   ModifiedResponse,
   IntegrationError,
-  ActionHookResponse
+  ActionHookResponse,
+  DynamicFieldResponse,
+  DynamicFieldError,
+  DynamicFieldItem
 } from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
 import { ErrorResponse } from './types'
-import { HookBundle as DataExtensionCreationInput } from './dataExtension/generated-types'
+import { OnMappingSaveInputs } from './dataExtension/generated-types'
 import { Settings } from './generated-types'
 
 function generateRows(payloads: payload_dataExtension[] | payload_contactDataExtension[]): Record<string, any>[] {
@@ -136,6 +139,23 @@ interface DataExtensionCreationResponse {
   }
 }
 
+interface DataExtensionSelectionResponse {
+  data: {
+    id?: string
+    name?: string
+    key?: string
+  }
+}
+
+interface DataExtensionSearchResponse {
+  count: number
+  items: {
+    id: string
+    name: string
+    key: string
+  }[]
+}
+
 interface RefreshTokenResponse {
   access_token: string
   instance_url: string
@@ -158,7 +178,7 @@ const getAccessToken = async (request: RequestClient, settings: Settings): Promi
 
 const dataExtensionRequest = async (
   request: RequestClient,
-  hookInputs: DataExtensionCreationInput['onMappingSave']['inputs'],
+  hookInputs: OnMappingSaveInputs,
   auth: { subdomain: string; accessToken: string }
 ): Promise<{ id?: string; key?: string; error?: string }> => {
   if (!hookInputs) {
@@ -205,8 +225,6 @@ const dataExtensionRequest = async (
       }
     )
 
-    console.log('res', response)
-
     if (response.status !== 201) {
       return { id: '', key: '', error: `Failed to create Data Extension` }
     }
@@ -223,7 +241,7 @@ const dataExtensionRequest = async (
 async function createDataExtension(
   request: RequestClient,
   subdomain: string,
-  hookInputs: DataExtensionCreationInput['onMappingSave']['inputs'],
+  hookInputs: OnMappingSaveInputs,
   settings: Settings
 ): Promise<ActionHookResponse<{ id: string; name: string }>> {
   if (!hookInputs) {
@@ -246,7 +264,76 @@ async function createDataExtension(
     successMessage: `Data Extension ${hookInputs.name} created successfully with External Key ${key}`,
     savedData: {
       id,
-      name: hookInputs.name
+      name: hookInputs.name!
+    }
+  }
+}
+
+const selectDataExtensionRequest = async (
+  request: RequestClient,
+  hookInputs: OnMappingSaveInputs,
+  auth: { subdomain: string; accessToken: string }
+): Promise<{ id?: string; key?: string; name?: string; error?: string }> => {
+  if (!hookInputs) {
+    return { id: '', key: '', name: '', error: 'No inputs provided' }
+  }
+
+  if (!hookInputs.dataExtensionKey && !hookInputs.dataExtensionId) {
+    return { id: '', key: '', name: '', error: 'No Data Extension Key or Data Extension Id provided' }
+  }
+
+  try {
+    const response = await request<DataExtensionSelectionResponse>(
+      `https://${auth.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects/${hookInputs.dataExtensionId}`,
+      {
+        method: 'GET',
+        headers: {
+          authorization: `Bearer ${auth.accessToken}`
+        }
+      }
+    )
+    console.log('res', response)
+    if (response.status !== 200) {
+      return { id: '', key: '', name: '', error: `Failed to select Data Extension` }
+    }
+
+    return {
+      id: (response as DataExtensionSelectionResponse).data.id,
+      key: (response as DataExtensionSelectionResponse).data.key,
+      name: (response as DataExtensionSelectionResponse).data.name
+    }
+  } catch (err) {
+    return { id: '', key: '', name: '', error: err.response.data.message }
+  }
+}
+
+async function selectDataExtension(
+  request: RequestClient,
+  subdomain: string,
+  hookInputs: OnMappingSaveInputs,
+  settings: Settings
+): Promise<ActionHookResponse<{ id: string; name: string }>> {
+  if (!hookInputs) {
+    return {
+      error: { message: 'No inputs provided', code: 'ERROR' }
+    }
+  }
+
+  const accessToken = await getAccessToken(request, settings)
+
+  const { id, key, name, error } = await selectDataExtensionRequest(request, hookInputs, { subdomain, accessToken })
+
+  if (error || !id || !key) {
+    return {
+      error: { message: error || 'Unknown Error', code: 'ERROR' }
+    }
+  }
+
+  return {
+    successMessage: `Data Extension ${name} selected successfully with External Key ${key}`,
+    savedData: {
+      id,
+      name: name!
     }
   }
 }
@@ -254,10 +341,88 @@ async function createDataExtension(
 export const selectOrCreateDataExtension = async (
   request: RequestClient,
   subdomain: string,
-  hookInputs: DataExtensionCreationInput['onMappingSave']['inputs'],
+  hookInputs: OnMappingSaveInputs,
   settings: Settings
-) => {
+): Promise<ActionHookResponse<{ id: string; name: string }>> => {
   if (hookInputs.operation === 'create') {
     return await createDataExtension(request, subdomain, hookInputs, settings)
+  } else if (hookInputs.operation === 'select') {
+    return await selectDataExtension(request, subdomain, hookInputs, settings)
+  }
+
+  return {
+    error: { message: 'Invalid operation', code: 'ERROR' }
+  }
+}
+
+const getDataExtensionsRequest = async (
+  request: RequestClient,
+  searchQuery: string,
+  auth: { subdomain: string; accessToken: string }
+): Promise<{ results?: DynamicFieldItem[]; error?: DynamicFieldError }> => {
+  try {
+    const response = await request<DataExtensionSearchResponse>(
+      `https://${auth.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects`,
+      {
+        method: 'get',
+        searchParams: {
+          $search: searchQuery
+        },
+        headers: {
+          authorization: `Bearer ${auth.accessToken}`
+        }
+      }
+    )
+
+    if (response.status !== 200) {
+      return { error: { message: 'Failed to fetch Data Extensions', code: 'BAD_REQUEST' } }
+    }
+
+    const choices = response.data.items
+
+    return {
+      results: choices.map((choice) => {
+        return {
+          value: choice.id,
+          label: choice.name
+        }
+      })
+    }
+  } catch (err) {
+    return { error: { message: err.response.data.message, code: 'BAD_REQUEST' } }
+  }
+}
+
+export const getDataExtensions = async (
+  request: RequestClient,
+  subdomain: string,
+  settings: Settings,
+  query?: string
+): Promise<DynamicFieldResponse> => {
+  let searchQuery = '_'
+  if (query && query !== '') {
+    searchQuery = query
+  }
+
+  const accessToken = await getAccessToken(request, settings)
+
+  const { results, error } = await getDataExtensionsRequest(request, searchQuery, { subdomain, accessToken })
+
+  if (error) {
+    return {
+      choices: [],
+      error: error
+    }
+  }
+
+  if (!results || (Array.isArray(results) && results.length === 0)) {
+    return {
+      choices: [],
+      error: { message: 'No Data Extensions found', code: 'NOT_FOUND' }
+    }
+  }
+
+  return {
+    choices: results
   }
 }
