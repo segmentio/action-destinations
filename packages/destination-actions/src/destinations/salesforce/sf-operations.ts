@@ -395,12 +395,19 @@ export default class Salesforce {
       }
       return await this.closeBulkJob(jobId)
     } catch (err) {
+      const message = err.response?.data?.message || 'Failed to parse message'
+      const code = err.response?.data?.errorCode || 'Failed to parse code'
+
       const statsClient = statsContext?.statsClient
       const tags = statsContext?.tags
 
       tags?.push('jobId:' + jobId)
       statsClient?.incr('bulkJobError', 1, tags)
-      throw new IntegrationError(`Failed to close bulk job: ${jobId}`, `Failed to close bulk job: ${jobId}`, 500)
+      throw new IntegrationError(
+        `Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`,
+        `Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`,
+        500
+      )
     }
   }
 
