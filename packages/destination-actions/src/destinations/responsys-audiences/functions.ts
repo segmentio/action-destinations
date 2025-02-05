@@ -1,4 +1,4 @@
-import { createRequestClient, ModifiedResponse, RequestClient } from '@segment/actions-core/*'
+import { createRequestClient, ModifiedResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 
 import { Settings } from './generated-types'
 import { RefreshTokenResponse, ResponsysCustomTraitsRequestBody } from './types'
@@ -105,6 +105,22 @@ export const getAllPets = async (
   })
 
   return response.data as { profileExtension: { objectName: string } }[]
+}
+
+export const validateListMemberPayload = ({
+  EMAIL_ADDRESS_,
+  RIID_,
+  CUSTOMER_ID_
+}: {
+  EMAIL_ADDRESS_?: string
+  RIID_?: string
+  CUSTOMER_ID_?: string
+}): void => {
+  if (!EMAIL_ADDRESS_ && !RIID_ && !CUSTOMER_ID_) {
+    throw new PayloadValidationError(
+      'At least one of the following fields is required: Email Address, RIID, or Customer ID'
+    )
+  }
 }
 
 export const sendDebugMessageToSegmentSource = async (

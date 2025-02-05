@@ -1,6 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { validateListMemberPayload } from '../functions'
+import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
+import { updateProfileListAndPet } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -91,13 +94,26 @@ const action: ActionDefinition<Settings, Payload> = {
       ]
     }
   },
-  perform: (request, data) => {
-    console.log(request, data)
-    // Make your partner api request here!
-    // return request('https://example.com', {
-    //   method: 'post',
-    //   json: data.payload
-    // })
+  perform: async (request, data) => {
+    const { payload, settings, auth } = data
+
+    validateListMemberPayload(payload.recipientData)
+    return await updateProfileListAndPet(request, auth as AuthTokens, settings, [payload])
+  },
+  performBatch: async (request, data) => {
+    const { payload, settings, auth } = data
+
+    const validPayloads = []
+    for (const item of payload) {
+      try {
+        validateListMemberPayload(item.recipientData)
+        validPayloads.push(item)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    return await updateProfileListAndPet(request, auth as AuthTokens, settings, validPayloads)
   }
 }
 

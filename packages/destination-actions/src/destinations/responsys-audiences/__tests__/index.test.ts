@@ -3,24 +3,27 @@ import { createTestIntegration } from '@segment/actions-core'
 
 import Definition from '../index'
 import { Settings } from '../generated-types'
-import { CONSTANTS } from '../constants'
+
+const responsysHost = 'https://123456-api.responsys.ocs.oraclecloud.com'
 
 const testDestination = createTestIntegration(Definition)
+
+jest.setTimeout(10000)
 
 describe('Responsys Audiences', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock(CONSTANTS.API_BASE_URL).post('/rest/api/v1.3/auth/token').reply(200, {
+      nock(responsysHost).post('/rest/api/v1.3/auth/token').reply(200, {
         authToken: 'anything',
         issuedAt: 1728492996097,
-        endPoint: CONSTANTS.API_BASE_URL
+        endPoint: responsysHost
       })
 
       const settings: Settings = {
         segmentWriteKey: 'testKey',
         username: 'testUser',
         userPassword: 'testPassword',
-        baseUrl: CONSTANTS.API_BASE_URL,
+        baseUrl: responsysHost,
         profileListName: 'TESTLIST',
         insertOnNoMatch: true,
         matchColumnName1: 'EMAIL_ADDRESS',
@@ -32,10 +35,77 @@ describe('Responsys Audiences', () => {
   })
 
   describe('createAudience', () => {
-    it('should create an audience', async () => {})
+    const profileListName = 'TESTLIST'
+    it('should create an audience successfully', async () => {
+      nock(responsysHost).post('/rest/api/v1.3/auth/token').reply(200, {
+        authToken: 'anything',
+        issuedAt: 1728492996097,
+        endPoint: responsysHost
+      })
+
+      nock(responsysHost).get(`/rest/api/v1.3/lists/${profileListName}/listExtensions`).reply(200, [])
+      nock(responsysHost).post(`/rest/api/v1.3/lists/${profileListName}/listExtensions`).reply(200, {})
+
+      const settings: Settings = {
+        segmentWriteKey: 'testKey',
+        username: 'testUser',
+        userPassword: 'testPassword',
+        baseUrl: responsysHost,
+        profileListName: profileListName,
+        insertOnNoMatch: true,
+        matchColumnName1: 'EMAIL_ADDRESS',
+        updateOnMatch: 'REPLACE_ALL'
+      }
+
+      const createAudienceInput = {
+        settings,
+        audienceName: 'Test Audience',
+        personas: {
+          computation_key: 'test_audience',
+          computation_id: '12342352452562',
+          namespace: 'spa_12312414212412'
+        }
+      }
+
+      const audienceResult = await testDestination.createAudience(createAudienceInput)
+      expect(audienceResult).toBeTruthy()
+      expect(audienceResult.externalId).toBe('test_audience')
+    })
   })
 
   describe('getAudience', () => {
-    it('should get an audience', async () => {})
+    const profileListName = 'TESTLIST'
+    it('should get an audience', async () => {
+      nock(responsysHost).post('/rest/api/v1.3/auth/token').reply(200, {
+        authToken: 'anything',
+        issuedAt: 1728492996097,
+        endPoint: responsysHost
+      })
+
+      nock(responsysHost)
+        .get(`/rest/api/v1.3/lists/${profileListName}/listExtensions`)
+        .reply(200, [
+          {
+            profileExtension: {
+              objectName: profileListName
+            }
+          }
+        ])
+
+      const settings: Settings = {
+        segmentWriteKey: 'testKey',
+        username: 'testUser',
+        userPassword: 'testPassword',
+        baseUrl: responsysHost,
+        profileListName: profileListName,
+        insertOnNoMatch: true,
+        matchColumnName1: 'EMAIL_ADDRESS',
+        updateOnMatch: 'REPLACE_ALL'
+      }
+
+      const getAudienceResult = await testDestination.getAudience({ settings, externalId: 'test_audience' })
+      expect(getAudienceResult).toBeTruthy()
+      expect(getAudienceResult.externalId).toBe('test_audience')
+    })
   })
 })

@@ -162,59 +162,72 @@ const updateProfileListMembers = async (
   payloads: Payload[]
 ) => {
   const fieldNames = ['EMAIL_ADDRESS_', 'CUSTOMER_ID_']
-  const records: string[][] = []
+  const recordsPerFields: { [key: string]: string[][] } = {
+    EMAIL_ADDRESS_: [],
+    CUSTOMER_ID_: [],
+    'EMAIL_ADDRESS_,CUSTOMER_ID_': []
+  }
 
   for (const payload of payloads) {
     const record: string[] = []
+    let fieldsKey = ''
     for (const fieldName of fieldNames) {
       const resolvedFieldName = fieldName as 'EMAIL_ADDRESS_' | 'CUSTOMER_ID_' | 'RIID_'
+
       if (payload.recipientData && payload.recipientData[resolvedFieldName]) {
+        fieldsKey += resolvedFieldName + ','
         const value = payload.recipientData[resolvedFieldName]
         record.push(value || '')
       }
     }
 
-    records.push(record)
+    if (fieldsKey === '') {
+      continue
+    }
+
+    fieldsKey = fieldsKey.substring(0, fieldsKey.length - 1)
+    recordsPerFields[fieldsKey].push(record)
   }
 
-  // Per https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/REST/Async/asyncApi-v1.3-lists-listName-members-post.htm,
-  // we can only send 200 records at a time.
-  for (let i = 0; i < records.length; i += 200) {
-    const chunk = records.slice(i, i + 200)
-    const recordData: ResponsysRecordData = {
-      fieldNames: fieldNames,
-      records: chunk,
-      mapTemplateName: ''
+  for (const [fieldsKey, records] of Object.entries(recordsPerFields)) {
+    // Per https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/REST/Async/asyncApi-v1.3-lists-listName-members-post.htm,
+    // we can only send 200 records at a time.
+    for (let i = 0; i < records.length; i += 200) {
+      const chunk = records.slice(i, i + 200)
+      const recordData: ResponsysRecordData = {
+        fieldNames: fieldsKey.split(','),
+        records: chunk,
+        mapTemplateName: ''
+      }
+
+      const mergeRule: ResponsysMergeRule = {
+        insertOnNoMatch: true,
+        updateOnMatch: 'REPLACE_ALL',
+        matchColumnName1: settings.matchColumnName1 + '_',
+        optinValue: settings.optinValue,
+        optoutValue: settings.optoutValue,
+        rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
+        defaultPermissionStatus: payloads[0].default_permission_status
+      }
+
+      const requestBody: ResponsysListMemberRequestBody = {
+        recordData,
+        mergeRule
+      }
+
+      const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/members`
+      const endpoint = new URL(path, settings.baseUrl)
+
+      const response: ModifiedResponse<ResponsysAsyncResponse> = await request(endpoint.href, {
+        method: 'POST',
+        body: JSON.stringify(requestBody)
+      })
+
+      const requestId = response.data.requestId
+      await new Promise((resolve) => setTimeout(resolve, getAsyncResponseWaitInterval))
+      const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
+      await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
     }
-
-    const mergeRule: ResponsysMergeRule = {
-      insertOnNoMatch: true,
-      updateOnMatch: 'REPLACE_ALL',
-      matchColumnName1: settings.matchColumnName1 + '_',
-      optinValue: settings.optinValue,
-      optoutValue: settings.optoutValue,
-      rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
-      defaultPermissionStatus: payloads[0].default_permission_status
-    }
-
-    const requestBody: ResponsysListMemberRequestBody = {
-      recordData,
-      mergeRule
-    }
-
-    const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/members`
-
-    const endpoint = new URL(path, settings.baseUrl)
-
-    const response: ModifiedResponse<ResponsysAsyncResponse> = await request(endpoint.href, {
-      method: 'POST',
-      body: JSON.stringify(requestBody)
-    })
-
-    const requestId = response.data.requestId
-    await new Promise((resolve) => setTimeout(resolve, getAsyncResponseWaitInterval))
-    const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
-    await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
   }
 }
 
