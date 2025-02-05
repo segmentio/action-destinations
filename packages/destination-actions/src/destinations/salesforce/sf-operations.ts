@@ -12,7 +12,7 @@ import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core
 import { Settings } from './generated-types'
 import { Features } from '@segment/actions-core/mapping-kit'
 
-const FLAGON_FORCE_ERROR_NAME = 'salesforce-bulk-force-error-2'
+const FLAGON_FORCE_ERROR_NAME = 'salesforce-bulk-force-error-3'
 
 export const API_VERSION = 'v53.0'
 
