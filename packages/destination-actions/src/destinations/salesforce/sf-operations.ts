@@ -395,8 +395,8 @@ export default class Salesforce {
       }
       return await this.closeBulkJob(jobId)
     } catch (err) {
-      const message = err.response?.data?.message || 'Failed to parse message'
-      const code = err.response?.data?.errorCode || 'Failed to parse code'
+      const message = (err as any).response?.data?.message || 'Failed to parse message'
+      const code = (err as any).response?.data?.errorCode || 'Failed to parse code'
 
       const statsClient = statsContext?.statsClient
       const tags = statsContext?.tags
