@@ -3,11 +3,13 @@ import {
   MultiStatusResponse,
   JSONLikeObject,
   ModifiedResponse,
-  IntegrationError
+  IntegrationError,
+  ActionHookResponse
 } from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
 import { ErrorResponse } from './types'
+import { HookBundle as DataExtensionCreationInput } from './dataExtension/generated-types'
 
 function generateRows(payloads: payload_dataExtension[] | payload_contactDataExtension[]): Record<string, any>[] {
   const rows: Record<string, any>[] = []
@@ -23,10 +25,11 @@ function generateRows(payloads: payload_dataExtension[] | payload_contactDataExt
 export function upsertRows(
   request: RequestClient,
   subdomain: String,
-  payloads: payload_dataExtension[] | payload_contactDataExtension[]
+  payloads: payload_dataExtension[] | payload_contactDataExtension[],
+  dataExtensionId?: string,
+  dataExtensionKey?: string
 ) {
-  const { key, id } = payloads[0]
-  if (!key && !id) {
+  if (!dataExtensionKey && !dataExtensionId) {
     throw new IntegrationError(
       `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`,
       'Misconfigured required field',
@@ -34,13 +37,16 @@ export function upsertRows(
     )
   }
   const rows = generateRows(payloads)
-  if (key) {
-    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${key}/rowset`, {
-      method: 'POST',
-      json: rows
-    })
+  if (dataExtensionKey) {
+    return request(
+      `https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${dataExtensionKey}/rowset`,
+      {
+        method: 'POST',
+        json: rows
+      }
+    )
   } else {
-    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/${id}/rowset`, {
+    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/${dataExtensionId}/rowset`, {
       method: 'POST',
       json: rows
     })
@@ -50,13 +56,15 @@ export function upsertRows(
 export async function executeUpsertWithMultiStatus(
   request: RequestClient,
   subdomain: String,
-  payloads: payload_dataExtension[] | payload_contactDataExtension[]
+  payloads: payload_dataExtension[] | payload_contactDataExtension[],
+  dataExtensionId?: string,
+  dataExtensionKey?: string
 ): Promise<MultiStatusResponse> {
   const multiStatusResponse = new MultiStatusResponse()
   let response: ModifiedResponse | undefined
   const rows = generateRows(payloads)
   try {
-    response = await upsertRows(request, subdomain, payloads)
+    response = await upsertRows(request, subdomain, payloads, dataExtensionId, dataExtensionKey)
     if (response) {
       const responseData = response.data as JSONLikeObject[]
       payloads.forEach((_, index) => {
@@ -113,4 +121,105 @@ export async function executeUpsertWithMultiStatus(
     })
   }
   return multiStatusResponse
+}
+
+interface DataExtensionField {}
+
+interface DataExtensionCreationResponse {
+  data: {
+    id?: string
+    name?: string
+    key?: string
+    message?: string
+    errorcode?: number
+  }
+}
+
+const dataExtensionRequest = async (
+  request: RequestClient,
+  subdomain: string,
+  hookInputs: DataExtensionCreationInput['onMappingSave']['inputs']
+): Promise<{ id?: string; key?: string; error?: string }> => {
+  if (!hookInputs) {
+    return { id: '', key: '', error: 'No inputs provided' }
+  }
+
+  if (!hookInputs.columns) {
+    return { id: '', key: '', error: 'No columns provided' }
+  }
+
+  const fields: DataExtensionField[] = hookInputs.columns.map((column, i) => {
+    return {
+      name: column.name,
+      type: column.type,
+      isNullable: column.isNullable,
+      isPrimaryKey: column.isPrimaryKey,
+      length: column.length,
+      description: column.description || '',
+      // these are required but we don't give the user an option
+      ordinal: i,
+      isTemplateField: false,
+      isHidden: false,
+      isReadOnly: false,
+      isInheritable: false,
+      isOverridable: false,
+      mustOverride: false
+    }
+  })
+
+  try {
+    const response = await request<DataExtensionCreationResponse>(
+      `https://${subdomain}.rest.marketingcloudapis.com/data/v1/customobjects`,
+      {
+        method: 'POST',
+        json: {
+          name: hookInputs.name,
+          description: hookInputs.description,
+          categoryId: hookInputs.categoryId,
+          fields
+        }
+      }
+    )
+
+    console.log('res', response)
+
+    if (response.status !== 201) {
+      return { id: '', key: '', error: `Failed to create Data Extension` }
+    }
+
+    return {
+      id: (response as DataExtensionCreationResponse).data.id,
+      key: (response as DataExtensionCreationResponse).data.key
+    }
+  } catch (error) {
+    return { id: '', key: '', error: error.response.data.message }
+  }
+}
+
+export async function createDataExtension(
+  request: RequestClient,
+  subdomain: string,
+  hookInputs: DataExtensionCreationInput['onMappingSave']['inputs']
+): Promise<ActionHookResponse<{ id: string; name: string }>> {
+  if (!hookInputs) {
+    return {
+      error: { message: 'No inputs provided', code: 'ERROR' }
+    }
+  }
+
+  const { id, key, error } = await dataExtensionRequest(request, subdomain, hookInputs)
+
+  if (error || !id || !key) {
+    return {
+      error: { message: error || 'Unknown Error', code: 'ERROR' }
+    }
+  }
+
+  return {
+    successMessage: `Data Extension ${hookInputs.name} created successfully with External Key ${key}`,
+    savedData: {
+      id,
+      name: hookInputs.name
+    }
+  }
 }
