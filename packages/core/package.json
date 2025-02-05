@@ -71,12 +71,12 @@
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
-    "@types/btoa-lite": "^1.0.0",
-    "@types/jest": "^27.0.0",
-    "@types/json-schema": "^7.0.7",
-    "benny": "^3.7.0",
+    "@types/btoa-lite": "^1.0.2",
+    "@types/jest": "^27.5.2",
+    "@types/json-schema": "^7.0.15",
+    "benny": "^3.7.1",
     "create-test-server": "^3.0.1",
-    "jest": "^27.3.1"
+    "jest": "^27.5.1"
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.0",
@@ -85,12 +85,12 @@
     "@segment/destination-subscriptions": "^3.36.0",
     "@types/node": "^18.11.15",
     "aggregate-error": "^3.1.0",
-    "ajv": "^8.6.3",
+    "ajv": "^8.17.1",
     "ajv-formats": "^2.1.1",
     "btoa-lite": "^1.0.0",
-    "cross-fetch": "^3.1.4",
-    "dayjs": "^1.10.7",
-    "ts-custom-error": "^3.2.0"
+    "cross-fetch": "^3.2.0",
+    "dayjs": "^1.11.13",
+    "ts-custom-error": "^3.3.1"
   },
   "jest": {
     "preset": "ts-jest",
