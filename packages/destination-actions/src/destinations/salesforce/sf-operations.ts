@@ -247,7 +247,13 @@ export default class Salesforce {
     }
   }
 
-  bulkHandlerWithSyncMode = async (payloads: GenericPayload[], sobject: string, syncMode: string | undefined) => {
+  bulkHandlerWithSyncMode = async (
+    payloads: GenericPayload[],
+    sobject: string,
+    syncMode: string | undefined,
+    statsContext?: StatsContext,
+    logger?: Logger
+  ) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
     }
@@ -265,13 +271,13 @@ export default class Salesforce {
     }
 
     if (syncMode === 'upsert') {
-      return await this.bulkUpsert(payloads, sobject)
+      return await this.bulkUpsert(payloads, sobject, statsContext, logger)
     } else if (syncMode === 'update') {
-      return await this.bulkUpdate(payloads, sobject)
+      return await this.bulkUpdate(payloads, sobject, statsContext, logger)
     } else if (syncMode === 'add') {
       // Sync Mode does not have a "create" operation. We call it "add".
       // "add" will be transformed into "create" in the bulkInsert function.
-      return await this.bulkInsert(payloads, sobject)
+      return await this.bulkInsert(payloads, sobject, statsContext, logger)
     }
   }
 
@@ -444,9 +450,8 @@ export default class Salesforce {
     })
   }
 
-  private closeBulkJob = async (_jobId: string) => {
-    const fakeJobId = 'fakeJobId'
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${fakeJobId}`, {
+  private closeBulkJob = async (jobId: string) => {
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`, {
       method: 'PATCH',
       json: {
         state: 'UploadComplete'

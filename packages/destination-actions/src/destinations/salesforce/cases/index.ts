@@ -57,10 +57,10 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, statsContext, logger }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    return sf.bulkHandler(payload, OBJECT_NAME)
+    return sf.bulkHandler(payload, OBJECT_NAME, statsContext, logger)
   }
 }
 
