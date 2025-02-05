@@ -14,7 +14,7 @@
     "package.json"
   ],
   "engines": {
-    "node": "^18.12 || ^20.18"
+    "node": "^18.12 || ^22.13"
   },
   "engineStrict": true,
   "license": "MIT",
@@ -33,7 +33,7 @@
   "devDependencies": {
     "@types/google-libphonenumber": "^7.4.23",
     "@types/jest": "^27.0.0",
-    "@types/ssh2-sftp-client": "^9.0.0",
+    "@types/ssh2-sftp-client": "^9.0.4",
     "jest": "^27.3.1",
     "nock": "^13.1.4"
   },
@@ -57,7 +57,7 @@
     "liquidjs": "^10.16.7",
     "lodash": "^4.17.21",
     "lru-cache": "10.4.3",
-    "ssh2-sftp-client": "^9.1.0"
+    "ssh2-sftp-client": "^11.0.0"
   },
   "jest": {
     "preset": "ts-jest",
