@@ -450,8 +450,9 @@ export default class Salesforce {
     })
   }
 
-  private closeBulkJob = async (jobId: string) => {
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`, {
+  private closeBulkJob = async (_jobId: string) => {
+    const fakeId = 'fakeId'
+    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${fakeId}`, {
       method: 'PATCH',
       json: {
         state: 'UploadComplete'
