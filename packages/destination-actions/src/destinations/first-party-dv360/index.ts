@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 import { createAudienceRequest, getAudienceRequest, getAuthSettings, getAuthToken } from './functions'
 import removeFromAudContactInfo from './removeFromAudContactInfo'
@@ -171,7 +171,34 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     addToAudMobileDeviceId,
     removeFromAudContactInfo,
     removeFromAudMobileDeviceId
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Entered',
+      partnerAction: 'addToAudContactInfo',
+      mapping: {
+        ...defaultValues(addToAudContactInfo.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    },
+
+    {
+      name: 'Entities Audience Exited',
+      partnerAction: 'removeFromAudContactInfo',
+      mapping: {
+        ...defaultValues(removeFromAudContactInfo.fields),
+        properties: {
+          '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_exited_track'
+    }
+  ]
 }
 
 export default destination
