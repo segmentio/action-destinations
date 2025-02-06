@@ -3,10 +3,10 @@ import { ErrorCodes, IntegrationError, PayloadValidationError, InvalidAuthentica
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
 import { CONVERSION_TYPE_OPTIONS, SUPPORTED_LOOKBACK_WINDOW_CHOICES, DEPENDS_ON_CONVERSION_RULE_ID } from '../constants'
-import type { Payload, HookBundle } from './generated-types'
+import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from './generated-types'
 import { LinkedInError } from '../types'
 
-const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
+const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs, OnMappingSaveOutputs> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
   defaultSubscription: 'type = "track"',
@@ -140,13 +140,13 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       performHook: async (request, { hookInputs, hookOutputs }) => {
         const linkedIn = new LinkedInConversions(request)
 
-        let hookReturn: ActionHookResponse<HookBundle['onMappingSave']['outputs']>
+        let hookReturn: ActionHookResponse<OnMappingSaveOutputs>
         if (hookOutputs?.onMappingSave?.outputs) {
           linkedIn.setConversionRuleId(hookOutputs.onMappingSave.outputs.id)
 
           hookReturn = await linkedIn.updateConversionRule(
             hookInputs,
-            hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
+            hookOutputs.onMappingSave.outputs as OnMappingSaveOutputs
           )
         } else {
           hookReturn = await linkedIn.createConversionRule(hookInputs)
