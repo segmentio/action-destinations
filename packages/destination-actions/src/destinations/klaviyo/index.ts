@@ -2,8 +2,7 @@ import {
   IntegrationError,
   AudienceDestinationDefinition,
   PayloadValidationError,
-  APIError,
-  defaultValues
+  APIError
 } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 
@@ -68,8 +67,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     listId: {
       label: 'List Id',
-      description: `Insert the ID of the default list that you'd like to subscribe users to when you call .identify().
-       NOTE: List ID takes precedence set within Actions.`,
+      description: `Insert the ID of the default list where users should be subscribed when calling .identify().  
+      Note: The List ID set within Actions takes precedence.`,
       type: 'string'
     }
   },
@@ -109,6 +108,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async getAudience(request, getAudienceInput) {
       const defaultAudienceId = getAudienceInput.audienceSettings?.listId
+
       if (defaultAudienceId) {
         getAudienceInput.externalId = defaultAudienceId
       }
@@ -126,10 +126,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const errorResponse = await response.json()
         const klaviyoErrorDetail = errorResponse.errors[0].detail
         throw new APIError(klaviyoErrorDetail, response.status)
-      }
-
-      if (defaultAudienceId) {
-        return { externalId: defaultAudienceId }
       }
 
       const r = await response.json()
@@ -157,33 +153,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     subscribeProfile,
     unsubscribeProfile,
     removeProfile
-  },
-  presets: [
-    {
-      name: 'Entities Audience Entered',
-      partnerAction: 'upsertProfile',
-      mapping: {
-        ...defaultValues(upsertProfile.fields),
-        properties: {
-          '@path': '$.properties'
-        }
-      },
-      type: 'specificEvent',
-      eventSlug: 'warehouse_audience_entered_track'
-    },
-    {
-      name: 'Entities Audience Exited',
-      partnerAction: 'removeProfile',
-      mapping: {
-        ...defaultValues(removeProfile.fields),
-        properties: {
-          '@path': '$.properties'
-        }
-      },
-      type: 'specificEvent',
-      eventSlug: 'warehouse_audience_exited_track'
-    }
-  ]
+  }
 }
 
 export default destination

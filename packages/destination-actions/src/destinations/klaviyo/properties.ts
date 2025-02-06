@@ -15,8 +15,7 @@ export const list_id: InputField = {
     }
   },
   unsafe_hidden: true,
-  required: true,
-  disabledInputMethods: ['function', 'enrichment']
+  required: true
 }
 
 export const email: InputField = {
@@ -25,7 +24,8 @@ export const email: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.traits.email'
-  }
+  },
+  format: 'email'
 }
 
 export const external_id: InputField = {
@@ -169,3 +169,4 @@ export const country_code: InputField = {
     ]
   }
 }
+export const eventBulkCreateRegex = /\/data\/attributes\/events-bulk-create\/data\/(\d+)/

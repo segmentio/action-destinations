@@ -4,7 +4,7 @@ exports[`Testing snapshot for actions-klaviyo destination: addProfileToList acti
 Object {
   "data": Object {
     "attributes": Object {
-      "email": "mudwoz@zo.ad",
+      "email": "odewaclon@fesijeho.hr",
       "external_id": "E3nNk",
       "first_name": "E3nNk",
       "image": "E3nNk",
@@ -38,7 +38,7 @@ Object {
       "metric": Object {
         "data": Object {
           "attributes": Object {
-            "name": "PE*zlOgIPA]mVozMLBaL",
+            "name": "Order Completed",
           },
           "type": "metric",
         },
@@ -130,7 +130,7 @@ Object {
         "data": Object {
           "attributes": Object {
             "anonymous_id": "mTdOx(Nl)",
-            "email": "ujoeri@ifosi.kp",
+            "email": "atvilifo@rik.lr",
             "external_id": "mTdOx(Nl)",
             "phone_number": "+5694788449",
           },

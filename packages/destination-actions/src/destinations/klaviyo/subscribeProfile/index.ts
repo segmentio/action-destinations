@@ -46,8 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'List Id',
       description: `The Klaviyo list to add the newly subscribed profiles to. If no List Id is present, the opt-in process used to subscribe the profile depends on the account's default opt-in settings.`,
       type: 'string',
-      dynamic: true,
-      disabledInputMethods: ['function', 'enrichment']
+      dynamic: true
     },
     custom_source: {
       label: 'Custom Source ($source)',
@@ -95,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: subData
     })
   },
-  performBatch: async (request, { payload }) => {
+  performBatch: async (request, { payload, statsContext, features }) => {
     // remove payloads that have niether email or phone_number
     const filteredPayload = payload.filter((profile) => {
       // Validate and convert the phone number using the provided country code
@@ -137,6 +136,16 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError(
         'Exceeded maximum allowed batches due to unique list_id and custom_source pairings'
       )
+    }
+    const statsClient = statsContext?.statsClient
+    const tags = statsContext?.tags
+
+    if (features && features['klaviyo-list-id']) {
+      const set = new Set()
+      payload.forEach((profile) => {
+        set.add(profile.list_id)
+      })
+      statsClient?.histogram(`klaviyo_list_id`, set.size, tags)
     }
     const requests: Promise<ModifiedResponse<Response>>[] = []
     batches.forEach((key) => {
