@@ -1,9 +1,16 @@
-import { IntegrationError, ModifiedResponse, RequestClient, RefreshAccessTokenResult } from '@segment/actions-core'
+import {
+  IntegrationError,
+  ModifiedResponse,
+  RequestClient,
+  RefreshAccessTokenResult,
+  StatsContext
+} from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
+import { Logger } from '@segment/actions-core/destination-kit'
 
 export const API_VERSION = 'v53.0'
 
@@ -218,17 +225,17 @@ export default class Salesforce {
     return await this.baseDelete(recordId, sobject)
   }
 
-  bulkHandler = async (payloads: GenericPayload[], sobject: string) => {
+  bulkHandler = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext, logger?: Logger) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
     }
 
     if (payloads[0].operation === 'upsert') {
-      return await this.bulkUpsert(payloads, sobject)
+      return await this.bulkUpsert(payloads, sobject, statsContext, logger)
     } else if (payloads[0].operation === 'update') {
-      return await this.bulkUpdate(payloads, sobject)
+      return await this.bulkUpdate(payloads, sobject, statsContext, logger)
     } else if (payloads[0].operation === 'create') {
-      return await this.bulkInsert(payloads, sobject)
+      return await this.bulkInsert(payloads, sobject, statsContext, logger)
     }
 
     if (payloads[0].operation === 'delete') {
@@ -240,7 +247,13 @@ export default class Salesforce {
     }
   }
 
-  bulkHandlerWithSyncMode = async (payloads: GenericPayload[], sobject: string, syncMode: string | undefined) => {
+  bulkHandlerWithSyncMode = async (
+    payloads: GenericPayload[],
+    sobject: string,
+    syncMode: string | undefined,
+    statsContext?: StatsContext,
+    logger?: Logger
+  ) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
     }
@@ -258,13 +271,13 @@ export default class Salesforce {
     }
 
     if (syncMode === 'upsert') {
-      return await this.bulkUpsert(payloads, sobject)
+      return await this.bulkUpsert(payloads, sobject, statsContext, logger)
     } else if (syncMode === 'update') {
-      return await this.bulkUpdate(payloads, sobject)
+      return await this.bulkUpdate(payloads, sobject, statsContext, logger)
     } else if (syncMode === 'add') {
       // Sync Mode does not have a "create" operation. We call it "add".
       // "add" will be transformed into "create" in the bulkInsert function.
-      return await this.bulkInsert(payloads, sobject)
+      return await this.bulkInsert(payloads, sobject, statsContext, logger)
     }
   }
 
@@ -302,12 +315,22 @@ export default class Salesforce {
     }
   }
 
-  private bulkInsert = async (payloads: GenericPayload[], sobject: string) => {
+  private bulkInsert = async (
+    payloads: GenericPayload[],
+    sobject: string,
+    statsContext?: StatsContext,
+    logger?: Logger
+  ) => {
     // The idField is purposely passed as an empty string since the field is not required.
-    return this.handleBulkJob(payloads, sobject, '', 'insert')
+    return this.handleBulkJob(payloads, sobject, '', 'insert', statsContext, logger)
   }
 
-  private bulkUpsert = async (payloads: GenericPayload[], sobject: string) => {
+  private bulkUpsert = async (
+    payloads: GenericPayload[],
+    sobject: string,
+    statsContext?: StatsContext,
+    logger?: Logger
+  ) => {
     if (
       !payloads[0].bulkUpsertExternalId ||
       !payloads[0].bulkUpsertExternalId.externalIdName ||
@@ -320,10 +343,15 @@ export default class Salesforce {
       )
     }
     const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
-    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert')
+    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert', statsContext, logger)
   }
 
-  private bulkUpdate = async (payloads: GenericPayload[], sobject: string) => {
+  private bulkUpdate = async (
+    payloads: GenericPayload[],
+    sobject: string,
+    statsContext?: StatsContext,
+    logger?: Logger
+  ) => {
     if (!payloads[0].bulkUpdateRecordId) {
       throw new IntegrationError(
         'Undefined bulkUpdateRecordId when using bulkUpdate operation',
@@ -332,14 +360,16 @@ export default class Salesforce {
       )
     }
 
-    return this.handleBulkJob(payloads, sobject, 'Id', 'update')
+    return this.handleBulkJob(payloads, sobject, 'Id', 'update', statsContext, logger)
   }
 
   private async handleBulkJob(
     payloads: GenericPayload[],
     sobject: string,
     idField: string,
-    operation: string
+    operation: string,
+    statsContext?: StatsContext,
+    logger?: Logger
   ): Promise<ModifiedResponse<unknown>> {
     // construct the CSV data to catch errors before creating a bulk job
     const csv = buildCSVData(payloads, idField, operation)
@@ -354,10 +384,33 @@ export default class Salesforce {
       // with useful information before the connection closes.
       this.closeBulkJob(jobId).catch((_) => {
         // ignore close error to avoid masking the root error
+        const message = err.response?.data[0]?.message || 'Failed to parse message'
+        const code = err.response?.data[0]?.errorCode || 'Failed to parse code'
+
+        const statsClient = statsContext?.statsClient
+        const tags = statsContext?.tags
+        tags?.push('jobId:' + jobId)
+        statsClient?.incr('bulkJobError.caughUploadError', 1, tags)
+        logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
       })
       throw err
     }
-    return await this.closeBulkJob(jobId)
+
+    try {
+      return await this.closeBulkJob(jobId)
+    } catch (err) {
+      const message = err.response?.data[0]?.message || 'Failed to parse message'
+      const code = err.response?.data[0]?.errorCode || 'Failed to parse code'
+
+      const statsClient = statsContext?.statsClient
+      const tags = statsContext?.tags
+
+      tags?.push('jobId:' + jobId)
+      statsClient?.incr('bulkJobError', 1, tags)
+      logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
+
+      throw err
+    }
   }
 
   private createBulkJob = async (sobject: string, externalIdFieldName: string, operation: string) => {
