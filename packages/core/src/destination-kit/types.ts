@@ -36,6 +36,8 @@ export interface DynamicFieldContext {
   selectedArrayIndex?: number
   /** The key within a dynamic object for which we are requesting values */
   selectedKey?: string
+  /** The RichInput dropdown search query the user has entered */
+  query?: string
 }
 
 export interface ExecuteInput<
