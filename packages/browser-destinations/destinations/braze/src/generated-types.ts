@@ -18,7 +18,7 @@ export interface Settings {
    */
   allowCrawlerActivity?: boolean
   /**
-   * To indicate that you trust the Braze dashboard users to write non-malicious Javascript click actions, set this property to true. If enableHtmlInAppMessages is true, this option will also be set to true. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)
+   * To indicate that you trust the Braze dashboard users to write non-malicious Javascript click actions, set this property to true. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)
    */
   allowUserSuppliedJavascript?: boolean
   /**
