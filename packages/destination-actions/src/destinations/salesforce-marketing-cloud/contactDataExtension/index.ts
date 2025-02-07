@@ -11,9 +11,17 @@ import {
   categoryId,
   name,
   description,
-  columns
+  columns,
+  operation,
+  dataExtensionKey,
+  dataExtensionId
 } from '../sfmc-properties'
-import { executeUpsertWithMultiStatus, upsertRows, createDataExtension } from '../sfmc-operations'
+import {
+  executeUpsertWithMultiStatus,
+  upsertRows,
+  selectOrCreateDataExtension,
+  getDataExtensions
+} from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Contact to Data Extension',
@@ -46,6 +54,15 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Create Data Extension',
       description: 'Create a new data extension in Salesforce Marketing Cloud.',
       inputFields: {
+        operation,
+        dataExtensionKey,
+        dataExtensionId: {
+          ...dataExtensionId,
+          dynamic: async (request, { dynamicFieldContext, settings }) => {
+            const query = dynamicFieldContext?.query
+            return await getDataExtensions(request, settings.subdomain, settings, query)
+          }
+        },
         categoryId,
         name,
         description,
@@ -66,7 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       performHook: async (request, { settings, hookInputs }) => {
-        return await createDataExtension(request, settings.subdomain, hookInputs, settings)
+        return await selectOrCreateDataExtension(request, settings.subdomain, hookInputs, settings)
       }
     }
   },

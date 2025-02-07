@@ -36,6 +36,8 @@ export interface DynamicFieldContext {
   selectedArrayIndex?: number
   /** The key within a dynamic object for which we are requesting values */
   selectedKey?: string
+  /** The RichInput dropdown search query the user has entered */
+  query?: string
 }
 
 export interface ExecuteInput<
@@ -166,7 +168,12 @@ export interface InputFieldJSONSchema {
         /** A human-friendly label for the option */
         label: string
       }>
-  /** Whether or not the field is required */
+  /**
+   * Whether or not the field is required. If set to true the field must always be included.
+   * If a DependsOnConditions object is defined then the field will be required based on the conditions defined.
+   * This validation is done both when an event payload is sent through the perform block and when a user configures
+   * a mapping in the UI.
+   * */
   required?: boolean | DependsOnConditions
   /**
    * Optional definition for the properties of `type: 'object'` fields

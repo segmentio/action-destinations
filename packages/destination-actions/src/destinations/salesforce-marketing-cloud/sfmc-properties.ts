@@ -1,4 +1,4 @@
-import { InputField, FieldTypeName } from '@segment/actions-core/destination-kit/types'
+import { InputField, FieldTypeName, DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 
 export const contactKey: InputField = {
   label: 'Contact Key',
@@ -97,24 +97,63 @@ export const batch_size: InputField = {
   default: 10
 }
 
+// Scripting for the create/select existing data extension flow
+const CREATE_OPERATION: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'create' }]
+}
+
+const SELECT_OPERATION: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'select' }]
+}
+
 // The following properties represent hook inputs for the create data extension hook
 export const categoryId = {
   label: 'Category ID (Folder ID)',
   description: 'The identifier for the folder that contains the data extension.',
   type: 'string' as FieldTypeName,
+  required: CREATE_OPERATION,
+  depends_on: CREATE_OPERATION
+}
+
+export const operation = {
+  label: 'Operation',
+  description: 'Whether to create a new data extension or select an existing one for data delivery.',
+  type: 'string' as FieldTypeName,
+  choices: [
+    { label: 'Create a new Data Extension', value: 'create' },
+    { label: 'Select an existing Data Extension', value: 'select' }
+  ],
   required: true
+}
+
+export const dataExtensionKey = {
+  label: 'Data Extension Key',
+  description: 'The external key of the data extension.',
+  type: 'string' as FieldTypeName,
+  depends_on: SELECT_OPERATION
+}
+
+export const dataExtensionId = {
+  label: 'Data Extension ID',
+  description: 'The identifier for the data extension.',
+  type: 'string' as FieldTypeName,
+  depends_on: SELECT_OPERATION
 }
 
 export const name = {
   label: 'Data Extension Name',
   description: 'The name of the data extension.',
   type: 'string' as FieldTypeName,
-  required: true
+  required: CREATE_OPERATION,
+  depends_on: CREATE_OPERATION
 }
 export const description = {
   label: 'Data Extension Description',
   description: 'The description of the data extension.',
   type: 'string' as FieldTypeName,
+  depends_on: CREATE_OPERATION
 }
 
 export const columns: Omit<InputField, 'dynamic'> & {
@@ -126,6 +165,8 @@ export const columns: Omit<InputField, 'dynamic'> & {
   multiple: true,
   defaultObjectUI: 'arrayeditor',
   additionalProperties: true,
+  required: CREATE_OPERATION,
+  depends_on: CREATE_OPERATION,
   properties: {
     name: {
       label: 'Field Name',
@@ -139,7 +180,7 @@ export const columns: Omit<InputField, 'dynamic'> & {
       type: 'string',
       required: true,
       choices: [
-        { label: 'Text', value: 'Text' },
+        { label: 'Text', value: 'Text' }
         // todo add more
       ]
     },
@@ -165,6 +206,6 @@ export const columns: Omit<InputField, 'dynamic'> & {
       label: 'Field Description',
       description: 'The description of the field.',
       type: 'string'
-    },
-  },
+    }
+  }
 }
