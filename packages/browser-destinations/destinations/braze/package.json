@@ -33,7 +33,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@braze/web-sdk": "npm:@braze/web-sdk@^4.1.0",
+    "@braze/web-sdk": "npm:@braze/web-sdk@^5",
     "@braze/web-sdk-v3": "npm:@braze/web-sdk@^3.5.1",
     "@segment/actions-core": "^3.141.0",
     "@segment/browser-destination-runtime": "^1.70.0"

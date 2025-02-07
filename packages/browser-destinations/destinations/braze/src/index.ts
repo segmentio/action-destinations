@@ -1,7 +1,7 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import type braze from '@braze/web-sdk'
+import * as braze from '@braze/web-sdk'
 import type appboy from '@braze/web-sdk-v3'
 import trackEvent from './trackEvent'
 import updateUserProfile from './updateUserProfile'
@@ -18,23 +18,26 @@ declare global {
   }
 }
 
-const defaultVersion = '5.6'
+const defaultVersion = '5.7'
 
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Identify Calls',
+    type: 'automatic',
     subscribe: 'type = "identify" or type = "group"',
     partnerAction: 'updateUserProfile',
     mapping: defaultValues(updateUserProfile.fields)
   },
   {
     name: 'Order Completed calls',
+    type: 'automatic',
     subscribe: 'type = "track" and event = "Order Completed"',
     partnerAction: 'trackPurchase',
     mapping: defaultValues(trackPurchase.fields)
   },
   {
     name: 'Track Calls',
+    type: 'automatic',
     subscribe: 'type = "track" and event != "Order Completed"',
     partnerAction: 'trackEvent',
     mapping: {
@@ -92,8 +95,8 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
           label: '5.4'
         },
         {
-          value: '5.6',
-          label: '5.6'
+          value: '5.7',
+          label: '5.7'
         }
       ],
       default: defaultVersion,
@@ -123,7 +126,8 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         { label: 'US-09	(https://dashboard-09.braze.com)', value: 'sdk.iad-09.braze.com' },
         { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'sdk.fra-01.braze.eu' },
         { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'sdk.fra-02.braze.eu' },
-        { label: 'AU-01 (https://dashboard.au-01.braze.com)', value: 'sdk.au-01.braze.com' }
+        { label: 'AU-01 (https://dashboard.au-01.braze.com)', value: 'sdk.au-01.braze.com' },
+        { label: 'ID-01 (https://dashboard-01.braze.id)', value: 'sdk.apse-01.braze.id' }
       ],
       default: 'sdk.iad-01.braze.com',
       required: true
