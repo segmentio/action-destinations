@@ -4,20 +4,27 @@ exports[`Testing snapshot for Ortto's trackActivity destination action: all fiel
 Array [
   Object {
     "anonymous_id": "9QX1u",
-    "contact_profile": Object {
-      "geo_mode": "ip",
-      "ip": "4.211.147.169",
-      "location": Object {},
-      "traits": Object {},
-    },
     "enable_batching": true,
     "event": "9QX1u",
+    "ip": "4.211.147.169",
+    "location": Object {
+      "city": "9QX1u",
+      "country": "9QX1u",
+      "post_code": "9QX1u",
+      "state": "9QX1u",
+    },
     "message_id": "9QX1u",
     "namespace": "9QX1u",
     "properties": Object {
       "testType": "9QX1u",
     },
     "timestamp": "2108-01-18T04:43:16.331Z",
+    "traits": Object {
+      "email": "diudouro@fanpufuju.nz",
+      "first_name": "9QX1u",
+      "last_name": "9QX1u",
+      "phone": "9QX1u",
+    },
     "user_id": "9QX1u",
   },
 ]

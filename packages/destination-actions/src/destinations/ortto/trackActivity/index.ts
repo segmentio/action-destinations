@@ -38,56 +38,88 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       defaultObjectUI: 'keyvalue'
     },
-    contact_profile: {
-      label: 'Contact profile to upsert',
-      description: 'When provided the associated contact profile will be updated/created',
+    ip: {
+      label: 'IP Address',
+      description: 'The IP address of the location where the activity occurred.',
+      placeholder: '180.1.12.125',
+      type: 'string',
+      format: 'ipv4',
+      default: { '@path': '$.context.ip' },
+      allowNull: true
+    },
+    location: {
+      label: 'Location',
+      description: 'The location where the activity occurred. Will take priority over the IP address.',
+      type: 'object',
+      defaultObjectUI: 'keyvalue:only',
+      additionalProperties: false,
+      allowNull: true,
+      properties: {
+        country: {
+          label: 'Country',
+          type: 'string',
+          allowNull: true
+        },
+        state: {
+          label: 'State',
+          type: 'string',
+          allowNull: true
+        },
+        city: {
+          label: 'City',
+          type: 'string',
+          allowNull: true
+        },
+        post_code: {
+          label: 'Postcode',
+          type: 'string',
+          allowNull: true
+        }
+      },
+      default: {
+        country: { '@path': '$.context.location.country' },
+        city: { '@path': '$.context.location.city' }
+      }
+    },
+    traits: {
+      label: 'Custom contact traits',
+      description:
+        'When provided, it contains key-value pairs representing custom properties assigned to the associated contact profile',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       displayMode: 'collapsed',
       properties: {
-        geo_mode: commonFields.geo_mode,
-        ip: commonFields.ip,
-        location: commonFields.location,
-        traits: {
-          label: 'Custom contact traits',
-          description:
-            'When provided, it contains key-value pairs representing custom properties assigned to the associated contact profile',
-          type: 'object',
-          defaultObjectUI: 'keyvalue',
-          properties: {
-            email: {
-              label: 'Email',
-              description: "The contact's email address",
-              placeholder: 'john.smith@example.com',
-              type: 'string',
-              format: 'email'
-            },
-            phone: {
-              label: 'Phone Number',
-              description: "The contact's phone number",
-              placeholder: '+61 159011100',
-              type: 'string'
-            },
-            first_name: {
-              label: 'First Name',
-              description: "The contact's first name",
-              placeholder: 'John',
-              type: 'string'
-            },
-            last_name: {
-              label: 'Last Name',
-              description: "The contact's last name",
-              placeholder: 'Smith',
-              type: 'string'
-            }
-          },
-          default: {
-            email: { '@path': '$.context.traits.email' },
-            phone: { '@p ath': '$.context.traits.phone' },
-            first_name: { '@path': '$.context.traits.first_name' },
-            last_name: { '@path': '$.context.traits.last_name' }
-          }
+        email: {
+          label: 'Email',
+          description: "The contact's email address",
+          placeholder: 'john.smith@example.com',
+          type: 'string',
+          format: 'email'
+        },
+        phone: {
+          label: 'Phone Number',
+          description: "The contact's phone number",
+          placeholder: '+61 159011100',
+          type: 'string'
+        },
+        first_name: {
+          label: 'First Name',
+          description: "The contact's first name",
+          placeholder: 'John',
+          type: 'string'
+        },
+        last_name: {
+          label: 'Last Name',
+          description: "The contact's last name",
+          placeholder: 'Smith',
+          type: 'string'
         }
+      },
+      default: {
+        email: { '@path': '$.context.traits.email' },
+        phone: { '@path': '$.context.traits.phone' },
+        first_name: { '@path': '$.context.traits.first_name' },
+        last_name: { '@path': '$.context.traits.last_name' }
       }
     }
   },

@@ -36,46 +36,37 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * When provided the associated contact profile will be updated/created
+   * The IP address of the location where the activity occurred.
    */
-  contact_profile?: {
+  ip?: string | null
+  /**
+   * The location where the activity occurred. Will take priority over the IP address.
+   */
+  location?: {
+    country?: string | null
+    state?: string | null
+    city?: string | null
+    post_code?: string | null
+  }
+  /**
+   * When provided, it contains key-value pairs representing custom properties assigned to the associated contact profile
+   */
+  traits?: {
     /**
-     * Specifies how to assign the contact's location
+     * The contact's email address
      */
-    geo_mode?: string
+    email?: string
     /**
-     * The contact's IP address
+     * The contact's phone number
      */
-    ip?: string | null
+    phone?: string
     /**
-     * The contact's location
+     * The contact's first name
      */
-    location?: {
-      country?: string | null
-      state?: string | null
-      city?: string | null
-      post_code?: string | null
-    }
+    first_name?: string
     /**
-     * When provided, it contains key-value pairs representing custom properties assigned to the associated contact profile
+     * The contact's last name
      */
-    traits?: {
-      /**
-       * The contact's email address
-       */
-      email?: string
-      /**
-       * The contact's phone number
-       */
-      phone?: string
-      /**
-       * The contact's first name
-       */
-      first_name?: string
-      /**
-       * The contact's last name
-       */
-      last_name?: string
-    }
+    last_name?: string
   }
 }

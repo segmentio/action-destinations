@@ -14,9 +14,49 @@ const action: ActionDefinition<Settings, Payload> = {
     user_id: commonFields.user_id,
     anonymous_id: commonFields.anonymous_id,
     enable_batching: commonFields.enable_batching,
-    geo_mode: commonFields.geo_mode,
-    ip: commonFields.ip,
-    location: commonFields.location,
+    ip: {
+      label: 'IP Address',
+      description: "The contact's IP address",
+      placeholder: '180.1.12.125',
+      type: 'string',
+      format: 'ipv4',
+      default: { '@path': '$.context.ip' },
+      allowNull: true
+    },
+    location: {
+      label: 'Location',
+      description: "The contact's location. Will take priority over the IP address.",
+      type: 'object',
+      defaultObjectUI: 'keyvalue:only',
+      additionalProperties: false,
+      allowNull: true,
+      properties: {
+        country: {
+          label: 'Country',
+          type: 'string',
+          allowNull: true
+        },
+        state: {
+          label: 'State',
+          type: 'string',
+          allowNull: true
+        },
+        city: {
+          label: 'City',
+          type: 'string',
+          allowNull: true
+        },
+        post_code: {
+          label: 'Postcode',
+          type: 'string',
+          allowNull: true
+        }
+      },
+      default: {
+        country: { '@path': '$.context.location.country' },
+        city: { '@path': '$.context.location.city' }
+      }
+    },
     traits: {
       label: 'Custom contact traits',
       description: 'An object containing key-value pairs representing custom properties assigned to contact profile',

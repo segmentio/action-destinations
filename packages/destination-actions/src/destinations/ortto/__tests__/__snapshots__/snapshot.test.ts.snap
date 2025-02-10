@@ -4,20 +4,27 @@ exports[`Testing snapshot for actions-ortto destination: trackActivity action - 
 Array [
   Object {
     "anonymous_id": "]25AcEh01MO",
-    "contact_profile": Object {
-      "geo_mode": "location",
-      "ip": "107.255.187.198",
-      "location": Object {},
-      "traits": Object {},
-    },
     "enable_batching": true,
     "event": "]25AcEh01MO",
+    "ip": "107.255.187.198",
+    "location": Object {
+      "city": "]25AcEh01MO",
+      "country": "]25AcEh01MO",
+      "post_code": "]25AcEh01MO",
+      "state": "]25AcEh01MO",
+    },
     "message_id": "]25AcEh01MO",
     "namespace": "]25AcEh01MO",
     "properties": Object {
       "testType": "]25AcEh01MO",
     },
     "timestamp": "2125-06-22T08:21:01.417Z",
+    "traits": Object {
+      "email": "vepaj@apzujhuw.sm",
+      "first_name": "]25AcEh01MO",
+      "last_name": "]25AcEh01MO",
+      "phone": "]25AcEh01MO",
+    },
     "user_id": "]25AcEh01MO",
   },
 ]
@@ -39,7 +46,6 @@ Array [
   Object {
     "anonymous_id": "TBOtXZm4yQy]54s",
     "enable_batching": false,
-    "geo_mode": "location",
     "ip": "169.155.93.138",
     "location": Object {
       "city": "TBOtXZm4yQy]54s",

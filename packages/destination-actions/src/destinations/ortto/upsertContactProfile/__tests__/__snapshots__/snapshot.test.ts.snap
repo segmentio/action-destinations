@@ -5,7 +5,6 @@ Array [
   Object {
     "anonymous_id": "2fUSE5G",
     "enable_batching": true,
-    "geo_mode": "ip",
     "ip": "47.188.17.159",
     "location": Object {
       "city": "2fUSE5G",

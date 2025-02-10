@@ -22,15 +22,11 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
-   * Specifies how to assign the contact's location
-   */
-  geo_mode?: string
-  /**
    * The contact's IP address
    */
   ip?: string | null
   /**
-   * The contact's location
+   * The contact's location. Will take priority over the IP address.
    */
   location?: {
     country?: string | null
