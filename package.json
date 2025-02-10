@@ -113,6 +113,9 @@
     }
   },
   "dependencies": {
-    "chance": "^1.1.8"
+    "@nx/nx-darwin-arm64": "^20.0.3",
+    "bootstrap": "^5.3.3",
+    "chance": "^1.1.8",
+    "flag": "^5.0.1"
   }
 }
