@@ -6,7 +6,7 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 
 describe('Topsort.purchase', () => {
-  it('should be successful with default mappings and products object', async () => {
+  it('should be successful with default mappings and products object, including vendorId', async () => {
     nock(/.*/).persist().post(/.*/).reply(200)
 
     const event = createTestEvent({
@@ -15,7 +15,8 @@ describe('Topsort.purchase', () => {
           {
             product_id: '123',
             price: 100,
-            quantity: 1
+            quantity: 1,
+            vendor_id: 'v123'
           }
         ]
       }
@@ -42,7 +43,8 @@ describe('Topsort.purchase', () => {
             {
               productId: '123',
               unitPrice: 100,
-              quantity: 1
+              quantity: 1,
+              vendorId: 'v123'
             }
           ]
         })

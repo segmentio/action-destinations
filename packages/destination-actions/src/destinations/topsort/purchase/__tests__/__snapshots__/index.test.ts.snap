@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Topsort.purchase should be successful with default mappings and products object 1`] = `
+exports[`Topsort.purchase should be successful with default mappings and products object, including vendorId 1`] = `
 Headers {
   Symbol(map): Object {
     "authorization": Array [

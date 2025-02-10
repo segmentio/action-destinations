@@ -69,7 +69,8 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             productId: { '@path': '$.product_id' },
             unitPrice: { '@path': '$.price' },
-            quantity: { '@path': '$.quantity' }
+            quantity: { '@path': '$.quantity' },
+            vendorId: { '@path': '$.brand' }
           }
         ]
       }
