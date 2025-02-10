@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
   syncMode: {
     description: 'Define how the records will be synced to Google',
     label: 'How to sync records',
-    default: 'add',
+    default: 'mirror',
     choices: [
       { label: 'Adds users to the connected Google Customer Match User List', value: 'add' },
       { label: 'Remove users from the connected Google Customer Match User List', value: 'delete' },
