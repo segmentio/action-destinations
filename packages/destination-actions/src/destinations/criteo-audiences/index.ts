@@ -1,4 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
+import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core/*'
+
 import type { Settings } from './generated-types'
 import addUserToAudience from './addUserToAudience'
 import removeUserFromAudience from './removeUserFromAudience'
@@ -38,6 +40,11 @@ const destination: DestinationDefinition<Settings> = {
         client_secret: settings.client_secret
       })
       return credentials.access_token
+    }
+  },
+  extendRequest() {
+    return {
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     }
   },
   actions: {
