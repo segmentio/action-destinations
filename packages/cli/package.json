@@ -9,7 +9,7 @@
     "directory": "packages/cli"
   },
   "engines": {
-    "node": "14 || ^18.12"
+    "node": "^18.12 || ^22.11"
   },
   "engineStrict": true,
   "bin": {
