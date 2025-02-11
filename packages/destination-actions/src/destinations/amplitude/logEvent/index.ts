@@ -110,6 +110,13 @@ const action: ActionDefinition<Settings, Payload> = {
         'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field',
       default: true
     },
+    includeRawUserAgent: {
+      label: 'Include Raw User Agent',
+      type: 'boolean',
+      description:
+        'Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field',
+      default: false
+    },
     utm_properties: {
       label: 'UTM Properties',
       type: 'object',
@@ -169,6 +176,7 @@ const action: ActionDefinition<Settings, Payload> = {
       session_id,
       userAgent,
       userAgentParsing,
+      includeRawUserAgent,
       userAgentData,
       utm_properties,
       referrer,
@@ -211,6 +219,7 @@ const action: ActionDefinition<Settings, Payload> = {
       {
         // Conditionally parse user agent using amplitude's library
         ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
+        ...(includeRawUserAgent && { user_agent: userAgent }),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
         library: 'segment'
