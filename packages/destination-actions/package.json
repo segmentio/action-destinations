@@ -14,7 +14,7 @@
     "package.json"
   ],
   "engines": {
-    "node": "^18.12 || ^22.11"
+    "node": "^18.12 || ^20.18"
   },
   "engineStrict": true,
   "license": "MIT",
@@ -46,9 +46,9 @@
     "@segment/a1-notation": "^2.1.4",
     "@segment/actions-core": "^3.145.0",
     "@segment/actions-shared": "^1.126.0",
-    "@types/node": "^18.11.15",
+    "@types/node": "^20.17.16",
     "ajv-formats": "^2.1.1",
-    "aws4": "^1.12.0",
+    "aws4": "^1.13.2",
     "cheerio": "^1.0.0",
     "dayjs": "^1.11.13",
     "escape-goat": "^3",
