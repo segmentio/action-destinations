@@ -87,7 +87,7 @@ describe('Responsys Audiences', () => {
         .reply(200, [
           {
             profileExtension: {
-              objectName: profileListName
+              objectName: 'test_audience'
             }
           }
         ])
