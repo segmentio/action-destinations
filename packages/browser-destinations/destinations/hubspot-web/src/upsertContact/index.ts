@@ -30,7 +30,8 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
       }
     },
     custom_properties: {
-      description: 'A list of key-value pairs that describe the contact. Please see [HubSpot`s documentation](https://knowledge.hubspot.com/account/prevent-contact-properties-update-through-tracking-code-api) for limitations in updating contact properties.',
+      description:
+        'A list of key-value pairs that describe the contact. Please see [HubSpot`s documentation](https://knowledge.hubspot.com/account/prevent-contact-properties-update-through-tracking-code-api) for limitations in updating contact properties.',
       label: 'Custom Properties',
       type: 'object',
       required: false,
@@ -102,6 +103,15 @@ const action: BrowserActionDefinition<Settings, Hubspot, Payload> = {
     if (!payload.email) {
       return
     }
+
+    payload.email = payload.email?.trim()
+    payload.id = payload.id?.trim()
+    payload.company = payload.company?.trim()
+    payload.country = payload.country?.trim()
+    payload.state = payload.state?.trim()
+    payload.city = payload.city?.trim()
+    payload.address = payload.address?.trim()
+    payload.zip = payload.zip?.trim()
 
     // custom properties should be key-value pairs of strings, therefore, filtering out any non-primitive
     const { custom_properties, ...rest } = payload

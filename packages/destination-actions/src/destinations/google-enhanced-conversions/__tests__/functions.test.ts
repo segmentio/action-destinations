@@ -1,7 +1,7 @@
 import { createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
 import { Features } from '@segment/actions-core/mapping-kit'
 import nock from 'nock'
-import { CANARY_API_VERSION } from '../functions'
+import { CANARY_API_VERSION, formatToE164, commonHashedEmailValidation } from '../functions'
 import destination from '../index'
 
 const testDestination = createTestIntegration(destination)
@@ -139,5 +139,45 @@ describe('.getConversionActionId', () => {
     expect(responses.choices.length).toBe(0)
     expect(responses.error?.message).toEqual(errorResponse.response.statusText)
     expect(responses.error?.code).toEqual(errorResponse.response.status)
+  })
+})
+
+describe('email formatting', () => {
+  it('should format a non-hashed value', async () => {
+    expect(commonHashedEmailValidation('test@gmail.com')).toEqual(
+      '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
+    )
+  })
+  it('should return hashed value as is', async () => {
+    expect(commonHashedEmailValidation('87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674')).toEqual(
+      '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
+    )
+  })
+})
+
+describe('phone number formatting', () => {
+  it('should format a US phone number', async () => {
+    expect(formatToE164('16195551000', '+1')).toEqual('+16195551000')
+    expect(formatToE164('6195551000', '+1')).toEqual('+16195551000')
+    expect(formatToE164('6195551000', '1')).toEqual('+16195551000')
+    expect(formatToE164('6195551000', '+1')).toEqual('+16195551000')
+  })
+
+  it('should format a UK phone number', async () => {
+    expect(formatToE164('44 20 7123 4567', '44')).toEqual('+442071234567')
+    expect(formatToE164('20 7123 4567', '44')).toEqual('+442071234567')
+    expect(formatToE164('2071234567', '44')).toEqual('+442071234567')
+    expect(formatToE164('442071234567', '44')).toEqual('+442071234567')
+    expect(formatToE164('+44 20 7123 4567', '44')).toEqual('+442071234567')
+    expect(formatToE164('+44 20 7123 4567', '+44')).toEqual('+442071234567')
+  })
+
+  it('should format a German phone number', async () => {
+    expect(formatToE164('49 30 1234567', '49')).toEqual('+49301234567')
+    expect(formatToE164('30 1234567', '49')).toEqual('+49301234567')
+    expect(formatToE164('301234567', '49')).toEqual('+49301234567')
+    expect(formatToE164('49301234567', '+49')).toEqual('+49301234567')
+    expect(formatToE164('+49 30 1234567', '49')).toEqual('+49301234567')
+    expect(formatToE164('+49 30 1234567', '49')).toEqual('+49301234567')
   })
 })

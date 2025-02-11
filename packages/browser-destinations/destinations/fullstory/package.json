@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-fullstory",
-  "version": "1.70.0",
+  "version": "1.77.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -16,8 +16,8 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@fullstory/browser": "^2.0.3",
-    "@segment/actions-core": "^3.138.0",
-    "@segment/browser-destination-runtime": "^1.67.0"
+    "@segment/actions-core": "^3.145.0",
+    "@segment/browser-destination-runtime": "^1.74.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"

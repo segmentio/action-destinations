@@ -48,7 +48,7 @@ export interface Payload {
    */
   app_version?: string
   /**
-   * Platform of the device.
+   * Platform of the device. If using analytics.js to send events from a Browser and no if no Platform value is provided, the value "Web" will be sent.
    */
   platform?: string
   /**
@@ -193,6 +193,10 @@ export interface Payload {
    * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field
    */
   userAgentParsing?: boolean
+  /**
+   * Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field
+   */
+  includeRawUserAgent?: boolean
   /**
    * UTM Tracking Properties
    */

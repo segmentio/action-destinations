@@ -4,6 +4,9 @@ import sendCustomTraits from './sendCustomTraits'
 import sendAudience from './sendAudience'
 import upsertListMember from './upsertListMember'
 
+import sendAudienceAsPet from './sendAudienceAsPet'
+import sendToPet from './sendToPet'
+
 interface RefreshTokenResponse {
   authToken: string
 }
@@ -43,7 +46,7 @@ const destination: DestinationDefinition<Settings> = {
       userPassword: {
         label: 'Password',
         description: 'Responsys password',
-        type: 'string',
+        type: 'password',
         required: true
       },
       baseUrl: {
@@ -54,15 +57,22 @@ const destination: DestinationDefinition<Settings> = {
         format: 'uri',
         required: true
       },
+      defaultFolderName: {
+        label: 'Default Folder Name',
+        description: 'Name of the folder where the Profile Extension Table is located.',
+        type: 'string',
+        required: false
+      },
       profileListName: {
-        label: 'List Name',
+        label: 'Default Profile List Name',
         description: "Name of the Profile Extension Table's Contact List.",
         type: 'string',
-        required: true
+        required: false
       },
       profileExtensionTable: {
-        label: 'PET Name',
-        description: 'Profile Extension Table (PET) Name. Required if using the "Send Custom Traits" Action.',
+        label: 'Default PET Name',
+        description:
+          'Default Profile Extension Table (PET) Name. Required if using the "Send Custom Traits" Action. Can be overridden in the mapping.',
         type: 'string',
         required: false
       },
@@ -148,7 +158,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       defaultPermissionStatus: {
         label: 'Default Permission Status',
-        description: 'This value must be specified as either OPTIN or OPTOUT. defaults to OPTOUT.',
+        description:
+          'This value must be specified as either OPTIN or OPTOUT. Defaults to OPTOUT. Can be overridden in the mapping.',
         type: 'string',
         required: true,
         choices: [
@@ -170,12 +181,25 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string'
       }
     },
-    testAuthentication: (_, { settings }) => {
-      if (settings.baseUrl.startsWith('https://'.toLowerCase())) {
-        return Promise.resolve('Success')
-      } else {
+    testAuthentication: async (request, { settings }) => {
+      if (!settings.baseUrl.startsWith('https://'.toLowerCase())) {
         throw new IntegrationError('Responsys endpoint URL must start with https://', 'INVALID_URL', 400)
       }
+
+      const baseUrl = settings.baseUrl?.replace(/\/$/, '')
+      const endpoint = `${baseUrl}/rest/api/v1.3/auth/token`
+
+      const res = await request<RefreshTokenResponse>(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `user_name=${encodeURIComponent(settings.username)}&password=${encodeURIComponent(
+          settings.userPassword
+        )}&auth_type=password`
+      })
+
+      return Promise.resolve(res.data.authToken ? true : false)
     },
     refreshAccessToken: async (request, { settings }) => {
       const baseUrl = settings.baseUrl?.replace(/\/$/, '')
@@ -203,8 +227,10 @@ const destination: DestinationDefinition<Settings> = {
   },
   actions: {
     sendAudience,
+    sendAudienceAsPet,
     sendCustomTraits,
-    upsertListMember
+    upsertListMember,
+    sendToPet
   }
 }
 

@@ -23,7 +23,7 @@ import { HTTPError, NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
-import { ErrorCodes, IntegrationError, MultiStatusErrorReporter } from '../errors'
+import { ErrorCodes, getErrorCodeFromHttpStatus, IntegrationError, MultiStatusErrorReporter } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
 import {
   Logger,
@@ -542,9 +542,16 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
           // Check if response is a failed response
           if (response instanceof ActionDestinationErrorResponse) {
+            const responseValue = response.value()
+
+            // Check if the error has a 'sent' or 'body' field set, we assume it to be an error from the API Call
+            // Else we assume it to be an error from the Integration validations
             multiStatusResponse[i] = {
-              ...response.value(),
-              errorreporter: MultiStatusErrorReporter.DESTINATION
+              ...responseValue,
+              errorreporter:
+                responseValue.sent || responseValue.body
+                  ? MultiStatusErrorReporter.DESTINATION
+                  : MultiStatusErrorReporter.INTEGRATIONS
             }
 
             // Add datadog stats for events that are discarded by Destination
@@ -747,6 +754,11 @@ export class ActionDestinationErrorResponse {
   private data: ActionDestinationErrorResponseType
   public constructor(data: ActionDestinationErrorResponseType) {
     this.data = data
+
+    // If the error type is not set, try to infer it from the status code
+    if (!this.data.errortype) {
+      this.data.errortype = getErrorCodeFromHttpStatus(this.data.status)
+    }
   }
   public value(): ActionDestinationErrorResponseType {
     return this.data

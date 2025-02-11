@@ -38,7 +38,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       default: {
-        '@path': '$.properties.braze_id'
+        '@if': {
+          exists: { '@path': '$.integrations.Braze Cloud Mode (Actions).braze_id' },
+          then: { '@path': '$.integrations.Braze Cloud Mode (Actions).braze_id' },
+          else: { '@path': '$.traits.braze_id' }
+        }
       }
     },
     country: {

@@ -806,4 +806,36 @@ describe('Set Configuration Fields action', () => {
       send_page_view: false
     })
   })
+
+  it('should convert consent values to lower case', async () => {
+    defaultSettings.enableConsentMode = true
+
+    const [setConfigurationEventPlugin] = await googleAnalytics4Web({
+      ...defaultSettings,
+      subscriptions
+    })
+    setConfigurationEvent = setConfigurationEventPlugin
+    await setConfigurationEventPlugin.load(Context.system(), {} as Analytics)
+
+    const context = new Context({
+      event: 'setConfigurationFields',
+      type: 'page',
+      properties: {
+        ads_storage_consent_state: 'GRANTED',
+        analytics_storage_consent_state: 'Granted'
+      }
+    })
+
+    setConfigurationEvent.page?.(context)
+
+    expect(mockGtag).toHaveBeenCalledWith('consent', 'update', {
+      ad_storage: 'granted',
+      analytics_storage: 'granted'
+    })
+    expect(mockGtag).toHaveBeenCalledWith('config', 'G-XXXXXXXXXX', {
+      allow_ad_personalization_signals: false,
+      allow_google_signals: false,
+      send_page_view: true
+    })
+  })
 })

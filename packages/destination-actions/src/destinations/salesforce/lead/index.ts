@@ -11,7 +11,8 @@ import {
   enable_batching,
   recordMatcherOperator,
   batch_size,
-  hideIfDeleteOperation
+  hideIfDeleteOperation,
+  requiredIfCreateOperation
 } from '../sf-properties'
 import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 
@@ -53,6 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.properties.last_name' }
         }
       },
+      required: requiredIfCreateOperation,
       depends_on: hideIfDeleteOperation
     },
     first_name: {
@@ -175,7 +177,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, statsContext, logger }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (payload[0].operation === 'upsert') {
@@ -184,7 +186,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    return sf.bulkHandler(payload, OBJECT_NAME)
+    return sf.bulkHandler(payload, OBJECT_NAME, statsContext, logger)
   }
 }
 
