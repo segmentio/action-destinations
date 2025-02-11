@@ -6,7 +6,7 @@ on:
 
 jobs:
   required-field-check:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     timeout-minutes: 5
 
@@ -88,7 +88,7 @@ jobs:
                     }
                   }
                 } else {
-                  
+
                   // If key is not present in requiredFieldsOnMain, then all fields are added recently
                   const getActionKeys = Object.keys(requiredFieldsOnBranch[key])
                   for(const actionKey of getActionKeys) {
@@ -109,7 +109,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             })
-            const diffComment = comments.data.find(comment => comment.body.includes('<!--REQUIRED_FIELD_DIFF-->')) 
+            const diffComment = comments.data.find(comment => comment.body.includes('<!--REQUIRED_FIELD_DIFF-->'))
 
             const comment = fs.readFileSync("./.github/REQUIRED_FIELD_WARNING_TEMPLATE.md", "utf8")
             const commentBody = comment.replace('{{FIELDS_ADDED}}', fieldsAdded.join('\n'))
