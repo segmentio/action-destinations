@@ -1,7 +1,7 @@
 import { createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
 import { Features } from '@segment/actions-core/mapping-kit'
 import nock from 'nock'
-import { CANARY_API_VERSION, formatToE164 } from '../functions'
+import { CANARY_API_VERSION, formatToE164, commonHashedEmailValidation } from '../functions'
 import destination from '../index'
 
 const testDestination = createTestIntegration(destination)
@@ -142,7 +142,20 @@ describe('.getConversionActionId', () => {
   })
 })
 
-describe.only('phone number formatting', () => {
+describe('email formatting', () => {
+  it('should format a non-hashed value', async () => {
+    expect(commonHashedEmailValidation('test@gmail.com')).toEqual(
+      '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
+    )
+  })
+  it('should return hashed value as is', async () => {
+    expect(commonHashedEmailValidation('87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674')).toEqual(
+      '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
+    )
+  })
+})
+
+describe('phone number formatting', () => {
   it('should format a US phone number', async () => {
     expect(formatToE164('16195551000', '+1')).toEqual('+16195551000')
     expect(formatToE164('6195551000', '+1')).toEqual('+16195551000')
