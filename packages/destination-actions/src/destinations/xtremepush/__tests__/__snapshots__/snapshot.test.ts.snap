@@ -26,7 +26,7 @@ Object {
 exports[`Testing snapshot for actions-xtremepush-actions-destination destination: track action - all fields 1`] = `
 Object {
   "anonymousId": "$C&bo4aVkeZv",
-  "email": "iguinuco@deb.eu",
+  "email": "iguinuco@deb.et",
   "event": "$C&bo4aVkeZv",
   "messageId": "$C&bo4aVkeZv",
   "phone": "$C&bo4aVkeZv",

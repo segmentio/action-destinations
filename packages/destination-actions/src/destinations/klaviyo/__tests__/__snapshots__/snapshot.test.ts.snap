@@ -4,7 +4,7 @@ exports[`Testing snapshot for actions-klaviyo destination: addProfileToList acti
 Object {
   "data": Object {
     "attributes": Object {
-      "email": "odewaclon@fesijeho.hr",
+      "email": "odewaclon@fesijeho.hn",
       "external_id": "E3nNk",
       "first_name": "E3nNk",
       "image": "E3nNk",
@@ -79,7 +79,7 @@ Object {
         "data": Array [
           Object {
             "attributes": Object {
-              "email": "ton@febmigi.bg",
+              "email": "ton@febmigi.bf",
               "phone_number": "+7659834885",
               "subscriptions": Object {
                 "email": Object {

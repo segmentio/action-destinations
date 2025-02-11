@@ -4,7 +4,7 @@ exports[`Testing snapshot for Attio's identifyUser destination action: all field
 Object {
   "data": Object {
     "values": Object {
-      "email_addresses": "kojeh@hiana.tg",
+      "email_addresses": "kojeh@hiana.tf",
       "testType": "Jy5OvBwOqr",
     },
   },
@@ -15,7 +15,7 @@ exports[`Testing snapshot for Attio's identifyUser destination action: required 
 Object {
   "data": Object {
     "values": Object {
-      "email_addresses": "kojeh@hiana.tg",
+      "email_addresses": "kojeh@hiana.tf",
     },
   },
 }

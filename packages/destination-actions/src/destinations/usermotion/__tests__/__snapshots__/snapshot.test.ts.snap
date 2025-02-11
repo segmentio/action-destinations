@@ -23,7 +23,7 @@ Object {
   "anonymousId": "L[L@D",
   "id": "L[L@D",
   "properties": Object {
-    "email": "duz@raomopiw.to",
+    "email": "duz@raomopiw.tn",
     "testType": "L[L@D",
   },
 }
@@ -33,7 +33,7 @@ exports[`Testing snapshot for actions-usermotion destination: identify action - 
 Object {
   "id": "L[L@D",
   "properties": Object {
-    "email": "duz@raomopiw.to",
+    "email": "duz@raomopiw.tn",
   },
 }
 `;

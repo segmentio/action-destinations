@@ -4,7 +4,7 @@ exports[`Testing snapshot for saleswings's submitTrackEvent destination action: 
 Object {
   "anonymousID": "anonId1234",
   "data": "Test Event",
-  "email": "acorob@komma.net",
+  "email": "acorob@komma.co.uk",
   "kind": "Track",
   "timestamp": "2022-12-18T13:46:53.652Z",
   "url": "HL3Gau",
@@ -13,7 +13,7 @@ Object {
   "values": Object {
     "anonymousID": "HL3Gau",
     "data": "HL3Gau",
-    "email": "acorob@komma.net",
+    "email": "acorob@komma.co.uk",
     "kind": "HL3Gau",
     "referrerUrl": "HL3Gau",
     "timestamp": "2021-02-01T00:00:00.000Z",

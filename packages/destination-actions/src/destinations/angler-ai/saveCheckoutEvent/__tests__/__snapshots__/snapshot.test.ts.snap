@@ -26,7 +26,7 @@ Object {
             "zip": "&yVQWLT2[LyiR]Lnd6^",
           },
           "currencyCode": "&yVQWLT2[LyiR]Lnd6^",
-          "email": "eprer@gih.ne",
+          "email": "eprer@gih.nc",
           "lineItems": Array [
             Object {
               "discountAllocations": Array [
@@ -107,7 +107,7 @@ Object {
         ],
         "customer": Object {
           "dob": "&yVQWLT2[LyiR]Lnd6^",
-          "email": "eprer@gih.ne",
+          "email": "eprer@gih.nc",
           "firstName": "&yVQWLT2[LyiR]Lnd6^",
           "id": "&yVQWLT2[LyiR]Lnd6^",
           "lastName": "&yVQWLT2[LyiR]Lnd6^",

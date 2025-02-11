@@ -43,7 +43,7 @@ Object {
     "city": "fL&&$lZA!6gsh",
     "company": "fL&&$lZA!6gsh",
     "country": "fL&&$lZA!6gsh",
-    "email": "zejkulcih@ras.sh",
+    "email": "zejkulcih@ras.sg",
     "firstname": "fL&&$lZA!6gsh",
     "lastname": "fL&&$lZA!6gsh",
     "lifecyclestage": "fl&&$lza!6gsh",
@@ -59,7 +59,7 @@ Object {
 exports[`Testing snapshot for actions-hubspot-cloud destination: upsertContact action - required fields 1`] = `
 Object {
   "properties": Object {
-    "email": "zejkulcih@ras.sh",
+    "email": "zejkulcih@ras.sg",
   },
 }
 `;
