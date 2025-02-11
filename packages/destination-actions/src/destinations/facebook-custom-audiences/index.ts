@@ -4,7 +4,7 @@ import type { Settings, AudienceSettings } from './generated-types'
 import { adAccountId } from './fbca-properties'
 import sync from './sync'
 
-export const FACEBOOK_API_VERSION = 'v17.0'
+export const FACEBOOK_API_VERSION = 'v21.0'
 const EXTERNAL_ID_KEY = 'id'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {

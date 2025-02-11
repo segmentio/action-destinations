@@ -3,7 +3,7 @@ import { Payload } from './sync/generated-types'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
 import { SmartHashing } from '@segment/actions-core'
 
-const FACEBOOK_API_VERSION = 'v20.0'
+const FACEBOOK_API_VERSION = 'v21.0'
 // exported for unit testing
 export const BASE_URL = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/`
 
