@@ -203,7 +203,7 @@ describe('shared', () => {
       expect(r.ops.length).toEqual(5)
       expect(r.processConsent).toEqual(true)
       expect(r.toJsonString()).toMatchInlineSnapshot(
-        `"{\\"ops\\":[{\\"userId\\":\\"CAESEHIV8HXNp0pFdHgi2rElMfk\\",\\"userIdType\\":\\"GOOGLE_USER_ID\\",\\"userListId\\":\\"456\\",\\"delete\\":false},{\\"userId\\":\\"3b6e47b3-1437-4ba2-b3c9-446e4d0cd1e5\\",\\"userIdType\\":\\"IDFA\\",\\"userListId\\":\\"456\\",\\"delete\\":false},{\\"userId\\":\\"my-anon-id-42\\",\\"userIdType\\":\\"PARTNER_PROVIDED_ID\\",\\"userListId\\":\\"456\\",\\"delete\\":false},{\\"userId\\":\\"my-anon-id-43\\",\\"userIdType\\":\\"PARTNER_PROVIDED_ID\\",\\"userListId\\":\\"456\\",\\"delete\\":false},{\\"userId\\":\\"XNp0pFdHgi2rElMfk\\",\\"userIdType\\":\\"GOOGLE_USER_ID\\",\\"userListId\\":\\"456\\",\\"delete\\":false}],\\"processConsent\\":true}"`
+        `"{\\"ops\\":[{\\"userId\\":\\"CAESEHIV8HXNp0pFdHgi2rElMfk\\",\\"userListId\\":\\"456\\",\\"delete\\":false,\\"userIdType\\":\\"GOOGLE_USER_ID\\"},{\\"userId\\":\\"3b6e47b3-1437-4ba2-b3c9-446e4d0cd1e5\\",\\"userListId\\":\\"456\\",\\"delete\\":false,\\"userIdType\\":\\"IDFA\\"},{\\"userId\\":\\"my-anon-id-42\\",\\"userListId\\":\\"456\\",\\"delete\\":false,\\"userIdType\\":\\"PARTNER_PROVIDED_ID\\"},{\\"userId\\":\\"my-anon-id-43\\",\\"userListId\\":\\"456\\",\\"delete\\":false,\\"userIdType\\":\\"PARTNER_PROVIDED_ID\\"},{\\"userId\\":\\"XNp0pFdHgi2rElMfk\\",\\"userListId\\":\\"456\\",\\"delete\\":false,\\"userIdType\\":\\"GOOGLE_USER_ID\\"}],\\"processConsent\\":true}"`
       )
     })
 
