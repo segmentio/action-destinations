@@ -496,7 +496,7 @@ export default class Salesforce {
   private removeInvalidChars = (value: string) => value.replace(/[^a-zA-Z0-9_]/g, '')
 
   // Pre-formats trait values based on datatypes for correct SOQL syntax
-  private typecast = (value: any) => {
+  private typecast = (value: unknown) => {
     switch (typeof value) {
       case 'boolean':
         return value
