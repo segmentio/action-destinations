@@ -20,7 +20,7 @@ jobs:
   build-and-version-packages:
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [22.x]
     env:
       HUSKY: 0
       NX_DISABLE_DB: true
