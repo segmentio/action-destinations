@@ -24,11 +24,11 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "ajv": "^8.6.3",
+    "ajv": "^8.17.1",
     "ajv-formats": "^2.1.1",
-    "jest": "^27.3.1"
+    "jest": "^27.5.1"
   },
   "peerDependencies": {
-    "ajv": "^8.0.0"
+    "ajv": "^8.17.1"
   }
 }

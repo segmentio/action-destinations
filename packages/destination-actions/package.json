@@ -32,9 +32,9 @@
   },
   "devDependencies": {
     "@types/google-libphonenumber": "^7.4.23",
-    "@types/jest": "^27.0.0",
+    "@types/jest": "^27.5.2",
     "@types/ssh2-sftp-client": "^9.0.0",
-    "jest": "^27.3.1",
+    "jest": "^27.5.1",
     "nock": "^13.1.4"
   },
   "dependencies": {
@@ -49,12 +49,12 @@
     "@types/node": "^18.11.15",
     "ajv-formats": "^2.1.1",
     "aws4": "^1.12.0",
-    "cheerio": "^1.0.0-rc.10",
-    "dayjs": "^1.10.7",
+    "cheerio": "^1.0.0",
+    "dayjs": "^1.11.13",
     "escape-goat": "^3",
     "google-libphonenumber": "^3.2.31",
     "kafkajs": "^2.2.4",
-    "liquidjs": "^10.8.4",
+    "liquidjs": "^10.16.7",
     "lodash": "^4.17.21",
     "lru-cache": "10.4.3",
     "ssh2-sftp-client": "^9.1.0"
