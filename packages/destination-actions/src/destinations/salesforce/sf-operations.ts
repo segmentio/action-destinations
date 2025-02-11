@@ -6,13 +6,14 @@ import {
   StatsContext
 } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
+import { Payload as CustomObjectExternalIdPayload } from './customObjectExternalId/generated-types'
 import { mapObjectToShape } from './sf-object-to-shape'
 import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Logger } from '@segment/actions-core/destination-kit'
 
-export const API_VERSION = 'v53.0'
+export const API_VERSION = 'v62.0'
 
 /**
  * This error is triggered if the bulkHandler is ever triggered when the enable_batching setting is false.
@@ -272,9 +273,13 @@ export default class Salesforce {
 
     if (syncMode === 'upsert') {
       return await this.bulkUpsert(payloads, sobject, statsContext, logger)
-    } else if (syncMode === 'update') {
+    }
+
+    if (syncMode === 'update') {
       return await this.bulkUpdate(payloads, sobject, statsContext, logger)
-    } else if (syncMode === 'add') {
+    }
+
+    if (syncMode === 'add') {
       // Sync Mode does not have a "create" operation. We call it "add".
       // "add" will be transformed into "create" in the bulkInsert function.
       return await this.bulkInsert(payloads, sobject, statsContext, logger)
@@ -313,6 +318,18 @@ export default class Salesforce {
         }
       }
     }
+  }
+
+  upsertCustomObject = async (payload: CustomObjectExternalIdPayload, customObjectName: string) => {
+    const result = await this.request(
+      `${this.instanceUrl}services/data/${API_VERSION}/sobjects/${customObjectName}/${payload.externalIdField}/${payload.externalIdValue}`,
+      {
+        method: 'patch',
+        json: payload.customFields
+      }
+    )
+
+    return result
   }
 
   private bulkInsert = async (
@@ -376,7 +393,7 @@ export default class Salesforce {
     const jobId = await this.createBulkJob(sobject, idField, operation)
     try {
       await this.uploadBulkCSV(jobId, csv)
-    } catch (err) {
+    } catch (err: any) {
       // always close the "bulk job" otherwise it will get
       // stuck in "pending".
       //
@@ -398,7 +415,7 @@ export default class Salesforce {
 
     try {
       return await this.closeBulkJob(jobId)
-    } catch (err) {
+    } catch (err: any) {
       const message = err.response?.data[0]?.message || 'Failed to parse message'
       const code = err.response?.data[0]?.errorCode || 'Failed to parse code'
 

@@ -173,4 +173,3 @@ const hash = (value: string | undefined): string | undefined => {
   hash.update(value)
   return hash.digest('hex')
 }
-
