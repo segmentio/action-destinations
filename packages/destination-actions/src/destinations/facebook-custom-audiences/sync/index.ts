@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import FacebookClient from '../fbca-operations'
 import { batch_size, enable_batching } from '../fbca-properties'
+import { FACEBOOK_API_VERSION } from '..'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -257,10 +258,14 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching,
     batch_size
   },
-  perform: async (request, { settings, payload, hookOutputs, syncMode }) => {
+  perform: async (request, { settings, payload, hookOutputs, syncMode, statsContext }) => {
     const fbClient = new FacebookClient(request, settings.retlAdAccountId)
+    const statsClient = statsContext?.statsClient
+    const tags = statsContext?.tags
+    tags?.push(`version:${FACEBOOK_API_VERSION}`)
 
     if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
+      statsClient?.incr(`fb_custom_audience_actions_api_version`, 1, tags)
       return await fbClient.syncAudience({
         audienceId: hookOutputs?.retlOnMappingSave.outputs.audienceId,
         payloads: [payload],
@@ -270,10 +275,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
     throw new IntegrationError('Sync mode is required for perform', 'MISSING_REQUIRED_FIELD', 400)
   },
-  performBatch: async (request, { settings, payload, hookOutputs, syncMode }) => {
+  performBatch: async (request, { settings, payload, hookOutputs, syncMode, statsContext }) => {
     const fbClient = new FacebookClient(request, settings.retlAdAccountId)
-
+    const statsClient = statsContext?.statsClient
+    const tags = statsContext?.tags
+    tags?.push(`version:${FACEBOOK_API_VERSION}`)
     if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
+      statsClient?.incr(`fb_custom_audience_actions_api_version`, 1, tags)
+
       return await fbClient.syncAudience({
         audienceId: hookOutputs?.retlOnMappingSave.outputs.audienceId,
         payloads: payload,
