@@ -254,7 +254,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: {
         ...defaultValues(addToAudContactInfo.fields),
         properties: {
-          '@path': '$.properties'
+          '@path': '$.context.traits'
         }
       },
       type: 'specificEvent',
@@ -267,7 +267,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: {
         ...defaultValues(removeFromAudContactInfo.fields),
         properties: {
-          '@path': '$.properties'
+          '@path': '$.context.traits'
         }
       },
       type: 'specificEvent',
