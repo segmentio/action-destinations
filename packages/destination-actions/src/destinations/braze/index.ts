@@ -50,7 +50,7 @@ const destination: DestinationDefinition<Settings> = {
           { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'https://rest.fra-01.braze.eu' },
           { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'https://rest.fra-02.braze.eu' },
           { label: 'AU-01 (https://dashboard.au-01.braze.com)', value: 'https://rest.au-01.braze.com' },
-          { label: 'ID-01 (https://dashboard-01.braze.id)', value: 'https://rest.apse-01.braze.id' }
+          { label: 'ID-01 (https://dashboard.id-01.braze.com)', value: 'https://rest.id-01.braze.com' }
         ],
         default: 'https://rest.iad-01.braze.com',
         required: true
