@@ -102,12 +102,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
     {
       name: 'Entities Audience Entered',
       partnerAction: 'addToList',
-      mapping: {
-        ...defaultValues(addToList.fields),
-        properties: {
-          '@path': '$.properties'
-        }
-      },
+      mapping: { ...defaultValues(addToList.fields) },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_entered_track'
     },

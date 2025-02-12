@@ -43,10 +43,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       name: 'Entities Audience Membership Changed',
       partnerAction: 'updateSegment',
       mapping: {
-        ...defaultValues(updateSegment.fields),
-        properties: {
-          '@path': '$.properties'
-        }
+        ...defaultValues(updateSegment.fields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'

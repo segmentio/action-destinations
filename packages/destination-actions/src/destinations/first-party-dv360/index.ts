@@ -252,10 +252,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       name: 'Entities Audience Entered',
       partnerAction: 'addToAudContactInfo',
       mapping: {
-        ...defaultValues(addToAudContactInfo.fields),
-        properties: {
-          '@path': '$.context.traits'
-        }
+        ...defaultValues(addToAudContactInfo.fields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_entered_track'
@@ -265,10 +262,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       name: 'Entities Audience Exited',
       partnerAction: 'removeFromAudContactInfo',
       mapping: {
-        ...defaultValues(removeFromAudContactInfo.fields),
-        properties: {
-          '@path': '$.context.traits'
-        }
+        ...defaultValues(removeFromAudContactInfo.fields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'

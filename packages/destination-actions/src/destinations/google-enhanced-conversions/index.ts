@@ -180,10 +180,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
       name: 'Entities Audience Membership Changed',
       partnerAction: 'userList',
       mapping: {
-        ...defaultValues(userList.fields),
-        properties: {
-          '@path': '$.properties'
-        }
+        ...defaultValues(userList.fields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'

@@ -242,10 +242,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       name: 'Entities Audience Membership Changed',
       partnerAction: 'syncAudiencesToDSP',
       mapping: {
-        ...defaultValues(syncAudiencesToDSP.fields),
-        properties: {
-          '@path': '$.properties'
-        }
+        ...defaultValues(syncAudiencesToDSP.fields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
