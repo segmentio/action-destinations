@@ -39,7 +39,8 @@ export const keys: InputField = {
   type: 'object',
   required: true,
   defaultObjectUI: 'keyvalue:only',
-  additionalProperties: true
+  additionalProperties: true,
+  dynamic: true
 }
 
 export const values_contactFields: InputField = {
