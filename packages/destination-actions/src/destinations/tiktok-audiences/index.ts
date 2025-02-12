@@ -167,10 +167,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       name: 'Entities Audience Entered',
       partnerAction: 'addToAudience',
       mapping: {
-        ...defaultValues(addToAudience.fields),
-        properties: {
-          '@path': '$.properties'
-        }
+        ...defaultValues(addToAudience.fields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_entered_track'
@@ -179,10 +176,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       name: 'Entities Audience Exited',
       partnerAction: 'removeFromAudience',
       mapping: {
-        ...defaultValues(removeFromAudience.fields),
-        properties: {
-          '@path': '$.properties'
-        }
+        ...defaultValues(removeFromAudience.fields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'
