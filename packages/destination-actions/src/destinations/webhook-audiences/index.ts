@@ -164,9 +164,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     {
       name: 'Entities Audience Membership Changed',
       partnerAction: 'send',
-      mapping: {
-        ...defaultValues(send.fields)
-      },
+      mapping: defaultValues(send.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
     }

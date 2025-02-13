@@ -159,9 +159,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     {
       name: 'Entities Audience Entered',
       partnerAction: 'upsertProfile',
-      mapping: {
-        ...defaultValues(upsertProfile.fields)
-      },
+      mapping: defaultValues(upsertProfile.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_entered_track'
     },
