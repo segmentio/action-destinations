@@ -469,13 +469,14 @@ export const getDataExtensionFields = async (
   request: RequestClient,
   subdomain: string,
   settings: Settings,
-  _dataExtensionID: string
+  dataExtensionID: string
 ): Promise<DynamicFieldResponse> => {
-  const HARDCODED_TEMP_ID = 'ae46bb93-5ae2-ef11-ba65-d4f5ef42f41e' // todo reference the ID stored by the extension creation hook
-
+  if (!dataExtensionID) {
+    return { choices: [], error: { message: 'No Data Extension ID provided', code: 'BAD_REQUEST' } }
+  }
   const accessToken = await getAccessToken(request, settings)
 
-  const { results, error } = await getDataExtensionFieldsRequest(request, HARDCODED_TEMP_ID, { subdomain, accessToken })
+  const { results, error } = await getDataExtensionFieldsRequest(request, dataExtensionID, { subdomain, accessToken })
 
   if (error) {
     return {
