@@ -110,12 +110,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
     {
       name: 'Entities Audience Exited',
       partnerAction: 'removeFromList',
-      mapping: {
-        ...defaultValues(removeFromList.fields),
-        properties: {
-          '@path': '$.properties'
-        }
-      },
+      mapping: defaultValues(removeFromList.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'
     }
