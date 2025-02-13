@@ -82,14 +82,14 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
-    const dataExtensionId = 'todo: pull from hook outputs'
+  perform: async (request, { settings, payload, hookOutputs }) => {
+    const dataExtensionId = hookOutputs?.onMappingSave?.outputs.id || payload.id
     const deprecated_dataExtensionKey = payload.key
 
     return upsertRows(request, settings.subdomain, [payload], dataExtensionId, deprecated_dataExtensionKey)
   },
-  performBatch: async (request, { settings, payload }) => {
-    const dataExtensionId = 'todo: pull from hook outputs'
+  performBatch: async (request, { settings, payload, hookOutputs }) => {
+    const dataExtensionId = hookOutputs?.onMappingSave?.outputs.id || payload[0].id
     const deprecated_dataExtensionKey = payload[0].key
 
     return executeUpsertWithMultiStatus(
