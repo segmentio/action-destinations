@@ -198,7 +198,11 @@ export const sendUpdateRequest = async (
     await bulkUploaderResponseHandler(response, statsName, statsContext)
   } catch (error) {
     if ((error as HTTPError).response?.status === 500) {
-      throw new IntegrationError(error.response?.message ?? (error as HTTPError).message, 'INTERNAL_SERVER_ERROR', 500)
+      throw new IntegrationError(
+        (error as any).response?.message ?? (error as HTTPError).message,
+        'INTERNAL_SERVER_ERROR',
+        500
+      )
     }
 
     await bulkUploaderResponseHandler((error as HTTPError).response, statsName, statsContext)

@@ -48,7 +48,7 @@ function removeEmpty(obj: unknown) {
 
   const cleaned = removeUndefined(obj)
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  if (typeof cleaned === 'object' && Object.keys(cleaned!).length > 0) {
+  if (typeof cleaned === 'object' && Object.keys(cleaned).length > 0) {
     return cleaned
   }
 

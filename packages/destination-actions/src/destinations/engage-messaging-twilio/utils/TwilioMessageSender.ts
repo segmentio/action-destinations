@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Liquid as LiquidJs } from 'liquidjs'
 import type { Settings } from '../generated-types'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
