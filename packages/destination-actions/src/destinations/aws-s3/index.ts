@@ -102,9 +102,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     {
       name: 'Entities Audience Membership Changed',
       partnerAction: 'syncAudienceToCSV',
-      mapping: {
-        ...defaultValues(syncAudienceToCSV.fields)
-      },
+      mapping: defaultValues(syncAudienceToCSV.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
     }
