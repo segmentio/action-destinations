@@ -20,7 +20,8 @@ import {
   executeUpsertWithMultiStatus,
   upsertRows,
   selectOrCreateDataExtension,
-  getDataExtensions
+  getDataExtensions,
+  getDataExtensionFields
 } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -48,6 +49,14 @@ const action: ActionDefinition<Settings, Payload> = {
     values: values_contactFields,
     enable_batching: enable_batching,
     batch_size: batch_size
+  },
+  dynamicFields: {
+    keys: {
+      __keys__: async (request, { settings, hookOutputs, payload }) => {
+        const dataExtensionId = hookOutputs?.onMappingSave?.outputs.id || payload.id || ''
+        return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId)
+      }
+    }
   },
   hooks: {
     onMappingSave: {

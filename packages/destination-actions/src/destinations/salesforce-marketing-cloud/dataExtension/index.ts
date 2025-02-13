@@ -37,9 +37,8 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     keys: {
-      __keys__: async (request, { settings, hookOutputs }) => {
-        const dataExtensionId = hookOutputs?.onMappingSave?.id
-        console.log('dataExtensionId', dataExtensionId)
+      __keys__: async (request, { settings, hookOutputs, payload }) => {
+        const dataExtensionId = hookOutputs?.onMappingSave?.outputs.id || payload.id || ''
         return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId)
       }
     }
