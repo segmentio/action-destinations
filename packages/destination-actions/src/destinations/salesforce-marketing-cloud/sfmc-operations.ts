@@ -156,6 +156,14 @@ interface DataExtensionSearchResponse {
   }[]
 }
 
+interface DataExtensionFieldsResponse {
+  id: string
+  fields: {
+    name: string
+    type: string
+  }[]
+}
+
 interface RefreshTokenResponse {
   access_token: string
   instance_url: string
@@ -419,6 +427,67 @@ export const getDataExtensions = async (
     return {
       choices: [],
       error: { message: 'No Data Extensions found', code: 'NOT_FOUND' }
+    }
+  }
+
+  return {
+    choices: results
+  }
+}
+
+const getDataExtensionFieldsRequest = async (
+  request: RequestClient,
+  dataExtensionId: string,
+  auth: { subdomain: string; accessToken: string }
+): Promise<{ results?: DynamicFieldItem[]; error?: DynamicFieldError }> => {
+  try {
+    const response = await request<DataExtensionFieldsResponse>(
+      `https://${auth.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects/${dataExtensionId}/fields`,
+      {
+        method: 'GET',
+        headers: {
+          authorization: `Bearer ${auth.accessToken}`
+        }
+      }
+    )
+
+    if (response.status !== 200) {
+      return { error: { message: 'Failed to fetch Data Extension fields', code: 'BAD_REQUEST' } }
+    }
+
+    const choices = response.data.fields.map((field) => {
+      return { value: field.name, label: field.name }
+    })
+
+    return { results: choices }
+  } catch (err) {
+    return { error: { message: err.response.data.message, code: 'BAD_REQUEST' } }
+  }
+}
+
+export const getDataExtensionFields = async (
+  request: RequestClient,
+  subdomain: string,
+  settings: Settings,
+  _dataExtensionID: string
+): Promise<DynamicFieldResponse> => {
+  const HARDCODED_TEMP_ID = 'ae46bb93-5ae2-ef11-ba65-d4f5ef42f41e' // todo reference the ID stored by the extension creation hook
+
+  const accessToken = await getAccessToken(request, settings)
+
+  const { results, error } = await getDataExtensionFieldsRequest(request, HARDCODED_TEMP_ID, { subdomain, accessToken })
+
+  if (error) {
+    return {
+      choices: [],
+      error: error
+    }
+  }
+
+  if (!results || (Array.isArray(results) && results.length === 0)) {
+    return {
+      choices: [],
+      error: { message: 'No Data Extension fields found', code: 'NOT_FOUND' }
     }
   }
 

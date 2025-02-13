@@ -20,7 +20,8 @@ import {
   executeUpsertWithMultiStatus,
   upsertRows,
   selectOrCreateDataExtension,
-  getDataExtensions
+  getDataExtensions,
+  getDataExtensionFields
 } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -33,6 +34,15 @@ const action: ActionDefinition<Settings, Payload> = {
     values: values_dataExtensionFields,
     enable_batching: enable_batching,
     batch_size: batch_size
+  },
+  dynamicFields: {
+    keys: {
+      __keys__: async (request, { settings, hookOutputs }) => {
+        const dataExtensionId = hookOutputs?.onMappingSave?.id
+        console.log('dataExtensionId', dataExtensionId)
+        return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId)
+      }
+    }
   },
   hooks: {
     onMappingSave: {
@@ -72,14 +82,14 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
-    const dataExtensionId = 'todo: pull from hook outputs'
+  perform: async (request, { settings, payload, hookOutputs }) => {
+    const dataExtensionId = hookOutputs?.onMappingSave?.outputs.id || payload.id
     const deprecated_dataExtensionKey = payload.key
 
     return upsertRows(request, settings.subdomain, [payload], dataExtensionId, deprecated_dataExtensionKey)
   },
-  performBatch: async (request, { settings, payload }) => {
-    const dataExtensionId = 'todo: pull from hook outputs'
+  performBatch: async (request, { settings, payload, hookOutputs }) => {
+    const dataExtensionId = hookOutputs?.onMappingSave?.outputs.id || payload[0].id
     const deprecated_dataExtensionKey = payload[0].key
 
     return executeUpsertWithMultiStatus(
