@@ -1,4 +1,9 @@
-import { AudienceDestinationDefinition, InvalidAuthenticationError, IntegrationError } from '@segment/actions-core'
+import {
+  AudienceDestinationDefinition,
+  InvalidAuthenticationError,
+  IntegrationError,
+  defaultValues
+} from '@segment/actions-core'
 import type { RefreshTokenResponse, AmazonTestAuthenticationError } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
 import {
@@ -235,7 +240,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudiencesToDSP
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: {
+        ...defaultValues(syncAudiencesToDSP.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination

@@ -1,5 +1,5 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import { IntegrationError, InvalidAuthenticationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import addUser from './addUser'
 import removeUser from './removeUser'
@@ -161,7 +161,23 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     addUser,
     removeUser,
     createAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Entered',
+      partnerAction: 'addToAudience',
+      mapping: defaultValues(addToAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    },
+    {
+      name: 'Entities Audience Exited',
+      partnerAction: 'removeFromAudience',
+      mapping: defaultValues(removeFromAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_exited_track'
+    }
+  ]
 }
 
 export default destination

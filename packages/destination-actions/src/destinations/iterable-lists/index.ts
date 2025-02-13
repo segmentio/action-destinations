@@ -1,4 +1,4 @@
-import { IntegrationError, AudienceDestinationDefinition, RequestClient } from '@segment/actions-core'
+import { IntegrationError, AudienceDestinationDefinition, RequestClient, defaultValues } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 
 import syncAudience from './syncAudience'
@@ -87,7 +87,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 async function getAudience(
