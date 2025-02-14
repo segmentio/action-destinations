@@ -12,6 +12,10 @@ export function sha256SmartHash(value: string): string {
   return crypto.createHash('sha256').update(value).digest('hex')
 }
 
+export function sha1Hash(value: string): string {
+  return crypto.createHash('sha1').update(value).digest('hex')
+}
+
 export class SmartHashing {
   encryptionMethod: 'sha256'
   preHashed: boolean

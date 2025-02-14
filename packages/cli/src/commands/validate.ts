@@ -5,10 +5,6 @@ import ora from 'ora'
 import { getManifest, DestinationDefinition } from '../lib/destinations'
 import type { DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
 
-const isDefined = (value: any): boolean => {
-  return value !== null && value !== undefined
-}
-
 export default class Validate extends Command {
   private spinner: ora.Ora = ora()
   private isInvalid = false
@@ -144,14 +140,7 @@ export default class Validate extends Command {
         // this.isInvalid = true
         const typ = fieldValues?.type
 
-        if (typ === 'boolean' || typ === 'number') {
-          if (!isDefined(fieldValues?.default)) {
-            errors.push(
-              new Error(
-                `The authentication field "${field}" of type "${fieldValues?.type}" does not contain a default value. It is recommended to choose a sane default to avoid validation issues.`
-              )
-            )
-          }
+        if ((typ === 'boolean' || typ === 'number') && typeof fieldValues?.default != 'undefined') {
           if (typeof fieldValues?.default !== typ) {
             errors.push(
               new Error(

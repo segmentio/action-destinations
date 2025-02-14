@@ -31,6 +31,30 @@ export type MinimalFields = Record<string, MinimalInputField>
 interface SchemaOptions {
   tsType?: boolean
   additionalProperties?: boolean
+  omitRequiredSchemas?: boolean
+}
+
+const fieldKeyIsDotNotation = (fieldKey: string): boolean => {
+  return fieldKey.split('.').length > 1
+}
+
+const generateThenStatement = (fieldKey: string): JSONSchema4 => {
+  if (fieldKeyIsDotNotation(fieldKey)) {
+    const [parentKey, childKey] = fieldKey.split('.')
+
+    return {
+      required: [parentKey],
+      properties: {
+        [parentKey]: {
+          required: [childKey]
+        }
+      }
+    }
+  }
+
+  return {
+    required: [fieldKey]
+  }
 }
 
 const undefinedConditionValueToJSONSchema = (
@@ -50,11 +74,19 @@ const undefinedConditionValueToJSONSchema = (
     return insideIfStatement
   }
 
-  return {
-    if: insideIfStatement,
-    then: {
-      required: [fieldKey]
+  if (operator === 'is') {
+    const fieldIsNull: JSONSchema4 = { properties: { [dependantFieldKey]: { type: 'null' } } }
+    return {
+      if: { anyOf: [insideIfStatement, fieldIsNull] },
+      then: generateThenStatement(fieldKey)
     }
+  }
+
+  // operator === 'is_not'
+  const fieldIsNotNull: JSONSchema4 = { not: { properties: { [dependantFieldKey]: { type: 'null' } } } }
+  return {
+    if: { allOf: [insideIfStatement, fieldIsNotNull] },
+    then: generateThenStatement(fieldKey)
   }
 }
 
@@ -79,9 +111,7 @@ const simpleConditionToJSONSchema = (
     if: {
       properties: { [dependantFieldKey]: dependantValueToJSONSchema }
     },
-    then: {
-      required: [fieldKey]
-    }
+    then: generateThenStatement(fieldKey)
   }
 }
 
@@ -112,9 +142,7 @@ const objectConditionToJSONSchema = (
       },
       required: [objectParentKey]
     },
-    then: {
-      required: [fieldKey]
-    }
+    then: generateThenStatement(fieldKey)
   }
 }
 
@@ -200,7 +228,7 @@ export function singleFieldConditionsToJsonSchema(
 
       const innerIfStatement: JSONSchema4 =
         singleFieldConditions.match === 'any' ? { anyOf: innerConditionArray } : { allOf: innerConditionArray }
-      jsonCondition = { if: innerIfStatement, then: { required: [fieldKey] } }
+      jsonCondition = { if: innerIfStatement, then: generateThenStatement(fieldKey) }
 
       return jsonCondition
     }
@@ -326,14 +354,30 @@ export function fieldsToJsonSchema(
     }
 
     if (schemaType === 'object' && field.properties) {
+      const propertiesContainsConditionallyRequired = Object.values(field.properties).some(
+        (field) => field.required && typeof field.required === 'object'
+      )
       if (isMulti) {
         schema.items = fieldsToJsonSchema(field.properties, {
-          additionalProperties: field?.additionalProperties || false
+          additionalProperties: field?.additionalProperties || false,
+          omitRequiredSchemas: propertiesContainsConditionallyRequired
         })
       } else {
         schema = {
           ...schema,
-          ...fieldsToJsonSchema(field.properties, { additionalProperties: field?.additionalProperties || false })
+          ...fieldsToJsonSchema(field.properties, {
+            additionalProperties: field?.additionalProperties || false,
+            omitRequiredSchemas: propertiesContainsConditionallyRequired
+          })
+        }
+      }
+
+      for (const [propertyKey, objectField] of Object.entries(field.properties)) {
+        if (objectField.required === true) {
+          continue
+        } else if (objectField.required && typeof objectField.required === 'object') {
+          const dotNotationKey = `${key}.${propertyKey}`
+          conditions[dotNotationKey] = objectField.required
         }
       }
     }
@@ -356,6 +400,16 @@ export function fieldsToJsonSchema(
       additionalProperties: options?.additionalProperties || false,
       properties,
       required
+    }
+  }
+
+  if (options?.omitRequiredSchemas === true) {
+    return {
+      $schema: 'http://json-schema.org/schema#',
+      type: 'object',
+      additionalProperties: options?.additionalProperties || false,
+      properties,
+      ...additionalSchema
     }
   }
 

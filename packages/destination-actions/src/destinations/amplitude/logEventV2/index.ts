@@ -88,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     setOnce: {
       label: 'Set Once',
-      description: 'The following fields will be set only once per session when using AJS2 as the source.',
+      description: 'The following fields will only be set as user properties if they do not already have a value.',
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -129,7 +129,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     setAlways: {
       label: 'Set Always',
-      description: 'The following fields will be set every session when using AJS2 as the source.',
+      description: 'The following fields will be set as user properties for every event.',
       type: 'object',
       additionalProperties: true,
       properties: {
@@ -198,7 +198,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true
     },
     includeRawUserAgent: {
-      label: 'User Agent Parsing',
+      label: 'Include Raw User Agent',
       type: 'boolean',
       description:
         'Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field',

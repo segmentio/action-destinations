@@ -103,16 +103,16 @@ export class Client {
       if (isAWSError(err)) {
         // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-client-s3/Interface/_Error/
         if (err.Code && accessDeniedCodes.has(err.Code)) {
-          throw new APIError(err.Message || err.Code || 'Access denied: ' + err, 403)
+          throw new APIError(err.Message || err.Code, 403)
         } else if (err.Code === 'NoSuchBucket') {
-          throw new APIError(err.Message || err.Code || 'No such bucket: ' + err, 404)
+          throw new APIError(err.Message || err.Code, 404)
         } else if (err.Code === 'SlowDown') {
-          throw new APIError(err.Message || err.Code || 'Slow down: ' + err, 429)
+          throw new APIError(err.Message || err.Code, 429)
         } else {
           throw new RetryableError(err.Message || err.Code || 'Unknown AWS Put error: ' + err)
         }
       } else {
-        throw new Error('Unknown error during AWS PUT: ' + err)
+        throw new APIError('Unknown error during AWS PUT: ' + err, 500)
       }
     }
   }
@@ -130,6 +130,7 @@ const accessDeniedCodes = new Set([
   'RequestExpired'
 ])
 
-function isAWSError(err: unknown): err is AWSError {
-  return typeof err === 'object' && err !== null && '$metadata' in err
+// isAWSError validates that the error is an generic AWS error
+export function isAWSError(err: unknown): err is AWSError {
+  return typeof err === 'object' && err !== null && 'Code' in err && 'Message' in err
 }

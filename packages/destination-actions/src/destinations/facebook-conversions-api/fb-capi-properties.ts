@@ -117,7 +117,15 @@ export const data_processing_options_state: InputField = {
     { label: 'Use Facebook’s Geolocation Logic', value: 0 },
     { label: 'California', value: 1000 },
     { label: 'Colorado', value: 1001 },
-    { label: 'Connecticut', value: 1002 }
+    { label: 'Connecticut', value: 1002 },
+    { label: 'Florida', value: 1003 },
+    { label: 'Oregon', value: 1004 },
+    { label: 'Texas', value: 1005 },
+    { label: 'Montana', value: 1006 },
+    { label: 'Delaware', value: 1007 },
+    { label: 'Nebraska', value: 1008 },
+    { label: 'New Hampshire', value: 1009 },
+    { label: 'New Jersey', value: 1010 }
   ]
 }
 

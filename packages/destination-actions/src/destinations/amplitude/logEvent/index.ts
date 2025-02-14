@@ -111,7 +111,7 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true
     },
     includeRawUserAgent: {
-      label: 'User Agent Parsing',
+      label: 'Include Raw User Agent',
       type: 'boolean',
       description:
         'Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field',

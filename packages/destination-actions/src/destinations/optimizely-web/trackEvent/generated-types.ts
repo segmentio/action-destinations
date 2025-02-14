@@ -14,11 +14,11 @@ export interface Payload {
    */
   anonymizeIP: boolean
   /**
-   * Specify how Segment should match the Segment event to an Optimizely event, as well as specify if Segment should create new Custom Events and Pages in Optimizely if they don't exist.
+   * Specify how Segment should sync Segment events to Optimizely events, as well as specify if Segment should create new Custom Events and Pages in Optimizely if they don't exist.
    */
-  eventMatching: {
+  eventSyncConfig: {
     /**
-     * If needed, Segment can define new Custom Events and Pages in Optimizely. If you do not want Segment to create new events, select "Do not create".
+     * Segment can define new Custom Events in Optimizely, along with their custom properties. However once an event is defined by Segment its properties cannot be modified.
      */
     createEventIfNotFound: string
     /**
@@ -35,21 +35,9 @@ export interface Payload {
     eventId?: string
   }
   /**
-   * The URL of the page where the event occurred. Used if Segment creates a Page in Optimizely.
-   */
-  pageUrl?: string
-  /**
-   * Event Category
-   */
-  category: string
-  /**
-   * Timestampt for when the event took place
+   * Timestamp for when the event took place
    */
   timestamp: string | number
-  /**
-   * The type of Segment event
-   */
-  eventType: string
   /**
    * Tags to send with the event
    */
@@ -57,9 +45,9 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Additional properties to send with the event. Properties must be defined in Optimizely before they can be sent.
+   * Standard event properties to send with the event.
    */
-  properties?: {
+  standardEventProperties?: {
     /**
      * The revenue amount associated with this event For example, to represent $23.42, this field would be set to 23.42.
      */
@@ -72,10 +60,43 @@ export interface Payload {
      * An aggregatable "count" associated with this event; for example, a number of video views or items in a shopping cart.
      */
     quantity?: number
+  }
+  /**
+   * Additional custom string event properties to send with the event. These must be defined in Optimizely before they can be sent.
+   */
+  customStringProperties?: {
     /**
-     * Currency code for revenue. Defaults to USD.
+     * Category of the event
      */
-    currency?: string
+    Category?: string
+    /**
+     * Subcategory of the event
+     */
+    Subcategory?: string
+    /**
+     * Text of the event
+     */
+    Text?: string
+    /**
+     * URL of the event
+     */
+    URL?: string
+    /**
+     * SKU of the event
+     */
+    SKU?: string
+    [k: string]: unknown
+  }
+  /**
+   * Additioanl custom numeric event properties to send with the event. These must be defined in Optimizely before they can be sent.
+   */
+  customNumericProperties?: {
+    [k: string]: unknown
+  }
+  /**
+   * Additioanl custom boolean event properties to send with the event. These must be defined in Optimizely before they can be sent.
+   */
+  customBooleanProperties?: {
     [k: string]: unknown
   }
   /**

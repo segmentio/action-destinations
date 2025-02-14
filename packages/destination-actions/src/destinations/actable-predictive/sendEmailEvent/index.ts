@@ -17,54 +17,47 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     date_email_sent: {
-      type: "datetime",
-      label: "timestamp of event",
-      description: "Timestamp of event",
-      format: 'date-time',
+      type: 'datetime',
+      label: 'timestamp of event',
+      description: 'Timestamp of event',
       required: true,
       default: {
         '@path': '$.timestamp'
       }
     },
     campaign_name: {
-      type: "string",
-      label: "Campaign Name of Email",
-      description: "name of the campaign associated with the email",
-      format: 'text',
+      type: 'string',
+      label: 'Campaign Name of Email',
+      description: 'name of the campaign associated with the email',
       required: false,
       default: {
         '@path': '$.context.campaign.name'
       }
-
     },
     clicked_flag: {
-      type: "integer",
-      label: "Click Event Indicator",
-      description: "1=email was clicked, 0 email was not clicked",
-      format: 'text',
+      type: 'integer',
+      label: 'Click Event Indicator',
+      description: '1=email was clicked, 0 email was not clicked',
       required: false
     },
     opened_flag: {
-      type: "integer",
-      label: "Open Event Indicator",
-      description: "1=email was opened, 0 email was not opened",
-      format: 'text',
+      type: 'integer',
+      label: 'Open Event Indicator',
+      description: '1=email was opened, 0 email was not opened',
       required: false
     },
     unsub_flag: {
-      type: "integer",
-      label: "Unsubscribe Event Indicator",
-      description: "1=customer unsubscribed from the email list, 0 user remained subscribed",
-      format: 'text',
+      type: 'integer',
+      label: 'Unsubscribe Event Indicator',
+      description: '1=customer unsubscribed from the email list, 0 user remained subscribed',
       required: false
     },
     stream_key: {
-      type: "string",
-      format: "text",
-      label: "Stream Key",
-      description: "Dataset label, should be left as default unless directed otherwise",
+      type: 'string',
+      label: 'Stream Key',
+      description: 'Dataset label, should be left as default unless directed otherwise',
       required: true,
-      default: "email"
+      default: 'email'
     }
   },
   perform: (request, data) => {

@@ -1,8 +1,7 @@
 import type { ActionDefinition, StatsContext } from '@segment/actions-core'
-import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
+import { RequestClient, RetryableError, IntegrationError, sha256SmartHash } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createHash } from 'crypto'
 import { LinkedInAudiences } from '../api'
 import { LinkedInAudiencePayload } from '../types'
 
@@ -32,9 +31,9 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: {
         '@if': {
-          exists: { '@path': '$.traits.email' },
-          then: { '@path': '$.traits.email' },
-          else: { '@path': '$.context.traits.email' }
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.traits.email' }
         }
       }
     },
@@ -290,15 +289,9 @@ function getUserIds(settings: Settings, payload: Payload): Record<string, string
   const userIds = []
 
   if (payload.email && settings.send_email === true) {
-    let email = payload.email
-    const isHashed = new RegExp(/[0-9abcdef]{64}/gi).test(payload.email)
-    if (!isHashed) {
-      email = createHash('sha256').update(payload.email).digest('hex')
-    }
-
     userIds.push({
       idType: 'SHA256_EMAIL',
-      idValue: email
+      idValue: sha256SmartHash(payload.email)
     })
   }
 

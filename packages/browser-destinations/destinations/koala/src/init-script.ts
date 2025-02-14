@@ -1,11 +1,13 @@
 /* eslint-disable */
 // @ts-nocheck
 export function initScript() {
-  if (window.ko) {
+  const ns = window.globalKoalaKey || 'ko'
+
+  if (window[ns]) {
     return
   }
 
-  window.ko = []
+  const ko = (window[ns] = [])
   ;['identify', 'track', 'removeListeners', 'open', 'on', 'off', 'qualify', 'ready'].forEach(function (method) {
     ko[method] = function () {
       let args = Array.from(arguments)

@@ -161,6 +161,7 @@ export const commonFields: Record<string, InputField> = {
     type: 'object',
     multiple: true,
     description: 'Related item details for the event.',
+    defaultObjectUI: 'keyvalue',
     properties: {
       price: {
         label: 'Price',
@@ -199,7 +200,10 @@ export const commonFields: Record<string, InputField> = {
     description:
       'Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.',
     type: 'string',
-    choices: [ { label: 'product', value: 'product' }, { label: 'product_group', value: 'product_group' }],
+    choices: [
+      { label: 'product', value: 'product' },
+      { label: 'product_group', value: 'product_group' }
+    ],
     default: 'product'
   },
   currency: {
