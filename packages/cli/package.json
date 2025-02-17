@@ -9,7 +9,7 @@
     "directory": "packages/cli"
   },
   "engines": {
-    "node": "14 || ^18.12"
+    "node": "^18.12 || ^22.13"
   },
   "engineStrict": true,
   "bin": {
@@ -43,7 +43,7 @@
     "@types/json-schema": "^7.0.7",
     "@types/lodash": "^4.14.175",
     "@types/mustache": "^4.1.0",
-    "@types/node": "^14.0.0",
+    "@types/node": "^22.13.1",
     "@types/prompts": "^2.0.10",
     "@types/rimraf": "^3.0.2",
     "@types/to-title-case": "^1.0.0",
@@ -59,7 +59,7 @@
     "@segment/action-destinations": "^3.288.0",
     "@segment/actions-core": "^3.121.0",
     "@segment/destinations-manifest": "^1.71.0",
-    "@types/node": "^18.11.15",
+    "@types/node": "^22.13.1",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
     "dotenv": "^10.0.0",
