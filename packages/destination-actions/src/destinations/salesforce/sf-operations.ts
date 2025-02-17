@@ -391,7 +391,7 @@ export default class Salesforce {
         const tags = statsContext?.tags
         tags?.push('jobId:' + jobId)
         statsClient?.incr('bulkJobError.caughUploadError', 1, tags)
-        logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
+        logger?.crit(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
       })
       throw err
     }
@@ -407,7 +407,7 @@ export default class Salesforce {
 
       tags?.push('jobId:' + jobId)
       statsClient?.incr('bulkJobError', 1, tags)
-      logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
+      logger?.crit(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
 
       throw err
     }
