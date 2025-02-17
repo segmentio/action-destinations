@@ -2246,19 +2246,9 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%5B%7B%22device_id%22%3A%22some-anonymous-id%22%2C%22groups%22%3A%7B%22some-type%22%3A%22some-value%22%7D%2C%22insert_id%22%3A%22some-insert-id%22%2C%22library%22%3A%22segment%22%2C%22time%22%3A1618245157710%2C%22user_id%22%3A%22some-user-id%22%2C%22user_properties%22%3A%7B%22some-type%22%3A%22some-value%22%7D%7D%5D&options=undefined"`
+      )
     })
 
     it('should fire groupidentify call to Amplitude', async () => {
@@ -2273,19 +2263,9 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%5B%7B%22group_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22group_value%22%3A%22some-value%22%2C%22group_type%22%3A%22some-type%22%2C%22library%22%3A%22segment%22%7D%5D&options=undefined"`
+      )
     })
 
     it('should fire identify call to Amplitude EU endpoint', async () => {
@@ -2305,19 +2285,9 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "identification",
-            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&identification=%5B%7B%22device_id%22%3A%22some-anonymous-id%22%2C%22groups%22%3A%7B%22some-type%22%3A%22some-value%22%7D%2C%22insert_id%22%3A%22some-insert-id%22%2C%22library%22%3A%22segment%22%2C%22time%22%3A1618245157710%2C%22user_id%22%3A%22some-user-id%22%2C%22user_properties%22%3A%7B%22some-type%22%3A%22some-value%22%7D%7D%5D&options=undefined"`
+      )
     })
 
     it('should fire groupidentify call to Amplitude EU endpoint', async () => {
@@ -2337,19 +2307,9 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "identification",
-            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&identification=%5B%7B%22group_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22group_value%22%3A%22some-value%22%2C%22group_type%22%3A%22some-type%22%2C%22library%22%3A%22segment%22%7D%5D&options=undefined"`
+      )
     })
   })
 
