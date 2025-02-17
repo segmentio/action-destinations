@@ -3,7 +3,8 @@
   "compilerOptions": {
     "composite": true,
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "useUnknownInCatchVariables": false
   },
   "exclude": ["**/__tests__/**/*.ts"],
   "include": ["src"],
