@@ -15,6 +15,7 @@ import type { RequestClient } from '../create-request-client'
 import type { ID } from '../segment-event'
 import { Features } from '../mapping-kit'
 import type { ErrorCodes, MultiStatusErrorReporter } from '../errors'
+import { HashingUtilFunction } from 'src/types'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 export type MaybePromise<T> = T | Promise<T>
@@ -81,6 +82,8 @@ export interface ExecuteInput<
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
   readonly subscriptionMetadata?: SubscriptionMetadata
+  /* Hashing Util */
+  readonly hashingUtil?: HashingUtilFunction
 }
 
 export interface DynamicFieldResponse {

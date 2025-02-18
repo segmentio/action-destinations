@@ -82,6 +82,18 @@ module.exports = {
       rules: {
         '@typescript-eslint/no-unsafe-call': 'off'
       }
+    },
+    {
+      files: ['packages/destination-actions/**/*.ts'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            name: 'crypto',
+            message: 'Use smartHash instead.'
+          }
+        ]
+      }
     }
   ]
 }

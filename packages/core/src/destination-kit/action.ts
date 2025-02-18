@@ -4,7 +4,7 @@ import { JSONLikeObject, JSONObject } from '../json-object'
 import { InputData, Features, transform, transformBatch } from '../mapping-kit'
 import { fieldsToJsonSchema } from './fields-to-jsonschema'
 import { Response } from '../fetch'
-import { ModifiedResponse } from '../types'
+import { HashingUtilFunction, ModifiedResponse } from '../types'
 import type {
   DynamicFieldResponse,
   InputField,
@@ -34,6 +34,7 @@ import {
   SubscriptionMetadata
 } from './index'
 import { get } from '../get'
+import { processHashing } from '../hashing-utils-v2'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -216,6 +217,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   mapping: JSONObject
   auth: AuthTokens | undefined
   hookOutputs?: Record<ActionHookType, ActionHookValues>
+  hashingUtil?: HashingUtilFunction
   /** For internal Segment/Twilio use only. */
   features?: Features | undefined
   statsContext?: StatsContext | undefined
@@ -350,6 +352,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
 
+    let hashingUtil
+    if (bundle.features && bundle.features['smart-hashing']) {
+      hashingUtil = processHashing
+    }
+
     // Construct the data bundle to send to an action
     const dataBundle = {
       rawData: bundle.data,
@@ -367,7 +374,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       hookOutputs,
       syncMode: isSyncMode(syncMode) ? syncMode : undefined,
       matchingKey: matchingKey ? String(matchingKey) : undefined,
-      subscriptionMetadata: bundle.subscriptionMetadata
+      subscriptionMetadata: bundle.subscriptionMetadata,
+      hashingUtil: hashingUtil
     }
     // Construct the request client and perform the action
     const output = await this.performRequest(this.definition.perform, dataBundle)
@@ -450,6 +458,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       return multiStatusResponse
     }
 
+    // Initialize SmartHashing if not provided
+    const hashingUtil = processHashing
+
     if (this.definition.performBatch) {
       const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
       const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
@@ -470,7 +481,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         subscriptionMetadata: bundle.subscriptionMetadata,
         hookOutputs,
         syncMode: isSyncMode(syncMode) ? syncMode : undefined,
-        matchingKey: matchingKey ? String(matchingKey) : undefined
+        matchingKey: matchingKey ? String(matchingKey) : undefined,
+        hashingUtil: hashingUtil
       }
 
       const requestClient = this.createRequestClient(data)

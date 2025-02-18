@@ -1,3 +1,5 @@
+import { DigestType, EncryptionMethod } from './hashing-utils-v2'
+
 /** A modified response object that is handled by the `prepareResponse` hook */
 export interface ModifiedResponse<T = unknown> extends Response {
   /** The raw response content as a string – same as `await response.text()` */
@@ -8,4 +10,13 @@ export interface ModifiedResponse<T = unknown> extends Response {
   headers: Headers & {
     toJSON: () => Record<string, string>
   }
+}
+
+export interface HashingUtilFunction {
+  (
+    value: string,
+    encryptionMethod: EncryptionMethod,
+    digest: DigestType,
+    cleaningFunction?: (value: string) => string
+  ): string
 }
