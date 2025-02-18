@@ -1,4 +1,9 @@
-import { AudienceDestinationDefinition, IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import {
+  AudienceDestinationDefinition,
+  IntegrationError,
+  PayloadValidationError,
+  defaultValues
+} from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 import { createAudienceRequest, getAudienceRequest } from './functions'
 import removeFromAudContactInfo from './removeFromAudContactInfo'
