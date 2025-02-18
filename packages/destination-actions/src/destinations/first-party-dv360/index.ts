@@ -241,7 +241,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     addToAudMobileDeviceId,
     removeFromAudContactInfo,
     removeFromAudMobileDeviceId
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Entered',
+      partnerAction: 'addToAudContactInfo',
+      mapping: defaultValues(addToAudContactInfo.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    },
+
+    {
+      name: 'Entities Audience Exited',
+      partnerAction: 'removeFromAudContactInfo',
+      mapping: defaultValues(removeFromAudContactInfo.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_exited_track'
+    }
+  ]
 }
 
 export default destination
