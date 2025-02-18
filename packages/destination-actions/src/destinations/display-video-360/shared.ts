@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
+import { IntegrationError, RequestClient, StatsContext, HTTPError } from '@segment/actions-core'
 import { OAUTH_URL, USER_UPLOAD_ENDPOINT, SEGMENT_DMP_ID } from './constants'
 import type { RefreshTokenResponse } from './types'
 
@@ -175,7 +175,7 @@ export const createUpdateRequest = (
   })
 
   // Backed by deletion and suppression features in Segment.
-  updateRequest.process_consent = true
+  updateRequest.processConsent = true
 
   return updateRequest
 }
@@ -197,11 +197,11 @@ export const sendUpdateRequest = async (
 
     await bulkUploaderResponseHandler(response, statsName, statsContext)
   } catch (error) {
-    if (error.response?.status === 500) {
-      throw new IntegrationError(error.response.message, 'INTERNAL_SERVER_ERROR', 500)
+    if ((error as HTTPError).response?.status === 500) {
+      throw new IntegrationError(error.response?.message ?? (error as HTTPError).message, 'INTERNAL_SERVER_ERROR', 500)
     }
 
-    await bulkUploaderResponseHandler(error.response, statsName, statsContext)
+    await bulkUploaderResponseHandler((error as HTTPError).response, statsName, statsContext)
   }
 }
 

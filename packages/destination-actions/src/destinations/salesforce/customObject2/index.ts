@@ -85,7 +85,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.deleteRecord(payload, payload.customObjectName)
     }
   },
-  performBatch: async (request, { settings, payload, syncMode }) => {
+  performBatch: async (request, { settings, payload, syncMode, statsContext, logger }) => {
     if (!syncMode) {
       throw new IntegrationError('syncMode is required', 'Undefined syncMode', 400)
     }
@@ -96,7 +96,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    return sf.bulkHandlerWithSyncMode(payload, payload[0].customObjectName, syncMode)
+    return sf.bulkHandlerWithSyncMode(payload, payload[0].customObjectName, syncMode, statsContext, logger)
   }
 }
 

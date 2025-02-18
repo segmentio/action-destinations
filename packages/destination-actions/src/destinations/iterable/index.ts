@@ -93,10 +93,7 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Associated Entity Added',
       partnerAction: 'trackEvent',
       mapping: {
-        ...defaultValues(trackEvent.fields),
-        dataFields: {
-          '@path': '$.properties'
-        }
+        ...defaultValues(trackEvent.fields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_entity_added_track'
