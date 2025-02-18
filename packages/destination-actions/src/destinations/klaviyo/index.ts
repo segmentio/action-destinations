@@ -2,7 +2,8 @@ import {
   IntegrationError,
   AudienceDestinationDefinition,
   PayloadValidationError,
-  APIError
+  APIError,
+  defaultValues
 } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 
@@ -146,7 +147,23 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     subscribeProfile,
     unsubscribeProfile,
     removeProfile
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Entered',
+      partnerAction: 'upsertProfile',
+      mapping: defaultValues(upsertProfile.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    },
+    {
+      name: 'Entities Audience Exited',
+      partnerAction: 'removeProfile',
+      mapping: defaultValues(removeProfile.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_exited_track'
+    }
+  ]
 }
 
 export default destination
