@@ -54,7 +54,13 @@ const action: ActionDefinition<Settings, Payload> = {
     keys: {
       __keys__: async (request, { settings, hookOutputs, payload }) => {
         const dataExtensionId = hookOutputs?.onMappingSave?.outputs.id || payload.id || ''
-        return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId)
+        return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId, true)
+      }
+    },
+    values: {
+      __keys__: async (request, { settings, hookOutputs, payload }) => {
+        const dataExtensionId = hookOutputs?.onMappingSave?.outputs.id || payload.id || ''
+        return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId, false)
       }
     }
   },

@@ -161,6 +161,7 @@ interface DataExtensionFieldsResponse {
   fields: {
     name: string
     type: string
+    isPrimaryKey: boolean
   }[]
 }
 
@@ -438,7 +439,8 @@ export const getDataExtensions = async (
 const getDataExtensionFieldsRequest = async (
   request: RequestClient,
   dataExtensionId: string,
-  auth: { subdomain: string; accessToken: string }
+  auth: { subdomain: string; accessToken: string },
+  primaryKey: boolean
 ): Promise<{ results?: DynamicFieldItem[]; error?: DynamicFieldError }> => {
   try {
     const response = await request<DataExtensionFieldsResponse>(
@@ -455,7 +457,9 @@ const getDataExtensionFieldsRequest = async (
       return { error: { message: 'Failed to fetch Data Extension fields', code: 'BAD_REQUEST' } }
     }
 
-    const choices = response.data.fields.map((field) => {
+    const filteredItems = response.data.fields.filter((field) => field.isPrimaryKey === primaryKey)
+
+    const choices = filteredItems.map((field) => {
       return { value: field.name, label: field.name }
     })
 
@@ -469,14 +473,20 @@ export const getDataExtensionFields = async (
   request: RequestClient,
   subdomain: string,
   settings: Settings,
-  dataExtensionID: string
+  dataExtensionID: string,
+  primaryKey: boolean
 ): Promise<DynamicFieldResponse> => {
   if (!dataExtensionID) {
     return { choices: [], error: { message: 'No Data Extension ID provided', code: 'BAD_REQUEST' } }
   }
   const accessToken = await getAccessToken(request, settings)
 
-  const { results, error } = await getDataExtensionFieldsRequest(request, dataExtensionID, { subdomain, accessToken })
+  const { results, error } = await getDataExtensionFieldsRequest(
+    request,
+    dataExtensionID,
+    { subdomain, accessToken },
+    primaryKey
+  )
 
   if (error) {
     return {
