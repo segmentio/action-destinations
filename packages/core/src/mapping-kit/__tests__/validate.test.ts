@@ -44,9 +44,9 @@ describe('validation', () => {
         } catch (error) {
           hasError = true
           if (typeof fixture.expectError === 'string') {
-            expect(error.message).toMatch(fixture.expectError)
+            expect((error as Error).message).toMatch(fixture.expectError)
           } else {
-            for (const err of error) {
+            for (const err of error as Error[]) {
               expect(fixture.expectError).toContain(err.message)
             }
           }

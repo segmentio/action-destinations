@@ -391,7 +391,7 @@ export default class Salesforce {
         const tags = statsContext?.tags
         tags?.push('jobId:' + jobId)
         statsClient?.incr('bulkJobError.caughUploadError', 1, tags)
-        logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
+        logger?.crit(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
       })
       throw err
     }
@@ -407,7 +407,7 @@ export default class Salesforce {
 
       tags?.push('jobId:' + jobId)
       statsClient?.incr('bulkJobError', 1, tags)
-      logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
+      logger?.crit(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
 
       throw err
     }
@@ -496,7 +496,7 @@ export default class Salesforce {
   private removeInvalidChars = (value: string) => value.replace(/[^a-zA-Z0-9_]/g, '')
 
   // Pre-formats trait values based on datatypes for correct SOQL syntax
-  private typecast = (value: any) => {
+  private typecast = (value: unknown) => {
     switch (typeof value) {
       case 'boolean':
         return value
