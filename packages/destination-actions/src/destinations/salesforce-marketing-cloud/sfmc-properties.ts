@@ -180,10 +180,7 @@ export const columns: Omit<InputField, 'dynamic'> & {
       description: 'The data type of the field.',
       type: 'string',
       required: true,
-      choices: [
-        { label: 'Text', value: 'Text' }
-        // todo add more
-      ]
+      choices: ['Text', 'Number', 'Date', 'Boolean', 'Email', 'Phone', 'Decimal', 'Locale']
     },
     isNullable: {
       label: 'Is Nullable',
