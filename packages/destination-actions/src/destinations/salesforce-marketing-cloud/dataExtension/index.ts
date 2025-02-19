@@ -13,7 +13,6 @@ import {
   description,
   columns,
   operation,
-  dataExtensionKey,
   dataExtensionId
 } from '../sfmc-properties'
 import {
@@ -51,11 +50,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   hooks: {
     onMappingSave: {
-      label: 'Create Data Extension',
-      description: 'Create a new data extension in Salesforce Marketing Cloud.',
+      label: 'Create or Select Data Extension',
+      description: 'Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.',
       inputFields: {
         operation,
-        dataExtensionKey,
         dataExtensionId: {
           ...dataExtensionId,
           dynamic: async (request, { dynamicFieldContext, settings }) => {
