@@ -1,4 +1,4 @@
-import type { AudienceDestinationDefinition } from '@segment/actions-core'
+import { defaultValues, AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { CreateAudienceReq, CreateAudienceResp } from './types'
@@ -82,9 +82,19 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     }
   },
+
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination
