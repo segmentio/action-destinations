@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.
+   * Note: This field should be considered deprecated in favor of the hook input field "Data Extension ID". For backwards compatibility the field will not be deleted, and is instead hidden. The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.
    */
   key?: string
   /**
-   * The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.
+   * Note: This field should be considered deprecated in favor of the hook input field "Data Extension ID". For backwards compatibility the field will not be deleted, and is instead hidden. The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.
    */
   id?: string
   /**
@@ -29,4 +29,74 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface OnMappingSaveInputs {
+  /**
+   * Whether to create a new data extension or select an existing one for data delivery.
+   */
+  operation: string
+  /**
+   * The external key of the data extension.
+   */
+  dataExtensionKey?: string
+  /**
+   * The identifier for the data extension.
+   */
+  dataExtensionId?: string
+  /**
+   * The identifier for the folder that contains the data extension.
+   */
+  categoryId?: string
+  /**
+   * The name of the data extension.
+   */
+  name?: string
+  /**
+   * The description of the data extension.
+   */
+  description?: string
+  /**
+   * A list of fields to create in the data extension.
+   */
+  columns?: {
+    /**
+     * The name of the field.
+     */
+    name: string
+    /**
+     * The data type of the field.
+     */
+    type: string
+    /**
+     * Whether the field can be null.
+     */
+    isNullable: boolean
+    /**
+     * Whether the field is a primary key.
+     */
+    isPrimaryKey: boolean
+    /**
+     * The length of the field.
+     */
+    length: number
+    /**
+     * The description of the field.
+     */
+    description?: string
+    [k: string]: unknown
+  }[]
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface OnMappingSaveOutputs {
+  /**
+   * The identifier for the data extension.
+   */
+  id: string
+  /**
+   * The name of the data extension.
+   */
+  name: string
 }

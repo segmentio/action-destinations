@@ -1,4 +1,4 @@
-import { InputField } from '@segment/actions-core/destination-kit/types'
+import { InputField, FieldTypeName, DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 
 export const contactKey: InputField = {
   label: 'Contact Key',
@@ -17,17 +17,19 @@ export const contactKeyAPIEvent: InputField = {
 }
 
 export const key: InputField = {
-  label: 'Data Extension Key',
+  label: 'DEPRECATED: Data Extension Key',
   description:
-    'The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.',
-  type: 'string'
+    'Note: This field should be considered deprecated in favor of the hook input field "Data Extension ID". For backwards compatibility the field will not be deleted, and is instead hidden. The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.',
+  type: 'string',
+  unsafe_hidden: true
 }
 
 export const id: InputField = {
-  label: 'Data Extension ID',
+  label: 'DEPRECATED: Data Extension ID',
   description:
-    'The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.',
-  type: 'string'
+    'Note: This field should be considered deprecated in favor of the hook input field "Data Extension ID". For backwards compatibility the field will not be deleted, and is instead hidden. The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.',
+  type: 'string',
+  unsafe_hidden: true
 }
 
 export const keys: InputField = {
@@ -37,7 +39,8 @@ export const keys: InputField = {
   type: 'object',
   required: true,
   defaultObjectUI: 'keyvalue:only',
-  additionalProperties: true
+  additionalProperties: true,
+  dynamic: true
 }
 
 export const values_contactFields: InputField = {
@@ -93,4 +96,114 @@ export const batch_size: InputField = {
    * And: inc-sev3-6609-sfmc-timeouts-in-bulk-batching-2023-10-23
    *  */
   default: 10
+}
+
+// Scripting for the create/select existing data extension flow
+const CREATE_OPERATION: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'create' }]
+}
+
+const SELECT_OPERATION: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'select' }]
+}
+
+// The following properties represent hook inputs for the create data extension hook
+export const categoryId = {
+  label: 'Category ID (Folder ID)',
+  description: 'The identifier for the folder that contains the data extension.',
+  type: 'string' as FieldTypeName,
+  required: CREATE_OPERATION,
+  depends_on: CREATE_OPERATION
+}
+
+export const operation = {
+  label: 'Operation',
+  description: 'Whether to create a new data extension or select an existing one for data delivery.',
+  type: 'string' as FieldTypeName,
+  choices: [
+    { label: 'Create a new Data Extension', value: 'create' },
+    { label: 'Select an existing Data Extension', value: 'select' }
+  ],
+  required: true
+}
+
+export const dataExtensionKey = {
+  label: 'Data Extension Key',
+  description: 'The external key of the data extension.',
+  type: 'string' as FieldTypeName,
+  depends_on: SELECT_OPERATION
+}
+
+export const dataExtensionId = {
+  label: 'Data Extension ID',
+  description: 'The identifier for the data extension.',
+  type: 'string' as FieldTypeName,
+  depends_on: SELECT_OPERATION
+}
+
+export const name = {
+  label: 'Data Extension Name',
+  description: 'The name of the data extension.',
+  type: 'string' as FieldTypeName,
+  required: CREATE_OPERATION,
+  depends_on: CREATE_OPERATION
+}
+export const description = {
+  label: 'Data Extension Description',
+  description: 'The description of the data extension.',
+  type: 'string' as FieldTypeName,
+  depends_on: CREATE_OPERATION
+}
+
+export const columns: Omit<InputField, 'dynamic'> & {
+  dynamic?: undefined // Typescript hack, this field will not be dynamic
+} = {
+  label: 'Data Extension Fields',
+  description: 'A list of fields to create in the data extension.',
+  type: 'object' as FieldTypeName,
+  multiple: true,
+  defaultObjectUI: 'arrayeditor',
+  additionalProperties: true,
+  required: CREATE_OPERATION,
+  depends_on: CREATE_OPERATION,
+  properties: {
+    name: {
+      label: 'Field Name',
+      description: 'The name of the field.',
+      type: 'string',
+      required: true
+    },
+    type: {
+      label: 'Field Type',
+      description: 'The data type of the field.',
+      type: 'string',
+      required: true,
+      choices: ['Text', 'Number', 'Date', 'Boolean', 'Email', 'Phone', 'Decimal', 'Locale']
+    },
+    isNullable: {
+      label: 'Is Nullable',
+      description: 'Whether the field can be null.',
+      type: 'boolean',
+      required: true
+    },
+    isPrimaryKey: {
+      label: 'Is Primary Key',
+      description: 'Whether the field is a primary key.',
+      type: 'boolean',
+      required: true
+    },
+    length: {
+      label: 'Field Length',
+      description: 'The length of the field.',
+      type: 'integer',
+      required: true
+    },
+    description: {
+      label: 'Field Description',
+      description: 'The description of the field.',
+      type: 'string'
+    }
+  }
 }
