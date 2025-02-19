@@ -129,13 +129,6 @@ export const operation = {
   required: true
 }
 
-export const dataExtensionKey = {
-  label: 'Data Extension Key',
-  description: 'The external key of the data extension.',
-  type: 'string' as FieldTypeName,
-  depends_on: SELECT_OPERATION
-}
-
 export const dataExtensionId = {
   label: 'Data Extension ID',
   description: 'The identifier for the data extension.',
