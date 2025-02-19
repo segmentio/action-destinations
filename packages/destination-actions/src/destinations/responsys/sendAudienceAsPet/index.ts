@@ -19,9 +19,7 @@ const getAllPetsWaitInterval = 60
 
 // createPet (`lists/${settings.profileListName}/listExtensions`, POST): 10 requests per minute.
 // Around 1 request every 6000ms.
-// However, this wastes a lot of time (Centrifuge in general expects a response in 10 seconds, but this integration works with
-// a 30 second timeout), so we are reducing this to 3 seconds.
-const createPetWaitInterval = 3000
+const createPetWaitInterval = 6000
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Audience as PET (Profile Extension Table)',

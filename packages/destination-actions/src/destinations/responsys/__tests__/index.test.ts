@@ -12,7 +12,7 @@ describe('Responsys', () => {
       nock('https://instance-api.responsys.ocs.oraclecloud.com').post('/rest/api/v1.3/auth/token').reply(200, {
         authToken: 'anything',
         issuedAt: 1728492996097,
-        endPoint: 'https://instance-api.responsys.ocs.oraclecloud.com'
+        endPoint: 'https://cj01qwy-api.responsys.ocs.oraclecloud.com'
       })
 
       const settings: Settings = {

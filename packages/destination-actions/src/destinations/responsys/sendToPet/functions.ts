@@ -73,9 +73,7 @@ export const sendToPet = async (
 
   // createPet (`lists/${settings.profileListName}/listExtensions`, POST): 10 requests per minute.
   // Around 1 request every 6000ms.
-  // However, this wastes a lot of time (Centrifuge in general expects a response in 10 seconds, but this integration works with
-  // a 30 second timeout), so we are reducing this to 3 seconds.
-  const createPetWaitInterval = 3000
+  const createPetWaitInterval = 6000
 
   // sendToPet (`lists/${settings.profileListName}/listExtensions/${petName}/members`, POST): 500 requests per minute.
   // Around 1 request every 120ms.
