@@ -617,6 +617,16 @@ describe('MultiStatus', () => {
             firstName: 'Example',
             lastName: 'User'
           }
+        }),
+        createTestEvent({
+          type: 'identify',
+          receivedAt,
+          traits: {
+            firstName: 'Example',
+            lastName: 'User',
+            braze_id: '',
+            email: 'user+1@example.com'
+          }
         })
       ]
 
@@ -652,6 +662,13 @@ describe('MultiStatus', () => {
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" is required.',
         errorreporter: 'INTEGRATIONS'
+      })
+      expect(response[4]).toMatchObject({
+        status: 200,
+        body: 'success',
+        sent: expect.objectContaining({
+          braze_id: null
+        })
       })
     })
 

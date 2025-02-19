@@ -85,6 +85,50 @@ describe('Braze Cloud Mode (Actions)', () => {
         ])
       })
     })
+
+    it('should set braze_id to null when it is empty', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        receivedAt,
+        integrations: {
+          All: false,
+          ['Braze Cloud Mode (Actions)']: true
+        },
+        traits: {
+          firstName: 'John',
+          lastName: 'Doe',
+          braze_id: ''
+        },
+        userId: 'user1234'
+      })
+
+      const expectedPayload = {
+        attributes: [
+          {
+            external_id: 'user1234',
+            _update_existing_only: false,
+            braze_id: null,
+            country: 'United States',
+            current_location: {
+              latitude: 40.2964197,
+              longitude: -76.9411617
+            },
+            first_name: 'John',
+            last_name: 'Doe'
+          }
+        ]
+      }
+
+      nock(settings.endpoint).post('/users/track').reply(200, {})
+
+      const response = await testDestination.testAction('updateUserProfile', {
+        event,
+        settings,
+        useDefaultMappings: true
+      })
+      expect(response[0].options).toMatchSnapshot()
+      expect(response[0].options.json).toEqual(expectedPayload)
+    })
   })
 
   describe('trackEvent', () => {

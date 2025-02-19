@@ -403,7 +403,7 @@ export function updateUserProfile(
       attributes: [
         {
           ...customAttrs,
-          braze_id,
+          braze_id: braze_id || null,
           external_id,
           user_alias,
           // TODO format country code according to ISO-3166-1 alpha-2 standard?
@@ -483,7 +483,7 @@ export async function updateBatchedUserProfile(
 
     const payloadToSend = {
       ...customAttrs,
-      braze_id,
+      braze_id: braze_id || null,
       external_id,
       user_alias,
       // TODO format country code according to ISO-3166-1 alpha-2 standard?

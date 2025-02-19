@@ -18,7 +18,7 @@ Object {
   "attributes": Array [
     Object {
       "_update_existing_only": true,
-      "braze_id": undefined,
+      "braze_id": null,
       "country": "United States",
       "current_location": Object {
         "latitude": 40.2964197,
@@ -72,7 +72,7 @@ Object {
   "attributes": Array [
     Object {
       "_update_existing_only": true,
-      "braze_id": undefined,
+      "braze_id": null,
       "country": "United States",
       "current_location": Object {
         "latitude": 40.2964197,
@@ -103,7 +103,7 @@ Object {
     },
     Object {
       "_update_existing_only": true,
-      "braze_id": undefined,
+      "braze_id": null,
       "country": "United States",
       "current_location": Object {
         "latitude": 40.2964197,
