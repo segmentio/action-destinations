@@ -19,7 +19,9 @@ import type {
   ConversionRuleUpdateResponse
 } from '../types'
 import type { Payload, HookBundle } from '../streamConversion/generated-types'
+// eslint-disable-next-line no-restricted-imports
 import { createHash } from 'crypto'
+import { HashingUtilFunction } from '@segment/actions-core/types'
 
 interface ConversionRuleUpdateValues {
   name?: string
@@ -421,11 +423,16 @@ export class LinkedInConversions {
     return hash.digest('hex')
   }
 
-  private buildUserIdsArray = (payload: Payload): UserID[] => {
+  private buildUserIdsArray = (payload: Payload, hashingUtil?: HashingUtilFunction): UserID[] => {
     const userIds: UserID[] = []
 
     if (payload.email) {
-      const hashedEmail = this.hashValue(this.normalizeEmail(payload.email))
+      let hashedEmail
+      if (hashingUtil) {
+        hashedEmail = hashingUtil(payload.email, 'sha256', 'hex', this.normalizeEmail)
+      } else {
+        hashedEmail = this.hashValue(this.normalizeEmail(payload.email))
+      }
       userIds.push({
         idType: 'SHA256_EMAIL',
         idValue: hashedEmail
@@ -456,8 +463,12 @@ export class LinkedInConversions {
     return userIds
   }
 
-  async streamConversionEvent(payload: Payload, conversionTime: number): Promise<ModifiedResponse> {
-    const userIds = this.buildUserIdsArray(payload)
+  async streamConversionEvent(
+    payload: Payload,
+    conversionTime: number,
+    hashingUtil?: HashingUtilFunction
+  ): Promise<ModifiedResponse> {
+    const userIds = this.buildUserIdsArray(payload, hashingUtil)
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'POST',
       json: {
@@ -473,7 +484,7 @@ export class LinkedInConversions {
     })
   }
 
-  async batchConversionAdd(payloads: Payload[]): Promise<ModifiedResponse> {
+  async batchConversionAdd(payloads: Payload[], hashingUtil?: HashingUtilFunction): Promise<ModifiedResponse> {
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'post',
       headers: {
@@ -487,7 +498,7 @@ export class LinkedInConversions {
               : Number(payload.conversionHappenedAt)
             validate(payload, conversionTime)
 
-            const userIds = this.buildUserIdsArray(payload)
+            const userIds = this.buildUserIdsArray(payload, hashingUtil)
             return {
               conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
               conversionHappenedAt: conversionTime,

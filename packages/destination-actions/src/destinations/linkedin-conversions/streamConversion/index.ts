@@ -296,7 +296,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       unsafe_hidden: true
     }
   },
-  perform: async (request, { payload, hookOutputs }) => {
+  perform: async (request, { payload, hookOutputs, hashingUtil }) => {
     const conversionTime = isNotEpochTimestampInMilliseconds(payload.conversionHappenedAt)
       ? convertToEpochMillis(payload.conversionHappenedAt)
       : Number(payload.conversionHappenedAt)
@@ -315,12 +315,12 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     linkedinApiClient.setConversionRuleId(conversionRuleId)
 
     try {
-      return linkedinApiClient.streamConversionEvent(payload, conversionTime)
+      return linkedinApiClient.streamConversionEvent(payload, conversionTime, hashingUtil)
     } catch (error) {
       throw handleRequestError(error)
     }
   },
-  performBatch: async (request, { payload: payloads, hookOutputs }) => {
+  performBatch: async (request, { payload: payloads, hookOutputs, hashingUtil }) => {
     const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
     const conversionRuleId = hookOutputs?.onMappingSave?.outputs?.id
 
@@ -331,7 +331,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     linkedinApiClient.setConversionRuleId(conversionRuleId)
 
     try {
-      return linkedinApiClient.batchConversionAdd(payloads)
+      return linkedinApiClient.batchConversionAdd(payloads, hashingUtil)
     } catch (error) {
       throw handleRequestError(error)
     }
