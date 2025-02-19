@@ -52,8 +52,8 @@ const action: ActionDefinition<Settings, Payload> = {
               }
             ]
           },
-          dynamic: async (request, { settings }) => {
-            const fbClient = new FacebookClient(request, settings.retlAdAccountId)
+          dynamic: async (request, { settings, hashingUtil }) => {
+            const fbClient = new FacebookClient(request, settings.retlAdAccountId, hashingUtil)
             const { choices, error } = await fbClient.getAllAudiences()
 
             if (error) {
@@ -80,8 +80,8 @@ const action: ActionDefinition<Settings, Payload> = {
           required: true
         }
       },
-      performHook: async (request, { settings, hookInputs }) => {
-        const fbClient = new FacebookClient(request, settings.retlAdAccountId)
+      performHook: async (request, { settings, hookInputs, hashingUtil }) => {
+        const fbClient = new FacebookClient(request, settings.retlAdAccountId, hashingUtil)
 
         if (hookInputs.operation === 'create' && !hookInputs.audienceName) {
           return {
@@ -257,8 +257,8 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching,
     batch_size
   },
-  perform: async (request, { settings, payload, hookOutputs, syncMode }) => {
-    const fbClient = new FacebookClient(request, settings.retlAdAccountId)
+  perform: async (request, { settings, payload, hookOutputs, syncMode, hashingUtil }) => {
+    const fbClient = new FacebookClient(request, settings.retlAdAccountId, hashingUtil)
 
     if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
       return await fbClient.syncAudience({
@@ -270,9 +270,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     throw new IntegrationError('Sync mode is required for perform', 'MISSING_REQUIRED_FIELD', 400)
   },
-  performBatch: async (request, { settings, payload, hookOutputs, syncMode }) => {
-    const fbClient = new FacebookClient(request, settings.retlAdAccountId)
-
+  performBatch: async (request, { settings, payload, hookOutputs, syncMode, hashingUtil }) => {
+    const fbClient = new FacebookClient(request, settings.retlAdAccountId, hashingUtil)
     if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
       return await fbClient.syncAudience({
         audienceId: hookOutputs?.retlOnMappingSave.outputs.audienceId,

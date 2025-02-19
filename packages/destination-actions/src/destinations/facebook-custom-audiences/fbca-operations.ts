@@ -1,7 +1,6 @@
 import { DynamicFieldItem, DynamicFieldError, RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
-import { SmartHashing } from '@segment/actions-core'
 
 const FACEBOOK_API_VERSION = 'v20.0'
 // exported for unit testing
@@ -41,7 +40,7 @@ interface FacebookSyncRequestParams {
 }
 
 // exported for unit testing. Also why these are not members of the class
-export const generateData = (payloads: Payload[]): (string | number)[][] => {
+export const generateData = (payloads: Payload[], hashUtil: Function): (string | number)[][] => {
   const data: (string | number)[][] = new Array(payloads.length)
 
   payloads.forEach((payload, index) => {
@@ -50,10 +49,10 @@ export const generateData = (payloads: Payload[]): (string | number)[][] => {
     Object.entries(payload).forEach(([key, value]) => {
       if (typeof value === 'object') {
         Object.entries(value).forEach(([nestedKey, value]) => {
-          appendToDataRow(nestedKey, value as string | number, row)
+          appendToDataRow(nestedKey, value as string | number, row, hashUtil)
         })
       } else {
-        appendToDataRow(key, value as string | number, row)
+        appendToDataRow(key, value as string | number, row, hashUtil)
       }
     })
 
@@ -63,7 +62,7 @@ export const generateData = (payloads: Payload[]): (string | number)[][] => {
   return data
 }
 
-const appendToDataRow = (key: string, value: string | number, row: (string | number)[]) => {
+const appendToDataRow = (key: string, value: string | number, row: (string | number)[], hashUtil: Function) => {
   const index = segmentSchemaKeyToArrayIndex.get(key)
 
   if (index === undefined) {
@@ -71,9 +70,7 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
     return
   }
 
-  const smartHash = new SmartHashing('sha256')
-
-  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key) || smartHash.isAlreadyHashed(value)) {
+  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key)) {
     row[index] = value
     return
   }
@@ -84,16 +81,17 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
   }
 
   const normalizedValue = normalizationFunction(value)
-  row[index] = smartHash.hash(normalizedValue)
+  row[index] = hashUtil(normalizedValue, 'sha256', 'hex')
 }
 
 export default class FacebookClient {
   request: RequestClient
   adAccountId: string
-
-  constructor(request: RequestClient, adAccountId: string) {
+  hashingUtil: Function
+  constructor(request: RequestClient, adAccountId: string, hashingUtil: Function) {
     this.request = request
     this.adAccountId = this.formatAdAccount(adAccountId)
+    this.hashingUtil = hashingUtil
   }
 
   createAudience = async (name: string) => {
@@ -136,8 +134,9 @@ export default class FacebookClient {
   }
 
   syncAudience = async (input: { audienceId: string; payloads: Payload[]; deleteUsers?: boolean }) => {
-    const data = generateData(input.payloads)
+    const data = generateData(input.payloads, this.hashingUtil)
 
+    console.log('data', data)
     const app_ids: string[] = []
     let app_ids_items = 0
     input.payloads.forEach((payload) => {
