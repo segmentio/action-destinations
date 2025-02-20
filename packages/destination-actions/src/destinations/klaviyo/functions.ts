@@ -177,9 +177,6 @@ export const constructBulkProfileImportPayload = (
 export const sendImportJobRequest = async (request: RequestClient, importJobPayload: { data: ImportJobPayload }) => {
   return await request(`${API_URL}/profile-bulk-import-jobs/`, {
     method: 'POST',
-    headers: {
-      revision: '2023-10-15.pre'
-    },
     json: importJobPayload
   })
 }
@@ -707,10 +704,7 @@ export async function sendBatchedTrackEvent(request: RequestClient, payloads: Tr
   try {
     const response = await request(`${API_URL}/event-bulk-create-jobs/`, {
       method: 'POST',
-      json: payloadToSend,
-      headers: {
-        revision: '2024-10-15'
-      }
+      json: payloadToSend
     })
     updateMultiStatusWithSuccessData(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
   } catch (err) {
