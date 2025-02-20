@@ -57,7 +57,7 @@ export class Client {
     }
   }
 
-  async uploadS3(settings: Settings, fileContent: string | Buffer, filename_prefix: string) {
+  async uploadS3(settings: Settings, fileContent: string | Buffer) {
     const credentials = await this.assumeRole()
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const s3Client = new S3Client({
@@ -66,7 +66,7 @@ export class Client {
     })
 
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
-    const fileName = `${filename_prefix}_${dateSuffix}.gz`
+    const fileName = `${dateSuffix}.gz`
 
     const uploadParams: PutObjectCommandInput = {
       Bucket: settings.s3_aws_bucket_name,

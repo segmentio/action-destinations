@@ -12,7 +12,7 @@ async function send(payloads: Payload[], settings: Settings) {
   // TODO should get these from chamber
   const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
 
-  await s3Client.uploadS3(settings, gzipped, payloads[0]?.filename_prefix ?? '')
+  await s3Client.uploadS3(settings, gzipped)
 }
 
 function generateFile(payloads: Payload[]): Buffer {
