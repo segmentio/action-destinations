@@ -45,7 +45,9 @@ module.exports = {
     '@typescript-eslint/require-await': 'off',
     '@typescript-eslint/restrict-plus-operands': 'off',
     '@typescript-eslint/restrict-template-expressions': 'off',
-    '@typescript-eslint/unbound-method': 'off'
+    '@typescript-eslint/unbound-method': 'off',
+    '@typescript-eslint/no-unsafe-argument': 'warn',
+    '@typescript-eslint/no-misused-promises': 'warn'
   },
   overrides: [
     {

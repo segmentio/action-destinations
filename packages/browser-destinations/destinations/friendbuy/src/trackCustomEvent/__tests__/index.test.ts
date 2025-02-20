@@ -17,7 +17,7 @@ describe('Friendbuy.trackCustomEvent', () => {
       enabled: true,
       subscribe: 'type = "track" and event = "download"',
       mapping: Object.fromEntries(
-        Object.entries(browserTrackCustomEventFields).map(([name, value]) => [name, value.default])
+        Object.entries(browserTrackCustomEventFields).map(([name, value]) => [name, value.default as any])
       )
     }
   ]
@@ -45,7 +45,7 @@ describe('Friendbuy.trackCustomEvent', () => {
         properties: { type: 'application', fileId: 'MyApp', deduplicationId: '1234' }
       })
 
-      trackCustomEvent.track?.(context1)
+      await trackCustomEvent.track?.(context1)
 
       expect(window.friendbuyAPI?.push).not.toHaveBeenCalled()
     }
@@ -58,7 +58,7 @@ describe('Friendbuy.trackCustomEvent', () => {
         properties: { type: 'application', fileId: 'MyApp', deduplicationId: '1234' }
       })
 
-      trackCustomEvent.track?.(context2)
+      await trackCustomEvent.track?.(context2)
 
       expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(1, [
         'track',
@@ -82,7 +82,7 @@ describe('Friendbuy.trackCustomEvent', () => {
         properties: { type: 'application', fileId: 'MyApp', email, firstName, lastName }
       })
 
-      trackCustomEvent.track?.(context3)
+      await trackCustomEvent.track?.(context3)
 
       expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(2, [
         'track',
