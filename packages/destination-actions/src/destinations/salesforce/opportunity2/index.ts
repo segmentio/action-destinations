@@ -97,7 +97,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
-  performBatch: async (request, { settings, payload, syncMode, statsContext, logger }) => {
+  performBatch: async (request, { settings, payload, syncMode, features, statsContext, logger }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (syncMode === 'upsert') {
@@ -106,7 +106,16 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    return sf.bulkHandlerWithSyncMode(payload, OBJECT_NAME, syncMode, statsContext, logger)
+    let shouldShowAdvancedLogging = false
+    if (features && features['salesforce-advanced-logging']) {
+      shouldShowAdvancedLogging = true
+    }
+
+    return sf.bulkHandlerWithSyncMode(payload, OBJECT_NAME, syncMode, {
+      shouldLog: shouldShowAdvancedLogging,
+      stats: statsContext,
+      logger
+    })
   }
 }
 
