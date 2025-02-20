@@ -10,6 +10,7 @@ Object {
           "productId": "4mevd8V",
           "quantity": -6621698275147776,
           "unitPrice": -66216982751477.76,
+          "vendorId": "4mevd8V",
         },
       ],
       "occurredAt": "2021-02-01T00:00:00.000Z",
