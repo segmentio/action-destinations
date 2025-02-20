@@ -193,6 +193,7 @@ register('67338e95bf70aed334093dae', './sendgrid-audiences')
 register('673b62169b3342fbe0fc28da', './drip')
 register('674f2453916dadbd36d899dc', './attentive')
 register('674f23ece330374dc1ecc874', './twilio-messaging')
+register('67b676d98524c4e51f99b5a0', './warehouse-test')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
