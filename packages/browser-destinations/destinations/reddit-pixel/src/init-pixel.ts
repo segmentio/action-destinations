@@ -17,5 +17,5 @@ export function initializePixel(settings) {
   })(window, document)
 
   rdt('init', settings.pixel_id)
-  // rdt('track', 'PageVisit');
+  rdt('track', 'PageVisit')
 }

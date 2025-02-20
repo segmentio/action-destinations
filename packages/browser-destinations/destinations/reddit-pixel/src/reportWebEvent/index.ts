@@ -16,11 +16,18 @@ const action: BrowserActionDefinition<Settings, RedditPixel, Payload> = {
     user
   },
   perform: (rdt, { payload }) => {
-    rdt.track = 'track'
-    console.log('tracking type', payload.tracking_type)
-    console.log('rdt.track', rdt.track)
+    console.log('tracking type:', payload.tracking_type)
+    console.log('rdt.track:', rdt.track)
 
-    rdt(rdt.track, payload.tracking_type)
+    // `rdt.track` is a string, which is incorrect.
+    // If the Reddit Pixel SDK has an event-tracking function, use that instead.
+
+    if (typeof rdt.page === 'function') {
+      console.log('Calling Reddit Pixel tracking function')
+      rdt.page() // Calling the available `page` method as an example.
+    } else {
+      console.error('rdt.page() is not defined.')
+    }
   }
 }
 

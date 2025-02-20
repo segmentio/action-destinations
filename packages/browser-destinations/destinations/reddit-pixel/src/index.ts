@@ -23,7 +23,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
     {
       name: 'Page Visit',
       subscribe: 'type = "page"',
-      partnerAction: 'standardEvent',
+      partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
         tracking_type: 'PageVisit',
@@ -34,7 +34,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
     {
       name: 'View Content',
       subscribe: 'type = "track" and event = "Product Viewed"',
-      partnerAction: 'standardEvent',
+      partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
         tracking_type: 'ViewContent',
@@ -45,7 +45,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
     {
       name: 'Search',
       subscribe: 'type = "track" and event = "Products Searched"',
-      partnerAction: 'standardEvent',
+      partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
         tracking_type: 'Search',
@@ -56,7 +56,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
     {
       name: 'Add to Cart',
       subscribe: 'type = "track" and event = "Product Added"',
-      partnerAction: 'standardEvent',
+      partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
         tracking_type: 'AddToCart'
@@ -66,7 +66,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
     {
       name: 'Add to Wishlist',
       subscribe: 'type = "track" and event = "Product Added to Wishlist"',
-      partnerAction: 'standardEvent',
+      partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
         tracking_type: 'AddToWishlist'
@@ -76,7 +76,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
     {
       name: 'Purchase',
       subscribe: 'type = "track" and event = "Order Completed"',
-      partnerAction: 'standardEvent',
+      partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
         tracking_type: 'Purchase'
@@ -86,7 +86,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
     {
       name: 'Lead',
       subscribe: 'type = "track" and event = "Lead Generated"',
-      partnerAction: 'standardEvent',
+      partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
         tracking_type: 'Lead',
@@ -100,7 +100,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
     {
       name: 'Sign Up',
       subscribe: 'type = "track" and event = "Signed Up"',
-      partnerAction: 'standardEvent',
+      partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
         tracking_type: 'SignUp',
