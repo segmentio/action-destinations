@@ -57,10 +57,15 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
-  performBatch: async (request, { settings, payload, statsContext, logger }) => {
+  performBatch: async (request, { settings, payload, features, statsContext, logger }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    return sf.bulkHandler(payload, OBJECT_NAME, statsContext, logger)
+    let shouldShowAdvancedLogging = false
+    if (features && features['salesforce-advanced-logging']) {
+      shouldShowAdvancedLogging = true
+    }
+
+    return sf.bulkHandler(payload, OBJECT_NAME, { shouldLog: shouldShowAdvancedLogging, stats: statsContext, logger })
   }
 }
 
