@@ -14,7 +14,6 @@ import { Payload as payload_contactDataExtension } from './contactDataExtension/
 import { ErrorResponse } from './types'
 import { OnMappingSaveInputs } from './dataExtension/generated-types'
 import { Settings } from './generated-types'
-import { xml2js } from 'xml-js'
 
 function generateRows(payloads: payload_dataExtension[] | payload_contactDataExtension[]): Record<string, any>[] {
   const rows: Record<string, any>[] = []
@@ -168,25 +167,10 @@ interface DataExtensionFieldsResponse {
 
 interface RefreshTokenResponse {
   access_token: string
-  soap_instance_url: string
+  instance_url: string
 }
 
-interface SoapResponseResult {
-  ID: {
-    _text: string
-  }
-  Name: {
-    _text: string
-  }
-  ContentType: {
-    _text: string
-  }
-}
-
-const getAccessToken = async (
-  request: RequestClient,
-  settings: Settings
-): Promise<{ accessToken: string; soapInstanceUrl: string }> => {
+const getAccessToken = async (request: RequestClient, settings: Settings): Promise<string> => {
   const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/v2/token`
   const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
     method: 'POST',
@@ -198,7 +182,7 @@ const getAccessToken = async (
     })
   })
 
-  return { accessToken: res.data.access_token, soapInstanceUrl: res.data.soap_instance_url }
+  return res.data.access_token
 }
 
 const dataExtensionRequest = async (
@@ -275,7 +259,7 @@ async function createDataExtension(
     }
   }
 
-  const { accessToken } = await getAccessToken(request, settings)
+  const accessToken = await getAccessToken(request, settings)
 
   const { id, key, error } = await dataExtensionRequest(request, hookInputs, { subdomain, accessToken })
 
@@ -344,7 +328,7 @@ async function selectDataExtension(
     }
   }
 
-  const { accessToken } = await getAccessToken(request, settings)
+  const accessToken = await getAccessToken(request, settings)
 
   const { id, key, name, error } = await selectDataExtensionRequest(request, hookInputs, { subdomain, accessToken })
 
@@ -429,7 +413,7 @@ export const getDataExtensions = async (
     searchQuery = query
   }
 
-  const { accessToken } = await getAccessToken(request, settings)
+  const accessToken = await getAccessToken(request, settings)
 
   const { results, error } = await getDataExtensionsRequest(request, searchQuery, { subdomain, accessToken })
 
@@ -495,7 +479,7 @@ export const getDataExtensionFields = async (
   if (!dataExtensionID) {
     return { choices: [], error: { message: 'No Data Extension ID provided', code: 'BAD_REQUEST' } }
   }
-  const { accessToken } = await getAccessToken(request, settings)
+  const accessToken = await getAccessToken(request, settings)
 
   const { results, error } = await getDataExtensionFieldsRequest(
     request,
@@ -520,77 +504,5 @@ export const getDataExtensionFields = async (
 
   return {
     choices: results
-  }
-}
-
-const getCategoriesRequest = async (
-  request: RequestClient,
-  auth: { soapInstanceUrl: string; accessToken: string }
-): Promise<{ results?: DynamicFieldItem[]; error?: DynamicFieldError }> => {
-  try {
-    const response = await request(`${auth.soapInstanceUrl}/Service.asmx`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/xml',
-        SOAPAction: 'Retrieve'
-      },
-      body: `<?xml version="1.0" encoding="UTF-8"?>
-        <SOAP-ENV:Envelope
-          xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
-          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <SOAP-ENV:Header>
-            <fueloauth xmlns="http://exacttarget.com">${auth.accessToken}</fueloauth>
-          </SOAP-ENV:Header>
-          <SOAP-ENV:Body>
-            <RetrieveRequestMsg
-              xmlns="http://exacttarget.com/wsdl/partnerAPI">
-                <RetrieveRequest>
-                  <ObjectType>DataFolder</ObjectType>
-                  <Properties>ID</Properties>
-                  <Properties>Name</Properties>
-                  <Properties>ContentType</Properties>
-                </RetrieveRequest>
-            </RetrieveRequestMsg>
-          </SOAP-ENV:Body>
-        </SOAP-ENV:Envelope>
-        `
-    })
-
-    const convert: any = xml2js(response.content, { compact: true })
-    const items = (convert['soap:Envelope']['soap:Body']['RetrieveResponseMsg']['Results'] as SoapResponseResult[]).map(
-      (item) => {
-        const type = item.ContentType._text
-
-        return {
-          label: item.Name._text,
-          value: item.ID._text,
-          description: `ContentType: ${type}`
-        }
-      }
-    )
-
-    return {
-      results: items
-    }
-  } catch (err) {
-    return { error: { message: err.response.data.message, code: 'BAD_REQUEST' } }
-  }
-}
-
-export const getCategories = async (request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> => {
-  const { accessToken, soapInstanceUrl } = await getAccessToken(request, settings)
-
-  const { results, error } = await getCategoriesRequest(request, { soapInstanceUrl, accessToken })
-
-  if (error) {
-    return {
-      choices: [],
-      error: error
-    }
-  }
-
-  return {
-    choices: results || []
   }
 }
