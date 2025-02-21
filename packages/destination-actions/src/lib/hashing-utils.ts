@@ -3,6 +3,7 @@
  * It includes functionality to check if a value is already hashed and to process hashing with optional cleaning.
  */
 import * as crypto from 'crypto'
+import { Features } from '@segment/actions-core/mapping-kit'
 
 export const EncryptionMethods = ['md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512'] as const
 export type EncryptionMethod = typeof EncryptionMethods[number]
@@ -23,9 +24,16 @@ export const hashConfigs: {
   sha512: { lengthHex: 128, lengthBase64: 88 }
 }
 
-export class SmartHashing {
+const slugsToBypassFeatureFlag = ['actions-facebook-custom-audiences']
+
+class SmartHashing {
   private preHashed: boolean
 
+  /**
+   * Creates an instance of SmartHashing.
+   * @param encryptionMethod - The method of encryption to be used.
+   * @param digest - The type of digest to be used.
+   */
   constructor(public encryptionMethod: EncryptionMethod = 'sha256', public digest: DigestType = 'hex') {
     this.preHashed = false
   }
@@ -65,20 +73,22 @@ export class SmartHashing {
 }
 
 /**
- * Processes the hashing of a given value based on the specified encryption method and digest type.
+ * Processes the hashing of a given value based on the provided encryption method, digest type, features, and optional cleaning function.
  *
  * @param value - The string value to be hashed.
  * @param encryptionMethod - The method of encryption to be used.
  * @param digest - The type of digest to be used.
- * @param features - An array of feature flags that may alter the hashing behavior.
+ * @param features - An object containing feature flags.
+ * @param destinationSlugForBypass - A slug that, if present in the bypassFlagSlugs array, will bypass the flag check.
  * @param cleaningFunction - An optional function to clean the value before hashing.
- * @returns The hashed value as a string. If the input value is empty, returns an empty string.
+ * @returns The hashed value or the original value if it is already hashed.
  */
 export function processHashing(
   value: string,
   encryptionMethod: EncryptionMethod,
   digest: DigestType,
-  features: string[],
+  features: Features,
+  destinationSlugForBypass: string,
   cleaningFunction?: CleaningFunction
 ): string {
   if (value.trim() === '') {
@@ -86,9 +96,14 @@ export function processHashing(
   }
 
   const smartHashing = new SmartHashing(encryptionMethod, digest)
+  /**
+   * Determines whether the flag should be bypasssed or not.
+   * If the flag is present in the bypassFlagSlugs array, the flag check will be bypassed.
+   */
+  const bypassFlag = destinationSlugForBypass && slugsToBypassFeatureFlag.includes(destinationSlugForBypass)
 
   // If smart-hashing feature flag is not enabled, clean and hash the value directly
-  if (!features.includes('smart-hashing')) {
+  if (!bypassFlag && !(features && features['smart-hashing'])) {
     if (cleaningFunction) {
       value = cleaningFunction(value)
     }
