@@ -20,7 +20,8 @@ import {
   upsertRows,
   selectOrCreateDataExtension,
   getDataExtensions,
-  getDataExtensionFields
+  getDataExtensionFields,
+  getCategories
 } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -76,7 +77,12 @@ const action: ActionDefinition<Settings, Payload> = {
             return await getDataExtensions(request, settings.subdomain, settings, query)
           }
         },
-        categoryId,
+        categoryId: {
+          ...categoryId,
+          dynamic: async (request, { settings }) => {
+            return await getCategories(request, settings)
+          }
+        },
         name,
         description,
         columns
