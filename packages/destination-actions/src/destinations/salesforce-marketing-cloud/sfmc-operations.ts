@@ -171,7 +171,22 @@ interface RefreshTokenResponse {
   soap_instance_url: string
 }
 
-const getAccessToken = async (request: RequestClient, settings: Settings): Promise<{ accessToken: string, soapInstanceUrl: string}> => {
+interface SoapResponseResult {
+  ID: {
+    _text: string
+  }
+  Name: {
+    _text: string
+  }
+  ContentType: {
+    _text: string
+  }
+}
+
+const getAccessToken = async (
+  request: RequestClient,
+  settings: Settings
+): Promise<{ accessToken: string; soapInstanceUrl: string }> => {
   const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/v2/token`
   const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
     method: 'POST',
@@ -513,15 +528,13 @@ const getCategoriesRequest = async (
   auth: { soapInstanceUrl: string; accessToken: string }
 ): Promise<{ results?: DynamicFieldItem[]; error?: DynamicFieldError }> => {
   try {
-    const response = await request<CategoriesResponse>(
-      `${auth.soapInstanceUrl}/Service.asmx`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/xml',
-          SOAPAction: 'Retrieve',
-        },
-        body: `<?xml version="1.0" encoding="UTF-8"?>
+    const response = await request(`${auth.soapInstanceUrl}/Service.asmx`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/xml',
+        SOAPAction: 'Retrieve'
+      },
+      body: `<?xml version="1.0" encoding="UTF-8"?>
         <SOAP-ENV:Envelope
           xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
           xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -542,34 +555,26 @@ const getCategoriesRequest = async (
           </SOAP-ENV:Body>
         </SOAP-ENV:Envelope>
         `
+    })
+
+    const convert: any = xml2js(response.content, { compact: true })
+    const items = (convert['soap:Envelope']['soap:Body']['RetrieveResponseMsg']['Results'] as SoapResponseResult[]).map(
+      (item) => {
+        const type = item.ContentType._text
+
+        return {
+          label: item.Name._text,
+          value: item.ID._text,
+          description: `ContentType: ${type}`
+        }
       }
     )
 
-    console.log('res', response)
-
-    const convert = xml2js(response.content, { compact: true })
-    console.log('convert', JSON.stringify(convert, null, 2))
-    console.log('convert inner', convert['soap:Envelope']['soap:Body']['RetrieveResponseMsg']['Results'])
-    const items = (convert['soap:Envelope']['soap:Body']['RetrieveResponseMsg']['Results'] as SoapResponseResult[]).map((item) => {
-      const type = item.ContentType._text
-
-      return {
-        label: item.Name._text,
-        value: item.ID._text,
-        description: `ContentType: ${type}`
-      }
-    })
-
-    console.log('items', items) 
     return {
       results: items
     }
   } catch (err) {
-    console.log('err', err)
-  }
-
-  return {
-    results: []
+    return { error: { message: err.response.data.message, code: 'BAD_REQUEST' } }
   }
 }
 
@@ -578,7 +583,14 @@ export const getCategories = async (request: RequestClient, settings: Settings):
 
   const { results, error } = await getCategoriesRequest(request, { soapInstanceUrl, accessToken })
 
+  if (error) {
+    return {
+      choices: [],
+      error: error
+    }
+  }
+
   return {
-    choices: results || [],
+    choices: results || []
   }
 }
