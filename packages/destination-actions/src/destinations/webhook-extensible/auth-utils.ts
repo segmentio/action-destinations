@@ -8,35 +8,57 @@ export const sendRefreshTokenReq = async (
   settings: any,
   auth: any
 ): Promise<RefreshAccessTokenResult> => {
-  let res
   const { oauth } = settings.dynamicAuthSettings
+  const { url, options } = getRequestData(oauth, auth)
+  const res = await request<RefreshTokenResponse>(url, options)
 
   if (oauth.type === 'authCode') {
-    res = await request<RefreshTokenResponse>(getRequestUrl(oauth), getRequestOptions(oauth, auth))
     return {
       accessToken: res.data.access_token,
       refreshToken: res.data.refresh_token
     }
   } else {
-    res = await request<RefreshTokenResponse>(getRequestUrl(oauth), getRequestOptions(oauth, auth))
     return { accessToken: res.data.access_token }
   }
 }
 
-const getRequestUrl = (oauth: any) => {
-  if (oauth?.customParams?.refreshRequest?.sendIn === 'url') {
-    const customParamVal = new URLSearchParams(oauth.customParams.refreshRequest.val)
-    return `${oauth.refreshTokenServerUrl}?${customParamVal ?? ''}`
+const getRequestData = (oauth: any, auth: any) => {
+  let customParamsObj
+  if (Array.isArray(oauth?.customParams?.refreshRequest) && oauth.customParams.refreshRequest.length > 0) {
+    customParamsObj = oauth.customParams.refreshRequest.reduce((acc: any, { key, value, sendIn }: any) => {
+      acc[sendIn] = acc[sendIn] || {}
+      acc[sendIn][key] = value
+      return acc
+    }, {})
   }
-  return oauth.refreshTokenServerUrl
+  const customHeaders = customParamsObj?.header ?? {}
+  const customBody = customParamsObj?.body ?? {}
+  const customQuery = customParamsObj?.query ?? {}
+  const url = getRequestUrl(oauth, customQuery)
+  const options = getRequestOptions(oauth, auth, customHeaders, customBody)
+
+  return {
+    url,
+    options
+  }
 }
 
-const getRequestOptions = (oauth: any, auth: any): RequestOptions => {
+const getRequestUrl = (oauth: any, customQuery: any) => {
+  let url = oauth.refreshTokenServerUrl
+  if (Object.keys(customQuery).length > 0) {
+    const urlSearchParams = new URLSearchParams(customQuery)
+    url = url + `?${urlSearchParams}`
+  }
+  return url
+}
+
+const getRequestOptions = (oauth: any, auth: any, customHeaders: object, customBody: object): RequestOptions => {
   let bodyParams = {}
   const { clientId, clientSecret } = auth
-  let headers = {
+  const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
-    Authorization: `Basic ${Buffer.from(clientId + ':' + clientSecret).toString('base64')}`
+    Authorization: `Basic ${Buffer.from(clientId + ':' + clientSecret).toString('base64')}`,
+    ...customHeaders
   }
 
   if (oauth.type === 'authCode') {
@@ -45,27 +67,16 @@ const getRequestOptions = (oauth: any, auth: any): RequestOptions => {
       refresh_token: auth.refreshToken ?? oauth.access.refresh_token,
       scope: oauth.scopes,
       client_id: clientId,
-      client_secret: clientSecret
+      client_secret: clientSecret,
+      ...customBody
     }
   } else {
     bodyParams = {
       grant_type: 'client_credentials',
-      scope: oauth.scopes
+      scope: oauth.scopes,
+      ...customBody
     }
   }
-
-  if (oauth?.customParams?.refreshRequest?.sendIn === 'body') {
-    bodyParams = {
-      ...bodyParams,
-      ...oauth.customParams.refreshRequest.val
-    }
-  } else if (oauth?.customParams?.refreshRequest?.sendIn === 'headers') {
-    headers = {
-      ...headers,
-      ...oauth.customParams.refreshRequest.val
-    }
-  }
-
   const body = new URLSearchParams(bodyParams)
 
   return {
