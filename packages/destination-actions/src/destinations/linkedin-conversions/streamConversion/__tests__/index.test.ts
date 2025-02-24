@@ -16,7 +16,6 @@ const event = createTestEvent({
     traits: {
       email: 'testing@testing.com',
       upperCaseEmail: 'WHYAREYOUYELLING@EMAIL.com',
-      preHashedEmail: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
       first_name: 'mike',
       last_name: 'smith',
       title: 'software engineer',
@@ -424,45 +423,6 @@ describe('LinkedinConversions.streamConversion', () => {
         }
       })
     ).rejects.toThrowError("User Info is missing the required field 'lastName'.")
-  })
-
-  it('should detect hashed email if feature flag for smart hashing is passed', async () => {
-    nock(`${BASE_URL}/conversionEvents`)
-      .post('', {
-        conversion: 'urn:lla:llaPartnerConversion:789123',
-        conversionHappenedAt: currentTimestamp,
-        user: {
-          userIds: [
-            {
-              idType: 'SHA256_EMAIL',
-              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
-            }
-          ]
-        }
-      })
-      .reply(201)
-
-    await expect(
-      testDestination.testAction('streamConversion', {
-        event,
-        settings,
-        mapping: {
-          email: { '@path': '$.context.traits.preHashedEmail' },
-          conversionHappenedAt: {
-            '@path': '$.timestamp'
-          },
-          onMappingSave: {
-            inputs: {},
-            outputs: {
-              id: payload.conversionId
-            }
-          },
-          enable_batching: true,
-          batch_size: 5000
-        },
-        features: { 'smart-hashing': true }
-      })
-    ).resolves.not.toThrowError()
   })
 })
 

@@ -2,7 +2,7 @@ import nock from 'nock'
 import createRequestClient from '../../../../../core/src/create-request-client'
 import { LinkedInConversions } from '../api'
 import { BASE_URL } from '../constants'
-import { OnMappingSaveInputs, OnMappingSaveOutputs } from '../streamConversion/generated-types'
+import { HookBundle } from '../streamConversion/generated-types'
 
 const requestClient = createRequestClient()
 
@@ -10,7 +10,7 @@ describe('LinkedIn Conversions', () => {
   describe('conversionRule methods', () => {
     const linkedIn: LinkedInConversions = new LinkedInConversions(requestClient)
     const adAccountId = 'urn:li:sponsoredAccount:123456'
-    const hookInputs: OnMappingSaveInputs = {
+    const hookInputs: HookBundle['onMappingSave']['inputs'] = {
       adAccountId,
       name: 'A different name that should trigger an update',
       conversionType: 'PURCHASE',
@@ -19,7 +19,7 @@ describe('LinkedIn Conversions', () => {
       view_through_attribution_window_size: 7
     }
 
-    const hookOutputs: OnMappingSaveOutputs = {
+    const hookOutputs: HookBundle['onMappingSave']['outputs'] = {
       id: '56789',
       name: 'The original name',
       conversionType: 'LEAD',

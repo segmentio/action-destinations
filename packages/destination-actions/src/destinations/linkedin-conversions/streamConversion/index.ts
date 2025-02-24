@@ -3,10 +3,10 @@ import { ErrorCodes, IntegrationError, PayloadValidationError, InvalidAuthentica
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
 import { CONVERSION_TYPE_OPTIONS, SUPPORTED_LOOKBACK_WINDOW_CHOICES, DEPENDS_ON_CONVERSION_RULE_ID } from '../constants'
-import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from './generated-types'
+import type { Payload, HookBundle } from './generated-types'
 import { LinkedInError } from '../types'
 
-const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs, OnMappingSaveOutputs> = {
+const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
   defaultSubscription: 'type = "track"',
@@ -140,13 +140,13 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
       performHook: async (request, { hookInputs, hookOutputs }) => {
         const linkedIn = new LinkedInConversions(request)
 
-        let hookReturn: ActionHookResponse<OnMappingSaveOutputs>
+        let hookReturn: ActionHookResponse<HookBundle['onMappingSave']['outputs']>
         if (hookOutputs?.onMappingSave?.outputs) {
           linkedIn.setConversionRuleId(hookOutputs.onMappingSave.outputs.id)
 
           hookReturn = await linkedIn.updateConversionRule(
             hookInputs,
-            hookOutputs.onMappingSave.outputs as OnMappingSaveOutputs
+            hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
           )
         } else {
           hookReturn = await linkedIn.createConversionRule(hookInputs)
@@ -296,7 +296,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
       unsafe_hidden: true
     }
   },
-  perform: async (request, { payload, hookOutputs, features }) => {
+  perform: async (request, { payload, hookOutputs }) => {
     const conversionTime = isNotEpochTimestampInMilliseconds(payload.conversionHappenedAt)
       ? convertToEpochMillis(payload.conversionHappenedAt)
       : Number(payload.conversionHappenedAt)
@@ -315,12 +315,12 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     linkedinApiClient.setConversionRuleId(conversionRuleId)
 
     try {
-      return linkedinApiClient.streamConversionEvent(payload, conversionTime, features)
+      return linkedinApiClient.streamConversionEvent(payload, conversionTime)
     } catch (error) {
       throw handleRequestError(error)
     }
   },
-  performBatch: async (request, { payload: payloads, hookOutputs, features }) => {
+  performBatch: async (request, { payload: payloads, hookOutputs }) => {
     const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
     const conversionRuleId = hookOutputs?.onMappingSave?.outputs?.id
 
@@ -331,7 +331,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     linkedinApiClient.setConversionRuleId(conversionRuleId)
 
     try {
-      return linkedinApiClient.batchConversionAdd(payloads, features)
+      return linkedinApiClient.batchConversionAdd(payloads)
     } catch (error) {
       throw handleRequestError(error)
     }

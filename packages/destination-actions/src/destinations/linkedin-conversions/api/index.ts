@@ -3,8 +3,7 @@ import {
   ModifiedResponse,
   DynamicFieldResponse,
   ActionHookResponse,
-  PayloadValidationError,
-  Features
+  PayloadValidationError
 } from '@segment/actions-core'
 import { BASE_URL, DEFAULT_POST_CLICK_LOOKBACK_WINDOW, DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW } from '../constants'
 import type {
@@ -19,8 +18,8 @@ import type {
   GetConversionRuleResponse,
   ConversionRuleUpdateResponse
 } from '../types'
-import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from '../streamConversion/generated-types'
-import { processHashing } from '../../../lib/hashing-utils'
+import type { Payload, HookBundle } from '../streamConversion/generated-types'
+import { createHash } from 'crypto'
 
 interface ConversionRuleUpdateValues {
   name?: string
@@ -85,7 +84,7 @@ export class LinkedInConversions {
   getConversionRule = async (
     adAccount: string,
     conversionRuleId: string
-  ): Promise<ActionHookResponse<OnMappingSaveOutputs>> => {
+  ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
     try {
       const { data } = await this.request<GetConversionRuleResponse>(`${BASE_URL}/conversions/${conversionRuleId}`, {
         method: 'get',
@@ -117,8 +116,8 @@ export class LinkedInConversions {
   }
 
   createConversionRule = async (
-    hookInputs: OnMappingSaveInputs | undefined
-  ): Promise<ActionHookResponse<OnMappingSaveOutputs>> => {
+    hookInputs: HookBundle['onMappingSave']['inputs']
+  ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
     if (!hookInputs?.adAccountId) {
       return {
         error: {
@@ -170,9 +169,9 @@ export class LinkedInConversions {
   }
 
   updateConversionRule = async (
-    hookInputs: OnMappingSaveInputs | undefined,
-    hookOutputs: OnMappingSaveOutputs
-  ): Promise<ActionHookResponse<OnMappingSaveOutputs>> => {
+    hookInputs: HookBundle['onMappingSave']['inputs'],
+    hookOutputs: HookBundle['onMappingSave']['outputs']
+  ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
     if (!hookOutputs) {
       return {
         error: {
@@ -416,18 +415,17 @@ export class LinkedInConversions {
     return email.toLowerCase()
   }
 
-  private buildUserIdsArray = (payload: Payload, features?: Features): UserID[] => {
+  private hashValue = (val: string): string => {
+    const hash = createHash('sha256')
+    hash.update(val)
+    return hash.digest('hex')
+  }
+
+  private buildUserIdsArray = (payload: Payload): UserID[] => {
     const userIds: UserID[] = []
 
     if (payload.email) {
-      const hashedEmail = processHashing(
-        payload.email,
-        'sha256',
-        'hex',
-        features ?? {},
-        'LinkedIn Conversions API',
-        this.normalizeEmail
-      )
+      const hashedEmail = this.hashValue(this.normalizeEmail(payload.email))
       userIds.push({
         idType: 'SHA256_EMAIL',
         idValue: hashedEmail
@@ -458,12 +456,8 @@ export class LinkedInConversions {
     return userIds
   }
 
-  async streamConversionEvent(
-    payload: Payload,
-    conversionTime: number,
-    features?: Features
-  ): Promise<ModifiedResponse> {
-    const userIds = this.buildUserIdsArray(payload, features)
+  async streamConversionEvent(payload: Payload, conversionTime: number): Promise<ModifiedResponse> {
+    const userIds = this.buildUserIdsArray(payload)
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'POST',
       json: {
@@ -479,7 +473,7 @@ export class LinkedInConversions {
     })
   }
 
-  async batchConversionAdd(payloads: Payload[], features?: Features): Promise<ModifiedResponse> {
+  async batchConversionAdd(payloads: Payload[]): Promise<ModifiedResponse> {
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'post',
       headers: {
@@ -493,7 +487,7 @@ export class LinkedInConversions {
               : Number(payload.conversionHappenedAt)
             validate(payload, conversionTime)
 
-            const userIds = this.buildUserIdsArray(payload, features)
+            const userIds = this.buildUserIdsArray(payload)
             return {
               conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
               conversionHappenedAt: conversionTime,
@@ -582,8 +576,8 @@ export class LinkedInConversions {
   }
 
   private conversionRuleValuesUpdated = (
-    hookInputs: OnMappingSaveInputs,
-    hookOutputs: Partial<OnMappingSaveOutputs>
+    hookInputs: HookBundle['onMappingSave']['inputs'],
+    hookOutputs: Partial<HookBundle['onMappingSave']['outputs']>
   ): ConversionRuleUpdateValues => {
     const valuesChanged: ConversionRuleUpdateValues = {}
 
