@@ -52,16 +52,14 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     keys: {
-      __keys__: async (request, { settings, hookOutputs, payload }) => {
-        const dataExtensionId =
-          hookOutputs?.onMappingSave?.outputs.id || (payload as any).onMappingSave.outputs.id || ''
+      __keys__: async (request, { settings, payload }) => {
+        const dataExtensionId = (payload as any).onMappingSave.outputs.id || ''
         return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId, true)
       }
     },
     values: {
-      __keys__: async (request, { settings, hookOutputs, payload }) => {
-        const dataExtensionId =
-          hookOutputs?.onMappingSave?.outputs.id || (payload as any).onMappingSave.outputs.id || ''
+      __keys__: async (request, { settings, payload }) => {
+        const dataExtensionId = (payload as any).onMappingSave.outputs.id || ''
         return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId, false)
       }
     }
