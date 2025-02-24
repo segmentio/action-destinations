@@ -1,6 +1,6 @@
 export { Destination, fieldsToJsonSchema } from './destination-kit'
 export { getAuthData } from './destination-kit/parse-settings'
-export { transform } from './mapping-kit'
+export { transform, Features } from './mapping-kit'
 export {
   ArrayPathDirective,
   CaseDirective,

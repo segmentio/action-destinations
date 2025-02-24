@@ -20,6 +20,14 @@ describe('processHashing', () => {
     expect(hashedValue).toHaveLength(64)
   })
 
+  it('should process hashing with a lowercase cleaning function', () => {
+    const lowercaseCleaningFunction = (val: string) => val.toLowerCase()
+    value = 'TEST'
+    const hashedValue = processHashing(value, 'sha256', 'hex', features, '', lowercaseCleaningFunction)
+    expect(hashedValue).toBe(hashed)
+    expect(hashedValue).toHaveLength(64)
+  })
+
   it('should return the value if it is already hashed', () => {
     value = '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
     const hashedValue = processHashing(value, 'sha256', 'hex', features, '')
