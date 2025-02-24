@@ -11,6 +11,16 @@ export const hideIfDeleteOperation: DependsOnConditions = {
   ]
 }
 
+export const requiredIfCreateOperation: DependsOnConditions = {
+  conditions: [
+    {
+      fieldKey: 'operation',
+      operator: 'is',
+      value: 'create'
+    }
+  ]
+}
+
 export const operation: InputField = {
   label: 'Operation',
   description:

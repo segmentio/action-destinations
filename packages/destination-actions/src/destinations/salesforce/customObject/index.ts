@@ -72,14 +72,23 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.deleteRecord(payload, payload.customObjectName)
     }
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, features, statsContext, logger }) => {
     if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(payload[0].operation) && !payload[0].customFields) {
       throw new PayloadValidationError('Custom fields are required for this operation.')
     }
 
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    return sf.bulkHandler(payload, payload[0].customObjectName)
+    let shouldShowAdvancedLogging = false
+    if (features && features['salesforce-advanced-logging']) {
+      shouldShowAdvancedLogging = true
+    }
+
+    return sf.bulkHandler(payload, payload[0].customObjectName, {
+      shouldLog: shouldShowAdvancedLogging,
+      stats: statsContext,
+      logger
+    })
   }
 }
 

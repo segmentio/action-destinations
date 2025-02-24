@@ -195,6 +195,7 @@ describe('Amazon-Ads (actions)', () => {
       nock(`${settings.region}/amc/audiences/metadata`)
         .get(`/${externalId}`)
         .reply(200, {
+          // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
           advertiserId: 1234567893456754321,
           audienceId: 1234549079612618,
           countryCode: 'US',

@@ -137,7 +137,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].options.body).toBe(
       '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
     )
-    expect(response[0].options).toMatchSnapshot()
+    expect(response[0].options.headers).toMatchSnapshot()
   })
 
   it('Normalise and Hash personally-identifiable input provided with SHA-256', async () => {
@@ -168,7 +168,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].options.body).toBe(
       '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","phone":"63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
     )
-    expect(response[0].options).toMatchSnapshot()
+    expect(response[0].options.headers).toMatchSnapshot()
   })
 
   it('Normalise and Hash input with extra characters and spaces', async () => {
@@ -204,7 +204,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].options.body).toBe(
       '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"address":"ebb357a6f604e4d893f034561b06fff712d9dbb7082c4b1808418115c5628017","postal":"516b1543763b8b04f15897aeac07eba66f4e36fdac6945bacb6bdac57e44598a","phone":"e1bfd73a5dc6262163ec42add4ebe0229f929db9b23644c1485dbccd05a36363","city":"61a01e4b10bf579b267bdc16858c932339e8388537363c9c0961bcf5520c8897","state":"7e8eea5cc60980270c9ceb75ce8c087d48d726110fd3d17921f774eefd8e18d8","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
     )
-    expect(response[0].options).toMatchSnapshot()
+    expect(response[0].options.body).toMatchSnapshot()
   })
 
   it('Should delete user from audience when Event is Audience Exited', async () => {
@@ -228,7 +228,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].options.body).toBe(
       '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"DELETE","hashedPII":[{"email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
     )
-    expect(response[0].options).toMatchSnapshot()
+    expect(response[0].options.headers).toMatchSnapshot()
   })
   it('should throw an error when an event has invalid externalUserId', async () => {
     await expect(

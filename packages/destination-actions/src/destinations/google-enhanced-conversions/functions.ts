@@ -32,23 +32,21 @@ export const CANARY_API_VERSION = 'v17'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 
 type GoogleAdsErrorData = {
-  data: {
-    error: {
-      code: number
-      details: [
-        {
-          '@type': string
-          errors: [
-            {
-              errorCode: { databaseError: string }
-              message: string
-            }
-          ]
-        }
-      ]
-      message: string
-      status: string
-    }
+  error: {
+    code: number
+    details: [
+      {
+        '@type': string
+        errors: [
+          {
+            errorCode: { databaseError: string }
+            message: string
+          }
+        ]
+      }
+    ]
+    message: string
+    status: string
   }
 }
 export class GoogleAdsError extends HTTPError {
@@ -418,18 +416,6 @@ export async function getGoogleAudience(
   return response.data as UserListResponse
 }
 
-const formatEmail = (email: string): string => {
-  const googleDomain = new RegExp('^(gmail|googlemail).s*', 'g')
-  let normalizedEmail = email.toLowerCase().trim()
-  const emailParts = normalizedEmail.split('@')
-  if (emailParts.length > 1 && emailParts[1].match(googleDomain)) {
-    emailParts[0] = emailParts[0].replace('.', '')
-    normalizedEmail = `${emailParts[0]}@${emailParts[1]}`
-  }
-
-  return sha256SmartHash(normalizedEmail)
-}
-
 // Standardize phone number to E.164 format, This format represents a phone number as a number up to fifteen digits
 // in length starting with a + sign, for example, +12125650000 or +442070313000.
 // exported for unit testing
@@ -472,7 +458,7 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
       const identifiers = []
       if (payload.email) {
         identifiers.push({
-          hashedEmail: formatEmail(payload.email)
+          hashedEmail: commonHashedEmailValidation(payload.email)
         })
       }
       if (payload.phone) {
@@ -553,12 +539,28 @@ const createOfflineUserJob = async (
     return (response.data as any).resourceName
   } catch (error) {
     statsContext?.statsClient?.incr('error.createJob', 1, statsContext?.tags)
-    throw new IntegrationError(
-      (error as GoogleAdsError).response?.statusText,
-      'INVALID_RESPONSE',
-      (error as GoogleAdsError).response?.status
-    )
+    handleGoogleAdsError(error)
   }
+}
+
+const handleGoogleAdsError = (error: any) => {
+  // Google throws 400 error for CONCURRENT_MODIFICATION error which is a retryable error
+  // We rewrite this error to a 500 so that Centrifuge can retry the request
+  const errors = (error as GoogleAdsError).response?.data?.error?.details ?? []
+  for (const errorDetails of errors) {
+    for (const errorItem of errorDetails.errors) {
+      // https://developers.google.com/google-ads/api/reference/rpc/v17/DatabaseErrorEnum.DatabaseError
+      if (errorItem?.errorCode?.databaseError === 'CONCURRENT_MODIFICATION') {
+        throw new RetryableError(
+          errorItem?.message ??
+            'Multiple requests were attempting to modify the same resource at once. Retry the request.',
+          500
+        )
+      }
+    }
+  }
+
+  throw error
 }
 
 const addOperations = async (
@@ -587,26 +589,7 @@ const addOperations = async (
     return response.data
   } catch (error) {
     statsContext?.statsClient?.incr('error.addOperations', 1, statsContext?.tags)
-
-    // Google throws 400 error for CONCURRENT_MODIFICATION error which is a retryable error
-    // We rewrite this error to a 500 so that Centrifuge can retry the request
-    for (const errorDetails of (error as GoogleAdsError).response?.data?.data?.error?.details) {
-      for (const errorItem of errorDetails.errors) {
-        if (errorItem?.errorCode?.databaseError) {
-          throw new RetryableError(
-            errorItem?.message ??
-              'Multiple requests were attempting to modify the same resource at once. Retry the request.',
-            500
-          )
-        }
-      }
-
-      throw new IntegrationError(
-        (error as GoogleAdsError).response?.statusText,
-        'INVALID_RESPONSE',
-        (error as GoogleAdsError).response?.status
-      )
-    }
+    handleGoogleAdsError(error)
   }
 }
 
@@ -629,11 +612,7 @@ const runOfflineUserJob = async (
     return response.data
   } catch (error) {
     statsContext?.statsClient?.incr('error.runJob', 1, statsContext?.tags)
-    throw new IntegrationError(
-      (error as GoogleAdsError).response?.statusText,
-      'INVALID_RESPONSE',
-      (error as GoogleAdsError).response?.status
-    )
+    handleGoogleAdsError(error)
   }
 }
 
