@@ -14,7 +14,7 @@
     "package.json"
   ],
   "engines": {
-    "node": "14 || ^18.12"
+    "node": "^18.12 || ^22.13"
   },
   "engineStrict": true,
   "license": "MIT",
@@ -46,7 +46,7 @@
     "@segment/a1-notation": "^2.1.4",
     "@segment/actions-core": "^3.146.0",
     "@segment/actions-shared": "^1.127.0",
-    "@types/node": "^18.11.15",
+    "@types/node": "^22.13.1",
     "ajv-formats": "^2.1.1",
     "aws4": "^1.12.0",
     "cheerio": "^1.0.0-rc.10",
@@ -57,7 +57,7 @@
     "liquidjs": "^10.8.4",
     "lodash": "^4.17.21",
     "lru-cache": "10.4.3",
-    "ssh2-sftp-client": "^9.1.0"
+    "ssh2-sftp-client": "^10.0.3"
   },
   "jest": {
     "preset": "ts-jest",

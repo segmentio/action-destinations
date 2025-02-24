@@ -14,7 +14,7 @@
     "package.json"
   ],
   "engines": {
-    "node": "14 || ^18.12"
+    "node": "^18.12 || ^22.13"
   },
   "engineStrict": true,
   "license": "MIT",
