@@ -3,7 +3,7 @@
  * It includes functionality to check if a value is already hashed and to process hashing with optional cleaning.
  */
 import * as crypto from 'crypto'
-import { Features } from '@segment/actions-core/mapping-kit'
+import { Features } from '@segment/actions-core'
 
 export const EncryptionMethods = ['md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512'] as const
 export type EncryptionMethod = typeof EncryptionMethods[number]
@@ -98,7 +98,7 @@ export function processHashing(
   const smartHashing = new SmartHashing(encryptionMethod, digest)
   /**
    * Determines whether the flag should be bypasssed or not.
-   * If the flag is present in the bypassFlagSlugs array, the flag check will be bypassed.
+   * If the slug is present in the bypassFlagSlugs array, the flag check will be bypassed.
    */
   const bypassFlag = destinationSlugForBypass && slugsToBypassFeatureFlag.includes(destinationSlugForBypass)
 
