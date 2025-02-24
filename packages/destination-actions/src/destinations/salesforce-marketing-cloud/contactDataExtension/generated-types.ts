@@ -42,10 +42,6 @@ export interface OnMappingSaveInputs {
    */
   operation: string
   /**
-   * The external key of the data extension.
-   */
-  dataExtensionKey?: string
-  /**
    * The identifier for the data extension.
    */
   dataExtensionId?: string
