@@ -85,12 +85,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
     const subData = formatSubscribeRequestBody(profileToSubscribe, list_id, custom_source)
 
-    // subscribe requires use of 2024-02-15 api version
     return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
       method: 'POST',
-      headers: {
-        revision: '2024-02-15'
-      },
       json: subData
     })
   },
@@ -158,9 +154,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
         const response = request<Response>(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
           method: 'POST',
-          headers: {
-            revision: '2024-02-15'
-          },
           json: subData
         })
 

@@ -18,7 +18,7 @@ import type {
   GetConversionRuleResponse,
   ConversionRuleUpdateResponse
 } from '../types'
-import type { Payload, HookBundle } from '../streamConversion/generated-types'
+import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from '../streamConversion/generated-types'
 import { createHash } from 'crypto'
 
 interface ConversionRuleUpdateValues {
@@ -84,7 +84,7 @@ export class LinkedInConversions {
   getConversionRule = async (
     adAccount: string,
     conversionRuleId: string
-  ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
+  ): Promise<ActionHookResponse<OnMappingSaveOutputs>> => {
     try {
       const { data } = await this.request<GetConversionRuleResponse>(`${BASE_URL}/conversions/${conversionRuleId}`, {
         method: 'get',
@@ -116,8 +116,8 @@ export class LinkedInConversions {
   }
 
   createConversionRule = async (
-    hookInputs: HookBundle['onMappingSave']['inputs']
-  ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
+    hookInputs: OnMappingSaveInputs | undefined
+  ): Promise<ActionHookResponse<OnMappingSaveOutputs>> => {
     if (!hookInputs?.adAccountId) {
       return {
         error: {
@@ -169,9 +169,9 @@ export class LinkedInConversions {
   }
 
   updateConversionRule = async (
-    hookInputs: HookBundle['onMappingSave']['inputs'],
-    hookOutputs: HookBundle['onMappingSave']['outputs']
-  ): Promise<ActionHookResponse<HookBundle['onMappingSave']['outputs']>> => {
+    hookInputs: OnMappingSaveInputs | undefined,
+    hookOutputs: OnMappingSaveOutputs
+  ): Promise<ActionHookResponse<OnMappingSaveOutputs>> => {
     if (!hookOutputs) {
       return {
         error: {
@@ -576,8 +576,8 @@ export class LinkedInConversions {
   }
 
   private conversionRuleValuesUpdated = (
-    hookInputs: HookBundle['onMappingSave']['inputs'],
-    hookOutputs: Partial<HookBundle['onMappingSave']['outputs']>
+    hookInputs: OnMappingSaveInputs,
+    hookOutputs: Partial<OnMappingSaveOutputs>
   ): ConversionRuleUpdateValues => {
     const valuesChanged: ConversionRuleUpdateValues = {}
 

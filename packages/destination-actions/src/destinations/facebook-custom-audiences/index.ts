@@ -1,5 +1,5 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { adAccountId } from './fbca-properties'
 import sync from './sync'
@@ -99,7 +99,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     sync
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'sync',
+      mapping: defaultValues(sync.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination
