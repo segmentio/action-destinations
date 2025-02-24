@@ -73,13 +73,6 @@ export interface BaseActionDefinition {
 type HookValueTypes = string | boolean | number | Array<string | boolean | number>
 type GenericActionHookValues = Record<string, HookValueTypes>
 
-type GenericActionHookBundle = {
-  [K in ActionHookType]?: {
-    inputs?: GenericActionHookValues
-    outputs?: GenericActionHookValues
-  }
-}
-
 // Utility type to check if T is an array
 type IsArray<T> = T extends (infer U)[] ? U : never
 
@@ -94,7 +87,9 @@ export interface ActionDefinition<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   AudienceSettings = any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  GeneratedActionHookBundle extends GenericActionHookBundle = any
+  GeneratedActionHookInputs = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  GeneratedActionHookOutputs = any
 > extends BaseActionDefinition {
   /**
    * A way to "register" dynamic fields.
@@ -139,8 +134,8 @@ export interface ActionDefinition<
       Settings,
       Payload,
       AudienceSettings,
-      NonNullable<GeneratedActionHookBundle[K]>['outputs'],
-      NonNullable<GeneratedActionHookBundle[K]>['inputs']
+      NonNullable<GeneratedActionHookInputs>,
+      NonNullable<GeneratedActionHookOutputs>
     >
   }
 
@@ -170,8 +165,8 @@ export interface ActionHookDefinition<
   Settings,
   Payload,
   AudienceSettings,
-  GeneratedActionHookOutputs,
-  GeneratedActionHookTypesInputs
+  GeneratedActionHookTypesInputs,
+  GeneratedActionHookOutputs
 > {
   /** The display title for this hook. */
   label: string

@@ -71,9 +71,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
     return await request(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
       method: 'POST',
-      headers: {
-        revision: '2024-02-15'
-      },
       json: unSubData
     })
   },
@@ -128,9 +125,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
         const response = request<Response>(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
           method: 'POST',
-          headers: {
-            revision: '2024-02-15'
-          },
           json: unSubData
         })
 

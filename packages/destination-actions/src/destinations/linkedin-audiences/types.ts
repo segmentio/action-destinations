@@ -15,6 +15,16 @@ export interface AdAccountUserResponse {
   role: string
 }
 
+export interface LinkedInAudiencePayload {
+  action: 'ADD' | 'REMOVE'
+  userIds: Record<string, string>[]
+  firstName?: string
+  lastName?: string
+  title?: string
+  company?: string
+  country?: string
+}
+
 export class LinkedInRefreshTokenError extends HTTPError {
   response: Response & {
     data: {
