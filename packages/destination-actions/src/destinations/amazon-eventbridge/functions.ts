@@ -58,7 +58,7 @@ async function ensurePartnerSourceExists(
 
   // If we reach here, the source does not exist
   if (createPartnerEventSource) {
-    await create_partner_source(client, awsAccountId, sourceId, namePrefix)
+    await create_partner_source(client, awsAccountId, namePrefix)
   } else {
     throw new IntegrationError(
       `Partner Event Source ${namePrefix} does not exist.`,
@@ -71,7 +71,6 @@ async function ensurePartnerSourceExists(
 async function create_partner_source(
   client: EventBridgeClient,
   aws_account_id: string | undefined,
-  source_id: unknown,
   partnerEventSourceName: string
 ) {
   const command = new CreatePartnerEventSourceCommand({
