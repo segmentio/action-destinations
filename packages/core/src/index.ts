@@ -90,7 +90,8 @@ export type {
   DynamicFieldItem,
   InputField,
   GlobalSetting,
-  RequestExtension
+  RequestExtension,
+  SyncModeDefinition
 } from './destination-kit/types'
 
 export type { JSONPrimitive, JSONValue, JSONObject, JSONArray, JSONLike, JSONLikeObject } from './json-object'
