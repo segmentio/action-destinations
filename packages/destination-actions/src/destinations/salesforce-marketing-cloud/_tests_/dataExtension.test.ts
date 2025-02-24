@@ -62,7 +62,7 @@ describe('Salesforce Marketing Cloud', () => {
       )
     })
 
-    it.only('should prioritize using the data extension ID created or selected from the hook', async () => {
+    it('should prioritize using the data extension ID created or selected from the hook', async () => {
       const expectedUrl = `https://${settings.subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/hook_output123/rowset`
 
       nock(expectedUrl).post('').reply(200, {})
