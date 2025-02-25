@@ -59,7 +59,7 @@
     "@segment/action-destinations": "^3.288.0",
     "@segment/actions-core": "^3.121.0",
     "@segment/destinations-manifest": "^1.71.0",
-    "@types/node": "^18.11.15",
+    "@types/node": "^22.13.1",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
     "dotenv": "^10.0.0",
