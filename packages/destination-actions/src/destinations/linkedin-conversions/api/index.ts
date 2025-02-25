@@ -3,7 +3,8 @@ import {
   ModifiedResponse,
   DynamicFieldResponse,
   ActionHookResponse,
-  PayloadValidationError
+  PayloadValidationError,
+  Features
 } from '@segment/actions-core'
 import { BASE_URL, DEFAULT_POST_CLICK_LOOKBACK_WINDOW, DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW } from '../constants'
 import type {
@@ -19,7 +20,7 @@ import type {
   ConversionRuleUpdateResponse
 } from '../types'
 import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from '../streamConversion/generated-types'
-import { createHash } from 'crypto'
+import { processHashing } from '../../../lib/hashing-utils'
 
 interface ConversionRuleUpdateValues {
   name?: string
@@ -415,17 +416,18 @@ export class LinkedInConversions {
     return email.toLowerCase()
   }
 
-  private hashValue = (val: string): string => {
-    const hash = createHash('sha256')
-    hash.update(val)
-    return hash.digest('hex')
-  }
-
-  private buildUserIdsArray = (payload: Payload): UserID[] => {
+  private buildUserIdsArray = (payload: Payload, features?: Features): UserID[] => {
     const userIds: UserID[] = []
 
     if (payload.email) {
-      const hashedEmail = this.hashValue(this.normalizeEmail(payload.email))
+      const hashedEmail = processHashing(
+        payload.email,
+        'sha256',
+        'hex',
+        features ?? {},
+        'actions-linkedin-conversions',
+        this.normalizeEmail
+      )
       userIds.push({
         idType: 'SHA256_EMAIL',
         idValue: hashedEmail
@@ -456,8 +458,12 @@ export class LinkedInConversions {
     return userIds
   }
 
-  async streamConversionEvent(payload: Payload, conversionTime: number): Promise<ModifiedResponse> {
-    const userIds = this.buildUserIdsArray(payload)
+  async streamConversionEvent(
+    payload: Payload,
+    conversionTime: number,
+    features?: Features
+  ): Promise<ModifiedResponse> {
+    const userIds = this.buildUserIdsArray(payload, features)
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'POST',
       json: {
@@ -473,7 +479,7 @@ export class LinkedInConversions {
     })
   }
 
-  async batchConversionAdd(payloads: Payload[]): Promise<ModifiedResponse> {
+  async batchConversionAdd(payloads: Payload[], features?: Features): Promise<ModifiedResponse> {
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'post',
       headers: {
@@ -487,7 +493,7 @@ export class LinkedInConversions {
               : Number(payload.conversionHappenedAt)
             validate(payload, conversionTime)
 
-            const userIds = this.buildUserIdsArray(payload)
+            const userIds = this.buildUserIdsArray(payload, features)
             return {
               conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
               conversionHappenedAt: conversionTime,
