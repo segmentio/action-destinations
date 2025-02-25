@@ -197,9 +197,8 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
         },
         length: {
           label: 'Field Length',
-          description: 'The length of the field.',
-          type: 'integer',
-          required: true
+          description: 'The length of the field. Required for non-boolean fields',
+          type: 'integer'
         },
         description: {
           label: 'Field Description',
