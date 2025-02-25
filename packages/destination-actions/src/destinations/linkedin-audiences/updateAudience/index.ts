@@ -1,9 +1,10 @@
-import type { ActionDefinition, StatsContext } from '@segment/actions-core'
-import { RequestClient, RetryableError, IntegrationError, sha256SmartHash } from '@segment/actions-core'
+import type { ActionDefinition, Features, StatsContext } from '@segment/actions-core'
+import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
 import { LinkedInAudiencePayload } from '../types'
+import { processHashing } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Segment',
@@ -125,11 +126,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 'AUTO'
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
-    return processPayload(request, settings, [payload], statsContext)
+  perform: async (request, { settings, payload, statsContext, features }) => {
+    return processPayload(request, settings, [payload], statsContext, features)
   },
-  performBatch: async (request, { settings, payload, statsContext }) => {
-    return processPayload(request, settings, payload, statsContext)
+  performBatch: async (request, { settings, payload, statsContext, features }) => {
+    return processPayload(request, settings, payload, statsContext, features)
   }
 }
 
@@ -137,14 +138,15 @@ async function processPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  statsContext: StatsContext | undefined
+  statsContext: StatsContext | undefined,
+  features?: Features
 ) {
   validate(settings, payloads)
 
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
 
   const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0], statsContext)
-  const elements = extractUsers(settings, payloads)
+  const elements = extractUsers(settings, payloads, features)
 
   // We should never hit this condition because at least an email or a
   // google ad id is required in each payload, but if we do, returning early
@@ -222,7 +224,7 @@ async function createDmpSegment(
   return headers['x-linkedin-id']
 }
 
-function extractUsers(settings: Settings, payloads: Payload[]): LinkedInAudiencePayload[] {
+function extractUsers(settings: Settings, payloads: Payload[], features?: Features): LinkedInAudiencePayload[] {
   const elements: LinkedInAudiencePayload[] = []
 
   payloads.forEach((payload: Payload) => {
@@ -232,7 +234,7 @@ function extractUsers(settings: Settings, payloads: Payload[]): LinkedInAudience
 
     const linkedinAudiencePayload: LinkedInAudiencePayload = {
       action: getAction(payload),
-      userIds: getUserIds(settings, payload)
+      userIds: getUserIds(settings, payload, features)
     }
 
     if (payload.first_name) {
@@ -285,13 +287,13 @@ function getAction(payload: Payload): 'ADD' | 'REMOVE' {
   return 'ADD'
 }
 
-function getUserIds(settings: Settings, payload: Payload): Record<string, string>[] {
+function getUserIds(settings: Settings, payload: Payload, features?: Features): Record<string, string>[] {
   const userIds = []
 
   if (payload.email && settings.send_email === true) {
     userIds.push({
       idType: 'SHA256_EMAIL',
-      idValue: sha256SmartHash(payload.email)
+      idValue: processHashing(payload.email, 'sha256', 'hex', features ?? {}, 'actions-linkedin-audiences')
     })
   }
 
