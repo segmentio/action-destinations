@@ -78,7 +78,7 @@
     "slugify": "^1.6.1",
     "to-title-case": "^1.0.0",
     "tsconfig-paths": "^3.9.0",
-    "tslib": "^2.3.1"
+    "tslib": "^2.8.1"
   },
   "oclif": {
     "commands": "./dist/commands",
