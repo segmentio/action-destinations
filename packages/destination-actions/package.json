@@ -57,7 +57,8 @@
     "liquidjs": "^10.8.4",
     "lodash": "^4.17.21",
     "lru-cache": "10.4.3",
-    "ssh2-sftp-client": "^10.0.3"
+    "ssh2-sftp-client": "^10.0.3",
+    "@aws-sdk/client-eventbridge": "^3.741.0"
   },
   "jest": {
     "preset": "ts-jest",
