@@ -24,7 +24,7 @@ describe('Friendbuy.trackPurchase', () => {
 
   test('all fields', async () => {
     const orderId = 'my order'
-    const products = [
+    const products: Record<string, unknown>[] = [
       { sku: 'sku1', name: 'shorts', price: 19.99, quantity: 2 },
       { price: 5.99 },
       {
@@ -53,7 +53,7 @@ describe('Friendbuy.trackPurchase', () => {
     const [trackPurchase] = await friendbuyDestination({
       merchantId,
       subscriptions
-    })
+    } as any)
     // console.log('trackPurchase', JSON.stringify(trackPurchase, null, 2), trackPurchase)
     expect(trackPurchase).toBeDefined()
 
@@ -117,8 +117,8 @@ describe('Friendbuy.trackPurchase', () => {
         },
         true
       ])
-      expect((window.friendbuyAPI?.push as any).mock.calls[0][0][2].products[1].quantity).toBe(1)
-      expect((window.friendbuyAPI?.push as any).mock.calls[0][0][2].products[2].imageUrl).toBe(products[2].image_url)
+      expect((window.friendbuyAPI!.push as any).mock.calls[0][0][2].products[1].quantity).toBe(1)
+      expect((window.friendbuyAPI!.push as any).mock.calls[0][0][2].products[2].imageUrl).toBe(products[2].image_url)
     }
 
     {

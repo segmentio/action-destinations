@@ -28,7 +28,7 @@ describe('Friendbuy.trackCustomEvent', () => {
     const [trackCustomEvent] = await friendbuyDestination({
       merchantId,
       subscriptions
-    })
+    } as any)
     // console.log('trackCustomEvent', JSON.stringify(trackCustomEvent, null, 2), trackCustomEvent)
     expect(trackCustomEvent).toBeDefined()
 

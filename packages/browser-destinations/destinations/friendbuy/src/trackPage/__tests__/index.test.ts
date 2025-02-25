@@ -29,7 +29,7 @@ describe('Friendbuy.trackPage', () => {
     const [trackPage] = await friendbuyDestination({
       merchantId,
       subscriptions
-    })
+    } as any)
     expect(trackPage).toBeDefined()
 
     await trackPage.load(Context.system(), {} as Analytics)
