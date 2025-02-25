@@ -221,6 +221,7 @@ const dataExtensionRequest = async (
       isNullable: column.isNullable,
       isPrimaryKey: column.isPrimaryKey,
       length: column.length,
+      scale: column.scale,
       description: column.description || '',
       // these are required but we don't give the user an option
       ordinal: i,

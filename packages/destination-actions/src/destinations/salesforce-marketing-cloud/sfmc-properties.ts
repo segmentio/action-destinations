@@ -200,6 +200,11 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
           description: 'The length of the field. Required for non-boolean fields',
           type: 'integer'
         },
+        scale: {
+          label: 'Decimal Scale',
+          description: 'The scale of the field. Required for Decimal fields',
+          type: 'integer'
+        },
         description: {
           label: 'Field Description',
           description: 'The description of the field.',

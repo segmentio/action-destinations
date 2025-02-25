@@ -82,6 +82,10 @@ export interface RetlOnMappingSaveInputs {
      */
     length?: number
     /**
+     * The scale of the field. Required for Decimal fields
+     */
+    scale?: number
+    /**
      * The description of the field.
      */
     description?: string
@@ -147,6 +151,10 @@ export interface OnMappingSaveInputs {
      * The length of the field. Required for non-boolean fields
      */
     length?: number
+    /**
+     * The scale of the field. Required for Decimal fields
+     */
+    scale?: number
     /**
      * The description of the field.
      */
