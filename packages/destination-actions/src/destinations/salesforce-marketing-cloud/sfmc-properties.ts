@@ -181,7 +181,7 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
           description: 'The data type of the field.',
           type: 'string',
           required: true,
-          choices: ['Text', 'Number', 'Date', 'Boolean', 'Email', 'Phone', 'Decimal', 'Locale']
+          choices: ['Text', 'Number', 'Date', 'Boolean', 'EmailAddress', 'Phone', 'Decimal', 'Locale']
         },
         isNullable: {
           label: 'Is Nullable',
