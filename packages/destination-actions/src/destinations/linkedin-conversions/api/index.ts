@@ -425,7 +425,7 @@ export class LinkedInConversions {
         'sha256',
         'hex',
         features ?? {},
-        'LinkedIn Conversions API',
+        'actions-linkedin-conversions',
         this.normalizeEmail
       )
       userIds.push({
