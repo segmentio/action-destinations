@@ -257,12 +257,12 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching,
     batch_size
   },
-  perform: async (request, { settings, payload, hookOutputs, syncMode }) => {
-    const fbClient = new FacebookClient(request, settings.retlAdAccountId)
+  perform: async (request, { settings, payload, hookOutputs, syncMode, features, statsContext }) => {
+    const fbClient = new FacebookClient(request, settings.retlAdAccountId, features, statsContext)
 
     if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
       return await fbClient.syncAudience({
-        audienceId: hookOutputs?.retlOnMappingSave.outputs.audienceId,
+        audienceId: hookOutputs?.retlOnMappingSave?.outputs?.audienceId,
         payloads: [payload],
         deleteUsers: syncMode === 'delete' ? true : false
       })
@@ -270,12 +270,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
     throw new IntegrationError('Sync mode is required for perform', 'MISSING_REQUIRED_FIELD', 400)
   },
-  performBatch: async (request, { settings, payload, hookOutputs, syncMode }) => {
-    const fbClient = new FacebookClient(request, settings.retlAdAccountId)
+  performBatch: async (request, { settings, payload, hookOutputs, syncMode, features, statsContext }) => {
+    const fbClient = new FacebookClient(request, settings.retlAdAccountId, features, statsContext)
 
     if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
       return await fbClient.syncAudience({
-        audienceId: hookOutputs?.retlOnMappingSave.outputs.audienceId,
+        audienceId: hookOutputs?.retlOnMappingSave?.outputs?.audienceId,
         payloads: payload,
         deleteUsers: syncMode === 'delete' ? true : false
       })
