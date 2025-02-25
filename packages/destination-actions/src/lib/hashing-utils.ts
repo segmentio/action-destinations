@@ -87,7 +87,7 @@ export function processHashing(
   value: string,
   encryptionMethod: EncryptionMethod,
   digest: DigestType,
-  features: Features,
+  features: Features | undefined,
   destinationSlugForBypass: string,
   cleaningFunction?: CleaningFunction
 ): string {
