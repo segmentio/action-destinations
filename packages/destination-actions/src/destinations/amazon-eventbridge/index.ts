@@ -58,7 +58,7 @@ const destination: DestinationDefinition<Settings> = {
       createPartnerEventSource: {
         type: 'boolean',
         label: 'Create Partner Event Source',
-        description: `NOTE: This will create the partner event source if it does not already exist.
+        description: `USE WITH CAUTION: This will create the partner event source if it does not already exist.
                       Use this option if you want to create the partner event source.
                       projectId or context.protocols.sourceId will be used as the sourceId to 
                       create the partner event source.
@@ -67,7 +67,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (_request, { settings }) => {
-      if (!settings.awsAccountId || settings.awsAccountId === '' || !settings.awsRegion || settings.awsRegion === '') {
+      if (!settings.awsAccountId || !settings.awsRegion) {
         throw new Error('AWS Account ID and Region are required.')
       }
     }

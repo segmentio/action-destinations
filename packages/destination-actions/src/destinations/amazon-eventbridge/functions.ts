@@ -8,7 +8,6 @@ import {
   ListPartnerEventSourcesCommand
 } from '@aws-sdk/client-eventbridge'
 
-// export function send(payloads: Payload[], settings: Settings): Promise<void> {
 export async function send(payloads: Payload[], settings: Settings): Promise<void> {
   await process_data(payloads, settings)
 }
