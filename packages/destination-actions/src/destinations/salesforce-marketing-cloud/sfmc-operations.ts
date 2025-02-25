@@ -298,13 +298,13 @@ const selectDataExtensionRequest = async (
   request: RequestClient,
   hookInputs: OnMappingSaveInputs,
   auth: { subdomain: string; accessToken: string }
-): Promise<{ id?: string; key?: string; name?: string; error?: string }> => {
+): Promise<{ id?: string; name?: string; error?: string }> => {
   if (!hookInputs) {
-    return { id: '', key: '', name: '', error: 'No inputs provided' }
+    return { id: '', name: '', error: 'No inputs provided' }
   }
 
-  if (!hookInputs.dataExtensionKey && !hookInputs.dataExtensionId) {
-    return { id: '', key: '', name: '', error: 'No Data Extension Key or Data Extension Id provided' }
+  if (!hookInputs.dataExtensionId) {
+    return { id: '', name: '', error: 'No Data Extension Id provided' }
   }
 
   try {
@@ -319,16 +319,15 @@ const selectDataExtensionRequest = async (
     )
     console.log('res', response)
     if (response.status !== 200) {
-      return { id: '', key: '', name: '', error: `Failed to select Data Extension` }
+      return { id: '', name: '', error: `Failed to select Data Extension` }
     }
 
     return {
       id: (response as DataExtensionSelectionResponse).data.id,
-      key: (response as DataExtensionSelectionResponse).data.key,
       name: (response as DataExtensionSelectionResponse).data.name
     }
   } catch (err) {
-    return { id: '', key: '', name: '', error: err.response.data.message }
+    return { id: '', name: '', error: err.response.data.message }
   }
 }
 
@@ -346,16 +345,16 @@ async function selectDataExtension(
 
   const { accessToken } = await getAccessToken(request, settings)
 
-  const { id, key, name, error } = await selectDataExtensionRequest(request, hookInputs, { subdomain, accessToken })
+  const { id, name, error } = await selectDataExtensionRequest(request, hookInputs, { subdomain, accessToken })
 
-  if (error || !id || !key) {
+  if (error || !id) {
     return {
       error: { message: error || 'Unknown Error', code: 'ERROR' }
     }
   }
 
   return {
-    successMessage: `Data Extension ${name} selected successfully with External Key ${key}`,
+    successMessage: `Data Extension ${name} selected successfully with External ID ${id}`,
     savedData: {
       id,
       name: name!
