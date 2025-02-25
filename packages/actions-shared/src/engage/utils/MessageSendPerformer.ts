@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { CacheSerializer, EngageActionPerformer } from './EngageActionPerformer'
 import { isRetryableError } from './isRetryableError'
 import { AggregateError } from './AggregateError'

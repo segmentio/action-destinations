@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { RequestClient } from '@segment/actions-core/create-request-client'
 import { EngageDestinationCache, ExecuteInput } from '@segment/actions-core/destination-kit'
 import { MaybePromise } from '@segment/actions-core/destination-kit/types'

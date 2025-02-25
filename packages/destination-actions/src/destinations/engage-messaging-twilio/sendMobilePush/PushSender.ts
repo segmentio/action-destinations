@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { TwilioMessageSender } from '../utils'
 import { ExtId, track } from '@segment/actions-shared'
 import type { Payload as PushPayload } from './generated-types'
