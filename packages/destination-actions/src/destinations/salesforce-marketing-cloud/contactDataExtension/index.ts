@@ -1,28 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {
-  key,
-  id,
-  keys,
-  enable_batching,
-  batch_size,
-  values_contactFields,
-  categoryId,
-  name,
-  description,
-  columns,
-  operation,
-  dataExtensionId
-} from '../sfmc-properties'
-import {
-  executeUpsertWithMultiStatus,
-  upsertRows,
-  selectOrCreateDataExtension,
-  getDataExtensions,
-  getDataExtensionFields,
-  getCategories
-} from '../sfmc-operations'
+import { key, id, keys, enable_batching, batch_size, values_contactFields, dataExtensionHook } from '../sfmc-properties'
+import { executeUpsertWithMultiStatus, upsertRows, getDataExtensionFields } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Contact to Data Extension',
@@ -65,45 +45,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   hooks: {
+    retlOnMappingSave: {
+      ...dataExtensionHook
+    },
     onMappingSave: {
-      label: 'Create or Select Data Extension',
-      description: 'Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.',
-      inputFields: {
-        operation,
-        dataExtensionId: {
-          ...dataExtensionId,
-          dynamic: async (request, { dynamicFieldContext, settings }) => {
-            const query = dynamicFieldContext?.query
-            return await getDataExtensions(request, settings.subdomain, settings, query)
-          }
-        },
-        categoryId: {
-          ...categoryId,
-          dynamic: async (request, { settings }) => {
-            return await getCategories(request, settings)
-          }
-        },
-        name,
-        description,
-        columns
-      },
-      outputTypes: {
-        id: {
-          label: 'Data Extension ID',
-          description: 'The identifier for the data extension.',
-          type: 'string',
-          required: true
-        },
-        name: {
-          label: 'Data Extension Name',
-          description: 'The name of the data extension.',
-          type: 'string',
-          required: true
-        }
-      },
-      performHook: async (request, { settings, hookInputs }) => {
-        return await selectOrCreateDataExtension(request, settings.subdomain, hookInputs, settings)
-      }
+      ...dataExtensionHook
     }
   },
   perform: async (request, { settings, payload, hookOutputs }) => {

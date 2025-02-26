@@ -221,6 +221,7 @@ const dataExtensionRequest = async (
       isNullable: column.isNullable,
       isPrimaryKey: column.isPrimaryKey,
       length: column.length,
+      scale: column.scale,
       description: column.description || '',
       // these are required but we don't give the user an option
       ordinal: i,
@@ -242,6 +243,9 @@ const dataExtensionRequest = async (
           name: hookInputs.name,
           description: hookInputs.description,
           categoryId: hookInputs.categoryId,
+          isSendable: hookInputs.isSendable,
+          sendableCustomObjectField: hookInputs.sendableCustomObjectField,
+          sendableSubscriberField: hookInputs.sendableSubscriberField,
           fields
         },
         headers: {

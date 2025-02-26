@@ -32,6 +32,88 @@ export interface Payload {
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
+export interface RetlOnMappingSaveInputs {
+  /**
+   * Whether to create a new data extension or select an existing one for data delivery.
+   */
+  operation: string
+  /**
+   * The identifier for the data extension.
+   */
+  dataExtensionId?: string
+  /**
+   * The identifier for the folder that contains the data extension.
+   */
+  categoryId?: string
+  /**
+   * The name of the data extension.
+   */
+  name?: string
+  /**
+   * The description of the data extension.
+   */
+  description?: string
+  /**
+   * Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable
+   */
+  isSendable?: boolean
+  /**
+   * The field on this data extension that is sendable.
+   */
+  sendableCustomObjectField?: string
+  /**
+   * The field on another data extension?
+   */
+  sendableSubscriberField?: string
+  /**
+   * A list of fields to create in the data extension.
+   */
+  columns?: {
+    /**
+     * The name of the field.
+     */
+    name: string
+    /**
+     * The data type of the field.
+     */
+    type: string
+    /**
+     * Whether the field can be null.
+     */
+    isNullable: boolean
+    /**
+     * Whether the field is a primary key.
+     */
+    isPrimaryKey: boolean
+    /**
+     * The length of the field. Required for non-boolean fields
+     */
+    length?: number
+    /**
+     * The scale of the field. Required for Decimal fields
+     */
+    scale?: number
+    /**
+     * The description of the field.
+     */
+    description?: string
+    [k: string]: unknown
+  }[]
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface RetlOnMappingSaveOutputs {
+  /**
+   * The identifier for the data extension.
+   */
+  id: string
+  /**
+   * The name of the data extension.
+   */
+  name: string
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
 export interface OnMappingSaveInputs {
   /**
    * Whether to create a new data extension or select an existing one for data delivery.
@@ -54,6 +136,18 @@ export interface OnMappingSaveInputs {
    */
   description?: string
   /**
+   * Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable
+   */
+  isSendable?: boolean
+  /**
+   * The field on this data extension that is sendable.
+   */
+  sendableCustomObjectField?: string
+  /**
+   * The field on another data extension?
+   */
+  sendableSubscriberField?: string
+  /**
    * A list of fields to create in the data extension.
    */
   columns?: {
@@ -74,9 +168,13 @@ export interface OnMappingSaveInputs {
      */
     isPrimaryKey: boolean
     /**
-     * The length of the field.
+     * The length of the field. Required for non-boolean fields
      */
-    length: number
+    length?: number
+    /**
+     * The scale of the field. Required for Decimal fields
+     */
+    scale?: number
     /**
      * The description of the field.
      */
