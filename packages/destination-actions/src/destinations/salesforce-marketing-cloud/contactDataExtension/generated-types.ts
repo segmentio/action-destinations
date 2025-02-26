@@ -62,11 +62,11 @@ export interface RetlOnMappingSaveInputs {
    */
   isSendable?: boolean
   /**
-   * The field in the data extension that contains the contact key.
+   * The field on this data extension that is sendable.
    */
   sendableCustomObjectField?: string
   /**
-   * The field in the data extension that contains the subscriber key.
+   * The field on another data extension?
    */
   sendableSubscriberField?: string
   /**
@@ -144,11 +144,11 @@ export interface OnMappingSaveInputs {
    */
   isSendable?: boolean
   /**
-   * The field in the data extension that contains the contact key.
+   * The field on this data extension that is sendable.
    */
   sendableCustomObjectField?: string
   /**
-   * The field in the data extension that contains the subscriber key.
+   * The field on another data extension?
    */
   sendableSubscriberField?: string
   /**
