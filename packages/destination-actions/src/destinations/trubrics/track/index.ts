@@ -14,62 +14,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Name',
       default: { '@path': '$.event' }
     },
-    thread_id: {
-      type: 'string',
-      required: false,
-      description: 'The thread ID, used to associate events within a thread',
-      label: 'Thread ID',
-      default: { '@path': '$.properties.thread_id' }
-    },
-    text: {
-      type: 'string',
-      required: false,
-      description: 'The event text (if not an LLM prompt or generation)',
-      label: 'Text',
-      default: { '@path': '$.properties.text' }
-    },
-    prompt: {
-      type: 'string',
-      required: false,
-      description: 'A user prompt to an LLM',
-      label: 'LLM User Prompt',
-      default: { '@path': '$.properties.prompt' }
-    },
-    generation: {
-      type: 'string',
-      required: false,
-      description: 'An LLM assistant response',
-      label: 'LLM  Assistant Generation',
-      default: { '@path': '$.properties.generation' }
-    },
-    assistant_id: {
-      type: 'string',
-      required: false,
-      description: 'The LLM assistant ID (often the model name)',
-      label: 'LLM Assistant ID',
-      default: { '@path': '$.properties.assistant_id' }
-    },
-    latency: {
-      type: 'number',
-      required: false,
-      description: 'The latency in seconds between the LLM prompt and generation',
-      label: 'LLM Latency',
-      default: { '@path': '$.properties.latency' }
-    },
-    properties: {
-      type: 'object',
-      required: false,
-      description: 'Properties to send with the event',
-      label: 'Event properties',
-      default: { '@path': '$.properties' }
-    },
-    context: {
-      type: 'object',
-      required: false,
-      description: 'Context properties to send with the event',
-      label: 'Context properties',
-      default: { '@path': '$.context' }
-    },
     timestamp: {
       type: 'string',
       format: 'date-time',
@@ -85,6 +29,68 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       default: { '@path': '$.userId' }
     },
+    llm_properties: {
+      label: 'LLM Event Properties',
+      description: 'The properties associated with an LLM event',
+      type: 'object',
+      additionalProperties: false,
+      required: false,
+      defaultObjectUI: 'keyvalue:only',
+      properties: {
+        assistant_id: {
+          type: 'string',
+          required: false,
+          description: 'The LLM assistant ID (often the model name)',
+          label: 'LLM Assistant ID'
+        },
+        prompt: {
+          type: 'string',
+          required: false,
+          description: 'A user prompt to an LLM',
+          label: 'LLM User Prompt'
+        },
+        generation: {
+          type: 'string',
+          required: false,
+          description: 'An LLM assistant response',
+          label: 'LLM  Assistant Generation'
+        },
+        latency: {
+          type: 'number',
+          required: false,
+          description: 'The latency in seconds between the LLM prompt and generation',
+          label: 'LLM Latency'
+        }
+      },
+      default: {
+        assistant_id: {
+          '@path': '$.properties.$trubrics_assistant_id'
+        },
+        prompt: {
+          '@path': '$.properties.$trubrics_prompt'
+        },
+        generation: {
+          '@path': '$.properties.$trubrics_generation'
+        },
+        latency: {
+          '@path': '$.properties.$trubrics_latency'
+        }
+      }
+    },
+    properties: {
+      type: 'object',
+      required: false,
+      description: 'Properties to send with the event',
+      label: 'Event properties',
+      default: { '@path': '$.properties' }
+    },
+    context: {
+      type: 'object',
+      required: false,
+      description: 'Context properties to send with the event',
+      label: 'Context properties',
+      default: { '@path': '$.context' }
+    },
     anonymous_id: {
       type: 'string',
       required: false,
@@ -94,6 +100,16 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
+    const trubricsProperties = ['thread_id', 'text', 'prompt', 'generation', 'assistant_id', 'latency']
+    const segmentProperties: typeof payload.properties = {}
+    if (payload.properties) {
+      Object.keys(payload.properties).forEach((key) => {
+        if (!trubricsProperties.includes(key)) {
+          segmentProperties[key] = payload.properties?.[key]
+        }
+      })
+    }
+
     return request(`https://${settings.url}/publish_segment_event`, {
       method: 'post',
       headers: {
@@ -101,7 +117,13 @@ const action: ActionDefinition<Settings, Payload> = {
         'x-api-key': settings.apiKey
       },
       json: {
-        payload: payload
+        event: payload.event,
+        timestamp: payload.timestamp,
+        user_id: payload.user_id,
+        anonymous_id: payload.anonymous_id,
+        llm_properties: payload.llm_properties,
+        context: payload.context,
+        properties: payload.properties
       }
     })
   }

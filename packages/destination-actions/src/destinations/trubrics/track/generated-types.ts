@@ -6,29 +6,34 @@ export interface Payload {
    */
   event: string
   /**
-   * The thread ID, used to associate events within a thread
+   * The timestamp of the event
    */
-  thread_id?: string
+  timestamp?: string
   /**
-   * The event text (if not an LLM prompt or generation)
+   * The ID associated with the user
    */
-  text?: string
+  user_id?: string
   /**
-   * A user prompt to an LLM
+   * The properties associated with an LLM event
    */
-  prompt?: string
-  /**
-   * An LLM assistant response
-   */
-  generation?: string
-  /**
-   * The LLM assistant ID (often the model name)
-   */
-  assistant_id?: string
-  /**
-   * The latency in seconds between the LLM prompt and generation
-   */
-  latency?: number
+  llm_properties?: {
+    /**
+     * The LLM assistant ID (often the model name)
+     */
+    assistant_id?: string
+    /**
+     * A user prompt to an LLM
+     */
+    prompt?: string
+    /**
+     * An LLM assistant response
+     */
+    generation?: string
+    /**
+     * The latency in seconds between the LLM prompt and generation
+     */
+    latency?: number
+  }
   /**
    * Properties to send with the event
    */
@@ -41,14 +46,6 @@ export interface Payload {
   context?: {
     [k: string]: unknown
   }
-  /**
-   * The timestamp of the event
-   */
-  timestamp?: string
-  /**
-   * The ID associated with the user
-   */
-  user_id?: string
   /**
    * The Anonymous ID associated with the user
    */
