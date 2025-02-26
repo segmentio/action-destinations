@@ -94,16 +94,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    const trubricsProperties = ['thread_id', 'text', 'prompt', 'generation', 'assistant_id', 'latency']
-    const segmentProperties: typeof payload.properties = {}
-    if (payload.properties) {
-      Object.keys(payload.properties).forEach((key) => {
-        if (!trubricsProperties.includes(key)) {
-          segmentProperties[key] = payload.properties?.[key]
-        }
-      })
-    }
-
     return request(`https://${settings.url}/publish_segment_event`, {
       method: 'post',
       headers: {
