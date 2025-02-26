@@ -243,6 +243,9 @@ const dataExtensionRequest = async (
           name: hookInputs.name,
           description: hookInputs.description,
           categoryId: hookInputs.categoryId,
+          isSendable: hookInputs.isSendable,
+          sendableCustomObjectField: hookInputs.sendableCustomObjectField,
+          sendableSubscriberField: hookInputs.sendableSubscriberField,
           fields
         },
         headers: {
