@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-stackadapt",
-  "version": "1.78.1-staging-198999d04.0",
+  "version": "1.78.1-staging-0835f9180.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,8 +15,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "3.146.1-staging-198999d04.0",
-    "@segment/browser-destination-runtime": "1.75.1-staging-198999d04.0"
+    "@segment/actions-core": "3.146.1-staging-0835f9180.0",
+    "@segment/browser-destination-runtime": "1.75.1-staging-0835f9180.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
