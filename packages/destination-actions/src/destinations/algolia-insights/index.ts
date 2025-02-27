@@ -8,7 +8,7 @@ import { conversionEvents, conversionPresets } from './conversionEvents'
 import { productViewedEvents, productViewedPresets } from './productViewedEvents'
 import { AlgoliaApiPermissions, algoliaApiPermissionsUrl } from './algolia-insight-api'
 
-import { productAddedEvents, productAddedPresets } from './productAddedEvents'
+import { productAddedEvents } from './productAddedEvents'
 
 import { productListFilteredEvents, productListFilteredPresets } from './productListFilteredEvents'
 
@@ -66,7 +66,6 @@ const destination: DestinationDefinition<Settings> = {
     productClickPresets,
     conversionPresets,
     productViewedPresets,
-    productAddedPresets,
     productListFilteredPresets
   ],
   actions: {
