@@ -2,10 +2,11 @@ import { DynamicFieldItem, DynamicFieldError, RequestClient, Features } from '@s
 import { Payload } from './sync/generated-types'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
 import { processHashing } from '../../lib/hashing-utils'
+import { StatsContext } from '@segment/actions-core/destination-kit'
+import { Features } from '@segment/actions-core/mapping-kit'
+import { API_VERSION, BASE_URL, CANARY_API_VERSION, FACEBOOK_CUSTOM_AUDIENCE_FLAGON } from './constants'
 
-const FACEBOOK_API_VERSION = 'v20.0'
 // exported for unit testing
-export const BASE_URL = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/`
 
 interface AudienceCreationResponse {
   id: string
@@ -91,19 +92,31 @@ const appendToDataRow = (
   )
 }
 
+export const getApiVersion = (features?: Features, statsContext?: StatsContext): string => {
+  const statsClient = statsContext?.statsClient
+  const tags = statsContext?.tags
+
+  const version = features && features[FACEBOOK_CUSTOM_AUDIENCE_FLAGON] ? CANARY_API_VERSION : API_VERSION
+  tags?.push(`version:${version}`)
+  statsClient?.incr(`actions_facebook_custom_audience`, 1, tags)
+  return version
+}
+
 export default class FacebookClient {
   request: RequestClient
   adAccountId: string
   features: Features | undefined
+  baseUrl: string
 
-  constructor(request: RequestClient, adAccountId: string, features?: Features) {
+  constructor(request: RequestClient, adAccountId: string, features?: Features, statsContext?: StatsContext) {
     this.request = request
     this.adAccountId = this.formatAdAccount(adAccountId)
+    this.baseUrl = `${BASE_URL}/${getApiVersion(features, statsContext)}/`
     this.features = features || undefined
   }
 
   createAudience = async (name: string) => {
-    return await this.request<AudienceCreationResponse>(`${BASE_URL}${this.adAccountId}/customaudiences`, {
+    return await this.request<AudienceCreationResponse>(`${this.baseUrl}${this.adAccountId}/customaudiences`, {
       method: 'post',
       json: {
         name,
@@ -118,7 +131,7 @@ export default class FacebookClient {
   ): Promise<{ data?: GetSingleAudienceResponse; error?: FacebookResponseError }> => {
     try {
       const fields = '?fields=id,name'
-      const { data } = await this.request<GetSingleAudienceResponse>(`${BASE_URL}${audienceId}${fields}`)
+      const { data } = await this.request<GetSingleAudienceResponse>(`${this.baseUrl}${audienceId}${fields}`)
       return { data, error: undefined }
     } catch (error) {
       return { data: undefined, error: error as FacebookResponseError }
@@ -127,7 +140,7 @@ export default class FacebookClient {
 
   getAllAudiences = async (): Promise<{ choices: DynamicFieldItem[]; error: DynamicFieldError | undefined }> => {
     const { data } = await this.request<GetAllAudienceResponse>(
-      `${BASE_URL}${this.adAccountId}/customaudiences?fields=id,name&limit=200`
+      `${this.baseUrl}${this.adAccountId}/customaudiences?fields=id,name&limit=200`
     )
 
     const choices = data.data.map(({ id, name }) => ({
@@ -181,7 +194,7 @@ export default class FacebookClient {
       params.payload.page_ids = page_ids
     }
 
-    return await this.request(`${BASE_URL}${input.audienceId}/users`, {
+    return await this.request(`${this.baseUrl}${input.audienceId}/users`, {
       method: input.deleteUsers === true ? 'delete' : 'post',
       json: params
     })

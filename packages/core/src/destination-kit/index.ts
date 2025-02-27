@@ -742,13 +742,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
           // Add datadog stats for events that are discarded by Actions
           options?.statsContext?.statsClient?.incr(
             'action.multistatus_discard',
-            (events as SegmentEvent[]).length,
+            events.length,
             options.statsContext?.tags
           )
 
           return [
             {
-              multistatus: Array((events as SegmentEvent[]).length).fill(response)
+              multistatus: Array(events.length).fill(response)
             }
           ]
         }
@@ -770,13 +770,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
           // Add datadog stats for events that are discarded by Actions
           options?.statsContext?.statsClient?.incr(
             'action.multistatus_discard',
-            (events as SegmentEvent[]).length,
+            events.length,
             options.statsContext?.tags
           )
 
           return [
             {
-              multistatus: Array((events as SegmentEvent[]).length).fill(response)
+              multistatus: Array(events.length).fill(response)
             }
           ]
         }
@@ -784,7 +784,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         return [{ output: response.errormessage }]
       }
 
-      const allEvents = (isBatch ? events : [events]) as SegmentEvent[]
+      const allEvents = isBatch ? events : [events]
 
       // Filter invalid events and record discards
       const subscribedEvents: SegmentEvent[] = []
@@ -938,10 +938,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const shouldRetry = async (response: any, attemptCount: number) => {
       const results = response as Result[]
-      /* 
+      /*
         Here, we iterate over results array. Each result in the array is a response from a single subscription.
-        However, we always execute one subscription at a time despite receiving an array of subscriptions as input. 
-        So, results array will always have a single result. 
+        However, we always execute one subscription at a time despite receiving an array of subscriptions as input.
+        So, results array will always have a single result.
         TODO: Get rid of onSubscriptions method to reflect execution model in the code accurately.
       */
       for (const result of results) {
