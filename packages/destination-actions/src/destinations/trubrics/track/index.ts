@@ -100,13 +100,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.anonymousId' }
     }
   },
-  perform: (request, { settings, payload }) => {
-    const payloadArray: Payload[] = [payload]
-    return sendRequest(request, settings, payloadArray)
-  },
-  performBatch(request, { settings, payload }) {
-    return sendRequest(request, settings, payload)
-  }
+  perform: async (request, { settings, payload }) => await sendRequest(request, settings, [payload]),
+  performBatch: async (request, { settings, payload }) => await sendRequest(request, settings, payload)
 }
 
 export default action

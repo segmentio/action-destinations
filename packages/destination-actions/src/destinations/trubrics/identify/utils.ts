@@ -3,20 +3,17 @@ import type { Settings } from '../generated-types'
 
 const prepareJSON = (payload: Payload) => {
   return {
-    event: payload.event,
-    timestamp: payload.timestamp,
     user_id: payload.user_id,
+    timestamp: payload.timestamp,
     anonymous_id: payload.anonymous_id,
-    llm_properties: payload.llm_properties,
-    context: payload.context,
-    properties: payload.properties
+    traits: payload.traits
   }
 }
 
 export const sendRequest = async (request: Function, settings: Settings, payload: Payload[]) => {
   const json = payload.map(prepareJSON)
 
-  return await request(`https://${settings.url}/publish_segment_events`, {
+  return await request(`https://${settings.url}/identify_segment_users`, {
     method: 'post',
     headers: {
       'x-api-key': settings.apiKey
