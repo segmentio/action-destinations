@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 
 import { productClickedEvents, productClickPresets } from './productClickedEvents'
 
-import { conversionEvents, conversionPresets } from './conversionEvents'
+import { conversionEvents, purchasePreset, addToCartPreset } from './conversionEvents'
 
 import { productViewedEvents, productViewedPresets } from './productViewedEvents'
 import { AlgoliaApiPermissions, algoliaApiPermissionsUrl } from './algolia-insight-api'
@@ -64,7 +64,8 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     productClickPresets,
-    conversionPresets,
+    purchasePreset,
+    addToCartPreset,
     productViewedPresets,
     productListFilteredPresets
   ],
