@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import type { Settings } from '../generated-types'
+import { sendRequest } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
@@ -53,7 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: false,
           description: 'An LLM assistant response',
-          label: 'LLM  Assistant Generation'
+          label: 'LLM Assistant Generation'
         },
         latency: {
           type: 'number',
@@ -100,32 +101,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    const trubricsProperties = ['thread_id', 'text', 'prompt', 'generation', 'assistant_id', 'latency']
-    const segmentProperties: typeof payload.properties = {}
-    if (payload.properties) {
-      Object.keys(payload.properties).forEach((key) => {
-        if (!trubricsProperties.includes(key)) {
-          segmentProperties[key] = payload.properties?.[key]
-        }
-      })
-    }
-
-    return request(`https://${settings.url}/publish_segment_event`, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': settings.apiKey
-      },
-      json: {
-        event: payload.event,
-        timestamp: payload.timestamp,
-        user_id: payload.user_id,
-        anonymous_id: payload.anonymous_id,
-        llm_properties: payload.llm_properties,
-        context: payload.context,
-        properties: payload.properties
-      }
-    })
+    const payloadArray: Payload[] = [payload]
+    return sendRequest(request, settings, payloadArray)
+  },
+  performBatch(request, { settings, payload }) {
+    return sendRequest(request, settings, payload)
   }
 }
 
