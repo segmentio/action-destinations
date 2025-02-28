@@ -81,6 +81,11 @@ yarn test-partners
 
 # For segment employees, you can run:
 yarn test
+
+# to reset all caches and rebuild again
+yarn clean
+yarn install
+yarn build
 ```
 
 ### Actions CLI
