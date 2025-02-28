@@ -27,14 +27,14 @@ const action: ActionDefinition<Settings, Payload> = {
     keys: {
       __keys__: async (request, { settings, payload }) => {
         const dataExtensionId =
-          (payload as any).onMappingSave.outputs.id || (payload as any).retlOnMappingSave.outputs.id || ''
+          (payload as any).onMappingSave?.outputs?.id || (payload as any).retlOnMappingSave?.outputs?.id || ''
         return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId, true)
       }
     },
     values: {
       __keys__: async (request, { settings, payload }) => {
         const dataExtensionId =
-          (payload as any).onMappingSave.outputs.id || (payload as any).retlOnMappingSave.outputs.id || ''
+          (payload as any).onMappingSave?.outputs?.id || (payload as any).retlOnMappingSave?.outputs?.id || ''
         return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId, false)
       }
     }
@@ -49,14 +49,14 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload, hookOutputs }) => {
     const dataExtensionId =
-      hookOutputs?.onMappingSave?.outputs.id || hookOutputs?.retlOnMappingSave?.outputs.id || payload.id
+      hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id || payload.id
     const deprecated_dataExtensionKey = payload.key
 
     return upsertRows(request, settings.subdomain, [payload], dataExtensionId, deprecated_dataExtensionKey)
   },
   performBatch: async (request, { settings, payload, hookOutputs }) => {
     const dataExtensionId =
-      hookOutputs?.onMappingSave?.outputs.id || hookOutputs?.retlOnMappingSave?.outputs.id || payload[0].id
+      hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id || payload[0].id
     const deprecated_dataExtensionKey = payload[0].key
 
     return executeUpsertWithMultiStatus(
