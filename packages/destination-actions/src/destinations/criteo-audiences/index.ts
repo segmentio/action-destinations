@@ -30,6 +30,13 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Your Criteo Advertiser ID',
         type: 'string',
         required: true
+      },
+      enable_batching: {
+        type: 'boolean',
+        label: 'Enable Batching',
+        description: 'Important: This setting should remain enabled!',
+        required: true,
+        default: true
       }
     },
     testAuthentication: async (request, { settings }) => {
