@@ -5,4 +5,6 @@
 rm -rf node_modules/.cache .eslintcache
 find . \( -name "dist" -o -iname "*.tsbuildinfo" \) ! -path "*/node_modules/*" -print0 | xargs -0 rm -rf
 
+# clears nx cache
+nx reset
 echo "Build files and cache deleted."
