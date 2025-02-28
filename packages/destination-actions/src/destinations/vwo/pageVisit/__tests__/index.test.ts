@@ -7,7 +7,7 @@ const testDestination = createTestIntegration(Destination)
 const BASE_ENDPOINT = 'https://dev.visualwebsiteoptimizer.com'
 const VWO_ACCOUNT_ID = 654331
 const VWO_UUID = 'ABC123'
-const EVENT_NAME = 'vwo_pageView'
+const EVENT_NAME = 'segment.pageView'
 const SDK_KEY = 'sample-api-key'
 const SANITISED_USERID = '57CC1A3D57215E67824E461010E43F53'
 
