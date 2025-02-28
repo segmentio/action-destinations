@@ -83,9 +83,7 @@ yarn test-partners
 yarn test
 
 # to reset all caches and rebuild again
-yarn clean
-yarn install
-yarn build
+yarn clean-build
 ```
 
 ### Actions CLI
