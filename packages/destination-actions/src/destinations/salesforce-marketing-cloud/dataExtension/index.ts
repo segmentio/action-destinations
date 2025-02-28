@@ -26,13 +26,15 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     keys: {
       __keys__: async (request, { settings, payload }) => {
-        const dataExtensionId = (payload as any).onMappingSave.outputs.id || ''
+        const dataExtensionId =
+          (payload as any).onMappingSave.outputs.id || (payload as any).retlOnMappingSave.outputs.id || ''
         return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId, true)
       }
     },
     values: {
       __keys__: async (request, { settings, payload }) => {
-        const dataExtensionId = (payload as any).onMappingSave.outputs.id || ''
+        const dataExtensionId =
+          (payload as any).onMappingSave.outputs.id || (payload as any).retlOnMappingSave.outputs.id || ''
         return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId, false)
       }
     }
