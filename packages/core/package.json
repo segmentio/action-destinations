@@ -51,7 +51,7 @@
     "package.json"
   ],
   "engines": {
-    "node": ">=18.12"
+    "node": ">=18.17"
   },
   "engineStrict": true,
   "license": "MIT",
