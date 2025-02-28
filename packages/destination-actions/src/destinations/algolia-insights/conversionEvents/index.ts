@@ -14,7 +14,7 @@ const notUndef = (thing: unknown) => typeof thing !== 'undefined'
 export const conversionEvents: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Events',
   description:
-    'In ecommerce, conversions are purchase events often but not always involving multiple products. Outside of a conversion can be any positive signal associated with an index record. Query ID is optional and indicates that the view events is the result of a search query.',
+    'In ecommerce, conversions are purchase or add-to-cart events often but not always involving multiple products. Outside of ecommerce, a conversion can be any positive signal associated with an index record. Query ID is optional and indicates that the event is the result of a search query.',
   fields: {
     eventSubtype: {
       label: 'Event Subtype',
@@ -188,10 +188,24 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
 }
 
 /** used in the quick setup */
-export const conversionPresets: Preset = {
-  name: 'Send conversion events to Algolia',
+export const purchasePreset: Preset = {
+  name: 'Send purchase events to Algolia',
   subscribe: conversionEvents.defaultSubscription as string,
   partnerAction: 'conversionEvents',
   mapping: defaultValues(conversionEvents.fields),
+  type: 'automatic'
+}
+
+const getAddToCartFields = () => {
+  const out = structuredClone(conversionEvents.fields)
+  out.eventSubtype.default = 'addToCart'
+  return out
+}
+
+export const addToCartPreset: Preset = {
+  name: 'Send add-to-cart events to Algolia',
+  subscribe: 'type = "track" and event = "Product Added"',
+  partnerAction: 'conversionEvents',
+  mapping: defaultValues(getAddToCartFields()),
   type: 'automatic'
 }

@@ -1,13 +1,12 @@
-import type { ActionDefinition, Preset } from '@segment/actions-core'
-import { defaultValues } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { AlgoliaBehaviourURL, AlgoliaConversionEvent, AlgoliaEventType } from '../algolia-insight-api'
 
 export const productAddedEvents: ActionDefinition<Settings, Payload> = {
-  title: 'Product Added Events',
+  title: '[Deprecated] Product Added Events',
   description:
-    'Product added events for ecommerce use cases for a customer adding an item to their cart. Query ID is optional and indicates that the event was the result of a search query.',
+    'Product added events for ecommerce use cases for a customer adding an item to their cart. Query ID is optional and indicates that the event was the result of a search query. **Important** This Action is deprecated. Use the **Conversion Events** Action instead.',
   fields: {
     product: {
       label: 'Product ID',
@@ -110,12 +109,4 @@ export const productAddedEvents: ActionDefinition<Settings, Payload> = {
       json: insightPayload
     })
   }
-}
-
-export const productAddedPresets: Preset = {
-  name: 'Send product added events to Algolia',
-  subscribe: productAddedEvents.defaultSubscription as string,
-  partnerAction: 'productAddedEvents',
-  mapping: defaultValues(productAddedEvents.fields),
-  type: 'automatic'
 }
