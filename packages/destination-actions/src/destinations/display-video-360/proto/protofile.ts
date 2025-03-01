@@ -2,22 +2,25 @@
 // @generated from file bulk_upload.proto (syntax proto2)
 /* eslint-disable */
 
-import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
-import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
-import type { Message } from "@bufbuild/protobuf";
+import type { GenEnum, GenFile, GenMessage } from '@bufbuild/protobuf/dist/cjs/codegenv1'
+import { enumDesc, fileDesc, messageDesc } from '@bufbuild/protobuf/dist/cjs/codegenv1'
+import type { Message } from '@bufbuild/protobuf'
 
 /**
  * Describes the file bulk_upload.proto.
  */
-export const file_bulk_upload: GenFile = /*@__PURE__*/
-  fileDesc("ChFidWxrX3VwbG9hZC5wcm90byKMAgoRVXNlckRhdGFPcGVyYXRpb24SEQoHdXNlcl9pZBgBIAEoCToAEjEKDHVzZXJfaWRfdHlwZRgOIAEoDjILLlVzZXJJZFR5cGU6DkdPT0dMRV9VU0VSX0lEEhcKDHVzZXJfbGlzdF9pZBgEIAEoAzoBMBIiChd0aW1lX2FkZGVkX3RvX3VzZXJfbGlzdBgFIAEoAzoBMBIqCh90aW1lX2FkZGVkX3RvX3VzZXJfbGlzdF9pbl91c2VjGAggASgDOgEwEhUKBmRlbGV0ZRgGIAEoCDoFZmFsc2USFgoHb3B0X291dBgMIAEoCDoFZmFsc2USGQoOZGF0YV9zb3VyY2VfaWQYByABKAU6ATAifAoWVXBkYXRlVXNlcnNEYXRhUmVxdWVzdBIfCgNvcHMYASADKAsyEi5Vc2VyRGF0YU9wZXJhdGlvbhIhChJzZW5kX25vdGlmaWNhdGlvbnMYAiABKAg6BWZhbHNlEh4KD3Byb2Nlc3NfY29uc2VudBgDIAEoCDoFZmFsc2UiigEKCUVycm9ySW5mbxIXCgx1c2VyX2xpc3RfaWQYAiABKAM6ATASEQoHdXNlcl9pZBgDIAEoCToAEjEKDHVzZXJfaWRfdHlwZRgHIAEoDjILLlVzZXJJZFR5cGU6DkdPT0dMRV9VU0VSX0lEEh4KCmVycm9yX2NvZGUYBCABKA4yCi5FcnJvckNvZGUiUwoQTm90aWZpY2F0aW9uSW5mbxIRCgd1c2VyX2lkGAEgASgJOgASLAoRbm90aWZpY2F0aW9uX2NvZGUYAiABKA4yES5Ob3RpZmljYXRpb25Db2RlIq0BChdVcGRhdGVVc2Vyc0RhdGFSZXNwb25zZRIaCgZzdGF0dXMYASABKA4yCi5FcnJvckNvZGUSGgoGZXJyb3JzGAIgAygLMgouRXJyb3JJbmZvEigKDW5vdGlmaWNhdGlvbnMYAyADKAsyES5Ob3RpZmljYXRpb25JbmZvEjAKE25vdGlmaWNhdGlvbl9zdGF0dXMYBCABKA4yEy5Ob3RpZmljYXRpb25TdGF0dXMqlAEKClVzZXJJZFR5cGUSEgoOR09PR0xFX1VTRVJfSUQQABIICgRJREZBEAESGgoWQU5EUk9JRF9BRFZFUlRJU0lOR19JRBACEggKBFJJREEQBRIICgRBRkFJEAYSCAoETVNBSRAHEhUKEUdFTkVSSUNfREVWSUNFX0lEEAkSFwoTUEFSVE5FUl9QUk9WSURFRF9JRBAEKicKEE5vdGlmaWNhdGlvbkNvZGUSEwoPSU5BQ1RJVkVfQ09PS0lFEAAqRAoSTm90aWZpY2F0aW9uU3RhdHVzEhMKD05PX05PVElGSUNBVElPThAAEhkKFU5PVElGSUNBVElPTlNfT01JVFRFRBABKr4CCglFcnJvckNvZGUSDAoITk9fRVJST1IQABITCg9QQVJUSUFMX1NVQ0NFU1MQARIVChFQRVJNSVNTSU9OX0RFTklFRBACEgwKCEJBRF9EQVRBEAMSDgoKQkFEX0NPT0tJRRAEEhQKEEJBRF9BVFRSSUJVVEVfSUQQBRISCg5CQURfTkVUV09SS19JRBAHEhMKD1JFUVVFU1RfVE9PX0JJRxAIEhEKDUVNUFRZX1JFUVVFU1QQCRISCg5JTlRFUk5BTF9FUlJPUhAKEhYKEkJBRF9EQVRBX1NPVVJDRV9JRBALEhEKDUJBRF9USU1FU1RBTVAQDBIjCh9NSVNTSU5HX0NPTlNFTlRfV0lMTF9CRV9EUk9QUEVEEBYSEwoPTUlTU0lOR19DT05TRU5UEBcSDgoKVU5LTk9XTl9JRBAV");
+export const file_bulk_upload: GenFile =
+  /*@__PURE__*/
+  fileDesc(
+    'ChFidWxrX3VwbG9hZC5wcm90byKMAgoRVXNlckRhdGFPcGVyYXRpb24SEQoHdXNlcl9pZBgBIAEoCToAEjEKDHVzZXJfaWRfdHlwZRgOIAEoDjILLlVzZXJJZFR5cGU6DkdPT0dMRV9VU0VSX0lEEhcKDHVzZXJfbGlzdF9pZBgEIAEoAzoBMBIiChd0aW1lX2FkZGVkX3RvX3VzZXJfbGlzdBgFIAEoAzoBMBIqCh90aW1lX2FkZGVkX3RvX3VzZXJfbGlzdF9pbl91c2VjGAggASgDOgEwEhUKBmRlbGV0ZRgGIAEoCDoFZmFsc2USFgoHb3B0X291dBgMIAEoCDoFZmFsc2USGQoOZGF0YV9zb3VyY2VfaWQYByABKAU6ATAifAoWVXBkYXRlVXNlcnNEYXRhUmVxdWVzdBIfCgNvcHMYASADKAsyEi5Vc2VyRGF0YU9wZXJhdGlvbhIhChJzZW5kX25vdGlmaWNhdGlvbnMYAiABKAg6BWZhbHNlEh4KD3Byb2Nlc3NfY29uc2VudBgDIAEoCDoFZmFsc2UiigEKCUVycm9ySW5mbxIXCgx1c2VyX2xpc3RfaWQYAiABKAM6ATASEQoHdXNlcl9pZBgDIAEoCToAEjEKDHVzZXJfaWRfdHlwZRgHIAEoDjILLlVzZXJJZFR5cGU6DkdPT0dMRV9VU0VSX0lEEh4KCmVycm9yX2NvZGUYBCABKA4yCi5FcnJvckNvZGUiUwoQTm90aWZpY2F0aW9uSW5mbxIRCgd1c2VyX2lkGAEgASgJOgASLAoRbm90aWZpY2F0aW9uX2NvZGUYAiABKA4yES5Ob3RpZmljYXRpb25Db2RlIq0BChdVcGRhdGVVc2Vyc0RhdGFSZXNwb25zZRIaCgZzdGF0dXMYASABKA4yCi5FcnJvckNvZGUSGgoGZXJyb3JzGAIgAygLMgouRXJyb3JJbmZvEigKDW5vdGlmaWNhdGlvbnMYAyADKAsyES5Ob3RpZmljYXRpb25JbmZvEjAKE25vdGlmaWNhdGlvbl9zdGF0dXMYBCABKA4yEy5Ob3RpZmljYXRpb25TdGF0dXMqlAEKClVzZXJJZFR5cGUSEgoOR09PR0xFX1VTRVJfSUQQABIICgRJREZBEAESGgoWQU5EUk9JRF9BRFZFUlRJU0lOR19JRBACEggKBFJJREEQBRIICgRBRkFJEAYSCAoETVNBSRAHEhUKEUdFTkVSSUNfREVWSUNFX0lEEAkSFwoTUEFSVE5FUl9QUk9WSURFRF9JRBAEKicKEE5vdGlmaWNhdGlvbkNvZGUSEwoPSU5BQ1RJVkVfQ09PS0lFEAAqRAoSTm90aWZpY2F0aW9uU3RhdHVzEhMKD05PX05PVElGSUNBVElPThAAEhkKFU5PVElGSUNBVElPTlNfT01JVFRFRBABKr4CCglFcnJvckNvZGUSDAoITk9fRVJST1IQABITCg9QQVJUSUFMX1NVQ0NFU1MQARIVChFQRVJNSVNTSU9OX0RFTklFRBACEgwKCEJBRF9EQVRBEAMSDgoKQkFEX0NPT0tJRRAEEhQKEEJBRF9BVFRSSUJVVEVfSUQQBRISCg5CQURfTkVUV09SS19JRBAHEhMKD1JFUVVFU1RfVE9PX0JJRxAIEhEKDUVNUFRZX1JFUVVFU1QQCRISCg5JTlRFUk5BTF9FUlJPUhAKEhYKEkJBRF9EQVRBX1NPVVJDRV9JRBALEhEKDUJBRF9USU1FU1RBTVAQDBIjCh9NSVNTSU5HX0NPTlNFTlRfV0lMTF9CRV9EUk9QUEVEEBYSEwoPTUlTU0lOR19DT05TRU5UEBcSDgoKVU5LTk9XTl9JRBAV'
+  )
 
 /**
  * Update data for a single user.
  *
  * @generated from message UserDataOperation
  */
-export type UserDataOperation = Message<"UserDataOperation"> & {
+export type UserDataOperation = Message<'UserDataOperation'> & {
   /**
    * User id.  The type is determined by the user_id_type field.
    *
@@ -25,14 +28,14 @@ export type UserDataOperation = Message<"UserDataOperation"> & {
    *
    * @generated from field: optional string user_id = 1 [default = ""];
    */
-  userId: string;
+  userId: string
 
   /**
    * The type of the user id.
    *
    * @generated from field: optional UserIdType user_id_type = 14 [default = GOOGLE_USER_ID];
    */
-  userIdType: UserIdType;
+  userIdType: UserIdType
 
   /**
    * The id of the userlist.  This can be retrieved from the AdX UI for AdX
@@ -41,7 +44,7 @@ export type UserDataOperation = Message<"UserDataOperation"> & {
    *
    * @generated from field: optional int64 user_list_id = 4 [default = 0];
    */
-  userListId: bigint;
+  userListId: bigint
 
   /**
    * Optional time (seconds since the epoch) when the user performed an action
@@ -50,7 +53,7 @@ export type UserDataOperation = Message<"UserDataOperation"> & {
    *
    * @generated from field: optional int64 time_added_to_user_list = 5 [default = 0];
    */
-  timeAddedToUserList: bigint;
+  timeAddedToUserList: bigint
 
   /**
    * Same as time_added_to_user_list but with finer grained time resolution, in
@@ -59,21 +62,21 @@ export type UserDataOperation = Message<"UserDataOperation"> & {
    *
    * @generated from field: optional int64 time_added_to_user_list_in_usec = 8 [default = 0];
    */
-  timeAddedToUserListInUsec: bigint;
+  timeAddedToUserListInUsec: bigint
 
   /**
    * Set to true if the operation is a deletion.
    *
    * @generated from field: optional bool delete = 6 [default = false];
    */
-  delete: boolean;
+  delete: boolean
 
   /**
    * Set true if the user opted out from being targeted.
    *
    * @generated from field: optional bool opt_out = 12 [default = false];
    */
-  optOut: boolean;
+  optOut: boolean
 
   /**
    * An id indicating the data source which contributed this membership.  The id
@@ -83,15 +86,14 @@ export type UserDataOperation = Message<"UserDataOperation"> & {
    *
    * @generated from field: optional int32 data_source_id = 7 [default = 0];
    */
-  dataSourceId: number;
-};
+  dataSourceId: number
+}
 
 /**
  * Describes the message UserDataOperation.
  * Use `create(UserDataOperationSchema)` to create a new message.
  */
-export const UserDataOperationSchema: GenMessage<UserDataOperation> = /*@__PURE__*/
-  messageDesc(file_bulk_upload, 0);
+export const UserDataOperationSchema: GenMessage<UserDataOperation> = /*@__PURE__*/ messageDesc(file_bulk_upload, 0)
 
 /**
  * This protocol buffer is used to update user data.  It is sent as the payload
@@ -100,13 +102,13 @@ export const UserDataOperationSchema: GenMessage<UserDataOperation> = /*@__PURE_
  *
  * @generated from message UpdateUsersDataRequest
  */
-export type UpdateUsersDataRequest = Message<"UpdateUsersDataRequest"> & {
+export type UpdateUsersDataRequest = Message<'UpdateUsersDataRequest'> & {
   /**
    * Multiple operations over user attributes or user lists.
    *
    * @generated from field: repeated UserDataOperation ops = 1;
    */
-  ops: UserDataOperation[];
+  ops: UserDataOperation[]
 
   /**
    * If true, request sending notifications about the given users in the
@@ -116,7 +118,7 @@ export type UpdateUsersDataRequest = Message<"UpdateUsersDataRequest"> & {
    *
    * @generated from field: optional bool send_notifications = 2 [default = false];
    */
-  sendNotifications: boolean;
+  sendNotifications: boolean
 
   /**
    * Partners using the Bulk Upload API must indicate that they have the proper
@@ -139,29 +141,30 @@ export type UpdateUsersDataRequest = Message<"UpdateUsersDataRequest"> & {
    *
    * @generated from field: optional bool process_consent = 3 [default = false];
    */
-  processConsent: boolean;
-};
+  processConsent: boolean
+}
 
 /**
  * Describes the message UpdateUsersDataRequest.
  * Use `create(UpdateUsersDataRequestSchema)` to create a new message.
  */
-export const UpdateUsersDataRequestSchema: GenMessage<UpdateUsersDataRequest> = /*@__PURE__*/
-  messageDesc(file_bulk_upload, 1);
+export const UpdateUsersDataRequestSchema: GenMessage<UpdateUsersDataRequest> =
+  /*@__PURE__*/
+  messageDesc(file_bulk_upload, 1)
 
 /**
  * Information about an error with an individual user operation.
  *
  * @generated from message ErrorInfo
  */
-export type ErrorInfo = Message<"ErrorInfo"> & {
+export type ErrorInfo = Message<'ErrorInfo'> & {
   /**
    * The user_list_id in the request which caused problems.  This may be empty
    * if the problem was with a particular user id.
    *
    * @generated from field: optional int64 user_list_id = 2 [default = 0];
    */
-  userListId: bigint;
+  userListId: bigint
 
   /**
    * The user_id which caused problems.  This may be empty if other data was bad
@@ -169,54 +172,52 @@ export type ErrorInfo = Message<"ErrorInfo"> & {
    *
    * @generated from field: optional string user_id = 3 [default = ""];
    */
-  userId: string;
+  userId: string
 
   /**
    * The type of the user ID.
    *
    * @generated from field: optional UserIdType user_id_type = 7 [default = GOOGLE_USER_ID];
    */
-  userIdType: UserIdType;
+  userIdType: UserIdType
 
   /**
    * @generated from field: optional ErrorCode error_code = 4;
    */
-  errorCode: ErrorCode;
-};
+  errorCode: ErrorCode
+}
 
 /**
  * Describes the message ErrorInfo.
  * Use `create(ErrorInfoSchema)` to create a new message.
  */
-export const ErrorInfoSchema: GenMessage<ErrorInfo> = /*@__PURE__*/
-  messageDesc(file_bulk_upload, 2);
+export const ErrorInfoSchema: GenMessage<ErrorInfo> = /*@__PURE__*/ messageDesc(file_bulk_upload, 2)
 
 /**
  * Per user notification information.
  *
  * @generated from message NotificationInfo
  */
-export type NotificationInfo = Message<"NotificationInfo"> & {
+export type NotificationInfo = Message<'NotificationInfo'> & {
   /**
    * The user_id for which the notification applies.  One of the user_ids sent
    * in a UserDataOperation.
    *
    * @generated from field: optional string user_id = 1 [default = ""];
    */
-  userId: string;
+  userId: string
 
   /**
    * @generated from field: optional NotificationCode notification_code = 2;
    */
-  notificationCode: NotificationCode;
-};
+  notificationCode: NotificationCode
+}
 
 /**
  * Describes the message NotificationInfo.
  * Use `create(NotificationInfoSchema)` to create a new message.
  */
-export const NotificationInfoSchema: GenMessage<NotificationInfo> = /*@__PURE__*/
-  messageDesc(file_bulk_upload, 3);
+export const NotificationInfoSchema: GenMessage<NotificationInfo> = /*@__PURE__*/ messageDesc(file_bulk_upload, 3)
 
 /**
  * Response to the UpdateUsersDataRequest.  Sent in HTTP response to the
@@ -226,7 +227,7 @@ export const NotificationInfoSchema: GenMessage<NotificationInfo> = /*@__PURE__*
  *
  * @generated from message UpdateUsersDataResponse
  */
-export type UpdateUsersDataResponse = Message<"UpdateUsersDataResponse"> & {
+export type UpdateUsersDataResponse = Message<'UpdateUsersDataResponse'> & {
   /**
    * When status == PARTIAL_SUCCESS, some (not all) of the operations failed and
    * the "errors" field has details on the types and number of errors
@@ -235,7 +236,7 @@ export type UpdateUsersDataResponse = Message<"UpdateUsersDataResponse"> & {
    *
    * @generated from field: optional ErrorCode status = 1;
    */
-  status: ErrorCode;
+  status: ErrorCode
 
   /**
    * Each operation that failed is reported as a separate error here when
@@ -243,7 +244,7 @@ export type UpdateUsersDataResponse = Message<"UpdateUsersDataResponse"> & {
    *
    * @generated from field: repeated ErrorInfo errors = 2;
    */
-  errors: ErrorInfo[];
+  errors: ErrorInfo[]
 
   /**
    * Useful, non-error, information about the user ids in the request.  Each
@@ -252,22 +253,23 @@ export type UpdateUsersDataResponse = Message<"UpdateUsersDataResponse"> & {
    *
    * @generated from field: repeated NotificationInfo notifications = 3;
    */
-  notifications: NotificationInfo[];
+  notifications: NotificationInfo[]
 
   /**
    * Indicates why a notification has not been sent.
    *
    * @generated from field: optional NotificationStatus notification_status = 4;
    */
-  notificationStatus: NotificationStatus;
-};
+  notificationStatus: NotificationStatus
+}
 
 /**
  * Describes the message UpdateUsersDataResponse.
  * Use `create(UpdateUsersDataResponseSchema)` to create a new message.
  */
-export const UpdateUsersDataResponseSchema: GenMessage<UpdateUsersDataResponse> = /*@__PURE__*/
-  messageDesc(file_bulk_upload, 4);
+export const UpdateUsersDataResponseSchema: GenMessage<UpdateUsersDataResponse> =
+  /*@__PURE__*/
+  messageDesc(file_bulk_upload, 4)
 
 /**
  * The type of identifier being uploaded.
@@ -336,14 +338,13 @@ export enum UserIdType {
    *
    * @generated from enum value: PARTNER_PROVIDED_ID = 4;
    */
-  PARTNER_PROVIDED_ID = 4,
+  PARTNER_PROVIDED_ID = 4
 }
 
 /**
  * Describes the enum UserIdType.
  */
-export const UserIdTypeSchema: GenEnum<UserIdType> = /*@__PURE__*/
-  enumDesc(file_bulk_upload, 0);
+export const UserIdTypeSchema: GenEnum<UserIdType> = /*@__PURE__*/ enumDesc(file_bulk_upload, 0)
 
 /**
  * Notification code.
@@ -357,14 +358,13 @@ export enum NotificationCode {
    *
    * @generated from enum value: INACTIVE_COOKIE = 0;
    */
-  INACTIVE_COOKIE = 0,
+  INACTIVE_COOKIE = 0
 }
 
 /**
  * Describes the enum NotificationCode.
  */
-export const NotificationCodeSchema: GenEnum<NotificationCode> = /*@__PURE__*/
-  enumDesc(file_bulk_upload, 1);
+export const NotificationCodeSchema: GenEnum<NotificationCode> = /*@__PURE__*/ enumDesc(file_bulk_upload, 1)
 
 /**
  * Notification status code.
@@ -385,14 +385,13 @@ export enum NotificationStatus {
    *
    * @generated from enum value: NOTIFICATIONS_OMITTED = 1;
    */
-  NOTIFICATIONS_OMITTED = 1,
+  NOTIFICATIONS_OMITTED = 1
 }
 
 /**
  * Describes the enum NotificationStatus.
  */
-export const NotificationStatusSchema: GenEnum<NotificationStatus> = /*@__PURE__*/
-  enumDesc(file_bulk_upload, 2);
+export const NotificationStatusSchema: GenEnum<NotificationStatus> = /*@__PURE__*/ enumDesc(file_bulk_upload, 2)
 
 /**
  * Response error codes.
@@ -525,12 +524,10 @@ export enum ErrorCode {
    *
    * @generated from enum value: UNKNOWN_ID = 21;
    */
-  UNKNOWN_ID = 21,
+  UNKNOWN_ID = 21
 }
 
 /**
  * Describes the enum ErrorCode.
  */
-export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/
-  enumDesc(file_bulk_upload, 3);
-
+export const ErrorCodeSchema: GenEnum<ErrorCode> = /*@__PURE__*/ enumDesc(file_bulk_upload, 3)
