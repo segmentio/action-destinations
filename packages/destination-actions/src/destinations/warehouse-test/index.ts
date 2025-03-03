@@ -38,6 +38,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The External ID to your IAM role. Generate a secure string and treat it like a password.',
         type: 'password',
         required: true
+      },
+      warehouseId: {
+        label: 'Warehouse Instance ID',
+        description: 'The Warehouse Instance ID.',
+        type: 'string',
+        required: true
       }
     }
   },

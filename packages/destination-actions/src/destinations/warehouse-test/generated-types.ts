@@ -17,4 +17,8 @@ export interface Settings {
    * The External ID to your IAM role. Generate a secure string and treat it like a password.
    */
   iam_external_id: string
+  /**
+   * The Warehouse Instance ID.
+   */
+  warehouseId: string
 }

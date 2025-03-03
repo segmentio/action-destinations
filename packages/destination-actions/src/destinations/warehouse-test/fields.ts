@@ -48,9 +48,6 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       messageId: {
         '@path': '$.messageId'
       },
-      integrations: {
-        '@path': '$.integrations'
-      },
       audienceName: {
         '@path': '$.context.personas.computation_key'
       },

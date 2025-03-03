@@ -66,7 +66,7 @@ export class Client {
     })
 
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
-    const fileName = `${dateSuffix}.gz`
+    const fileName = `${dateSuffix}_${settings.warehouseId}.gz`
 
     const uploadParams: PutObjectCommandInput = {
       Bucket: settings.s3_aws_bucket_name,
