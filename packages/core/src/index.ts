@@ -1,6 +1,6 @@
 export { Destination, fieldsToJsonSchema } from './destination-kit'
 export { getAuthData } from './destination-kit/parse-settings'
-export { transform } from './mapping-kit'
+export { transform, Features } from './mapping-kit'
 export {
   ArrayPathDirective,
   CaseDirective,
@@ -90,7 +90,8 @@ export type {
   DynamicFieldItem,
   InputField,
   GlobalSetting,
-  RequestExtension
+  RequestExtension,
+  SyncModeDefinition
 } from './destination-kit/types'
 
 export type { JSONPrimitive, JSONValue, JSONObject, JSONArray, JSONLike, JSONLikeObject } from './json-object'

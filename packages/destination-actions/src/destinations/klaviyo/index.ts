@@ -68,8 +68,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     listId: {
       label: 'List Id',
-      description: `Insert the ID of the default list that you'd like to subscribe users to when you call .identify().
-       NOTE: List ID takes precedence set within Actions.`,
+      description: `The default List ID to subscribe users to. This list takes precedence over the new list segment auto creates when attaching this destination to an audience.`,
       type: 'string'
     }
   },
@@ -108,8 +107,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     async getAudience(request, getAudienceInput) {
+      const defaultAudienceId = getAudienceInput.audienceSettings?.listId
+
+      if (defaultAudienceId) {
+        getAudienceInput.externalId = defaultAudienceId
+      }
+
       const listId = getAudienceInput.externalId
       const apiKey = getAudienceInput.settings.api_key
+
       const response = await request(`${API_URL}/lists/${listId}`, {
         method: 'GET',
         headers: buildHeaders(apiKey),

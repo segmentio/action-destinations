@@ -59,7 +59,7 @@ Structure:
 You'll need to have some tools installed locally to build and test action destinations.
 
 - Yarn 1.x
-- Node 18.12 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
+- Node 18.17 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
 
 If you are a Segment employee you can directly `git clone` the repository locally. Otherwise you'll want to fork this repository for your organization to submit Pull Requests against the main Segment repository. Once you've got a fork, you can `git clone` that locally.
 
@@ -71,7 +71,7 @@ cd action-destinations
 npm login
 yarn login
 
-# Requires node 18.12.1, optionally: nvm use 18.12.1
+# Requires node 18.17.1, optionally: nvm use 18.17.1
 yarn --ignore-optional
 yarn install
 yarn build
@@ -81,6 +81,9 @@ yarn test-partners
 
 # For segment employees, you can run:
 yarn test
+
+# to reset all caches and rebuild again
+yarn clean-build
 ```
 
 ### Actions CLI
@@ -965,7 +968,7 @@ For any issues, please contact our support team at partner-support@segment.com.
 
 MIT License
 
-Copyright (c) 2024 Segment
+Copyright (c) 2025 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
