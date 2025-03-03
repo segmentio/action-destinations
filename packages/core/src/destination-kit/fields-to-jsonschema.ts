@@ -109,6 +109,7 @@ const simpleConditionToJSONSchema = (
 
   return {
     if: {
+      required: [dependantFieldKey],
       properties: { [dependantFieldKey]: dependantValueToJSONSchema }
     },
     then: generateThenStatement(fieldKey)
