@@ -2,8 +2,8 @@
 // @generated from file bulk_upload.proto (syntax proto2)
 /* eslint-disable */
 
-import type { GenEnum, GenFile, GenMessage } from '@bufbuild/protobuf/codegenv1'
-import { enumDesc, fileDesc, messageDesc } from '@bufbuild/protobuf/codegenv1'
+import type { GenEnum, GenFile, GenMessage } from '@bufbuild/protobuf/dist/cjs/codegenv1'
+import { enumDesc, fileDesc, messageDesc } from '@bufbuild/protobuf/dist/cjs/codegenv1'
 import type { Message } from '@bufbuild/protobuf'
 
 /**
