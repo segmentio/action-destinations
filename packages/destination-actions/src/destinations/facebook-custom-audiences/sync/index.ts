@@ -52,8 +52,8 @@ const action: ActionDefinition<Settings, Payload> = {
               }
             ]
           },
-          dynamic: async (request, { settings }) => {
-            const fbClient = new FacebookClient(request, settings.retlAdAccountId)
+          dynamic: async (request, { settings, features }) => {
+            const fbClient = new FacebookClient(request, settings.retlAdAccountId, features)
             const { choices, error } = await fbClient.getAllAudiences()
 
             if (error) {
@@ -80,8 +80,8 @@ const action: ActionDefinition<Settings, Payload> = {
           required: true
         }
       },
-      performHook: async (request, { settings, hookInputs }) => {
-        const fbClient = new FacebookClient(request, settings.retlAdAccountId)
+      performHook: async (request, { settings, hookInputs, features }) => {
+        const fbClient = new FacebookClient(request, settings.retlAdAccountId, features)
 
         if (hookInputs.operation === 'create' && !hookInputs.audienceName) {
           return {
