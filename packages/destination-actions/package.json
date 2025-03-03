@@ -75,7 +75,8 @@
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
       "@segment/actions-core": "<rootDir>/../core/src",
       "@segment/actions-shared": "<rootDir>/../actions-shared/src",
-      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src",
+      "@bufbuild/protobuf/codegenv1": "<rootDir>/../../node_modules/@bufbuild/protobuf/dist/cjs/codegenv1"
     },
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"
