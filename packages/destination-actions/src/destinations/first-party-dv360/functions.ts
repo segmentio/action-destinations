@@ -1,7 +1,7 @@
-import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
+import { Features, IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
 import { Payload } from './addToAudContactInfo/generated-types'
-import { createHash } from 'crypto'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
+import { processHashing } from '../../lib/hashing-utils'
 
 const DV360API = `https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences`
 const CONSENT_STATUS_GRANTED = 'CONSENT_STATUS_GRANTED' // Define consent status
@@ -129,6 +129,7 @@ export async function editContactInfo(
   request: RequestClient,
   payloads: Payload[],
   operation: 'add' | 'remove',
+  features: Features | undefined,
   statsContext?: StatsContext
 ) {
   const payload = payloads[0]
@@ -149,7 +150,7 @@ export async function editContactInfo(
 
   // Prepare the request payload
   const contactInfoList = {
-    contactInfos: [processPayload(payload)],
+    contactInfos: [processPayload(payload, features)],
     consent: {
       adUserData: CONSENT_STATUS_GRANTED,
       adPersonalization: CONSENT_STATUS_GRANTED
@@ -175,33 +176,31 @@ export async function editContactInfo(
   return response.data
 }
 
-function normalizeAndHash(data: string) {
+function normalizeAndHash(data: string, features: Features | undefined) {
   // Normalize the data
   const normalizedData = data.toLowerCase().trim() // Example: Convert to lowercase and remove leading/trailing spaces
   // Hash the normalized data using SHA-256
-  const hash = createHash('sha256')
-  hash.update(normalizedData)
-  return hash.digest('hex')
+  return processHashing(normalizedData, 'sha256', 'hex', features, 'first-party-dv360')
 }
 
-function processPayload(payload: Payload) {
+function processPayload(payload: Payload, features: Features | undefined) {
   const result: { [key: string]: string } = {}
 
   // Normalize and hash only if the value is defined
   if (payload.emails) {
-    result.hashedEmails = normalizeAndHash(payload.emails)
+    result.hashedEmails = normalizeAndHash(payload.emails, features)
   }
   if (payload.phoneNumbers) {
-    result.hashedPhoneNumbers = normalizeAndHash(payload.phoneNumbers)
+    result.hashedPhoneNumbers = normalizeAndHash(payload.phoneNumbers, features)
   }
   if (payload.zipCodes) {
     result.zipCodes = payload.zipCodes
   }
   if (payload.firstName) {
-    result.hashedFirstName = normalizeAndHash(payload.firstName)
+    result.hashedFirstName = normalizeAndHash(payload.firstName, features)
   }
   if (payload.lastName) {
-    result.hashedLastName = normalizeAndHash(payload.lastName)
+    result.hashedLastName = normalizeAndHash(payload.lastName, features)
   }
   if (payload.countryCode) {
     result.countryCode = payload.countryCode
