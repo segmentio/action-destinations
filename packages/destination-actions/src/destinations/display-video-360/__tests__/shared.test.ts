@@ -14,7 +14,7 @@ import {
   ErrorCode,
   ErrorInfoSchema
 } from '../proto/protofile'
-import { create, toBinary, toJsonString } from '@bufbuild/protobuf'
+import * as protobuf from '@bufbuild/protobuf'
 import { StatsContext, Response } from '@segment/actions-core'
 import createRequestClient from '../../../../../core/src/create-request-client'
 
@@ -76,7 +76,7 @@ const getRandomError = () => {
 
 // Mock only the error code. The contents of the response are not important.
 const createMockResponse = (errorCode: ErrorCode, payload: UpdateHandlerPayload[]) => {
-  const responseHandler = create(UpdateUsersDataResponseSchema, {})
+  const responseHandler = protobuf.create(UpdateUsersDataResponseSchema, {})
   responseHandler.status = errorCode
 
   if (errorCode === ErrorCode.PARTIAL_SUCCESS) {
@@ -84,7 +84,7 @@ const createMockResponse = (errorCode: ErrorCode, payload: UpdateHandlerPayload[
     // we are not currently testing their content therefore, it doesn't matter.
 
     responseHandler.errors = payload.map((p) => {
-      const errorInfo = create(ErrorInfoSchema, {
+      const errorInfo = protobuf.create(ErrorInfoSchema, {
         errorCode: getRandomError(),
         userListId: BigInt(p.external_audience_id.split('/').pop() || '-1'),
         userIdType: 0,
@@ -94,7 +94,7 @@ const createMockResponse = (errorCode: ErrorCode, payload: UpdateHandlerPayload[
     })
   }
 
-  const b = Buffer.from(toBinary(UpdateUsersDataResponseSchema, responseHandler))
+  const b = Buffer.from(protobuf.toBinary(UpdateUsersDataResponseSchema, responseHandler))
   const arrayBuffer = b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength)
 
   return new Response(arrayBuffer, { status: errorCode === ErrorCode.NO_ERROR ? 200 : 400 })
@@ -212,7 +212,7 @@ describe('shared', () => {
       const r = createUpdateRequest(manyMockPayloads, 'add')
       expect(r.ops.length).toEqual(5)
       expect(r.processConsent).toEqual(true)
-      expect(normalizeJson(toJsonString(UpdateUsersDataRequestSchema, r))).toEqual(
+      expect(normalizeJson(protobuf.toJsonString(UpdateUsersDataRequestSchema, r))).toEqual(
         normalizeJson(
           JSON.stringify({
             ops: [
@@ -250,36 +250,35 @@ describe('shared', () => {
     // To gracefully fails means that the request was successful, but some of the operations failed.
     // The response will contain a list of errors. Its content is unknown.
     // The endpoint will return a 400 status code.
-    //
-    // TODO: Fix This Test
-    //
-    // it('should gracefully fail', async () => {
-    //   // eslint-disable-next-line @typescript-eslint/no-var-requires <-- needed for mocking
-    //   const protobuf = require('@bufbuild/protobuf')
-    //
-    //   jest.spyOn(protobuf, 'fromBinary').mockImplementation(() => ({
-    //     status: ErrorCode.PARTIAL_SUCCESS,
-    //     errors: [
-    //       create(ErrorInfoSchema, {
-    //         errorCode: ErrorCode.BAD_DATA,
-    //         userListId: BigInt(456),
-    //         userIdType: 0,
-    //         userId: 'CAESEHIV8HXNp0pFdHgi2rElMfk'
-    //       })
-    //     ]
-    //   }))
-    //
-    //   nock('https://cm.g.doubleclick.net').post('/upload?nid=segment').reply(400)
-    //
-    //   const r = createUpdateRequest(manyMockPayloads, 'add')
-    //   await sendUpdateRequest(mockRequestClient, r, 'addToAudience', mockStatsContext)
-    //
-    //   expect(mockStatsClient.incr).toHaveBeenCalledWith(
-    //     'addToAudience.error.PARTIAL_SUCCESS',
-    //     1,
-    //     mockStatsContext.tags
-    //   )
-    // })
+    it('should gracefully fail', async () => {
+      jest.spyOn(protobuf, 'fromBinary').mockImplementation(() => ({
+        status: ErrorCode.PARTIAL_SUCCESS,
+        errors: [
+          protobuf.create(ErrorInfoSchema, {
+            errorCode: ErrorCode.BAD_DATA,
+            userListId: BigInt(456),
+            userIdType: 0,
+            userId: 'CAESEHIV8HXNp0pFdHgi2rElMfk'
+          })
+        ],
+        $typeName: 'UpdateUsersDataResponse'
+      }))
+
+      try {
+        nock('https://cm.g.doubleclick.net').post('/upload?nid=segment').reply(400)
+
+        const r = createUpdateRequest(manyMockPayloads, 'add')
+        await sendUpdateRequest(mockRequestClient, r, 'addToAudience', mockStatsContext)
+
+        expect(mockStatsClient.incr).toHaveBeenCalledWith(
+          'addToAudience.error.PARTIAL_SUCCESS',
+          1,
+          mockStatsContext.tags
+        )
+      } finally {
+        jest.restoreAllMocks()
+      }
+    })
 
     it('should abruptly fail', async () => {
       nock('https://cm.g.doubleclick.net').post('/upload?nid=segment').reply(500)
