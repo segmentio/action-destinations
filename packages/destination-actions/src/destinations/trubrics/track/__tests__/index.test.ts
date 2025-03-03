@@ -19,8 +19,6 @@ describe('Trubrics.track', () => {
       settings
     })
 
-    console.log('hello', responses)
-
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
   })
