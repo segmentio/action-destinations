@@ -2,6 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../../generated-types'
 import { Payload } from '../generated-types'
 import action from '../index' // Replace with the actual file name
+import { DAWN_API_ENDPOINT } from '../../utils'
 
 describe('Dawn AI Action', () => {
   let mockRequest: jest.MockedFunction<RequestClient>
@@ -24,7 +25,7 @@ describe('Dawn AI Action', () => {
     it('should correctly transform payload and make API call', async () => {
       await action.perform(mockRequest, { settings: mockSettings, payload: mockPayload })
       expect(mockRequest).toHaveBeenCalledWith(
-        'https://api.dawnai.com/segment-track',
+        `${DAWN_API_ENDPOINT}/sinks/segment/track`,
         expect.objectContaining({
           method: 'post',
           json: [
@@ -45,7 +46,7 @@ describe('Dawn AI Action', () => {
       const incompletePayload: Payload = { event: 'test-event', user_id: '', properties: {} }
       await action.perform(mockRequest, { settings: mockSettings, payload: incompletePayload })
       expect(mockRequest).toHaveBeenCalledWith(
-        'https://api.dawnai.com/segment-track',
+        `${DAWN_API_ENDPOINT}/sinks/segment/track`,
         expect.objectContaining({
           json: [
             {
