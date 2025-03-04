@@ -9,12 +9,13 @@
     ]
   },
   "engines": {
-    "node": "^18.12 || ^22.13"
+    "node": "^18.17 || ^22.13"
   },
   "scripts": {
     "alpha": "lerna version prerelease --allow-branch $(git branch --show-current) --preid $(git branch --show-current) --no-push --no-git-tag-version",
     "browser": "yarn workspace @segment/browser-destinations",
     "build": "nx run-many -t build && yarn build:browser-bundles",
+    "clean-build": "yarn clean && yarn build",
     "build:browser-bundles": "nx build @segment/destinations-manifest && nx build-web @segment/browser-destinations",
     "canary": "./scripts/canary.sh",
     "clean": "sh scripts/clean.sh",
