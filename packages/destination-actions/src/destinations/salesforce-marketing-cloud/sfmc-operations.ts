@@ -128,8 +128,6 @@ export async function executeUpsertWithMultiStatus(
   return multiStatusResponse
 }
 
-interface DataExtensionField {}
-
 interface DataExtensionCreationResponse {
   data: {
     id?: string
@@ -214,7 +212,7 @@ const dataExtensionRequest = async (
     return { id: '', key: '', error: 'No columns provided' }
   }
 
-  const fields: DataExtensionField[] = hookInputs.columns.map((column, i) => {
+  const fields = hookInputs.columns.map((column, i) => {
     return {
       name: column.name,
       type: column.type,
