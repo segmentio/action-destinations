@@ -61,5 +61,70 @@ describe('Salesforce Marketing Cloud', () => {
         `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`
       )
     })
+
+    it('should prioritize using the data extension ID created or selected from the hook', async () => {
+      const expectedUrl = `https://${settings.subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/hook_output123/rowset`
+
+      nock(expectedUrl).post('').reply(200, {})
+      const responses = await testDestination.testAction('dataExtension', {
+        event,
+        settings,
+        mapping: {
+          keys: { '@path': '$.properties.keys' },
+          values: { '@path': '$.properties.values' },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: 'hook_output123'
+            }
+          }
+        }
+      })
+
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"[{\\"keys\\":{\\"id\\":\\"HS1\\"},\\"values\\":{\\"name\\":\\"Harry Styles\\"}}]"`
+      )
+    })
+
+    it('should fallback to using an existing deprecated data extension ID if no hook ID exists', async () => {
+      const expectedUrl = `https://${settings.subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/deprecated_123/rowset`
+
+      nock(expectedUrl).post('').reply(200, {})
+      const responses = await testDestination.testAction('dataExtension', {
+        event,
+        settings,
+        mapping: {
+          keys: { '@path': '$.properties.keys' },
+          values: { '@path': '$.properties.values' },
+          id: 'deprecated_123'
+        }
+      })
+
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"[{\\"keys\\":{\\"id\\":\\"HS1\\"},\\"values\\":{\\"name\\":\\"Harry Styles\\"}}]"`
+      )
+    })
+
+    it('should fallback to using an existing deprecated data extension key if no hook ID exists and no deprecated ID exists', async () => {
+      const expectedUrl = `https://${settings.subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:deprecated_123/rowset`
+
+      nock(expectedUrl).post('').reply(200, {})
+      const responses = await testDestination.testAction('dataExtension', {
+        event,
+        settings,
+        mapping: {
+          keys: { '@path': '$.properties.keys' },
+          values: { '@path': '$.properties.values' },
+          key: 'deprecated_123'
+        }
+      })
+
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"[{\\"keys\\":{\\"id\\":\\"HS1\\"},\\"values\\":{\\"name\\":\\"Harry Styles\\"}}]"`
+      )
+    })
   })
 })
