@@ -316,7 +316,7 @@ const selectDataExtensionRequest = async (
         }
       }
     )
-    console.log('res', response)
+
     if (response.status !== 200) {
       return { id: '', name: '', error: `Failed to select Data Extension` }
     }
