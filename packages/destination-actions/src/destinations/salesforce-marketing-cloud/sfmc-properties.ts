@@ -113,10 +113,6 @@ const SELECT_OPERATION: DependsOnConditions = {
   conditions: [{ fieldKey: 'operation', operator: 'is', value: 'select' }]
 }
 
-const IS_SENDABLE: DependsOnConditions = {
-  conditions: [{ fieldKey: 'isSendable', operator: 'is', value: true }]
-}
-
 export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = {
   label: 'Create or Select Data Extension',
   description: 'Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.',
@@ -163,26 +159,6 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
       description: 'The description of the data extension.',
       type: 'string',
       depends_on: CREATE_OPERATION
-    },
-    isSendable: {
-      label: 'Is Sendable',
-      type: 'boolean',
-      description:
-        'Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable'
-    },
-    sendableCustomObjectField: {
-      label: 'Sendable Custom Object Field',
-      description: 'The field on this data extension that is sendable.',
-      type: 'string',
-      depends_on: IS_SENDABLE,
-      required: IS_SENDABLE
-    },
-    sendableSubscriberField: {
-      label: 'Sendable Subscriber Field',
-      description: 'The field on another data extension?',
-      type: 'string',
-      depends_on: IS_SENDABLE,
-      required: IS_SENDABLE
     },
     columns: {
       label: 'Data Extension Fields',

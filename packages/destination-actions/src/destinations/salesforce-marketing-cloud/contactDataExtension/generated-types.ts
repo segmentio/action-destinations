@@ -58,18 +58,6 @@ export interface RetlOnMappingSaveInputs {
    */
   description?: string
   /**
-   * Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable
-   */
-  isSendable?: boolean
-  /**
-   * The field on this data extension that is sendable.
-   */
-  sendableCustomObjectField?: string
-  /**
-   * The field on another data extension?
-   */
-  sendableSubscriberField?: string
-  /**
    * A list of fields to create in the data extension.
    */
   columns?: {
@@ -139,18 +127,6 @@ export interface OnMappingSaveInputs {
    * The description of the data extension.
    */
   description?: string
-  /**
-   * Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable
-   */
-  isSendable?: boolean
-  /**
-   * The field on this data extension that is sendable.
-   */
-  sendableCustomObjectField?: string
-  /**
-   * The field on another data extension?
-   */
-  sendableSubscriberField?: string
   /**
    * A list of fields to create in the data extension.
    */
