@@ -16,7 +16,7 @@ const prepareJSON = (payload: Payload) => {
 export const sendRequest = async (request: Function, settings: Settings, payload: Payload[]) => {
   const json = payload.map(prepareJSON)
 
-  return await request(`http://${settings.url}/publish_segment_events`, {
+  return await request(`https://${settings.url}/publish_segment_events`, {
     method: 'post',
     headers: {
       'x-api-key': settings.apiKey
