@@ -33,6 +33,7 @@
   "devDependencies": {
     "@bufbuild/buf": "^1.50.0",
     "@bufbuild/protoc-gen-es": "^2.2.3",
+    "@connectrpc/connect-node": "2.0.2",
     "@types/google-libphonenumber": "^7.4.23",
     "@types/jest": "^27.0.0",
     "@types/ssh2-sftp-client": "^9.0.0",
@@ -44,6 +45,7 @@
     "@aws-sdk/client-eventbridge": "^3.741.0",
     "@aws-sdk/client-s3": "^3.600.0",
     "@bufbuild/protobuf": "^2.2.3",
+    "@connectrpc/connect": "2.0.2",
     "@segment/a1-notation": "^2.1.4",
     "@segment/actions-core": "3.147.1-staging-70825e5a2.0",
     "@segment/actions-shared": "1.128.1-staging-70825e5a2.0",
