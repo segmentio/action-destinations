@@ -30,6 +30,10 @@ export interface Payload {
      */
     generation?: string
     /**
+     * The thread/conversation ID of the LLM conversation.
+     */
+    thread_id?: string
+    /**
      * The latency in seconds between the LLM prompt and generation
      */
     latency?: number

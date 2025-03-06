@@ -56,6 +56,12 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'An LLM assistant response',
           label: 'LLM Assistant Generation'
         },
+        thread_id: {
+          type: 'string',
+          required: false,
+          description: 'The thread/conversation ID of the LLM conversation.',
+          label: 'LLM Thread ID'
+        },
         latency: {
           type: 'number',
           required: false,
@@ -72,6 +78,9 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         generation: {
           '@path': '$.properties.$trubrics_generation'
+        },
+        thread_id: {
+          '@path': '$.properties.$trubrics_thread_id'
         },
         latency: {
           '@path': '$.properties.$trubrics_latency'
