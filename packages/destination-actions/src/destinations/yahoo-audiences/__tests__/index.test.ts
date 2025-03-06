@@ -127,7 +127,7 @@ describe('Yahoo Audiences', () => {
         expect((result.data as any)[0][4]).toContain(';')
       })
 
-      it('should not hashed if already hashed pii value', () => {
+      it('should not hash if already hashed pii value', () => {
         const payloads: Payload[] = [
           {
             gdpr_flag: false,
