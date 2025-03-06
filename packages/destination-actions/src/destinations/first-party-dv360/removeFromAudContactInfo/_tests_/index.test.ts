@@ -74,9 +74,8 @@ describe('First-Party-dv360.removeToAudContactInfo', () => {
       features: { 'smart-hashing': true }
     })
 
-    expect(responses[0].options.body).toMatchInlineSnapshot(
-      '"{\\"advertiserId\\":\\"1234567890\\",\\"addedContactInfoList\\":{\\"contactInfos\\":[{\\"hashedEmails\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\",\\"hashedPhoneNumbers\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\",\\"zipCodes\\":\\"12345\\",\\"hashedFirstName\\":\\"96d9632f363564cc3032521409cf22a852f2032eec099ed5967c0d000cec607a\\",\\"hashedLastName\\":\\"799ef92a11af918e3fb741df42934f3b568ed2d93ac1df74f1b8d41a27932a6f\\",\\"countryCode\\":\\"US\\"}],\\"consent\\":{\\"adUserData\\":\\"CONSENT_STATUS_GRANTED\\",\\"adPersonalization\\":\\"CONSENT_STATUS_GRANTED\\"}}}"',
-      `"{\\"advertiserId\\":\\"1234567890\\",\\"removedContactInfoList\\":{\\"contactInfos\\":[{\\"hashedEmails\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\",\\"hashedPhoneNumbers\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\",\\"zipCodes\\":\\"12345\\",\\"hashedFirstName\\":\\"96d9632f363564cc3032521409cf22a852f2032eec099ed5967c0d000cec607a\\",\\"hashedLastName\\":\\"799ef92a11af918e3fb741df42934f3b568ed2d93ac1df74f1b8d41a27932a6f\\",\\"countryCode\\":\\"US\\"}],\\"consent\\":{\\"adUserData\\":\\"CONSENT_STATUS_GRANTED\\",\\"adPersonalization\\":\\"CONSENT_STATUS_GRANTED\\"}}}"`
+    expect(responses[0].options.body).toBe(
+      '{"advertiserId":"1234567890","removedContactInfoList":{"contactInfos":[{"hashedEmails":"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777","hashedPhoneNumbers":"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8","zipCodes":"12345","hashedFirstName":"96d9632f363564cc3032521409cf22a852f2032eec099ed5967c0d000cec607a","hashedLastName":"799ef92a11af918e3fb741df42934f3b568ed2d93ac1df74f1b8d41a27932a6f","countryCode":"US"}],"consent":{"adUserData":"CONSENT_STATUS_GRANTED","adPersonalization":"CONSENT_STATUS_GRANTED"}}}'
     )
   })
 })
