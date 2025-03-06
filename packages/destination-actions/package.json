@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.371.0",
+  "version": "3.372.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -14,7 +14,7 @@
     "package.json"
   ],
   "engines": {
-    "node": "^18.12 || ^22.13"
+    "node": "^18.17 || ^22.13"
   },
   "engineStrict": true,
   "license": "MIT",
@@ -31,6 +31,8 @@
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.50.0",
+    "@bufbuild/protoc-gen-es": "^2.2.3",
     "@types/google-libphonenumber": "^7.4.23",
     "@types/jest": "^27.0.0",
     "@types/ssh2-sftp-client": "^9.0.0",
@@ -41,12 +43,10 @@
     "@amplitude/ua-parser-js": "^0.7.25",
     "@aws-sdk/client-eventbridge": "^3.741.0",
     "@aws-sdk/client-s3": "^3.600.0",
-    "@bufbuild/buf": "^1.28.0",
-    "@bufbuild/protobuf": "^1.4.2",
-    "@bufbuild/protoc-gen-es": "^1.4.2",
+    "@bufbuild/protobuf": "^2.2.3",
     "@segment/a1-notation": "^2.1.4",
-    "@segment/actions-core": "^3.147.0",
-    "@segment/actions-shared": "^1.128.0",
+    "@segment/actions-core": "^3.148.0",
+    "@segment/actions-shared": "^1.129.0",
     "@types/node": "^22.13.1",
     "ajv-formats": "^2.1.1",
     "aws4": "^1.12.0",
@@ -75,7 +75,8 @@
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
       "@segment/actions-core": "<rootDir>/../core/src",
       "@segment/actions-shared": "<rootDir>/../actions-shared/src",
-      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src",
+      "@bufbuild/protobuf/codegenv1": "<rootDir>/../../node_modules/@bufbuild/protobuf/dist/cjs/codegenv1"
     },
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"
