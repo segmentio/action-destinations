@@ -1,7 +1,7 @@
 export interface RedditPixel {
   page: () => void
   // instance: (pixel_id: string) => RedditPixel
-  track: string
+  track: (eventName: string, eventMetadata?: any) => void
   advanced_matching: ({
     email,
     externalId,

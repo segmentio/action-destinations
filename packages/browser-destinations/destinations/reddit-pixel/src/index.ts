@@ -13,7 +13,6 @@ declare global {
   }
 }
 
-// Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = {
   name: 'Reddit Pixel',
   slug: 'actions-reddit-pixel',
@@ -128,14 +127,10 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
     }
   },
 
-  // initialize: async ({ settings, analytics }, deps) => {
   initialize: async ({ settings }, deps) => {
     initializePixel(settings)
     await deps.resolveWhen(() => window.rdt != null, 100)
-    console.log(window.rdt)
     return window.rdt
-    // await deps.loadScript('<path_to_partner_script>')
-    // initialize client code here
   },
 
   actions: {

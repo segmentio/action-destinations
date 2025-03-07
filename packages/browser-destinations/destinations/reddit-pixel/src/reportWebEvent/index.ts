@@ -4,10 +4,9 @@ import type { Payload } from './generated-types'
 import { tracking_type, conversion_id, event_metadata, user } from '../fields'
 import { RedditPixel } from '../types'
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, RedditPixel, Payload> = {
   title: 'Reddit Pixel',
-  description: '',
+  description: 'Reddit Pixel to track pagevists, addtocarts, search, etc.',
   platform: 'web',
   fields: {
     tracking_type,
@@ -16,17 +15,20 @@ const action: BrowserActionDefinition<Settings, RedditPixel, Payload> = {
     user
   },
   perform: (rdt, { payload }) => {
-    console.log('tracking type:', payload.tracking_type)
-    console.log('rdt.track:', rdt.track)
-
-    // `rdt.track` is a string, which is incorrect.
-    // If the Reddit Pixel SDK has an event-tracking function, use that instead.
-
-    if (typeof rdt.page === 'function') {
-      console.log('Calling Reddit Pixel tracking function')
-      rdt.page() // Calling the available `page` method as an example.
+    if (payload.tracking_type === 'PageVisit') {
+      if (typeof rdt.page === 'function') {
+        rdt.page()
+      } else {
+        console.error('rdt.page() is not available.')
+      }
+    } else if (payload.tracking_type) {
+      if (typeof rdt.track === 'function') {
+        rdt.track(payload.tracking_type, payload.event_metadata)
+      } else {
+        console.error('rdt.track() is not available.')
+      }
     } else {
-      console.error('rdt.page() is not defined.')
+      console.error('No valid tracking type found.')
     }
   }
 }

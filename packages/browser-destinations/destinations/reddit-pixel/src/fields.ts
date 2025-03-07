@@ -456,7 +456,8 @@ export const data_processing_options: InputField = {
       description:
         'Comma delimited list of Data Processing Modes for this conversion event. Currently only LDU (Limited Data Use) is supported.',
       type: 'string',
-      choices: [{ label: 'Limited Data Use', value: 'LDU' }]
+      choices: [{ label: 'Limited Data Use', value: 'LDU' }],
+      default: ''
     },
     region: {
       label: 'Region',

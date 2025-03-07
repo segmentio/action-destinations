@@ -16,6 +16,7 @@ export function initializePixel(settings) {
     }
   })(window, document)
 
+  console.log('Initializing Reddit Pixel...')
   rdt('init', settings.pixel_id)
   rdt('track', 'PageVisit')
 }
