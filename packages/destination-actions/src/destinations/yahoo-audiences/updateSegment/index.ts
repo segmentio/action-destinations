@@ -1,4 +1,4 @@
-import type { ActionDefinition, RequestClient, StatsContext } from '@segment/actions-core'
+import type { ActionDefinition, Features, RequestClient, StatsContext } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -54,7 +54,10 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.personas.computation_class'
       },
-      choices: [{ label: 'audience', value: 'audience' },{ label: 'journey_step', value: 'journey_step' }]
+      choices: [
+        { label: 'audience', value: 'audience' },
+        { label: 'journey_step', value: 'journey_step' }
+      ]
     },
     phone: {
       label: 'User Phone',
@@ -144,13 +147,13 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { payload, auth, statsContext }) => {
+  perform: (request, { payload, auth, statsContext, features }) => {
     const rt_access_token = auth?.accessToken
-    return process_payload(request, [payload], rt_access_token, statsContext)
+    return process_payload(request, [payload], rt_access_token, statsContext, features ?? {})
   },
-  performBatch: (request, { payload, auth, statsContext }) => {
+  performBatch: (request, { payload, auth, statsContext, features }) => {
     const rt_access_token = auth?.accessToken
-    return process_payload(request, payload, rt_access_token, statsContext)
+    return process_payload(request, payload, rt_access_token, statsContext, features ?? {})
   }
 }
 
@@ -159,9 +162,10 @@ async function process_payload(
   request: RequestClient,
   payload: Payload[],
   token: string | undefined,
-  statsContext: StatsContext | undefined
+  statsContext: StatsContext | undefined,
+  features: Features
 ) {
-  const body = gen_update_segment_payload(payload)
+  const body = gen_update_segment_payload(payload, features)
   const statsClient = statsContext?.statsClient
   const statsTag = statsContext?.tags
   // Send request to Yahoo only when all events in the batch include selected Ids

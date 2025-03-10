@@ -1,16 +1,18 @@
-import { createHmac, createHash } from 'crypto'
+import { createHmac } from 'crypto'
 import { Payload } from './updateSegment/generated-types'
 import { YahooPayload } from './types'
 import { gen_random_id } from './utils-tax'
+import { processHashing } from '../../lib/hashing-utils'
+import { Features } from '@segment/actions-core'
 
 /**
  * Creates a SHA256 hash from the input
  * @param input The input string
  * @returns The SHA256 hash (string), or undefined if the input is undefined.
  */
-export function create_hash(input: string | undefined): string | undefined {
+export function create_hash(input: string | undefined, features: Features): string | undefined {
   if (input === undefined) return
-  return createHash('sha256').update(input).digest('hex')
+  return processHashing(input, 'sha256', 'hex', features, '', (value: string) => value.toLowerCase())
 }
 
 /**
@@ -74,7 +76,7 @@ export function validate_phone(phone: string) {
  * @param payloads
  * @returns {YahooPayload} The Yahoo payload.
  */
-export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
+export function gen_update_segment_payload(payloads: Payload[], features: Features): YahooPayload {
   const data_groups: {
     [hashed_email: string]: {
       exp: string
@@ -87,7 +89,7 @@ export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
   for (const event of payloads) {
     let hashed_email: string | undefined = ''
     if (event.email) {
-      hashed_email = create_hash(event.email.toLowerCase())
+      hashed_email = create_hash(event.email.toLowerCase(), features)
     }
     let idfa: string | undefined = ''
     let gpsaid: string | undefined = ''
@@ -114,7 +116,7 @@ export function gen_update_segment_payload(payloads: Payload[]): YahooPayload {
     if (event.phone) {
       const phone = validate_phone(event.phone)
       if (phone !== '') {
-        hashed_phone = create_hash(phone)
+        hashed_phone = create_hash(phone, features)
       }
     }
     if (hashed_email === '' && idfa === '' && gpsaid === '' && hashed_phone === '') {
