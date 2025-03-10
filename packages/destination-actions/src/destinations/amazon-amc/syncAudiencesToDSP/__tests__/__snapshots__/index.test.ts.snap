@@ -58,3 +58,22 @@ Headers {
   },
 }
 `;
+
+exports[`AmazonAds.syncAudiencesToDSP Should detect hashed PII when flag is on and not double hash 1`] = `
+Headers {
+  Symbol(map): Object {
+    "amazon-advertising-api-clientid": Array [
+      "",
+    ],
+    "authorization": Array [
+      "Bearer undefined",
+    ],
+    "content-type": Array [
+      "application/vnd.amcaudiences.v1+json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

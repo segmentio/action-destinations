@@ -5,6 +5,7 @@ import { createHash } from 'crypto'
 import { IntegrationError } from '@segment/actions-core'
 
 import { sendEventToAWS } from './awsClient'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 
 export interface DROP_ENDPOINT_API_RESPONSE {
   ReferenceId: string
@@ -39,6 +40,7 @@ interface ProcessPayloadInput {
   settings: Settings
   payloads: Payload[]
   features?: Record<string, boolean>
+  subscriptionMetadata?: SubscriptionMetadata
 }
 
 // Define constants
