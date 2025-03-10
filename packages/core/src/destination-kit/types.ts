@@ -396,3 +396,15 @@ export type ResultMultiStatusNode =
   | (ActionDestinationErrorResponseType & {
       errorreporter: MultiStatusErrorReporter
     })
+
+export type BatchSettings<Payload> = {
+  /** The maximum number of bytes to include in each batch. Actual batch sizes may be lower.
+   *  By default, max batch size is 4MB and this field is always hidden.
+   */
+  batchBytes?: number
+  /** The keys to batch events by. Maximum number of keys is allowed is 3.
+   *  Ensure keys are of fields with low cardinality values to avoid poor batch performance.
+   *  This field is always hidden.
+   */
+  batchKeys?: Array<keyof Payload>
+}
