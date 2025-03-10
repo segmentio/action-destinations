@@ -143,7 +143,10 @@ export interface ActionDefinition<
   /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
   syncMode?: SyncModeDefinition
 
-  /** The configuration for batching events. These configurations are only applicable when performBatch is implemented. */
+  /** The configuration for batching events. These configurations are only applicable when performBatch is implemented.
+   * Note: if fields with same keys are present in fields and batchConfig, the values from fields will be used.
+   * Example: If fields has a key named 'enable_batching' and batchConfig has a key named 'enable_batching', the value from fields will take precendence.
+   */
   batchConfig?: BatchConfiguration<Payload>
 }
 
@@ -238,7 +241,11 @@ const isSyncMode = (value: unknown): value is SyncMode => {
   return syncModeTypes.find((validValue) => value === validValue) !== undefined
 }
 
-const INTERNAL_HIDDEN_FIELDS = ['__segment_internal_sync_mode', '__segment_internal_matching_key']
+const INTERNAL_HIDDEN_FIELDS = [
+  '__segment_internal_sync_mode',
+  '__segment_internal_matching_key',
+  '__segment_internal_batch_keys'
+]
 const removeInternalHiddenFields = (mapping: JSONObject): JSONObject => {
   return Object.keys(mapping).reduce((acc, key) => {
     return INTERNAL_HIDDEN_FIELDS.includes(key) ? acc : { ...acc, [key]: mapping[key] }
