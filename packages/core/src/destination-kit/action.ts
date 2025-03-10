@@ -17,7 +17,7 @@ import type {
   ActionDestinationSuccessResponseType,
   ActionDestinationErrorResponseType,
   ResultMultiStatusNode,
-  BatchConfiguration
+  BatchSettings
 } from './types'
 import { syncModeTypes } from './types'
 import { HTTPError, NormalizedOptions } from '../request-client'
@@ -143,11 +143,10 @@ export interface ActionDefinition<
   /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
   syncMode?: SyncModeDefinition
 
-  /** The configuration for batching events. These configurations are only applicable when performBatch is implemented.
-   * Note: if fields with same keys are present in fields and batchConfig, the values from fields will be used.
-   * Example: If fields has a key named 'enable_batching' and batchConfig has a key named 'enable_batching', the value from fields will take precendence.
+  /** Advanced configuration for batching events. These configurations are only applicable when performBatch is implemented
+   * and these settings should not be exposed via the UI to the user.
    */
-  batchConfig?: BatchConfiguration<Payload>
+  advancedBatchSettings?: BatchSettings<Payload>
 }
 
 export const hookTypeStrings = ['onMappingSave', 'retlOnMappingSave'] as const

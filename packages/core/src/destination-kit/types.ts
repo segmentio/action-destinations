@@ -397,23 +397,14 @@ export type ResultMultiStatusNode =
       errorreporter: MultiStatusErrorReporter
     })
 
-export type BatchConfiguration<Payload> = {
-  /** The maximum number of events to include in each batch. Actual batch sizes may be lower.
-   *  By default, the batch size is 1000, the field is hidden by default.
-   */
-  batch_size?: number
+export type BatchSettings<Payload> = {
   /** The maximum number of bytes to include in each batch. Actual batch sizes may be lower.
-   *  By default, max batch size is 4MB, the field is hidden by default.
+   *  By default, max batch size is 4MB and this field is always hidden.
    */
-  batch_bytes?: number
-  /**
-   * Whether batching should be enabled by default for this action.
-   * By defaut, batching is false and the field is displayed by default.
-   */
-  enable_batching?: boolean
+  batchBytes?: number
   /** The keys to batch events by. Maximum number of keys is allowed is 3.
    *  Ensure keys are of fields with low cardinality values to avoid poor batch performance.
    *  This field is always hidden.
    */
-  batch_keys?: Array<keyof Payload>
+  batchKeys?: Array<keyof Payload>
 }
