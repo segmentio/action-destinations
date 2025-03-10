@@ -401,11 +401,15 @@ export type BatchConfiguration<Payload> = {
   /** The maximum number of events to include in each batch. Actual batch sizes may be lower.
    *  By default, the batch size is 1000, the field is hidden by default.
    */
-  batch_size?: number
+  batch_size?: Partial<InputField> | number
   /** The maximum number of bytes to include in each batch. Actual batch sizes may be lower.
    *  By default, max batch size is 4MB, the field is hidden by default.
    */
-  batch_bytes?: number
+  batch_bytes?: Partial<InputField> | number
+  /**
+   * Should enable batching for the destination by default.
+   */
+  enable_batching?: Partial<InputField> | boolean
   /** The keys to batch events by. Maximum number of keys is allowed is 3.
    *  Ensure keys are of fields with low cardinality values to avoid poor batch performance.
    *  This field is always hidden.
