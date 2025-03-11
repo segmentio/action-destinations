@@ -39,6 +39,12 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
+    contactProperties: {
+      label: 'Contact Properties',
+      description: "Optional properties that will be updated on the event's contact.",
+      type: 'object',
+      required: false
+    },
     eventProperties: {
       label: 'Event Properties',
       description: 'Event-specific properties that can be included in emails triggered by this event.',
@@ -54,7 +60,8 @@ const action: ActionDefinition<Settings, Payload> = {
         email: payload.email,
         eventName: payload.eventName,
         userId: payload.userId,
-        eventProperties: payload.eventProperties
+        eventProperties: payload.eventProperties,
+        ...(typeof payload.contactProperties === 'object' && payload.contactProperties)
       }
     })
   }
