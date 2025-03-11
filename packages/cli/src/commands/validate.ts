@@ -103,6 +103,15 @@ export default class Validate extends Command {
       return []
     }
 
+    // Ensure that no fields are named "batch_keys"
+    if (action.fields['batch_keys']) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has a field named "batch_keys". This field is reserved for use in batch settings. Please rename the field to something else.`
+        )
+      )
+    }
+
     // Limit the number of batch keys to 3 or fewer
     if (batchSettings.batchKeys && batchSettings.batchKeys.length > 3) {
       errors.push(
@@ -116,7 +125,7 @@ export default class Validate extends Command {
     if (batchSettings.batchSize && action.fields['batch_size']) {
       errors.push(
         new Error(
-          `The action "${actionKey}" has both a batch size key and also batch_size defined in batch settings. Please use only one of these options.`
+          `The action "${actionKey}" has both a batch_size key and also batch_size defined in batch settings. Please use only one of these options.`
         )
       )
     }
@@ -125,7 +134,7 @@ export default class Validate extends Command {
     if (batchSettings.batchBytes && action.fields['batch_bytes']) {
       errors.push(
         new Error(
-          `The action "${actionKey}" has both a batch size and batch settings. Please use only one of these options.`
+          `The action "${actionKey}" has both a batch_bytes field and also batch bytes defined in batch settings. Please use only one of these options.`
         )
       )
     }
@@ -138,6 +147,19 @@ export default class Validate extends Command {
         )
       )
     }
+
+    const validateType = (key: string, type: string) => {
+      if (action.fields[key]?.type !== type) {
+        errors.push(new Error(`The action "${actionKey}" has a field named "${key}" that is not of type "${type}".`))
+      }
+    }
+
+    // Validates the types of reserved batch settings fields
+    validateType('batch_size', 'number')
+    validateType('batch_bytes', 'number')
+    validateType('enable_batching', 'boolean')
+    validateType('batch_keys', 'string')
+
     return errors
   }
 

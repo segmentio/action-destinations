@@ -13,8 +13,7 @@ export const RESERVED_FIELD_NAMES = [
   'password',
   'secretkey',
   'secret',
-  'securitytoken',
-  'batch_keys'
+  'securitytoken'
 ]
 
 export const OAUTH_SCHEME = 'oauth2'
