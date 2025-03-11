@@ -1,5 +1,5 @@
 import { Command, flags } from '@oclif/command'
-import type { BaseActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, BaseActionDefinition } from '@segment/actions-core'
 import { ErrorCondition, parseFql } from '@segment/destination-subscriptions'
 import ora from 'ora'
 import { getManifest, DestinationDefinition } from '../lib/destinations'
@@ -81,6 +81,19 @@ export default class Validate extends Command {
           errors.push(new Error(`The action "${actionKey}" is missing a description for the field "${fieldKey}".`))
         }
       }
+
+      const actionDef = action as ActionDefinition<unknown, unknown, unknown, unknown>
+      if (actionDef.advancedBatchSettings) {
+        const batchSettings = actionDef.advancedBatchSettings
+        // Limit the number of batch keys to 3 or fewer
+        if (batchSettings.batchKeys && batchSettings.batchKeys.length > 3) {
+          errors.push(
+            new Error(
+              `The action "${actionKey}" has more than 3 batch keys. Please limit the number of batch keys to 3 or fewer.`
+            )
+          )
+        }
+      }
     }
 
     return errors
@@ -140,7 +153,7 @@ export default class Validate extends Command {
         // this.isInvalid = true
         const typ = fieldValues?.type
 
-        if ((typ === 'boolean' || typ === 'number') && typeof fieldValues?.default != "undefined") {
+        if ((typ === 'boolean' || typ === 'number') && typeof fieldValues?.default != 'undefined') {
           if (typeof fieldValues?.default !== typ) {
             errors.push(
               new Error(
