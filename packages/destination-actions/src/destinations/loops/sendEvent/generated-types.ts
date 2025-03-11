@@ -19,4 +19,10 @@ export interface Payload {
   eventProperties?: {
     [k: string]: unknown
   }
+  /**
+   * Contact properties that can will be updated on this contact.
+   */
+  contactProperties?: {
+    [k: string]: unknown
+  }
 }
