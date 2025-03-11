@@ -402,7 +402,7 @@ export type BatchSettings<Payload> = {
    *  By default, max batch size is 4MB and this field is always hidden.
    */
   batchBytes?: number
-  /** The keys to batch events by. Maximum number of keys is allowed is 3.
+  /** The keys to batch events by. A maximum of 3 keys can be defined for batching events.
    *  Ensure keys are of fields with low cardinality values to avoid poor batch performance.
    *  This field is always hidden.
    */
