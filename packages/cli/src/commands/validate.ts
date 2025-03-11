@@ -83,19 +83,61 @@ export default class Validate extends Command {
       }
 
       const actionDef = action as ActionDefinition<unknown, unknown, unknown, unknown>
-      if (actionDef.advancedBatchSettings) {
-        const batchSettings = actionDef.advancedBatchSettings
-        // Limit the number of batch keys to 3 or fewer
-        if (batchSettings.batchKeys && batchSettings.batchKeys.length > 3) {
-          errors.push(
-            new Error(
-              `The action "${actionKey}" has more than 3 batch keys. Please limit the number of batch keys to 3 or fewer.`
-            )
-          )
-        }
+      if (actionDef.batchSettings) {
+        errors.push(...this.validateBatchSettings(actionDef, actionKey, action))
       }
     }
 
+    return errors
+  }
+
+  validateBatchSettings(
+    actionDef: ActionDefinition<unknown, unknown, unknown, unknown, any>,
+    actionKey: string,
+    action: BaseActionDefinition
+  ): Error[] {
+    const batchSettings = actionDef.batchSettings
+    const errors = []
+
+    if (!batchSettings) {
+      return []
+    }
+
+    // Limit the number of batch keys to 3 or fewer
+    if (batchSettings.batchKeys && batchSettings.batchKeys.length > 3) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has more than 3 batch keys. Please limit the number of batch keys to 3 or fewer.`
+        )
+      )
+    }
+
+    // Ensure either batchSize setting or batch_size field is defined, but not both
+    if (batchSettings.batchSize && action.fields['batch_size']) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has both a batch size key and also batch_size defined in batch settings. Please use only one of these options.`
+        )
+      )
+    }
+
+    // Ensure either batchBytes setting or batch_bytes field is defined, but not both
+    if (batchSettings.batchBytes && action.fields['batch_bytes']) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has both a batch size and batch settings. Please use only one of these options.`
+        )
+      )
+    }
+
+    // Ensure either enableBatchingAndHide setting or enable_batching field is defined, but not both
+    if (batchSettings.hideEnableBatching && action.fields['enable_batching']) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has both batching enabled in batch settings and batch_size defined in fields. Please use only one of these options.`
+        )
+      )
+    }
     return errors
   }
 
