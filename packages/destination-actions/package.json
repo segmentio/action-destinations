@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.372.0",
+  "version": "3.373.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -36,7 +36,7 @@
     "@types/google-libphonenumber": "^7.4.23",
     "@types/jest": "^27.0.0",
     "@types/ssh2-sftp-client": "^9.0.0",
-    "jest": "^27.3.1",
+    "jest": "^27.5.1",
     "nock": "^13.1.4"
   },
   "dependencies": {
