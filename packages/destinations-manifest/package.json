@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.107.0",
+  "version": "1.108.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -16,8 +16,8 @@
     "@segment/analytics-browser-actions-adobe-target": "^1.79.0",
     "@segment/analytics-browser-actions-algolia-plugins": "^1.55.0",
     "@segment/analytics-browser-actions-amplitude-plugins": "^1.78.0",
-    "@segment/analytics-browser-actions-braze": "^1.85.0",
-    "@segment/analytics-browser-actions-braze-cloud-plugins": "^1.85.0",
+    "@segment/analytics-browser-actions-braze": "^1.86.0",
+    "@segment/analytics-browser-actions-braze-cloud-plugins": "^1.86.0",
     "@segment/analytics-browser-actions-bucket": "^1.59.0",
     "@segment/analytics-browser-actions-cdpresolution": "^1.65.0",
     "@segment/analytics-browser-actions-commandbar": "^1.78.0",
