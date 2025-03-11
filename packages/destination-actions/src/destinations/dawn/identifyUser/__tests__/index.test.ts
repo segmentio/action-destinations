@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../../index'
+import { DAWN_API_ENDPOINT } from '../../utils'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -21,8 +22,8 @@ describe('Dawn Analytics - Identify User', () => {
         traits: { name: 'John Doe', email: 'john@example.com' }
       }
 
-      nock('https://api.dawnai.com')
-        .post('/segment-identify', [
+      nock(DAWN_API_ENDPOINT)
+        .post('/sinks/segment/identify', [
           {
             user_id: 'test-user-id',
             traits: { name: 'John Doe', email: 'john@example.com' }
@@ -45,8 +46,8 @@ describe('Dawn Analytics - Identify User', () => {
         user_id: 'test-user-id'
       }
 
-      nock('https://api.dawnai.com')
-        .post('/segment-identify', [
+      nock(`${DAWN_API_ENDPOINT}`)
+        .post('/sinks/segment/identify', [
           {
             user_id: 'test-user-id',
             traits: {}
