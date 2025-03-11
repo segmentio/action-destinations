@@ -1,9 +1,8 @@
-import { DynamicFieldItem, DynamicFieldError, RequestClient, IntegrationError } from '@segment/actions-core'
+import { DynamicFieldItem, DynamicFieldError, RequestClient, Features } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
-import { SmartHashing } from '@segment/actions-core'
+import { processHashing } from '../../lib/hashing-utils'
 import { StatsContext } from '@segment/actions-core/destination-kit'
-import { Features } from '@segment/actions-core/mapping-kit'
 import { API_VERSION, BASE_URL, CANARY_API_VERSION, FACEBOOK_CUSTOM_AUDIENCE_FLAGON } from './constants'
 
 // exported for unit testing
@@ -42,7 +41,7 @@ interface FacebookSyncRequestParams {
 }
 
 // exported for unit testing. Also why these are not members of the class
-export const generateData = (payloads: Payload[]): (string | number)[][] => {
+export const generateData = (payloads: Payload[], features: Features | undefined): (string | number)[][] => {
   const data: (string | number)[][] = new Array(payloads.length)
 
   payloads.forEach((payload, index) => {
@@ -51,10 +50,10 @@ export const generateData = (payloads: Payload[]): (string | number)[][] => {
     Object.entries(payload).forEach(([key, value]) => {
       if (typeof value === 'object') {
         Object.entries(value).forEach(([nestedKey, value]) => {
-          appendToDataRow(nestedKey, value as string | number, row)
+          appendToDataRow(nestedKey, value as string | number, row, features)
         })
       } else {
-        appendToDataRow(key, value as string | number, row)
+        appendToDataRow(key, value as string | number, row, features)
       }
     })
 
@@ -64,7 +63,12 @@ export const generateData = (payloads: Payload[]): (string | number)[][] => {
   return data
 }
 
-const appendToDataRow = (key: string, value: string | number, row: (string | number)[]) => {
+const appendToDataRow = (
+  key: string,
+  value: string | number,
+  row: (string | number)[],
+  features: Features | undefined
+) => {
   const index = segmentSchemaKeyToArrayIndex.get(key)
 
   if (index === undefined) {
@@ -72,20 +76,19 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
     return
   }
 
-  const smartHash = new SmartHashing('sha256')
-
-  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key) || smartHash.isAlreadyHashed(value)) {
+  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key)) {
     row[index] = value
     return
   }
 
-  const normalizationFunction = normalizationFunctions.get(key)
-  if (!normalizationFunction) {
-    throw new IntegrationError(`Normalization function not found for key: ${key}`, `cannot normalize ${key}`, 500)
-  }
-
-  const normalizedValue = normalizationFunction(value)
-  row[index] = smartHash.hash(normalizedValue)
+  row[index] = processHashing(
+    value,
+    'sha256',
+    'hex',
+    features,
+    'actions-facebook-custom-audiences',
+    normalizationFunctions.get(key)
+  )
 }
 
 export const getApiVersion = (features?: Features, statsContext?: StatsContext): string => {
@@ -101,12 +104,14 @@ export const getApiVersion = (features?: Features, statsContext?: StatsContext):
 export default class FacebookClient {
   request: RequestClient
   adAccountId: string
+  features: Features | undefined
   baseUrl: string
 
   constructor(request: RequestClient, adAccountId: string, features?: Features, statsContext?: StatsContext) {
     this.request = request
     this.adAccountId = this.formatAdAccount(adAccountId)
     this.baseUrl = `${BASE_URL}/${getApiVersion(features, statsContext)}/`
+    this.features = features || undefined
   }
 
   createAudience = async (name: string) => {
@@ -149,7 +154,7 @@ export default class FacebookClient {
   }
 
   syncAudience = async (input: { audienceId: string; payloads: Payload[]; deleteUsers?: boolean }) => {
-    const data = generateData(input.payloads)
+    const data = generateData(input.payloads, this.features)
 
     const app_ids: string[] = []
     let app_ids_items = 0
