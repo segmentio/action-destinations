@@ -143,10 +143,8 @@ export interface ActionDefinition<
   /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
   syncMode?: SyncModeDefinition
 
-  /** Advanced configuration for batching events. These configurations are only applicable when performBatch is implemented
-   * and these settings should not be exposed via the UI to the user.
-   */
-  advancedBatchSettings?: BatchSettings<Payload>
+  /** Batch settings for the action. All these settings will be hidden from the user. */
+  batchSettings?: BatchSettings<Payload>
 }
 
 export const hookTypeStrings = ['onMappingSave', 'retlOnMappingSave'] as const
@@ -240,11 +238,7 @@ const isSyncMode = (value: unknown): value is SyncMode => {
   return syncModeTypes.find((validValue) => value === validValue) !== undefined
 }
 
-const INTERNAL_HIDDEN_FIELDS = [
-  '__segment_internal_sync_mode',
-  '__segment_internal_matching_key',
-  '__segment_internal_batch_keys'
-]
+const INTERNAL_HIDDEN_FIELDS = ['__segment_internal_sync_mode', '__segment_internal_matching_key']
 const removeInternalHiddenFields = (mapping: JSONObject): JSONObject => {
   return Object.keys(mapping).reduce((acc, key) => {
     return INTERNAL_HIDDEN_FIELDS.includes(key) ? acc : { ...acc, [key]: mapping[key] }
