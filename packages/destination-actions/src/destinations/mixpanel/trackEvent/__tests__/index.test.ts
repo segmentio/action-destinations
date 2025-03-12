@@ -263,6 +263,36 @@ describe('Mixpanel.trackEvent', () => {
     }
   })
 
+  it('should allow an empty, but present, distinct_id', async () => {
+    const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+    nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, {})
+
+    const responses = await testDestination.testAction('trackEvent', {
+      event,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET
+      },
+      useDefaultMappings: true,
+      mapping: {
+        distinct_id: '' // Map an empty distinct_id for the action.
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.json).toMatchObject([
+      {
+        event: 'Test Event',
+        properties: expect.objectContaining({
+          ...expectedProperties,
+          distinct_id: '' // Expect an empty string `distinct_id` returned.
+        })
+      }
+    ])
+  })
+
   it('should invoke performBatch for batches', async () => {
     const events = [
       createTestEvent({ timestamp, event: 'Test Event1' }),
