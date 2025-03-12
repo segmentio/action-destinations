@@ -35,7 +35,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'boolean',
         label: 'Enable Batching',
         description: 'Important: This setting should remain enabled!',
-        required: true,
+        required: false,
         default: true
       }
     },
