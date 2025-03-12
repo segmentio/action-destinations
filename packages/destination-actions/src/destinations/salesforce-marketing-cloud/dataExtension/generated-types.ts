@@ -74,13 +74,17 @@ export interface RetlOnMappingSaveInputs {
      */
     isRowBasedRetention?: boolean
     /**
-     * The data retention period.
+     * Whether to delete data at the end of the retention period.
      */
-    dataRetentionPeriod?: string
+    isDeleteAtEndOfRetentionPeriod?: boolean
     /**
-     * The data retention length.
+     * Whether to reset the retention period on import.
      */
-    dataRetentionLength?: string
+    isResetRetentionPeriodOnImport?: boolean
+    /**
+     * The row based threshold.
+     */
+    rowBasedThreshold?: number
   }
   /**
    * A list of fields to create in the data extension.
@@ -173,13 +177,17 @@ export interface OnMappingSaveInputs {
      */
     isRowBasedRetention?: boolean
     /**
-     * The data retention period.
+     * Whether to delete data at the end of the retention period.
      */
-    dataRetentionPeriod?: string
+    isDeleteAtEndOfRetentionPeriod?: boolean
     /**
-     * The data retention length.
+     * Whether to reset the retention period on import.
      */
-    dataRetentionLength?: string
+    isResetRetentionPeriodOnImport?: boolean
+    /**
+     * The row based threshold.
+     */
+    rowBasedThreshold?: number
   }
   /**
    * A list of fields to create in the data extension.

@@ -183,7 +183,11 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
       description: 'The field on another data extension?',
       type: 'string',
       depends_on: IS_SENDABLE,
-      required: IS_SENDABLE
+      required: IS_SENDABLE,
+      choices: [
+        { label: 'Subscriber Key', value: '_SubscriberKey' },
+        { label: 'Subscriber ID', value: '_SubscriberID' }
+      ]
     },
     dataRetentionProperties: {
       label: 'Data Retention Properties',
@@ -195,15 +199,20 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
           description: 'Whether the data retention is row based.',
           type: 'boolean'
         },
-        dataRetentionPeriod: {
-          label: 'Data Retention Period',
-          description: 'The data retention period.',
-          type: 'string'
+        isDeleteAtEndOfRetentionPeriod: {
+          label: 'Delete at End of Retention Period',
+          description: 'Whether to delete data at the end of the retention period.',
+          type: 'boolean'
         },
-        dataRetentionLength: {
-          label: 'Data Retention Length',
-          description: 'The data retention length.',
-          type: 'string'
+        isResetRetentionPeriodOnImport: {
+          label: 'Reset Retention Period on Import',
+          description: 'Whether to reset the retention period on import.',
+          type: 'boolean'
+        },
+        rowBasedThreshold: {
+          label: 'Row Based Threshold',
+          description: 'The row based threshold.',
+          type: 'integer'
         }
       }
     },
