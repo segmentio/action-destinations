@@ -28,7 +28,13 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     values: values_contactFields,
     enable_batching: enable_batching,
-    batch_size: batch_size
+    batch_size: batch_size,
+    batch_keys: {
+      label: 'Test',
+      description: 'Test',
+      type: 'string',
+      unsafe_hidden: false
+    }
   },
   perform: async (request, { settings, payload }) => {
     return upsertRows(request, settings.subdomain, [payload])
