@@ -102,6 +102,57 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
         expect(responses[0].status).toBe(200)
       })
 
+      it('send with custom params and no token prefix', async () => {
+        const url = 'https://example.build'
+        const event = createTestEvent()
+        const data = { cool: true }
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.customParams = {
+          refreshRequest: customParams
+        }
+
+        nock(url).put('/', data).matchHeader('authorization', 'Bearer accessToken1').reply(200)
+
+        const responses = await testDestination.testAction('send', {
+          settings: newSettings,
+          event,
+          mapping: {
+            url,
+            method: 'PUT',
+            data
+          }
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+      })
+
+      it('send with custom params and a token prefix', async () => {
+        const url = 'https://example.build'
+        const event = createTestEvent()
+        const data = { cool: true }
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.customParams = {
+          refreshRequest: customParams,
+          tokenPrefix: 'Basic'
+        }
+
+        nock(url).put('/', data).matchHeader('authorization', 'Basic accessToken1').reply(200)
+
+        const responses = await testDestination.testAction('send', {
+          settings: newSettings,
+          event,
+          mapping: {
+            url,
+            method: 'PUT',
+            data
+          }
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+      })
+
       it('should throw an error when header value is invalid', async () => {
         const url = 'https://example.build'
         const event = createTestEvent()
