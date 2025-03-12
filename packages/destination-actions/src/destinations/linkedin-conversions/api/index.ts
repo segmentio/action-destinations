@@ -477,6 +477,11 @@ export class LinkedInConversions {
     const userIds = this.buildUserIdsArray(payload, features)
     const user: User = { userIds }
     if (payload.userInfo && Object.keys(payload.userInfo).length > 0) {
+      const { firstName, lastName } = payload.userInfo
+
+      if (!firstName || !lastName) {
+        throw new PayloadValidationError('userInfo must contain firstName and lastName when provided.')
+      }
       user.userInfo = payload.userInfo
     }
 

@@ -262,7 +262,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
         lastName: {
           label: 'Last Name',
           type: 'string',
-          required: false
+          required: true
         },
         companyName: {
           label: 'Company Name',
