@@ -16,20 +16,22 @@ const action: ActionDefinition<Settings, Payload> = {
     event_name: { ...event_name },
     batch_size: { ...batch_size }
   },
-  perform: async (request, { settings, payload, features }) => {
+  perform: async (request, { settings, payload, features, subscriptionMetadata }) => {
     return processPayload({
       request,
       settings,
       payloads: [payload],
-      features
+      features,
+      subscriptionMetadata
     })
   },
-  performBatch: async (request, { settings, payload, features }) => {
+  performBatch: async (request, { settings, payload, features, subscriptionMetadata }) => {
     return processPayload({
       request,
       settings,
       payloads: payload,
-      features
+      features,
+      subscriptionMetadata
     })
   }
 }
