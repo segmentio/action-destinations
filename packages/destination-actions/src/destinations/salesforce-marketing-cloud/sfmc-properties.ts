@@ -173,14 +173,15 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
     },
     sendableCustomObjectField: {
       label: 'Sendable Custom Object Field',
-      description: 'The field on this data extension that is sendable.',
+      description:
+        'The field on this data extension which is sendable. This must be a field that is present on this data extension.',
       type: 'string',
       depends_on: IS_SENDABLE,
       required: IS_SENDABLE
     },
     sendableSubscriberField: {
       label: 'Sendable Subscriber Field',
-      description: 'The field on another data extension?',
+      description: 'The relationship with "Subscribers" for the Sendable Custom Object Field.',
       type: 'string',
       depends_on: IS_SENDABLE,
       required: IS_SENDABLE,

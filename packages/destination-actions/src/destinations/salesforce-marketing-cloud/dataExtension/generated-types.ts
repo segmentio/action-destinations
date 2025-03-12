@@ -58,11 +58,11 @@ export interface RetlOnMappingSaveInputs {
    */
   isSendable?: boolean
   /**
-   * The field on this data extension that is sendable.
+   * The field on this data extension which is sendable. This must be a field that is present on this data extension.
    */
   sendableCustomObjectField?: string
   /**
-   * The field on another data extension?
+   * The relationship with "Subscribers" for the Sendable Custom Object Field.
    */
   sendableSubscriberField?: string
   /**
@@ -140,11 +140,11 @@ export interface OnMappingSaveInputs {
    */
   isSendable?: boolean
   /**
-   * The field on this data extension that is sendable.
+   * The field on this data extension which is sendable. This must be a field that is present on this data extension.
    */
   sendableCustomObjectField?: string
   /**
-   * The field on another data extension?
+   * The relationship with "Subscribers" for the Sendable Custom Object Field.
    */
   sendableSubscriberField?: string
   /**
