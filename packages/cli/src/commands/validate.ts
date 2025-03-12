@@ -1,5 +1,5 @@
 import { Command, flags } from '@oclif/command'
-import type { BaseActionDefinition } from '@segment/actions-core'
+import type { BaseActionDefinition, InputField } from '@segment/actions-core'
 import { ErrorCondition, parseFql } from '@segment/destination-subscriptions'
 import ora from 'ora'
 import { getManifest, DestinationDefinition } from '../lib/destinations'
@@ -80,9 +80,60 @@ export default class Validate extends Command {
         if (!field.description) {
           errors.push(new Error(`The action "${actionKey}" is missing a description for the field "${fieldKey}".`))
         }
+        if (fieldKey == 'batch_keys') {
+          errors.push(...this.validateBatchKeysField(field, actionKey, action))
+        }
       }
     }
 
+    return errors
+  }
+
+  validateBatchKeysField(field: InputField, actionKey: string, action: BaseActionDefinition): Error[] {
+    const errors: Error[] = []
+    if (field.type !== 'string') {
+      errors.push(new Error(`The action "${actionKey}" has a field "batch_keys" that is not of type "string".`))
+    }
+    if (field.unsafe_hidden !== true) {
+      errors.push(
+        new Error(`The action "${actionKey}" has a field "batch_keys" that is not marked as "unsafe_hidden".`)
+      )
+    }
+    if (field.multiple !== true) {
+      errors.push(new Error(`The action "${actionKey}" has a field "batch_keys" that is not marked as "multiple".`))
+    }
+    if (field.required !== false && field.required !== undefined) {
+      errors.push(new Error(`The action "${actionKey}" has a field "batch_keys" that is marked as "required".`))
+    }
+    if (!field.default) {
+      errors.push(new Error(`The action "${actionKey}" has a field "batch_keys" that is missing a default value.`))
+    }
+    if (Array.isArray(!field.default)) {
+      errors.push(
+        new Error(`The action "${actionKey}" has a field "batch_keys" that doesn't have array default value.`)
+      )
+    }
+    const batchKeys = field.default as string[]
+    if (batchKeys.length > 3) {
+      errors.push(
+        new Error(`The action "${actionKey}" has a field "batch_keys" that has more than 3 keys. Max allowed is 3.`)
+      )
+    }
+    const unknownKeys = batchKeys.filter((key) => action.fields[key] === undefined)
+    if (unknownKeys.length > 0) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has a field "batch_keys" that has unknown keys: ${unknownKeys.join(
+            ', '
+          )}. only allowed keys are: ${Object.keys(action.fields).join(', ')}`
+        )
+      )
+    }
+    if (batchKeys.includes('batch_keys')) {
+      errors.push(
+        new Error(`The action "${actionKey}" has a field "batch_keys" that includes itself. This is not allowed.`)
+      )
+    }
     return errors
   }
 
@@ -140,7 +191,7 @@ export default class Validate extends Command {
         // this.isInvalid = true
         const typ = fieldValues?.type
 
-        if ((typ === 'boolean' || typ === 'number') && typeof fieldValues?.default != "undefined") {
+        if ((typ === 'boolean' || typ === 'number') && typeof fieldValues?.default != 'undefined') {
           if (typeof fieldValues?.default !== typ) {
             errors.push(
               new Error(
