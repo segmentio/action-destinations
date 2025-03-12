@@ -128,8 +128,6 @@ export async function executeUpsertWithMultiStatus(
   return multiStatusResponse
 }
 
-interface DataExtensionField {}
-
 interface DataExtensionCreationResponse {
   data: {
     id?: string
@@ -214,7 +212,7 @@ const dataExtensionRequest = async (
     return { id: '', key: '', error: 'No columns provided' }
   }
 
-  const fields: DataExtensionField[] = hookInputs.columns.map((column, i) => {
+  const fields = hookInputs.columns.map((column, i) => {
     return {
       name: column.name,
       type: column.type,
@@ -234,6 +232,7 @@ const dataExtensionRequest = async (
     }
   })
 
+  console.log('dataRetentionProperties', hookInputs.dataRetentionProperties)
   try {
     const response = await request<DataExtensionCreationResponse>(
       `https://${auth.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects`,
@@ -246,6 +245,7 @@ const dataExtensionRequest = async (
           isSendable: hookInputs.isSendable,
           sendableCustomObjectField: hookInputs.sendableCustomObjectField,
           sendableSubscriberField: hookInputs.sendableSubscriberField,
+          dataRetentionProperties: hookInputs.dataRetentionProperties,
           fields
         },
         headers: {
@@ -321,7 +321,7 @@ const selectDataExtensionRequest = async (
         }
       }
     )
-    console.log('res', response)
+
     if (response.status !== 200) {
       return { id: '', name: '', error: `Failed to select Data Extension` }
     }

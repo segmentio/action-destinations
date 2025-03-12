@@ -47,16 +47,14 @@ const action: ActionDefinition<Settings, Payload> = {
       ...dataExtensionHook
     }
   },
-  perform: async (request, { settings, payload, hookOutputs, logger }) => {
-    logger?.crit('hookOutputs', JSON.stringify(hookOutputs))
+  perform: async (request, { settings, payload, hookOutputs }) => {
     const dataExtensionId =
       hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id || payload.id
     const deprecated_dataExtensionKey = payload.key
 
     return upsertRows(request, settings.subdomain, [payload], dataExtensionId, deprecated_dataExtensionKey)
   },
-  performBatch: async (request, { settings, payload, hookOutputs, logger }) => {
-    logger?.crit('bulk.hookOutputs', JSON.stringify(hookOutputs))
+  performBatch: async (request, { settings, payload, hookOutputs }) => {
     const dataExtensionId =
       hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id || payload[0].id
     const deprecated_dataExtensionKey = payload[0].key

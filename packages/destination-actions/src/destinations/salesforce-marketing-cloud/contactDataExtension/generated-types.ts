@@ -70,6 +70,27 @@ export interface RetlOnMappingSaveInputs {
    */
   sendableSubscriberField?: string
   /**
+   * The data retention properties for the data extension.
+   */
+  dataRetentionProperties?: {
+    /**
+     * Whether the data retention is row based.
+     */
+    isRowBasedRetention?: boolean
+    /**
+     * Whether to delete data at the end of the retention period.
+     */
+    isDeleteAtEndOfRetentionPeriod?: boolean
+    /**
+     * Whether to reset the retention period on import.
+     */
+    isResetRetentionPeriodOnImport?: boolean
+    /**
+     * The row based threshold.
+     */
+    rowBasedThreshold?: number
+  }
+  /**
    * A list of fields to create in the data extension.
    */
   columns?: {
@@ -151,6 +172,27 @@ export interface OnMappingSaveInputs {
    * The field on another data extension?
    */
   sendableSubscriberField?: string
+  /**
+   * The data retention properties for the data extension.
+   */
+  dataRetentionProperties?: {
+    /**
+     * Whether the data retention is row based.
+     */
+    isRowBasedRetention?: boolean
+    /**
+     * Whether to delete data at the end of the retention period.
+     */
+    isDeleteAtEndOfRetentionPeriod?: boolean
+    /**
+     * Whether to reset the retention period on import.
+     */
+    isResetRetentionPeriodOnImport?: boolean
+    /**
+     * The row based threshold.
+     */
+    rowBasedThreshold?: number
+  }
   /**
    * A list of fields to create in the data extension.
    */

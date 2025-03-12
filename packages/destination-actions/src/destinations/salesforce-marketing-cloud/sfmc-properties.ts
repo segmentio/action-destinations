@@ -114,6 +114,7 @@ const SELECT_OPERATION: DependsOnConditions = {
 }
 
 const IS_SENDABLE: DependsOnConditions = {
+  match: 'all',
   conditions: [{ fieldKey: 'isSendable', operator: 'is', value: true }]
 }
 
@@ -167,7 +168,6 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
     isSendable: {
       label: 'Is Sendable',
       type: 'boolean',
-      depends_on: CREATE_OPERATION,
       description:
         'Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable'
     },
@@ -183,7 +183,38 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
       description: 'The field on another data extension?',
       type: 'string',
       depends_on: IS_SENDABLE,
-      required: IS_SENDABLE
+      required: IS_SENDABLE,
+      choices: [
+        { label: 'Subscriber Key', value: '_SubscriberKey' },
+        { label: 'Subscriber ID', value: '_SubscriberID' }
+      ]
+    },
+    dataRetentionProperties: {
+      label: 'Data Retention Properties',
+      description: 'The data retention properties for the data extension.',
+      type: 'object',
+      properties: {
+        isRowBasedRetention: {
+          label: 'Is Row Based Retention',
+          description: 'Whether the data retention is row based.',
+          type: 'boolean'
+        },
+        isDeleteAtEndOfRetentionPeriod: {
+          label: 'Delete at End of Retention Period',
+          description: 'Whether to delete data at the end of the retention period.',
+          type: 'boolean'
+        },
+        isResetRetentionPeriodOnImport: {
+          label: 'Reset Retention Period on Import',
+          description: 'Whether to reset the retention period on import.',
+          type: 'boolean'
+        },
+        rowBasedThreshold: {
+          label: 'Row Based Threshold',
+          description: 'The row based threshold.',
+          type: 'integer'
+        }
+      }
     },
     columns: {
       label: 'Data Extension Fields',
