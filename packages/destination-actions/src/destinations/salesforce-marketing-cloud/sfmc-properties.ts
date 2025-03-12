@@ -189,33 +189,6 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
         { label: 'Subscriber ID', value: '_SubscriberID' }
       ]
     },
-    dataRetentionProperties: {
-      label: 'Data Retention Properties',
-      description: 'The data retention properties for the data extension.',
-      type: 'object',
-      properties: {
-        isRowBasedRetention: {
-          label: 'Is Row Based Retention',
-          description: 'Whether the data retention is row based.',
-          type: 'boolean'
-        },
-        isDeleteAtEndOfRetentionPeriod: {
-          label: 'Delete at End of Retention Period',
-          description: 'Whether to delete data at the end of the retention period.',
-          type: 'boolean'
-        },
-        isResetRetentionPeriodOnImport: {
-          label: 'Reset Retention Period on Import',
-          description: 'Whether to reset the retention period on import.',
-          type: 'boolean'
-        },
-        rowBasedThreshold: {
-          label: 'Row Based Threshold',
-          description: 'The row based threshold.',
-          type: 'integer'
-        }
-      }
-    },
     columns: {
       label: 'Data Extension Fields',
       description: 'A list of fields to create in the data extension.',
