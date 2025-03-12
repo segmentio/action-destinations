@@ -473,7 +473,7 @@ export class LinkedInConversions {
         eventId: payload.eventId,
         user: {
           userIds,
-          userInfo: payload.userInfo
+          userInfo: payload.userInfo && Object.keys(payload.userInfo).length > 0 ? payload.userInfo : undefined
         }
       }
     })
@@ -501,7 +501,7 @@ export class LinkedInConversions {
               eventId: payload.eventId,
               user: {
                 userIds,
-                userInfo: payload.userInfo
+                userInfo: payload.userInfo && Object.keys(payload.userInfo).length > 0 ? payload.userInfo : undefined
               }
             }
           })
