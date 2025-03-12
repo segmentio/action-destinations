@@ -108,32 +108,34 @@ export default class Validate extends Command {
     if (!field.default) {
       errors.push(new Error(`The action "${actionKey}" has a field "batch_keys" that is missing a default value.`))
     }
-    if (Array.isArray(!field.default)) {
+    if (!Array.isArray(field.default)) {
       errors.push(
         new Error(`The action "${actionKey}" has a field "batch_keys" that doesn't have array default value.`)
       )
-    }
-    const batchKeys = field.default as string[]
-    if (batchKeys.length > 3) {
-      errors.push(
-        new Error(`The action "${actionKey}" has a field "batch_keys" that has more than 3 keys. Max allowed is 3.`)
-      )
-    }
-    const unknownKeys = batchKeys.filter((key) => action.fields[key] === undefined)
-    if (unknownKeys.length > 0) {
-      errors.push(
-        new Error(
-          `The action "${actionKey}" has a field "batch_keys" that has unknown keys: ${unknownKeys.join(
-            ', '
-          )}. only allowed keys are: ${Object.keys(action.fields).join(', ')}`
+    } else {
+      const batchKeys = field.default as string[]
+      if (batchKeys.length > 3) {
+        errors.push(
+          new Error(`The action "${actionKey}" has a field "batch_keys" that has more than 3 keys. Max allowed is 3.`)
         )
-      )
+      }
+      const unknownKeys = batchKeys.filter((key) => action.fields[key] === undefined)
+      if (unknownKeys.length > 0) {
+        errors.push(
+          new Error(
+            `The action "${actionKey}" has a field "batch_keys" that has unknown keys: ${unknownKeys.join(
+              ', '
+            )}. only allowed keys are: ${Object.keys(action.fields).join(', ')}`
+          )
+        )
+      }
+      if (batchKeys.includes('batch_keys')) {
+        errors.push(
+          new Error(`The action "${actionKey}" has a field "batch_keys" that includes itself. This is not allowed.`)
+        )
+      }
     }
-    if (batchKeys.includes('batch_keys')) {
-      errors.push(
-        new Error(`The action "${actionKey}" has a field "batch_keys" that includes itself. This is not allowed.`)
-      )
-    }
+
     return errors
   }
 
