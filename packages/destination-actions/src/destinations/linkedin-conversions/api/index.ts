@@ -35,6 +35,17 @@ interface UserID {
   idValue: string
 }
 
+interface User {
+  userIds: UserID[]
+  userInfo?: {
+    firstName: string
+    lastName: string
+    companyName?: string
+    title?: string
+    countryCode?: string
+  }
+}
+
 function validate(payload: Payload, conversionTime: number) {
   // Check if the timestamp is within the past 90 days
   const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
@@ -464,6 +475,11 @@ export class LinkedInConversions {
     features?: Features
   ): Promise<ModifiedResponse> {
     const userIds = this.buildUserIdsArray(payload, features)
+    const user: User = { userIds }
+    if (payload.userInfo && Object.keys(payload.userInfo).length > 0) {
+      user.userInfo = payload.userInfo
+    }
+
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'POST',
       json: {
@@ -471,10 +487,7 @@ export class LinkedInConversions {
         conversionHappenedAt: conversionTime,
         conversionValue: payload.conversionValue,
         eventId: payload.eventId,
-        user: {
-          userIds,
-          userInfo: payload.userInfo && Object.keys(payload.userInfo).length > 0 ? payload.userInfo : undefined
-        }
+        user
       }
     })
   }
@@ -494,15 +507,18 @@ export class LinkedInConversions {
             validate(payload, conversionTime)
 
             const userIds = this.buildUserIdsArray(payload, features)
+            const user: User = { userIds }
+
+            if (payload.userInfo && Object.keys(payload.userInfo).length > 0) {
+              user.userInfo = payload.userInfo
+            }
+
             return {
               conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
               conversionHappenedAt: conversionTime,
               conversionValue: payload.conversionValue,
               eventId: payload.eventId,
-              user: {
-                userIds,
-                userInfo: payload.userInfo && Object.keys(payload.userInfo).length > 0 ? payload.userInfo : undefined
-              }
+              user
             }
           })
         ]
