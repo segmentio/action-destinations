@@ -232,6 +232,7 @@ const dataExtensionRequest = async (
     }
   })
 
+  console.log('dataRetentionProperties', hookInputs.dataRetentionProperties)
   try {
     const response = await request<DataExtensionCreationResponse>(
       `https://${auth.subdomain}.rest.marketingcloudapis.com/data/v1/customobjects`,
@@ -241,6 +242,10 @@ const dataExtensionRequest = async (
           name: hookInputs.name,
           description: hookInputs.description,
           categoryId: hookInputs.categoryId,
+          isSendable: hookInputs.isSendable,
+          sendableCustomObjectField: hookInputs.sendableCustomObjectField,
+          sendableSubscriberField: hookInputs.sendableSubscriberField,
+          dataRetentionProperties: hookInputs.dataRetentionProperties,
           fields
         },
         headers: {
