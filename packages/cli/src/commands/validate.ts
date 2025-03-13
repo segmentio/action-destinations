@@ -91,49 +91,26 @@ export default class Validate extends Command {
 
   validateBatchKeysField(field: InputField, actionKey: string, action: BaseActionDefinition): Error[] {
     const errors: Error[] = []
-    if (field.type !== 'string') {
-      errors.push(new Error(`The action "${actionKey}" has a field "batch_keys" that is not of type "string".`))
-    }
-    if (field.unsafe_hidden !== true) {
+    const batchKeys = field.default as string[]
+    if (batchKeys.length > 3) {
       errors.push(
-        new Error(`The action "${actionKey}" has a field "batch_keys" that is not marked as "unsafe_hidden".`)
+        new Error(`The action "${actionKey}" has a field "batch_keys" that has more than 3 keys. Max allowed is 3.`)
       )
     }
-    if (field.multiple !== true) {
-      errors.push(new Error(`The action "${actionKey}" has a field "batch_keys" that is not marked as "multiple".`))
-    }
-    if (field.required !== false && field.required !== undefined) {
-      errors.push(new Error(`The action "${actionKey}" has a field "batch_keys" that is marked as "required".`))
-    }
-    if (!field.default) {
-      errors.push(new Error(`The action "${actionKey}" has a field "batch_keys" that is missing a default value.`))
-    }
-    if (!Array.isArray(field.default)) {
+    const unknownKeys = batchKeys.filter((key) => action.fields[key] === undefined)
+    if (unknownKeys.length > 0) {
       errors.push(
-        new Error(`The action "${actionKey}" has a field "batch_keys" that doesn't have array default value.`)
+        new Error(
+          `The action "${actionKey}" has a field "batch_keys" that has unknown keys: ${unknownKeys.join(
+            ', '
+          )}. only allowed keys are: ${Object.keys(action.fields).join(', ')}`
+        )
       )
-    } else {
-      const batchKeys = field.default as string[]
-      if (batchKeys.length > 3) {
-        errors.push(
-          new Error(`The action "${actionKey}" has a field "batch_keys" that has more than 3 keys. Max allowed is 3.`)
-        )
-      }
-      const unknownKeys = batchKeys.filter((key) => action.fields[key] === undefined)
-      if (unknownKeys.length > 0) {
-        errors.push(
-          new Error(
-            `The action "${actionKey}" has a field "batch_keys" that has unknown keys: ${unknownKeys.join(
-              ', '
-            )}. only allowed keys are: ${Object.keys(action.fields).join(', ')}`
-          )
-        )
-      }
-      if (batchKeys.includes('batch_keys')) {
-        errors.push(
-          new Error(`The action "${actionKey}" has a field "batch_keys" that includes itself. This is not allowed.`)
-        )
-      }
+    }
+    if (batchKeys.includes('batch_keys')) {
+      errors.push(
+        new Error(`The action "${actionKey}" has a field "batch_keys" that includes itself. This is not allowed.`)
+      )
     }
 
     return errors

@@ -44,6 +44,20 @@ export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, A
   data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs>
 ) => MaybePromise<Return>
 
+interface ReservedInputFields {
+  batch_keys?: {
+    label: 'Batch Keys'
+    description: 'The mapping keys to use to batch events together. Events with the same values for these keys will be batched together.'
+    type: 'string'
+    unsafe_hidden?: true
+    multiple?: true
+    required?: false
+    default?: string[]
+  }
+}
+
+type ActionFields = Omit<Record<string, InputField>, keyof ReservedInputFields> & ReservedInputFields
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface BaseActionDefinition {
   /** The display title of the action */
@@ -67,7 +81,7 @@ export interface BaseActionDefinition {
   /**
    * The fields used to perform the action. These fields should match what the partner API expects.
    */
-  fields: Record<string, InputField>
+  fields: ActionFields
 }
 
 type HookValueTypes = string | boolean | number | Array<string | boolean | number>
