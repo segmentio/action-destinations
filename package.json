@@ -114,6 +114,7 @@
     }
   },
   "dependencies": {
+    "@segment/actions-cli-internal": "^1.35.0",
     "chance": "^1.1.8",
     "xml-js": "^1.6.11"
   },
