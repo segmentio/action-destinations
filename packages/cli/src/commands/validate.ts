@@ -94,14 +94,14 @@ export default class Validate extends Command {
     const batchKeys = field.default as string[]
     if (batchKeys.length > 3) {
       errors.push(
-        new Error(`The action "${actionKey}" has a field "batch_keys" that has more than 3 keys. Max allowed is 3.`)
+        new Error(`The action "${actionKey}" has a "batch_keys" field that has more than 3 keys. Max allowed is 3.`)
       )
     }
     const unknownKeys = batchKeys.filter((key) => action.fields[key] === undefined)
     if (unknownKeys.length > 0) {
       errors.push(
         new Error(
-          `The action "${actionKey}" has a field "batch_keys" that has unknown keys: ${unknownKeys.join(
+          `The action "${actionKey}" has a "batch_keys" field that has unknown keys: ${unknownKeys.join(
             ', '
           )}. only allowed keys are: ${Object.keys(action.fields).join(', ')}`
         )
@@ -109,7 +109,7 @@ export default class Validate extends Command {
     }
     if (batchKeys.includes('batch_keys')) {
       errors.push(
-        new Error(`The action "${actionKey}" has a field "batch_keys" that includes itself. This is not allowed.`)
+        new Error(`The action "${actionKey}" has a "batch_keys" field that includes itself. This is not allowed.`)
       )
     }
 
