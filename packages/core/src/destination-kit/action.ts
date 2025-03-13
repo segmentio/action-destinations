@@ -46,8 +46,8 @@ export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, A
 
 interface ReservedInputFields {
   batch_keys?: {
-    label: 'Batch Keys'
-    description: 'The mapping keys to use to batch events together. Events with the same values for these keys will be batched together.'
+    label: string
+    description: string
     type: 'string'
     unsafe_hidden?: true
     multiple?: true
