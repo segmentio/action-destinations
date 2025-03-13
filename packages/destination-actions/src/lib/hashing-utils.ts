@@ -81,7 +81,7 @@ class SmartHashing {
  * @param features - An object containing feature flags.
  * @param destinationSlugForBypass - A slug that, if present in the bypassFlagSlugs array, will bypass the flag check.
  * @param cleaningFunction - An optional function to clean the value before hashing.
- * @returns The hashed value or the original value if it is already hashed.
+ * @returns The hashed value or the original value if it is already hashed
  */
 export function processHashing(
   value: string,
