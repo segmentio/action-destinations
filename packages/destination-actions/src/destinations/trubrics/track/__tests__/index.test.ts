@@ -4,18 +4,22 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 const settings = { apiKey: 'api-key', url: 'app.trubrics.com/api/ingestion' }
+const mapping = {
+  anonymous_id: 'my-id',
+  event: 'test event',
+  timestamp: '2021-01-01T00:00:00.000Z',
+  user_id: 'user-id'
+}
 
 describe('Trubrics.track', () => {
   it('should work', async () => {
-    nock(settings.url).post('/publish_segment_events').matchHeader('x-api-key', settings.apiKey).reply(200, {})
+    nock(`https://${settings.url}`)
+      .post('/publish_segment_events', [mapping])
+      .matchHeader('x-api-key', settings.apiKey)
+      .reply(200, {})
 
     const responses = await testDestination.testAction('track', {
-      mapping: {
-        anonymous_id: 'my-id',
-        event: 'test event',
-        timestamp: '2021-01-01T00:00:00.000Z',
-        user_id: 'user-id'
-      },
+      mapping,
       settings
     })
 
