@@ -2,6 +2,13 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
+type SendEventPayload = {
+  email?: string
+  eventName: string
+  userId: string
+  eventProperties?: Record<string, string | number | boolean>
+} & Record<string, string | number | boolean | null>
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event',
   description: 'Send an event for a contact in Loops',
@@ -61,9 +68,8 @@ const action: ActionDefinition<Settings, Payload> = {
         eventName: payload.eventName,
         userId: payload.userId,
         eventProperties: payload.eventProperties,
-        ...(typeof payload.contactProperties === 'object' &&
-          (payload.contactProperties as { [k: string]: string | boolean | number | null }))
-      }
+        ...(typeof payload.contactProperties === 'object' && payload.contactProperties)
+      } as SendEventPayload
     })
   }
 }
