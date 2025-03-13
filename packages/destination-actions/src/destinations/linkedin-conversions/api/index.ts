@@ -480,7 +480,7 @@ export class LinkedInConversions {
       const { firstName, lastName } = payload.userInfo
 
       if (!firstName || !lastName) {
-        throw new PayloadValidationError('userInfo must contain firstName and lastName when provided.')
+        throw new PayloadValidationError('userInfo must contain firstName and lastName when provided')
       }
       user.userInfo = payload.userInfo
     }
