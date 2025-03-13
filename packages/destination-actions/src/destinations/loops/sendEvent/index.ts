@@ -61,7 +61,8 @@ const action: ActionDefinition<Settings, Payload> = {
         eventName: payload.eventName,
         userId: payload.userId,
         eventProperties: payload.eventProperties,
-        ...(typeof payload.contactProperties === 'object' && payload.contactProperties)
+        ...(typeof payload.contactProperties === 'object' &&
+          (payload.contactProperties as { [k: string]: string | boolean | number | null }))
       }
     })
   }
