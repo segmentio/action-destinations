@@ -30,7 +30,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     enable_batching: { ...enable_batching },
     external_audience_id: { ...external_audience_id }
   },
-  perform: async (request, { audienceSettings, payload, statsContext }) => {
+  perform: async (request, { audienceSettings, payload, statsContext, features }) => {
     const statsClient = statsContext?.statsClient
     const statsTag = statsContext?.tags
 
@@ -42,9 +42,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       statsClient?.incr('addToAudience', 1, statsTag)
     }
 
-    return processPayload(request, audienceSettings, [payload], 'add')
+    return processPayload(request, audienceSettings, [payload], 'add', features || {})
   },
-  performBatch: async (request, { payload, audienceSettings, statsContext }) => {
+  performBatch: async (request, { payload, audienceSettings, statsContext, features }) => {
     const statsClient = statsContext?.statsClient
     const statsTag = statsContext?.tags
 
@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       statsClient?.incr('addToAudience', 1, statsTag)
     }
 
-    return processPayload(request, audienceSettings, payload, 'add')
+    return processPayload(request, audienceSettings, payload, 'add', features || {})
   }
 }
 

@@ -9,7 +9,7 @@ describe('TikTok Audiences Functions', () => {
         audience_id: '1234567890'
       }
 
-      const result: any[][] = extractUsers([payload])
+      const result: any[][] = extractUsers([payload], { 'smart-hashing': true })
       expect(result[0][0].id).toEqual('77bc071241f37b4736df28c0c1cb0a99163d1050696134325b99246b2183d408')
     })
 
@@ -20,7 +20,7 @@ describe('TikTok Audiences Functions', () => {
         audience_id: '1234567890'
       }
 
-      const result: any[][] = extractUsers([payload])
+      const result: any[][] = extractUsers([payload], { 'smart-hashing': true })
       expect(result[0][0].id).toEqual('77bc071241f37b4736df28c0c1cb0a99163d1050696134325b99246b2183d408')
     })
 
@@ -32,7 +32,7 @@ describe('TikTok Audiences Functions', () => {
         advertising_id: '12345'
       }
 
-      const result: any[][] = extractUsers([payload])
+      const result: any[][] = extractUsers([payload], { 'smart-hashing': true })
       expect(result[0][0].id).toEqual('e5aaca26e304714083dccf6d2dbc16466e9cde94ca54feefa3dca412e2eeb74e')
     })
 
@@ -44,7 +44,7 @@ describe('TikTok Audiences Functions', () => {
         advertising_id: '12345'
       }
 
-      const result: any[][] = extractUsers([payload])
+      const result: any[][] = extractUsers([payload], { 'smart-hashing': true })
       expect(result[0][0].id).toEqual('e5aaca26e304714083dccf6d2dbc16466e9cde94ca54feefa3dca412e2eeb74e')
     })
   })
