@@ -1,5 +1,5 @@
 import { Command, flags } from '@oclif/command'
-import type { BaseActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, BaseActionDefinition } from '@segment/actions-core'
 import { ErrorCondition, parseFql } from '@segment/destination-subscriptions'
 import ora from 'ora'
 import { getManifest, DestinationDefinition } from '../lib/destinations'
@@ -81,7 +81,84 @@ export default class Validate extends Command {
           errors.push(new Error(`The action "${actionKey}" is missing a description for the field "${fieldKey}".`))
         }
       }
+
+      const actionDef = action as ActionDefinition<unknown, unknown, unknown, unknown>
+      if (actionDef.batchSettings) {
+        errors.push(...this.validateBatchSettings(actionDef, actionKey, action))
+      }
     }
+
+    return errors
+  }
+
+  validateBatchSettings(
+    actionDef: ActionDefinition<unknown, unknown, unknown, unknown, any>,
+    actionKey: string,
+    action: BaseActionDefinition
+  ): Error[] {
+    const batchSettings = actionDef.batchSettings
+    const errors = []
+
+    if (!batchSettings) {
+      return []
+    }
+
+    // Ensure that no fields are named "batch_keys"
+    if (action.fields['batch_keys']) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has a field named "batch_keys". This field is reserved for use in batch settings. Please rename the field to something else.`
+        )
+      )
+    }
+
+    // Limit the number of batch keys to 3 or fewer
+    if (batchSettings.batchKeys && batchSettings.batchKeys.length > 3) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has more than 3 batch keys. Please limit the number of batch keys to 3 or fewer.`
+        )
+      )
+    }
+
+    // Ensure either batchSize setting or batch_size field is defined, but not both
+    if (batchSettings.batchSize && action.fields['batch_size']) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has both a batch_size key and also batch_size defined in batch settings. Please use only one of these options.`
+        )
+      )
+    }
+
+    // Ensure either batchBytes setting or batch_bytes field is defined, but not both
+    if (batchSettings.batchBytes && action.fields['batch_bytes']) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has both a batch_bytes field and also batch bytes defined in batch settings. Please use only one of these options.`
+        )
+      )
+    }
+
+    // Ensure either enableBatchingAndHide setting or enable_batching field is defined, but not both
+    if (batchSettings.hideEnableBatching && action.fields['enable_batching']) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has both batching enabled in batch settings and batch_size defined in fields. Please use only one of these options.`
+        )
+      )
+    }
+
+    const validateType = (key: string, type: string) => {
+      if (action.fields[key]?.type !== type) {
+        errors.push(new Error(`The action "${actionKey}" has a field named "${key}" that is not of type "${type}".`))
+      }
+    }
+
+    // Validates the types of reserved batch settings fields
+    validateType('batch_size', 'number')
+    validateType('batch_bytes', 'number')
+    validateType('enable_batching', 'boolean')
+    validateType('batch_keys', 'string')
 
     return errors
   }
@@ -140,7 +217,7 @@ export default class Validate extends Command {
         // this.isInvalid = true
         const typ = fieldValues?.type
 
-        if ((typ === 'boolean' || typ === 'number') && typeof fieldValues?.default != "undefined") {
+        if ((typ === 'boolean' || typ === 'number') && typeof fieldValues?.default != 'undefined') {
           if (typeof fieldValues?.default !== typ) {
             errors.push(
               new Error(

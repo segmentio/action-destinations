@@ -16,7 +16,8 @@ import type {
   DynamicFieldContext,
   ActionDestinationSuccessResponseType,
   ActionDestinationErrorResponseType,
-  ResultMultiStatusNode
+  ResultMultiStatusNode,
+  BatchSettings
 } from './types'
 import { syncModeTypes } from './types'
 import { HTTPError, NormalizedOptions } from '../request-client'
@@ -141,6 +142,9 @@ export interface ActionDefinition<
 
   /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
   syncMode?: SyncModeDefinition
+
+  /** Batch settings for the action. All these settings will be hidden from the user. */
+  batchSettings?: BatchSettings<Payload>
 }
 
 export const hookTypeStrings = ['onMappingSave', 'retlOnMappingSave'] as const
