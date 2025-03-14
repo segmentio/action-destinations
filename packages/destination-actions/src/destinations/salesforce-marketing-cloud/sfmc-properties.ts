@@ -168,6 +168,7 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
     isSendable: {
       label: 'Is Sendable',
       type: 'boolean',
+      depends_on: CREATE_OPERATION,
       description:
         'Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable'
     },
