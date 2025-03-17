@@ -483,7 +483,7 @@ export class LinkedInConversions {
         //throw error
         throw new PayloadValidationError('userInfo must contain firstName and lastName when provided')
       }
-      user.userInfo = payload.userInfo
+      user.userInfo = { ...payload.userInfo, firstName, lastName }
     }
 
     return this.request(`${BASE_URL}/conversionEvents`, {
@@ -516,7 +516,11 @@ export class LinkedInConversions {
             const user: User = { userIds }
 
             if (payload.userInfo && Object.keys(payload.userInfo).length > 0) {
-              user.userInfo = payload.userInfo
+              user.userInfo = {
+                ...payload.userInfo,
+                firstName: payload.userInfo.firstName || '',
+                lastName: payload.userInfo.lastName || ''
+              }
             }
 
             return {
