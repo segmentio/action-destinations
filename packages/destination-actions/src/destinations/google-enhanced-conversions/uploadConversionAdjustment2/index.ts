@@ -429,7 +429,6 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payloadItem.email_address) {
-        // const validatedEmail: string = commonEmailValidation(payloadItem.email_address)
         const validatedEmail: string = processHashing(
           payloadItem.email_address,
           'sha256',
@@ -446,9 +445,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payloadItem.phone_number) {
         request_object.userIdentifiers.push({
-          // hashedPhoneNumber: isHashedInformation(payloadItem.phone_number)
-          //   ? payloadItem.phone_number
-          //   : hash(payloadItem.phone_number)
           hashedPhoneNumber: processHashing(
             payloadItem.phone_number,
             'sha256',
@@ -471,9 +467,6 @@ const action: ActionDefinition<Settings, Payload> = {
       if (containsAddressInfo) {
         request_object.userIdentifiers.push({
           addressInfo: {
-            // hashedFirstName: isHashedInformation(String(payloadItem.first_name))
-            //   ? payloadItem.first_name
-            //   : hash(payloadItem.first_name),
             hashedFirstName: processHashing(
               payloadItem.first_name ?? '',
               'sha256',
@@ -481,9 +474,6 @@ const action: ActionDefinition<Settings, Payload> = {
               features ?? {},
               'actions-google-enhanced-conversions'
             ),
-            // hashedLastName: isHashedInformation(String(payloadItem.last_name))
-            //   ? payloadItem.last_name
-            //   : hash(payloadItem.last_name),
             hashedLastName: processHashing(
               payloadItem.last_name ?? '',
               'sha256',
@@ -491,9 +481,6 @@ const action: ActionDefinition<Settings, Payload> = {
               features ?? {},
               'actions-google-enhanced-conversions'
             ),
-            // hashedStreetAddress: isHashedInformation(String(payloadItem.street_address))
-            //   ? payloadItem.street_address
-            //   : hash(payloadItem.street_address),
             hashedStreetAddress: processHashing(
               payloadItem.street_address ?? '',
               'sha256',
