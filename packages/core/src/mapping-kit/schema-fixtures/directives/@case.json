@@ -1,0 +1,415 @@
+[
+  {
+    "scenario": "lowercase transformation",
+    "input": {
+      "mapping": {
+        "@case": {
+          "operator": "lower",
+          "value": {
+            "@path": "$.b"
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": "make me lower case"
+    }
+  },
+  {
+    "scenario": "uppercase transformation",
+    "input": {
+      "mapping": {
+        "@case": {
+          "operator": "upper",
+          "value": {
+            "@path": "$.c"
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": "MAKE ME UPPER CASE",
+      "error": null
+    }
+  },
+  {
+    "scenario": "lowercase empty string",
+    "input": {
+      "mapping": {
+        "@case": {
+          "operator": "lower",
+          "value": {
+            "@path": "$.e"
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": ""
+    }
+  },
+  {
+    "scenario": "lowercase mixed string",
+    "input": {
+      "mapping": {
+        "@case": {
+          "operator": "lower",
+          "value": {
+            "@path": "$.g"
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": "mixed string casing w/ numbers 190wdb"
+    }
+  },
+  {
+    "scenario": "uppercase mixed string",
+    "input": {
+      "mapping": {
+        "@case": {
+          "operator": "upper",
+          "value": {
+            "@path": "$.g"
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": "MIXED STRING CASING W/ NUMBERS 190WDB"
+    }
+  },
+  {
+    "scenario": "non-string input number",
+    "input": {
+      "mapping": {
+        "@case": {
+          "operator": "lower",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": 1
+    }
+  },
+  {
+    "scenario": "non-string input: null",
+    "input": {
+      "mapping": {
+        "@case": {
+          "operator": "lower",
+          "value": {
+            "@path": "$.d"
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": null
+    }
+  },
+  {
+    "scenario": "non-string input - boolean",
+    "input": {
+      "mapping": {
+        "@case": {
+          "operator": "lower",
+          "value": {
+            "@path": "$.f"
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": false
+    }
+  },
+  {
+    "scenario": "non-string input - object",
+    "input": {
+      "mapping": {
+        "@case": {
+          "operator": "lower",
+          "value": {
+            "@path": "$.h"
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "key1": "with values",
+        "key2": ["hi", true, null]
+      }
+    }
+  },
+  {
+    "scenario": "missing operator key",
+    "input": {
+      "mapping": {
+        "@case": {
+          "wrongKey": "lower",
+          "value": {
+            "@path": "$.b"
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": null,
+      "error": "@case requires a \"operator\" key"
+    }
+  },
+  {
+    "scenario": "unsupported operator",
+    "input": {
+      "mapping": {
+        "@case": {
+          "operator": "unsupported snake",
+          "value": {
+            "@path": "$.b"
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": null,
+      "error": "operator key should have a value of \"lower\" or \"upper\""
+    }
+  },
+  {
+    "scenario": "directive not an object",
+    "input": {
+      "mapping": {
+        "@case": "not an object"
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": null,
+      "error": "@case should be an object but it is a string"
+    }
+  },
+  {
+    "scenario": "value resolves to an array or object",
+    "input": {
+      "mapping": {
+        "@case": {
+          "operator": "lower",
+          "value": {
+            "@path": "$.h"
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "key1": "with values",
+        "key2": ["hi", true, null]
+      }
+    }
+  },
+  {
+    "scenario": "value is set to path that does not exist",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@case": {
+            "operator": "lower",
+            "value": {
+              "@path": "$.dont_exist"
+            }
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": "MAKE ME LOWER CASE",
+        "c": "make me upper case",
+        "d": null,
+        "e": "",
+        "f": false,
+        "g": "mIXeD StRinG CasING W/ NuMBErs 190wdB",
+        "h": {
+          "key1": "with values",
+          "key2": ["hi", true, null]
+        }
+      }
+    },
+    "output": {
+      "data": {}
+    }
+  }
+]

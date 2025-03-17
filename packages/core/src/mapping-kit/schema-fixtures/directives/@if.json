@@ -1,0 +1,227 @@
+[
+  {
+    "scenario": "exists-valid path returns then value",
+    "input": {
+      "mapping": {
+        "@if": {
+          "exists": {
+            "@path": "$.a"
+          },
+          "then": 1,
+          "else": 2
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": true,
+        "c": false,
+        "d": null,
+        "e": ""
+      }
+    },
+    "output": {
+      "data": 1,
+      "error": null
+    }
+  },
+  {
+    "scenario": "exists:boolean false returns else value",
+    "input": {
+      "mapping": {
+        "@if": {
+          "exists": {
+            "@path": "$.d"
+          },
+          "then": 1,
+          "else": 2
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": true,
+        "c": false,
+        "d": null,
+        "e": ""
+      }
+    },
+    "output": {
+      "data": 2,
+      "error": null
+    }
+  },
+  {
+    "scenario": "exists:non-existent path returns else value",
+    "input": {
+      "mapping": {
+        "@if": {
+          "exists": {
+            "@path": "$.x"
+          },
+          "then": 1,
+          "else": 2
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": true,
+        "c": false,
+        "d": null,
+        "e": ""
+      }
+    },
+    "output": {
+      "data": 2,
+      "error": null
+    }
+  },
+  {
+    "scenario": "exists:null returns else value",
+    "input": {
+      "mapping": {
+        "@if": {
+          "exists": {
+            "@path": "$.e"
+          },
+          "then": 1,
+          "else": 2
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": true,
+        "c": false,
+        "d": null,
+        "e": ""
+      }
+    },
+    "output": {
+      "data": 1,
+      "error": null
+    }
+  },
+  {
+    "scenario": "exists:empty string returns then value",
+    "input": {
+      "mapping": {
+        "@if": {
+          "exists": {
+            "@path": "$.e"
+          },
+          "then": 1,
+          "else": 2
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": true,
+        "c": false,
+        "d": null,
+        "e": ""
+      }
+    },
+    "output": {
+      "data": 1,
+      "error": null
+    }
+  },
+  {
+    "scenario": "blank:non-blank value returns then value",
+    "input": {
+      "mapping": {
+        "@if": {
+          "blank": {
+            "@path": "$.a"
+          },
+          "then": 1,
+          "else": 2
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": true,
+        "c": false,
+        "d": null,
+        "e": ""
+      }
+    },
+    "output": {
+      "data": 1,
+      "error": null
+    }
+  },
+  {
+    "scenario": "blank:null returns else value",
+    "input": {
+      "mapping": {
+        "@if": {
+          "blank": {
+            "@path": "$.d"
+          },
+          "then": 1,
+          "else": 2
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": true,
+        "c": false,
+        "d": null,
+        "e": ""
+      }
+    },
+    "output": {
+      "data": 2,
+      "error": null
+    }
+  },
+  {
+    "scenario": "blank:non-existent path returns else value",
+    "input": {
+      "mapping": {
+        "@if": {
+          "blank": {
+            "@path": "$.x"
+          },
+          "then": 1,
+          "else": 2
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": true,
+        "c": false,
+        "d": null,
+        "e": ""
+      }
+    },
+    "output": {
+      "data": 2,
+      "error": null
+    }
+  },
+  {
+    "scenario": "blank:empty string returns else value",
+    "input": {
+      "mapping": {
+        "@if": {
+          "blank": {
+            "@path": "$.e"
+          },
+          "then": 1,
+          "else": 2
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": true,
+        "c": false,
+        "d": null,
+        "e": ""
+      }
+    },
+    "output": {
+      "data": 2,
+      "error": null
+    }
+  }
+]

@@ -1,0 +1,154 @@
+[
+  {
+    "scenario": "simple",
+    "input": {
+      "mapping": {
+        "someFieldToExclude": {
+          "neat": {
+            "@excludeWhenNull": {
+              "@path": "$.foo.bar"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": null,
+          "aces": {
+            "a": 1,
+            "b": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "someFieldToExclude": {}
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "simple with multiple mappings",
+    "input": {
+      "mapping": {
+        "someFieldToExclude": {
+          "@excludeWhenNull": {
+            "@path": "$.foo.bar"
+          }
+        },
+        "anotherField": {
+          "@path": "$.foo.aces.a"
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": null,
+          "aces": {
+            "a": 1,
+            "b": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "anotherField": 1
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "exclude individual null fields when set at object level",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@excludeWhenNull": {
+            "@path": "$.foo"
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": null,
+          "aces": {
+            "a": 1,
+            "b": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "aces": {
+            "a": 1,
+            "b": 2
+          }
+        }
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "exclude individual deeply nested null fields in object when applied at object level",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@excludeWhenNull": {
+            "@path": "$.foo"
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": null,
+          "aces": {
+            "a": 1,
+            "b": 2,
+            "c": null,
+            "d": {
+              "a": null,
+              "b": null
+            }
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "aces": {
+            "a": 1,
+            "b": 2,
+            "d": {}
+          }
+        }
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "path resolves to non-existent value",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@excludeWhenNull": {
+            "@path": "$.foo.bar"
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "aces": {
+            "a": 1,
+            "b": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {}
+    }
+  }
+]

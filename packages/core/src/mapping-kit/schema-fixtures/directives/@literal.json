@@ -1,0 +1,128 @@
+[
+  {
+    "scenario": "simple",
+    "input": {
+      "mapping": {
+        "simple": {
+          "@literal": false
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": {
+        "simple": false
+      },
+      "error": ""
+    }
+  },
+  {
+    "scenario": "nested directives",
+    "input": {
+      "mapping": {
+        "nested": {
+          "@literal": {
+            "a": {
+              "@path": "$.a"
+            },
+            "b": {
+              "@path": "$.b"
+            }
+          }
+        }
+      },
+      "data": {
+        "a": "some value",
+        "b": "another value"
+      }
+    },
+    "output": {
+      "data": {
+        "nested": {
+          "a": "some value",
+          "b": "another value"
+        }
+      },
+      "error": ""
+    }
+  },
+  {
+    "scenario": "deeply nested literal",
+    "input": {
+      "mapping": {
+        "nested": {
+          "@literal": {
+            "level1": {
+              "level2": {
+                "level3": {
+                  "@path": "$.deep.value"
+                }
+              }
+            }
+          }
+        }
+      },
+      "data": {
+        "deep": {
+          "value": "deeply nested value"
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "nested": {
+          "level1": {
+            "level2": {
+              "level3": "deeply nested value"
+            }
+          }
+        }
+      },
+      "error": ""
+    }
+  },
+  {
+    "scenario": "nested mixed resolvers",
+    "input": {
+      "mapping": {
+        "complex": {
+          "@literal": {
+            "static": "constant",
+            "dynamic": {
+              "@path": "$.dynamic_value"
+            }
+          }
+        }
+      },
+      "data": {
+        "dynamic_value": "resolved dynamically"
+      }
+    },
+    "output": {
+      "data": {
+        "complex": {
+          "static": "constant",
+          "dynamic": "resolved dynamically"
+        }
+      },
+      "error": ""
+    }
+  },
+  {
+    "scenario": "empty object literal",
+    "input": {
+      "mapping": {
+        "empty": {
+          "@literal": {}
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": {
+        "empty": {}
+      },
+      "error": ""
+    }
+  }
+]

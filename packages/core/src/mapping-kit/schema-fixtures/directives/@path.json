@@ -1,0 +1,340 @@
+[
+  {
+    "scenario": "simple",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@path": "$.foo"
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "data": {
+        "neat": "bar"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "root path",
+    "input": {
+      "mapping": {
+        "@path": ""
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "data": {
+        "foo": "bar"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "root path with dot",
+    "input": {
+      "mapping": {
+        "@path": "$."
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "data": {
+        "foo": "bar"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "array path",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@path": "$.foo.bar[0].baz"
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": [
+            {
+              "baz": "qux"
+            }
+          ]
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": "qux"
+      }
+    }
+  },
+  {
+    "scenario": "nested path",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@path": "$.foo.bar"
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz"
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": "baz"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "nested directive",
+    "input": {
+      "mapping": {
+        "@path": {
+          "@path": "$.foo"
+        }
+      },
+      "data": {
+        "foo": "bar",
+        "bar": "baz"
+      }
+    },
+    "output": {
+      "data": "baz",
+      "error": null
+    }
+  },
+  {
+    "scenario": "invalid path",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@path": "$.oops"
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "data": {},
+      "error": null
+    }
+  },
+  {
+    "scenario": "invalid key type",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@path": {}
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "data": null,
+      "error": "should be a string or a mapping directive"
+    }
+  },
+  {
+    "scenario": "spaced nested value",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@path": "$.integrations.Actions Amplitude.session_id"
+        }
+      },
+      "data": {
+        "integrations": {
+          "Actions Amplitude": {
+            "session_id": "bar"
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": "bar"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "invalid nested value type",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@path": "$.foo.bar.baz"
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "data": {},
+      "error": null
+    }
+  },
+  {
+    "scenario": "null value",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@path": "$.foo"
+        }
+      },
+      "data": {
+        "foo": null
+      }
+    },
+    "output": {
+      "data": {
+        "neat": null
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "multiple mappings",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@path": "$.foo"
+        },
+        "sweet": {
+          "@path": "$.bar"
+        }
+      },
+      "data": {
+        "foo": null,
+        "bar": "baz"
+      }
+    },
+    "output": {
+      "data": {
+        "neat": null,
+        "sweet": "baz"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "entire event",
+    "input": {
+      "mapping": {
+        "@path": "$.event"
+      },
+      "data": {
+        "event": {
+          "foo": "bar"
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "foo": "bar"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "empty path returns entire event",
+    "input": {
+      "mapping": {
+        "@path": ""
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "data": {
+        "foo": "bar"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "path with . returns entire event",
+    "input": {
+      "mapping": {
+        "@path": "$.."
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "data": {
+        "foo": "bar"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "path directive ignores additional keys in the same mapping object",
+    "input": {
+      "mapping": {
+        "@path": "$..",
+        "_metadata": {
+          "type": "variable"
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "data": {
+        "foo": "bar"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "path directive ignores flower braces",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@path": "$.{{foo}}"
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "data": {}
+    }
+  },
+  {
+    "scenario": "path directive ignores trailing dot",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@path": "$.foo.bar."
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "data": {}
+    }
+  }
+]

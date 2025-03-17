@@ -1,0 +1,272 @@
+[
+  {
+    "scenario": "encode",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@json": {
+            "mode": "encode",
+            "value": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "data": {
+        "neat": "\"bar\""
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "encode_object",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@json": {
+            "mode": "encode",
+            "value": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz"
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": "{\"bar\":\"baz\"}"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "encode_array",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@json": {
+            "mode": "encode",
+            "value": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": ["bar", "baz"]
+      }
+    },
+    "output": {
+      "data": {
+        "neat": "[\"bar\",\"baz\"]"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "decode",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@json": {
+            "mode": "decode",
+            "value": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": "\"bar\""
+      }
+    },
+    "output": {
+      "data": {
+        "neat": "bar"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "decode_object",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@json": {
+            "mode": "decode",
+            "value": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": "{\"bar\":\"baz\"}"
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "bar": "baz"
+        }
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "decode_array",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@json": {
+            "mode": "decode",
+            "value": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": "[\"bar\",\"baz\"]"
+      }
+    },
+    "output": {
+      "data": {
+        "neat": ["bar", "baz"]
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "invalid mode",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@json": {
+            "mode": "oops",
+            "value": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "error": "@json/mode should be one of encode, decode"
+    }
+  },
+  {
+    "scenario": "invalid value",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@json": {
+            "mode": "encode",
+            "value": {
+              "@path": "$.bad"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz"
+        }
+      }
+    },
+    "output": {
+      "data": {},
+      "error": null
+    }
+  },
+  {
+    "scenario": "missing value key",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@json": {
+            "mode": "encode"
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz"
+        }
+      }
+    },
+    "output": {
+      "error": "@json should have field \"value\" but it doesn't"
+    }
+  },
+  {
+    "scenario": "missing mode key",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@json": {
+            "value": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "error": "@json should have field \"mode\" but it doesn't"
+    }
+  },
+  {
+    "scenario": "invalid mapping object",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@json": "not an object"
+        }
+      },
+      "data": "bar"
+    },
+    "output": {
+      "error": "[@json should be an object but it is a string]|[must be an object, got string]"
+    }
+  },
+  {
+    "scenario": "decode non-string values",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@json": {
+            "mode": "decode",
+            "value": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": 123
+      }
+    },
+    "output": {
+      "data": {
+        "neat": 123
+      }
+    }
+  }
+]

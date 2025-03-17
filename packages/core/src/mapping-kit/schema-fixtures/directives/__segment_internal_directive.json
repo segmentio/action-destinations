@@ -1,0 +1,114 @@
+[
+  {
+    "scenario": "handles the segment internal directive key",
+    "input": {
+      "mapping": {
+        "__segment_internal_directive": {
+          "@transform": {
+            "apply": {
+              "properties": {
+                "@flatten": {
+                  "value": {
+                    "@path": "$.properties"
+                  },
+                  "separator": "_"
+                }
+              }
+            }
+          }
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "topLevel": {
+          "@path": "$.properties.nested_a"
+        }
+      },
+      "data": {
+        "properties": {
+          "test": "value",
+          "another": "thing",
+          "nested": {
+            "a": "special",
+            "b": 2
+          }
+        },
+        "otherStuff": "foo",
+        "more": "bar"
+      }
+    },
+    "output": {
+      "data": {
+        "properties": {
+          "test": "value",
+          "another": "thing",
+          "nested_a": "special",
+          "nested_b": 2
+        },
+        "topLevel": "special"
+      }
+    }
+  },
+  {
+    "scenario": "segment internal directive with @path as root directive",
+    "input": {
+      "mapping": {
+        "__segment_internal_directive": {
+          "@path": "$.properties"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "topLevel": {
+          "@path": "$.properties.nested_a"
+        }
+      },
+      "data": {
+        "properties": {
+          "test": "value",
+          "another": "thing",
+          "nested": {
+            "a": "special",
+            "b": 2
+          }
+        },
+        "otherStuff": "foo",
+        "more": "bar"
+      }
+    },
+    "output": {
+      "error": "[\"__segment_internal_directive\" directive requires @transform directive as root directive]|(The root directive must be an object)"
+    }
+  },
+  {
+    "scenario": "segment internal directive with non-directive key as root",
+    "input": {
+      "mapping": {
+        "__segment_internal_directive": {
+          "hello": "world"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "topLevel": {
+          "@path": "$.properties.nested_a"
+        }
+      },
+      "data": {
+        "properties": {
+          "test": "value",
+          "another": "thing",
+          "nested": {
+            "a": "special",
+            "b": 2
+          }
+        },
+        "otherStuff": "foo",
+        "more": "bar"
+      }
+    },
+    "output": {
+      "error": "[root directive must be an object]|[the root mapping must have a single @transform directive object]"
+    }
+  }
+]
