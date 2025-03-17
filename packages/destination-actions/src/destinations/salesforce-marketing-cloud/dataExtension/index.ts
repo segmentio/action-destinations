@@ -1,16 +1,8 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {
-  key,
-  id,
-  keys,
-  enable_batching,
-  batch_size,
-  values_dataExtensionFields,
-  dataExtensionHook
-} from '../sfmc-properties'
-import { executeUpsertWithMultiStatus, upsertRows, getDataExtensionFields } from '../sfmc-operations'
+import { key, id, keys, enable_batching, batch_size, values_dataExtensionFields } from '../sfmc-properties'
+import { executeUpsertWithMultiStatus, upsertRows } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event to Data Extension',
@@ -23,49 +15,11 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching: enable_batching,
     batch_size: batch_size
   },
-  dynamicFields: {
-    keys: {
-      __keys__: async (request, { settings, payload }) => {
-        const dataExtensionId =
-          (payload as any).onMappingSave?.outputs?.id || (payload as any).retlOnMappingSave?.outputs?.id || ''
-        return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId, true)
-      }
-    },
-    values: {
-      __keys__: async (request, { settings, payload }) => {
-        const dataExtensionId =
-          (payload as any).onMappingSave?.outputs?.id || (payload as any).retlOnMappingSave?.outputs?.id || ''
-        return await getDataExtensionFields(request, settings.subdomain, settings, dataExtensionId, false)
-      }
-    }
+  perform: async (request, { settings, payload }) => {
+    return upsertRows(request, settings.subdomain, [payload])
   },
-  hooks: {
-    retlOnMappingSave: {
-      ...dataExtensionHook
-    },
-    onMappingSave: {
-      ...dataExtensionHook
-    }
-  },
-  perform: async (request, { settings, payload, hookOutputs }) => {
-    const dataExtensionId =
-      hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id || payload.id
-    const deprecated_dataExtensionKey = payload.key
-
-    return upsertRows(request, settings.subdomain, [payload], dataExtensionId, deprecated_dataExtensionKey)
-  },
-  performBatch: async (request, { settings, payload, hookOutputs }) => {
-    const dataExtensionId =
-      hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id || payload[0].id
-    const deprecated_dataExtensionKey = payload[0].key
-
-    return executeUpsertWithMultiStatus(
-      request,
-      settings.subdomain,
-      payload,
-      dataExtensionId,
-      deprecated_dataExtensionKey
-    )
+  performBatch: async (request, { settings, payload }) => {
+    return executeUpsertWithMultiStatus(request, settings.subdomain, payload)
   }
 }
 

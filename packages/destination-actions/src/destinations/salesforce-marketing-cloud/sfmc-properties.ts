@@ -1,6 +1,4 @@
-import { ActionHookDefinition } from '@segment/actions-core/destination-kit'
-import { InputField, FieldTypeName, DependsOnConditions } from '@segment/actions-core/destination-kit/types'
-import { getCategories, getDataExtensions, selectOrCreateDataExtension } from './sfmc-operations'
+import { InputField } from '@segment/actions-core/destination-kit/types'
 
 export const contactKey: InputField = {
   label: 'Contact Key',
@@ -19,19 +17,17 @@ export const contactKeyAPIEvent: InputField = {
 }
 
 export const key: InputField = {
-  label: 'DEPRECATED: Data Extension Key',
+  label: 'Data Extension Key',
   description:
-    'Note: This field should be considered deprecated in favor of the hook input field "Data Extension ID". For backwards compatibility the field will not be deleted, and is instead hidden. The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.',
-  type: 'string',
-  unsafe_hidden: true
+    'The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.',
+  type: 'string'
 }
 
 export const id: InputField = {
-  label: 'DEPRECATED: Data Extension ID',
+  label: 'Data Extension ID',
   description:
-    'Note: This field should be considered deprecated in favor of the hook input field "Data Extension ID". For backwards compatibility the field will not be deleted, and is instead hidden. The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.',
-  type: 'string',
-  unsafe_hidden: true
+    'The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.',
+  type: 'string'
 }
 
 export const keys: InputField = {
@@ -41,8 +37,7 @@ export const keys: InputField = {
   type: 'object',
   required: true,
   defaultObjectUI: 'keyvalue:only',
-  additionalProperties: true,
-  dynamic: true
+  additionalProperties: true
 }
 
 export const values_contactFields: InputField = {
@@ -51,8 +46,7 @@ export const values_contactFields: InputField = {
     'The fields in the data extension that contain data about a contact, such as Email, Last Name, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.',
   type: 'object',
   defaultObjectUI: 'keyvalue:only',
-  required: true,
-  dynamic: true
+  required: true
 }
 
 export const values_dataExtensionFields: InputField = {
@@ -61,8 +55,7 @@ export const values_dataExtensionFields: InputField = {
     'The fields in the data extension that contain data about an event, such as Product Name, Revenue, Event Time, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.',
   type: 'object',
   defaultObjectUI: 'keyvalue:only',
-  required: true,
-  dynamic: true
+  required: true
 }
 
 export const eventDefinitionKey: InputField = {
@@ -100,165 +93,4 @@ export const batch_size: InputField = {
    * And: inc-sev3-6609-sfmc-timeouts-in-bulk-batching-2023-10-23
    *  */
   default: 10
-}
-
-// Scripting for the create/select existing data extension flow
-const CREATE_OPERATION: DependsOnConditions = {
-  match: 'all',
-  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'create' }]
-}
-
-const SELECT_OPERATION: DependsOnConditions = {
-  match: 'all',
-  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'select' }]
-}
-
-const IS_SENDABLE: DependsOnConditions = {
-  match: 'all',
-  conditions: [{ fieldKey: 'isSendable', operator: 'is', value: true }]
-}
-
-export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = {
-  label: 'Create or Select Data Extension',
-  description: 'Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.',
-  inputFields: {
-    operation: {
-      label: 'Operation',
-      description: 'Whether to create a new data extension or select an existing one for data delivery.',
-      type: 'string',
-      choices: [
-        { label: 'Create a new Data Extension', value: 'create' },
-        { label: 'Select an existing Data Extension', value: 'select' }
-      ],
-      required: false
-    },
-    dataExtensionId: {
-      label: 'Data Extension ID',
-      description: 'The identifier for the data extension.',
-      type: 'string',
-      depends_on: SELECT_OPERATION,
-      dynamic: async (request, { dynamicFieldContext, settings }) => {
-        const query = dynamicFieldContext?.query
-        return await getDataExtensions(request, settings.subdomain, settings, query)
-      }
-    },
-    categoryId: {
-      label: 'Category ID (Folder ID)',
-      description: 'The identifier for the folder that contains the data extension.',
-      type: 'string',
-      required: false, //CREATE_OPERATION,
-      depends_on: CREATE_OPERATION,
-      dynamic: async (request, { settings }) => {
-        return await getCategories(request, settings)
-      }
-    },
-    name: {
-      label: 'Data Extension Name',
-      description: 'The name of the data extension.',
-      type: 'string',
-      required: false, //CREATE_OPERATION,
-      depends_on: CREATE_OPERATION
-    },
-    description: {
-      label: 'Data Extension Description',
-      description: 'The description of the data extension.',
-      type: 'string',
-      depends_on: CREATE_OPERATION
-    },
-    isSendable: {
-      label: 'Is Sendable',
-      type: 'boolean',
-      depends_on: CREATE_OPERATION,
-      description:
-        'Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable'
-    },
-    sendableCustomObjectField: {
-      label: 'Sendable Custom Object Field',
-      description:
-        'The field on this data extension which is sendable. This must be a field that is present on this data extension.',
-      type: 'string',
-      depends_on: IS_SENDABLE,
-      required: false // IS_SENDABLE
-    },
-    sendableSubscriberField: {
-      label: 'Sendable Subscriber Field',
-      description: 'The relationship with "Subscribers" for the Sendable Custom Object Field.',
-      type: 'string',
-      depends_on: IS_SENDABLE,
-      required: false, // IS_SENDABLE,
-      choices: [
-        { label: 'Subscriber Key', value: '_SubscriberKey' },
-        { label: 'Subscriber ID', value: '_SubscriberID' }
-      ]
-    },
-    columns: {
-      label: 'Data Extension Fields',
-      description: 'A list of fields to create in the data extension.',
-      type: 'object' as FieldTypeName,
-      multiple: true,
-      defaultObjectUI: 'arrayeditor',
-      additionalProperties: true,
-      required: false, // CREATE_OPERATION,
-      depends_on: CREATE_OPERATION,
-      properties: {
-        name: {
-          label: 'Field Name',
-          description: 'The name of the field.',
-          type: 'string',
-          required: false // true
-        },
-        type: {
-          label: 'Field Type',
-          description: 'The data type of the field.',
-          type: 'string',
-          required: false, // true,
-          choices: ['Text', 'Number', 'Date', 'Boolean', 'EmailAddress', 'Phone', 'Decimal', 'Locale']
-        },
-        isNullable: {
-          label: 'Is Nullable',
-          description: 'Whether the field can be null.',
-          type: 'boolean',
-          required: false // true
-        },
-        isPrimaryKey: {
-          label: 'Is Primary Key',
-          description: 'Whether the field is a primary key.',
-          type: 'boolean',
-          required: false // true
-        },
-        length: {
-          label: 'Field Length',
-          description: 'The length of the field. Required for non-boolean fields',
-          type: 'integer'
-        },
-        scale: {
-          label: 'Decimal Scale',
-          description: 'The scale of the field. Required for Decimal fields',
-          type: 'integer'
-        },
-        description: {
-          label: 'Field Description',
-          description: 'The description of the field.',
-          type: 'string'
-        }
-      }
-    }
-  },
-  performHook: async (request, { settings, hookInputs }) => {
-    return await selectOrCreateDataExtension(request, settings.subdomain, hookInputs, settings)
-  },
-  outputTypes: {
-    id: {
-      label: 'Data Extension ID',
-      description: 'The identifier for the data extension.',
-      type: 'string',
-      required: true
-    },
-    name: {
-      label: 'Data Extension Name',
-      description: 'The name of the data extension.',
-      type: 'string',
-      required: true
-    }
-  }
 }
