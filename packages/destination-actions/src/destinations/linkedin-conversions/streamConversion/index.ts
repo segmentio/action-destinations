@@ -249,7 +249,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     userInfo: {
       label: 'User Info',
       description:
-        'Object containing additional fields for user matching. If this object is defined, both firstName and lastName are required.',
+        'Object containing additional fields for user matching. If this object is defined, both firstName and lastName are require.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       required: false,
