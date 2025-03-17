@@ -61,7 +61,8 @@ jobs:
           # This is important because the main branch may have different dependencies
           # than the current branch, and we want to ensure that the required fields are
           # checked against the correct version of the dependencies
-          yarn install --frozen-lockfile
+          yarn install --frozen-lockfile --silent
+          # Run the list-required-fields command on the main branch to get the required fields
           REQUIRED_FIELDS_MAIN_BRANCH=$(./bin/run list-required-fields -p ${{ steps.get_files.outputs.files }} | jq -c .)
           echo "REQUIRED_FIELDS_MAIN_BRANCH=$REQUIRED_FIELDS_MAIN_BRANCH" >> $GITHUB_ENV
 
