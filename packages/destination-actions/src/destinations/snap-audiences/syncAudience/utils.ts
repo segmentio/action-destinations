@@ -17,7 +17,6 @@ export const sortPayload = (payload: Payload[], features?: Features) => {
         payloadItem.advertising_id,
         features
       )
-      console.log('externalId', externalId)
 
       if (externalId) {
         if (audienceEntered) {
