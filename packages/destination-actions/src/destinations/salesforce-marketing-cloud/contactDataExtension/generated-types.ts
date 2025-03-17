@@ -40,7 +40,7 @@ export interface RetlOnMappingSaveInputs {
   /**
    * Whether to create a new data extension or select an existing one for data delivery.
    */
-  operation: string
+  operation?: string
   /**
    * The identifier for the data extension.
    */
@@ -76,19 +76,19 @@ export interface RetlOnMappingSaveInputs {
     /**
      * The name of the field.
      */
-    name: string
+    name?: string
     /**
      * The data type of the field.
      */
-    type: string
+    type?: string
     /**
      * Whether the field can be null.
      */
-    isNullable: boolean
+    isNullable?: boolean
     /**
      * Whether the field is a primary key.
      */
-    isPrimaryKey: boolean
+    isPrimaryKey?: boolean
     /**
      * The length of the field. Required for non-boolean fields
      */
@@ -122,7 +122,7 @@ export interface OnMappingSaveInputs {
   /**
    * Whether to create a new data extension or select an existing one for data delivery.
    */
-  operation: string
+  operation?: string
   /**
    * The identifier for the data extension.
    */
@@ -158,19 +158,19 @@ export interface OnMappingSaveInputs {
     /**
      * The name of the field.
      */
-    name: string
+    name?: string
     /**
      * The data type of the field.
      */
-    type: string
+    type?: string
     /**
      * Whether the field can be null.
      */
-    isNullable: boolean
+    isNullable?: boolean
     /**
      * Whether the field is a primary key.
      */
-    isPrimaryKey: boolean
+    isPrimaryKey?: boolean
     /**
      * The length of the field. Required for non-boolean fields
      */

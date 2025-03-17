@@ -130,7 +130,7 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
         { label: 'Create a new Data Extension', value: 'create' },
         { label: 'Select an existing Data Extension', value: 'select' }
       ],
-      required: true
+      required: false
     },
     dataExtensionId: {
       label: 'Data Extension ID',
@@ -146,7 +146,7 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
       label: 'Category ID (Folder ID)',
       description: 'The identifier for the folder that contains the data extension.',
       type: 'string',
-      required: CREATE_OPERATION,
+      required: false, //CREATE_OPERATION,
       depends_on: CREATE_OPERATION,
       dynamic: async (request, { settings }) => {
         return await getCategories(request, settings)
@@ -156,7 +156,7 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
       label: 'Data Extension Name',
       description: 'The name of the data extension.',
       type: 'string',
-      required: CREATE_OPERATION,
+      required: false, //CREATE_OPERATION,
       depends_on: CREATE_OPERATION
     },
     description: {
@@ -178,14 +178,14 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
         'The field on this data extension which is sendable. This must be a field that is present on this data extension.',
       type: 'string',
       depends_on: IS_SENDABLE,
-      required: IS_SENDABLE
+      required: false // IS_SENDABLE
     },
     sendableSubscriberField: {
       label: 'Sendable Subscriber Field',
       description: 'The relationship with "Subscribers" for the Sendable Custom Object Field.',
       type: 'string',
       depends_on: IS_SENDABLE,
-      required: IS_SENDABLE,
+      required: false, // IS_SENDABLE,
       choices: [
         { label: 'Subscriber Key', value: '_SubscriberKey' },
         { label: 'Subscriber ID', value: '_SubscriberID' }
@@ -198,33 +198,33 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
       multiple: true,
       defaultObjectUI: 'arrayeditor',
       additionalProperties: true,
-      required: CREATE_OPERATION,
+      required: false, // CREATE_OPERATION,
       depends_on: CREATE_OPERATION,
       properties: {
         name: {
           label: 'Field Name',
           description: 'The name of the field.',
           type: 'string',
-          required: true
+          required: false // true
         },
         type: {
           label: 'Field Type',
           description: 'The data type of the field.',
           type: 'string',
-          required: true,
+          required: false, // true,
           choices: ['Text', 'Number', 'Date', 'Boolean', 'EmailAddress', 'Phone', 'Decimal', 'Locale']
         },
         isNullable: {
           label: 'Is Nullable',
           description: 'Whether the field can be null.',
           type: 'boolean',
-          required: true
+          required: false // true
         },
         isPrimaryKey: {
           label: 'Is Primary Key',
           description: 'Whether the field is a primary key.',
           type: 'boolean',
-          required: true
+          required: false // true
         },
         length: {
           label: 'Field Length',
