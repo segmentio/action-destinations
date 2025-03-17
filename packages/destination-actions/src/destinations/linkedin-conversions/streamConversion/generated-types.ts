@@ -39,11 +39,11 @@ export interface Payload {
    */
   oracleID?: string
   /**
-   * Object containing additional fields for user matching. If this object is defined, both firstName and lastName are required.
+   * Object containing additional fields for user matching. If this object is defined, both firstName and lastName are require.
    */
   userInfo?: {
-    firstName: string
-    lastName: string
+    firstName?: string
+    lastName?: string
     companyName?: string
     title?: string
     countryCode?: string
