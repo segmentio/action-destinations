@@ -1,7 +1,7 @@
 import { join } from 'path'
 import { transform } from '../index'
 import { readdirSync } from 'fs'
-import { JSONLikeObject } from 'src/json-object'
+import { JSONLikeObject } from '../../json-object'
 
 describe('validations', () => {
   test('valid', () => {
