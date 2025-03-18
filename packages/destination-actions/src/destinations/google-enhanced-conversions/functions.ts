@@ -438,7 +438,7 @@ export function formatToE164(phoneNumber: string, countryCode: string): string {
   return formattedPhoneNumber
 }
 
-const formatPhone = (phone: string, countryCode?: string): string => {
+export const formatPhone = (phone: string, countryCode?: string): string => {
   const formattedPhone = formatToE164(phone, countryCode ?? '+1')
   return sha256SmartHash(formattedPhone)
 }

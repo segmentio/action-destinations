@@ -12,7 +12,8 @@ import {
   getApiVersion,
   commonHashedEmailValidation,
   getConversionActionDynamicData,
-  isHashedInformation
+  isHashedInformation,
+  formatPhone
 } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -313,9 +314,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payload.phone_number) {
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: isHashedInformation(payload.phone_number)
-            ? payload.phone_number
-            : hash(payload.phone_number)
+          hashedPhoneNumber: formatPhone(payload.phone_number, payload.phone_country_code)
         } as UserIdentifierInterface)
       }
 
@@ -421,9 +420,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payloadItem.phone_number) {
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: isHashedInformation(payloadItem.phone_number)
-            ? payloadItem.phone_number
-            : hash(payloadItem.phone_number)
+          hashedPhoneNumber: formatPhone(payloadItem.phone_number, payloadItem.phone_country_code)
         } as UserIdentifierInterface)
       }
 

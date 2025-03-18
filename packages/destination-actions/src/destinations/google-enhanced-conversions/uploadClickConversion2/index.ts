@@ -16,15 +16,14 @@ import {
 } from '../types'
 import {
   formatCustomVariables,
-  hash,
   getCustomVariables,
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
   commonHashedEmailValidation,
   getConversionActionDynamicData,
-  isHashedInformation,
-  memoizedGetCustomVariables
+  memoizedGetCustomVariables,
+  formatPhone
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 
@@ -334,11 +333,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payload.phone_number) {
-        // remove '+' from phone number if received in payload duplicacy and add '+'
-        const phoneNumber = '+' + payload.phone_number.split('+').join('')
-
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(phoneNumber)
+          hashedPhoneNumber: formatPhone(payload.phone_number, payload.phone_country_code)
         } as UserIdentifierInterface)
       }
 
@@ -447,13 +443,8 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         if (payloadItem.phone_number) {
-          // remove '+' from phone number if received in payload duplicacy and add '+'
-          const phoneNumber = '+' + payloadItem.phone_number.split('+').join('')
-
           request_object.userIdentifiers.push({
-            hashedPhoneNumber: isHashedInformation(payloadItem.phone_number)
-              ? payloadItem.phone_number
-              : hash(phoneNumber)
+            hashedPhoneNumber: formatPhone(payloadItem.phone_number, payloadItem.phone_country_code)
           } as UserIdentifierInterface)
         }
 
