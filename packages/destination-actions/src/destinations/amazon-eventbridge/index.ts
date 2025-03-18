@@ -49,7 +49,6 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Partner Event Source Name',
         description: 'The name of the partner event source to use for the event bus.',
         required: true,
-        unsafe_hidden: true,
         default: 'segment.com',
         choices: [
           { label: 'segment.com', value: 'aws.partner/segment.com' },
