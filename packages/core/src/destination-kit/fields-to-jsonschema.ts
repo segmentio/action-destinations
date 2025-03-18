@@ -310,6 +310,15 @@ export function fieldsToJsonSchema(
       schema.format = 'password'
     } else if (field.type === 'text') {
       schema.format = 'text'
+    } else if (field.type === 'string') {
+      const { minimum = null, maximum = null } = field as InputField
+      if (minimum) {
+        schema.minLength = (field as InputField)?.minimum
+      }
+      if (maximum) {
+        schema.maxLength = (field as InputField)?.maximum
+      }
+      console.log('minimum', minimum, 'maximum', maximum)
     } else if (field.type === 'number') {
       const { minimum = null, maximum = null } = field as InputField
       if (minimum) {
