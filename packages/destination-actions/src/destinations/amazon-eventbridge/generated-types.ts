@@ -15,11 +15,9 @@ export interface Settings {
    */
   partnerEventSourceName: string
   /**
-   * USE WITH CAUTION: This will create the partner event source if it does not already exist.
-   *                       Use this option if you want to create the partner event source.
-   *                       projectId or context.protocols.sourceId will be used as the sourceId to
-   *                       create the partner event source.
-   *                       Use with caution.
+   * If enabled, Segment will check whether Partner Source identified by Segment source ID
+   *                       exists in EventBridge.
+   *                       If Partner Source does not exist, Segment will create a new Partner Source.
    */
   createPartnerEventSource?: boolean
 }
