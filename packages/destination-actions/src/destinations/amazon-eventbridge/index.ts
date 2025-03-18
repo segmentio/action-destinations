@@ -49,6 +49,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Partner Event Source Name',
         description: 'The name of the partner event source to use for the event bus.',
         required: true,
+        unsafe_hidden: true,
         default: 'segment.com',
         choices: [
           { label: 'segment.com', value: 'aws.partner/segment.com' },
@@ -58,11 +59,9 @@ const destination: DestinationDefinition<Settings> = {
       createPartnerEventSource: {
         type: 'boolean',
         label: 'Create Partner Event Source',
-        description: `USE WITH CAUTION: This will create the partner event source if it does not already exist.
-                      Use this option if you want to create the partner event source.
-                      projectId or context.protocols.sourceId will be used as the sourceId to 
-                      create the partner event source.
-                      Use with caution.`,
+        description: `If enabled, Segment will check whether Partner Source identified by Segment source ID 
+                      exists in EventBridge. 
+                      If Partner Source does not exist, Segment will create a new Partner Source.`,
         default: false
       }
     },
