@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { keys, enable_batching, batch_size, values_contactFields, dataExtensionHook } from '../sfmc-properties'
-import { executeUpsertWithMultiStatus, upsertRows, getDataExtensionFields } from '../sfmc-operations'
+import { executeUpsertWithMultiStatus, getDataExtensionFields, upsertRowsV2 } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Contact to Data Extension',
@@ -53,24 +53,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, hookOutputs }) => {
-    const dataExtensionId =
-      hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id || payload.id
-    const deprecated_dataExtensionKey = payload.key
+    const dataExtensionId = hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id
 
-    return upsertRows(request, settings.subdomain, [payload], dataExtensionId, deprecated_dataExtensionKey)
+    return upsertRowsV2(request, settings.subdomain, [payload], dataExtensionId)
   },
   performBatch: async (request, { settings, payload, hookOutputs }) => {
-    const dataExtensionId =
-      hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id || payload[0].id
-    const deprecated_dataExtensionKey = payload[0].key
+    const dataExtensionId = hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id
 
-    return executeUpsertWithMultiStatus(
-      request,
-      settings.subdomain,
-      payload,
-      dataExtensionId,
-      deprecated_dataExtensionKey
-    )
+    return executeUpsertWithMultiStatus(request, settings.subdomain, payload, dataExtensionId)
   }
 }
 
