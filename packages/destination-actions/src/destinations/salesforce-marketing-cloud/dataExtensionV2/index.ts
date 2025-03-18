@@ -8,8 +8,8 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event to Data Extension',
   description: 'Upsert events as rows into an existing data extension in Salesforce Marketing Cloud.',
   fields: {
-    keys: { ...keys, required: true },
-    values: values_dataExtensionFields,
+    keys: { ...keys, required: true, dynamic: true },
+    values: { ...values_dataExtensionFields, dynamic: true },
     enable_batching: enable_batching,
     batch_size: batch_size
   },

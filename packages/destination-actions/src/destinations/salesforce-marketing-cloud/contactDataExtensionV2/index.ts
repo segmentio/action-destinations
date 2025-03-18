@@ -11,6 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     keys: {
       ...keys,
+      dynamic: true,
       properties: {
         contactKey: {
           label: 'Contact Key',
@@ -24,7 +25,7 @@ const action: ActionDefinition<Settings, Payload> = {
         contactKey: { '@path': '$.userId' }
       }
     },
-    values: values_contactFields,
+    values: { ...values_contactFields, dynamic: true },
     enable_batching: enable_batching,
     batch_size: batch_size
   },
