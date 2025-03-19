@@ -69,7 +69,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -132,7 +132,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -196,7 +196,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -260,7 +260,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -324,7 +324,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -388,7 +388,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -451,7 +451,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
