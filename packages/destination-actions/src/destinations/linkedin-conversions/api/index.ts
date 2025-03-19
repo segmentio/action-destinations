@@ -427,7 +427,7 @@ export class LinkedInConversions {
         features ?? {},
         'actions-linkedin-conversions',
         this.normalizeEmail
-      )
+      ) as string
       userIds.push({
         idType: 'SHA256_EMAIL',
         idValue: hashedEmail

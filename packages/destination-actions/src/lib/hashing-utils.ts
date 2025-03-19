@@ -84,13 +84,17 @@ class SmartHashing {
  * @returns The hashed value or the original value if it is already hashed.
  */
 export function processHashing(
-  value: string,
+  value: string | undefined,
   encryptionMethod: EncryptionMethod,
   digest: DigestType,
   features: Features | undefined,
   destinationSlugForBypass: string,
   cleaningFunction?: CleaningFunction
-): string {
+): string | undefined {
+  if (value === undefined) {
+    return
+  }
+
   if (value.trim() === '') {
     return ''
   }

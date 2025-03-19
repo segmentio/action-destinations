@@ -180,7 +180,7 @@ function normalizeAndHash(data: string, features: Features | undefined) {
   // Normalize the data
   const normalizedData = data.toLowerCase().trim() // Example: Convert to lowercase and remove leading/trailing spaces
   // Hash the normalized data using SHA-256
-  return processHashing(normalizedData, 'sha256', 'hex', features, 'first-party-dv360')
+  return processHashing(normalizedData, 'sha256', 'hex', features, 'first-party-dv360') as string
 }
 
 function processPayload(payload: Payload, features: Features | undefined) {

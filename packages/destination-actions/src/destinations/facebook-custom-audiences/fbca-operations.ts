@@ -88,7 +88,7 @@ const appendToDataRow = (
     features,
     'actions-facebook-custom-audiences',
     normalizationFunctions.get(key)
-  )
+  ) as string
 }
 
 export const getApiVersion = (features?: Features, statsContext?: StatsContext): string => {

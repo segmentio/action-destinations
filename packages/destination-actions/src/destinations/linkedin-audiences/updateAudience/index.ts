@@ -293,7 +293,7 @@ function getUserIds(settings: Settings, payload: Payload, features?: Features): 
   if (payload.email && settings.send_email === true) {
     userIds.push({
       idType: 'SHA256_EMAIL',
-      idValue: processHashing(payload.email, 'sha256', 'hex', features ?? {}, 'actions-linkedin-audiences')
+      idValue: processHashing(payload.email, 'sha256', 'hex', features ?? {}, 'actions-linkedin-audiences') as string
     })
   }
 
