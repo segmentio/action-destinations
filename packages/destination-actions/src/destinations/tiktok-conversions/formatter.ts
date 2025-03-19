@@ -24,12 +24,12 @@ export const formatPhones = (phone_numbers: string[] | undefined, features: Feat
 
   phone_numbers.forEach((phone: string) => {
     // Limit length to 15 characters
-    result.push(hashAndEncode(phone, features, cleaningFunction))
+    result.push(hashAndEncode(phone, features, cleanPhoneNumber))
   })
   return result
 }
 
-const cleaningFunction = (phone: string): string => {
+const cleanPhoneNumber = (phone: string): string => {
   const validatedPhone = phone.match(/[0-9]{0,14}/g)
   if (validatedPhone === null) {
     throw new Error(`${phone} is not a valid E.164 phone number.`)
