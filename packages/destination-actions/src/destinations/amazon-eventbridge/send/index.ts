@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from '../functions'
+import { PayloadValidationError } from '@segment/actions-core/*'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
@@ -19,6 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `Detail Type of the event. Used to determine what fields to expect in the event Detail. 
                     Values longer than 128 characters are trimmed`,
       type: 'string',
+      maximum: 128,
       default: { '@path': '$.type' },
       required: true
     },
@@ -79,6 +81,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (_, data) => {
+    console.log(data.payload.detailType.length)
+    if (data.payload.detailType && data.payload.detailType.length > 128) {
+      throw new PayloadValidationError('Detail Type must be 128 characters or less')
+    }
     const { payload, settings } = data
     return send([payload], settings)
   },
