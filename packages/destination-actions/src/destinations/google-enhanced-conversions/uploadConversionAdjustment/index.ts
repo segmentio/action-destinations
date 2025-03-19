@@ -6,7 +6,8 @@ import {
   getApiVersion,
   commonHashedEmailValidation,
   getConversionActionDynamicData,
-  isHashedInformation
+  isHashedInformation,
+  formatPhone
 } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -115,6 +116,11 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.context.traits.email' }
         }
       }
+    },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
     },
     phone_number: {
       label: 'Phone Number',
@@ -295,7 +301,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.phone_number) {
       request_object.userIdentifiers.push({
-        hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(payload.phone_number)
+        hashedPhoneNumber: formatPhone(payload.phone_number, payload.phone_country_code)
       } as UserIdentifierInterface)
     }
 
@@ -392,9 +398,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payloadItem.phone_number) {
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: isHashedInformation(payloadItem.phone_number)
-            ? payloadItem.phone_number
-            : hash(payloadItem.phone_number)
+          hashedPhoneNumber: formatPhone(payloadItem.phone_number, payloadItem.phone_country_code)
         } as UserIdentifierInterface)
       }
 

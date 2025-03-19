@@ -15,7 +15,6 @@ import {
 } from '../types'
 import {
   formatCustomVariables,
-  hash,
   getCustomVariables,
   memoizedGetCustomVariables,
   handleGoogleErrors,
@@ -23,7 +22,7 @@ import {
   getApiVersion,
   commonHashedEmailValidation,
   getConversionActionDynamicData,
-  isHashedInformation
+  formatPhone
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 
@@ -77,6 +76,11 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.context.traits.email' }
         }
       }
+    },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
     },
     phone_number: {
       label: 'Phone Number',
@@ -321,11 +325,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.phone_number) {
-      // remove '+' from phone number if received in payload duplicacy and add '+'
-      const phoneNumber = '+' + payload.phone_number.split('+').join('')
-
       request_object.userIdentifiers.push({
-        hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(phoneNumber)
+        hashedPhoneNumber: formatPhone(payload.phone_number, payload.phone_country_code)
       } as UserIdentifierInterface)
     }
 
@@ -429,11 +430,8 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         if (payload.phone_number) {
-          // remove '+' from phone number if received in payload duplicacy and add '+'
-          const phoneNumber = '+' + payload.phone_number.split('+').join('')
-
           request_object.userIdentifiers.push({
-            hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(phoneNumber)
+            hashedPhoneNumber: formatPhone(payload.phone_number, payload.phone_country_code)
           } as UserIdentifierInterface)
         }
 
