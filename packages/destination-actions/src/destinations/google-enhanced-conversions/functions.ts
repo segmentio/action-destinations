@@ -501,12 +501,8 @@ const extractUserIdentifiers = (
             'actions-google-enhanced-conversions'
           )
         }
-        if (payload.country_code) {
-          addressInfo.countryCode = payload.country_code
-        }
-        if (payload.postal_code) {
-          addressInfo.postalCode = payload.postal_code
-        }
+        addressInfo.countryCode = payload.country_code
+        addressInfo.postalCode = payload.postal_code
         identifiers.push({ addressInfo })
       }
       return identifiers
