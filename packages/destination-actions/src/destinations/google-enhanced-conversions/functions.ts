@@ -9,7 +9,8 @@ import {
   CreateAudienceInput,
   CreateGoogleAudienceResponse,
   UserListResponse,
-  UserList
+  UserList,
+  Auth
 } from './types'
 import {
   ModifiedResponse,
@@ -93,7 +94,7 @@ export const hash = (value: string | undefined): string | undefined => {
 
 export async function getCustomVariables(
   customerId: string,
-  auth: any,
+  auth: Auth,
   request: RequestClient,
   features: Features | undefined,
   statsContext: StatsContext | undefined
@@ -121,7 +122,7 @@ export function memoizedGetCustomVariables() {
 
   return async (
     customerId: string,
-    auth: any,
+    auth: Auth,
     request: RequestClient,
     features: Features | undefined,
     statsContext: StatsContext | undefined
@@ -138,7 +139,7 @@ export function memoizedGetCustomVariables() {
 
 export async function getConversionActionId(
   customerId: string | undefined,
-  auth: any,
+  auth: Auth,
   request: RequestClient,
   features: Features | undefined,
   statsContext: StatsContext | undefined
@@ -163,8 +164,8 @@ export async function getConversionActionId(
 
 export async function getConversionActionDynamicData(
   request: RequestClient,
-  settings: any,
-  auth: any,
+  settings: { customerId: string },
+  auth: Auth,
   features: Features | undefined,
   statsContext: StatsContext | undefined
 ): Promise<DynamicFieldResponse> {
@@ -186,7 +187,7 @@ export async function getConversionActionDynamicData(
       nextPage: '',
       error: {
         message: (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
-        code: (err as GoogleAdsError).response?.status + '' ?? '500'
+        code: (err as GoogleAdsError).response?.status?.toString() ?? '500'
       }
     }
   }
@@ -205,7 +206,7 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
   if (!timestamp) {
     return undefined
   }
-  return timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00')
+  return timestamp.replace(/T/, ' ').replace(/Z$/, '+00:00').replace(/\..+/, '+00:00')
 }
 
 export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
@@ -239,7 +240,7 @@ export const commonEmailValidation = (email: string): string => {
 export async function getListIds(
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
-  auth?: any,
+  auth?: Auth,
   features?: Features | undefined,
   statsContext?: StatsContext
 ) {
@@ -283,7 +284,7 @@ export async function getListIds(
 export async function createGoogleAudience(
   request: RequestClient,
   input: CreateAudienceInput,
-  auth: CreateAudienceInput['settings']['oauth'],
+  auth: Auth,
   features?: Features | undefined,
   statsContext?: StatsContext
 ) {
@@ -358,7 +359,7 @@ export async function getGoogleAudience(
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
   externalId: string,
-  auth: CreateAudienceInput['settings']['oauth'],
+  auth: Auth,
   features?: Features | undefined,
   statsContext?: StatsContext
 ) {
@@ -401,7 +402,7 @@ export async function getGoogleAudience(
     }
   )
 
-  const id = (response.data as any).results[0].userList.id
+  const id = (response.data as UserListResponse).results[0].userList.id
 
   if (!id) {
     statsClient?.incr('getAudience.error', 1, statsTags)
@@ -568,14 +569,14 @@ const createOfflineUserJob = async (
     return (response.data as any).resourceName
   } catch (error) {
     statsContext?.statsClient?.incr('error.createJob', 1, statsContext?.tags)
-    handleGoogleAdsError(error)
+    handleGoogleAdsError(error as GoogleAdsError)
   }
 }
 
-const handleGoogleAdsError = (error: any) => {
+const handleGoogleAdsError = (error: GoogleAdsError) => {
   // Google throws 400 error for CONCURRENT_MODIFICATION error which is a retryable error
   // We rewrite this error to a 500 so that Centrifuge can retry the request
-  const errors = (error as GoogleAdsError).response?.data?.error?.details ?? []
+  const errors = error.response?.data?.error?.details ?? []
   for (const errorDetails of errors) {
     for (const errorItem of errorDetails.errors) {
       // https://developers.google.com/google-ads/api/reference/rpc/v17/DatabaseErrorEnum.DatabaseError
@@ -594,7 +595,7 @@ const handleGoogleAdsError = (error: any) => {
 
 const addOperations = async (
   request: RequestClient,
-  userIdentifiers: any,
+  userIdentifiers: UserIdentifier[],
   resourceName: string,
   features?: Features | undefined,
   statsContext?: StatsContext | undefined
@@ -618,7 +619,7 @@ const addOperations = async (
     return response.data
   } catch (error) {
     statsContext?.statsClient?.incr('error.addOperations', 1, statsContext?.tags)
-    handleGoogleAdsError(error)
+    handleGoogleAdsError(error as GoogleAdsError)
   }
 }
 
@@ -641,7 +642,7 @@ const runOfflineUserJob = async (
     return response.data
   } catch (error) {
     statsContext?.statsClient?.incr('error.runJob', 1, statsContext?.tags)
-    handleGoogleAdsError(error)
+    handleGoogleAdsError(error as GoogleAdsError)
   }
 }
 
