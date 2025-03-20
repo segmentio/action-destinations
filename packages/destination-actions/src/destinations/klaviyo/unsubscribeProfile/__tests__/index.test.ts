@@ -75,7 +75,17 @@ describe('Unsubscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  phone_number: '+918448309222'
+                  phone_number: '+918448309222',
+                  subscriptions: {
+                    sms: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      },
+                      transactional: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               }
             ]
@@ -107,7 +117,22 @@ describe('Unsubscribe Profile', () => {
                 type: 'profile',
                 attributes: {
                   email: payload.email,
-                  phone_number: payload.phone_number
+                  phone_number: payload.phone_number,
+                  subscriptions: {
+                    sms: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      },
+                      transactional: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    },
+                    email: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               }
             ]
@@ -122,7 +147,22 @@ describe('Unsubscribe Profile', () => {
       context: {
         traits: {
           email: payload.email,
-          phone_number: payload.phone_number
+          phone_number: payload.phone_number,
+          subscriptions: {
+            sms: {
+              marketing: {
+                consent: 'UNSUBSCRIBED'
+              },
+              transactional: {
+                consent: 'UNSUBSCRIBED'
+              }
+            },
+            email: {
+              marketing: {
+                consent: 'UNSUBSCRIBED'
+              }
+            }
+          }
         }
       }
     })
@@ -160,7 +200,22 @@ describe('Unsubscribe Profile', () => {
                 type: 'profile',
                 attributes: {
                   email: payload.email,
-                  phone_number: payload.phone_number
+                  phone_number: payload.phone_number,
+                  subscriptions: {
+                    sms: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      },
+                      transactional: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    },
+                    email: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               }
             ]
@@ -220,7 +275,14 @@ describe('Unsubscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  email: payload.email
+                  email: payload.email,
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               }
             ]
@@ -272,7 +334,17 @@ describe('Unsubscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  phone_number: payload.phone_number
+                  phone_number: payload.phone_number,
+                  subscriptions: {
+                    sms: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      },
+                      transactional: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               }
             ]
@@ -463,7 +535,14 @@ describe('Unsubscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  email: 'user1@example.com'
+                  email: 'user1@example.com',
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               }
             ]
@@ -521,13 +600,30 @@ describe('Unsubscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  email: 'user1@example.com'
+                  email: 'user1@example.com',
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               },
               {
                 type: 'profile',
                 attributes: {
-                  phone_number: '+918448309222'
+                  phone_number: '+918448309222',
+                  subscriptions: {
+                    sms: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      },
+                      transactional: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               }
             ]
@@ -603,20 +699,52 @@ describe('Unsubscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  email: 'test@email.com'
+                  email: 'test@email.com',
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               },
               {
                 type: 'profile',
                 attributes: {
-                  phone_number: '+17067675129'
+                  phone_number: '+17067675129',
+                  subscriptions: {
+                    sms: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      },
+                      transactional: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               },
               {
                 type: 'profile',
                 attributes: {
                   email: 'test2@email.com',
-                  phone_number: '+17067665437'
+                  phone_number: '+17067665437',
+                  subscriptions: {
+                    sms: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      },
+                      transactional: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    },
+                    email: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               }
             ]
@@ -693,7 +821,14 @@ describe('Unsubscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  email: 'test@email.com'
+                  email: 'test@email.com',
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               }
             ]
@@ -718,7 +853,17 @@ describe('Unsubscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  phone_number: '+17067675129'
+                  phone_number: '+17067675129',
+                  subscriptions: {
+                    sms: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      },
+                      transactional: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               }
             ]
@@ -744,7 +889,14 @@ describe('Unsubscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  email: 'test2@email.com'
+                  email: 'test2@email.com',
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: 'UNSUBSCRIBED'
+                      }
+                    }
+                  }
                 }
               }
             ]
