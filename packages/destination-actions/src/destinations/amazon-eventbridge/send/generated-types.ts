@@ -8,7 +8,8 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The detail type for the event.
+   * Detail Type of the event. Used to determine what fields to expect in the event Detail.
+   *                     Values longer than 128 characters are trimmed
    */
   detailType: string
   /**
