@@ -8,6 +8,8 @@ import { ACTION_SLUG, LIVERAMP_SFTP_SERVER, LIVERAMP_SFTP_PORT } from './propert
 
 interface SendToAWSRequest {
   audienceComputeId?: string
+  destinationInstanceID?: string
+  subscriptionId?: string
   uploadType: 's3' | 'sftp'
   filename: string
   fileContents: Buffer
@@ -61,8 +63,8 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
   // Compute file path and message dedupe id
   // Each advertiser and segment can eventually have multiple data drops, we use uuid create unique files
   const uuidValue = uuidv4()
-  const userdataFilePath = `/${ACTION_SLUG}/${input.audienceComputeId}/${uuidValue}.csv`
-  const metadataFilePath = `/${ACTION_SLUG}/${input.audienceComputeId}/meta.json`
+  const userdataFilePath = `/${ACTION_SLUG}/${input.destinationInstanceID}/${input.subscriptionId}/${input.audienceComputeId}/${uuidValue}.csv`
+  const metadataFilePath = `/${ACTION_SLUG}/${input.destinationInstanceID}/${input.subscriptionId}/${input.audienceComputeId}/meta.json`
 
   // Create Metadata
   const metadata: LRMetaPayload = {
