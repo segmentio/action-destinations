@@ -436,7 +436,22 @@ const getDataExtensionsRequest = async (
       })
     }
   } catch (err) {
-    return { error: { message: err.response.data.message, code: 'BAD_REQUEST' } }
+    const errorCode: string =
+      typeof err.response.data.errorcode === 'number'
+        ? err.response.data.errorcode.toString()
+        : err.response.data.errorcode
+    const errorMessage = err.response.data.message
+
+    if (errorCode === '20002') {
+      return {
+        error: {
+          message: `${errorMessage}. Please input a data extension ID manually to configure your mapping. To resolve this authentication issue refer to the required permissions under 'Getting Started' in the documentation at https://segment.com/docs/connections/destinations/catalog/actions-salesforce-marketing-cloud/`,
+          code: errorCode
+        }
+      }
+    }
+
+    return { error: { message: err.response.data.message, code: errorCode || 'BAD_REQUEST' } }
   }
 }
 
