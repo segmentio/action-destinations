@@ -16,7 +16,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     detailType: {
       label: 'Detail Type',
-      description: 'The detail type for the event.',
+      description: `Detail Type of the event. Used to determine what fields to expect in the event Detail. 
+                    Values longer than 128 characters are trimmed`,
       type: 'string',
       default: { '@path': '$.type' },
       required: true

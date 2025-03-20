@@ -1,7 +1,7 @@
 import { createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
 import { Features } from '@segment/actions-core/mapping-kit'
 import nock from 'nock'
-import { CANARY_API_VERSION, formatToE164, commonHashedEmailValidation } from '../functions'
+import { CANARY_API_VERSION, formatToE164, commonEmailValidation } from '../functions'
 import destination from '../index'
 
 const testDestination = createTestIntegration(destination)
@@ -144,14 +144,11 @@ describe('.getConversionActionId', () => {
 
 describe('email formatting', () => {
   it('should format a non-hashed value', async () => {
-    expect(commonHashedEmailValidation('test@gmail.com')).toEqual(
-      '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
-    )
+    expect(commonEmailValidation('    test@gmail.com    ')).toEqual('test@gmail.com')
   })
-  it('should return hashed value as is', async () => {
-    expect(commonHashedEmailValidation('87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674')).toEqual(
-      '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
-    )
+
+  it('should throw error for non email value', async () => {
+    expect(() => commonEmailValidation('test')).toThrowError(`Email provided doesn't seem to be in a valid format.`)
   })
 })
 
