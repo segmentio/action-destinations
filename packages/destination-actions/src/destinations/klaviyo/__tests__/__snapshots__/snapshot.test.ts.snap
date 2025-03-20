@@ -159,6 +159,21 @@ Object {
             "attributes": Object {
               "email": "vej@ir.cz",
               "phone_number": "+3658066891",
+              "subscriptions": Object {
+                "email": Object {
+                  "marketing": Object {
+                    "consent": "UNSUBSCRIBED",
+                  },
+                },
+                "sms": Object {
+                  "marketing": Object {
+                    "consent": "UNSUBSCRIBED",
+                  },
+                  "transactional": Object {
+                    "consent": "UNSUBSCRIBED",
+                  },
+                },
+              },
             },
             "type": "profile",
           },

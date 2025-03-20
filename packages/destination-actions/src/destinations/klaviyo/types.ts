@@ -186,6 +186,21 @@ export interface UnsubscribeProfile {
   attributes: {
     email?: string
     phone_number?: string
+    subscriptions: {
+      email?: {
+        marketing: {
+          consent: 'UNSUBSCRIBED'
+        }
+      }
+      sms?: {
+        marketing?: {
+          consent: 'UNSUBSCRIBED'
+        }
+        transactional?: {
+          consent: 'UNSUBSCRIBED'
+        }
+      }
+    }
   }
 }
 
