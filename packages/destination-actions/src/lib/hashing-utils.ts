@@ -24,7 +24,12 @@ export const hashConfigs: {
   sha512: { lengthHex: 128, lengthBase64: 88 }
 }
 
-const slugsToBypassFeatureFlag = ['actions-facebook-custom-audiences', 'actions-linkedin-audiences', 'actions-google-enhanced-conversions']
+const slugsToBypassFeatureFlag = [
+  'actions-facebook-custom-audiences',
+  'actions-linkedin-audiences',
+  'actions-google-enhanced-conversions',
+  'actions-google-campaign-manager-360'
+]
 
 class SmartHashing {
   private preHashed: boolean
