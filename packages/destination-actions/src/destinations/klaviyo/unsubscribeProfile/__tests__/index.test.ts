@@ -535,14 +535,14 @@ describe('Unsubscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  email: 'user1@example.com',
                   subscriptions: {
                     email: {
                       marketing: {
                         consent: 'UNSUBSCRIBED'
                       }
                     }
-                  }
+                  },
+                  email: 'user1@example.com'
                 }
               }
             ]
@@ -600,20 +600,19 @@ describe('Unsubscribe Profile', () => {
               {
                 type: 'profile',
                 attributes: {
-                  email: 'user1@example.com',
                   subscriptions: {
                     email: {
                       marketing: {
                         consent: 'UNSUBSCRIBED'
                       }
                     }
-                  }
+                  },
+                  email: 'user1@example.com'
                 }
               },
               {
                 type: 'profile',
                 attributes: {
-                  phone_number: '+918448309222',
                   subscriptions: {
                     sms: {
                       marketing: {
@@ -623,7 +622,8 @@ describe('Unsubscribe Profile', () => {
                         consent: 'UNSUBSCRIBED'
                       }
                     }
-                  }
+                  },
+                  phone_number: '+918448309222'
                 }
               }
             ]
