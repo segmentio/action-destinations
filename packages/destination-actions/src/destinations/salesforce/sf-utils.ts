@@ -1,6 +1,7 @@
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, StatsContext } from '@segment/actions-core'
 import { GenericPayload } from './sf-types'
 import camelCase from 'lodash/camelCase'
+import { Logger } from '@segment/actions-core/destination-kit'
 
 type CSVData = string | number | boolean
 
@@ -177,7 +178,8 @@ const getUniqueIdValue = (payload: GenericPayload, operation: string | undefined
 export const buildCSVData = (
   payloads: GenericPayload[],
   uniqueIdName: string,
-  operation: string | undefined
+  operation: string | undefined,
+  logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
 ): string => {
   const headerMap = buildHeaderMap(payloads)
   let csv = buildHeaders(headerMap)
