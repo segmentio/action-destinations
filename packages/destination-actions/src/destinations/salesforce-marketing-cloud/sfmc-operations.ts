@@ -350,6 +350,20 @@ const selectDataExtensionRequest = async (
       name: (response as DataExtensionSelectionResponse).data.name
     }
   } catch (err) {
+    const errorCode: string =
+      typeof err.response.data.errorcode === 'number'
+        ? err.response.data.errorcode.toString()
+        : err.response.data.errorcode
+    const errorMessage = err.response.data.message
+
+    if (errorCode === '20002') {
+      return {
+        id: hookInputs.dataExtensionId,
+        name: 'Unknown (Insufficient Authentication Error)',
+        error: `${errorMessage} To resolve this authentication issue refer to the required permissions under 'Getting Started' in the documentation at https://segment.com/docs/connections/destinations/catalog/actions-salesforce-marketing-cloud/`
+      }
+    }
+
     return { id: '', name: '', error: err.response.data.message }
   }
 }
@@ -369,6 +383,12 @@ async function selectDataExtension(
   const { accessToken } = await getAccessToken(request, settings)
 
   const { id, name, error } = await selectDataExtensionRequest(request, hookInputs, { subdomain, accessToken })
+  if (error && id) {
+    return {
+      error: { message: error, code: 'Authentication Error' },
+      savedData: { id, name: name! }
+    }
+  }
 
   if (error || !id) {
     return {
