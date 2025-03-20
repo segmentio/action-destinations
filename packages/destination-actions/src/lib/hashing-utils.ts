@@ -27,6 +27,7 @@ export const hashConfigs: {
 const slugsToBypassFeatureFlag = [
   'actions-facebook-custom-audiences',
   'actions-linkedin-audiences',
+  'actions-google-enhanced-conversions',
   'actions-google-campaign-manager-360'
 ]
 
