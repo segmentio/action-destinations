@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-nextdoor-plugins",
-  "version": "1.20.1-staging-d14b8c06d.0",
+  "version": "1.20.1-staging-5780c1dbd.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -16,7 +16,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "1.76.1-staging-d14b8c06d.0"
+    "@segment/browser-destination-runtime": "1.76.1-staging-5780c1dbd.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
