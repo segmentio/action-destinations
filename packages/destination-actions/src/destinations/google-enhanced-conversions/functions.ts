@@ -205,7 +205,7 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
   if (!timestamp) {
     return undefined
   }
-  return timestamp.replace(/T/, ' ').replace(/Z$/, '+00:00').replace(/\..+/, '+00:00')
+  return timestamp.replace(/T/, ' ').replace(/(\.\d+)?Z/, '+00:00')
 }
 
 export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
@@ -482,28 +482,26 @@ const extractUserIdentifiers = (
         })
       }
       if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
-        const addressInfo: any = {}
-        if (payload.first_name) {
-          addressInfo.hashedFirstName = processHashing(
-            payload.first_name,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          )
-        }
-        if (payload.last_name) {
-          addressInfo.hashedLastName = processHashing(
-            payload.last_name,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          )
-        }
-        addressInfo.countryCode = payload.country_code ?? ''
-        addressInfo.postalCode = payload.postal_code ?? ''
-        identifiers.push({ addressInfo })
+        identifiers.push({
+          addressInfo: {
+            hashedFirstName: processHashing(
+              payload.first_name ?? '',
+              'sha256',
+              'hex',
+              features ?? {},
+              'actions-google-enhanced-conversions'
+            ),
+            hashedLastName: processHashing(
+              payload.last_name ?? '',
+              'sha256',
+              'hex',
+              features ?? {},
+              'actions-google-enhanced-conversions'
+            ),
+            countryCode: payload.country_code ?? '',
+            postalCode: payload.postal_code ?? ''
+          }
+        })
       }
       return identifiers
     }
