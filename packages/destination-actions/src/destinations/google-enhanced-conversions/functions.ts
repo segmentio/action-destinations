@@ -568,14 +568,14 @@ const createOfflineUserJob = async (
     return (response.data as any).resourceName
   } catch (error) {
     statsContext?.statsClient?.incr('error.createJob', 1, statsContext?.tags)
-    handleGoogleAdsError(error as GoogleAdsError)
+    handleGoogleAdsError(error)
   }
 }
 
-const handleGoogleAdsError = (error: GoogleAdsError) => {
+const handleGoogleAdsError = (error: any) => {
   // Google throws 400 error for CONCURRENT_MODIFICATION error which is a retryable error
   // We rewrite this error to a 500 so that Centrifuge can retry the request
-  const errors = error.response?.data?.error?.details ?? []
+  const errors = (error as GoogleAdsError).response?.data?.error?.details ?? []
   for (const errorDetails of errors) {
     for (const errorItem of errorDetails.errors) {
       // https://developers.google.com/google-ads/api/reference/rpc/v17/DatabaseErrorEnum.DatabaseError
@@ -618,7 +618,7 @@ const addOperations = async (
     return response.data
   } catch (error) {
     statsContext?.statsClient?.incr('error.addOperations', 1, statsContext?.tags)
-    handleGoogleAdsError(error as GoogleAdsError)
+    handleGoogleAdsError(error)
   }
 }
 
@@ -641,7 +641,7 @@ const runOfflineUserJob = async (
     return response.data
   } catch (error) {
     statsContext?.statsClient?.incr('error.runJob', 1, statsContext?.tags)
-    handleGoogleAdsError(error as GoogleAdsError)
+    handleGoogleAdsError(error)
   }
 }
 
