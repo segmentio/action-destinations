@@ -14,7 +14,7 @@ export const custom_data_field: InputField = {
       label: 'Value',
       description:
         'Total value of the event. E.g. if there are multiple items in a checkout event, value should be the total price of all items',
-      type: 'number'
+      type: 'string'
     },
     content_ids: {
       label: 'Content IDs',
@@ -35,7 +35,7 @@ export const custom_data_field: InputField = {
         },
         item_price: {
           label: 'Price',
-          type: 'number',
+          type: 'string',
           description: 'The price of the Item'
         },
         quantity: {
