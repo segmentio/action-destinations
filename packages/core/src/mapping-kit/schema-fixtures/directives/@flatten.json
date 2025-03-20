@@ -1,0 +1,549 @@
+[
+  {
+    "scenario": "simple",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            },
+            "separator": "."
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz",
+          "aces": {
+            "a": 1,
+            "b": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "bar": "baz",
+          "aces.a": 1,
+          "aces.b": 2
+        }
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "array value first",
+    "input": {
+      "mapping": {
+        "result": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            },
+            "separator": "."
+          }
+        }
+      },
+      "data": {
+        "foo": [
+          {
+            "fazz": "bar",
+            "fizz": "baz"
+          }
+        ]
+      }
+    },
+    "output": {
+      "data": {
+        "result": {
+          "0.fazz": "bar",
+          "0.fizz": "baz"
+        }
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "omitArrays passed",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            },
+            "separator": ".",
+            "omitArrays": true
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz",
+          "aces": [1, 2]
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "bar": "baz",
+          "aces": [1, 2]
+        }
+      }
+    }
+  },
+  {
+    "scenario": "flattens an object",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            },
+            "separator": "."
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "a": {
+            "b": {
+              "c": 1
+            },
+            "d": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "a.b.c": 1,
+          "a.d": 2
+        }
+      }
+    }
+  },
+  {
+    "scenario": "flattens an object with a custom separator",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            },
+            "separator": "/"
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "a": {
+            "b": {
+              "c": 1
+            },
+            "d": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "a/b/c": 1,
+          "a/d": 2
+        }
+      }
+    }
+  },
+  {
+    "scenario": "flattens an array",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            },
+            "separator": "."
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "a": [
+            {
+              "b": 1
+            },
+            {
+              "c": 2
+            }
+          ]
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "a.0.b": 1,
+          "a.1.c": 2
+        }
+      }
+    }
+  },
+  {
+    "scenario": "flattens a deep nested structure",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            },
+            "separator": "."
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "a": {
+            "b": {
+              "c": {
+                "d": {
+                  "e": {
+                    "f": {
+                      "g": {
+                        "h": {
+                          "i": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "a.b.c.d.e.f.g.h.i": 1
+        }
+      }
+    }
+  },
+  {
+    "scenario": "flattens a deep nested structure with deep nested arrays",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            },
+            "separator": "."
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "a": {
+            "b": {
+              "c": [
+                {
+                  "d": [
+                    {
+                      "e": [
+                        {
+                          "f": [
+                            {
+                              "g": [
+                                {
+                                  "h": [
+                                    {
+                                      "i": 1
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "a.b.c.0.d.0.e.0.f.0.g.0.h.0.i": 1
+        }
+      }
+    }
+  },
+  {
+    "scenario": "flattens a structure starting with arrays of objects",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            },
+            "separator": "."
+          }
+        }
+      },
+      "data": {
+        "foo": [
+          {
+            "a": [
+              {
+                "b": [
+                  {
+                    "c": 1
+                  }
+                ]
+              },
+              {
+                "d": [
+                  {
+                    "e": 2
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "0.a.0.b.0.c": 1,
+          "0.a.1.d.0.e": 2
+        }
+      }
+    }
+  },
+  {
+    "scenario": "does not flatten arrays when omitArrays is passed",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            },
+            "separator": ".",
+            "omitArrays": true
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "a": {
+            "b": {
+              "c": [
+                {
+                  "d": [
+                    {
+                      "e": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "a.b.c": [
+            {
+              "d": [
+                {
+                  "e": 1
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "scenario": "invalid mapping object",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": "abcdefgh"
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz",
+          "aces": {
+            "a": 1,
+            "b": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "error": "@flatten should be an object but it is a string"
+    }
+  },
+  {
+    "scenario": "missing separator key",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz",
+          "aces": {
+            "a": 1,
+            "b": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "error": "[@flatten should have field \"separator\" but it doesn't]|[@flatten requires a \"separator\" key]"
+    }
+  },
+  {
+    "scenario": "missing separator value",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            },
+            "separator": {
+              "@path": "$.foobar"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz",
+          "aces": {
+            "a": 1,
+            "b": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "error": "@flatten/separator should be a string but it is ['{'|a directive]"
+    }
+  },
+  {
+    "scenario": "missing value",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "value": {
+              "@path": "$.foo"
+            },
+            "separator": ","
+          }
+        }
+      },
+      "data": {
+        "bar": {
+          "bar": "baz",
+          "aces": {
+            "a": 1,
+            "b": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {}
+      }
+    }
+  },
+  {
+    "scenario": "missing value key",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "separator": ","
+          }
+        }
+      },
+      "data": {
+        "bar": {
+          "bar": "baz",
+          "aces": {
+            "a": 1,
+            "b": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "error": "@flatten should have field \"value\" but it doesn't"
+    }
+  },
+  {
+    "scenario": "value resolves to non-object/array value",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@flatten": {
+            "separator": ",",
+            "value": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "bar": {
+          "bar": "baz",
+          "aces": {
+            "a": 1,
+            "b": 2
+          }
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {}
+      }
+    }
+  }
+]

@@ -1,0 +1,177 @@
+[
+  {
+    "scenario": "missing apply key",
+    "input": {
+      "mapping": {
+        "@transform": {
+          "mapping": {
+            "cool": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "error": "@transform should have field \"apply\" but it doesn't"
+    }
+  },
+  {
+    "scenario": "invalid apply key",
+    "input": {
+      "mapping": {
+        "@transform": {
+          "apply": "string",
+          "mapping": {
+            "cool": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "error": "@transform/apply should be (a|an) object"
+    }
+  },
+  {
+    "scenario": "missing mapping key",
+    "input": {
+      "mapping": {
+        "@transform": {
+          "apply": {
+            "foo": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "error": "@transform should have field \"mapping\" but it doesn't"
+    }
+  },
+  {
+    "scenario": "invalid mapping key",
+    "input": {
+      "mapping": {
+        "@transform": {
+          "mapping": "string",
+          "apply": {
+            "foo": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "foo": "bar"
+      }
+    },
+    "output": {
+      "error": "@transform/mapping should be (a|an) object"
+    }
+  },
+  {
+    "scenario": "simple",
+    "input": {
+      "mapping": {
+        "@transform": {
+          "apply": {
+            "foo": {
+              "@path": "$.a"
+            }
+          },
+          "mapping": {
+            "cool": {
+              "@path": "$.foo"
+            }
+          }
+        }
+      },
+      "data": {
+        "a": 1,
+        "b": 2
+      }
+    },
+    "output": {
+      "data": {
+        "cool": 1
+      }
+    }
+  },
+  {
+    "scenario": "composed with other directives",
+    "input": {
+      "mapping": {
+        "@transform": {
+          "apply": {
+            "properties": {
+              "@flatten": {
+                "value": {
+                  "@path": "$.properties"
+                },
+                "separator": "_"
+              }
+            }
+          },
+          "mapping": {
+            "properties": {
+              "@path": "$.properties"
+            },
+            "topLevel": {
+              "@path": "$.properties.nested_a"
+            }
+          }
+        }
+      },
+      "data": {
+        "properties": {
+          "test": "value",
+          "another": "thing",
+          "nested": {
+            "a": "special",
+            "b": 2
+          }
+        },
+        "otherStuff": "foo",
+        "more": "bar"
+      }
+    },
+    "output": {
+      "data": {
+        "properties": {
+          "test": "value",
+          "another": "thing",
+          "nested_a": "special",
+          "nested_b": 2
+        },
+        "topLevel": "special"
+      }
+    }
+  },
+  {
+    "scenario": "invalid transform object",
+    "input": {
+      "mapping": {
+        "@transform": "string"
+      },
+      "data": {
+        "a": 1,
+        "b": 2
+      }
+    },
+    "output": {
+      "error": "@transform should be an object but it is a string"
+    }
+  }
+]
