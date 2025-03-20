@@ -3,7 +3,7 @@ import { US_STATE_CODES, COUNTRY_CODES } from './constants'
 import { Payload } from './addToCart/generated-types'
 import isEmpty from 'lodash/isEmpty'
 import { processHashing } from '../../lib/hashing-utils'
-import { Features } from '@segment/actions-core/mapping-kit'
+import { Features } from '@segment/actions-core'
 
 // Implementation of Facebook user data object
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
