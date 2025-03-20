@@ -90,6 +90,7 @@ export async function executeUpsertWithMultiStatus(
     } else {
       response = await upsertRows(request, subdomain, payloads)
     }
+
     if (response) {
       const responseData = response.data as JSONLikeObject[]
       payloads.forEach((_, index) => {
@@ -147,6 +148,7 @@ export async function executeUpsertWithMultiStatus(
   }
   return multiStatusResponse
 }
+
 interface DataExtensionCreationResponse {
   data: {
     id?: string
@@ -348,6 +350,20 @@ const selectDataExtensionRequest = async (
       name: (response as DataExtensionSelectionResponse).data.name
     }
   } catch (err) {
+    const errorCode: string =
+      typeof err.response.data.errorcode === 'number'
+        ? err.response.data.errorcode.toString()
+        : err.response.data.errorcode
+    const errorMessage = err.response.data.message
+
+    if (errorCode === '20002') {
+      return {
+        id: hookInputs.dataExtensionId,
+        name: 'Unknown (Insufficient Authentication Error)',
+        error: `${errorMessage} To resolve this authentication issue refer to the required permissions under 'Getting Started' in the documentation at https://segment.com/docs/connections/destinations/catalog/actions-salesforce-marketing-cloud/`
+      }
+    }
+
     return { id: '', name: '', error: err.response.data.message }
   }
 }
@@ -367,6 +383,12 @@ async function selectDataExtension(
   const { accessToken } = await getAccessToken(request, settings)
 
   const { id, name, error } = await selectDataExtensionRequest(request, hookInputs, { subdomain, accessToken })
+  if (error && id) {
+    return {
+      error: { message: error, code: 'Authentication Error' },
+      savedData: { id, name: name! }
+    }
+  }
 
   if (error || !id) {
     return {
@@ -434,7 +456,22 @@ const getDataExtensionsRequest = async (
       })
     }
   } catch (err) {
-    return { error: { message: err.response.data.message, code: 'BAD_REQUEST' } }
+    const errorCode: string =
+      typeof err.response.data.errorcode === 'number'
+        ? err.response.data.errorcode.toString()
+        : err.response.data.errorcode
+    const errorMessage = err.response.data.message
+
+    if (errorCode === '20002') {
+      return {
+        error: {
+          message: `${errorMessage}. Please input a data extension ID manually to configure your mapping. To resolve this authentication issue refer to the required permissions under 'Getting Started' in the documentation at https://segment.com/docs/connections/destinations/catalog/actions-salesforce-marketing-cloud/`,
+          code: errorCode
+        }
+      }
+    }
+
+    return { error: { message: err.response.data.message, code: errorCode || 'BAD_REQUEST' } }
   }
 }
 
