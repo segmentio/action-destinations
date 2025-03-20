@@ -78,13 +78,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
+  perform: async (request, { settings, payload, statsContext, features }) => {
     statsContext?.statsClient?.incr('addUserLegacy', 1, statsContext?.tags)
-    return processPayload(request, settings, [payload], 'add')
+    return processPayload(request, settings, [payload], 'add', features || {})
   },
-  performBatch: async (request, { settings, payload, statsContext }) => {
+  performBatch: async (request, { settings, payload, statsContext, features }) => {
     statsContext?.statsClient?.incr('addUserLegacy', 1, statsContext?.tags)
-    return processPayload(request, settings, payload, 'add')
+    return processPayload(request, settings, payload, 'add', features || {})
   }
 }
 
