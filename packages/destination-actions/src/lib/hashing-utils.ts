@@ -27,6 +27,7 @@ export const hashConfigs: {
 const slugsToBypassFeatureFlag = [
   'actions-facebook-custom-audiences',
   'actions-linkedin-audiences',
+  'actions-tiktok-offline-conversions',
   'tiktok-conversions',
   'actions-snap-audiences',
   'actions-snap-conversions',
