@@ -6,19 +6,18 @@ import {
   RequestClient
 } from '@segment/actions-core'
 import {
-  hash,
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
-  commonHashedEmailValidation,
-  getConversionActionDynamicData,
-  isHashedInformation
+  commonEmailValidation,
+  getConversionActionDynamicData
 } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PartialErrorResponse, ConversionAdjustmentRequestObjectInterface, UserIdentifierInterface } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
+import { processHashing } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Adjustment V2',
@@ -299,7 +298,14 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payload.email_address) {
-        const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+        const validatedEmail: string = processHashing(
+          payload.email_address,
+          'sha256',
+          'hex',
+          features ?? {},
+          'actions-google-enhanced-conversions',
+          commonEmailValidation
+        )
 
         request_object.userIdentifiers.push({
           hashedEmail: validatedEmail
@@ -308,9 +314,13 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payload.phone_number) {
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: isHashedInformation(payload.phone_number)
-            ? payload.phone_number
-            : hash(payload.phone_number)
+          hashedPhoneNumber: processHashing(
+            payload.phone_number,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
         } as UserIdentifierInterface)
       }
 
@@ -324,22 +334,41 @@ const action: ActionDefinition<Settings, Payload> = {
         payload.street_address
 
       if (containsAddressInfo) {
+        const addressInfo: any = {}
+        if (payload.first_name) {
+          addressInfo.hashedFirstName = processHashing(
+            payload.first_name,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        if (payload.last_name) {
+          addressInfo.hashedLastName = processHashing(
+            payload.last_name,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        if (payload.street_address) {
+          addressInfo.hashedStreetAddress = processHashing(
+            payload.street_address,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        addressInfo.city = payload.city
+        addressInfo.state = payload.state
+        addressInfo.countryCode = payload.country
+        addressInfo.postalCode = payload.postal_code
+
         request_object.userIdentifiers.push({
-          addressInfo: {
-            hashedFirstName: isHashedInformation(String(payload.first_name))
-              ? payload.first_name
-              : hash(payload.first_name),
-            hashedLastName: isHashedInformation(String(payload.last_name))
-              ? payload.last_name
-              : hash(payload.last_name),
-            hashedStreetAddress: isHashedInformation(String(payload.street_address))
-              ? payload.street_address
-              : hash(payload.street_address),
-            city: payload.city,
-            state: payload.state,
-            countryCode: payload.country,
-            postalCode: payload.postal_code
-          }
+          addressInfo
         })
       }
 
@@ -407,7 +436,14 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payloadItem.email_address) {
-        const validatedEmail: string = commonHashedEmailValidation(payloadItem.email_address)
+        const validatedEmail: string = processHashing(
+          payloadItem.email_address,
+          'sha256',
+          'hex',
+          features ?? {},
+          'actions-google-enhanced-conversions',
+          commonEmailValidation
+        )
 
         request_object.userIdentifiers.push({
           hashedEmail: validatedEmail
@@ -416,9 +452,13 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payloadItem.phone_number) {
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: isHashedInformation(payloadItem.phone_number)
-            ? payloadItem.phone_number
-            : hash(payloadItem.phone_number)
+          hashedPhoneNumber: processHashing(
+            payloadItem.phone_number,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
         } as UserIdentifierInterface)
       }
 
@@ -432,22 +472,41 @@ const action: ActionDefinition<Settings, Payload> = {
         payloadItem.street_address
 
       if (containsAddressInfo) {
+        const addressInfo: any = {}
+        if (payloadItem.first_name) {
+          addressInfo.hashedFirstName = processHashing(
+            payloadItem.first_name,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        if (payloadItem.last_name) {
+          addressInfo.hashedLastName = processHashing(
+            payloadItem.last_name,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        if (payloadItem.street_address) {
+          addressInfo.hashedStreetAddress = processHashing(
+            payloadItem.street_address,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        addressInfo.city = payloadItem.city
+        addressInfo.state = payloadItem.state
+        addressInfo.countryCode = payloadItem.country
+        addressInfo.postalCode = payloadItem.postal_code
+
         request_object.userIdentifiers.push({
-          addressInfo: {
-            hashedFirstName: isHashedInformation(String(payloadItem.first_name))
-              ? payloadItem.first_name
-              : hash(payloadItem.first_name),
-            hashedLastName: isHashedInformation(String(payloadItem.last_name))
-              ? payloadItem.last_name
-              : hash(payloadItem.last_name),
-            hashedStreetAddress: isHashedInformation(String(payloadItem.street_address))
-              ? payloadItem.street_address
-              : hash(payloadItem.street_address),
-            city: payloadItem.city,
-            state: payloadItem.state,
-            countryCode: payloadItem.country,
-            postalCode: payloadItem.postal_code
-          }
+          addressInfo
         })
       }
 
