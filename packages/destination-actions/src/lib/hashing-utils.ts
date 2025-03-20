@@ -27,7 +27,9 @@ export const hashConfigs: {
 const slugsToBypassFeatureFlag = [
   'actions-facebook-custom-audiences',
   'actions-linkedin-audiences',
-  'actions-snap-conversions'
+  'actions-snap-conversions',
+  'actions-google-enhanced-conversions',
+  'actions-google-campaign-manager-360'
 ]
 
 class SmartHashing {
