@@ -9,8 +9,7 @@ import {
   CreateAudienceInput,
   CreateGoogleAudienceResponse,
   UserListResponse,
-  UserList,
-  Auth
+  UserList
 } from './types'
 import {
   ModifiedResponse,
@@ -94,7 +93,7 @@ export const hash = (value: string | undefined): string | undefined => {
 
 export async function getCustomVariables(
   customerId: string,
-  auth: Auth,
+  auth: any,
   request: RequestClient,
   features: Features | undefined,
   statsContext: StatsContext | undefined
@@ -122,7 +121,7 @@ export function memoizedGetCustomVariables() {
 
   return async (
     customerId: string,
-    auth: Auth,
+    auth: any,
     request: RequestClient,
     features: Features | undefined,
     statsContext: StatsContext | undefined
@@ -139,7 +138,7 @@ export function memoizedGetCustomVariables() {
 
 export async function getConversionActionId(
   customerId: string | undefined,
-  auth: Auth,
+  auth: any,
   request: RequestClient,
   features: Features | undefined,
   statsContext: StatsContext | undefined
@@ -164,8 +163,8 @@ export async function getConversionActionId(
 
 export async function getConversionActionDynamicData(
   request: RequestClient,
-  settings: { customerId: string },
-  auth: Auth,
+  settings: any,
+  auth: any,
   features: Features | undefined,
   statsContext: StatsContext | undefined
 ): Promise<DynamicFieldResponse> {
@@ -187,7 +186,7 @@ export async function getConversionActionDynamicData(
       nextPage: '',
       error: {
         message: (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
-        code: (err as GoogleAdsError).response?.status?.toString() ?? '500'
+        code: (err as GoogleAdsError).response?.status + '' ?? '500'
       }
     }
   }
@@ -240,7 +239,7 @@ export const commonEmailValidation = (email: string): string => {
 export async function getListIds(
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
-  auth?: Auth,
+  auth?: any,
   features?: Features | undefined,
   statsContext?: StatsContext
 ) {
@@ -284,7 +283,7 @@ export async function getListIds(
 export async function createGoogleAudience(
   request: RequestClient,
   input: CreateAudienceInput,
-  auth: Auth,
+  auth: CreateAudienceInput['settings']['oauth'],
   features?: Features | undefined,
   statsContext?: StatsContext
 ) {
@@ -359,7 +358,7 @@ export async function getGoogleAudience(
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
   externalId: string,
-  auth: Auth,
+  auth: CreateAudienceInput['settings']['oauth'],
   features?: Features | undefined,
   statsContext?: StatsContext
 ) {
@@ -402,7 +401,7 @@ export async function getGoogleAudience(
     }
   )
 
-  const id = (response.data as UserListResponse).results[0].userList.id
+  const id = (response.data as any).results[0].userList.id
 
   if (!id) {
     statsClient?.incr('getAudience.error', 1, statsTags)
@@ -595,7 +594,7 @@ const handleGoogleAdsError = (error: GoogleAdsError) => {
 
 const addOperations = async (
   request: RequestClient,
-  userIdentifiers: UserIdentifier[],
+  userIdentifiers: any,
   resourceName: string,
   features?: Features | undefined,
   statsContext?: StatsContext | undefined
