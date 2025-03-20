@@ -329,7 +329,7 @@ export function formatUnsubscribeRequestBody(
 }
 
 export function formatUnsubscribeProfile(email: string | undefined, phone_number: string | undefined) {
-  const profileToSubscribe: UnsubscribeProfile = {
+  const profileToUnSubscribe: UnsubscribeProfile = {
     type: 'profile',
     attributes: {
       subscriptions: {}
@@ -337,8 +337,8 @@ export function formatUnsubscribeProfile(email: string | undefined, phone_number
   }
 
   if (email) {
-    profileToSubscribe.attributes.email = email
-    profileToSubscribe.attributes.subscriptions.email = {
+    profileToUnSubscribe.attributes.email = email
+    profileToUnSubscribe.attributes.subscriptions.email = {
       marketing: {
         consent: 'UNSUBSCRIBED'
       }
@@ -346,8 +346,8 @@ export function formatUnsubscribeProfile(email: string | undefined, phone_number
   }
 
   if (phone_number) {
-    profileToSubscribe.attributes.phone_number = phone_number
-    profileToSubscribe.attributes.subscriptions.sms = {
+    profileToUnSubscribe.attributes.phone_number = phone_number
+    profileToUnSubscribe.attributes.subscriptions.sms = {
       marketing: {
         consent: 'UNSUBSCRIBED'
       },
@@ -356,7 +356,7 @@ export function formatUnsubscribeProfile(email: string | undefined, phone_number
       }
     }
   }
-  return profileToSubscribe
+  return profileToUnSubscribe
 }
 
 export async function getList(request: RequestClient, settings: Settings, listId: string) {
