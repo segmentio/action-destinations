@@ -5,7 +5,7 @@ import { keys, enable_batching, batch_size, values_contactFields, dataExtensionH
 import { executeUpsertWithMultiStatus, getDataExtensionFields, upsertRowsV2 } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send Contact to Data Extension',
+  title: 'Send Contact to Data Extension (V2)',
   defaultSubscription: 'type = "identify"',
   description: 'Upsert contact data as rows into an existing data extension in Salesforce Marketing Cloud.',
   fields: {

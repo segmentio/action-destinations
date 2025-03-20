@@ -5,7 +5,7 @@ import { keys, enable_batching, batch_size, values_dataExtensionFields, dataExte
 import { executeUpsertWithMultiStatus, getDataExtensionFields, upsertRowsV2 } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send Event to Data Extension',
+  title: 'Send Event to Data Extension (V2)',
   description: 'Upsert events as rows into an existing data extension in Salesforce Marketing Cloud.',
   fields: {
     keys: { ...keys, required: true, dynamic: true },
