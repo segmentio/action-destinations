@@ -321,35 +321,39 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.street_address
 
     if (containsAddressInfo) {
-      request_object.userIdentifiers.push({
-        addressInfo: {
-          hashedFirstName: processHashing(
-            payload.first_name ?? '',
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          ),
-          hashedLastName: processHashing(
-            payload.last_name ?? '',
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          ),
-          hashedStreetAddress: processHashing(
-            payload.street_address ?? '',
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          ),
-          city: payload.city,
-          state: payload.state,
-          countryCode: payload.country,
-          postalCode: payload.postal_code
-        }
-      })
+      const addressInfo: any = {}
+      if (payload.first_name) {
+        addressInfo.hashedFirstName = processHashing(
+          payload.first_name,
+          'sha256',
+          'hex',
+          features ?? {},
+          'actions-google-enhanced-conversions'
+        )
+      }
+      if (payload.last_name) {
+        addressInfo.hashedLastName = processHashing(
+          payload.last_name,
+          'sha256',
+          'hex',
+          features ?? {},
+          'actions-google-enhanced-conversions'
+        )
+      }
+      if (payload.street_address) {
+        addressInfo.hashedStreetAddress = processHashing(
+          payload.street_address,
+          'sha256',
+          'hex',
+          features ?? {},
+          'actions-google-enhanced-conversions'
+        )
+      }
+      addressInfo.city = payload.city
+      addressInfo.state = payload.state
+      addressInfo.countryCode = payload.country
+      addressInfo.postalCode = payload.postal_code
+      request_object.userIdentifiers.push({ addressInfo })
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
@@ -445,35 +449,39 @@ const action: ActionDefinition<Settings, Payload> = {
         payloadItem.street_address
 
       if (containsAddressInfo) {
-        request_object.userIdentifiers.push({
-          addressInfo: {
-            hashedFirstName: processHashing(
-              payloadItem.first_name ?? '',
-              'sha256',
-              'hex',
-              features ?? {},
-              'actions-google-enhanced-conversions'
-            ),
-            hashedLastName: processHashing(
-              payloadItem.last_name ?? '',
-              'sha256',
-              'hex',
-              features ?? {},
-              'actions-google-enhanced-conversions'
-            ),
-            hashedStreetAddress: processHashing(
-              payloadItem.street_address ?? '',
-              'sha256',
-              'hex',
-              features ?? {},
-              'actions-google-enhanced-conversions'
-            ),
-            city: payloadItem.city,
-            state: payloadItem.state,
-            countryCode: payloadItem.country,
-            postalCode: payloadItem.postal_code
-          }
-        })
+        const addressInfo: any = {}
+        if (payloadItem.first_name) {
+          addressInfo.hashedFirstName = processHashing(
+            payloadItem.first_name,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        if (payloadItem.last_name) {
+          addressInfo.hashedLastName = processHashing(
+            payloadItem.last_name,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        if (payloadItem.street_address) {
+          addressInfo.hashedStreetAddress = processHashing(
+            payloadItem.street_address,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        addressInfo.city = payloadItem.city
+        addressInfo.state = payloadItem.state
+        addressInfo.countryCode = payloadItem.country
+        addressInfo.postalCode = payloadItem.postal_code
+        request_object.userIdentifiers.push({ addressInfo })
       }
 
       return request_object

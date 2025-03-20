@@ -331,15 +331,30 @@ export function formatUnsubscribeRequestBody(
 export function formatUnsubscribeProfile(email: string | undefined, phone_number: string | undefined) {
   const profileToSubscribe: UnsubscribeProfile = {
     type: 'profile',
-    attributes: {}
+    attributes: {
+      subscriptions: {}
+    }
   }
 
   if (email) {
     profileToSubscribe.attributes.email = email
+    profileToSubscribe.attributes.subscriptions.email = {
+      marketing: {
+        consent: 'UNSUBSCRIBED'
+      }
+    }
   }
 
   if (phone_number) {
     profileToSubscribe.attributes.phone_number = phone_number
+    profileToSubscribe.attributes.subscriptions.sms = {
+      marketing: {
+        consent: 'UNSUBSCRIBED'
+      },
+      transactional: {
+        consent: 'UNSUBSCRIBED'
+      }
+    }
   }
   return profileToSubscribe
 }
