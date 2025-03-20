@@ -5,7 +5,8 @@ import destination from '../../index'
 const testDestination = createTestIntegration(destination)
 const settings = {
   stack: 'test-stack',
-  api_key: 'testApiKey'
+  api_key: 'testApiKey',
+  api_secret: 'testApiSecret'
 }
 
 describe('Antavo (Actions)', () => {
@@ -53,8 +54,7 @@ describe('Antavo (Actions)', () => {
         account: 'testAccount',
         data: {
           points: 1234
-        },
-        api_key: 'testApiKey'
+        }
       })
     })
     it('Handle request without default mappings', async () => {
@@ -94,8 +94,7 @@ describe('Antavo (Actions)', () => {
         account: 'testAccount',
         data: {
           points: 1234
-        },
-        api_key: 'testApiKey'
+        }
       })
     })
     it('Handle request without optional fields', async () => {
@@ -125,8 +124,7 @@ describe('Antavo (Actions)', () => {
       expect(responses[0].status).toBe(202)
       expect(responses[0].options.json).toMatchObject({
         customer: 'testUser',
-        action: 'testAction',
-        api_key: 'testApiKey'
+        action: 'testAction'
       })
     })
     it('Throw error for missing required field: customer', async () => {
