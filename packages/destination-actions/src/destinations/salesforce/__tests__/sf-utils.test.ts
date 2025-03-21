@@ -2,6 +2,7 @@ import { GenericPayload } from '../sf-types'
 import { buildCSVData } from '../sf-utils'
 import Salesforce from '../sf-operations'
 import createRequestClient from '../../../../../core/src/create-request-client'
+import { StatsContext } from '@segment/actions-core/*'
 
 const requestClient = createRequestClient()
 
@@ -295,6 +296,104 @@ describe('Salesforce Utils', () => {
       const csv = buildCSVData(updatePayloads, 'Id', 'update')
       const expected = `Name,NumberOfEmployees,sellsKrabbyPatties__c,Id\n"Krusty Krab","2","true","00"\n"Chum Bucket","1","false","01"\n`
       expect(csv).toEqual(expected)
+    })
+  })
+
+  describe('Logging capabilities', () => {
+    it('should function correctly when logging is enabled', async () => {
+      const createPayloads: GenericPayload[] = [
+        {
+          operation: 'create',
+          enable_batching: true,
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890',
+          description: 'Krusty Krab'
+        },
+        {
+          operation: 'create',
+          enable_batching: true,
+          name: 'Squidward Tentacles',
+          phone: '1234567891',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      const logging = {
+        shouldLog: true,
+        stats: {
+          statsClient: {
+            incr: jest.fn(),
+            observe: jest.fn(),
+            _name: jest.fn(),
+            _tags: jest.fn(),
+            set: jest.fn(),
+            histogram: jest.fn()
+          },
+          tags: []
+        } as StatsContext,
+        jobId: '1234'
+      }
+
+      const csv = buildCSVData(createPayloads, '', 'insert', logging)
+      const expected = `Name,Phone,Description\n"SpongeBob Squarepants","1234567890","Krusty Krab"\n"Squidward Tentacles","1234567891","Krusty Krab"\n`
+
+      expect(csv).toEqual(expected)
+    })
+
+    it('should correctly count the number of values and number of nulls in the CSV', async () => {
+      const incompleteUpdatePayloads: GenericPayload[] = [
+        {
+          operation: 'update',
+          enable_batching: true,
+          bulkUpdateRecordId: '00',
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890'
+        },
+        {
+          operation: 'update',
+          enable_batching: true,
+          bulkUpdateRecordId: '01',
+          name: 'Squidward Tentacles',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      const logging = {
+        shouldLog: true,
+        stats: {
+          statsClient: {
+            incr: jest.fn(),
+            observe: jest.fn(),
+            _name: jest.fn(),
+            _tags: jest.fn(),
+            set: jest.fn(),
+            histogram: jest.fn()
+          },
+          tags: []
+        } as StatsContext,
+        jobId: '1234'
+      }
+
+      const csv = buildCSVData(incompleteUpdatePayloads, 'Id', 'Update', logging)
+      const expected = `Name,Description,Phone,Id\n"SpongeBob Squarepants",#N/A,"1234567890","00"\n"Squidward Tentacles","Krusty Krab",#N/A,"01"\n`
+
+      expect(csv).toEqual(expected)
+
+      expect(logging.stats.statsClient.incr).toHaveBeenNthCalledWith(1, 'bulkCSV.payloadSize', 2, expect.any(Array))
+      expect(logging.stats.statsClient.incr).toHaveBeenNthCalledWith(2, 'bulkCSV.numberOfColumns', 4, expect.any(Array))
+
+      expect(logging.stats.statsClient.incr).toHaveBeenNthCalledWith(
+        3,
+        'bulkCSV.numberOfValuesInCSV',
+        4,
+        expect.any(Array)
+      )
+      expect(logging.stats.statsClient.incr).toHaveBeenNthCalledWith(
+        4,
+        'bulkCSV.numberOfNullsInCSV',
+        2,
+        expect.any(Array)
+      )
     })
   })
 

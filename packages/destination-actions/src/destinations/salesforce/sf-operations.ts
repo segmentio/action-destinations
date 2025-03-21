@@ -371,7 +371,7 @@ export default class Salesforce {
     logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
   ): Promise<ModifiedResponse<unknown>> {
     // construct the CSV data to catch errors before creating a bulk job
-    const csv = buildCSVData(payloads, idField, operation, logging)
+    const csv = buildCSVData(payloads, idField, operation, { shouldLog: logging?.shouldLog, stats: logging?.stats })
     const jobId = await this.createBulkJob(sobject, idField, operation, logging)
     try {
       await this.uploadBulkCSV(jobId, csv, logging)
