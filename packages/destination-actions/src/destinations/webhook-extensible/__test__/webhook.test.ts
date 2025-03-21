@@ -6,8 +6,53 @@ import {
   DestinationDefinition
 } from '@segment/actions-core'
 import Webhook from '../index'
-import { createHmac, timingSafeEqual } from 'crypto'
-import { SegmentEvent } from '@segment/actions-core'
+
+const settings = {
+  oauth: {},
+  dynamicAuthSettings: {
+    oauth: {
+      type: 'authCode',
+      clientId: 'clientID',
+      clientSecret: 'clientSecret',
+      scopes: 'scope',
+      authorizationServerUrl: 'https://www.webhook-extensible/authorize',
+      accessTokenServerUrl: 'https://www.webhook-extensible/access_token',
+      refreshTokenServerUrl: 'https://www.webhook-extensible/refresh_token',
+      access: {
+        access_token: 'accessToken1',
+        token_type: 'bearer',
+        expires_in: 86400,
+        refresh_token: 'refreshToken1',
+        scope: 'scope'
+      },
+      customParams: {}
+    }
+  }
+}
+
+const auth = {
+  refreshToken: 'refreshToken1',
+  accessToken: 'accessToken1',
+  clientId: 'clientID',
+  clientSecret: 'clientSecret'
+}
+
+const expectedRequest = {
+  grant_type: 'refresh_token',
+  refresh_token: 'refreshToken1',
+  scope: 'scope',
+  client_id: 'clientID',
+  client_secret: 'clientSecret'
+}
+
+const customParams = [
+  { key: 'param1', value: 'val1', sendIn: 'header' },
+  { key: 'param2', value: 'val2', sendIn: 'header' },
+  { key: 'param3', value: 'val3', sendIn: 'body' },
+  { key: 'param4', value: 'val4', sendIn: 'body' },
+  { key: 'param5', value: 'val5', sendIn: 'query' },
+  { key: 'param6', value: 'val6', sendIn: 'query' }
+]
 
 // Exported so we can re-use to test webhook-audiences
 export const baseWebhookTests = (def: DestinationDefinition<any>) => {
@@ -57,98 +102,53 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
         expect(responses[0].status).toBe(200)
       })
 
-      it('supports request signing', async () => {
-        const url = 'https://example.com'
-        const event = createTestEvent({
-          properties: { cool: true }
-        })
-        const payload = JSON.stringify(event.properties)
-        const sharedSecret = 'abc123'
+      it('send with custom params and no token prefix', async () => {
+        const url = 'https://example.build'
+        const event = createTestEvent()
+        const data = { cool: true }
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.customParams = {
+          refreshRequest: customParams
+        }
 
-        nock(url)
-          .post('/', payload)
-          .reply(async function (_uri, body) {
-            // Normally you should use the raw body but nock automatically
-            // deserializes it (and doesn't allow us to access the raw request
-            // body) so we re-serialize the body here so that we can demonstrate
-            // signture validation.
-            const bodyString = JSON.stringify(body)
-
-            // Validate the signature
-            const expectSignature = this.req.headers['x-signature'][0]
-            const actualSignature = createHmac('sha1', sharedSecret).update(bodyString).digest('hex')
-
-            // Use constant-time comparison to avoid timing attacks
-            if (
-              expectSignature.length !== actualSignature.length ||
-              !timingSafeEqual(Buffer.from(actualSignature, 'hex'), Buffer.from(expectSignature, 'hex'))
-            ) {
-              return [400, 'Invalid signature']
-            }
-
-            return [200, 'OK']
-          })
+        nock(url).put('/', data).matchHeader('authorization', 'Bearer accessToken1').reply(200)
 
         const responses = await testDestination.testAction('send', {
+          settings: newSettings,
           event,
           mapping: {
             url,
-            data: { '@path': '$.properties' }
-          },
-          settings: { sharedSecret },
-          useDefaultMappings: true
+            method: 'PUT',
+            data
+          }
         })
 
         expect(responses.length).toBe(1)
         expect(responses[0].status).toBe(200)
       })
 
-      it('supports request signing with batched events', async () => {
-        const url = 'https://example.com'
+      it('send with custom params and a token prefix', async () => {
+        const url = 'https://example.build'
+        const event = createTestEvent()
+        const data = { cool: true }
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.customParams = {
+          refreshRequest: customParams,
+          tokenPrefix: 'Basic'
+        }
 
-        const events: SegmentEvent[] = [
-          createTestEvent({
-            properties: { cool: false }
-          }),
-          createTestEvent({
-            properties: { cool: true }
-          })
-        ]
+        nock(url).put('/', data).matchHeader('authorization', 'Basic accessToken1').reply(200)
 
-        const payload = JSON.stringify(events.map(({ properties }) => properties))
-        const sharedSecret = 'abc123'
-        nock(url)
-          .post('/', payload)
-          .reply(async function (_uri, body: any) {
-            // Normally you should use the raw body but nock automatically
-            // deserializes it (and doesn't allow us to access the raw request
-            // body) so we re-serialize the body here so that we can demonstrate
-            // signture validation
-
-            // Validate the signature
-            const expectSignature = this.req.headers['x-signature'][0]
-            const actualSignature = createHmac('sha1', sharedSecret).update(JSON.stringify(body[0])).digest('hex')
-
-            // Use constant-time comparison to avoid timing attacks
-            if (
-              expectSignature.length !== actualSignature.length ||
-              !timingSafeEqual(Buffer.from(actualSignature, 'hex'), Buffer.from(expectSignature, 'hex'))
-            ) {
-              return [400, 'Invalid signature123']
-            }
-
-            return [200, 'OK']
-          })
-
-        const responses = await testDestination.testBatchAction('send', {
-          events,
+        const responses = await testDestination.testAction('send', {
+          settings: newSettings,
+          event,
           mapping: {
             url,
-            data: { '@path': '$.properties' }
-          },
-          settings: { sharedSecret },
-          useDefaultMappings: true
+            method: 'PUT',
+            data
+          }
         })
+
         expect(responses.length).toBe(1)
         expect(responses[0].status).toBe(200)
       })
@@ -176,6 +176,266 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
             }
           })
         ).rejects.toThrow(PayloadValidationError)
+      })
+    })
+
+    describe('refreshAccessToken', () => {
+      it('should return access token for authCode type', async () => {
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`)
+          .post('', new URLSearchParams(expectedRequest).toString())
+          .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+          .reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(settings, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token, refreshToken: mockResponse.refresh_token })
+      })
+
+      it('should return access token for authCode type with custom params', async () => {
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.customParams = {
+          refreshRequest: customParams
+        }
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`)
+          .post(
+            '',
+            new URLSearchParams({
+              ...expectedRequest,
+              param3: 'val3',
+              param4: 'val4'
+            }).toString()
+          )
+          .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+          .matchHeader('param1', 'val1')
+          .matchHeader('param2', 'val2')
+          .query({ param5: 'val5', param6: 'val6' })
+          .reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token, refreshToken: mockResponse.refresh_token })
+      })
+
+      it('should return access token for authCode type with only custom header', async () => {
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.customParams = {
+          refreshRequest: [customParams[0], customParams[1]]
+        }
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`)
+          .post(
+            '',
+            new URLSearchParams({
+              ...expectedRequest
+            }).toString()
+          )
+          .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+          .matchHeader('param1', 'val1')
+          .matchHeader('param2', 'val2')
+          .reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token, refreshToken: mockResponse.refresh_token })
+      })
+
+      it('should return access token for authCode type with only custom body', async () => {
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.customParams = {
+          refreshRequest: [customParams[2], customParams[3]]
+        }
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`)
+          .post(
+            '',
+            new URLSearchParams({
+              ...expectedRequest,
+              param3: 'val3',
+              param4: 'val4'
+            }).toString()
+          )
+          .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+          .reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token, refreshToken: mockResponse.refresh_token })
+      })
+
+      it('should return access token for authCode type with only custom query params', async () => {
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.customParams = {
+          refreshRequest: [customParams[4], customParams[5]]
+        }
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`)
+          .post(
+            '',
+            new URLSearchParams({
+              ...expectedRequest
+            }).toString()
+          )
+          .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+          .query({ param5: 'val5', param6: 'val6' })
+          .reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token, refreshToken: mockResponse.refresh_token })
+      })
+
+      it('should return access token for clientCredentials type', async () => {
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.type = 'clientCredentials'
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`)
+          .post(
+            '',
+            new URLSearchParams({
+              grant_type: 'client_credentials',
+              scope: 'scope'
+            }).toString()
+          )
+          .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+          .reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token })
+      })
+
+      it('should return access token for clientCredentials type with custom params', async () => {
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.type = 'clientCredentials'
+        newSettings.dynamicAuthSettings.oauth.customParams = {
+          refreshRequest: customParams
+        }
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`)
+          .post(
+            '',
+            new URLSearchParams({
+              grant_type: 'client_credentials',
+              scope: 'scope',
+              param3: 'val3',
+              param4: 'val4'
+            }).toString()
+          )
+          .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+          .query({ param5: 'val5', param6: 'val6' })
+          .matchHeader('param1', 'val1')
+          .matchHeader('param2', 'val2')
+          .reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token })
+      })
+
+      it('should return access token for clientCredentials type with custom header', async () => {
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.type = 'clientCredentials'
+        newSettings.dynamicAuthSettings.oauth.customParams = {
+          refreshRequest: [customParams[0], customParams[1]]
+        }
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`)
+          .post(
+            '',
+            new URLSearchParams({
+              grant_type: 'client_credentials',
+              scope: 'scope'
+            }).toString()
+          )
+          .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+          .matchHeader('param1', 'val1')
+          .matchHeader('param2', 'val2')
+          .reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token })
+      })
+
+      it('should return access token for clientCredentials type with custom body', async () => {
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.type = 'clientCredentials'
+        newSettings.dynamicAuthSettings.oauth.customParams = {
+          refreshRequest: [customParams[2], customParams[3]]
+        }
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`)
+          .post(
+            '',
+            new URLSearchParams({
+              grant_type: 'client_credentials',
+              scope: 'scope',
+              param3: 'val3',
+              param4: 'val4'
+            }).toString()
+          )
+          .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+          .reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token })
+      })
+
+      it('should return access token for clientCredentials type with custom query params', async () => {
+        const newSettings = JSON.parse(JSON.stringify(settings))
+        newSettings.dynamicAuthSettings.oauth.type = 'clientCredentials'
+        newSettings.dynamicAuthSettings.oauth.customParams = {
+          refreshRequest: [customParams[4], customParams[5]]
+        }
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`)
+          .post(
+            '',
+            new URLSearchParams({
+              grant_type: 'client_credentials',
+              scope: 'scope'
+            }).toString()
+          )
+          .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+          .query({ param5: 'val5', param6: 'val6' })
+          .reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token })
       })
     })
   })

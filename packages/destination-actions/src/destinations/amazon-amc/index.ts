@@ -1,4 +1,9 @@
-import { AudienceDestinationDefinition, InvalidAuthenticationError, IntegrationError } from '@segment/actions-core'
+import {
+  AudienceDestinationDefinition,
+  InvalidAuthenticationError,
+  IntegrationError,
+  defaultValues
+} from '@segment/actions-core'
 import type { RefreshTokenResponse, AmazonTestAuthenticationError } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
 import {
@@ -6,7 +11,8 @@ import {
   extractNumberAndSubstituteWithStringValue,
   getAuthToken,
   REGEX_ADVERTISERID,
-  REGEX_AUDIENCEID
+  REGEX_AUDIENCEID,
+  TTL_MAX_VALUE
 } from './utils'
 
 import syncAudiencesToDSP from './syncAudiencesToDSP'
@@ -164,6 +170,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       if (!country_code) {
         throw new IntegrationError('Missing countryCode Value', 'MISSING_REQUIRED_FIELD', 400)
       }
+      if (ttl && ttl > TTL_MAX_VALUE) {
+        throw new IntegrationError(`TTL must have value less than or equal to ${TTL_MAX_VALUE}`, 'INVALID_INPUT', 400)
+      }
 
       const payload: AudiencePayload = {
         name: audienceName,
@@ -178,22 +187,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       if (ttl) {
-        const timeToLive = Number(ttl)
-        if (!timeToLive) {
-          throw new IntegrationError('TTL:-String can not be converted to Number', 'INVALID_TTL_VALUE', 400)
-        }
-        payload.metadata.ttl = timeToLive
+        payload.metadata.ttl = ttl
       }
 
       if (cpm_cents && currency) {
-        const cpmCents = Number(cpm_cents)
-        if (!cpmCents) {
-          throw new IntegrationError('CPM_CENTS:-String can not be converted to Number', 'INVALID_CPMCENTS_VALUE', 400)
-        }
         payload.metadata.audienceFees = []
         payload.metadata?.audienceFees.push({
           currency,
-          cpmCents: cpmCents
+          cpmCents: cpm_cents
         })
       }
 
@@ -239,7 +240,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudiencesToDSP
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: {
+        ...defaultValues(syncAudiencesToDSP.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination

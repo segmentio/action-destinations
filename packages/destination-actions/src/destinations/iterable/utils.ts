@@ -47,6 +47,8 @@ export function convertDatesInObject(obj: Record<string, unknown>) {
       } else {
         obj[prop] = dateToIterableDateStringFormat(value)
       }
+    } else if (value instanceof Date) {
+      obj[prop] = dateToIterableDateStringFormat(value.toISOString())
     } else if (typeof value === 'object' && value !== null) {
       convertDatesInObject(value as Record<string, unknown>)
     } else {
@@ -92,7 +94,9 @@ const regionBaseUrls = {
 
 export const apiEndpoints = {
   updateUser: '/api/users/update',
+  bulkUpdateUser: '/api/users/bulkUpdate',
   trackEvent: '/api/events/track',
+  bulkTrackEvent: '/api/events/trackBulk',
   updateCart: '/api/commerce/updateCart',
   trackPurchase: '/api/commerce/trackPurchase',
   getWebhooks: '/api/webhooks'

@@ -5,8 +5,15 @@ export interface Payload {
    * Properties of the profile that triggered this event.
    */
   profile: {
+    /**
+     * The user's email to send to Klavio.
+     */
     email?: string
     phone_number?: string
+    /**
+     * Country Code in ISO 3166-1 alpha-2 format. If provided, this will be used to validate and automatically format Phone Number field in E.164 format accepted by Klaviyo.
+     */
+    country_code?: string
     /**
      * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system.
      */
@@ -46,4 +53,12 @@ export interface Payload {
    *
    */
   unique_id?: string
+  /**
+   * When enabled, the action will use the klaviyo batch API.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }

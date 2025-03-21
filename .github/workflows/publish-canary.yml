@@ -9,14 +9,15 @@ jobs:
   build-and-publish:
     env:
       HUSKY: 0
+      NX_DISABLE_DB: true
     if: startsWith(github.event.head_commit.message, 'Publish') == true
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     timeout-minutes: 15
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -32,7 +33,7 @@ jobs:
           cache: yarn
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile --ignore-optional
+        run: yarn install --frozen-lockfile
 
       - name: Build
         run: NODE_ENV=production yarn build

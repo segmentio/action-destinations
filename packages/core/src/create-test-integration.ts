@@ -1,7 +1,14 @@
 import { createTestEvent } from './create-test-event'
 import { StateContext, Destination, TransactionContext } from './destination-kit'
 import { mapValues } from './map-values'
-import type { DestinationDefinition, StatsContext, Logger, DataFeedCache, RequestFn } from './destination-kit'
+import type {
+  DestinationDefinition,
+  StatsContext,
+  Logger,
+  EngageDestinationCache,
+  RequestFn,
+  SubscriptionMetadata
+} from './destination-kit'
 import type { JSONObject } from './json-object'
 import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
@@ -38,14 +45,16 @@ interface InputData<Settings> {
   auth?: AuthTokens
   /**
    * The features available in the request based on the customer's sourceID;
-   * `features`, `stats`, `logger`, `dataFeedCache`, and `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
+   * `features`, `stats`, `logger`, `engageDestinationCache`, `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
    */
   features?: Features
   statsContext?: StatsContext
   logger?: Logger
-  dataFeedCache?: DataFeedCache
+  /** Engage internal use only. DO NOT USE. */
+  engageDestinationCache?: EngageDestinationCache
   transactionContext?: TransactionContext
   stateContext?: StateContext
+  subscriptionMetadata?: SubscriptionMetadata
 }
 
 class TestDestination<T, AudienceSettings = any> extends Destination<T, AudienceSettings> {
@@ -77,9 +86,10 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       features,
       statsContext,
       logger,
-      dataFeedCache,
+      engageDestinationCache,
       transactionContext,
-      stateContext
+      stateContext,
+      subscriptionMetadata
     }: InputData<T>
   ): Promise<Destination['responses']> {
     this.results = []
@@ -99,9 +109,10 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       features: features ?? {},
       statsContext: statsContext ?? ({} as StatsContext),
       logger: logger ?? ({ info: noop, error: noop } as Logger),
-      dataFeedCache: dataFeedCache ?? ({} as DataFeedCache),
+      engageDestinationCache: engageDestinationCache,
       transactionContext: transactionContext ?? ({} as TransactionContext),
-      stateContext: stateContext ?? ({} as StateContext)
+      stateContext: stateContext ?? ({} as StateContext),
+      subscriptionMetadata: subscriptionMetadata ?? ({} as SubscriptionMetadata)
     })
 
     const responses = this.responses
@@ -121,9 +132,10 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       features,
       statsContext,
       logger,
-      dataFeedCache,
+      engageDestinationCache,
       transactionContext,
-      stateContext
+      stateContext,
+      subscriptionMetadata
     }: Omit<InputData<T>, 'event'> & { events?: SegmentEvent[] }
   ): Promise<Destination['responses']> {
     this.results = []
@@ -139,7 +151,7 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       events = [{ type: 'track' }]
     }
 
-    this.results = await super.executeBatch(action, {
+    const batchResponse = await super.executeBatch(action, {
       events: events.map((event) => createTestEvent(event)),
       mapping,
       settings: settings ?? ({} as T),
@@ -147,10 +159,17 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
       features: features ?? {},
       statsContext: statsContext ?? ({} as StatsContext),
       logger: logger ?? ({} as Logger),
-      dataFeedCache: dataFeedCache ?? ({} as DataFeedCache),
+      engageDestinationCache: engageDestinationCache ?? ({} as EngageDestinationCache),
       transactionContext: transactionContext ?? ({} as TransactionContext),
-      stateContext: stateContext ?? ({} as StateContext)
+      stateContext: stateContext ?? ({} as StateContext),
+      subscriptionMetadata: subscriptionMetadata ?? ({} as SubscriptionMetadata)
     })
+
+    this.results = [
+      {
+        multistatus: batchResponse
+      }
+    ]
 
     const responses = this.responses
     this.responses = []

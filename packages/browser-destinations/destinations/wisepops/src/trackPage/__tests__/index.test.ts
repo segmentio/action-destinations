@@ -25,15 +25,15 @@ describe('Wisepops.trackPage', () => {
     const [trackPage] = await wisepopsDestination({
       websiteId: '1234567890',
       subscriptions
-    })
+    } as any)
 
     expect(trackPage).toBeDefined()
 
     await trackPage.load(Context.system(), {} as Analytics)
     jest.spyOn(window.wisepops.q as any, 'push')
 
-    const context = new Context({type: 'page'})
-    trackPage.page?.(context)
+    const context = new Context({ type: 'page' })
+    await trackPage.page?.(context)
 
     expect(window.wisepops.q.push).toHaveBeenCalledWith(['pageview'])
   })

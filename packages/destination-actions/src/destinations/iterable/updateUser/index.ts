@@ -11,6 +11,35 @@ import {
 } from '../shared-fields'
 import { convertDatesInObject, getRegionalEndpoint } from '../utils'
 
+interface UserUpdateRequestPayload {
+  email?: string
+  userId?: string
+  dataFields?: {
+    [k: string]: unknown
+  }
+  mergeNestedObjects?: boolean
+}
+
+interface BulkUserUpdateRequestPayload {
+  users: UserUpdateRequestPayload[]
+}
+
+const transformIterableUserPayload: (payload: Payload) => UserUpdateRequestPayload = (payload) => {
+  // Store the phoneNumber value before deleting from the top-level object
+  const phoneNumber = payload.phoneNumber
+  delete payload.phoneNumber
+
+  const formattedDataFields = convertDatesInObject(payload.dataFields ?? {})
+  const userUpdateRequest: UserUpdateRequestPayload = {
+    ...payload,
+    dataFields: {
+      ...formattedDataFields,
+      phoneNumber: phoneNumber
+    }
+  }
+  return userUpdateRequest
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert User',
   description: 'Creates or updates a user',
@@ -31,41 +60,46 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     mergeNestedObjects: {
       ...MERGE_NESTED_OBJECTS_FIELD
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'When enabled, Segment will send data to Iterable in batches of up to 1001',
+      type: 'boolean',
+      required: false,
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      unsafe_hidden: true,
+      required: false,
+      default: 1001
     }
   },
   perform: (request, { payload, settings }) => {
-    const { email, userId, dataFields } = payload
-
-    if (!email && !userId) {
+    if (!payload.email && !payload.userId) {
       throw new PayloadValidationError('Must include email or userId.')
     }
 
-    interface UserUpdateRequest {
-      email?: string
-      userId?: string
-      dataFields?: {
-        [k: string]: unknown
-      }
-      mergeNestedObjects?: boolean
-    }
-
-    // Store the phoneNumber value before deleting from the top-level object
-    const phoneNumber = payload.phoneNumber
-    delete payload.phoneNumber
-
-    const formattedDataFields = convertDatesInObject(dataFields ?? {})
-    const userUpdateRequest: UserUpdateRequest = {
-      ...payload,
-      dataFields: {
-        ...formattedDataFields,
-        phoneNumber: phoneNumber
-      }
-    }
+    const updateUserRequestPayload: UserUpdateRequestPayload = transformIterableUserPayload(payload)
 
     const endpoint = getRegionalEndpoint('updateUser', settings.dataCenterLocation as DataCenterLocation)
     return request(endpoint, {
       method: 'post',
-      json: userUpdateRequest,
+      json: updateUserRequestPayload,
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
+    })
+  },
+  performBatch: (request, { settings, payload }) => {
+    const bulkUpdateUserRequestPayload: BulkUserUpdateRequestPayload = {
+      users: payload.map(transformIterableUserPayload)
+    }
+
+    const endpoint = getRegionalEndpoint('bulkUpdateUser', settings.dataCenterLocation as DataCenterLocation)
+    return request(endpoint, {
+      method: 'post',
+      json: bulkUpdateUserRequestPayload,
       timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     })
   }

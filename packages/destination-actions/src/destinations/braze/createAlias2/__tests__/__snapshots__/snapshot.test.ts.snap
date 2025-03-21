@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Braze's createAlias2 destination V2 action: snapshot with all possible fields 1`] = `
+Object {
+  "user_aliases": Array [
+    Object {
+      "alias_label": "gYiVmU)MW(1BFgh^@[",
+      "alias_name": "gYiVmU)MW(1BFgh^@[",
+      "external_id": "gYiVmU)MW(1BFgh^@[",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's createAlias2 destination V2 action: snapshot with only required fields 1`] = `
+Object {
+  "user_aliases": Array [
+    Object {
+      "alias_label": "test_label",
+      "alias_name": "test_name",
+    },
+  ],
+}
+`;

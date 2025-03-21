@@ -1,0 +1,110 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Braze's trackEvent2 destination action: it should work with batched events 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer my-api-key",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-braze-batch": Array [
+      "true",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's trackEvent2 destination action: it should work with batched events 2`] = `
+Object {
+  "events": Array [
+    Object {
+      "_update_existing_only": false,
+      "app_id": "my-app-id",
+      "braze_id": undefined,
+      "email": undefined,
+      "external_id": "user1234",
+      "name": "Test Event 1",
+      "properties": Object {
+        "products": Array [
+          Object {
+            "price": 100,
+            "product_id": "Bowflex Treadmill 10",
+            "quantity": 1,
+          },
+          Object {
+            "price": 200,
+            "product_id": "Bowflex Treadmill 20",
+            "quantity": 2,
+          },
+        ],
+      },
+      "time": "2021-08-03T17:40:04.055Z",
+      "user_alias": undefined,
+    },
+    Object {
+      "_update_existing_only": false,
+      "app_id": "my-app-id",
+      "braze_id": undefined,
+      "email": undefined,
+      "external_id": "user1234",
+      "name": "Test Event 2",
+      "properties": Object {
+        "products": Array [
+          Object {
+            "price": 300,
+            "product_id": "Bowflex Treadmill 30",
+            "quantity": 3,
+          },
+          Object {
+            "price": 400,
+            "product_id": "Bowflex Treadmill 40",
+            "quantity": 4,
+          },
+        ],
+      },
+      "time": "2021-08-03T17:40:04.055Z",
+      "user_alias": undefined,
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's trackEvent2 destination action: snapshot with all possible fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "_update_existing_only": false,
+      "app_id": "MHiiYRawV)TBvb",
+      "braze_id": "MHiiYRawV)TBvb",
+      "email": "lersi@ibbiako.st",
+      "external_id": "MHiiYRawV)TBvb",
+      "name": "MHiiYRawV)TBvb",
+      "properties": Object {
+        "testType": "MHiiYRawV)TBvb",
+      },
+      "time": "2021-02-01T00:00:00.000Z",
+      "user_alias": Object {
+        "alias_label": "MHiiYRawV)TBvb",
+        "alias_name": "MHiiYRawV)TBvb",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's trackEvent2 destination action: snapshot with only required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "_update_existing_only": false,
+      "app_id": "MHiiYRawV)TBvb",
+      "braze_id": "MHiiYRawV)TBvb",
+      "external_id": "MHiiYRawV)TBvb",
+      "name": "MHiiYRawV)TBvb",
+      "time": "2021-02-01T00:00:00.000Z",
+    },
+  ],
+}
+`;

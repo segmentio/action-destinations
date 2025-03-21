@@ -10,12 +10,13 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Sync a Segment Engage Audience into a Google Customer Match User List.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   syncMode: {
-    description: 'Define how the records will be synced from RETL to Google',
+    description: 'Define how the records will be synced to Google',
     label: 'How to sync records',
     default: 'add',
     choices: [
       { label: 'Adds users to the connected Google Customer Match User List', value: 'add' },
-      { label: 'Remove users from the connected Google Customer Match User List', value: 'delete' }
+      { label: 'Remove users from the connected Google Customer Match User List', value: 'delete' },
+      { label: 'Add and remove users in the connected Google Customer Match User List', value: 'mirror' }
     ]
   },
   fields: {
@@ -68,8 +69,13 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
+    },
     country_code: {
-      label: 'Country Code',
+      label: 'Address Country Code',
       description: "2-letter country code in ISO-3166-1 alpha-2 of the user's address",
       type: 'string'
     },
@@ -94,7 +100,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',
       description:
-        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).',
+        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
       type: 'string',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
@@ -107,7 +113,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ad Personalization Consent State',
       type: 'string',
       description:
-        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v15/Consent).',
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
@@ -159,8 +165,8 @@ const action: ActionDefinition<Settings, Payload> = {
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
           required: false,
-          dynamic: async (request, { settings, auth }) => {
-            return await getListIds(request, settings, auth)
+          dynamic: async (request, { settings, auth, features, statsContext }) => {
+            return await getListIds(request, settings, auth, features, statsContext)
           }
         },
         list_name: {
@@ -218,13 +224,20 @@ const action: ActionDefinition<Settings, Payload> = {
           required: false
         }
       },
-      performHook: async (request, { auth, settings, hookInputs, statsContext }) => {
+      performHook: async (request, { auth, settings, hookInputs, features, statsContext }) => {
         settings.customerId = verifyCustomerId(settings.customerId)
         if (hookInputs.list_id) {
           try {
-            const response: UserListResponse = await getGoogleAudience(request, settings, hookInputs.list_id, {
-              refresh_token: auth?.refreshToken
-            })
+            const response: UserListResponse = await getGoogleAudience(
+              request,
+              settings,
+              hookInputs.list_id,
+              {
+                refresh_token: auth?.refreshToken
+              },
+              features,
+              statsContext
+            )
             return {
               successMessage: `Using existing list '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
               savedData: {
@@ -254,7 +267,13 @@ const action: ActionDefinition<Settings, Payload> = {
               app_id: hookInputs.app_id
             }
           }
-          const listId = await createGoogleAudience(request, input, { refresh_token: auth?.refreshToken }, statsContext)
+          const listId = await createGoogleAudience(
+            request,
+            input,
+            { refresh_token: auth?.refreshToken },
+            features,
+            statsContext
+          )
 
           return {
             successMessage: `List '${hookInputs.list_name}' (id: ${listId}) created successfully!`,
@@ -277,7 +296,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode }) => {
+  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
     return await handleUpdate(
@@ -288,10 +307,14 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.id,
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
+      features,
       statsContext
     )
   },
-  performBatch: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode }) => {
+  performBatch: async (
+    request,
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }
+  ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
     return await handleUpdate(
@@ -302,6 +325,7 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.id,
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
+      features,
       statsContext
     )
   }

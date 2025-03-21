@@ -1,14 +1,22 @@
 // This is a github action script and can be run only from github actions. To run this script locally, you need to mock the github object and context object.
-module.exports = async ({ github, context, core, exec }) => {
-  let { GITHUB_SHA, DRY_RUN } = process.env
+module.exports = async ({ github, context, core, exec, cloudManifest, browserManifest }) => {
+  let { GITHUB_SHA, DRY_RUN, GITHUB_REF } = process.env
+
+  // Get the branch name from the GITHUB_REF
+  const branchName = GITHUB_REF.replace('refs/heads/', '')
+  const isHotfixBranch = branchName.startsWith('hotfix/')
 
   if (Boolean(DRY_RUN)) {
     core.info('Running in dry-run mode')
   }
 
-  // Get the last two commits that have the word "Publish" in the commit message along with the date
-  const [newPublish, previousPublish] = await getPreviousTwoPublishCommits(core, exec)
-  const prs = await getPRsBetweenCommits(github, context, core, previousPublish, newPublish)
+  let prs = []
+  // Retrieve PRs merged between the last two publish commits only for normal releases
+  if (!isHotfixBranch) {
+    // Get the last two commits that have the word "Publish" in the commit message along with the date
+    const [newPublish, previousPublish] = await getPreviousTwoPublishCommits(core, exec)
+    prs = await getPRsBetweenCommits(github, context, core, previousPublish, newPublish)
+  }
 
   // Get tag for the current release from the git repository
   const newReleaseTag = await getReleaseTag(core, exec)
@@ -27,9 +35,23 @@ module.exports = async ({ github, context, core, exec }) => {
   const latestReleaseTag = latestRelease ? latestRelease.data.tag_name : null
 
   // Extract package tags that are published in the current release by lerna version
-  const packageTags = await extractPackageTags(GITHUB_SHA, exec, core)
+  const packageTags = await extractPackageNames(GITHUB_SHA, exec, core)
   const tagsContext = { currentRelease: newReleaseTag, prevRelease: latestReleaseTag, packageTags }
-  const changeLog = formatChangeLog(prs, tagsContext, context)
+  const cloudDestinationsByDirectory = Object.values(cloudManifest).reduce((acc, destination) => {
+    acc[destination.directory] = destination
+    return acc
+  }, {})
+  const browserDestinationsByDirectory = Object.values(browserManifest).reduce((acc, destination) => {
+    acc[destination.directory] = destination
+    return acc
+  }, {})
+  const changeLog = formatChangeLog(
+    prs,
+    tagsContext,
+    context,
+    cloudDestinationsByDirectory,
+    browserDestinationsByDirectory
+  )
 
   // If DRY_RUN is set, then log the changelog and return
   if (Boolean(DRY_RUN)) {
@@ -81,7 +103,8 @@ async function getReleaseTag(core, exec) {
     'describe',
     '--abbrev=0',
     '--tags',
-    '--match=release-*'
+    '--match=release-*',
+    '--match=hotfix-*'
   ])
   if (exitCode !== 0) {
     // if the release tag is not found, then we cannot proceed further
@@ -90,18 +113,33 @@ async function getReleaseTag(core, exec) {
   return stdout.trim()
 }
 
-// Extract package tags that are published in the current release by lerna version
-async function extractPackageTags(sha, exec, core) {
-  const { stdout, stderr, exitCode } = await exec.getExecOutput('git', ['tag', '--points-at', sha])
+// Extract packages published in the current release
+async function extractPackageNames(sha, exec, core) {
+  const { stdout, stderr, exitCode } = await exec.getExecOutput('git', [
+    'diff-tree',
+    '--no-commit-id',
+    '--name-only',
+    sha,
+    '-r'
+  ])
   if (exitCode !== 0) {
     // if the package tags are not found, then we cannot proceed further
     core.error(`Failed to extract package tags: ${stderr}`)
   }
-  // filter out only the tags that are related to segment packages
-  return stdout
-    .split('\n')
-    .filter(Boolean)
-    .filter((tag) => tag.includes('@segment/') && !tag.includes('staging'))
+  // filter out files that are not package.json
+  const files = stdout.split('\n').filter((file) => file.startsWith('packages/') && file.endsWith('package.json'))
+  // get the package versions and names from package.json files
+  const packageTags = await Promise.all(
+    files.map(async (file) => {
+      const { stdout, stderr, exitCode } = await exec.getExecOutput('cat', [file])
+      if (exitCode !== 0) {
+        core.error(`Failed to extract package tags: ${stderr}`)
+      }
+      const pkg = JSON.parse(stdout)
+      return `${pkg.name}@${pkg.version}`
+    })
+  )
+  return packageTags
 }
 
 // Get PRs between two commits
@@ -159,9 +197,11 @@ async function getPRsBetweenCommits(github, context, core, lastCommit, currentCo
 }
 
 // Format the changelog
-function formatChangeLog(prs, tagsContext, context) {
+function formatChangeLog(prs, tagsContext, context, cloudDestinationsByDir, browserDestinationsByDir) {
   const { currentRelease, prevRelease, packageTags } = tagsContext
-  const prsWithAffectedDestinations = prs.map(mapPRWithAffectedDestinations)
+  const prsWithAffectedDestinations = prs.map((pr) =>
+    mapPRWithAffectedDestinations(pr, cloudDestinationsByDir, browserDestinationsByDir)
+  )
   const internalPRS = prsWithAffectedDestinations.filter(
     (pr) => pr.labels.includes('team:segment-core') || pr.labels.includes('team:segment')
   )
@@ -194,6 +234,9 @@ function formatChangeLog(prs, tagsContext, context) {
     }
   ]
 
+  // construct a set of unique affected slugs
+  const uniqueAffectedSlugs = new Set(prsWithAffectedDestinations.map((pr) => pr.affectedSlugs).flat())
+
   // if there is no previous release, we simply print the current release
   const releaseDiff = prevRelease ? `${prevRelease}...${currentRelease}` : currentRelease
 
@@ -203,6 +246,14 @@ function formatChangeLog(prs, tagsContext, context) {
     # What's New
 
     https://github.com/${context.repo.owner}/${context.repo.repo}/compare/${releaseDiff}
+
+    <!-- DON'T DELETE THIS COMMENT
+    <affected-destinations>
+        ${Array.from(uniqueAffectedSlugs)
+          .map((slug) => `${slug}`)
+          .join('\n')}
+    </affected-destinations>
+    -->
 
     ## Packages Published
 
@@ -227,10 +278,11 @@ function formatTable(prs, tableConfig, title = '') {
     `
 }
 /*
-  * Map PR with affected destinations
+ * Map PR with affected destinations
  */
-function mapPRWithAffectedDestinations(pr) {
+function mapPRWithAffectedDestinations(pr, cloudDestinationsByDirectory, browserDestinationsByDirectory) {
   let affectedDestinations = []
+  let affectedSlugs = []
   if (pr.labels.includes('mode:cloud')) {
     pr.files
       .filter((file) => file.includes('packages/destination-actions/src/destinations'))
@@ -238,6 +290,10 @@ function mapPRWithAffectedDestinations(pr) {
         const match = file.match(/packages\/destination-actions\/src\/destinations\/([^\/]+)\/*/)
         if (match && !affectedDestinations.includes(match[1])) {
           affectedDestinations.push(match[1])
+          // get the slug from the directory
+          if (cloudDestinationsByDirectory[match[1]]) {
+            affectedSlugs.push(cloudDestinationsByDirectory[match[1]].definition.slug)
+          }
         }
       })
   }
@@ -248,12 +304,17 @@ function mapPRWithAffectedDestinations(pr) {
         const match = file.match(/packages\/browser-destinations\/destinations\/([^\/]+)\/*/)
         if (match && !affectedDestinations.includes(match[1])) {
           affectedDestinations.push(match[1])
+          // get the slug from the directory
+          if (browserDestinationsByDirectory[match[1]]) {
+            affectedSlugs.push(browserDestinationsByDirectory[match[1]].definition.slug)
+          }
         }
       })
   }
   return {
     ...pr,
-    affectedDestinations: affectedDestinations.join(', ')
+    affectedDestinations: affectedDestinations.join(', '),
+    affectedSlugs: affectedSlugs
   }
 }
 

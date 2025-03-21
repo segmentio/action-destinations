@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
 import uploadCallConversion from './uploadCallConversion'
@@ -78,11 +78,18 @@ const destination: AudienceDestinationDefinition<Settings> = {
     }
   },
   audienceFields: {
+    supports_conversions: {
+      type: 'boolean',
+      label: 'Supports Conversions',
+      description:
+        'Mark true if you are using uploadCallConversion, uploadClickConversion or uploadConversionAdjustment. If you plan to use userLists alone or in combination with the others, mark as false.',
+      default: false
+    },
     external_id_type: {
       type: 'string',
       label: 'External ID Type',
-      description: 'Customer match upload key types.',
-      required: true,
+      description:
+        'Customer match upload key types. Required if you are using UserLists. Not used by the other actions.',
       choices: [
         { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
         { label: 'CRM ID', value: 'CRM_ID' },
@@ -112,12 +119,21 @@ const destination: AudienceDestinationDefinition<Settings> = {
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
     async createAudience(request, createAudienceInput: CreateAudienceInput) {
+      // When supports_conversions is enabled streaming mode is forced for this destination.
+      // This guarantees that uploadCallConversion, uploadClickConversion and uploadConversionAdjustment actions are usable with Engage sources.
+      if (createAudienceInput.audienceSettings.supports_conversions) {
+        return {
+          externalId: 'segment'
+        }
+      }
+
       createAudienceInput.settings.customerId = verifyCustomerId(createAudienceInput.settings.customerId)
       const auth = createAudienceInput.settings.oauth
       const userListId = await createGoogleAudience(
         request,
         createAudienceInput,
         auth,
+        createAudienceInput.features,
         createAudienceInput.statsContext
       )
 
@@ -140,6 +156,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
         getAudienceInput.settings,
         getAudienceInput.externalId,
         getAudienceInput.settings.oauth,
+        getAudienceInput.features,
         getAudienceInput.statsContext
       )
 
@@ -157,7 +174,16 @@ const destination: AudienceDestinationDefinition<Settings> = {
     uploadClickConversion2,
     uploadCallConversion2,
     userList
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination

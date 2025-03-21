@@ -1,12 +1,17 @@
 import nock from 'nock'
 import { createTestIntegration, IntegrationError } from '@segment/actions-core'
-import Destination, { FACEBOOK_API_VERSION } from '../index'
+import Destination from '../index'
+import { Features } from '@segment/actions-core/mapping-kit'
+import { API_VERSION, CANARY_API_VERSION } from '../constants'
 
-const adAccountId = 1500000000000000
+const features: Features = { 'facebook-custom-audience-actions-canary-version': true }
+
+const adAccountId = '1500000000000000'
 const audienceId = '1506489116128966'
 const testDestination = createTestIntegration(Destination)
-const getAudienceUrl = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/`
-const createAudienceUrl = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/act_${adAccountId}`
+const BASE_URL = 'https://graph.facebook.com'
+
+const getAudienceUrl = `https://graph.facebook.com/${API_VERSION}/`
 
 const createAudienceInput = {
   settings: {
@@ -16,7 +21,8 @@ const createAudienceInput = {
   audienceSettings: {
     engageAdAccountId: adAccountId,
     audienceDescription: 'We are the Mario Brothers and plumbing is our game.'
-  }
+  },
+  features: {}
 }
 const getAudienceInput = {
   externalId: audienceId,
@@ -33,17 +39,19 @@ describe('Facebook Custom Audiences', () => {
 
     it('should fail if no ad account ID is set', async () => {
       createAudienceInput.audienceName = 'The Void'
-      createAudienceInput.audienceSettings.engageAdAccountId = 0
+      createAudienceInput.audienceSettings.engageAdAccountId = ''
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
     })
 
     it('should create a new Facebook Audience', async () => {
-      nock(createAudienceUrl).post('/customaudiences').reply(200, { id: '88888888888888888' })
+      nock(`${BASE_URL}/${CANARY_API_VERSION}/act_${adAccountId}`)
+        .post('/customaudiences')
+        .reply(200, { id: '88888888888888888' })
 
       createAudienceInput.audienceName = 'The Super Mario Brothers Fans'
       createAudienceInput.audienceSettings.engageAdAccountId = adAccountId
 
-      const r = await testDestination.createAudience(createAudienceInput)
+      const r = await testDestination.createAudience({ ...createAudienceInput, features })
       expect(r).toEqual({ externalId: '88888888888888888' })
     })
   })
@@ -60,10 +68,10 @@ describe('Facebook Custom Audiences', () => {
     })
 
     it('should succeed when Segment Audience ID matches FB audience ID', async () => {
-      nock(getAudienceUrl)
+      nock(`${BASE_URL}/${CANARY_API_VERSION}/`)
         .get(`/${audienceId}`)
         .reply(200, { id: `${audienceId}` })
-      const r = await testDestination.getAudience(getAudienceInput)
+      const r = await testDestination.getAudience({ ...getAudienceInput, features })
       expect(r).toEqual({ externalId: audienceId })
     })
   })

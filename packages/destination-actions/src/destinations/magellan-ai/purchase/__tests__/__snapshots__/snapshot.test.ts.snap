@@ -5,6 +5,7 @@ Object {
   "currency": "UZS",
   "discountCode": "PDOIxm6D7Wge",
   "id": "PDOIxm6D7Wge",
+  "ip": "119.143.101.141",
   "isNewCustomer": true,
   "lineItems": Array [
     Object {
@@ -20,6 +21,7 @@ Object {
   ],
   "quantity": -5726199338762.24,
   "token": "PDOIxm6D7Wge",
+  "ua": "PDOIxm6D7Wge",
   "value": -5726199338762.24,
 }
 `;
@@ -28,7 +30,9 @@ exports[`Testing snapshot for MagellanAI's purchase destination action: required
 Object {
   "currency": "UZS",
   "id": "PDOIxm6D7Wge",
+  "ip": "119.143.101.141",
   "token": "PDOIxm6D7Wge",
+  "ua": "PDOIxm6D7Wge",
   "value": -5726199338762.24,
 }
 `;

@@ -1,8 +1,9 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
-import { createHash } from 'crypto'
 import { US_STATE_CODES, COUNTRY_CODES } from './constants'
 import { Payload } from './addToCart/generated-types'
 import isEmpty from 'lodash/isEmpty'
+import { processHashing } from '../../lib/hashing-utils'
+import { Features } from '@segment/actions-core'
 
 // Implementation of Facebook user data object
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
@@ -107,6 +108,18 @@ export const user_data_field: InputField = {
       description: 'The ID issued by Facebook when a person first logs into an instance of an app.',
       type: 'integer'
     },
+    anonId: {
+      label: 'Install ID (anon_id)',
+      description:
+        'This field represents unique application installation instances. Note: This parameter is for app events only.',
+      type: 'string'
+    },
+    madId: {
+      label: 'Advertiser ID (madid)',
+      description:
+        'Your mobile advertiser ID, the advertising ID from an Android device or the Advertising Identifier (IDFA) from an Apple device.',
+      type: 'string'
+    },
     partner_id: {
       label: 'Partner ID',
       description: 'The ID issued by Facebook identity partner.',
@@ -169,20 +182,16 @@ type UserData = Pick<Payload, 'user_data'>
 
 const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
 
-const hash = (value: string | string[] | undefined): string | string[] | undefined => {
+const hash = (value: string | string[] | undefined, features: Features): string | string[] | undefined => {
   if (value === undefined || !value.length) return
 
   if (typeof value == 'string') {
-    if (isHashedInformation(value)) return value
-    return hashValue(value)
+    return processHashing(value, 'sha256', 'hex', features || {}, 'actions-facebook-conversions-api')
   }
 
-  return value.map((el: string) => (isHashedInformation(el) ? el : hashValue(el)))
-}
-const hashValue = (val: string): string => {
-  const hash = createHash('sha256')
-  hash.update(val)
-  return hash.digest('hex')
+  return value.map((el: string) =>
+    processHashing(el, 'sha256', 'hex', features || {}, 'actions-facebook-conversions-api')
+  )
 }
 
 /**
@@ -256,27 +265,29 @@ export const normalize_user_data = (payload: UserData) => {
   }
 }
 
-export const hash_user_data = (payload: UserData): Object => {
+export const hash_user_data = (payload: UserData, features: Features): Object => {
   normalize_user_data(payload)
   // Hashing this is recommended but not required
   return {
-    em: hash(payload.user_data?.email),
-    ph: hash(payload.user_data?.phone),
-    ge: hash(payload.user_data?.gender),
-    db: hash(payload.user_data?.dateOfBirth),
-    ln: hash(payload.user_data?.lastName),
-    fn: hash(payload.user_data?.firstName),
-    ct: hash(payload.user_data?.city),
-    st: hash(payload.user_data?.state),
-    zp: hash(payload.user_data?.zip),
-    country: hash(payload.user_data?.country),
-    external_id: hash(payload.user_data?.externalId), //to provide support for externalId as string and array both
+    em: hash(payload.user_data?.email, features),
+    ph: hash(payload.user_data?.phone, features),
+    ge: hash(payload.user_data?.gender, features),
+    db: hash(payload.user_data?.dateOfBirth, features),
+    ln: hash(payload.user_data?.lastName, features),
+    fn: hash(payload.user_data?.firstName, features),
+    ct: hash(payload.user_data?.city, features),
+    st: hash(payload.user_data?.state, features),
+    zp: hash(payload.user_data?.zip, features),
+    country: hash(payload.user_data?.country, features),
+    external_id: hash(payload.user_data?.externalId, features), //to provide support for externalId as string and array both
     client_ip_address: payload.user_data?.client_ip_address,
     client_user_agent: payload.user_data?.client_user_agent,
     fbc: payload.user_data?.fbc,
     fbp: payload.user_data?.fbp,
     subscription_id: payload.user_data?.subscriptionID,
     lead_id: payload.user_data?.leadID,
+    anon_id: payload.user_data?.anonId,
+    madid: payload.user_data?.madId,
     fb_login_id: payload.user_data?.fbLoginID,
     partner_id: payload.user_data?.partner_id,
     partner_name: payload.user_data?.partner_name

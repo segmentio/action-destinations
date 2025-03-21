@@ -1,6 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import adobeTarget, { destination } from '../index'
 import { Subscription } from '@segment/browser-destination-runtime/types'
+import { JSONArray } from '@segment/actions-core'
 
 describe('Adobe Target Web', () => {
   test('can load ATJS', async () => {
@@ -19,7 +20,7 @@ describe('Adobe Target Web', () => {
       version: '2.8.0',
       cookie_domain: 'segment.com',
       mbox_name: 'target-global-mbox',
-      subscriptions
+      subscriptions: subscriptions as unknown as JSONArray
     })
 
     jest.spyOn(destination, 'initialize')

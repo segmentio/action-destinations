@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { HTTPError } from '@segment/actions-core/*'
-import { AUTHORIZATION_URL } from '../utils'
+import { AUTHORIZATION_URL, TTL_MAX_VALUE } from '../utils'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -127,6 +127,39 @@ describe('Amazon-Ads (actions)', () => {
 
       await expect(testDestination.createAudience(createAudienceInputTemp)).rejects.toThrowError('Bad Request')
     })
+    it('Should throw an error when invalid cpmCent is provided', async () => {
+      const createAudienceInput = {
+        settings,
+        audienceName: 'Test Audience',
+        audienceSettings: {
+          ...audienceSettings,
+          ttl: 34300800,
+          currency: 'USD',
+          cpmCents: 'invalid cpm cents'
+        }
+      }
+
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
+        'CPM Cents must be a number but it was a string.'
+      )
+    })
+
+    it('Should throw an error when TTL is greater than 34300800', async () => {
+      const createAudienceInput = {
+        settings,
+        audienceName: 'Test Audience',
+        audienceSettings: {
+          ...audienceSettings,
+          ttl: 44300801,
+          currency: 'USD',
+          cpmCents: 2424222
+        }
+      }
+
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
+        `TTL must have value less than or equal to ${TTL_MAX_VALUE}`
+      )
+    })
 
     it('creates an audience', async () => {
       nock(`${settings.region}`)
@@ -139,9 +172,9 @@ describe('Amazon-Ads (actions)', () => {
         audienceName: 'Test Audience',
         audienceSettings: {
           ...audienceSettings,
-          ttl: 12345678,
+          ttl: '12345678',
           currency: 'USD',
-          cpmCents: 1234
+          cpmCents: '1234'
         }
       }
 
@@ -162,6 +195,7 @@ describe('Amazon-Ads (actions)', () => {
       nock(`${settings.region}/amc/audiences/metadata`)
         .get(`/${externalId}`)
         .reply(200, {
+          // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
           advertiserId: 1234567893456754321,
           audienceId: 1234549079612618,
           countryCode: 'US',

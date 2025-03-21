@@ -8,7 +8,8 @@ import {
   data_processing_options,
   data_processing_options_country,
   data_processing_options_state,
-  dataProcessingOptions
+  dataProcessingOptions,
+  test_event_code
 } from '../fb-capi-properties'
 import { user_data_field, hash_user_data } from '../fb-capi-user-data'
 import type { Settings } from '../generated-types'
@@ -30,7 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_data: custom_data,
     data_processing_options: data_processing_options,
     data_processing_options_country: data_processing_options_country,
-    data_processing_options_state: data_processing_options_state
+    data_processing_options_state: data_processing_options_state,
+    test_event_code: test_event_code
   },
   perform: (request, { payload, settings, features, statsContext }) => {
     if (!payload.user_data) {
@@ -51,6 +53,8 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.data_processing_options_state
     )
 
+    const testEventCode = payload.test_event_code || settings.testEventCode
+
     return request(
       `https://graph.facebook.com/v${get_api_version(features, statsContext)}/${settings.pixelId}/events`,
       {
@@ -63,14 +67,14 @@ const action: ActionDefinition<Settings, Payload> = {
               action_source: payload.action_source,
               event_source_url: payload.event_source_url,
               event_id: payload.event_id,
-              user_data: hash_user_data({ user_data: payload.user_data }),
+              user_data: hash_user_data({ user_data: payload.user_data }, features || {}),
               app_data: generate_app_data(payload.app_data_field),
               data_processing_options: data_options,
               data_processing_options_country: country_code,
               data_processing_options_state: state_code
             }
           ],
-          ...(settings.testEventCode && { test_event_code: settings.testEventCode })
+          ...(testEventCode && { test_event_code: testEventCode })
         }
       }
     )

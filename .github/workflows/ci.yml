@@ -9,11 +9,11 @@ on:
 jobs:
   test:
     name: Unit tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.x]
 
     steps:
       # See nx recipe: https://nx.dev/recipes/ci/monorepo-ci-github-actions
@@ -54,11 +54,11 @@ jobs:
 
   lint:
     name: Lint
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -88,11 +88,11 @@ jobs:
 
   validate:
     name: Validate
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -135,11 +135,11 @@ jobs:
     # env: # Disable saucelabs - we blew through our quota.
     #   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
     #   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -171,13 +171,13 @@ jobs:
 
   browser-tests-core:
     name: 'Browser tests: actions-core'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     timeout-minutes: 10
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -192,7 +192,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -214,13 +214,13 @@ jobs:
 
   snyk:
     name: Snyk
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     timeout-minutes: 5
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -237,7 +237,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}

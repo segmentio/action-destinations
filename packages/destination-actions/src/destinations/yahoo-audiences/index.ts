@@ -1,5 +1,5 @@
 import type { AudienceDestinationDefinition, ModifiedResponse } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
@@ -115,9 +115,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
 
     async createAudience(request, createAudienceInput) {
-      const audienceSettings = createAudienceInput.audienceSettings
       // @ts-ignore type is not defined, and we will define it later
-      const personas = audienceSettings.personas as PersonasSettings
+      const personas = createAudienceInput.personas as PersonasSettings
       if (!personas) {
         throw new IntegrationError('Missing computation parameters: Id and Key', 'MISSING_REQUIRED_FIELD', 400)
       }
@@ -169,6 +168,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   actions: {
     updateSegment
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'updateSegment',
+      mapping: defaultValues(updateSegment.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 export default destination

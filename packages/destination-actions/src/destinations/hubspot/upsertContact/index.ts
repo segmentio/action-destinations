@@ -195,18 +195,18 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { payload, transactionContext }) => {
     const contactProperties = {
-      company: payload.company,
-      firstname: payload.firstname,
-      lastname: payload.lastname,
-      phone: payload.phone,
-      address: payload.address,
-      city: payload.city,
-      state: payload.state,
-      country: payload.country,
-      zip: payload.zip,
-      email: payload.email,
-      website: payload.website,
-      lifecyclestage: payload.lifecyclestage?.toLowerCase(),
+      company: payload.company?.trim(),
+      firstname: payload.firstname?.trim(),
+      lastname: payload.lastname?.trim(),
+      phone: payload.phone?.trim(),
+      address: payload.address?.trim(),
+      city: payload.city?.trim(),
+      state: payload.state?.trim(),
+      country: payload.country?.trim(),
+      zip: payload.zip?.trim(),
+      email: payload.email?.trim(),
+      website: payload.website?.trim(),
+      lifecyclestage: payload.lifecyclestage?.toLowerCase().trim(),
       ...flattenObject(payload.properties)
     }
 

@@ -2,8 +2,8 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
-import { getProfiles, removeProfileFromList, validatePhoneNumber } from '../functions'
-import { email, list_id, external_id, enable_batching, phone_number } from '../properties'
+import { getProfiles, processPhoneNumber, removeBulkProfilesFromList, removeProfileFromList } from '../functions'
+import { email, list_id, external_id, enable_batching, phone_number, country_code, batch_size } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Profile from List (Engage)',
@@ -14,15 +14,15 @@ const action: ActionDefinition<Settings, Payload> = {
     external_id: { ...external_id },
     list_id: { ...list_id },
     phone_number: { ...phone_number },
-    enable_batching: { ...enable_batching }
+    enable_batching: { ...enable_batching },
+    country_code: { ...country_code },
+    batch_size: { ...batch_size, default: 1000 }
   },
   perform: async (request, { payload }) => {
-    const { email, list_id, external_id, phone_number } = payload
+    const { email, list_id, external_id, phone_number: initialPhoneNumber, country_code } = payload
+    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
-    }
-    if (phone_number && !validatePhoneNumber(phone_number)) {
-      throw new PayloadValidationError(`${phone_number} is not a valid E.164 phone number.`)
     }
     const profileIds = await getProfiles(
       request,
@@ -33,24 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return await removeProfileFromList(request, profileIds, list_id)
   },
   performBatch: async (request, { payload }) => {
-    // Filtering out profiles that do not contain either an email, phone_number or external_id.
-    const filteredPayload = payload.filter((profile) => {
-      if (profile.phone_number && !validatePhoneNumber(profile.phone_number)) {
-        return false
-      }
-      return profile.email || profile.external_id || profile.phone_number
-    })
-    const listId = filteredPayload[0]?.list_id
-    const emails = filteredPayload.map((profile) => profile.email).filter((email) => email) as string[]
-    const externalIds = filteredPayload
-      .map((profile) => profile.external_id)
-      .filter((external_id) => external_id) as string[]
-    const phoneNumbers = filteredPayload
-      .map((profile) => profile.phone_number)
-      .filter((phone_number) => phone_number) as string[]
-
-    const profileIds = await getProfiles(request, emails, externalIds, phoneNumbers)
-    return await removeProfileFromList(request, profileIds, listId)
+    return await removeBulkProfilesFromList(request, payload)
   }
 }
 

@@ -117,7 +117,15 @@ export const data_processing_options_state: InputField = {
     { label: 'Use Facebook’s Geolocation Logic', value: 0 },
     { label: 'California', value: 1000 },
     { label: 'Colorado', value: 1001 },
-    { label: 'Connecticut', value: 1002 }
+    { label: 'Connecticut', value: 1002 },
+    { label: 'Florida', value: 1003 },
+    { label: 'Oregon', value: 1004 },
+    { label: 'Texas', value: 1005 },
+    { label: 'Montana', value: 1006 },
+    { label: 'Delaware', value: 1007 },
+    { label: 'Nebraska', value: 1008 },
+    { label: 'New Hampshire', value: 1009 },
+    { label: 'New Jersey', value: 1010 }
   ]
 }
 
@@ -211,4 +219,12 @@ export const event_id: InputField = {
   default: {
     '@path': '$.messageId'
   }
+}
+
+export const test_event_code: InputField = {
+  label: 'Test Event Code',
+  type: 'string',
+  description:
+    'Use this field to specify that events should be test events rather than actual traffic. You can find your Test Event Code in your Facebook Events Manager under the "Test events" tab. This property overrides the test event code defined in Settings. You\'ll want to remove your Test Event Code when sending real traffic through this integration.',
+  required: false
 }

@@ -2,9 +2,10 @@ import {
   IntegrationError,
   AudienceDestinationDefinition,
   PayloadValidationError,
-  APIError
+  APIError,
+  defaultValues
 } from '@segment/actions-core'
-import type { Settings } from './generated-types'
+import type { Settings, AudienceSettings } from './generated-types'
 
 import { API_URL } from './config'
 import upsertProfile from './upsertProfile'
@@ -18,7 +19,7 @@ import removeProfile from './removeProfile'
 
 import unsubscribeProfile from './unsubscribeProfile'
 
-const destination: AudienceDestinationDefinition<Settings> = {
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Klaviyo (Actions)',
   slug: 'actions-klaviyo',
   mode: 'cloud',
@@ -64,7 +65,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
       headers: buildHeaders(settings.api_key)
     }
   },
-  audienceFields: {},
+  audienceFields: {
+    listId: {
+      label: 'List Id',
+      description: `The default List ID to subscribe users to. This list takes precedence over the new list segment auto creates when attaching this destination to an audience.`,
+      type: 'string'
+    }
+  },
   audienceConfig: {
     mode: {
       type: 'synced',
@@ -73,6 +80,12 @@ const destination: AudienceDestinationDefinition<Settings> = {
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
       const apiKey = createAudienceInput.settings.api_key
+      const defaultAudienceId = createAudienceInput.audienceSettings?.listId
+
+      if (defaultAudienceId) {
+        return { externalId: defaultAudienceId }
+      }
+
       if (!audienceName) {
         throw new PayloadValidationError('Missing audience name value')
       }
@@ -94,8 +107,15 @@ const destination: AudienceDestinationDefinition<Settings> = {
       }
     },
     async getAudience(request, getAudienceInput) {
+      const defaultAudienceId = getAudienceInput.audienceSettings?.listId
+
+      if (defaultAudienceId) {
+        getAudienceInput.externalId = defaultAudienceId
+      }
+
       const listId = getAudienceInput.externalId
       const apiKey = getAudienceInput.settings.api_key
+
       const response = await request(`${API_URL}/lists/${listId}`, {
         method: 'GET',
         headers: buildHeaders(apiKey),
@@ -133,7 +153,23 @@ const destination: AudienceDestinationDefinition<Settings> = {
     subscribeProfile,
     unsubscribeProfile,
     removeProfile
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Entered',
+      partnerAction: 'upsertProfile',
+      mapping: defaultValues(upsertProfile.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    },
+    {
+      name: 'Entities Audience Exited',
+      partnerAction: 'removeProfile',
+      mapping: defaultValues(removeProfile.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_exited_track'
+    }
+  ]
 }
 
 export default destination

@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 
 import syncAudienceToCSV from './syncAudienceToCSV'
@@ -79,9 +79,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(_, createAudienceInput) {
-      const audienceSettings = createAudienceInput.audienceSettings
-      // @ts-ignore type is not defined, and we will define it later
-      const personas = audienceSettings.personas as PersonasSettings
+      const personas = createAudienceInput.personas as PersonasSettings
       if (!personas) {
         throw new IntegrationError('Missing computation parameters: Id and Key', 'MISSING_REQUIRED_FIELD', 400)
       }
@@ -96,9 +94,19 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       return { externalId: audience_id }
     }
   },
+
   actions: {
     syncAudienceToCSV
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudienceToCSV',
+      mapping: defaultValues(syncAudienceToCSV.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination

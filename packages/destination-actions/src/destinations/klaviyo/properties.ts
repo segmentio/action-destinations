@@ -1,11 +1,18 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
+import { COUNTRY_CODES } from './config'
 
 export const list_id: InputField = {
   label: 'List Id',
   description: `'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'`,
   type: 'string',
   default: {
-    '@path': '$.context.personas.external_audience_id'
+    '@if': {
+      exists: {
+        '@path': '$.context.personas.audience_settings.listId'
+      },
+      then: { '@path': '$.context.personas.audience_settings.listId' },
+      else: { '@path': '$.context.personas.external_audience_id' }
+    }
   },
   unsafe_hidden: true,
   required: true
@@ -17,7 +24,8 @@ export const email: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.traits.email'
-  }
+  },
+  format: 'email'
 }
 
 export const external_id: InputField = {
@@ -145,3 +153,20 @@ export const phone_number: InputField = {
   type: 'string',
   default: { '@path': '$.context.traits.phone' }
 }
+
+export const country_code: InputField = {
+  label: 'Country Code',
+  description: `Country Code in ISO 3166-1 alpha-2 format. If provided, this will be used to validate and automatically format Phone Number field in E.164 format accepted by Klaviyo.`,
+  type: 'string',
+  choices: COUNTRY_CODES,
+  depends_on: {
+    conditions: [
+      {
+        fieldKey: 'phone_number',
+        operator: 'is_not',
+        value: ''
+      }
+    ]
+  }
+}
+export const eventBulkCreateRegex = /\/data\/attributes\/events-bulk-create\/data\/(\d+)/

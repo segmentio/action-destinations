@@ -59,7 +59,7 @@ Structure:
 You'll need to have some tools installed locally to build and test action destinations.
 
 - Yarn 1.x
-- Node 18.12 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
+- Node 18.17 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
 
 If you are a Segment employee you can directly `git clone` the repository locally. Otherwise you'll want to fork this repository for your organization to submit Pull Requests against the main Segment repository. Once you've got a fork, you can `git clone` that locally.
 
@@ -71,7 +71,7 @@ cd action-destinations
 npm login
 yarn login
 
-# Requires node 18.12.1, optionally: nvm use 18.12.1
+# Requires node 18.17.1, optionally: nvm use 18.17.1
 yarn --ignore-optional
 yarn install
 yarn build
@@ -81,6 +81,9 @@ yarn test-partners
 
 # For segment employees, you can run:
 yarn test
+
+# to reset all caches and rebuild again
+yarn clean-build
 ```
 
 ### Actions CLI
@@ -267,7 +270,7 @@ interface InputField {
   dynamic?: boolean
 
   /** Whether or not the field is required */
-  required?: boolean
+  required?: boolean | DependsOnConditions
 
   /**
    * Optional definition for the properties of `type: 'object'` fields
@@ -357,6 +360,126 @@ const destination = {
 ```
 
 In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
+
+## Required Fields
+
+You may configure a field to either be always required, not required, or conditionally required. Validation for required fields is performed both when a user is configuring a mapping in the UI and when an event payload is delivered through a `perform` block.
+
+**An example of each possible value for `required`**
+
+```js
+const destination = {
+  actions: {
+    readmeAction: {
+      fields: {
+        operation: {
+          label: 'An operation for the readme action',
+          required: true // This field is always required and any payloads omitting it will fail
+        },
+        creationName: {
+          label: "The name of the resource to create, required when operation = 'create'",
+          required: {
+            // This field is required only when the 'operation' field has the value 'create'
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'operation',
+                operator: 'is',
+                value: 'create'
+              }
+            ]
+          }
+        },
+        email: {
+          label: 'The customer email',
+          required: false // This field is not required. This is the same as not including the 'required' property at all
+        },
+        userIdentifiers: {
+          phone: {
+            label: 'The customer phone number',
+            required: {
+              // If email is not provided then a phone number is required
+              conditions: [{ fieldKey: 'email', operator: 'is', value: undefined }]
+            }
+          },
+          countryCode: {
+            label: 'The country code for the customer phone number',
+            required: {
+              // If a userIdentifiers.phone is provided then the country code is also required
+              conditions: [
+                {
+                  fieldKey: 'userIdentifiers.phone', // Dot notation may be used to address object fields.
+                  operator: 'is_not',
+                  value: undefined
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+**Examples of valid and invalid payloads for the fields above**
+
+```json
+// This payload is valid since the only required field, 'operation', is defined.
+{
+  "operation": "update",
+  "email": "read@me.com"
+}
+```
+
+```json
+// This payload is invalid since 'creationName' is required because 'operation' is 'create'
+{
+  "operation": "create",
+  "email": "read@me.com"
+}
+// This error will be thrown:
+"message": "The root value is missing the required field 'creationName'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is valid since the two required fields, 'operation' and 'creationName' are defined.
+{
+  "operation": "create",
+  "creationName": "readme",
+  "email": "read@me.com"
+}
+```
+
+```json
+// This payload is invalid since 'phone' is required when 'email' is missing.
+{
+  "operation": "update",
+}
+// This error will be thrown:
+"message": "The root value is missing the required field 'phone'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is invalid since 'countryCode' is required when 'phone' is defined
+{
+  "operation": "update",
+  "userIdentifiers": { "phone": "619-555-5555" }
+}
+// This error will be thrown:
+"message": "The root value is missing the required field 'countryCode'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is valid since all conditionally required fields are included
+{
+  "operation": "update",
+  "userIdentifiers": {
+    "phone": "619-555-5555",
+    "countryCode": "+1"
+  }
+}
+```
 
 ## Dynamic Fields
 
@@ -531,9 +654,10 @@ The `perform` method accepts two arguments, (1) the request client instance (ext
 - `features` - The features available in the request based on the customer's sourceID. Features can only be enabled and/or used by internal Twilio/Segment employees. Features cannot be used for Partner builds.
 - `statsContext` - An object, containing a `statsClient` and `tags`. Stats can only be used by internal Twilio/Segment employees. Stats cannot be used for Partner builds.
 - `logger` - Logger can only be used by internal Twilio/Segment employees. Logger cannot be used for Partner builds.
-- `dataFeedCache` - DataFeedCache can only be used by internal Twilio/Segment employees. DataFeedCache cannot be used for Partner builds.
+- `engageDestinationCache` - EngageDestinationCache can only be used by internal Twilio/Segment employees. EngageDestinationCache should not be used for Partner builds.
 - `transactionContext` - An object, containing transaction variables and a method to update transaction variables which are required for few segment developed actions. Transaction Context cannot be used for Partner builds.
 - `stateContext` - An object, containing context variables and a method to get and set context variables which are required for few segment developed actions. State Context cannot be used for Partner builds.
+- `subscriptionMetadata` - an object, containing variables which identify the instance of a Destination and Action as well as other metadata. Subscription Metadata cannot be used for Partner builds.
 
 A basic example:
 
@@ -844,7 +968,7 @@ For any issues, please contact our support team at partner-support@segment.com.
 
 MIT License
 
-Copyright (c) 2024 Segment
+Copyright (c) 2025 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
