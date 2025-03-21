@@ -205,7 +205,7 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
   if (!timestamp) {
     return undefined
   }
-  return timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00')
+  return timestamp.replace(/T/, ' ').replace(/Z$/, '+00:00').replace(/\..+/, '+00:00')
 }
 
 export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
