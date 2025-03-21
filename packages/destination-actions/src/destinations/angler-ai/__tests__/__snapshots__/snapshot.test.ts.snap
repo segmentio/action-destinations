@@ -488,6 +488,7 @@ Object {
   "data": Array [
     Object {
       "client_id": "#p#iS",
+      "custom_event_name": "#p#iS",
       "data": Object {
         "cart": Object {
           "cost": Object {
