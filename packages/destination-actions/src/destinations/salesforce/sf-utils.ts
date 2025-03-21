@@ -1,4 +1,4 @@
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, StatsContext } from '@segment/actions-core'
 import { GenericPayload } from './sf-types'
 import camelCase from 'lodash/camelCase'
 
@@ -108,9 +108,12 @@ const buildCSVFromHeaderMap = (
   payloads: GenericPayload[],
   headerMap: Map<string, [[CSVData, number]]>,
   n: number,
-  operation: string | undefined
+  operation: string | undefined,
+  logging?: { shouldLog?: boolean; stats?: StatsContext; jobId?: string }
 ): string => {
   let rows = ''
+  let totalNoValueFound = 0
+  let totalValuesInCSV = 0
 
   for (let i = 0; i < n; i++) {
     let row = ''
@@ -121,11 +124,13 @@ const buildCSVFromHeaderMap = (
         if (valueTuple != null && valueTuple[0] != null) {
           row += `"${escapeDoubleQuotes(valueTuple[0])}",`
           noValueFound = false
+          totalValuesInCSV++
         }
       }
 
       if (noValueFound) {
         row += `${NO_VALUE},`
+        totalNoValueFound++
       }
     }
 
@@ -146,6 +151,16 @@ const buildCSVFromHeaderMap = (
       rows += `${row}"${uniqueIdValue}"\n`
     }
   }
+
+  if (logging?.shouldLog === true) {
+    const statsClient = logging?.stats?.statsClient
+    const tags = logging?.stats?.tags
+
+    tags?.push('jobId:' + logging.jobId)
+    statsClient?.incr('bulkCSV.numberOfValuesInCSV', totalValuesInCSV, tags)
+    statsClient?.incr('bulkCSV.numberOfNullsInCSV', totalNoValueFound, tags)
+  }
+
   return rows
 }
 
@@ -177,17 +192,33 @@ const getUniqueIdValue = (payload: GenericPayload, operation: string | undefined
 export const buildCSVData = (
   payloads: GenericPayload[],
   uniqueIdName: string,
-  operation: string | undefined
+  operation: string | undefined,
+  logging?: { shouldLog?: boolean; stats?: StatsContext; jobId?: string }
 ): string => {
   const headerMap = buildHeaderMap(payloads)
   let csv = buildHeaders(headerMap)
+
+  if (logging?.shouldLog === true) {
+    const statsClient = logging?.stats?.statsClient
+    const tags = logging?.stats?.tags
+
+    let numberOfColumns = headerMap.size
+
+    if (operation !== 'insert' && operation !== 'create') {
+      numberOfColumns++
+    }
+
+    tags?.push('jobId:' + logging.jobId)
+    statsClient?.incr('bulkCSV.payloadSize', payloads.length, tags)
+    statsClient?.incr('bulkCSV.numberOfColumns', numberOfColumns, tags)
+  }
 
   if (operation === 'insert') {
     // Remove the trailing comma, since there is no unique ID to append
     csv = csv.substring(0, csv.length - 1)
   }
 
-  csv += `${uniqueIdName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length, operation)
+  csv += `${uniqueIdName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length, operation, logging)
 
   return csv
 }
