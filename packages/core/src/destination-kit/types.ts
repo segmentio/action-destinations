@@ -5,7 +5,8 @@ import {
   TransactionContext,
   EngageDestinationCache,
   ActionHookType,
-  SubscriptionMetadata
+  SubscriptionMetadata,
+  RequestFn
 } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONLikeObject, JSONObject } from '../json-object'
@@ -35,6 +36,8 @@ export interface DynamicFieldContext {
   selectedArrayIndex?: number
   /** The key within a dynamic object for which we are requesting values */
   selectedKey?: string
+  /** The RichInput dropdown search query the user has entered */
+  query?: string
 }
 
 export interface ExecuteInput<
@@ -101,15 +104,15 @@ export interface DynamicFieldItem {
 }
 
 /** The shape of authentication and top-level settings */
-export interface GlobalSetting {
-  /** A short, human-friendly label for the field */
-  label: string
-  /** A human-friendly description of the field */
-  description: string
+export interface GlobalSetting
+  extends Omit<
+    InputField,
+    | 'additionalProperties' // Settings cannot be an object
+    | 'defaultObjectUI' // Settings cannot be an object
+    | 'dynamic' // This type is redeclared
+  > {
   /** A subset of the available DestinationMetadataOption types */
   type: 'boolean' | 'string' | 'password' | 'number'
-  /** Whether or not the field accepts more than one of its `type` */
-  multiple?: boolean
   /**
    * A predefined set of options for the setting.
    * Only relevant for `type: 'string'` or `type: 'number'`.
@@ -120,11 +123,9 @@ export interface GlobalSetting {
     /** A human-friendly label for the option */
     label: string
   }>
-  required?: boolean
   default?: string | number | boolean
-  properties?: InputField['properties']
-  format?: InputField['format']
-  depends_on?: InputField['depends_on']
+
+  dynamic?: RequestFn<Record<string, boolean | string | number>, {}>
 }
 
 /** The supported field type names */
@@ -167,8 +168,13 @@ export interface InputFieldJSONSchema {
         /** A human-friendly label for the option */
         label: string
       }>
-  /** Whether or not the field is required */
-  required?: boolean
+  /**
+   * Whether or not the field is required. If set to true the field must always be included.
+   * If a DependsOnConditions object is defined then the field will be required based on the conditions defined.
+   * This validation is done both when an event payload is sent through the perform block and when a user configures
+   * a mapping in the UI.
+   * */
+  required?: boolean | DependsOnConditions
   /**
    * Optional definition for the properties of `type: 'object'` fields
    * (also arrays of objects when using `multiple: true`)
@@ -348,7 +354,7 @@ export type Deletion<Settings, Return = any> = (
 ) => MaybePromise<Return>
 
 /** The supported sync mode values  */
-export const syncModeTypes = ['add', 'update', 'upsert', 'delete'] as const
+export const syncModeTypes = ['add', 'update', 'upsert', 'delete', 'mirror'] as const
 export type SyncMode = typeof syncModeTypes[number]
 
 export interface SyncModeOption {

@@ -1,11 +1,11 @@
-import { DynamicFieldItem, DynamicFieldError, RequestClient, IntegrationError } from '@segment/actions-core'
+import { DynamicFieldItem, DynamicFieldError, RequestClient, Features } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
-import { SmartHashing } from '@segment/actions-core'
+import { processHashing } from '../../lib/hashing-utils'
+import { StatsContext } from '@segment/actions-core/destination-kit'
+import { API_VERSION, BASE_URL, CANARY_API_VERSION, FACEBOOK_CUSTOM_AUDIENCE_FLAGON } from './constants'
 
-const FACEBOOK_API_VERSION = 'v20.0'
 // exported for unit testing
-export const BASE_URL = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/`
 
 interface AudienceCreationResponse {
   id: string
@@ -41,7 +41,7 @@ interface FacebookSyncRequestParams {
 }
 
 // exported for unit testing. Also why these are not members of the class
-export const generateData = (payloads: Payload[]): (string | number)[][] => {
+export const generateData = (payloads: Payload[], features: Features | undefined): (string | number)[][] => {
   const data: (string | number)[][] = new Array(payloads.length)
 
   payloads.forEach((payload, index) => {
@@ -50,10 +50,10 @@ export const generateData = (payloads: Payload[]): (string | number)[][] => {
     Object.entries(payload).forEach(([key, value]) => {
       if (typeof value === 'object') {
         Object.entries(value).forEach(([nestedKey, value]) => {
-          appendToDataRow(nestedKey, value as string | number, row)
+          appendToDataRow(nestedKey, value as string | number, row, features)
         })
       } else {
-        appendToDataRow(key, value as string | number, row)
+        appendToDataRow(key, value as string | number, row, features)
       }
     })
 
@@ -63,7 +63,12 @@ export const generateData = (payloads: Payload[]): (string | number)[][] => {
   return data
 }
 
-const appendToDataRow = (key: string, value: string | number, row: (string | number)[]) => {
+const appendToDataRow = (
+  key: string,
+  value: string | number,
+  row: (string | number)[],
+  features: Features | undefined
+) => {
   const index = segmentSchemaKeyToArrayIndex.get(key)
 
   if (index === undefined) {
@@ -71,33 +76,46 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
     return
   }
 
-  const smartHash = new SmartHashing('sha256')
-
-  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key) || smartHash.isAlreadyHashed(value)) {
+  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key)) {
     row[index] = value
     return
   }
 
-  const normalizationFunction = normalizationFunctions.get(key)
-  if (!normalizationFunction) {
-    throw new IntegrationError(`Normalization function not found for key: ${key}`, `cannot normalize ${key}`, 500)
-  }
+  row[index] = processHashing(
+    value,
+    'sha256',
+    'hex',
+    features,
+    'actions-facebook-custom-audiences',
+    normalizationFunctions.get(key)
+  )
+}
 
-  const normalizedValue = normalizationFunction(value)
-  row[index] = smartHash.hash(normalizedValue)
+export const getApiVersion = (features?: Features, statsContext?: StatsContext): string => {
+  const statsClient = statsContext?.statsClient
+  const tags = statsContext?.tags
+
+  const version = features && features[FACEBOOK_CUSTOM_AUDIENCE_FLAGON] ? CANARY_API_VERSION : API_VERSION
+  tags?.push(`version:${version}`)
+  statsClient?.incr(`actions_facebook_custom_audience`, 1, tags)
+  return version
 }
 
 export default class FacebookClient {
   request: RequestClient
   adAccountId: string
+  features: Features | undefined
+  baseUrl: string
 
-  constructor(request: RequestClient, adAccountId: string) {
+  constructor(request: RequestClient, adAccountId: string, features?: Features, statsContext?: StatsContext) {
     this.request = request
     this.adAccountId = this.formatAdAccount(adAccountId)
+    this.baseUrl = `${BASE_URL}/${getApiVersion(features, statsContext)}/`
+    this.features = features || undefined
   }
 
   createAudience = async (name: string) => {
-    return await this.request<AudienceCreationResponse>(`${BASE_URL}${this.adAccountId}/customaudiences`, {
+    return await this.request<AudienceCreationResponse>(`${this.baseUrl}${this.adAccountId}/customaudiences`, {
       method: 'post',
       json: {
         name,
@@ -112,7 +130,7 @@ export default class FacebookClient {
   ): Promise<{ data?: GetSingleAudienceResponse; error?: FacebookResponseError }> => {
     try {
       const fields = '?fields=id,name'
-      const { data } = await this.request<GetSingleAudienceResponse>(`${BASE_URL}${audienceId}${fields}`)
+      const { data } = await this.request<GetSingleAudienceResponse>(`${this.baseUrl}${audienceId}${fields}`)
       return { data, error: undefined }
     } catch (error) {
       return { data: undefined, error: error as FacebookResponseError }
@@ -121,7 +139,7 @@ export default class FacebookClient {
 
   getAllAudiences = async (): Promise<{ choices: DynamicFieldItem[]; error: DynamicFieldError | undefined }> => {
     const { data } = await this.request<GetAllAudienceResponse>(
-      `${BASE_URL}${this.adAccountId}/customaudiences?fields=id,name&limit=200`
+      `${this.baseUrl}${this.adAccountId}/customaudiences?fields=id,name&limit=200`
     )
 
     const choices = data.data.map(({ id, name }) => ({
@@ -136,7 +154,7 @@ export default class FacebookClient {
   }
 
   syncAudience = async (input: { audienceId: string; payloads: Payload[]; deleteUsers?: boolean }) => {
-    const data = generateData(input.payloads)
+    const data = generateData(input.payloads, this.features)
 
     const app_ids: string[] = []
     let app_ids_items = 0
@@ -175,7 +193,7 @@ export default class FacebookClient {
       params.payload.page_ids = page_ids
     }
 
-    return await this.request(`${BASE_URL}${input.audienceId}/users`, {
+    return await this.request(`${this.baseUrl}${input.audienceId}/users`, {
       method: input.deleteUsers === true ? 'delete' : 'post',
       json: params
     })

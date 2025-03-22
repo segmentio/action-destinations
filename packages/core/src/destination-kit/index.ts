@@ -483,8 +483,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       return await audienceConfig?.createAudience(requestClient, createAudienceInput)
     }
 
-    const onFailedAttempt = async (error: ResponseError & HTTPError) => {
-      settings = await this.handleAuthError(error, settings)
+    const onFailedAttempt = async (error: ResponseError | HTTPError) => {
+      settings = await this.handleError(error, settings)
     }
     return await retry(run, { retries: 2, onFailedAttempt })
   }
@@ -509,8 +509,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       return await audienceConfig?.getAudience(requestClient, getAudienceInput)
     }
 
-    const onFailedAttempt = async (error: ResponseError & HTTPError) => {
-      settings = await this.handleAuthError(error, settings)
+    const onFailedAttempt = async (error: ResponseError | HTTPError) => {
+      settings = await this.handleError(error, settings)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -742,13 +742,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
           // Add datadog stats for events that are discarded by Actions
           options?.statsContext?.statsClient?.incr(
             'action.multistatus_discard',
-            (events as SegmentEvent[]).length,
+            events.length,
             options.statsContext?.tags
           )
 
           return [
             {
-              multistatus: Array((events as SegmentEvent[]).length).fill(response)
+              multistatus: Array(events.length).fill(response)
             }
           ]
         }
@@ -770,13 +770,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
           // Add datadog stats for events that are discarded by Actions
           options?.statsContext?.statsClient?.incr(
             'action.multistatus_discard',
-            (events as SegmentEvent[]).length,
+            events.length,
             options.statsContext?.tags
           )
 
           return [
             {
-              multistatus: Array((events as SegmentEvent[]).length).fill(response)
+              multistatus: Array(events.length).fill(response)
             }
           ]
         }
@@ -784,7 +784,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         return [{ output: response.errormessage }]
       }
 
-      const allEvents = (isBatch ? events : [events]) as SegmentEvent[]
+      const allEvents = isBatch ? events : [events]
 
       // Filter invalid events and record discards
       const subscribedEvents: SegmentEvent[] = []
@@ -901,8 +901,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       return result
     }
 
-    const onFailedAttempt = async (error: ResponseError & HTTPError) => {
-      settings = await this.handleAuthError(error, settings, options)
+    const onFailedAttempt = async (error: ResponseError | HTTPError) => {
+      settings = await this.handleError(error, settings, options)
     }
 
     return await retry(run, { retries: 2, onFailedAttempt })
@@ -928,12 +928,39 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       return ([] as Result[]).concat(...results)
     }
 
+    const MAX_ATTEMPTS = 2
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onFailedAttempt = async (error: any) => {
-      settings = await this.handleAuthError(error, settings, options)
+      settings = await this.handleError(error, settings, options)
     }
 
-    return await retry(run, { retries: 2, onFailedAttempt })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const shouldRetry = async (response: any, attemptCount: number) => {
+      const results = response as Result[]
+      /*
+        Here, we iterate over results array. Each result in the array is a response from a single subscription.
+        However, we always execute one subscription at a time despite receiving an array of subscriptions as input.
+        So, results array will always have a single result.
+        TODO: Get rid of onSubscriptions method to reflect execution model in the code accurately.
+      */
+      for (const result of results) {
+        /*
+          If the multistatus response contains a 401 status code, we should retry the request
+          if we haven't already retried the request the maximum number of times.
+          So, we throw an InvalidAuthenticationError to retry the request.
+         */
+        const has401Errors = result?.multistatus?.some((event) => event.status === 401)
+        const isOAuthDestination =
+          this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed'
+        if (attemptCount <= MAX_ATTEMPTS && has401Errors && isOAuthDestination) {
+          await this.handleAuthError(settings, options)
+          return false
+        }
+      }
+      return true
+    }
+    return await retry<Result[]>(run, { retries: MAX_ATTEMPTS, onFailedAttempt, shouldRetry })
   }
 
   private getSubscriptions(settings: JSONObject): Subscription[] {
@@ -961,19 +988,33 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
 
   /**
    * Handles the failed attempt by checking if reauthentication is needed and updating the token if necessary.
-   * @param {ResponseError & HTTPError} error - The error object from the failed attempt.
+   * @param {ResponseError | HTTPError} error - The error object from the failed attempt.
    * @param {JSONObject} settings - The current settings object.
    * @returns {Promise<JSONObject>} - The updated settings object.
-   * @throws {ResponseError & HTTPError} - If reauthentication is not needed or token refresh fails.
+   * @throws {ResponseError | HTTPError} - If reauthentication is not needed or token refresh fails.
    */
-  async handleAuthError(error: ResponseError & HTTPError, settings: JSONObject, options?: OnEventOptions) {
-    const statusCode = error?.status ?? error?.response?.status ?? 500
+  async handleError(
+    error: ResponseError | HTTPError,
+    settings: JSONObject,
+    options?: OnEventOptions
+  ): Promise<JSONObject> {
+    const statusCode = (error as ResponseError).status ?? (error as HTTPError)?.response?.status ?? 500
     const needsReauthentication =
       statusCode === 401 &&
       (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
     if (!needsReauthentication) {
       throw error
     }
+    return this.handleAuthError(settings, options)
+  }
+
+  /**
+   * Handles the authentication error by refreshing the token and updating the settings.
+   * @param {JSONObject} settings - The current settings object.
+   * @returns {Promise<JSONObject>} - The updated settings object.
+   * @returns
+   */
+  async handleAuthError(settings: JSONObject, options?: OnEventOptions) {
     const newTokens = await this.refreshTokenAndGetNewToken(settings, options)
     // Update new access-token in cache and in settings.
     await options?.onTokenRefresh?.(newTokens)

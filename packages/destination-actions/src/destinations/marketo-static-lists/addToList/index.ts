@@ -2,7 +2,7 @@ import type { IntegrationError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { external_id, lookup_field, data, enable_batching, batch_size, event_name } from '../properties'
-import { addToList, createList, getList } from '../functions'
+import { addToList, addToListBatch, createList, getList } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to List',
@@ -94,11 +94,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload, statsContext, hookOutputs }) => {
     statsContext?.statsClient?.incr('addToAudience', 1, statsContext?.tags)
-    return addToList(request, settings, [payload], statsContext, hookOutputs?.retlOnMappingSave?.outputs)
+    return addToList(request, settings, payload, statsContext, hookOutputs?.retlOnMappingSave?.outputs)
   },
   performBatch: async (request, { settings, payload, statsContext, hookOutputs }) => {
     statsContext?.statsClient?.incr('addToAudience.batch', 1, statsContext?.tags)
-    return addToList(request, settings, payload, statsContext, hookOutputs?.retlOnMappingSave?.outputs)
+    return addToListBatch(request, settings, payload, statsContext, hookOutputs?.retlOnMappingSave?.outputs)
   }
 }
 

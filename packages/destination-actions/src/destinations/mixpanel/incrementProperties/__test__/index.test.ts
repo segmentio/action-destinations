@@ -42,6 +42,38 @@ describe('Mixpanel.incrementProperties', () => {
     )
   })
 
+  it('should use IN server URL', async () => {
+    const event = createTestEvent({ timestamp, event: 'search', properties: defaultProperties })
+
+    nock('https://api-in.mixpanel.com').post('/engage').reply(200, {})
+    nock('https://api-in.mixpanel.com').post('/track').reply(200, {})
+
+    const responses = await testDestination.testAction('incrementProperties', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.IN
+      }
+    })
+
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.body).toMatchObject(
+      new URLSearchParams({
+        data: JSON.stringify({
+          $token: MIXPANEL_PROJECT_TOKEN,
+          $distinct_id: 'user1234',
+          $ip: '8.8.8.8',
+          $add: {
+            searches: 1
+          }
+        })
+      })
+    )
+  })
+
   it('should default to US endpoint if apiRegion setting is undefined', async () => {
     const event = createTestEvent({ timestamp, event: 'search', properties: defaultProperties })
 

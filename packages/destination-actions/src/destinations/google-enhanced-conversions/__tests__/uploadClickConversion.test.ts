@@ -522,6 +522,125 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
+
+    it('normalizes Google email addresses', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: '54321',
+          email: 'test.user@gmail.com',
+          orderId: '1234',
+          total: '200',
+          currency: 'USD',
+          products: [
+            {
+              product_id: '1234',
+              quantity: 3,
+              price: 10.99
+            }
+          ]
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(201, { results: [{}] })
+
+      const responses = await testDestination.testAction('uploadClickConversion', {
+        event,
+        mapping: { conversion_action: '12345' },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      // The hash should match 'testuser@gmail.com' (no dots)
+      expect(responses[0].options.body).toContain('dae9c7c55697ba170d6b494c458649bd469af525520280d0dcfc98d74d13b17e')
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
+    it('handles googlemail.com domain', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: '54321',
+          email: 'test.user@googlemail.com',
+          orderId: '1234',
+          total: '200',
+          currency: 'USD',
+          products: [
+            {
+              product_id: '1234',
+              quantity: 3,
+              price: 10.99
+            }
+          ]
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(201, { results: [{}] })
+
+      const responses = await testDestination.testAction('uploadClickConversion', {
+        event,
+        mapping: { conversion_action: '12345' },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      // The hash should match 'testuser@googlemail.com' (no dots)
+      expect(responses[0].options.body).toContain('06bfc6aa38674253530e62f2b585d63e3786cbb759b81b73df34ae80894d8813')
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
+    it('preserves dots in non-Google email addresses', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: '54321',
+          email: 'test.user@example.com',
+          orderId: '1234',
+          total: '200',
+          currency: 'USD',
+          products: [
+            {
+              product_id: '1234',
+              quantity: 3,
+              price: 10.99
+            }
+          ]
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(201, { results: [{}] })
+
+      const responses = await testDestination.testAction('uploadClickConversion', {
+        event,
+        mapping: { conversion_action: '12345' },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      // The hash should be different from the normalized Google email hash
+      expect(responses[0].options.body).not.toContain(
+        '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
+      )
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
   })
 
   describe('uploadClickConversion Batch Event', () => {

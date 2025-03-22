@@ -2,18 +2,11 @@ import { Payload } from './syncToS3/generated-types'
 import { Settings } from './generated-types'
 import { Client } from './client'
 import { RawMapping, ColumnHeader } from './types'
-import { IntegrationError } from '@segment/actions-core'
 
 export async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
-  const batchSize = payloads[0] && typeof payloads[0].batch_size === 'number' ? payloads[0].batch_size : 0
   const delimiter = payloads[0]?.delimiter
   const actionColName = payloads[0]?.audience_action_column_name
   const batchColName = payloads[0]?.batch_size_column_name
-
-  const maxBatchSize = 10_000
-  if (batchSize > maxBatchSize) {
-    throw new IntegrationError(`Batch size cannot exceed ${maxBatchSize}`, 'Invalid Payload', 400)
-  }
 
   const headers: ColumnHeader[] = Object.entries(rawMapping.columns)
     .filter(([_, value]) => value !== '')
@@ -49,15 +42,13 @@ export function clean(delimiter: string, str?: string) {
   return delimiter === 'tab' ? str : str.replace(delimiter, '')
 }
 
-function processField(row: string[], value: unknown | undefined) {
-  row.push(
-    encodeString(
-      value === undefined || value === null
-        ? ''
-        : typeof value === 'object'
-        ? String(JSON.stringify(value))
-        : String(value)
-    )
+function processField(value: unknown | undefined): string {
+  return encodeString(
+    value === undefined || value === null
+      ? ''
+      : typeof value === 'object'
+      ? String(JSON.stringify(value))
+      : String(value)
   )
 }
 
@@ -67,26 +58,26 @@ export function generateFile(
   delimiter: string,
   actionColName?: string,
   batchColName?: string
-): string {
-  const rows: string[] = []
-  rows.push(`${headers.map((header) => header.cleanName).join(delimiter === 'tab' ? '\t' : delimiter)}\n`)
-
-  payloads.forEach((payload, index) => {
+): Buffer {
+  const rows = payloads.map((payload, index) => {
     const isLastRow = index === payloads.length - 1
-    const row: string[] = []
-    headers.forEach((header) => {
+    const row = headers.map((header): string => {
       if (header.originalName === actionColName) {
-        processField(row, getAudienceAction(payload))
-      } else if (header.originalName === batchColName) {
-        processField(row, payloads.length)
-      } else {
-        processField(row, payload.columns[header.originalName])
+        return processField(getAudienceAction(payload))
       }
+      if (header.originalName === batchColName) {
+        return processField(payloads.length)
+      }
+      return processField(payload.columns[header.originalName])
     })
 
-    rows.push(`${row.join(delimiter === 'tab' ? '\t' : delimiter)}${isLastRow ? '' : '\n'}`)
+    return Buffer.from(`${row.join(delimiter === 'tab' ? '\t' : delimiter)}${isLastRow ? '' : '\n'}`)
   })
-  return rows.join('')
+
+  return Buffer.concat([
+    Buffer.from(`${headers.map((header) => header.cleanName).join(delimiter === 'tab' ? '\t' : delimiter)}\n`),
+    ...rows
+  ])
 }
 
 export function encodeString(str: string) {

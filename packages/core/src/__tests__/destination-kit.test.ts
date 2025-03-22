@@ -10,7 +10,9 @@ import {
   TransactionContext,
   AuthenticationScheme,
   RefreshAccessTokenResult,
-  AudienceDestinationDefinition
+  AudienceDestinationDefinition,
+  OAuth2Authentication,
+  OAuthManagedAuthentication
 } from '../destination-kit'
 import { JSONObject } from '../json-object'
 import { SegmentEvent } from '../segment-event'
@@ -352,9 +354,19 @@ const multiStatusCompatibleDestination: DestinationDefinition<JSONObject> = {
           label: 'Email',
           description: 'The user email',
           type: 'string'
+        },
+        phone: {
+          label: 'Phone',
+          description: 'The user phone number',
+          type: 'string'
         }
       },
       perform: (_request, { payload }) => {
+        // Emulate an API error
+        if (payload.phone) {
+          throw new IntegrationError('Phone number validation failed', 'Invalid Phone Number', 400)
+        }
+
         if (payload.email) {
           throw new IntegrationError('Email is required', 'Missing required fields', 400)
         }
@@ -364,9 +376,39 @@ const multiStatusCompatibleDestination: DestinationDefinition<JSONObject> = {
           message: 'success'
         }
       },
-      performBatch: (_request, { payload }) => {
+      performBatch: (_request, { payload, auth }) => {
         const response = new MultiStatusResponse()
         payload.forEach((event) => {
+          // Emulate an API error
+          if (event?.phone) {
+            response.pushErrorResponse({
+              status: 400,
+              errortype: ErrorCodes.BAD_REQUEST,
+              errormessage: 'Phone number validation failed',
+              sent: event,
+              body: {
+                events_processed: 0,
+                message: 'Phone number validation failed'
+              }
+            })
+            return
+          }
+
+          // Emulate Auth error
+          if (auth?.accessToken === 'OldToken') {
+            response.pushErrorResponse({
+              status: 401,
+              errortype: ErrorCodes.INVALID_AUTHENTICATION,
+              errormessage: 'Invalid Auth',
+              sent: event,
+              body: {
+                events_processed: 0,
+                message: 'Invalid Auth'
+              }
+            })
+            return
+          }
+
           if (event?.email) {
             response.pushSuccessResponse({
               body: {},
@@ -1803,6 +1845,15 @@ describe('destination kit', () => {
             email: 'user.one@example.com'
           },
           receivedAt
+        },
+        {
+          // Valid Event with emulated rejection
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {
+            phone: '1234567890'
+          },
+          receivedAt
         }
       ]
 
@@ -1813,7 +1864,8 @@ describe('destination kit', () => {
           partnerAction: 'trackEvent',
           mapping: {
             name: { '@path': '$.event' },
-            email: { '@path': '$.properties.email' }
+            email: { '@path': '$.properties.email' },
+            phone: { '@path': '$.properties.phone' }
           }
         }
       }
@@ -1856,7 +1908,7 @@ describe('destination kit', () => {
               },
               Object {
                 "errormessage": "Email is required",
-                "errorreporter": "DESTINATION",
+                "errorreporter": "INTEGRATIONS",
                 "errortype": "PAYLOAD_VALIDATION_FAILED",
                 "status": 400,
               },
@@ -1864,6 +1916,338 @@ describe('destination kit', () => {
                 "body": Object {},
                 "sent": Object {},
                 "status": 200,
+              },
+              Object {
+                "body": Object {
+                  "events_processed": 0,
+                  "message": "Phone number validation failed",
+                },
+                "errormessage": "Phone number validation failed",
+                "errorreporter": "DESTINATION",
+                "errortype": "BAD_REQUEST",
+                "sent": Object {
+                  "name": "Add to Cart",
+                  "phone": "1234567890",
+                },
+                "status": 400,
+              },
+            ],
+          },
+        ]
+      `)
+    })
+    test('should refresh access token and retry events in case multistatus response contains 401 for oauth2 destinations', async () => {
+      const mockRefreshToken = jest.fn().mockReturnValue({
+        accessToken: 'new-access-token'
+      })
+      const mockOnTokenRefresh = jest.fn().mockReturnValue(Promise.resolve())
+      const destinationWithOAuth = {
+        ...multiStatusCompatibleDestination,
+        authentication: {
+          scheme: 'oauth2',
+          fields: {},
+          refreshAccessToken: mockRefreshToken
+        } as OAuth2Authentication<any>
+      }
+      const multiStatusDestination = new Destination(destinationWithOAuth)
+
+      const receivedAt = '2024-08-03T17:40:04.055Z'
+
+      const events: SegmentEvent[] = [
+        {
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {
+            email: 'user.one@example.com'
+          },
+          receivedAt
+        },
+        {
+          // Missing required fields
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {},
+          receivedAt
+        }
+      ]
+
+      const settings = {
+        apiSecret: 'test_key',
+        oauth: {
+          access_token: 'OldToken'
+        },
+        subscription: {
+          subscribe: 'type = "track" and event != "Order Completed"',
+          partnerAction: 'trackEvent',
+          mapping: {
+            name: { '@path': '$.event' },
+            email: { '@path': '$.properties.email' },
+            phone: { '@path': '$.properties.phone' }
+          }
+        }
+      }
+
+      multiStatusDestination.refreshAccessToken = mockRefreshToken
+
+      const response = await multiStatusDestination.onBatch(events, settings, {
+        onTokenRefresh: mockOnTokenRefresh
+      })
+      // assert that the refresh token was called once
+      expect(mockRefreshToken).toHaveBeenCalledTimes(1)
+      expect(mockOnTokenRefresh).toHaveBeenCalledWith(expect.objectContaining({ accessToken: 'new-access-token' }))
+      expect(response).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "multistatus": Array [
+              Object {
+                "body": Object {},
+                "sent": Object {},
+                "status": 200,
+              },
+              Object {
+                "errormessage": "Email is required",
+                "errorreporter": "INTEGRATIONS",
+                "errortype": "PAYLOAD_VALIDATION_FAILED",
+                "status": 400,
+              },
+            ],
+          },
+        ]
+      `)
+    })
+    test('should refresh access token and retry events in case multistatus response contains 401 for oauth-managed destinations', async () => {
+      const mockRefreshToken = jest.fn().mockReturnValue({
+        accessToken: 'new-access-token'
+      })
+      const mockOnTokenRefresh = jest.fn().mockReturnValue(Promise.resolve())
+      const destinationWithOAuth = {
+        ...multiStatusCompatibleDestination,
+        authentication: {
+          scheme: 'oauth-managed',
+          fields: {},
+          refreshAccessToken: mockRefreshToken
+        } as OAuthManagedAuthentication<any>
+      }
+      const multiStatusDestination = new Destination(destinationWithOAuth)
+
+      const receivedAt = '2024-08-03T17:40:04.055Z'
+
+      const events: SegmentEvent[] = [
+        {
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {
+            email: 'user.one@example.com'
+          },
+          receivedAt
+        },
+        {
+          // Missing required fields
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {},
+          receivedAt
+        }
+      ]
+
+      const settings = {
+        apiSecret: 'test_key',
+        oauth: {
+          access_token: 'OldToken'
+        },
+        subscription: {
+          subscribe: 'type = "track" and event != "Order Completed"',
+          partnerAction: 'trackEvent',
+          mapping: {
+            name: { '@path': '$.event' },
+            email: { '@path': '$.properties.email' },
+            phone: { '@path': '$.properties.phone' }
+          }
+        }
+      }
+
+      multiStatusDestination.refreshAccessToken = mockRefreshToken
+
+      const response = await multiStatusDestination.onBatch(events, settings, {
+        onTokenRefresh: mockOnTokenRefresh
+      })
+      // assert that the refresh token was called once
+      expect(mockRefreshToken).toHaveBeenCalledTimes(1)
+      // assert that the onTokenRefresh was called once
+      expect(mockOnTokenRefresh).toHaveBeenCalledWith(expect.objectContaining({ accessToken: 'new-access-token' }))
+      expect(response).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "multistatus": Array [
+              Object {
+                "body": Object {},
+                "sent": Object {},
+                "status": 200,
+              },
+              Object {
+                "errormessage": "Email is required",
+                "errorreporter": "INTEGRATIONS",
+                "errortype": "PAYLOAD_VALIDATION_FAILED",
+                "status": 400,
+              },
+            ],
+          },
+        ]
+      `)
+    })
+    test('should not retry events in case multistatus response doesnot contain 401 errors for oauth destinations', async () => {
+      const mockRefreshToken = jest.fn().mockReturnValue({
+        accessToken: 'new-access-token'
+      })
+      const destinationWithOAuth = {
+        ...multiStatusCompatibleDestination,
+        authentication: {
+          scheme: 'oauth-managed',
+          fields: {},
+          refreshAccessToken: mockRefreshToken
+        } as OAuthManagedAuthentication<any>
+      }
+      const multiStatusDestination = new Destination(destinationWithOAuth)
+
+      const receivedAt = '2024-08-03T17:40:04.055Z'
+
+      const events: SegmentEvent[] = [
+        {
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {
+            email: 'user.one@example.com'
+          },
+          receivedAt
+        },
+        {
+          // Missing required fields
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {},
+          receivedAt
+        }
+      ]
+
+      const settings = {
+        apiSecret: 'test_key',
+        oauth: {},
+        subscription: {
+          subscribe: 'type = "track" and event != "Order Completed"',
+          partnerAction: 'trackEvent',
+          mapping: {
+            name: { '@path': '$.event' },
+            email: { '@path': '$.properties.email' },
+            phone: { '@path': '$.properties.phone' }
+          }
+        }
+      }
+
+      const response = await multiStatusDestination.onBatch(events, settings, {})
+      expect(mockRefreshToken).not.toHaveBeenCalled()
+      expect(response).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "multistatus": Array [
+              Object {
+                "body": Object {},
+                "sent": Object {},
+                "status": 200,
+              },
+              Object {
+                "errormessage": "Email is required",
+                "errorreporter": "INTEGRATIONS",
+                "errortype": "PAYLOAD_VALIDATION_FAILED",
+                "status": 400,
+              },
+            ],
+          },
+        ]
+      `)
+    })
+    test('should not retry events more than max retry attempts for 401 errors', async () => {
+      const mockRefreshToken = jest.fn().mockReturnValue({
+        accessToken: 'OldToken'
+      })
+      const destinationWithOAuth = {
+        ...multiStatusCompatibleDestination,
+        authentication: {
+          scheme: 'oauth-managed',
+          fields: {},
+          refreshAccessToken: mockRefreshToken
+        } as OAuthManagedAuthentication<any>
+      }
+      const multiStatusDestination = new Destination(destinationWithOAuth)
+
+      const receivedAt = '2024-08-03T17:40:04.055Z'
+
+      const events: SegmentEvent[] = [
+        {
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {
+            email: 'user.one@example.com'
+          },
+          receivedAt
+        },
+        {
+          // Missing required fields
+          event: 'Add to Cart',
+          type: 'track',
+          properties: {},
+          receivedAt
+        }
+      ]
+
+      const settings = {
+        apiSecret: 'test_key',
+        oauth: {
+          access_token: 'OldToken'
+        },
+        subscription: {
+          subscribe: 'type = "track" and event != "Order Completed"',
+          partnerAction: 'trackEvent',
+          mapping: {
+            name: { '@path': '$.event' },
+            email: { '@path': '$.properties.email' },
+            phone: { '@path': '$.properties.phone' }
+          }
+        }
+      }
+
+      const response = await multiStatusDestination.onBatch(events, settings, {})
+      // Default retry attempts is 2
+      expect(mockRefreshToken).toHaveBeenCalledTimes(2)
+      expect(response).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "multistatus": Array [
+              Object {
+                "body": Object {
+                  "events_processed": 0,
+                  "message": "Invalid Auth",
+                },
+                "errormessage": "Invalid Auth",
+                "errorreporter": "DESTINATION",
+                "errortype": "INVALID_AUTHENTICATION",
+                "sent": Object {
+                  "email": "user.one@example.com",
+                  "name": "Add to Cart",
+                },
+                "status": 401,
+              },
+              Object {
+                "body": Object {
+                  "events_processed": 0,
+                  "message": "Invalid Auth",
+                },
+                "errormessage": "Invalid Auth",
+                "errorreporter": "DESTINATION",
+                "errortype": "INVALID_AUTHENTICATION",
+                "sent": Object {
+                  "name": "Add to Cart",
+                },
+                "status": 401,
               },
             ],
           },
