@@ -2,7 +2,6 @@ import { GenericPayload } from '../sf-types'
 import { buildCSVData } from '../sf-utils'
 import Salesforce from '../sf-operations'
 import createRequestClient from '../../../../../core/src/create-request-client'
-import { StatsContext } from '@segment/actions-core/*'
 
 const requestClient = createRequestClient()
 
@@ -318,23 +317,9 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const logging = {
-        shouldLog: true,
-        stats: {
-          statsClient: {
-            incr: jest.fn(),
-            observe: jest.fn(),
-            _name: jest.fn(),
-            _tags: jest.fn(),
-            set: jest.fn(),
-            histogram: jest.fn()
-          },
-          tags: []
-        } as StatsContext,
-        jobId: '1234'
-      }
+      const csvStats = { shouldLog: true, numberOfColumns: 0, numberOfValuesInCSV: 0, numberOfNullsInCSV: 0 }
 
-      const csv = buildCSVData(createPayloads, '', 'insert', logging)
+      const csv = buildCSVData(createPayloads, '', 'insert', csvStats)
       const expected = `Name,Phone,Description\n"SpongeBob Squarepants","1234567890","Krusty Krab"\n"Squidward Tentacles","1234567891","Krusty Krab"\n`
 
       expect(csv).toEqual(expected)
@@ -358,42 +343,17 @@ describe('Salesforce Utils', () => {
         }
       ]
 
-      const logging = {
-        shouldLog: true,
-        stats: {
-          statsClient: {
-            incr: jest.fn(),
-            observe: jest.fn(),
-            _name: jest.fn(),
-            _tags: jest.fn(),
-            set: jest.fn(),
-            histogram: jest.fn()
-          },
-          tags: []
-        } as StatsContext,
-        jobId: '1234'
-      }
+      const csvStats = { shouldLog: true, numberOfColumns: 0, numberOfValuesInCSV: 0, numberOfNullsInCSV: 0 }
 
-      const csv = buildCSVData(incompleteUpdatePayloads, 'Id', 'Update', logging)
+      const csv = buildCSVData(incompleteUpdatePayloads, 'Id', 'Update', csvStats)
       const expected = `Name,Description,Phone,Id\n"SpongeBob Squarepants",#N/A,"1234567890","00"\n"Squidward Tentacles","Krusty Krab",#N/A,"01"\n`
 
       expect(csv).toEqual(expected)
 
-      expect(logging.stats.statsClient.incr).toHaveBeenNthCalledWith(1, 'bulkCSV.payloadSize', 2, expect.any(Array))
-      expect(logging.stats.statsClient.incr).toHaveBeenNthCalledWith(2, 'bulkCSV.numberOfColumns', 4, expect.any(Array))
+      expect(csvStats.numberOfColumns).toEqual(4)
 
-      expect(logging.stats.statsClient.incr).toHaveBeenNthCalledWith(
-        3,
-        'bulkCSV.numberOfValuesInCSV',
-        4,
-        expect.any(Array)
-      )
-      expect(logging.stats.statsClient.incr).toHaveBeenNthCalledWith(
-        4,
-        'bulkCSV.numberOfNullsInCSV',
-        2,
-        expect.any(Array)
-      )
+      expect(csvStats.numberOfValuesInCSV).toEqual(4)
+      expect(csvStats.numberOfNullsInCSV).toEqual(2)
     })
   })
 
