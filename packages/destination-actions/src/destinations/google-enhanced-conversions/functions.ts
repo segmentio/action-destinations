@@ -482,26 +482,28 @@ const extractUserIdentifiers = (
         })
       }
       if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
-        identifiers.push({
-          addressInfo: {
-            hashedFirstName: processHashing(
-              payload.first_name ?? '',
-              'sha256',
-              'hex',
-              features ?? {},
-              'actions-google-enhanced-conversions'
-            ),
-            hashedLastName: processHashing(
-              payload.last_name ?? '',
-              'sha256',
-              'hex',
-              features ?? {},
-              'actions-google-enhanced-conversions'
-            ),
-            countryCode: payload.country_code ?? '',
-            postalCode: payload.postal_code ?? ''
-          }
-        })
+        const addressInfo: any = {}
+        if (payload.first_name) {
+          addressInfo.hashedFirstName = processHashing(
+            payload.first_name,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        if (payload.last_name) {
+          addressInfo.hashedLastName = processHashing(
+            payload.last_name,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        addressInfo.countryCode = payload.country_code ?? ''
+        addressInfo.postalCode = payload.postal_code ?? ''
+        identifiers.push({ addressInfo })
       }
       return identifiers
     }
