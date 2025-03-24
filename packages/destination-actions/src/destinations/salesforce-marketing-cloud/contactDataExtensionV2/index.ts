@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { IntegrationError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { keys, enable_batching, batch_size, values_contactFields, dataExtensionHook } from '../sfmc-properties'
@@ -54,12 +54,22 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, hookOutputs }) => {
-    const dataExtensionId = hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id
+    const dataExtensionId: string =
+      hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id
+
+    if (!dataExtensionId) {
+      throw new IntegrationError('No Data Extension Connected', 'INVALID_CONFIGURATION', 400)
+    }
 
     return upsertRowsV2(request, settings.subdomain, [payload], dataExtensionId)
   },
   performBatch: async (request, { settings, payload, hookOutputs }) => {
-    const dataExtensionId = hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id
+    const dataExtensionId: string =
+      hookOutputs?.onMappingSave?.outputs?.id || hookOutputs?.retlOnMappingSave?.outputs?.id
+
+    if (!dataExtensionId) {
+      throw new IntegrationError('No Data Extension Connected', 'INVALID_CONFIGURATION', 400)
+    }
 
     return executeUpsertWithMultiStatus(request, settings.subdomain, payload, dataExtensionId)
   }
