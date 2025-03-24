@@ -30,7 +30,6 @@ const slugsToBypassFeatureFlag = [
   'actions-tiktok-offline-conversions',
   'tiktok-conversions',
   'actions-snap-audiences',
-  'actions-snap-conversions',
   'actions-google-enhanced-conversions',
   'actions-google-campaign-manager-360',
   'actions-facebook-conversions-api',
