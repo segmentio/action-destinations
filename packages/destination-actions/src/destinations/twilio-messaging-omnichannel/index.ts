@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import sendMessage from './sendMessage'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Twilio Messaging',
+  name: 'Twilio Messaging Omnichannel',
   slug: 'actions-twilio-messaging-omnichannel',
   mode: 'cloud',
 
