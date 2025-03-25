@@ -318,7 +318,6 @@ export function fieldsToJsonSchema(
       if (maximum) {
         schema.maxLength = (field as InputField)?.maximum
       }
-      console.log('minimum', minimum, 'maximum', maximum)
     } else if (field.type === 'number') {
       const { minimum = null, maximum = null } = field as InputField
       if (minimum) {
