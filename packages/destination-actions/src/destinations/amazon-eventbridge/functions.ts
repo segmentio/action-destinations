@@ -41,7 +41,11 @@ async function process_data(events: Payload[], settings: Settings) {
   if (response?.FailedEntryCount && response.FailedEntryCount > 0) {
     const errors = response.Entries?.filter((entry) => entry.ErrorCode || entry.ErrorMessage)
     const errorMessage = errors?.map((err) => `Error: ${err.ErrorCode}, Message: ${err.ErrorMessage}`).join('; ')
-    throw new Error(`EventBridge failed with ${response.FailedEntryCount} errors: ${errorMessage}`)
+    throw new IntegrationError(
+      `EventBridge failed with ${response.FailedEntryCount} errors: ${errorMessage}`,
+      'EVENTBRIDGE_ERROR',
+      400
+    )
   }
 
   return response
