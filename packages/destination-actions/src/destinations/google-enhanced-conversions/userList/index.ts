@@ -141,7 +141,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Size',
       description: 'The number of records to send in each batch.',
       type: 'integer',
-      default: 5000,
+      default: 4999,
       unsafe_hidden: true
     },
     event_name: {
