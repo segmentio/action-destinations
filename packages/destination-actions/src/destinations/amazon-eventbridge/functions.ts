@@ -34,15 +34,14 @@ async function process_data(events: Payload[], settings: Settings) {
       Resources: event.resources ? [event.resources] : []
     }))
   }
+
   const command = new PutPartnerEventsCommand(eb_payload)
   const response = await client.send(command)
-
   // Check for errors in the response
-  if (response.FailedEntryCount && response.FailedEntryCount > 0) {
+  if (response?.FailedEntryCount && response.FailedEntryCount > 0) {
     const errors = response.Entries?.filter((entry) => entry.ErrorCode || entry.ErrorMessage)
     const errorMessage = errors?.map((err) => `Error: ${err.ErrorCode}, Message: ${err.ErrorMessage}`).join('; ')
     throw new Error(`EventBridge failed with ${response.FailedEntryCount} errors: ${errorMessage}`)
-    //throw new Error(`Failed to send ${response.FailedEntryCount} events: ${JSON.stringify(errors)}`)
   }
 
   return response
