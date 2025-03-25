@@ -1,7 +1,7 @@
 import { createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
 import { Features } from '@segment/actions-core/mapping-kit'
 import nock from 'nock'
-import { CANARY_API_VERSION, formatToE164, commonEmailValidation } from '../functions'
+import { CANARY_API_VERSION, formatToE164, commonEmailValidation, convertTimestamp } from '../functions'
 import destination from '../index'
 
 const testDestination = createTestIntegration(destination)
@@ -176,5 +176,19 @@ describe('phone number formatting', () => {
     expect(formatToE164('49301234567', '+49')).toEqual('+49301234567')
     expect(formatToE164('+49 30 1234567', '49')).toEqual('+49301234567')
     expect(formatToE164('+49 30 1234567', '49')).toEqual('+49301234567')
+  })
+})
+
+describe('convertTimestamp', () => {
+  it('should convert timestamp with milliseconds', () => {
+    const timestamp = '2025-03-11T19:03:56.616960388Z'
+    const result = convertTimestamp(timestamp)
+    expect(result).toEqual('2025-03-11 19:03:56+00:00')
+  })
+
+  it('should convert timestamp without milliseconds', () => {
+    const timestamp = '2025-03-11T17:57:29Z'
+    const result = convertTimestamp(timestamp)
+    expect(result).toEqual('2025-03-11 17:57:29+00:00')
   })
 })
