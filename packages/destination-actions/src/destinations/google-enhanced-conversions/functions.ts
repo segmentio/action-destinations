@@ -17,16 +17,15 @@ import {
   IntegrationError,
   RetryableError,
   PayloadValidationError,
-  DynamicFieldResponse
+  DynamicFieldResponse,
+  Features
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
-import { Features } from '@segment/actions-core/mapping-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
-import { sha256SmartHash } from '@segment/actions-core'
 import { RefreshTokenResponse } from '.'
-
+import { processHashing } from '../../lib/hashing-utils'
 export const API_VERSION = 'v17'
 export const CANARY_API_VERSION = 'v17'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
@@ -206,7 +205,7 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
   if (!timestamp) {
     return undefined
   }
-  return timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00')
+  return timestamp.replace(/T/, ' ').replace(/(\.\d+)?Z/, '+00:00')
 }
 
 export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
@@ -220,15 +219,8 @@ export function getApiVersion(features?: Features, statsContext?: StatsContext):
 }
 
 export const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
-export const commonHashedEmailValidation = (email: string): string => {
-  if (isHashedInformation(email)) {
-    return email
-  }
-
+export const commonEmailValidation = (email: string): string => {
   // https://github.com/ajv-validator/ajv-formats/blob/master/src/formats.ts#L64-L65
-  if (!(fullFormats.email as RegExp).test(email)) {
-    throw new PayloadValidationError("Email provided doesn't seem to be in a valid format.")
-  }
   const googleDomain = new RegExp('^(gmail|googlemail).s*', 'g')
   let normalizedEmail = email.toLowerCase().trim()
   const emailParts = normalizedEmail.split('@')
@@ -237,7 +229,11 @@ export const commonHashedEmailValidation = (email: string): string => {
     normalizedEmail = `${emailParts[0]}@${emailParts[1]}`
   }
 
-  return String(hash(normalizedEmail))
+  if (!(fullFormats.email as RegExp).test(normalizedEmail)) {
+    throw new PayloadValidationError("Email provided doesn't seem to be in a valid format.")
+  }
+
+  return normalizedEmail
 }
 
 export async function getListIds(
@@ -440,10 +436,15 @@ export function formatToE164(phoneNumber: string, countryCode: string): string {
 
 const formatPhone = (phone: string, countryCode?: string): string => {
   const formattedPhone = formatToE164(phone, countryCode ?? '+1')
-  return sha256SmartHash(formattedPhone)
+  return formattedPhone
 }
 
-const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syncMode?: string) => {
+const extractUserIdentifiers = (
+  payloads: UserListPayload[],
+  idType: string,
+  syncMode?: string,
+  features?: Features
+) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
   // Map user data to Google Ads API format
@@ -458,23 +459,51 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
       const identifiers = []
       if (payload.email) {
         identifiers.push({
-          hashedEmail: commonHashedEmailValidation(payload.email)
+          hashedEmail: processHashing(
+            payload.email,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions',
+            commonEmailValidation
+          )
         })
       }
       if (payload.phone) {
         identifiers.push({
-          hashedPhoneNumber: formatPhone(payload.phone, payload.phone_country_code)
+          hashedPhoneNumber: processHashing(
+            payload.phone,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions',
+            (value) => formatPhone(value, payload.phone_country_code)
+          )
         })
       }
       if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
-        identifiers.push({
-          addressInfo: {
-            hashedFirstName: sha256SmartHash(payload.first_name ?? ''),
-            hashedLastName: sha256SmartHash(payload.last_name ?? ''),
-            countryCode: payload.country_code ?? '',
-            postalCode: payload.postal_code ?? ''
-          }
-        })
+        const addressInfo: any = {}
+        if (payload.first_name) {
+          addressInfo.hashedFirstName = processHashing(
+            payload.first_name,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        if (payload.last_name) {
+          addressInfo.hashedLastName = processHashing(
+            payload.last_name,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions'
+          )
+        }
+        addressInfo.countryCode = payload.country_code ?? ''
+        addressInfo.postalCode = payload.postal_code ?? ''
+        identifiers.push({ addressInfo })
       }
       return identifiers
     }
@@ -629,7 +658,7 @@ export const handleUpdate = async (
 ) => {
   const id_type = hookListType ?? audienceSettings.external_id_type
   // Format the user data for Google Ads API
-  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode)
+  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode, features)
 
   // Create an offline user data job
   const resourceName = await createOfflineUserJob(request, payloads[0], settings, hookListId, features, statsContext)
