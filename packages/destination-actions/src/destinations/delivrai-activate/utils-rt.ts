@@ -1,17 +1,17 @@
-import { createHash } from 'crypto'
 import { Payload } from './updateSegment/generated-types'
 import { DelivrAIPayload } from './types'
-import { RequestClient } from '@segment/actions-core'
+import { Features, RequestClient } from '@segment/actions-core'
 import { DELIVRAI_BASE_URL, DELIVRAI_GET_TOKEN } from './constants'
+import { processHashing } from '../../lib/hashing-utils'
 
 /**
  * Creates a SHA256 hash from the input
  * @param input The input string
  * @returns The SHA256 hash (string), or undefined if the input is undefined.
  */
-export function create_hash(input: string | undefined): string | undefined {
+export function create_hash(input: string | undefined, features: Features): string | undefined {
   if (input === undefined) return
-  return createHash('sha256').update(input).digest('hex')
+  return processHashing(input, 'sha256', 'hex', features, 'actions-delivrai-audiences')
 }
 
 /**
@@ -60,7 +60,11 @@ export function validate_phone(phone: string) {
     return ''
   }
 }
-export function gen_update_segment_payload(payloads: Payload[], client_identifier_id: string): DelivrAIPayload {
+export function gen_update_segment_payload(
+  payloads: Payload[],
+  client_identifier_id: string,
+  features: Features
+): DelivrAIPayload {
   const data_groups: {
     [hashed_email: string]: {
       exp: string
@@ -74,7 +78,7 @@ export function gen_update_segment_payload(payloads: Payload[], client_identifie
   for (const event of payloads) {
     let hashed_email: string | undefined = ''
     if (event.email) {
-      hashed_email = create_hash(event.email.toLowerCase())
+      hashed_email = create_hash(event.email.toLowerCase(), features)
     }
     let idfa: string | undefined = ''
     let gpsaid: string | undefined = ''
@@ -109,7 +113,7 @@ export function gen_update_segment_payload(payloads: Payload[], client_identifie
     }
     const ts = Math.floor(new Date().getTime() / 1000)
     let exp
-    const seg_id = event.segment_audience_id || '';
+    const seg_id = event.segment_audience_id || ''
     audience_key = seg_id
     const group_key = `${hashed_email}|${idfa}|${gpsaid}|${hashed_phone}`
     if (!(group_key in data_groups)) {
