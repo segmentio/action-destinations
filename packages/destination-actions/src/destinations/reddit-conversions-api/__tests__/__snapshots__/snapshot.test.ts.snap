@@ -35,6 +35,7 @@ Object {
         "email": "8614950525b98787b31febe07634987a801175f098b60c83bd3903bff1ec3eed",
         "external_id": "4fbe858b31ee34144cc3d009fd4636ef20fb342e095570d49a9898bb8d77598e",
         "ip_address": "4fbe858b31ee34144cc3d009fd4636ef20fb342e095570d49a9898bb8d77598e",
+        "phone_number": "+5365418331",
         "screen_dimensions": Object {
           "height": -2840640572358656,
           "width": -2840640572358656,
@@ -103,6 +104,7 @@ Object {
         "email": "6ad9c50c3cf54b266add9d94147959c9b024ebf821a18f6e860a01ad33a7b5cf",
         "external_id": "f136d03523cc17ecdfe2a4df68a819e5e98f6981316b7e50e1a8b34b018c70ae",
         "ip_address": "f136d03523cc17ecdfe2a4df68a819e5e98f6981316b7e50e1a8b34b018c70ae",
+        "phone_number": "+5112818613",
         "screen_dimensions": Object {
           "height": 2091000289820672,
           "width": 2091000289820672,

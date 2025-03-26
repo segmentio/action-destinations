@@ -195,7 +195,8 @@ function getUser(
     user_agent: clean(user.user_agent),
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
-    screen_dimensions: getScreen(screenDimensions?.height, screenDimensions?.width)
+    screen_dimensions: getScreen(screenDimensions?.height, screenDimensions?.width),
+    phone_number: user.phone_number
   }
 }
 
