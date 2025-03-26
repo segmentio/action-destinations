@@ -84,7 +84,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'SSL Enabled',
         description: 'Indicates if SSL should be enabled.',
         type: 'boolean',
-        required: true,
+        required: false,
         default: true
       },
       ssl_ca: {
@@ -115,7 +115,7 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Whether to reject unauthorized CAs or not. This can be useful when testing, but is unadvised in Production.',
         type: 'boolean',
-        required: true,
+        required: false,
         default: true
       }
     },
