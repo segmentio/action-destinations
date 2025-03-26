@@ -8,8 +8,6 @@ interface SendToAWSRequest {
   TDDAuthToken: string
   AdvertiserId: string
   CrmDataId: string
-  destinationInstanceID?: string
-  subscriptionId?: string
   UsersFormatted: string
   DropOptions: {
     PiiType: string
@@ -52,8 +50,8 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
   // Compute file path and message dedupe id
   // Each advertiser and segment can eventually have multiple data drops, we use uuid create unique files
   const uuidValue = uuidv4()
-  const userdataFilePath = `/${ACTION_SLUG}/${input.destinationInstanceID}/${input.subscriptionId}/${input.AdvertiserId}/${input.CrmDataId}/${uuidValue}.txt`
-  const metadataFilePath = `/${ACTION_SLUG}/${input.destinationInstanceID}/${input.subscriptionId}/${input.AdvertiserId}/${input.CrmDataId}/meta.json`
+  const userdataFilePath = `/${ACTION_SLUG}/${input.AdvertiserId}/${input.CrmDataId}/${uuidValue}.txt`
+  const metadataFilePath = `/${ACTION_SLUG}/${input.AdvertiserId}/${input.CrmDataId}/meta.json`
 
   // Create Metadata
   const metadata = JSON.stringify({
