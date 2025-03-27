@@ -36,7 +36,7 @@ export interface Settings {
   /**
    * Indicates if SSL should be enabled.
    */
-  ssl_enabled: boolean
+  ssl_enabled?: boolean
   /**
    * The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.
    */
@@ -52,5 +52,5 @@ export interface Settings {
   /**
    * Whether to reject unauthorized CAs or not. This can be useful when testing, but is unadvised in Production.
    */
-  ssl_reject_unauthorized_ca: boolean
+  ssl_reject_unauthorized_ca?: boolean
 }

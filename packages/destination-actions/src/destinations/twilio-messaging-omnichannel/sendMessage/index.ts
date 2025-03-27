@@ -4,10 +4,12 @@ import type { Payload } from './generated-types'
 import { fields } from './fields'
 import { IntegrationError } from '@segment/actions-core/*'
 
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Message',
   description: 'This operation creates and sends out messages to the specified recipients.',
   fields,
+  
   perform: (request, { payload }) => {
     let requestPayload = {}
     let fromPayload = {}

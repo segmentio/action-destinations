@@ -26,6 +26,7 @@ export interface Payload {
      */
     agent_pool_id?: string
   }
+
   /**
    * An array of recipient objects to send the message(s) to.
    */
@@ -45,6 +46,7 @@ export interface Payload {
       [k: string]: unknown
     }
   }
+
   /**
    * Defines the fields applicable based on the selected content type.
    */
