@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * Defines the fields applicable based on the selected sender type.
    */
-  fromObject: {
+  from: {
     /**
      * The type of sender.
      */
@@ -25,7 +25,7 @@ export interface Payload {
      * A reference to an Agent Pool.
      */
     agent_pool_id?: string
-  }[]
+  }
   /**
    * An array of recipient objects to send the message(s) to.
    */
@@ -44,7 +44,7 @@ export interface Payload {
     variables?: {
       [k: string]: unknown
     }
-  }[]
+  }
   /**
    * Defines the fields applicable based on the selected content type.
    */
@@ -56,7 +56,7 @@ export interface Payload {
     /**
      * A simple string or templated content.
      */
-    text: string
+    text?: string
     /**
      * Optional title prepended to the message.
      */
@@ -70,7 +70,7 @@ export interface Payload {
     /**
      * A reference to a Content template.
      */
-    content_id: string
+    content_id?: string
   }
   /**
    * A list of eligible channels to constrain Messages to; leave undefined to send across all available channels.
