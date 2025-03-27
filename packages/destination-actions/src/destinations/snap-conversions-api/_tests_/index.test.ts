@@ -729,5 +729,113 @@ describe('Snap Conversions API ', () => {
       expect(user_data.sc_click_id).toEqual((testEvent.integrations?.['Snap Conversions Api'] as any)?.click_id)
       expect(user_data.sc_cookie1).toEqual((testEvent.integrations?.['Snap Conversions Api'] as any)?.uuid_c1)
     })
+
+    it('should not add empty values in final payload', async () => {
+      const {
+        data: {
+          action_source,
+          app_data,
+          custom_data,
+          data_processing_options,
+          data_processing_options_country,
+          data_processing_options_state,
+          event_id,
+          event_name,
+          event_source_url,
+          event_time,
+          user_data
+        }
+      } = await reportConversionEvent({
+        event: {
+          ...testEvent,
+          properties: {
+            currency: 'USD',
+            email: '388c735eec8225c4ad7a507944dd0a975296baea383198aa87177f29af2c6f69',
+            phone: 'd74dcef7e1dba5aed01b62bc932ab1a7848ed9a590ca029aa958a1bf82b6993d',
+            query: 'test-query',
+            order_id: 'A1234',
+            revenue: 1000
+          },
+          context: {
+            ...testEvent.context,
+            app: {
+              namespace: 'com.segment.app',
+              version: '1.0.0'
+            },
+            device: {
+              adTrackingEnabled: true
+            },
+            screen: {
+              width: '1920',
+              height: '1080',
+              density: '2.0'
+            },
+            os: {
+              version: '19.5'
+            }
+          }
+        },
+        mapping: {
+          event_name: 'PURCHASE',
+          action_source: 'app',
+          data_processing_options: true,
+          data_processing_options_country: 1,
+          data_processing_options_state: 1000
+        }
+      })
+
+      expect(action_source).toEqual('app')
+      expect(event_name).toEqual('PURCHASE')
+      expect(event_id).toEqual(testEvent.messageId)
+      expect(event_source_url).toEqual(testEvent.context?.page?.url ?? '')
+      expect(event_time).toEqual(Date.parse(testEvent.timestamp as string))
+
+      expect(data_processing_options).toEqual(['LDU'])
+      expect(data_processing_options_country).toEqual(1)
+      expect(data_processing_options_state).toEqual(1000)
+
+      expect(app_data.application_tracking_enabled).toEqual(1)
+      expect(app_data.extinfo).toEqual([
+        'i2',
+        'com.segment.app',
+        '',
+        '1.0.0',
+        '19.5',
+        '',
+        'en-US',
+        '',
+        '',
+        '1920',
+        '1080',
+        '2.0',
+        '',
+        '',
+        '',
+        'Europe/Amsterdam'
+      ])
+
+      expect(custom_data.currency).toEqual('USD')
+      expect(custom_data.order_id).toEqual('A1234')
+      expect(custom_data.search_string).toEqual('test-query')
+      expect(custom_data.value).toEqual(1000)
+
+      expect(user_data.external_id[0]).toEqual(hash(testEvent.userId ?? ''))
+      expect(user_data.em[0]).toEqual('388c735eec8225c4ad7a507944dd0a975296baea383198aa87177f29af2c6f69')
+      expect(user_data.ph[0]).toEqual('d74dcef7e1dba5aed01b62bc932ab1a7848ed9a590ca029aa958a1bf82b6993d')
+      expect(user_data.fn).toEqual(undefined)
+      expect(user_data.ln).toEqual(undefined)
+      expect(user_data.ge).toEqual(undefined)
+      expect(user_data.db).toEqual(undefined)
+      expect(user_data.ct).toEqual(undefined)
+      expect(user_data.st).toEqual(undefined)
+      expect(user_data.country).toEqual(undefined)
+      expect(user_data.zp).toEqual(undefined)
+      expect(user_data.client_ip_address).toBe(testEvent.context?.ip)
+      expect(user_data.client_user_agent).toBe(testEvent.context?.userAgent)
+      expect(user_data.idfv).toBe(testEvent.context?.device?.id)
+      expect(user_data.madid).toBe(testEvent.context?.device?.advertisingId)
+      expect(user_data.sc_click_id).toEqual((testEvent.integrations?.['Snap Conversions Api'] as any)?.click_id)
+      expect(user_data.sc_cookie1).toEqual((testEvent.integrations?.['Snap Conversions Api'] as any)?.uuid_c1)
+    })
   })
 })

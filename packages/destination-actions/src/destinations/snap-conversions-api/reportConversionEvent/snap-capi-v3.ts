@@ -10,7 +10,8 @@ import {
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined,
   emptyStringToUndefined,
   parseNumberSafe,
-  parseDateSafe
+  parseDateSafe,
+  smartHash
 } from './utils'
 import { processHashing } from '../../../lib/hashing-utils'
 
@@ -429,25 +430,11 @@ const buildUserData = (payload: Payload, features?: Features) => {
   const { user_data } = payload
   // Removes all leading and trailing whitespace and converts all characters to lowercase.
   const normalizedValue = (value: string) => value?.replace(/\s/g, '').toLowerCase()
-  const email = processHashing(
-    user_data?.email ?? payload.email ?? '',
-    'sha256',
-    'hex',
-    features,
-    'actions-snap-conversions',
-    normalizedValue
-  )
+  const email = smartHash(user_data?.email ?? payload.email, features, normalizedValue)
 
   // Removes all non-numberic characters and leading zeros.
   const normalizedPhoneNumber = (value: string) => value?.replace(/\D|^0+/g, '')
-  const phone_number = processHashing(
-    user_data?.phone ?? payload.phone_number ?? '',
-    'sha256',
-    'hex',
-    features,
-    'actions-snap-conversions',
-    normalizedPhoneNumber
-  )
+  const phone_number = smartHash(user_data?.phone ?? payload.phone_number, features, normalizedPhoneNumber)
 
   // Converts all characters to lowercase
   const madid = (user_data?.madid ?? payload.mobile_ad_id)?.toLowerCase()
@@ -456,86 +443,37 @@ const buildUserData = (payload: Payload, features?: Features) => {
     const normalizedValue = value?.replace(/\s/g, '').toLowerCase()
     return normalizedValue === 'male' ? 'm' : normalizedValue === 'female' ? 'f' : normalizedValue
   }
-  const hashedGender = processHashing(
-    user_data?.gender ?? '',
-    'sha256',
-    'hex',
-    features,
-    'actions-snap-conversions',
-    normalizedGender
-  )
+  const hashedGender = smartHash(user_data?.gender, features, normalizedGender)
 
-  const hashedLastName = processHashing(
-    user_data?.lastName ?? '',
-    'sha256',
-    'hex',
-    features,
-    'actions-snap-conversions',
-    normalizedValue
-  )
+  const hashedLastName = smartHash(user_data?.lastName, features, normalizedValue)
 
-  const hashedFirstName = processHashing(
-    user_data?.firstName ?? '',
-    'sha256',
-    'hex',
-    features,
-    'actions-snap-conversions',
-    normalizedValue
-  )
+  const hashedFirstName = smartHash(user_data?.firstName, features, normalizedValue)
 
   const client_ip_address = user_data?.client_ip_address ?? payload.ip_address
   const client_user_agent = user_data?.client_user_agent ?? payload.user_agent
 
-  const hashedCity = processHashing(
-    user_data?.city ?? '',
-    'sha256',
-    'hex',
-    features,
-    'actions-snap-conversions',
-    normalizedValue
-  )
+  const hashedCity = smartHash(user_data?.city, features, normalizedValue)
 
   // checks if the full US state name is used instead of the two letter abbreviation
   const normalizedState = (value: string): string => {
     const normalizedValue = value?.replace(/\s/g, '').toLowerCase()
     return US_STATE_CODES.get(normalizedValue ?? '') ?? normalizedValue
   }
-  const hashedState = processHashing(
-    user_data?.state ?? '',
-    'sha256',
-    'hex',
-    features,
-    'actions-snap-conversions',
-    normalizedState
-  )
+  const hashedState = smartHash(user_data?.state, features, normalizedState)
 
-  const hashedZip = processHashing(
-    user_data?.zip ?? '',
-    'sha256',
-    'hex',
-    features,
-    'actions-snap-conversions',
-    normalizedValue
-  )
+  const hashedZip = smartHash(user_data?.zip, features, normalizedValue)
 
   const normalizedCountry = (value: string): string => {
     const normalizedValue = value?.replace(/\s/g, '').toLowerCase()
     return COUNTRY_CODES.get(normalizedValue ?? '') ?? normalizedValue
   }
-  const hashedCountry = processHashing(
-    user_data?.country ?? '',
-    'sha256',
-    'hex',
-    features,
-    'actions-snap-conversions',
-    normalizedCountry
-  )
+  const hashedCountry = smartHash(user_data?.country, features, normalizedCountry)
 
   const external_id = user_data?.externalId?.map((id) => {
     return processHashing(id, 'sha256', 'hex', features, 'actions-snap-conversions', normalizedValue)
   })
 
-  const db = processHashing(user_data?.dateOfBirth ?? '', 'sha256', 'hex', features, 'actions-snap-conversions')
+  const db = smartHash(user_data?.dateOfBirth, features)
   const lead_id = user_data?.leadID
   const subscription_id = user_data?.subscriptionID
 
