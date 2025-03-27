@@ -28,8 +28,12 @@ const slugsToBypassFeatureFlag = [
   'actions-facebook-custom-audiences',
   'actions-linkedin-audiences',
   'actions-snap-conversions',
+  'actions-tiktok-offline-conversions',
+  'tiktok-conversions',
   'actions-google-enhanced-conversions',
-  'actions-google-campaign-manager-360'
+  'actions-google-campaign-manager-360',
+  'actions-facebook-conversions-api',
+  'actions-tiktok-audiences'
 ]
 
 class SmartHashing {
