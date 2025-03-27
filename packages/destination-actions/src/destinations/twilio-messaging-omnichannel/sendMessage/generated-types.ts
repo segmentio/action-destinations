@@ -4,7 +4,7 @@ export interface Payload {
   /**
    * Defines the fields applicable based on the selected sender type.
    */
-  from: {
+  from?: {
     /**
      * The type of sender.
      */
@@ -76,40 +76,6 @@ export interface Payload {
    * A list of eligible channels to constrain Messages to; leave undefined to send across all available channels.
    */
   channels?: string
-  /**
-   * A schedule defines when a communication will be sent to a recipient.
-   */
-  schedule?: {
-    /**
-     * List of expressions defining when the message may be sent.
-     */
-    send_at?: string
-    /**
-     * List of expressions defining when the message may NOT be sent.
-     */
-    quiet_hours?: string
-    /**
-     * List of compliance rules to ignore.
-     */
-    ignore_compliances?: string
-    /**
-     * Optimize the send time to prevent exceeding the count of communications sent to the recipient(s) for any time window of length period.
-     */
-    frequency_cap?: {
-      /**
-       * The number of communications.
-       */
-      count?: string
-      /**
-       * The duration for calculating the frequency count.
-       */
-      period?: string
-    }
-    /**
-     * Time-to-live for the communication.
-     */
-    ttl?: string
-  }
   /**
    * The Domain to use for wrapping links for click-tracked links and shortened links.
    */
