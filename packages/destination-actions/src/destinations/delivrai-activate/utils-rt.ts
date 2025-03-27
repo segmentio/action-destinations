@@ -5,16 +5,6 @@ import { DELIVRAI_BASE_URL, DELIVRAI_GET_TOKEN } from './constants'
 import { processHashing } from '../../lib/hashing-utils'
 
 /**
- * Creates a SHA256 hash from the input
- * @param input The input string
- * @returns The SHA256 hash (string), or undefined if the input is undefined.
- */
-export function create_hash(input: string | undefined, features: Features): string | undefined {
-  if (input === undefined) return
-  return processHashing(input, 'sha256', 'hex', features, 'actions-delivrai-audiences')
-}
-
-/**
  * Generates JWT for Realtime API authentication
  * @param client_id
  * @param client_secret
@@ -78,7 +68,7 @@ export function gen_update_segment_payload(
   for (const event of payloads) {
     let hashed_email: string | undefined = ''
     if (event.email) {
-      hashed_email = create_hash(event.email.toLowerCase(), features)
+      hashed_email = processHashing(event.email.toLowerCase(), 'sha256', 'hex', features, 'actions-delivrai-audiences')
     }
     let idfa: string | undefined = ''
     let gpsaid: string | undefined = ''

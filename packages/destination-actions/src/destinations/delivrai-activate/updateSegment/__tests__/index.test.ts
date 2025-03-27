@@ -80,28 +80,7 @@ describe('delivrAIAudiences.updateSegment', () => {
 
       expect(responses[0].status).toBe(200)
     })
-  })
-  describe('Failure cases', () => {
-    it('should throw an error if event does not include email', async () => {
-      nock(`https://dev.cdpresolution.com`).post('/backend/segment/audience/').reply(200, { status: false })
 
-      await expect(
-        testDestination.testAction('updateSegment', {
-          auth,
-          event: bad_event,
-          mapping: {
-            identifier: 'email'
-          },
-          useDefaultMappings: true,
-          settings: {
-            client_identifier_id: client_identifier_id
-          }
-        })
-      ).rejects.toThrow("The root value is missing the required field 'email'")
-    })
-  })
-
-  describe('Hashed cases', () => {
     it('should not hash if pii data is already hashed', async () => {
       nock(`https://dev.cdpresolution.com`).post('/backend/segment/audience').reply(200)
 
@@ -143,6 +122,25 @@ describe('delivrAIAudiences.updateSegment', () => {
         '{"audience_key":"aud_12345","data":[{"email":"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777","advertising_id_ios":"","advertising_id_android":"foobar","phone":""}],"client_identifier_id":"delivrai"}'
       )
       expect(responses[0].status).toBe(200)
+    })
+  })
+  describe('Failure cases', () => {
+    it('should throw an error if event does not include email', async () => {
+      nock(`https://dev.cdpresolution.com`).post('/backend/segment/audience/').reply(200, { status: false })
+
+      await expect(
+        testDestination.testAction('updateSegment', {
+          auth,
+          event: bad_event,
+          mapping: {
+            identifier: 'email'
+          },
+          useDefaultMappings: true,
+          settings: {
+            client_identifier_id: client_identifier_id
+          }
+        })
+      ).rejects.toThrow("The root value is missing the required field 'email'")
     })
   })
 })
