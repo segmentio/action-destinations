@@ -1,6 +1,10 @@
 import { Command, flags } from '@oclif/command'
 import { fieldsToJsonSchema } from '@segment/actions-core'
-import type { InputField, DestinationDefinition as CloudDestinationDefinition } from '@segment/actions-core'
+import type {
+  InputField,
+  DestinationDefinition as CloudDestinationDefinition,
+  GlobalSetting
+} from '@segment/actions-core'
 import type { BrowserDestinationDefinition } from '@segment/destinations-manifest'
 import chokidar from 'chokidar'
 import fs from 'fs-extra'
@@ -11,6 +15,8 @@ import path from 'path'
 import prettier from 'prettier'
 import { loadDestination, hasOauthAuthentication } from '../../lib/destinations'
 import { RESERVED_FIELD_NAMES } from '../../constants'
+import { AudienceDestinationDefinition, ActionHookType } from '@segment/actions-core/destination-kit'
+import { ActionHookDefinition, hookTypeStrings } from '@segment/actions-core/destination-kit'
 
 const pretterOptions = prettier.resolveConfig.sync(process.cwd())
 
@@ -41,7 +47,10 @@ export default class GenerateTypes extends Command {
   async run() {
     const { flags } = this.parse(GenerateTypes)
 
-    const globs = flags.path || ['./packages/*/src/destinations/*/index.ts']
+    const globs = flags.path || [
+      './packages/*/src/destinations/*/index.ts',
+      './packages/browser-destinations/destinations/*/src/index.ts'
+    ]
     const files = await globby(globs, {
       expandDirectories: false,
       gitignore: true,
@@ -113,12 +122,50 @@ export default class GenerateTypes extends Command {
       }
     }
 
-    const types = await generateTypes(settings, 'Settings')
+    let types = await generateTypes(settings, 'Settings')
+
+    const audienceSettings = {
+      ...(destination as AudienceDestinationDefinition)?.audienceFields
+    }
+    if (Object.keys(audienceSettings).length > 0) {
+      const audienceTypes = await generateTypes(audienceSettings, 'AudienceSettings')
+      types += audienceTypes
+    }
+
     fs.writeFileSync(path.join(parentDir, './generated-types.ts'), types)
 
     // TODO how to load directory structure consistently?
     for (const [slug, action] of Object.entries(destination.actions)) {
-      const types = await generateTypes(action.fields, 'Payload')
+      const fields = action.fields
+
+      let types = await generateTypes(fields, 'Payload')
+
+      if (action.hooks) {
+        const hooks: ActionHookDefinition<any, any, any, any, any> = action.hooks
+
+        for (const [hookName, hook] of Object.entries(hooks)) {
+          if (!hookTypeStrings.includes(hookName as ActionHookType)) {
+            throw new Error(`Hook name ${hookName} is not a valid ActionHookType`)
+          }
+
+          const inputs = hook.inputFields
+          const outputs = hook.outputTypes
+          if (!inputs && !outputs) {
+            continue
+          }
+
+          if (inputs) {
+            const inputTypes = await generateTypes(inputs, `${hookName}Inputs`)
+            types += inputTypes
+          }
+
+          if (outputs) {
+            const outputTypes = await generateTypes(outputs, `${hookName}Outputs`)
+            types += outputTypes
+          }
+        }
+      }
+
       if (fs.pathExistsSync(path.join(parentDir, `${slug}`))) {
         fs.writeFileSync(path.join(parentDir, slug, 'generated-types.ts'), types)
       } else {
@@ -128,16 +175,20 @@ export default class GenerateTypes extends Command {
   }
 }
 
-async function generateTypes(fields: Record<string, InputField> = {}, name: string) {
+async function generateTypes(
+  fields: Record<string, InputField | GlobalSetting> = {},
+  name: string,
+  bannerComment?: string
+) {
   const schema = prepareSchema(fields)
 
   return compile(schema, name, {
-    bannerComment: '// Generated file. DO NOT MODIFY IT BY HAND.',
+    bannerComment: bannerComment ?? '// Generated file. DO NOT MODIFY IT BY HAND.',
     style: pretterOptions ?? undefined
   })
 }
 
-function prepareSchema(fields: Record<string, InputField>): JSONSchema4 {
+function prepareSchema(fields: Record<string, InputField | GlobalSetting>): JSONSchema4 {
   let schema = fieldsToJsonSchema(fields, { tsType: true })
   // Remove extra properties so it produces cleaner output
   schema = removeExtra(schema)

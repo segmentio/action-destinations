@@ -8,7 +8,7 @@ const timestamp = '2021-08-17T15:21:15.449Z'
 const useDefaultMappings = true
 
 describe('Insider.cartViewedEvent', () => {
-  it('should update user event with default mapping', async () => {
+  it('should insert cart page view event', async () => {
     nock('https://unification.useinsider.com/api').post('/user/v1/upsert').reply(200, {})
 
     const event = createTestEvent({
@@ -19,5 +19,25 @@ describe('Insider.cartViewedEvent', () => {
 
     const responses = await testDestination.testAction('cartViewedEvent', { event, useDefaultMappings })
     expect(responses[0].status).toBe(200)
+  })
+  it('should insert cart page view events in batch', async () => {
+    nock('https://unification.useinsider.com/api').post('/user/v1/upsert').reply(200, { success: 2 })
+
+    const events = [
+      createTestEvent({
+        timestamp,
+        event: 'cart_page_view',
+        anonymousId: 'test'
+      }),
+      createTestEvent({
+        timestamp,
+        event: 'cart_page_view',
+        anonymousId: 'test2'
+      })
+    ]
+
+    const request = await testDestination.testBatchAction('cartViewedEvent', { events, useDefaultMappings })
+
+    expect(request[0].status).toBe(200)
   })
 })

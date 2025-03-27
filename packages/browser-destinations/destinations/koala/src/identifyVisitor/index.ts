@@ -20,7 +20,7 @@ const action: BrowserActionDefinition<Settings, Koala, Payload> = {
   },
   perform: (koala, { payload }) => {
     if (payload?.traits) {
-      return koala.identify(payload.traits)
+      return koala.identify(payload.traits, { source: 'segment-browser' })
     }
   }
 }

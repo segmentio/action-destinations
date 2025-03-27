@@ -1,14 +1,14 @@
-import type { DestinationDefinition } from '@segment/actions-core'
-import type { Settings } from './generated-types'
+import type { ActionDefinition, AudienceDestinationDefinition } from '@segment/actions-core'
+import type { Settings, AudienceSettings } from './generated-types'
 
 import send from '../webhook/send'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import { createHmac } from 'crypto'
-
+import { Payload } from './send.types'
 const externalIdKey = 'externalId'
 const audienceNameKey = 'audienceName'
 
-const destination: DestinationDefinition<Settings> = {
+const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Webhook Audiences',
   slug: 'actions-webhook-audiences',
   mode: 'cloud',
@@ -33,7 +33,14 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  audienceSettings: {
+  audienceFields: {
+    extras: {
+      type: 'string',
+      label: `Extra json fields to pass on to every request.  Note: "${externalIdKey}" and "${audienceNameKey}" are reserved.`,
+      description: `Extra json fields to pass on to every request. Note: "${externalIdKey}" and "${audienceNameKey}" are reserved.`
+    }
+  },
+  audienceConfig: {
     mode: {
       type: 'synced',
       full_audience_sync: false
@@ -44,15 +51,25 @@ const destination: DestinationDefinition<Settings> = {
         throw new IntegrationError('Missing get audience url value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
+      const extras = parseExtraSettingsJson(getAudienceInput.audienceSettings?.extras)
+
       const response = await request(getAudienceUrl, {
         method: 'POST',
         json: {
+          ...extras,
           [externalIdKey]: getAudienceInput.externalId
         }
       })
 
-      const jsonOutput = await response.json()
-      if (!jsonOutput[externalIdKey]) {
+      let jsonOutput
+
+      try {
+        jsonOutput = await response.json()
+
+        if (!jsonOutput[externalIdKey]) {
+          throw new IntegrationError(`Missing ${externalIdKey} in response`, 'INVALID_RESPONSE', 400)
+        }
+      } catch {
         throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
       }
 
@@ -71,9 +88,12 @@ const destination: DestinationDefinition<Settings> = {
         throw new IntegrationError('Missing create audience url value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
+      const extras = parseExtraSettingsJson(createAudienceInput.audienceSettings?.extras)
+
       const response = await request(createAudienceUrl, {
         method: 'POST',
         json: {
+          ...extras,
           audienceName
         }
       })
@@ -101,8 +121,66 @@ const destination: DestinationDefinition<Settings> = {
     return {}
   },
   actions: {
-    send
+    send: {
+      ...send,
+      perform: (request, { payload, settings, audienceSettings }) => {
+        const extras = parseExtraSettingsJson(audienceSettings?.extras)
+        // Call the same perform function from the regular webhook destination
+        // and add in our extraSettings
+        return send.perform(request, {
+          audienceSettings,
+          payload: {
+            ...payload,
+            data: {
+              ...payload.data,
+              ...extras
+            }
+          },
+          settings
+        })
+      },
+      performBatch: (request, { payload, settings, audienceSettings }) => {
+        const extras = parseExtraSettingsJson(audienceSettings?.extras)
+
+        // Call the same performBatch function from the regular webhook destination
+        // and add in our extraSettings
+        return send.performBatch!(request, {
+          audienceSettings,
+          payload: payload.map((p) => {
+            return {
+              ...p,
+              data: {
+                ...p.data,
+                ...extras
+              }
+            }
+          }),
+          settings
+        })
+      }
+    } as ActionDefinition<Settings, Payload>
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'send',
+      mapping: defaultValues(send.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
+}
+
+const parseExtraSettingsJson = (extraSettingsJson?: string): object => {
+  let extraSettings = {}
+  if (extraSettingsJson) {
+    try {
+      extraSettings = JSON.parse(extraSettingsJson)
+    } catch (e) {
+      throw new IntegrationError('Invalid extraSettings JSON', 'INVALID_REQUEST_DATA', 400)
+    }
   }
+  return extraSettings
 }
 
 export default destination

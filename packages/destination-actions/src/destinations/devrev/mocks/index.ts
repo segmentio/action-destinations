@@ -3,8 +3,13 @@ import * as types from '../utils/types'
 
 interface revUserCreateBody {
   email: string
-  full_name: string
-  org_id: string
+  display_name: string
+  org_id?: string
+  tags?: { id: string }[]
+}
+
+interface revUserResponse {
+  rev_user: types.RevUser
 }
 
 export const accountId = 'test-account-id'
@@ -17,6 +22,9 @@ export const email = 'test-user@test.com'
 export const domain = email.split('@')[1]
 
 export const testUserId = 'test-user-id'
+export const testUserRef = 'test-user-ref'
+export const testAccountRef = 'test-account-ref'
+export const testWorkspaceRef = 'test-workspace-ref'
 export const testUserFullName = 'test-user-full-name'
 export const testDescription = 'test-description'
 export const testEventName = 'test-event-name'
@@ -116,17 +124,41 @@ export const revUsersListResponse: types.RevUserListResponse = {
   }
 }
 
+export const revUsersSingleList: types.RevUserListResponse = {
+  data: {
+    rev_users: [testRevUserNewer]
+  }
+}
+
 export const revUsersCreateResponse = async (_: never, body: revUserCreateBody) => {
-  return {
+  const resp: revUserResponse = {
     rev_user: {
       id: testRevUserNewer.id,
       created_date: newerCreateDate,
-      display_name: body.full_name,
-      email: body.email,
-      rev_org: {
-        id: body.org_id,
-        display_name: 'test-org'
-      }
+      display_name: body.display_name,
+      email: body.email
+    }
+  }
+  if (body.org_id)
+    resp.rev_user.rev_org = {
+      id: body.org_id,
+      display_name: 'test-org'
+    }
+  if (body.tags) {
+    resp.rev_user.tags = body.tags.map((tag) => {
+      return { tag }
+    })
+  }
+  return resp
+}
+
+export const revUserUpdateTagsResponse = async (_: never, body: { id: string; tags: string[] }) => {
+  return {
+    rev_user: {
+      id: body.id,
+      tags: body.tags.map((tagid) => {
+        return { tag: tagid }
+      })
     }
   }
 }

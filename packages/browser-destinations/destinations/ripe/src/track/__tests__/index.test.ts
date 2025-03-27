@@ -34,6 +34,9 @@ const subscriptions: Subscription[] = [
       },
       properties: {
         '@path': '$.properties'
+      },
+      context: {
+        '@path': '$.context'
       }
     }
   }
@@ -64,6 +67,9 @@ describe('Ripe.track', () => {
         event: 'Form Submitted',
         properties: {
           is_new_lead: true
+        },
+        context: {
+          ip: '1.2.3.4'
         }
       })
     )
@@ -79,6 +85,9 @@ describe('Ripe.track', () => {
           event: 'Form Submitted',
           properties: {
             is_new_lead: true
+          },
+          context: {
+            ip: '1.2.3.4'
           }
         }
       })
@@ -90,7 +99,10 @@ describe('Ripe.track', () => {
       userId: undefined,
       groupId: undefined,
       event: 'Form Submitted',
-      properties: expect.objectContaining({ is_new_lead: true })
+      properties: expect.objectContaining({ is_new_lead: true }),
+      context: {
+        ip: '1.2.3.4'
+      }
     })
   })
 })

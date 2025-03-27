@@ -3,6 +3,10 @@ import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
 
+jest.mock('@lukeed/uuid', () => ({
+  v4: jest.fn(() => 'test-event-id')
+}))
+
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'streamEvent'
 const destinationSlug = 'Devrev'

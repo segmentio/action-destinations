@@ -37,6 +37,9 @@ const subscriptions: Subscription[] = [
       },
       properties: {
         '@path': '$.properties'
+      },
+      context: {
+        '@path': '$.context'
       }
     }
   }
@@ -68,6 +71,9 @@ describe('Ripe.page', () => {
         name: 'page2',
         properties: {
           previous: 'page1'
+        },
+        context: {
+          ip: '1.2.3.4'
         }
       })
     )
@@ -84,6 +90,9 @@ describe('Ripe.page', () => {
           name: 'page2',
           properties: {
             previous: 'page1'
+          },
+          context: {
+            ip: '1.2.3.4'
           }
         }
       })
@@ -96,7 +105,10 @@ describe('Ripe.page', () => {
       anonymousId: 'anonymousId',
       category: 'main',
       name: 'page2',
-      properties: expect.objectContaining({ previous: 'page1' })
+      properties: expect.objectContaining({ previous: 'page1' }),
+      context: {
+        ip: '1.2.3.4'
+      }
     })
   })
 })

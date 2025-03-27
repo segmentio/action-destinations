@@ -79,6 +79,62 @@ describe('Amplitude', () => {
       })
     })
 
+    it('should set Platform field to "Web" when Library field = "analytics.js" and Platform field = null or undefined', async () => {
+      const event = createTestEvent({
+        event: 'Test Event',
+        context: {
+          device: {
+            id: 'foo',
+            type: null
+          },
+          library: {
+            name: 'analytics.js',
+            version: '2.11.1'
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            platform: 'Web'
+          })
+        ])
+      })
+    })
+
+    it('should set Platform field to value passed by customer when Library field = "analytics.js" and Platform field is not null or undefined', async () => {
+      const event = createTestEvent({
+        event: 'Test Event',
+        context: {
+          device: {
+            id: 'foo',
+            type: 'Some_Custom_Platform_Value'
+          },
+          library: {
+            name: 'analytics.js',
+            version: '2.11.1'
+          }
+        }
+      })
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      expect(responses[0].options.json).toMatchObject({
+        api_key: undefined,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            platform: 'Some_Custom_Platform_Value'
+          })
+        ])
+      })
+    })
+
     it('should accept null for user_id', async () => {
       const event = createTestEvent({ timestamp, userId: null, event: 'Null User' })
 
@@ -324,13 +380,14 @@ describe('Amplitude', () => {
           "events": Array [
             Object {
               "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+              "device_manufacturer": undefined,
               "device_model": "Mac OS",
               "device_type": undefined,
               "event_properties": Object {},
               "event_type": "Test Event",
               "library": "segment",
               "os_name": "Mac OS",
-              "os_version": "10.11.6",
+              "os_version": "53",
               "time": 1629213675449,
               "use_batch_endpoint": false,
               "user_id": "user1234",
@@ -371,6 +428,7 @@ describe('Amplitude', () => {
               "city": "San Francisco",
               "country": "United States",
               "device_id": "julio",
+              "device_manufacturer": "Apple",
               "device_model": "iPhone",
               "device_type": "mobile",
               "event_properties": Object {},
@@ -381,7 +439,7 @@ describe('Amplitude', () => {
               "location_lat": 40.2964197,
               "location_lng": -76.9411617,
               "os_name": "iOS",
-              "os_version": "9.1",
+              "os_version": "9",
               "platform": "Web",
               "session_id": 1234567890,
               "time": 1629213675449,
@@ -417,35 +475,36 @@ describe('Amplitude', () => {
       expect(responses[0].data).toMatchObject({})
 
       expect(responses[0].options.json).toMatchInlineSnapshot(`
-          Object {
-            "api_key": undefined,
-            "events": Array [
-              Object {
-                "city": "San Francisco",
-                "country": "United States",
-                "device_id": "julio",
-                "device_model": "iPhone",
-                "device_type": "mobile",
-                "event_properties": Object {},
-                "event_type": "Test Event",
-                "ip": "8.8.8.8",
-                "language": "en-US",
-                "library": "segment",
-                "location_lat": 40.2964197,
-                "location_lng": -76.9411617,
-                "os_name": "iOS",
-                "os_version": "9.1",
-                "platform": "Web",
-                "session_id": 1234567890,
-                "time": 1629213675449,
-                "use_batch_endpoint": false,
-                "user_id": "user1234",
-                "user_properties": Object {},
-              },
-            ],
-            "options": undefined,
-          }
-        `)
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "city": "San Francisco",
+              "country": "United States",
+              "device_id": "julio",
+              "device_manufacturer": "Apple",
+              "device_model": "iPhone",
+              "device_type": "mobile",
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "ip": "8.8.8.8",
+              "language": "en-US",
+              "library": "segment",
+              "location_lat": 40.2964197,
+              "location_lng": -76.9411617,
+              "os_name": "iOS",
+              "os_version": "9",
+              "platform": "Web",
+              "session_id": 1234567890,
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
     })
 
     it('should send data to the EU endpoint', async () => {
@@ -533,27 +592,28 @@ describe('Amplitude', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchInlineSnapshot(`
-          Object {
-            "api_key": undefined,
-            "events": Array [
-              Object {
-                "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
-                "device_model": "Mac OS",
-                "device_type": undefined,
-                "event_properties": Object {},
-                "event_type": "Test Event",
-                "library": "segment",
-                "os_name": "iPhone OS",
-                "os_version": "8.1.3",
-                "time": 1629213675449,
-                "use_batch_endpoint": false,
-                "user_id": "user1234",
-                "user_properties": Object {},
-              },
-            ],
-            "options": undefined,
-          }
-        `)
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+              "device_manufacturer": undefined,
+              "device_model": "Mac OS",
+              "device_type": undefined,
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "library": "segment",
+              "os_name": "iPhone OS",
+              "os_version": "8.1.3",
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
     })
 
     it('should calculate revenue based on price and quantity', async () => {
@@ -615,7 +675,7 @@ describe('Amplitude', () => {
             },
             {
               revenue: 1_999,
-              productId: 'Bowflex Treadmill 8',
+              productId: 'Bowflex Treadmill 8'
             },
             {
               productId: 'Bowflex Treadmill 4',
@@ -623,7 +683,7 @@ describe('Amplitude', () => {
             },
             {
               quantity: 2,
-              productId: 'Bowflex Treadmill 2',
+              productId: 'Bowflex Treadmill 2'
             }
           ]
         }
@@ -728,17 +788,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "mapping",
-            "[{\\"user_id\\":\\"some-previous-user-id\\",\\"global_user_id\\":\\"some-user-id\\"}]",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&mapping=%5B%7B%22user_id%22%3A%22some-previous-user-id%22%2C%22global_user_id%22%3A%22some-user-id%22%7D%5D"`
+      )
     })
 
     it('should send data to the EU endpoint', async () => {
@@ -762,17 +814,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "mapping",
-            "[{\\"user_id\\":\\"some-previous-user-id\\",\\"global_user_id\\":\\"some-user-id\\"}]",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&mapping=%5B%7B%22user_id%22%3A%22some-previous-user-id%22%2C%22global_user_id%22%3A%22some-user-id%22%7D%5D"`
+      )
     })
   })
 
@@ -1038,27 +1082,28 @@ describe('Amplitude', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchInlineSnapshot(`
-          Object {
-            "api_key": undefined,
-            "events": Array [
-              Object {
-                "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
-                "device_model": "Mac OS",
-                "device_type": undefined,
-                "event_properties": Object {},
-                "event_type": "Test Event",
-                "library": "segment",
-                "os_name": "Mac OS",
-                "os_version": "10.11.6",
-                "time": 1629213675449,
-                "use_batch_endpoint": false,
-                "user_id": "user1234",
-                "user_properties": Object {},
-              },
-            ],
-            "options": undefined,
-          }
-        `)
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+              "device_manufacturer": undefined,
+              "device_model": "Mac OS",
+              "device_type": undefined,
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "library": "segment",
+              "os_name": "Mac OS",
+              "os_version": "53",
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
     })
 
     it('should support session_id from `integrations.Actions Amplitude.session_id`', async () => {
@@ -1083,35 +1128,36 @@ describe('Amplitude', () => {
       expect(responses[0].data).toMatchObject({})
 
       expect(responses[0].options.json).toMatchInlineSnapshot(`
-          Object {
-            "api_key": undefined,
-            "events": Array [
-              Object {
-                "city": "San Francisco",
-                "country": "United States",
-                "device_id": "julio",
-                "device_model": "iPhone",
-                "device_type": "mobile",
-                "event_properties": Object {},
-                "event_type": "Test Event",
-                "ip": "8.8.8.8",
-                "language": "en-US",
-                "library": "segment",
-                "location_lat": 40.2964197,
-                "location_lng": -76.9411617,
-                "os_name": "iOS",
-                "os_version": "9.1",
-                "platform": "Web",
-                "session_id": 1234567890,
-                "time": 1629213675449,
-                "use_batch_endpoint": false,
-                "user_id": "user1234",
-                "user_properties": Object {},
-              },
-            ],
-            "options": undefined,
-          }
-        `)
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "city": "San Francisco",
+              "country": "United States",
+              "device_id": "julio",
+              "device_manufacturer": "Apple",
+              "device_model": "iPhone",
+              "device_type": "mobile",
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "ip": "8.8.8.8",
+              "language": "en-US",
+              "library": "segment",
+              "location_lat": 40.2964197,
+              "location_lng": -76.9411617,
+              "os_name": "iOS",
+              "os_version": "9",
+              "platform": "Web",
+              "session_id": 1234567890,
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
     })
 
     it('supports session_id from `integrations.Actions Amplitude.session_id` in number format', async () => {
@@ -1136,35 +1182,36 @@ describe('Amplitude', () => {
       expect(responses[0].data).toMatchObject({})
 
       expect(responses[0].options.json).toMatchInlineSnapshot(`
-          Object {
-            "api_key": undefined,
-            "events": Array [
-              Object {
-                "city": "San Francisco",
-                "country": "United States",
-                "device_id": "julio",
-                "device_model": "iPhone",
-                "device_type": "mobile",
-                "event_properties": Object {},
-                "event_type": "Test Event",
-                "ip": "8.8.8.8",
-                "language": "en-US",
-                "library": "segment",
-                "location_lat": 40.2964197,
-                "location_lng": -76.9411617,
-                "os_name": "iOS",
-                "os_version": "9.1",
-                "platform": "Web",
-                "session_id": 1234567890,
-                "time": 1629213675449,
-                "use_batch_endpoint": false,
-                "user_id": "user1234",
-                "user_properties": Object {},
-              },
-            ],
-            "options": undefined,
-          }
-        `)
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "city": "San Francisco",
+              "country": "United States",
+              "device_id": "julio",
+              "device_manufacturer": "Apple",
+              "device_model": "iPhone",
+              "device_type": "mobile",
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "ip": "8.8.8.8",
+              "language": "en-US",
+              "library": "segment",
+              "location_lat": 40.2964197,
+              "location_lng": -76.9411617,
+              "os_name": "iOS",
+              "os_version": "9",
+              "platform": "Web",
+              "session_id": 1234567890,
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
     })
 
     it('should send data to the EU endpoint', async () => {
@@ -1252,27 +1299,28 @@ describe('Amplitude', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchInlineSnapshot(`
-          Object {
-            "api_key": undefined,
-            "events": Array [
-              Object {
-                "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
-                "device_model": "Mac OS",
-                "device_type": undefined,
-                "event_properties": Object {},
-                "event_type": "Test Event",
-                "library": "segment",
-                "os_name": "iPhone OS",
-                "os_version": "8.1.3",
-                "time": 1629213675449,
-                "use_batch_endpoint": false,
-                "user_id": "user1234",
-                "user_properties": Object {},
-              },
-            ],
-            "options": undefined,
-          }
-        `)
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+              "device_manufacturer": undefined,
+              "device_model": "Mac OS",
+              "device_type": undefined,
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "library": "segment",
+              "os_name": "iPhone OS",
+              "os_version": "8.1.3",
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
     })
   })
 
@@ -1538,27 +1586,28 @@ describe('Amplitude', () => {
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
       expect(responses[0].options.json).toMatchInlineSnapshot(`
-          Object {
-            "api_key": undefined,
-            "events": Array [
-              Object {
-                "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
-                "device_model": "Mac OS",
-                "device_type": undefined,
-                "event_properties": Object {},
-                "event_type": "Test Event",
-                "library": "segment",
-                "os_name": "Mac OS",
-                "os_version": "10.11.6",
-                "time": 1629213675449,
-                "use_batch_endpoint": false,
-                "user_id": "user1234",
-                "user_properties": Object {},
-              },
-            ],
-            "options": undefined,
-          }
-        `)
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+              "device_manufacturer": undefined,
+              "device_model": "Mac OS",
+              "device_type": undefined,
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "library": "segment",
+              "os_name": "Mac OS",
+              "os_version": "53",
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
     })
 
     it('supports session_id from `integrations.Actions Amplitude.session_id`', async () => {
@@ -1583,35 +1632,36 @@ describe('Amplitude', () => {
       expect(responses[0].data).toMatchObject({})
 
       expect(responses[0].options.json).toMatchInlineSnapshot(`
-          Object {
-            "api_key": undefined,
-            "events": Array [
-              Object {
-                "city": "San Francisco",
-                "country": "United States",
-                "device_id": "julio",
-                "device_model": "iPhone",
-                "device_type": "mobile",
-                "event_properties": Object {},
-                "event_type": "Test Event",
-                "ip": "8.8.8.8",
-                "language": "en-US",
-                "library": "segment",
-                "location_lat": 40.2964197,
-                "location_lng": -76.9411617,
-                "os_name": "iOS",
-                "os_version": "9.1",
-                "platform": "Web",
-                "session_id": 1234567890,
-                "time": 1629213675449,
-                "use_batch_endpoint": false,
-                "user_id": "user1234",
-                "user_properties": Object {},
-              },
-            ],
-            "options": undefined,
-          }
-        `)
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "city": "San Francisco",
+              "country": "United States",
+              "device_id": "julio",
+              "device_manufacturer": "Apple",
+              "device_model": "iPhone",
+              "device_type": "mobile",
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "ip": "8.8.8.8",
+              "language": "en-US",
+              "library": "segment",
+              "location_lat": 40.2964197,
+              "location_lng": -76.9411617,
+              "os_name": "iOS",
+              "os_version": "9",
+              "platform": "Web",
+              "session_id": 1234567890,
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
     })
 
     it('supports session_id from `integrations.Actions Amplitude.session_id` in number format', async () => {
@@ -1636,35 +1686,36 @@ describe('Amplitude', () => {
       expect(responses[0].data).toMatchObject({})
 
       expect(responses[0].options.json).toMatchInlineSnapshot(`
-          Object {
-            "api_key": undefined,
-            "events": Array [
-              Object {
-                "city": "San Francisco",
-                "country": "United States",
-                "device_id": "julio",
-                "device_model": "iPhone",
-                "device_type": "mobile",
-                "event_properties": Object {},
-                "event_type": "Test Event",
-                "ip": "8.8.8.8",
-                "language": "en-US",
-                "library": "segment",
-                "location_lat": 40.2964197,
-                "location_lng": -76.9411617,
-                "os_name": "iOS",
-                "os_version": "9.1",
-                "platform": "Web",
-                "session_id": 1234567890,
-                "time": 1629213675449,
-                "use_batch_endpoint": false,
-                "user_id": "user1234",
-                "user_properties": Object {},
-              },
-            ],
-            "options": undefined,
-          }
-        `)
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "city": "San Francisco",
+              "country": "United States",
+              "device_id": "julio",
+              "device_manufacturer": "Apple",
+              "device_model": "iPhone",
+              "device_type": "mobile",
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "ip": "8.8.8.8",
+              "language": "en-US",
+              "library": "segment",
+              "location_lat": 40.2964197,
+              "location_lng": -76.9411617,
+              "os_name": "iOS",
+              "os_version": "9",
+              "platform": "Web",
+              "session_id": 1234567890,
+              "time": 1629213675449,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
     })
 
     it('sends data to the EU endpoint', async () => {
@@ -1854,6 +1905,7 @@ describe('Amplitude', () => {
           "events": Array [
             Object {
               "device_id": "6fd32a7e-3c56-44c2-bd32-62bbec44c53d",
+              "device_manufacturer": undefined,
               "device_model": "Mac OS",
               "device_type": undefined,
               "event_properties": Object {},
@@ -1931,19 +1983,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9.1\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22os_name%22%3A%22iOS%22%2C%22os_version%22%3A%229%22%2C%22device_manufacturer%22%3A%22Apple%22%2C%22device_model%22%3A%22iPhone%22%2C%22device_type%22%3A%22mobile%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22country%22%3A%22United+States%22%2C%22city%22%3A%22San+Francisco%22%2C%22language%22%3A%22en-US%22%2C%22platform%22%3A%22Web%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should support referrer and utm user_properties', async () => {
@@ -1974,19 +2016,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\",\\"$set\\":{\\"utm_source\\":\\"Newsletter\\",\\"utm_medium\\":\\"email\\",\\"utm_campaign\\":\\"TPS Innovation Newsletter\\",\\"utm_term\\":\\"tps reports\\",\\"utm_content\\":\\"image link\\",\\"referrer\\":\\"some-referrer\\"},\\"$setOnce\\":{\\"initial_utm_source\\":\\"Newsletter\\",\\"initial_utm_medium\\":\\"email\\",\\"initial_utm_campaign\\":\\"TPS Innovation Newsletter\\",\\"initial_utm_term\\":\\"tps reports\\",\\"initial_utm_content\\":\\"image link\\",\\"initial_referrer\\":\\"some-referrer\\"}},\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%2C%22%24set%22%3A%7B%22utm_source%22%3A%22Newsletter%22%2C%22utm_medium%22%3A%22email%22%2C%22utm_campaign%22%3A%22TPS+Innovation+Newsletter%22%2C%22utm_term%22%3A%22tps+reports%22%2C%22utm_content%22%3A%22image+link%22%2C%22referrer%22%3A%22some-referrer%22%7D%2C%22%24setOnce%22%3A%7B%22initial_utm_source%22%3A%22Newsletter%22%2C%22initial_utm_medium%22%3A%22email%22%2C%22initial_utm_campaign%22%3A%22TPS+Innovation+Newsletter%22%2C%22initial_utm_term%22%3A%22tps+reports%22%2C%22initial_utm_content%22%3A%22image+link%22%2C%22initial_referrer%22%3A%22some-referrer%22%7D%7D%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('shouldnt append $ keys to user_properties if referrer/utm are not specified', async () => {
@@ -2005,19 +2037,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9.1\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22os_name%22%3A%22iOS%22%2C%22os_version%22%3A%229%22%2C%22device_manufacturer%22%3A%22Apple%22%2C%22device_model%22%3A%22iPhone%22%2C%22device_type%22%3A%22mobile%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22country%22%3A%22United+States%22%2C%22city%22%3A%22San+Francisco%22%2C%22language%22%3A%22en-US%22%2C%22platform%22%3A%22Web%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should support parsing userAgent when the setting is true', async () => {
@@ -2048,19 +2070,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"os_name\\":\\"Mac OS\\",\\"os_version\\":\\"10.11.6\\",\\"device_model\\":\\"Mac OS\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22os_name%22%3A%22Mac+OS%22%2C%22os_version%22%3A%2253%22%2C%22device_model%22%3A%22Mac+OS%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should not send parsed user agent properties when setting is false', async () => {
@@ -2091,19 +2103,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should change casing for device type when value is android', async () => {
@@ -2122,19 +2124,9 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"Android\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22user_id%22%3A%22user1234%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%7D%2C%22platform%22%3A%22Android%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should change casing for device type when value is ios', async () => {
@@ -2153,19 +2145,9 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"iOS\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22user_id%22%3A%22user1234%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%7D%2C%22platform%22%3A%22iOS%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should send data to the EU endpoint', async () => {
@@ -2192,19 +2174,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9.1\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&identification=%7B%22os_name%22%3A%22iOS%22%2C%22os_version%22%3A%229%22%2C%22device_manufacturer%22%3A%22Apple%22%2C%22device_model%22%3A%22iPhone%22%2C%22device_type%22%3A%22mobile%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22country%22%3A%22United+States%22%2C%22city%22%3A%22San+Francisco%22%2C%22language%22%3A%22en-US%22%2C%22platform%22%3A%22Web%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should give precedence to OS properties over userAgent properties', async () => {
@@ -2239,19 +2211,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"os_name\\":\\"iPhone OS\\",\\"os_version\\":\\"8.1.3\\",\\"device_model\\":\\"Mac OS\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22os_name%22%3A%22iPhone+OS%22%2C%22os_version%22%3A%228.1.3%22%2C%22device_model%22%3A%22Mac+OS%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
   })
 
@@ -2284,19 +2246,9 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%5B%7B%22device_id%22%3A%22some-anonymous-id%22%2C%22groups%22%3A%7B%22some-type%22%3A%22some-value%22%7D%2C%22insert_id%22%3A%22some-insert-id%22%2C%22library%22%3A%22segment%22%2C%22time%22%3A1618245157710%2C%22user_id%22%3A%22some-user-id%22%2C%22user_properties%22%3A%7B%22some-type%22%3A%22some-value%22%7D%7D%5D&options=undefined"`
+      )
     })
 
     it('should fire groupidentify call to Amplitude', async () => {
@@ -2311,19 +2263,9 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%5B%7B%22group_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22group_value%22%3A%22some-value%22%2C%22group_type%22%3A%22some-type%22%2C%22library%22%3A%22segment%22%7D%5D&options=undefined"`
+      )
     })
 
     it('should fire identify call to Amplitude EU endpoint', async () => {
@@ -2343,19 +2285,9 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "identification",
-            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&identification=%5B%7B%22device_id%22%3A%22some-anonymous-id%22%2C%22groups%22%3A%7B%22some-type%22%3A%22some-value%22%7D%2C%22insert_id%22%3A%22some-insert-id%22%2C%22library%22%3A%22segment%22%2C%22time%22%3A1618245157710%2C%22user_id%22%3A%22some-user-id%22%2C%22user_properties%22%3A%7B%22some-type%22%3A%22some-value%22%7D%7D%5D&options=undefined"`
+      )
     })
 
     it('should fire groupidentify call to Amplitude EU endpoint', async () => {
@@ -2375,19 +2307,9 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "identification",
-            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&identification=%5B%7B%22group_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22group_value%22%3A%22some-value%22%2C%22group_type%22%3A%22some-type%22%2C%22library%22%3A%22segment%22%7D%5D&options=undefined"`
+      )
     })
   })
 

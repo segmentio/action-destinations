@@ -59,6 +59,23 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-talon-one destination: trackEventV2 action - all fields 1`] = `
+Object {
+  "customerProfileId": "e)TF!ogVx#Nvh4",
+  "eventAttributes": Object {
+    "testType": "e)TF!ogVx#Nvh4",
+  },
+  "eventType": "e)TF!ogVx#Nvh4",
+}
+`;
+
+exports[`Testing snapshot for actions-talon-one destination: trackEventV2 action - required fields 1`] = `
+Object {
+  "customerProfileId": "e)TF!ogVx#Nvh4",
+  "eventType": "e)TF!ogVx#Nvh4",
+}
+`;
+
 exports[`Testing snapshot for actions-talon-one destination: updateAudience action - all fields 1`] = `
 Object {
   "audienceName": "y73nLJ!",
@@ -135,6 +152,29 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-talon-one destination: updateCustomerProfileV3 action - all fields 1`] = `
+Object {
+  "attributes": Object {
+    "testType": "GeWo@^$JGyRkK",
+  },
+  "audiencesChanges": Object {
+    "adds": Array [
+      525191390167040,
+    ],
+    "deletes": Array [
+      525191390167040,
+    ],
+  },
+  "runRuleEngine": false,
+}
+`;
+
+exports[`Testing snapshot for actions-talon-one destination: updateCustomerProfileV3 action - required fields 1`] = `
+Object {
+  "audiencesChanges": Object {},
+}
+`;
+
 exports[`Testing snapshot for actions-talon-one destination: updateCustomerProfilesAudiences action - all fields 1`] = `
 Object {
   "data": Array [
@@ -201,5 +241,57 @@ Object {
 exports[`Testing snapshot for actions-talon-one destination: updateCustomerSession action - required fields 1`] = `
 Object {
   "customerSession": Object {},
+}
+`;
+
+exports[`Testing snapshot for actions-talon-one destination: updateCustomerSessionV2 action - all fields 1`] = `
+Object {
+  "additionalCosts": Object {
+    "testType": "J(4saNJrsRd8Z]iG%36t",
+  },
+  "attributes": Object {
+    "testType": "J(4saNJrsRd8Z]iG%36t",
+  },
+  "cartItems": Array [
+    Object {
+      "additionalCosts": Object {
+        "testType": "J(4saNJrsRd8Z]iG%36t",
+      },
+      "attributes": Object {
+        "testType": "J(4saNJrsRd8Z]iG%36t",
+      },
+      "category": "J(4saNJrsRd8Z]iG%36t",
+      "height": "J(4saNJrsRd8Z]iG%36t",
+      "length": "J(4saNJrsRd8Z]iG%36t",
+      "name": "J(4saNJrsRd8Z]iG%36t",
+      "position": "J(4saNJrsRd8Z]iG%36t",
+      "price": 89572104743157.77,
+      "quantity": 89572104743157.77,
+      "remainingQuantity": "J(4saNJrsRd8Z]iG%36t",
+      "returnedQuantity": "J(4saNJrsRd8Z]iG%36t",
+      "sku": "J(4saNJrsRd8Z]iG%36t",
+      "weight": "J(4saNJrsRd8Z]iG%36t",
+    },
+  ],
+  "couponCodes": Array [
+    "J(4saNJrsRd8Z]iG%36t",
+  ],
+  "identifiers": Array [
+    "J(4saNJrsRd8Z]iG%36t",
+  ],
+  "loyaltyCards": Array [
+    "J(4saNJrsRd8Z]iG%36t",
+  ],
+  "profileId": "J(4saNJrsRd8Z]iG%36t",
+  "referralCode": "J(4saNJrsRd8Z]iG%36t",
+  "state": "cancelled",
+}
+`;
+
+exports[`Testing snapshot for actions-talon-one destination: updateCustomerSessionV2 action - required fields 1`] = `
+Object {
+  "identifiers": Array [
+    "J(4saNJrsRd8Z]iG%36t",
+  ],
 }
 `;

@@ -1,8 +1,8 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { key, id, keys, enable_batching, values_dataExtensionFields } from '../sfmc-properties'
-import { upsertRows } from '../sfmc-operations'
+import { key, id, keys, enable_batching, batch_size, values_dataExtensionFields } from '../sfmc-properties'
+import { executeUpsertWithMultiStatus, upsertRows } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event to Data Extension',
@@ -12,13 +12,14 @@ const action: ActionDefinition<Settings, Payload> = {
     id: id,
     keys: { ...keys, required: true },
     values: values_dataExtensionFields,
-    enable_batching: enable_batching
+    enable_batching: enable_batching,
+    batch_size: batch_size
   },
   perform: async (request, { settings, payload }) => {
     return upsertRows(request, settings.subdomain, [payload])
   },
   performBatch: async (request, { settings, payload }) => {
-    return upsertRows(request, settings.subdomain, payload)
+    return executeUpsertWithMultiStatus(request, settings.subdomain, payload)
   }
 }
 

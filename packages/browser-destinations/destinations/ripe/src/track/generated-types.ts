@@ -27,4 +27,10 @@ export interface Payload {
    * The Segment messageId
    */
   messageId?: string
+  /**
+   * Device context
+   */
+  context?: {
+    [k: string]: unknown
+  }
 }

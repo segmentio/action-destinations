@@ -6,24 +6,32 @@ import {
   selected_advertiser_id,
   audience_id,
   email,
+  phone,
   advertising_id,
   send_email,
+  send_phone,
   send_advertising_id,
   event_name,
   enable_batching
 } from '../properties'
 import { TikTokAudiences } from '../api'
 
+// NOTE
+// This action is not used by the native Segment Audiences feature.
+// TODO: Remove on cleanup.
+
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Add Users',
+  title: 'Add Users (Legacy)',
   description: 'Add contacts from an Engage Audience to a TikTok Audience Segment.',
   defaultSubscription: 'event = "Audience Entered"',
   fields: {
     selected_advertiser_id: { ...selected_advertiser_id },
     audience_id: { ...audience_id },
     email: { ...email },
+    phone: { ...phone },
     advertising_id: { ...advertising_id },
     send_email: { ...send_email },
+    send_phone: { ...send_phone },
     send_advertising_id: { ...send_advertising_id },
     event_name: { ...event_name },
     enable_batching: { ...enable_batching }
@@ -33,7 +41,17 @@ const action: ActionDefinition<Settings, Payload> = {
       try {
         const tiktok = new TikTokAudiences(request)
 
-        return tiktok.fetchAdvertisers(settings.advertiser_ids)
+        if (settings.advertiser_ids) {
+          return tiktok.fetchAdvertisers(settings.advertiser_ids)
+        }
+
+        return {
+          choices: [],
+          error: {
+            message: JSON.stringify('BAD REQUEST - expected settings.advertiser_ids and got nothing!'),
+            code: '400'
+          }
+        }
       } catch (err) {
         return {
           choices: [],
@@ -60,11 +78,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
-    return processPayload(request, settings, [payload], 'add')
+  perform: async (request, { settings, payload, statsContext, features }) => {
+    statsContext?.statsClient?.incr('addUserLegacy', 1, statsContext?.tags)
+    return processPayload(request, settings, [payload], 'add', features || {})
   },
-  performBatch: async (request, { settings, payload }) => {
-    return processPayload(request, settings, payload, 'add')
+  performBatch: async (request, { settings, payload, statsContext, features }) => {
+    statsContext?.statsClient?.incr('addUserLegacy', 1, statsContext?.tags)
+    return processPayload(request, settings, payload, 'add', features || {})
   }
 }
 

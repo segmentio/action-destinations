@@ -64,6 +64,6 @@ export interface Subscription {
 }
 
 export interface PluginFactory {
-  (settings: JSONValue): Plugin | Plugin[] | Promise<Plugin | Plugin[]>
+  (settings: JSONValue): Plugin[] | Promise<Plugin[]>
   pluginName: string
 }

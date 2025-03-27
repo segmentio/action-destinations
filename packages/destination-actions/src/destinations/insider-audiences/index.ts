@@ -40,7 +40,8 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Sync Engage Audience to Insider',
       subscribe: 'type = "track" or type = "identify"',
       partnerAction: 'insiderAudiences',
-      mapping: defaultValues(insiderAudiences.fields)
+      mapping: defaultValues(insiderAudiences.fields),
+      type: 'automatic'
     }
   ]
 }

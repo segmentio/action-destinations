@@ -115,7 +115,17 @@ export const data_processing_options_state: InputField = {
   type: 'number',
   choices: [
     { label: 'Use Facebook’s Geolocation Logic', value: 0 },
-    { label: 'California', value: 1000 }
+    { label: 'California', value: 1000 },
+    { label: 'Colorado', value: 1001 },
+    { label: 'Connecticut', value: 1002 },
+    { label: 'Florida', value: 1003 },
+    { label: 'Oregon', value: 1004 },
+    { label: 'Texas', value: 1005 },
+    { label: 'Montana', value: 1006 },
+    { label: 'Delaware', value: 1007 },
+    { label: 'Nebraska', value: 1008 },
+    { label: 'New Hampshire', value: 1009 },
+    { label: 'New Jersey', value: 1010 }
   ]
 }
 
@@ -178,7 +188,17 @@ export const action_source: InputField = {
   label: 'Action Source',
   description:
     'This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.',
-  type: 'string'
+  type: 'string',
+  choices: [
+    { label: 'EMAIL', value: 'email' },
+    { label: 'WEBSITE', value: 'website' },
+    { label: 'APP', value: 'app' },
+    { label: 'PHONE CALL', value: 'phone_call' },
+    { label: 'CHAT', value: 'chat' },
+    { label: 'PHYSICAL STORE', value: 'physical_store' },
+    { label: 'SYSTEM GENERATED', value: 'system_generated' },
+    { label: 'OTHER', value: 'other' }
+  ]
 }
 
 export const event_source_url: InputField = {
@@ -199,4 +219,12 @@ export const event_id: InputField = {
   default: {
     '@path': '$.messageId'
   }
+}
+
+export const test_event_code: InputField = {
+  label: 'Test Event Code',
+  type: 'string',
+  description:
+    'Use this field to specify that events should be test events rather than actual traffic. You can find your Test Event Code in your Facebook Events Manager under the "Test events" tab. This property overrides the test event code defined in Settings. You\'ll want to remove your Test Event Code when sending real traffic through this integration.',
+  required: false
 }

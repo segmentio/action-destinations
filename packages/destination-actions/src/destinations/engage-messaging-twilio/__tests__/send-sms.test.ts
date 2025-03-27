@@ -1,12 +1,34 @@
 import nock from 'nock'
-import { createTestAction, loggerMock as logger } from './__helpers__/test-utils'
-import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO } from '../utils/message-sender'
+import { createTestAction, expectErrorLogged, expectInfoLogged, loggerMock as logger } from './__helpers__/test-utils'
+import { FLAGON_NAME_LOG_ERROR, FLAGON_NAME_LOG_INFO, SendabilityStatus } from '@segment/actions-shared'
+import { EngageDestinationCache } from '@segment/actions-core/destination-kit'
+
+const phoneNumber = '+1234567891'
+const defaultTags = JSON.stringify({
+  external_id_type: 'phone',
+  external_id_value: phoneNumber
+})
 
 describe.each(['stage', 'production'])('%s environment', (environment) => {
+  const getByKey = jest.fn().mockResolvedValue(undefined)
+  const setByKey = jest.fn().mockResolvedValue(undefined)
+  const setByKeyNX = jest.fn().mockResolvedValue(undefined)
+  const delByKey = jest.fn().mockResolvedValue(undefined)
+  // Create a mocked engageDestinationCache so the test does not fail.
+  const engageDestinationCache: EngageDestinationCache = {
+    getByKey,
+    maxExpirySeconds: 60,
+    maxValueSizeBytes: 1024,
+    setByKey,
+    setByKeyNX,
+    delByKey
+  }
+
   const contentSid = 'g'
   const spaceId = 'd'
   const testAction = createTestAction({
     action: 'sendSms',
+    engageDestinationCache,
     environment,
     spaceId,
     getMapping: () => ({
@@ -16,9 +38,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       send: true,
       traitEnrichment: true,
       externalIds: [
-        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' },
-        { type: 'phone', id: '+1234567891', subscriptionStatus: 'subscribed', channelType: 'sms' }
-      ]
+        { type: 'email', id: 'test@twilio.com', subscriptionStatus: 'true' },
+        { type: 'phone', id: phoneNumber, subscriptionStatus: 'true', channelType: 'sms' }
+      ],
+      sendBasedOnOptOut: false
     })
   })
 
@@ -34,7 +57,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     it('should abort when there is no `phone` external ID in the payload', async () => {
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'subscribed' }]
+          externalIds: [{ type: 'email', id: 'test@twilio.com', subscriptionStatus: 'true' }]
         }
       })
 
@@ -49,11 +72,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             traitEnrichment: false
           }
         })
-      ).rejects.toThrowError('Unable to process sms, no userId provided and no traits provided')
-      expect(logger.error).toHaveBeenCalledWith(
-        `TE Messaging: SMS Unable to process, no userId provided and no traits provided - ${spaceId}`,
-        expect.anything()
-      )
+      ).rejects.toThrowError('No userId provided and no traits provided')
+      expectErrorLogged('No userId provided and no traits provided')
     })
 
     it('should throw error if unable to parse liquid template', async () => {
@@ -63,23 +83,15 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             body: 'Hello world, {{profile.user_id$}}!!'
           }
         })
-      ).rejects.toThrowError('Unable to parse templating in sms')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: SMS unable to parse templating - ${spaceId}`)),
-        expect.anything()
-      )
+      ).rejects.toThrowError('Unable to parse templating')
+      expectErrorLogged('Unable to parse templating')
     })
 
     it('should thow error if no body provided and no contentSid provided', async () => {
       await expect(testAction({ mappingOmitKeys: ['body'] })).rejects.toThrowError(
         'Unable to process sms, no body provided and no content sid provided'
       )
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(
-          new RegExp(`^TE Messaging: SMS unable to process, no body provided and no content sid provided - ${spaceId}`)
-        ),
-        expect.anything()
-      )
+      expectErrorLogged('Unable to process sms, no body provided and no content sid provided')
     })
 
     it.each(['twilio/call-to-action', 'twilio/card', 'twilio/quick-reply', 'twilio/list-picker'])(
@@ -103,10 +115,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             mappingOmitKeys: ['body']
           })
         ).rejects.toThrowError(`Sending templates with '${contentType}' content type is not supported by sms`)
-        expect(logger.error).toHaveBeenCalledWith(
-          `TE Messaging: SMS unsupported content template type '${contentType}' - ${spaceId}`,
-          expect.anything()
-        )
+        expectErrorLogged(`Sending templates with '${contentType}' content type is not supported by sms`)
       }
     )
 
@@ -127,12 +136,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           mappingOmitKeys: ['body']
         })
       ).rejects.toThrowError('Template from Twilio Content API does not contain any template types')
-      expect(logger.error).toHaveBeenCalledWith(
-        `TE Messaging: SMS template from Twilio Content API does not contain a template type - ${spaceId} - [${JSON.stringify(
-          twilioContentResponse
-        )}]`,
-        expect.anything()
-      )
+      expectErrorLogged('Template from Twilio Content API does not contain any template types')
     })
 
     it('should throw error if Twilio Content API request fails', async () => {
@@ -152,13 +156,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           },
           mappingOmitKeys: ['body']
         })
-      ).rejects.toThrowError('Unable to fetch content template')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(
-          new RegExp(`^TE Messaging: SMS failed request to fetch content template from Twilio Content API - ${spaceId}`)
-        ),
-        expect.anything()
-      )
+      ).rejects.toThrowError('Not Found')
+      expectErrorLogged('getContentTemplateTypes failed', 'Not Found')
     })
 
     it('should throw error if Twilio Programmable Messaging API request fails', async () => {
@@ -172,18 +171,16 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       nock('https://api.twilio.com/2010-04-01/Accounts/a').post('/Messages.json').reply(400, expectedErrorResponse)
 
       await expect(testAction()).rejects.toThrowError()
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: SMS Twilio Programmable API error - ${spaceId}`)),
-        expect.anything()
-      )
+      expectErrorLogged('Bad Request')
     })
 
     it('should send SMS', async () => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
-        ShortenUrls: 'true'
+        To: phoneNumber,
+        ShortenUrls: 'true',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -224,13 +221,103 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(twilioContentRequest.isDone()).toEqual(true)
     })
 
+    it('should send SMS with content sid and <nil> body', async () => {
+      const twilioMessagingRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json')
+        .reply(201, {})
+
+      const twilioContentResponse = {
+        types: {
+          'twilio/text': {
+            body: '<nil>'
+          }
+        }
+      }
+
+      const twilioContentRequest = nock('https://content.twilio.com')
+        .get(`/v1/Content/${contentSid}`)
+        .reply(200, twilioContentResponse)
+
+      await testAction({
+        mappingOverrides: {
+          contentSid
+        },
+        mappingOmitKeys: ['body']
+      })
+      expect(twilioMessagingRequest.isDone()).toEqual(true)
+      expect(twilioContentRequest.isDone()).toEqual(true)
+    })
+
+    it('should send SMS with content sid and <nil> trait', async () => {
+      const twilioMessagingRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json')
+        .reply(201, {})
+
+      const twilioContentResponse = {
+        types: {
+          'twilio/text': {
+            body: 'Hi {{profile.traits.firstName | default: "Person"}}'
+          }
+        }
+      }
+
+      const twilioContentRequest = nock('https://content.twilio.com')
+        .get(`/v1/Content/${contentSid}`)
+        .reply(200, twilioContentResponse)
+
+      const responses = await testAction({
+        mappingOverrides: {
+          contentSid,
+          traits: {
+            firstName: '<nil>'
+          }
+        }
+      })
+      expect(twilioMessagingRequest.isDone()).toEqual(true)
+      expect(twilioContentRequest.isDone()).toEqual(true)
+      expect(
+        responses.map((response) => response.options.body?.toString().includes('Hi+Person')).some((item) => item)
+      ).toEqual(true)
+    })
+
+    it('should send SMS with content sid and null traits', async () => {
+      const twilioMessagingRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json')
+        .reply(201, {})
+
+      const twilioContentResponse = {
+        types: {
+          'twilio/text': {
+            body: 'Hi {{profile.traits.firstName | default: "Person"}}'
+          }
+        }
+      }
+
+      const twilioContentRequest = nock('https://content.twilio.com')
+        .get(`/v1/Content/${contentSid}`)
+        .reply(200, twilioContentResponse)
+
+      const responses = await testAction({
+        mappingOverrides: {
+          contentSid,
+          traits: null
+        }
+      })
+      expect(twilioMessagingRequest.isDone()).toEqual(true)
+      expect(twilioContentRequest.isDone()).toEqual(true)
+      expect(
+        responses.map((response) => response.options.body?.toString().includes('Hi+Person')).some((item) => item)
+      ).toEqual(true)
+    })
+
     it('should send MMS with media in payload', async () => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
+        To: phoneNumber,
         ShortenUrls: 'true',
-        MediaUrl: 'http://myimg.com'
+        MediaUrl: 'http://myimg.com',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -261,12 +348,13 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
+        To: phoneNumber,
         ShortenUrls: 'true'
       })
 
       twilioContentResponse.types['twilio/media'].media.forEach((media) => {
         expectedTwilioRequest.append('MediaUrl', media)
+        expectedTwilioRequest.append('Tags', defaultTags)
       })
 
       const twilioContentRequest = nock('https://content.twilio.com')
@@ -295,8 +383,12 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
-        ShortenUrls: 'true'
+        To: '+1 (505) 555-4555',
+        ShortenUrls: 'true',
+        Tags: JSON.stringify({
+          external_id_type: 'phone',
+          external_id_value: '+1 (505) 555-4555'
+        })
       })
 
       const twilioHostname = 'api.nottwilio.com'
@@ -305,7 +397,12 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         .post('/Messages.json', expectedTwilioRequest.toString())
         .reply(201, {})
 
-      const responses = await testAction({ settingsOverrides: { twilioHostname } })
+      const responses = await testAction({
+        settingsOverrides: { twilioHostname },
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: '+1 (505) 555-4555', subscriptionStatus: true, channelType: 'sms' }]
+        }
+      })
       expect(responses.map((response) => response.url)).toStrictEqual([
         `https://${twilioHostname}/2010-04-01/Accounts/a/Messages.json`
       ])
@@ -316,8 +413,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
+        To: phoneNumber,
         ShortenUrls: 'true',
+        Tags: defaultTags,
         StatusCallback:
           'http://localhost/?foo=bar&space_id=d&__segment_internal_external_id_key__=phone&__segment_internal_external_id_value__=%2B1234567891#rp=all&rc=5'
       })
@@ -348,10 +446,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
           }
         })
       ).rejects.toHaveProperty('code', 'PAYLOAD_VALIDATION_FAILED')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(`TE Messaging: SMS invalid webhook url`),
-        expect.any(String)
-      )
+      expectErrorLogged('Invalid webhook url arguments')
     })
 
     it.each([
@@ -373,8 +468,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
-        ShortenUrls: 'true'
+        To: phoneNumber,
+        ShortenUrls: 'true',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -398,12 +494,13 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
   })
 
   describe('subscription handling', () => {
-    it.each(['subscribed', true])('sends an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
+    it.each(['subscribed', 'true', true])('sends an SMS when subscriptonStatus ="%s"', async (subscriptionStatus) => {
       const expectedTwilioRequest = new URLSearchParams({
         Body: 'Hello world, jane!',
         From: 'MG1111222233334444',
-        To: '+1234567891',
-        ShortenUrls: 'true'
+        To: phoneNumber,
+        ShortenUrls: 'true',
+        Tags: defaultTags
       })
 
       const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -412,7 +509,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
       const responses = await testAction({
         mappingOverrides: {
-          externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }]
+          externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'sms' }]
         }
       })
       expect(responses.map((response) => response.url)).toStrictEqual([
@@ -421,14 +518,15 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
       expect(twilioRequest.isDone()).toEqual(true)
     })
 
-    it.each(['unsubscribed', 'did not subscribed', false, null])(
-      'does NOT send an SMS when subscriptonStatus ="%s"',
+    it.each(['subscribed', 'true', true, null, ''])(
+      'sends an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is true',
       async (subscriptionStatus) => {
         const expectedTwilioRequest = new URLSearchParams({
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
-          To: '+1234567891',
-          ShortenUrls: 'true'
+          To: phoneNumber,
+          ShortenUrls: 'true',
+          Tags: defaultTags
         })
 
         const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -437,7 +535,89 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
         const responses = await testAction({
           mappingOverrides: {
-            externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus, channelType: 'sms' }]
+            externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'sms' }],
+            sendBasedOnOptOut: true
+          }
+        })
+        expect(responses.map((response) => response.url)).toStrictEqual([
+          'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+        ])
+        expect(twilioRequest.isDone()).toEqual(true)
+      }
+    )
+
+    it.each(['subscribed', 'true', true])(
+      'sends an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is undefined',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: phoneNumber,
+          ShortenUrls: 'true',
+          Tags: defaultTags
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'sms' }],
+            sendBasedOnOptOut: undefined
+          }
+        })
+        expect(responses.map((response) => response.url)).toStrictEqual([
+          'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+        ])
+        expect(twilioRequest.isDone()).toEqual(true)
+      }
+    )
+
+    it.each([false, 'unsubscribed', null, ''])(
+      'does NOT send an SMS when subscriptonStatus ="%s"',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: phoneNumber,
+          ShortenUrls: 'true',
+          Tags: defaultTags
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'sms' }]
+          }
+        })
+        expect(responses).toHaveLength(0)
+        expect(twilioRequest.isDone()).toEqual(false)
+      }
+    )
+
+    it.each([false, 'unsubscribed', null, ''])(
+      'does NOT send an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is undefined',
+      async (subscriptionStatus) => {
+        const expectedTwilioRequest = new URLSearchParams({
+          Body: 'Hello world, jane!',
+          From: 'MG1111222233334444',
+          To: phoneNumber,
+          ShortenUrls: 'true',
+          Tags: defaultTags
+        })
+
+        const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+          .post('/Messages.json', expectedTwilioRequest.toString())
+          .reply(201, {})
+
+        const responses = await testAction({
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'sms' }],
+            sendBasedOnOptOut: undefined
           }
         })
         expect(responses).toHaveLength(0)
@@ -446,14 +626,41 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
     )
   })
 
-  it('Unrecognized subscriptionStatus treated as Unsubscribed"', async () => {
+  it.each([false, 'unsubscribed'])(
+    'does NOT send an SMS when subscriptonStatus ="%s" and sendBasedOnOptOut is true',
+    async (subscriptionStatus) => {
+      const expectedTwilioRequest = new URLSearchParams({
+        Body: 'Hello world, jane!',
+        From: 'MG1111222233334444',
+        To: phoneNumber,
+        ShortenUrls: 'true',
+        Tags: defaultTags
+      })
+
+      const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+        .post('/Messages.json', expectedTwilioRequest.toString())
+        .reply(201, {})
+
+      const responses = await testAction({
+        mappingOverrides: {
+          externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus, channelType: 'sms' }],
+          sendBasedOnOptOut: true
+        }
+      })
+      expect(responses).toHaveLength(0)
+      expect(twilioRequest.isDone()).toEqual(false)
+    }
+  )
+
+  it('Unrecognized subscriptionStatus treated as Unsubscribed', async () => {
     const randomSubscriptionStatusPhrase = 'some-subscription-enum'
 
     const expectedTwilioRequest = new URLSearchParams({
       Body: 'Hello world, jane!',
       From: 'MG1111222233334444',
-      To: '+1234567891',
-      ShortenUrls: 'true'
+      To: phoneNumber,
+      ShortenUrls: 'true',
+      Tags: defaultTags
     })
 
     nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -462,18 +669,11 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
 
     const responses = await testAction({
       mappingOverrides: {
-        externalIds: [{ type: 'phone', id: '+1234567891', subscriptionStatus: randomSubscriptionStatusPhrase }]
+        externalIds: [{ type: 'phone', id: phoneNumber, subscriptionStatus: randomSubscriptionStatusPhrase }]
       }
     })
     expect(responses).toHaveLength(0)
-    expect(logger.info).toHaveBeenCalledWith(
-      expect.stringContaining('TE Messaging: SMS Invalid subscription statuses found in externalIds'),
-      expect.anything()
-    )
-    expect(logger.info).toHaveBeenCalledWith(
-      expect.stringContaining('TE Messaging: SMS Not sending message, because sendabilityStatus'),
-      expect.anything()
-    )
+    expectInfoLogged(SendabilityStatus.InvalidSubscriptionStatus.toUpperCase())
   })
 
   describe('get profile traits', () => {
@@ -487,11 +687,8 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
             traitEnrichment: false
           }
         })
-      ).rejects.toThrowError('Unable to get profile traits for SMS message')
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringMatching(new RegExp(`^TE Messaging: SMS profile traits request failure - ${spaceId}`)),
-        expect.anything()
-      )
+      ).rejects.toThrowError('Internal Server Error')
+      expectErrorLogged('Internal Server Error')
     })
 
     it('should get profile traits successfully', async () => {
@@ -556,8 +753,9 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         const expectedTwilioRequest = new URLSearchParams({
           Body: 'Hello world, jane!',
           From: 'MG1111222233334444',
-          To: '+1234567891',
-          ShortenUrls: 'true'
+          To: phoneNumber,
+          ShortenUrls: 'true',
+          Tags: defaultTags
         })
 
         const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
@@ -575,5 +773,40 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         else expect(logger.info).not.toHaveBeenCalled()
       })
     })
+  })
+
+  it('add tags to body', async () => {
+    const expectedTwilioRequest = new URLSearchParams({
+      Body: 'Hello world, jane!',
+      From: 'MG1111222233334444',
+      To: phoneNumber,
+      ShortenUrls: 'true',
+      Tags: '{"audience_id":"1","correlation_id":"1","journey_name":"j-1","step_name":"2","campaign_name":"c-3","campaign_key":"4","user_id":"u-5","message_id":"m-6","external_id_type":"phone","external_id_value":"+1234567891"}'
+    })
+    const twilioRequest = nock('https://api.twilio.com/2010-04-01/Accounts/a')
+      .post('/Messages.json', expectedTwilioRequest.toString())
+      .reply(201, {})
+
+    const responses = await testAction({
+      mappingOverrides: {
+        customArgs: {
+          audience_id: '1',
+          correlation_id: '1',
+          journey_name: 'j-1',
+          step_name: '2',
+          campaign_name: 'c-3',
+          campaign_key: '4',
+          user_id: 'u-5',
+          message_id: 'm-6'
+        }
+      }
+    })
+
+    expect(responses.length).toBeGreaterThan(0)
+    expect(responses.map((response) => response.url)).toStrictEqual([
+      'https://api.twilio.com/2010-04-01/Accounts/a/Messages.json'
+    ])
+    expect(twilioRequest.isDone()).toEqual(true)
+    expect(responses.length).toBeGreaterThan(0)
   })
 })

@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for MolocoMCM's itemPageView destination action: all fields 1`] = `
+Object {
+  "channel_type": "Yp@j0(bvP#",
+  "device": Object {
+    "advertising_id": "Yp@j0(bvP#",
+    "ip": "Yp@j0(bvP#",
+    "language": "Yp@j0(bvP#",
+    "model": "Yp@j0(bvP#",
+    "os": "YP@J0(BVP#",
+    "os_version": "Yp@j0(bvP#",
+    "ua": "Yp@j0(bvP#",
+    "unique_device_id": "Yp@j0(bvP#",
+  },
+  "event_type": "ITEM_PAGE_VIEW",
+  "id": "Yp@j0(bvP#",
+  "items": Array [
+    Object {
+      "id": "Yp@j0(bvP#",
+      "price": Object {
+        "amount": -31836327053885.44,
+        "currency": "INR",
+      },
+      "quantity": -3183632705388544,
+      "seller_id": "Yp@j0(bvP#",
+    },
+  ],
+  "page_id": "Yp@j0(bvP#",
+  "session_id": "Yp@j0(bvP#",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "Yp@j0(bvP#",
+}
+`;
+
+exports[`Testing snapshot for MolocoMCM's itemPageView destination action: required fields 1`] = `
+Object {
+  "channel_type": "Yp@j0(bvP#",
+  "event_type": "ITEM_PAGE_VIEW",
+  "id": "Yp@j0(bvP#",
+  "items": Array [
+    Object {
+      "id": "Yp@j0(bvP#",
+    },
+  ],
+  "page_id": "Yp@j0(bvP#",
+  "session_id": "Yp@j0(bvP#",
+  "timestamp": "2021-02-01T00:00:00.000Z",
+  "user_id": "Yp@j0(bvP#",
+}
+`;

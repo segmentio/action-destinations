@@ -1,6 +1,12 @@
 import type { Options } from '@wdio/types'
+import dns from 'node:dns'
 
 export const config: Options.Testrunner = {
+  beforeSession: () => {
+    // Fixes: github.com/webdriverio/webdriverio/issues/8279
+    // @ts-ignore - this should be in node 18 https://nodejs.org/api/dns.html#dnssetdefaultresultorderorder
+    dns.setDefaultResultOrder('ipv4first')
+  },
   baseUrl: 'http://localhost:5555',
   // WebdriverIO allows it to run your tests in arbitrary locations (e.g. locally or
   // on a remote machine).

@@ -24,13 +24,15 @@ export const destination: BrowserDestinationDefinition<Settings, VWO> = {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     }
   ],
   settings: {
@@ -80,6 +82,7 @@ export const destination: BrowserDestinationDefinition<Settings, VWO> = {
         useExistingJquery: settings.useExistingJquery
       })
     }
+    window.VWO = window.VWO || []
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'VWO'), 100)
     return window.VWO
   },

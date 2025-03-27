@@ -22,5 +22,13 @@ describe('LaunchDarkly', () => {
       }
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()
     })
+    it('should succeed if a custom host name is provided', async () => {
+      nock(`https://clientsdk.launchdarkly.com`).head(`/sdk/goals/invalid`).reply(404, {})
+      const authData = {
+        client_id: 'anything',
+        events_host_name: 'events2.launchdarkly.com'
+      }
+      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
+    })
   })
 })

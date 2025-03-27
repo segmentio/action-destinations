@@ -101,6 +101,7 @@ export interface Payload {
      * Item quantity.
      */
     quantity?: number
+    [k: string]: unknown
   }[]
   /**
    * The user properties to send to Google Analytics 4. You must create user-scoped dimensions to ensure custom properties are picked up by Google. See Google’s [Custom user properties](https://support.google.com/analytics/answer/9269570) to learn how to set and register user properties.
@@ -114,4 +115,8 @@ export interface Payload {
   params?: {
     [k: string]: unknown
   }
+  /**
+   * If the send_to parameter is not set, events are routed to all Tag Ids (AW-xxx, G-xxx) set via Google Tag
+   */
+  send_to?: boolean
 }

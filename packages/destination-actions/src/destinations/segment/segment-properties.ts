@@ -108,7 +108,6 @@ export const campaign_parameters: InputField = {
     }
   }
 }
-
 export const device: InputField = {
   label: 'Device',
   description: 'Dictionary of information about the device the API call originated from.',
@@ -342,4 +341,72 @@ export const traits: InputField = {
   type: 'object',
   defaultObjectUI: 'keyvalue',
   additionalProperties: true
+}
+
+export const message_id: InputField = {
+  type: 'string',
+  label: 'MessageId',
+  description: 'The Segment messageId.',
+  default: { '@path': '$.messageId' },
+  unsafe_hidden: true
+}
+
+export const consent: InputField = {
+  label: 'Consent',
+  description: 'Segment event consent category preferences.',
+  type: 'object',
+  default: { '@path': '$.context.consent' },
+  unsafe_hidden: true
+}
+
+export const address: InputField = {
+  label: 'Address',
+  description: 'Dictionary of information about the user’s current Address.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  properties: {
+    street: {
+      label: 'Street',
+      description: "The user's street address",
+      type: 'string'
+    },
+    city: {
+      label: 'City',
+      description: "The user's city",
+      type: 'string'
+    },
+    state: {
+      label: 'State',
+      description: "The user's State",
+      type: 'string'
+    },
+    country: {
+      label: 'Country',
+      description: "The user's country",
+      type: 'string'
+    },
+    postalCode: {
+      label: 'Postal Code',
+      description: "The user's Postal Code",
+      type: 'string'
+    }
+  }
+}
+function isCategoryPreferences(obj: unknown): boolean {
+  if (typeof obj !== 'object' || obj === null) {
+    return false
+  }
+
+  return Object.values(obj).every((value) => typeof value === 'boolean')
+}
+export const validateConsentObject = (obj: { [k: string]: unknown } | undefined): boolean => {
+  if (obj == undefined) {
+    return true
+  }
+
+  if (typeof obj !== 'object' || obj === null) {
+    throw false
+  }
+
+  return 'categoryPreferences' in obj && isCategoryPreferences(obj['categoryPreferences'])
 }

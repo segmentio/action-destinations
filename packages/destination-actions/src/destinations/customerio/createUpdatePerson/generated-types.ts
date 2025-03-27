@@ -4,9 +4,9 @@ export interface Payload {
   /**
    * The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).
    */
-  id: string
+  id?: string
   /**
-   * An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).
+   * An optional anonymous ID. This is used to tie anonymous events to this person. [Learn more](https://customer.io/docs/anonymous-events/).
    */
   anonymous_id?: string
   /**
@@ -25,6 +25,12 @@ export interface Payload {
    * Optional attributes for the person. When updating a person, attributes are added or updated, not removed.
    */
   custom_attributes?: {
+    [k: string]: unknown
+  }
+  /**
+   * Optional attributes for the relationship between the object and the user. When updating an object, attributes are added or updated, not removed.
+   */
+  relationship_attributes?: {
     [k: string]: unknown
   }
   /**

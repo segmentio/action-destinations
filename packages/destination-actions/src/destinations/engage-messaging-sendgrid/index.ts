@@ -1,8 +1,9 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import sendEmail from './sendEmail'
+import { actionDefinition as sendEmail } from './sendEmail'
+import { actionDefinition as previewApiLookup } from './previewApiLookup'
 
-const destination: DestinationDefinition<Settings> = {
+export const destinationDefinition: DestinationDefinition<Settings> = {
   name: 'Engage Messaging SendGrid',
   slug: 'actions-personas-messaging-sendgrid',
   mode: 'cloud',
@@ -62,8 +63,9 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    sendEmail
+    sendEmail,
+    previewApiLookup
   }
 }
 
-export default destination
+export default destinationDefinition

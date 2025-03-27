@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.181.0",
+  "version": "3.380.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -14,7 +14,7 @@
     "package.json"
   ],
   "engines": {
-    "node": "14 || ^18.12"
+    "node": "^18.17 || ^22.13"
   },
   "engineStrict": true,
   "license": "MIT",
@@ -23,14 +23,16 @@
     "registry": "https://registry.npmjs.org"
   },
   "scripts": {
-    "build": "yarn clean && yarn tsc -b tsconfig.build.json",
+    "build": "yarn tsc -b tsconfig.build.json",
     "clean": "tsc -b tsconfig.build.json --clean",
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
-    "test": "jest --coverage",
+    "test": "jest",
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.50.0",
+    "@bufbuild/protoc-gen-es": "^2.2.3",
     "@types/google-libphonenumber": "^7.4.23",
     "@types/jest": "^27.0.0",
     "@types/ssh2-sftp-client": "^9.0.0",
@@ -39,22 +41,32 @@
   },
   "dependencies": {
     "@amplitude/ua-parser-js": "^0.7.25",
+    "@aws-sdk/client-eventbridge": "^3.741.0",
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@bufbuild/protobuf": "^2.2.3",
     "@segment/a1-notation": "^2.1.4",
-    "@segment/actions-core": "^3.71.0",
-    "@segment/actions-shared": "^1.53.0",
-    "@types/node": "^18.11.15",
+    "@segment/actions-core": "^3.150.0",
+    "@segment/actions-shared": "^1.131.0",
+    "@types/node": "^22.13.1",
     "ajv-formats": "^2.1.1",
     "aws4": "^1.12.0",
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
     "escape-goat": "^3",
     "google-libphonenumber": "^3.2.31",
-    "liquidjs": "^9.37.0",
+    "kafkajs": "^2.2.4",
+    "liquidjs": "^10.8.4",
     "lodash": "^4.17.21",
-    "ssh2-sftp-client": "^9.1.0"
+    "lru-cache": "10.4.3",
+    "ssh2-sftp-client": "^10.0.3"
   },
   "jest": {
     "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    },
     "testEnvironment": "node",
     "modulePathIgnorePatterns": [
       "<rootDir>/dist/"
@@ -63,7 +75,8 @@
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
       "@segment/actions-core": "<rootDir>/../core/src",
       "@segment/actions-shared": "<rootDir>/../actions-shared/src",
-      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src",
+      "@bufbuild/protobuf/codegenv1": "<rootDir>/../../node_modules/@bufbuild/protobuf/dist/cjs/codegenv1"
     },
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup-after-env.ts"

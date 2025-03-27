@@ -6,7 +6,8 @@ import {
   convertTimestamp,
   getMobileStreamParams,
   getWebStreamParams,
-  sendData
+  sendData,
+  formatConsent
 } from '../ga4-functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -21,7 +22,9 @@ import {
   engagement_time_msec,
   timestamp_micros,
   data_stream_type,
-  app_instance_id
+  app_instance_id,
+  ad_user_data_consent,
+  ad_personalization_consent
 } from '../ga4-properties'
 import { DataStreamParams, DataStreamType } from '../ga4-types'
 
@@ -39,7 +42,9 @@ const action: ActionDefinition<Settings, Payload> = {
     value: { ...value },
     user_properties: user_properties,
     engagement_time_msec: engagement_time_msec,
-    params: params
+    params: params,
+    ad_user_data_consent: ad_user_data_consent,
+    ad_personalization_consent: ad_personalization_consent
   },
   perform: (request, { payload, settings }) => {
     const data_stream_type = payload.data_stream_type ?? DataStreamType.Web
@@ -75,7 +80,11 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       ],
       ...formatUserProperties(payload.user_properties),
-      timestamp_micros: convertTimestamp(payload.timestamp_micros)
+      timestamp_micros: convertTimestamp(payload.timestamp_micros),
+      ...formatConsent({
+        ad_personalization_consent: payload.ad_personalization_consent,
+        ad_user_data_consent: payload.ad_user_data_consent
+      })
     }
 
     return sendData(request, stream_params.search_params, request_object)

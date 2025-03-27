@@ -22,17 +22,17 @@ export interface Payload {
      */
     body?: string
     /**
-     * Media to display to notification
+     * Media to display in notification
      */
     media?: string[]
     /**
-     * Sets the notification click action/category
+     * Sets the notification click action/category: open_app, open_url, deep_link, or a custom string
      */
     tapAction?: string
     /**
-     * Sets the deep link
+     * Deep link or URL to navigate to when the notification is tapped
      */
-    deepLink?: string
+    link?: string
     /**
      * Sets the sound played when the notification arrives
      */
@@ -66,7 +66,7 @@ export interface Payload {
        */
       text: string
       /**
-       * The action to perform when this button is tapped
+       * The action to perform when this button is tapped: open_app, open_url, deep_link, or a custom string
        */
       onTap: string
       /**
@@ -89,6 +89,10 @@ export interface Payload {
    * Whether or not the notification should actually get sent.
    */
   send?: boolean
+  /**
+   * Segment computation ID
+   */
+  segmentComputationId?: string
   /**
    * An array of user profile identity information.
    */
@@ -120,4 +124,8 @@ export interface Payload {
    * Time of when the actual event happened.
    */
   eventOccurredTS?: string
+  /**
+   * Controls the notification payload format
+   */
+  googleApiVersion?: string
 }

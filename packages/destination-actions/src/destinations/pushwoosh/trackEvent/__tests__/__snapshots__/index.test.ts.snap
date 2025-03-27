@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Pushwoosh's trackEvent destination action: required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "app_code": "JRbaU31",
+      "device_id": "JRbaU31",
+      "name": "JRbaU31",
+      "timestamp": "2021-02-01T00:00:00.000Z",
+      "user_id": "JRbaU31",
+    },
+  ],
+}
+`;

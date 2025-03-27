@@ -1,7 +1,4 @@
-import type { RequestOptions } from '@segment/actions-core'
 import { Payload } from '../sendSms/generated-types'
-
-export type RequestFn = (url: string, options?: RequestOptions) => Promise<Response>
 
 export interface ContentTemplateResponse {
   types: {
@@ -10,21 +7,6 @@ export interface ContentTemplateResponse {
       media?: string[]
     }
   }
-}
-
-export interface TwilioApiError extends Error {
-  response: {
-    data: {
-      code: number
-      message: string
-      more_info: string
-      status: number
-    }
-    headers?: Response['headers']
-  }
-  code?: number
-  status?: number
-  statusCode?: number
 }
 
 export interface ContentTemplateResponse {

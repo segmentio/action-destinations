@@ -10,6 +10,10 @@ export interface Payload {
    */
   phone_number_as_identifier?: boolean
   /**
+   * If enabled, new data for array fields will be appended to the existing values in Insider.
+   */
+  append_arrays?: boolean
+  /**
    * Age of a user.
    */
   age?: number
@@ -46,6 +50,12 @@ export interface Payload {
    */
   segment_anonymous_id?: string
   /**
+   * You can select you custom identifiers for the event.
+   */
+  custom_identifiers?: {
+    [k: string]: unknown
+  }
+  /**
    * City
    */
   city?: string
@@ -54,19 +64,29 @@ export interface Payload {
    */
   country?: string
   /**
-   * Email optin.
+   * GDPR opt-in.
+   */
+  gdprOptin?: boolean
+  /**
+   * Email opt-in.
    */
   emailOptin?: boolean
   /**
-   * SMS optin.
+   * SMS opt-in.
    */
   smsOptin?: boolean
   /**
-   * Whatsapp optin.
+   * Whatsapp opt-in.
    */
   whatsappOptin?: boolean
   /**
    * The user's preferred language.
    */
   language?: string
+  /**
+   * The user's additional information.
+   */
+  custom?: {
+    [k: string]: unknown
+  }
 }

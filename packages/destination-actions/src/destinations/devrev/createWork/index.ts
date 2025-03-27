@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { RequestOptions } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
-import { DevUserListResponse, PartListResponse, devrevApiPaths, devrevApiRoot } from '../utils'
+import { DevUserListResponse, PartListResponse, devrevApiPaths, getBaseUrl } from '../utils'
 import { APIError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -79,9 +79,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    partId: async (request): Promise<DynamicFieldResponse> => {
+    partId: async (request, { settings }): Promise<DynamicFieldResponse> => {
       try {
-        const result: PartListResponse = await request(`${devrevApiRoot}${devrevApiPaths.partsList}`, {
+        const result: PartListResponse = await request(`${getBaseUrl(settings)}${devrevApiPaths.partsList}`, {
           method: 'get',
           skipResponseCloning: true
         })
@@ -103,9 +103,9 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    assignTo: async (request): Promise<DynamicFieldResponse> => {
+    assignTo: async (request, { settings }): Promise<DynamicFieldResponse> => {
       try {
-        const results: DevUserListResponse = await request(`${devrevApiRoot}${devrevApiPaths.devUsersList}`, {
+        const results: DevUserListResponse = await request(`${getBaseUrl(settings)}${devrevApiPaths.devUsersList}`, {
           method: 'get',
           skipResponseCloning: true
         })
@@ -129,9 +129,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: (request, { payload }) => {
+  perform: (request, { settings, payload }) => {
     const { partId, title, description, assignTo, type, priority } = payload
-    const url = `${devrevApiRoot}${devrevApiPaths.worksCreate}`
+    const url = `${getBaseUrl(settings)}${devrevApiPaths.worksCreate}`
     const options: RequestOptions = {
       method: 'POST',
       json: {

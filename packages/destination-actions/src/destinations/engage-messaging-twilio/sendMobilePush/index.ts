@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { PushSender } from './push-sender'
+import { PushSender } from './PushSender'
 
-const action: ActionDefinition<Settings, Payload> = {
+export const actionDefinition: ActionDefinition<Settings, Payload> = {
   title: 'Send Mobile Push Notification',
   description: 'Send a push notification to a mobile device using Twilio',
   defaultSubscription: 'type = "track" and event = "Audience Entered"',
@@ -40,20 +40,20 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         media: {
           label: 'Media urls',
-          description: 'Media to display to notification',
+          description: 'Media to display in notification',
           type: 'string',
           required: false,
           multiple: true
         },
         tapAction: {
           label: 'Notification open action',
-          description: 'Sets the notification click action/category',
+          description: 'Sets the notification click action/category: open_app, open_url, deep_link, or a custom string',
           type: 'string',
           required: false
         },
-        deepLink: {
-          label: 'Notification title',
-          description: 'Sets the deep link',
+        link: {
+          label: 'Notification Link',
+          description: 'Deep link or URL to navigate to when the notification is tapped',
           type: 'string',
           required: false
         },
@@ -128,27 +128,10 @@ const action: ActionDefinition<Settings, Payload> = {
             },
             onTap: {
               label: 'Tap action',
-              description: 'The action to perform when this button is tapped',
+              description:
+                'The action to perform when this button is tapped: open_app, open_url, deep_link, or a custom string',
               type: 'string',
-              required: true,
-              choices: [
-                {
-                  label: 'Open App',
-                  value: 'open_app'
-                },
-                {
-                  label: 'Open URL',
-                  value: 'open_url'
-                },
-                {
-                  label: 'Deep Link',
-                  value: 'deep_link'
-                },
-                {
-                  label: 'Dismiss',
-                  value: 'dismiss'
-                }
-              ]
+              required: true
             },
             link: {
               label: 'Link',
@@ -179,6 +162,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       required: false,
       default: false
+    },
+    segmentComputationId: {
+      label: 'Segment Computation ID',
+      description: 'Segment computation ID',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.context.personas.computation_id'
+      }
     },
     externalIds: {
       label: 'External IDs',
@@ -242,11 +234,22 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    googleApiVersion: {
+      label: 'Google Api Version',
+      description: 'Controls the notification payload format',
+      type: 'string',
+      required: false,
+      choices: [
+        { label: 'legacy', value: 'legacy' },
+        { label: 'v1', value: 'v1' }
+      ],
+      default: 'legacy'
     }
   },
   perform: async (request, data) => {
-    return new PushSender(request, data).send()
+    return new PushSender(request, data).perform()
   }
 }
 
-export default action
+export default actionDefinition

@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-core",
   "description": "Core runtime for Destinations Actions.",
-  "version": "3.71.0",
+  "version": "3.150.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/fab-5-engine",
@@ -51,12 +51,12 @@
     "package.json"
   ],
   "engines": {
-    "node": ">=14"
+    "node": ">=18.17"
   },
   "engineStrict": true,
   "license": "MIT",
   "publishConfig": {
-    "access": "restricted",
+    "access": "public",
     "registry": "https://registry.npmjs.org"
   },
   "scripts": {
@@ -80,10 +80,10 @@
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.0",
-    "@segment/ajv-human-errors": "^2.7.0",
-    "@segment/destination-subscriptions": "^3.24.0",
-    "@types/node": "^18.11.15",
-    "abort-controller": "^3.0.0",
+    "@segment/action-emitters": "^1.3.6",
+    "@segment/ajv-human-errors": "^2.15.0",
+    "@segment/destination-subscriptions": "^3.37.0",
+    "@types/node": "^22.13.1",
     "aggregate-error": "^3.1.0",
     "ajv": "^8.6.3",
     "ajv-formats": "^2.1.1",
@@ -94,6 +94,11 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    },
     "testEnvironment": "node",
     "modulePathIgnorePatterns": [
       "<rootDir>/dist/"

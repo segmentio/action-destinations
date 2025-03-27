@@ -1,22 +1,27 @@
 import type { Settings } from '../generated-types'
+import type { JwtPayload } from './types'
 
-export const parseJwt = (token: string) => {
+export const parseJwt = (token: string): JwtPayload => {
   return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())
 }
 
+export const getBaseUrl = (settings: Settings) => {
+  try {
+    const url = parseJwt(settings.apiKey)
+      .iss.replace(/auth-token/g, 'api')
+      .slice(0, -1)
+    return url
+  } catch (e) {
+    return 'https://api.devrev.ai'
+  }
+}
+
 export const getDevOrgId = (settings: Settings) => {
-  const { apiKey } = settings
-  const parsed = parseJwt(apiKey)
-  const orgId = parsed['http://devrev.ai/devo_don']
-  return orgId
+  return parseJwt(settings.apiKey)['http://devrev.ai/devo_don']
 }
 
 export const getDevUserId = (settings: Settings) => {
-  const { apiKey } = settings
-  const parsed = parseJwt(apiKey)
-  const orgId = parsed['http://devrev.ai/devo_don']
-  const userId = `${orgId}:devu/${parsed['']}`
-  return userId
+  return parseJwt(settings.apiKey).sub
 }
 
 export const isBlacklisted = (settings: Settings, domain: string) => {

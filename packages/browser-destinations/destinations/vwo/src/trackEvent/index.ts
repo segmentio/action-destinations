@@ -37,11 +37,12 @@ const action: BrowserActionDefinition<Settings, VWO, Payload> = {
 
     window.VWO = window.VWO || []
 
-    if (!window.VWO.event) {
-      window.VWO.event = function (...args) {
+    window.VWO.event =
+      window.VWO.event ||
+      function (...args) {
         window.VWO.push(['event', ...args])
       }
-    }
+
     window.VWO.event(sanitisedEventName, formattedProperties, {
       source: 'segment.web',
       ogName: eventName

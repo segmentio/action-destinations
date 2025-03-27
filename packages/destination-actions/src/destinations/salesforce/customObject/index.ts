@@ -9,9 +9,10 @@ import {
   customFields,
   validateLookup,
   enable_batching,
-  recordMatcherOperator
+  recordMatcherOperator,
+  batch_size
 } from '../sf-properties'
-import Salesforce from '../sf-operations'
+import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 import { PayloadValidationError } from '@segment/actions-core'
 const OPERATIONS_WITH_CUSTOM_FIELDS = ['create', 'update', 'upsert']
 
@@ -22,6 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     operation: operation,
     recordMatcherOperator: recordMatcherOperator,
     enable_batching: enable_batching,
+    batch_size: batch_size,
     traits: traits,
     bulkUpsertExternalId: bulkUpsertExternalId,
     bulkUpdateRecordId: bulkUpdateRecordId,
@@ -37,7 +39,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     customObjectName: async (request, data) => {
-      const sf: Salesforce = new Salesforce(data.settings.instanceUrl, request)
+      const sf: Salesforce = new Salesforce(
+        data.settings.instanceUrl,
+        await generateSalesforceRequest(data.settings, request)
+      )
 
       return sf.customObjectName()
     }
@@ -47,7 +52,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Custom fields are required for this operation.')
     }
 
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (payload.operation === 'create') {
       return await sf.createRecord(payload, payload.customObjectName)
@@ -67,14 +72,23 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.deleteRecord(payload, payload.customObjectName)
     }
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, features, statsContext, logger }) => {
     if (OPERATIONS_WITH_CUSTOM_FIELDS.includes(payload[0].operation) && !payload[0].customFields) {
       throw new PayloadValidationError('Custom fields are required for this operation.')
     }
 
-    const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+    const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    return sf.bulkHandler(payload, payload[0].customObjectName)
+    let shouldShowAdvancedLogging = false
+    if (features && features['salesforce-advanced-logging']) {
+      shouldShowAdvancedLogging = true
+    }
+
+    return sf.bulkHandler(payload, payload[0].customObjectName, {
+      shouldLog: shouldShowAdvancedLogging,
+      stats: statsContext,
+      logger
+    })
   }
 }
 

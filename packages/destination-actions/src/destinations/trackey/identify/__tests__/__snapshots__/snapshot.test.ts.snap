@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Trackey's identify destination action: all fields 1`] = `
+Object {
+  "messageId": "&RuBnhp",
+  "timestamp": "&RuBnhp",
+  "traits": Object {
+    "testType": "&RuBnhp",
+  },
+  "userId": "&RuBnhp",
+}
+`;
+
+exports[`Testing snapshot for Trackey's identify destination action: required fields 1`] = `
+Object {
+  "timestamp": "&RuBnhp",
+  "userId": "&RuBnhp",
+}
+`;

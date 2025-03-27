@@ -44,6 +44,21 @@ export function initialBoot(appId: string, options = {}) {
     window.Intercom &&
     window.Intercom('boot', {
       app_id: appId,
+      installation_type: 's',
       ...options
     })
+}
+
+export function initSettings({ appId, activator }) {
+  if (window.intercomSettings) {
+    window.intercomSettings.app_id = appId
+    window.intercomSettings.installation_type = 's'
+    window.intercomSettings.custom_launcher_selector = activator
+  } else {
+    window.intercomSettings = {
+      app_id: appId,
+      installation_type: 's',
+      custom_launcher_selector: activator
+    }
+  }
 }

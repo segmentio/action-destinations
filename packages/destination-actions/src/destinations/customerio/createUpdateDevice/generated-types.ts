@@ -10,6 +10,10 @@ export interface Payload {
    */
   device_id: string
   /**
+   * The version of the App
+   */
+  app_version?: string
+  /**
    * The mobile device's platform. ("ios" or "android")
    */
   platform: string
@@ -17,6 +21,12 @@ export interface Payload {
    * The timestamp for when the mobile device was last used. Default is current date and time.
    */
   last_used?: string
+  /**
+   * Optional data that you can reference to segment your audience, like a person's attributes, but specific to a device.
+   */
+  attributes?: {
+    [k: string]: unknown
+  }
   /**
    * Convert dates to Unix timestamps (seconds since Epoch).
    */

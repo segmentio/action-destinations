@@ -94,6 +94,10 @@ export interface Payload {
    */
   userAgentParsing?: boolean
   /**
+   * Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field
+   */
+  includeRawUserAgent?: boolean
+  /**
    * UTM Tracking Properties
    */
   utm_properties?: {
@@ -115,4 +119,11 @@ export interface Payload {
    * The name of the library that generated the event.
    */
   library?: string
+  /**
+   * The user agent data of device sending the event
+   */
+  userAgentData?: {
+    model?: string
+    platformVersion?: string
+  }
 }

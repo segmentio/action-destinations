@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for LinkedinConversions's streamConversion destination action: all fields 1`] = `
+Object {
+  "conversion": "urn:lla:llaPartnerConversion:1234",
+  "conversionHappenedAt": null,
+  "conversionValue": Object {
+    "amount": "100",
+    "currencyCode": "USD",
+  },
+  "user": Object {
+    "userIds": Array [
+      Object {
+        "idType": "SHA256_EMAIL",
+        "idValue": "e290e11fef012fc831059c96e9186cda491dd0b259641815f23463cb4c54b7e1",
+      },
+    ],
+    "userInfo": Object {
+      "companyName": "microsoft",
+      "countryCode": "US",
+      "firstName": "mike",
+      "lastName": "smith",
+      "title": "software engineer",
+    },
+  },
+}
+`;
+
+exports[`Testing snapshot for LinkedinConversions's streamConversion destination action: required fields 1`] = `
+Object {
+  "conversion": "urn:lla:llaPartnerConversion:1234",
+  "conversionHappenedAt": null,
+  "user": Object {
+    "userIds": Array [
+      Object {
+        "idType": "SHA256_EMAIL",
+        "idValue": "e290e11fef012fc831059c96e9186cda491dd0b259641815f23463cb4c54b7e1",
+      },
+    ],
+  },
+}
+`;

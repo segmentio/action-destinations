@@ -15,6 +15,7 @@ describe('processPayload', () => {
         event_name: 'segment event',
         segment_computation_action: 'trait',
         custom_audience_name: 'example_audience',
+        append_arrays: false,
         traits_or_props: {
           example_audience: true,
           email: 'example@example.com'
@@ -46,7 +47,9 @@ describe('processPayload', () => {
               }
             ]
           }
-        ]
+        ],
+        not_append: true,
+        platform: 'segment'
       }
     })
   })
@@ -56,6 +59,7 @@ describe('processPayload', () => {
       {
         custom_audience_name: 'num_link_clicked_l_60_d',
         segment_computation_action: 'trait',
+        append_arrays: false,
         email: 'example@example.com',
         phone: '1234567890',
         anonymous_id: '123',
@@ -88,7 +92,9 @@ describe('processPayload', () => {
               }
             }
           }
-        ]
+        ],
+        not_append: true,
+        platform: 'segment'
       }
     })
   })
@@ -98,6 +104,7 @@ describe('processPayload', () => {
       {
         custom_audience_name: 'example_audience',
         segment_computation_action: 'trait',
+        append_arrays: false,
         email: 'example@example.com',
         phone: '1234567890',
         traits_or_props: {
@@ -132,7 +139,9 @@ describe('processPayload', () => {
               }
             ]
           }
-        ]
+        ],
+        not_append: true,
+        platform: 'segment'
       }
     })
   })
@@ -142,6 +151,7 @@ describe('processPayload', () => {
       {
         custom_audience_name: 'demo_squarkai',
         segment_computation_action: 'audience',
+        append_arrays: false,
         email: 'example@example.com',
         traits_or_props: {
           demo_squarkai: true,
@@ -168,7 +178,9 @@ describe('processPayload', () => {
               }
             }
           }
-        ]
+        ],
+        not_append: true,
+        platform: 'segment'
       }
     })
   })
@@ -178,6 +190,7 @@ describe('processPayload', () => {
       {
         custom_audience_name: 'demo_squarkai',
         segment_computation_action: 'audience',
+        append_arrays: false,
         email: 'example@example.com',
         event_name: 'Segment Event',
         traits_or_props: {
@@ -211,7 +224,9 @@ describe('processPayload', () => {
               }
             ]
           }
-        ]
+        ],
+        not_append: true,
+        platform: 'segment'
       }
     })
   })
@@ -222,6 +237,7 @@ describe('processPayload', () => {
         event_type: 'identify',
         segment_computation_action: 'audience',
         custom_audience_name: 'example_audience',
+        append_arrays: false,
         traits_or_props: {
           example_audience: false,
           email: 'example@example.com'
@@ -248,7 +264,9 @@ describe('processPayload', () => {
               }
             }
           }
-        ]
+        ],
+        not_append: true,
+        platform: 'segment'
       }
     })
   })
@@ -259,6 +277,7 @@ describe('processPayload', () => {
         event_type: 'identify',
         segment_computation_action: 'invalid',
         custom_audience_name: 'example_trait',
+        append_arrays: false,
         traits_or_props: {
           example_trait: 'example_value',
           email: 'example@example.com'
@@ -281,6 +300,7 @@ describe('processPayload', () => {
         event_type: 'invalid',
         segment_computation_action: 'audience',
         custom_audience_name: 'invalid_event_test',
+        append_arrays: false,
         traits_or_props: {
           example_trait: 'example_value',
           email: 'example@example.com'
@@ -304,6 +324,7 @@ describe('processPayload', () => {
         event_type: 'invalid',
         segment_computation_action: 'trait',
         custom_audience_name: 'invalid_event_test',
+        append_arrays: false,
         traits_or_props: {
           example_trait: 'example_value',
           email: 'example@example.com'

@@ -1,12 +1,12 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { trackApiEndpoint } from '../utils'
 import type { Payload } from './generated-types'
+import { sendBatch, sendSingle } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Delete Device',
-  description: `Track an "Application Uninstalled" event to delete a person's device.`,
-  defaultSubscription: 'event = "Application Uninstalled"',
+  description: `Delete a person's device.`,
+  defaultSubscription: 'event = "Application Uninstalled" or event = "Device Deleted"',
   fields: {
     person_id: {
       label: 'Person ID',
@@ -27,13 +27,27 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, { settings, payload }) => {
-    return request(
-      `${trackApiEndpoint(settings.accountRegion)}/api/v1/customers/${payload.person_id}/devices/${payload.device_id}`,
-      {
-        method: 'delete'
-      }
+
+  performBatch: (request, { payload: payloads, settings }) => {
+    return sendBatch(
+      request,
+      payloads.map((payload) => ({ action: 'delete_device', payload: mapPayload(payload), settings, type: 'person' }))
     )
+  },
+
+  perform: (request, { payload, settings }) => {
+    return sendSingle(request, { action: 'delete_device', payload: mapPayload(payload), settings, type: 'person' })
+  }
+}
+
+function mapPayload(payload: Payload) {
+  const { device_id, ...rest } = payload
+
+  return {
+    ...rest,
+    device: {
+      token: device_id
+    }
   }
 }
 

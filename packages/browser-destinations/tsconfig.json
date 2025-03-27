@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "allowJs": true, // remove ts-jest warning
     "module": "esnext",
     "removeComments": false,
     "baseUrl": ".",

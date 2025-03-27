@@ -12,8 +12,7 @@ export const devrevApiPaths = {
   worksCreate: '/internal/works.create',
   accountCreate: '/internal/accounts.create',
   revUsersCreate: '/internal/rev-users.create',
+  revUsersUpdate: '/internal/rev-users.update',
   timelineEntriesCreate: '/timeline-entries.create',
   trackEventsPublish: '/internal/track-events.publish'
 }
-
-export const devrevApiRoot = 'https://api.devrev.ai'

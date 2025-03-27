@@ -55,14 +55,14 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: false,
       description: 'Traits inherited from the context object',
-      label: 'Context properties',
+      label: 'Traits',
       default: { '@path': '$.context.traits' }
     },
     device_ip: {
       type: 'string',
       required: false,
       description: 'The device IP collected from the context',
-      label: 'Context properties',
+      label: 'Device IP',
       default: { '@path': '$.context.ip' }
     },
     message_id: {

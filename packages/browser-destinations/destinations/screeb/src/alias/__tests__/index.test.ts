@@ -56,7 +56,7 @@ describe('alias', () => {
     )
 
     expect(window.$screeb.q).toStrictEqual([
-      ['init', 'fake-website-id'],
+      ['init', 'fake-website-id', { "identity": {"id": null}}],
       ['identity', 'user-id']
     ])
   })
@@ -86,7 +86,7 @@ describe('alias', () => {
     )
 
     expect(window.$screeb.q).toStrictEqual([
-      ['init', 'fake-website-id'],
+      ['init', 'fake-website-id', {"identity": {"id": null}}],
       ['identity', 'anonymous-id']
     ])
   })

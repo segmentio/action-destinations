@@ -16,25 +16,29 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify User',
       subscribe: 'type = "identify"',
       partnerAction: 'identifyUser',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     },
     {
       name: 'Page Visit',
       subscribe: 'type = "page"',
       partnerAction: 'pageVisit',
-      mapping: defaultValues(pageVisit.fields)
+      mapping: defaultValues(pageVisit.fields),
+      type: 'automatic'
     },
     {
       name: 'Sync Audience',
       subscribe: 'event = "Audience Entered" or event = "Audience Exited"',
       partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields)
+      mapping: defaultValues(syncAudience.fields),
+      type: 'automatic'
     }
   ],
   authentication: {
@@ -51,6 +55,17 @@ const destination: DestinationDefinition<Settings> = {
         description: 'VWO Fullstack SDK Key. It is mandatory when using the VWO Fullstack suite.',
         type: 'string',
         required: false
+      },
+      region: {
+        label: 'Region',
+        description: 'VWO Region to sync data to. Default is US',
+        type: 'string',
+        choices: [
+          { label: 'US', value: 'US' },
+          { label: 'Europe', value: 'EU' },
+          { label: 'Asia', value: 'AS' }
+        ],
+        default: 'US'
       }
     },
     testAuthentication: (_request, { settings }) => {

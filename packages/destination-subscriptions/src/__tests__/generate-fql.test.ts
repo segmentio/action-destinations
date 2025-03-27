@@ -29,6 +29,46 @@ test('should handle valid ast', () => {
   expect(generateFql(ast)).toEqual('properties.value = "x"')
 })
 
+test('should number_equals ast', () => {
+  const ast: Subscription = {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-property',
+        name: 'value',
+        operator: 'number_equals',
+        value: '123'
+      }
+    ]
+  }
+
+  expect(generateFql(ast)).toEqual('properties.value = 123')
+})
+
+test('should string equal (=) ast', () => {
+  const ast: Subscription = {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-property',
+        name: 'value',
+        operator: 'number_equals',
+        value: '123'
+      },
+      {
+        type: 'event-property',
+        name: 'label',
+        operator: '=',
+        value: '456'
+      }
+    ]
+  }
+
+  expect(generateFql(ast)).toEqual('properties.value = 123 and properties.label = "456"')
+})
+
 test('should handle ast with multiple childs (or condition)', () => {
   const ast: Subscription = {
     type: 'group',
@@ -95,7 +135,7 @@ test('should handle field paths with non-regular values and escape properly', ()
       {
         type: 'event-trait',
         name: 'property dos',
-        operator: '=',
+        operator: 'number_equals',
         value: 2
       }
     ]
@@ -170,4 +210,44 @@ test('should handle ast with nested (dot-delimited) and irregular properties', (
   }
 
   expect(generateFql(ast)).toEqual('properties.foo.bar.baz\\ alp.zaz = "hello"')
+})
+
+test('should handle number_not_equals ast', () => {
+  const ast: Subscription = {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-trait',
+        name: 'value',
+        operator: 'number_not_equals',
+        value: '456.0'
+      }
+    ]
+  }
+
+  expect(generateFql(ast)).toEqual('traits.value != 456')
+})
+
+test('should handle both not equal (!=) and number_not_equals ast', () => {
+  const ast: Subscription = {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-property',
+        name: 'value',
+        operator: 'number_not_equals',
+        value: '123'
+      },
+      {
+        type: 'event-trait',
+        name: 'label',
+        operator: '!=',
+        value: '456'
+      }
+    ]
+  }
+
+  expect(generateFql(ast)).toEqual('properties.value != 123 and traits.label != "456"')
 })

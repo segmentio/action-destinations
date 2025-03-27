@@ -67,7 +67,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Segment Anonymous ID',
       description: 'Segment Anonymous ID.',
       required: false,
-      type: 'hidden',
+      type: 'string',
+      unsafe_hidden: true,
       default: {
         '@path': '$.anonymousId'
       }

@@ -1,7 +1,7 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import type braze from '@braze/web-sdk'
+import * as braze from '@braze/web-sdk'
 import type appboy from '@braze/web-sdk-v3'
 import trackEvent from './trackEvent'
 import updateUserProfile from './updateUserProfile'
@@ -18,23 +18,26 @@ declare global {
   }
 }
 
-const defaultVersion = '4.6'
+const defaultVersion = '5.7'
 
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Identify Calls',
+    type: 'automatic',
     subscribe: 'type = "identify" or type = "group"',
     partnerAction: 'updateUserProfile',
     mapping: defaultValues(updateUserProfile.fields)
   },
   {
     name: 'Order Completed calls',
+    type: 'automatic',
     subscribe: 'type = "track" and event = "Order Completed"',
     partnerAction: 'trackPurchase',
     mapping: defaultValues(trackPurchase.fields)
   },
   {
     name: 'Track Calls',
+    type: 'automatic',
     subscribe: 'type = "track" and event != "Order Completed"',
     partnerAction: 'trackEvent',
     mapping: {
@@ -78,6 +81,22 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         {
           value: '4.6',
           label: '4.6'
+        },
+        {
+          value: '4.8',
+          label: '4.8'
+        },
+        {
+          value: '4.10',
+          label: '4.10'
+        },
+        {
+          value: '5.4',
+          label: '5.4'
+        },
+        {
+          value: '5.7',
+          label: '5.7'
         }
       ],
       default: defaultVersion,
@@ -102,9 +121,14 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         { label: 'US-04	(https://dashboard-04.braze.com)', value: 'sdk.iad-04.braze.com' },
         { label: 'US-05	(https://dashboard-05.braze.com)', value: 'sdk.iad-05.braze.com' },
         { label: 'US-06	(https://dashboard-06.braze.com)', value: 'sdk.iad-06.braze.com' },
+        { label: 'US-07	(https://dashboard-07.braze.com)', value: 'sdk.iad-07.braze.com' },
         { label: 'US-08	(https://dashboard-08.braze.com)', value: 'sdk.iad-08.braze.com' },
+        { label: 'US-09	(https://dashboard-09.braze.com)', value: 'sdk.iad-09.braze.com' },
+        { label: 'US-10	(https://dashboard-10.braze.com)', value: 'sdk.iad-10.braze.com' },
         { label: 'EU-01	(https://dashboard-01.braze.eu)', value: 'sdk.fra-01.braze.eu' },
-        { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'sdk.fra-02.braze.eu' }
+        { label: 'EU-02	(https://dashboard-02.braze.eu)', value: 'sdk.fra-02.braze.eu' },
+        { label: 'AU-01 (https://dashboard.au-01.braze.com)', value: 'sdk.au-01.braze.com' },
+        { label: 'ID-01 (https://dashboard.id-01.braze.com)', value: 'sdk.id-01.braze.com' }
       ],
       default: 'sdk.iad-01.braze.com',
       required: true
@@ -119,7 +143,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
     },
     allowUserSuppliedJavascript: {
       description:
-        'To indicate that you trust the Braze dashboard users to write non-malicious Javascript click actions, set this property to true. If enableHtmlInAppMessages is true, this option will also be set to true. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)',
+        'To indicate that you trust the Braze dashboard users to write non-malicious Javascript click actions, set this property to true. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)',
       label: 'Allow User Supplied Javascript',
       default: false,
       type: 'boolean',
@@ -316,10 +340,14 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
             return false
           }
 
-          client.instance.initialize(api_key, {
-            baseUrl: window.BRAZE_BASE_URL || endpoint,
-            ...expectedConfig
-          })
+          if (
+            !client.instance.initialize(api_key, {
+              baseUrl: window.BRAZE_BASE_URL || endpoint,
+              ...expectedConfig
+            })
+          ) {
+            return false
+          }
 
           if (typeof client.instance.addSdkMetadata === 'function') {
             client.instance.addSdkMetadata([client.instance.BrazeSdkMetadata.SEGMENT])

@@ -1,7 +1,7 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import { initialBoot, initScript } from './init-script'
+import { initialBoot, initScript, initSettings } from './init-script'
 
 import { Intercom } from './api'
 import trackEvent from './trackEvent'
@@ -12,6 +12,11 @@ import { defaultValues } from '@segment/actions-core'
 declare global {
   interface Window {
     Intercom: Intercom
+    intercomSettings: {
+      app_id: string
+      installation_type?: string
+      custom_launcher_selector?: string
+    }
   }
 }
 
@@ -24,19 +29,22 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
       name: 'Track Event',
       subscribe: 'type = "track"',
       partnerAction: 'trackEvent',
-      mapping: defaultValues(trackEvent.fields)
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify User',
       subscribe: 'type = "identify" or type = "page"',
       partnerAction: 'identifyUser',
-      mapping: defaultValues(identifyUser.fields)
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
     },
     {
       name: 'Identify Company',
       subscribe: 'type = "group"',
       partnerAction: 'identifyCompany',
-      mapping: defaultValues(identifyCompany.fields)
+      mapping: defaultValues(identifyCompany.fields),
+      type: 'automatic'
     }
   ],
   settings: {
@@ -87,6 +95,7 @@ export const destination: BrowserDestinationDefinition<Settings, Intercom> = {
   initialize: async ({ settings }, deps) => {
     //initialize Intercom
     initScript({ appId: settings.appId })
+    initSettings({ appId: settings.appId, activator: settings.activator })
     const preloadedIntercom = window.Intercom
     initialBoot(settings.appId, { api_base: settings.apiBase })
 

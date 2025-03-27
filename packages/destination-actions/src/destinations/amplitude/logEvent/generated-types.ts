@@ -44,7 +44,7 @@ export interface Payload {
    */
   app_version?: string
   /**
-   * Platform of the device.
+   * Platform of the device. If using analytics.js to send events from a Browser and no if no Platform value is provided, the value "Web" will be sent.
    */
   platform?: string
   /**
@@ -190,6 +190,10 @@ export interface Payload {
    */
   userAgentParsing?: boolean
   /**
+   * Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field
+   */
+  includeRawUserAgent?: boolean
+  /**
    * UTM Tracking Properties
    */
   utm_properties?: {
@@ -207,4 +211,11 @@ export interface Payload {
    * Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
    */
   min_id_length?: number | null
+  /**
+   * The user agent data of device sending the event
+   */
+  userAgentData?: {
+    model?: string
+    platformVersion?: string
+  }
 }

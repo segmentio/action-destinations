@@ -1,15 +1,25 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { TrackEventsPublishBody, devrevApiPaths, devrevApiRoot } from '../../utils'
-import { settings, testAnonymousId, testContext, testEventPayload, testMessageId, testUserId } from '../../mocks'
+import { TrackEventsPublishBody, devrevApiPaths, getBaseUrl } from '../../utils'
+import {
+  settings,
+  testAccountRef,
+  testAnonymousId,
+  testContext,
+  testEventPayload,
+  testMessageId,
+  testUserId,
+  testUserRef,
+  testWorkspaceRef
+} from '../../mocks'
 
 const testDestination = createTestIntegration(Destination)
 
 describe('Devrev.streamEvent', () => {
   it('makes the correct API call to publish track events with default mapping', async () => {
     // Mock the publish API
-    nock(`${devrevApiRoot}`)
+    nock(`${getBaseUrl(settings)}`)
       .post(`${devrevApiPaths.trackEventsPublish}`)
       .reply(201, (_, body) => body)
 
@@ -18,6 +28,14 @@ describe('Devrev.streamEvent', () => {
       ...testEventPayload,
       messageId: testMessageId,
       anonymousId: testAnonymousId,
+      integrations: {
+        // @ts-expect-error integrations should accept complex objects;
+        DevRev: {
+          userRef: testUserRef,
+          accountRef: testAccountRef,
+          workspaceRef: testWorkspaceRef
+        }
+      },
       context: testContext,
       userId: testUserId,
       properties: {
@@ -38,16 +56,21 @@ describe('Devrev.streamEvent', () => {
       events_list: [
         {
           name: testEventPayload.event as string,
+          event_id: testMessageId,
           event_time: testEventPayload.timestamp as string,
           payload: {
             eventName: testEventPayload.event,
             timestamp: testEventPayload.timestamp,
             email: testEventPayload.properties?.email,
             userId: testUserId,
+            userRef: testUserRef,
+            accountRef: testAccountRef,
+            workspaceRef: testWorkspaceRef,
             messageId: testMessageId,
             anonymousId: testAnonymousId,
             context: testContext,
-            properties: testEventPayload.properties
+            properties: testEventPayload.properties,
+            devrev_source_identifier: 'segment'
           }
         }
       ]

@@ -35,20 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: true,
       additionalProperties: true,
-      properties: {
-        1: {
-          label: 'Given name',
-          type: 'string'
-        },
-        2: {
-          label: 'Last name',
-          type: 'string'
-        },
-        3: {
-          label: 'Email',
-          type: 'string'
-        }
-      },
+      properties: {},
       default: {
         1: { '@path': '$.traits.firstName' },
         2: { '@path': '$.traits.lastName' },

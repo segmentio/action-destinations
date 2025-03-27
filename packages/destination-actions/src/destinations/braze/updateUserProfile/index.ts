@@ -1,61 +1,7 @@
-import { omit, removeUndefined, IntegrationError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import dayjs from '../../../lib/dayjs'
-import { getUserAlias } from '../userAlias'
-
-type DateInput = string | Date | number | null | undefined
-type DateOutput = string | undefined | null
-
-function toISO8601(date: DateInput): DateOutput {
-  if (date === null || date === undefined) {
-    return date
-  }
-
-  const d = dayjs(date)
-  return d.isValid() ? d.toISOString() : undefined
-}
-
-function toDateFormat(date: DateInput, format: string): DateOutput {
-  if (date === null || date === undefined) {
-    return date
-  }
-
-  const d = dayjs(date)
-  return d.isValid() ? d.format(format) : undefined
-}
-
-function removeEmpty(obj: unknown) {
-  if (!obj) {
-    return obj
-  }
-
-  const cleaned = removeUndefined(obj)
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  if (typeof cleaned === 'object' && Object.keys(cleaned!).length > 0) {
-    return cleaned
-  }
-
-  return undefined
-}
-
-function toBrazeGender(gender: string | null | undefined): string | null | undefined {
-  if (!gender) {
-    return gender
-  }
-
-  const genders: Record<string, string[]> = {
-    M: ['man', 'male', 'm'],
-    F: ['woman', 'female', 'w', 'f'],
-    O: ['other', 'o'],
-    N: ['not applicable', 'n'],
-    P: ['prefer not to say', 'p']
-  }
-
-  const brazeGender = Object.keys(genders).find((key) => genders[key].includes(gender.toLowerCase()))
-  return brazeGender || gender
-}
+import { updateUserProfile, updateBatchedUserProfile } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update User Profile',
@@ -334,72 +280,28 @@ const action: ActionDefinition<Settings, Payload> = {
         'Setting this flag to true will put the API in "Update Only" mode. When using a "user_alias", "Update Only" mode is always true.',
       type: 'boolean',
       default: false
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Braze',
+      description:
+        'If true, Segment will batch events before sending to Braze’s user track endpoint. Braze accepts batches of up to 75 events.',
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      default: 75,
+      unsafe_hidden: true
     }
   },
 
   perform: (request, { settings, payload }) => {
-    const { braze_id, external_id } = payload
-
-    // Extract valid user_alias shape. Since it is optional (oneOf braze_id, external_id) we need to only include it if fully formed.
-    const user_alias = getUserAlias(payload.user_alias)
-
-    if (!braze_id && !user_alias && !external_id) {
-      throw new IntegrationError(
-        'One of "external_id" or "user_alias" or "braze_id" is required.',
-        'Missing required fields',
-        400
-      )
-    }
-
-    // Since we are merge reserved keys on top of custom_attributes we need to remove them
-    // to respect the customers mappings that might resolve `undefined`, without this we'd
-    // potentially send a value from `custom_attributes` that conflicts with their mappings.
-    const reservedKeys = Object.keys(action.fields)
-    // push additional default keys so they are not added as custom attributes
-    reservedKeys.push('firstName', 'lastName', 'avatar')
-    const customAttrs = omit(payload.custom_attributes, reservedKeys)
-
-    return request(`${settings.endpoint}/users/track`, {
-      method: 'post',
-      json: {
-        attributes: [
-          {
-            ...customAttrs,
-            braze_id,
-            external_id,
-            user_alias,
-            // TODO format country code according to ISO-3166-1 alpha-2 standard?
-            // https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-            country: payload.country,
-            current_location: removeEmpty(payload.current_location),
-            date_of_first_session: toISO8601(payload.date_of_first_session),
-            date_of_last_session: toISO8601(payload.date_of_last_session),
-            dob: toDateFormat(payload.dob, 'YYYY-MM-DD'),
-            email: payload.email,
-            email_subscribe: payload.email_subscribe,
-            email_open_tracking_disabled: payload.email_open_tracking_disabled,
-            email_click_tracking_disabled: payload.email_click_tracking_disabled,
-            facebook: payload.facebook,
-            first_name: payload.first_name,
-            gender: toBrazeGender(payload.gender),
-            home_city: payload.home_city,
-            image_url: payload.image_url,
-            // TODO format as ISO-639-1 standard ?
-            // https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
-            // https://www.braze.com/docs/user_guide/data_and_analytics/user_data_collection/language_codes/
-            language: payload.language,
-            last_name: payload.last_name,
-            marked_email_as_spam_at: toISO8601(payload.marked_email_as_spam_at),
-            phone: payload.phone,
-            push_subscribe: payload.push_subscribe,
-            push_tokens: payload.push_tokens,
-            time_zone: payload.time_zone,
-            twitter: payload.twitter,
-            _update_existing_only: payload._update_existing_only
-          }
-        ]
-      }
-    })
+    return updateUserProfile(request, settings, payload)
+  },
+  performBatch: (request, { settings, payload }) => {
+    return updateBatchedUserProfile(request, settings, payload)
   }
 }
 

@@ -4,7 +4,7 @@ import type { Settings } from './generated-types'
 import createWork from './createWork'
 
 import createRevUser from './createRevUser'
-import { devrevApiPaths, devrevApiRoot } from './utils'
+import { devrevApiPaths, getBaseUrl } from './utils'
 
 import streamEvent from './streamEvent'
 
@@ -36,11 +36,11 @@ const destination: DestinationDefinition<Settings> = {
         default: 'gmail.com,hotmail.com,outlook.com,yahoo.com,aol.com,icloud.com,me.com,msn.com'
       }
     },
-    testAuthentication: (request) => {
+    testAuthentication: (request, { settings }) => {
       // Return a request that tests/validates the user's credentials.
       // If you do not have a way to validate the authentication fields safely,
       // you can remove the `testAuthentication` function, though discouraged.
-      const url = `${devrevApiRoot}${devrevApiPaths.authTest}`
+      const url = `${getBaseUrl(settings)}${devrevApiPaths.authTest}`
       return request(url)
     }
   },
