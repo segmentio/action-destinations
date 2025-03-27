@@ -80,6 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const params = serializeParams({
       action: 'view',
       advertiser: settings.advertiser,
+      user_id: settings.userId,
       timestamp: payload.timestamp,
       device_id: payload.anonymousId,
       referrer: payload.referrer,
