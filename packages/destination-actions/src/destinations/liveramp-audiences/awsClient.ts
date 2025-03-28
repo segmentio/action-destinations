@@ -67,8 +67,8 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
     `${input.destinationInstanceID ?? ''}${input.subscriptionId ? '/' + input.subscriptionId : ''}${
       input.audienceComputeId ? '/' + input.audienceComputeId : ''
     }`.replace(/^\/+|\/+$/g, '') || ''
-  const userdataFilePath = `${ACTION_SLUG}/${aggreagtedFilePath}/${uuidValue}.csv`
-  const metadataFilePath = `${ACTION_SLUG}/${aggreagtedFilePath}/meta.json`
+  const userdataFilePath = `/${ACTION_SLUG}/${aggreagtedFilePath}/${uuidValue}.csv`
+  const metadataFilePath = `/${ACTION_SLUG}/${aggreagtedFilePath}/meta.json`
 
   // Create Metadata
   const metadata: LRMetaPayload = {
