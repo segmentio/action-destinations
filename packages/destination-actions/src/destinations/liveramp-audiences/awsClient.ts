@@ -63,8 +63,12 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
   // Compute file path and message dedupe id
   // Each advertiser and segment can eventually have multiple data drops, we use uuid create unique files
   const uuidValue = uuidv4()
-  const userdataFilePath = `/${ACTION_SLUG}/${input.destinationInstanceID}/${input.subscriptionId}/${input.audienceComputeId}/${uuidValue}.csv`
-  const metadataFilePath = `/${ACTION_SLUG}/${input.destinationInstanceID}/${input.subscriptionId}/${input.audienceComputeId}/meta.json`
+  const aggreagtedFilePath =
+    `${input.destinationInstanceID ?? ''}${input.subscriptionId ? '/' + input.subscriptionId : ''}${
+      input.audienceComputeId ? '/' + input.audienceComputeId : ''
+    }`.replace(/^\/+|\/+$/g, '') || ''
+  const userdataFilePath = `${ACTION_SLUG}/${aggreagtedFilePath}/${uuidValue}.csv`
+  const metadataFilePath = `${ACTION_SLUG}/${aggreagtedFilePath}/meta.json`
 
   // Create Metadata
   const metadata: LRMetaPayload = {
