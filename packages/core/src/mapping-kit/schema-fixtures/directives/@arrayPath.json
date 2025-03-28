@@ -1,0 +1,402 @@
+[
+  {
+    "scenario": "simple",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@arrayPath": ["$.products"]
+        }
+      },
+      "data": {
+        "products": [
+          {
+            "productId": "123",
+            "price": 0.5
+          },
+          {
+            "productId": "456",
+            "price": 0.99
+          }
+        ]
+      }
+    },
+    "output": {
+      "data": {
+        "neat": [
+          {
+            "productId": "123",
+            "price": 0.5
+          },
+          {
+            "productId": "456",
+            "price": 0.99
+          }
+        ]
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "relative object shape",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@arrayPath": [
+            "$.products",
+            {
+              "product_id": {
+                "@path": "$.productId"
+              },
+              "monies": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        }
+      },
+      "data": {
+        "products": [
+          {
+            "productId": "123",
+            "price": 0.5
+          },
+          {
+            "productId": "456",
+            "price": 0.99
+          }
+        ]
+      }
+    },
+    "output": {
+      "data": {
+        "neat": [
+          {
+            "product_id": "123",
+            "monies": 0.5
+          },
+          {
+            "product_id": "456",
+            "monies": 0.99
+          }
+        ]
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "relative object shape with directive",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@arrayPath": [
+            {
+              "@if": {
+                "exists": {
+                  "@path": "$.products"
+                },
+                "then": {
+                  "@path": "$.products"
+                },
+                "else": []
+              }
+            },
+            {
+              "product_id": {
+                "@path": "$.productId"
+              },
+              "monies": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        }
+      },
+      "data": {
+        "products": [
+          {
+            "productId": "123",
+            "price": 0.5
+          },
+          {
+            "productId": "456",
+            "price": 0.99
+          }
+        ]
+      }
+    },
+    "output": {
+      "data": {
+        "neat": [
+          {
+            "product_id": "123",
+            "monies": 0.5
+          },
+          {
+            "product_id": "456",
+            "monies": 0.99
+          }
+        ]
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "singular objects",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "product_id": {
+                "@path": "$.productId"
+              },
+              "monies": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        }
+      },
+      "data": {
+        "properties": {
+          "productId": "123",
+          "price": 0.5
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": [
+          {
+            "product_id": "123",
+            "monies": 0.5
+          }
+        ]
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "relative object shape is null",
+    "input": {
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            {
+              "@path": "$.properties.products"
+            },
+            null
+          ]
+        }
+      },
+      "data": {
+        "properties": {
+          "products": [
+            {
+              "productId": "123",
+              "price": 0.5
+            },
+            {
+              "productId": "456",
+              "price": 0.99
+            }
+          ]
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "products": [
+          {
+            "productId": "123",
+            "price": 0.5
+          },
+          {
+            "productId": "456",
+            "price": 0.99
+          }
+        ]
+      }
+    }
+  },
+  {
+    "scenario": "relative object shape is static",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "id": "static"
+            }
+          ]
+        }
+      },
+      "data": {
+        "properties": {
+          "productId": "123",
+          "price": 0.5
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": [
+          {
+            "id": "static"
+          }
+        ]
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "relative object shape is empty object",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@arrayPath": ["$.properties", {}]
+        }
+      },
+      "data": {
+        "properties": {
+          "productId": "123",
+          "price": 0.5
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "neat": {
+          "productId": "123",
+          "price": 0.5
+        }
+      }
+    }
+  },
+  {
+    "scenario": "invalid path",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@arrayPath": [true]
+        }
+      },
+      "data": {
+        "products": {
+          "productId": "123",
+          "price": 0.5
+        }
+      }
+    },
+    "output": {
+      "error": "@arrayPath should be a string or a mapping directive"
+    }
+  },
+  {
+    "scenario": "invalid array path syntax",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@arrayPath": "bad syntax"
+        }
+      },
+      "data": {
+        "products": [
+          {
+            "productId": "123",
+            "price": 0.5
+          }
+        ]
+      }
+    },
+    "output": {
+      "error": "@arrayPath should be an array"
+    }
+  },
+  {
+    "scenario": "path doesn't exist",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@arrayPath": [
+            "$.products_does_not_exist",
+            {
+              "product_id": {
+                "@path": "$.productId"
+              },
+              "monies": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        }
+      },
+      "data": {
+        "products": [
+          {
+            "productId": "123",
+            "price": 0.5
+          },
+          {
+            "productId": "456",
+            "price": 0.99
+          }
+        ]
+      }
+    },
+    "output": {
+      "data": {}
+    }
+  },
+  {
+    "scenario": "additional parameters to arrayPath are ignored",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@arrayPath": [
+            "$.products",
+            {
+              "product_id": {
+                "@path": "$.productId"
+              },
+              "monies": {
+                "@path": "$.price"
+              }
+            },
+            {
+              "foo": "bar"
+            }
+          ]
+        }
+      },
+      "data": {
+        "products": [
+          {
+            "productId": "123",
+            "price": 0.5
+          },
+          {
+            "productId": "456",
+            "price": 0.99
+          }
+        ]
+      }
+    },
+    "output": {
+      "data": {
+        "neat": [
+          {
+            "product_id": "123",
+            "monies": 0.5
+          },
+          {
+            "product_id": "456",
+            "monies": 0.99
+          }
+        ]
+      }
+    }
+  }
+]
