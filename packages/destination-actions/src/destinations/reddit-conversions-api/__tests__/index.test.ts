@@ -419,5 +419,80 @@ describe('Reddit Conversions Api', () => {
         test_mode: false
       })
     })
+
+    it('should not add empty string for non existing fields', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Lead Generated',
+        messageId: 'test-message-id-contact',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: {
+          click_id: 'click_id_1',
+          currency: 'USD',
+          total: 100,
+          uuid: 'uuid_1',
+          products: [
+            { product_id: 'product_id_1', category: 'category_1', name: 'name_1' },
+            { product_id: 'product_id_2', category: 'category_2', name: 'name_2' }
+          ],
+          email: 'f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a'
+        },
+        context: {
+          userAgent: 'test-user-agent',
+          device: {
+            advertisingId: 'advertising_id_1'
+          }
+        }
+      })
+
+      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      const responses = await testDestination.testAction('standardEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          tracking_type: 'Lead'
+        },
+        features: { 'smart-hashing': true }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        events: [
+          {
+            click_id: 'click_id_1',
+            event_at: '2024-01-08T13:52:50.212Z',
+            event_metadata: {
+              currency: 'USD',
+              products: [
+                {
+                  category: 'category_1',
+                  id: 'product_id_1',
+                  name: 'name_1'
+                },
+                {
+                  category: 'category_2',
+                  id: 'product_id_2',
+                  name: 'name_2'
+                }
+              ],
+              value_decimal: 100
+            },
+            event_type: {
+              tracking_type: 'Lead'
+            },
+            user: {
+              email: 'f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a',
+              user_agent: 'test-user-agent',
+              uuid: 'uuid_1'
+            }
+          }
+        ],
+        partner: 'SEGMENT',
+        test_mode: false
+      })
+    })
   })
 })
