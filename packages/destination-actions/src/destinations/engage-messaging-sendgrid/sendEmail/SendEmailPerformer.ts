@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ExtId, MessageSendPerformer, OperationContext, ResponseError, track, Profile } from '@segment/actions-shared'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
