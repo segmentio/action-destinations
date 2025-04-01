@@ -163,6 +163,7 @@ function setupNock() {
     .query({ phone_number__eq: DUMMY_PHONE.replace('+', '') })
     .reply(200, dummySubscriberGetResponse)
   nock(PS_BASE_URL).get('/api/v2/subscribers').query({ email__eq: DUMMY_EMAIL }).reply(200, dummySubscriberGetResponse)
+  nock(PS_BASE_URL).post('/api/v2/events').reply(200)
 }
 
 describe('Postscript.syncAudiences', () => {
