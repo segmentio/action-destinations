@@ -117,14 +117,7 @@ function getMetadata(
     item_count: cleanNum(metadata?.item_count),
     value_decimal: cleanNum(metadata?.value_decimal),
     products: getProducts(products),
-    conversion_id: processHashing(
-      conversion_id ?? '',
-      'sha256',
-      'hex',
-      features,
-      'actions-reddit-conversions-api',
-      (value) => value.trim()
-    )
+    conversion_id: smartHash(conversion_id, features, (value) => value.trim())
   }
 }
 
@@ -135,7 +128,7 @@ function getAdId(
 ): { [key: string]: string | undefined } | undefined {
   if (!device_type) return undefined
   if (!advertising_id) return undefined
-  const hashedAdId = processHashing(advertising_id, 'sha256', 'hex', features, 'actions-reddit-conversions-api')
+  const hashedAdId = smartHash(advertising_id, features)
   return device_type === 'ios' ? { idfa: hashedAdId } : { aaid: hashedAdId }
 }
 
@@ -168,30 +161,9 @@ function getUser(
 
   return {
     ...getAdId(user.device_type, user.advertising_id, features),
-    email: processHashing(
-      user.email ?? '',
-      'sha256',
-      'hex',
-      features,
-      'actions-reddit-conversions-api',
-      canonicalizeEmail
-    ),
-    external_id: processHashing(
-      user.external_id ?? '',
-      'sha256',
-      'hex',
-      features,
-      'actions-reddit-conversions-api',
-      (value) => value.trim()
-    ),
-    ip_address: processHashing(
-      user.ip_address ?? '',
-      'sha256',
-      'hex',
-      features,
-      'actions-reddit-conversions-api',
-      (value) => value.trim()
-    ),
+    email: smartHash(user.email, features, canonicalizeEmail),
+    external_id: smartHash(user.external_id, features, (value) => value.trim()),
+    ip_address: smartHash(user.ip_address, features, (value) => value.trim()),
     user_agent: clean(user.user_agent),
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
@@ -205,4 +177,13 @@ function canonicalizeEmail(value: string): string {
   const localPartAndDomain = value.split('@')
   const localPart = localPartAndDomain[0].replace(/\./g, '').split('+')[0]
   return `${localPart.toLowerCase()}@${localPartAndDomain[1].toLowerCase()}`
+}
+
+const smartHash = (
+  value: string | undefined,
+  features?: Features,
+  cleaningFunction?: (value: string) => string
+): string | undefined => {
+  if (value === undefined) return
+  return processHashing(value, 'sha256', 'hex', features, 'actions-reddit-conversions-api', cleaningFunction)
 }
