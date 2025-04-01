@@ -21,6 +21,14 @@ export interface Payload {
      * Optimizely VUID - user cookie generated created by Optimizely Javascript library
      */
     optimizely_vuid?: string
+    /**
+     * Feature Experimentation user ID
+     */
+    fs_user_id?: string
+    /**
+     * Web User ID
+     */
+    web_user_id?: string
   }
   /**
    * The Optimizely Event Type. Defaults to "custom" if not provided
