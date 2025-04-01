@@ -184,5 +184,9 @@ const smartHash = (
   cleaningFunction?: (value: string) => string
 ): string | undefined => {
   if (value === undefined) return
+  const sha256Regex = /^[a-f0-9]{64}$/i
+  if (sha256Regex.test(value)) {
+    return value
+  }
   return processHashing(value, 'sha256', 'hex', features, 'actions-reddit-conversions-api', cleaningFunction)
 }
