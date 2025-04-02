@@ -1,4 +1,4 @@
-import type { RequestClient } from '@segment/actions-core'
+import type { Features, RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload as StandardEvent } from './standardEvent/generated-types'
 import type { Payload as CustomEvent } from './customEvent/generated-types'
@@ -10,7 +10,7 @@ import {
   EventMetadata,
   DatapProcessingOptions
 } from './types'
-import { createHash } from 'crypto'
+import { processHashing } from '../../lib/hashing-utils'
 
 type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
 type ProductsType = StandardEvent['products'] | CustomEvent['products']
@@ -19,8 +19,13 @@ type DataProcessingOptionsType = StandardEvent['data_processing_options'] | Cust
 type UserType = StandardEvent['user'] | CustomEvent['user']
 type ScreenDimensionsType = StandardEvent['screen_dimensions'] | CustomEvent['screen_dimensions']
 
-export async function send(request: RequestClient, settings: Settings, payload: StandardEvent[] | CustomEvent[]) {
-  const data = createRedditPayload(payload, settings)
+export async function send(
+  request: RequestClient,
+  settings: Settings,
+  payload: StandardEvent[] | CustomEvent[],
+  features?: Features
+) {
+  const data = createRedditPayload(payload, settings, features)
   return request(`https://ads-api.reddit.com/api/v2.0/conversions/events/${settings.ad_account_id}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${settings.conversion_token}` },
@@ -28,7 +33,11 @@ export async function send(request: RequestClient, settings: Settings, payload: 
   })
 }
 
-function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings: Settings): StandardEventPayload {
+function createRedditPayload(
+  payloads: StandardEvent[] | CustomEvent[],
+  settings: Settings,
+  features?: Features
+): StandardEventPayload {
   const payloadItems: StandardEventPayloadItem[] = []
 
   payloads.forEach((payload) => {
@@ -55,8 +64,8 @@ function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings
         custom_event_name: clean(custom_event_name)
       },
       click_id: clean(click_id),
-      event_metadata: getMetadata(event_metadata, products, conversion_id),
-      user: getUser(user, data_processing_options, screen_dimensions)
+      event_metadata: getMetadata(event_metadata, products, conversion_id, features),
+      user: getUser(user, data_processing_options, screen_dimensions, features)
     }
 
     payloadItems.push(payloadItem)
@@ -96,7 +105,8 @@ function getProducts(products: ProductsType): Product[] | undefined {
 function getMetadata(
   metadata: EventMetadataType,
   products: ProductsType,
-  conversion_id: ConversionIdType
+  conversion_id: ConversionIdType,
+  features?: Features
 ): EventMetadata | undefined {
   if (!metadata && !products && !conversion_id) {
     return undefined
@@ -107,14 +117,19 @@ function getMetadata(
     item_count: cleanNum(metadata?.item_count),
     value_decimal: cleanNum(metadata?.value_decimal),
     products: getProducts(products),
-    conversion_id: hash(clean(conversion_id))
+    conversion_id: smartHash(conversion_id, features, (value) => value.trim())
   }
 }
 
-function getAdId(device_type?: string, advertising_id?: string): { [key: string]: string | undefined } | undefined {
+function getAdId(
+  device_type?: string,
+  advertising_id?: string,
+  features?: Features
+): { [key: string]: string | undefined } | undefined {
   if (!device_type) return undefined
   if (!advertising_id) return undefined
-  return device_type === 'ios' ? { idfa: hash(advertising_id) } : { aaid: hash(advertising_id) }
+  const hashedAdId = smartHash(advertising_id, features)
+  return device_type === 'ios' ? { idfa: hashedAdId } : { aaid: hashedAdId }
 }
 
 function getDataProcessingOptions(
@@ -139,15 +154,16 @@ function getScreen(height?: number, width?: number): { height: number; width: nu
 function getUser(
   user: UserType,
   dataProcessingOptions: DataProcessingOptionsType,
-  screenDimensions: ScreenDimensionsType
+  screenDimensions: ScreenDimensionsType,
+  features?: Features
 ): User | undefined {
   if (!user) return
 
   return {
-    ...getAdId(user.device_type, user.advertising_id),
-    email: hashEmail(clean(user.email)),
-    external_id: hash(clean(user.external_id)),
-    ip_address: hash(clean(user.ip_address)),
+    ...getAdId(user.device_type, user.advertising_id, features),
+    email: smartHash(user.email, features, canonicalizeEmail),
+    external_id: smartHash(user.external_id, features, (value) => value.trim()),
+    ip_address: smartHash(user.ip_address, features, (value) => value.trim()),
     user_agent: clean(user.user_agent),
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
@@ -156,21 +172,17 @@ function getUser(
 }
 
 function canonicalizeEmail(value: string): string {
+  value = value.trim()
   const localPartAndDomain = value.split('@')
   const localPart = localPartAndDomain[0].replace(/\./g, '').split('+')[0]
   return `${localPart.toLowerCase()}@${localPartAndDomain[1].toLowerCase()}`
 }
 
-function hashEmail(email: string | undefined): string | undefined {
-  if (email === undefined) return
-  const canonicalEmail = canonicalizeEmail(email)
-  return hash(canonicalEmail)
-}
-
-const hash = (value: string | undefined): string | undefined => {
+const smartHash = (
+  value: string | undefined,
+  features?: Features,
+  cleaningFunction?: (value: string) => string
+): string | undefined => {
   if (value === undefined) return
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
+  return processHashing(value, 'sha256', 'hex', features, 'actions-reddit-conversions-api', cleaningFunction)
 }
-

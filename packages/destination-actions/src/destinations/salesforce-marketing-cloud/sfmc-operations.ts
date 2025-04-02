@@ -12,7 +12,7 @@ import {
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
 import { ErrorResponse } from './types'
-import { OnMappingSaveInputs } from './dataExtension/generated-types'
+import { OnMappingSaveInputs } from './dataExtensionV2/generated-types'
 import { Settings } from './generated-types'
 import { xml2js } from 'xml-js'
 
@@ -30,11 +30,10 @@ function generateRows(payloads: payload_dataExtension[] | payload_contactDataExt
 export function upsertRows(
   request: RequestClient,
   subdomain: String,
-  payloads: payload_dataExtension[] | payload_contactDataExtension[],
-  dataExtensionId?: string,
-  dataExtensionKey?: string
+  payloads: payload_dataExtension[] | payload_contactDataExtension[]
 ) {
-  if (!dataExtensionKey && !dataExtensionId) {
+  const { key, id } = payloads[0]
+  if (!key && !id) {
     throw new IntegrationError(
       `In order to send an event to a data extension either Data Extension ID or Data Extension Key must be defined.`,
       'Misconfigured required field',
@@ -42,34 +41,56 @@ export function upsertRows(
     )
   }
   const rows = generateRows(payloads)
-  if (dataExtensionKey) {
-    return request(
-      `https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${dataExtensionKey}/rowset`,
-      {
-        method: 'POST',
-        json: rows
-      }
-    )
+  if (key) {
+    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/key:${key}/rowset`, {
+      method: 'POST',
+      json: rows
+    })
   } else {
-    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/${dataExtensionId}/rowset`, {
+    return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/${id}/rowset`, {
       method: 'POST',
       json: rows
     })
   }
 }
 
+export function upsertRowsV2(
+  request: RequestClient,
+  subdomain: String,
+  payloads: payload_dataExtension[] | payload_contactDataExtension[],
+  dataExtensionId: string
+) {
+  if (!dataExtensionId) {
+    throw new IntegrationError(
+      `In order to send an event to a data extension Data Extension ID must be defined.`,
+      'Misconfigured required field',
+      400
+    )
+  }
+
+  const rows = generateRows(payloads)
+  return request(`https://${subdomain}.rest.marketingcloudapis.com/hub/v1/dataevents/${dataExtensionId}/rowset`, {
+    method: 'POST',
+    json: rows
+  })
+}
+
 export async function executeUpsertWithMultiStatus(
   request: RequestClient,
   subdomain: String,
   payloads: payload_dataExtension[] | payload_contactDataExtension[],
-  dataExtensionId?: string,
-  dataExtensionKey?: string
+  dataExtensionId?: string
 ): Promise<MultiStatusResponse> {
   const multiStatusResponse = new MultiStatusResponse()
   let response: ModifiedResponse | undefined
   const rows = generateRows(payloads)
   try {
-    response = await upsertRows(request, subdomain, payloads, dataExtensionId, dataExtensionKey)
+    if (dataExtensionId) {
+      response = await upsertRowsV2(request, subdomain, payloads, dataExtensionId)
+    } else {
+      response = await upsertRows(request, subdomain, payloads)
+    }
+
     if (response) {
       const responseData = response.data as JSONLikeObject[]
       payloads.forEach((_, index) => {
@@ -329,6 +350,20 @@ const selectDataExtensionRequest = async (
       name: (response as DataExtensionSelectionResponse).data.name
     }
   } catch (err) {
+    const errorCode: string =
+      typeof err.response.data.errorcode === 'number'
+        ? err.response.data.errorcode.toString()
+        : err.response.data.errorcode
+    const errorMessage = err.response.data.message
+
+    if (errorCode === '20002') {
+      return {
+        id: hookInputs.dataExtensionId,
+        name: 'Unknown (Insufficient Authentication Error)',
+        error: `${errorMessage} To resolve this authentication issue refer to the required permissions under 'Getting Started' in the documentation at https://segment.com/docs/connections/destinations/catalog/actions-salesforce-marketing-cloud/`
+      }
+    }
+
     return { id: '', name: '', error: err.response.data.message }
   }
 }
@@ -348,6 +383,12 @@ async function selectDataExtension(
   const { accessToken } = await getAccessToken(request, settings)
 
   const { id, name, error } = await selectDataExtensionRequest(request, hookInputs, { subdomain, accessToken })
+  if (error && id) {
+    return {
+      error: { message: error, code: 'Authentication Error' },
+      savedData: { id, name: name! }
+    }
+  }
 
   if (error || !id) {
     return {
@@ -415,7 +456,22 @@ const getDataExtensionsRequest = async (
       })
     }
   } catch (err) {
-    return { error: { message: err.response.data.message, code: 'BAD_REQUEST' } }
+    const errorCode: string =
+      typeof err.response.data.errorcode === 'number'
+        ? err.response.data.errorcode.toString()
+        : err.response.data.errorcode
+    const errorMessage = err.response.data.message
+
+    if (errorCode === '20002') {
+      return {
+        error: {
+          message: `${errorMessage}. Please input a data extension ID manually to configure your mapping. To resolve this authentication issue refer to the required permissions under 'Getting Started' in the documentation at https://segment.com/docs/connections/destinations/catalog/actions-salesforce-marketing-cloud/`,
+          code: errorCode
+        }
+      }
+    }
+
+    return { error: { message: err.response.data.message, code: errorCode || 'BAD_REQUEST' } }
   }
 }
 

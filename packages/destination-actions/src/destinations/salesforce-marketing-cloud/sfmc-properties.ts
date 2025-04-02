@@ -19,19 +19,17 @@ export const contactKeyAPIEvent: InputField = {
 }
 
 export const key: InputField = {
-  label: 'DEPRECATED: Data Extension Key',
+  label: 'Data Extension Key',
   description:
-    'Note: This field should be considered deprecated in favor of the hook input field "Data Extension ID". For backwards compatibility the field will not be deleted, and is instead hidden. The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.',
-  type: 'string',
-  unsafe_hidden: true
+    'The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.',
+  type: 'string'
 }
 
 export const id: InputField = {
-  label: 'DEPRECATED: Data Extension ID',
+  label: 'Data Extension ID',
   description:
-    'Note: This field should be considered deprecated in favor of the hook input field "Data Extension ID". For backwards compatibility the field will not be deleted, and is instead hidden. The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.',
-  type: 'string',
-  unsafe_hidden: true
+    'The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.',
+  type: 'string'
 }
 
 export const keys: InputField = {
@@ -41,8 +39,7 @@ export const keys: InputField = {
   type: 'object',
   required: true,
   defaultObjectUI: 'keyvalue:only',
-  additionalProperties: true,
-  dynamic: true
+  additionalProperties: true
 }
 
 export const values_contactFields: InputField = {
@@ -51,8 +48,7 @@ export const values_contactFields: InputField = {
     'The fields in the data extension that contain data about a contact, such as Email, Last Name, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.',
   type: 'object',
   defaultObjectUI: 'keyvalue:only',
-  required: true,
-  dynamic: true
+  required: true
 }
 
 export const values_dataExtensionFields: InputField = {
@@ -61,8 +57,7 @@ export const values_dataExtensionFields: InputField = {
     'The fields in the data extension that contain data about an event, such as Product Name, Revenue, Event Time, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.',
   type: 'object',
   defaultObjectUI: 'keyvalue:only',
-  required: true,
-  dynamic: true
+  required: true
 }
 
 export const eventDefinitionKey: InputField = {

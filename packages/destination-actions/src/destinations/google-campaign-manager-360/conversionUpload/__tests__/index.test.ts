@@ -263,6 +263,108 @@ describe('Cm360.conversionUpload', () => {
         expect(responses.length).toBe(1)
         expect(responses[0].status).toBe(201)
       })
+
+      it('sends an event and handles hashing with partial data correctly', async () => {
+        const event = createTestEvent({
+          timestamp,
+          event: 'Test Event',
+          context: {
+            traits: {
+              email: 'daffy@warnerbros.com'
+            }
+          },
+          properties: {
+            ordinal: '1',
+            quantity: '1',
+            value: '123',
+            gclid: '54321',
+            limitAdTracking: true,
+            childDirectedTreatment: true,
+            nonPersonalizedAd: true,
+            treatmentForUnderage: true
+          }
+        })
+
+        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+          .post('')
+          .reply(201, { results: [{}] })
+
+        const responses = await testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
+            },
+            limitAdTracking: {
+              '@path': '$.properties.limitAdTracking'
+            },
+            childDirectedTreatment: {
+              '@path': '$.properties.childDirectedTreatment'
+            },
+            nonPersonalizedAd: {
+              '@path': '$.properties.nonPersonalizedAd'
+            },
+            treatmentForUnderage: {
+              '@path': '$.properties.treatmentForUnderage'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+
+        expect(responses[0].options.body).toBe(
+          `{"conversions":[{"childDirectedTreatment":true,"floodlightActivityId":"23456","floodlightConfigurationId":"34567","gclid":"54321","kind":"dfareporting#conversion","limitAdTracking":true,"nonPersonalizedAd":true,"ordinal":"1","quantity":"1","timestampMicros":"1718042884000","treatmentForUnderage":true,"userIdentifiers":[{"hashedEmail":"8e46bd4eaabb5d6324e327751b599f190dbaacd90066e66c94a046640bed60d0"}],"value":123,"customVariables":[],"encryptedUserIdCandidates":[]}],"kind":"dfareporting#conversionsBatchInsertRequest"}`
+        )
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(201)
+      })
     })
 
     describe('Batch', () => {
