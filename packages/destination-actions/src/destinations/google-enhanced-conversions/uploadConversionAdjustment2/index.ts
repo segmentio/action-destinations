@@ -116,8 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email_address: {
       label: 'Email Address',
-      description:
-        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
+      description: 'Email address of the individual who triggered the conversion event.',
       type: 'string',
       default: {
         '@if': {
@@ -131,7 +130,7 @@ const action: ActionDefinition<Settings, Payload> = {
     phone_number: {
       label: 'Phone Number',
       description:
-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.',
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.',
       type: 'string',
       default: {
         '@if': {
@@ -144,8 +143,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     first_name: {
       label: 'First Name',
-      description:
-        'First name of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      description: 'First name of the user who performed the conversion.',
       type: 'string',
       default: {
         '@if': {
@@ -157,8 +155,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     last_name: {
       label: 'Last Name',
-      description:
-        'Last name of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      description: 'Last name of the user who performed the conversion.',
       type: 'string',
       default: {
         '@if': {
@@ -166,7 +163,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.lastName' },
           else: { '@path': '$.context.traits.lastName' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     city: {
       label: 'City',
@@ -218,8 +216,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     street_address: {
       label: 'Street Address',
-      description:
-        'Street address of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      description: 'Street address of the user who performed the conversion.',
       type: 'string',
       default: {
         '@if': {
@@ -227,7 +224,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.address.street,' },
           else: { '@path': '$.context.traits.address.street' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     user_agent: {
       label: 'User Agent',
