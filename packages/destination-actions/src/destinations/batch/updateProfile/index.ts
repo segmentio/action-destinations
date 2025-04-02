@@ -195,8 +195,3 @@ function isValidUrl(value: string): boolean {
 }
 
 export default action
-
-/*function functionToGetPayloadToBatchAPISpec(payloadParsedByMappings: Payload): Payload[] {
-  // Return the payload formatted as an array for Batch API
-  return [payloadParsedByMappings];
-}*/
