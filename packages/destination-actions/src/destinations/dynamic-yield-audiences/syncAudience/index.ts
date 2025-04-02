@@ -72,7 +72,10 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       default: {
         '@path': '$.context.personas.computation_class'
       },
-      choices: [{ label: 'audience', value: 'audience' },{ label: 'journey_step', value: 'journey_step' }]
+      choices: [
+        { label: 'audience', value: 'audience' },
+        { label: 'journey_step', value: 'journey_step' }
+      ]
     },
     email: {
       label: 'Email',
@@ -87,7 +90,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.context.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     anonymousId: {
       label: 'Segment Anonymous Id',
