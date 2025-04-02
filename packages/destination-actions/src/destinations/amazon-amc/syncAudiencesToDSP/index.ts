@@ -64,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     postal: {
       label: 'Postal',
-      description: 'POstal Code.',
+      description: 'Postal Code.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.postal' },
