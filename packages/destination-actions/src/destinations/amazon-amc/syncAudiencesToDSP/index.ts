@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: 'User email address. Vaule will be hashed before sending to Amazon.',
+      description: 'User email address.',
       type: 'string',
       required: false,
       default: {
@@ -40,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     firstName: {
       label: 'First name',
-      description: 'User first name. Value will be hashed before sending to Amazon.',
+      description: 'User first name.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.first_name' },
@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     lastName: {
       label: 'Last name',
-      description: 'User Last name. Value will be hashed before sending to Amazon.',
+      description: 'User Last name.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.last_name' },
@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone: {
       label: 'Phone',
-      description: 'Phone Number. Value will be hashed before sending to Amazon.',
+      description: 'Phone Number.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.phone' },
@@ -64,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     postal: {
       label: 'Postal',
-      description: 'POstal Code. Value will be hashed before sending to Amazon.',
+      description: 'POstal Code.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.postal' },
@@ -72,7 +72,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     state: {
       label: 'State',
-      description: 'State Code. Value will be hashed before sending to Amazon.',
+      description: 'State Code.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.state' },
@@ -80,7 +80,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     city: {
       label: 'City',
-      description: 'City name. Value will be hashed before sending to Amazon.',
+      description: 'City name.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.city' },
@@ -88,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     address: {
       label: 'Address',
-      description: 'Address Code. Value will be hashed before sending to Amazon.',
+      description: 'Address Code.',
       type: 'string',
       required: false,
       default: { '@path': '$.properties.address' },
