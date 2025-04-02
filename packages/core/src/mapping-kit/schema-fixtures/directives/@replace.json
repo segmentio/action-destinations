@@ -1,0 +1,595 @@
+[
+  {
+    "scenario": "replace on empty string",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "_",
+          "replacement": "rrrrr",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": ""
+      }
+    },
+    "output": {
+      "data": "",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace on null string",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "_",
+          "replacement": "rrrrr",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": null
+      }
+    },
+    "output": {
+      "data": "",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace on case sensitive string",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "WW",
+          "replacement": "oo",
+          "value": {
+            "@path": "$.a"
+          },
+          "ignorecase": false
+        }
+      },
+      "data": {
+        "a": "cWWl-story-ww"
+      }
+    },
+    "output": {
+      "data": "cool-story-ww",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace on case insensitive string",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "AaB",
+          "replacement": "nice",
+          "value": {
+            "@path": "$.a"
+          },
+          "ignorecase": true
+        }
+      },
+      "data": {
+        "a": "aab-----AaB---aab"
+      }
+    },
+    "output": {
+      "data": "nice-----nice---nice",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace with empty string",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "_",
+          "replacement": "",
+          "value": {
+            "@path": "$.a"
+          },
+          "ignorecase": false
+        }
+      },
+      "data": {
+        "a": "nomore_underscore"
+      }
+    },
+    "output": {
+      "data": "nomoreunderscore",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace with non-empty string",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "_",
+          "replacement": "weird",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "nomore_underscore"
+      }
+    },
+    "output": {
+      "data": "nomoreweirdunderscore",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace multi-char pattern with non-empty string",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "LOL",
+          "replacement": "YAY",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "Well Hello there LOL"
+      }
+    },
+    "output": {
+      "data": "Well Hello there YAY",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace multiple occurrences",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "+",
+          "replacement": "_",
+          "value": {
+            "@path": "$.a"
+          },
+          "global": true
+        }
+      },
+      "data": {
+        "a": "many+different+things"
+      }
+    },
+    "output": {
+      "data": "many_different_things",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace first occurrence",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "+",
+          "replacement": "_",
+          "value": {
+            "@path": "$.a"
+          },
+          "global": false
+        }
+      },
+      "data": {
+        "a": "many+different+things"
+      }
+    },
+    "output": {
+      "data": "many_different+things",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace entire value",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "aaabbbcccd",
+          "replacement": "",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "aaabbbcccd"
+      }
+    },
+    "output": {
+      "data": "",
+      "error": null
+    }
+  },
+  {
+    "scenario": "should still work without replacement key",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "many+",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "many+different+things"
+      }
+    },
+    "output": {
+      "data": "different+things",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace boolean",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "true",
+          "replacement": "granted",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": true
+      }
+    },
+    "output": {
+      "data": "granted",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace number",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "1",
+          "replacement": "granted",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": 1
+      }
+    },
+    "output": {
+      "data": "granted",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace 2 values",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "-",
+          "replacement": " ",
+          "pattern2": "great",
+          "replacement2": "awesome",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "something-great!"
+      }
+    },
+    "output": {
+      "data": "something awesome!",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace with 2 values but only second one exists",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "true",
+          "replacement": "granted",
+          "pattern2": "false",
+          "replacement2": "denied",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": false
+      }
+    },
+    "output": {
+      "data": "denied",
+      "error": null
+    }
+  },
+  {
+    "scenario": "pattern too long returns error",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "waaaaayyytoooooloooong",
+          "replacement": "granted",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "abcdefghijk"
+      }
+    },
+    "output": {
+      "error": "should be a string of length 10 or less"
+    }
+  },
+  {
+    "scenario": "no pattern returns error",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "replacement": "granted",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "abcdefghijk"
+      }
+    },
+    "output": {
+      "error": "should have field \"pattern\" but it doesn't"
+    }
+  },
+  {
+    "scenario": "no value returns error",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "waaayyy",
+          "replacement": "granted"
+        }
+      },
+      "data": {
+        "a": "abcdefghijk"
+      }
+    },
+    "output": {
+      "error": "should have field \"value\" but it doesn't"
+    }
+  },
+  {
+    "scenario": "replacement string is too long",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "w",
+          "replacement": "waaaayyyytooolong",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "abcdefghijk"
+      }
+    },
+    "output": {
+      "error": "replacement should be a string of length 10 or less"
+    }
+  },
+  {
+    "scenario": "non-boolean global value returns error",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "+",
+          "replacement": "_",
+          "value": {
+            "@path": "$.a"
+          },
+          "global": "abc"
+        }
+      },
+      "data": {
+        "a": "many+different+things"
+      }
+    },
+    "output": {
+      "error": "global should be a boolean but it is a string"
+    }
+  },
+  {
+    "scenario": "non-boolean ignorecase value returns error",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "+",
+          "replacement": "_",
+          "value": {
+            "@path": "$.a"
+          },
+          "global": true,
+          "ignorecase": "abc"
+        }
+      },
+      "data": {
+        "a": "many+different+things"
+      }
+    },
+    "output": {
+      "error": "ignorecase should be a boolean but it is a string"
+    }
+  },
+  {
+    "scenario": "replace is not an object",
+    "input": {
+      "mapping": {
+        "@replace": "abc"
+      },
+      "data": {
+        "a": "many+different+things"
+      }
+    },
+    "output": {
+      "error": "@replace should be an object"
+    }
+  },
+  {
+    "scenario": "replace returns string as is when pattern is not found in string",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "_",
+          "replacement": "rrrrr",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "abcdefgh"
+      }
+    },
+    "output": {
+      "data": "abcdefgh",
+      "error": null
+    }
+  },
+  {
+    "scenario": "replace ignores empty pattern2",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "_",
+          "replacement": "+",
+          "pattern2": "",
+          "replacement2": "",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "abc_defgh"
+      }
+    },
+    "output": {
+      "data": "abc+defgh"
+    }
+  },
+  {
+    "scenario": "pattern2 exceeds max length",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "_",
+          "replacement": "+",
+          "pattern2": "rrrrrrrrrrrrrrrrrrrr",
+          "replacement2": "",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "abc_defgh"
+      }
+    },
+    "output": {
+      "error": "[pattern2 should be a string of length 10 or less]|[@replace requires a \"pattern\" less than 10 characters long]"
+    }
+  },
+  {
+    "scenario": "replacement2 exceeds max length",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "pattern": "_",
+          "replacement": "+",
+          "pattern2": "+",
+          "replacement2": "rrrrrrrrrrrrrrrrrrrr",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "abc_defgh"
+      }
+    },
+    "output": {
+      "error": "[replacement2 should be a string of length 10 or less]|[@replace requires a \"replacement\" less than 10 characters long]"
+    }
+  },
+  {
+    "scenario": "value is missing",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@replace": {
+            "pattern": "_",
+            "replacement": "+",
+            "pattern2": "+",
+            "replacement2": "r",
+            "value": {
+              "@path": "$.a"
+            }
+          }
+        }
+      },
+      "data": {
+        "b": "abc_defgh"
+      }
+    },
+    "output": {
+      "data": {
+        "neat": ""
+      }
+    }
+  },
+  {
+    "scenario": "regex patterns are ignored",
+    "input": {
+      "mapping": {
+        "@replace": {
+          "global": true,
+          "ignorecase": false,
+          "pattern": "\"",
+          "pattern2": "\\",
+          "replacement": "",
+          "replacement2": "",
+          "value": {
+            "@path": "$.a"
+          }
+        }
+      },
+      "data": {
+        "a": "abc\"def\\gh"
+      }
+    },
+    "output": {
+      "data": "abcdefgh"
+    }
+  }
+]

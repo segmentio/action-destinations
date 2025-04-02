@@ -1,0 +1,314 @@
+[
+  {
+    "scenario": "basic",
+    "input": {
+      "mapping": {
+        "neat": {
+          "@template": "Hello, {{name}}!"
+        }
+      },
+      "data": {
+        "name": "World"
+      }
+    },
+    "output": {
+      "data": {
+        "neat": "Hello, World!"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "nested fields",
+    "input": {
+      "mapping": {
+        "greeting": {
+          "@template": "Hello, {{user.name}}!"
+        }
+      },
+      "data": {
+        "user": {
+          "name": "Alice"
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "greeting": "Hello, Alice!"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "no escaping",
+    "input": {
+      "mapping": {
+        "message": {
+          "@template": "<blink>{{a}} {{{a}}}</blink>"
+        }
+      },
+      "data": {
+        "a": "<b>Hi</b>"
+      }
+    },
+    "output": {
+      "data": {
+        "message": "<blink><b>Hi</b> <b>Hi</b></blink>"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "missing fields",
+    "input": {
+      "mapping": {
+        "greeting": {
+          "@template": "Hello, {{name}}!"
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": {
+        "greeting": "Hello, !"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "boolean value",
+    "input": {
+      "mapping": {
+        "foo": {
+          "@template": "{{foo}}"
+        }
+      },
+      "data": {
+        "foo": true
+      }
+    },
+    "output": {
+      "data": {
+        "foo": "true"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "number value",
+    "input": {
+      "mapping": {
+        "foo": {
+          "@template": "{{foo}}"
+        }
+      },
+      "data": {
+        "foo": 1
+      }
+    },
+    "output": {
+      "data": {
+        "foo": "1"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "object value",
+    "input": {
+      "mapping": {
+        "foo": {
+          "@template": "{{foo}}"
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz"
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "foo": "[object Object]"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "null value",
+    "input": {
+      "mapping": {
+        "foo": {
+          "@template": "{{foo}}"
+        }
+      },
+      "data": {
+        "foo": null
+      }
+    },
+    "output": {
+      "data": {
+        "foo": ""
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "trailing curly brace",
+    "input": {
+      "mapping": {
+        "value": {
+          "@template": "{{foo}}}"
+        }
+      },
+      "data": {
+        "foo": "hello"
+      }
+    },
+    "output": {
+      "data": {
+        "value": "hello}"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "no placeholders",
+    "input": {
+      "mapping": {
+        "greeting": {
+          "@template": "Hello world"
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": {
+        "greeting": "Hello world"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "non-existent data",
+    "input": {
+      "mapping": {
+        "greeting": {
+          "@template": "Hello, {{foo}}!"
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": {
+        "greeting": "Hello, !"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "existing data",
+    "input": {
+      "mapping": {
+        "greeting": {
+          "@template": "Hello, {{foo}} {{bar}}!"
+        }
+      },
+      "data": {
+        "foo": "Mr.",
+        "bar": "Bean"
+      }
+    },
+    "output": {
+      "data": {
+        "greeting": "Hello, Mr. Bean!"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "nested data",
+    "input": {
+      "mapping": {
+        "greeting": {
+          "@template": "Hello, {{foo.bar}}!"
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "World"
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "greeting": "Hello, World!"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "invalid template",
+    "input": {
+      "mapping": {
+        "greeting": {
+          "@template": {
+            "foo": "bar"
+          }
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": null,
+      "error": "@template: expected string, found '{'| should be a string or a mapping directive but it is an object"
+    }
+  },
+  {
+    "scenario": "escapes quotes correctly",
+    "input": {
+      "mapping": {
+        "greeting": {
+          "@template": "Hello, \"{{name}}\"!"
+        }
+      },
+      "data": {
+        "name": "World"
+      }
+    },
+    "output": {
+      "data": {
+        "greeting": "Hello, \"World\"!"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "ignores square brackets",
+    "input": {
+      "mapping": {
+        "first_name": {
+          "@template": "{{[unknown]}}"
+        }
+      },
+      "data": {
+        "messageId": "segment-test-message-b51npr",
+        "timestamp": "2025-03-05T15:04:17.591Z",
+        "type": "identify",
+        "email": "test@example.org",
+        "projectId": "hgJJD1hZCysAzhDdzfGuCL",
+        "traits": {
+          "trait1": 1,
+          "trait2": "test",
+          "trait3": true
+        },
+        "userId": "test-user-0yn6wl"
+      }
+    },
+    "output": {
+      "data": {
+        "first_name": ""
+      }
+    }
+  }
+]

@@ -1,0 +1,318 @@
+[
+  {
+    "scenario": "empty",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "left",
+          "objects": []
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": {},
+      "error": null
+    }
+  },
+  {
+    "scenario": "one object",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "left",
+          "objects": [
+            {
+              "cool": true
+            }
+          ]
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": {
+        "cool": true
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "invalid type",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "left",
+          "objects": {
+            "oops": true
+          }
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": null,
+      "error": "@merge/objects should be an array but it is [an object|'{']"
+    }
+  },
+  {
+    "scenario": "invalid nested type",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "left",
+          "objects": [{}, 1]
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": null,
+      "error": "should be (a|an) object"
+    }
+  },
+  {
+    "scenario": "invalid direction specified",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "up",
+          "objects": [
+            {
+              "oh": "yeah"
+            },
+            {}
+          ]
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": null,
+      "error": "@merge/direction should be one of left, right but it is \"up\""
+    }
+  },
+  {
+    "scenario": "simple overwrite default direction",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "right",
+          "objects": [
+            {
+              "cool": true
+            },
+            {
+              "cool": "you bet"
+            }
+          ]
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": {
+        "cool": "you bet"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "nested directive default direction",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "right",
+          "objects": [
+            {
+              "cool": true
+            },
+            {
+              "@path": "foo"
+            }
+          ]
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz"
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "cool": true,
+        "bar": "baz"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "nested directive with overwrite default direction",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "right",
+          "objects": [
+            {
+              "cool": true,
+              "hey": "there"
+            },
+            {
+              "@path": "foo"
+            }
+          ]
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz",
+          "hey": "you"
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "cool": true,
+        "bar": "baz",
+        "hey": "you"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "simple overwrite left direction",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "left",
+          "objects": [
+            {
+              "cool": true
+            },
+            {
+              "cool": "you bet"
+            }
+          ]
+        }
+      },
+      "data": {}
+    },
+    "output": {
+      "data": {
+        "cool": true
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "nested directive left direction",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "left",
+          "objects": [
+            {
+              "cool": true
+            },
+            {
+              "@path": "foo"
+            }
+          ]
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz"
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "cool": true,
+        "bar": "baz"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "nested directive with overwrite left direction",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "left",
+          "objects": [
+            {
+              "cool": true,
+              "hey": "there"
+            },
+            {
+              "@path": "foo"
+            }
+          ]
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz",
+          "hey": "you"
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "cool": true,
+        "bar": "baz",
+        "hey": "there"
+      },
+      "error": null
+    }
+  },
+  {
+    "scenario": "missing objects key",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "left"
+        }
+      },
+      "data": {
+        "values": "abcd"
+      }
+    },
+    "output": {
+      "data": null,
+      "error": "@merge should have field \"objects\" but it doesn't"
+    }
+  },
+  {
+    "scenario": "objects with unresolved value",
+    "input": {
+      "mapping": {
+        "@merge": {
+          "direction": "right",
+          "objects": [
+            {
+              "@path": "$.hello"
+            },
+            {
+              "@path": "foo"
+            }
+          ]
+        }
+      },
+      "data": {
+        "foo": {
+          "bar": "baz",
+          "hey": "you"
+        }
+      }
+    },
+    "output": {
+      "data": {
+        "bar": "baz",
+        "hey": "you"
+      }
+    }
+  }
+]
