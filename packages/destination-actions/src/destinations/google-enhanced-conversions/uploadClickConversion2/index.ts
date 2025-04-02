@@ -82,7 +82,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.email' },
           else: { '@path': '$.context.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     phone_number: {
       label: 'Phone Number',
@@ -95,7 +96,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.phone' },
           else: { '@path': '$.context.traits.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     order_id: {
       label: 'Order ID',

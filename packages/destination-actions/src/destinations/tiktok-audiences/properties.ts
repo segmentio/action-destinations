@@ -35,7 +35,8 @@ export const email: InputField = {
       then: { '@path': '$.context.traits.email' },
       else: { '@path': '$.properties.email' }
     }
-  }
+  },
+  category: 'hashedPII'
 }
 
 export const send_email: InputField = {
@@ -55,7 +56,8 @@ export const phone: InputField = {
       then: { '@path': '$.context.traits.phone' },
       else: { '@path': '$.properties.phone' }
     }
-  }
+  },
+  category: 'hashedPII'
 }
 
 export const send_phone: InputField = {
@@ -71,7 +73,8 @@ export const advertising_id: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.device.advertisingId'
-  }
+  },
+  category: 'hashedPII'
 }
 
 export const send_advertising_id: InputField = {

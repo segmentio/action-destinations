@@ -30,7 +30,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.firstName' },
           else: { '@path': '$.properties.firstName' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     last_name: {
       label: 'Last Name',
@@ -42,7 +43,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.lastName' },
           else: { '@path': '$.properties.lastName' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     email: {
       label: 'Email',
@@ -54,7 +56,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.email' },
           else: { '@path': '$.properties.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     phone: {
       label: 'Phone',
@@ -67,7 +70,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.phone' },
           else: { '@path': '$.properties.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     phone_country_code: {
       label: 'Phone Number Country Code',

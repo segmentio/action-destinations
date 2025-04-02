@@ -17,13 +17,15 @@ export const user_data_field: InputField = {
       label: 'Email',
       description: 'An email address in lowercase.',
       type: 'string',
-      multiple: true
+      multiple: true,
+      category: 'hashedPII'
     },
     hashed_maids: {
       label: 'Mobile Ad Identifier',
       description: 'User’s Google advertising ID (GAIDs) or Apple’s identifier for advertisers (IDFAs).',
       type: 'string',
-      multiple: true
+      multiple: true,
+      category: 'hashedPII'
     },
     client_ip_address: {
       label: 'Client IP Address',
@@ -40,62 +42,72 @@ export const user_data_field: InputField = {
       description:
         'A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code, even if all of the data is from the same country, as the country code is used for matching.',
       type: 'string',
-      multiple: true
+      multiple: true,
+      category: 'hashedPII'
     },
     first_name: {
       label: 'First Name',
       description: 'A first name in lowercase.',
       type: 'string',
-      multiple: true
+      multiple: true,
+      category: 'hashedPII'
     },
     last_name: {
       label: 'Last Name',
       description: 'A last name in lowercase.',
       type: 'string',
-      multiple: true
+      multiple: true,
+      category: 'hashedPII'
     },
     external_id: {
       label: 'External ID',
       description:
         'Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.',
       type: 'string',
-      multiple: true
+      multiple: true,
+      category: 'hashedPII'
     },
     gender: {
       label: 'Gender',
       description: 'Gender in lowercase. Either f or m.',
       type: 'string',
-      multiple: true
+      multiple: true,
+      category: 'hashedPII'
     },
     date_of_birth: {
       label: 'Date of Birth',
       description: 'A date of birth given as year, month, and day. Example: 19971226 for December 26, 1997.',
       type: 'string',
-      multiple: true
+      multiple: true,
+      category: 'hashedPII'
     },
     city: {
       label: 'City',
       description: 'A city in lowercase without spaces or punctuation. Example: menlopark.',
       type: 'string',
-      multiple: true
+      multiple: true,
+      category: 'hashedPII'
     },
     state: {
       label: 'State',
       description: 'A two-letter state code in lowercase. Example: ca.',
       type: 'string',
-      multiple: true
+      multiple: true,
+      category: 'hashedPII'
     },
     zip: {
       label: 'Zip Code',
       description: 'A five-digit zip code for United States. For other locations, follow each country`s standards.',
       type: 'string',
-      multiple: true
+      multiple: true,
+      category: 'hashedPII'
     },
     country: {
       label: 'Country',
       description: 'A two-letter country code in lowercase.',
       type: 'string',
-      multiple: true
+      multiple: true,
+      category: 'hashedPII'
     },
     click_id: {
       label: 'Click ID',

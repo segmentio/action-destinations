@@ -35,56 +35,64 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.email' },
           else: { '@path': '$.properties.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     firstName: {
       label: 'First name',
       description: 'User first name. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.first_name' }
+      default: { '@path': '$.properties.first_name' },
+      category: 'hashedPII'
     },
     lastName: {
       label: 'Last name',
       description: 'User Last name. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.last_name' }
+      default: { '@path': '$.properties.last_name' },
+      category: 'hashedPII'
     },
     phone: {
       label: 'Phone',
       description: 'Phone Number. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.phone' }
+      default: { '@path': '$.properties.phone' },
+      category: 'hashedPII'
     },
     postal: {
       label: 'Postal',
       description: 'POstal Code. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.postal' }
+      default: { '@path': '$.properties.postal' },
+      category: 'hashedPII'
     },
     state: {
       label: 'State',
       description: 'State Code. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.state' }
+      default: { '@path': '$.properties.state' },
+      category: 'hashedPII'
     },
     city: {
       label: 'City',
       description: 'City name. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.city' }
+      default: { '@path': '$.properties.city' },
+      category: 'hashedPII'
     },
     address: {
       label: 'Address',
       description: 'Address Code. Value will be hashed before sending to Amazon.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.address' }
+      default: { '@path': '$.properties.address' },
+      category: 'hashedPII'
     },
     audienceId: {
       label: 'Audience ID',

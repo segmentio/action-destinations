@@ -89,7 +89,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.context.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     anonymousId: {
       label: 'Segment Anonymous Id',
