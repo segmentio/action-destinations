@@ -19,6 +19,10 @@ export interface Payload {
      */
     name: string
     /**
+     * The time an event occurred. It has to respect the RFC 3339 format.
+     */
+    time?: string | number | null
+    /**
      * An object containing all event's attributes
      */
     attributes?: {
