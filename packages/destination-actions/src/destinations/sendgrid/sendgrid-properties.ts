@@ -30,7 +30,7 @@ export const GLOBAL_ENDPOINT = 'https://api.sendgrid.com'
 export const EU_ENDPOINT = 'https://api.eu.sendgrid.com'
 
 export function getRegionalEndpoint(settings: Settings) {
-  return settings?.endpoint || GLOBAL_ENDPOINT
+  return settings?.endpoint ?? GLOBAL_ENDPOINT
 }
 
 // Fetch all custom field definitions for the account using the Sendgrid API
