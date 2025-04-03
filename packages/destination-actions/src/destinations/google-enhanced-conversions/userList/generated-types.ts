@@ -2,19 +2,19 @@
 
 export interface Payload {
   /**
-   * The user's first name. If not hashed, Segment will normalize and hash this value.
+   * The user's first name.
    */
   first_name?: string
   /**
-   * The user's last name. If not hashed, Segment will normalize and hash this value.
+   * The user's last name.
    */
   last_name?: string
   /**
-   * The user's email address. If not hashed, Segment will normalize and hash this value.
+   * The user's email address.
    */
   email?: string
   /**
-   * The user's phone number. If not hashed, Segment will convert the phone number to the E.164 format and hash this value.
+   * The user's phone number.
    */
   phone?: string
   /**
