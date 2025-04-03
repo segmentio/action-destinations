@@ -26,7 +26,7 @@ export interface Payload {
    */
   phone?: string
   /**
-   * POstal Code.
+   * Postal Code.
    */
   postal?: string
   /**
