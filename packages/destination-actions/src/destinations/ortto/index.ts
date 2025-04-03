@@ -6,6 +6,8 @@ import OrttoClient from './ortto-client'
 
 import trackActivity from './trackActivity'
 
+import addContactsToAudience from './addContactsToAudience'
+
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Ortto (Actions)',
   slug: 'actions-ortto',
@@ -38,7 +40,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   audienceFields: {
-    audienceId: {
+    audience_id: {
       label: 'Audience Id',
       description: `The default Audience ID to which contacts will be added. This audience takes precedence over the newly created list segment that is automatically generated when attaching this destination to an audience.`,
       type: 'string'
@@ -60,7 +62,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     upsertContactProfile,
-    trackActivity
+    trackActivity,
+    addContactsToAudience
   }
 }
 

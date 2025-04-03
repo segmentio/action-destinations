@@ -22,25 +22,11 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
-   * Event namespace
-   */
-  namespace?: string
-  /**
-   * Event name
-   */
-  event: string
-  /**
-   * An object containing key-value pairs representing activity attributes
-   */
-  properties?: {
-    [k: string]: unknown
-  }
-  /**
-   * The IP address of the location where the activity occurred.
+   * The contact's IP address
    */
   ip?: string | null
   /**
-   * The location where the activity occurred. Will take priority over the IP address.
+   * The contact's location. Will take priority over the IP address.
    */
   location?: {
     country?: string | null
@@ -49,7 +35,7 @@ export interface Payload {
     post_code?: string | null
   }
   /**
-   * When provided, it contains key-value pairs representing custom properties assigned to the associated contact profile
+   * An object containing key-value pairs representing custom properties assigned to contact profile
    */
   traits?: {
     /**
@@ -70,7 +56,7 @@ export interface Payload {
     last_name?: string
   }
   /**
-   * The Audience to add the associated contact profile to.
+   * Ortto audience ID
    */
-  audience_id?: string
+  audience_id: string
 }

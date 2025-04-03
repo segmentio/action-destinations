@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, DynamicFieldResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import OrttoClient from '../ortto-client'
@@ -121,6 +121,18 @@ const action: ActionDefinition<Settings, Payload> = {
         first_name: { '@path': '$.context.traits.first_name' },
         last_name: { '@path': '$.context.traits.last_name' }
       }
+    },
+    audience_id: {
+      label: 'Audience',
+      description: `The Audience to add the associated contact profile to.`,
+      type: 'string',
+      dynamic: true
+    }
+  },
+  dynamicFields: {
+    audience_id: async (request, { settings }): Promise<DynamicFieldResponse> => {
+      const client: OrttoClient = new OrttoClient(request)
+      return await client.listAudiences(settings)
     }
   },
   perform: async (request, { settings, payload }) => {

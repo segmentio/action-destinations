@@ -7,9 +7,10 @@ import {
 } from '@segment/actions-core'
 import { Settings, AudienceSettings } from './generated-types'
 import { Payload as UpsertContactPayload } from './upsertContactProfile/generated-types'
+import { Payload as AddContactsToAudiencePayload } from './addContactsToAudience/generated-types'
 import { Payload as EventPayload } from './trackActivity/generated-types'
 import { cleanObject } from './utils'
-import { AudienceList, UpdateAudienceRequest } from './types'
+import { AudienceList } from './types'
 
 export const API_VERSION = 'v1'
 
@@ -81,7 +82,7 @@ export default class OrttoClient {
   // Audiences
 
   createAudience = async (settings: Settings, audienceSettings: AudienceSettings | undefined, audienceName: string) => {
-    const defaultAudienceId = audienceSettings?.audienceId
+    const defaultAudienceId = audienceSettings?.audience_id
     if (defaultAudienceId) {
       return { externalId: defaultAudienceId }
     }
@@ -102,7 +103,7 @@ export default class OrttoClient {
 
   getAudience = async (settings: Settings, audienceSettings: AudienceSettings | undefined, externalId: string) => {
     let audienceId = externalId
-    const defaultAudienceId = audienceSettings?.audienceId
+    const defaultAudienceId = audienceSettings?.audience_id
     if (defaultAudienceId) {
       audienceId = defaultAudienceId
     }
@@ -149,33 +150,38 @@ export default class OrttoClient {
     }
   }
 
-  addContactsToAudience = async (settings: Settings, req: UpdateAudienceRequest) => {
-    if (!req.audience_id) {
-      throw new PayloadValidationError(Errors.MissingAudienceId)
+  addContactsToAudience = async (settings: Settings, payloads: AddContactsToAudiencePayload[]) => {
+    const cleaned = []
+    for (let i = 0; i < payloads.length; i++) {
+      const event = payloads[i]
+      if (!event.anonymous_id && !event.user_id) {
+        throw new PayloadValidationError(Errors.MissingIDs)
+      }
+      cleaned.push(cleanObject(event))
     }
-    if (req.contact_ids === undefined || req.contact_ids.length == 0) {
-      throw new PayloadValidationError(Errors.MissingContactID)
+    if (cleaned.length == 0) {
+      return
     }
     const url = this.getEndpoint(settings.api_key).concat('/audience/members')
     return this.request(url, {
       method: 'PUT',
-      json: req
+      json: cleaned
     })
   }
 
-  removeContactsFromAudience = async (settings: Settings, req: UpdateAudienceRequest) => {
-    if (!req.audience_id) {
-      throw new PayloadValidationError(Errors.MissingAudienceId)
-    }
-    if (req.contact_ids === undefined || req.contact_ids.length == 0) {
-      throw new PayloadValidationError(Errors.MissingContactID)
-    }
-    const url = this.getEndpoint(settings.api_key).concat('/audience/members')
-    return this.request(url, {
-      method: 'DELETE',
-      json: req
-    })
-  }
+  // removeContactsFromAudience = async (settings: Settings, req: UpdateAudienceRequest) => {
+  //   if (!req.audience_id) {
+  //     throw new PayloadValidationError(Errors.MissingAudienceId)
+  //   }
+  //   if (req.contact_ids === undefined || req.contact_ids.length == 0) {
+  //     throw new PayloadValidationError(Errors.MissingContactID)
+  //   }
+  //   const url = this.getEndpoint(settings.api_key).concat('/audience/members')
+  //   return this.request(url, {
+  //     method: 'DELETE',
+  //     json: req
+  //   })
+  // }
 
   // Audiences END
 
