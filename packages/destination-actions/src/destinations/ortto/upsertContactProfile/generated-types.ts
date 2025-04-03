@@ -55,4 +55,8 @@ export interface Payload {
      */
     last_name?: string
   }
+  /**
+   * The Audience to add the contact profile to.
+   */
+  audience_id?: string
 }

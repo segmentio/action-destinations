@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core'
+import { audience_id } from '../tiktok-audiences/properties'
 
 export const commonFields: Record<string, InputField> = {
   timestamp: {
@@ -41,5 +42,11 @@ export const commonFields: Record<string, InputField> = {
     default: {
       '@path': '$.anonymousId'
     }
+  },
+  audience_id: {
+    label: 'Audience',
+    description: `The Audience to add the contact profile to.`,
+    type: 'string',
+    dynamic: true
   }
 }
