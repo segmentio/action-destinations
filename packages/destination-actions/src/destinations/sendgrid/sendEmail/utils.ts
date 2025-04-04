@@ -1,15 +1,16 @@
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import { SendEmailReq } from './types'
+import type { Settings } from '../generated-types'
 import {
   RESERVED_HEADERS,
   MAX_CATEGORY_LENGTH,
   MIN_IP_POOL_NAME_LENGTH,
   MAX_IP_POOL_NAME_LENGTH,
-  SEND_EMAIL_URL
+  sendEmailURL
 } from './constants'
 
-export async function send(request: RequestClient, payload: Payload) {
+export async function send(request: RequestClient, payload: Payload, settings: Settings) {
   validate(payload)
 
   const groupId = parseIntFromString(payload.group_id)
@@ -19,12 +20,14 @@ export async function send(request: RequestClient, payload: Payload) {
     personalizations: [
       {
         to: [{ email: payload.to.email, name: payload.to?.name ?? undefined }],
-        cc: payload.cc
-          ?.filter((cc): cc is { email: string; name?: string } => cc.email !== undefined)
-          .map((cc) => ({ email: cc.email, name: cc.name ?? undefined })) ?? undefined,
-        bcc: payload.bcc
-          ?.filter((bcc): bcc is { email: string; name?: string } => bcc.email !== undefined)
-          .map((bcc) => ({ email: bcc.email, name: bcc.name ?? undefined })) ?? undefined,
+        cc:
+          payload.cc
+            ?.filter((cc): cc is { email: string; name?: string } => cc.email !== undefined)
+            .map((cc) => ({ email: cc.email, name: cc.name ?? undefined })) ?? undefined,
+        bcc:
+          payload.bcc
+            ?.filter((bcc): bcc is { email: string; name?: string } => bcc.email !== undefined)
+            .map((bcc) => ({ email: bcc.email, name: bcc.name ?? undefined })) ?? undefined,
         headers:
           Object.entries(payload?.headers ?? {}).reduce((acc, [key, value]) => {
             acc[key] = String(value)
@@ -49,7 +52,7 @@ export async function send(request: RequestClient, payload: Payload) {
     ip_pool_name: payload.ip_pool_name
   }
 
-  return await request(SEND_EMAIL_URL, {
+  return await request(sendEmailURL(settings), {
     method: 'post',
     json
   })
@@ -112,12 +115,12 @@ function validate(payload: Payload) {
     }
   })
 
-  payload.cc = payload?.cc?.filter(obj => obj?.email && obj.email.trim() !== '')
+  payload.cc = payload?.cc?.filter((obj) => obj?.email && obj.email.trim() !== '')
   if (Array.isArray(payload.cc) && payload.cc.length === 0) {
     delete payload.cc
   }
 
-  payload.bcc = payload?.bcc?.filter(obj => obj?.email && obj.email.trim() !== '')
+  payload.bcc = payload?.bcc?.filter((obj) => obj?.email && obj.email.trim() !== '')
   if (Array.isArray(payload.bcc) && payload.bcc.length === 0) {
     delete payload.bcc
   }
