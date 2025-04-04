@@ -10,7 +10,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * The default Audience ID to which contacts will be added. This audience takes precedence over the newly created list segment that is automatically generated when attaching this destination to an audience.
+   * The default Audience ID to which contacts will be added. This audience takes precedence over the new list Segment automatically creates when attaching this destination to an audience.
    */
   audience_id?: string
 }

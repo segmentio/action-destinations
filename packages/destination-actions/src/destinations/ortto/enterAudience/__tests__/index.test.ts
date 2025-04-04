@@ -4,6 +4,6 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('Ortto.addContactsToAudience', () => {
+describe('Ortto.enterAudience', () => {
   // TODO: Test your action
 })

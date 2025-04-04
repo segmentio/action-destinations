@@ -1,9 +1,47 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Testing snapshot for actions-ortto destination: enterAudience action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "r8v#u",
+    "audience_id": "r8v#u",
+    "enable_batching": true,
+    "ip": "14.62.208.75",
+    "location": Object {
+      "city": "r8v#u",
+      "country": "r8v#u",
+      "post_code": "r8v#u",
+      "state": "r8v#u",
+    },
+    "message_id": "r8v#u",
+    "timestamp": "2049-01-25T20:52:16.768Z",
+    "traits": Object {
+      "email": "he@pev.vc",
+      "first_name": "r8v#u",
+      "last_name": "r8v#u",
+      "phone": "r8v#u",
+    },
+    "user_id": "r8v#u",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-ortto destination: enterAudience action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "r8v#u",
+    "audience_id": "r8v#u",
+    "message_id": "r8v#u",
+    "user_id": "r8v#u",
+  },
+]
+`;
+
 exports[`Testing snapshot for actions-ortto destination: trackActivity action - all fields 1`] = `
 Array [
   Object {
     "anonymous_id": "]25AcEh01MO",
+    "audience_id": "]25AcEh01MO",
     "enable_batching": true,
     "event": "]25AcEh01MO",
     "ip": "107.255.187.198",
@@ -34,6 +72,7 @@ exports[`Testing snapshot for actions-ortto destination: trackActivity action - 
 Array [
   Object {
     "anonymous_id": "]25AcEh01MO",
+    "audience_id": "]25AcEh01MO",
     "event": "]25AcEh01MO",
     "message_id": "]25AcEh01MO",
     "user_id": "]25AcEh01MO",
@@ -45,6 +84,7 @@ exports[`Testing snapshot for actions-ortto destination: upsertContactProfile ac
 Array [
   Object {
     "anonymous_id": "TBOtXZm4yQy]54s",
+    "audience_id": "TBOtXZm4yQy]54s",
     "enable_batching": false,
     "ip": "169.155.93.138",
     "location": Object {
@@ -70,6 +110,7 @@ exports[`Testing snapshot for actions-ortto destination: upsertContactProfile ac
 Array [
   Object {
     "anonymous_id": "TBOtXZm4yQy]54s",
+    "audience_id": "TBOtXZm4yQy]54s",
     "message_id": "TBOtXZm4yQy]54s",
     "user_id": "TBOtXZm4yQy]54s",
   },

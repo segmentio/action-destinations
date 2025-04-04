@@ -1,4 +1,4 @@
-import type { AudienceDestinationDefinition } from '@segment/actions-core'
+import { defaultValues, AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import upsertContactProfile from './upsertContactProfile'
@@ -6,7 +6,9 @@ import OrttoClient from './ortto-client'
 
 import trackActivity from './trackActivity'
 
-import addContactsToAudience from './addContactsToAudience'
+import enterAudience from './enterAudience'
+
+import leaveAudience from './leaveAudience'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Ortto (Actions)',
@@ -42,7 +44,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     audience_id: {
       label: 'Audience Id',
-      description: `The default Audience ID to which contacts will be added. This audience takes precedence over the newly created list segment that is automatically generated when attaching this destination to an audience.`,
+      description: `The default Audience ID to which contacts will be added. This audience takes precedence over the new list Segment automatically creates when attaching this destination to an audience.`,
       type: 'string'
     }
   },
@@ -52,18 +54,44 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     createAudience: async (request, { settings, audienceSettings, audienceName }) => {
+      const defaultAudienceId = audienceSettings?.audience_id
+      if (defaultAudienceId) {
+        return { externalId: defaultAudienceId }
+      }
       const client: OrttoClient = new OrttoClient(request)
-      return await client.createAudience(settings, audienceSettings, audienceName)
+      const audience = await client.createAudience(settings, audienceName)
+      return {
+        // Segment will save this externalId for subsequent calls
+        externalId: audience.id
+      }
     },
     getAudience: async (request, { settings, audienceSettings, externalId }) => {
+      let audienceId = externalId
+      const defaultAudienceId = audienceSettings?.audience_id
+      if (defaultAudienceId) {
+        audienceId = defaultAudienceId
+      }
       const client: OrttoClient = new OrttoClient(request)
-      return await client.getAudience(settings, audienceSettings, externalId)
+      const audience = await client.getAudience(settings, audienceId)
+      return {
+        externalId: audience.id
+      }
     }
   },
+  presets: [
+    {
+      name: upsertContactProfile.title,
+      subscribe: 'type = "identify"',
+      partnerAction: 'upsertContactProfile',
+      mapping: defaultValues(upsertContactProfile.fields),
+      type: 'automatic'
+    }
+  ],
   actions: {
     upsertContactProfile,
     trackActivity,
-    addContactsToAudience
+    enterAudience,
+    leaveAudience
   }
 }
 
