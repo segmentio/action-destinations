@@ -159,7 +159,7 @@ export async function dynamicTemplateData(
     }
   } catch (err) {
     const error = err as ResultError
-    return createErrorResponse(error.data.error ?? 'Unknown error: dynamicTemplateData')
+    return createErrorResponse(error?.data?.error ?? 'Unknown error: dynamicTemplateData')
   }
 }
 
