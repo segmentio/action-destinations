@@ -132,7 +132,7 @@ export interface GlobalSetting
 export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
 
 /** The supported field categories */
-type FieldCategory = 'identifier' | 'data' | 'internal' | 'config' | 'sync'
+type FieldCategory = 'identifier' | 'data' | 'internal' | 'config' | 'sync' | 'hashedPII'
 
 /** supported input methods when picking values */
 type FieldInputMethods = 'literal' | 'variable' | 'function' | 'enrichment' | 'freeform'
@@ -257,9 +257,15 @@ export interface InputField extends InputFieldJSONSchema {
    */
   disabledInputMethods?: FieldInputMethods[]
 
-  /** Minimum value for a field of type 'number' */
+  /**
+   * Minimum value for a field of type 'number'
+   * When applied to a string field the minimum length of the string
+   * */
   minimum?: number
-  /** Maximum value for a field of type 'number' */
+  /**
+   * Maximum value for a field of type 'number'
+   * When applied to a string field the maximum length of the string
+   */
   maximum?: number
 }
 

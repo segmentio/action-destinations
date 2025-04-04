@@ -1,7 +1,7 @@
 import { createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
 import { Features } from '@segment/actions-core/mapping-kit'
 import nock from 'nock'
-import { CANARY_API_VERSION, formatToE164, commonHashedEmailValidation } from '../functions'
+import { CANARY_API_VERSION, formatToE164, commonEmailValidation, convertTimestamp } from '../functions'
 import destination from '../index'
 
 const testDestination = createTestIntegration(destination)
@@ -144,14 +144,11 @@ describe('.getConversionActionId', () => {
 
 describe('email formatting', () => {
   it('should format a non-hashed value', async () => {
-    expect(commonHashedEmailValidation('test@gmail.com')).toEqual(
-      '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
-    )
+    expect(commonEmailValidation('    test@gmail.com    ')).toEqual('test@gmail.com')
   })
-  it('should return hashed value as is', async () => {
-    expect(commonHashedEmailValidation('87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674')).toEqual(
-      '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
-    )
+
+  it('should throw error for non email value', async () => {
+    expect(() => commonEmailValidation('test')).toThrowError(`Email provided doesn't seem to be in a valid format.`)
   })
 })
 
@@ -179,5 +176,19 @@ describe('phone number formatting', () => {
     expect(formatToE164('49301234567', '+49')).toEqual('+49301234567')
     expect(formatToE164('+49 30 1234567', '49')).toEqual('+49301234567')
     expect(formatToE164('+49 30 1234567', '49')).toEqual('+49301234567')
+  })
+})
+
+describe('convertTimestamp', () => {
+  it('should convert timestamp with milliseconds', () => {
+    const timestamp = '2025-03-11T19:03:56.616960388Z'
+    const result = convertTimestamp(timestamp)
+    expect(result).toEqual('2025-03-11 19:03:56+00:00')
+  })
+
+  it('should convert timestamp without milliseconds', () => {
+    const timestamp = '2025-03-11T17:57:29Z'
+    const result = convertTimestamp(timestamp)
+    expect(result).toEqual('2025-03-11 17:57:29+00:00')
   })
 })

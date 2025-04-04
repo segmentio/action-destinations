@@ -2,6 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import track from './track'
+import identify from './identify'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Trubrics',
@@ -22,12 +23,13 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The Trubrics API URL. In most cases the default value should be used.',
         type: 'string',
         required: true,
-        default: 'api.trubrics.com'
+        default: 'app.trubrics.com/api/ingestion'
       }
     }
   },
   actions: {
-    track
+    track,
+    identify
   }
 }
 

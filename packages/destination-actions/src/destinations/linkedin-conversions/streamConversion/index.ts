@@ -223,7 +223,8 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
         'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
       type: 'string',
       required: false,
-      default: { '@path': '$.traits.email' }
+      default: { '@path': '$.traits.email' },
+      category: 'hashedPII'
     },
     linkedInUUID: {
       label: 'LinkedIn First Party Ads Tracking UUID',
@@ -296,7 +297,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
       unsafe_hidden: true
     }
   },
-  perform: async (request, { payload, hookOutputs }) => {
+  perform: async (request, { payload, hookOutputs, features }) => {
     const conversionTime = isNotEpochTimestampInMilliseconds(payload.conversionHappenedAt)
       ? convertToEpochMillis(payload.conversionHappenedAt)
       : Number(payload.conversionHappenedAt)
@@ -315,12 +316,12 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     linkedinApiClient.setConversionRuleId(conversionRuleId)
 
     try {
-      return linkedinApiClient.streamConversionEvent(payload, conversionTime)
+      return linkedinApiClient.streamConversionEvent(payload, conversionTime, features)
     } catch (error) {
       throw handleRequestError(error)
     }
   },
-  performBatch: async (request, { payload: payloads, hookOutputs }) => {
+  performBatch: async (request, { payload: payloads, hookOutputs, features }) => {
     const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
     const conversionRuleId = hookOutputs?.onMappingSave?.outputs?.id
 
@@ -331,7 +332,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     linkedinApiClient.setConversionRuleId(conversionRuleId)
 
     try {
-      return linkedinApiClient.batchConversionAdd(payloads)
+      return linkedinApiClient.batchConversionAdd(payloads, features)
     } catch (error) {
       throw handleRequestError(error)
     }
