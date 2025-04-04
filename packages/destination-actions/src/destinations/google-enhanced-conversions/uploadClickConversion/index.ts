@@ -20,11 +20,12 @@ import {
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
-  commonHashedEmailValidation,
+  commonEmailValidation,
   getConversionActionDynamicData,
   formatPhone
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
+import { processHashing } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Click Conversion',
@@ -317,7 +318,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.email_address) {
-      const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+      const validatedEmail: string = processHashing(
+        payload.email_address,
+        'sha256',
+        'hex',
+        features ?? {},
+        'actions-google-enhanced-conversions',
+        commonEmailValidation
+      )
 
       request_object.userIdentifiers.push({
         hashedEmail: validatedEmail
@@ -326,7 +334,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.phone_number) {
       request_object.userIdentifiers.push({
-        hashedPhoneNumber: formatPhone(payload.phone_number, payload.phone_country_code)
+        hashedPhoneNumber: processHashing(
+          payload.phone_number,
+          'sha256',
+          'hex',
+          features ?? {},
+          'actions-google-enhanced-conversions',
+          (value) => formatPhone(value, payload.phone_country_code)
+        )
       } as UserIdentifierInterface)
     }
 
@@ -422,7 +437,14 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         if (payload.email_address) {
-          const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+          const validatedEmail: string = processHashing(
+            payload.email_address,
+            'sha256',
+            'hex',
+            features ?? {},
+            'actions-google-enhanced-conversions',
+            commonEmailValidation
+          )
 
           request_object.userIdentifiers.push({
             hashedEmail: validatedEmail
@@ -431,7 +453,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
         if (payload.phone_number) {
           request_object.userIdentifiers.push({
-            hashedPhoneNumber: formatPhone(payload.phone_number, payload.phone_country_code)
+            hashedPhoneNumber: processHashing(
+              payload.phone_number,
+              'sha256',
+              'hex',
+              features ?? {},
+              'actions-google-enhanced-conversions',
+              (value) => formatPhone(value, payload.phone_country_code)
+            )
           } as UserIdentifierInterface)
         }
 

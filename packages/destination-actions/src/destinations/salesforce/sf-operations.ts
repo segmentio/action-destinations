@@ -371,8 +371,27 @@ export default class Salesforce {
     logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
   ): Promise<ModifiedResponse<unknown>> {
     // construct the CSV data to catch errors before creating a bulk job
-    const csv = buildCSVData(payloads, idField, operation)
+    const csvStats = {
+      shouldLog: logging?.shouldLog === true,
+      numberOfColumns: 0,
+      numberOfValuesInCSV: 0,
+      numberOfNullsInCSV: 0
+    }
+
+    const csv = buildCSVData(payloads, idField, operation, csvStats)
     const jobId = await this.createBulkJob(sobject, idField, operation, logging)
+
+    if (logging?.shouldLog === true) {
+      const statsClient = logging?.stats?.statsClient
+      const tags = logging?.stats?.tags
+      tags?.push('jobId:' + jobId)
+
+      statsClient?.incr('bulkCSV.payloadSize', payloads.length, tags)
+      statsClient?.incr('bulkCSV.numberOfColumns', csvStats.numberOfColumns, tags)
+      statsClient?.incr('bulkCSV.numberOfValuesInCSV', csvStats.numberOfValuesInCSV, tags)
+      statsClient?.incr('bulkCSV.numberOfNullsInCSV', csvStats.numberOfNullsInCSV ?? 0, tags)
+    }
+
     try {
       await this.uploadBulkCSV(jobId, csv, logging)
     } catch (err) {
@@ -390,7 +409,7 @@ export default class Salesforce {
         const tags = logging?.stats?.tags
         tags?.push('jobId:' + jobId)
         statsClient?.incr('bulkJobError.caughUploadError', 1, tags)
-        logging?.logger?.crit(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
+        logging?.logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
       })
       throw err
     }
@@ -406,7 +425,7 @@ export default class Salesforce {
 
       tags?.push('jobId:' + jobId)
       statsClient?.incr('bulkJobError', 1, tags)
-      logging?.logger?.crit(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
+      logging?.logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
 
       throw err
     }
@@ -441,7 +460,7 @@ export default class Salesforce {
     }
 
     if (logging?.shouldLog) {
-      logging.logger?.crit(`Created bulk job: ${res.data.id} with data: ${JSON.stringify(jsonData)}`)
+      logging.logger?.error(`Created bulk job: ${res.data.id} with data: ${JSON.stringify(jsonData)}`)
 
       const statsClient = logging.stats?.statsClient
       const tags = logging.stats?.tags
@@ -459,7 +478,7 @@ export default class Salesforce {
     logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
   ) => {
     if (logging?.shouldLog) {
-      logging.logger?.crit(`Uploading CSV to job: ${jobId}\nCSV: ${csv}`)
+      logging.logger?.error(`Uploading CSV to job: ${jobId}\nCSV: ${csv}`)
 
       const statsClient = logging.stats?.statsClient
       const tags = logging.stats?.tags
@@ -482,7 +501,7 @@ export default class Salesforce {
     logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
   ) => {
     if (logging?.shouldLog) {
-      logging.logger?.crit(`Closing job: ${jobId}`)
+      logging.logger?.error(`Closing job: ${jobId}`)
 
       const statsClient = logging.stats?.statsClient
       const tags = logging.stats?.tags
