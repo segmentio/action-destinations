@@ -7,6 +7,7 @@ import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../pr
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { RawData, ExecuteInputRaw, ProcessDataInput } from '../operations'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered (S3)',
@@ -86,25 +87,37 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 170000
     }
   },
-  perform: async (request, { payload, features, rawData }: ExecuteInputRaw<Settings, Payload, RawData>) => {
-    return processData({
-      request,
-      payloads: [payload],
-      features,
-      rawData: rawData ? [rawData] : []
-    })
+  perform: async (
+    request,
+    { payload, features, rawData, subscriptionMetadata }: ExecuteInputRaw<Settings, Payload, RawData>
+  ) => {
+    return processData(
+      {
+        request,
+        payloads: [payload],
+        features,
+        rawData: rawData ? [rawData] : []
+      },
+      subscriptionMetadata
+    )
   },
-  performBatch: (request, { payload, features, rawData }: ExecuteInputRaw<Settings, Payload[], RawData[]>) => {
-    return processData({
-      request,
-      payloads: payload,
-      features,
-      rawData
-    })
+  performBatch: (
+    request,
+    { payload, features, rawData, subscriptionMetadata }: ExecuteInputRaw<Settings, Payload[], RawData[]>
+  ) => {
+    return processData(
+      {
+        request,
+        payloads: payload,
+        features,
+        rawData
+      },
+      subscriptionMetadata
+    )
   }
 }
 
-async function processData(input: ProcessDataInput<Payload>) {
+async function processData(input: ProcessDataInput<Payload>, subscriptionMetadata?: SubscriptionMetadata) {
   if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
       `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
@@ -128,6 +141,8 @@ async function processData(input: ProcessDataInput<Payload>) {
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 's3',
       filename,
+      destinationInstanceID: subscriptionMetadata?.destinationConfigId,
+      subscriptionId: subscriptionMetadata?.actionConfigId,
       fileContents,
       s3Info: {
         s3BucketName: input.payloads[0].s3_aws_bucket_name,

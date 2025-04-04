@@ -1,7 +1,8 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
+import { validatePhone, toDateFormat } from '../utils'
 
 let testDestination = createTestIntegration(Definition)
 
@@ -57,14 +58,30 @@ const mapping = {
   external_audience_id: { '@path': '$.context.personas.external_audience_id' },
   segment_audience_key: { '@path': '$.context.personas.computation_key' },
   traits_or_props: { '@path': '$.traits' },
-  email: { '@path': '$.traits.email' },
-  anonymous_id: { '@path': '$.anonymousId' },
-  external_id: { '@path': '$.traits.external_id' },
-  phone_number_id: { '@path': '$.traits.phone' },
+  identifiers: {
+    email: { '@path': '$.traits.email' },
+    anonymous_id: { '@path': '$.anonymousId' },
+    external_id: { '@path': '$.traits.external_id' },
+    phone_number_id: { '@path': '$.traits.phone' }
+  },
+  user_attributes: {
+    first_name: { '@path': '$.traits.first_name' },
+    last_name: { '@path': '$.traits.last_name' },
+    address_line_1: { '@path': '$.traits.street' },
+    address_line_2: { '@path': '$.traits.address_line_2' },
+    city: { '@path': '$.traits.city' },
+    state_province_region: { '@path': '$.traits.state' },
+    country: { '@path': '$.traits.country' },
+    postal_code: { '@path': '$.traits.postal_code' }
+  },
+  custom_text_fields: { '@path': '$.traits.custom_text_fields' },
+  custom_number_fields: { '@path': '$.traits.custom_number_fields' },
+  custom_date_fields: { '@path': '$.traits.custom_date_fields' },
   enable_batching: true,
   batch_size: 200
 }
-const addExpectedPayload = {
+
+const upsertAddExpectedPayload = {
   list_ids: ['sg_audience_id_12345'],
   contacts: [
     {
@@ -86,7 +103,68 @@ describe('SendgridAudiences.syncAudience', () => {
   it('should upsert a single Contact and add it to a Sendgrid list correctly', async () => {
     const event = createTestEvent(addPayload)
 
-    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addExpectedPayload).reply(200, {})
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertAddExpectedPayload).reply(200, {})
+    const responses = await testDestination.testAction('syncAudience', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      mapping
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+  })
+
+  it('should upsert a single Contact with user attributes and custom fields, and add it to a Sendgrid list correctly', async () => { 
+    const event = createTestEvent({ 
+      ...addPayload, 
+      traits: { 
+        ...addPayload.traits, 
+        first_name: 'fname', 
+        last_name: 'lname', 
+        street: '123 Main St',
+        address_line_2: "address line 2", 
+        city: 'SF', 
+        state: 'CA',
+        country: 'US',
+        postal_code: "N88EU",
+        custom_text_fields: {
+          custom_field_1: 'custom_field_1_value'
+        },
+        custom_number_fields: {
+          custom_field_2: 2345
+        },
+        custom_date_fields: {
+          custom_field_3: '2024-01-01T00:00:00.000Z',
+        }
+      } 
+    })
+
+    const addExpectedPayloadWithAttributes = {
+      ...upsertAddExpectedPayload,
+      contacts: [
+        {
+          email: 'testemail@gmail.com',
+          external_id: 'some_external_id',
+          phone_number_id: '+353123456789',
+          anonymous_id: 'some_anonymous_id',
+          first_name: 'fname',
+          last_name: 'lname',
+          address_line_1: '123 Main St',
+          address_line_2: 'address line 2',
+          city: 'SF', 
+          state_province_region: 'CA',
+          country: 'US',
+          postal_code: "N88EU",
+          custom_fields: {
+            custom_field_1: 'custom_field_1_value',
+            custom_field_2: 2345,
+            custom_field_3: "01/01/2024"
+          }
+        }
+      ]
+    }
+
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addExpectedPayloadWithAttributes).reply(200, {})
     const responses = await testDestination.testAction('syncAudience', {
       event,
       settings,
@@ -108,7 +186,7 @@ describe('SendgridAudiences.syncAudience', () => {
     addPayloadEmailOnly.anonymousId = undefined
 
     const addExpectedPayloadEmailOnly = {
-      ...addExpectedPayload,
+      ...upsertAddExpectedPayload,
       contacts: [
         {
           email: 'testemail@gmail.com'
@@ -132,7 +210,7 @@ describe('SendgridAudiences.syncAudience', () => {
   it('should upsert multiple Contacts and add them to a Sendgrid list correctly', async () => {
     const events = [createTestEvent(addPayload), createTestEvent(addPayload2)]
 
-    const addBatchExpectedPayload = {
+    const upsertAddBatchExpectedPayload = {
       list_ids: ['sg_audience_id_12345'],
       contacts: [
         {
@@ -150,19 +228,31 @@ describe('SendgridAudiences.syncAudience', () => {
       ]
     }
 
-    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addBatchExpectedPayload).reply(200, {})
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertAddBatchExpectedPayload).reply(200, {})
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
-    expect(responses.length).toBe(1)
+    expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(200)
+    expect(responses[1].status).toBe(200)
   })
 
   it('should remove a single Contact from a Sendgrid list correctly', async () => {
     const event = createTestEvent(removePayload)
+
+    const upsertNoAddExpectedPayload = {
+      list_ids: [],
+      contacts: [
+        {
+          email: 'testemail@gmail.com',
+          external_id: 'some_external_id',
+          phone_number_id: '+353123456789',
+          anonymous_id: 'some_anonymous_id'
+        }
+      ]
+    }
 
     const deletePath = `/v3/marketing/lists/sg_audience_id_12345/contacts?contact_ids=contact_1_id`
 
@@ -172,6 +262,8 @@ describe('SendgridAudiences.syncAudience', () => {
     const searchResponse = {
       result: [{ id: 'contact_1_id' }]
     }
+
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertNoAddExpectedPayload).reply(200, {})
 
     nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search', searchQuery).reply(200, searchResponse)
 
@@ -184,13 +276,32 @@ describe('SendgridAudiences.syncAudience', () => {
       mapping
     })
 
-    expect(responses.length).toBe(2)
+    expect(responses.length).toBe(3)
     expect(responses[0].status).toBe(200)
     expect(responses[1].status).toBe(200)
+    expect(responses[2].status).toBe(200)
   })
 
   it('should remove multiple Contacts from a Sendgrid list correctly', async () => {
     const events = [createTestEvent(removePayload), createTestEvent(removePayload2)]
+
+    const upsertNoAddBatchExpectedPayload = {
+      list_ids: [],
+      contacts: [
+        {
+          email: 'testemail@gmail.com',
+          external_id: 'some_external_id',
+          phone_number_id: '+353123456789',
+          anonymous_id: 'some_anonymous_id'
+        },
+        {
+          email: 'testemail2@gmail.com',
+          external_id: 'some_external_id2',
+          phone_number_id: '+353123456789',
+          anonymous_id: 'some_anonymous_id2'
+        }
+      ]
+    }
 
     const deletePath = `/v3/marketing/lists/sg_audience_id_12345/contacts?contact_ids=contact_1_id,contact_2_id`
 
@@ -201,14 +312,15 @@ describe('SendgridAudiences.syncAudience', () => {
       result: [{ id: 'contact_1_id' }, { id: 'contact_2_id' }]
     }
 
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertNoAddBatchExpectedPayload).reply(200, {})
+
     nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search', searchQuery).reply(200, searchResponse)
 
     nock('https://api.sendgrid.com').delete(deletePath).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
@@ -234,7 +346,7 @@ describe('SendgridAudiences.syncAudience', () => {
       result: [{ id: 'contact_1_id' }, { id: 'contact_2_id' }]
     }
 
-    const addBatchExpectedPayload = {
+    const upsertAddBatchExpectedPayload = {
       list_ids: ['sg_audience_id_12345'],
       contacts: [
         {
@@ -252,26 +364,46 @@ describe('SendgridAudiences.syncAudience', () => {
       ]
     }
 
-    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addBatchExpectedPayload).reply(200, {})
+    const upsertNoAddBatchExpectedPayload = {
+      list_ids: [],
+      contacts: [
+        {
+          email: 'testemail@gmail.com',
+          external_id: 'some_external_id',
+          phone_number_id: '+353123456789',
+          anonymous_id: 'some_anonymous_id'
+        },
+        {
+          email: 'testemail2@gmail.com',
+          external_id: 'some_external_id2',
+          phone_number_id: '+353123456789',
+          anonymous_id: 'some_anonymous_id2'
+        }
+      ]
+    }
+
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertAddBatchExpectedPayload).reply(200, {})
+
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertNoAddBatchExpectedPayload).reply(200, {})
 
     nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search', searchQuery).reply(200, searchResponse)
 
     nock('https://api.sendgrid.com').delete(deletePath).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
-    expect(responses.length).toBe(3)
+    expect(responses.length).toBe(4)
     expect(responses[0].status).toBe(200)
     expect(responses[1].status).toBe(200)
     expect(responses[2].status).toBe(200)
+    expect(responses[3].status).toBe(200)
   })
 
-  it('should retry upserting to add Contacts after Sendgrid initially rejects some emails', async () => {
+  it('should throw 429s if batch contains at least one email which SendGrid rejects as invalid', async () => {
     const badPayload = JSON.parse(JSON.stringify(addPayload))
     badPayload.traits.email = 'not_a_valid_email_address@gmail.com'
     delete badPayload.traits?.external_id
@@ -280,7 +412,7 @@ describe('SendgridAudiences.syncAudience', () => {
 
     const events = [createTestEvent(addPayload), createTestEvent(badPayload)]
 
-    const addBatchExpectedPayload = {
+    const upsertAddBatchExpectedPayload = {
       list_ids: ['sg_audience_id_12345'],
       contacts: [
         {
@@ -317,19 +449,34 @@ describe('SendgridAudiences.syncAudience', () => {
       ]
     }
 
-    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addBatchExpectedPayload).reply(400, responseError)
+    const multiStatusRespError1 = {
+      "status": 429,
+      "errortype": "RETRYABLE_ERROR",
+      "errormessage": "Batch payload rejected by SendGrid due to at least one invalid email. Batch payload will be retried without the invalid email(s).",
+      "errorreporter": "INTEGRATIONS"
+    }
+
+    const multiStatusRespError2 = {
+      "status": 400,
+      "errortype": "PAYLOAD_VALIDATION_FAILED",
+      "errormessage": "SendGrid rejected email address not_a_valid_email_address@gmail.com as invalid",
+      "errorreporter": "INTEGRATIONS"
+    }
+
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertAddBatchExpectedPayload).reply(400, responseError)
     nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addBatchExpectedPayload2).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
     expect(responses.length).toBe(2)
-    expect(responses[0].status).toBe(400)
-    expect(responses[1].status).toBe(200)
+    expect(responses[0].status).toBe(429)
+    expect(responses[1].status).toBe(400)
+    expect(responses[0]).toMatchObject(multiStatusRespError1)
+    expect(responses[1]).toMatchObject(multiStatusRespError2)
   })
 
   it('should throw an error if a non batch payload is missing identifiers', async () => {
@@ -348,11 +495,11 @@ describe('SendgridAudiences.syncAudience', () => {
         mapping
       })
     ).rejects.toThrowError(
-      new PayloadValidationError(`At least one of email, anonymous_id, external_id or phone_number_id is required`)
+      new IntegrationError(`At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.`, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
     )
   })
 
-  it('should throw an error if a all payloads in a batch are invalid', async () => {
+  it('should return multistatus response with all errors if all payloads in a batch are invalid', async () => {
     const badPayload = JSON.parse(JSON.stringify(addPayload))
     delete badPayload.traits?.email
     delete badPayload.traits?.external_id
@@ -361,16 +508,24 @@ describe('SendgridAudiences.syncAudience', () => {
 
     const badPayload2 = JSON.parse(JSON.stringify(badPayload))
 
+    const responseError = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.',
+      errorreporter: 'INTEGRATIONS'
+    }
+
     const events = [createTestEvent(badPayload), createTestEvent(badPayload2)]
 
-    await expect(
-      testDestination.testBatchAction('syncAudience', {
-        events,
-        settings,
-        useDefaultMappings: true,
-        mapping
-      })
-    ).rejects.toThrowError(new PayloadValidationError(`No valid payloads found`))
+    const responses = await testDestination.executeBatch('syncAudience', {
+      events,
+      settings,
+      mapping
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[0]).toMatchObject(responseError)
+    expect(responses[1]).toMatchObject(responseError)
   })
 
   it('should do multiple search and a single remove request for large batch with many identifiers but less than 100 contacts', async () => {
@@ -384,6 +539,18 @@ describe('SendgridAudiences.syncAudience', () => {
       },
       anonymousId: `some_anonymous_id_${i + 1}`
     }))
+
+    const upsertNoAddBatchExpectedPayload = {
+      list_ids: [],
+      contacts: Array.from({ length: 30 }, (_, i) => (
+        {
+          email: `test${i + 1}@gmail.com`,
+          external_id: `some_external_id_${i + 1}`,
+          phone_number_id: `+35312345678${i + 1}`,
+          anonymous_id: `some_anonymous_id_${i + 1}`
+        }
+      ))
+    }
 
     const events = payloads.map(createTestEvent)
 
@@ -400,24 +567,24 @@ describe('SendgridAudiences.syncAudience', () => {
 
     const deletePath = `/v3/marketing/lists/sg_audience_id_12345/contacts?contact_ids=contact_1_id,contact_2_id,contact_3_id,contact_4_id,contact_5_id,contact_6_id,contact_7_id,contact_8_id,contact_9_id,contact_10_id,contact_11_id,contact_12_id,contact_13_id,contact_14_id,contact_15_id,contact_16_id,contact_17_id,contact_18_id,contact_19_id,contact_20_id,contact_21_id,contact_22_id,contact_23_id,contact_24_id,contact_25_id,contact_26_id,contact_27_id,contact_28_id,contact_29_id,contact_30_id`
 
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertNoAddBatchExpectedPayload).reply(200, {})
+
     nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search', searchQuery).reply(200, searchResponse)
     nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search', searchQuery2).reply(200, searchResponse2)
     nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search', searchQuery3).reply(200, searchResponse3)
 
     nock('https://api.sendgrid.com').delete(deletePath).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
-    expect(responses.length).toBe(4)
-    expect(responses[0].status).toBe(200)
-    expect(responses[1].status).toBe(200)
-    expect(responses[2].status).toBe(200)
-    expect(responses[3].status).toBe(200)
+    expect(responses.length).toBe(30)
+    for(let i = 0; i < 30; i++) {
+      expect(responses[i].status).toBe(200)
+    }
   })
 
   it('should do multiple search and a multiple remove requests for large batch with many identifiers and more than 100 contacts', async () => {
@@ -431,6 +598,15 @@ describe('SendgridAudiences.syncAudience', () => {
       },
       anonymousId: null
     }))
+
+    const upsertNoAddBatchExpectedPayload = {
+      list_ids: [],
+      contacts: Array.from({ length: 120 }, (_, i) => (
+        {
+          email: `test${i + 1}@gmail.com`
+        }
+      ))
+    }
 
     const events = payloads.map(createTestEvent)
 
@@ -454,6 +630,8 @@ describe('SendgridAudiences.syncAudience', () => {
       (_, i) => `contact_${i + 101}_id`
     ).join(',')}`
 
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertNoAddBatchExpectedPayload).reply(200, {})
+
     nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search', searchQuery).reply(200, searchResponse)
     nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search', searchQuery2).reply(200, searchResponse2)
     nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search', searchQuery3).reply(200, searchResponse3)
@@ -461,18 +639,44 @@ describe('SendgridAudiences.syncAudience', () => {
     nock('https://api.sendgrid.com').delete(deletePath).reply(200, {})
     nock('https://api.sendgrid.com').delete(deletePath2).reply(200, {})
 
-    const responses = await testDestination.testBatchAction('syncAudience', {
+    const responses = await testDestination.executeBatch('syncAudience', {
       events,
       settings,
-      useDefaultMappings: true,
       mapping
     })
 
-    expect(responses.length).toBe(5)
-    expect(responses[0].status).toBe(200)
-    expect(responses[1].status).toBe(200)
-    expect(responses[2].status).toBe(200)
-    expect(responses[3].status).toBe(200)
-    expect(responses[4].status).toBe(200)
+    expect(responses.length).toBe(120)
+    for(let i = 0; i < 120; i++) {
+      expect(responses[i].status).toBe(200)
+    }
   })
+
+  it('phone number should be E.164', async () => {
+    const goodPhone = '+353123456789' // E.164
+    const badPhone = '123456789' // no + 
+    const badPhone2 = '+3531234567890678' // too long
+
+    expect(validatePhone(goodPhone)).toBe(true)
+    expect(validatePhone(badPhone)).toBe(false)
+    expect(validatePhone(badPhone2)).toBe(false)
+  })
+
+  it('dates are formatted correctly to Sendgrid', async () => {
+    const goodDate = "01-01-2024"
+    const goodDate2 = "01-24-2024"
+    const goodDate3 = '2024-01-01T00:00:00.000Z'
+    const goodDate4 = "01/24/2024" // default for ambiguous dates is US ISO 8601 format MM/DD/YYYY
+    const badDate = "13-01-2024"
+    const badDate2 = "24/01/2024"
+    const badDate3 = '+3531234567890678'
+
+    expect(toDateFormat(goodDate)).toBe("01/01/2024")
+    expect(toDateFormat(goodDate2)).toBe("01/24/2024")
+    expect(toDateFormat(goodDate3)).toBe("01/01/2024")
+    expect(toDateFormat(goodDate4)).toBe("01/24/2024")
+    expect(toDateFormat(badDate)).toBe(undefined)
+    expect(toDateFormat(badDate2)).toBe(undefined)
+    expect(toDateFormat(badDate3)).toBe(undefined)
+  })
+  
 })

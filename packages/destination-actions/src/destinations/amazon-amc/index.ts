@@ -1,4 +1,9 @@
-import { AudienceDestinationDefinition, InvalidAuthenticationError, IntegrationError } from '@segment/actions-core'
+import {
+  AudienceDestinationDefinition,
+  InvalidAuthenticationError,
+  IntegrationError,
+  defaultValues
+} from '@segment/actions-core'
 import type { RefreshTokenResponse, AmazonTestAuthenticationError } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
 import {
@@ -6,7 +11,8 @@ import {
   extractNumberAndSubstituteWithStringValue,
   getAuthToken,
   REGEX_ADVERTISERID,
-  REGEX_AUDIENCEID
+  REGEX_AUDIENCEID,
+  TTL_MAX_VALUE
 } from './utils'
 
 import syncAudiencesToDSP from './syncAudiencesToDSP'
@@ -164,6 +170,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       if (!country_code) {
         throw new IntegrationError('Missing countryCode Value', 'MISSING_REQUIRED_FIELD', 400)
       }
+      if (ttl && ttl > TTL_MAX_VALUE) {
+        throw new IntegrationError(`TTL must have value less than or equal to ${TTL_MAX_VALUE}`, 'INVALID_INPUT', 400)
+      }
 
       const payload: AudiencePayload = {
         name: audienceName,
@@ -231,7 +240,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudiencesToDSP
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: {
+        ...defaultValues(syncAudiencesToDSP.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination

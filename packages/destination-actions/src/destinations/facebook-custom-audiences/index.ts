@@ -1,10 +1,10 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import { adAccountId } from './fbca-properties'
 import sync from './sync'
+import { getApiVersion } from './fbca-operations'
 
-export const FACEBOOK_API_VERSION = 'v17.0'
 const EXTERNAL_ID_KEY = 'id'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -44,6 +44,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const audienceName = createAudienceInput.audienceName
       const adAccountId = createAudienceInput.audienceSettings?.engageAdAccountId
       const audienceDescription = createAudienceInput.audienceSettings?.audienceDescription
+      const { features, statsContext } = createAudienceInput
 
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
@@ -53,7 +54,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing ad account ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const createAudienceUrl = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/act_${adAccountId}/customaudiences`
+      const createAudienceUrl = `https://graph.facebook.com/${getApiVersion(
+        features,
+        statsContext
+      )}/act_${adAccountId}/customaudiences`
       const payload = {
         name: audienceName,
         description: audienceDescription || '',
@@ -79,7 +83,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     async getAudience(request, getAudienceInput) {
-      const getAudienceUrl = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/${getAudienceInput.externalId}`
+      const { features, statsContext } = getAudienceInput
+      const getAudienceUrl = `https://graph.facebook.com/${getApiVersion(features, statsContext)}/${
+        getAudienceInput.externalId
+      }`
 
       const response = await request(getAudienceUrl, { method: 'GET' })
 
@@ -99,7 +106,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     sync
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'sync',
+      mapping: defaultValues(sync.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination

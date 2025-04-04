@@ -1,13 +1,16 @@
-import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
+import { IntegrationError, RequestClient, StatsContext, HTTPError } from '@segment/actions-core'
 import { OAUTH_URL, USER_UPLOAD_ENDPOINT, SEGMENT_DMP_ID } from './constants'
 import type { RefreshTokenResponse } from './types'
+import { create, fromBinary, toBinary } from '@bufbuild/protobuf'
 
 import {
   UserIdType,
   UpdateUsersDataRequest,
-  UserDataOperation,
+  UpdateUsersDataRequestSchema,
+  UserDataOperationSchema,
   UpdateUsersDataResponse,
-  ErrorCode
+  ErrorCode,
+  UpdateUsersDataResponseSchema
 } from './proto/protofile'
 
 import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
@@ -122,12 +125,11 @@ export const bulkUploaderResponseHandler = async (
     throw new IntegrationError(`Something went wrong unpacking the protobuf response`, 'INVALID_REQUEST_DATA', 400)
   }
 
-  const responseHandler = new UpdateUsersDataResponse()
   const buffer = await response.arrayBuffer()
   const protobufResponse = Buffer.from(buffer)
 
-  const r = responseHandler.fromBinary(protobufResponse)
-  const errorCode = r.status as ErrorCode
+  const r = fromBinary(UpdateUsersDataResponseSchema, protobufResponse)
+  const errorCode = r.status
   const errorCodeString = ErrorCode[errorCode] || 'UNKNOWN_ERROR'
 
   if (errorCodeString === 'NO_ERROR' || response.status === 200) {
@@ -150,7 +152,7 @@ export const createUpdateRequest = (
   payload: UpdateHandlerPayload[],
   operation: 'add' | 'remove'
 ): UpdateUsersDataRequest => {
-  const updateRequest = new UpdateUsersDataRequest()
+  const updateRequest = create(UpdateUsersDataRequestSchema, {})
 
   payload.forEach((p) => {
     const rawOps = assembleRawOps(p, operation)
@@ -159,7 +161,7 @@ export const createUpdateRequest = (
     // That means that if google_gid, mobile_advertising_id, and anonymous_id are all present, we will create 3 operations.
     // This emulates the legacy behavior of the DV360 destination.
     rawOps.forEach((rawOp) => {
-      const op = new UserDataOperation({
+      const op = create(UserDataOperationSchema, {
         userId: rawOp.UserId,
         userIdType: rawOp.UserIdType,
         userListId: BigInt(rawOp.UserListId),
@@ -175,7 +177,7 @@ export const createUpdateRequest = (
   })
 
   // Backed by deletion and suppression features in Segment.
-  updateRequest.process_consent = true
+  updateRequest.processConsent = true
 
   return updateRequest
 }
@@ -186,7 +188,7 @@ export const sendUpdateRequest = async (
   statsName: string,
   statsContext: StatsContext | undefined
 ) => {
-  const binaryOperation = updateRequest.toBinary()
+  const binaryOperation = toBinary(UpdateUsersDataRequestSchema, updateRequest)
 
   try {
     const response = await request(USER_UPLOAD_ENDPOINT, {
@@ -197,11 +199,11 @@ export const sendUpdateRequest = async (
 
     await bulkUploaderResponseHandler(response, statsName, statsContext)
   } catch (error) {
-    if (error.response?.status === 500) {
-      throw new IntegrationError(error.response.message, 'INTERNAL_SERVER_ERROR', 500)
+    if ((error as HTTPError).response?.status === 500) {
+      throw new IntegrationError(error.response?.message ?? (error as HTTPError).message, 'INTERNAL_SERVER_ERROR', 500)
     }
 
-    await bulkUploaderResponseHandler(error.response, statsName, statsContext)
+    await bulkUploaderResponseHandler((error as HTTPError).response, statsName, statsContext)
   }
 }
 

@@ -16,6 +16,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * The PET (Profile Extension Table) name. Overrides the default Profile Extension Table name in Settings.
+   */
+  pet_name?: string
+  /**
    * Once enabled, Segment will collect events into batches of 200 before sending to Responsys.
    */
   enable_batching?: boolean

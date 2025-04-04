@@ -36,7 +36,8 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.properties.phone' },
         else: { '@path': '$.context.traits.phone' }
       }
-    }
+    },
+    category: 'hashedPII'
   },
   email: {
     label: 'Email',
@@ -50,7 +51,8 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.properties.email' },
         else: { '@path': '$.context.traits.email' }
       }
-    }
+    },
+    category: 'hashedPII'
   },
   first_name: {
     label: 'First Name',
@@ -63,7 +65,8 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.properties.first_name' },
         else: { '@path': '$.context.traits.first_name' }
       }
-    }
+    },
+    category: 'hashedPII'
   },
   last_name: {
     label: 'Last Name',
@@ -76,7 +79,8 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.properties.last_name' },
         else: { '@path': '$.context.traits.last_name' }
       }
-    }
+    },
+    category: 'hashedPII'
   },
   address: {
     label: 'Address',
@@ -97,7 +101,8 @@ export const commonFields: Record<string, InputField> = {
       zip_code: {
         label: 'Zip Code',
         type: 'string',
-        description: "The customer's Zip Code."
+        description: "The customer's Zip Code.",
+        category: 'hashedPII'
       },
       state: {
         label: 'State',
@@ -164,7 +169,8 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.userId' },
         else: { '@path': '$.anonymousId' }
       }
-    }
+    },
+    category: 'hashedPII'
   },
   ttclid: {
     label: 'TikTok Click ID',
@@ -245,6 +251,7 @@ export const commonFields: Record<string, InputField> = {
     type: 'object',
     multiple: true,
     description: 'Related item details for the event.',
+    defaultObjectUI: 'keyvalue',
     properties: {
       price: {
         label: 'Price',

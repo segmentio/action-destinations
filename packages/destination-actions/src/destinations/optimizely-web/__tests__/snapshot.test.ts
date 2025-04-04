@@ -25,7 +25,19 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         event: event,
         mapping: {
           ...event.properties,
-          eventMatching: {
+          customStringProperties: {
+            customStringProperty1: 'custom_string_property_1',
+            customStringProperty2: 'custom_string_property_2'
+          },
+          customNumericProperties: {
+            customNumericProperty1: 1,
+            customNumericProperty2: 2
+          },
+          customBooleanProperties: {
+            customBooleanProperty1: true,
+            customBooleanProperty2: false
+          },
+          eventSyncConfig: {
             eventId: 'custom_event_id_1',
             eventKey: 'Custom_Event_1',
             createEventIfNotFound: 'CREATE',
@@ -68,7 +80,19 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         event: event,
         mapping: {
           ...event.properties,
-          eventMatching: {
+          customStringProperties: {
+            customStringProperty1: 'custom_string_property_1',
+            customStringProperty2: 'custom_string_property_2'
+          },
+          customNumericProperties: {
+            customNumericProperty1: 1,
+            customNumericProperty2: 2
+          },
+          customBooleanProperties: {
+            customBooleanProperty1: true,
+            customBooleanProperty2: false
+          },
+          eventSyncConfig: {
             eventId: 'custom_event_id_1',
             eventKey: 'Custom_Event_1',
             createEventIfNotFound: 'CREATE',

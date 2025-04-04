@@ -71,6 +71,31 @@ describe('Mixpanel.trackEvent', () => {
     ])
   })
 
+  it('should use IN server URL', async () => {
+    const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+    nock('https://api-in.mixpanel.com').post('/import?strict=1').reply(200, {})
+
+    const responses = await testDestination.testAction('trackEvent', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        projectToken: MIXPANEL_PROJECT_TOKEN,
+        apiSecret: MIXPANEL_API_SECRET,
+        apiRegion: ApiRegions.IN
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.json).toMatchObject([
+      {
+        event: 'Test Event',
+        properties: expect.objectContaining(expectedProperties)
+      }
+    ])
+  })
+
   it('should default to US endpoint if apiRegion setting is undefined', async () => {
     const event = createTestEvent({ timestamp, event: 'Test Event' })
 

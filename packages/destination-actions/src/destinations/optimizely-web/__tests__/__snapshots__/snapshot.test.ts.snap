@@ -4,7 +4,7 @@ exports[`Testing snapshot for actions-optimizely-web destination: trackEvent act
 Object {
   "account_id": "0dx]zHxQ6Zbx",
   "anonymize_ip": true,
-  "client_name": "Segment Optimizely Web Destination",
+  "client_name": "twilio_segment/optimizely_web_destination",
   "client_version": "1.0.0",
   "enrich_decisions": true,
   "project_id": -566109321297.92,
@@ -19,11 +19,17 @@ Object {
             Object {
               "entity_id": "custom_event_id_1",
               "key": "custom_event_1",
+              "quantity": -56610932129792,
               "revenue": -56610932129792.01,
               "tags": Object {
-                "$opt_event_properties": Object {},
-                "currency": "HRK",
-                "quantity": -56610932129792,
+                "$opt_event_properties": Object {
+                  "customBooleanProperty1": true,
+                  "customBooleanProperty2": false,
+                  "customNumericProperty1": 1,
+                  "customNumericProperty2": 2,
+                  "customStringProperty1": "custom_string_property_1",
+                  "customStringProperty2": "custom_string_property_2",
+                },
                 "testType": "0dx]zHxQ6Zbx",
               },
               "timestamp": 1612137600000,
@@ -44,7 +50,7 @@ exports[`Testing snapshot for actions-optimizely-web destination: trackEvent act
 Object {
   "account_id": "0dx]zHxQ6Zbx",
   "anonymize_ip": true,
-  "client_name": "Segment Optimizely Web Destination",
+  "client_name": "twilio_segment/optimizely_web_destination",
   "client_version": "1.0.0",
   "enrich_decisions": true,
   "project_id": -566109321297.92,
@@ -59,7 +65,14 @@ Object {
               "entity_id": "custom_event_id_1",
               "key": "custom_event_1",
               "tags": Object {
-                "$opt_event_properties": Object {},
+                "$opt_event_properties": Object {
+                  "customBooleanProperty1": true,
+                  "customBooleanProperty2": false,
+                  "customNumericProperty1": 1,
+                  "customNumericProperty2": 2,
+                  "customStringProperty1": "custom_string_property_1",
+                  "customStringProperty2": "custom_string_property_2",
+                },
               },
               "timestamp": 1612137600000,
               "type": "other",

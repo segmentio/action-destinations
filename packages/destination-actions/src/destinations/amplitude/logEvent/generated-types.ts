@@ -190,6 +190,10 @@ export interface Payload {
    */
   userAgentParsing?: boolean
   /**
+   * Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field
+   */
+  includeRawUserAgent?: boolean
+  /**
    * UTM Tracking Properties
    */
   utm_properties?: {

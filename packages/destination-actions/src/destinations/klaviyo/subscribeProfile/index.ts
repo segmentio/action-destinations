@@ -85,16 +85,12 @@ const action: ActionDefinition<Settings, Payload> = {
     const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
     const subData = formatSubscribeRequestBody(profileToSubscribe, list_id, custom_source)
 
-    // subscribe requires use of 2024-02-15 api version
     return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
       method: 'POST',
-      headers: {
-        revision: '2024-02-15'
-      },
       json: subData
     })
   },
-  performBatch: async (request, { payload }) => {
+  performBatch: async (request, { payload, statsContext, features }) => {
     // remove payloads that have niether email or phone_number
     const filteredPayload = payload.filter((profile) => {
       // Validate and convert the phone number using the provided country code
@@ -137,6 +133,16 @@ const action: ActionDefinition<Settings, Payload> = {
         'Exceeded maximum allowed batches due to unique list_id and custom_source pairings'
       )
     }
+    const statsClient = statsContext?.statsClient
+    const tags = statsContext?.tags
+
+    if (features && features['klaviyo-list-id']) {
+      const set = new Set()
+      payload.forEach((profile) => {
+        set.add(profile.list_id)
+      })
+      statsClient?.histogram(`klaviyo_list_id`, set.size, tags)
+    }
     const requests: Promise<ModifiedResponse<Response>>[] = []
     batches.forEach((key) => {
       const { list_id, custom_source, profiles } = sortedProfilesObject[key]
@@ -148,9 +154,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
         const response = request<Response>(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
           method: 'POST',
-          headers: {
-            revision: '2024-02-15'
-          },
           json: subData
         })
 

@@ -27,6 +27,7 @@ register('60f64ae3eaebd66d17d28e9f', './1plusx')
 register('6388fddea33fcc69c0f8d9ce', './actable-predictive')
 register('61aa712b857e8c85c3b5a849', './adobe-target')
 register('5f7dd6d21ad74f3842b1fc47', './amplitude')
+register('678ff49d9fe6020cf449fd00', './antavo')
 register('60f9d0d048950c356be2e4da', './braze')
 register('61d7456b078e79929de4ee8c', './clevertap')
 register('61f8296b7d15c30a3bbe2b76', './close')
@@ -190,6 +191,10 @@ register('6720ddceaa24532723b39d63', './singlestore')
 register('67339023f603663d5132f0d0', './sprig')
 register('67338e95bf70aed334093dae', './sendgrid-audiences')
 register('673b62169b3342fbe0fc28da', './drip')
+register('674f2453916dadbd36d899dc', './attentive')
+register('674f23ece330374dc1ecc874', './twilio-messaging')
+register('67be4b2aef865ee6e0484fe5', './amazon-eventbridge')
+register('67e285767bbb94fc090bf3c7', './twilio-messaging-omnichannel')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

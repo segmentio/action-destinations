@@ -1,8 +1,8 @@
-import type { AudienceDestinationDefinition } from '@segment/actions-core'
+import { AudienceDestinationDefinition, RequestClient, IntegrationError, defaultValues } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
-import { CREATE_LIST_URL } from './constants'
-import { CreateAudienceReq, CreateAudienceResp } from './types'
+import { GET_LIST_URL, CREATE_LIST_URL } from './constants'
+import { GetListsResp, GetListByIDResp, CreateAudienceReq, CreateAudienceResp } from './types'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'SendGrid Lists (Actions)',
@@ -48,25 +48,68 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const response = await request<CreateAudienceResp>(CREATE_LIST_URL, {
-        method: 'POST',
-        throwHttpErrors: false,
-        json: {
-          name: createAudienceInput?.audienceSettings?.listName ?? createAudienceInput.audienceName
-        } as CreateAudienceReq
-      })
-      const json = await response.json()
-      return { externalId: json.id }
+      const name = createAudienceInput?.audienceSettings?.listName ?? createAudienceInput.audienceName
+      const id = await getAudienceIdByName(request, name)
+      if (id) {
+        return { externalId: id }
+      } else {
+        const response = await request(CREATE_LIST_URL, {
+          method: 'POST',
+          throwHttpErrors: false,
+          json: {
+            name
+          } as CreateAudienceReq
+        })
+        const json: CreateAudienceResp = await response.json()
+        return { externalId: json.id }
+      }
     },
     async getAudience(_, getAudienceInput) {
-      return {
-        externalId: getAudienceInput.externalId
+      const id = await getAudienceIdById(_, getAudienceInput.externalId)
+      if (id) {
+        return {
+          externalId: getAudienceInput.externalId
+        }
+      } else {
+        throw new IntegrationError(
+          `Audience with externalId ${getAudienceInput.externalId} not found`,
+          'GET_AUDIENCE_ERROR',
+          404
+        )
       }
     }
   },
+
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
+}
+
+export async function getAudienceIdByName(request: RequestClient, name: string): Promise<string | undefined> {
+  const response = await request(GET_LIST_URL, {
+    method: 'GET',
+    throwHttpErrors: false
+  })
+  const json: GetListsResp = await response.json()
+  return json.result.find((list) => list.name === name)?.id ?? undefined
+}
+
+export async function getAudienceIdById(request: RequestClient, externalId: string): Promise<string | undefined> {
+  const response = await request(`${GET_LIST_URL}/${externalId}`, {
+    method: 'GET',
+    throwHttpErrors: false
+  })
+  const json: GetListByIDResp = await response.json()
+  return json.id === externalId ? externalId : undefined
 }
 
 export default destination
