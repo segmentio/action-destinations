@@ -34,7 +34,7 @@ export interface Payload {
    */
   restatement_currency_code?: string
   /**
-   * Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.
+   * Email address of the individual who triggered the conversion event.
    */
   email_address?: string
   /**
@@ -42,15 +42,15 @@ export interface Payload {
    */
   phone_country_code?: string
   /**
-   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.
+   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.
    */
   phone_number?: string
   /**
-   * First name of the user who performed the conversion. Segment will hash this value before sending to Google.
+   * First name of the user who performed the conversion
    */
   first_name?: string
   /**
-   * Last name of the user who performed the conversion. Segment will hash this value before sending to Google.
+   * Last name of the user who performed the conversion
    */
   last_name?: string
   /**
@@ -70,7 +70,7 @@ export interface Payload {
    */
   postal_code?: string
   /**
-   * Street address of the user who performed the conversion. Segment will hash this value before sending to Google.
+   * Street address of the user who performed the conversion
    */
   street_address?: string
   /**

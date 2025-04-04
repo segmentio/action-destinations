@@ -67,8 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email_address: {
       label: 'Email Address',
-      description:
-        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
+      description: 'Email address of the individual who triggered the conversion event',
       type: 'string',
       default: {
         '@if': {
@@ -76,7 +75,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.email' },
           else: { '@path': '$.context.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     phone_country_code: {
       label: 'Phone Number Country Code',
@@ -86,7 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
     phone_number: {
       label: 'Phone Number',
       description:
-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.',
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000',
       type: 'string',
       default: {
         '@if': {
@@ -94,7 +94,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.phone' },
           else: { '@path': '$.context.traits.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     order_id: {
       label: 'Order ID',

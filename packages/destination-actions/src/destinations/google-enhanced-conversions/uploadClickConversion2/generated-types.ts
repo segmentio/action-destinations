@@ -22,7 +22,7 @@ export interface Payload {
    */
   conversion_timestamp: string
   /**
-   * Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.
+   * Email address of the individual who triggered the conversion event
    */
   email_address?: string
   /**
@@ -30,7 +30,7 @@ export interface Payload {
    */
   phone_country_code?: string
   /**
-   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.
+   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.
    */
   phone_number?: string
   /**

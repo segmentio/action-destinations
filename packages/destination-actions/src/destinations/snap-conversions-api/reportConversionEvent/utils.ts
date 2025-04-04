@@ -1,5 +1,6 @@
-import { IntegrationError } from '@segment/actions-core'
+import { Features, IntegrationError } from '@segment/actions-core'
 import { createHash } from 'crypto'
+import { processHashing } from '../../../lib/hashing-utils'
 
 export const isNullOrUndefined = <T>(v: T | null | undefined): v is null | undefined => v == null
 
@@ -81,4 +82,14 @@ export const parseNumberSafe = (v: string | number | undefined): number | undefi
 export const parseDateSafe = (v: string | undefined): number | undefined => {
   const parsed = Date.parse(v ?? '')
   return Number.isSafeInteger(parsed) ? parsed : undefined
+}
+
+export const smartHash = (
+  value: string | undefined,
+  features?: Features,
+  cleaningFunction?: (value: string) => string
+): string | undefined => {
+  if (value === undefined) return
+
+  return processHashing(value, 'sha256', 'hex', features, 'actions-snap-conversions', cleaningFunction)
 }

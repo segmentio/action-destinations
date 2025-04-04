@@ -157,15 +157,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   presets: [
     {
       name: 'Entities Audience Entered',
-      partnerAction: 'upsertProfile',
-      mapping: defaultValues(upsertProfile.fields),
+      partnerAction: 'addProfileToList',
+      mapping: defaultValues(addProfileToList.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_entered_track'
     },
     {
       name: 'Entities Audience Exited',
-      partnerAction: 'removeProfile',
-      mapping: defaultValues(removeProfile.fields),
+      partnerAction: 'removeProfileFromList',
+      mapping: defaultValues(removeProfileFromList.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'
     }

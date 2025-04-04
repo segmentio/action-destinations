@@ -10,35 +10,35 @@ export interface Payload {
    */
   externalUserId: string
   /**
-   * User email address. Vaule will be hashed before sending to Amazon.
+   * User email address.
    */
   email?: string
   /**
-   * User first name. Value will be hashed before sending to Amazon.
+   * User first name.
    */
   firstName?: string
   /**
-   * User Last name. Value will be hashed before sending to Amazon.
+   * User Last name.
    */
   lastName?: string
   /**
-   * Phone Number. Value will be hashed before sending to Amazon.
+   * Phone Number.
    */
   phone?: string
   /**
-   * POstal Code. Value will be hashed before sending to Amazon.
+   * Postal Code.
    */
   postal?: string
   /**
-   * State Code. Value will be hashed before sending to Amazon.
+   * State Code.
    */
   state?: string
   /**
-   * City name. Value will be hashed before sending to Amazon.
+   * City name.
    */
   city?: string
   /**
-   * Address Code. Value will be hashed before sending to Amazon.
+   * Address Code.
    */
   address?: string
   /**

@@ -17,8 +17,9 @@ const action: ActionDefinition<Settings, Payload> = {
     detailType: {
       label: 'Detail Type',
       description: `Detail Type of the event. Used to determine what fields to expect in the event Detail. 
-                    Values longer than 128 characters are trimmed`,
+                    Value cannot be longer than 128 characters.`,
       type: 'string',
+      maximum: 128,
       default: { '@path': '$.type' },
       required: true
     },
