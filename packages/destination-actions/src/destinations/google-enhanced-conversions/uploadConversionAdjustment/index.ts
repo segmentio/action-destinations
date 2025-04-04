@@ -3,8 +3,9 @@ import {
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
-  commonEmailValidation,
-  getConversionActionDynamicData
+  getConversionActionDynamicData,
+  formatPhone,
+  commonEmailValidation
 } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -114,6 +115,11 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       category: 'hashedPII'
+    },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
     },
     phone_number: {
       label: 'Phone Number',
@@ -305,7 +311,8 @@ const action: ActionDefinition<Settings, Payload> = {
           'sha256',
           'hex',
           features ?? {},
-          'actions-google-enhanced-conversions'
+          'actions-google-enhanced-conversions',
+          (value) => formatPhone(value, payload.phone_country_code)
         )
       } as UserIdentifierInterface)
     }
@@ -433,7 +440,8 @@ const action: ActionDefinition<Settings, Payload> = {
             'sha256',
             'hex',
             features ?? {},
-            'actions-google-enhanced-conversions'
+            'actions-google-enhanced-conversions',
+            (value) => formatPhone(value, payloadItem.phone_country_code)
           )
         } as UserIdentifierInterface)
       }

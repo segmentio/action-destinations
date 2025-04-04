@@ -434,7 +434,11 @@ export function formatToE164(phoneNumber: string, countryCode: string): string {
   return formattedPhoneNumber
 }
 
-const formatPhone = (phone: string, countryCode?: string): string => {
+export const formatPhone = (phone: string, countryCode?: string): string => {
+  // Check if phone number is already hashed before doing any formatting
+  if (isHashedInformation(phone)) {
+    return phone
+  }
   const formattedPhone = formatToE164(phone, countryCode ?? '+1')
   return formattedPhone
 }
