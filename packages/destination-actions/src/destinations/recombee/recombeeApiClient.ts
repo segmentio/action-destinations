@@ -1,5 +1,6 @@
 import { InvalidAuthenticationError, RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
+// eslint-disable-next-line no-restricted-imports
 import { createHmac } from 'crypto'
 
 enum DatabaseRegion {

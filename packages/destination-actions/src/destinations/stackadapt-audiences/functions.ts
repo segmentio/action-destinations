@@ -1,4 +1,5 @@
 import { APIError, createRequestClient, DynamicFieldResponse } from '@segment/actions-core'
+// eslint-disable-next-line no-restricted-imports
 import { createHash } from 'crypto'
 
 interface Advertiser {

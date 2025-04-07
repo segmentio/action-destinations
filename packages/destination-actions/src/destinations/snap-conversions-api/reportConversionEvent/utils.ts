@@ -1,4 +1,5 @@
 import { Features, IntegrationError } from '@segment/actions-core'
+// eslint-disable-next-line no-restricted-imports
 import { createHash } from 'crypto'
 import { processHashing } from '../../../lib/hashing-utils'
 

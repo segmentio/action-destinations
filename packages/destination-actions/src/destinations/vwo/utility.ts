@@ -1,4 +1,5 @@
 import type { commonPayload, vwoPayload } from './types'
+// eslint-disable-next-line no-restricted-imports
 import * as crypto from 'crypto'
 
 const VWO_NAMESPACE = '11e13cd7-6c48-53ec-8679-7e9c752273c5'

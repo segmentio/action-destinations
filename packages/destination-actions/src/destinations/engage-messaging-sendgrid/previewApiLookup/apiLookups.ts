@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import { createHash } from 'crypto'
 import { IntegrationError } from '@segment/actions-core'
 import { InputField } from '@segment/actions-core'

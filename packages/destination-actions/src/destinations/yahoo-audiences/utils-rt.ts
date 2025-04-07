@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import { createHmac } from 'crypto'
 import { Payload } from './updateSegment/generated-types'
 import { YahooPayload } from './types'

@@ -3,6 +3,7 @@ import type { Settings, AudienceSettings } from './generated-types'
 
 import send from '../webhook/send'
 import { defaultValues, IntegrationError } from '@segment/actions-core'
+// eslint-disable-next-line no-restricted-imports
 import { createHmac } from 'crypto'
 import { Payload } from './send.types'
 const externalIdKey = 'externalId'

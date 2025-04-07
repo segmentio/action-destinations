@@ -1,4 +1,5 @@
 import type { Settings } from './generated-types'
+// eslint-disable-next-line no-restricted-imports
 import { createHmac } from 'crypto'
 import { CredsObj, YahooSubTaxonomy } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'

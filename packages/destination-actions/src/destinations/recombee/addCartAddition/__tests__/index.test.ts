@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { Settings } from '../../generated-types'
+// eslint-disable-next-line no-restricted-imports
 import { randomUUID } from 'crypto'
 
 const testDestination = createTestIntegration(Destination)

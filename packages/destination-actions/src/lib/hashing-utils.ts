@@ -2,6 +2,7 @@
  * Utility module for hashing values using various encryption methods and digest types.
  * It includes functionality to check if a value is already hashed and to process hashing with optional cleaning.
  */
+// eslint-disable-next-line no-restricted-imports
 import * as crypto from 'crypto'
 import { Features } from '@segment/actions-core'
 

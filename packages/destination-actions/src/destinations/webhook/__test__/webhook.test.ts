@@ -6,6 +6,7 @@ import {
   DestinationDefinition
 } from '@segment/actions-core'
 import Webhook from '../index'
+// eslint-disable-next-line no-restricted-imports
 import { createHmac, timingSafeEqual } from 'crypto'
 import { SegmentEvent } from '@segment/actions-core'
 

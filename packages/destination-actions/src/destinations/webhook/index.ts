@@ -1,5 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+// eslint-disable-next-line no-restricted-imports
 import { createHmac } from 'crypto'
 
 import send from './send'

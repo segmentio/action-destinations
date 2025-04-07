@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import { createHash } from 'crypto'
 import { IntegrationError, RetryableError } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
