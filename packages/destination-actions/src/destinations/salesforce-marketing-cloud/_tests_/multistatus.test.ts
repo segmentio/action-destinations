@@ -576,7 +576,7 @@ describe('Multistatus', () => {
       })
     ]
 
-    const response = await testDestination.executeBatch('contactDataExtension', {
+    const response = await testDestination.executeBatch('dataExtension', {
       events,
       settings,
       mapping,

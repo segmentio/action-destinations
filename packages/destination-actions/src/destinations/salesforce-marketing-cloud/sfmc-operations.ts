@@ -143,7 +143,7 @@ export async function executeUpsertWithMultiStatus(
 
     payloads.forEach((_, index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: err?.response?.status || 400,
+        status: err?.response?.status || 500,
         errormessage: additionalError ? additionalError[0].message : errData?.message || '',
         sent: rows[index] as Object as JSONLikeObject,
         /*
