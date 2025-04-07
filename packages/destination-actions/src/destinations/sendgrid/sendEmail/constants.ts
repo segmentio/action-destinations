@@ -50,5 +50,5 @@ export const getGroupIDsURL = (settings: Settings) => {
 }
 export const getTemplateContentURL = (settings: Settings, templateId: string) => {
   const regionalEndpoint = getRegionalEndpoint(settings)
-  return `${regionalEndpoint}/v3/templates/${templateId}/versions`
+  return `${regionalEndpoint}/v3/templates/${templateId}`
 }
