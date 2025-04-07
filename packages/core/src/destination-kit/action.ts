@@ -23,7 +23,7 @@ import { HTTPError, NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
-import { ErrorCodes, IntegrationError, MultiStatusErrorReporter } from '../errors'
+import { ErrorCodes, getErrorCodeFromHttpStatus, IntegrationError, MultiStatusErrorReporter } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
 import {
   Logger,
@@ -43,6 +43,20 @@ export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, A
   request: RequestClient,
   data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs>
 ) => MaybePromise<Return>
+
+interface ReservedInputFields {
+  batch_keys?: {
+    label: string
+    description: string
+    type: 'string'
+    unsafe_hidden?: true
+    multiple?: true
+    required?: false
+    default?: string[]
+  }
+}
+
+type ActionFields = Omit<Record<string, InputField>, keyof ReservedInputFields> & ReservedInputFields
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface BaseActionDefinition {
@@ -67,18 +81,11 @@ export interface BaseActionDefinition {
   /**
    * The fields used to perform the action. These fields should match what the partner API expects.
    */
-  fields: Record<string, InputField>
+  fields: ActionFields
 }
 
 type HookValueTypes = string | boolean | number | Array<string | boolean | number>
 type GenericActionHookValues = Record<string, HookValueTypes>
-
-type GenericActionHookBundle = {
-  [K in ActionHookType]?: {
-    inputs?: GenericActionHookValues
-    outputs?: GenericActionHookValues
-  }
-}
 
 // Utility type to check if T is an array
 type IsArray<T> = T extends (infer U)[] ? U : never
@@ -94,7 +101,9 @@ export interface ActionDefinition<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   AudienceSettings = any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  GeneratedActionHookBundle extends GenericActionHookBundle = any
+  GeneratedActionHookInputs = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  GeneratedActionHookOutputs = any
 > extends BaseActionDefinition {
   /**
    * A way to "register" dynamic fields.
@@ -139,8 +148,8 @@ export interface ActionDefinition<
       Settings,
       Payload,
       AudienceSettings,
-      NonNullable<GeneratedActionHookBundle[K]>['outputs'],
-      NonNullable<GeneratedActionHookBundle[K]>['inputs']
+      NonNullable<GeneratedActionHookInputs>,
+      NonNullable<GeneratedActionHookOutputs>
     >
   }
 
@@ -170,8 +179,8 @@ export interface ActionHookDefinition<
   Settings,
   Payload,
   AudienceSettings,
-  GeneratedActionHookOutputs,
-  GeneratedActionHookTypesInputs
+  GeneratedActionHookTypesInputs,
+  GeneratedActionHookOutputs
 > {
   /** The display title for this hook. */
   label: string
@@ -542,9 +551,16 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
           // Check if response is a failed response
           if (response instanceof ActionDestinationErrorResponse) {
+            const responseValue = response.value()
+
+            // Check if the error has a 'sent' or 'body' field set, we assume it to be an error from the API Call
+            // Else we assume it to be an error from the Integration validations
             multiStatusResponse[i] = {
-              ...response.value(),
-              errorreporter: MultiStatusErrorReporter.DESTINATION
+              ...responseValue,
+              errorreporter:
+                responseValue.sent || responseValue.body
+                  ? MultiStatusErrorReporter.DESTINATION
+                  : MultiStatusErrorReporter.INTEGRATIONS
             }
 
             // Add datadog stats for events that are discarded by Destination
@@ -747,6 +763,11 @@ export class ActionDestinationErrorResponse {
   private data: ActionDestinationErrorResponseType
   public constructor(data: ActionDestinationErrorResponseType) {
     this.data = data
+
+    // If the error type is not set, try to infer it from the status code
+    if (!this.data.errortype) {
+      this.data.errortype = getErrorCodeFromHttpStatus(this.data.status)
+    }
   }
   public value(): ActionDestinationErrorResponseType {
     return this.data

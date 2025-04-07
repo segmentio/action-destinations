@@ -3,10 +3,10 @@ import { ErrorCodes, IntegrationError, PayloadValidationError, InvalidAuthentica
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
 import { CONVERSION_TYPE_OPTIONS, SUPPORTED_LOOKBACK_WINDOW_CHOICES, DEPENDS_ON_CONVERSION_RULE_ID } from '../constants'
-import type { Payload, HookBundle } from './generated-types'
+import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from './generated-types'
 import { LinkedInError } from '../types'
 
-const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
+const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs, OnMappingSaveOutputs> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
   defaultSubscription: 'type = "track"',
@@ -140,13 +140,13 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       performHook: async (request, { hookInputs, hookOutputs }) => {
         const linkedIn = new LinkedInConversions(request)
 
-        let hookReturn: ActionHookResponse<HookBundle['onMappingSave']['outputs']>
+        let hookReturn: ActionHookResponse<OnMappingSaveOutputs>
         if (hookOutputs?.onMappingSave?.outputs) {
           linkedIn.setConversionRuleId(hookOutputs.onMappingSave.outputs.id)
 
           hookReturn = await linkedIn.updateConversionRule(
             hookInputs,
-            hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
+            hookOutputs.onMappingSave.outputs as OnMappingSaveOutputs
           )
         } else {
           hookReturn = await linkedIn.createConversionRule(hookInputs)
@@ -223,7 +223,8 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
       type: 'string',
       required: false,
-      default: { '@path': '$.traits.email' }
+      default: { '@path': '$.traits.email' },
+      category: 'hashedPII'
     },
     linkedInUUID: {
       label: 'LinkedIn First Party Ads Tracking UUID',
@@ -296,7 +297,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       unsafe_hidden: true
     }
   },
-  perform: async (request, { payload, hookOutputs }) => {
+  perform: async (request, { payload, hookOutputs, features }) => {
     const conversionTime = isNotEpochTimestampInMilliseconds(payload.conversionHappenedAt)
       ? convertToEpochMillis(payload.conversionHappenedAt)
       : Number(payload.conversionHappenedAt)
@@ -315,12 +316,12 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     linkedinApiClient.setConversionRuleId(conversionRuleId)
 
     try {
-      return linkedinApiClient.streamConversionEvent(payload, conversionTime)
+      return linkedinApiClient.streamConversionEvent(payload, conversionTime, features)
     } catch (error) {
       throw handleRequestError(error)
     }
   },
-  performBatch: async (request, { payload: payloads, hookOutputs }) => {
+  performBatch: async (request, { payload: payloads, hookOutputs, features }) => {
     const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
     const conversionRuleId = hookOutputs?.onMappingSave?.outputs?.id
 
@@ -331,7 +332,7 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
     linkedinApiClient.setConversionRuleId(conversionRuleId)
 
     try {
-      return linkedinApiClient.batchConversionAdd(payloads)
+      return linkedinApiClient.batchConversionAdd(payloads, features)
     } catch (error) {
       throw handleRequestError(error)
     }

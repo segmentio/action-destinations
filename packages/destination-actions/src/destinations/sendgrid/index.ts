@@ -3,11 +3,13 @@ import type { Settings } from './generated-types'
 
 import updateUserProfile from './updateUserProfile'
 
+import sendEmail from './sendEmail'
+
 const destination: DestinationDefinition<Settings> = {
-  name: 'SendGrid Marketing Campaigns',
+  name: 'SendGrid',
   slug: 'actions-sendgrid',
   mode: 'cloud',
-  description: 'This destination sends data to SendGrid Marketing Campaigns.',
+  description: 'Trigger emails from SendGrid and sync Contacts to SendGrid Markeitng Campaigns.',
 
   authentication: {
     scheme: 'custom',
@@ -37,7 +39,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    updateUserProfile
+    updateUserProfile,
+    sendEmail
   }
 }
 

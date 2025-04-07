@@ -46,6 +46,20 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'purchase',
       mapping: defaultValues(purchase.fields),
       type: 'automatic'
+    },
+    {
+      name: 'Banner Impression',
+      subscribe: 'type = "track" and event = "Banner Impression"',
+      partnerAction: 'impression',
+      mapping: defaultValues(impression.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Banner Click',
+      subscribe: 'type = "track" and event = "Banner Click"',
+      partnerAction: 'click',
+      mapping: defaultValues(click.fields),
+      type: 'automatic'
     }
   ],
   actions: {

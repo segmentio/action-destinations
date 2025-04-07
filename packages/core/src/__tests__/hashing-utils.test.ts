@@ -1,4 +1,4 @@
-import { sha256SmartHash, SmartHashing } from '../hashing-utils'
+import { sha1Hash, sha256SmartHash, SmartHashing } from '../hashing-utils'
 
 describe('hashing utilities', () => {
   it('should hash a non-hashed value', async () => {
@@ -11,6 +11,12 @@ describe('hashing utilities', () => {
     const value = '4f7f6a4ae46676d9751fdccdf15ae1e6a200ed0de5653e06390148928c642006'
 
     expect(sha256SmartHash(value)).toEqual(value)
+  })
+
+  it('sha-1 hashing', async () => {
+    const value = 'test_value'
+
+    expect(sha1Hash(value)).toEqual('b6dfecf3684e6a40de435195509ac724c7349c03')
   })
 })
 

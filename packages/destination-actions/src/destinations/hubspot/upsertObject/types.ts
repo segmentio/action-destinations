@@ -29,7 +29,8 @@ export const HSPropTypeFieldType = {
   NumberNumber: 'number:number',
   DateTimeDate: 'datetime:date',
   DateDate: 'date:date',
-  EnumerationBooleanCheckbox: 'enumeration:booleancheckbox'
+  EnumerationBooleanCheckbox: 'enumeration:booleancheckbox',
+  StringTextArea: 'string:textarea'
 } as const
 
 export type HSPropTypeFieldType = typeof HSPropTypeFieldType[keyof typeof HSPropTypeFieldType]
@@ -49,7 +50,8 @@ export const HSPropFieldType = {
   Number: 'number',
   Date: 'date',
   BooleanCheckbox: 'booleancheckbox',
-  Select: 'select'
+  Select: 'select',
+  TextArea: 'textarea'
 } as const
 
 export type HSPropFieldType = typeof HSPropFieldType[keyof typeof HSPropFieldType]
@@ -77,7 +79,7 @@ export interface Prop {
   typeFieldType: HSPropTypeFieldType
 }
 
-export interface Schema {
+export interface CachableSchema {
   object_details: {
     object_type: string
     id_field_name: string
@@ -88,18 +90,15 @@ export interface Schema {
 
 export interface SchemaDiff {
   match: SchemaMatch
-  object_details: {
-    object_type: string
-    id_field_name: string
-  }
-  missingProperties: Prop[]
-  missingSensitiveProperties: Prop[]
+  missingProperties?: Prop[]
+  missingSensitiveProperties?: Prop[]
 }
 
 export interface ReadPropsResp {
   results: Array<Result>
-  status: number
+  status: string
   statusText: string
+  message?: string
 }
 
 export interface Result {

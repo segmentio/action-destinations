@@ -1,4 +1,9 @@
-import { AudienceDestinationDefinition, InvalidAuthenticationError, IntegrationError } from '@segment/actions-core'
+import {
+  AudienceDestinationDefinition,
+  InvalidAuthenticationError,
+  IntegrationError,
+  defaultValues
+} from '@segment/actions-core'
 import type { RefreshTokenResponse, AmazonTestAuthenticationError } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
 import {
@@ -6,7 +11,8 @@ import {
   extractNumberAndSubstituteWithStringValue,
   getAuthToken,
   REGEX_ADVERTISERID,
-  REGEX_AUDIENCEID
+  REGEX_AUDIENCEID,
+  TTL_MAX_VALUE
 } from './utils'
 
 import syncAudiencesToDSP from './syncAudiencesToDSP'
@@ -42,7 +48,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          timeout: 15000
         })
       } catch (e: any) {
         const error = e as AmazonTestAuthenticationError
@@ -164,6 +171,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       if (!country_code) {
         throw new IntegrationError('Missing countryCode Value', 'MISSING_REQUIRED_FIELD', 400)
       }
+      if (ttl && ttl > TTL_MAX_VALUE) {
+        throw new IntegrationError(`TTL must have value less than or equal to ${TTL_MAX_VALUE}`, 'INVALID_INPUT', 400)
+      }
 
       const payload: AudiencePayload = {
         name: audienceName,
@@ -199,7 +209,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         body: payloadString,
         headers: {
           'Content-Type': 'application/vnd.amcaudiences.v1+json'
-        }
+        },
+        timeout: 15000
       })
 
       const res = await response.text()
@@ -219,7 +230,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
       const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
-        method: 'GET'
+        method: 'GET',
+        timeout: 15000
       })
       const res = await response.text()
       // Regular expression to find a audienceId number and replace the audienceId with quoted string
@@ -231,7 +243,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudiencesToDSP
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: {
+        ...defaultValues(syncAudiencesToDSP.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination

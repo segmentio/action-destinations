@@ -22,11 +22,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    items: {
-      label: 'Items',
-      description: 'The items that were added to the cart.',
+    item: {
+      label: 'Item',
+      description: 'The item that was added to the cart.',
       type: 'object',
-      multiple: true,
       required: true,
       properties: {
         itemId: {
@@ -51,25 +50,15 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        // Product Added is an event with a single product
-        '@arrayPath': [
-          '$.properties',
-          {
-            itemId: {
-              '@if': {
-                exists: { '@path': '$.product_id' },
-                then: { '@path': '$.product_id' },
-                else: { '@path': '$.asset_id' }
-              }
-            },
-            amount: {
-              '@path': '$.quantity'
-            },
-            price: {
-              '@path': '$.price'
-            }
+        itemId: {
+          '@if': {
+            exists: { '@path': '$.properties.product_id' },
+            then: { '@path': '$.properties.product_id' },
+            else: { '@path': '$.properties.sku' }
           }
-        ]
+        },
+        amount: { '@path': '$.properties.quantity' },
+        price: { '@path': '$.properties.price' }
       }
     },
     timestamp: {
@@ -83,25 +72,22 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(new Batch(payloadToInteractions(data.payload)))
+    await client.send(payloadToInteraction(data.payload))
   },
   performBatch: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(new Batch(data.payload.flatMap(payloadToInteractions)))
+    await client.send(new Batch(data.payload.map(payloadToInteraction)))
   }
 }
 
-function payloadToInteractions(payload: Payload): AddCartAddition[] {
-  return payload.items.map(
-    (item) =>
-      new AddCartAddition({
-        userId: payload.userId,
-        ...item,
-        timestamp: payload.timestamp,
-        recommId: payload.recommId,
-        additionalData: payload.additionalData
-      })
-  )
+function payloadToInteraction(payload: Payload): AddCartAddition {
+  return new AddCartAddition({
+    userId: payload.userId,
+    ...payload.item,
+    timestamp: payload.timestamp,
+    recommId: payload.recommId,
+    additionalData: payload.additionalData
+  })
 }
 
 export default action

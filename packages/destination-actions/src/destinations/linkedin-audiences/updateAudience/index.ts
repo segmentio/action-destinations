@@ -1,9 +1,10 @@
-import type { ActionDefinition, StatsContext } from '@segment/actions-core'
+import type { ActionDefinition, Features, StatsContext } from '@segment/actions-core'
 import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createHash } from 'crypto'
 import { LinkedInAudiences } from '../api'
+import { LinkedInAudiencePayload } from '../types'
+import { processHashing } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Segment',
@@ -29,9 +30,54 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User Email',
       description: "The user's email address to send to LinkedIn.",
       type: 'string',
-      unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at path '$.context.traits.email' in Personas events.
       default: {
-        '@path': '$.context.traits.email'
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.traits.email' }
+        }
+      },
+      category: 'hashedPII'
+    },
+    first_name: {
+      label: 'User First Name',
+      description: "The user's first name to send to LinkedIn.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.firstName'
+      }
+    },
+    last_name: {
+      label: 'User Last Name',
+      description: "The user's last name to send to LinkedIn.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.lastName'
+      }
+    },
+    title: {
+      label: 'User Title',
+      description: "The user's title to send to LinkedIn.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.title'
+      }
+    },
+    company: {
+      label: 'User Company',
+      description: "The user's company to send to LinkedIn.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.company'
+      }
+    },
+    country: {
+      label: 'User Country',
+      description:
+        "The user's country to send to LinkedIn. This field accepts an ISO standardized two letter country code e.g. US.",
+      type: 'string',
+      default: {
+        '@path': '$.traits.country'
       }
     },
     google_advertising_id: {
@@ -81,11 +127,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 'AUTO'
     }
   },
-  perform: async (request, { settings, payload, statsContext }) => {
-    return processPayload(request, settings, [payload], statsContext)
+  perform: async (request, { settings, payload, statsContext, features }) => {
+    return processPayload(request, settings, [payload], statsContext, features)
   },
-  performBatch: async (request, { settings, payload, statsContext }) => {
-    return processPayload(request, settings, payload, statsContext)
+  performBatch: async (request, { settings, payload, statsContext, features }) => {
+    return processPayload(request, settings, payload, statsContext, features)
   }
 }
 
@@ -93,14 +139,15 @@ async function processPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  statsContext: StatsContext | undefined
+  statsContext: StatsContext | undefined,
+  features?: Features
 ) {
   validate(settings, payloads)
 
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
 
   const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0], statsContext)
-  const elements = extractUsers(settings, payloads)
+  const elements = extractUsers(settings, payloads, features)
 
   // We should never hit this condition because at least an email or a
   // google ad id is required in each payload, but if we do, returning early
@@ -111,10 +158,12 @@ async function processPayload(
   if (elements.length < 1) {
     return
   }
+
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
     ...statsContext?.tags,
     `endpoint:add-or-remove-users-from-dmpSegment`
   ])
+
   const res = await linkedinApiClient.batchUpdate(dmpSegmentId, elements)
 
   // At this point, if LinkedIn's API returns a 404 error, it's because the audience
@@ -152,7 +201,7 @@ async function getDmpSegmentId(
   settings: Settings,
   payload: Payload,
   statsContext: StatsContext | undefined
-) {
+): Promise<string> {
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:get-dmpSegment`])
   const res = await linkedinApiClient.getDmpSegment(settings, payload)
   const body = await res.json()
@@ -160,6 +209,7 @@ async function getDmpSegmentId(
   if (body.elements?.length > 0) {
     return body.elements[0].id
   }
+
   return createDmpSegment(linkedinApiClient, settings, payload, statsContext)
 }
 
@@ -168,64 +218,94 @@ async function createDmpSegment(
   settings: Settings,
   payload: Payload,
   statsContext: StatsContext | undefined
-) {
+): Promise<string> {
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [...statsContext?.tags, `endpoint:create-dmpSegment`])
   const res = await linkedinApiClient.createDmpSegment(settings, payload)
   const headers = res.headers.toJSON()
   return headers['x-linkedin-id']
 }
 
-function extractUsers(settings: Settings, payloads: Payload[]) {
-  const elements: Record<string, any>[] = []
+function extractUsers(settings: Settings, payloads: Payload[], features?: Features): LinkedInAudiencePayload[] {
+  const elements: LinkedInAudiencePayload[] = []
 
   payloads.forEach((payload: Payload) => {
     if (!payload.email && !payload.google_advertising_id) {
       return
     }
 
-    elements.push({
+    const linkedinAudiencePayload: LinkedInAudiencePayload = {
       action: getAction(payload),
-      userIds: getUserIds(settings, payload)
-    })
+      userIds: getUserIds(settings, payload, features)
+    }
+
+    if (payload.first_name) {
+      linkedinAudiencePayload.firstName = payload.first_name
+    }
+
+    if (payload.last_name) {
+      linkedinAudiencePayload.lastName = payload.last_name
+    }
+
+    if (payload.title) {
+      linkedinAudiencePayload.title = payload.title
+    }
+
+    if (payload.company) {
+      linkedinAudiencePayload.company = payload.company
+    }
+
+    if (payload.country) {
+      linkedinAudiencePayload.country = payload.country
+    }
+
+    elements.push(linkedinAudiencePayload)
   })
 
   return elements
 }
 
-function getAction(payload: Payload) {
+function getAction(payload: Payload): 'ADD' | 'REMOVE' {
   const { dmp_user_action = 'AUTO' } = payload
 
   if (dmp_user_action === 'ADD') {
     return 'ADD'
-  } else if (dmp_user_action === 'REMOVE') {
+  }
+
+  if (dmp_user_action === 'REMOVE') {
     return 'REMOVE'
-  } else if (dmp_user_action === 'AUTO' || !dmp_user_action) {
+  }
+
+  if (dmp_user_action === 'AUTO' || !dmp_user_action) {
     if (payload.event_name === 'Audience Entered') {
       return 'ADD'
-    } else if (payload.event_name === 'Audience Exited') {
+    }
+
+    if (payload.event_name === 'Audience Exited') {
       return 'REMOVE'
     }
   }
+
+  return 'ADD'
 }
 
-function getUserIds(settings: Settings, payload: Payload): Record<string, string>[] {
-  const users = []
+function getUserIds(settings: Settings, payload: Payload, features?: Features): Record<string, string>[] {
+  const userIds = []
 
   if (payload.email && settings.send_email === true) {
-    users.push({
+    userIds.push({
       idType: 'SHA256_EMAIL',
-      idValue: createHash('sha256').update(payload.email).digest('hex')
+      idValue: processHashing(payload.email, 'sha256', 'hex', features ?? {}, 'actions-linkedin-audiences')
     })
   }
 
   if (payload.google_advertising_id && settings.send_google_advertising_id === true) {
-    users.push({
+    userIds.push({
       idType: 'GOOGLE_AID',
       idValue: payload.google_advertising_id
     })
   }
 
-  return users
+  return userIds
 }
 
 export default action

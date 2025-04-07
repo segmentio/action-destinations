@@ -1,18 +1,49 @@
 import { Payload as CustomTraitsPayload } from './sendCustomTraits/generated-types'
 import { Payload as AudiencePayload } from './sendAudience/generated-types'
 import { Payload as ListMemberPayload } from './upsertListMember/generated-types'
-import { RecordData, CustomTraitsRequestBody, MergeRule, ListMemberRequestBody, Data } from './types'
+
+import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
+import {
+  ResponsysRecordData,
+  ResponsysCustomTraitsRequestBody,
+  ResponsysMergeRule,
+  ResponsysListMemberRequestBody,
+  Data,
+  ResponsysAsyncResponse
+} from './types'
 import {
   RequestClient,
-  IntegrationError,
   PayloadValidationError,
   RetryableError,
-  StatsContext
+  StatsContext,
+  ModifiedResponse,
+  createRequestClient
 } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-export const validateCustomTraits = ({
-  profileExtensionTable,
+// Rate limits per endpoint.
+// Can be obtained through `/rest/api/ratelimit`, but at the point
+// this project is, there's no good way to calling it without a huge
+// drop in performance.
+// We are using here the most common values observed in our customers.
+
+// upsertListMembers (`lists/${settings.profileListName}/members`, POST): 400 requests per minute.
+// Around 1 request every 150ms.
+const upsertListMembersWaitInterval = 150
+
+// getAsyncResponse (`requests/${requestId}`, GET): 1000 requests per minute.
+// Around 1 request every 60ms.
+const getAsyncResponseWaitInterval = 60
+
+export const getRateLimits = async (request: RequestClient, settings: Settings): Promise<ModifiedResponse<any>> => {
+  const endpoint = new URL('/rest/api/ratelimit', settings.baseUrl)
+  return request(endpoint.href, {
+    method: 'GET',
+    skipResponseCloning: true
+  })
+}
+
+export const testConditionsToRetry = ({
   timestamp,
   statsContext,
   retry
@@ -33,19 +64,6 @@ export const validateCustomTraits = ({
     if (statsClient && statsTag) {
       statsClient?.incr('responsysShouldRetryFALSE', 1, statsTag)
     }
-  }
-  if (
-    !(
-      typeof profileExtensionTable !== 'undefined' &&
-      profileExtensionTable !== null &&
-      profileExtensionTable.trim().length > 0
-    )
-  ) {
-    throw new IntegrationError(
-      'Send Custom Traits Action requires "PET Name" setting field to be populated',
-      'PET_NAME_SETTING_MISSING',
-      400
-    )
   }
 }
 
@@ -73,7 +91,7 @@ export const getUserDataFieldNames = (data: Data): string[] => {
   return Object.keys((data as unknown as Data).rawMapping.userData)
 }
 
-const stringifyObject = (obj: Record<string, unknown>): Record<string, string> => {
+export const stringifyObject = (obj: Record<string, unknown>): Record<string, string> => {
   const stringifiedObj: Record<string, string> = {}
   for (const key in obj) {
     stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : (obj[key] as string)
@@ -86,29 +104,30 @@ export const sendCustomTraits = async (
   payload: CustomTraitsPayload[] | AudiencePayload[],
   settings: Settings,
   userDataFieldNames: string[],
-  isAudience?: boolean
+  isAudience = false
 ) => {
   let userDataArray: unknown[]
   if (isAudience) {
-    const audiencePayloads = payload as unknown[] as AudiencePayload[]
+    const audiencePayloads = payload as AudiencePayload[]
     userDataArray = audiencePayloads.map((obj) => {
-      const traitValue = obj.computation_key
-        ? { [obj.computation_key.toUpperCase() as unknown as string]: obj.traits_or_props[obj.computation_key] }
-        : {}
-      if (!userDataFieldNames.includes(obj.computation_key.toUpperCase() as unknown as string)) {
-        userDataFieldNames.push(obj.computation_key.toUpperCase() as unknown as string)
+      const audienceKeyUppercase = obj.computation_key.toUpperCase()
+      const audienceTraitValue = { [audienceKeyUppercase]: obj.traits_or_props[obj.computation_key] }
+
+      if (!userDataFieldNames.includes(audienceKeyUppercase)) {
+        userDataFieldNames.push(audienceKeyUppercase)
       }
+
       return {
         ...(obj.stringify ? stringifyObject(obj.userData) : obj.userData),
-        ...(obj.stringify ? stringifyObject(traitValue) : traitValue)
+        ...(obj.stringify ? stringifyObject(audienceTraitValue) : audienceTraitValue)
       }
     })
   } else {
-    const customTraitsPayloads = payload as unknown[] as CustomTraitsPayload[]
+    const customTraitsPayloads = payload as CustomTraitsPayload[]
     userDataArray = customTraitsPayloads.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
   }
 
-  const records: unknown[][] = userDataArray.map((userData) => {
+  const records: string[][] = userDataArray.map((userData) => {
     return userDataFieldNames.map((fieldName) => {
       return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
         ? (userData as Record<string, string>)[fieldName]
@@ -116,13 +135,13 @@ export const sendCustomTraits = async (
     })
   })
 
-  const recordData: RecordData = {
+  const recordData: ResponsysRecordData = {
     fieldNames: userDataFieldNames.map((field) => field.toUpperCase()),
     records,
     mapTemplateName: ''
   }
 
-  const requestBody: CustomTraitsRequestBody = {
+  const requestBody: ResponsysCustomTraitsRequestBody = {
     recordData,
     insertOnNoMatch: settings.insertOnNoMatch,
     updateOnMatch: settings.updateOnMatch,
@@ -138,96 +157,131 @@ export const sendCustomTraits = async (
     body: JSON.stringify(requestBody)
   })
 
-  if (settings.segmentWriteKey && settings.segmentWriteKeyRegion) {
-    try {
-      const body = response.data
-      await request(
-        settings.segmentWriteKeyRegion === 'EU'
-          ? 'events.eu1.segmentapis.com/v1/track'
-          : 'https://api.segment.io/v1/track',
-        {
-          method: 'POST',
-          headers: {
-            Authorization: 'Basic ' + Buffer.from(settings.segmentWriteKey + ': ').toString('base64'),
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            type: 'track',
-            event: 'Responsys Response Message Received',
-            properties: {
-              body,
-              responsysRequest: {
-                ...requestBody,
-                recordCount: requestBody.recordData.records.length
-              }
-            },
-            anonymousId: '__responsys__API__response__'
-          })
-        }
-      )
-    } catch (error) {
-      // do nothing
-    }
-  }
+  await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
   return response
 }
 
 export const upsertListMembers = async (
   request: RequestClient,
+  authTokens: AuthTokens,
   payload: ListMemberPayload[],
   settings: Settings,
-  userDataFieldNames: string[]
+  usingAsyncApi = true
 ) => {
   const userDataArray = payload.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
 
-  const records: unknown[][] = userDataArray.map((userData) => {
-    return userDataFieldNames.map((fieldName) => {
-      return (userData as Record<string, string>) && fieldName in (userData as Record<string, string>)
-        ? (userData as Record<string, string>)[fieldName]
-        : ''
-    })
-  })
+  const recordSets: { [key: string]: string[][] } = {}
+  for (const item of userDataArray) {
+    const recordSetKey = Object.keys(item).join(',')
+    const record: string[] = []
+    for (const fieldName of Object.keys(item)) {
+      if (
+        ![
+          'EMAIL_ADDRESS_',
+          'EMAIL_MD5_HASH_',
+          'EMAIL_SHA256_HASH_',
+          'RIID_',
+          'CUSTOMER_ID_',
+          'MOBILE_NUMBER_'
+        ].includes(fieldName)
+      ) {
+        continue
+      }
 
-  const recordData: RecordData = {
-    fieldNames: userDataFieldNames,
-    records,
-    mapTemplateName: ''
+      record.push((item as Record<string, string>)[fieldName])
+    }
+
+    if (recordSetKey in recordSets) {
+      recordSets[recordSetKey].push(record)
+    } else {
+      recordSets[recordSetKey] = [record]
+    }
   }
 
-  const mergeRule: MergeRule = {
-    htmlValue: settings.htmlValue,
-    optinValue: settings.optinValue,
-    textValue: settings.textValue,
-    insertOnNoMatch: settings.insertOnNoMatch,
-    updateOnMatch: settings.updateOnMatch,
-    matchColumnName1: settings.matchColumnName1 + '_',
-    matchColumnName2: settings.matchColumnName2 ? settings.matchColumnName2 + '_' : '',
-    matchOperator: settings.matchOperator,
-    optoutValue: settings.optoutValue,
-    rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
-    defaultPermissionStatus: settings.defaultPermissionStatus
+  const responses = []
+  // Per https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/REST/Async/asyncApi-v1.3-lists-listName-members-post.htm,
+  // we can only send 200 records at a time.
+  for (const [recordSetKey, records] of Object.entries(recordSets)) {
+    for (let i = 0; i < records.length; i += 200) {
+      const chunk = records.slice(i, i + 200)
+      const recordData: ResponsysRecordData = {
+        fieldNames: recordSetKey.split(',').map((field) => field.toUpperCase()),
+        records: chunk,
+        mapTemplateName: ''
+      }
+
+      const mergeRule: ResponsysMergeRule = {
+        htmlValue: settings.htmlValue,
+        optinValue: settings.optinValue,
+        textValue: settings.textValue,
+        insertOnNoMatch: settings.insertOnNoMatch || false,
+        updateOnMatch: settings.updateOnMatch,
+        matchColumnName1: settings.matchColumnName1 + '_',
+        matchOperator: settings.matchOperator,
+        optoutValue: settings.optoutValue,
+        rejectRecordIfChannelEmpty: settings.rejectRecordIfChannelEmpty,
+        defaultPermissionStatus: payload[0].default_permission_status || settings.defaultPermissionStatus
+      }
+
+      if (settings.matchColumnName2) {
+        mergeRule.matchColumnName2 = settings.matchColumnName2 + '_'
+      }
+
+      const requestBody: ResponsysListMemberRequestBody = {
+        recordData,
+        mergeRule
+      }
+
+      const path = `/rest/${usingAsyncApi ? 'asyncApi' : 'api'}/v1.3/lists/${settings.profileListName}/members`
+      const endpoint = new URL(path, settings.baseUrl)
+
+      const headers = {
+        headers: {
+          authorization: `${authTokens.accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+
+      // Take a break.
+      await new Promise((resolve) => setTimeout(resolve, upsertListMembersWaitInterval))
+
+      const secondRequest = createRequestClient(headers)
+      const response: ModifiedResponse<unknown> = await secondRequest(endpoint.href, {
+        method: 'POST',
+        body: JSON.stringify(requestBody)
+      })
+
+      // If request was done through Responsys Async API, we need to fetch the response from
+      // another endpoint to get the real processing response.
+      if (usingAsyncApi) {
+        const requestId = (response as ModifiedResponse<ResponsysAsyncResponse>).data.requestId
+        const asyncResponse = await getAsyncResponse(requestId, authTokens, settings)
+
+        await sendDebugMessageToSegmentSource(request, requestBody, asyncResponse, settings)
+        responses.push(asyncResponse)
+      } else {
+        await sendDebugMessageToSegmentSource(request, requestBody, response, settings)
+        responses.push(response)
+      }
+    }
   }
 
-  const requestBody: ListMemberRequestBody = {
-    recordData,
-    mergeRule
-  }
+  return responses
+}
 
-  const path = `/rest/asyncApi/v1.3/lists/${settings.profileListName}/members`
-
-  const endpoint = new URL(path, settings.baseUrl)
-
-  const response = await request(endpoint.href, {
-    method: 'POST',
-    body: JSON.stringify(requestBody)
-  })
-
-  if (settings.segmentWriteKey && settings.segmentWriteKeyRegion) {
+export const sendDebugMessageToSegmentSource = async (
+  request: RequestClient,
+  requestBody: ResponsysCustomTraitsRequestBody,
+  response: ModifiedResponse<any>,
+  settings: Settings
+) => {
+  const segmentWriteKeyRegion = settings.segmentWriteKeyRegion || 'US'
+  if (settings.segmentWriteKey) {
     try {
       const body = response.data
       await request(
-        settings.segmentWriteKeyRegion === 'EU'
-          ? 'events.eu1.segmentapis.com/v1/track'
+        segmentWriteKeyRegion === 'EU'
+          ? 'https://events.eu1.segmentapis.com/v1/track'
           : 'https://api.segment.io/v1/track',
         {
           method: 'POST',
@@ -238,16 +292,12 @@ export const upsertListMembers = async (
           body: JSON.stringify({
             type: 'track',
             event: 'Responsys Response Message Received',
-            requestBody: {
-              ...requestBody,
-              recordCount: requestBody.recordData.records.length
-            },
             properties: {
               body,
               responsysRequest: {
-                ...requestBody,
-                recordCount: requestBody.recordData.records.length
-              }
+                ...requestBody
+              },
+              recordCount: requestBody.recordData.records.length
             },
             anonymousId: '__responsys__API__response__'
           })
@@ -257,5 +307,28 @@ export const upsertListMembers = async (
       // do nothing
     }
   }
-  return response
+}
+
+export const getAsyncResponse = async (
+  requestId: string,
+  authTokens: AuthTokens,
+  settings: Settings
+): Promise<ModifiedResponse<unknown>> => {
+  const headers = {
+    headers: {
+      authorization: `${authTokens.accessToken}`,
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const operationResponseEndpoint = new URL(`/rest/asyncApi/v1.3/requests/${requestId}`, settings.baseUrl)
+  const request = createRequestClient(headers)
+  // Take a break.
+  await new Promise((resolve) => setTimeout(resolve, getAsyncResponseWaitInterval))
+  const asyncResponse = await request(operationResponseEndpoint.href, {
+    method: 'GET',
+    skipResponseCloning: true
+  })
+
+  return asyncResponse
 }

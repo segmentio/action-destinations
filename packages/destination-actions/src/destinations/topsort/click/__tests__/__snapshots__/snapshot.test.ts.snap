@@ -4,6 +4,9 @@ exports[`Testing snapshot for Topsort's click destination action: all fields 1`]
 Object {
   "clicks": Array [
     Object {
+      "additionalAttribution": Object {
+        "testType": "YPhGI%A",
+      },
       "id": "YPhGI%A",
       "occurredAt": "2021-02-01T00:00:00.000Z",
       "opaqueUserId": "YPhGI%A",

@@ -6,9 +6,9 @@ export interface Payload {
    */
   userId: string
   /**
-   * The items that were added to the cart.
+   * The item that was added to the cart.
    */
-  items: {
+  item: {
     /**
      * ID of the item.
      */
@@ -21,7 +21,7 @@ export interface Payload {
      * The price of the added item. If `amount` is greater than 1, the price of one item should be given.
      */
     price?: number
-  }[]
+  }
   /**
    * The UTC timestamp of when the cart addition occurred.
    */
