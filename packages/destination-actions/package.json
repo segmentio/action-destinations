@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.371.1-staging-0da0d31e3.0",
+  "version": "3.371.1-staging-660087da2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -47,8 +47,8 @@
     "@bufbuild/protobuf": "^2.2.3",
     "@connectrpc/connect": "2.0.2",
     "@segment/a1-notation": "^2.1.4",
-    "@segment/actions-core": "3.147.1-staging-e3ec2e6df.0",
-    "@segment/actions-shared": "1.128.1-staging-e3ec2e6df.0",
+    "@segment/actions-core": "3.147.1-staging-660087da2.0",
+    "@segment/actions-shared": "1.128.1-staging-660087da2.0",
     "@types/node": "^22.13.1",
     "ajv-formats": "^2.1.1",
     "aws4": "^1.12.0",

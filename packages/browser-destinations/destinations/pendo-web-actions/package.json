@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-pendo-web-actions",
-  "version": "1.67.1-staging-e3ec2e6df.0",
+  "version": "1.67.1-staging-660087da2.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,7 +15,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "1.76.1-staging-e3ec2e6df.0"
+    "@segment/browser-destination-runtime": "1.76.1-staging-660087da2.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
