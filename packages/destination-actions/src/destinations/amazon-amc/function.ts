@@ -22,7 +22,8 @@ export async function processPayload(
     body: payloadString,
     headers: {
       'Content-Type': 'application/vnd.amcaudiences.v1+json'
-    }
+    },
+    timeout: 15000
   })
 
   const result = response.data
@@ -155,7 +156,8 @@ export async function processBatchPayload(
     throwHttpErrors: false,
     headers: {
       'Content-Type': 'application/vnd.amcaudiences.v1+json'
-    }
+    },
+    timeout: 15000
   })
   if (!response.ok && response.status == 401) {
     throw new InvalidAuthenticationError(response.statusText)
