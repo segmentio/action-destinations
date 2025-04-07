@@ -579,7 +579,18 @@ describe('Multistatus', () => {
     const response = await testDestination.executeBatch('contactDataExtension', {
       events,
       settings,
-      mapping
+      mapping,
+      statsContext: {
+        statsClient: {
+          incr: jest.fn(),
+          histogram: jest.fn(),
+          set: jest.fn(),
+          _tags: jest.fn(),
+          observe: jest.fn(),
+          _name: jest.fn()
+        },
+        tags: []
+      }
     })
 
     expect(response[0]).toMatchObject({
