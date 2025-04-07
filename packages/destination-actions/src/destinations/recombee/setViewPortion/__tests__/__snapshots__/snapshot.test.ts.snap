@@ -17,6 +17,7 @@ Object {
 
 exports[`Testing snapshot for Recombee's setViewPortion destination action: required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "Np8pbQ",
   "portion": -70298178955509.76,

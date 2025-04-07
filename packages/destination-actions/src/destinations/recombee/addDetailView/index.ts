@@ -51,12 +51,26 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(new AddDetailView(data.payload))
+    await client.send(payloadToDetailView(data.payload))
   },
   performBatch: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(new Batch(data.payload.map((payload) => new AddDetailView(payload))))
+    await client.send(new Batch(data.payload.map((payload) => payloadToDetailView(payload))))
   }
+}
+
+function payloadToDetailView(payload: Payload): AddDetailView {
+  return new AddDetailView({
+    userId: payload.userId,
+    itemId: payload.itemId,
+    timestamp: payload.timestamp,
+    duration: payload.duration,
+    recommId: payload.recommId,
+    additionalData: {
+      ...(payload.internalAdditionalData ?? {}),
+      ...(payload.additionalData ?? {})
+    }
+  })
 }
 
 export default action

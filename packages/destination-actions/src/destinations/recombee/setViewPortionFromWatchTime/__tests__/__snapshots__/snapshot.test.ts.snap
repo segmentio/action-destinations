@@ -17,6 +17,7 @@ Object {
 
 exports[`Testing snapshot for Recombee's setViewPortionFromWatchTime destination action: required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "FcP0tLN]UE",
   "portion": 1,

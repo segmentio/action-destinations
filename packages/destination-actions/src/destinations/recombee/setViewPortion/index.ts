@@ -61,12 +61,27 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(new SetViewPortion(data.payload))
+    await client.send(payloadToViewPortion(data.payload))
   },
   performBatch: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(new Batch(data.payload.map((event) => new SetViewPortion(event))))
+    await client.send(new Batch(data.payload.map((event) => payloadToViewPortion(event))))
   }
+}
+
+function payloadToViewPortion(payload: Payload): SetViewPortion {
+  return new SetViewPortion({
+    userId: payload.userId,
+    itemId: payload.itemId,
+    portion: payload.portion,
+    sessionId: payload.sessionId,
+    timestamp: payload.timestamp,
+    recommId: payload.recommId,
+    additionalData: {
+      ...(payload.internalAdditionalData ?? {}),
+      ...(payload.additionalData ?? {})
+    }
+  })
 }
 
 export default action

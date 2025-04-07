@@ -16,6 +16,7 @@ Object {
 
 exports[`Testing snapshot for Recombee's addRating destination action: required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "ANsNPl1sV!#5(%#",
   "rating": 29019912231976.96,
