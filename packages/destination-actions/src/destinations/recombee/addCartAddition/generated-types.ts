@@ -31,6 +31,12 @@ export interface Payload {
    */
   recommId?: string
   /**
+   * Internal additional data to be stored with the cart addition.
+   */
+  internalAdditionalData?: {
+    [k: string]: unknown
+  }
+  /**
    * Additional data to be stored with the cart addition. *Keep this field empty unless instructed by the Recombee Support team.*
    */
   additionalData?: {
