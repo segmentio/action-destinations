@@ -550,4 +550,43 @@ describe('Multistatus', () => {
       })
     })
   })
+
+  it('should handle non-http error responses gracefully', async () => {
+    const errorResponse = {
+      message: 'Network Error',
+      code: 'ECONNREFUSED'
+    }
+
+    nock(requestUrl).post('').replyWithError(errorResponse)
+
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        type: 'track',
+        userId: 'harry-1',
+        properties: {
+          id: '1234567890',
+          keys: {
+            contactKey: 'harry-1',
+            id: 'HS1'
+          },
+          values: {
+            name: 'Harry Styles'
+          }
+        }
+      })
+    ]
+
+    const response = await testDestination.executeBatch('contactDataExtension', {
+      events,
+      settings,
+      mapping
+    })
+
+    expect(response[0]).toMatchObject({
+      status: 500,
+      errortype: 'INTERNAL_SERVER_ERROR',
+      errormessage:
+        'request to https://test123.rest.marketingcloudapis.com/hub/v1/dataevents/1234567890/rowset failed, reason: Network Error'
+    })
+  })
 })
