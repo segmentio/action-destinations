@@ -4,4 +4,5 @@ export interface Audience {
 }
 export interface AudienceList {
   audiences: Audience[]
+  next_page: string
 }

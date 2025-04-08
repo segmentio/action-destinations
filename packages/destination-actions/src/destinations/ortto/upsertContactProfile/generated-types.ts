@@ -55,16 +55,16 @@ export interface Payload {
      */
     last_name?: string
   }
+  /**
+   * The Audience to add the contact profile to.
+   */
+  audience_id?: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface RetlOnMappingSaveInputs {
   /**
-   * The Audience to add the contact profile to. If set, the following audience name field will be ignored.
-   */
-  audience_id?: string
-  /**
-   * Enter the name of the audience you want to create in Ortto. Audience names are unique for each Segment data source. If a pre-existing Audience is selected, no new audience will be created.
+   * Enter the name of the audience you want to create in Ortto. Audience names are unique for each Segment data source. If a contact profile has an Audience field explicitly set, that value will take precedence.
    */
   name?: string
 }

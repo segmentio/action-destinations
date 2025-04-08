@@ -124,6 +124,7 @@ export const commonFields: Record<string, InputField> = {
       last_name: { '@path': '$.traits.last_name' }
     }
   },
+  // The Audience ID used by Segment Engage
   audience_id: {
     label: 'Audience Id',
     description: `Ortto audience ID`,

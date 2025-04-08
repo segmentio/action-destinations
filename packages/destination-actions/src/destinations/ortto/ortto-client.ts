@@ -29,12 +29,15 @@ export default class OrttoClient {
     this.request = request
   }
 
-  upsertContacts = async (settings: Settings, payloads: UpsertContactPayload[]) => {
+  upsertContacts = async (settings: Settings, payloads: UpsertContactPayload[], hookAudienceID: string) => {
     const cleaned = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
       if (!event.anonymous_id && !event.user_id) {
         throw new PayloadValidationError(Errors.MissingIDs)
+      }
+      if (!event.audience_id) {
+        event.audience_id = hookAudienceID
       }
       cleaned.push(cleanObject(event))
     }
@@ -48,7 +51,7 @@ export default class OrttoClient {
     })
   }
 
-  sendActivities = async (settings: Settings, payloads: EventPayload[]) => {
+  sendActivities = async (settings: Settings, payloads: EventPayload[], hookAudienceID: string) => {
     const filtered = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
@@ -60,6 +63,9 @@ export default class OrttoClient {
       }
       if (event.namespace === 'ortto.com') {
         continue
+      }
+      if (!event.audience_id) {
+        event.audience_id = hookAudienceID
       }
       filtered.push(cleanObject(event))
     }
@@ -86,7 +92,7 @@ export default class OrttoClient {
     if (!audienceName) {
       throw new PayloadValidationError(Errors.MissingAudienceName)
     }
-    const url = this.getEndpoint(settings.api_key).concat('/audience/create')
+    const url = this.getEndpoint(settings.api_key).concat('/audiences/create')
     const { data } = await this.request<Audience>(url, {
       method: 'POST',
       json: { name: audienceName }
@@ -99,7 +105,7 @@ export default class OrttoClient {
       throw new PayloadValidationError(Errors.MissingAudienceId)
     }
 
-    const url = this.getEndpoint(settings.api_key).concat('/audience/get')
+    const url = this.getEndpoint(settings.api_key).concat('/audiences/get')
     const { data } = await this.request<Audience>(url, {
       method: 'POST',
       json: { id: audienceId }
@@ -109,7 +115,7 @@ export default class OrttoClient {
   }
 
   listAudiences = async (settings: Settings): Promise<DynamicFieldResponse> => {
-    const url = this.getEndpoint(settings.api_key).concat('/audience/list')
+    const url = this.getEndpoint(settings.api_key).concat('/audiences/list')
     try {
       const { data } = await this.request<AudienceList>(url, {
         method: 'GET',
@@ -119,7 +125,8 @@ export default class OrttoClient {
         return { value: audience.id, label: audience.name }
       })
       return {
-        choices: choices
+        choices: choices,
+        nextPage: data.next_page
       }
     } catch (err) {
       return {
@@ -145,7 +152,7 @@ export default class OrttoClient {
     if (cleaned.length == 0) {
       return
     }
-    const url = this.getEndpoint(settings.api_key).concat('/audience/members')
+    const url = this.getEndpoint(settings.api_key).concat('/audiences/members')
     return this.request(url, {
       method: 'PUT',
       json: cleaned
@@ -167,7 +174,7 @@ export default class OrttoClient {
     if (cleaned.length == 0) {
       return
     }
-    const url = this.getEndpoint(settings.api_key).concat('/audience/members')
+    const url = this.getEndpoint(settings.api_key).concat('/audiences/members')
     return this.request(url, {
       method: 'DELETE',
       json: cleaned

@@ -37,6 +37,29 @@ Array [
 ]
 `;
 
+exports[`Testing snapshot for actions-ortto destination: leaveAudience action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "WDm$G#Jl]zwis#",
+    "audience_id": "WDm$G#Jl]zwis#",
+    "enable_batching": false,
+    "message_id": "WDm$G#Jl]zwis#",
+    "user_id": "WDm$G#Jl]zwis#",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-ortto destination: leaveAudience action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "WDm$G#Jl]zwis#",
+    "audience_id": "WDm$G#Jl]zwis#",
+    "message_id": "WDm$G#Jl]zwis#",
+    "user_id": "WDm$G#Jl]zwis#",
+  },
+]
+`;
+
 exports[`Testing snapshot for actions-ortto destination: trackActivity action - all fields 1`] = `
 Array [
   Object {

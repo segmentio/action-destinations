@@ -74,3 +74,23 @@ export interface Payload {
    */
   audience_id?: string
 }
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface RetlOnMappingSaveInputs {
+  /**
+   * Enter the name of the audience you want to create in Ortto. Audience names are unique for each Segment data source. If each track activity has an Audience field explicitly set, that value will take precedence.
+   */
+  name?: string
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface RetlOnMappingSaveOutputs {
+  /**
+   * The ID of the Ortto audience to which the associated contacts will be synced.
+   */
+  id?: string
+  /**
+   * The name of the Ortto audience to which the associated contacts will be synced.
+   */
+  name?: string
+}
