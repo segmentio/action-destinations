@@ -1,9 +1,8 @@
-import { Features } from '@segment/actions-core/mapping-kit'
 import type { Payload } from './generated-types'
-import { processHashing } from '../../../lib/hashing-utils'
+import { createHash } from 'crypto'
 
 // Filters out events with missing identifiers and sorts based on audience entered/exited
-export const sortPayload = (payload: Payload[], features?: Features) => {
+export const sortPayload = (payload: Payload[]) => {
   return payload.reduce<{
     enteredAudience: string[][]
     exitedAudience: string[][]
@@ -14,8 +13,7 @@ export const sortPayload = (payload: Payload[], features?: Features) => {
         payloadItem.schema_type,
         payloadItem.email,
         payloadItem.phone,
-        payloadItem.advertising_id,
-        features
+        payloadItem.advertising_id
       )
 
       if (externalId) {
@@ -49,24 +47,33 @@ const validateAndExtractIdentifier = (
   schemaType: string,
   email: string | undefined,
   phone: string | undefined,
-  mobileAdId: string | undefined,
-  features?: Features
+  mobileAdId: string | undefined
 ): string | null => {
   if (schemaType === 'EMAIL_SHA256' && email) {
-    return processHashing(email, 'sha256', 'hex', features, 'actions-snap-audiences', normalize)
+    return normalizeAndHash(email)
   }
   if (schemaType === 'MOBILE_AD_ID_SHA256' && mobileAdId) {
-    return processHashing(mobileAdId, 'sha256', 'hex', features, 'actions-snap-audiences', normalize)
+    return normalizeAndHash(mobileAdId)
   }
   if (schemaType === 'PHONE_SHA256' && phone) {
-    return processHashing(phone, 'sha256', 'hex', features, 'actions-snap-audiences', normalizePhone)
+    return normalizeAndHashPhone(phone)
   }
 
   return null
 }
 
-export const normalize = (identifier: string): string => {
-  return identifier.trim().toLowerCase()
+const hash = (value: string): string => {
+  const hash = createHash('sha256')
+  hash.update(value)
+  return hash.digest('hex')
+}
+
+const isHashed = (identifier: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(identifier)
+
+export const normalizeAndHash = (identifier: string): string => {
+  if (isHashed(identifier)) return identifier
+  const hashedIdentifier = hash(identifier.trim().toLowerCase())
+  return hashedIdentifier
 }
 
 /*
@@ -75,7 +82,9 @@ export const normalize = (identifier: string): string => {
   - if the number itself begins with a 0 this should be removed
   - Also exclude any non-numeric characters such as whitespace, parentheses, '+', or '-'.
 */
-export const normalizePhone = (phone: string): string => {
+export const normalizeAndHashPhone = (phone: string): string => {
+  if (isHashed(phone)) return phone
+
   // Remove non-numeric characters and parentheses, '+', '-', ' '
   let normalizedPhone = phone.replace(/[\s()+-]/g, '')
 
@@ -89,5 +98,6 @@ export const normalizePhone = (phone: string): string => {
     normalizedPhone = normalizedPhone.substring(1)
   }
 
-  return normalizedPhone
+  const hashedPhone = hash(normalizedPhone)
+  return hashedPhone
 }

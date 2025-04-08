@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { send } from '../functions'
+import { send } from '../functionsv2'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',

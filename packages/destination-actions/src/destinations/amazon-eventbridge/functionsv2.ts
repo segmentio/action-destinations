@@ -1,18 +1,19 @@
 import { Payload } from './send/generated-types'
 import { Settings } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, MultiStatusResponse } from '@segment/actions-core'
 import {
   EventBridgeClient,
   PutPartnerEventsCommand,
   CreatePartnerEventSourceCommand,
-  ListPartnerEventSourcesCommand
+  ListPartnerEventSourcesCommand,
+  PutPartnerEventsCommandOutput
 } from '@aws-sdk/client-eventbridge'
 
-export async function send(payloads: Payload[], settings: Settings): Promise<void> {
-  await process_data(payloads, settings)
+export async function send(payloads: Payload[], settings: Settings): Promise<MultiStatusResponse> {
+  return await process_data(payloads, settings)
 }
 
-async function process_data(events: Payload[], settings: Settings) {
+async function process_data(events: Payload[], settings: Settings): Promise<MultiStatusResponse> {
   const client = new EventBridgeClient({ region: settings.awsRegion })
   const awsAccountId = settings.awsAccountId
 
@@ -25,7 +26,7 @@ async function process_data(events: Payload[], settings: Settings) {
     settings.partnerEventSourceName
   )
 
-  const eb_payload = {
+  const ebPayload = {
     Entries: events.map((event) => ({
       EventBusName: event.sourceId,
       Source: `${settings.partnerEventSourceName}/${event.sourceId}`,
@@ -35,20 +36,30 @@ async function process_data(events: Payload[], settings: Settings) {
     }))
   }
 
-  const command = new PutPartnerEventsCommand(eb_payload)
-  const response = await client.send(command)
-  // Check for errors in the response
-  if (response?.FailedEntryCount && response.FailedEntryCount > 0) {
-    const errors = response.Entries?.filter((entry) => entry.ErrorCode || entry.ErrorMessage)
-    const errorMessage = errors?.map((err) => `Error: ${err.ErrorCode}, Message: ${err.ErrorMessage}`).join('; ')
-    throw new IntegrationError(
-      `EventBridge failed with ${response.FailedEntryCount} errors: ${errorMessage}`,
-      'EVENTBRIDGE_ERROR',
-      400
-    )
-  }
+  const command = new PutPartnerEventsCommand(ebPayload)
+  const response: PutPartnerEventsCommandOutput = await client.send(command)
 
-  return response
+  const entries = response.Entries ?? []
+  // Initialize MultiStatusResponse
+  const multiStatusResponse = new MultiStatusResponse()
+  events.forEach((event, index) => {
+    const entry = entries[index] ?? {}
+    if (entry.ErrorCode || entry.ErrorMessage) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errormessage: entry.ErrorMessage ?? 'Unknown Error',
+        sent: JSON.stringify(event),
+        body: JSON.stringify(entry)
+      })
+    } else {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        body: 'Event sent successfully',
+        sent: JSON.stringify(event)
+      })
+    }
+  })
+  return multiStatusResponse
 }
 
 async function ensurePartnerSourceExists(
@@ -64,10 +75,9 @@ async function ensurePartnerSourceExists(
   const listResponse = await client.send(listCommand)
 
   if (listResponse?.PartnerEventSources && listResponse.PartnerEventSources.length > 0) {
-    return true // Source exists
+    return true
   }
 
-  // If we reach here, the source does not exist
   if (createPartnerEventSource) {
     await create_partner_source(client, awsAccountId, namePrefix)
   } else {

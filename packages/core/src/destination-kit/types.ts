@@ -257,9 +257,15 @@ export interface InputField extends InputFieldJSONSchema {
    */
   disabledInputMethods?: FieldInputMethods[]
 
-  /** Minimum value for a field of type 'number' */
+  /**
+   * Minimum value for a field of type 'number'
+   * When applied to a string field the minimum length of the string
+   * */
   minimum?: number
-  /** Maximum value for a field of type 'number' */
+  /**
+   * Maximum value for a field of type 'number'
+   * When applied to a string field the maximum length of the string
+   */
   maximum?: number
 }
 
