@@ -4,6 +4,8 @@ import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 
 import send from './send'
 
+import sendV2 from './sendV2'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Amazon Eventbridge',
   slug: 'actions-amazon-eventbridge',
@@ -78,7 +80,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    send
+    send,
+    sendV2
   }
 }
 
