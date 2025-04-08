@@ -22,7 +22,8 @@ import {
   getApiVersion,
   commonEmailValidation,
   getConversionActionDynamicData,
-  memoizedGetCustomVariables
+  memoizedGetCustomVariables,
+  formatPhone
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -83,6 +84,11 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       category: 'hashedPII'
+    },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
     },
     phone_number: {
       label: 'Phone Number',
@@ -343,7 +349,7 @@ const action: ActionDefinition<Settings, Payload> = {
             'hex',
             features ?? {},
             'actions-google-enhanced-conversions',
-            (value) => '+' + value.split('+').join('')
+            (value) => formatPhone(value, payload.phone_country_code)
           )
         } as UserIdentifierInterface)
       }
@@ -467,7 +473,7 @@ const action: ActionDefinition<Settings, Payload> = {
               'hex',
               features ?? {},
               'actions-google-enhanced-conversions',
-              (value) => '+' + value.split('+').join('')
+              (value) => formatPhone(value, payloadItem.phone_country_code)
             )
           } as UserIdentifierInterface)
         }
