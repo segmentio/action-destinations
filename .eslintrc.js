@@ -84,6 +84,19 @@ module.exports = {
       rules: {
         '@typescript-eslint/no-unsafe-call': 'off'
       }
+    },
+    {
+      files: ['packages/destination-actions/**/*.ts'],
+      rules: {
+        'no-restricted-syntax': [
+          'error',
+          {
+            selector: "ImportDeclaration[source.value='crypto'] ImportSpecifier[imported.name='createHash']",
+            message:
+              'Avoid importing the "createHash" function from "crypto". Use "destination-actions/lib/hashing-utils" instead.'
+          }
+        ]
+      }
     }
   ]
 }
