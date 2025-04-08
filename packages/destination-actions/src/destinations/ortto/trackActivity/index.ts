@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, DynamicFieldResponse, APIError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import OrttoClient from '../ortto-client'
@@ -121,15 +121,83 @@ const action: ActionDefinition<Settings, Payload> = {
         first_name: { '@path': '$.context.traits.first_name' },
         last_name: { '@path': '$.context.traits.last_name' }
       }
+    },
+    audience_id: {
+      label: 'Audience',
+      description: `The Audience to add the associated contact profile to.`,
+      type: 'string',
+      dynamic: true
     }
   },
-  perform: async (request, { settings, payload }) => {
-    const client: OrttoClient = new OrttoClient(request)
-    return await client.sendActivities(settings, [payload])
+  dynamicFields: {
+    audience_id: async (request, { settings }): Promise<DynamicFieldResponse> => {
+      const client: OrttoClient = new OrttoClient(request)
+      return await client.listAudiences(settings)
+    }
   },
-  performBatch: async (request, { settings, payload }) => {
+  hooks: {
+    retlOnMappingSave: {
+      label: 'Connect the action to an Audience in Ortto',
+      description: 'When saving this mapping, this action will be linked to an audience in Ortto.',
+      inputFields: {
+        name: {
+          type: 'string',
+          label: 'The name of the Audience to create',
+          description:
+            'Enter the name of the audience you want to create in Ortto. Audience names are unique for each Segment data source. If each track activity has an Audience field explicitly set, that value will take precedence.',
+          required: false
+        }
+      },
+      outputTypes: {
+        id: {
+          type: 'string',
+          label: 'ID',
+          description: 'The ID of the Ortto audience to which the associated contacts will be synced.',
+          required: false
+        },
+        name: {
+          type: 'string',
+          label: 'Name',
+          description: 'The name of the Ortto audience to which the associated contacts will be synced.',
+          required: false
+        }
+      },
+      performHook: async (request, { settings, hookInputs }) => {
+        if (hookInputs.name) {
+          try {
+            const client: OrttoClient = new OrttoClient(request)
+            const audience = await client.createAudience(settings, hookInputs.name as string)
+            return {
+              successMessage: `Audience '${audience.name}' (id: ${audience.id}) has been created successfully.`,
+              savedData: {
+                id: audience.id,
+                name: audience.name
+              }
+            }
+          } catch (err) {
+            return {
+              error: {
+                message: (err as APIError).message ?? 'Unknown Error',
+                code: (err as APIError).status?.toString() ?? 'Unknown Error'
+              }
+            }
+          }
+        }
+        return {}
+      }
+    }
+  },
+  perform: async (request, { settings, payload, hookOutputs }) => {
     const client: OrttoClient = new OrttoClient(request)
-    return await client.sendActivities(settings, payload)
+    return await client.sendActivities(
+      settings,
+      [payload],
+      (hookOutputs?.retlOnMappingSave?.outputs?.id as string) ?? ''
+    )
+  },
+  performBatch: async (request, { settings, payload, hookOutputs }) => {
+    const client: OrttoClient = new OrttoClient(request)
+    return await client.sendActivities(settings, payload, (hookOutputs?.retlOnMappingSave?.outputs?.id as string) ?? '')
   }
 }
 

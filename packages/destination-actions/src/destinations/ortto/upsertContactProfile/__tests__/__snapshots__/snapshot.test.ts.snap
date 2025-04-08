@@ -4,6 +4,7 @@ exports[`Testing snapshot for Ortto's upsertContactProfile destination action: a
 Array [
   Object {
     "anonymous_id": "2fUSE5G",
+    "audience_id": "2fUSE5G",
     "enable_batching": true,
     "ip": "47.188.17.159",
     "location": Object {
@@ -29,6 +30,7 @@ exports[`Testing snapshot for Ortto's upsertContactProfile destination action: r
 Array [
   Object {
     "anonymous_id": "2fUSE5G",
+    "audience_id": "2fUSE5G",
     "message_id": "2fUSE5G",
     "user_id": "2fUSE5G",
   },

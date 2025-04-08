@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, DynamicFieldResponse, APIError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import OrttoClient from '../ortto-client'
@@ -14,96 +14,86 @@ const action: ActionDefinition<Settings, Payload> = {
     user_id: commonFields.user_id,
     anonymous_id: commonFields.anonymous_id,
     enable_batching: commonFields.enable_batching,
-    ip: {
-      label: 'IP Address',
-      description: "The contact's IP address",
-      placeholder: '180.1.12.125',
+    ip: commonFields.ipV4,
+    location: commonFields.location,
+    traits: commonFields.traits,
+    audience_id: {
+      label: 'Audience',
+      description: `The Audience to add the contact profile to.`,
       type: 'string',
-      format: 'ipv4',
-      default: { '@path': '$.context.ip' },
-      allowNull: true
-    },
-    location: {
-      label: 'Location',
-      description: "The contact's location. Will take priority over the IP address.",
-      type: 'object',
-      defaultObjectUI: 'keyvalue:only',
-      additionalProperties: false,
-      allowNull: true,
-      properties: {
-        country: {
-          label: 'Country',
+      dynamic: true
+    }
+  },
+  dynamicFields: {
+    audience_id: async (request, { settings }): Promise<DynamicFieldResponse> => {
+      const client: OrttoClient = new OrttoClient(request)
+      return await client.listAudiences(settings)
+    }
+  },
+  hooks: {
+    retlOnMappingSave: {
+      label: 'Connect the action to an Audience in Ortto',
+      description: 'When saving this mapping, this action will be linked to an audience in Ortto.',
+      inputFields: {
+        name: {
           type: 'string',
-          allowNull: true
-        },
-        state: {
-          label: 'State',
-          type: 'string',
-          allowNull: true
-        },
-        city: {
-          label: 'City',
-          type: 'string',
-          allowNull: true
-        },
-        post_code: {
-          label: 'Postcode',
-          type: 'string',
-          allowNull: true
+          label: 'The name of the Audience to create (Optional)',
+          description:
+            'Enter the name of the audience you want to create in Ortto. Audience names are unique for each Segment data source. If a contact profile has an Audience field explicitly set, that value will take precedence.',
+          required: false
         }
       },
-      default: {
-        country: { '@path': '$.context.location.country' },
-        city: { '@path': '$.context.location.city' }
-      }
-    },
-    traits: {
-      label: 'Custom contact traits',
-      description: 'An object containing key-value pairs representing custom properties assigned to contact profile',
-      type: 'object',
-      defaultObjectUI: 'keyvalue',
-      properties: {
-        email: {
-          label: 'Email',
-          description: "The contact's email address",
-          placeholder: 'john.smith@example.com',
+      outputTypes: {
+        id: {
           type: 'string',
-          format: 'email'
+          label: 'ID',
+          description: 'The ID of the Ortto audience to which contacts will be synced.',
+          required: false
         },
-        phone: {
-          label: 'Phone Number',
-          description: "The contact's phone number",
-          placeholder: '+61 159011100',
-          type: 'string'
-        },
-        first_name: {
-          label: 'First Name',
-          description: "The contact's first name",
-          placeholder: 'John',
-          type: 'string'
-        },
-        last_name: {
-          label: 'Last Name',
-          description: "The contact's last name",
-          placeholder: 'Smith',
-          type: 'string'
+        name: {
+          type: 'string',
+          label: 'Name',
+          description: 'The name of the Ortto audience to which contacts will be synced.',
+          required: false
         }
       },
-      default: {
-        email: { '@path': '$.traits.email' },
-        phone: { '@path': '$.traits.phone' },
-        first_name: { '@path': '$.traits.first_name' },
-        last_name: { '@path': '$.traits.last_name' }
+      performHook: async (request, { settings, hookInputs }) => {
+        if (hookInputs.name) {
+          try {
+            const client: OrttoClient = new OrttoClient(request)
+            const audience = await client.createAudience(settings, hookInputs.name as string)
+            return {
+              successMessage: `Audience '${audience.name}' (id: ${audience.id}) has been created successfully.`,
+              savedData: {
+                id: audience.id,
+                name: audience.name
+              }
+            }
+          } catch (err) {
+            return {
+              error: {
+                message: (err as APIError).message ?? 'Unknown Error',
+                code: (err as APIError).status?.toString() ?? 'Unknown Error'
+              }
+            }
+          }
+        }
+        return {}
       }
     }
   },
-  perform: async (request, { settings, payload }) => {
+  perform: async (request, { settings, payload, hookOutputs }) => {
     const client: OrttoClient = new OrttoClient(request)
-    return await client.upsertContacts(settings, [payload])
+    return await client.upsertContacts(
+      settings,
+      [payload],
+      (hookOutputs?.retlOnMappingSave?.outputs?.id as string) ?? ''
+    )
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, hookOutputs }) => {
+    console.log('BATCH', hookOutputs?.retlOnMappingSave?.outputs?.id)
     const client: OrttoClient = new OrttoClient(request)
-    return await client.upsertContacts(settings, payload)
+    return await client.upsertContacts(settings, payload, (hookOutputs?.retlOnMappingSave?.outputs?.id as string) ?? '')
   }
 }
 
