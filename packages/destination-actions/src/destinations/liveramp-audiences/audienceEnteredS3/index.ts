@@ -65,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     filename: {
       label: 'Filename',
-      description: `Name of the CSV file to upload for LiveRamp ingestion.`,
+      description: `Name of the CSV file to upload for LiveRamp ingestion. For multiple subscriptions, make sure to use a unique filename for each subscription.`,
       type: 'string',
       required: true,
       default: { '@template': '{{properties.audience_key}}.csv' }
