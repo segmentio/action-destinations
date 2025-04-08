@@ -66,7 +66,8 @@ const action: ActionDefinition<Settings, Payload> = {
             value: 'PHONE_SHA256'
           }
         ]
-      }
+      },
+      category: 'hashedPII'
     },
     email: {
       label: 'Email',
@@ -83,7 +84,8 @@ const action: ActionDefinition<Settings, Payload> = {
             value: 'EMAIL_SHA256'
           }
         ]
-      }
+      },
+      category: 'hashedPII'
     },
     advertising_id: {
       label: 'Mobile Advertising ID',
@@ -103,7 +105,8 @@ const action: ActionDefinition<Settings, Payload> = {
             value: 'MOBILE_AD_ID_SHA256'
           }
         ]
-      }
+      },
+      category: 'hashedPII'
     },
     enable_batching: {
       label: 'Enable Batching',
