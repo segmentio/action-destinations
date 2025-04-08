@@ -960,6 +960,73 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 - some options and behaviors are not applicable to Node.js and will be ignored by `node-fetch`. See this list of [known differences](https://github.com/node-fetch/node-fetch/blob/1780f5ae89107ded4f232f43219ab0e548b0647c/docs/v2-LIMITS.md).
 - `method` will automatically get upcased for consistency.
 
+## Hashing PII with `processHashing`
+
+Use the `processHashing` utility to hash Personally Identifiable Information (PII) such as email addresses and phone numbers in a consistent, secure, and smart way.
+
+It ensures:
+
+- Consistent hashing across use cases
+- Prevention of double-hashing (detects if a value is already hashed)
+- Optional normalization of input (e.g., trimming, removing special characters)
+- Rollout control via feature flags or bypass slug support
+
+#### Function Signature
+
+```ts
+processHashing(
+  value: string,
+  encryptionMethod: EncryptionMethod,        // e.g., 'sha256'
+  digest: DigestType,                        // e.g., 'hex' or 'base64'
+  features: Features | undefined,            // Optional: feature flag object
+  destinationSlugForBypass: string,          // Optional: bypasses flag check for listed slugs
+  cleaningFunction?: (value: string) => string // Optional: custom normalization function
+): string
+```
+
+#### Example 1: Hashing an Email Address
+
+```ts
+import { processHashing } from 'destination-actions/lib/hashing-utils'
+
+const email = ' Person@email.com '
+const hashedEmail = processHashing(email, 'sha256', 'hex', undefined, '', (value) => value.trim().toLowerCase())
+
+console.log(hashedEmail) // hashed string
+```
+
+#### Example 2: Hashing a Phone Number
+
+```ts
+const phone = '+1(706)-767-5127'
+const normalizePhone = (value: string) => value.replace(/[^0-9]/g, '')
+
+const hashedPhone = processHashing(phone, 'sha256', 'hex', undefined, '', normalizePhone)
+
+console.log(hashedPhone) // hashed string
+```
+
+#### Internals and Behavior
+
+- **Empty string**: Returns `''` if input is empty or just whitespace.
+- **Smart hashing**:
+  - If the value **looks already hashed** (length + format), it returns as-is.
+  - Otherwise, it hashes the cleaned value.
+- **Feature flag check**:
+  - If `features['smart-hashing']` is `true`, it uses smart detection, otherwise it will just hash and return.
+  - If the `destinationSlugForBypass` is in the internal `slugsToBypassFeatureFlag` list, the feature flag is skipped and smart hashing is enabled by default.
+
+#### Supported Hash Algorithms
+
+- `md5`
+- `sha1`
+- `sha224`
+- `sha256` ✅ recommended
+- `sha384`
+- `sha512`
+
+Each supports output in either `hex` or `base64` digest format.
+
 ## Support
 
 For any issues, please contact our support team at partner-support@segment.com.
