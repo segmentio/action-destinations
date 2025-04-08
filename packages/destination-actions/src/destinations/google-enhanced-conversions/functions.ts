@@ -321,7 +321,7 @@ export async function createGoogleAudience(
             uploadKeyType: input.audienceSettings.external_id_type,
             appId: input.audienceSettings.app_id
           },
-          membershipLifeSpan: '10000', // In days. 10000 is interpreted as 'unlimited'.
+          membershipLifeSpan: '540',
           name: `${input.audienceName}`
         }
       }
