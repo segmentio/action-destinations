@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'This operation creates and sends out messages to the specified recipients.',
   fields,
   perform: () => {
-    return 'hello'
+    return "hello"
     // Make your partner api request here!
     // return request('https://example.com', {
     //   method: 'post',
