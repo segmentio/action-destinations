@@ -646,10 +646,7 @@ export const handleUpdate = async (
   const id_type = hookListType ?? audienceSettings.external_id_type
   // Format the user data for Google Ads API
   const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode, features)
-  const externalAudienceId: string | undefined = hookListId || payloads[0].external_audience_id
-  if (!externalAudienceId) {
-    throw new PayloadValidationError('Audience ID is required.')
-  }
+  const externalAudienceId: string = hookListId || payloads[0].external_audience_id
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Create an offline user data job
   const offlineUserJobResponse = await createOfflineUserJob(
@@ -962,7 +959,7 @@ export const processBatchPayload = async (
   statsContext?: StatsContext
 ) => {
   const multiStatusResponse = new MultiStatusResponse()
-  const id_type = hookListType ?? audienceSettings.external_id_type ?? 'CONTACT_INFO'
+  const id_type = hookListType ?? audienceSettings.external_id_type
   const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap } = extractBatchUserIdentifiers(
     payloads,
     id_type,
@@ -970,7 +967,7 @@ export const processBatchPayload = async (
     syncMode,
     features
   )
-  const externalAudienceId = hookListId || payloads[0]?.external_audience_id || '8593719488'
+  const externalAudienceId = hookListId || payloads[0].external_audience_id
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   const {
     success,

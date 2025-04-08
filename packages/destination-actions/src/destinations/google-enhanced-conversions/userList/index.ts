@@ -132,6 +132,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'External Audience ID',
       description: 'The ID of the List that users will be synced to.',
       type: 'string',
+      required: true,
       default: {
         '@path': '$.context.personas.external_audience_id'
       },
