@@ -48,7 +48,7 @@ export interface Payload {
   /**
    * The ID of the List that users will be synced to.
    */
-  external_audience_id: string
+  external_audience_id?: string
   /**
    * Enable batching for the request.
    */

@@ -643,10 +643,13 @@ export const handleUpdate = async (
   features?: Features | undefined,
   statsContext?: StatsContext
 ) => {
+  const externalAudienceId: string | undefined = hookListId || payloads[0]?.external_audience_id
+  if (!externalAudienceId) {
+    throw new PayloadValidationError('External Audience ID is required.')
+  }
   const id_type = hookListType ?? audienceSettings.external_id_type
   // Format the user data for Google Ads API
   const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode, features)
-  const externalAudienceId: string = hookListId || payloads[0].external_audience_id
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Create an offline user data job
   const offlineUserJobResponse = await createOfflineUserJob(
@@ -875,7 +878,7 @@ const extractBatchUserIdentifiers = (
   payloads.forEach((payload, index) => {
     let userIdentifiers
     try {
-      userIdentifiers = extractors[idType as keyof typeof extractors](payload)
+      userIdentifiers = extractors[idType as keyof typeof extractors]?.(payload)
     } catch (error) {
       if (error instanceof PayloadValidationError && error.message.includes('Email')) {
         multiStatusResponse.setErrorResponseAtIndex(index, {
@@ -958,6 +961,10 @@ export const processBatchPayload = async (
   features?: Features | undefined,
   statsContext?: StatsContext
 ) => {
+  const externalAudienceId = hookListId || payloads[0]?.external_audience_id
+  if (!externalAudienceId) {
+    throw new PayloadValidationError('External Audience ID is required.')
+  }
   const multiStatusResponse = new MultiStatusResponse()
   const id_type = hookListType ?? audienceSettings.external_id_type
   const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap } = extractBatchUserIdentifiers(
@@ -967,7 +974,6 @@ export const processBatchPayload = async (
     syncMode,
     features
   )
-  const externalAudienceId = hookListId || payloads[0].external_audience_id
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   const {
     success,
