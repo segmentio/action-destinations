@@ -2,6 +2,7 @@ import * as crypto from 'crypto'
 import { CLIENT_ID, STAGE_BROKERS, PROD_BROKERS } from './const'
 import { IntegrationError } from '@segment/actions-core'
 import { Settings } from './generated-types'
+// eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
 import { KafkaConfig, ProducerRecord } from 'kafkajs'
 

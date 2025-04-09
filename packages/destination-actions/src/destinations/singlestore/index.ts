@@ -3,6 +3,7 @@ import { Settings } from './generated-types'
 import { SingleStoreCreateJSON } from './types'
 import { createUrl } from './const'
 import send from './send'
+// eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
 import { encryptText, destinationId, checkChamber } from './util'
 

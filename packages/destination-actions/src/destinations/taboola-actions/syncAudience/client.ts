@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
 import type { ModifiedResponse } from '@segment/actions-core'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
