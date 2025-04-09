@@ -960,6 +960,68 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 - some options and behaviors are not applicable to Node.js and will be ignored by `node-fetch`. See this list of [known differences](https://github.com/node-fetch/node-fetch/blob/1780f5ae89107ded4f232f43219ab0e548b0647c/docs/v2-LIMITS.md).
 - `method` will automatically get upcased for consistency.
 
+## Automatic Hashing Detection with `processHashing`
+
+Use the `processHashing` utility to hash Personally Identifiable Information (PII)—like email addresses and phone numbers.
+
+This utility simplifies workflows by automatically detecting and handling pre-hashed values, ensuring compatibility across destinations and preventing common data-matching issues.
+
+### Key Benefits
+
+- **Automatic Hashing Detection**: Avoids double-hashing by identifying already hashed values.
+- **Consistent Hashing**: Applies the correct algorithm and format across use cases.
+- **Optional Input Normalization**: Supports custom logic for cleaning and standardizing inputs (e.g., trimming, formatting).
+
+### Example 1: Hashing an Email Address
+
+```
+  import { processHashing } from 'destination-actions/lib/hashing-utils'
+
+  const email = ' Person@email.com '
+  const hashedEmail = processHashing(
+    email,
+    'sha256',
+    'hex',
+    (value) => value.trim().toLowerCase()
+  )
+
+  console.log(hashedEmail) // hashed string
+```
+
+### Example 2: Hashing a Phone Number
+
+```
+  const phone = '+1(706)-767-5127'
+  const normalizePhone = (value: string) => value.replace(/[^0-9]/g, '')
+
+  const hashedPhone = processHashing(
+    phone,
+    'sha256',
+    'hex',
+    normalizePhone
+  )
+
+  console.log(hashedPhone) // hashed string
+```
+
+### Notes
+
+**Empty Input Handling**: Returns `''` for empty or whitespace-only strings.
+
+**Supported Hash Algorithms**
+
+- `md5`
+- `sha1`
+- `sha224`
+- `sha256`
+- `sha384`
+- `sha512`
+
+All algorithms support `hex` and `base64` digest formats.
+
+**Requesting Additional Algorithms**
+To request additional hash algorithms, contact partner-support@segment.com.
+
 ## Support
 
 For any issues, please contact our support team at partner-support@segment.com.
@@ -991,3 +1053,7 @@ SOFTWARE.
 ## Contributing
 
 All third party contributors acknowledge that any contributions they provide will be made under the same open source license that the open source project is provided under.
+
+```
+
+```
