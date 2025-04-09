@@ -1,7 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createGoogleAudience, getGoogleAudience, getListIds, handleUpdate, verifyCustomerId } from '../functions'
+import {
+  createGoogleAudience,
+  getGoogleAudience,
+  getListIds,
+  handleUpdate,
+  processBatchPayload,
+  verifyCustomerId
+} from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
 
@@ -319,8 +326,7 @@ const action: ActionDefinition<Settings, Payload> = {
     { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-
-    return await handleUpdate(
+    return await processBatchPayload(
       request,
       settings,
       audienceSettings,
