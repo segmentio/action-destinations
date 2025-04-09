@@ -62,8 +62,18 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload }) => {
     return request(`${API_URL}/track/lead`, {
       method: 'POST',
-      json: payload
+      body: JSON.stringify(payload)
     })
+  },
+  performBatch: async (request, { payload }) => {
+    return await Promise.all(
+      payload.map(async (event) =>
+        request(`${API_URL}/track/lead`, {
+          method: 'POST',
+          body: JSON.stringify(event)
+        })
+      )
+    )
   }
 }
 

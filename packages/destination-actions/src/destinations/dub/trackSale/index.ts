@@ -66,6 +66,16 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: payload
     })
+  },
+  performBatch: async (request, { payload }) => {
+    return await Promise.all(
+      payload.map(async (event) =>
+        request(`${API_URL}/track/sale`, {
+          method: 'POST',
+          json: event
+        })
+      )
+    )
   }
 }
 
