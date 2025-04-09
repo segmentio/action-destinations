@@ -79,8 +79,8 @@ const propertiesResp = {
     },
     {
       name: 'numberish_string_prop',
-      type: 'number',
-      fieldType: 'number',
+      type: 'string',
+      fieldType: 'text',
       hasUniqueValue: false
     },
     {
@@ -138,8 +138,8 @@ const sensitivePropertiesResp = {
     },
     {
       name: 'numberish_string_sprop',
-      type: 'number',
-      fieldType: 'number',
+      type: 'string',
+      fieldType: 'text',
       hasUniqueValue: false
     },
     {
@@ -184,7 +184,7 @@ const upsertObjectReq = {
         str_prop: 'Hello String!',
         num_prop: 123.45,
         bool_prop: true,
-        numberish_string_prop: 123.45,
+        numberish_string_prop: '123.45',
         boolish_string_prop: true,
         datetime_prop: '2024-01-08T13:52:50.212Z',
         date_prop: '2024-01-08',
@@ -193,7 +193,7 @@ const upsertObjectReq = {
         str_sprop: 'Hello String!',
         num_sprop: 123.45,
         bool_sprop: true,
-        numberish_string_sprop: 123.45,
+        numberish_string_sprop: '123.45',
         boolish_string_sprop: true,
         datetime_sprop: '2024-01-08T13:52:50.212Z',
         date_sprop: '2024-01-08',
