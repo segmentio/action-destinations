@@ -960,7 +960,7 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 - some options and behaviors are not applicable to Node.js and will be ignored by `node-fetch`. See this list of [known differences](https://github.com/node-fetch/node-fetch/blob/1780f5ae89107ded4f232f43219ab0e548b0647c/docs/v2-LIMITS.md).
 - `method` will automatically get upcased for consistency.
 
-## Improved Hashing Detection with `processHashing`
+## Automatic Hashing Detection with `processHashing`
 
 Use the `processHashing` utility to hash Personally Identifiable Information (PII)—like email addresses and phone numbers.
 
