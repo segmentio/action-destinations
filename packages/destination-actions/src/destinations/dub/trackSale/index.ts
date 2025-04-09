@@ -13,7 +13,10 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         "This is the unique identifier for the customer in the your app. This is used to track the customer's journey.",
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@path': '$.userId'
+      }
     },
     amount: {
       label: 'Amount',
@@ -32,7 +35,10 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The name of the sale event. It can be used to track different types of event for example "Purchase", "Upgrade", "Payment", etc.',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.event'
+      }
     },
     leadEventName: {
       label: 'Lead Event Name',

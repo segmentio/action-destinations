@@ -18,14 +18,20 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Name',
       description: 'The name of the lead event to track.',
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@path': '$.event'
+      }
     },
     externalId: {
       label: 'External ID',
       description:
         "This is the unique identifier for the customer in the your app. This is used to track the customer's journey.",
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@path': '$.userId'
+      }
     },
     eventQuantity: {
       label: 'Event Quantity',
@@ -44,7 +50,10 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The email of the customer.',
       type: 'string',
       format: 'email',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.email'
+      }
     },
     customerAvatar: {
       label: 'Customer Avatar',
