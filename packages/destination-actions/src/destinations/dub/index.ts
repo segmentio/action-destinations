@@ -1,5 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import trackLead from './trackLead'
+import trackSale from './trackSale'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Dub',
@@ -8,23 +10,29 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'custom',
-    fields: {},
-    testAuthentication: (request) => {
-      console.log('testAuthentication', request)
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+    fields: {
+      apiKey: {
+        label: 'API Key',
+        description: 'The API Key is available via Dub Dashboard: https://app.dub.co/settings/tokens',
+        type: 'string',
+        required: true
+      }
     }
   },
 
-  onDelete: async (request, { settings, payload }) => {
-    console.log('onDelete', request, settings, payload)
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
+  extendRequest({ settings }) {
+    return {
+      headers: {
+        Authorization: `Bearer ${settings.apiKey}`,
+        'Content-Type': 'application/json'
+      }
+    }
   },
 
-  actions: {}
+  actions: {
+    trackLead,
+    trackSale
+  }
 }
 
 export default destination
