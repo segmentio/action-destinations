@@ -4,7 +4,7 @@ import trackLead from './trackLead'
 import trackSale from './trackSale'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Dub',
+  name: 'Dub (Actions)',
   slug: 'actions-dub',
   mode: 'cloud',
 
