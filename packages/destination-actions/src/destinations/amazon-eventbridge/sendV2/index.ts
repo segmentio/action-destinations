@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { send } from '../functionsv2'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send',
+  title: 'SendV2',
   description: 'Send an event to Amazon EventBridge.',
   fields: {
     data: {
