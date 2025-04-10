@@ -16,7 +16,7 @@ const person = (payload: Payload) => {
     ip_address: payload.ip,
     phone: payload.phone,
     status: payload.status,
-    status_updated_at: payload.status_updated_at,
+    status_updated_at: payload.status_updated_at === null ? undefined : payload.status_updated_at,
     tags: payload.tags?.split(',').map((tag) => tag.trim()),
     time_zone: payload.timezone
   }
@@ -75,7 +75,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Status Updated At',
       required: false,
       type: 'datetime',
-      default: { '@path': '$.traits.status_updated_at' }
+      allowNull: true,
+      default: { '@literal': null }
     },
     tags: {
       description: 'Comma delimited list of tags to add to a person\'s profile. e.g. "tag1,tag2".',
