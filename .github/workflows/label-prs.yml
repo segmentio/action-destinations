@@ -60,3 +60,46 @@ jobs:
               });
               await Promise.all(requests);
             }
+
+      - name: Comment for mapping-kit changes
+        uses: actions/github-script@v7
+        env:
+          labelsToAdd: '${{ steps.compute-labels.outputs.add }}'
+          labelsToRemove: '${{ steps.compute-labels.outputs.remove }}'
+        with:
+          script: |
+            const { labelsToAdd, labelsToRemove, DRY_RUN } = process.env
+            const shouldAddComment = labelsToAdd.length > 0 && labelsToAdd.split(",").some(x=>x.includes("mappingkit"))
+            const shouldRemoveComment = labelsToRemove.length > 0 && labelsToRemove.split(",").some(x=>x.includes("mappingkit"))
+            // Get the list of comments on the PR
+            const response = await github.rest.issues.listComments({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo
+            })
+            const mappingKitComment = response.data.find(comment => comment.body.includes('mapping-kit go'))
+            if(shouldAddComment){
+                if (mappingKitComment) {
+                  console.log('Already commented on this PR')
+                  return
+                }
+                // Add comment to the PR
+                await github.rest.issues.createComment({
+                    issue_number: context.issue.number,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body: `This PR makes changes to mapping-kit. Please ensure that the changes are reflected in the [mapping-kit go](https://github.com/segmentio/mapping-kit) library as well and link the PR in description.`
+                  })
+            }
+            if(shouldRemoveComment) {
+              if (!mappingKitComment) {
+                console.log('No mapping-kit comment to remove')
+                return
+              }
+              // Remove comment from the PR
+              await github.rest.issues.deleteComment({
+                  comment_id: mappingKitComment.id,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo
+                })
+            }
