@@ -91,6 +91,7 @@ describe('Drip.identify', () => {
           email: 'foo@bar.com',
           ip_address: '8.8.8.8', // This could be wrong. Is this the IP address of the client, or segment?
           status: 'unsubscribed',
+          status_updated_at: null,
           time_zone: 'Europe/Amsterdam'
         }
       ]

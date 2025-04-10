@@ -75,7 +75,14 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Status Updated At',
       required: false,
       type: 'datetime',
-      default: { '@path': '$.traits.status_updated_at' }
+      allowNull: true,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.status_updated_at' },
+          then: { '@path': '$.traits.status_updated_at' },
+          else: { '@literal': null }
+        }
+      }
     },
     tags: {
       description: 'Comma delimited list of tags to add to a person\'s profile. e.g. "tag1,tag2".',

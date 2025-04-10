@@ -26,7 +26,7 @@ export interface Payload {
   /**
    * The timestamp associated with the update to a person's status.
    */
-  status_updated_at?: string | number
+  status_updated_at?: string | number | null
   /**
    * Comma delimited list of tags to add to a person's profile. e.g. "tag1,tag2".
    */
