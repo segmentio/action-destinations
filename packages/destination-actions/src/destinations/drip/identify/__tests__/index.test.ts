@@ -58,7 +58,6 @@ describe('Drip.identify', () => {
           ip_address: '127.0.0.1',
           phone: '1234567890',
           status: 'unsubscribed',
-          status_updated_at: '2021-01-01T00:00:00Z',
           tags: ['tag1', 'tag2'],
           time_zone: 'Europe/Amsterdam'
         }
@@ -171,5 +170,63 @@ describe('Drip.identify', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.body).toBe(JSON.stringify(body))
+  })
+
+  it('should handle status_updated_at when explicitly provided', async () => {
+    nock('https://api.getdrip.com').post('/v2/2445926/subscribers').reply(200, {})
+
+    const event = createTestEvent({
+      context: {
+        ip: '127.0.0.1',
+        timezone: 'Europe/Amsterdam'
+      },
+      traits: {
+        email: 'test@example.com',
+        phone: '1234567890',
+        status: 'active'
+      }
+    })
+
+    const responses = await testDestination.testAction('identify', {
+      settings: settings,
+      event: event,
+      mapping: {
+        email: {
+          '@path': '$.traits.email'
+        },
+        phone: {
+          '@path': '$.traits.phone'
+        },
+        status: {
+          '@path': '$.traits.status'
+        },
+        status_updated_at: {
+          '@literal': '2023-05-15T10:30:00Z'
+        },
+        ip: {
+          '@path': '$.context.ip'
+        },
+        timezone: {
+          '@path': '$.context.timezone'
+        }
+      }
+    })
+
+    const body = {
+      subscribers: [
+        {
+          email: 'test@example.com',
+          ip_address: '127.0.0.1',
+          phone: '1234567890',
+          status: 'active',
+          status_updated_at: '2023-05-15T10:30:00Z',
+          time_zone: 'Europe/Amsterdam'
+        }
+      ]
+    }
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(JSON.parse(responses[0].options.body as string)).toEqual(body)
   })
 })
