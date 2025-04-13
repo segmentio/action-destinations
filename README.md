@@ -962,15 +962,11 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 
 ## Automatic Hashing Detection with `processHashing`
 
-Use the `processHashing` utility to hash Personally Identifiable Information (PII)—like email addresses and phone numbers.
+Our popular segment Adtect destinations support [automatic hash detection](https://segment.com/docs/connections/destinations/#hashing) of personally identifyable information (PII). If your destination hashes PII data, we recommend you use the `processHashing` utility instead of `createHash` from `crypto` module.
 
-This utility simplifies workflows by automatically detecting and handling pre-hashed values, ensuring compatibility across destinations and preventing common data-matching issues.
+The `processHashing` utility supports `md5`, `sha1`,`sha224`,`sha256`,`sha384` and`sha512` hashing algorithms. It can output digests in `hex` or `base64` format.
 
-### Key Benefits
-
-- **Automatic Hashing Detection**: Avoids double-hashing by identifying already hashed values.
-- **Consistent Hashing**: Applies the correct algorithm and format across use cases.
-- **Optional Input Normalization**: Supports custom logic for cleaning and standardizing inputs (e.g., trimming, formatting).
+**Note**: For empty or whitespace-only strings, the `processHashing` outputs an empty string instead of throwing an error like `createHash` hash module.
 
 ### Example 1: Hashing an Email Address
 
@@ -1003,21 +999,6 @@ This utility simplifies workflows by automatically detecting and handling pre-ha
 
   console.log(hashedPhone) // hashed string
 ```
-
-### Notes
-
-**Empty Input Handling**: Returns `''` for empty or whitespace-only strings.
-
-**Supported Hash Algorithms**
-
-- `md5`
-- `sha1`
-- `sha224`
-- `sha256`
-- `sha384`
-- `sha512`
-
-All algorithms support `hex` and `base64` digest formats.
 
 **Requesting Additional Algorithms**
 To request additional hash algorithms, contact partner-support@segment.com.
