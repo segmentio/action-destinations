@@ -124,7 +124,7 @@ export const user: InputField = {
   required: false,
   properties: {
     advertising_id: {
-      label: 'Advertising ID', // NEEDS TO BE HASHED (SHA-256)
+      label: 'Advertising ID',
       description: 'The mobile advertising ID for the user. This can be the iOS IDFA, Android AAID.',
       type: 'string'
     },
@@ -134,17 +134,17 @@ export const user: InputField = {
       type: 'string'
     },
     email: {
-      label: 'Email', // NEEDS TO BE HASHED (SHA-256)
+      label: 'Email',
       description: 'The email address of the user.',
       type: 'string'
     },
-    external_id: {
-      label: 'External ID', // NEEDS TO BE HASHED (SHA-256)
+    externalId: {
+      label: 'External ID',
       description: 'An advertiser-assigned persistent identifier for the user.',
       type: 'string'
     },
     ip_address: {
-      label: 'IP Address', // NEEDS TO BE HASHED (SHA-256)
+      label: 'IP Address',
       description: 'The IP address of the user.',
       type: 'string'
     },
@@ -158,6 +158,21 @@ export const user: InputField = {
       description:
         "The value from the first-party Pixel '_rdt_uuid' cookie on your domain. Note that it is in the '{timestamp}.{uuid}' format. You may use the full value or just the UUID portion.",
       type: 'string'
+    },
+    idfa: {
+      label: 'IDFA',
+      description: 'The IDFA of an iOS device',
+      type: 'string'
+    },
+    aaid: {
+      label: 'AAID',
+      description: 'The AAID of an Android device',
+      type: 'string'
+    },
+    phoneNumber: {
+      label: 'Phone Number',
+      description: 'The phone number of the user in E.164 standard format.',
+      type: 'string'
     }
   },
   default: {
@@ -170,28 +185,37 @@ export const user: InputField = {
         else: { '@path': '$.properties.email' }
       }
     },
-    external_id: {
+    externalId: {
       '@if': {
         exists: { '@path': '$.userId' },
         then: { '@path': '$.userId' },
         else: { '@path': '$.anonymousId' }
       }
     },
-    ip_address: { '@path': '$.context.ip' },
-    user_agent: { '@path': '$.context.userAgent' },
-    uuid: {
+    phoneNumber: {
       '@if': {
-        exists: { '@path': '$.integrations.Reddit Conversions Api.uuid' },
-        then: { '@path': '$.integrations.Reddit Conversions Api.uuid' },
-        else: { '@path': '$.properties.uuid' }
+        exists: { '@path': '$.properties.phone' },
+        then: { '@path': '$.properties.phone' },
+        else: { '@path': '$.context.traits.phone' }
       }
     }
+    // Don't need the below for Pixel since it auto collects
+    // ip_address: { '@path': '$.context.ip' },
+    // user_agent: { '@path': '$.context.userAgent' },
+    // uuid: {
+    //   '@if': {
+    //     exists: { '@path': '$.integrations.Reddit Conversions Api.uuid' },
+    //     then: { '@path': '$.integrations.Reddit Conversions Api.uuid' },
+    //     else: { '@path': '$.properties.uuid' }
+    //   }
+    // }
   }
 }
 
 export const data_processing_options: InputField = {
   label: 'Data Processing Options',
-  description: 'A structure of data processing options to specify the processing type for the event.',
+  description:
+    'A structure of data processing options to specify the processing type for the event. These should only be used for LDU - when the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences.',
   type: 'object',
   required: false,
   additionalProperties: false,

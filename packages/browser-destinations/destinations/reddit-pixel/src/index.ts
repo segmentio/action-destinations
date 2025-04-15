@@ -6,6 +6,7 @@ import { initializePixel } from './init-pixel'
 import { RedditPixel } from './types'
 
 import reportWebEvent from './reportWebEvent'
+import reportCustomWebEvent from './reportCustomWebEvent'
 
 declare global {
   interface Window {
@@ -91,7 +92,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
         tracking_type: 'Lead',
         event_metadata: {
           currency: { '@path': '$.properties.currency' },
-          value_decimal: { '@path': '$.properties.price' }
+          value: { '@path': '$.properties.price' }
         }
       },
       type: 'automatic'
@@ -105,7 +106,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
         tracking_type: 'SignUp',
         event_metadata: {
           currency: { '@path': '$.properties.currency' },
-          value_decimal: { '@path': '$.properties.price' }
+          value: { '@path': '$.properties.price' }
         }
       },
       type: 'automatic'
@@ -134,7 +135,8 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
   },
 
   actions: {
-    reportWebEvent
+    reportWebEvent,
+    reportCustomWebEvent
   }
 }
 

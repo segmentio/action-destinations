@@ -20,11 +20,11 @@ export interface Payload {
     /**
      * The number of items in the event. This should only be set for revenue-related events.
      */
-    item_count?: number
+    itemCount?: number
     /**
      * The value of the transaction in the base unit of the currency. For example, dollars, euros, pesos, rupees, and bitcoin for USD, EUR, MXN, INR, and BTC respectively. This should only be set for revenue-related events.
      */
-    value_decimal?: number
+    value?: number
   }
   /**
    * The identifying user parameters associated with the conversion event.
@@ -45,7 +45,7 @@ export interface Payload {
     /**
      * An advertiser-assigned persistent identifier for the user.
      */
-    external_id?: string
+    externalId?: string
     /**
      * The IP address of the user.
      */
@@ -58,5 +58,51 @@ export interface Payload {
      * The value from the first-party Pixel '_rdt_uuid' cookie on your domain. Note that it is in the '{timestamp}.{uuid}' format. You may use the full value or just the UUID portion.
      */
     uuid?: string
+    /**
+     * The IDFA of an iOS device
+     */
+    idfa?: string
+    /**
+     * The AAID of an Android device
+     */
+    aaid?: string
+    /**
+     * The phone number of the user in E.164 standard format.
+     */
+    phoneNumber?: string
+  }
+  /**
+   * The products associated with the conversion event.
+   */
+  products?: {
+    /**
+     * The category the product is in; for example, a label from Google's product taxonomy. Required.
+     */
+    category?: string
+    /**
+     * The ID representing the product in a catalog. Required.
+     */
+    id?: string
+    /**
+     * The name of the product. Optional.
+     */
+    name?: string
+  }[]
+  /**
+   * A structure of data processing options to specify the processing type for the event. These should only be used for LDU - when the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences.
+   */
+  data_processing_options?: {
+    /**
+     * Country Code of the user. We support ISO 3166-1 alpha-2 country code.
+     */
+    country?: string
+    /**
+     * Comma delimited list of Data Processing Modes for this conversion event. Currently only LDU (Limited Data Use) is supported.
+     */
+    modes?: string
+    /**
+     * Region Code of the user. We support ISO 3166-2 region code, ex: "US-CA, US-NY, etc." or just the region code without country prefix, e.g. "CA, NY, etc.".
+     */
+    region?: string
   }
 }
