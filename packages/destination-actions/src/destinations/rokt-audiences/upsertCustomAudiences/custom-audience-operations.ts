@@ -16,14 +16,17 @@ type CustomAudienceOperation = {
   action: string
   list: string
   emails: string[]
+  sha256s: string[]
 }
 
 /**
- * getCustomAudienceOperations parses event payloads from segment to convert to request object for Rokt api
+ * getCustomAudienceOperations parses event payloads from segment to convert to request object for Rokt api.
+ * Each audience receives its own pair of include and exclude lists.
  * @payload payload of events
  */
-
 const getCustomAudienceOperations = (payload: Payload[], settings: Settings): CustomAudienceOperation[] => {
+  let is_hashed = false
+
   // map to handle different audiences in the batch
   // this will contain audience_name=>[action=>emails]
   const audience_map = new Map<string, Map<string, string[]>>([])
@@ -49,27 +52,51 @@ const getCustomAudienceOperations = (payload: Payload[], settings: Settings): Cu
     }
 
     if (p.traits_or_props[p.custom_audience_name] === true) {
-      // audience entered 'true', include email to list
-      action_map.get(CONSTANTS.INCLUDE)?.push(p.email)
+      // audience entered 'true', include email or hashed email from list
+      if (p.email_sha256 !== undefined) {
+        action_map.get(CONSTANTS.INCLUDE)?.push(p.email_sha256)
+        is_hashed = true
+      } else {
+        action_map.get(CONSTANTS.INCLUDE)?.push(p.email)
+      }
     } else if (p.traits_or_props[p.custom_audience_name] === false) {
-      // audience entered 'false', exclude email from list
-      action_map.get(CONSTANTS.EXCLUDE)?.push(p.email)
+      // audience entered 'false', exclude email or hashed email from list
+      if (p.email_sha256 !== undefined) {
+        action_map.get(CONSTANTS.EXCLUDE)?.push(p.email_sha256)
+        is_hashed = true
+      } else {
+        action_map.get(CONSTANTS.EXCLUDE)?.push(p.email)
+      }
     }
   }
 
   // build operation request to be sent to Rokt api
   const custom_audience_ops: CustomAudienceOperation[] = []
+  const emptyList: string[] = []
 
   audience_map.forEach((action_map_values: Map<string, string[]>, list: string) => {
     // key will be audience list
     // value will map of action=>email_list
     action_map_values.forEach((emails: string[], action: string) => {
-      const custom_audience_op: CustomAudienceOperation = {
-        accountId: settings.accountid,
-        list: list,
-        action: action,
-        emails: emails
+      let custom_audience_op: CustomAudienceOperation
+      if (is_hashed) {
+        custom_audience_op = {
+          accountId: settings.accountid,
+          list: list,
+          action: action,
+          emails: emptyList,
+          sha256s: emails
+        }
+      } else {
+        custom_audience_op = {
+          accountId: settings.accountid,
+          list: list,
+          action: action,
+          emails: emails,
+          sha256s: emptyList
+        }
       }
+
       custom_audience_ops.push(custom_audience_op)
     })
   })
@@ -87,7 +114,7 @@ async function processPayload(request: RequestClient, settings: Settings, events
   const promises = []
 
   for (const op of custom_audience_ops) {
-    if (op.emails.length > 0) {
+    if (op.emails.length > 0 || op.sha256s.length > 0) {
       // if emails are present for action, send to Rokt. Push to list of promises
       // There will be max 2 promises for 2 http requests ( include & exclude actions )
       promises.push(
