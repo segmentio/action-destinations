@@ -1,6 +1,7 @@
 import { RequestClient, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload } from './syncAudience/generated-types'
+// eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
 import { IntegrationError } from '@segment/actions-core'
 

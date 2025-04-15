@@ -84,6 +84,19 @@ module.exports = {
       rules: {
         '@typescript-eslint/no-unsafe-call': 'off'
       }
+    },
+    {
+      files: ['packages/destination-actions/**/*.ts'],
+      rules: {
+        'no-restricted-syntax': [
+          'error',
+          {
+            selector: "ImportDeclaration[source.value='crypto'] ImportSpecifier[imported.name='createHash']",
+            message:
+              'The "destination-actions/lib/hashing-utils/processHashing" can autodetect  prehashed values and avoid double hashing [https://github.com/segmentio/action-destinations/blob/139f434ff2828ed37c8f364f6ff9bb63dd3725d1/README.md?plain=1#L963]. Avoid importing the "createHash" function from "crypto"'
+          }
+        ]
+      }
     }
   ]
 }
