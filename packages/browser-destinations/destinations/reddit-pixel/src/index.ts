@@ -115,6 +115,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
 
   settings: {
     // Add any Segment destination settings required here
+    // test
     pixel_id: {
       label: 'Pixel ID',
       type: 'string',
