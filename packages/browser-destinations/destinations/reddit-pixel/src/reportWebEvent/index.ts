@@ -7,6 +7,7 @@ import { RedditPixel } from '../types'
 const action: BrowserActionDefinition<Settings, RedditPixel, Payload> = {
   title: 'Reddit Pixel',
   description: 'Reddit Pixel to track pagevists, addtocarts, search, etc.',
+  defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
     tracking_type,
