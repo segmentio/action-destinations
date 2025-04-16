@@ -179,3 +179,21 @@ export interface CreateGoogleAudienceResponse {
 export interface AudienceSettings {
   external_id_type: string
 }
+export interface OfflineUserJobPayload {
+  job: {
+    type: string
+    customerMatchUserListMetadata: {
+      userList: string
+      consent: {
+        adUserData?: string
+        adPersonalization?: string
+      }
+    }
+  }
+}
+
+export interface AddOperationPayload {
+  operations: any[]
+  enablePartialFailure?: boolean
+  enableWarnings?: boolean
+}
