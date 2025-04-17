@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * One of Reddit CAPI's standard conversion event types. To send a Custom event to Reddit use the Custom Event Action instead.
-   */
-  tracking_type: string
-  /**
    * The unique conversion ID that corresponds to a distinct conversion event.
    */
   conversion_id?: string
@@ -89,4 +85,8 @@ export interface Payload {
      */
     region?: string
   }
+  /**
+   * A custom event name that can be passed when tracking_type is set to "Custom". All UTF-8 characters are accepted and custom_event_name must be at most 64 characters long.
+   */
+  custom_event_name: string
 }

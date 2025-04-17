@@ -1,10 +1,7 @@
 export interface RedditPixel {
-  // (method: string, eventName: string, metadata?: any): void // this works too
   page: () => void
-  // instance: (pixel_id: string) => RedditPixel
   init: (pixelId: string, ldu?: any) => void
   track: (eventName: string, eventMetadata?: any) => void
-  // don't need this anymore - merge with metadata
   advanced_matching: ({
     email,
     externalId,

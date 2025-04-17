@@ -7,6 +7,7 @@ import { RedditPixel } from './types'
 
 import reportWebEvent from './reportWebEvent'
 import reportCustomWebEvent from './reportCustomWebEvent'
+// import reportCustomWebEvent from './reportCustomWebEvent'
 
 declare global {
   interface Window {
@@ -115,7 +116,6 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
 
   settings: {
     // Add any Segment destination settings required here
-    // test
     pixel_id: {
       label: 'Pixel ID',
       type: 'string',
@@ -125,7 +125,8 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
     ldu: {
       label: 'Limited Data Use',
       type: 'boolean',
-      description: 'LDU'
+      description:
+        'Limited Data Use - When the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences. See [this documentation](https://business.reddithelp.com/s/article/Limited-Data-Use) for more information. If enabling this toggle, also go into each event and configure the Country and Region in the Data Processing Options for each event being sent.'
     }
   },
 

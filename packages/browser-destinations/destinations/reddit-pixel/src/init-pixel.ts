@@ -16,7 +16,6 @@ export function initializePixel(settings) {
     }
   })(window, document)
 
-  console.log('Initializing Reddit Pixel...')
   rdt.init = (pixel_id, ldu) => {
     rdt('init', pixel_id, ldu)
   }
@@ -24,8 +23,4 @@ export function initializePixel(settings) {
   rdt.track = (eventName, eventMetadata) => {
     rdt('track', eventName, eventMetadata)
   }
-  // rdt('track', 'PageVisit')
-  // remove and let it be it's own track function to fire off since it can also
-  //  include advanced matching. Also allows advertisers to choose
-  //  if they want to track page visits or something else
 }

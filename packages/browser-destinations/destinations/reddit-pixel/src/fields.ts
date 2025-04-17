@@ -54,12 +54,12 @@ export const event_metadata: InputField = {
         { label: 'USD - US Dollar', value: 'USD' }
       ]
     },
-    item_count: {
+    itemCount: {
       label: 'Item Count',
       description: 'The number of items in the event. This should only be set for revenue-related events.',
       type: 'integer'
     },
-    value_decimal: {
+    value: {
       label: 'Value Decimal',
       description:
         'The value of the transaction in the base unit of the currency. For example, dollars, euros, pesos, rupees, and bitcoin for USD, EUR, MXN, INR, and BTC respectively. This should only be set for revenue-related events.',
@@ -70,10 +70,10 @@ export const event_metadata: InputField = {
     currency: {
       '@path': '$.properties.currency'
     },
-    item_count: {
+    itemCount: {
       '@path': '$.properties.quantity'
     },
-    value_decimal: {
+    value: {
       '@path': '$.properties.total'
     }
   }
@@ -143,22 +143,6 @@ export const user: InputField = {
       description: 'An advertiser-assigned persistent identifier for the user.',
       type: 'string'
     },
-    ip_address: {
-      label: 'IP Address',
-      description: 'The IP address of the user.',
-      type: 'string'
-    },
-    user_agent: {
-      label: 'User Agent',
-      description: "The user agent of the user's browser.",
-      type: 'string'
-    },
-    uuid: {
-      label: 'UUID',
-      description:
-        "The value from the first-party Pixel '_rdt_uuid' cookie on your domain. Note that it is in the '{timestamp}.{uuid}' format. You may use the full value or just the UUID portion.",
-      type: 'string'
-    },
     idfa: {
       label: 'IDFA',
       description: 'The IDFA of an iOS device',
@@ -199,23 +183,13 @@ export const user: InputField = {
         else: { '@path': '$.context.traits.phone' }
       }
     }
-    // Don't need the below for Pixel since it auto collects
-    // ip_address: { '@path': '$.context.ip' },
-    // user_agent: { '@path': '$.context.userAgent' },
-    // uuid: {
-    //   '@if': {
-    //     exists: { '@path': '$.integrations.Reddit Conversions Api.uuid' },
-    //     then: { '@path': '$.integrations.Reddit Conversions Api.uuid' },
-    //     else: { '@path': '$.properties.uuid' }
-    //   }
-    // }
   }
 }
 
 export const data_processing_options: InputField = {
   label: 'Data Processing Options',
   description:
-    'A structure of data processing options to specify the processing type for the event. These should only be used for LDU - when the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences.',
+    'A structure of data processing options to specify the processing type for the event. This is only used for LDU - when the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences.',
   type: 'object',
   required: false,
   additionalProperties: false,
@@ -475,18 +449,18 @@ export const data_processing_options: InputField = {
         { label: 'ZW - Zimbabwe', value: 'ZW' }
       ]
     },
-    modes: {
-      label: 'Modes',
-      description:
-        'Comma delimited list of Data Processing Modes for this conversion event. Currently only LDU (Limited Data Use) is supported.',
-      type: 'string',
-      choices: [{ label: 'Limited Data Use', value: 'LDU' }],
-      default: ''
-    },
+    // modes: {
+    //   label: 'Modes',
+    //   description:
+    //     'Comma delimited list of Data Processing Modes for this conversion event. Currently only LDU (Limited Data Use) is supported.',
+    //   type: 'string',
+    //   choices: [{ label: 'Limited Data Use', value: 'LDU' }],
+    //   default: ''
+    // },
     region: {
       label: 'Region',
       description:
-        'Region Code of the user. We support ISO 3166-2 region code, ex: "US-CA, US-NY, etc." or just the region code without country prefix, e.g. "CA, NY, etc.".',
+        'Region Code of the user. We support ISO 3166-2 region code, ex: "US-CA, US-NY, etc." or just the region code without country prefix, e.g. "CA, NY, etc.". This is only used for LDU - when the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences.',
       type: 'string'
     }
   }
