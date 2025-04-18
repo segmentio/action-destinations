@@ -1,4 +1,4 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient, Features } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -66,13 +66,13 @@ const action: ActionDefinition<Settings, Payload> = {
             value: 'PHONE_SHA256'
           }
         ]
-      }
+      },
+      category: 'hashedPII'
     },
     email: {
       label: 'Email',
       description: "The user's email address.",
       type: 'string',
-      format: 'email',
       required: false,
       default: { '@path': '$.context.traits.email' },
       depends_on: {
@@ -84,7 +84,8 @@ const action: ActionDefinition<Settings, Payload> = {
             value: 'EMAIL_SHA256'
           }
         ]
-      }
+      },
+      category: 'hashedPII'
     },
     advertising_id: {
       label: 'Mobile Advertising ID',
@@ -104,7 +105,8 @@ const action: ActionDefinition<Settings, Payload> = {
             value: 'MOBILE_AD_ID_SHA256'
           }
         ]
-      }
+      },
+      category: 'hashedPII'
     },
     enable_batching: {
       label: 'Enable Batching',
@@ -114,19 +116,19 @@ const action: ActionDefinition<Settings, Payload> = {
       default: true
     }
   },
-  perform: async (request, { payload }) => {
-    return processPayload(request, [payload])
+  perform: async (request, { payload, features }) => {
+    return processPayload(request, [payload], features)
   },
-  performBatch: async (request, { payload }) => {
-    return processPayload(request, payload)
+  performBatch: async (request, { payload, features }) => {
+    return processPayload(request, payload, features)
   }
 }
 
 export default action
 
-const processPayload = async (request: RequestClient, payload: Payload[]) => {
+const processPayload = async (request: RequestClient, payload: Payload[], features?: Features) => {
   const { external_audience_id, schema_type } = payload[0]
-  const { enteredAudience, exitedAudience } = sortPayload(payload)
+  const { enteredAudience, exitedAudience } = sortPayload(payload, features)
 
   if (enteredAudience.length === 0 && exitedAudience.length === 0) {
     throw new PayloadValidationError(`No ${validationError(schema_type)} identifier present in payload(s)`)

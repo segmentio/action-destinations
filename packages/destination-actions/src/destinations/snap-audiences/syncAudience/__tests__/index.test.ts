@@ -1,7 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, PayloadValidationError } from '@segment/actions-core'
 import Destination from '../../index'
-import { normalizeAndHash, normalizeAndHashPhone } from '../utils'
+import { processHashing } from '../../../../lib/hashing-utils'
+import { normalize, normalizePhone } from '../utils'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -128,14 +129,17 @@ describe('Snapchat Audiences syncAudience', () => {
     ).rejects.toThrowError(PayloadValidationError)
   })
   it('should normalize and hash identifiers', async () => {
+    const features = { 'smart-hashing': true }
+    const slug = 'actions-snap-audiences'
+
     const email1 = 'person@email.com'
     const email2 = 'Person@email.com'
     const email3 = 'Person@email.com '
     const hashedEmail = 'b375b7bbddb3de3298fbc7641063d9f03a38e118aa4480c8ab9f58740982e8bd'
-    const email1Res = normalizeAndHash(email1)
-    const email2Res = normalizeAndHash(email2)
-    const email3Res = normalizeAndHash(email3)
-    const alreadyHashedResEmail = normalizeAndHash(hashedEmail)
+    const email1Res = processHashing(email1, 'sha256', 'hex', features, slug, normalize)
+    const email2Res = processHashing(email2, 'sha256', 'hex', features, slug, normalize)
+    const email3Res = processHashing(email3, 'sha256', 'hex', features, slug, normalize)
+    const alreadyHashedResEmail = processHashing(hashedEmail, 'sha256', 'hex', features, slug, normalize)
     expect(email1Res).toEqual(hashedEmail)
     expect(email2Res).toEqual(hashedEmail)
     expect(email3Res).toEqual(hashedEmail)
@@ -145,10 +149,10 @@ describe('Snapchat Audiences syncAudience', () => {
     const phone2 = '001(706)-767-5127'
     const phone3 = '01(706)-767-5127'
     const hashedPhone = '2fd199db6d3fa9fe754886ff1822f2867fcb104a6639495eca25c2978efe4ed4'
-    const phone1Res = normalizeAndHashPhone(phone1)
-    const phone2Res = normalizeAndHashPhone(phone2)
-    const phone3Res = normalizeAndHashPhone(phone3)
-    const alreadyHashedResPhone = normalizeAndHashPhone(hashedPhone)
+    const phone1Res = processHashing(phone1, 'sha256', 'hex', features, slug, normalizePhone)
+    const phone2Res = processHashing(phone2, 'sha256', 'hex', features, slug, normalizePhone)
+    const phone3Res = processHashing(phone3, 'sha256', 'hex', features, slug, normalizePhone)
+    const alreadyHashedResPhone = processHashing(hashedPhone, 'sha256', 'hex', features, slug, normalizePhone)
     expect(phone1Res).toEqual(hashedPhone)
     expect(phone2Res).toEqual(hashedPhone)
     expect(phone3Res).toEqual(hashedPhone)
@@ -157,9 +161,9 @@ describe('Snapchat Audiences syncAudience', () => {
     const mobileAdId1 = 'f81d4fae-7dec-11d0-a765-00a0c91e6bf6'
     const mobileAdId2 = 'F81D4FAE-7DEC-11D0-A765-00A0C91E6BF6'
     const hashedMobileAdId = '30a5154b77ab8b2ddbe19f5e7af72f33cc2a4a41f22940d965102650a1c72863'
-    const mobileAdId1Res = normalizeAndHash(mobileAdId1)
-    const mobileAdId2Res = normalizeAndHash(mobileAdId2)
-    const alreadyHashedResMobileAdId = normalizeAndHash(hashedMobileAdId)
+    const mobileAdId1Res = processHashing(mobileAdId1, 'sha256', 'hex', features, slug, normalize)
+    const mobileAdId2Res = processHashing(mobileAdId2, 'sha256', 'hex', features, slug, normalize)
+    const alreadyHashedResMobileAdId = processHashing(hashedMobileAdId, 'sha256', 'hex', features, slug, normalize)
     expect(mobileAdId1Res).toEqual(hashedMobileAdId)
     expect(mobileAdId2Res).toEqual(hashedMobileAdId)
     expect(alreadyHashedResMobileAdId).toEqual(hashedMobileAdId)

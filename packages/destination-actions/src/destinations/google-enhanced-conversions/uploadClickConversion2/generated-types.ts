@@ -22,11 +22,15 @@ export interface Payload {
    */
   conversion_timestamp: string
   /**
-   * Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.
+   * Email address of the individual who triggered the conversion event
    */
   email_address?: string
   /**
-   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.
+   * The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.
+   */
+  phone_country_code?: string
+  /**
+   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000
    */
   phone_number?: string
   /**

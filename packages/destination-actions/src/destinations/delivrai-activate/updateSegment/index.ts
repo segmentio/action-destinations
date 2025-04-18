@@ -1,4 +1,4 @@
-import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition, Features, RequestClient } from '@segment/actions-core'
 import { PayloadValidationError, InvalidAuthenticationError, APIError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -32,7 +32,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.context.traits.email' } // Phone is sent as identify's trait or track's context.trait
         }
-      }
+      },
+      category: 'hashedPII'
     },
     phone: {
       label: 'User Phone',
@@ -46,7 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.phone' }, // Phone is sent as identify's trait or track's property
           else: { '@path': '$.properties.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     device_type: {
       label: 'User Mobile Device Type', // This field is required to determine the type of the advertising Id: IDFA or GAID
@@ -94,7 +96,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  perform: async (request, { payload, settings }) => {
+  perform: async (request, { payload, settings, features }) => {
     // Check if client_identifier_id is valid
     let rt_access_token_response
     // Generate JWT token
@@ -109,9 +111,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     const rt_access_token = rt_access_token_response?.data?.token
     // Process the payload with the valid token
-    return process_payload(request, [payload], rt_access_token, settings.client_identifier_id)
+    return process_payload(request, [payload], rt_access_token, settings.client_identifier_id, features || {})
   },
-  performBatch: async (request, { payload, settings }) => {
+  performBatch: async (request, { payload, settings, features }) => {
     // Ensure client_identifier_id is provided
     let rt_access_token_response
     // Generate JWT token
@@ -126,7 +128,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     const rt_access_token = rt_access_token_response?.data?.token
     // Process the payload with the valid token
-    return process_payload(request, payload, rt_access_token, settings.client_identifier_id)
+    return process_payload(request, payload, rt_access_token, settings.client_identifier_id, features ?? {})
   }
 }
 
@@ -135,9 +137,10 @@ async function process_payload(
   request: RequestClient,
   payload: Payload[],
   token: string | undefined,
-  client_identifier_id: string
+  client_identifier_id: string,
+  features: Features
 ) {
-  const body = gen_update_segment_payload(payload, client_identifier_id)
+  const body = gen_update_segment_payload(payload, client_identifier_id, features)
   // Send request to Delivr AI only when all events in the batch include selected Ids
   if (body.data.length > 0) {
     return await request(`${DELIVRAI_BASE_URL}${DELIVRAI_SEGMENTATION_AUDIENCE}`, {

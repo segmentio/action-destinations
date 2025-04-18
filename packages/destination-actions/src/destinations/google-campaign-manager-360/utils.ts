@@ -169,27 +169,15 @@ export function getJSON(
         }
         if (firstName || lastName || streetAddress || city || state || postalCode || countryCode) {
           const addressInfo: AddressInfo = {
-            hashedFirstName: processHashing(
-              firstName ?? '',
-              'sha256',
-              'hex',
-              features,
-              'actions-google-campaign-manager-360'
-            ),
-            hashedLastName: processHashing(
-              lastName ?? '',
-              'sha256',
-              'hex',
-              features,
-              'actions-google-campaign-manager-360'
-            ),
-            hashedStreetAddress: processHashing(
-              streetAddress ?? '',
-              'sha256',
-              'hex',
-              features,
-              'actions-google-campaign-manager-360'
-            ),
+            hashedFirstName: firstName
+              ? processHashing(firstName, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
+              : undefined,
+            hashedLastName: lastName
+              ? processHashing(lastName, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
+              : undefined,
+            hashedStreetAddress: streetAddress
+              ? processHashing(streetAddress, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
+              : undefined,
             city: city ?? undefined,
             state: state ?? undefined,
             postalCode: postalCode ?? undefined,
