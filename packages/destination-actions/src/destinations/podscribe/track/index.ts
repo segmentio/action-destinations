@@ -1,7 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { serializeParams } from '../utils'
+import { normalizeEmail, serializeParams } from '../utils'
 import type { Payload } from './generated-types'
+
+import { processHashing } from '../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
@@ -128,11 +130,6 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Is Subscription',
           type: 'boolean',
           description: 'true value indicates a subscription'
-        },
-        hashed_email: {
-          label: 'Hashed email',
-          type: 'string',
-          description: 'SHA256- or MD5-hashed email address of the user.'
         }
       },
       default: {
@@ -142,8 +139,7 @@ const action: ActionDefinition<Settings, Payload> = {
         coupon: { '@path': '$.properties.coupon' },
         num_items_purchased: { '@path': '$.properties.num_items_purchased' },
         is_new_customer: { '@path': '$.properties.is_new_customer' },
-        is_subscription: { '@path': '$.properties.is_subscription' },
-        hashed_email: { '@path': '$.properties.hashed_email' }
+        is_subscription: { '@path': '$.properties.is_subscription' }
       }
     },
     podscribeEvent: {
@@ -155,6 +151,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
+    if (payload.email) {
+      payload.email = processHashing(payload.email, 'sha256', 'hex', normalizeEmail)
+    }
+
     const params = serializeParams({
       action: payload.podscribeEvent,
       advertiser: settings.advertiser,
@@ -169,7 +169,7 @@ const action: ActionDefinition<Settings, Payload> = {
       order_number: payload.properties?.order_id,
       currency: payload.properties?.currency,
       discount_code: payload.properties?.coupon,
-      hashed_email: payload.properties?.hashed_email || payload?.email,
+      hashed_email: payload?.email,
       num_items_purchased: payload.properties?.num_items_purchased,
       is_new_customer: payload.properties?.is_new_customer,
       is_subscription: payload.properties?.is_subscription,
