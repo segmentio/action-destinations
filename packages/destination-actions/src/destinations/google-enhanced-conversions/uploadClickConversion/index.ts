@@ -21,7 +21,8 @@ import {
   convertTimestamp,
   getApiVersion,
   commonEmailValidation,
-  getConversionActionDynamicData
+  getConversionActionDynamicData,
+  formatPhone
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -66,8 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email_address: {
       label: 'Email Address',
-      description:
-        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
+      description: 'Email address of the individual who triggered the conversion event',
       type: 'string',
       default: {
         '@if': {
@@ -75,12 +75,18 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.email' },
           else: { '@path': '$.context.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
+    },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
     },
     phone_number: {
       label: 'Phone Number',
       description:
-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.',
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000',
       type: 'string',
       default: {
         '@if': {
@@ -88,7 +94,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.phone' },
           else: { '@path': '$.context.traits.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     order_id: {
       label: 'Order ID',
@@ -334,7 +341,7 @@ const action: ActionDefinition<Settings, Payload> = {
           'hex',
           features ?? {},
           'actions-google-enhanced-conversions',
-          (value) => '+' + value.split('+').join('')
+          (value) => formatPhone(value, payload.phone_country_code)
         )
       } as UserIdentifierInterface)
     }
@@ -453,7 +460,7 @@ const action: ActionDefinition<Settings, Payload> = {
               'hex',
               features ?? {},
               'actions-google-enhanced-conversions',
-              (value) => '+' + value.split('+').join('')
+              (value) => formatPhone(value, payload.phone_country_code)
             )
           } as UserIdentifierInterface)
         }
