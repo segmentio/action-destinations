@@ -6,12 +6,14 @@ const testDestination = createTestIntegration(Destination)
 
 describe('Podscribe.page', () => {
   const TEST_ADVERTISER = 'test-advertiser'
+  const USER_ID = 'test-user-id'
   const TEST_IP = '11.111.11.11'
   const TEST_TIMESTAMP = '2021-07-12T23:02:40.563Z'
 
   it('should send view event', async () => {
     const params = new URLSearchParams({
       advertiser: TEST_ADVERTISER,
+      user_id: USER_ID,
       action: 'view',
       ip: TEST_IP,
       timestamp: TEST_TIMESTAMP
@@ -25,7 +27,7 @@ describe('Podscribe.page', () => {
     const responses = await testDestination.testAction('page', {
       mapping: { properties: {}, name: 'page-name', ip: TEST_IP, timestamp: TEST_TIMESTAMP },
       event,
-      settings: { advertiser: TEST_ADVERTISER }
+      settings: { advertiser: TEST_ADVERTISER, userId: USER_ID }
     })
 
     expect(responses[0].status).toBe(204)
