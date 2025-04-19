@@ -67,10 +67,6 @@ export interface Payload {
      * true value indicates a subscription
      */
     is_subscription?: boolean
-    /**
-     * SHA256- or MD5-hashed email address of the user.
-     */
-    hashed_email?: string
     [k: string]: unknown
   }
   /**
