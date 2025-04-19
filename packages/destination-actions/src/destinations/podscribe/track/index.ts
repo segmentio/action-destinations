@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import { normalizeEmail, serializeParams } from '../utils'
 import type { Payload } from './generated-types'
 
-import { processHashing } from '../../lib/hashing-utils'
+import { processHashing } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
@@ -152,7 +152,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     if (payload.email) {
-      payload.email = processHashing(payload.email, 'sha256', 'hex', normalizeEmail)
+      payload.email = processHashing(payload.email, 'sha256', 'hex', undefined, 'podscribe', normalizeEmail)
     }
 
     const params = serializeParams({
