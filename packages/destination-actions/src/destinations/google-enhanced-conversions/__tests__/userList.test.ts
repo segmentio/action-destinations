@@ -577,7 +577,7 @@ describe('GoogleEnhancedConversions', () => {
         errorreporter: 'DESTINATION'
       })
     })
-    it('Rethrows concurrent_modification error from createOfflineUserDataJobs  API as retryable error', async () => {
+    it('Rethrows CONCURRENT_MODIFICATION error from createOfflineUserDataJobs API as retryable error', async () => {
       const events: SegmentEvent[] = [
         createTestEvent({
           timestamp,
@@ -658,7 +658,7 @@ describe('GoogleEnhancedConversions', () => {
         status: 429,
         errortype: 'RETRYABLE_BATCH_FAILURE',
         errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODDIFICATION error.Multiple requests were attempting to modify the same resource at once. Retry the request.",
+          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
         sent: {
           job: {
             type: 'CUSTOMER_MATCH_USER_LIST',
@@ -679,7 +679,7 @@ describe('GoogleEnhancedConversions', () => {
         status: 429,
         errortype: 'RETRYABLE_BATCH_FAILURE',
         errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODDIFICATION error.Multiple requests were attempting to modify the same resource at once. Retry the request.",
+          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
         sent: {
           job: {
             type: 'CUSTOMER_MATCH_USER_LIST',
@@ -697,7 +697,7 @@ describe('GoogleEnhancedConversions', () => {
       })
     })
 
-    it('Rethrows concurrent_modification error from addOperation offlineUserDataJobs  API as retryable error', async () => {
+    it('Rethrows CONCURRENT_MODIFICATION error from addOperation offlineUserDataJobs API as retryable error', async () => {
       const events: SegmentEvent[] = [
         createTestEvent({
           timestamp,
@@ -780,7 +780,7 @@ describe('GoogleEnhancedConversions', () => {
         status: 429,
         errortype: 'RETRYABLE_BATCH_FAILURE',
         errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODDIFICATION error.Multiple requests were attempting to modify the same resource at once. Retry the request.",
+          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
         sent: {
           enablePartialFailure: true,
           operations: [
@@ -818,7 +818,7 @@ describe('GoogleEnhancedConversions', () => {
         status: 429,
         errortype: 'RETRYABLE_BATCH_FAILURE',
         errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODDIFICATION error.Multiple requests were attempting to modify the same resource at once. Retry the request.",
+          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
         sent: {
           enablePartialFailure: true,
           operations: [
@@ -1407,7 +1407,7 @@ describe('GoogleEnhancedConversions', () => {
         errorreporter: 'DESTINATION'
       })
     })
-    it('Rethrows concurrent_modification error from run offlineUserDataJobs API as retryable error', async () => {
+    it('Rethrows CONCURRENT_MODIFICATION error from run offlineUserDataJobs API as retryable error', async () => {
       const events: SegmentEvent[] = [
         createTestEvent({
           timestamp,
@@ -1495,7 +1495,7 @@ describe('GoogleEnhancedConversions', () => {
         status: 429,
         errortype: 'RETRYABLE_BATCH_FAILURE',
         errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODDIFICATION error.Multiple requests were attempting to modify the same resource at once. Retry the request.",
+          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
         sent: '/customers/1234/userLists/1234:run',
         body: new Error('Bad Request'),
         errorreporter: 'DESTINATION'
@@ -1505,7 +1505,7 @@ describe('GoogleEnhancedConversions', () => {
         status: 429,
         errortype: 'RETRYABLE_BATCH_FAILURE',
         errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODDIFICATION error.Multiple requests were attempting to modify the same resource at once. Retry the request.",
+          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
         sent: '/customers/1234/userLists/1234:run',
         body: new Error('Bad Request'),
         errorreporter: 'DESTINATION'

@@ -730,7 +730,7 @@ const parseGoogleAdsError = (error: any) => {
   return hasConcurrentModificationError
     ? {
         errormessage:
-          "This event wasn't delivered because of CONCURRENT_MODDIFICATION error.Multiple requests were attempting to modify the same resource at once. Retry the request.",
+          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
         errortype: 'RETRYABLE_BATCH_FAILURE' as keyof typeof ErrorCodes,
         status: 429
       }
@@ -873,6 +873,8 @@ const extractBatchUserIdentifiers = (
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
   const validPayloadIndicesBitmap: number[] = []
+
+  //Identify the user identifiers based on the idType
   const extractors = createIdentifierExtractors(features)
 
   payloads.forEach((payload, index) => {
@@ -880,7 +882,7 @@ const extractBatchUserIdentifiers = (
     try {
       userIdentifiers = extractors[idType as keyof typeof extractors]?.(payload)
     } catch (error) {
-      if (error instanceof PayloadValidationError && error.message.includes('Email')) {
+      if (error instanceof PayloadValidationError) {
         multiStatusResponse.setErrorResponseAtIndex(index, {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
@@ -967,6 +969,7 @@ export const processBatchPayload = async (
   }
   const multiStatusResponse = new MultiStatusResponse()
   const id_type = hookListType ?? audienceSettings.external_id_type
+  // Extract user identifiers and validPayloadIndicesBitmap from payloads
   const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap } = extractBatchUserIdentifiers(
     payloads,
     id_type,
@@ -974,7 +977,9 @@ export const processBatchPayload = async (
     syncMode,
     features
   )
+  // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
+  // Step1 :- Create an Offline user data job
   const {
     success,
     data: resourceName,
@@ -990,7 +995,7 @@ export const processBatchPayload = async (
     return multiStatusResponse
   }
   const failedPayloadIndices: Set<number> = new Set()
-  // Add operations to the offline user data job
+  // Step 2:- Add operations to the Offline user data job
   if (addUserIdentifiers.length > 0) {
     await processOperations(
       request,
@@ -1020,7 +1025,7 @@ export const processBatchPayload = async (
     return multiStatusResponse // Return multi-status response if all operations failed
   }
 
-  // Run the offline user data job
+  //Step 3:- Run the offline user data job
   const executedJob: any = await runOfflineUserJob(request, resourceName, features, statsContext)
   statsContext?.statsClient?.incr('success.offlineUpdateAudience', 1, statsContext?.tags)
 
