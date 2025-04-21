@@ -326,7 +326,7 @@ export async function createGoogleAudience(
             uploadKeyType: input.audienceSettings.external_id_type,
             appId: input.audienceSettings.app_id
           },
-          membershipLifeSpan: '10000', // In days. 10000 is interpreted as 'unlimited'.
+          membershipLifeSpan: '540',
           name: `${input.audienceName}`
         }
       }
@@ -438,7 +438,11 @@ export function formatToE164(phoneNumber: string, countryCode: string): string {
   return formattedPhoneNumber
 }
 
-const formatPhone = (phone: string, countryCode?: string): string => {
+export const formatPhone = (phone: string, countryCode?: string): string => {
+  // Check if phone number is already hashed before doing any formatting
+  if (isHashedInformation(phone)) {
+    return phone
+  }
   const formattedPhone = formatToE164(phone, countryCode ?? '+1')
   return formattedPhone
 }

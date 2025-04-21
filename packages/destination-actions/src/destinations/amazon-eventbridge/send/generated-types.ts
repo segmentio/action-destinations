@@ -9,7 +9,7 @@ export interface Payload {
   }
   /**
    * Detail Type of the event. Used to determine what fields to expect in the event Detail.
-   *                     Values longer than 128 characters are trimmed
+   *                     Value cannot be longer than 128 characters.
    */
   detailType: string
   /**

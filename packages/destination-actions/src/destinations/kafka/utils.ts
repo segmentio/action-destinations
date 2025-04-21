@@ -60,7 +60,7 @@ interface TopicMessages {
 
 interface SSLConfig {
   ca: string[]
-  rejectUnauthorized: boolean
+  rejectUnauthorized?: boolean
   key?: string
   cert?: string
 }

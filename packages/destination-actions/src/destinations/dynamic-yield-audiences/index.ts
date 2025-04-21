@@ -90,7 +90,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing computation parameters: Id and Key', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const audience_id = hashAndEncodeToInt(personas.computation_id)
+      const audience_id = hashAndEncodeToInt(personas.computation_id, createAudienceInput.features || {})
 
       const json = {
         type: 'audience_subscription_request',

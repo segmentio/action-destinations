@@ -3,8 +3,9 @@ import {
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
-  commonEmailValidation,
-  getConversionActionDynamicData
+  getConversionActionDynamicData,
+  formatPhone,
+  commonEmailValidation
 } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -104,8 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email_address: {
       label: 'Email Address',
-      description:
-        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
+      description: 'Email address of the individual who triggered the conversion event.',
       type: 'string',
       default: {
         '@if': {
@@ -113,12 +113,18 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.email' },
           else: { '@path': '$.context.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
+    },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
     },
     phone_number: {
       label: 'Phone Number',
       description:
-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.',
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000',
       type: 'string',
       default: {
         '@if': {
@@ -126,12 +132,12 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.phone' },
           else: { '@path': '$.context.traits.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     first_name: {
       label: 'First Name',
-      description:
-        'First name of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      description: 'First name of the user who performed the conversion',
       type: 'string',
       default: {
         '@if': {
@@ -143,8 +149,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     last_name: {
       label: 'Last Name',
-      description:
-        'Last name of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      description: 'Last name of the user who performed the conversion',
       type: 'string',
       default: {
         '@if': {
@@ -152,7 +157,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.lastName' },
           else: { '@path': '$.context.traits.lastName' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     city: {
       label: 'City',
@@ -204,8 +210,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     street_address: {
       label: 'Street Address',
-      description:
-        'Street address of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      description: 'Street address of the user who performed the conversion',
       type: 'string',
       default: {
         '@if': {
@@ -306,7 +311,8 @@ const action: ActionDefinition<Settings, Payload> = {
           'sha256',
           'hex',
           features ?? {},
-          'actions-google-enhanced-conversions'
+          'actions-google-enhanced-conversions',
+          (value) => formatPhone(value, payload.phone_country_code)
         )
       } as UserIdentifierInterface)
     }
@@ -434,7 +440,8 @@ const action: ActionDefinition<Settings, Payload> = {
             'sha256',
             'hex',
             features ?? {},
-            'actions-google-enhanced-conversions'
+            'actions-google-enhanced-conversions',
+            (value) => formatPhone(value, payloadItem.phone_country_code)
           )
         } as UserIdentifierInterface)
       }

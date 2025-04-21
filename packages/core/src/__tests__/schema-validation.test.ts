@@ -1566,6 +1566,27 @@ describe('validateSchema', () => {
     expect(validateSchema(greater_than_max_payload, min_max_schema, { throwIfInvalid: false })).toBeFalsy()
   })
 
+  it('should validate min/max for string type fields', async () => {
+    const smallString = 'a'
+    const longString = 'a'.repeat(100)
+    const stringEqualToMin = 'a'.repeat(5)
+    const stringEqualToMax = 'a'.repeat(10)
+
+    const min_max_schema = fieldsToJsonSchema({
+      limitedString: {
+        type: 'string',
+        label: 'Test Field',
+        minimum: 5,
+        maximum: 10
+      }
+    })
+
+    expect(validateSchema({ limitedString: stringEqualToMin }, min_max_schema)).toBeTruthy()
+    expect(validateSchema({ limitedString: stringEqualToMax }, min_max_schema)).toBeTruthy()
+    expect(validateSchema({ limitedString: smallString }, min_max_schema, { throwIfInvalid: false })).toBeFalsy()
+    expect(validateSchema({ limitedString: longString }, min_max_schema, { throwIfInvalid: false })).toBeFalsy()
+  })
+
   it('should allow exempted properties', () => {
     const payload = {
       a: 'a',

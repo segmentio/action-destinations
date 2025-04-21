@@ -38,7 +38,7 @@ export interface Payload {
    */
   delimiter: string
   /**
-   * Name of the CSV file to upload for LiveRamp ingestion.
+   * Name of the CSV file to upload for LiveRamp ingestion. For multiple subscriptions, make sure to use a unique filename for each subscription.
    */
   filename: string
   /**
