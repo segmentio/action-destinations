@@ -3,8 +3,7 @@ import {
   ModifiedResponse,
   DynamicFieldResponse,
   ActionHookResponse,
-  PayloadValidationError,
-  Features
+  PayloadValidationError
 } from '@segment/actions-core'
 import { BASE_URL, DEFAULT_POST_CLICK_LOOKBACK_WINDOW, DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW } from '../constants'
 import type {
@@ -416,18 +415,11 @@ export class LinkedInConversions {
     return email.toLowerCase()
   }
 
-  private buildUserIdsArray = (payload: Payload, features?: Features): UserID[] => {
+  private buildUserIdsArray = (payload: Payload): UserID[] => {
     const userIds: UserID[] = []
 
     if (payload.email) {
-      const hashedEmail = processHashing(
-        payload.email,
-        'sha256',
-        'hex',
-        features ?? {},
-        'actions-linkedin-conversions',
-        this.normalizeEmail
-      )
+      const hashedEmail = processHashing(payload.email, 'sha256', 'hex', this.normalizeEmail)
       userIds.push({
         idType: 'SHA256_EMAIL',
         idValue: hashedEmail
@@ -458,12 +450,8 @@ export class LinkedInConversions {
     return userIds
   }
 
-  async streamConversionEvent(
-    payload: Payload,
-    conversionTime: number,
-    features?: Features
-  ): Promise<ModifiedResponse> {
-    const userIds = this.buildUserIdsArray(payload, features)
+  async streamConversionEvent(payload: Payload, conversionTime: number): Promise<ModifiedResponse> {
+    const userIds = this.buildUserIdsArray(payload)
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'POST',
       json: {
@@ -479,7 +467,7 @@ export class LinkedInConversions {
     })
   }
 
-  async batchConversionAdd(payloads: Payload[], features?: Features): Promise<ModifiedResponse> {
+  async batchConversionAdd(payloads: Payload[]): Promise<ModifiedResponse> {
     return this.request(`${BASE_URL}/conversionEvents`, {
       method: 'post',
       headers: {
@@ -493,7 +481,7 @@ export class LinkedInConversions {
               : Number(payload.conversionHappenedAt)
             validate(payload, conversionTime)
 
-            const userIds = this.buildUserIdsArray(payload, features)
+            const userIds = this.buildUserIdsArray(payload)
             return {
               conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
               conversionHappenedAt: conversionTime,

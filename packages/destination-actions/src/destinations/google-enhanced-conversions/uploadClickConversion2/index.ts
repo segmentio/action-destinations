@@ -327,14 +327,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payload.email_address) {
-        const validatedEmail: string = processHashing(
-          payload.email_address,
-          'sha256',
-          'hex',
-          features ?? {},
-          'actions-google-enhanced-conversions',
-          commonEmailValidation
-        )
+        const validatedEmail: string = processHashing(payload.email_address, 'sha256', 'hex', commonEmailValidation)
 
         request_object.userIdentifiers.push({
           hashedEmail: validatedEmail
@@ -343,13 +336,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payload.phone_number) {
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: processHashing(
-            payload.phone_number,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions',
-            (value) => formatPhone(value, payload.phone_country_code)
+          hashedPhoneNumber: processHashing(payload.phone_number, 'sha256', 'hex', (value) =>
+            formatPhone(value, payload.phone_country_code)
           )
         } as UserIdentifierInterface)
       }
@@ -455,8 +443,6 @@ const action: ActionDefinition<Settings, Payload> = {
             payloadItem.email_address,
             'sha256',
             'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions',
             commonEmailValidation
           )
 
@@ -467,13 +453,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
         if (payloadItem.phone_number) {
           request_object.userIdentifiers.push({
-            hashedPhoneNumber: processHashing(
-              payloadItem.phone_number,
-              'sha256',
-              'hex',
-              features ?? {},
-              'actions-google-enhanced-conversions',
-              (value) => formatPhone(value, payloadItem.phone_country_code)
+            hashedPhoneNumber: processHashing(payloadItem.phone_number, 'sha256', 'hex', (value) =>
+              formatPhone(value, payloadItem.phone_country_code)
             )
           } as UserIdentifierInterface)
         }

@@ -1,9 +1,8 @@
-import { Features } from '@segment/actions-core/mapping-kit'
 import type { Payload } from './generated-types'
 import { processHashing } from '../../../lib/hashing-utils'
 
 // Filters out events with missing identifiers and sorts based on audience entered/exited
-export const sortPayload = (payload: Payload[], features?: Features) => {
+export const sortPayload = (payload: Payload[]) => {
   return payload.reduce<{
     enteredAudience: string[][]
     exitedAudience: string[][]
@@ -14,8 +13,7 @@ export const sortPayload = (payload: Payload[], features?: Features) => {
         payloadItem.schema_type,
         payloadItem.email,
         payloadItem.phone,
-        payloadItem.advertising_id,
-        features
+        payloadItem.advertising_id
       )
 
       if (externalId) {
@@ -49,17 +47,16 @@ const validateAndExtractIdentifier = (
   schemaType: string,
   email: string | undefined,
   phone: string | undefined,
-  mobileAdId: string | undefined,
-  features?: Features
+  mobileAdId: string | undefined
 ): string | null => {
   if (schemaType === 'EMAIL_SHA256' && email) {
-    return processHashing(email, 'sha256', 'hex', features, 'actions-snap-audiences', normalize)
+    return processHashing(email, 'sha256', 'hex', normalize)
   }
   if (schemaType === 'MOBILE_AD_ID_SHA256' && mobileAdId) {
-    return processHashing(mobileAdId, 'sha256', 'hex', features, 'actions-snap-audiences', normalize)
+    return processHashing(mobileAdId, 'sha256', 'hex', normalize)
   }
   if (schemaType === 'PHONE_SHA256' && phone) {
-    return processHashing(phone, 'sha256', 'hex', features, 'actions-snap-audiences', normalizePhone)
+    return processHashing(phone, 'sha256', 'hex', normalizePhone)
   }
 
   return null

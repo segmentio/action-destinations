@@ -127,11 +127,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     ...commonFields
   },
-  perform: async (request, { settings, payload, auth, features }) => {
-    return await send(request, settings, [payload], false, auth, features)
+  perform: async (request, { settings, payload, auth }) => {
+    return await send(request, settings, [payload], false, auth)
   },
-  performBatch: async (request, { settings, payload, auth, features }) => {
-    return await send(request, settings, payload, false, auth, features)
+  performBatch: async (request, { settings, payload, auth }) => {
+    return await send(request, settings, payload, false, auth)
   }
 }
 

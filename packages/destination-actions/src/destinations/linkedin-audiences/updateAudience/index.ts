@@ -1,4 +1,4 @@
-import type { ActionDefinition, Features, StatsContext } from '@segment/actions-core'
+import type { ActionDefinition, StatsContext } from '@segment/actions-core'
 import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -127,11 +127,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 'AUTO'
     }
   },
-  perform: async (request, { settings, payload, statsContext, features }) => {
-    return processPayload(request, settings, [payload], statsContext, features)
+  perform: async (request, { settings, payload, statsContext }) => {
+    return processPayload(request, settings, [payload], statsContext)
   },
-  performBatch: async (request, { settings, payload, statsContext, features }) => {
-    return processPayload(request, settings, payload, statsContext, features)
+  performBatch: async (request, { settings, payload, statsContext }) => {
+    return processPayload(request, settings, payload, statsContext)
   }
 }
 
@@ -139,15 +139,14 @@ async function processPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  statsContext: StatsContext | undefined,
-  features?: Features
+  statsContext: StatsContext | undefined
 ) {
   validate(settings, payloads)
 
   const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
 
   const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0], statsContext)
-  const elements = extractUsers(settings, payloads, features)
+  const elements = extractUsers(settings, payloads)
 
   // We should never hit this condition because at least an email or a
   // google ad id is required in each payload, but if we do, returning early
@@ -225,7 +224,7 @@ async function createDmpSegment(
   return headers['x-linkedin-id']
 }
 
-function extractUsers(settings: Settings, payloads: Payload[], features?: Features): LinkedInAudiencePayload[] {
+function extractUsers(settings: Settings, payloads: Payload[]): LinkedInAudiencePayload[] {
   const elements: LinkedInAudiencePayload[] = []
 
   payloads.forEach((payload: Payload) => {
@@ -235,7 +234,7 @@ function extractUsers(settings: Settings, payloads: Payload[], features?: Featur
 
     const linkedinAudiencePayload: LinkedInAudiencePayload = {
       action: getAction(payload),
-      userIds: getUserIds(settings, payload, features)
+      userIds: getUserIds(settings, payload)
     }
 
     if (payload.first_name) {
@@ -288,13 +287,13 @@ function getAction(payload: Payload): 'ADD' | 'REMOVE' {
   return 'ADD'
 }
 
-function getUserIds(settings: Settings, payload: Payload, features?: Features): Record<string, string>[] {
+function getUserIds(settings: Settings, payload: Payload): Record<string, string>[] {
   const userIds = []
 
   if (payload.email && settings.send_email === true) {
     userIds.push({
       idType: 'SHA256_EMAIL',
-      idValue: processHashing(payload.email, 'sha256', 'hex', features ?? {}, 'actions-linkedin-audiences')
+      idValue: processHashing(payload.email, 'sha256', 'hex')
     })
   }
 

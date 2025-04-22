@@ -304,14 +304,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payload.email_address) {
-        const validatedEmail: string = processHashing(
-          payload.email_address,
-          'sha256',
-          'hex',
-          features ?? {},
-          'actions-google-enhanced-conversions',
-          commonEmailValidation
-        )
+        const validatedEmail: string = processHashing(payload.email_address, 'sha256', 'hex', commonEmailValidation)
 
         request_object.userIdentifiers.push({
           hashedEmail: validatedEmail
@@ -320,13 +313,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payload.phone_number) {
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: processHashing(
-            payload.phone_number,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions',
-            (value) => formatPhone(value, payload.phone_country_code)
+          hashedPhoneNumber: processHashing(payload.phone_number, 'sha256', 'hex', (value) =>
+            formatPhone(value, payload.phone_country_code)
           )
         } as UserIdentifierInterface)
       }
@@ -343,31 +331,13 @@ const action: ActionDefinition<Settings, Payload> = {
       if (containsAddressInfo) {
         const addressInfo: any = {}
         if (payload.first_name) {
-          addressInfo.hashedFirstName = processHashing(
-            payload.first_name,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          )
+          addressInfo.hashedFirstName = processHashing(payload.first_name, 'sha256', 'hex')
         }
         if (payload.last_name) {
-          addressInfo.hashedLastName = processHashing(
-            payload.last_name,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          )
+          addressInfo.hashedLastName = processHashing(payload.last_name, 'sha256', 'hex')
         }
         if (payload.street_address) {
-          addressInfo.hashedStreetAddress = processHashing(
-            payload.street_address,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          )
+          addressInfo.hashedStreetAddress = processHashing(payload.street_address, 'sha256', 'hex')
         }
         addressInfo.city = payload.city
         addressInfo.state = payload.state
@@ -443,14 +413,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payloadItem.email_address) {
-        const validatedEmail: string = processHashing(
-          payloadItem.email_address,
-          'sha256',
-          'hex',
-          features ?? {},
-          'actions-google-enhanced-conversions',
-          commonEmailValidation
-        )
+        const validatedEmail: string = processHashing(payloadItem.email_address, 'sha256', 'hex', commonEmailValidation)
 
         request_object.userIdentifiers.push({
           hashedEmail: validatedEmail
@@ -459,13 +422,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payloadItem.phone_number) {
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: processHashing(
-            payloadItem.phone_number,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions',
-            (value) => formatPhone(value, payloadItem.phone_country_code)
+          hashedPhoneNumber: processHashing(payloadItem.phone_number, 'sha256', 'hex', (value) =>
+            formatPhone(value, payloadItem.phone_country_code)
           )
         } as UserIdentifierInterface)
       }
@@ -482,31 +440,13 @@ const action: ActionDefinition<Settings, Payload> = {
       if (containsAddressInfo) {
         const addressInfo: any = {}
         if (payloadItem.first_name) {
-          addressInfo.hashedFirstName = processHashing(
-            payloadItem.first_name,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          )
+          addressInfo.hashedFirstName = processHashing(payloadItem.first_name, 'sha256', 'hex')
         }
         if (payloadItem.last_name) {
-          addressInfo.hashedLastName = processHashing(
-            payloadItem.last_name,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          )
+          addressInfo.hashedLastName = processHashing(payloadItem.last_name, 'sha256', 'hex')
         }
         if (payloadItem.street_address) {
-          addressInfo.hashedStreetAddress = processHashing(
-            payloadItem.street_address,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          )
+          addressInfo.hashedStreetAddress = processHashing(payloadItem.street_address, 'sha256', 'hex')
         }
         addressInfo.city = payloadItem.city
         addressInfo.state = payloadItem.state

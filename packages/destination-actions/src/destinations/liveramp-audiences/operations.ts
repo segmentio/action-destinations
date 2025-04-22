@@ -1,4 +1,4 @@
-import { RequestClient, ExecuteInput, Features } from '@segment/actions-core'
+import { RequestClient, ExecuteInput } from '@segment/actions-core'
 import type { Payload as s3Payload } from './audienceEnteredS3/generated-types'
 import type { Payload as sftpPayload } from './audienceEnteredSftp/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
@@ -31,7 +31,7 @@ export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unkno
 Generates the LiveRamp ingestion file. Expected format:
 liveramp_audience_key[1],identifier_data[0..n]
 */
-function generateFile(payloads: s3Payload[] | sftpPayload[], features?: Features) {
+function generateFile(payloads: s3Payload[] | sftpPayload[]) {
   const headers = new Set<string>()
   headers.add('audience_key')
 
@@ -77,22 +77,12 @@ function generateFile(payloads: s3Payload[] | sftpPayload[], features?: Features
         /*Identifiers need to be hashed according to LiveRamp spec's: https://docs.liveramp.com/connect/en/formatting-identifiers.html 
         Phone Number requires SHA1 and email uses sha256 */
         if (key === 'phone_number') {
-          row[index] = `"${processHashing(
-            String(payload.unhashed_identifier_data[key]),
-            'sha1',
-            'hex',
-            features,
-            'actions-liveramp-audiences',
-            (value) => normalize(key, value)
+          row[index] = `"${processHashing(String(payload.unhashed_identifier_data[key]), 'sha1', 'hex', (value) =>
+            normalize(key, value)
           )}"`
         } else {
-          row[index] = `"${processHashing(
-            String(payload.unhashed_identifier_data[key]),
-            'sha256',
-            'hex',
-            features,
-            'actions-liveramp-audiences',
-            (value) => normalize(key, value)
+          row[index] = `"${processHashing(String(payload.unhashed_identifier_data[key]), 'sha256', 'hex', (value) =>
+            normalize(key, value)
           )}"`
         }
       }

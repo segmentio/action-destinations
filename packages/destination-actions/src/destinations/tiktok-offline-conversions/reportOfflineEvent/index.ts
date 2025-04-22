@@ -10,8 +10,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     ...commonFields
   },
-  perform: (request, { payload, settings, features }) => {
-    return performOfflineEvent(request, settings, payload, features || {})
+  perform: (request, { payload, settings }) => {
+    return performOfflineEvent(request, settings, payload)
   }
 }
 

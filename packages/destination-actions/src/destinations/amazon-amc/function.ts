@@ -1,4 +1,4 @@
-import { Features, InvalidAuthenticationError } from '@segment/actions-core'
+import { InvalidAuthenticationError } from '@segment/actions-core'
 import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
@@ -10,10 +10,9 @@ export async function processPayload(
   request: RequestClient,
   settings: Settings,
   payload: Payload[],
-  audienceSettings: AudienceSettings,
-  features?: Features
+  audienceSettings: AudienceSettings
 ) {
-  const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings, features)
+  const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
   // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
   const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
 
@@ -46,11 +45,7 @@ export async function processPayload(
  * @throws {PayloadValidationError} - Throws an error if any externalUserId does not
  *    match the expected pattern.
  */
-export function createPayloadToUploadRecords(
-  payloads: Payload[],
-  audienceSettings: AudienceSettings,
-  features?: Features
-) {
+export function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: AudienceSettings) {
   const records: AudienceRecord[] = []
   const { audienceId } = payloads[0]
   payloads.forEach((payload: Payload) => {
@@ -58,7 +53,7 @@ export function createPayloadToUploadRecords(
     if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
       return // Skip to the next iteration
     }
-    const hashedPII = hashedPayload(payload, features)
+    const hashedPII = hashedPayload(payload)
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
@@ -83,8 +78,7 @@ export function createPayloadToUploadRecords(
 function validateAndPreparePayload(
   payloads: Payload[],
   multiStatusResponse: MultiStatusResponse,
-  audienceSettings: AudienceSettings,
-  features?: Features
+  audienceSettings: AudienceSettings
 ) {
   const validPayloadIndicesBitmap: number[] = []
   const filteredPayloads: AudienceRecord[] = []
@@ -99,7 +93,7 @@ function validateAndPreparePayload(
       return
     }
 
-    const hashedPII = hashedPayload(payload, features)
+    const hashedPII = hashedPayload(payload)
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
@@ -130,15 +124,13 @@ export async function processBatchPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  audienceSettings: AudienceSettings,
-  features?: Features
+  audienceSettings: AudienceSettings
 ) {
   const multiStatusResponse = new MultiStatusResponse()
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayload(
     payloads,
     multiStatusResponse,
-    audienceSettings,
-    features
+    audienceSettings
   )
 
   if (!filteredPayloads.length) {
@@ -237,88 +229,32 @@ function normalizeEmail(email: string): string {
  * @returns {HashedPIIObject} - The object containing the hashed PII fields.
  */
 
-function hashedPayload(payload: Payload, features?: Features): HashedPIIObject {
+function hashedPayload(payload: Payload): HashedPIIObject {
   const hashedPII: HashedPIIObject = {}
 
   if (payload.firstName) {
-    hashedPII.firstname = processHashing(
-      payload.firstName,
-      'sha256',
-      'hex',
-      features ?? {},
-      'actions-amazon-amc',
-      normalizeStandard
-    )
+    hashedPII.firstname = processHashing(payload.firstName, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.lastName) {
-    hashedPII.lastname = processHashing(
-      payload.lastName,
-      'sha256',
-      'hex',
-      features ?? {},
-      'actions-amazon-amc',
-      normalizeStandard
-    )
+    hashedPII.lastname = processHashing(payload.lastName, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.address) {
-    hashedPII.address = processHashing(
-      payload.address,
-      'sha256',
-      'hex',
-      features ?? {},
-      'actions-amazon-amc',
-      normalizeStandard
-    )
+    hashedPII.address = processHashing(payload.address, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.postal) {
-    hashedPII.postal = processHashing(
-      payload.postal,
-      'sha256',
-      'hex',
-      features ?? {},
-      'actions-amazon-amc',
-      normalizeStandard
-    )
+    hashedPII.postal = processHashing(payload.postal, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.phone) {
-    hashedPII.phone = processHashing(
-      payload.phone,
-      'sha256',
-      'hex',
-      features ?? {},
-      'actions-amazon-amc',
-      normalizePhone
-    )
+    hashedPII.phone = processHashing(payload.phone, 'sha256', 'hex', normalizePhone)
   }
   if (payload.city) {
-    hashedPII.city = processHashing(
-      payload.city,
-      'sha256',
-      'hex',
-      features ?? {},
-      'actions-amazon-amc',
-      normalizeStandard
-    )
+    hashedPII.city = processHashing(payload.city, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.state) {
-    hashedPII.state = processHashing(
-      payload.state,
-      'sha256',
-      'hex',
-      features ?? {},
-      'actions-amazon-amc',
-      normalizeStandard
-    )
+    hashedPII.state = processHashing(payload.state, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.email) {
-    hashedPII.email = processHashing(
-      payload.email,
-      'sha256',
-      'hex',
-      features ?? {},
-      'actions-amazon-amc',
-      normalizeEmail
-    )
+    hashedPII.email = processHashing(payload.email, 'sha256', 'hex', normalizeEmail)
   }
 
   return hashedPII

@@ -6,7 +6,7 @@ describe('Test operations', () => {
   describe('hash', () => {
     it('produces consistent SHA-256 hash for a given input', () => {
       const input = 'test input'
-      expect(processHashing(input, 'sha256', 'hex', { 'smart-hashing': true }, 'actions-liveramp-audiences')).toBe(
+      expect(processHashing(input, 'sha256', 'hex')).toBe(
         '9dfe6f15d1ab73af898739394fd22fd72a03db01834582f24bb2e1c66c7aaeae'
       )
     })
@@ -15,16 +15,14 @@ describe('Test operations', () => {
   describe('hashPhoneNumber', () => {
     it('produces consistent SHA-1 hash for a given phone number', () => {
       const phoneNumber = '123-456-7890'
-      expect(processHashing(phoneNumber, 'sha1', 'hex', { 'smart-hashing': true }, 'actions-liveramp-audiences')).toBe(
-        'd94cf047843c27e4ebf4495804dfb264a2181d45'
-      )
+      expect(processHashing(phoneNumber, 'sha1', 'hex')).toBe('d94cf047843c27e4ebf4495804dfb264a2181d45')
     })
   })
 
   describe('hashEmail', () => {
     it('produces consistent SHA-256 hash for a given email address', () => {
       const email = 'user@example.com'
-      expect(processHashing(email, 'sha256', 'hex', { 'smart-hashing': true }, 'actions-liveramp-audiences')).toBe(
+      expect(processHashing(email, 'sha256', 'hex')).toBe(
         'b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514'
       )
     })
@@ -110,13 +108,7 @@ describe('Test operations', () => {
         }
       ]
       const normalizedName = normalize('name', 'John Doe')
-      const hashedName = processHashing(
-        normalizedName,
-        'sha256',
-        'hex',
-        { 'smart-hashing': true },
-        'actions-liveramp-audiences'
-      )
+      const hashedName = processHashing(normalizedName, 'sha256', 'hex')
       const result = generateFile(payloads)
       const expected = `audience_key,name,email\n${enquoteIdentifier('1002')},${enquoteIdentifier(
         hashedName
@@ -143,22 +135,8 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const hashedAlice = processHashing(
-        'Alice',
-        'sha256',
-        'hex',
-        { 'smart-hashing': true },
-        'actions-liveramp-audiences',
-        (value: string) => normalize('name', value)
-      )
-      const hashedBob = processHashing(
-        'Bob',
-        'sha256',
-        'hex',
-        { 'smart-hashing': true },
-        'actions-liveramp-audiences',
-        (value: string) => normalize('name', value)
-      )
+      const hashedAlice = processHashing('Alice', 'sha256', 'hex', (value: string) => normalize('name', value))
+      const hashedBob = processHashing('Bob', 'sha256', 'hex', (value: string) => normalize('name', value))
       const result = generateFile(payloads)
       const expected = `audience_key,name,email\n${enquoteIdentifier('1003')},${enquoteIdentifier(
         hashedAlice
@@ -179,14 +157,7 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const hashedEve = processHashing(
-        'Eve',
-        'sha256',
-        'hex',
-        { 'smart-hashing': true },
-        'actions-liveramp-audiences',
-        (value: string) => normalize('name', value)
-      )
+      const hashedEve = processHashing('Eve', 'sha256', 'hex', (value: string) => normalize('name', value))
       const result = generateFile(payloads)
       const expected = `audience_key,name\n${enquoteIdentifier('1005')},${enquoteIdentifier(hashedEve)}`
       expect(result.fileContents.toString()).toBe(expected)
@@ -203,13 +174,7 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const hashedNote = processHashing(
-        'Hello, "John"\nNew line',
-        'sha256',
-        'hex',
-        { 'smart-hashing': true },
-        'actions-liveramp-audiences'
-      )
+      const hashedNote = processHashing('Hello, "John"\nNew line', 'sha256', 'hex')
       const result = generateFile(payloads)
       const expected = `audience_key,note,email\n${enquoteIdentifier('1006')},${enquoteIdentifier(
         hashedNote
@@ -449,15 +414,8 @@ describe('Test operations', () => {
         }
       ]
 
-      const hashedUnhashedEmail = processHashing(
-        'unhashed@example.com',
-        'sha256',
-        'hex',
-        {
-          'smart-hashing': true
-        },
-        'actions-liveramp-audiences',
-        (value: string) => normalize('email', value)
+      const hashedUnhashedEmail = processHashing('unhashed@example.com', 'sha256', 'hex', (value: string) =>
+        normalize('email', value)
       )
 
       const result = generateFile(payloads)
@@ -534,13 +492,8 @@ describe('Test operations', () => {
         }
       ]
 
-      const hashedUniqueValue = processHashing(
-        '424242',
-        'sha256',
-        'hex',
-        { 'smart-hashing': true },
-        'actions-liveramp-audiences',
-        (value: string) => normalize('unique_value', value)
+      const hashedUniqueValue = processHashing('424242', 'sha256', 'hex', (value: string) =>
+        normalize('unique_value', value)
       )
       const result = generateFile(payloads)
 
@@ -624,22 +577,9 @@ describe('Test operations', () => {
 
       const result = generateFile(payloads)
 
-      // const hashedCountry = sha256SmartHash(normalize('country', 'US'))
-      const hashedCountry = processHashing(
-        'US',
-        'sha256',
-        'hex',
-        { 'smart-hashing': true },
-        'actions-liveramp-audiences',
-        (value: string) => normalize('country', value)
-      )
-      const hashedUniqueValue = processHashing(
-        'only_in_third',
-        'sha256',
-        'hex',
-        { 'smart-hashing': true },
-        'actions-liveramp-audiences',
-        (value: string) => normalize('unique_value', value)
+      const hashedCountry = processHashing('US', 'sha256', 'hex', (value: string) => normalize('country', value))
+      const hashedUniqueValue = processHashing('only_in_third', 'sha256', 'hex', (value: string) =>
+        normalize('unique_value', value)
       )
 
       const expected = [

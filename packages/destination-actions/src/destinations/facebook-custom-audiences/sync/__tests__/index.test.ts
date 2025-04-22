@@ -1,9 +1,10 @@
-import { createTestEvent, createTestIntegration, sha256SmartHash } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import nock from 'nock'
 import { SCHEMA_PROPERTIES } from '../../fbca-properties'
 import { normalizationFunctions } from '../../fbca-properties'
 import { BASE_URL, CANARY_API_VERSION, API_VERSION } from '../../constants'
+import { processHashing } from '../../../../lib/hashing-utils'
 
 const testDestination = createTestIntegration(Destination)
 const auth = {
@@ -49,7 +50,12 @@ describe('FacebookCustomAudiences.sync', () => {
               [
                 event.properties?.id, // external_id
                 '816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343', // email
-                sha256SmartHash(normalizationFunctions.get('phone')!((event.properties?.phone as string) || '')),
+                processHashing(
+                  String(event.properties?.phone) || '',
+                  'sha256',
+                  'hex',
+                  normalizationFunctions.get('phone')
+                ),
                 EMPTY, // gender
                 EMPTY, // year
                 EMPTY, // month
@@ -57,11 +63,26 @@ describe('FacebookCustomAudiences.sync', () => {
                 EMPTY, // last_name
                 EMPTY, // first_name
                 EMPTY, // first_initial
-                sha256SmartHash(normalizationFunctions.get('city')!((event.properties?.city as string) || '')),
-                sha256SmartHash(normalizationFunctions.get('state')!((event.properties?.state as string) || '')),
-                sha256SmartHash(normalizationFunctions.get('zip')!((event.properties?.zip_code as string) || '')),
-                '2024', // mobile_advertiser_id,
-                sha256SmartHash(normalizationFunctions.get('country')!('US'))
+                processHashing(
+                  String(event.properties?.city) || '',
+                  'sha256',
+                  'hex',
+                  normalizationFunctions.get('city')
+                ),
+                processHashing(
+                  String(event.properties?.state) || '',
+                  'sha256',
+                  'hex',
+                  normalizationFunctions.get('state')
+                ),
+                processHashing(
+                  String(event.properties?.zip_code) || '',
+                  'sha256',
+                  'hex',
+                  normalizationFunctions.get('zip')
+                ),
+                '2024', // mobile_advertiser_id
+                processHashing('US', 'sha256', 'hex', normalizationFunctions.get('country'))
               ]
             ],
             app_ids: ['2024']
@@ -116,6 +137,7 @@ describe('FacebookCustomAudiences.sync', () => {
         `"{\\"payload\\":{\\"schema\\":[\\"EXTERN_ID\\",\\"EMAIL\\",\\"PHONE\\",\\"GEN\\",\\"DOBY\\",\\"DOBM\\",\\"DOBD\\",\\"LN\\",\\"FN\\",\\"FI\\",\\"CT\\",\\"ST\\",\\"ZIP\\",\\"MADID\\",\\"COUNTRY\\"],\\"data\\":[[\\"1234\\",\\"816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343\\",\\"a5ad7e6d5225ad00c5f05ddb6bb3b1597a843cc92f6cf188490ffcb88a1ef4ef\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"\\",\\"1a6bd4d9d79dc0a79b53795c70d3349fa9e38968a3fbefbfe8783efb1d2b6aac\\",\\"6959097001d10501ac7d54c0bdb8db61420f658f2922cc26e46d536119a31126\\",\\"ad16c1a6866c5887c5b59c1803cb1fc09769f1b403b6f1d9d0f10ad6ab4d5d50\\",\\"2024\\",\\"79adb2a2fce5c6ba215fe5f27f532d4e7edbac4b6a5e09e1ef3a08084a904621\\"]],\\"app_ids\\":[\\"2024\\"]}}"`
       )
     })
+
     it('should sync a single user with a default API_VERSION', async () => {
       nock(`${BASE_URL}/${API_VERSION}`)
         .post(`/${hookOutputs.audienceId}/users`, {
@@ -125,7 +147,12 @@ describe('FacebookCustomAudiences.sync', () => {
               [
                 event.properties?.id, // external_id
                 '816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343', // email
-                sha256SmartHash(normalizationFunctions.get('phone')!((event.properties?.phone as string) || '')),
+                processHashing(
+                  String(event.properties?.phone) || '',
+                  'sha256',
+                  'hex',
+                  normalizationFunctions.get('phone')
+                ),
                 EMPTY, // gender
                 EMPTY, // year
                 EMPTY, // month
@@ -133,11 +160,26 @@ describe('FacebookCustomAudiences.sync', () => {
                 EMPTY, // last_name
                 EMPTY, // first_name
                 EMPTY, // first_initial
-                sha256SmartHash(normalizationFunctions.get('city')!((event.properties?.city as string) || '')),
-                sha256SmartHash(normalizationFunctions.get('state')!((event.properties?.state as string) || '')),
-                sha256SmartHash(normalizationFunctions.get('zip')!((event.properties?.zip_code as string) || '')),
-                '2024', // mobile_advertiser_id,
-                sha256SmartHash(normalizationFunctions.get('country')!('US'))
+                processHashing(
+                  String(event.properties?.city) || '',
+                  'sha256',
+                  'hex',
+                  normalizationFunctions.get('city')
+                ),
+                processHashing(
+                  String(event.properties?.state) || '',
+                  'sha256',
+                  'hex',
+                  normalizationFunctions.get('state')
+                ),
+                processHashing(
+                  String(event.properties?.zip_code) || '',
+                  'sha256',
+                  'hex',
+                  normalizationFunctions.get('zip')
+                ),
+                '2024', // mobile_advertiser_id
+                processHashing('US', 'sha256', 'hex', normalizationFunctions.get('country'))
               ]
             ],
             app_ids: ['2024']

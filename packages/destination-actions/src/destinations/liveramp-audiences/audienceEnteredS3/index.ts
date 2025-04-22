@@ -1,4 +1,4 @@
-import { ActionDefinition, Features, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import { uploadS3, validateS3 } from './s3'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
@@ -98,8 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
         features,
         rawData: rawData ? [rawData] : []
       },
-      subscriptionMetadata,
-      features
+      subscriptionMetadata
     )
   },
   performBatch: (
@@ -113,17 +112,12 @@ const action: ActionDefinition<Settings, Payload> = {
         features,
         rawData
       },
-      subscriptionMetadata,
-      features
+      subscriptionMetadata
     )
   }
 }
 
-async function processData(
-  input: ProcessDataInput<Payload>,
-  subscriptionMetadata?: SubscriptionMetadata,
-  features?: Features
-) {
+async function processData(input: ProcessDataInput<Payload>, subscriptionMetadata?: SubscriptionMetadata) {
   if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
       `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
@@ -132,7 +126,7 @@ async function processData(
 
   validateS3(input.payloads[0])
 
-  const { filename, fileContents } = generateFile(input.payloads, features)
+  const { filename, fileContents } = generateFile(input.payloads)
 
   if (input.features && input.features[LIVERAMP_LEGACY_FLOW_FLAG_NAME] === true) {
     //------------

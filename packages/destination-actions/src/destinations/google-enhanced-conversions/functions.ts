@@ -1,4 +1,3 @@
-import { createHash } from 'crypto'
 import {
   ConversionCustomVariable,
   PartialErrorResponse,
@@ -79,16 +78,6 @@ export function formatCustomVariables(
   })
 
   return variables
-}
-
-export const hash = (value: string | undefined): string | undefined => {
-  if (value === undefined) {
-    return
-  }
-
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
 }
 
 export async function getCustomVariables(
@@ -443,12 +432,7 @@ export const formatPhone = (phone: string, countryCode?: string): string => {
   return formattedPhone
 }
 
-const extractUserIdentifiers = (
-  payloads: UserListPayload[],
-  idType: string,
-  syncMode?: string,
-  features?: Features
-) => {
+const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syncMode?: string) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
   // Map user data to Google Ads API format
@@ -463,47 +447,23 @@ const extractUserIdentifiers = (
       const identifiers = []
       if (payload.email) {
         identifiers.push({
-          hashedEmail: processHashing(
-            payload.email,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions',
-            commonEmailValidation
-          )
+          hashedEmail: processHashing(payload.email, 'sha256', 'hex', commonEmailValidation)
         })
       }
       if (payload.phone) {
         identifiers.push({
-          hashedPhoneNumber: processHashing(
-            payload.phone,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions',
-            (value) => formatPhone(value, payload.phone_country_code)
+          hashedPhoneNumber: processHashing(payload.phone, 'sha256', 'hex', (value) =>
+            formatPhone(value, payload.phone_country_code)
           )
         })
       }
       if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
         const addressInfo: any = {}
         if (payload.first_name) {
-          addressInfo.hashedFirstName = processHashing(
-            payload.first_name,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          )
+          addressInfo.hashedFirstName = processHashing(payload.first_name, 'sha256', 'hex')
         }
         if (payload.last_name) {
-          addressInfo.hashedLastName = processHashing(
-            payload.last_name,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          )
+          addressInfo.hashedLastName = processHashing(payload.last_name, 'sha256', 'hex')
         }
         addressInfo.countryCode = payload.country_code ?? ''
         addressInfo.postalCode = payload.postal_code ?? ''

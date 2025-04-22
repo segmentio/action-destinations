@@ -1,10 +1,4 @@
-import {
-  IntegrationError,
-  RequestClient,
-  PayloadValidationError,
-  ModifiedResponse,
-  Features
-} from '@segment/actions-core'
+import { IntegrationError, RequestClient, PayloadValidationError, ModifiedResponse } from '@segment/actions-core'
 import { TikTokAudiences } from './api'
 import { Payload as AddUserPayload } from './addUser/generated-types'
 import { Payload as AddToAudiencePayload } from './addToAudience/generated-types'
@@ -23,8 +17,7 @@ export async function processPayload(
   request: RequestClient,
   settings: GenericSettings,
   payloads: GenericPayload[],
-  action: string,
-  features: Features
+  action: string
 ) {
   validate(payloads)
   let selected_advertiser_id
@@ -49,7 +42,7 @@ export async function processPayload(
   const id_schema = getIDSchema(payloads[0])
   const TikTokApiClient: TikTokAudiences = new TikTokAudiences(request, selected_advertiser_id)
 
-  const users = extractUsers(payloads, features)
+  const users = extractUsers(payloads)
 
   let res
   if (users.length > 0) {
@@ -108,11 +101,11 @@ export function getIDSchema(payload: GenericPayload): string[] {
 
 const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
 
-const hash = (value: string, features: Features): string => {
-  return processHashing(value, 'sha256', 'hex', features, 'actions-tiktok-audiences')
+const hash = (value: string): string => {
+  return processHashing(value, 'sha256', 'hex')
 }
 
-export function extractUsers(payloads: GenericPayload[], features: Features): {}[][] {
+export function extractUsers(payloads: GenericPayload[]): {}[][] {
   const batch_data: {}[][] = []
 
   payloads.forEach((payload: GenericPayload) => {
@@ -143,7 +136,7 @@ export function extractUsers(payloads: GenericPayload[], features: Features): {}
         // If email is already hashed, don't hash it again
         let hashedEmail = payload.email
         if (!isHashedInformation(payload.email)) {
-          hashedEmail = hash(payload.email, features)
+          hashedEmail = hash(payload.email)
         }
 
         email_id = {
@@ -160,7 +153,7 @@ export function extractUsers(payloads: GenericPayload[], features: Features): {}
         // If phone is already hashed, don't hash it again
         let hashedPhone = payload.phone
         if (!isHashedInformation(payload.phone)) {
-          hashedPhone = hash(payload.phone, features)
+          hashedPhone = hash(payload.phone)
         }
 
         phone_id = {
@@ -175,7 +168,7 @@ export function extractUsers(payloads: GenericPayload[], features: Features): {}
       let advertising_id = {}
       if (payload.advertising_id) {
         advertising_id = {
-          id: hash(payload.advertising_id, features),
+          id: hash(payload.advertising_id),
           audience_ids: [external_audience_id]
         }
       }
