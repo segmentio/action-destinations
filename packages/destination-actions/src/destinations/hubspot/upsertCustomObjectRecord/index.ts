@@ -67,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       dynamic: true,
       allowNull: false,
-      disabledInputMethods: ['enrichment', 'freeform', 'literal', 'function']
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
     },
     properties: {
       label: 'Properties',
