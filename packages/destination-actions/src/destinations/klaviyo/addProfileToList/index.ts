@@ -37,7 +37,16 @@ const action: ActionDefinition<Settings, Payload> = {
     organization: { ...organization },
     location: { ...location },
     properties: { ...properties },
-    country_code: { ...country_code }
+    country_code: { ...country_code },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['list_id']
+    }
   },
   perform: async (request, { payload }) => {
     const {

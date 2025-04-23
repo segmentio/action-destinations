@@ -67,6 +67,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       label: 'Batch Data to Klaviyo',
       description: 'When enabled, the action will use the Klaviyo batch API.'
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['list_id', 'custom_source']
     }
   },
   dynamicFields: {

@@ -156,6 +156,15 @@ const action: ActionDefinition<Settings, Payload> = {
         'Klaviyo list ID to override the default list ID when provided in an event payload. Added to support backward compatibility with klaviyo(classic) and facilitate a seamless migration.',
       type: 'string',
       default: { '@path': '$.integrations.Klaviyo.listId' }
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['list_id']
     }
   },
   hooks: {
