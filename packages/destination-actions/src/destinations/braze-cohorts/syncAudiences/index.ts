@@ -83,6 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'Displays properties of the event to add/remove users to a cohort and the traits of the specific user',
       type: 'object',
       required: true,
+      unsafe_hidden: true,
       default: {
         '@if': {
           exists: { '@path': '$.properties' },

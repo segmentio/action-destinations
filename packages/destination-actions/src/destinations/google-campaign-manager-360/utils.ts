@@ -1,5 +1,4 @@
-import { createHash } from 'crypto'
-import { RequestClient, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, Features } from '@segment/actions-core'
 import { Payload as UploadPayload } from './conversionUpload/generated-types'
 import { Payload as Adjustayload } from './conversionAdjustmentUpload/generated-types'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
@@ -17,15 +16,17 @@ import {
   ConsentType,
   EncryptionInfo
 } from './types'
+import { processHashing } from '../../lib/hashing-utils'
 
 export async function send(
   request: RequestClient,
   settings: Settings,
   payloads: UploadPayload[] | Adjustayload[],
   isAdjustment: boolean,
-  auth?: AuthTokens
+  auth?: AuthTokens,
+  features?: Features
 ) {
-  const json = getJSON(payloads, settings)
+  const json = getJSON(payloads, settings, features)
 
   if (json.conversions.length === 0) {
     maybeThrow(`No valid payloads found in batch of size ${payloads.length}`, true)
@@ -47,7 +48,11 @@ export async function send(
   return response
 }
 
-export function getJSON(payloads: UploadPayload[] | Adjustayload[], settings: Settings): InsertRequest {
+export function getJSON(
+  payloads: UploadPayload[] | Adjustayload[],
+  settings: Settings,
+  features?: Features
+): InsertRequest {
   const json: InsertRequest = {
     conversions: [] as Conversion[],
     kind: 'dfareporting#conversionsBatchInsertRequest'
@@ -153,16 +158,26 @@ export function getJSON(payloads: UploadPayload[] | Adjustayload[], settings: Se
           userDetails ?? {}
         const identifiers: UserIdentifier[] = []
         if (email) {
-          identifiers.push({ hashedEmail: maybeHash(email) as string })
+          identifiers.push({
+            hashedEmail: processHashing(email, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
+          })
         }
         if (phone) {
-          identifiers.push({ hashedPhoneNumber: maybeHash(phone) as string })
+          identifiers.push({
+            hashedPhoneNumber: processHashing(phone, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
+          })
         }
         if (firstName || lastName || streetAddress || city || state || postalCode || countryCode) {
           const addressInfo: AddressInfo = {
-            hashedFirstName: maybeHash(firstName),
-            hashedLastName: maybeHash(lastName),
-            hashedStreetAddress: maybeHash(streetAddress),
+            hashedFirstName: firstName
+              ? processHashing(firstName, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
+              : undefined,
+            hashedLastName: lastName
+              ? processHashing(lastName, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
+              : undefined,
+            hashedStreetAddress: streetAddress
+              ? processHashing(streetAddress, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
+              : undefined,
             city: city ?? undefined,
             state: state ?? undefined,
             postalCode: postalCode ?? undefined,
@@ -185,7 +200,9 @@ export function getJSON(payloads: UploadPayload[] | Adjustayload[], settings: Se
       encryptedUserIdCandidates:
         encryptedUserIdCandidates
           ?.split(',')
-          .map(maybeHash)
+          .map((value) => {
+            return processHashing(value, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
+          })
           .filter((str): str is string => str !== undefined) ?? []
     } as Conversion
 
@@ -206,22 +223,6 @@ function maybeThrow(message: string, shouldThrow: boolean) {
   if (shouldThrow) {
     throw new PayloadValidationError(message)
   }
-}
-
-export function maybeHash(value: string | undefined): string | undefined {
-  if (value === undefined) {
-    return undefined
-  }
-
-  const isHashed = new RegExp(/[0-9abcdef]{64}/gi).test(value)
-
-  if (isHashed) {
-    return value
-  }
-
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
 }
 
 export function getCustomVarTypeChoices(): Array<{ value: string; label: string }> {

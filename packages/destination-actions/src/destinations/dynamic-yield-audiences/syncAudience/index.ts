@@ -72,13 +72,15 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       default: {
         '@path': '$.context.personas.computation_class'
       },
-      choices: [{ label: 'audience', value: 'audience' },{ label: 'journey_step', value: 'journey_step' }]
+      choices: [
+        { label: 'audience', value: 'audience' },
+        { label: 'journey_step', value: 'journey_step' }
+      ]
     },
     email: {
       label: 'Email',
       description: "User's email address",
       type: 'string',
-      format: 'email',
       required: false,
       unsafe_hidden: true,
       default: {
@@ -87,7 +89,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.context.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     anonymousId: {
       label: 'Segment Anonymous Id',
@@ -107,7 +110,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
 
-  perform: async (request, { audienceSettings, payload, settings }) => {
+  perform: async (request, { audienceSettings, payload, settings, features }) => {
     const { external_audience_id } = payload
 
     if (!audienceSettings?.audience_name) {
@@ -174,7 +177,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
             {
               type: idTypeToSend,
               encoding: idTypeToSend === 'email' ? '"sha-256"' : 'raw',
-              value: idTypeToSend === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
+              value: idTypeToSend === 'email' ? hashAndEncode(primaryIdentifier, features || {}) : primaryIdentifier
             }
           ],
           audiences: [

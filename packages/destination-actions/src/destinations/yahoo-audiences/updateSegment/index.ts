@@ -71,7 +71,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.phone' }, // Phone is sent as identify's trait or track's property
           else: { '@path': '$.properties.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     email: {
       label: 'User Email',
@@ -85,7 +86,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.context.traits.email' } // Phone is sent as identify's trait or track's context.trait
         }
-      }
+      },
+      category: 'hashedPII'
     },
     advertising_id: {
       label: 'User Mobile Advertising ID',

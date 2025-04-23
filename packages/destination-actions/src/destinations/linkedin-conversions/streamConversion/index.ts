@@ -223,7 +223,8 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
         'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
       type: 'string',
       required: false,
-      default: { '@path': '$.traits.email' }
+      default: { '@path': '$.traits.email' },
+      category: 'hashedPII'
     },
     linkedInUUID: {
       label: 'LinkedIn First Party Ads Tracking UUID',

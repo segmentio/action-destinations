@@ -1997,10 +1997,10 @@
   resolved "https://registry.yarnpkg.com/@braze/web-sdk/-/web-sdk-3.5.1.tgz#04cd8e7021e13a690cd9c2ad7e7a3b5028d06178"
   integrity sha512-Quvqs2RqTZK7+VUCwsGMT9EHYwiXUYwWJk441ly2F0yj64WK2GPvXy3XdIpXLCgWVhGg42WNJ4X6WBgfaF+3EQ==
 
-"@braze/web-sdk@npm:@braze/web-sdk@^4.1.0":
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/@braze/web-sdk/-/web-sdk-4.7.0.tgz#5adb930690d78dd3bc77a93dececde360a08d0f7"
-  integrity sha512-fYdCyjlZqBswlebO8XmbPj04soLycHxnSvCQ/bWpi4OB00fz/ne34vv1LzIP3d0V5++jwjsutxdEi5mRiiMK1Q==
+"@braze/web-sdk@npm:@braze/web-sdk@^5":
+  version "5.8.1"
+  resolved "https://registry.yarnpkg.com/@braze/web-sdk/-/web-sdk-5.8.1.tgz#211594d647fbf3aab32ec3347546bb71f0ee6800"
+  integrity sha512-J7op9y15tGwAKBXYT2rVryV59+YvRekWHk3lq1Z+oqsNa+BdrboiHTa3r7eBPww8TVcRtWDoreG2Sb3ELAb37w==
 
 "@bucketco/tracking-sdk@^2.0.0":
   version "2.1.6"
@@ -15909,6 +15909,11 @@ saucelabs@^7.1.3:
     tunnel "^0.0.6"
     yargs "^17.2.1"
 
+sax@^1.2.4:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/sax/-/sax-1.4.1.tgz#44cc8988377f126304d3b3fc1010c733b929ef0f"
+  integrity sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==
+
 saxes@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/saxes/-/saxes-5.0.1.tgz#eebab953fa3b7608dbe94e5dadb15c888fa6696d"
@@ -18431,6 +18436,13 @@ ws@~8.2.3:
   version "8.2.3"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.2.3.tgz#63a56456db1b04367d0b721a0b80cae6d8becbba"
   integrity sha512-wBuoj1BDpC6ZQ1B7DWQBYVLphPWkm8i9Y0/3YdHjHKHiohOJ1ws+3OccDWtH+PoC9DZD5WOTrJvNbWvjS6JWaA==
+
+xml-js@^1.6.11:
+  version "1.6.11"
+  resolved "https://registry.yarnpkg.com/xml-js/-/xml-js-1.6.11.tgz#927d2f6947f7f1c19a316dd8eea3614e8b18f8e9"
+  integrity sha512-7rVi2KMfwfWFl+GpPg6m80IVMWXLRjO+PxTq7V2CDhoGak0wzYzFgUY2m4XJ47OGdXd8eLE8EmwfAmdjw7lC1g==
+  dependencies:
+    sax "^1.2.4"
 
 xml-name-validator@^3.0.0:
   version "3.0.0"

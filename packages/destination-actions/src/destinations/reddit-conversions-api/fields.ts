@@ -55,7 +55,8 @@ export const conversion_id: InputField = {
   description: 'The unique conversion ID that corresponds to a distinct conversion event.',
   type: 'string',
   required: false,
-  default: { '@path': '$.properties.conversion_id' }
+  default: { '@path': '$.properties.conversion_id' },
+  category: 'hashedPII'
 }
 
 export const event_metadata: InputField = {
@@ -150,7 +151,8 @@ export const user: InputField = {
     advertising_id: {
       label: 'Advertising ID', // NEEDS TO BE HASHED (SHA-256)
       description: 'The mobile advertising ID for the user. This can be the iOS IDFA, Android AAID.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     device_type: {
       label: 'Device Type',
@@ -160,17 +162,20 @@ export const user: InputField = {
     email: {
       label: 'Email', // NEEDS TO BE HASHED (SHA-256)
       description: 'The email address of the user.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     external_id: {
       label: 'External ID', // NEEDS TO BE HASHED (SHA-256)
       description: 'An advertiser-assigned persistent identifier for the user.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     ip_address: {
       label: 'IP Address', // NEEDS TO BE HASHED (SHA-256)
       description: 'The IP address of the user.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     user_agent: {
       label: 'User Agent',
