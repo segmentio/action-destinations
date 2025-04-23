@@ -248,6 +248,7 @@ const action: ActionDefinition<Settings, Payload> = {
       list_id: otherListId,
       override_list_id,
       country_code,
+      batch_keys,
       ...otherAttributes
     } = payload
 
