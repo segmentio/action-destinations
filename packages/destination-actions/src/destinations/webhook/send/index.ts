@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
       multiple: true,
       required: false,
       unsafe_hidden: true,
-      default: ['url', 'method']
+      default: ['url', 'method', 'headers']
     }
   },
   perform: (request, { payload }) => {
@@ -68,9 +68,19 @@ const action: ActionDefinition<Settings, Payload> = {
       throw error
     }
   },
-  performBatch: (request, { payload }) => {
+  performBatch: (request, { payload, statsContext }) => {
     // Expect these to be the same across the payloads
     const { url, method, headers } = payload[0]
+
+    if (statsContext) {
+      const { statsClient, tags } = statsContext
+      const set = new Set()
+      for (const p of payload) {
+        set.add(`${p.url} ${p.method} ${JSON.stringify(p.headers)}`)
+      }
+      statsClient?.incr('webhook.configurable_batch_keys.unique_keys', set.size, tags)
+    }
+
     try {
       return request(url, {
         method: method as RequestMethod,
