@@ -1,4 +1,4 @@
-import type { ActionDefinition, Features, RequestClient } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import { API_VERSION, PARTNER_NAME } from '../constants'
 import type { Settings } from '../generated-types'
@@ -161,11 +161,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string'
     }
   },
-  perform: async (request, { settings, payload, features }) => {
-    return processPayload(request, settings, payload, features)
+  perform: async (request, { settings, payload }) => {
+    return processPayload(request, settings, payload)
   }
 }
-async function processPayload(request: RequestClient, settings: Settings, payload: Payload, features?: Features) {
+async function processPayload(request: RequestClient, settings: Settings, payload: Payload) {
   if (
     isEmpty(payload.user_data?.email) &&
     isEmpty(payload.user_data?.hashed_maids) &&
@@ -178,7 +178,7 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
     )
   }
 
-  const data = createPinterestPayload(payload, features)
+  const data = createPinterestPayload(payload)
   return request(`https://api.pinterest.com/${API_VERSION}/ad_accounts/${settings.ad_account_id}/events`, {
     method: 'POST',
     json: {
@@ -187,7 +187,7 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
   })
 }
 
-function createPinterestPayload(payload: Payload, features?: Features) {
+function createPinterestPayload(payload: Payload) {
   return [
     {
       event_name: payload.event_name,
@@ -197,7 +197,7 @@ function createPinterestPayload(payload: Payload, features?: Features) {
       event_source_url: payload.event_source_url,
       partner_name: PARTNER_NAME,
       opt_out: payload.opt_out,
-      user_data: hash_user_data({ user_data: payload.user_data }, features),
+      user_data: hash_user_data({ user_data: payload.user_data }),
       custom_data: {
         currency: payload?.custom_data?.currency,
         value: String(payload?.custom_data?.value),
