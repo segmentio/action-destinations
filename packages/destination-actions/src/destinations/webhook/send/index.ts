@@ -45,6 +45,15 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Payload to deliver to webhook URL (JSON-encoded).',
       type: 'object',
       default: { '@path': '$.' }
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The mapping keys to batch events together by.',
+      type: 'string',
+      multiple: true,
+      required: false,
+      unsafe_hidden: true,
+      default: ['url', 'method']
     }
   },
   perform: (request, { payload }) => {
