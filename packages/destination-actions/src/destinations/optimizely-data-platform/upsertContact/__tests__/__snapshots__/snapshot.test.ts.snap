@@ -12,8 +12,8 @@ Array [
     },
     "age": 10705663206359.04,
     "company": "uMyg@6QjI31r!",
-    "dob_day": 1,
-    "dob_month": 2,
+    "dob_day": 31,
+    "dob_month": 1,
     "dob_year": 2021,
     "first_name": "uMyg@6QjI31r!",
     "gender": "uMyg@6QjI31r!",
@@ -26,8 +26,10 @@ Array [
     "user_identifiers": Object {
       "anonymousId": "uMyg@6QjI31r!",
       "email": "usezaf@efeho.vg",
+      "fs_user_id": "uMyg@6QjI31r!",
       "optimizely_vuid": "uMyg@6QjI31r!",
       "userId": "uMyg@6QjI31r!",
+      "web_user_id": "uMyg@6QjI31r!",
     },
   },
 ]

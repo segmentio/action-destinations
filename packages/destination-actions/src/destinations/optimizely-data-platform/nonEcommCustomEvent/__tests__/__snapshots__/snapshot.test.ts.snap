@@ -17,8 +17,10 @@ Array [
     "user_identifiers": Object {
       "anonymousId": "FX3MHiX9P^tIkXKVCa",
       "email": "oriiwo@hovevut.bn",
+      "fs_user_id": "FX3MHiX9P^tIkXKVCa",
       "optimizely_vuid": "FX3MHiX9P^tIkXKVCa",
       "userId": "FX3MHiX9P^tIkXKVCa",
+      "web_user_id": "FX3MHiX9P^tIkXKVCa",
     },
   },
 ]
