@@ -36,7 +36,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.email' },
           else: { '@path': '$.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     first_name: {
       label: 'User First Name',

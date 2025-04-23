@@ -7,7 +7,8 @@ import {
   ActionHookResponse,
   DynamicFieldResponse,
   DynamicFieldError,
-  DynamicFieldItem
+  DynamicFieldItem,
+  StatsContext
 } from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
@@ -79,7 +80,8 @@ export async function executeUpsertWithMultiStatus(
   request: RequestClient,
   subdomain: String,
   payloads: payload_dataExtension[] | payload_contactDataExtension[],
-  dataExtensionId?: string
+  dataExtensionId?: string,
+  statsContext?: StatsContext
 ): Promise<MultiStatusResponse> {
   const multiStatusResponse = new MultiStatusResponse()
   let response: ModifiedResponse | undefined
@@ -112,6 +114,22 @@ export async function executeUpsertWithMultiStatus(
       })
       return multiStatusResponse
     }
+
+    // If the errors is not a http resposne error, we treat it as a generic error
+    if (!(error as ErrorResponse).response?.data) {
+      if (statsContext) {
+        const { tags, statsClient } = statsContext
+        statsClient?.incr('sfmc_upsert_rows_error', 1, [...tags])
+      }
+      payloads.forEach((_, index) => {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: 500,
+          errormessage: error.message
+        })
+      })
+      return multiStatusResponse
+    }
+
     const err = error as ErrorResponse
     if (err?.response?.status === 401) {
       throw error
@@ -125,7 +143,7 @@ export async function executeUpsertWithMultiStatus(
 
     payloads.forEach((_, index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: err?.response?.status || 400,
+        status: err?.response?.status || 500,
         errormessage: additionalError ? additionalError[0].message : errData?.message || '',
         sent: rows[index] as Object as JSONLikeObject,
         /*

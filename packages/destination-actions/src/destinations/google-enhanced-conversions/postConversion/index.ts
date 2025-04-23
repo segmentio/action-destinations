@@ -158,7 +158,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.address.street' },
           else: { '@path': '$.traits.address.street' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     city: {
       label: 'City',
