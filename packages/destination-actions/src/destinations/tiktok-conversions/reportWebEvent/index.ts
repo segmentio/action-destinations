@@ -11,8 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     ...commonFields
   },
-  perform: (request, { payload, settings, features }) => {
-    return performWebEvent(request, settings, payload, features || {})
+  perform: (request, { payload, settings }) => {
+    return performWebEvent(request, settings, payload)
   }
 }
 
