@@ -22,38 +22,6 @@ const action: BrowserActionDefinition<Settings, RedditPixel, Payload> = {
   perform: (rdt, { payload, settings }) => {
     initPixel(rdt, payload, settings)
     trackCall(rdt, payload)
-
-    // payload.tracking_type === 'Custom'
-    // rdt.init(settings.pixel_id, {
-    //   ...(settings.ldu && {
-    //     dpm: 'LDU', // Currently "LDU" is the only value supported if the LDU toggle is enabled.
-    //     dpcc: payload.data_processing_options?.country,
-    //     dprc: payload.data_processing_options?.region
-    //   })
-    // })
-    // if (payload.tracking_type === 'Custom' && payload.custom_event_name && Object.keys(payload.tracking_type).length > 0) {
-    //   if (payload.user) {
-    //     if (payload.user?.device_type?.toLowerCase() === 'ios') {
-    //       payload.user.idfa = payload.user.advertising_id
-    //     } else {
-    //       payload.user.aaid = payload.user.advertising_id
-    //     }
-    //   }
-    //   const fullPayload = {
-    //     customEventName: payload?.custom_event_name,
-    //     value: payload.event_metadata?.value,
-    //     currency: payload.event_metadata?.currency,
-    //     itemCount: payload.event_metadata?.itemCount,
-    //     products: payload.products,
-    //     conversionId: payload.conversion_id,
-    //     ...payload.user,
-    //   }
-    //   console.log('full payload for Custom Event', fullPayload)
-    //   rdt.track(payload.tracking_type, fullPayload)
-
-    // } else {
-    //   console.error('No valid tracking type found or No Custom Event Name passed.')
-    // }
   }
 }
 
