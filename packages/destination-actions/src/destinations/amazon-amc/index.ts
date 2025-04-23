@@ -208,7 +208,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         body: payloadString,
         headers: {
           'Content-Type': 'application/vnd.amcaudiences.v1+json'
-        }
+        },
+        timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
       })
 
       const res = await response.text()
@@ -228,7 +229,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
       const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
-        method: 'GET'
+        method: 'GET',
+        timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
       })
       const res = await response.text()
       // Regular expression to find a audienceId number and replace the audienceId with quoted string
