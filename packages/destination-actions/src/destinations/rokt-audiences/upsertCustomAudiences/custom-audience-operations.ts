@@ -57,7 +57,9 @@ const getCustomAudienceOperations = (payload: Payload[], settings: Settings): Cu
         action_map.get(CONSTANTS.INCLUDE)?.push(p.email_sha256)
         is_hashed = true
       } else {
-        action_map.get(CONSTANTS.INCLUDE)?.push(p.email)
+        if (p.email !== undefined) {
+          action_map.get(CONSTANTS.INCLUDE)?.push(p.email)
+        }
       }
     } else if (p.traits_or_props[p.custom_audience_name] === false) {
       // audience entered 'false', exclude email or hashed email from list
@@ -65,7 +67,9 @@ const getCustomAudienceOperations = (payload: Payload[], settings: Settings): Cu
         action_map.get(CONSTANTS.EXCLUDE)?.push(p.email_sha256)
         is_hashed = true
       } else {
-        action_map.get(CONSTANTS.EXCLUDE)?.push(p.email)
+        if (p.email !== undefined) {
+          action_map.get(CONSTANTS.EXCLUDE)?.push(p.email)
+        }
       }
     }
   }
