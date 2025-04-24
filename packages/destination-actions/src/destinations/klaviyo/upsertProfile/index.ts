@@ -164,7 +164,7 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true,
       required: false,
       multiple: true,
-      default: ['list_id']
+      default: ['list_id', 'override_list_id']
     }
   },
   hooks: {
