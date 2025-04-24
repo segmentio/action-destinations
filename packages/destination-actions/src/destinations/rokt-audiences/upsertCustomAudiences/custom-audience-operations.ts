@@ -72,7 +72,6 @@ const getCustomAudienceOperations = (payload: Payload[], settings: Settings): Cu
 
   // build operation request to be sent to Rokt api
   const custom_audience_ops: CustomAudienceOperation[] = []
-  const emptyList: string[] = []
 
   audience_map.forEach((action_map_values: Map<string, string[]>, list: string) => {
     // key will be audience list
@@ -84,7 +83,7 @@ const getCustomAudienceOperations = (payload: Payload[], settings: Settings): Cu
           accountId: settings.accountid,
           list: list,
           action: action,
-          emails: emptyList,
+          emails: [],
           sha256s: emails
         }
       } else {
@@ -93,7 +92,7 @@ const getCustomAudienceOperations = (payload: Payload[], settings: Settings): Cu
           list: list,
           action: action,
           emails: emails,
-          sha256s: emptyList
+          sha256s: []
         }
       }
 
