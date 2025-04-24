@@ -66,8 +66,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const profileId = await createProfile(request, email, external_id, phone_number, additionalAttributes)
     return await addProfileToList(request, profileId, list_id)
   },
-  performBatch: async (request, { payload }) => {
-    return sendBatchedProfileImportJobRequest(request, payload)
+  performBatch: async (request, { payload, statsContext }) => {
+    return sendBatchedProfileImportJobRequest(request, payload, statsContext)
   }
 }
 

@@ -309,7 +309,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: async (request, { payload, hookOutputs }) => {
+  performBatch: async (request, { payload, hookOutputs, statsContext }) => {
     payload = payload.filter((profile) => {
       // Validate and convert the phone number using the provided country code
       const validPhoneNumber = validateAndConvertPhoneNumber(profile.phone_number, profile.country_code)
@@ -324,6 +324,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return profile.email || profile.phone_number || profile.external_id
     })
+
+    if (statsContext) {
+      const { tags, statsClient } = statsContext
+      const set = new Set()
+      payload.forEach((x) => set.add(`${x.list_id}-${x.override_list_id}`))
+      statsClient.histogram('actions-klaviyo.remove_profile_from_list.unique_list_id', set.size, tags)
+    }
 
     const profilesWithList: Payload[] = []
     const profilesWithoutList: Payload[] = []

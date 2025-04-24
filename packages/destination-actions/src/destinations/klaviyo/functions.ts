@@ -7,7 +7,8 @@ import {
   JSONLikeObject,
   HTTPError,
   MultiStatusResponse,
-  ErrorCodes
+  ErrorCodes,
+  StatsContext
 } from '@segment/actions-core'
 import { API_URL, REVISION_DATE } from './config'
 import { Settings } from './generated-types'
@@ -519,7 +520,11 @@ async function updateMultiStatusWithKlaviyoErrors(
   })
 }
 
-export async function removeBulkProfilesFromList(request: RequestClient, payloads: RemoveProfilePayload[]) {
+export async function removeBulkProfilesFromList(
+  request: RequestClient,
+  payloads: RemoveProfilePayload[],
+  statsContext?: StatsContext
+) {
   const multiStatusResponse = new MultiStatusResponse()
 
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPrepareRemoveBulkProfilePayloads(
@@ -534,6 +539,13 @@ export async function removeBulkProfilesFromList(request: RequestClient, payload
   const emails = extractField(filteredPayloads, 'email')
   const externalIds = extractField(filteredPayloads, 'external_id')
   const phoneNumbers = extractField(filteredPayloads, 'phone_number')
+
+  if (statsContext) {
+    const { tags, statsClient } = statsContext
+    const set = new Set()
+    filteredPayloads.forEach((x) => set.add(x.list_id))
+    statsClient.histogram('actions-klaviyo.remove_profile_from_list.unique_list_id', set.size, tags)
+  }
 
   const listId = filteredPayloads[0]?.list_id as string
 
@@ -666,7 +678,11 @@ function validateAndPrepareBatchedProfileImportPayloads(
   return { filteredPayloads, validPayloadIndicesBitmap }
 }
 
-export async function sendBatchedProfileImportJobRequest(request: RequestClient, payloads: AddProfileToListPayload[]) {
+export async function sendBatchedProfileImportJobRequest(
+  request: RequestClient,
+  payloads: AddProfileToListPayload[],
+  statsContext?: StatsContext
+) {
   const multiStatusResponse = new MultiStatusResponse()
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPrepareBatchedProfileImportPayloads(
     payloads,
@@ -675,6 +691,13 @@ export async function sendBatchedProfileImportJobRequest(request: RequestClient,
 
   if (!filteredPayloads.length) {
     return multiStatusResponse
+  }
+
+  if (statsContext) {
+    const { tags, statsClient } = statsContext
+    const set = new Set()
+    filteredPayloads.forEach((x) => set.add(x.list_id))
+    statsClient.histogram('actions-klaviyo.add_profile_to_list.unique_list_id', set.size, tags)
   }
   const importJobPayload = constructBulkProfileImportPayload(
     filteredPayloads as unknown as KlaviyoProfile[],
