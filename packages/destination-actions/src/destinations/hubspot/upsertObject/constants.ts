@@ -12,7 +12,8 @@ export const SUPPORTED_HUBSPOT_OBJECT_TYPES = [
   { label: 'Lead', value: 'lead' },
   { label: 'Line Item', value: 'line_item' },
   { label: 'Quote', value: 'quote' },
-  { label: 'Subscription', value: 'subscription' }
+  { label: 'Subscription', value: 'subscription' },
+  { label: 'Product', value: 'product' }
 ]
 
 export const MAX_HUBSPOT_BATCH_SIZE = 100
