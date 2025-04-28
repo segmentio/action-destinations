@@ -31,6 +31,7 @@ For more detailed instruction, see the following READMEs:
 - [Presets](#presets)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
+- [Parsing MultiStatus Responses](#parsing-multistatus-responses)
 - [Action Hooks](#action-hooks)
 - [HTTP Requests](#http-requests)
 - [Support](#support)
