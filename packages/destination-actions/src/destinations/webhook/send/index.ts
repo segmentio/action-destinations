@@ -78,7 +78,7 @@ const action: ActionDefinition<Settings, Payload> = {
       for (const p of payload) {
         set.add(`${p.url} ${p.method} ${JSON.stringify(p.headers)}`)
       }
-      statsClient?.incr('webhook.configurable_batch_keys.unique_keys', set.size, tags)
+      statsClient?.histogram('webhook.configurable_batch_keys.unique_keys', set.size, tags)
     }
 
     try {

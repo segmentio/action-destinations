@@ -148,7 +148,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           for (const p of payload) {
             set.add(`${p.url} ${p.method} ${JSON.stringify(p.headers)}`)
           }
-          statsClient?.incr('webhook.configurable_batch_keys.unique_keys', set.size, tags)
+          statsClient?.histogram('webhook.configurable_batch_keys.unique_keys', set.size, tags)
         }
 
         // Call the same performBatch function from the regular webhook destination
