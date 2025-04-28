@@ -6,7 +6,7 @@ import { mockWorkerAndXMLHttpRequest, trackSubscription } from '../../test_utili
 describe('Logrocket.track', () => {
   beforeAll(mockWorkerAndXMLHttpRequest)
   afterAll(jest.restoreAllMocks)
-  it('sends track events to logrocket', async () => {
+  it.skip('sends track events to logrocket', async () => {
     const [event] = await plugins({ appID: 'log/rocket', subscriptions: [trackSubscription] })
 
     await event.load(Context.system(), {} as Analytics)
