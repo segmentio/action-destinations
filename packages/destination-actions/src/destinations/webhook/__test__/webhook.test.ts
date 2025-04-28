@@ -235,7 +235,7 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
 
         expect(responses.length).toBe(1)
         expect(responses[0].status).toBe(200)
-        expect(statsClient.incr).toHaveBeenCalledWith(
+        expect(statsClient.histogram).toHaveBeenCalledWith(
           'webhook.configurable_batch_keys.unique_keys',
           2,
           statsContext.tags
