@@ -736,6 +736,12 @@ Keep in mind a few important things about how batching works:
 
 Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
 
+## Parsing MultiStatus Responses
+
+When a batch request to a destination returns a 207 MultiStatus response, the `performBatch` method will typically receive an array of responses, indicating the status of each event in the batch. The Actions Framework provides a `MultiStatusResponse` class to help you parse these responses to report a more granular success or failure status for each event.
+
+A detailed example of how to use the `MultiStatusResponse` class can be found in the [MultiStatus Documentation](./docs/multistatus.md).
+
 ## Action Hooks
 
 Hooks allow builders to perform requests against a destination at certain points in the lifecycle of a mapping. Values can then be persisted from that request to be used later on in the action's `perform` method.
