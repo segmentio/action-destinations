@@ -57,6 +57,7 @@ const action: ActionDefinition<Settings, Payload> = {
       enable_batching,
       batch_size,
       country_code,
+      batch_keys,
       ...additionalAttributes
     } = payload
     const phone_number = processPhoneNumber(initialPhoneNumber, country_code)

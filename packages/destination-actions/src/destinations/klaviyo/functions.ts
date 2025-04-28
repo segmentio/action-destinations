@@ -142,7 +142,7 @@ export const createImportJobPayload = (profiles: Payload[], listId?: string): { 
     attributes: {
       profiles: {
         data: profiles.map(
-          ({ list_id, enable_batching, batch_size, override_list_id, country_code, ...attributes }) => ({
+          ({ list_id, enable_batching, batch_size, override_list_id, country_code, batch_keys, ...attributes }) => ({
             type: 'profile',
             attributes
           })
@@ -652,7 +652,7 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
     delete payload.country_code
   }
 
-  const { list_id, enable_batching, batch_size, country_code, ...attributes } = payload
+  const { list_id, enable_batching, batch_size, country_code, batch_keys, ...attributes } = payload
 
   response.validPayload = { type: 'profile', attributes: attributes as JSONLikeObject }
   return response
