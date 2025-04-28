@@ -355,6 +355,7 @@ const filteredPayloads: JSONLikeObject[] = []
 // A bitmap data structure that stores arr[new_index] = original_batch_payload_index
 const validPayloadIndicesBitmap: number[] = []
 
+// Iterate over the payloads and validate them
 payloads.forEach((payload, originalBatchIndex) => {
   const { email, phone } = payload
 
@@ -393,20 +394,20 @@ Assuming the API returns an HTTP 207 `MultiStatus` response as follows:
 
 ```json
 {
-  itemsProcessed: 5
-  success: 3
-  error: 2
-  errorResponses: [
+  "itemsProcessed": 5,
+  "success": 3,
+  "error": 2,
+  "errorResponses": [
     {
-      status: 400,
-      message: "Invalid zip code",
-      index: 0,
+      "status": 400,
+      "message": "Invalid zip code",
+      "index": 0
     },
     {
-      status: 400,
-      message: "Invalid zip code",
-      index: 1,
-    },
+      "status": 400,
+      "message": "Invalid zip code",
+      "index": 1
+    }
   ]
 }
 ```
