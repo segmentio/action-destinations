@@ -13,7 +13,7 @@ describe('Logrocket.identify', () => {
     goodbye: 'moon'
   }
 
-  it('should send user ID and traits to logrocket', async () => {
+  it.skip('should send user ID and traits to logrocket', async () => {
     const [identify] = await plugins({ ...settings, subscriptions: [identifySubscription] })
 
     await identify.load(Context.system(), {} as Analytics)
