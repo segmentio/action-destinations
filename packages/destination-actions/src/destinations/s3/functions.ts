@@ -29,7 +29,7 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
   await s3Client.uploadS3(
     settings,
     fileContent,
-    payloads[0]?.filename_prefix ?? '',
+    payloads[0]?.filename_prefix,
     payloads[0]?.s3_aws_folder_name ?? '',
     payloads[0]?.file_extension
   )

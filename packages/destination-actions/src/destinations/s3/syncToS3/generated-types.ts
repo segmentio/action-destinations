@@ -104,7 +104,7 @@ export interface Payload {
   /**
    * Prefix to append to the name of the uploaded file.
    */
-  filename_prefix?: string
+  filename_prefix: string
   /**
    * Character used to separate tokens in the resulting file.
    */

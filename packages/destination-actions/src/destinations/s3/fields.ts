@@ -201,7 +201,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     label: 'Filename prefix',
     description: `Prefix to append to the name of the uploaded file.`,
     type: 'string',
-    required: false
+    required: true
   },
   delimiter: {
     label: 'Delimeter',

@@ -1,7 +1,6 @@
-import { generateFile } from '../../functions' // Adjust the import path
-import { Payload } from '../generated-types'
-import { clean, encodeString, getAudienceAction } from '../../functions'
+import { clean, encodeString, generateFile, getAudienceAction } from '../../functions' // Adjust the import path
 import { ColumnHeader } from '../../types'
+import { Payload } from '../generated-types'
 
 describe('clean', () => {
   it('should remove delimiter from string', () => {
@@ -32,7 +31,8 @@ describe('getAudienceAction', () => {
       columns: {},
       delimiter: ',',
       enable_batching: false,
-      file_extension: 'csv'
+      file_extension: 'csv',
+      filename_prefix: 'audience_key'
     }
     expect(getAudienceAction(payload)).toBeUndefined()
   })
@@ -44,7 +44,8 @@ describe('getAudienceAction', () => {
       columns: {},
       delimiter: ',',
       enable_batching: false,
-      file_extension: 'csv'
+      file_extension: 'csv',
+      filename_prefix: 'audience_key'
     }
     expect(getAudienceAction(payload)).toBe(true)
   })
@@ -115,7 +116,8 @@ describe('generateFile', () => {
       batch_size: 5000,
       delimiter: ',',
       file_extension: 'csv',
-      s3_aws_folder_name: 'foldername1'
+      s3_aws_folder_name: 'foldername1',
+      filename_prefix: 'audience_key'
     }
   ]
 
