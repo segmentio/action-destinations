@@ -329,7 +329,7 @@ const action: ActionDefinition<Settings, Payload> = {
       const { tags, statsClient } = statsContext
       const set = new Set()
       payload.forEach((x) => set.add(`${x.list_id}-${x.override_list_id}`))
-      statsClient.histogram('actions-klaviyo.remove_profile_from_list.unique_list_id', set.size, tags)
+      statsClient?.histogram('actions-klaviyo.remove_profile_from_list.unique_list_id', set.size, tags)
     }
 
     const profilesWithList: Payload[] = []

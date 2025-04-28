@@ -544,7 +544,7 @@ export async function removeBulkProfilesFromList(
     const { tags, statsClient } = statsContext
     const set = new Set()
     filteredPayloads.forEach((x) => set.add(x.list_id))
-    statsClient.histogram('actions-klaviyo.remove_profile_from_list.unique_list_id', set.size, tags)
+    statsClient?.histogram('actions-klaviyo.remove_profile_from_list.unique_list_id', set.size, tags)
   }
 
   const listId = filteredPayloads[0]?.list_id as string
@@ -697,7 +697,7 @@ export async function sendBatchedProfileImportJobRequest(
     const { tags, statsClient } = statsContext
     const set = new Set()
     filteredPayloads.forEach((x) => set.add(x.list_id))
-    statsClient.histogram('actions-klaviyo.add_profile_to_list.unique_list_id', set.size, tags)
+    statsClient?.histogram('actions-klaviyo.add_profile_to_list.unique_list_id', set.size, tags)
   }
   const importJobPayload = constructBulkProfileImportPayload(
     filteredPayloads as unknown as KlaviyoProfile[],

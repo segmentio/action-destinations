@@ -122,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
       filteredPayload.forEach((profile) => {
         set.add(`${profile.list_id}-${profile.custom_source}`)
       })
-      statsClient.histogram('actions-klaviyo.subscribe_profile.unique_list_id', set.size, tags)
+      statsClient?.histogram('actions-klaviyo.subscribe_profile.unique_list_id', set.size, tags)
     }
 
     // if there are no payloads with phone or email throw error
