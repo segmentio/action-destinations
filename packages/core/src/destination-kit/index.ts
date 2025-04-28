@@ -72,7 +72,7 @@ export interface BaseDefinition {
    * 'cloud' mode is made up of actions that run server-side, but can also have device-mode enrichment actions
    * 'device' mode is made up of actions that run in the browser
    */
-  mode: 'cloud' | 'device'
+  mode: 'cloud' | 'device' | 'warehouse'
 
   /** A human-friendly description of the destination  */
   description?: string
@@ -181,6 +181,15 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
 
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
+
+  onDelete?: Deletion<Settings>
+}
+
+export interface WarehouseDestinationDefinition<Settings = unknown> extends BaseDefinition {
+  mode: 'warehouse'
+
+  /** Actions */
+  actions: Record<string, ActionDefinition<Settings>>
 
   onDelete?: Deletion<Settings>
 }

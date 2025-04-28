@@ -65,6 +65,7 @@ export type {
   BaseDefinition,
   DestinationDefinition,
   AudienceDestinationDefinition,
+  WarehouseDestinationDefinition,
   ExecuteInput,
   Subscription,
   SubscriptionStats,
