@@ -37,6 +37,6 @@ export function trackCall(rdt: RedditPixel, payload: StandardEvent | CustomEvent
     }
     rdt.track((payload as StandardEvent).tracking_type, fullPayload)
   } else {
-    console.error('No valid tracking type found.')
+    console.error(' No valid tracking type found in the Reddit Pixel.')
   }
 }

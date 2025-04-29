@@ -31,7 +31,7 @@ export const conversion_id: InputField = {
   description: 'The unique conversion ID that corresponds to a distinct conversion event.',
   type: 'string',
   required: false,
-  default: { '@path': '$.properties.conversion_id' }
+  default: { '@path': '$.messageId' }
 }
 
 export const event_metadata: InputField = {
@@ -74,7 +74,11 @@ export const event_metadata: InputField = {
       '@path': '$.properties.quantity'
     },
     value: {
-      '@path': '$.properties.total'
+      '@if': {
+        exists: { '@path': '$.properties.revenue' },
+        then: { '@path': '$.properties.revenue' },
+        else: { '@path': '$.properties.total' }
+      }
     }
   }
 }

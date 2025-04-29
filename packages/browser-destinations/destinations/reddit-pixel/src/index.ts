@@ -7,7 +7,6 @@ import { RedditPixel } from './types'
 
 import reportWebEvent from './reportWebEvent'
 import reportCustomWebEvent from './reportCustomWebEvent'
-// import reportCustomWebEvent from './reportCustomWebEvent'
 
 declare global {
   interface Window {
@@ -60,7 +59,12 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
       partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
-        tracking_type: 'AddToCart'
+        tracking_type: 'AddToCart',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          itemCount: { '@path': '$.properties.quantity' },
+          value: { '@path': '$.properties.price' }
+        }
       },
       type: 'automatic'
     },
@@ -70,7 +74,12 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
       partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
-        tracking_type: 'AddToWishlist'
+        tracking_type: 'AddToWishlist',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          itemCount: { '@path': '$.properties.quantity' },
+          value: { '@path': '$.properties.price' }
+        }
       },
       type: 'automatic'
     },
