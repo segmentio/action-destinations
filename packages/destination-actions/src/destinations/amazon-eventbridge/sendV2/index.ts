@@ -1,11 +1,10 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { send } from '../functions'
-import { send as sendV2 } from '../functionsv2'
+import { send } from '../functionsv2'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Send',
+  title: 'SendV2',
   description: 'Send an event to Amazon EventBridge.',
   fields: {
     data: {
@@ -85,10 +84,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return send([payload], settings)
   },
   performBatch: (_, data) => {
-    const { payload, settings, features } = data
-    if (features?.['amazon-eventbridge-v2']) {
-      return sendV2(payload, settings)
-    }
+    const { payload, settings } = data
     return send(payload, settings)
   }
 }
