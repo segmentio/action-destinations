@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-fullstory",
-  "version": "1.83.1-staging-de20e09b0.0",
+  "version": "1.83.1-staging-c065ad981.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -16,8 +16,8 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@fullstory/browser": "^2.0.3",
-    "@segment/actions-core": "3.151.1-staging-de20e09b0.0",
-    "@segment/browser-destination-runtime": "1.80.1-staging-de20e09b0.0"
+    "@segment/actions-core": "3.151.1-staging-c065ad981.0",
+    "@segment/browser-destination-runtime": "1.80.1-staging-c065ad981.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
