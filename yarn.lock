@@ -3457,31 +3457,6 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-"@segment/action-destinations@^3.288.0":
-  version "3.383.0"
-  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.383.0.tgz#a7440117b7332c15873d51d39b7ac0ceadb9055d"
-  integrity sha512-ij3UKlQLnSlYjJ9Ey6HdkeiogCUT8i0UDosVJbh9D8u1OB+fLCqSfEQGCF8Rm+stgr8bafV5V3ng+ZAjkLG1Ig==
-  dependencies:
-    "@amplitude/ua-parser-js" "^0.7.25"
-    "@aws-sdk/client-eventbridge" "^3.741.0"
-    "@aws-sdk/client-s3" "^3.600.0"
-    "@bufbuild/protobuf" "^2.2.3"
-    "@segment/a1-notation" "^2.1.4"
-    "@segment/actions-core" "^3.151.0"
-    "@segment/actions-shared" "^1.132.0"
-    "@types/node" "^22.13.1"
-    ajv-formats "^2.1.1"
-    aws4 "^1.12.0"
-    cheerio "^1.0.0-rc.10"
-    dayjs "^1.10.7"
-    escape-goat "^3"
-    google-libphonenumber "^3.2.31"
-    kafkajs "^2.2.4"
-    liquidjs "^10.8.4"
-    lodash "^4.17.21"
-    lru-cache "10.4.3"
-    ssh2-sftp-client "^10.0.3"
-
 "@segment/action-emitters@^1.3.6":
   version "1.3.6"
   resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.3.6.tgz#0160442ae99821c43a9465c05226afddec73cbe5"

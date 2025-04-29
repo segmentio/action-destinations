@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.112.1-staging-9757be8fb.0",
+  "version": "1.112.1-staging-e16563c8f.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -33,7 +33,7 @@
     "@segment/analytics-browser-actions-iterate": "1.81.1-staging-9757be8fb.0",
     "@segment/analytics-browser-actions-jimo": "1.71.1-staging-9757be8fb.0",
     "@segment/analytics-browser-actions-koala": "1.83.1-staging-9757be8fb.0",
-    "@segment/analytics-browser-actions-logrocket": "1.82.1-staging-9757be8fb.0",
+    "@segment/analytics-browser-actions-logrocket": "1.82.1-staging-e16563c8f.0",
     "@segment/analytics-browser-actions-pendo-web-actions": "1.71.1-staging-9757be8fb.0",
     "@segment/analytics-browser-actions-playerzero": "1.81.1-staging-9757be8fb.0",
     "@segment/analytics-browser-actions-replaybird": "1.62.1-staging-9757be8fb.0",
