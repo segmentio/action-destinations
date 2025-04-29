@@ -79,8 +79,8 @@ const propertiesResp = {
     },
     {
       name: 'numberish_string_prop',
-      type: 'number',
-      fieldType: 'number',
+      type: 'string',
+      fieldType: 'text',
       hasUniqueValue: false
     },
     {
@@ -138,8 +138,8 @@ const sensitivePropertiesResp = {
     },
     {
       name: 'numberish_string_sprop',
-      type: 'number',
-      fieldType: 'number',
+      type: 'string',
+      fieldType: 'text',
       hasUniqueValue: false
     },
     {
