@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.383.1-staging-8f5bdb8a2.0",
+  "version": "3.383.1-staging-1fc3316de.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
