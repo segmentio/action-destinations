@@ -14,8 +14,7 @@ export const SUPPORTED_HUBSPOT_OBJECT_TYPES = [
   { label: 'Quote', value: 'quote' },
   { label: 'Subscription', value: 'subscription' },
   { label: 'Product', value: 'product' },
-  { label: 'Ticket', value: 'ticket' },
-  { label: 'Appointment', value: 'appointment' },
+  { label: 'Appointment', value: '0-421' },
   { label: 'Order', value: 'order' }
 ]
 
