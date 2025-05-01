@@ -77,8 +77,34 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        country: { '@path': '$.context.location.country' },
-        city: { '@path': '$.context.location.city' }
+        country: {
+          '@if': {
+            exists: { '@path': '$.traits.address.country' },
+            then: { '@path': '$.traits.address.country' },
+            else: { '@path': '$.context.traits.address.country' }
+          }
+        },
+        state: {
+          '@if': {
+            exists: { '@path': '$.traits.address.state' },
+            then: { '@path': '$.traits.address.state' },
+            else: { '@path': '$.context.traits.address.state' }
+          }
+        },
+        city: {
+          '@if': {
+            exists: { '@path': '$.traits.address.city' },
+            then: { '@path': '$.traits.address.city' },
+            else: { '@path': '$.context.traits.address.city' }
+          }
+        },
+        post_code: {
+          '@if': {
+            exists: { '@path': '$.traits.address.postal_code' },
+            then: { '@path': '$.traits.address.postal_code' },
+            else: { '@path': '$.context.traits.address.postal_code' }
+          }
+        }
       }
     },
     traits: {
