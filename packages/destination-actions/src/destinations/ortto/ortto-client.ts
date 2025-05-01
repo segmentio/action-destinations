@@ -16,7 +16,6 @@ import { AudienceList, Audience } from './types'
 export const API_VERSION = 'v1'
 
 export const Errors: Record<string, string> = {
-  MissingIDs: `Either user ID or anonymous ID must be specified`,
   InvalidAPIKey: `Invalid API key`,
   MissingEventName: `Missing event name`,
   MissingAudienceName: `Missing audience name`,
@@ -33,9 +32,6 @@ export default class OrttoClient {
     const cleaned = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
-      if (!event.anonymous_id && !event.user_id) {
-        throw new PayloadValidationError(Errors.MissingIDs)
-      }
       if (!event.audience_id) {
         event.audience_id = hookAudienceID
       }
@@ -55,9 +51,6 @@ export default class OrttoClient {
     const filtered = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
-      if (!event.anonymous_id && !event.user_id) {
-        throw new PayloadValidationError(Errors.MissingIDs)
-      }
       if (!event.event || event.event.trim() === '') {
         throw new PayloadValidationError(Errors.MissingEventName)
       }
@@ -144,9 +137,6 @@ export default class OrttoClient {
     const cleaned = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
-      if (!event.anonymous_id && !event.user_id) {
-        throw new PayloadValidationError(Errors.MissingIDs)
-      }
       cleaned.push(cleanObject(event))
     }
     if (cleaned.length == 0) {
@@ -163,9 +153,6 @@ export default class OrttoClient {
     const cleaned = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
-      if (!event.anonymous_id && !event.user_id) {
-        throw new PayloadValidationError(Errors.MissingIDs)
-      }
       if (!event.audience_id) {
         throw new PayloadValidationError(Errors.MissingAudienceId)
       }

@@ -30,6 +30,15 @@ export const commonFields: Record<string, InputField> = {
     label: 'User ID',
     description: 'The unique user identifier',
     type: 'string',
+    required: {
+      conditions: [
+        {
+          fieldKey: 'anonymous_id',
+          operator: 'is',
+          value: undefined
+        }
+      ]
+    },
     default: {
       '@path': '$.userId'
     }
@@ -38,6 +47,15 @@ export const commonFields: Record<string, InputField> = {
     label: 'Anonymous ID',
     description: 'Anonymous user identifier',
     type: 'string',
+    required: {
+      conditions: [
+        {
+          fieldKey: 'user_id',
+          operator: 'is',
+          value: undefined
+        }
+      ]
+    },
     default: {
       '@path': '$.anonymousId'
     }

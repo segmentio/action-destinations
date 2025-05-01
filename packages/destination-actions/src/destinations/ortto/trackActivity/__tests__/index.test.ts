@@ -48,20 +48,6 @@ describe('Ortto.trackActivity', () => {
     expect(responses[0].options.method).toBe('POST')
   })
 
-  it('should fail with missing ids', async () => {
-    const event = createTestEvent({
-      userId: '',
-      anonymousId: ''
-    })
-    await expect(
-      testDestination.testAction('trackActivity', {
-        settings: settings,
-        event: event,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError(new PayloadValidationError(Errors.MissingIDs))
-  })
-
   it('should fail with empty event name', async () => {
     const event = createTestEvent({
       userId: 'user_id',

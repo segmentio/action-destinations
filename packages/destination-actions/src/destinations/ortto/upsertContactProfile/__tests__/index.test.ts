@@ -1,11 +1,5 @@
 import nock from 'nock'
-import {
-  createTestEvent,
-  createTestIntegration,
-  SegmentEvent,
-  PayloadValidationError,
-  InvalidAuthenticationError
-} from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent, InvalidAuthenticationError } from '@segment/actions-core'
 import Destination from '../../index'
 import { Errors, API_VERSION } from '../../ortto-client'
 import { Settings } from '../../generated-types'
@@ -45,20 +39,6 @@ describe('Ortto.upsertContactProfile', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.method).toBe('POST')
-  })
-
-  it('should fail with missing ids', async () => {
-    const event = createTestEvent({
-      userId: '',
-      anonymousId: ''
-    })
-    await expect(
-      testDestination.testAction('upsertContactProfile', {
-        settings: settings,
-        event: event,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError(new PayloadValidationError(Errors.MissingIDs))
   })
 
   it('should validate API key', async () => {

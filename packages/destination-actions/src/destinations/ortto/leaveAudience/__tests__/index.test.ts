@@ -1,11 +1,5 @@
 import nock from 'nock'
-import {
-  SegmentEvent,
-  createTestEvent,
-  createTestIntegration,
-  PayloadValidationError,
-  InvalidAuthenticationError
-} from '@segment/actions-core'
+import { SegmentEvent, createTestEvent, createTestIntegration, InvalidAuthenticationError } from '@segment/actions-core'
 import Destination from '../../index'
 import { Settings } from '../../generated-types'
 import { Errors, API_VERSION } from '../../ortto-client'
@@ -46,25 +40,6 @@ describe('Ortto.leaveAudience', () => {
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.method).toBe('DELETE')
-  })
-
-  it('should fail with missing ids', async () => {
-    const event = createTestEvent({
-      userId: '',
-      anonymousId: '',
-      context: {
-        personas: {
-          external_audience_id: 'audience_id'
-        }
-      }
-    })
-    await expect(
-      testDestination.testAction('leaveAudience', {
-        settings: settings,
-        event: event,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError(new PayloadValidationError(Errors.MissingIDs))
   })
 
   it('should validate API key', async () => {
