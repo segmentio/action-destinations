@@ -5,7 +5,7 @@ import { send } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
-  description: 'Sync a Segment Engage Audience to Reddit',
+  description: 'Sync a Segment Audience to Reddit',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     segment_computation_action: {
@@ -18,7 +18,10 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.personas.computation_class'
       },
-      choices: [{ label: 'audience', value: 'audience' },{ label: 'journey_step', value: 'journey_step' }]
+      choices: [
+        { label: 'audience', value: 'audience' },
+        { label: 'journey_step', value: 'journey_step' }
+      ]
     },
     computation_key: {
       label: 'Audience Computation Key',

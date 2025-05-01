@@ -5,7 +5,7 @@ import { getUpsertURL, hashAndEncode, getDataCenter, getSectionId } from '../hel
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience',
-  description: 'Sync Segment Engage Audiences to Dynamic Yield',
+  description: 'Sync Segment Audiences to Dynamic Yield',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     message_id: {

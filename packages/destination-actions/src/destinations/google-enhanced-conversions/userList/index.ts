@@ -14,7 +14,7 @@ import { UserListResponse } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Customer Match User List',
-  description: 'Sync a Segment Engage Audience into a Google Customer Match User List.',
+  description: 'Sync a Segment Audience into a Google Customer Match User List.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   syncMode: {
     description: 'Define how the records will be synced to Google',
