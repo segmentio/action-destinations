@@ -20,7 +20,11 @@ export interface Payload {
    */
   phone?: string
   /**
-   * The person's subscription status.
+   * The person's subscription status if newly identified.
+   */
+  initial_status?: string
+  /**
+   * The person's subscription status. Overrides initial_status.
    */
   status?: string
   /**
