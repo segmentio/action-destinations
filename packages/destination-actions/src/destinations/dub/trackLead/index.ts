@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     externalId: {
       label: 'External ID',
       description:
-        "This is the unique identifier for the customer in the your app. This is used to track the customer's journey.",
+        "The unique identifier for the customer in the your app. Used to track the customer's journey.",
       type: 'string',
       required: true,
       default: {
