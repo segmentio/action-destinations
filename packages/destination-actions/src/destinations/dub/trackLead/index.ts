@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { API_URL } from '../config'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track a lead',
+  title: 'Track a Lead',
   description: 'Track a Lead for a Short Link.',
   defaultSubscription: 'type = "track"',
   fields: {
