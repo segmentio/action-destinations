@@ -67,6 +67,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       label: 'Batch Data to Klaviyo',
       description: 'When enabled, the action will use the Klaviyo batch API.'
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['list_id', 'custom_source']
     }
   },
   dynamicFields: {
@@ -106,6 +115,15 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return profile.email || profile.phone_number
     })
+
+    if (statsContext) {
+      const { statsClient, tags } = statsContext
+      const set = new Set()
+      filteredPayload.forEach((profile) => {
+        set.add(`${profile.list_id}-${profile.custom_source}`)
+      })
+      statsClient?.histogram('actions-klaviyo.subscribe_profile.unique_list_id', set.size, tags)
+    }
 
     // if there are no payloads with phone or email throw error
     if (filteredPayload.length === 0) {
