@@ -6,7 +6,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Delivr AI Audiences',
   slug: 'actions-delivrai-audiences',
   mode: 'cloud',
-  description: 'Sync Segment Audiences to Delivr AI Audience Segmentation.',
+  description: 'Sync users to Delivr AI Audience Segmentation.',
   authentication: {
     scheme: 'custom',
     fields: {

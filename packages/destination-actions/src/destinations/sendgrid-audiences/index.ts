@@ -8,7 +8,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'SendGrid Lists (Actions)',
   slug: 'actions-sendgrid-audiences',
   mode: 'cloud',
-  description: 'Sync Segment Audiences to Sengrid Lists.',
+  description: 'Sync users to Sengrid Lists.',
   authentication: {
     scheme: 'custom',
     fields: {

@@ -8,7 +8,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Iterable Lists',
   slug: 'actions-iterable-lists',
   mode: 'cloud',
-  description: 'Sync Segment Audiences to Iterable Lists',
+  description: 'Sync users to Iterable Lists',
 
   authentication: {
     scheme: 'custom',

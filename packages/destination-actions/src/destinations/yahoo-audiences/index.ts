@@ -17,7 +17,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Yahoo Audiences',
   slug: 'actions-yahoo-audiences',
   mode: 'cloud',
-  description: 'Sync Segment Audiences to Yahoo Ads',
+  description: 'Sync users to Yahoo Ads',
   authentication: {
     scheme: 'oauth2',
     fields: {

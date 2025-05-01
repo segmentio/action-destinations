@@ -5,7 +5,7 @@ import { send } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
-  description: 'Sync a Segment Audience to Reddit',
+  description: 'Sync users to Reddit',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     segment_computation_action: {

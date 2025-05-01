@@ -7,7 +7,7 @@ import { dynamicCustomFields } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
-  description: 'Sync a Segment Audience to a Sendgrid List',
+  description: 'Sync users to a Sendgrid List',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields,
   dynamicFields: {
