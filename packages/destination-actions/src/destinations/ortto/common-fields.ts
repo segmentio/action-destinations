@@ -112,7 +112,7 @@ export const commonFields: Record<string, InputField> = {
     }
   },
   traits: {
-    label: 'Custom contact traits',
+    label: 'Custom Contact traits',
     description: 'An object containing key-value pairs representing custom properties assigned to contact profile',
     type: 'object',
     defaultObjectUI: 'keyvalue',
