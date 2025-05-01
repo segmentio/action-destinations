@@ -80,13 +80,14 @@ const action: ActionDefinition<Settings, Payload> = {
     const params = serializeParams({
       action: 'view',
       advertiser: settings.advertiser,
+      user_id: settings.userId,
       timestamp: payload.timestamp,
       device_id: payload.anonymousId,
       referrer: payload.referrer,
       url: payload.url,
       ip: payload.ip,
       user_agent: payload.userAgent,
-      library: JSON.stringify(payload.library)
+      library: payload?.library ? JSON.stringify(payload.library) : null
     })
 
     return request(`https://verifi.podscribe.com/tag?${params}`)
