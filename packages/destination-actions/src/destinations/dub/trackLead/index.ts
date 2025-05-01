@@ -37,13 +37,29 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Quantity',
       description: 'The quantity of the Lead event to track.',
       type: 'number',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.quantity'
+      }
     },
     customerName: {
       label: 'Customer Name',
       description: 'The name of the customer.',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@if': {
+          exists: {
+            '@path': '$.context.traits.name'
+          },
+          then: {
+            '@path': '$.context.traits.name'
+          },
+          else: {
+            '@path': '$.properties.name'
+          }
+        }
+      }
     },
     customerEmail: {
       label: 'Customer Email',
