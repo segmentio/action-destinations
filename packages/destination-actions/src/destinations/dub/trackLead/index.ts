@@ -5,7 +5,7 @@ import { API_URL } from '../config'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track a lead',
-  description: 'Track a lead for a short link.',
+  description: 'Track a Lead for a Short Link.',
   defaultSubscription: 'type = "track"',
   fields: {
     clickId: {
