@@ -7,6 +7,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Dub (Actions)',
   slug: 'actions-dub',
   mode: 'cloud',
+  description: 'Track Lead and Sale conversion events on Dub.',
 
   authentication: {
     scheme: 'custom',

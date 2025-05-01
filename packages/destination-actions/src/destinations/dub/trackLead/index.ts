@@ -16,7 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     eventName: {
       label: 'Event Name',
-      description: 'The name of the lead event to track.',
+      description: 'The name of the Lead event to track.',
       type: 'string',
       required: true,
       default: {
@@ -35,7 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     eventQuantity: {
       label: 'Event Quantity',
-      description: 'The quantity of the lead event to track.',
+      description: 'The quantity of the Lead event to track.',
       type: 'number',
       required: false
     },
@@ -63,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     metadata: {
       label: 'Metadata',
-      description: 'Additional metadata to be stored with the lead event.',
+      description: 'Additional metadata to be stored with the Lead event.',
       type: 'object',
       required: false
     }
@@ -73,16 +73,6 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       body: JSON.stringify(payload)
     })
-  },
-  performBatch: async (request, { payload }) => {
-    return await Promise.all(
-      payload.map(async (event) =>
-        request(`${API_URL}/track/lead`, {
-          method: 'POST',
-          body: JSON.stringify(event)
-        })
-      )
-    )
   }
 }
 
