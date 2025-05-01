@@ -14,7 +14,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Ortto (Actions)',
   slug: 'actions-ortto',
   mode: 'cloud',
-
+  description:
+    'The Ortto (Actions) integration lets you send customer data from Segment to Ortto in real time to power campaigns, trigger journeys, and manage audiences with greater flexibility and control.',
   authentication: {
     scheme: 'custom',
     fields: {
