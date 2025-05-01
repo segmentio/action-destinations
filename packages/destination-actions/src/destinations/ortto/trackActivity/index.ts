@@ -124,8 +124,8 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         phone: {
           label: 'Phone Number',
-          description: "The contact's phone number",
-          placeholder: '+61 159011100',
+          description: 'The contact’s phone number (including the country code is strongly recommended).',
+          placeholder: '+1 555 555 5555',
           type: 'string'
         },
         first_name: {
