@@ -124,7 +124,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         phone: {
           label: 'Phone Number',
-          description: 'The contact’s phone number (including the country code is strongly recommended).',
+          description: "The contact's phone number (including the country code is strongly recommended)",
           placeholder: '+1 555 555 5555',
           type: 'string'
         },
@@ -142,10 +142,34 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        email: { '@path': '$.context.traits.email' },
-        phone: { '@path': '$.context.traits.phone' },
-        first_name: { '@path': '$.context.traits.first_name' },
-        last_name: { '@path': '$.context.traits.last_name' }
+        email: {
+          '@if': {
+            exists: { '@path': '$.traits.email' },
+            then: { '@path': '$.traits.email' },
+            else: { '@path': '$.context.traits.email' }
+          }
+        },
+        phone: {
+          '@if': {
+            exists: { '@path': '$.traits.phone' },
+            then: { '@path': '$.traits.phone' },
+            else: { '@path': '$.context.traits.phone' }
+          }
+        },
+        first_name: {
+          '@if': {
+            exists: { '@path': '$.traits.first_name' },
+            then: { '@path': '$.traits.first_name' },
+            else: { '@path': '$.context.traits.first_name' }
+          }
+        },
+        last_name: {
+          '@if': {
+            exists: { '@path': '$.traits.last_name' },
+            then: { '@path': '$.traits.last_name' },
+            else: { '@path': '$.context.traits.last_name' }
+          }
+        }
       }
     },
     audience_id: {
