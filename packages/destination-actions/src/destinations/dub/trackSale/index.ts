@@ -4,8 +4,8 @@ import type { Payload } from './generated-types'
 import { API_URL } from '../config'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track a sale',
-  description: 'Track a sale for a short link',
+  title: 'Track a Sale',
+  description: 'Track a Sale for a Short Link',
   defaultSubscription: 'type = "track"',
   fields: {
     externalId: {
@@ -20,20 +20,20 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     amount: {
       label: 'Amount',
-      description: 'The amount of the sale.',
+      description: 'The amount of the Sale.',
       type: 'number',
       required: true
     },
     paymentProcessor: {
       label: 'Payment Processor',
-      description: 'The payment processor via which the sale was made.',
+      description: 'The payment processor via which the Sale was made.',
       type: 'string',
       required: true
     },
     eventName: {
       label: 'Event Name',
       description:
-        'The name of the sale event. It can be used to track different types of event for example "Purchase", "Upgrade", "Payment", etc.',
+        'The name of the Sale event. It can be used to track different types of event for example "Purchase", "Upgrade", "Payment", etc.',
       type: 'string',
       required: false,
       default: {
@@ -43,26 +43,26 @@ const action: ActionDefinition<Settings, Payload> = {
     leadEventName: {
       label: 'Lead Event Name',
       description:
-        'The name of the lead event that occurred before the sale (case-sensitive). This is used to associate the sale event with a particular lead event (instead of the latest lead event, which is the default behavior).',
+        'The name of the Lead event that occurred before the Sale (case-sensitive). This is used to associate the Sale event with a particular Lead event (instead of the latest Lead event, which is the default behavior).',
       type: 'string',
       required: false
     },
     invoiceId: {
       label: 'Invoice ID',
       description:
-        'The invoice ID of the sale. Can be used as a idempotency key – only one sale event can be recorded for a given invoice ID.',
+        'The invoice ID of the Sale. Can be used as a idempotency key – only one Sale event can be recorded for a given invoice ID.',
       type: 'string',
       required: false
     },
     currency: {
       label: 'Currency',
-      description: 'The currency of the sale. Accepts ISO 4217 currency codes.',
+      description: 'The currency of the Sale. Accepts ISO 4217 currency codes.',
       type: 'string',
       required: false
     },
     metadata: {
       label: 'Metadata',
-      description: 'Additional metadata to be stored with the sale event.',
+      description: 'Additional metadata to be stored with the Sale event.',
       type: 'object',
       required: false
     }
@@ -72,16 +72,6 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'POST',
       json: payload
     })
-  },
-  performBatch: async (request, { payload }) => {
-    return await Promise.all(
-      payload.map(async (event) =>
-        request(`${API_URL}/track/sale`, {
-          method: 'POST',
-          json: event
-        })
-      )
-    )
   }
 }
 
