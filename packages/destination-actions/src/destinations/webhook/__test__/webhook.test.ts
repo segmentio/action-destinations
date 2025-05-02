@@ -242,6 +242,13 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
         )
       })
     })
+
+    it('should have batch keys default to url, method, headers', () => {
+      const action = testDestination.definition.actions.send
+      expect(action.fields.batch_keys).toBeDefined()
+      expect(action.fields.batch_keys?.default).toBeDefined()
+      expect(action.fields.batch_keys?.default).toEqual(['url', 'method', 'headers'])
+    })
   })
 }
 
