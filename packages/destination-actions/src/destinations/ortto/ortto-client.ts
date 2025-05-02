@@ -119,7 +119,8 @@ export default class OrttoClient {
       })
       return {
         choices: choices,
-        nextPage: data.next_page
+        // nextPage: data.next_page is not supported by Segment. I'll figure out an alternative later, but it's not needed at the moment.
+        nextPage: ''
       }
     } catch (err) {
       return {
