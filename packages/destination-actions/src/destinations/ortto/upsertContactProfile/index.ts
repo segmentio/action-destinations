@@ -2,7 +2,7 @@ import type { ActionDefinition, DynamicFieldResponse, APIError } from '@segment/
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import OrttoClient from '../ortto-client'
-import { commonFields } from '../common-fields'
+import { commonFields, hookInputFields, hookOutputFields } from '../common-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Contact',
@@ -35,27 +35,11 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Connect the action to an Audience in Ortto',
       description: 'When saving this mapping, this action will be linked to an audience in Ortto.',
       inputFields: {
-        name: {
-          type: 'string',
-          label: 'The name of the Audience to create (Optional)',
-          description:
-            'Enter the name of the audience you want to create in Ortto. Audience names are unique for each Segment data source. If a contact profile has an Audience field explicitly set, that value will take precedence.',
-          required: false
-        }
+        name: hookInputFields.audience_name
       },
       outputTypes: {
-        id: {
-          type: 'string',
-          label: 'ID',
-          description: 'The ID of the Ortto audience to which contacts will be synced.',
-          required: false
-        },
-        name: {
-          type: 'string',
-          label: 'Name',
-          description: 'The name of the Ortto audience to which contacts will be synced.',
-          required: false
-        }
+        id: hookOutputFields.audience_id,
+        name: hookOutputFields.audience_name
       },
       performHook: async (request, { settings, hookInputs }) => {
         if (hookInputs.name) {

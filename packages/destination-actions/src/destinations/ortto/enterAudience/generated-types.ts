@@ -43,7 +43,7 @@ export interface Payload {
      */
     email?: string
     /**
-     * The contact's phone number
+     * The contact's phone number (including the country code is strongly recommended)
      */
     phone?: string
     /**

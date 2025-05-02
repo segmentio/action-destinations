@@ -57,7 +57,7 @@ export interface Payload {
      */
     email?: string
     /**
-     * The contact's phone number
+     * The contact's phone number (including the country code is strongly recommended)
      */
     phone?: string
     /**
@@ -78,7 +78,7 @@ export interface Payload {
 
 export interface RetlOnMappingSaveInputs {
   /**
-   * Enter the name of the audience you want to create in Ortto. Audience names are unique for each Segment data source. If each track activity has an Audience field explicitly set, that value will take precedence.
+   * Enter the name of the audience you want to create in Ortto. Audience names are unique for each Segment data source. If a contact profile has an Audience field explicitly set, that value will take precedence.
    */
   name?: string
 }

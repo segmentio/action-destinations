@@ -1,5 +1,37 @@
 import { InputField } from '@segment/actions-core'
 
+export const hookInputFields: Record<string, Omit<InputField, 'dynamic'>> = {
+  audience_name: {
+    type: 'string',
+    label: 'The name of the Audience to create (Optional)',
+    description:
+      'Enter the name of the audience you want to create in Ortto. Audience names are unique for each Segment data source. If a contact profile has an Audience field explicitly set, that value will take precedence.',
+    required: false
+  }
+}
+
+export type HookOutputField = {
+  label: string
+  description: string
+  type: 'string' | 'number' | 'boolean' | 'object'
+  required: boolean
+}
+
+export const hookOutputFields: Record<string, HookOutputField> = {
+  audience_id: {
+    type: 'string',
+    label: 'ID',
+    description: 'The ID of the Ortto audience to which contacts will be synced.',
+    required: false
+  },
+  audience_name: {
+    type: 'string',
+    label: 'Name',
+    description: 'The name of the Ortto audience to which contacts will be synced.',
+    required: false
+  }
+}
+
 export const commonFields: Record<string, InputField> = {
   timestamp: {
     label: 'Timestamp',
