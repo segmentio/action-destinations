@@ -485,6 +485,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       const requestClient = this.createRequestClient(data)
       const performBatchResponse = await this.definition.performBatch(requestClient, data)
 
+      // emits batch key stats for destinations that support batch keys
+      this.emitBatchKeyStats(payloads, bundle.statsContext)
+
       // PerformBatch returned a legacy response
       if (performBatchResponse instanceof Response) {
         // We received a legacy response for the entire batch
@@ -587,6 +590,31 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     return multiStatusResponse
+  }
+
+  /**
+   * Emit statistics for unique batch keys from the provided payloads.
+   *
+   * @param payloads The array of payloads to extract batch keys from.
+   * @param statsContext The context for statistics reporting.
+   * @returns void
+   */
+  emitBatchKeyStats(payloads: Payload[], statsContext?: StatsContext) {
+    const batchKeys = this.definition.fields?.batch_keys?.default
+    if (!batchKeys || !statsContext) {
+      return
+    }
+    const { statsClient, tags } = statsContext
+    const set = new Set()
+    payloads.forEach((payload) => {
+      const batchKeyValues = batchKeys.map((key) => {
+        return payload[key] ?? ''
+      })
+      set.add(batchKeyValues.join(' '))
+    })
+    const destinationSlug = this.destinationName.replace(/\s+/g, '_').toLowerCase()
+    const slug = this.definition.title.replace(/\s+/g, '_').toLowerCase()
+    statsClient?.histogram(`${destinationSlug}.configurable_batch_keys.unique_keys`, set.size, [...tags, slug])
   }
 
   /*
