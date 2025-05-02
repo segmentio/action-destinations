@@ -180,6 +180,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(removeFromAudience.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'
+    },
+    {
+      name: 'Journeys Step Transition Track',
+      partnerAction: 'addToAudience',
+      mapping: defaultValues(addToAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }
