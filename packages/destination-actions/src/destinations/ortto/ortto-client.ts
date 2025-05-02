@@ -29,7 +29,7 @@ export default class OrttoClient {
   }
 
   upsertContacts = async (settings: Settings, payloads: UpsertContactPayload[], hookAudienceID: string) => {
-    const cleaned = []
+    const cleaned: Partial<UpsertContactPayload>[] = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
       if (!event.audience_id) {
@@ -48,7 +48,7 @@ export default class OrttoClient {
   }
 
   sendActivities = async (settings: Settings, payloads: EventPayload[], hookAudienceID: string) => {
-    const filtered = []
+    const filtered: Partial<EventPayload>[] = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
       if (!event.event || event.event.trim() === '') {
@@ -134,7 +134,7 @@ export default class OrttoClient {
   }
 
   addContactsToAudience = async (settings: Settings, payloads: EnterAudiencePayload[]) => {
-    const cleaned = []
+    const cleaned: Partial<EnterAudiencePayload>[] = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
       cleaned.push(cleanObject(event))
@@ -150,7 +150,7 @@ export default class OrttoClient {
   }
 
   removeContactsFromAudience = async (settings: Settings, payloads: LeaveAudiencePayload[]) => {
-    const cleaned = []
+    const cleaned: Partial<LeaveAudiencePayload>[] = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
       if (!event.audience_id) {
