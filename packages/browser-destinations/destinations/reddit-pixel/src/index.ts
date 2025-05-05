@@ -18,6 +18,8 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
   name: 'Reddit Pixel',
   slug: 'actions-reddit-pixel',
   mode: 'device',
+  description:
+    'The Reddit Pixel Browser Destination allows you to install the Reddit Javascript pixel onto your site and pass mapped Segment events and metadata to Reddit.',
 
   presets: [
     {

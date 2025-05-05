@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The unique conversion ID that corresponds to a distinct conversion event.
+   * The unique conversion ID that corresponds to a distinct conversion event. This is used for deduplication. If you are using both Reddit Pixel and CAPI integrations, this field is required in order to dedupe the same events across both sources.
    */
   conversion_id?: string
   /**

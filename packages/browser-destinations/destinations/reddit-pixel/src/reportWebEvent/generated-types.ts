@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * One of Reddit CAPI's standard conversion event types. To send a Custom event to Reddit use the Custom Event Action instead.
+   * One of Reddit Pixel's standard conversion event types. To send a Custom event to Reddit use the Custom Event Action instead.
    */
   tracking_type: string
   /**
-   * The unique conversion ID that corresponds to a distinct conversion event.
+   * The unique conversion ID that corresponds to a distinct conversion event. This is used for deduplication. If you are using both Reddit Pixel and CAPI integrations, this field is required in order to dedupe the same events across both sources.
    */
   conversion_id?: string
   /**

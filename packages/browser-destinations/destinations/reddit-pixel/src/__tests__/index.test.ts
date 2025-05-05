@@ -17,9 +17,7 @@ describe('RedditPixel init', () => {
       mockRdt = {
         page: jest.fn(),
         track: jest.fn(),
-        init: jest.fn(),
-        metadata: jest.fn(),
-        advanced_matching: jest.fn(() => mockRdt)
+        init: jest.fn(() => mockRdt)
       }
       return Promise.resolve(mockRdt)
     })
@@ -162,7 +160,7 @@ describe('RedditPixel init', () => {
     )
   })
 
-  test('Reddit pixel send Purchase event', async () => {
+  test('Reddit pixel send AddToCart event', async () => {
     const subscriptions: Subscription[] = [
       {
         partnerAction: 'reportWebEvent',

@@ -11,7 +11,7 @@ export const custom_event_name: InputField = {
 export const tracking_type: InputField = {
   label: 'Tracking Type',
   description:
-    "One of Reddit CAPI's standard conversion event types. To send a Custom event to Reddit use the Custom Event Action instead.",
+    "One of Reddit Pixel's standard conversion event types. To send a Custom event to Reddit use the Custom Event Action instead.",
   type: 'string',
   required: true,
   choices: [
@@ -28,7 +28,8 @@ export const tracking_type: InputField = {
 
 export const conversion_id: InputField = {
   label: 'Conversion ID',
-  description: 'The unique conversion ID that corresponds to a distinct conversion event.',
+  description:
+    'The unique conversion ID that corresponds to a distinct conversion event. This is used for deduplication. If you are using both Reddit Pixel and CAPI integrations, this field is required in order to dedupe the same events across both sources.',
   type: 'string',
   required: false,
   default: { '@path': '$.messageId' }
