@@ -30,6 +30,9 @@ const action: ActionDefinition<Settings, Payload> = {
       external_id ? [external_id] : undefined,
       phone_number ? [phone_number] : undefined
     )
+    if (!profileIds?.length) {
+      throw new PayloadValidationError('No profiles found for the provided identifiers.')
+    }
     return await removeProfileFromList(request, profileIds, list_id)
   },
   performBatch: async (request, { payload }) => {
