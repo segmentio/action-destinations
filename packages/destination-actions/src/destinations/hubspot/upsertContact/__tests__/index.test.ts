@@ -554,7 +554,8 @@ describe('HubSpot.upsertContactBatch', () => {
       events
     })
 
-    expect(testBatchResponses[0].options).toMatchSnapshot()
+    expect(testBatchResponses[0].options.body).toMatchSnapshot()
+    expect(testBatchResponses[1].options.body).toMatchSnapshot()
     expect(testBatchResponses[0].data).toMatchSnapshot()
     expect(testBatchResponses[1].data).toMatchSnapshot()
   })
@@ -586,7 +587,8 @@ describe('HubSpot.upsertContactBatch', () => {
       events
     })
 
-    expect(testBatchResponses[0].options).toMatchSnapshot()
+    expect(testBatchResponses[0].options.body).toMatchSnapshot()
+    expect(testBatchResponses[1].options.body).toMatchSnapshot()
     expect(testBatchResponses[0].data).toMatchSnapshot()
     expect(testBatchResponses[1].data).toMatchSnapshot()
   })
@@ -623,7 +625,9 @@ describe('HubSpot.upsertContactBatch', () => {
       events
     })
 
-    expect(testBatchResponses[0].options).toMatchSnapshot()
+    expect(testBatchResponses[0].options.body).toMatchSnapshot()
+    expect(testBatchResponses[1].options.body).toMatchSnapshot()
+    expect(testBatchResponses[2].options.body).toMatchSnapshot()
     expect(testBatchResponses[0].data).toMatchSnapshot()
     expect(testBatchResponses[1].data).toMatchSnapshot()
     expect(testBatchResponses[2].data).toMatchSnapshot()
@@ -711,7 +715,10 @@ describe('HubSpot.upsertContactBatch', () => {
       events
     })
 
-    expect(testBatchResponses[0].options).toMatchSnapshot()
+    expect(testBatchResponses[0].options.body).toMatchSnapshot()
+    expect(testBatchResponses[1].options.body).toMatchSnapshot()
+    expect(testBatchResponses[2].options.body).toMatchSnapshot()
+    expect(testBatchResponses[3].options.body).toMatchSnapshot()
     expect(testBatchResponses[0].data).toMatchSnapshot()
     expect(testBatchResponses[1].data).toMatchSnapshot()
     expect(testBatchResponses[2].data).toMatchSnapshot()
@@ -803,7 +810,8 @@ describe('HubSpot.upsertContactBatch', () => {
       events
     })
 
-    expect(testBatchResponses[0].options).toMatchSnapshot()
+    expect(testBatchResponses[0].options.body).toMatchSnapshot()
+    expect(testBatchResponses[1].options.body).toMatchSnapshot()
     expect(testBatchResponses[0].data).toMatchSnapshot()
     expect(testBatchResponses[1].data).toMatchSnapshot()
   })

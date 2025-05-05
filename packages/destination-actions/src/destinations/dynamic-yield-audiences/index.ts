@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { getCreateAudienceURL, hashAndEncodeToInt, getDataCenter, getSectionId } from './helpers'
@@ -80,11 +80,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
 
     async createAudience(request, createAudienceInput) {
-      const {
-        settings,
-        audienceSettings: { audience_name } = {},
-        personas
-      } = createAudienceInput
+      const { settings, audienceSettings: { audience_name } = {}, personas } = createAudienceInput
 
       if (!audience_name) {
         throw new IntegrationError('Missing Audience Name', 'MISSING_REQUIRED_FIELD', 400)
@@ -94,7 +90,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing computation parameters: Id and Key', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const audience_id = hashAndEncodeToInt(personas.computation_id)
+      const audience_id = hashAndEncodeToInt(personas.computation_id, createAudienceInput.features || {})
 
       const json = {
         type: 'audience_subscription_request',
@@ -140,7 +136,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: {
+        ...defaultValues(syncAudience.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination

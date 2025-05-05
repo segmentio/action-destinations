@@ -2,16 +2,28 @@ import { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { GET_CUSTOM_FIELDS_URL } from '../constants'
 import { Payload } from './generated-types'
+import type { FieldType } from '../types'
 
-export async function dynamicCustomFields(request: RequestClient, payload: Payload): Promise<DynamicFieldResponse> {
-  interface ResultItem {
-    id: string
-    name: string
-    field_type: string
+interface ErrorResponse {
+  choices: never[]
+  error: {
+    message: string
+    code: string
   }
-  interface ResponseType {
-    data: {
-      custom_fields: Array<ResultItem>
+}
+
+function createErrorResponse(message?: string, code?: string): ErrorResponse {
+  return {
+    choices: [],
+    error: { message: message ?? 'Unknown error', code: code ?? '404' }
+  }
+}
+
+export async function dynamicCustomFields(request: RequestClient, payload: Payload, fieldType:FieldType): Promise<DynamicFieldResponse> {
+    interface ResultItem {
+        id: string
+        name: string
+        field_type: FieldType
     }
   }
   interface ResultError {
@@ -23,30 +35,31 @@ export async function dynamicCustomFields(request: RequestClient, payload: Paylo
     }
   }
 
-  try {
-    const response: ResponseType = await request(GET_CUSTOM_FIELDS_URL, {
-      method: 'GET',
-      skipResponseCloning: true
-    })
+    try {
+      const response: ResponseType = await request(GET_CUSTOM_FIELDS_URL, {
+        method: 'GET',
+        skipResponseCloning: true
+      })
 
-    const allFields = response.data.custom_fields.map((field) => field.name)
-    const selectedFields = new Set(Object.keys(payload.custom_fields ?? {}))
-    const availableFields = allFields.filter((field) => !selectedFields.has(field))
-
-    return {
-      choices: availableFields.map((fieldName) => ({
-        label: fieldName,
-        value: fieldName
-      }))
-    }
-  } catch (err) {
-    const error = err as ResultError
-    return {
-      choices: [],
-      error: {
-        message: error.response.data.errors.map((e) => e.message).join(';') ?? 'Unknown error: dynamicCustomFields',
-        code: String(error.response.status)
+      const selected = new Set(Object.keys({...payload.custom_text_fields, ...payload.custom_number_fields, ...payload.custom_date_fields }))
+      const remainingFields = response.data.custom_fields.filter(field => field.field_type === fieldType).filter(field => !selected.has(field.name))
+      
+      if(remainingFields.length === 0) {
+        return createErrorResponse(`No custom ${fieldType} fields available`)
       }
+
+      return {
+        choices: remainingFields.map(
+          field => ({ 
+            label: field.name, 
+            value: field.name
+          })
+        )
+      }
+
+    } catch (err) {      
+      const error = err as ResultError
+      return createErrorResponse(error.response.data.errors.map((e) => e.message).join(';')  ?? 'Unknown error: dynamicCustomFields', String(error.response.status))
     }
   }
 }

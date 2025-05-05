@@ -31,6 +31,7 @@ For more detailed instruction, see the following READMEs:
 - [Presets](#presets)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
+- [Parsing MultiStatus Responses](#parsing-multistatus-responses)
 - [Action Hooks](#action-hooks)
 - [HTTP Requests](#http-requests)
 - [Support](#support)
@@ -59,7 +60,7 @@ Structure:
 You'll need to have some tools installed locally to build and test action destinations.
 
 - Yarn 1.x
-- Node 18.12 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
+- Node 18.17 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
 
 If you are a Segment employee you can directly `git clone` the repository locally. Otherwise you'll want to fork this repository for your organization to submit Pull Requests against the main Segment repository. Once you've got a fork, you can `git clone` that locally.
 
@@ -71,7 +72,7 @@ cd action-destinations
 npm login
 yarn login
 
-# Requires node 18.12.1, optionally: nvm use 18.12.1
+# Requires node 18.17.1, optionally: nvm use 18.17.1
 yarn --ignore-optional
 yarn install
 yarn build
@@ -81,6 +82,9 @@ yarn test-partners
 
 # For segment employees, you can run:
 yarn test
+
+# to reset all caches and rebuild again
+yarn clean-build
 ```
 
 ### Actions CLI
@@ -267,7 +271,7 @@ interface InputField {
   dynamic?: boolean
 
   /** Whether or not the field is required */
-  required?: boolean
+  required?: boolean | DependsOnConditions
 
   /**
    * Optional definition for the properties of `type: 'object'` fields
@@ -357,6 +361,126 @@ const destination = {
 ```
 
 In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
+
+## Required Fields
+
+You may configure a field to either be always required, not required, or conditionally required. Validation for required fields is performed both when a user is configuring a mapping in the UI and when an event payload is delivered through a `perform` block.
+
+**An example of each possible value for `required`**
+
+```js
+const destination = {
+  actions: {
+    readmeAction: {
+      fields: {
+        operation: {
+          label: 'An operation for the readme action',
+          required: true // This field is always required and any payloads omitting it will fail
+        },
+        creationName: {
+          label: "The name of the resource to create, required when operation = 'create'",
+          required: {
+            // This field is required only when the 'operation' field has the value 'create'
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'operation',
+                operator: 'is',
+                value: 'create'
+              }
+            ]
+          }
+        },
+        email: {
+          label: 'The customer email',
+          required: false // This field is not required. This is the same as not including the 'required' property at all
+        },
+        userIdentifiers: {
+          phone: {
+            label: 'The customer phone number',
+            required: {
+              // If email is not provided then a phone number is required
+              conditions: [{ fieldKey: 'email', operator: 'is', value: undefined }]
+            }
+          },
+          countryCode: {
+            label: 'The country code for the customer phone number',
+            required: {
+              // If a userIdentifiers.phone is provided then the country code is also required
+              conditions: [
+                {
+                  fieldKey: 'userIdentifiers.phone', // Dot notation may be used to address object fields.
+                  operator: 'is_not',
+                  value: undefined
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+**Examples of valid and invalid payloads for the fields above**
+
+```json
+// This payload is valid since the only required field, 'operation', is defined.
+{
+  "operation": "update",
+  "email": "read@me.com"
+}
+```
+
+```json
+// This payload is invalid since 'creationName' is required because 'operation' is 'create'
+{
+  "operation": "create",
+  "email": "read@me.com"
+}
+// This error will be thrown:
+"message": "The root value is missing the required field 'creationName'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is valid since the two required fields, 'operation' and 'creationName' are defined.
+{
+  "operation": "create",
+  "creationName": "readme",
+  "email": "read@me.com"
+}
+```
+
+```json
+// This payload is invalid since 'phone' is required when 'email' is missing.
+{
+  "operation": "update",
+}
+// This error will be thrown:
+"message": "The root value is missing the required field 'phone'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is invalid since 'countryCode' is required when 'phone' is defined
+{
+  "operation": "update",
+  "userIdentifiers": { "phone": "619-555-5555" }
+}
+// This error will be thrown:
+"message": "The root value is missing the required field 'countryCode'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is valid since all conditionally required fields are included
+{
+  "operation": "update",
+  "userIdentifiers": {
+    "phone": "619-555-5555",
+    "countryCode": "+1"
+  }
+}
+```
 
 ## Dynamic Fields
 
@@ -613,6 +737,12 @@ Keep in mind a few important things about how batching works:
 
 Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
 
+## Parsing MultiStatus Responses
+
+When a batch request to a destination returns a 207 MultiStatus response, the `performBatch` method will typically receive an array of responses, indicating the status of each event in the batch. The Actions Framework provides a `MultiStatusResponse` class to help you parse these responses to report a more granular success or failure status for each event.
+
+A detailed example of how to use the `MultiStatusResponse` class can be found in the [MultiStatus Documentation](./docs/multistatus.md).
+
 ## Action Hooks
 
 Hooks allow builders to perform requests against a destination at certain points in the lifecycle of a mapping. Values can then be persisted from that request to be used later on in the action's `perform` method.
@@ -845,7 +975,7 @@ For any issues, please contact our support team at partner-support@segment.com.
 
 MIT License
 
-Copyright (c) 2024 Segment
+Copyright (c) 2025 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

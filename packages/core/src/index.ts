@@ -1,6 +1,6 @@
 export { Destination, fieldsToJsonSchema } from './destination-kit'
 export { getAuthData } from './destination-kit/parse-settings'
-export { transform } from './mapping-kit'
+export { transform, Features } from './mapping-kit'
 export {
   ArrayPathDirective,
   CaseDirective,
@@ -48,7 +48,7 @@ export { retry } from './retry'
 export { get } from './get'
 export { omit } from './omit'
 export { removeUndefined } from './remove-undefined'
-export { sha256SmartHash, SmartHashing } from './hashing-utils'
+export { sha256SmartHash, SmartHashing, sha1Hash } from './hashing-utils'
 export { time, duration } from './time'
 
 export { realTypeOf, isObject, isArray, isString } from './real-type-of'
@@ -90,7 +90,8 @@ export type {
   DynamicFieldItem,
   InputField,
   GlobalSetting,
-  RequestExtension
+  RequestExtension,
+  SyncModeDefinition
 } from './destination-kit/types'
 
 export type { JSONPrimitive, JSONValue, JSONObject, JSONArray, JSONLike, JSONLikeObject } from './json-object'

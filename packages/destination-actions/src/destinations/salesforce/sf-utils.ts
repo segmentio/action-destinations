@@ -108,9 +108,12 @@ const buildCSVFromHeaderMap = (
   payloads: GenericPayload[],
   headerMap: Map<string, [[CSVData, number]]>,
   n: number,
-  operation: string | undefined
+  operation: string | undefined,
+  csvStats?: { shouldLog: boolean; numberOfColumns: number; numberOfValuesInCSV: number; numberOfNullsInCSV?: number }
 ): string => {
   let rows = ''
+  let totalNoValueFound = 0
+  let totalValuesInCSV = 0
 
   for (let i = 0; i < n; i++) {
     let row = ''
@@ -121,11 +124,13 @@ const buildCSVFromHeaderMap = (
         if (valueTuple != null && valueTuple[0] != null) {
           row += `"${escapeDoubleQuotes(valueTuple[0])}",`
           noValueFound = false
+          totalValuesInCSV++
         }
       }
 
       if (noValueFound) {
         row += `${NO_VALUE},`
+        totalNoValueFound++
       }
     }
 
@@ -146,6 +151,12 @@ const buildCSVFromHeaderMap = (
       rows += `${row}"${uniqueIdValue}"\n`
     }
   }
+
+  if (csvStats?.shouldLog === true) {
+    csvStats.numberOfNullsInCSV = totalNoValueFound
+    csvStats.numberOfValuesInCSV = totalValuesInCSV
+  }
+
   return rows
 }
 
@@ -177,17 +188,28 @@ const getUniqueIdValue = (payload: GenericPayload, operation: string | undefined
 export const buildCSVData = (
   payloads: GenericPayload[],
   uniqueIdName: string,
-  operation: string | undefined
+  operation: string | undefined,
+  csvStats?: { shouldLog: boolean; numberOfColumns: number; numberOfValuesInCSV: number; numberOfNullsInCSV?: number }
 ): string => {
   const headerMap = buildHeaderMap(payloads)
   let csv = buildHeaders(headerMap)
+
+  if (csvStats?.shouldLog === true) {
+    let numberOfColumns = headerMap.size
+
+    if (operation !== 'insert' && operation !== 'create') {
+      numberOfColumns++
+    }
+
+    csvStats.numberOfColumns = numberOfColumns
+  }
 
   if (operation === 'insert') {
     // Remove the trailing comma, since there is no unique ID to append
     csv = csv.substring(0, csv.length - 1)
   }
 
-  csv += `${uniqueIdName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length, operation)
+  csv += `${uniqueIdName}\n` + buildCSVFromHeaderMap(payloads, headerMap, payloads.length, operation, csvStats)
 
   return csv
 }

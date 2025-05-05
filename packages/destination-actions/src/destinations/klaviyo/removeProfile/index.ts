@@ -14,7 +14,7 @@ import { batch_size, country_code, enable_batching } from '../properties'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Profile',
   description: 'Remove profile from list',
-  defaultSubscription: 'event = "Identify"',
+  defaultSubscription: 'type = "Identify"',
   fields: {
     email: {
       label: 'Email',
@@ -64,6 +64,9 @@ const action: ActionDefinition<Settings, Payload> = {
       external_id ? [external_id] : undefined,
       phone_number ? [phone_number] : undefined
     )
+    if (!profileIds?.length) {
+      throw new PayloadValidationError('No profiles found for the provided identifiers.')
+    }
     return await removeProfileFromList(request, profileIds, list_id)
   },
   performBatch: async (request, { payload }) => {

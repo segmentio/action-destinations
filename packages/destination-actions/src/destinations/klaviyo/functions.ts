@@ -177,9 +177,6 @@ export const constructBulkProfileImportPayload = (
 export const sendImportJobRequest = async (request: RequestClient, importJobPayload: { data: ImportJobPayload }) => {
   return await request(`${API_URL}/profile-bulk-import-jobs/`, {
     method: 'POST',
-    headers: {
-      revision: '2023-10-15.pre'
-    },
     json: importJobPayload
   })
 }
@@ -332,19 +329,34 @@ export function formatUnsubscribeRequestBody(
 }
 
 export function formatUnsubscribeProfile(email: string | undefined, phone_number: string | undefined) {
-  const profileToSubscribe: UnsubscribeProfile = {
+  const profileToUnSubscribe: UnsubscribeProfile = {
     type: 'profile',
-    attributes: {}
+    attributes: {
+      subscriptions: {}
+    }
   }
 
   if (email) {
-    profileToSubscribe.attributes.email = email
+    profileToUnSubscribe.attributes.email = email
+    profileToUnSubscribe.attributes.subscriptions.email = {
+      marketing: {
+        consent: 'UNSUBSCRIBED'
+      }
+    }
   }
 
   if (phone_number) {
-    profileToSubscribe.attributes.phone_number = phone_number
+    profileToUnSubscribe.attributes.phone_number = phone_number
+    profileToUnSubscribe.attributes.subscriptions.sms = {
+      marketing: {
+        consent: 'UNSUBSCRIBED'
+      },
+      transactional: {
+        consent: 'UNSUBSCRIBED'
+      }
+    }
   }
-  return profileToSubscribe
+  return profileToUnSubscribe
 }
 
 export async function getList(request: RequestClient, settings: Settings, listId: string) {
@@ -707,10 +719,7 @@ export async function sendBatchedTrackEvent(request: RequestClient, payloads: Tr
   try {
     const response = await request(`${API_URL}/event-bulk-create-jobs/`, {
       method: 'POST',
-      json: payloadToSend,
-      headers: {
-        revision: '2024-10-15'
-      }
+      json: payloadToSend
     })
     updateMultiStatusWithSuccessData(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
   } catch (err) {

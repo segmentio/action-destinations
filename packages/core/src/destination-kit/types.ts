@@ -36,6 +36,8 @@ export interface DynamicFieldContext {
   selectedArrayIndex?: number
   /** The key within a dynamic object for which we are requesting values */
   selectedKey?: string
+  /** The RichInput dropdown search query the user has entered */
+  query?: string
 }
 
 export interface ExecuteInput<
@@ -130,7 +132,7 @@ export interface GlobalSetting
 export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
 
 /** The supported field categories */
-type FieldCategory = 'identifier' | 'data' | 'internal' | 'config' | 'sync'
+type FieldCategory = 'identifier' | 'data' | 'internal' | 'config' | 'sync' | 'hashedPII'
 
 /** supported input methods when picking values */
 type FieldInputMethods = 'literal' | 'variable' | 'function' | 'enrichment' | 'freeform'
@@ -166,8 +168,13 @@ export interface InputFieldJSONSchema {
         /** A human-friendly label for the option */
         label: string
       }>
-  /** Whether or not the field is required */
-  required?: boolean
+  /**
+   * Whether or not the field is required. If set to true the field must always be included.
+   * If a DependsOnConditions object is defined then the field will be required based on the conditions defined.
+   * This validation is done both when an event payload is sent through the perform block and when a user configures
+   * a mapping in the UI.
+   * */
+  required?: boolean | DependsOnConditions
   /**
    * Optional definition for the properties of `type: 'object'` fields
    * (also arrays of objects when using `multiple: true`)
@@ -250,9 +257,15 @@ export interface InputField extends InputFieldJSONSchema {
    */
   disabledInputMethods?: FieldInputMethods[]
 
-  /** Minimum value for a field of type 'number' */
+  /**
+   * Minimum value for a field of type 'number'
+   * When applied to a string field the minimum length of the string
+   * */
   minimum?: number
-  /** Maximum value for a field of type 'number' */
+  /**
+   * Maximum value for a field of type 'number'
+   * When applied to a string field the maximum length of the string
+   */
   maximum?: number
 }
 

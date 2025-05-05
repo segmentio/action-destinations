@@ -1,3 +1,18 @@
+import { Payload } from './syncAudience/generated-types'
+import { ErrorCodes } from '@segment/actions-core'
+
+export type Action = 'add' | 'remove'
+
+export interface IndexedPayload extends Payload {
+  index: number,
+  error?: {
+    errormessage: string, 
+    errortype: keyof typeof ErrorCodes, 
+    status: number
+  },
+  action?: Action
+}
+
 export interface GetListsResp {
   result: Array<GetListByIDResp>
   _metadata: {
@@ -29,6 +44,7 @@ export interface UpsertContactsReq {
       anonymous_id?: string
       first_name?: string
       last_name?: string
+      phone_number?: string
       address_line_1?: string
       address_line_2?: string
       city?: string
@@ -65,3 +81,5 @@ export interface AddRespError {
     }
   }
 }
+
+export type FieldType = 'Text' | 'Number' | 'Date'

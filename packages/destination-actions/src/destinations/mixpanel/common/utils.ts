@@ -1,3 +1,5 @@
+import { JSONLikeObject, ModifiedResponse, MultiStatusResponse } from '@segment/actions-core'
+
 export enum ApiRegions {
   US = 'US 🇺🇸',
   EU = 'EU 🇪🇺',
@@ -102,4 +104,55 @@ export function getBrowserVersion(userAgent: string) {
 export function cheapGuid(maxlen?: number) {
   const guid = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10)
   return maxlen ? guid.substring(0, maxlen) : guid
+}
+
+export type MixpanelTrackApiResponseType = {
+  code: number
+  status: string
+  error?: string
+  num_records_imported?: number
+  failed_records?: {
+    index: number
+    insert_id: string
+    field: string
+    message: string
+  }[]
+}
+
+export function handleMixPanelApiResponse(
+  payloadCount: number,
+  apiResponse: ModifiedResponse<MixpanelTrackApiResponseType>,
+  events: JSONLikeObject[]
+) {
+  const multiStatusResponse = new MultiStatusResponse()
+  if (apiResponse.data.code === 400 || apiResponse.data.code === 200) {
+    for (let i = 0; i < payloadCount; i++) {
+      multiStatusResponse.setSuccessResponseAtIndex(i, {
+        status: 200,
+        body: apiResponse.data.status ?? 'Ok',
+        sent: events[i]
+      })
+    }
+
+    apiResponse.data.failed_records?.map((data) => {
+      multiStatusResponse.setErrorResponseAtIndex(data.index, {
+        status: 400,
+        errormessage: data.message,
+        sent: events[data.index],
+        body: data
+      })
+    })
+  }
+  if (apiResponse.data.code !== 200 && apiResponse.data.code !== 400) {
+    for (let i = 0; i < payloadCount; i++) {
+      multiStatusResponse.setErrorResponseAtIndex(i, {
+        status: apiResponse.data.code,
+        errormessage: apiResponse.data.error ?? 'Unknown error from Mixpanel',
+        sent: events[i],
+        body: apiResponse.data.error
+      })
+    }
+  }
+
+  return multiStatusResponse
 }

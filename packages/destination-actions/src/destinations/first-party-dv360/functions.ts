@@ -1,11 +1,10 @@
-import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
+import { Features, IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
 import { Payload } from './addToAudContactInfo/generated-types'
-import { createHash } from 'crypto'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
+import { processHashing } from '../../lib/hashing-utils'
 
 const DV360API = `https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences`
 const CONSENT_STATUS_GRANTED = 'CONSENT_STATUS_GRANTED' // Define consent status
-const OAUTH_URL = 'https://accounts.google.com/o/oauth2/token'
 
 interface createAudienceRequestParams {
   advertiserId: string
@@ -32,41 +31,6 @@ interface DV360editCustomerMatchResponse {
       status: string
     }
   ]
-}
-
-interface RefreshTokenResponse {
-  access_token: string
-}
-
-type DV360AuthCredentials = { refresh_token: string; access_token: string; client_id: string; client_secret: string }
-
-export const getAuthSettings = (): DV360AuthCredentials => {
-  return {
-    refresh_token: process.env.ACTIONS_FIRST_PARTY_DV360_REFRESH_TOKEN,
-    client_id: process.env.ACTIONS_FIRST_PARTY_DV360_CLIENT_ID,
-    client_secret: process.env.ACTIONS_FIRST_PARTY_DV360_CLIENT_SECRET
-  } as DV360AuthCredentials
-}
-
-// Use the refresh token to get a new access token.
-// Refresh tokens, Client_id and secret are long-lived and belong to the DMP.
-// Given the short expiration time of access tokens, we need to refresh them periodically.
-export const getAuthToken = async (request: RequestClient, settings: DV360AuthCredentials) => {
-  if (!settings.refresh_token) {
-    throw new IntegrationError('Refresh token is missing', 'INVALID_REQUEST_DATA', 400)
-  }
-
-  const { data } = await request<RefreshTokenResponse>(OAUTH_URL, {
-    method: 'POST',
-    body: new URLSearchParams({
-      refresh_token: settings.refresh_token,
-      client_id: settings.client_id,
-      client_secret: settings.client_secret,
-      grant_type: 'refresh_token'
-    })
-  })
-
-  return data.access_token
 }
 
 export const createAudienceRequest = (
@@ -123,10 +87,6 @@ export async function editDeviceMobileIds(
     return
   }
 
-  //Get access token
-  const authSettings = getAuthSettings()
-  const token = await getAuthToken(request, authSettings)
-
   //Format the endpoint
   const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
 
@@ -148,7 +108,6 @@ export async function editDeviceMobileIds(
   const response = await request<DV360editCustomerMatchResponse>(endpoint, {
     method: 'POST',
     headers: {
-      authorization: `Bearer ${token}`,
       'Content-Type': 'application/json; charset=utf-8'
     },
     body: requestPayload
@@ -170,6 +129,7 @@ export async function editContactInfo(
   request: RequestClient,
   payloads: Payload[],
   operation: 'add' | 'remove',
+  features: Features | undefined,
   statsContext?: StatsContext
 ) {
   const payload = payloads[0]
@@ -185,16 +145,12 @@ export async function editContactInfo(
     return
   }
 
-  //Get access token
-  const authSettings = getAuthSettings()
-  const token = await getAuthToken(request, authSettings)
-
   //Format the endpoint
   const endpoint = DV360API + '/' + audienceId + ':editCustomerMatchMembers'
 
   // Prepare the request payload
   const contactInfoList = {
-    contactInfos: [processPayload(payload)],
+    contactInfos: [processPayload(payload, features)],
     consent: {
       adUserData: CONSENT_STATUS_GRANTED,
       adPersonalization: CONSENT_STATUS_GRANTED
@@ -211,7 +167,6 @@ export async function editContactInfo(
   const response = await request<DV360editCustomerMatchResponse>(endpoint, {
     method: 'POST',
     headers: {
-      authorization: `Bearer ${token}`,
       'Content-Type': 'application/json; charset=utf-8'
     },
     body: requestPayload
@@ -221,33 +176,31 @@ export async function editContactInfo(
   return response.data
 }
 
-function normalizeAndHash(data: string) {
+function normalizeAndHash(data: string, features: Features | undefined) {
   // Normalize the data
   const normalizedData = data.toLowerCase().trim() // Example: Convert to lowercase and remove leading/trailing spaces
   // Hash the normalized data using SHA-256
-  const hash = createHash('sha256')
-  hash.update(normalizedData)
-  return hash.digest('hex')
+  return processHashing(normalizedData, 'sha256', 'hex', features, 'first-party-dv360')
 }
 
-function processPayload(payload: Payload) {
+function processPayload(payload: Payload, features: Features | undefined) {
   const result: { [key: string]: string } = {}
 
   // Normalize and hash only if the value is defined
   if (payload.emails) {
-    result.hashedEmails = normalizeAndHash(payload.emails)
+    result.hashedEmails = normalizeAndHash(payload.emails, features)
   }
   if (payload.phoneNumbers) {
-    result.hashedPhoneNumbers = normalizeAndHash(payload.phoneNumbers)
+    result.hashedPhoneNumbers = normalizeAndHash(payload.phoneNumbers, features)
   }
   if (payload.zipCodes) {
     result.zipCodes = payload.zipCodes
   }
   if (payload.firstName) {
-    result.hashedFirstName = normalizeAndHash(payload.firstName)
+    result.hashedFirstName = normalizeAndHash(payload.firstName, features)
   }
   if (payload.lastName) {
-    result.hashedLastName = normalizeAndHash(payload.lastName)
+    result.hashedLastName = normalizeAndHash(payload.lastName, features)
   }
   if (payload.countryCode) {
     result.countryCode = payload.countryCode

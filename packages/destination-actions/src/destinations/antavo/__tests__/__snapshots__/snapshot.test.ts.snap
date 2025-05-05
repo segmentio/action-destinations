@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-antavo destination: event action - all fields 1`] = `
+Object {
+  "account": "YOUfi0^J9NW]3LPm",
+  "action": "YOUfi0^J9NW]3LPm",
+  "api_key": "YOUfi0^J9NW]3LPm",
+  "customer": "YOUfi0^J9NW]3LPm",
+  "data": Object {
+    "testType": "YOUfi0^J9NW]3LPm",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-antavo destination: event action - required fields 1`] = `
+Object {
+  "action": "YOUfi0^J9NW]3LPm",
+  "api_key": "YOUfi0^J9NW]3LPm",
+  "customer": "YOUfi0^J9NW]3LPm",
+}
+`;
+
+exports[`Testing snapshot for actions-antavo destination: profile action - all fields 1`] = `
+Object {
+  "account": "0$ZK&EN",
+  "action": "profile",
+  "api_key": "0$ZK&EN",
+  "customer": "0$ZK&EN",
+  "data": Object {
+    "birth_date": "0$ZK&EN",
+    "email": "oc@mij.mo",
+    "first_name": "0$ZK&EN",
+    "gender": "0$ZK&EN",
+    "language": "0$ZK&EN",
+    "last_name": "0$ZK&EN",
+    "mobile_phone": "0$ZK&EN",
+    "phone": "0$ZK&EN",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-antavo destination: profile action - required fields 1`] = `
+Object {
+  "action": "profile",
+  "api_key": "0$ZK&EN",
+  "customer": "0$ZK&EN",
+  "data": Object {},
+}
+`;

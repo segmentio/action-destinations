@@ -178,7 +178,7 @@ export interface Payload {
     [k: string]: unknown
   }[]
   /**
-   * The following fields will be set only once per session when using AJS2 as the source.
+   * The following fields will only be set as user properties if they do not already have a value.
    */
   setOnce?: {
     /**
@@ -193,7 +193,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The following fields will be set every session when using AJS2 as the source.
+   * The following fields will be set as user properties for every event.
    */
   setAlways?: {
     referrer?: string
@@ -222,6 +222,10 @@ export interface Payload {
    * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field.
    */
   userAgentParsing?: boolean
+  /**
+   * Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field
+   */
+  includeRawUserAgent?: boolean
   /**
    * Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
    */
