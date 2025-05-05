@@ -77,8 +77,6 @@
     "ws": "^8.5.0"
   },
   "resolutions": {
-    "**/@size-limit/preset-small-lib/**/glob-parent": "^6.0.1",
-    "**/analytics-next/**/dot-prop": "^4.2.1",
     "ansi-regex": "5.0.1"
   },
   "husky": {
@@ -116,5 +114,6 @@
   "dependencies": {
     "chance": "^1.1.8",
     "xml-js": "^1.6.11"
-  }
+  },
+  "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538"
 }
