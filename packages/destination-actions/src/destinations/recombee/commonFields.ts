@@ -11,12 +11,33 @@ export function interactionFields(interactionName: string): Record<string, Input
         '@path': '$.properties.recomm_id'
       }
     },
+    internalAdditionalData: {
+      label: 'Internal Additional Data',
+      description: `Internal additional data to be stored with the ${interactionName}.`,
+      type: 'object',
+      defaultObjectUI: 'keyvalue:only',
+      readOnly: true,
+      unsafe_hidden: true,
+      default: {
+        segmentEventType: {
+          '@path': '$.type'
+        },
+        segmentEventName: {
+          '@if': {
+            exists: { '@path': '$.event' },
+            then: { '@path': '$.event' },
+            else: { '@path': '$.name' }
+          }
+        }
+      }
+    },
     additionalData: {
       label: 'Additional Data',
       description: `Additional data to be stored with the ${interactionName}. *Keep this field empty unless instructed by the Recombee Support team.*`,
       type: 'object',
       required: false,
-      displayMode: 'collapsed'
+      displayMode: 'collapsed',
+      defaultObjectUI: 'keyvalue:only'
     }
   }
 }

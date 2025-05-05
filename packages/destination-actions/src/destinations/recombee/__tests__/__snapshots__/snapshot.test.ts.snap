@@ -15,6 +15,7 @@ Object {
 
 exports[`Testing snapshot for actions-recombee destination: addBookmark action - required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "7(iq3vwM",
   "userId": "7(iq3vwM",
@@ -38,6 +39,7 @@ Object {
 
 exports[`Testing snapshot for actions-recombee destination: addCartAddition action - required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "fSK%!$(3gz2peZ!&@L@D",
   "userId": "fSK%!$(3gz2peZ!&@L@D",
@@ -60,6 +62,7 @@ Object {
 
 exports[`Testing snapshot for actions-recombee destination: addDetailView action - required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "VhiOfa#s6#B[CQDV",
   "userId": "VhiOfa#s6#B[CQDV",
@@ -96,6 +99,7 @@ Object {
     Object {
       "method": "POST",
       "params": Object {
+        "additionalData": Object {},
         "cascadeCreate": true,
         "itemId": "!D2A1H%v%jv&r",
         "userId": "!D2A1H%v%jv&r",
@@ -122,6 +126,7 @@ Object {
 
 exports[`Testing snapshot for actions-recombee destination: addRating action - required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "X9m9Urlsqof(&*PN!s",
   "rating": 63040185947914.24,
@@ -180,6 +185,7 @@ Object {
 
 exports[`Testing snapshot for actions-recombee destination: setViewPortion action - required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "D9^z[P*Zv",
   "portion": -42971588743659.52,
@@ -204,6 +210,7 @@ Object {
 
 exports[`Testing snapshot for actions-recombee destination: setViewPortionFromWatchTime action - required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "gpLV6!FLD#$6^LR77nTN",
   "portion": 1,

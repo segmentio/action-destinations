@@ -95,7 +95,10 @@ function payloadToViewPortion(payload: Payload): SetViewPortion {
     timestamp: payload.timestamp,
     portion: payload.portion.watchTime / payload.portion.totalLength,
     sessionId: payload.sessionId,
-    additionalData: payload.additionalData,
+    additionalData: {
+      ...(payload.internalAdditionalData ?? {}),
+      ...(payload.additionalData ?? {})
+    },
     recommId: payload.recommId
   })
 }
