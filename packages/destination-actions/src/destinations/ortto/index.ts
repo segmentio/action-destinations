@@ -1,6 +1,5 @@
 import { defaultValues, AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import upsertContactProfile from './upsertContactProfile'
 import OrttoClient from './ortto-client'
 
@@ -38,8 +37,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     return {
       headers: {
         Authorization: `Bearer ${settings.api_key}`
-      },
-      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
+      }
     }
   },
   audienceFields: {
