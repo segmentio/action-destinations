@@ -1,30 +1,26 @@
 import { enquoteIdentifier, generateFile, normalize } from '../operations'
 import type { Payload } from '../audienceEnteredSftp/generated-types'
-import { processHashingV2 } from '../../../lib/hashing-utils'
+import { sha256SmartHash, sha1Hash } from '@segment/actions-core/hashing-utils'
 
 describe('Test operations', () => {
   describe('hash', () => {
     it('produces consistent SHA-256 hash for a given input', () => {
       const input = 'test input'
-      expect(processHashingV2(input, 'sha256', 'hex')).toBe(
-        '9dfe6f15d1ab73af898739394fd22fd72a03db01834582f24bb2e1c66c7aaeae'
-      )
+      expect(sha256SmartHash(input)).toBe('9dfe6f15d1ab73af898739394fd22fd72a03db01834582f24bb2e1c66c7aaeae')
     })
   })
 
   describe('hashPhoneNumber', () => {
     it('produces consistent SHA-1 hash for a given phone number', () => {
       const phoneNumber = '123-456-7890'
-      expect(processHashingV2(phoneNumber, 'sha1', 'hex')).toBe('d94cf047843c27e4ebf4495804dfb264a2181d45')
+      expect(sha1Hash(phoneNumber)).toBe('d94cf047843c27e4ebf4495804dfb264a2181d45')
     })
   })
 
   describe('hashEmail', () => {
     it('produces consistent SHA-256 hash for a given email address', () => {
       const email = 'user@example.com'
-      expect(processHashingV2(email, 'sha256', 'hex')).toBe(
-        'b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514'
-      )
+      expect(sha256SmartHash(email)).toBe('b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514')
     })
   })
 
@@ -108,7 +104,7 @@ describe('Test operations', () => {
         }
       ]
       const normalizedName = normalize('name', 'John Doe')
-      const hashedName = processHashingV2(normalizedName, 'sha256', 'hex')
+      const hashedName = sha256SmartHash(normalizedName)
       const result = generateFile(payloads)
       const expected = `audience_key,name,email\n${enquoteIdentifier('1002')},${enquoteIdentifier(
         hashedName
@@ -135,8 +131,8 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const hashedAlice = processHashingV2('Alice', 'sha256', 'hex', (value: string) => normalize('name', value))
-      const hashedBob = processHashingV2('Bob', 'sha256', 'hex', (value: string) => normalize('name', value))
+      const hashedAlice = sha256SmartHash(normalize('name', 'Alice'))
+      const hashedBob = sha256SmartHash(normalize('name', 'Bob'))
       const result = generateFile(payloads)
       const expected = `audience_key,name,email\n${enquoteIdentifier('1003')},${enquoteIdentifier(
         hashedAlice
@@ -157,7 +153,7 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const hashedEve = processHashingV2('Eve', 'sha256', 'hex', (value: string) => normalize('name', value))
+      const hashedEve = sha256SmartHash(normalize('name', 'Eve'))
       const result = generateFile(payloads)
       const expected = `audience_key,name\n${enquoteIdentifier('1005')},${enquoteIdentifier(hashedEve)}`
       expect(result.fileContents.toString()).toBe(expected)
@@ -174,7 +170,7 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const hashedNote = processHashingV2('Hello, "John"\nNew line', 'sha256', 'hex')
+      const hashedNote = sha256SmartHash('Hello, "John"\nNew line')
       const result = generateFile(payloads)
       const expected = `audience_key,note,email\n${enquoteIdentifier('1006')},${enquoteIdentifier(
         hashedNote
@@ -414,9 +410,7 @@ describe('Test operations', () => {
         }
       ]
 
-      const hashedUnhashedEmail = processHashingV2('unhashed@example.com', 'sha256', 'hex', (value: string) =>
-        normalize('email', value)
-      )
+      const hashedUnhashedEmail = sha256SmartHash(normalize('email', 'unhashed@example.com'))
 
       const result = generateFile(payloads)
       const expected = `audience_key,email\n${enquoteIdentifier('1016')},${enquoteIdentifier(hashedUnhashedEmail)}`
@@ -492,9 +486,7 @@ describe('Test operations', () => {
         }
       ]
 
-      const hashedUniqueValue = processHashingV2('424242', 'sha256', 'hex', (value: string) =>
-        normalize('unique_value', value)
-      )
+      const hashedUniqueValue = sha256SmartHash(normalize('unique_value', '424242'))
       const result = generateFile(payloads)
 
       // Expected headers are audience_key, first_name, email, liveramp_test, unique_value
@@ -577,10 +569,8 @@ describe('Test operations', () => {
 
       const result = generateFile(payloads)
 
-      const hashedCountry = processHashingV2('US', 'sha256', 'hex', (value: string) => normalize('country', value))
-      const hashedUniqueValue = processHashingV2('only_in_third', 'sha256', 'hex', (value: string) =>
-        normalize('unique_value', value)
-      )
+      const hashedCountry = sha256SmartHash(normalize('country', 'US'))
+      const hashedUniqueValue = sha256SmartHash(normalize('unique_value', 'only_in_third'))
 
       const expected = [
         `audience_key,first_name,email,liveramp_test,country,unique_value`,
