@@ -8,7 +8,7 @@ import { initPixel, trackCall } from '../utils'
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, RedditPixel, Payload> = {
   title: 'Reddit Pixel - Custom Event',
-  description: 'Reddit Pixel to track Custom Event Names that is not one of the Standard Reddit Pixel Events.',
+  description: 'Send Custom Pixel Events to Reddit.',
   defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
