@@ -7,7 +7,7 @@ import { initPixel, trackCall } from '../utils'
 
 const action: BrowserActionDefinition<Settings, RedditPixel, Payload> = {
   title: 'Reddit Pixel',
-  description: 'Reddit Pixel to track pagevisits, addtocarts, search, etc.',
+  description: 'Send Standard Pixel Events to Reddit. This includes pagevisits, addtocarts, search, etc.',
   defaultSubscription: 'type = "track"',
   platform: 'web',
   fields: {
