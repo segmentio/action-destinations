@@ -52,10 +52,11 @@ export const click_id: InputField = {
 
 export const conversion_id: InputField = {
   label: 'Conversion ID',
-  description: 'The unique conversion ID that corresponds to a distinct conversion event.',
+  description:
+    'The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication.',
   type: 'string',
   required: false,
-  default: { '@path': '$.properties.conversion_id' },
+  default: { '@path': '$.messageId' },
   category: 'hashedPII'
 }
 
@@ -99,7 +100,11 @@ export const event_metadata: InputField = {
       '@path': '$.properties.quantity'
     },
     value_decimal: {
-      '@path': '$.properties.total'
+      '@if': {
+        exists: { '@path': '$.properties.revenue' },
+        then: { '@path': '$.properties.revenue' },
+        else: { '@path': '$.properties.total' }
+      }
     }
   }
 }
