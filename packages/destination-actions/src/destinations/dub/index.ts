@@ -8,7 +8,6 @@ const destination: DestinationDefinition<Settings> = {
   slug: 'actions-dub',
   mode: 'cloud',
   description: 'Track Lead and Sale conversion events on Dub.',
-
   authentication: {
     scheme: 'custom',
     fields: {
@@ -20,7 +19,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
   extendRequest({ settings }) {
     return {
       headers: {
@@ -29,7 +27,6 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
   actions: {
     trackLead,
     trackSale
