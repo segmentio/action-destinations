@@ -105,7 +105,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Metadata',
       description: 'Additional metadata to be stored with the Lead event.',
       type: 'object',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties'
+      }
     }
   },
   perform: (request, { payload }) => {

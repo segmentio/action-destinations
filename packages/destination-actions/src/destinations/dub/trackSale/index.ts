@@ -2,11 +2,12 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { API_URL } from '../config'
+import { DubTrackSalePayload } from '../trackLead/types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track a Sale',
   description: 'Track a Sale for a Short Link',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Order Completed"',
   fields: {
     externalId: {
       label: 'External ID',
@@ -22,7 +23,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Amount',
       description: 'The amount of the Sale.',
       type: 'number',
-      required: true
+      required: true,
+      default: {
+        '@path': '$.properties.revenue'
+      }
     },
     paymentProcessor: {
       label: 'Payment Processor',
@@ -52,25 +56,34 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The invoice ID of the Sale. Can be used as a idempotency key – only one Sale event can be recorded for a given invoice ID.',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.order_id'
+      }
     },
     currency: {
       label: 'Currency',
       description: 'The currency of the Sale. Accepts ISO 4217 currency codes.',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.currency'
+      }
     },
     metadata: {
       label: 'Metadata',
       description: 'Additional metadata to be stored with the Sale event.',
       type: 'object',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.properties.products'
+      }
     }
   },
   perform: (request, { payload }) => {
     return request(`${API_URL}/track/sale`, {
       method: 'POST',
-      json: payload
+      json: payload as DubTrackSalePayload
     })
   }
 }
