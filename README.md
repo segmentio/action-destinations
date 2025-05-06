@@ -963,6 +963,7 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 ## Automatic Hashing Detection with `processHashing`
 
 Our popular segment Adtect destinations support [automatic hash detection](https://segment.com/docs/connections/destinations/#hashing) of personally identifyable information (PII). If your destination hashes PII data, we recommend you use the `processHashing` utility instead of `createHash` from `crypto` module.
+This utility automatically detects if a value is already hashed. It will only apply a hash if the value appears to be unhashed.
 
 The `processHashing` utility supports `md5`, `sha1`,`sha224`,`sha256`,`sha384` and`sha512` hashing algorithms. It can output digests in `hex` or `base64` format.
 
