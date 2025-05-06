@@ -2,11 +2,12 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { API_URL } from '../config'
+import { DubTrackLeadPayload } from './types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track a Lead',
   description: 'Track a Lead for a Short Link.',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" and event = "Sign Up"',
   fields: {
     clickId: {
       label: 'Click ID',
@@ -68,14 +69,37 @@ const action: ActionDefinition<Settings, Payload> = {
       format: 'email',
       required: false,
       default: {
-        '@path': '$.email'
+        '@if': {
+          exists: {
+            '@path': '$.context.traits.email'
+          },
+          then: {
+            '@path': '$.context.traits.email'
+          },
+          else: {
+            '@path': '$.properties.email'
+          }
+        }
       }
     },
     customerAvatar: {
       label: 'Customer Avatar',
       description: 'The avatar of the customer.',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@if': {
+          exists: {
+            '@path': '$.context.traits.avatar'
+          },
+          then: {
+            '@path': '$.context.traits.avatar'
+          },
+          else: {
+            '@path': '$.properties.avatar'
+          }
+        }
+      }
     },
     metadata: {
       label: 'Metadata',
@@ -87,7 +111,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload }) => {
     return request(`${API_URL}/track/lead`, {
       method: 'POST',
-      body: JSON.stringify(payload)
+      json: payload as DubTrackLeadPayload
     })
   }
 }
