@@ -223,22 +223,5 @@ export const commonFields: Record<string, InputField> = {
         }
       }
     }
-  },
-  // The Audience ID used by Segment Engage
-  audience_id: {
-    label: 'Audience Id',
-    description: `Ortto audience ID`,
-    type: 'string',
-    default: {
-      '@if': {
-        exists: {
-          '@path': '$.context.personas.audience_settings.audience_id'
-        },
-        then: { '@path': '$.context.personas.audience_settings.audience_id' },
-        else: { '@path': '$.context.personas.external_audience_id' }
-      }
-    },
-    unsafe_hidden: true,
-    required: true
   }
 }

@@ -7,8 +7,6 @@ import {
 } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload as UpsertContactPayload } from './upsertContactProfile/generated-types'
-import { Payload as EnterAudiencePayload } from './enterAudience/generated-types'
-import { Payload as LeaveAudiencePayload } from './leaveAudience/generated-types'
 import { Payload as EventPayload } from './trackActivity/generated-types'
 import { cleanObject } from './utils'
 import { AudienceList, Audience } from './types'
@@ -93,20 +91,6 @@ export default class OrttoClient {
     return data
   }
 
-  getAudience = async (settings: Settings, audienceId: string): Promise<Audience> => {
-    if (!audienceId) {
-      throw new PayloadValidationError(Errors.MissingAudienceId)
-    }
-
-    const url = this.getEndpoint(settings.api_key).concat('/audiences/get')
-    const { data } = await this.request<Audience>(url, {
-      method: 'POST',
-      json: { id: audienceId }
-    })
-
-    return data
-  }
-
   listAudiences = async (settings: Settings): Promise<DynamicFieldResponse> => {
     const url = this.getEndpoint(settings.api_key).concat('/audiences/list')
     try {
@@ -132,41 +116,6 @@ export default class OrttoClient {
         }
       }
     }
-  }
-
-  addContactsToAudience = async (settings: Settings, payloads: EnterAudiencePayload[]) => {
-    const cleaned: Partial<EnterAudiencePayload>[] = []
-    for (let i = 0; i < payloads.length; i++) {
-      const event = payloads[i]
-      cleaned.push(cleanObject(event))
-    }
-    if (cleaned.length == 0) {
-      return
-    }
-    const url = this.getEndpoint(settings.api_key).concat('/audiences/members')
-    return this.request(url, {
-      method: 'PUT',
-      json: cleaned
-    })
-  }
-
-  removeContactsFromAudience = async (settings: Settings, payloads: LeaveAudiencePayload[]) => {
-    const cleaned: Partial<LeaveAudiencePayload>[] = []
-    for (let i = 0; i < payloads.length; i++) {
-      const event = payloads[i]
-      if (!event.audience_id) {
-        throw new PayloadValidationError(Errors.MissingAudienceId)
-      }
-      cleaned.push(cleanObject(event))
-    }
-    if (cleaned.length == 0) {
-      return
-    }
-    const url = this.getEndpoint(settings.api_key).concat('/audiences/members')
-    return this.request(url, {
-      method: 'DELETE',
-      json: cleaned
-    })
   }
 
   // Audiences END
