@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Payload } from './generated-types'
 import { PayloadValidationError } from '@segment/actions-core'
 import { PhoneMessageSender } from '../utils'
