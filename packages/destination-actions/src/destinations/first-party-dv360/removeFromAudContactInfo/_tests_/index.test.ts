@@ -70,8 +70,7 @@ describe('First-Party-dv360.removeToAudContactInfo', () => {
         advertiser_id: '1234567890',
         enable_batching: false,
         batch_size: 1
-      },
-      features: { 'smart-hashing': true }
+      }
     })
 
     expect(responses[0].options.body).toBe(
