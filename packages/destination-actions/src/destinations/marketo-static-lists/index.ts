@@ -106,13 +106,19 @@ const destination: AudienceDestinationDefinition<Settings> = {
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_entered_track'
     },
-
     {
       name: 'Entities Audience Exited',
       partnerAction: 'removeFromList',
       mapping: defaultValues(removeFromList.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'addToList',
+      mapping: { ...defaultValues(addToList.fields) },
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }

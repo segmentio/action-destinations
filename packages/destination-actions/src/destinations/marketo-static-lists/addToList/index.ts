@@ -6,7 +6,7 @@ import { addToList, addToListBatch, createList, getList } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add to List',
-  description: 'Add users from an Engage Audience to a list in Marketo.',
+  description: 'Add users to a list in Marketo.',
   defaultSubscription: 'event = "Audience Entered"',
   fields: {
     external_id: { ...external_id },

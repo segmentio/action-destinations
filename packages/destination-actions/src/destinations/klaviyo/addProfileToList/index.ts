@@ -20,7 +20,7 @@ import {
 } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Add Profile to List (Engage)',
+  title: 'Add Profile to List',
   description: 'Add Profile To List',
   defaultSubscription: 'event = "Audience Entered"',
   fields: {
