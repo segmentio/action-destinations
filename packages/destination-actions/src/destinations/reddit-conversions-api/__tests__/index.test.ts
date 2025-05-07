@@ -59,7 +59,7 @@ describe('Reddit Conversions Api', () => {
             click_id: 'click_id_1',
             event_at: '2024-01-08T13:52:50.212Z',
             event_metadata: {
-              conversion_id: 'ea3d01f99e303d2338cfb4e71f182441eb57c9a3cb129c40bcae9f5d641a7375',
+              conversion_id: '5184171f53a0fd17f59ea50fac8e11d9eb589ed0692920ee4f52a357112e6802',
               currency: 'USD',
               item_count: 10,
               products: [
@@ -224,7 +224,7 @@ describe('Reddit Conversions Api', () => {
             click_id: 'click_id_1',
             event_at: '2024-01-08T13:52:50.212Z',
             event_metadata: {
-              conversion_id: 'ea3d01f99e303d2338cfb4e71f182441eb57c9a3cb129c40bcae9f5d641a7375',
+              conversion_id: '5184171f53a0fd17f59ea50fac8e11d9eb589ed0692920ee4f52a357112e6802',
               currency: 'USD',
               item_count: 10,
               products: [
@@ -303,7 +303,7 @@ describe('Reddit Conversions Api', () => {
             click_id: 'click_id_1',
             event_at: '2024-01-08T13:52:50.212Z',
             event_metadata: {
-              conversion_id: 'ea3d01f99e303d2338cfb4e71f182441eb57c9a3cb129c40bcae9f5d641a7375',
+              conversion_id: '5184171f53a0fd17f59ea50fac8e11d9eb589ed0692920ee4f52a357112e6802',
               currency: 'USD',
               products: [
                 {
