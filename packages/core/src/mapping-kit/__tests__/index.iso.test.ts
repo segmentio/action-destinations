@@ -1218,3 +1218,14 @@ describe('when a root level directive is used', () => {
     })
   })
 })
+
+describe('@liquid', () => {
+  test('simple', () => {
+    const output = transform(
+      { field: { '@liquid': 'Hello, {{ $.properties.world }} !' } },
+      { properties: { world: 'Earth' } }
+    )
+
+    expect(output).toStrictEqual({ field: 'Hello, Earth !' })
+  })
+})
