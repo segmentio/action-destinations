@@ -31,8 +31,8 @@ import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
 import { RefreshTokenResponse } from '.'
-import { processHashing } from '../../lib/hashing-utils'
 import { STATUS_CODE_MAPPING } from './constants'
+import { processHashingV2 } from '../../lib/hashing-utils'
 export const API_VERSION = 'v17'
 export const CANARY_API_VERSION = 'v17'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
@@ -448,12 +448,7 @@ export const formatPhone = (phone: string, countryCode?: string): string => {
   return formattedPhone
 }
 
-const extractUserIdentifiers = (
-  payloads: UserListPayload[],
-  idType: string,
-  syncMode?: string,
-  features?: Features
-) => {
+const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syncMode?: string) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
   // Map user data to Google Ads API format
@@ -468,47 +463,23 @@ const extractUserIdentifiers = (
       const identifiers = []
       if (payload.email) {
         identifiers.push({
-          hashedEmail: processHashing(
-            payload.email,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions',
-            commonEmailValidation
-          )
+          hashedEmail: processHashingV2(payload.email, 'sha256', 'hex', commonEmailValidation)
         })
       }
       if (payload.phone) {
         identifiers.push({
-          hashedPhoneNumber: processHashing(
-            payload.phone,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions',
-            (value) => formatPhone(value, payload.phone_country_code)
+          hashedPhoneNumber: processHashingV2(payload.phone, 'sha256', 'hex', (value) =>
+            formatPhone(value, payload.phone_country_code)
           )
         })
       }
       if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
         const addressInfo: any = {}
         if (payload.first_name) {
-          addressInfo.hashedFirstName = processHashing(
-            payload.first_name,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          )
+          addressInfo.hashedFirstName = processHashingV2(payload.first_name, 'sha256', 'hex')
         }
         if (payload.last_name) {
-          addressInfo.hashedLastName = processHashing(
-            payload.last_name,
-            'sha256',
-            'hex',
-            features ?? {},
-            'actions-google-enhanced-conversions'
-          )
+          addressInfo.hashedLastName = processHashingV2(payload.last_name, 'sha256', 'hex')
         }
         addressInfo.countryCode = payload.country_code ?? ''
         addressInfo.postalCode = payload.postal_code ?? ''
@@ -654,7 +625,7 @@ export const handleUpdate = async (
   }
   const id_type = hookListType ?? audienceSettings.external_id_type
   // Format the user data for Google Ads API
-  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode, features)
+  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode)
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Create an offline user data job
   const offlineUserJobResponse = await createOfflineUserJob(
@@ -811,7 +782,7 @@ const runOfflineUserJob = async (
   }
 }
 
-export const createIdentifierExtractors = (features?: Features) => ({
+export const createIdentifierExtractors = () => ({
   MOBILE_ADVERTISING_ID: (payload: UserListPayload) => {
     return payload.mobile_advertising_id?.trim() ? { mobileId: payload.mobile_advertising_id.trim() } : null
   },
@@ -825,26 +796,14 @@ export const createIdentifierExtractors = (features?: Features) => ({
 
     if (payload.email) {
       identifiers.push({
-        hashedEmail: processHashing(
-          payload.email,
-          'sha256',
-          'hex',
-          features ?? {},
-          'actions-google-enhanced-conversions',
-          commonEmailValidation
-        )
+        hashedEmail: processHashingV2(payload.email, 'sha256', 'hex', commonEmailValidation)
       })
     }
 
     if (payload.phone) {
       identifiers.push({
-        hashedPhoneNumber: processHashing(
-          payload.phone,
-          'sha256',
-          'hex',
-          features ?? {},
-          'actions-google-enhanced-conversions',
-          (value) => formatPhone(value, payload.phone_country_code)
+        hashedPhoneNumber: processHashingV2(payload.phone, 'sha256', 'hex', (value) =>
+          formatPhone(value, payload.phone_country_code)
         )
       })
     }
@@ -852,12 +811,8 @@ export const createIdentifierExtractors = (features?: Features) => ({
     if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
       identifiers.push({
         addressInfo: {
-          hashedFirstName: payload.first_name
-            ? processHashing(payload.first_name, 'sha256', 'hex', features ?? {}, 'actions-google-enhanced-conversions')
-            : undefined,
-          hashedLastName: payload.last_name
-            ? processHashing(payload.last_name, 'sha256', 'hex', features ?? {}, 'actions-google-enhanced-conversions')
-            : undefined,
+          hashedFirstName: payload.first_name ? processHashingV2(payload.first_name, 'sha256', 'hex') : undefined,
+          hashedLastName: payload.last_name ? processHashingV2(payload.last_name, 'sha256', 'hex') : undefined,
           countryCode: payload.country_code || '',
           postalCode: payload.postal_code || ''
         }
@@ -872,15 +827,14 @@ const extractBatchUserIdentifiers = (
   payloads: UserListPayload[],
   idType: string,
   multiStatusResponse: MultiStatusResponse,
-  syncMode?: string,
-  features?: Features
+  syncMode?: string
 ) => {
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
   const validPayloadIndicesBitmap: number[] = []
 
   //Identify the user identifiers based on the idType
-  const extractors = createIdentifierExtractors(features)
+  const extractors = createIdentifierExtractors()
 
   payloads.forEach((payload, index) => {
     let userIdentifiers
@@ -979,8 +933,7 @@ export const processBatchPayload = async (
     payloads,
     id_type,
     multiStatusResponse,
-    syncMode,
-    features
+    syncMode
   )
   // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
