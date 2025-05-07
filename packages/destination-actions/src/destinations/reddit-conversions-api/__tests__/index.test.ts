@@ -132,8 +132,7 @@ describe('Reddit Conversions Api', () => {
         useDefaultMappings: true,
         mapping: {
           custom_event_name: 'Some Custom Event Name'
-        },
-        features: { 'smart-hashing': true }
+        }
       })
 
       expect(responses.length).toBe(1)
@@ -381,8 +380,7 @@ describe('Reddit Conversions Api', () => {
         useDefaultMappings: true,
         mapping: {
           tracking_type: 'Lead'
-        },
-        features: { 'smart-hashing': true }
+        }
       })
 
       expect(responses.length).toBe(1)
@@ -459,8 +457,7 @@ describe('Reddit Conversions Api', () => {
         useDefaultMappings: true,
         mapping: {
           tracking_type: 'Lead'
-        },
-        features: { 'smart-hashing': true }
+        }
       })
 
       expect(responses.length).toBe(1)
