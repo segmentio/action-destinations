@@ -263,7 +263,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       eventSlug: 'warehouse_audience_exited_track'
     },
     {
-      name: 'Journeys Step Transition Track',
+      name: 'Journeys Step Entered',
       partnerAction: 'addToAudContactInfo',
       mapping: defaultValues(addToAudContactInfo.fields),
       type: 'specificEvent',
