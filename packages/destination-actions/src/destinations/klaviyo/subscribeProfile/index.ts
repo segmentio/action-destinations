@@ -67,6 +67,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       label: 'Batch Data to Klaviyo',
       description: 'When enabled, the action will use the Klaviyo batch API.'
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['list_id', 'custom_source']
     }
   },
   dynamicFields: {
@@ -90,7 +99,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: subData
     })
   },
-  performBatch: async (request, { payload, statsContext, features }) => {
+  performBatch: async (request, { payload, statsContext }) => {
     // remove payloads that have niether email or phone_number
     const filteredPayload = payload.filter((profile) => {
       // Validate and convert the phone number using the provided country code
@@ -106,6 +115,15 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return profile.email || profile.phone_number
     })
+
+    if (statsContext) {
+      const { statsClient, tags } = statsContext
+      const set = new Set()
+      filteredPayload.forEach((profile) => {
+        set.add(`${profile.list_id}-${profile.custom_source}`)
+      })
+      statsClient?.histogram('actions-klaviyo.subscribe_profile.unique_list_id', set.size, tags)
+    }
 
     // if there are no payloads with phone or email throw error
     if (filteredPayload.length === 0) {
@@ -132,16 +150,6 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError(
         'Exceeded maximum allowed batches due to unique list_id and custom_source pairings'
       )
-    }
-    const statsClient = statsContext?.statsClient
-    const tags = statsContext?.tags
-
-    if (features && features['klaviyo-list-id']) {
-      const set = new Set()
-      payload.forEach((profile) => {
-        set.add(profile.list_id)
-      })
-      statsClient?.histogram(`klaviyo_list_id`, set.size, tags)
     }
     const requests: Promise<ModifiedResponse<Response>>[] = []
     batches.forEach((key) => {

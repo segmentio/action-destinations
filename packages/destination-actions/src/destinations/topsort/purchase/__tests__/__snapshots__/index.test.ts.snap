@@ -15,3 +15,35 @@ Headers {
   },
 }
 `;
+
+exports[`Topsort.purchase should be successful with default mappings and products object, including brand as vendorId 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer bar",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Topsort.purchase should be successful with default mappings and products object, including custom vendorId 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer bar",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
