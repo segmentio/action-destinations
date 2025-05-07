@@ -49,15 +49,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       if (!audienceName) {
         throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
       }
-
       if (!adAccountId) {
         throw new IntegrationError('Missing ad account ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const createAudienceUrl = `https://graph.facebook.com/${getApiVersion(
-        features,
-        statsContext
-      )}/act_${adAccountId}/customaudiences`
+      const createAudienceUrl = `https://graph.facebook.com/${getApiVersion(features, statsContext)}/act_${adAccountId}/customaudiences`
       const payload = {
         name: audienceName,
         description: audienceDescription || '',
@@ -65,13 +61,25 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         customer_file_source: 'BOTH_USER_AND_PARTNER_PROVIDED'
       }
 
-      const response = await request(createAudienceUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams(payload)
-      })
+      let response
+      try {
+        response = await request(createAudienceUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams(payload)
+        })
+      } catch (err) {
+        let status = err.status || err.code
+
+        if (!status && err.response && err.response.status) {
+          status = err.response.status
+        }
+
+        let message = err.response?.content || err.message
+        throw new IntegrationError(message, 'CREATE_AUDIENCE_FAILED', status || 400)
+      }
 
       const r = await response.json()
       if (!r[EXTERNAL_ID_KEY]) {
@@ -84,9 +92,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async getAudience(request, getAudienceInput) {
       const { features, statsContext } = getAudienceInput
-      const getAudienceUrl = `https://graph.facebook.com/${getApiVersion(features, statsContext)}/${
-        getAudienceInput.externalId
-      }`
+      const getAudienceUrl = `https://graph.facebook.com/${getApiVersion(features, statsContext)}/${getAudienceInput.externalId}`
 
       const response = await request(getAudienceUrl, { method: 'GET' })
 
