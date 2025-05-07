@@ -114,13 +114,13 @@ describe('SendgridAudiences.syncAudience', () => {
     expect(responses[0].status).toBe(200)
   })
 
-  it('should upsert a single Contact with user attributes and custom fields, and add it to a Sendgrid list correctly', async () => { 
-    const event = createTestEvent({ 
-      ...addPayload, 
-      traits: { 
-        ...addPayload.traits, 
-        first_name: 'fname', 
-        last_name: 'lname', 
+  it('should upsert a single Contact with user attributes and custom fields, and add it to a Sendgrid list correctly', async () => {
+    const event = createTestEvent({
+      ...addPayload,
+      traits: {
+        ...addPayload.traits,
+        first_name: 'fname',
+        last_name: 'lname',
         street: '123 Main St',
         address_line_2: "address line 2", 
         city: 'SF', 
@@ -136,7 +136,7 @@ describe('SendgridAudiences.syncAudience', () => {
         custom_date_fields: {
           custom_field_3: '2024-01-01T00:00:00.000Z',
         }
-      } 
+      }
     })
 
     const addExpectedPayloadWithAttributes = {
@@ -154,7 +154,7 @@ describe('SendgridAudiences.syncAudience', () => {
           city: 'SF', 
           state_province_region: 'CA',
           country: 'US',
-          postal_code: "N88EU",
+          postal_code: 'N88EU',
           custom_fields: {
             custom_field_1: 'custom_field_1_value',
             custom_field_2: 2345,

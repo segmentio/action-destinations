@@ -1,4 +1,3 @@
-
 import { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { GET_CUSTOM_FIELDS_URL } from '../constants'
@@ -26,19 +25,15 @@ export async function dynamicCustomFields(request: RequestClient, payload: Paylo
         name: string
         field_type: FieldType
     }
-    interface ResponseType {
-        data: {
-            custom_fields: Array<ResultItem>
-        }
-    }  
-    interface ResultError {
-        response: {
-          data: {
-            errors: Array<{ message: string }>
-          },
-          status: number
-        }
+  }
+  interface ResultError {
+    response: {
+      data: {
+        errors: Array<{ message: string }>
+      }
+      status: number
     }
+  }
 
     try {
       const response: ResponseType = await request(GET_CUSTOM_FIELDS_URL, {
@@ -67,3 +62,4 @@ export async function dynamicCustomFields(request: RequestClient, payload: Paylo
       return createErrorResponse(error.response.data.errors.map((e) => e.message).join(';')  ?? 'Unknown error: dynamicCustomFields', String(error.response.status))
     }
   }
+}
