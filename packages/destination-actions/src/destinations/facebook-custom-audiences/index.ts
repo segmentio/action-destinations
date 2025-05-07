@@ -53,7 +53,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing ad account ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const createAudienceUrl = `https://graph.facebook.com/${getApiVersion(features, statsContext)}/act_${adAccountId}/customaudiences`
+      const createAudienceUrl = `https://graph.facebook.com/${getApiVersion(
+        features,
+        statsContext
+      )}/act_${adAccountId}/customaudiences`
       const payload = {
         name: audienceName,
         description: audienceDescription || '',
@@ -77,7 +80,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           status = err.response.status
         }
 
-        let message = err.response?.content || err.message
+        const message = err.response?.content || err.message
         throw new IntegrationError(message, 'CREATE_AUDIENCE_FAILED', status || 400)
       }
 
@@ -92,7 +95,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async getAudience(request, getAudienceInput) {
       const { features, statsContext } = getAudienceInput
-      const getAudienceUrl = `https://graph.facebook.com/${getApiVersion(features, statsContext)}/${getAudienceInput.externalId}`
+      const getAudienceUrl = `https://graph.facebook.com/${getApiVersion(features, statsContext)}/${
+        getAudienceInput.externalId
+      }`
 
       const response = await request(getAudienceUrl, { method: 'GET' })
 
