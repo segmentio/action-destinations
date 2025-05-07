@@ -31,6 +31,20 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-klaviyo destination: addProfileToList action - batch keys 1`] = `
+Object {
+  "default": Array [
+    "list_id",
+  ],
+  "description": "The keys to use for batching the events.",
+  "label": "Batch Keys",
+  "multiple": true,
+  "required": false,
+  "type": "string",
+  "unsafe_hidden": true,
+}
+`;
+
 exports[`Testing snapshot for actions-klaviyo destination: orderCompleted action - all fields 1`] = `
 Object {
   "data": Object {
@@ -68,7 +82,35 @@ Object {
 
 exports[`Testing snapshot for actions-klaviyo destination: removeProfile action - all fields 1`] = `""`;
 
+exports[`Testing snapshot for actions-klaviyo destination: removeProfile action - batch keys 1`] = `
+Object {
+  "default": Array [
+    "list_id",
+  ],
+  "description": "The keys to use for batching the events.",
+  "label": "Batch Keys",
+  "multiple": true,
+  "required": false,
+  "type": "string",
+  "unsafe_hidden": true,
+}
+`;
+
 exports[`Testing snapshot for actions-klaviyo destination: removeProfileFromList action - all fields 1`] = `""`;
+
+exports[`Testing snapshot for actions-klaviyo destination: removeProfileFromList action - batch keys 1`] = `
+Object {
+  "default": Array [
+    "list_id",
+  ],
+  "description": "The keys to use for batching the events.",
+  "label": "Batch Keys",
+  "multiple": true,
+  "required": false,
+  "type": "string",
+  "unsafe_hidden": true,
+}
+`;
 
 exports[`Testing snapshot for actions-klaviyo destination: subscribeProfile action - all fields 1`] = `
 Object {
@@ -111,6 +153,21 @@ Object {
     },
     "type": "profile-subscription-bulk-create-job",
   },
+}
+`;
+
+exports[`Testing snapshot for actions-klaviyo destination: subscribeProfile action - batch keys 1`] = `
+Object {
+  "default": Array [
+    "list_id",
+    "custom_source",
+  ],
+  "description": "The keys to use for batching the events.",
+  "label": "Batch Keys",
+  "multiple": true,
+  "required": false,
+  "type": "string",
+  "unsafe_hidden": true,
 }
 `;
 
@@ -193,6 +250,20 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-klaviyo destination: unsubscribeProfile action - batch keys 1`] = `
+Object {
+  "default": Array [
+    "list_id",
+  ],
+  "description": "The keys to use for batching the events.",
+  "label": "Batch Keys",
+  "multiple": true,
+  "required": false,
+  "type": "string",
+  "unsafe_hidden": true,
+}
+`;
+
 exports[`Testing snapshot for actions-klaviyo destination: upsertProfile action - all fields 1`] = `
 Object {
   "data": Object {
@@ -221,5 +292,20 @@ Object {
     },
     "type": "profile",
   },
+}
+`;
+
+exports[`Testing snapshot for actions-klaviyo destination: upsertProfile action - batch keys 1`] = `
+Object {
+  "default": Array [
+    "list_id",
+    "override_list_id",
+  ],
+  "description": "The keys to use for batching the events.",
+  "label": "Batch Keys",
+  "multiple": true,
+  "required": false,
+  "type": "string",
+  "unsafe_hidden": true,
 }
 `;
