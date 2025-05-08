@@ -191,6 +191,8 @@ export interface WarehouseDestinationDefinition<Settings = unknown> extends Base
   /** Actions */
   actions: Record<string, ActionDefinition<Settings>>
 
+  settings: Record<string, GlobalSetting>
+
   onDelete?: Deletion<Settings>
 }
 
