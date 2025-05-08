@@ -217,9 +217,9 @@ export const user: InputField = {
     },
     phone_number: {
       '@if': {
-        exists: { '@path': '$.properties.phone' },
-        then: { '@path': '$.properties.phone' },
-        else: { '@path': '$.context.traits.phone' }
+        exists: { '@path': '$.context.traits.phone' },
+        then: { '@path': '$.context.traits.phone' },
+        else: { '@path': '$.properties.phone' }
       }
     }
   }
