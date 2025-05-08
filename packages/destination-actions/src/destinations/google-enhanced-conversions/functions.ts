@@ -32,7 +32,7 @@ import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
 import { RefreshTokenResponse } from '.'
 import { STATUS_CODE_MAPPING } from './constants'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 export const API_VERSION = 'v17'
 export const CANARY_API_VERSION = 'v17'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
@@ -463,12 +463,12 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
       const identifiers = []
       if (payload.email) {
         identifiers.push({
-          hashedEmail: processHashingV2(payload.email, 'sha256', 'hex', commonEmailValidation)
+          hashedEmail: processHashing(payload.email, 'sha256', 'hex', commonEmailValidation)
         })
       }
       if (payload.phone) {
         identifiers.push({
-          hashedPhoneNumber: processHashingV2(payload.phone, 'sha256', 'hex', (value) =>
+          hashedPhoneNumber: processHashing(payload.phone, 'sha256', 'hex', (value) =>
             formatPhone(value, payload.phone_country_code)
           )
         })
@@ -476,10 +476,10 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
       if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
         const addressInfo: any = {}
         if (payload.first_name) {
-          addressInfo.hashedFirstName = processHashingV2(payload.first_name, 'sha256', 'hex')
+          addressInfo.hashedFirstName = processHashing(payload.first_name, 'sha256', 'hex')
         }
         if (payload.last_name) {
-          addressInfo.hashedLastName = processHashingV2(payload.last_name, 'sha256', 'hex')
+          addressInfo.hashedLastName = processHashing(payload.last_name, 'sha256', 'hex')
         }
         addressInfo.countryCode = payload.country_code ?? ''
         addressInfo.postalCode = payload.postal_code ?? ''
@@ -796,13 +796,13 @@ export const createIdentifierExtractors = () => ({
 
     if (payload.email) {
       identifiers.push({
-        hashedEmail: processHashingV2(payload.email, 'sha256', 'hex', commonEmailValidation)
+        hashedEmail: processHashing(payload.email, 'sha256', 'hex', commonEmailValidation)
       })
     }
 
     if (payload.phone) {
       identifiers.push({
-        hashedPhoneNumber: processHashingV2(payload.phone, 'sha256', 'hex', (value) =>
+        hashedPhoneNumber: processHashing(payload.phone, 'sha256', 'hex', (value) =>
           formatPhone(value, payload.phone_country_code)
         )
       })
@@ -811,8 +811,8 @@ export const createIdentifierExtractors = () => ({
     if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
       identifiers.push({
         addressInfo: {
-          hashedFirstName: payload.first_name ? processHashingV2(payload.first_name, 'sha256', 'hex') : undefined,
-          hashedLastName: payload.last_name ? processHashingV2(payload.last_name, 'sha256', 'hex') : undefined,
+          hashedFirstName: payload.first_name ? processHashing(payload.first_name, 'sha256', 'hex') : undefined,
+          hashedLastName: payload.last_name ? processHashing(payload.last_name, 'sha256', 'hex') : undefined,
           countryCode: payload.country_code || '',
           postalCode: payload.postal_code || ''
         }

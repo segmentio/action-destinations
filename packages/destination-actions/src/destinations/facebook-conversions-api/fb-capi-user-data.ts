@@ -2,7 +2,7 @@ import { InputField } from '@segment/actions-core/destination-kit/types'
 import { US_STATE_CODES, COUNTRY_CODES } from './constants'
 import { Payload } from './addToCart/generated-types'
 import isEmpty from 'lodash/isEmpty'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 // Implementation of Facebook user data object
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
@@ -196,10 +196,10 @@ const hash = (value: string | string[] | undefined): string | string[] | undefin
   if (value === undefined || !value.length) return
 
   if (typeof value == 'string') {
-    return processHashingV2(value, 'sha256', 'hex')
+    return processHashing(value, 'sha256', 'hex')
   }
 
-  return value.map((el: string) => processHashingV2(el, 'sha256', 'hex'))
+  return value.map((el: string) => processHashing(el, 'sha256', 'hex'))
 }
 
 /**
