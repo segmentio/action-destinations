@@ -71,6 +71,7 @@ export interface BaseDefinition {
    * The mode of the destination
    * 'cloud' mode is made up of actions that run server-side, but can also have device-mode enrichment actions
    * 'device' mode is made up of actions that run in the browser
+   * 'warehouse' is for segment internal use only
    */
   mode: 'cloud' | 'device' | 'warehouse'
 
