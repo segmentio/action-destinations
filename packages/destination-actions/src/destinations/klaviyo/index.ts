@@ -25,7 +25,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   mode: 'cloud',
 
   authentication: {
-    scheme: 'custom',
+    scheme: 'oauth2',
     fields: {
       api_key: {
         type: 'password',
