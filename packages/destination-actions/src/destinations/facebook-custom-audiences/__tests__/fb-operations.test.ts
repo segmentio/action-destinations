@@ -6,7 +6,7 @@ import { Payload } from '../sync/generated-types'
 import { normalizationFunctions } from '../fbca-properties'
 import { Features } from '@segment/actions-core/mapping-kit'
 import { API_VERSION, BASE_URL, CANARY_API_VERSION } from '../constants'
-import { processHashingV2 } from '../../../lib/hashing-utils'
+import { processHashing } from '../../../lib/hashing-utils'
 
 const requestClient = createRequestClient()
 const settings: Settings = {
@@ -70,14 +70,14 @@ describe('Facebook Custom Audiences', () => {
       expect(generateData(payloads)).toEqual([
         [
           '5', // external_id is not hashed or normalized
-          processHashingV2(payloads[0].email || '', 'sha256', 'hex', normalizationFunctions.get('email')),
-          processHashingV2(payloads[0].phone || '', 'sha256', 'hex', normalizationFunctions.get('phone')),
+          processHashing(payloads[0].email || '', 'sha256', 'hex', normalizationFunctions.get('email')),
+          processHashing(payloads[0].phone || '', 'sha256', 'hex', normalizationFunctions.get('phone')),
           EMPTY, // gender
           EMPTY, // year
           EMPTY, // month
           EMPTY, // day
-          processHashingV2(payloads[0].name?.last || '', 'sha256', 'hex', normalizationFunctions.get('last')),
-          processHashingV2(payloads[0].name?.first || '', 'sha256', 'hex', normalizationFunctions.get('first')),
+          processHashing(payloads[0].name?.last || '', 'sha256', 'hex', normalizationFunctions.get('last')),
+          processHashing(payloads[0].name?.first || '', 'sha256', 'hex', normalizationFunctions.get('first')),
           EMPTY, // first_initial
           EMPTY, // city
           EMPTY, // state
@@ -128,14 +128,14 @@ describe('Facebook Custom Audiences', () => {
       expect(generateData(payloads)).toEqual([
         [
           '5', // external_id
-          processHashingV2(payloads[0].email || '', 'sha256', 'hex', normalizationFunctions.get('email')),
+          processHashing(payloads[0].email || '', 'sha256', 'hex', normalizationFunctions.get('email')),
           '89a0af94167fe6b92b614c681cc5599cd23ff45f7e9cc7929ed5fabe26842468',
           EMPTY, // gender
           EMPTY, // year
           EMPTY, // month
           EMPTY, // day
-          processHashingV2(payloads[0].name?.last || '', 'sha256', 'hex', normalizationFunctions.get('last')),
-          processHashingV2(payloads[0].name?.first || '', 'sha256', 'hex', normalizationFunctions.get('first')),
+          processHashing(payloads[0].name?.last || '', 'sha256', 'hex', normalizationFunctions.get('last')),
+          processHashing(payloads[0].name?.first || '', 'sha256', 'hex', normalizationFunctions.get('first')),
           EMPTY, // first_initial
           EMPTY, // city
           EMPTY, // state
@@ -145,25 +145,25 @@ describe('Facebook Custom Audiences', () => {
         ],
         [
           '6', // external_id
-          processHashingV2(payloads[1].email || '', 'sha256', 'hex', normalizationFunctions.get('email')),
+          processHashing(payloads[1].email || '', 'sha256', 'hex', normalizationFunctions.get('email')),
           EMPTY, // phone
-          processHashingV2(payloads[1].gender || '', 'sha256', 'hex', normalizationFunctions.get('gender')),
-          processHashingV2(payloads[1].birth?.year || '', 'sha256', 'hex', normalizationFunctions.get('year')),
-          processHashingV2(payloads[1].birth?.month || '', 'sha256', 'hex', normalizationFunctions.get('month')),
-          processHashingV2(payloads[1].birth?.day || '', 'sha256', 'hex', normalizationFunctions.get('day')),
-          processHashingV2(payloads[1].name?.last || '', 'sha256', 'hex', normalizationFunctions.get('last')),
-          processHashingV2(payloads[1].name?.first || '', 'sha256', 'hex', normalizationFunctions.get('first')),
-          processHashingV2(
+          processHashing(payloads[1].gender || '', 'sha256', 'hex', normalizationFunctions.get('gender')),
+          processHashing(payloads[1].birth?.year || '', 'sha256', 'hex', normalizationFunctions.get('year')),
+          processHashing(payloads[1].birth?.month || '', 'sha256', 'hex', normalizationFunctions.get('month')),
+          processHashing(payloads[1].birth?.day || '', 'sha256', 'hex', normalizationFunctions.get('day')),
+          processHashing(payloads[1].name?.last || '', 'sha256', 'hex', normalizationFunctions.get('last')),
+          processHashing(payloads[1].name?.first || '', 'sha256', 'hex', normalizationFunctions.get('first')),
+          processHashing(
             payloads[1].name?.firstInitial || '',
             'sha256',
             'hex',
             normalizationFunctions.get('firstInitial')
           ),
-          processHashingV2(payloads[1].city || '', 'sha256', 'hex', normalizationFunctions.get('city')),
-          processHashingV2(payloads[1].state || '', 'sha256', 'hex', normalizationFunctions.get('state')),
-          processHashingV2(payloads[1].zip || '', 'sha256', 'hex', normalizationFunctions.get('zip')),
+          processHashing(payloads[1].city || '', 'sha256', 'hex', normalizationFunctions.get('city')),
+          processHashing(payloads[1].state || '', 'sha256', 'hex', normalizationFunctions.get('state')),
+          processHashing(payloads[1].zip || '', 'sha256', 'hex', normalizationFunctions.get('zip')),
           EMPTY, // mobile_advertiser_id,
-          processHashingV2(payloads[1].country || '', 'sha256', 'hex', normalizationFunctions.get('country'))
+          processHashing(payloads[1].country || '', 'sha256', 'hex', normalizationFunctions.get('country'))
         ]
       ])
     })

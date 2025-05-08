@@ -16,7 +16,7 @@ import {
   ConsentType,
   EncryptionInfo
 } from './types'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 export async function send(
   request: RequestClient,
@@ -154,19 +154,19 @@ export function getJSON(payloads: UploadPayload[] | Adjustayload[], settings: Se
         const identifiers: UserIdentifier[] = []
         if (email) {
           identifiers.push({
-            hashedEmail: processHashingV2(email, 'sha256', 'hex')
+            hashedEmail: processHashing(email, 'sha256', 'hex')
           })
         }
         if (phone) {
           identifiers.push({
-            hashedPhoneNumber: processHashingV2(phone, 'sha256', 'hex')
+            hashedPhoneNumber: processHashing(phone, 'sha256', 'hex')
           })
         }
         if (firstName || lastName || streetAddress || city || state || postalCode || countryCode) {
           const addressInfo: AddressInfo = {
-            hashedFirstName: firstName ? processHashingV2(firstName, 'sha256', 'hex') : undefined,
-            hashedLastName: lastName ? processHashingV2(lastName, 'sha256', 'hex') : undefined,
-            hashedStreetAddress: streetAddress ? processHashingV2(streetAddress, 'sha256', 'hex') : undefined,
+            hashedFirstName: firstName ? processHashing(firstName, 'sha256', 'hex') : undefined,
+            hashedLastName: lastName ? processHashing(lastName, 'sha256', 'hex') : undefined,
+            hashedStreetAddress: streetAddress ? processHashing(streetAddress, 'sha256', 'hex') : undefined,
             city: city ?? undefined,
             state: state ?? undefined,
             postalCode: postalCode ?? undefined,
@@ -190,7 +190,7 @@ export function getJSON(payloads: UploadPayload[] | Adjustayload[], settings: Se
         encryptedUserIdCandidates
           ?.split(',')
           .map((value) => {
-            return processHashingV2(value, 'sha256', 'hex')
+            return processHashing(value, 'sha256', 'hex')
           })
           .filter((str): str is string => str !== undefined) ?? []
     } as Conversion

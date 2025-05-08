@@ -2,7 +2,7 @@ import { createHmac } from 'crypto'
 import { Payload } from './updateSegment/generated-types'
 import { YahooPayload } from './types'
 import { gen_random_id } from './utils-tax'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 /**
  * Creates a SHA256 hash from the input
@@ -11,7 +11,7 @@ import { processHashingV2 } from '../../lib/hashing-utils'
  */
 export function create_hash(input: string | undefined): string | undefined {
   if (input === undefined) return
-  return processHashingV2(input, 'sha256', 'hex', (value: string) => value.toLowerCase())
+  return processHashing(input, 'sha256', 'hex', (value: string) => value.toLowerCase())
 }
 
 /**
