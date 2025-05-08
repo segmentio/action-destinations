@@ -89,6 +89,15 @@ export const batch_size: InputField = {
   required: true
 }
 
+export const batch_bytes: InputField = {
+  type: 'number',
+  label: 'Batch Bytes',
+  description: 'The number of bytes to write to the Marketo in a single batch. Limit is 2MB.',
+  default: 10000000, // 10MB,
+  required: false,
+  unsafe_hidden: true
+}
+
 export const event_name: InputField = {
   label: 'Event Name',
   description: 'The name of the current Segment event.',
