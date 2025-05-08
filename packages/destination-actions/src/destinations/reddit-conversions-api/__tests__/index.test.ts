@@ -30,7 +30,8 @@ describe('Reddit Conversions Api', () => {
             { product_id: 'product_id_1', category: 'category_1', name: 'name_1' },
             { product_id: 'product_id_2', category: 'category_2', name: 'name_2' }
           ],
-          email: 'test@test.com'
+          email: 'test@test.com',
+          phone: '1-650-555   - 1212 x450'
         },
         context: {
           userAgent: 'test-user-agent',
@@ -85,7 +86,8 @@ describe('Reddit Conversions Api', () => {
               external_id: '3482ae91c8ec52c06e19d618d400b3985814bf705e00947a302ec849a6575c4c',
               ip_address: '5feaf188de296cd3b17f7c66fd3a2aec9b694815f2b1180631f7b52f57029777',
               user_agent: 'test-user-agent',
-              uuid: 'uuid_1'
+              uuid: 'uuid_1',
+              phone_number: '1-650-555   - 1212 x450'
             }
           }
         ],
@@ -111,7 +113,8 @@ describe('Reddit Conversions Api', () => {
             { product_id: 'product_id_1', category: 'category_1', name: 'name_1' },
             { product_id: 'product_id_2', category: 'category_2', name: 'name_2' }
           ],
-          email: '388c735eec8225c4ad7a507944dd0a975296baea383198aa87177f29af2c6f69'
+          email: '388c735eec8225c4ad7a507944dd0a975296baea383198aa87177f29af2c6f69',
+          phone: 'e323ec626319ca94ee8bff2e4c87cf613be6ea19919ed1364124e16807ab3176'
         },
         context: {
           userAgent: 'test-user-agent',
@@ -166,7 +169,8 @@ describe('Reddit Conversions Api', () => {
               external_id: '3482ae91c8ec52c06e19d618d400b3985814bf705e00947a302ec849a6575c4c',
               ip_address: '5feaf188de296cd3b17f7c66fd3a2aec9b694815f2b1180631f7b52f57029777',
               user_agent: 'test-user-agent',
-              uuid: 'uuid_1'
+              uuid: 'uuid_1',
+              phone_number: 'e323ec626319ca94ee8bff2e4c87cf613be6ea19919ed1364124e16807ab3176'
             }
           }
         ],
@@ -195,7 +199,8 @@ describe('Reddit Conversions Api', () => {
             { product_id: 'product_id_1', category: 'category_1', name: 'name_1' },
             { product_id: 'product_id_2', category: 'category_2', name: 'name_2' }
           ],
-          email: 'test@test.com'
+          email: 'test@test.com',
+          phone: '1-650-555   - 1212 x450'
         },
         context: {
           userAgent: 'test-user-agent',
@@ -249,7 +254,8 @@ describe('Reddit Conversions Api', () => {
               external_id: '3482ae91c8ec52c06e19d618d400b3985814bf705e00947a302ec849a6575c4c',
               ip_address: '5feaf188de296cd3b17f7c66fd3a2aec9b694815f2b1180631f7b52f57029777',
               user_agent: 'test-user-agent',
-              uuid: 'uuid_1'
+              uuid: 'uuid_1',
+              phone_number: '1-650-555   - 1212 x450'
             }
           }
         ],
@@ -281,6 +287,9 @@ describe('Reddit Conversions Api', () => {
           ip: '111.111.111.111',
           device: {
             advertisingId: 'advertising_id_1'
+          },
+          traits: {
+            phone: '+1 (650)555-1212'
           }
         }
       })
@@ -327,7 +336,8 @@ describe('Reddit Conversions Api', () => {
               external_id: '3482ae91c8ec52c06e19d618d400b3985814bf705e00947a302ec849a6575c4c',
               ip_address: '5feaf188de296cd3b17f7c66fd3a2aec9b694815f2b1180631f7b52f57029777',
               user_agent: 'test-user-agent',
-              uuid: 'uuid_1'
+              uuid: 'uuid_1',
+              phone_number: '+1 (650)555-1212'
             }
           }
         ],
