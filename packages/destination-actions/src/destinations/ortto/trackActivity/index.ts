@@ -1,8 +1,8 @@
-import type { ActionDefinition, DynamicFieldResponse, APIError } from '@segment/actions-core'
+import type { ActionDefinition, APIError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import OrttoClient from '../ortto-client'
-import { commonFields, hookOutputFields, hookInputFields } from '../common-fields'
+import { commonFields } from '../common-fields'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Activity',
   description: 'Track user activity',
@@ -52,59 +52,58 @@ const action: ActionDefinition<Settings, Payload> = {
         'When provided, it contains key-value pairs representing custom properties assigned to the associated contact profile',
       displayMode: 'collapsed'
     },
-    audience_id: {
-      label: 'Audience',
-      description: `The Audience to add the associated contact profile to.`,
-      type: 'string',
-      dynamic: true
-    }
-  },
-  dynamicFields: {
-    audience_id: async (request, { settings }): Promise<DynamicFieldResponse> => {
-      const client: OrttoClient = new OrttoClient(request)
-      return await client.listAudiences(settings)
-    }
+    audience_update_mode: commonFields.audience_update_mode,
+    audience: commonFields.audience, // Hidden
+    batch_size: commonFields.batch_size // Hidden
   },
   hooks: {
     retlOnMappingSave: {
-      label: 'Connect the action to an Audience in Ortto',
-      description: 'When saving this mapping, this action will be linked to an audience in Ortto.',
+      label: 'Choose an existing audience or create a new one in Ortto',
+      description:
+        'When you save this mapping, Segment will either create a new audience in Ortto or link to an existing one. Since audience names are unique per Segment data source, Ortto will return the existing audience if one with the specified name already exists.',
       inputFields: {
-        name: hookInputFields.audience_name
+        audience_name: {
+          type: 'string',
+          label: 'The name of the Audience to create/link',
+          description: 'Enter the name of the audience in Ortto. Audience names are unique per Segment data source'
+        }
       },
       outputTypes: {
-        id: {
-          ...hookOutputFields.audience_id,
-          description: 'The ID of the Ortto audience to which the associated contacts will be synced.'
+        audience_id: {
+          type: 'string',
+          label: 'ID',
+          description: 'The ID of the Ortto audience to which contacts will be synced.',
+          required: false
         },
-        name: {
-          ...hookOutputFields.audience_name,
-          description: 'The name of the Ortto audience to which the associated contacts will be synced.',
+        audience_name: {
+          type: 'string',
+          label: 'Name',
+          description: 'The name of the Ortto audience to which contacts will be synced.',
           required: false
         }
       },
       performHook: async (request, { settings, hookInputs }) => {
-        if (hookInputs.name) {
-          try {
-            const client: OrttoClient = new OrttoClient(request)
-            const audience = await client.createAudience(settings, hookInputs.name as string)
-            return {
-              successMessage: `Audience '${audience.name}' (id: ${audience.id}) has been created successfully.`,
-              savedData: {
-                id: audience.id,
-                name: audience.name
-              }
+        if (!hookInputs.audience_name) {
+          return {}
+        }
+        try {
+          const client: OrttoClient = new OrttoClient(request)
+          const audience = await client.createAudience(settings, hookInputs.audience_name as string)
+          return {
+            successMessage: `Connected to Audience '${audience.name}' (id: ${audience.id}) successfully.`,
+            savedData: {
+              audience_id: audience.id,
+              audience_name: audience.name
             }
-          } catch (err) {
-            return {
-              error: {
-                message: (err as APIError).message ?? 'Unknown Error',
-                code: (err as APIError).status?.toString() ?? 'Unknown Error'
-              }
+          }
+        } catch (err) {
+          return {
+            error: {
+              message: (err as APIError).message ?? 'Unknown Error',
+              code: (err as APIError).status?.toString() ?? 'Unknown Error'
             }
           }
         }
-        return {}
       }
     }
   },
@@ -113,12 +112,16 @@ const action: ActionDefinition<Settings, Payload> = {
     return await client.sendActivities(
       settings,
       [payload],
-      (hookOutputs?.retlOnMappingSave?.outputs?.id as string) ?? ''
+      (hookOutputs?.retlOnMappingSave?.outputs?.audience_id as string) ?? ''
     )
   },
   performBatch: async (request, { settings, payload, hookOutputs }) => {
     const client: OrttoClient = new OrttoClient(request)
-    return await client.sendActivities(settings, payload, (hookOutputs?.retlOnMappingSave?.outputs?.id as string) ?? '')
+    return await client.sendActivities(
+      settings,
+      payload,
+      (hookOutputs?.retlOnMappingSave?.outputs?.audience_id as string) ?? ''
+    )
   }
 }
 

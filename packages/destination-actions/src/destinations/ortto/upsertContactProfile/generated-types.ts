@@ -56,17 +56,30 @@ export interface Payload {
     last_name?: string
   }
   /**
-   * The Audience to add the contact profile to.
+   * Indicates whether the contact should be added to or removed from the audience.
    */
-  audience_id?: string
+  audience_update_mode?: string
+  /**
+   * Defines how the contact should be synced with an Ortto audience
+   */
+  audience?: {
+    /**
+     * Audience update mode (add/remove)
+     */
+    mode?: string
+    /**
+     * Ortto audience ID
+     */
+    id?: string
+  }
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface RetlOnMappingSaveInputs {
   /**
-   * Enter the name of the audience you want to create in Ortto. Audience names are unique for each Segment data source. If a contact profile has an Audience field explicitly set, that value will take precedence.
+   * Enter the name of the audience in Ortto. Audience names are unique per Segment data source
    */
-  name?: string
+  audience_name?: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
@@ -74,9 +87,9 @@ export interface RetlOnMappingSaveOutputs {
   /**
    * The ID of the Ortto audience to which contacts will be synced.
    */
-  id?: string
+  audience_id?: string
   /**
    * The name of the Ortto audience to which contacts will be synced.
    */
-  name?: string
+  audience_name?: string
 }

@@ -1,15 +1,9 @@
-import {
-  InvalidAuthenticationError,
-  PayloadValidationError,
-  RequestClient,
-  DynamicFieldResponse,
-  APIError
-} from '@segment/actions-core'
+import { InvalidAuthenticationError, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload as UpsertContactPayload } from './upsertContactProfile/generated-types'
 import { Payload as EventPayload } from './trackActivity/generated-types'
 import { cleanObject } from './utils'
-import { AudienceList, Audience } from './types'
+import { Audience } from './types'
 
 export const API_VERSION = 'v1'
 
@@ -30,8 +24,11 @@ export default class OrttoClient {
     const cleaned: Partial<UpsertContactPayload>[] = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
-      if (!event.audience_id) {
-        event.audience_id = hookAudienceID
+      if (hookAudienceID && (event.audience_update_mode === 'add' || event.audience_update_mode === 'remove')) {
+        event.audience = {
+          mode: event.audience_update_mode,
+          id: hookAudienceID
+        }
       }
       cleaned.push(cleanObject(event))
     }
@@ -55,8 +52,11 @@ export default class OrttoClient {
       if (event.namespace === 'ortto.com') {
         continue
       }
-      if (!event.audience_id) {
-        event.audience_id = hookAudienceID
+      if (hookAudienceID && (event.audience_update_mode === 'add' || event.audience_update_mode === 'remove')) {
+        event.audience = {
+          mode: event.audience_update_mode,
+          id: hookAudienceID
+        }
       }
       filtered.push(cleanObject(event))
     }
@@ -91,31 +91,18 @@ export default class OrttoClient {
     return data
   }
 
-  listAudiences = async (settings: Settings): Promise<DynamicFieldResponse> => {
-    const url = this.getEndpoint(settings.api_key).concat('/audiences/list')
-    try {
-      const { data } = await this.request<AudienceList>(url, {
-        method: 'GET',
-        skipResponseCloning: true
-      })
-      const choices = data.audiences.map((audience) => {
-        return { value: audience.id, label: audience.name }
-      })
-      return {
-        choices: choices,
-        // nextPage: data.next_page is not supported by Segment. I'll figure out an alternative later, but it's not needed at the moment.
-        nextPage: ''
-      }
-    } catch (err) {
-      return {
-        choices: [],
-        nextPage: '',
-        error: {
-          message: (err as APIError).message ?? 'Unknown Error',
-          code: (err as APIError).status?.toString() ?? 'Unknown Error'
-        }
-      }
+  getAudience = async (settings: Settings, audienceId: string): Promise<Audience> => {
+    if (!audienceId) {
+      throw new PayloadValidationError(Errors.MissingAudienceId)
     }
+
+    const url = this.getEndpoint(settings.api_key).concat('/audiences/get')
+    const { data } = await this.request<Audience>(url, {
+      method: 'POST',
+      json: { id: audienceId }
+    })
+
+    return data
   }
 
   // Audiences END

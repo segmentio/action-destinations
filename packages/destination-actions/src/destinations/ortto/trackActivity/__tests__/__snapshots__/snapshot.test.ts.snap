@@ -4,7 +4,8 @@ exports[`Testing snapshot for Ortto's trackActivity destination action: all fiel
 Array [
   Object {
     "anonymous_id": "9QX1u",
-    "audience_id": "9QX1u",
+    "audience_id": "",
+    "audience_update_mode": "add",
     "enable_batching": true,
     "event": "9QX1u",
     "ip": "4.211.147.169",
@@ -35,7 +36,7 @@ exports[`Testing snapshot for Ortto's trackActivity destination action: required
 Array [
   Object {
     "anonymous_id": "9QX1u",
-    "audience_id": "9QX1u",
+    "audience_id": "",
     "event": "9QX1u",
     "message_id": "9QX1u",
     "user_id": "9QX1u",
