@@ -1233,4 +1233,59 @@ describe.only('@liquid', () => {
 
     expect(output).toStrictEqual({ field: 'Hello, Earth !' })
   })
+
+  test('simple with multiple mappings', () => {})
+
+  describe('performance limits', () => {
+    test('limit of 5 tags or filters enforced', () => {})
+
+    test('limit of 1000 characters maximum enforced', () => {})
+
+    test('execution time is limited to 1s', () => {})
+  })
+
+  describe.only('disabled liquid tags', () => {
+    const disabledTags = ['case', 'for', 'include', 'layout', 'render', 'tablerow']
+
+    disabledTags.forEach((tag) => {
+      test(`tag: ${tag} is disabled`, () => {
+        expect(() =>
+          transform({ field: { '@liquid': `{% ${tag} %} , {{ properties.test }}` } }, { properties: { test: 'test' } })
+        ).toThrow(new RegExp(`^tag "${tag}" is disabled`))
+      })
+    })
+  })
+
+  describe('disabled liquid filters', () => {
+    const disabledFilters = [
+      'array_to_sentence_string',
+      'concat',
+      'find',
+      'find_exp',
+      'find_index',
+      'find_index_exp',
+      'group_by',
+      'group_by_exp',
+      'has',
+      'has_exp',
+      'map',
+      'newline_to_br',
+      'reject',
+      'reject_exp',
+      'reverse',
+      'sort',
+      'sort_natural',
+      'uniq',
+      'where_exp',
+      'type'
+    ]
+
+    disabledFilters.forEach((filter) => {
+      test(`filter: ${filter} is disabled`, () => {
+        expect(() =>
+          transform({ field: { '@liquid': `{{ properties.test | ${filter} }}` } }, { properties: { test: 'test' } })
+        ).toThrow(new RegExp(`^filter "${filter}" is disabled`))
+      })
+    })
+  })
 })

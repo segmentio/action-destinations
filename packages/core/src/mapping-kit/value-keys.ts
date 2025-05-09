@@ -28,7 +28,8 @@ export function isDirective(value: FieldValue): value is Directive {
         '@flatten',
         '@merge',
         '@transform',
-        '@excludeWhenNull'
+        '@excludeWhenNull',
+        '@liquid'
       ].includes(key)
     )
   )
@@ -216,6 +217,16 @@ export function isExcludeWhenNullDirective(value: FieldValue): value is ExcludeW
   return isDirective(value) && '@excludeWhenNull' in value
 }
 
+export interface LiquidDirective extends DirectiveMetadata {
+  '@liquid': string
+}
+
+export function isLiquidDirective(value: FieldValue): value is LiquidDirective {
+  return (
+    isDirective(value) && '@liquid' in value && typeof value['@liquid'] === 'string' && value['@liquid'] !== undefined
+  )
+}
+
 type DirectiveKeysToType<T> = {
   ['@arrayPath']: (input: ArrayPathDirective) => T
   ['@case']: (input: CaseDirective) => T
@@ -229,6 +240,7 @@ type DirectiveKeysToType<T> = {
   ['@merge']: (input: MergeDirective) => T
   ['@transform']: (input: TransformDirective) => T
   ['@excludeWhenNull']: (input: ExcludeWhenNullDirective) => T
+  ['@liquid']: (input: LiquidDirective) => T
 }
 
 function directiveType<T>(directive: Directive, checker: DirectiveKeysToType<T>): T | null {
@@ -262,6 +274,9 @@ function directiveType<T>(directive: Directive, checker: DirectiveKeysToType<T>)
   if (isExcludeWhenNullDirective(directive)) {
     return checker['@excludeWhenNull'](directive)
   }
+  if (isLiquidDirective(directive)) {
+    return checker['@liquid'](directive)
+  }
   return null
 }
 
@@ -278,6 +293,7 @@ export type Directive =
   | MergeDirective
   | TransformDirective
   | ExcludeWhenNullDirective
+  | LiquidDirective
 
 export type PrimitiveValue = boolean | number | string | null
 export type FieldValue = Directive | PrimitiveValue | { [key: string]: FieldValue } | FieldValue[] | undefined
@@ -309,7 +325,8 @@ export function getFieldValueKeys(value: FieldValue): string[] {
           ...getRawKeys(input['@transform'].apply),
           ...getRawKeys(input['@transform'].mapping)
         ],
-        '@excludeWhenNull': (_: ExcludeWhenNullDirective) => ['']
+        '@excludeWhenNull': (_: ExcludeWhenNullDirective) => [''],
+        '@liquid': (input: LiquidDirective) => [input['@liquid']]
       })?.filter((k) => k) ?? []
     )
   } else if (isObject(value)) {

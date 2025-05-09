@@ -372,7 +372,7 @@ directive('@excludeWhenNull', (v, stack) => {
 })
 
 directive('@liquid', (v, stack) => {
-  validateDirectiveOrString(v, stack)
+  validateString(v, stack)
 })
 
 function indefiniteArticle(s: string): string {

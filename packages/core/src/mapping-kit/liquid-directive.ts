@@ -2,10 +2,57 @@ import { Liquid } from 'liquidjs'
 
 const liquidEngine = new Liquid()
 
+const disabledTags = ['case', 'for', 'include', 'layout', 'render', 'tablerow']
+
+const disabledFilters = [
+  'array_to_sentence_string',
+  'concat',
+  'find',
+  'find_exp',
+  'find_index',
+  'find_index_exp',
+  'group_by',
+  'group_by_exp',
+  'has',
+  'has_exp',
+  'map',
+  'newline_to_br',
+  'reject',
+  'reject_exp',
+  'reverse',
+  'sort',
+  'sort_natural',
+  'uniq',
+  'where_exp',
+  'type'
+]
+
+disabledTags.forEach((tag) => {
+  const disabled = {
+    parse: function () {
+      throw new Error(`tag "${tag}" is disabled`)
+    },
+    render: function () {
+      throw new Error(`tag "${tag}" is disabled`)
+    }
+  }
+
+  liquidEngine.registerTag(tag, disabled)
+})
+
+disabledFilters.forEach((filter) => {
+  const disabledFilter = (name: string) => {
+    return function () {
+      throw new Error(`filter "${name}" is disabled`)
+    }
+  }
+
+  liquidEngine.registerFilter(filter, disabledFilter(filter))
+})
+
 export function evaluateLiquid(liquidValue: any, event: any): string {
   const res = liquidEngine.parseAndRenderSync(liquidValue, event)
 
-  console.log('res', res)
   if (typeof res !== 'string') {
     return 'error'
   }
