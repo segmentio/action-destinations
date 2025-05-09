@@ -7,6 +7,7 @@ import { removeUndefined } from '../remove-undefined'
 import validate from './validate'
 import { arrify } from '../arrify'
 import { flattenObject } from './flatten'
+import { evaluateLiquid } from './liquid-directive'
 
 export type InputData = { [key: string]: unknown }
 export type Features = { [key: string]: boolean }
@@ -323,6 +324,10 @@ registerDirective('@excludeWhenNull', (value, payload) => {
 
   // Go through all fields and remove any that are null
   return cleanNulls(resolved)
+})
+
+registerDirective('@liquid', (opts, payload) => {
+  return evaluateLiquid(opts, payload)
 })
 
 // Recursively remove all null values from an object

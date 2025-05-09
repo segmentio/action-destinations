@@ -1,5 +1,4 @@
 import { transform } from '../index'
-
 describe('validations', () => {
   test('valid', () => {
     expect(() => {
@@ -1215,6 +1214,101 @@ describe('when a root level directive is used', () => {
         nested_b: 2
       },
       topLevel: 'special'
+    })
+  })
+})
+
+describe.only('@liquid', () => {
+  test('connected', () => {
+    const output = transform({ field: { '@liquid': 'test' } }, { properties: { test: 'abc' } })
+
+    expect(output).toStrictEqual({ field: 'test' })
+  })
+  test('simple', () => {
+    const output = transform(
+      { field: { '@liquid': 'Hello, {{ properties.world }} !' } },
+      { properties: { world: 'Earth' } }
+    )
+
+    expect(output).toStrictEqual({ field: 'Hello, Earth !' })
+  })
+
+  test('@liquid template must be a string', () => {
+    expect(() => {
+      transform({ field: { '@liquid': 123 } }, { properties: { test: 'test' } })
+    }).toThrow(new RegExp('should be a string but it is'))
+
+    expect(() => {
+      transform({ field: { '@liquid': {} } }, { properties: { test: 'test' } })
+    }).toThrow(new RegExp('should be a string but it is'))
+
+    expect(() => {
+      transform({ field: { '@liquid': [] } }, { properties: { test: 'test' } })
+    }).toThrow(new RegExp('should be a string but it is'))
+
+    expect(() => {
+      transform({ field: { '@liquid': true } }, { properties: { test: 'test' } })
+    }).toThrow(new RegExp('should be a string but it is'))
+  })
+
+  test('simple with multiple mappings', () => {})
+
+  describe('performance limits', () => {
+    test('limit of 5 tags or filters enforced', () => {})
+
+    test('limit of 1000 characters maximum enforced', () => {
+      const bigString = 'a'.repeat(1001)
+
+      expect(() =>
+        transform({ field: { '@liquid': '{{ properties.test }}' + bigString } }, { properties: { test: 'test' } })
+      ).toThrow(new RegExp('^liquid template values are limited to 1000 characters'))
+    })
+
+    test('execution time is limited to 1s', () => {})
+  })
+
+  describe('disabled liquid tags', () => {
+    const disabledTags = ['case', 'for', 'include', 'layout', 'render', 'tablerow']
+
+    disabledTags.forEach((tag) => {
+      test(`tag: ${tag} is disabled`, () => {
+        expect(() =>
+          transform({ field: { '@liquid': `{% ${tag} %} , {{ properties.test }}` } }, { properties: { test: 'test' } })
+        ).toThrow(new RegExp(`^tag "${tag}" is disabled`))
+      })
+    })
+  })
+
+  describe('disabled liquid filters', () => {
+    const disabledFilters = [
+      'array_to_sentence_string',
+      'concat',
+      'find',
+      'find_exp',
+      'find_index',
+      'find_index_exp',
+      'group_by',
+      'group_by_exp',
+      'has',
+      'has_exp',
+      'map',
+      'newline_to_br',
+      'reject',
+      'reject_exp',
+      'reverse',
+      'sort',
+      'sort_natural',
+      'uniq',
+      'where_exp',
+      'type'
+    ]
+
+    disabledFilters.forEach((filter) => {
+      test(`filter: ${filter} is disabled`, () => {
+        expect(() =>
+          transform({ field: { '@liquid': `{{ properties.test | ${filter} }}` } }, { properties: { test: 'test' } })
+        ).toThrow(new RegExp(`^filter "${filter}" is disabled`))
+      })
     })
   })
 })
