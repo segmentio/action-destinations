@@ -6,3 +6,11 @@ export interface AudienceList {
   audiences: Audience[]
   next_page: string
 }
+
+export interface BatchResponse {
+  errors: {
+    status: number
+    message: string
+    index: number
+  }[]
+}

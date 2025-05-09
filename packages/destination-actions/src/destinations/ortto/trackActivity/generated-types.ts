@@ -74,18 +74,9 @@ export interface Payload {
    */
   audience_update_mode?: string
   /**
-   * Defines how the contact should be synced with an Ortto audience
+   * Maximum number of events to include in each batch.
    */
-  audience?: {
-    /**
-     * Audience update mode (add/remove)
-     */
-    mode?: string
-    /**
-     * Ortto audience ID
-     */
-    id?: string
-  }
+  batch_size?: number
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 

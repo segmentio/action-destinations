@@ -53,7 +53,6 @@ const action: ActionDefinition<Settings, Payload> = {
       displayMode: 'collapsed'
     },
     audience_update_mode: commonFields.audience_update_mode,
-    audience: commonFields.audience, // Hidden
     batch_size: commonFields.batch_size // Hidden
   },
   hooks: {

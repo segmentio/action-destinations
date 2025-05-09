@@ -1,9 +1,16 @@
-import { InvalidAuthenticationError, PayloadValidationError, RequestClient } from '@segment/actions-core'
+import {
+  InvalidAuthenticationError,
+  PayloadValidationError,
+  RequestClient,
+  MultiStatusResponse,
+  JSONLikeObject,
+  ErrorCodes
+} from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Payload as UpsertContactPayload } from './upsertContactProfile/generated-types'
 import { Payload as EventPayload } from './trackActivity/generated-types'
 import { cleanObject } from './utils'
-import { Audience } from './types'
+import { Audience, BatchResponse } from './types'
 
 export const API_VERSION = 'v1'
 
@@ -21,53 +28,116 @@ export default class OrttoClient {
   }
 
   upsertContacts = async (settings: Settings, payloads: UpsertContactPayload[], hookAudienceID: string) => {
-    const cleaned: Partial<UpsertContactPayload>[] = []
+    const response = new MultiStatusResponse()
+    const cleaned: JSONLikeObject[] = []
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
+      const clean = cleanObject(event) as JSONLikeObject
       if (hookAudienceID && (event.audience_update_mode === 'add' || event.audience_update_mode === 'remove')) {
-        event.audience = {
+        clean.audience = {
           mode: event.audience_update_mode,
           id: hookAudienceID
         }
       }
-      cleaned.push(cleanObject(event))
+      cleaned.push(clean)
     }
     if (cleaned.length == 0) {
-      return
+      return response
     }
+
     const url = this.getEndpoint(settings.api_key).concat('/identify')
-    return this.request(url, {
+    const { data } = await this.request<BatchResponse>(url, {
       method: 'POST',
       json: cleaned
     })
+
+    cleaned.forEach((payload, idx) => {
+      response.setSuccessResponseAtIndex(idx, {
+        status: 200,
+        sent: payload,
+        body: 'Processed successfully'
+      })
+    })
+
+    if (data.errors) {
+      data.errors.forEach((err) => {
+        const { status, message, index } = err
+        response.setErrorResponseAtIndex(index, {
+          status,
+          errormessage: message,
+          sent: cleaned[index]
+        })
+      })
+    }
+
+    return response
   }
 
   sendActivities = async (settings: Settings, payloads: EventPayload[], hookAudienceID: string) => {
-    const filtered: Partial<EventPayload>[] = []
+    const filtered: JSONLikeObject[] = []
+    const indexBitmap: number[] = []
+    const response = new MultiStatusResponse()
+
     for (let i = 0; i < payloads.length; i++) {
       const event = payloads[i]
+      const clean = cleanObject(event) as JSONLikeObject
       if (!event.event || event.event.trim() === '') {
-        throw new PayloadValidationError(Errors.MissingEventName)
-      }
-      if (event.namespace === 'ortto.com') {
+        response.setErrorResponseAtIndex(i, {
+          status: 400,
+          sent: clean,
+          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+          errormessage: Errors.MissingEventName
+        })
         continue
       }
+      if (event.namespace === 'ortto.com') {
+        response.setSuccessResponseAtIndex(i, {
+          status: 200,
+          sent: clean,
+          body: `Ignored: Event ${event.event} was originated from ${event.namespace}`
+        })
+        continue
+      }
+
       if (hookAudienceID && (event.audience_update_mode === 'add' || event.audience_update_mode === 'remove')) {
-        event.audience = {
+        clean.audience = {
           mode: event.audience_update_mode,
           id: hookAudienceID
         }
       }
-      filtered.push(cleanObject(event))
+      filtered.push(clean)
+      indexBitmap.push(i)
     }
+
     if (filtered.length == 0) {
-      return
+      return response
     }
     const url = this.getEndpoint(settings.api_key).concat(`/track`)
-    return this.request(url, {
+    const { data } = await this.request<BatchResponse>(url, {
       method: 'POST',
       json: filtered
     })
+
+    filtered.forEach((payload, idx) => {
+      const originalIndex = indexBitmap[idx]
+      response.setSuccessResponseAtIndex(originalIndex, {
+        status: 200,
+        sent: payload,
+        body: 'Processed successfully'
+      })
+    })
+
+    if (data.errors) {
+      data.errors.forEach((err) => {
+        const { status, message, index } = err
+        const originalIndex = indexBitmap[index]
+        response.setErrorResponseAtIndex(originalIndex, {
+          status,
+          errormessage: message,
+          sent: filtered[index]
+        })
+      })
+    }
   }
 
   testAuth = async (settings: Settings) => {

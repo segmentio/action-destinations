@@ -18,7 +18,6 @@ const action: ActionDefinition<Settings, Payload> = {
     location: commonFields.location,
     traits: commonFields.traits,
     audience_update_mode: commonFields.audience_update_mode,
-    audience: commonFields.audience, // Hidden
     batch_size: commonFields.batch_size // Hidden
   },
   hooks: {

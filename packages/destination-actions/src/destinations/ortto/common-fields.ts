@@ -204,26 +204,6 @@ export const commonFields: Record<string, InputField> = {
     default: 'add'
   },
   // Hidden Fields
-  audience: {
-    type: 'object',
-    label: 'Audience',
-    description: 'Defines how the contact should be synced with an Ortto audience',
-    required: false,
-    allowNull: true,
-    unsafe_hidden: true,
-    properties: {
-      mode: {
-        label: 'Update mode',
-        description: 'Audience update mode (add/remove)',
-        type: 'string'
-      },
-      id: {
-        type: 'string',
-        label: 'ID',
-        description: 'Ortto audience ID'
-      }
-    }
-  },
   batch_size: {
     label: 'Batch Size',
     description: 'Maximum number of events to include in each batch.',
