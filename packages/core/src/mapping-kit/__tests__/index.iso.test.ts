@@ -1,5 +1,4 @@
 import { transform } from '../index'
-
 describe('validations', () => {
   test('valid', () => {
     expect(() => {
@@ -1234,17 +1233,41 @@ describe.only('@liquid', () => {
     expect(output).toStrictEqual({ field: 'Hello, Earth !' })
   })
 
+  test('@liquid template must be a string', () => {
+    expect(() => {
+      transform({ field: { '@liquid': 123 } }, { properties: { test: 'test' } })
+    }).toThrow(new RegExp('should be a string but it is'))
+
+    expect(() => {
+      transform({ field: { '@liquid': {} } }, { properties: { test: 'test' } })
+    }).toThrow(new RegExp('should be a string but it is'))
+
+    expect(() => {
+      transform({ field: { '@liquid': [] } }, { properties: { test: 'test' } })
+    }).toThrow(new RegExp('should be a string but it is'))
+
+    expect(() => {
+      transform({ field: { '@liquid': true } }, { properties: { test: 'test' } })
+    }).toThrow(new RegExp('should be a string but it is'))
+  })
+
   test('simple with multiple mappings', () => {})
 
   describe('performance limits', () => {
     test('limit of 5 tags or filters enforced', () => {})
 
-    test('limit of 1000 characters maximum enforced', () => {})
+    test('limit of 1000 characters maximum enforced', () => {
+      const bigString = 'a'.repeat(1001)
+
+      expect(() =>
+        transform({ field: { '@liquid': '{{ properties.test }}' + bigString } }, { properties: { test: 'test' } })
+      ).toThrow(new RegExp('^liquid template values are limited to 1000 characters'))
+    })
 
     test('execution time is limited to 1s', () => {})
   })
 
-  describe.only('disabled liquid tags', () => {
+  describe('disabled liquid tags', () => {
     const disabledTags = ['case', 'for', 'include', 'layout', 'render', 'tablerow']
 
     disabledTags.forEach((tag) => {

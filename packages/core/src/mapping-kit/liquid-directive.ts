@@ -51,6 +51,19 @@ disabledFilters.forEach((filter) => {
 })
 
 export function evaluateLiquid(liquidValue: any, event: any): string {
+  if (typeof liquidValue !== 'string') {
+    // type checking of @liquid directive is done in validate.ts as well
+    throw new Error('liquid template value must be a string')
+  }
+
+  if (liquidValue.length === 0) {
+    return ''
+  }
+
+  if (liquidValue.length > 1000) {
+    throw new Error('liquid template values are limited to 1000 characters')
+  }
+
   const res = liquidEngine.parseAndRenderSync(liquidValue, event)
 
   if (typeof res !== 'string') {
