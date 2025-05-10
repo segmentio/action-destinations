@@ -62,6 +62,10 @@ export interface Payload {
    */
   pageId?: string
   /**
+   * The ID representing the Facebook identifier. This is the identifier that is returned during audience creation.'
+   */
+  external_audience_id?: string
+  /**
    * Enable batching of requests.
    */
   enable_batching: boolean
