@@ -32,7 +32,7 @@ jobs:
       - name: Use Github Personal Access Token
         run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
 
-      - uses: nrwl/nx-set-shas@v3 # nx recipe
+      - uses: nrwl/nx-set-shas@2e421aafa0e05640f0cd84a7a3521c8c3be44d16 # v3.3.2
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
@@ -69,7 +69,7 @@ jobs:
       - name: Use Github Personal Access Token
         run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
 
-      - uses: nrwl/nx-set-shas@v3 # nx recipe
+      - uses: nrwl/nx-set-shas@2e421aafa0e05640f0cd84a7a3521c8c3be44d16 # v3.3.2
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
@@ -108,7 +108,7 @@ jobs:
       - name: Use Github Personal Access Token
         run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
 
-      - uses: nrwl/nx-set-shas@v3 # nx recipe
+      - uses: nrwl/nx-set-shas@2e421aafa0e05640f0cd84a7a3521c8c3be44d16 # v3.3.2
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
@@ -267,7 +267,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@cdb760004ba9ea4d525f2e043745dfe85bb9077e # master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
