@@ -74,7 +74,8 @@ export const getAuthToken = async (request: RequestClient, settings: Settings, a
       headers: {
         // Amazon ads refresh token API throws error with authorization header so explicity overriding Authorization header here.
         authorization: ''
-      }
+      },
+      timeout: 15000
     })
     return data.access_token
   } catch (e: any) {
@@ -101,3 +102,5 @@ export const getAuthSettings = (settings: SettingsWithOauth): OAuth2ClientCreden
     clientSecret: process.env.ACTIONS_AMAZON_AMC_CLIENT_SECRET
   } as OAuth2ClientCredentials
 }
+export const REGEX_EXTERNALUSERID = /^[0-9a-zA-Z-_]{1,128}$/
+export const TTL_MAX_VALUE = 34300800

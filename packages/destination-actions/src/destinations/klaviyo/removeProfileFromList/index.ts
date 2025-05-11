@@ -2,8 +2,8 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
-import { getProfiles, removeProfileFromList } from '../functions'
-import { email, list_id, external_id, enable_batching } from '../properties'
+import { getProfiles, processPhoneNumber, removeBulkProfilesFromList, removeProfileFromList } from '../functions'
+import { email, list_id, external_id, enable_batching, phone_number, country_code, batch_size } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Profile from List (Engage)',
@@ -13,27 +13,39 @@ const action: ActionDefinition<Settings, Payload> = {
     email: { ...email },
     external_id: { ...external_id },
     list_id: { ...list_id },
-    enable_batching: { ...enable_batching }
+    phone_number: { ...phone_number },
+    enable_batching: { ...enable_batching },
+    country_code: { ...country_code },
+    batch_size: { ...batch_size, default: 1000 },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['list_id']
+    }
   },
   perform: async (request, { payload }) => {
-    const { email, list_id, external_id } = payload
-    if (!email && !external_id) {
-      throw new PayloadValidationError('Missing Email or External Id')
+    const { email, list_id, external_id, phone_number: initialPhoneNumber, country_code } = payload
+    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
+    if (!email && !external_id && !phone_number) {
+      throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }
-    const profileIds = await getProfiles(request, email ? [email] : undefined, external_id ? [external_id] : undefined)
+    const profileIds = await getProfiles(
+      request,
+      email ? [email] : undefined,
+      external_id ? [external_id] : undefined,
+      phone_number ? [phone_number] : undefined
+    )
+    if (!profileIds?.length) {
+      throw new PayloadValidationError('No profiles found for the provided identifiers.')
+    }
     return await removeProfileFromList(request, profileIds, list_id)
   },
-  performBatch: async (request, { payload }) => {
-    // Filtering out profiles that do not contain either an email or external_id.
-    const filteredPayload = payload.filter((profile) => profile.email || profile.external_id)
-    const listId = filteredPayload[0]?.list_id
-    const emails = filteredPayload.map((profile) => profile.email).filter((email) => email) as string[]
-    const externalIds = filteredPayload
-      .map((profile) => profile.external_id)
-      .filter((external_id) => external_id) as string[]
-
-    const profileIds = await getProfiles(request, emails, externalIds)
-    return await removeProfileFromList(request, profileIds, listId)
+  performBatch: async (request, { payload, statsContext }) => {
+    return await removeBulkProfilesFromList(request, payload, statsContext)
   }
 }
 

@@ -1,19 +1,22 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import sendTrackEvent from '..'
-import { JimoSDK } from '../../types'
+import { JimoClient } from '../../types'
 import { Payload } from '../generated-types'
 
 describe('Jimo - Send Track Event', () => {
   test('do:segmentio:track is called', async () => {
+    const mockedPush = jest.fn()
     const client = {
-      push: jest.fn()
-    } as any as JimoSDK
+      client() {
+        return { push: mockedPush }
+      }
+    } as any as JimoClient
 
     const context = new Context({
       type: 'track'
     })
 
-    await sendTrackEvent.perform(client as any as JimoSDK, {
+    await sendTrackEvent.perform(client as any as JimoClient, {
       settings: { projectId: 'unk' },
       analytics: jest.fn() as any as Analytics,
       context: context,
@@ -29,8 +32,8 @@ describe('Jimo - Send Track Event', () => {
       } as Payload
     })
 
-    expect(client.push).toHaveBeenCalled()
-    expect(client.push).toHaveBeenCalledWith([
+    expect(client.client().push).toHaveBeenCalled()
+    expect(client.client().push).toHaveBeenCalledWith([
       'do',
       'segmentio:track',
       [

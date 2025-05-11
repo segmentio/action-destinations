@@ -15,6 +15,8 @@ const event = createTestEvent({
   context: {
     traits: {
       email: 'testing@testing.com',
+      upperCaseEmail: 'WHYAREYOUYELLING@EMAIL.com',
+      preHashedEmail: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
       first_name: 'mike',
       last_name: 'smith',
       title: 'software engineer',
@@ -29,6 +31,32 @@ const event = createTestEvent({
   properties: {
     currency: 'USD',
     revenue: 200
+  }
+})
+
+const secondEvent = createTestEvent({
+  messageId: 'another-event-12345',
+  event: 'Example Event',
+  type: 'track',
+  timestamp: currentTimestamp.toString(),
+  context: {
+    traits: {
+      email: 'nick@testing.com',
+      upperCaseEmail: 'some_email@EMAIL.com',
+      first_name: 'sponge',
+      last_name: 'bob',
+      title: 'software engineer',
+      companyName: 'Krusty Krab',
+      countryCode: 'US',
+      value: 1000
+    }
+  },
+  traits: {
+    email: 'nick@testing.com'
+  },
+  properties: {
+    currency: 'USD',
+    revenue: 300
   }
 })
 
@@ -70,7 +98,9 @@ describe('LinkedinConversions.streamConversion', () => {
             outputs: {
               id: payload.conversionId
             }
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).resolves.not.toThrowError()
@@ -128,7 +158,96 @@ describe('LinkedinConversions.streamConversion', () => {
             outputs: {
               id: payload.conversionId
             }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully send a batch request with all fields', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        elements: [
+          {
+            conversion: 'urn:lla:llaPartnerConversion:789123',
+            conversionHappenedAt: currentTimestamp,
+            conversionValue: {
+              currencyCode: 'USD',
+              amount: '100'
+            },
+            user: {
+              userIds: [
+                {
+                  idType: 'SHA256_EMAIL',
+                  idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+                }
+              ],
+              userInfo: {
+                firstName: 'mike',
+                lastName: 'smith',
+                title: 'software engineer',
+                companyName: 'microsoft',
+                countryCode: 'US'
+              }
+            }
+          },
+          {
+            conversion: 'urn:lla:llaPartnerConversion:789123',
+            conversionHappenedAt: currentTimestamp,
+            conversionValue: {
+              currencyCode: 'USD',
+              amount: '1000'
+            },
+            user: {
+              userIds: [
+                {
+                  idType: 'SHA256_EMAIL',
+                  idValue: '9155510f76fbf498f1d9d69198150962106ee10169eae019115efbeb16969921'
+                }
+              ],
+              userInfo: {
+                firstName: 'sponge',
+                lastName: 'bob',
+                title: 'software engineer',
+                companyName: 'Krusty Krab',
+                countryCode: 'US'
+              }
+            }
           }
+        ]
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testBatchAction('streamConversion', {
+        events: [event, secondEvent],
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          conversionValue: {
+            currencyCode: 'USD',
+            amount: { '@path': '$.context.traits.value' }
+          },
+          userInfo: {
+            firstName: { '@path': '$.context.traits.first_name' },
+            lastName: { '@path': '$.context.traits.last_name' },
+            title: { '@path': '$.context.traits.title' },
+            companyName: { '@path': '$.context.traits.companyName' },
+            countryCode: { '@path': '$.context.traits.countryCode' }
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).resolves.not.toThrowError()
@@ -166,7 +285,9 @@ describe('LinkedinConversions.streamConversion', () => {
             outputs: {
               id: payload.conversionId
             }
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).resolves.not.toThrowError()
@@ -181,7 +302,9 @@ describe('LinkedinConversions.streamConversion', () => {
           user: {
             '@path': '$.context.traits.user'
           },
-          conversionHappenedAt: '50000000000'
+          conversionHappenedAt: '50000000000',
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).rejects.toThrowError('Timestamp should be within the past 90 days.')
@@ -195,10 +318,50 @@ describe('LinkedinConversions.streamConversion', () => {
         mapping: {
           conversionHappenedAt: {
             '@path': '$.timestamp'
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).rejects.toThrowError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
+  })
+
+  it('should normalize the user ID email field such that uppercase letters are converted to lowercase', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '691f95429e014a31230a8963ea28daff1da1c2e4d95f9723a4ea36c548ed2e58'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.upperCaseEmail' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
   })
 
   it('should throw an error if the userInfo object is defined without both a first or last name', async () => {
@@ -213,7 +376,9 @@ describe('LinkedinConversions.streamConversion', () => {
           email: { '@path': '$.context.traits.email' },
           conversionHappenedAt: {
             '@path': '$.timestamp'
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).rejects.toThrowError(
@@ -233,7 +398,9 @@ describe('LinkedinConversions.streamConversion', () => {
           email: { '@path': '$.context.traits.email' },
           conversionHappenedAt: {
             '@path': '$.timestamp'
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).rejects.toThrowError("User Info is missing the required field 'firstName'.")
@@ -251,10 +418,50 @@ describe('LinkedinConversions.streamConversion', () => {
           email: { '@path': '$.context.traits.email' },
           conversionHappenedAt: {
             '@path': '$.timestamp'
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).rejects.toThrowError("User Info is missing the required field 'lastName'.")
+  })
+
+  it('should detect hashed email if feature flag for smart hashing is passed', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.preHashedEmail' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
   })
 })
 
@@ -336,7 +543,9 @@ describe('LinkedinConversions.timestamp', () => {
             outputs: {
               id: payload.conversionId
             }
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).resolves.not.toThrowError()
@@ -361,7 +570,9 @@ describe('LinkedinConversions.timestamp', () => {
             outputs: {
               id: payload.conversionId
             }
-          }
+          },
+          enable_batching: true,
+          batch_size: 5000
         }
       })
     ).resolves.not.toThrowError()

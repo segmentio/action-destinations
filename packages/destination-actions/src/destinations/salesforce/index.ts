@@ -1,4 +1,4 @@
-import { DestinationDefinition } from '@segment/actions-core'
+import { APIError, DestinationDefinition, RetryableError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 // This has to be 'cases' because 'case' is a Javascript reserved word
 import cases from './cases'
@@ -9,8 +9,17 @@ import contact from './contact'
 import account from './account'
 import { authenticateWithPassword } from './sf-operations'
 
+import lead2 from './lead2'
+import contact2 from './contact2'
+import cases2 from './cases2'
+import opportunity2 from './opportunity2'
+import account2 from './account2'
+import customObject2 from './customObject2'
+
 interface RefreshTokenResponse {
-  access_token: string
+  access_token?: string
+  error?: string
+  error_description?: string
 }
 
 const destination: DestinationDefinition<Settings> = {
@@ -76,9 +85,30 @@ const destination: DestinationDefinition<Settings> = {
           client_id: auth.clientId,
           client_secret: auth.clientSecret,
           grant_type: 'refresh_token'
-        })
+        }),
+        throwHttpErrors: false
       })
-      return { accessToken: res.data.access_token }
+
+      if (res.ok) {
+        return { accessToken: res.data?.access_token as string }
+      }
+
+      // Salesforce returns a 400 error when concurrently refreshing token with same access token.
+      // https://help.salesforce.com/s/articleView?language=en_US&id=release-notes.rn_security_refresh_token_requests.htm&release=250&type=5
+      if (
+        res.status == 400 &&
+        res.data?.error === 'invalid_grant' &&
+        res.data?.error_description &&
+        // As of Aug 2024, salesforce returns "expired authorization code" as error description. But salesforce is expected to return
+        // "token request is already being processed" from september on. So, covering both scenarios so that
+        // we don't have to update the code again.
+        // https://help.salesforce.com/s/articleView?id=release-notes.rn_security_refresh_token_error.htm&release=252&type=5
+        ['token request is already being processed', 'expired authorization code'].includes(res.data?.error_description)
+      ) {
+        // Under heavy load/thundering herd, it might be better to retry after a while.
+        throw new RetryableError('Concurrent token refresh error. This request will be retried')
+      }
+      throw new APIError(res.data?.error_description ?? 'Failed to refresh access token', res.status)
     }
   },
   extendRequest({ auth }) {
@@ -95,7 +125,13 @@ const destination: DestinationDefinition<Settings> = {
     cases,
     contact,
     opportunity,
-    account
+    account,
+    lead2,
+    customObject2,
+    account2,
+    opportunity2,
+    contact2,
+    cases2
   }
 }
 

@@ -7,25 +7,27 @@ on:
   push:
     branches:
       - main
-      - release
+      - hotfix/**
 
 jobs:
   build-and-publish:
     env:
       HUSKY: 0
+      NX_DISABLE_DB: true
     if: startsWith(github.event.head_commit.message, 'Publish') == true
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     timeout-minutes: 15
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [22.x]
 
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GH_PAT }}
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -34,13 +36,13 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
-      - name: Use Github Personal Access Token
-        run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
+      - name: Setup git credentials
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build
         run: NODE_ENV=production yarn build
@@ -56,17 +58,11 @@ jobs:
 
       - name: Publish
         run: |
-          yarn lerna publish from-git --yes --allowBranch=main --loglevel=verbose --dist-tag latest
+          yarn lerna publish from-package --yes --loglevel=verbose --dist-tag latest
 
-  release:
-    needs: build-and-publish # comment when testing locally with https://github.com/nektos/act
-    runs-on: ubuntu-20.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Shallow clones should be disabled for computing changelog
-          fetch-tags: true
+      - name: Generate Tags
+        id: get-release-tag
+        run: ./scripts/generate-release-tags.sh
 
       - name: Create Github Release
         id: create-github-release
@@ -75,5 +71,7 @@ jobs:
           RELEASE_TAG: ${{ steps.get-release-tag.outputs.release-tag }}
         with:
           script: |
+            const cloudManifest = require('./packages/destination-actions/dist/destinations/index.js').manifest
+            const browserManifest = require('./packages/destinations-manifest/dist/index.js').manifest
             const script = require('./scripts/github-action/create-github-release.js')
-            await script({github, context, core, exec})
+            await script({github, context, core, exec, cloudManifest, browserManifest})

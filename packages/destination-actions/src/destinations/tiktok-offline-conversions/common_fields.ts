@@ -27,7 +27,7 @@ export const commonFields: Record<string, InputField> = {
   phone_numbers: {
     label: 'Phone Number',
     description:
-      'A single phone number or array of phone numbers in E.164 standard format. Segment will hash this value before sending to TikTok. At least one phone number value is required if both Email and External ID fields are empty.',
+      'A single phone number or array of phone numbers in E.164 standard format. At least one phone number value is required if both Email and External ID fields are empty.',
     type: 'string',
     multiple: true,
     default: {
@@ -36,12 +36,13 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.properties.phone' },
         else: { '@path': '$.context.traits.phone' }
       }
-    }
+    },
+    category: 'hashedPII'
   },
   email_addresses: {
     label: 'Email',
     description:
-      'A single email address or an array of email addresses. Segment will hash this value before sending to TikTok. At least one email value is required if both Phone Number and External ID fields are empty.',
+      'A single email address or an array of email addresses. At least one email value is required if both Phone Number and External ID fields are empty.',
     type: 'string',
     multiple: true,
     default: {
@@ -50,7 +51,8 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.properties.email' },
         else: { '@path': '$.context.traits.email' }
       }
-    }
+    },
+    category: 'hashedPII'
   },
   order_id: {
     label: 'Order ID',
@@ -71,7 +73,7 @@ export const commonFields: Record<string, InputField> = {
   external_ids: {
     label: 'External ID',
     description:
-      'Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok. TikTok Offline Conversions Destination supports both string and string[] types for sending external ID(s). At least one external ID value is required if both Email and Phone Number fields are empty.',
+      'Uniquely identifies the user who triggered the conversion event. TikTok Offline Conversions Destination supports both string and string[] types for sending external ID(s). At least one external ID value is required if both Email and Phone Number fields are empty.',
     type: 'string',
     multiple: true,
     default: {
@@ -80,7 +82,8 @@ export const commonFields: Record<string, InputField> = {
         then: { '@path': '$.userId' },
         else: { '@path': '$.anonymousId' }
       }
-    }
+    },
+    category: 'hashedPII'
   },
   ttclid: {
     label: 'TikTok Click ID',
@@ -161,6 +164,7 @@ export const commonFields: Record<string, InputField> = {
     type: 'object',
     multiple: true,
     description: 'Related item details for the event.',
+    defaultObjectUI: 'keyvalue',
     properties: {
       price: {
         label: 'Price',
@@ -199,7 +203,10 @@ export const commonFields: Record<string, InputField> = {
     description:
       'Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.',
     type: 'string',
-    choices: [ { label: 'product', value: 'product' }, { label: 'product_group', value: 'product_group' }],
+    choices: [
+      { label: 'product', value: 'product' },
+      { label: 'product_group', value: 'product_group' }
+    ],
     default: 'product'
   },
   currency: {

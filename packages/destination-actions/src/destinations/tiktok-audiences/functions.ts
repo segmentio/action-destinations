@@ -1,5 +1,4 @@
 import { IntegrationError, RequestClient, PayloadValidationError, ModifiedResponse } from '@segment/actions-core'
-import { createHash } from 'crypto'
 import { TikTokAudiences } from './api'
 import { Payload as AddUserPayload } from './addUser/generated-types'
 import { Payload as AddToAudiencePayload } from './addToAudience/generated-types'
@@ -8,6 +7,7 @@ import { Payload as CreateAudiencePayload } from './createAudience/generated-typ
 import { Settings } from './generated-types'
 import { CreateAudienceAPIResponse } from './types'
 import { AudienceSettings } from './generated-types'
+import { processHashingV2 } from '../../lib/hashing-utils'
 
 type LegacyPayload = AddUserPayload | RemoveUserPayload
 type GenericPayload = LegacyPayload | AddToAudiencePayload
@@ -101,6 +101,10 @@ export function getIDSchema(payload: GenericPayload): string[] {
 
 const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
 
+const hash = (value: string): string => {
+  return processHashingV2(value, 'sha256', 'hex')
+}
+
 export function extractUsers(payloads: GenericPayload[]): {}[][] {
   const batch_data: {}[][] = []
 
@@ -132,7 +136,7 @@ export function extractUsers(payloads: GenericPayload[]): {}[][] {
         // If email is already hashed, don't hash it again
         let hashedEmail = payload.email
         if (!isHashedInformation(payload.email)) {
-          hashedEmail = createHash('sha256').update(payload.email).digest('hex')
+          hashedEmail = hash(payload.email)
         }
 
         email_id = {
@@ -149,7 +153,7 @@ export function extractUsers(payloads: GenericPayload[]): {}[][] {
         // If phone is already hashed, don't hash it again
         let hashedPhone = payload.phone
         if (!isHashedInformation(payload.phone)) {
-          hashedPhone = createHash('sha256').update(payload.phone).digest('hex')
+          hashedPhone = hash(payload.phone)
         }
 
         phone_id = {
@@ -164,7 +168,7 @@ export function extractUsers(payloads: GenericPayload[]): {}[][] {
       let advertising_id = {}
       if (payload.advertising_id) {
         advertising_id = {
-          id: createHash('sha256').update(payload.advertising_id).digest('hex'),
+          id: hash(payload.advertising_id),
           audience_ids: [external_audience_id]
         }
       }

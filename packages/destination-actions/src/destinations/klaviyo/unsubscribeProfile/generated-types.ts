@@ -10,6 +10,10 @@ export interface Payload {
    */
   phone_number?: string
   /**
+   * Country Code in ISO 3166-1 alpha-2 format. If provided, this will be used to validate and automatically format Phone Number field in E.164 format accepted by Klaviyo.
+   */
+  country_code?: string
+  /**
    * The Klaviyo list to remove the subscribed profiles from. If no list id is provided, the profile will be unsubscribed from all channels.
    */
   list_id?: string
@@ -17,4 +21,8 @@ export interface Payload {
    * When enabled, the action will use the Klaviyo batch API.
    */
   enable_batching?: boolean
+  /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
 }

@@ -8,20 +8,6 @@ export const selected_advertiser_id: InputField = {
   required: true
 }
 
-export const id_type: InputField = {
-  label: 'ID Type',
-  description:
-    'Encryption type to be used for populating the audience. This field is set only when Segment creates a new audience.',
-  type: 'string',
-  choices: [
-    { label: 'Email', value: 'EMAIL_SHA256' },
-    { label: 'Google Advertising ID', value: 'GAID_SHA256' },
-    { label: 'Android Advertising ID', value: 'AAID_SHA256' },
-    { label: 'iOS Advertising ID', value: 'IDFA_SHA256' }
-  ],
-  required: true
-}
-
 export const audience_id: InputField = {
   label: 'Audience ID',
   description:
@@ -49,7 +35,8 @@ export const email: InputField = {
       then: { '@path': '$.context.traits.email' },
       else: { '@path': '$.properties.email' }
     }
-  }
+  },
+  category: 'hashedPII'
 }
 
 export const send_email: InputField = {
@@ -69,7 +56,8 @@ export const phone: InputField = {
       then: { '@path': '$.context.traits.phone' },
       else: { '@path': '$.properties.phone' }
     }
-  }
+  },
+  category: 'hashedPII'
 }
 
 export const send_phone: InputField = {
@@ -85,7 +73,8 @@ export const advertising_id: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.device.advertisingId'
-  }
+  },
+  category: 'hashedPII'
 }
 
 export const send_advertising_id: InputField = {

@@ -1,26 +1,52 @@
-import { StateContext, Logger, StatsContext, TransactionContext, DataFeedCache, ActionHookType } from './index'
+import {
+  StateContext,
+  Logger,
+  StatsContext,
+  TransactionContext,
+  EngageDestinationCache,
+  ActionHookType,
+  SubscriptionMetadata,
+  RequestFn
+} from './index'
 import type { RequestOptions } from '../request-client'
-import type { JSONObject } from '../json-object'
+import type { JSONLikeObject, JSONObject } from '../json-object'
 import { AuthTokens } from './parse-settings'
 import type { RequestClient } from '../create-request-client'
 import type { ID } from '../segment-event'
 import { Features } from '../mapping-kit'
+import type { ErrorCodes, MultiStatusErrorReporter } from '../errors'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 export type MaybePromise<T> = T | Promise<T>
 
-export interface Result {
+/*
+  Note: The Cloud Event object that we receive from Centrifuge contains an array of subscriptions,
+  the result object below is the result of execution of each subscription.
+*/ export interface Result {
   output?: JSONObject | string | null | undefined
   error?: JSONObject | null
   // Data to be returned from action
   data?: JSONObject | null
+  // Spec v2 compliant MultiStatus response
+  multistatus?: ResultMultiStatusNode[]
+}
+
+export interface DynamicFieldContext {
+  /** The index of the item in an array of objects that we are requesting data for */
+  selectedArrayIndex?: number
+  /** The key within a dynamic object for which we are requesting values */
+  selectedKey?: string
+  /** The RichInput dropdown search query the user has entered */
+  query?: string
 }
 
 export interface ExecuteInput<
   Settings,
   Payload,
   AudienceSettings = unknown,
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
   ActionHookInputs = any,
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
   ActionHookOutputs = any
 > {
   /** The subscription mapping definition */
@@ -35,10 +61,14 @@ export interface ExecuteInput<
   hookInputs?: ActionHookInputs
   /** Stored outputs from an invokation of an actions hook */
   hookOutputs?: Partial<Record<ActionHookType, ActionHookOutputs>>
+  /** Context about dynamic fields */
+  dynamicFieldContext?: DynamicFieldContext
   /** The page used in dynamic field requests */
   page?: string
   /** The subscription sync mode */
   syncMode?: SyncMode
+  /** The key for the action's field used to match data between Segment and the Destination */
+  matchingKey?: string
   /** The data needed in OAuth requests */
   readonly auth?: AuthTokens
   /**
@@ -48,9 +78,11 @@ export interface ExecuteInput<
   readonly features?: Features
   readonly statsContext?: StatsContext
   readonly logger?: Logger
-  readonly dataFeedCache?: DataFeedCache
+  /** Engage internal use only. DO NOT USE. */
+  readonly engageDestinationCache?: EngageDestinationCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
+  readonly subscriptionMetadata?: SubscriptionMetadata
 }
 
 export interface DynamicFieldResponse {
@@ -72,15 +104,15 @@ export interface DynamicFieldItem {
 }
 
 /** The shape of authentication and top-level settings */
-export interface GlobalSetting {
-  /** A short, human-friendly label for the field */
-  label: string
-  /** A human-friendly description of the field */
-  description: string
+export interface GlobalSetting
+  extends Omit<
+    InputField,
+    | 'additionalProperties' // Settings cannot be an object
+    | 'defaultObjectUI' // Settings cannot be an object
+    | 'dynamic' // This type is redeclared
+  > {
   /** A subset of the available DestinationMetadataOption types */
   type: 'boolean' | 'string' | 'password' | 'number'
-  /** Whether or not the field accepts more than one of its `type` */
-  multiple?: boolean
   /**
    * A predefined set of options for the setting.
    * Only relevant for `type: 'string'` or `type: 'number'`.
@@ -91,18 +123,22 @@ export interface GlobalSetting {
     /** A human-friendly label for the option */
     label: string
   }>
-  required?: boolean
   default?: string | number | boolean
-  properties?: InputField['properties']
-  format?: InputField['format']
-  depends_on?: InputField['depends_on']
+
+  dynamic?: RequestFn<Record<string, boolean | string | number>, {}>
 }
 
 /** The supported field type names */
 export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
 
 /** The supported field categories */
-type FieldCategory = 'identifier' | 'data' | 'internal' | 'config'
+type FieldCategory = 'identifier' | 'data' | 'internal' | 'config' | 'sync' | 'hashedPII'
+
+/** supported input methods when picking values */
+type FieldInputMethods = 'literal' | 'variable' | 'function' | 'enrichment' | 'freeform'
+
+/** display modes for a field */
+type FieldDisplayMode = 'expanded' | 'normal' | 'collapsed'
 
 /** Properties of an InputField which are involved in creating the generated-types.ts file */
 export interface InputFieldJSONSchema {
@@ -132,8 +168,13 @@ export interface InputFieldJSONSchema {
         /** A human-friendly label for the option */
         label: string
       }>
-  /** Whether or not the field is required */
-  required?: boolean
+  /**
+   * Whether or not the field is required. If set to true the field must always be included.
+   * If a DependsOnConditions object is defined then the field will be required based on the conditions defined.
+   * This validation is done both when an event payload is sent through the perform block and when a user configures
+   * a mapping in the UI.
+   * */
+  required?: boolean | DependsOnConditions
   /**
    * Optional definition for the properties of `type: 'object'` fields
    * (also arrays of objects when using `multiple: true`)
@@ -177,6 +218,7 @@ export interface InputField extends InputFieldJSONSchema {
     | 'object' // Users will see the object editor by default and can change to the key value editor.
     | 'keyvalue:only' // Users will only use the key value editor.
     | 'object:only' // Users will only use the object editor.
+    | 'arrayeditor' // if used in conjunction with multi:true will allow user to edit array of object elements.
 
   /**
    * Determines whether this field should be hidden in the UI. Only use this in very limited cases where the field represents
@@ -201,6 +243,30 @@ export interface InputField extends InputFieldJSONSchema {
    * Determines how the field should be categorized in the UI. This is useful for grouping fields together in the UI.
    */
   category?: FieldCategory
+
+  /**
+   * Determines how the field should be displayed in the UI:
+   * - expanded: Fully visible title and description for detailed information.
+   * - normal (default): One line field, and title, with description hidden behind a tooltip.
+   * - collapsed: Fields grouped behind a dropdown
+   */
+  displayMode?: FieldDisplayMode
+
+  /**
+   * Determines which input methods are disabled for this field. This is useful when you want to restrict variable selection, freeform entry, etc.
+   */
+  disabledInputMethods?: FieldInputMethods[]
+
+  /**
+   * Minimum value for a field of type 'number'
+   * When applied to a string field the minimum length of the string
+   * */
+  minimum?: number
+  /**
+   * Maximum value for a field of type 'number'
+   * When applied to a string field the maximum length of the string
+   */
+  maximum?: number
 }
 
 /** Base interface for conditions  */
@@ -294,7 +360,7 @@ export type Deletion<Settings, Return = any> = (
 ) => MaybePromise<Return>
 
 /** The supported sync mode values  */
-export const syncModeTypes = ['add', 'update', 'upsert', 'delete'] as const
+export const syncModeTypes = ['add', 'update', 'upsert', 'delete', 'mirror'] as const
 export type SyncMode = typeof syncModeTypes[number]
 
 export interface SyncModeOption {
@@ -315,3 +381,24 @@ export interface SyncModeDefinition {
   /** The available sync mode choices */
   choices: SyncModeOption[]
 }
+
+export type ActionDestinationSuccessResponseType = {
+  status: number
+  sent: JSONLikeObject | string
+  body: JSONLikeObject | string
+}
+
+export type ActionDestinationErrorResponseType = {
+  status: number
+  // The `keyof typeof` in the following line allows using string literals that match enum values
+  errortype?: keyof typeof ErrorCodes
+  errormessage: string
+  sent?: JSONLikeObject | string
+  body?: JSONLikeObject | string
+}
+
+export type ResultMultiStatusNode =
+  | ActionDestinationSuccessResponseType
+  | (ActionDestinationErrorResponseType & {
+      errorreporter: MultiStatusErrorReporter
+    })

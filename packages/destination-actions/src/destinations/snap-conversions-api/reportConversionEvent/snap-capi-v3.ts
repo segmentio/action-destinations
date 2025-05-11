@@ -4,16 +4,16 @@ import { Settings } from '../generated-types'
 import {
   box,
   emptyObjectToUndefined,
-  hash,
-  hashEmailSafe,
   isNullOrUndefined,
   splitListValueToArray,
   raiseMisconfiguredRequiredFieldErrorIf,
   raiseMisconfiguredRequiredFieldErrorIfNullOrUndefined,
   emptyStringToUndefined,
   parseNumberSafe,
-  parseDateSafe
+  parseDateSafe,
+  smartHash
 } from './utils'
+import { processHashingV2 } from '../../../lib/hashing-utils'
 
 const CURRENCY_ISO_4217_CODES = new Set([
   'USD',
@@ -429,50 +429,51 @@ const buildAppData = (payload: Payload, settings: Settings) => {
 const buildUserData = (payload: Payload) => {
   const { user_data } = payload
   // Removes all leading and trailing whitespace and converts all characters to lowercase.
-  const normalizedEmail = (user_data?.email ?? payload.email)?.replace(/\s/g, '').toLowerCase()
-  const email = hashEmailSafe(normalizedEmail)
+  const normalizedValue = (value: string) => value?.replace(/\s/g, '').toLowerCase()
+  const email = smartHash(user_data?.email ?? payload.email, normalizedValue)
 
   // Removes all non-numberic characters and leading zeros.
-  const normalizedPhoneNumber = (user_data?.phone ?? payload.phone_number)?.replace(/\D|^0+/g, '')
-  const phone_number = hash(normalizedPhoneNumber)
+  const normalizedPhoneNumber = (value: string) => value?.replace(/\D|^0+/g, '')
+  const phone_number = smartHash(user_data?.phone ?? payload.phone_number, normalizedPhoneNumber)
 
   // Converts all characters to lowercase
   const madid = (user_data?.madid ?? payload.mobile_ad_id)?.toLowerCase()
 
-  const normalizedGender = user_data?.gender?.replace(/\s/g, '').toLowerCase()
-  const gender = normalizedGender === 'male' ? 'm' : normalizedGender === 'female' ? 'f' : normalizedGender
-  const hashedGender = hash(gender)
+  const normalizedGender = (value: string): string => {
+    const normalizedValue = value?.replace(/\s/g, '').toLowerCase()
+    return normalizedValue === 'male' ? 'm' : normalizedValue === 'female' ? 'f' : normalizedValue
+  }
+  const hashedGender = smartHash(user_data?.gender, normalizedGender)
 
-  const normalizedLastName = user_data?.lastName?.replace(/\s/g, '')?.toLowerCase()
-  const hashedLastName = hash(normalizedLastName)
+  const hashedLastName = smartHash(user_data?.lastName, normalizedValue)
 
-  const normalizedFirstName = user_data?.firstName?.replace(/\s/g, '')?.toLowerCase()
-  const hashedFirstName = hash(normalizedFirstName)
+  const hashedFirstName = smartHash(user_data?.firstName, normalizedValue)
 
   const client_ip_address = user_data?.client_ip_address ?? payload.ip_address
   const client_user_agent = user_data?.client_user_agent ?? payload.user_agent
 
-  const normalizedCity = user_data?.city?.replace(/\s/g, '')?.toLowerCase()
-  const hashedCity = hash(normalizedCity)
+  const hashedCity = smartHash(user_data?.city, normalizedValue)
 
-  const normalizedState = user_data?.state?.replace(/\s/g, '').toLowerCase()
   // checks if the full US state name is used instead of the two letter abbreviation
-  const state = US_STATE_CODES.get(normalizedState ?? '') ?? normalizedState
-  const hashedState = hash(state)
+  const normalizedState = (value: string): string => {
+    const normalizedValue = value?.replace(/\s/g, '').toLowerCase()
+    return US_STATE_CODES.get(normalizedValue ?? '') ?? normalizedValue
+  }
+  const hashedState = smartHash(user_data?.state, normalizedState)
 
-  const normalizedZip = user_data?.zip?.replace(/\s/g, '').toLowerCase()
-  const hashedZip = hash(normalizedZip)
+  const hashedZip = smartHash(user_data?.zip, normalizedValue)
 
-  const normalizedCountry = user_data?.country?.replace(/\s/g, '').toLowerCase()
-  const country = COUNTRY_CODES.get(normalizedCountry ?? '') ?? normalizedCountry
-  const hashedCountry = hash(country)
+  const normalizedCountry = (value: string): string => {
+    const normalizedValue = value?.replace(/\s/g, '').toLowerCase()
+    return COUNTRY_CODES.get(normalizedValue ?? '') ?? normalizedValue
+  }
+  const hashedCountry = smartHash(user_data?.country, normalizedCountry)
 
   const external_id = user_data?.externalId?.map((id) => {
-    const normalizedId = id.replace(/\s/g, '').toLowerCase()
-    return hash(normalizedId) as string
+    return processHashingV2(id, 'sha256', 'hex', normalizedValue)
   })
 
-  const db = hash(user_data?.dateOfBirth)
+  const db = smartHash(user_data?.dateOfBirth)
   const lead_id = user_data?.leadID
   const subscription_id = user_data?.subscriptionID
 

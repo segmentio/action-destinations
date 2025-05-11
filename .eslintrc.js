@@ -45,7 +45,9 @@ module.exports = {
     '@typescript-eslint/require-await': 'off',
     '@typescript-eslint/restrict-plus-operands': 'off',
     '@typescript-eslint/restrict-template-expressions': 'off',
-    '@typescript-eslint/unbound-method': 'off'
+    '@typescript-eslint/unbound-method': 'off',
+    '@typescript-eslint/no-unsafe-argument': 'warn',
+    '@typescript-eslint/no-misused-promises': 'warn'
   },
   overrides: [
     {
@@ -62,7 +64,7 @@ module.exports = {
       }
     },
     {
-      files: ['packages/cli/**/*.ts', 'packages/cli-internal/**/*.ts'],
+      files: ['packages/cli/**/*.ts'],
       rules: {
         'lodash/import-scope': ['error', 'member'],
         '@typescript-eslint/no-var-requires': 'off'
@@ -81,6 +83,19 @@ module.exports = {
       files: ['packages/browser-destinations-integration-tests/**/*.ts'],
       rules: {
         '@typescript-eslint/no-unsafe-call': 'off'
+      }
+    },
+    {
+      files: ['packages/destination-actions/**/*.ts'],
+      rules: {
+        'no-restricted-syntax': [
+          'error',
+          {
+            selector: "ImportDeclaration[source.value='crypto'] ImportSpecifier[imported.name='createHash']",
+            message:
+              'The "destination-actions/lib/hashing-utils/processHashing" can autodetect  prehashed values and avoid double hashing [https://github.com/segmentio/action-destinations/blob/139f434ff2828ed37c8f364f6ff9bb63dd3725d1/README.md?plain=1#L963]. Avoid importing the "createHash" function from "crypto"'
+          }
+        ]
       }
     }
   ]

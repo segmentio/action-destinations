@@ -1,9 +1,10 @@
-import type { AudienceDestinationDefinition } from '@segment/actions-core'
+import type { ActionDefinition, AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 
 import send from '../webhook/send'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import { createHmac } from 'crypto'
+import { Payload } from './send.types'
 const externalIdKey = 'externalId'
 const audienceNameKey = 'audienceName'
 
@@ -138,8 +139,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           settings
         })
       },
-      performBatch: (request, { payload, settings, audienceSettings }) => {
+      performBatch: (request, { payload, settings, audienceSettings, statsContext }) => {
         const extras = parseExtraSettingsJson(audienceSettings?.extras)
+
+        if (statsContext) {
+          const { statsClient, tags } = statsContext
+          const set = new Set()
+          for (const p of payload) {
+            set.add(`${p.url} ${p.method} ${JSON.stringify(p.headers)}`)
+          }
+          statsClient?.histogram('webhook.configurable_batch_keys.unique_keys', set.size, tags)
+        }
 
         // Call the same performBatch function from the regular webhook destination
         // and add in our extraSettings
@@ -157,8 +167,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           settings
         })
       }
+    } as ActionDefinition<Settings, Payload>
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'send',
+      mapping: defaultValues(send.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
     }
-  }
+  ]
 }
 
 const parseExtraSettingsJson = (extraSettingsJson?: string): object => {

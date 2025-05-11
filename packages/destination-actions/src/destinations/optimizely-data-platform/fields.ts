@@ -56,6 +56,18 @@ export const user_identifiers: InputField = {
       type: 'string',
       description: 'Optimizely VUID - user cookie generated created by Optimizely Javascript library',
       required: false
+    },
+    fs_user_id: {
+      label: 'Feature Experimentation ID',
+      type: 'string',
+      description: 'Feature Experimentation user ID',
+      required: false
+    },
+    web_user_id: {
+      label: 'Web Experimentation ID',
+      type: 'string',
+      description: 'Web User ID',
+      required: false
     }
   },
   default: {
@@ -78,6 +90,12 @@ export const user_identifiers: InputField = {
         then: { '@path': '$.properties.optimizely_vuid' },
         else: { '@path': '$.traits.optimizely_vuid' }
       }
+    },
+    fs_user_id: {
+      '@path': '$.userId'
+    },
+    web_user_id: {
+      '@path': '$.userId'
     }
   }
 }
@@ -166,4 +184,20 @@ export const products: InputField = {
       }
     ]
   }
+}
+
+export const enable_batching: InputField = {
+  label: 'Enable Batching',
+  description: 'Enable batching of event data to Optimizely.',
+  type: 'boolean',
+  default: true,
+  unsafe_hidden: true
+}
+
+export const batch_size: InputField = {
+  label: 'Batch Size',
+  description: 'Number of events to batch before sending to Optimizely.',
+  type: 'integer',
+  default: 100,
+  unsafe_hidden: true
 }

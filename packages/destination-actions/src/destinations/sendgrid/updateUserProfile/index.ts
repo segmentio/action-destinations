@@ -1,7 +1,13 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { customFields, convertPayload, fetchAccountCustomFields, CustomField } from '../sendgrid-properties'
+import {
+  customFields,
+  convertPayload,
+  fetchAccountCustomFields,
+  CustomField,
+  getRegionalEndpoint
+} from '../sendgrid-properties'
 import { IntegrationError } from '@segment/actions-core'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -121,7 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone_number: {
       label: 'Phone Number',
-      description: `The contact's phone number.`,
+      description: `The contact's phone number. Note: This is different from the Phone Number ID field, but the same value can be stored in both fields.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -146,8 +152,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     line: {
-      label: 'LINE ID',
-      description: `The contact's LINE ID.`,
+      label: 'Line',
+      description: `The contact's landline.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -159,8 +165,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     facebook: {
-      label: 'Facebook ID',
-      description: `The contact's Facebook ID.`,
+      label: 'Facebook',
+      description: `The contact's Facebook identifier.`,
       type: 'string',
       allowNull: true,
       default: {
@@ -184,19 +190,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    identity: {
-      label: 'Identity',
-      description: `The contact's identity.`,
-      type: 'string',
-      allowNull: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.identity' },
-          then: { '@path': '$.traits.identity' },
-          else: { '@path': '$.properties.identity' }
-        }
-      }
-    },
     primary_email: {
       label: 'Email Address',
       description: `The contact's email address.`,
@@ -213,7 +206,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     phone_number_id: {
       label: 'Phone Number ID',
-      description: `The contact's Phone Number ID. This must be a valid phone number.`,
+      description: `Primary Phone Number used to identify a Contact. This must be a valid phone number.`,
       type: 'string',
       allowNull: true,
       required: false,
@@ -251,14 +244,15 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, data) => {
-    const accountCustomFields: CustomField[] = await fetchAccountCustomFields(request)
+    const accountCustomFields: CustomField[] = await fetchAccountCustomFields(request, data.settings)
 
     // Convert input payload into SendGrid Marketing Campaigns compatible request payload
     const formattedData = { contacts: [convertPayload(data.payload, accountCustomFields)] }
 
+    const regionalEndpoint = getRegionalEndpoint(data.settings)
     // Making contacts upsert call here
     // Reference: https://docs.sendgrid.com/api-reference/contacts/add-or-update-a-contact
-    return request('https://api.sendgrid.com/v3/marketing/contacts', {
+    return request(`${regionalEndpoint}/v3/marketing/contacts`, {
       method: 'put',
       json: formattedData
     })
@@ -270,10 +264,12 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new IntegrationError('No record to send', 'No data', 400)
     }
 
-    const accountCustomFields: CustomField[] = await fetchAccountCustomFields(request)
+    const accountCustomFields: CustomField[] = await fetchAccountCustomFields(request, data.settings)
 
     const formattedData = { contacts: data.payload.map((p) => convertPayload(p, accountCustomFields)) }
-    return request('https://api.sendgrid.com/v3/marketing/contacts', {
+    const regionalEndpoint = getRegionalEndpoint(data.settings)
+
+    return request(`${regionalEndpoint}/v3/marketing/contacts`, {
       method: 'put',
       json: formattedData
     })

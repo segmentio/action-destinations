@@ -186,6 +186,21 @@ export interface UnsubscribeProfile {
   attributes: {
     email?: string
     phone_number?: string
+    subscriptions: {
+      email?: {
+        marketing: {
+          consent: 'UNSUBSCRIBED'
+        }
+      }
+      sms?: {
+        marketing?: {
+          consent: 'UNSUBSCRIBED'
+        }
+        transactional?: {
+          consent: 'UNSUBSCRIBED'
+        }
+      }
+    }
   }
 }
 
@@ -218,4 +233,22 @@ export interface AdditionalAttributes {
   organization?: string
   title?: string
   image?: string
+}
+export interface KlaviyoAPIError {
+  id: string
+  status: number
+  code: string
+  title: string
+  detail: string
+  source: {
+    pointer: string
+    parameter?: string
+  }
+}
+export interface KlaviyoAPIErrorResponse {
+  errors: KlaviyoAPIError[]
+}
+export interface KlaviyoProfile {
+  type: string
+  attributes: ProfileAttributes
 }

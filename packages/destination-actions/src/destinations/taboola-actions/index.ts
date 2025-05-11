@@ -1,12 +1,12 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import { TaboolaClient } from './syncAudience/client'
 
 import syncAudience from './syncAudience'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'Taboola (actions)',
+  name: 'Taboola (Actions)',
   slug: 'actions-taboola-actions',
   mode: 'cloud',
 
@@ -24,10 +24,21 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         description: "The client's secret from your Taboola account.",
         type: 'string',
         required: true
+      },
+      audience_identifier: {
+        label: 'Audience Identifier',
+        description: 'The audience identifier from your Taboola account.',
+        type: 'string',
+        choices: [
+          { label: 'Audience Computation Key', value: 'computation_key' },
+          { label: 'Audience Name', value: 'audience_name' }
+        ],
+        required: false,
+        default: 'computation_key'
       }
     },
     refreshAccessToken: async (request, { settings }) => {
-      return await TaboolaClient.refreshAccessToken(request, { settings })
+      return await TaboolaClient.refreshAccessToken(request, settings)
     }
   },
   extendRequest({ auth }) {
@@ -43,7 +54,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       label: 'Account ID',
       required: true,
-      description: 'The ID for the Taboola Account to sync to.'
+      description: 'The alphabetic ID for the Taboola Account to sync to.'
     },
     ttl_in_hours: {
       type: 'number',
@@ -66,7 +77,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const audienceName = createAudienceInput.audienceName
+      const audienceName =
+        createAudienceInput.settings?.audience_identifier === 'computation_key'
+          ? createAudienceInput.personas?.computation_key
+          : createAudienceInput.audienceName
       const ttlInHours = createAudienceInput.audienceSettings?.ttl_in_hours
       const excludeFromCampaigns = createAudienceInput.audienceSettings?.exclude_from_campaigns
       const accountId = createAudienceInput.audienceSettings?.account_id
@@ -80,9 +94,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       try {
-        const accessToken = (
-          await TaboolaClient.refreshAccessToken(request, { settings: createAudienceInput.settings })
-        ).accessToken
+        const accessToken = (await TaboolaClient.refreshAccessToken(request, createAudienceInput.settings)).accessToken
 
         const response = await request(
           `https://backstage.taboola.com/backstage/api/1.0/${accountId}/audience_onboarding/create`,
@@ -102,11 +114,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
         const json = await response.json()
 
+        if (!json?.audience_id) {
+          throw new IntegrationError(
+            `Failed to create Audience in Taboola - responseData.audience_id null or undefined`,
+            'AUDIENCE_CREATION_FAILED',
+            400
+          )
+        }
+
         return {
-          externalId: json?.audience_id
+          externalId: String(json?.audience_id)
         }
       } catch (error) {
-        throw new IntegrationError('Failed to create Audience in Taboola', 'AUDIENCE_CREATION_FAILED', 400)
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        throw new IntegrationError(
+          `Failed to create Audience in Taboola ${errorMessage}`,
+          'AUDIENCE_CREATION_FAILED',
+          400
+        )
       }
     },
     async getAudience(_, getAudienceInput) {
@@ -119,7 +144,16 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    }
+  ]
 }
 
 export default destination

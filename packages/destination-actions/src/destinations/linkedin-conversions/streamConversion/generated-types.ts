@@ -48,70 +48,76 @@ export interface Payload {
     title?: string
     countryCode?: string
   }
+  /**
+   * Enable batching of requests.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
-// Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
+// Generated file. DO NOT MODIFY IT BY HAND.
 
-export interface HookBundle {
-  onMappingSave: {
-    inputs?: {
-      /**
-       * The ad account to use for the conversion event.
-       */
-      adAccountId: string
-      /**
-       * Select one or more advertising campaigns from your ad account to associate with the configured conversion rule. Segment will only add the selected campaigns to the conversion rule. Deselecting a campaign will not disassociate it from the conversion rule.
-       */
-      campaignId?: string[]
-      /**
-       * The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.
-       */
-      conversionRuleId?: string
-      /**
-       * The name of the conversion rule.
-       */
-      name?: string
-      /**
-       * The type of conversion rule.
-       */
-      conversionType?: string
-      /**
-       * The attribution type for the conversion rule.
-       */
-      attribution_type?: string
-      /**
-       * Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 30.
-       */
-      post_click_attribution_window_size?: number
-      /**
-       * Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.
-       */
-      view_through_attribution_window_size?: number
-    }
-    outputs?: {
-      /**
-       * The ID of the conversion rule.
-       */
-      id: string
-      /**
-       * The name of the conversion rule.
-       */
-      name: string
-      /**
-       * The type of conversion rule.
-       */
-      conversionType: string
-      /**
-       * The attribution type for the conversion rule.
-       */
-      attribution_type: string
-      /**
-       * Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad.
-       */
-      post_click_attribution_window_size: number
-      /**
-       * Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.
-       */
-      view_through_attribution_window_size: number
-    }
-  }
+export interface OnMappingSaveInputs {
+  /**
+   * The ad account to use when creating the conversion event. (When updating a conversion rule after initially creating it, changes to this field will be ignored. LinkedIn does not allow Ad Account IDs to be updated for a conversion rule.)
+   */
+  adAccountId: string
+  /**
+   * Select one or more advertising campaigns from your ad account to associate with the configured conversion rule. Segment will only add the selected campaigns to the conversion rule. Deselecting a campaign will not disassociate it from the conversion rule.
+   */
+  campaignId?: string[]
+  /**
+   * The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.
+   */
+  conversionRuleId?: string
+  /**
+   * The name of the conversion rule.
+   */
+  name?: string
+  /**
+   * The type of conversion rule.
+   */
+  conversionType?: string
+  /**
+   * The attribution type for the conversion rule.
+   */
+  attribution_type?: string
+  /**
+   * Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 30.
+   */
+  post_click_attribution_window_size?: number
+  /**
+   * Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.
+   */
+  view_through_attribution_window_size?: number
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface OnMappingSaveOutputs {
+  /**
+   * The ID of the conversion rule.
+   */
+  id: string
+  /**
+   * The name of the conversion rule.
+   */
+  name: string
+  /**
+   * The type of conversion rule.
+   */
+  conversionType: string
+  /**
+   * The attribution type for the conversion rule.
+   */
+  attribution_type: string
+  /**
+   * Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad.
+   */
+  post_click_attribution_window_size: number
+  /**
+   * Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.
+   */
+  view_through_attribution_window_size: number
 }

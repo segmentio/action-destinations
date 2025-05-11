@@ -84,6 +84,7 @@ export type Operator =
   | 'not_exists'
   | 'is_true'
   | 'is_false'
+  | 'number_not_equals'
 
 export type ConditionType =
   | 'group'

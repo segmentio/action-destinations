@@ -1,11 +1,12 @@
 import type { ActionDefinition, DynamicFieldResponse, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { getListIdDynamicData } from '../functions'
+import { getListIdDynamicData, processPhoneNumber, validateAndConvertPhoneNumber } from '../functions'
 import { PayloadValidationError } from '@segment/actions-core'
 import { formatUnsubscribeProfile, formatUnsubscribeRequestBody } from '../functions'
 import { UnsubscribeProfile } from '../types'
 import { API_URL } from '../config'
+import { country_code } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Unsubscribe Profile',
@@ -37,6 +38,9 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    country_code: {
+      ...country_code
+    },
     list_id: {
       label: 'List Id',
       description: `The Klaviyo list to remove the subscribed profiles from. If no list id is provided, the profile will be unsubscribed from all channels.`,
@@ -47,6 +51,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       label: 'Batch Data to Klaviyo',
       description: 'When enabled, the action will use the Klaviyo batch API.'
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['list_id']
     }
   },
   dynamicFields: {
@@ -55,7 +68,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { email, phone_number, list_id } = payload
+    const { email, phone_number: initialPhoneNumber, list_id, country_code } = payload
+
+    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
     if (!email && !phone_number) {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
@@ -65,15 +80,34 @@ const action: ActionDefinition<Settings, Payload> = {
 
     return await request(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
       method: 'POST',
-      headers: {
-        revision: '2024-02-15'
-      },
       json: unSubData
     })
   },
-  performBatch: async (request, { payload }) => {
+  performBatch: async (request, { payload, statsContext }) => {
     // remove payloads that have niether email or phone_number
-    const filteredPayload = payload.filter((profile) => profile.email || profile.phone_number)
+    const filteredPayload = payload.filter((profile) => {
+      // Validate and convert the phone number using the provided country code
+      const validPhoneNumber = validateAndConvertPhoneNumber(profile.phone_number, profile.country_code)
+
+      // If the phone number is valid, update the profile's phone number with the validated format
+      if (validPhoneNumber) {
+        profile.phone_number = validPhoneNumber
+      }
+      // If the phone number is invalid (null), exclude this profile
+      else if (validPhoneNumber === null) {
+        return false
+      }
+      return profile.email || profile.phone_number
+    })
+
+    if (statsContext) {
+      const { statsClient, tags } = statsContext
+      const set = new Set()
+      filteredPayload.forEach((profile) => {
+        set.add(profile.list_id)
+      })
+      statsClient?.histogram('actions-klaviyo.unsubscribe_profile.unique_list_id', set.size, tags)
+    }
 
     // if there are no payloads with phone or email throw error
     if (payload.length === 0) {
@@ -109,9 +143,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
         const response = request<Response>(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
           method: 'POST',
-          headers: {
-            revision: '2024-02-15'
-          },
           json: unSubData
         })
 

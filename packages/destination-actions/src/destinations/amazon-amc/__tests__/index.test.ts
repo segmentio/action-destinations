@@ -1,8 +1,8 @@
 import nock from 'nock'
-import { createTestIntegration, InvalidAuthenticationError } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { HTTPError } from '@segment/actions-core/*'
-import { AUTHORIZATION_URL } from '../utils'
+import { AUTHORIZATION_URL, TTL_MAX_VALUE } from '../utils'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -116,15 +116,6 @@ describe('Amazon-Ads (actions)', () => {
       )
     })
 
-    it('should fail if refresh token API gets failed', async () => {
-      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
-      nock(`${endpoint}`).post('/auth/o2/token').reply(401)
-
-      await expect(testDestination.createAudience(createAudienceInputTemp)).rejects.toThrowError(
-        InvalidAuthenticationError
-      )
-    })
-
     it('should throw an HTTPError when createAudience API response is not ok', async () => {
       const endpoint = AUTHORIZATION_URL[`${settings.region}`]
       nock(`${endpoint}`).post('/auth/o2/token').reply(200)
@@ -136,11 +127,41 @@ describe('Amazon-Ads (actions)', () => {
 
       await expect(testDestination.createAudience(createAudienceInputTemp)).rejects.toThrowError('Bad Request')
     })
+    it('Should throw an error when invalid cpmCent is provided', async () => {
+      const createAudienceInput = {
+        settings,
+        audienceName: 'Test Audience',
+        audienceSettings: {
+          ...audienceSettings,
+          ttl: 34300800,
+          currency: 'USD',
+          cpmCents: 'invalid cpm cents'
+        }
+      }
+
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
+        'CPM Cents must be a number but it was a string.'
+      )
+    })
+
+    it('Should throw an error when TTL is greater than 34300800', async () => {
+      const createAudienceInput = {
+        settings,
+        audienceName: 'Test Audience',
+        audienceSettings: {
+          ...audienceSettings,
+          ttl: 44300801,
+          currency: 'USD',
+          cpmCents: 2424222
+        }
+      }
+
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
+        `TTL must have value less than or equal to ${TTL_MAX_VALUE}`
+      )
+    })
 
     it('creates an audience', async () => {
-      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
-      nock(`${endpoint}`).post('/auth/o2/token').reply(200)
-
       nock(`${settings.region}`)
         .post('/amc/audiences/metadata')
         .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
@@ -151,9 +172,9 @@ describe('Amazon-Ads (actions)', () => {
         audienceName: 'Test Audience',
         audienceSettings: {
           ...audienceSettings,
-          ttl: 12345678,
+          ttl: '12345678',
           currency: 'USD',
-          cpmCents: 1234
+          cpmCents: '1234'
         }
       }
 
@@ -174,6 +195,7 @@ describe('Amazon-Ads (actions)', () => {
       nock(`${settings.region}/amc/audiences/metadata`)
         .get(`/${externalId}`)
         .reply(200, {
+          // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
           advertiserId: 1234567893456754321,
           audienceId: 1234549079612618,
           countryCode: 'US',
@@ -204,13 +226,6 @@ describe('Amazon-Ads (actions)', () => {
       await expect(audiencePromise).rejects.toThrow(HTTPError)
       await expect(audiencePromise).rejects.toHaveProperty('response.statusText', 'Not Found')
       await expect(audiencePromise).rejects.toHaveProperty('response.status', 404)
-    })
-    it('should fail if refresh token API gets failed ', async () => {
-      const endpoint = AUTHORIZATION_URL[`${settings.region}`]
-      nock(`${endpoint}`).post('/auth/o2/token').reply(401)
-
-      const audiencePromise = testDestination.getAudience(getAudienceInput)
-      await expect(audiencePromise).rejects.toThrow(InvalidAuthenticationError)
     })
 
     it('should throw an IntegrationError when the audienceId is not provided', async () => {

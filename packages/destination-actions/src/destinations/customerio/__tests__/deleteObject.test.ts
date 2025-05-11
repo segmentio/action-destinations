@@ -9,11 +9,9 @@ describe('CustomerIO', () => {
         const groupId = 'group_123'
         const objectTypeId = 'type_123'
         const event = createTestEvent({
-          context: {
-            groupId
-          },
           properties: {
-            objectTypeId
+            objectTypeId,
+            objectId: groupId
           }
         })
         const response = await action('deleteObject', {

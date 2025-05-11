@@ -1,17 +1,18 @@
 import { ActionDefinition, DynamicFieldResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import {
-  hash,
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
-  commonHashedEmailValidation,
   getConversionActionDynamicData,
-  isHashedInformation
+  formatPhone,
+  commonEmailValidation
 } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PartialErrorResponse, ConversionAdjustmentRequestObjectInterface, UserIdentifierInterface } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
+import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
+import { processHashingV2 } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Conversion Adjustment',
@@ -104,8 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email_address: {
       label: 'Email Address',
-      description:
-        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
+      description: 'Email address of the individual who triggered the conversion event.',
       type: 'string',
       default: {
         '@if': {
@@ -113,12 +113,18 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.email' },
           else: { '@path': '$.context.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
+    },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
     },
     phone_number: {
       label: 'Phone Number',
       description:
-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.',
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000',
       type: 'string',
       default: {
         '@if': {
@@ -126,12 +132,12 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.phone' },
           else: { '@path': '$.context.traits.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     first_name: {
       label: 'First Name',
-      description:
-        'First name of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      description: 'First name of the user who performed the conversion',
       type: 'string',
       default: {
         '@if': {
@@ -143,8 +149,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     last_name: {
       label: 'Last Name',
-      description:
-        'Last name of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      description: 'Last name of the user who performed the conversion',
       type: 'string',
       default: {
         '@if': {
@@ -152,7 +157,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.lastName' },
           else: { '@path': '$.context.traits.lastName' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     city: {
       label: 'City',
@@ -204,8 +210,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     street_address: {
       label: 'Street Address',
-      description:
-        'Street address of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      description: 'Street address of the user who performed the conversion',
       type: 'string',
       default: {
         '@if': {
@@ -223,6 +228,21 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.userAgent'
       }
+    },
+    enable_batching: {
+      type: 'boolean',
+      label: 'Batch Data to Google Enhanced Conversions',
+      description:
+        'If true, Segment will batch events before sending to Google’s APIs. Google accepts batches of up to 2000 events.',
+      unsafe_hidden: true,
+      default: false
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch.',
+      type: 'number',
+      unsafe_hidden: true,
+      default: GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE
     }
   },
   dynamicFields: {
@@ -270,7 +290,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.email_address) {
-      const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+      const validatedEmail: string = processHashingV2(payload.email_address, 'sha256', 'hex', commonEmailValidation)
 
       request_object.userIdentifiers.push({
         hashedEmail: validatedEmail
@@ -279,7 +299,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.phone_number) {
       request_object.userIdentifiers.push({
-        hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(payload.phone_number)
+        hashedPhoneNumber: processHashingV2(payload.phone_number, 'sha256', 'hex', (value) =>
+          formatPhone(value, payload.phone_country_code)
+        )
       } as UserIdentifierInterface)
     }
 
@@ -293,21 +315,21 @@ const action: ActionDefinition<Settings, Payload> = {
       payload.street_address
 
     if (containsAddressInfo) {
-      request_object.userIdentifiers.push({
-        addressInfo: {
-          hashedFirstName: isHashedInformation(String(payload.first_name))
-            ? payload.first_name
-            : hash(payload.first_name),
-          hashedLastName: isHashedInformation(String(payload.last_name)) ? payload.last_name : hash(payload.last_name),
-          hashedStreetAddress: isHashedInformation(String(payload.street_address))
-            ? payload.street_address
-            : hash(payload.street_address),
-          city: payload.city,
-          state: payload.state,
-          countryCode: payload.country,
-          postalCode: payload.postal_code
-        }
-      })
+      const addressInfo: any = {}
+      if (payload.first_name) {
+        addressInfo.hashedFirstName = processHashingV2(payload.first_name, 'sha256', 'hex')
+      }
+      if (payload.last_name) {
+        addressInfo.hashedLastName = processHashingV2(payload.last_name, 'sha256', 'hex')
+      }
+      if (payload.street_address) {
+        addressInfo.hashedStreetAddress = processHashingV2(payload.street_address, 'sha256', 'hex')
+      }
+      addressInfo.city = payload.city
+      addressInfo.state = payload.state
+      addressInfo.countryCode = payload.country
+      addressInfo.postalCode = payload.postal_code
+      request_object.userIdentifiers.push({ addressInfo })
     }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
@@ -321,6 +343,113 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         json: {
           conversionAdjustments: [request_object],
+          partialFailure: true
+        }
+      }
+    )
+
+    handleGoogleErrors(response)
+    return response
+  },
+  performBatch: async (request, { settings, payload, features, statsContext }) => {
+    /* Enforcing this here since Customer ID is required for the Google Ads API
+  but not for the Enhanced Conversions API. */
+    if (!settings.customerId) {
+      throw new PayloadValidationError(
+        'Customer ID is required for this action. Please set it in destination settings.'
+      )
+    }
+
+    settings.customerId = settings.customerId.replace(/-/g, '')
+
+    const request_objects: ConversionAdjustmentRequestObjectInterface[] = payload.map((payloadItem) => {
+      if (!payloadItem.adjustment_timestamp) {
+        payloadItem.adjustment_timestamp = new Date().toISOString()
+      }
+
+      const request_object: ConversionAdjustmentRequestObjectInterface = {
+        conversionAction: `customers/${settings.customerId}/conversionActions/${payloadItem.conversion_action}`,
+        adjustmentType: payloadItem.adjustment_type,
+        adjustmentDateTime: convertTimestamp(payloadItem.adjustment_timestamp),
+        orderId: payloadItem.order_id,
+        gclidDateTimePair: {
+          gclid: payloadItem.gclid,
+          conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp)
+        },
+        userIdentifiers: [],
+        userAgent: payloadItem.user_agent
+      }
+
+      // Google will return an error if this value is sent with retractions.
+      if (payloadItem.adjustment_type !== 'RETRACTION') {
+        request_object.restatementValue = {
+          adjustedValue: payloadItem.restatement_value,
+          currencyCode: payloadItem.restatement_currency_code
+        }
+      }
+
+      if (payloadItem.email_address) {
+        const validatedEmail: string = processHashingV2(
+          payloadItem.email_address,
+          'sha256',
+          'hex',
+          commonEmailValidation
+        )
+
+        request_object.userIdentifiers.push({
+          hashedEmail: validatedEmail
+        } as UserIdentifierInterface)
+      }
+
+      if (payloadItem.phone_number) {
+        request_object.userIdentifiers.push({
+          hashedPhoneNumber: processHashingV2(payloadItem.phone_number, 'sha256', 'hex', (value) =>
+            formatPhone(value, payloadItem.phone_country_code)
+          )
+        } as UserIdentifierInterface)
+      }
+
+      const containsAddressInfo =
+        payloadItem.first_name ||
+        payloadItem.last_name ||
+        payloadItem.city ||
+        payloadItem.state ||
+        payloadItem.country ||
+        payloadItem.postal_code ||
+        payloadItem.street_address
+
+      if (containsAddressInfo) {
+        const addressInfo: any = {}
+        if (payloadItem.first_name) {
+          addressInfo.hashedFirstName = processHashingV2(payloadItem.first_name, 'sha256', 'hex')
+        }
+        if (payloadItem.last_name) {
+          addressInfo.hashedLastName = processHashingV2(payloadItem.last_name, 'sha256', 'hex')
+        }
+        if (payloadItem.street_address) {
+          addressInfo.hashedStreetAddress = processHashingV2(payloadItem.street_address, 'sha256', 'hex')
+        }
+        addressInfo.city = payloadItem.city
+        addressInfo.state = payloadItem.state
+        addressInfo.countryCode = payloadItem.country
+        addressInfo.postalCode = payloadItem.postal_code
+        request_object.userIdentifiers.push({ addressInfo })
+      }
+
+      return request_object
+    })
+
+    const response: ModifiedResponse<PartialErrorResponse> = await request(
+      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
+        settings.customerId
+      }:uploadConversionAdjustments`,
+      {
+        method: 'post',
+        headers: {
+          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+        },
+        json: {
+          conversionAdjustments: request_objects,
           partialFailure: true
         }
       }

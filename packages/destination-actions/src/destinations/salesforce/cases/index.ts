@@ -10,7 +10,8 @@ import {
   validateLookup,
   enable_batching,
   recordMatcherOperator,
-  batch_size
+  batch_size,
+  hideIfDeleteOperation
 } from '../sf-properties'
 import Salesforce, { generateSalesforceRequest } from '../sf-operations'
 
@@ -30,7 +31,8 @@ const action: ActionDefinition<Settings, Payload> = {
     description: {
       label: 'Description',
       description: 'A text description of the case.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     customFields: customFields
   },
@@ -55,10 +57,15 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, features, statsContext, logger }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
-    return sf.bulkHandler(payload, OBJECT_NAME)
+    let shouldShowAdvancedLogging = false
+    if (features && features['salesforce-advanced-logging']) {
+      shouldShowAdvancedLogging = true
+    }
+
+    return sf.bulkHandler(payload, OBJECT_NAME, { shouldLog: shouldShowAdvancedLogging, stats: statsContext, logger })
   }
 }
 

@@ -31,6 +31,7 @@ For more detailed instruction, see the following READMEs:
 - [Presets](#presets)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
+- [Parsing MultiStatus Responses](#parsing-multistatus-responses)
 - [Action Hooks](#action-hooks)
 - [HTTP Requests](#http-requests)
 - [Support](#support)
@@ -59,7 +60,7 @@ Structure:
 You'll need to have some tools installed locally to build and test action destinations.
 
 - Yarn 1.x
-- Node 18.12 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
+- Node 18.17 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
 
 If you are a Segment employee you can directly `git clone` the repository locally. Otherwise you'll want to fork this repository for your organization to submit Pull Requests against the main Segment repository. Once you've got a fork, you can `git clone` that locally.
 
@@ -71,7 +72,7 @@ cd action-destinations
 npm login
 yarn login
 
-# Requires node 18.12.1, optionally: nvm use 18.12.1
+# Requires node 18.17.1, optionally: nvm use 18.17.1
 yarn --ignore-optional
 yarn install
 yarn build
@@ -81,6 +82,9 @@ yarn test-partners
 
 # For segment employees, you can run:
 yarn test
+
+# to reset all caches and rebuild again
+yarn clean-build
 ```
 
 ### Actions CLI
@@ -267,7 +271,7 @@ interface InputField {
   dynamic?: boolean
 
   /** Whether or not the field is required */
-  required?: boolean
+  required?: boolean | DependsOnConditions
 
   /**
    * Optional definition for the properties of `type: 'object'` fields
@@ -357,6 +361,126 @@ const destination = {
 ```
 
 In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
+
+## Required Fields
+
+You may configure a field to either be always required, not required, or conditionally required. Validation for required fields is performed both when a user is configuring a mapping in the UI and when an event payload is delivered through a `perform` block.
+
+**An example of each possible value for `required`**
+
+```js
+const destination = {
+  actions: {
+    readmeAction: {
+      fields: {
+        operation: {
+          label: 'An operation for the readme action',
+          required: true // This field is always required and any payloads omitting it will fail
+        },
+        creationName: {
+          label: "The name of the resource to create, required when operation = 'create'",
+          required: {
+            // This field is required only when the 'operation' field has the value 'create'
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'operation',
+                operator: 'is',
+                value: 'create'
+              }
+            ]
+          }
+        },
+        email: {
+          label: 'The customer email',
+          required: false // This field is not required. This is the same as not including the 'required' property at all
+        },
+        userIdentifiers: {
+          phone: {
+            label: 'The customer phone number',
+            required: {
+              // If email is not provided then a phone number is required
+              conditions: [{ fieldKey: 'email', operator: 'is', value: undefined }]
+            }
+          },
+          countryCode: {
+            label: 'The country code for the customer phone number',
+            required: {
+              // If a userIdentifiers.phone is provided then the country code is also required
+              conditions: [
+                {
+                  fieldKey: 'userIdentifiers.phone', // Dot notation may be used to address object fields.
+                  operator: 'is_not',
+                  value: undefined
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+**Examples of valid and invalid payloads for the fields above**
+
+```json
+// This payload is valid since the only required field, 'operation', is defined.
+{
+  "operation": "update",
+  "email": "read@me.com"
+}
+```
+
+```json
+// This payload is invalid since 'creationName' is required because 'operation' is 'create'
+{
+  "operation": "create",
+  "email": "read@me.com"
+}
+// This error will be thrown:
+"message": "The root value is missing the required field 'creationName'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is valid since the two required fields, 'operation' and 'creationName' are defined.
+{
+  "operation": "create",
+  "creationName": "readme",
+  "email": "read@me.com"
+}
+```
+
+```json
+// This payload is invalid since 'phone' is required when 'email' is missing.
+{
+  "operation": "update",
+}
+// This error will be thrown:
+"message": "The root value is missing the required field 'phone'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is invalid since 'countryCode' is required when 'phone' is defined
+{
+  "operation": "update",
+  "userIdentifiers": { "phone": "619-555-5555" }
+}
+// This error will be thrown:
+"message": "The root value is missing the required field 'countryCode'. The root value must match \"then\" schema."
+```
+
+```json
+// This payload is valid since all conditionally required fields are included
+{
+  "operation": "update",
+  "userIdentifiers": {
+    "phone": "619-555-5555",
+    "countryCode": "+1"
+  }
+}
+```
 
 ## Dynamic Fields
 
@@ -531,9 +655,10 @@ The `perform` method accepts two arguments, (1) the request client instance (ext
 - `features` - The features available in the request based on the customer's sourceID. Features can only be enabled and/or used by internal Twilio/Segment employees. Features cannot be used for Partner builds.
 - `statsContext` - An object, containing a `statsClient` and `tags`. Stats can only be used by internal Twilio/Segment employees. Stats cannot be used for Partner builds.
 - `logger` - Logger can only be used by internal Twilio/Segment employees. Logger cannot be used for Partner builds.
-- `dataFeedCache` - DataFeedCache can only be used by internal Twilio/Segment employees. DataFeedCache cannot be used for Partner builds.
+- `engageDestinationCache` - EngageDestinationCache can only be used by internal Twilio/Segment employees. EngageDestinationCache should not be used for Partner builds.
 - `transactionContext` - An object, containing transaction variables and a method to update transaction variables which are required for few segment developed actions. Transaction Context cannot be used for Partner builds.
 - `stateContext` - An object, containing context variables and a method to get and set context variables which are required for few segment developed actions. State Context cannot be used for Partner builds.
+- `subscriptionMetadata` - an object, containing variables which identify the instance of a Destination and Action as well as other metadata. Subscription Metadata cannot be used for Partner builds.
 
 A basic example:
 
@@ -612,11 +737,20 @@ Keep in mind a few important things about how batching works:
 
 Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
 
+## Parsing MultiStatus Responses
+
+When a batch request to a destination returns a 207 MultiStatus response, the `performBatch` method will typically receive an array of responses, indicating the status of each event in the batch. The Actions Framework provides a `MultiStatusResponse` class to help you parse these responses to report a more granular success or failure status for each event.
+
+A detailed example of how to use the `MultiStatusResponse` class can be found in the [MultiStatus Documentation](./docs/multistatus.md).
+
 ## Action Hooks
 
-**Note: This feature is not yet released.**
-
 Hooks allow builders to perform requests against a destination at certain points in the lifecycle of a mapping. Values can then be persisted from that request to be used later on in the action's `perform` method.
+
+At the moment two hooks are available: `onMappingSave` and `retlOnMappingSave`:
+
+- `onMappingSave`: This hook appears in the MappingEditor page as a separate step. Users fill in the defined input fields and the code in the `performHook` block is triggered when the user saves their mapping.
+- `retlOnMappingSave`: This hook appears only for destinations connected to a RETL warehouse source. It is otherwise the same as the `onMappingSave` hook.
 
 **Inputs**
 
@@ -628,7 +762,7 @@ Similar to the `perform` method, the `performHook` method allows builders to tri
 
 **Outputs**
 
-Builders define the shape of the hook output with the `outputTypes` property. Successful returns from `performHook` should match the keys defined here. These values are then saved on a per-mapping basis, and can be used in the `perform` or `performBatch` methods when events are sent through the mapping.
+Builders define the shape of the hook output with the `outputTypes` property. Successful returns from `performHook` should match the keys defined here. These values are then saved on a per-mapping basis, and can be used in the `perform` or `performBatch` methods when events are sent through the mapping. Outputs can be referenced in the `perform` block with `data.hookOutputs?.<hookType>?.<property>`
 
 ### Example (LinkedIn Conversions API)
 
@@ -705,10 +839,6 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
   }
   }
 ```
-
-### `onMappingSave` hook
-
-The `onMappingSave` hook is triggered after a user clicks 'Save' on a mapping. The result of the hook is then saved to the users configuration as if it were a normal field. Builders can access the saved values in the `perform` block by referencing `data.hookOutputs?.onMappingSave?.<key>`.
 
 ## Audience Support (Pilot)
 
@@ -837,6 +967,50 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 - some options and behaviors are not applicable to Node.js and will be ignored by `node-fetch`. See this list of [known differences](https://github.com/node-fetch/node-fetch/blob/1780f5ae89107ded4f232f43219ab0e548b0647c/docs/v2-LIMITS.md).
 - `method` will automatically get upcased for consistency.
 
+## Automatic Hashing Detection with `processHashing`
+
+Our popular segment Adtect destinations support [automatic hash detection](https://segment.com/docs/connections/destinations/#hashing) of personally identifyable information (PII). If your destination hashes PII data, we recommend you use the `processHashing` utility instead of `createHash` from `crypto` module.
+This utility automatically detects if a value is already hashed. It will only apply a hash if the value appears to be unhashed.
+
+The `processHashing` utility supports `md5`, `sha1`,`sha224`,`sha256`,`sha384` and`sha512` hashing algorithms. It can output digests in `hex` or `base64` format.
+
+**Note**: For empty or whitespace-only strings, the `processHashing` outputs an empty string instead of throwing an error like `createHash` hash module.
+
+### Example 1: Hashing an Email Address
+
+```
+  import { processHashing } from 'destination-actions/lib/hashing-utils'
+
+  const email = ' Person@email.com '
+  const hashedEmail = processHashing(
+    email,
+    'sha256',
+    'hex',
+    (value) => value.trim().toLowerCase()
+  )
+
+  console.log(hashedEmail) // hashed string
+```
+
+### Example 2: Hashing a Phone Number
+
+```
+  const phone = '+1(706)-767-5127'
+  const normalizePhone = (value: string) => value.replace(/[^0-9]/g, '')
+
+  const hashedPhone = processHashing(
+    phone,
+    'sha256',
+    'hex',
+    normalizePhone
+  )
+
+  console.log(hashedPhone) // hashed string
+```
+
+**Requesting Additional Algorithms**
+To request additional hash algorithms, contact partner-support@segment.com.
+
 ## Support
 
 For any issues, please contact our support team at partner-support@segment.com.
@@ -845,7 +1019,7 @@ For any issues, please contact our support team at partner-support@segment.com.
 
 MIT License
 
-Copyright (c) 2024 Segment
+Copyright (c) 2025 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -868,3 +1042,7 @@ SOFTWARE.
 ## Contributing
 
 All third party contributors acknowledge that any contributions they provide will be made under the same open source license that the open source project is provided under.
+
+```
+
+```

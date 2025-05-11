@@ -1,7 +1,17 @@
-import { createHash } from 'crypto'
+import { processHashingV2 } from '../../lib/hashing-utils'
 
-export function hashAndEncode(property: string) {
-  return createHash('sha256').update(property).digest('hex')
+export function hashAndEncode(property: string): string {
+  return processHashingV2(property, 'sha256', 'hex')
+}
+
+export function hashAndEncodeToInt(property: string): number {
+  const hash = processHashingV2(property, 'sha256', 'hex')
+  const bigInt = BigInt('0x' + hash)
+  let integerString = bigInt.toString()
+  if (integerString.length > 16) {
+    integerString = integerString.substring(0, 16)
+  }
+  return Number(integerString)
 }
 
 function getDomain(dataCenter: string): string {
@@ -21,10 +31,21 @@ function getDomain(dataCenter: string): string {
 }
 
 export function getUpsertURL(dataCenter: string): string {
-  return `https://cdp-extensions-api.${getDomain(dataCenter)}.dynamicyield.com/cdp/segment/audiences/membership-change` 
+  return `https://cdp-extensions-api.${getDomain(dataCenter)}.dynamicyield.com/cdp/segment/audiences/membership-change`
 }
 
 export function getCreateAudienceURL(dataCenter: string): string {
   return `https://cdp-extensions-api.${getDomain(dataCenter)}.dynamicyield.com/cdp/segment/audiences/subscription`
 }
 
+export function getDataCenter(sectionId: string) {
+  return sectionId.toLocaleLowerCase().startsWith('9')
+    ? 'EU'
+    : sectionId.toLocaleLowerCase().startsWith('8')
+    ? 'US'
+    : 'DEV'
+}
+
+export function getSectionId(sectionId: string) {
+  return sectionId.toLocaleLowerCase().replace('dev', '')
+}

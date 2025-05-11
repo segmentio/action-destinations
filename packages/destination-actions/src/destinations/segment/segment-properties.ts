@@ -343,15 +343,6 @@ export const traits: InputField = {
   additionalProperties: true
 }
 
-export const enable_batching: InputField = {
-  type: 'boolean',
-  label: 'Batch Data to segment',
-  description:
-    'This is always disabled pending a full removal. When enabled, the action will send batch data. Segment accepts batches of up to 225 events.',
-  default: false,
-  unsafe_hidden: true
-}
-
 export const message_id: InputField = {
   type: 'string',
   label: 'MessageId',
@@ -366,6 +357,40 @@ export const consent: InputField = {
   type: 'object',
   default: { '@path': '$.context.consent' },
   unsafe_hidden: true
+}
+
+export const address: InputField = {
+  label: 'Address',
+  description: 'Dictionary of information about the user’s current Address.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  properties: {
+    street: {
+      label: 'Street',
+      description: "The user's street address",
+      type: 'string'
+    },
+    city: {
+      label: 'City',
+      description: "The user's city",
+      type: 'string'
+    },
+    state: {
+      label: 'State',
+      description: "The user's State",
+      type: 'string'
+    },
+    country: {
+      label: 'Country',
+      description: "The user's country",
+      type: 'string'
+    },
+    postalCode: {
+      label: 'Postal Code',
+      description: "The user's Postal Code",
+      type: 'string'
+    }
+  }
 }
 function isCategoryPreferences(obj: unknown): boolean {
   if (typeof obj !== 'object' || obj === null) {

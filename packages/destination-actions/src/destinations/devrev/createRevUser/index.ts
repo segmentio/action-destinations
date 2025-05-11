@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import {
-  AccountGet,
   AccountListResponse,
   RevOrgListResponse,
   RevUserGet,
@@ -11,10 +10,12 @@ import {
   TagsResponse,
   getDomain,
   devrevApiPaths,
-  CreateAccountBody,
   getName,
   getBaseUrl,
-  CreateRevUserBody
+  CreateRevUserBody,
+  RevUser,
+  CreateAccountBody,
+  AccountGet
 } from '../utils'
 import { APIError } from '@segment/actions-core'
 
@@ -85,7 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     tag: {
       label: 'Tag',
-      description: 'A tag to apply to created Accounts.',
+      description: 'A tag to apply.',
       type: 'string',
       dynamic: true,
       required: false
@@ -124,65 +125,86 @@ const action: ActionDefinition<Settings, Payload> = {
     const existingUsers: RevUserListResponse = await request(
       `${getBaseUrl(settings)}${devrevApiPaths.revUsersList}?email="${email}"`
     )
-    let revUserId, accountId, revOrgId
+    let contact: RevUser | undefined = undefined
     if (existingUsers.data.rev_users.length == 0) {
       // No existing revusers, search for Account
-      let requestUrl
-      if (domain !== email) requestUrl = `${getBaseUrl(settings)}${devrevApiPaths.accountsList}?domains="${domain}"`
-      else requestUrl = `${getBaseUrl(settings)}${devrevApiPaths.accountsList}?external_refs="${domain}"`
-      const existingAccount: AccountListResponse = await request(requestUrl)
-      if (existingAccount.data.accounts.length == 0) {
-        // Create account
-        const requestBody: CreateAccountBody = {
-          display_name: domain,
-          external_refs: [domain]
-        }
-        if (payload.tag) requestBody.tags = [{ id: payload.tag }]
-        if (domain != email) requestBody.domains = [domain]
-
-        const createAccount: AccountGet = await request(`${getBaseUrl(settings)}${devrevApiPaths.accountCreate}`, {
-          method: 'post',
-          json: requestBody
-        })
-        accountId = createAccount.data.account.id
-      } else {
-        // Use existing account
-        accountId = existingAccount.data.accounts[0].id
-      }
-      const accountRevorgs: RevOrgListResponse = await request(
-        `${getBaseUrl(settings)}${devrevApiPaths.revOrgsList}?account=${accountId}`
-      )
-      const filtered = accountRevorgs.data.rev_orgs.filter(
-        (revorg) => revorg.external_ref_issuer == 'devrev:platform:revorg:account'
-      )
-      revOrgId = filtered[0].id
+      // Create the payload
       const createUserPayload: CreateRevUserBody = {
         email,
         display_name: name,
-        external_ref: email,
-        org_id: revOrgId
+        external_ref: email
       }
+
+      let requestUrl = ''
+      //Search using domain if the email domain is not blacklisted
+      // Otherwise search the external refs
+      if (domain !== email) requestUrl = `${getBaseUrl(settings)}${devrevApiPaths.accountsList}?domains="${domain}"`
+      else requestUrl = `${getBaseUrl(settings)}${devrevApiPaths.accountsList}?external_refs="${domain}"`
+      const existingAccount: AccountListResponse = await request(requestUrl)
+      let accountId = ''
+      if (existingAccount.data.accounts.length > 0) {
+        accountId = existingAccount.data.accounts[0].id
+      } else if (domain !== email) {
+        // if the domain is equal to the email, we know that the domain is blacklisted.
+        // If there is not any account found already and the domain is not blacklisted we create a new account
+        const createAccountPayload: CreateAccountBody = {
+          display_name: domain,
+          external_refs: [domain],
+          domains: [domain]
+        }
+        if (payload.tag) createAccountPayload.tags = [{ id: payload.tag }]
+        const createAccount: AccountGet = await request(`${getBaseUrl(settings)}${devrevApiPaths.accountCreate}`, {
+          method: 'POST',
+          json: createAccountPayload
+        })
+        accountId = createAccount.data.account.id
+      }
+      // If we found or created an account, find the workspace and add it to the payload
+      if (accountId) {
+        const accountRevorgs: RevOrgListResponse = await request(
+          `${getBaseUrl(settings)}${devrevApiPaths.revOrgsList}?account=${accountId}`
+        )
+        const filtered = accountRevorgs.data.rev_orgs.filter(
+          (revorg) => revorg.external_ref_issuer == 'devrev:platform:revorg:account'
+        )
+        if (filtered.length > 0) createUserPayload.org_id = filtered[0].id
+      }
+      // If there is a tag configured, apply it
       if (payload.tag) createUserPayload.tags = [{ id: payload.tag }]
       const createRevUser: RevUserGet = await request(`${getBaseUrl(settings)}${devrevApiPaths.revUsersCreate}`, {
         method: 'post',
         json: createUserPayload
       })
-      revUserId = createRevUser.data.rev_user.id
+      contact = createRevUser.data.rev_user
     } else if (existingUsers.data.rev_users.length == 1) {
       // One existing revuser
-      revUserId = existingUsers.data.rev_users[0].id
+      contact = existingUsers.data.rev_users[0]
     } else {
       // Multiple existing users, use the oldest one
       const sorted = existingUsers.data.rev_users.sort((a, b) => {
         return new Date(a.created_date).getTime() - new Date(b.created_date).getTime()
       })
-      revUserId = sorted[0].id
+      contact = sorted[0]
     }
-    if (payload.comment) {
+    if (payload.tag && contact) {
+      const tags = contact.tags?.map((tag) => tag.tag.id) ?? []
+      if (tags.indexOf(payload.tag) === -1) {
+        tags.push(payload.tag)
+        const formattedTags = tags.map((tag) => ({ id: tag }))
+        await request(`${getBaseUrl(settings)}${devrevApiPaths.revUsersUpdate}`, {
+          method: 'post',
+          json: {
+            id: contact.id,
+            tags: formattedTags
+          }
+        })
+      }
+    }
+    if (payload.comment && contact) {
       await request(`${getBaseUrl(settings)}${devrevApiPaths.timelineEntriesCreate}`, {
         method: 'post',
         json: {
-          object: revUserId,
+          object: contact.id,
           type: 'timeline_comment',
           body_type: 'text',
           body: payload.comment

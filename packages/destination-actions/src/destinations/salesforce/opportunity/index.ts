@@ -10,7 +10,8 @@ import {
   validateLookup,
   enable_batching,
   recordMatcherOperator,
-  batch_size
+  batch_size,
+  hideIfDeleteOperation
 } from '../sf-properties'
 import type { Payload } from './generated-types'
 
@@ -31,27 +32,32 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Close Date',
       description:
         'Date when the opportunity is expected to close. Use yyyy-MM-dd format. **This is required to create an opportunity.**',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     name: {
       label: 'Name',
       description: 'A name for the opportunity. **This is required to create an opportunity.**',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     stage_name: {
       label: 'Stage Name',
       description: 'Current stage of the opportunity. **This is required to create an opportunity.**',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     amount: {
       label: 'Amount',
       description: 'Estimated total sale amount.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     description: {
       label: 'Description',
       description: 'A text description of the opportunity.',
-      type: 'string'
+      type: 'string',
+      depends_on: hideIfDeleteOperation
     },
     customFields: customFields
   },
@@ -82,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return await sf.deleteRecord(payload, OBJECT_NAME)
     }
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: async (request, { settings, payload, features, statsContext, logger }) => {
     const sf: Salesforce = new Salesforce(settings.instanceUrl, await generateSalesforceRequest(settings, request))
 
     if (payload[0].operation === 'upsert') {
@@ -91,7 +97,12 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
 
-    return sf.bulkHandler(payload, OBJECT_NAME)
+    let shouldShowAdvancedLogging = false
+    if (features && features['salesforce-advanced-logging']) {
+      shouldShowAdvancedLogging = true
+    }
+
+    return sf.bulkHandler(payload, OBJECT_NAME, { shouldLog: shouldShowAdvancedLogging, stats: statsContext, logger })
   }
 }
 

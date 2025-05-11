@@ -14,7 +14,7 @@ Object {
       },
     },
     "keys": Object {
-      "user_id": "G10lVP",
+      "testType": "G10lVP",
     },
     "name": "G10lVP",
     "traits": Object {
@@ -35,7 +35,9 @@ Object {
         "testType": "G10lVP",
       },
     },
-    "keys": Object {},
+    "keys": Object {
+      "testType": "G10lVP",
+    },
   },
   "sent_at": "2023-01-01T00:00:00.000Z",
   "type": "identify",
@@ -54,7 +56,7 @@ Object {
       "raw_event_name": "uvfeUI#M",
     },
     "user": Object {
-      "user_id": "uvfeUI#M",
+      "testType": "uvfeUI#M",
     },
   },
   "sent_at": "2023-01-01T00:00:00.000Z",

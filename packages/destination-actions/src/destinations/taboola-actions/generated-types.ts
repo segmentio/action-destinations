@@ -9,12 +9,16 @@ export interface Settings {
    * The client's secret from your Taboola account.
    */
   client_secret: string
+  /**
+   * The audience identifier from your Taboola account.
+   */
+  audience_identifier?: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface AudienceSettings {
   /**
-   * The ID for the Taboola Account to sync to.
+   * The alphabetic ID for the Taboola Account to sync to.
    */
   account_id: string
   /**

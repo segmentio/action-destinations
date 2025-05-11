@@ -61,7 +61,6 @@ const createDmpSegmentRequestBody = {
   sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
   sourceSegmentId: 'personas_test_audience',
   account: `urn:li:sponsoredAccount:456`,
-  accessPolicy: 'PRIVATE',
   type: 'USER',
   destinations: [
     {
@@ -71,9 +70,96 @@ const createDmpSegmentRequestBody = {
 }
 
 describe('LinkedinAudiences.updateAudience', () => {
-  it('should fail if `personas_audience_key` field does not match the `source_segment_id` field', async () => {
-    await expect(
-      testDestination.testAction('updateAudience', {
+  describe('Successful cases', () => {
+    it('should succeed if an existing DMP Segment is found', async () => {
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(urlParams)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
+
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event,
+          settings: {
+            ad_account_id: '123',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'personas_test_audience'
+          }
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should successfully create a new DMP Segment if an existing Segment is not found', async () => {
+      urlParams.account = 'urn:li:sponsoredAccount:456'
+
+      nock(`${BASE_URL}/dmpSegments`).get(/.*/).query(urlParams).reply(200, { elements: [] })
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(urlParams)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments`).post(/.*/, createDmpSegmentRequestBody).reply(200)
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
+
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event,
+          settings: {
+            ad_account_id: '456',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'personas_test_audience'
+          }
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should not throw an error if `dmp_user_action` is not "AUTO", even if `source_segment_id` does not match `personas_audience_key`', async () => {
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
+
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event,
+          settings: {
+            ad_account_id: '123',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            source_segment_id: 'mismatched_segment',
+            personas_audience_key: 'personas_test_audience',
+            dmp_user_action: 'ADD'
+          }
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should set action to "ADD" if `dmp_user_action` is "ADD"', async () => {
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
+        .post(/.*/, (body) => body.elements[0].action === 'ADD')
+        .reply(200)
+
+      const response = await testDestination.testAction('updateAudience', {
         event,
         settings: {
           ad_account_id: '123',
@@ -83,112 +169,25 @@ describe('LinkedinAudiences.updateAudience', () => {
         useDefaultMappings: true,
         auth,
         mapping: {
-          personas_audience_key: 'mismatched_audience',
-          dmp_user_action: null
-        }
-      })
-    ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
-  })
-
-  it('should fail if both `send_email` and `send_google_advertising_id` settings are set to false', async () => {
-    await expect(
-      testDestination.testAction('updateAudience', {
-        event,
-        settings: {
-          ad_account_id: '123',
-          send_email: false,
-          send_google_advertising_id: false
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          personas_audience_key: 'personas_test_audience'
-        }
-      })
-    ).rejects.toThrow('At least one of `Send Email` or `Send Google Advertising ID` must be set to `true`.')
-  })
-
-  it('should succeed if an exisitng DMP Segment is found', async () => {
-    nock(`${BASE_URL}/dmpSegments`)
-      .get(/.*/)
-      .query(urlParams)
-      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-    nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
-
-    await expect(
-      testDestination.testAction('updateAudience', {
-        event,
-        settings: {
-          ad_account_id: '123',
-          send_email: true,
-          send_google_advertising_id: true
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          personas_audience_key: 'personas_test_audience'
-        }
-      })
-    ).resolves.not.toThrowError()
-  })
-
-  it('should successfully create a new DMP Segment if an existing Segment is not found', async () => {
-    urlParams.account = 'urn:li:sponsoredAccount:456'
-
-    nock(`${BASE_URL}/dmpSegments`).get(/.*/).query(urlParams).reply(200, { elements: [] })
-    nock(`${BASE_URL}/dmpSegments`)
-      .get(/.*/)
-      .query(urlParams)
-      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-    nock(`${BASE_URL}/dmpSegments`).post(/.*/, createDmpSegmentRequestBody).reply(200)
-    nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
-
-    await expect(
-      testDestination.testAction('updateAudience', {
-        event,
-        settings: {
-          ad_account_id: '456',
-          send_email: true,
-          send_google_advertising_id: true
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          personas_audience_key: 'personas_test_audience'
-        }
-      })
-    ).resolves.not.toThrowError()
-  })
-
-  it('should not throw an error if `dmp_user_action` is not "AUTO", even if `source_segment_id` does not match `personas_audience_key`', async () => {
-    nock(`${BASE_URL}/dmpSegments`)
-      .get(/.*/)
-      .query(() => true)
-      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-    nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/, updateUsersRequestBody).reply(200)
-
-    await expect(
-      testDestination.testAction('updateAudience', {
-        event,
-        settings: {
-          ad_account_id: '123',
-          send_email: true,
-          send_google_advertising_id: true
-        },
-        useDefaultMappings: true,
-        auth,
-        mapping: {
-          source_segment_id: 'mismatched_segment',
           personas_audience_key: 'personas_test_audience',
           dmp_user_action: 'ADD'
         }
       })
-    ).resolves.not.toThrowError()
-  })
 
-  it('should fail if `personas_audience_key` field does not match the `source_segment_id` field, and `dmp_user_action` is set to auto', async () => {
-    await expect(
-      testDestination.testAction('updateAudience', {
+      expect(response).toBeTruthy()
+    })
+
+    it('should set action to "REMOVE" if `dmp_user_action` is "REMOVE"', async () => {
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
+        .post(/.*/, (body) => body.elements[0].action === 'REMOVE')
+        .reply(200)
+
+      const response = await testDestination.testAction('updateAudience', {
         event,
         settings: {
           ad_account_id: '123',
@@ -198,66 +197,267 @@ describe('LinkedinAudiences.updateAudience', () => {
         useDefaultMappings: true,
         auth,
         mapping: {
-          personas_audience_key: 'mismatched_audience',
-          dmp_user_action: 'AUTO'
+          personas_audience_key: 'personas_test_audience',
+          dmp_user_action: 'REMOVE'
         }
       })
-    ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
-  })
 
-  it('should set action to "ADD" if `dmp_user_action` is "ADD"', async () => {
-    nock(`${BASE_URL}/dmpSegments`)
-      .get(/.*/)
-      .query(() => true)
-      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
-
-    nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
-      .post(/.*/, (body) => body.elements[0].action === 'ADD')
-      .reply(200)
-
-    const response = await testDestination.testAction('updateAudience', {
-      event,
-      settings: {
-        ad_account_id: '123',
-        send_email: true,
-        send_google_advertising_id: true
-      },
-      useDefaultMappings: true,
-      auth,
-      mapping: {
-        personas_audience_key: 'personas_test_audience',
-        dmp_user_action: 'ADD'
-      }
+      expect(response).toBeTruthy()
     })
 
-    expect(response).toBeTruthy()
-  })
+    it('Email comes from traits.email', async () => {
+      const eventWithTraits = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          audience_key: 'personas_test_audience'
+        },
+        traits: {
+          email: 'testing@testing.com'
+        },
+        context: {
+          device: {
+            advertisingId: '123'
+          }
+        }
+      })
 
-  it('should set action to "REMOVE" if `dmp_user_action` is "REMOVE"', async () => {
-    nock(`${BASE_URL}/dmpSegments`)
-      .get(/.*/)
-      .query(() => true)
-      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
 
-    nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
-      .post(/.*/, (body) => body.elements[0].action === 'REMOVE')
-      .reply(200)
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
+        .post(/.*/, (body) => body.elements[0].action === 'ADD')
+        .reply(200)
 
-    const response = await testDestination.testAction('updateAudience', {
-      event,
-      settings: {
-        ad_account_id: '123',
-        send_email: true,
-        send_google_advertising_id: true
-      },
-      useDefaultMappings: true,
-      auth,
-      mapping: {
-        personas_audience_key: 'personas_test_audience',
-        dmp_user_action: 'REMOVE'
-      }
+      const responses = await testDestination.testAction('updateAudience', {
+        event: eventWithTraits,
+        settings: {
+          ad_account_id: '123',
+          send_email: true,
+          send_google_advertising_id: true
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          personas_audience_key: 'personas_test_audience',
+          dmp_user_action: 'ADD'
+        }
+      })
+
+      expect(responses).toBeTruthy()
+      expect(responses).toHaveLength(2)
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        '"{\\"elements\\":[{\\"action\\":\\"ADD\\",\\"userIds\\":[{\\"idType\\":\\"SHA256_EMAIL\\",\\"idValue\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\"},{\\"idType\\":\\"GOOGLE_AID\\",\\"idValue\\":\\"123\\"}]}]}"'
+      )
     })
 
-    expect(response).toBeTruthy()
+    it('Email is already a SHA256 hash', async () => {
+      const eventWithTraits = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          audience_key: 'personas_test_audience'
+        },
+        traits: {
+          email: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+        },
+        context: {
+          device: {
+            advertisingId: '123'
+          }
+        }
+      })
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
+        .post(/.*/, (body) => body.elements[0].action === 'ADD')
+        .reply(200)
+
+      const responses = await testDestination.testAction('updateAudience', {
+        event: eventWithTraits,
+        settings: {
+          ad_account_id: '123',
+          send_email: true,
+          send_google_advertising_id: true
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          personas_audience_key: 'personas_test_audience',
+          dmp_user_action: 'ADD'
+        }
+      })
+
+      expect(responses).toBeTruthy()
+      expect(responses).toHaveLength(2)
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        '"{\\"elements\\":[{\\"action\\":\\"ADD\\",\\"userIds\\":[{\\"idType\\":\\"SHA256_EMAIL\\",\\"idValue\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\"},{\\"idType\\":\\"GOOGLE_AID\\",\\"idValue\\":\\"123\\"}]}]}"'
+      )
+    })
+
+    it('Email is already a SHA256 hash with smart hashing flag', async () => {
+      const eventWithTraits = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          audience_key: 'personas_test_audience'
+        },
+        traits: {
+          email: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+        },
+        context: {
+          device: {
+            advertisingId: '123'
+          }
+        }
+      })
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
+        .post(/.*/, (body) => body.elements[0].action === 'ADD')
+        .reply(200)
+
+      const responses = await testDestination.testAction('updateAudience', {
+        event: eventWithTraits,
+        settings: {
+          ad_account_id: '123',
+          send_email: true,
+          send_google_advertising_id: true
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          personas_audience_key: 'personas_test_audience',
+          dmp_user_action: 'ADD'
+        }
+      })
+
+      expect(responses).toBeTruthy()
+      expect(responses).toHaveLength(2)
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        '"{\\"elements\\":[{\\"action\\":\\"ADD\\",\\"userIds\\":[{\\"idType\\":\\"SHA256_EMAIL\\",\\"idValue\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\"},{\\"idType\\":\\"GOOGLE_AID\\",\\"idValue\\":\\"123\\"}]}]}"'
+      )
+    })
+
+    it('Full payload', async () => {
+      const eventWithTraits = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          audience_key: 'personas_test_audience'
+        },
+        traits: {
+          email: 'testing@testing.com',
+          firstName: 'John',
+          lastName: 'Doe',
+          title: 'CEO',
+          company: 'Acme',
+          country: 'US'
+        },
+        context: {
+          device: {
+            advertisingId: '123'
+          }
+        }
+      })
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
+        .post(/.*/, (body) => body.elements[0].action === 'ADD')
+        .reply(200)
+
+      const responses = await testDestination.testAction('updateAudience', {
+        event: eventWithTraits,
+        settings: {
+          ad_account_id: '123',
+          send_email: true,
+          send_google_advertising_id: true
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          personas_audience_key: 'personas_test_audience',
+          dmp_user_action: 'ADD'
+        }
+      })
+
+      expect(responses).toBeTruthy()
+      expect(responses).toHaveLength(2)
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        '"{\\"elements\\":[{\\"action\\":\\"ADD\\",\\"userIds\\":[{\\"idType\\":\\"SHA256_EMAIL\\",\\"idValue\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\"},{\\"idType\\":\\"GOOGLE_AID\\",\\"idValue\\":\\"123\\"}],\\"firstName\\":\\"John\\",\\"lastName\\":\\"Doe\\",\\"title\\":\\"CEO\\",\\"company\\":\\"Acme\\",\\"country\\":\\"US\\"}]}"'
+      )
+    })
+  })
+
+  describe('Error cases', () => {
+    it('should fail if `personas_audience_key` field does not match the `source_segment_id` field', async () => {
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event,
+          settings: {
+            ad_account_id: '123',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'mismatched_audience',
+            dmp_user_action: null
+          }
+        })
+      ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
+    })
+
+    it('should fail if both `send_email` and `send_google_advertising_id` settings are set to false', async () => {
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event,
+          settings: {
+            ad_account_id: '123',
+            send_email: false,
+            send_google_advertising_id: false
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'personas_test_audience'
+          }
+        })
+      ).rejects.toThrow('At least one of `Send Email` or `Send Google Advertising ID` must be set to `true`.')
+    })
+
+    it('should fail if `personas_audience_key` field does not match the `source_segment_id` field, and `dmp_user_action` is set to auto', async () => {
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event,
+          settings: {
+            ad_account_id: '123',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'mismatched_audience',
+            dmp_user_action: 'AUTO'
+          }
+        })
+      ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
+    })
   })
 })
