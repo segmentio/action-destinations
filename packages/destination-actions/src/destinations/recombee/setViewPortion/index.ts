@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { PayloadValidationError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SetViewPortion, RecombeeApiClient, Batch } from '../recombeeApiClient'
@@ -65,23 +65,18 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(new Batch(data.payload.map((event) => payloadToViewPortion(event))))
+    await client.send(new Batch(data.payload.map((payload) => payloadToViewPortion(payload))))
   }
 }
 
 function payloadToViewPortion(payload: Payload): SetViewPortion {
-  return new SetViewPortion({
-    userId: payload.userId,
-    itemId: payload.itemId,
-    portion: payload.portion,
-    sessionId: payload.sessionId,
-    timestamp: payload.timestamp,
-    recommId: payload.recommId,
-    additionalData: {
-      ...(payload.internalAdditionalData ?? {}),
-      ...(payload.additionalData ?? {})
-    }
-  })
+  if (payload.portion < 0) {
+    throw new PayloadValidationError('Portion cannot be negative.')
+  }
+  if (payload.portion > 1) {
+    throw new PayloadValidationError('Portion cannot be greater than 1.')
+  }
+  return new SetViewPortion(payload)
 }
 
 export default action

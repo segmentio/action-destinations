@@ -80,17 +80,8 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-function payloadToCartAddition(payload: Payload): AddCartAddition {
-  return new AddCartAddition({
-    userId: payload.userId,
-    ...payload.item,
-    timestamp: payload.timestamp,
-    recommId: payload.recommId,
-    additionalData: {
-      ...(payload.internalAdditionalData ?? {}),
-      ...(payload.additionalData ?? {})
-    }
-  })
+function payloadToCartAddition({ item, ...rest }: Payload): AddCartAddition {
+  return new AddCartAddition({ ...item, ...rest })
 }
 
 export default action

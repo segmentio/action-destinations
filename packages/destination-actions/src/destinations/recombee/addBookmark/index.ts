@@ -46,25 +46,12 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(payloadToBookmark(data.payload))
+    await client.send(new AddBookmark(data.payload))
   },
   performBatch: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(new Batch(data.payload.map((payload) => payloadToBookmark(payload))))
+    await client.send(new Batch(data.payload.map((payload) => new AddBookmark(payload))))
   }
-}
-
-function payloadToBookmark(payload: Payload): AddBookmark {
-  return new AddBookmark({
-    userId: payload.userId,
-    itemId: payload.itemId,
-    timestamp: payload.timestamp,
-    recommId: payload.recommId,
-    additionalData: {
-      ...(payload.internalAdditionalData ?? {}),
-      ...(payload.additionalData ?? {})
-    }
-  })
 }
 
 export default action

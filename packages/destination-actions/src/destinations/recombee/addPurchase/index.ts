@@ -100,20 +100,8 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-function payloadToPurchases(payload: Payload): AddPurchase[] {
-  return payload.items.map(
-    (item) =>
-      new AddPurchase({
-        userId: payload.userId,
-        ...item,
-        timestamp: payload.timestamp,
-        recommId: payload.recommId,
-        additionalData: {
-          ...(payload.internalAdditionalData ?? {}),
-          ...(payload.additionalData ?? {})
-        }
-      })
-  )
+function payloadToPurchases({ items, ...rest }: Payload): AddPurchase[] {
+  return items.map((item) => new AddPurchase({ ...item, ...rest }))
 }
 
 export default action

@@ -53,26 +53,12 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(payloadToRating(data.payload))
+    await client.send(new AddRating(data.payload))
   },
   performBatch: async (request, data) => {
     const client = new RecombeeApiClient(data.settings, request)
-    await client.send(new Batch(data.payload.map((payload) => payloadToRating(payload))))
+    await client.send(new Batch(data.payload.map((payload) => new AddRating(payload))))
   }
-}
-
-function payloadToRating(payload: Payload): AddRating {
-  return new AddRating({
-    userId: payload.userId,
-    itemId: payload.itemId,
-    rating: payload.rating,
-    timestamp: payload.timestamp,
-    recommId: payload.recommId,
-    additionalData: {
-      ...(payload.internalAdditionalData ?? {}),
-      ...(payload.additionalData ?? {})
-    }
-  })
 }
 
 export default action

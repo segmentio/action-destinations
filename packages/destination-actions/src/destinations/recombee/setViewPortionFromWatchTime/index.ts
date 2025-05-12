@@ -89,18 +89,17 @@ function payloadToViewPortion(payload: Payload): SetViewPortion {
   if (payload.portion.totalLength === 0) {
     throw new PayloadValidationError('The total length of the item cannot be zero.')
   }
-  return new SetViewPortion({
-    userId: payload.userId,
-    itemId: payload.itemId,
-    timestamp: payload.timestamp,
-    portion: payload.portion.watchTime / payload.portion.totalLength,
-    sessionId: payload.sessionId,
-    additionalData: {
-      ...(payload.internalAdditionalData ?? {}),
-      ...(payload.additionalData ?? {})
-    },
-    recommId: payload.recommId
-  })
+  const { portion: portionData, ...rest } = payload
+  if (portionData.watchTime < 0) {
+    throw new PayloadValidationError('The watch time of the item cannot be negative.')
+  }
+  if (portionData.totalLength < 0) {
+    throw new PayloadValidationError('The total length of the item cannot be negative.')
+  }
+  if (portionData.watchTime > portionData.totalLength) {
+    throw new PayloadValidationError('The watch time of the item cannot be greater than the total length of the item.')
+  }
+  return new SetViewPortion({ portion: portionData.watchTime / portionData.totalLength, ...rest })
 }
 
 export default action
