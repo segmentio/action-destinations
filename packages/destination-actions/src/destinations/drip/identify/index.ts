@@ -107,9 +107,10 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
   performBatch: (request, { settings, payload }) => {
+    const subs = payload.map(person)
     return request(`https://api.getdrip.com/v2/${settings.accountId}/subscribers/batches`, {
       method: 'POST',
-      json: { subscribers: payload.map(person) }
+      json: { batches: [{ subscribers: subs }] }
     })
   }
 }
