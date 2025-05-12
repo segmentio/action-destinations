@@ -4,8 +4,8 @@ exports[`Testing snapshot for actions-ortto destination: trackActivity action - 
 Array [
   Object {
     "anonymous_id": "]25AcEh01MO",
-    "audience_id": "",
     "audience_update_mode": "add",
+    "batch_size": -14362795269160.96,
     "enable_batching": true,
     "event": "]25AcEh01MO",
     "ip": "107.255.187.198",
@@ -36,7 +36,6 @@ exports[`Testing snapshot for actions-ortto destination: trackActivity action - 
 Array [
   Object {
     "anonymous_id": "]25AcEh01MO",
-    "audience_id": "",
     "event": "]25AcEh01MO",
     "message_id": "]25AcEh01MO",
     "user_id": "]25AcEh01MO",
@@ -48,8 +47,8 @@ exports[`Testing snapshot for actions-ortto destination: upsertContactProfile ac
 Array [
   Object {
     "anonymous_id": "TBOtXZm4yQy]54s",
-    "audience_id": "",
     "audience_update_mode": "remove",
+    "batch_size": 29635016308817.92,
     "enable_batching": false,
     "ip": "169.155.93.138",
     "location": Object {
@@ -75,7 +74,6 @@ exports[`Testing snapshot for actions-ortto destination: upsertContactProfile ac
 Array [
   Object {
     "anonymous_id": "TBOtXZm4yQy]54s",
-    "audience_id": "",
     "message_id": "TBOtXZm4yQy]54s",
     "user_id": "TBOtXZm4yQy]54s",
   },

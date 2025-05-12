@@ -13,7 +13,7 @@ import { cleanObject } from './utils'
 import { Audience, BatchResponse } from './types'
 
 export const API_VERSION = 'v1'
-
+export const Success = 'Processed successfully'
 export const Errors: Record<string, string> = {
   InvalidAPIKey: `Invalid API key`,
   MissingEventName: `Missing event name`,
@@ -27,7 +27,11 @@ export default class OrttoClient {
     this.request = request
   }
 
-  upsertContacts = async (settings: Settings, payloads: UpsertContactPayload[], hookAudienceID: string) => {
+  upsertContacts = async (
+    settings: Settings,
+    payloads: UpsertContactPayload[],
+    hookAudienceID: string
+  ): Promise<MultiStatusResponse> => {
     const response = new MultiStatusResponse()
     const cleaned: JSONLikeObject[] = []
     for (let i = 0; i < payloads.length; i++) {
@@ -55,7 +59,7 @@ export default class OrttoClient {
       response.setSuccessResponseAtIndex(idx, {
         status: 200,
         sent: payload,
-        body: 'Processed successfully'
+        body: Success
       })
     })
 
@@ -73,7 +77,11 @@ export default class OrttoClient {
     return response
   }
 
-  sendActivities = async (settings: Settings, payloads: EventPayload[], hookAudienceID: string) => {
+  sendActivities = async (
+    settings: Settings,
+    payloads: EventPayload[],
+    hookAudienceID: string
+  ): Promise<MultiStatusResponse> => {
     const filtered: JSONLikeObject[] = []
     const indexBitmap: number[] = []
     const response = new MultiStatusResponse()
@@ -94,7 +102,7 @@ export default class OrttoClient {
         response.setSuccessResponseAtIndex(i, {
           status: 200,
           sent: clean,
-          body: `Ignored: Event ${event.event} was originated from ${event.namespace}`
+          body: `${event.event} was originated from ${event.namespace} (Ignored)`
         })
         continue
       }
@@ -123,7 +131,7 @@ export default class OrttoClient {
       response.setSuccessResponseAtIndex(originalIndex, {
         status: 200,
         sent: payload,
-        body: 'Processed successfully'
+        body: Success
       })
     })
 
@@ -132,12 +140,13 @@ export default class OrttoClient {
         const { status, message, index } = err
         const originalIndex = indexBitmap[index]
         response.setErrorResponseAtIndex(originalIndex, {
-          status,
+          status: status,
           errormessage: message,
           sent: filtered[index]
         })
       })
     }
+    return response
   }
 
   testAuth = async (settings: Settings) => {
