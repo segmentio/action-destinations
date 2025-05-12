@@ -1218,7 +1218,7 @@ describe('when a root level directive is used', () => {
   })
 })
 
-describe.only('@liquid', () => {
+describe('@liquid', () => {
   test('connected', () => {
     const output = transform({ field: { '@liquid': 'test' } }, { properties: { test: 'abc' } })
 
