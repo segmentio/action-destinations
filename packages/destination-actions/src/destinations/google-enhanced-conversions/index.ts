@@ -182,6 +182,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
       mapping: defaultValues(userList.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }
