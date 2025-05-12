@@ -157,6 +157,18 @@ const destination: DestinationDefinition<Settings> = {
       },
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'updateUser',
+      mapping: {
+        ...defaultValues(updateUser.fields),
+        dataFields: {
+          '@path': '$.traits'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }
