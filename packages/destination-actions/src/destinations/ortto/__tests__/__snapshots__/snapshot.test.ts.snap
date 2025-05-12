@@ -20,7 +20,7 @@ Array [
     "properties": Object {
       "testType": "]25AcEh01MO",
     },
-    "timestamp": "2125-06-22T17:21:01.417Z",
+    "timestamp": "2021-07-12T23:02:40.563Z",
     "traits": Object {
       "email": "vepaj@apzujhuw.sm",
       "first_name": "]25AcEh01MO",
@@ -38,6 +38,7 @@ Array [
     "anonymous_id": "]25AcEh01MO",
     "event": "]25AcEh01MO",
     "message_id": "]25AcEh01MO",
+    "timestamp": "2021-07-12T23:02:40.563Z",
     "user_id": "]25AcEh01MO",
   },
 ]
@@ -58,7 +59,7 @@ Array [
       "state": "TBOtXZm4yQy]54s",
     },
     "message_id": "TBOtXZm4yQy]54s",
-    "timestamp": "2086-08-12T11:15:40.692Z",
+    "timestamp": "2021-07-12T23:02:40.563Z",
     "traits": Object {
       "email": "cu@wolpawwe.me",
       "first_name": "TBOtXZm4yQy]54s",
@@ -75,6 +76,7 @@ Array [
   Object {
     "anonymous_id": "TBOtXZm4yQy]54s",
     "message_id": "TBOtXZm4yQy]54s",
+    "timestamp": "2021-07-12T23:02:40.563Z",
     "user_id": "TBOtXZm4yQy]54s",
   },
 ]
