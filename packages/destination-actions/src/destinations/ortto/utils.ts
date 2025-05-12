@@ -1,4 +1,3 @@
-export const TEST_API_KEY = 'pau-key'
 export function cleanObject<T extends {}>(obj: T): Partial<T> {
   return Object.fromEntries(
     Object.entries(obj)

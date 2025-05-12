@@ -1,3 +1,4 @@
+export const TEST_API_KEY = 'pau-key'
 export interface Audience {
   id: string
   name: string

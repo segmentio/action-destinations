@@ -2,7 +2,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
-import { TEST_API_KEY } from '../../utils'
+import { TEST_API_KEY } from '../../types'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'upsertContactProfile'

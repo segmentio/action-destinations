@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestIntegration, InvalidAuthenticationError } from '@segment/actions-core'
 import Definition from '../index'
 import { API_VERSION } from '../ortto-client'
-import { TEST_API_KEY } from '../utils'
+import { TEST_API_KEY } from '../types'
 
 const testDestination = createTestIntegration(Definition)
 describe('Ortto', () => {

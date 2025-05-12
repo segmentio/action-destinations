@@ -10,7 +10,7 @@ import Destination from '../../index'
 import { Errors, API_VERSION, Success } from '../../ortto-client'
 import OrttoClient from '../../ortto-client'
 import { Settings } from '../../generated-types'
-import { TEST_API_KEY } from '../../utils'
+import { TEST_API_KEY } from '../../types'
 import { Payload } from '../generated-types'
 
 const testDestination = createTestIntegration(Destination)
