@@ -13,7 +13,10 @@ import { cleanObject } from './utils'
 import { Audience, BatchResponse } from './types'
 
 export const API_VERSION = 'v1'
-export const Success = 'Processed successfully'
+export const Success = {
+  status: 200,
+  body: 'Processed successfully'
+}
 export const Errors: Record<string, string> = {
   InvalidAPIKey: `Invalid API key`,
   MissingEventName: `Missing event name`,
@@ -57,9 +60,8 @@ export default class OrttoClient {
 
     cleaned.forEach((payload, idx) => {
       response.setSuccessResponseAtIndex(idx, {
-        status: 200,
-        sent: payload,
-        body: Success
+        ...Success,
+        sent: payload
       })
     })
 
@@ -129,9 +131,8 @@ export default class OrttoClient {
     filtered.forEach((payload, idx) => {
       const originalIndex = indexBitmap[idx]
       response.setSuccessResponseAtIndex(originalIndex, {
-        status: 200,
-        sent: payload,
-        body: Success
+        ...Success,
+        sent: payload
       })
     })
 

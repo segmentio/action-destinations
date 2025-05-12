@@ -152,9 +152,8 @@ describe('Ortto.trackActivity', () => {
     const all = response.getAllResponses()
     expect(all.length).toBe(1)
     expect(all[0].value()).toMatchObject({
-      status: 200,
-      sent: event,
-      body: Success
+      ...Success,
+      sent: event
     })
     expect(fakeRequest).toHaveBeenCalledTimes(1)
     expect(fakeRequest).toHaveBeenCalledWith(expect.stringContaining('/track'), {
@@ -187,9 +186,8 @@ describe('Ortto.trackActivity', () => {
     const all = response.getAllResponses()
     expect(all.length).toBe(3)
     expect(all[0].value()).toMatchObject({
-      status: 200,
-      sent: events[0],
-      body: Success
+      ...Success,
+      sent: events[0]
     })
     expect(all[1].value()).toMatchObject({
       status: 400,
@@ -302,10 +300,9 @@ describe('Ortto.trackActivity', () => {
     const all = response.getAllResponses()
     expect(all.length).toBe(5)
 
-    // Valid event 1 should succeed
+    // Valid event should succeed
     expect(all[0].value()).toMatchObject({
-      status: 200,
-      body: Success,
+      ...Success,
       sent: events[0]
     })
 
@@ -323,17 +320,16 @@ describe('Ortto.trackActivity', () => {
       sent: events[2]
     })
 
-    // API error returned for index 3
+    // API error
     expect(all[3].value()).toMatchObject({
       status: 422,
       errormessage: 'Failed to process event',
       sent: events[3]
     })
 
-    // Valid event 2 should also succeed
+    // Valid event should also succeed
     expect(all[4].value()).toMatchObject({
-      status: 200,
-      body: Success,
+      ...Success,
       sent: events[4]
     })
   })

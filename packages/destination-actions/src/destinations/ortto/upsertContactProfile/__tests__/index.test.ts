@@ -89,9 +89,8 @@ describe('Ortto.upsertContactProfile', () => {
     const all = response.getAllResponses()
     expect(all.length).toBe(1)
     expect(all[0].value()).toMatchObject({
-      status: 200,
-      sent: event,
-      body: Success
+      ...Success,
+      sent: event
     })
     expect(fakeRequest).toHaveBeenCalledTimes(1)
     expect(fakeRequest).toHaveBeenCalledWith(expect.stringContaining('/identify'), {
@@ -152,8 +151,7 @@ describe('Ortto.upsertContactProfile', () => {
     expect(all.length).toBe(6)
 
     expect(all[0].value()).toMatchObject({
-      status: 200,
-      body: Success,
+      ...Success,
       sent: events[0]
     })
     expect(all[1].value()).toMatchObject({
@@ -162,8 +160,7 @@ describe('Ortto.upsertContactProfile', () => {
       sent: events[1]
     })
     expect(all[2].value()).toMatchObject({
-      status: 200,
-      body: Success,
+      ...Success,
       sent: events[2]
     })
     expect(all[3].value()).toMatchObject({
@@ -177,8 +174,7 @@ describe('Ortto.upsertContactProfile', () => {
       sent: events[4]
     })
     expect(all[5].value()).toMatchObject({
-      status: 200,
-      body: Success,
+      ...Success,
       sent: events[5]
     })
   })
