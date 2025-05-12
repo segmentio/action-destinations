@@ -21,8 +21,7 @@ export const Errors: Record<string, string> = {
   InvalidAPIKey: `Invalid API key`,
   MissingEventName: `Missing event name`,
   MissingAudienceName: `Missing audience name`,
-  MissingAudienceId: `Missing audience Id`,
-  MissingContactID: `At least one contact Id must be provided`
+  MissingAudienceId: `Missing audience Id`
 }
 export default class OrttoClient {
   request: RequestClient
@@ -160,6 +159,7 @@ export default class OrttoClient {
   // Audiences
 
   createAudience = async (settings: Settings, audienceName: string): Promise<Audience> => {
+    audienceName = audienceName?.trim()
     if (!audienceName) {
       throw new PayloadValidationError(Errors.MissingAudienceName)
     }
@@ -172,6 +172,7 @@ export default class OrttoClient {
   }
 
   getAudience = async (settings: Settings, audienceId: string): Promise<Audience> => {
+    audienceId = audienceId?.trim()
     if (!audienceId) {
       throw new PayloadValidationError(Errors.MissingAudienceId)
     }

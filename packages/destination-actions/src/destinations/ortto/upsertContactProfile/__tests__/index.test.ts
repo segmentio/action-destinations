@@ -80,10 +80,6 @@ describe('Ortto.upsertContactProfile', () => {
     })
 
     const client = new OrttoClient(fakeRequest)
-    const settings: Settings = {
-      api_key: TEST_API_KEY
-    }
-
     const response = await client.upsertContacts(settings, [event], 'audience-id')
 
     const all = response.getAllResponses()

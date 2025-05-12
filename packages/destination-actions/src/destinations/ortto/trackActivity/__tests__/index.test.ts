@@ -67,10 +67,6 @@ describe('Ortto.trackActivity', () => {
     ]
     const fakeRequest = jest.fn()
     const client = new OrttoClient(fakeRequest)
-    const settings: Settings = {
-      api_key: TEST_API_KEY
-    }
-
     const response = await client.sendActivities(settings, events, 'audience-id')
 
     const all = response.getAllResponses()
@@ -101,10 +97,6 @@ describe('Ortto.trackActivity', () => {
 
     const fakeRequest = jest.fn()
     const client = new OrttoClient(fakeRequest)
-    const settings: Settings = {
-      api_key: TEST_API_KEY
-    }
-
     const response = await client.sendActivities(settings, [event], 'audience-id')
 
     const all = response.getAllResponses()
@@ -143,10 +135,6 @@ describe('Ortto.trackActivity', () => {
     })
 
     const client = new OrttoClient(fakeRequest)
-    const settings: Settings = {
-      api_key: TEST_API_KEY
-    }
-
     const response = await client.sendActivities(settings, [event], 'audience-id')
 
     const all = response.getAllResponses()
