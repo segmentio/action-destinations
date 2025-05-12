@@ -1233,6 +1233,76 @@ describe.only('@liquid', () => {
     expect(output).toStrictEqual({ field: 'Hello, Earth !' })
   })
 
+  test('simple with multiple mappings', () => {
+    const output = transform(
+      {
+        fieldA: { '@liquid': 'Hello, {{ properties.world }}' },
+        fieldB: { '@liquid': 'Hi Patrick this is {{ properties.name }}' }
+      },
+      { properties: { world: 'Earth', name: 'SpongeBob' } }
+    )
+
+    expect(output).toStrictEqual({
+      fieldA: 'Hello, Earth',
+      fieldB: 'Hi Patrick this is SpongeBob'
+    })
+  })
+
+  test('simple with multiple mappings and nested objects', () => {
+    const output = transform(
+      {
+        fieldA: { '@liquid': 'Hello, {{ properties.planet.country.city }}' },
+        fieldB: { '@liquid': 'Hi Patrick this is {{ properties.name }}, I want a {{ traits.preferences.food }}' }
+      },
+      {
+        properties: { planet: { country: { city: 'Bikini Bottom' } }, name: 'SpongeBob' },
+        traits: { preferences: { food: 'Krabby Patty' } }
+      }
+    )
+
+    expect(output).toStrictEqual({
+      fieldA: 'Hello, Bikini Bottom',
+      fieldB: 'Hi Patrick this is SpongeBob, I want a Krabby Patty'
+    })
+  })
+
+  test('with a tag', () => {
+    const output = transform(
+      {
+        field: {
+          '@liquid':
+            '{% if properties.world == "Earth" %}Hello {{ properties.world }} {% else %} Hello World {% endif %}'
+        }
+      },
+      { properties: { world: 'Earth' } }
+    )
+
+    expect(output).toStrictEqual({ field: 'Hello Earth ' })
+  })
+
+  test('with a filter', () => {
+    const output = transform(
+      { field: { '@liquid': 'HELLO {{ properties.world | upcase }}' } },
+      { properties: { world: 'earth' } }
+    )
+
+    expect(output).toStrictEqual({ field: 'HELLO EARTH' })
+  })
+
+  test('with a tag and with a filter', () => {
+    const output = transform(
+      {
+        field: {
+          '@liquid':
+            '{% if properties.world == "earth" %}Hello {{ properties.world | upcase }}{% else %} Hello World {% endif %}'
+        }
+      },
+      { properties: { world: 'earth' } }
+    )
+
+    expect(output).toStrictEqual({ field: 'Hello EARTH' })
+  })
+
   test('@liquid template must be a string', () => {
     expect(() => {
       transform({ field: { '@liquid': 123 } }, { properties: { test: 'test' } })
@@ -1251,11 +1321,7 @@ describe.only('@liquid', () => {
     }).toThrow(new RegExp('should be a string but it is'))
   })
 
-  test('simple with multiple mappings', () => {})
-
   describe('performance limits', () => {
-    test('limit of 5 tags or filters enforced', () => {})
-
     test('limit of 1000 characters maximum enforced', () => {
       const bigString = 'a'.repeat(1001)
 
@@ -1263,8 +1329,6 @@ describe.only('@liquid', () => {
         transform({ field: { '@liquid': '{{ properties.test }}' + bigString } }, { properties: { test: 'test' } })
       ).toThrow(new RegExp('^liquid template values are limited to 1000 characters'))
     })
-
-    test('execution time is limited to 1s', () => {})
   })
 
   describe('disabled liquid tags', () => {
