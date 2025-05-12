@@ -269,6 +269,15 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The page ID of the user.',
       category: 'hashedPII'
     },
+    external_audience_id: {
+      label: 'Facebook List ID',
+      description: `The ID representing the Facebook identifier. This is the identifier that is returned during audience creation.'`,
+      type: 'string',
+      default: {
+        '@path': '$.context.personas.external_audience_id'
+      },
+      unsafe_hidden: true
+    },
     enable_batching,
     batch_size
   },
@@ -277,7 +286,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
       return await fbClient.syncAudience({
-        audienceId: hookOutputs?.retlOnMappingSave?.outputs?.audienceId,
+        audienceId: hookOutputs?.retlOnMappingSave?.outputs?.audienceId ?? payload.external_audience_id,
         payloads: [payload],
         deleteUsers: syncMode === 'delete' ? true : false
       })
@@ -290,7 +299,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (syncMode && ['upsert', 'delete'].includes(syncMode)) {
       return await fbClient.syncAudience({
-        audienceId: hookOutputs?.retlOnMappingSave?.outputs?.audienceId,
+        audienceId: hookOutputs?.retlOnMappingSave?.outputs?.audienceId ?? payload[0].external_audience_id,
         payloads: payload,
         deleteUsers: syncMode === 'delete' ? true : false
       })
