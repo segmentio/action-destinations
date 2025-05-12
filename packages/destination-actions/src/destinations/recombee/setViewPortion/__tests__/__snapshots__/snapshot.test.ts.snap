@@ -7,7 +7,7 @@ Object {
   },
   "cascadeCreate": true,
   "itemId": "Np8pbQ",
-  "portion": -70298178955509.76,
+  "portion": 0.1097,
   "recommId": "Np8pbQ",
   "sessionId": "Np8pbQ",
   "timestamp": "Np8pbQ",
@@ -20,7 +20,11 @@ Object {
   "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "Np8pbQ",
-  "portion": -70298178955509.76,
+  "portion": 0.1097,
   "userId": "Np8pbQ",
 }
 `;
+
+exports[`Testing snapshot for Recombee's setViewPortion destination action: should fail if portion is larger than 1 1`] = `"Portion cannot be greater than 1."`;
+
+exports[`Testing snapshot for Recombee's setViewPortion destination action: should fail if portion is smaller than 0 1`] = `"Portion cannot be negative."`;

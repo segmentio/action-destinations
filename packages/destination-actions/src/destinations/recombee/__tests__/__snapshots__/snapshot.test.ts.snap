@@ -175,7 +175,7 @@ Object {
   },
   "cascadeCreate": true,
   "itemId": "D9^z[P*Zv",
-  "portion": -42971588743659.52,
+  "portion": 0.2614,
   "recommId": "D9^z[P*Zv",
   "sessionId": "D9^z[P*Zv",
   "timestamp": "D9^z[P*Zv",
@@ -188,7 +188,7 @@ Object {
   "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "D9^z[P*Zv",
-  "portion": -42971588743659.52,
+  "portion": 0.2614,
   "userId": "D9^z[P*Zv",
 }
 `;
@@ -200,7 +200,7 @@ Object {
   },
   "cascadeCreate": true,
   "itemId": "gpLV6!FLD#$6^LR77nTN",
-  "portion": 1,
+  "portion": 0.9848557610530407,
   "recommId": "gpLV6!FLD#$6^LR77nTN",
   "sessionId": "gpLV6!FLD#$6^LR77nTN",
   "timestamp": "gpLV6!FLD#$6^LR77nTN",
@@ -213,7 +213,7 @@ Object {
   "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "gpLV6!FLD#$6^LR77nTN",
-  "portion": 1,
+  "portion": 0.9848557610530407,
   "userId": "gpLV6!FLD#$6^LR77nTN",
 }
 `;
