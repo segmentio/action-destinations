@@ -31,13 +31,13 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     enable_batching: { ...enable_batching },
     batch_size: { ...batch_size }
   },
-  perform: async (request, { payload, statsContext, features }) => {
+  perform: async (request, { payload, statsContext }) => {
     statsContext?.statsClient?.incr('editCustomerMatchMembers', 1, statsContext?.tags)
-    return editContactInfo(request, [payload], 'add', features, statsContext)
+    return editContactInfo(request, [payload], 'add', statsContext)
   },
-  performBatch: async (request, { payload, statsContext, features }) => {
+  performBatch: async (request, { payload, statsContext }) => {
     statsContext?.statsClient?.incr('editCustomerMatchMembers.batch', 1, statsContext?.tags)
-    return editContactInfo(request, payload, 'add', features, statsContext)
+    return editContactInfo(request, payload, 'add', statsContext)
   }
 }
 

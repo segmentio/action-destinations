@@ -339,8 +339,7 @@ describe('LinkedinAudiences.updateAudience', () => {
         mapping: {
           personas_audience_key: 'personas_test_audience',
           dmp_user_action: 'ADD'
-        },
-        features: { 'smart-hashing': true }
+        }
       })
 
       expect(responses).toBeTruthy()

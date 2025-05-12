@@ -90,7 +90,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing computation parameters: Id and Key', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      const audience_id = hashAndEncodeToInt(personas.computation_id, createAudienceInput.features || {})
+      const audience_id = hashAndEncodeToInt(personas.computation_id)
 
       const json = {
         type: 'audience_subscription_request',
@@ -146,6 +146,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudience',
+      mapping: {
+        ...defaultValues(syncAudience.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }
