@@ -1,6 +1,10 @@
 import { Liquid } from 'liquidjs'
 
-const liquidEngine = new Liquid()
+const liquidEngine = new Liquid({
+  renderLimit: 500, // 500 ms
+  parseLimit: 1e8, // 100M characters,
+  memoryLimit: 1e8 // 100 MB memory
+})
 
 const disabledTags = ['case', 'for', 'include', 'layout', 'render', 'tablerow']
 
