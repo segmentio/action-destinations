@@ -20,7 +20,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().delete(/.*/).reply(200)
 
       const event = createTestEvent({
-        properties: {...eventData, timestamp: '2021-07-12T23:02:40.563Z'}
+        properties: { ...eventData, timestamp: '2021-07-12T23:02:40.563Z' }
       })
 
       const responses = await testDestination.testAction(actionSlug, {
@@ -35,7 +35,12 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       try {
         const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
+        expect(
+          json.map(({ timestamp, ...rest }: { timestamp: string; [key: string]: any }) => ({
+            ...rest,
+            timestamp: '2021-07-12T23:02:40.563Z'
+          }))
+        ).toMatchSnapshot()
         return
       } catch (err) {
         expect(rawBody).toMatchSnapshot()
@@ -55,7 +60,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().delete(/.*/).reply(200)
 
       const event = createTestEvent({
-        properties: {...eventData, timestamp: '2021-07-12T23:02:40.563Z'}
+        properties: { ...eventData, timestamp: '2021-07-12T23:02:40.563Z' }
       })
 
       const responses = await testDestination.testAction(actionSlug, {
@@ -70,7 +75,12 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       try {
         const json = JSON.parse(rawBody)
-        expect(json).toMatchSnapshot()
+        expect(
+          json.map(({ timestamp, ...rest }: { timestamp: string; [key: string]: any }) => ({
+            ...rest,
+            timestamp: '2021-07-12T23:02:40.563Z'
+          }))
+        ).toMatchSnapshot()
         return
       } catch (err) {
         expect(rawBody).toMatchSnapshot()
