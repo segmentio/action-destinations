@@ -15,6 +15,7 @@ Object {
 
 exports[`Testing snapshot for Recombee's addBookmark destination action: required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "GxFzk&V2a4R8iF62G9]q",
   "userId": "GxFzk&V2a4R8iF62G9]q",
