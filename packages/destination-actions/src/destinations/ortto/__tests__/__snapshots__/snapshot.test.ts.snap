@@ -1,0 +1,83 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-ortto destination: trackActivity action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "]25AcEh01MO",
+    "audience_update_mode": "add",
+    "batch_size": -14362795269160.96,
+    "enable_batching": true,
+    "event": "]25AcEh01MO",
+    "ip": "107.255.187.198",
+    "location": Object {
+      "city": "]25AcEh01MO",
+      "country": "]25AcEh01MO",
+      "post_code": "]25AcEh01MO",
+      "state": "]25AcEh01MO",
+    },
+    "message_id": "]25AcEh01MO",
+    "namespace": "]25AcEh01MO",
+    "properties": Object {
+      "testType": "]25AcEh01MO",
+    },
+    "timestamp": "2021-07-12T23:02:40.563Z",
+    "traits": Object {
+      "email": "vepaj@apzujhuw.sm",
+      "first_name": "]25AcEh01MO",
+      "last_name": "]25AcEh01MO",
+      "phone": "]25AcEh01MO",
+    },
+    "user_id": "]25AcEh01MO",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-ortto destination: trackActivity action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "]25AcEh01MO",
+    "event": "]25AcEh01MO",
+    "message_id": "]25AcEh01MO",
+    "timestamp": "2021-07-12T23:02:40.563Z",
+    "user_id": "]25AcEh01MO",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-ortto destination: upsertContactProfile action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "TBOtXZm4yQy]54s",
+    "audience_update_mode": "remove",
+    "batch_size": 29635016308817.92,
+    "enable_batching": false,
+    "ip": "169.155.93.138",
+    "location": Object {
+      "city": "TBOtXZm4yQy]54s",
+      "country": "TBOtXZm4yQy]54s",
+      "post_code": "TBOtXZm4yQy]54s",
+      "state": "TBOtXZm4yQy]54s",
+    },
+    "message_id": "TBOtXZm4yQy]54s",
+    "timestamp": "2021-07-12T23:02:40.563Z",
+    "traits": Object {
+      "email": "cu@wolpawwe.me",
+      "first_name": "TBOtXZm4yQy]54s",
+      "last_name": "TBOtXZm4yQy]54s",
+      "phone": "TBOtXZm4yQy]54s",
+    },
+    "user_id": "TBOtXZm4yQy]54s",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-ortto destination: upsertContactProfile action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "TBOtXZm4yQy]54s",
+    "message_id": "TBOtXZm4yQy]54s",
+    "timestamp": "2021-07-12T23:02:40.563Z",
+    "user_id": "TBOtXZm4yQy]54s",
+  },
+]
+`;

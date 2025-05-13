@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Ortto's trackActivity destination action: all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "9QX1u",
+    "audience_update_mode": "add",
+    "batch_size": -87829560678154.23,
+    "enable_batching": true,
+    "event": "9QX1u",
+    "ip": "4.211.147.169",
+    "location": Object {
+      "city": "9QX1u",
+      "country": "9QX1u",
+      "post_code": "9QX1u",
+      "state": "9QX1u",
+    },
+    "message_id": "9QX1u",
+    "namespace": "9QX1u",
+    "properties": Object {
+      "testType": "9QX1u",
+    },
+    "timestamp": "2108-01-18T15:43:16.331Z",
+    "traits": Object {
+      "email": "diudouro@fanpufuju.nz",
+      "first_name": "9QX1u",
+      "last_name": "9QX1u",
+      "phone": "9QX1u",
+    },
+    "user_id": "9QX1u",
+  },
+]
+`;
+
+exports[`Testing snapshot for Ortto's trackActivity destination action: required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "9QX1u",
+    "event": "9QX1u",
+    "message_id": "9QX1u",
+    "user_id": "9QX1u",
+  },
+]
+`;
