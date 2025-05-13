@@ -1,7 +1,7 @@
 import { IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
 import { Payload } from './addToAudContactInfo/generated-types'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 const DV360API = `https://displayvideo.googleapis.com/v3/firstAndThirdPartyAudiences`
 const CONSENT_STATUS_GRANTED = 'CONSENT_STATUS_GRANTED' // Define consent status
@@ -179,7 +179,7 @@ function normalizeAndHash(data: string) {
   // Normalize the data
   const normalizedData = data.toLowerCase().trim() // Example: Convert to lowercase and remove leading/trailing spaces
   // Hash the normalized data using SHA-256
-  return processHashingV2(normalizedData, 'sha256', 'hex')
+  return processHashing(normalizedData, 'sha256', 'hex')
 }
 
 function processPayload(payload: Payload) {

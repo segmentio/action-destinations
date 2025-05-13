@@ -2,7 +2,7 @@ import { Payload } from './updateSegment/generated-types'
 import { DelivrAIPayload } from './types'
 import { RequestClient } from '@segment/actions-core'
 import { DELIVRAI_BASE_URL, DELIVRAI_GET_TOKEN } from './constants'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 /**
  * Generates JWT for Realtime API authentication
@@ -64,7 +64,7 @@ export function gen_update_segment_payload(payloads: Payload[], client_identifie
   for (const event of payloads) {
     let hashed_email: string | undefined = ''
     if (event.email) {
-      hashed_email = processHashingV2(event.email.toLowerCase(), 'sha256', 'hex')
+      hashed_email = processHashing(event.email.toLowerCase(), 'sha256', 'hex')
     }
     let idfa: string | undefined = ''
     let gpsaid: string | undefined = ''

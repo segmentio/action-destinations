@@ -7,7 +7,7 @@ import { Payload as CreateAudiencePayload } from './createAudience/generated-typ
 import { Settings } from './generated-types'
 import { CreateAudienceAPIResponse } from './types'
 import { AudienceSettings } from './generated-types'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 type LegacyPayload = AddUserPayload | RemoveUserPayload
 type GenericPayload = LegacyPayload | AddToAudiencePayload
@@ -102,7 +102,7 @@ export function getIDSchema(payload: GenericPayload): string[] {
 const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
 
 const hash = (value: string): string => {
-  return processHashingV2(value, 'sha256', 'hex')
+  return processHashing(value, 'sha256', 'hex')
 }
 
 export function extractUsers(payloads: GenericPayload[]): {}[][] {

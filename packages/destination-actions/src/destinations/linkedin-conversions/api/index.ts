@@ -19,7 +19,7 @@ import type {
   ConversionRuleUpdateResponse
 } from '../types'
 import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from '../streamConversion/generated-types'
-import { processHashingV2 } from '../../../lib/hashing-utils'
+import { processHashing } from '../../../lib/hashing-utils'
 
 interface ConversionRuleUpdateValues {
   name?: string
@@ -419,7 +419,7 @@ export class LinkedInConversions {
     const userIds: UserID[] = []
 
     if (payload.email) {
-      const hashedEmail = processHashingV2(payload.email, 'sha256', 'hex', this.normalizeEmail)
+      const hashedEmail = processHashing(payload.email, 'sha256', 'hex', this.normalizeEmail)
       userIds.push({
         idType: 'SHA256_EMAIL',
         idValue: hashedEmail

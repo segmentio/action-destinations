@@ -1,7 +1,7 @@
 import { RequestClient, ExecuteInput } from '@segment/actions-core'
 import type { Payload as s3Payload } from './audienceEnteredS3/generated-types'
 import type { Payload as sftpPayload } from './audienceEnteredSftp/generated-types'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 // Type definitions
 export type RawData = {
@@ -77,11 +77,11 @@ function generateFile(payloads: s3Payload[] | sftpPayload[]) {
         /*Identifiers need to be hashed according to LiveRamp spec's: https://docs.liveramp.com/connect/en/formatting-identifiers.html 
         Phone Number requires SHA1 and email uses sha256 */
         if (key === 'phone_number') {
-          row[index] = `"${processHashingV2(String(payload.unhashed_identifier_data[key]), 'sha1', 'hex', (value) =>
+          row[index] = `"${processHashing(String(payload.unhashed_identifier_data[key]), 'sha1', 'hex', (value) =>
             normalize(key, value)
           )}"`
         } else {
-          row[index] = `"${processHashingV2(String(payload.unhashed_identifier_data[key]), 'sha256', 'hex', (value) =>
+          row[index] = `"${processHashing(String(payload.unhashed_identifier_data[key]), 'sha256', 'hex', (value) =>
             normalize(key, value)
           )}"`
         }

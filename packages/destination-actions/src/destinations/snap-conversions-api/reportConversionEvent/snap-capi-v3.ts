@@ -13,7 +13,7 @@ import {
   parseDateSafe,
   smartHash
 } from './utils'
-import { processHashingV2 } from '../../../lib/hashing-utils'
+import { processHashing } from '../../../lib/hashing-utils'
 
 const CURRENCY_ISO_4217_CODES = new Set([
   'USD',
@@ -470,7 +470,7 @@ const buildUserData = (payload: Payload) => {
   const hashedCountry = smartHash(user_data?.country, normalizedCountry)
 
   const external_id = user_data?.externalId?.map((id) => {
-    return processHashingV2(id, 'sha256', 'hex', normalizedValue)
+    return processHashing(id, 'sha256', 'hex', normalizedValue)
   })
 
   const db = smartHash(user_data?.dateOfBirth)

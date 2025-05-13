@@ -1,5 +1,5 @@
 import type { Payload } from './generated-types'
-import { processHashingV2 } from '../../../lib/hashing-utils'
+import { processHashing } from '../../../lib/hashing-utils'
 
 // Filters out events with missing identifiers and sorts based on audience entered/exited
 export const sortPayload = (payload: Payload[]) => {
@@ -50,13 +50,13 @@ const validateAndExtractIdentifier = (
   mobileAdId: string | undefined
 ): string | null => {
   if (schemaType === 'EMAIL_SHA256' && email) {
-    return processHashingV2(email, 'sha256', 'hex', normalize)
+    return processHashing(email, 'sha256', 'hex', normalize)
   }
   if (schemaType === 'MOBILE_AD_ID_SHA256' && mobileAdId) {
-    return processHashingV2(mobileAdId, 'sha256', 'hex', normalize)
+    return processHashing(mobileAdId, 'sha256', 'hex', normalize)
   }
   if (schemaType === 'PHONE_SHA256' && phone) {
-    return processHashingV2(phone, 'sha256', 'hex', normalizePhone)
+    return processHashing(phone, 'sha256', 'hex', normalizePhone)
   }
 
   return null
