@@ -9,7 +9,7 @@ import type { WarehouseDestinationDefinition } from '@segment/actions-core'
 
 // Gets all the destination definitions from the warehouse destinations directory
 // Used by the CLI to push the destination definitions
-export const getDefinitions = async (dirPath: string) => {
+export const getDefinitions = async (dirPath: string): Promise<WarehouseDestinationDefinition[]> => {
   const destPath = path.join(dirPath, 'src/destinations/*')
   const warehouseDestDirs = await globby(destPath, {
     expandDirectories: false,
@@ -20,7 +20,7 @@ export const getDefinitions = async (dirPath: string) => {
 
   const definitions = warehouseDestDirs.map((dir) => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const destination: WarehouseDestinationDefinition<any> = require(dir).default
+    const destination: WarehouseDestinationDefinition = require(dir).default
     return destination
   })
 
