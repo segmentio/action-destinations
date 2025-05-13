@@ -9,6 +9,6 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     defaultObjectUI: 'keyvalue',
     required: true,
     additionalProperties: true,
-    default: { '@path': '$.event' }
+    default: { '@path': '$.' }
   }
 }
