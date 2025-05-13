@@ -17,10 +17,10 @@ export function initializePixel(settings) {
   })(window, document)
 
   rdt.init = (pixel_id, ldu) => {
-    if (!this.init_already_called) {
+    if (!rdt.init_already_called) {
       rdt('init', pixel_id, ldu)
     }
-    this.init_already_called = true
+    rdt.init_already_called = true
   }
 
   rdt.track = (eventName, eventMetadata) => {
