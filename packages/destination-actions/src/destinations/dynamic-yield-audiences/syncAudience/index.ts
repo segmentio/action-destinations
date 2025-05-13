@@ -5,7 +5,7 @@ import { getUpsertURL, hashAndEncode, getDataCenter, getSectionId } from '../hel
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience',
-  description: 'Sync Segment Engage Audiences to Dynamic Yield',
+  description: 'Sync users to Dynamic Yield',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     message_id: {
@@ -72,13 +72,15 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       default: {
         '@path': '$.context.personas.computation_class'
       },
-      choices: [{ label: 'audience', value: 'audience' },{ label: 'journey_step', value: 'journey_step' }]
+      choices: [
+        { label: 'audience', value: 'audience' },
+        { label: 'journey_step', value: 'journey_step' }
+      ]
     },
     email: {
       label: 'Email',
       description: "User's email address",
       type: 'string',
-      format: 'email',
       required: false,
       unsafe_hidden: true,
       default: {
@@ -87,7 +89,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.context.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     anonymousId: {
       label: 'Segment Anonymous Id',

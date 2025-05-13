@@ -111,7 +111,7 @@ export interface Payload {
     value_decimal?: number
   }
   /**
-   * The unique conversion ID that corresponds to a distinct conversion event.
+   * The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication.
    */
   conversion_id?: string
 }

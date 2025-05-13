@@ -301,6 +301,54 @@ describe('LinkedinAudiences.updateAudience', () => {
       )
     })
 
+    it('Email is already a SHA256 hash with smart hashing flag', async () => {
+      const eventWithTraits = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          audience_key: 'personas_test_audience'
+        },
+        traits: {
+          email: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+        },
+        context: {
+          device: {
+            advertisingId: '123'
+          }
+        }
+      })
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
+        .post(/.*/, (body) => body.elements[0].action === 'ADD')
+        .reply(200)
+
+      const responses = await testDestination.testAction('updateAudience', {
+        event: eventWithTraits,
+        settings: {
+          ad_account_id: '123',
+          send_email: true,
+          send_google_advertising_id: true
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          personas_audience_key: 'personas_test_audience',
+          dmp_user_action: 'ADD'
+        }
+      })
+
+      expect(responses).toBeTruthy()
+      expect(responses).toHaveLength(2)
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        '"{\\"elements\\":[{\\"action\\":\\"ADD\\",\\"userIds\\":[{\\"idType\\":\\"SHA256_EMAIL\\",\\"idValue\\":\\"584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777\\"},{\\"idType\\":\\"GOOGLE_AID\\",\\"idValue\\":\\"123\\"}]}]}"'
+      )
+    })
+
     it('Full payload', async () => {
       const eventWithTraits = createTestEvent({
         event: 'Audience Entered',

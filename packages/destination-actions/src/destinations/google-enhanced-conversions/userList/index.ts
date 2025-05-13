@@ -1,13 +1,20 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createGoogleAudience, getGoogleAudience, getListIds, handleUpdate, verifyCustomerId } from '../functions'
+import {
+  createGoogleAudience,
+  getGoogleAudience,
+  getListIds,
+  handleUpdate,
+  processBatchPayload,
+  verifyCustomerId
+} from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Customer Match User List',
-  description: 'Sync a Segment Engage Audience into a Google Customer Match User List.',
+  description: 'Sync users into a Google Customer Match User List.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   syncMode: {
     description: 'Define how the records will be synced to Google',
@@ -22,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     first_name: {
       label: 'First Name',
-      description: "The user's first name. If not hashed, Segment will normalize and hash this value.",
+      description: "The user's first name.",
       type: 'string',
       default: {
         '@if': {
@@ -30,11 +37,12 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.firstName' },
           else: { '@path': '$.properties.firstName' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     last_name: {
       label: 'Last Name',
-      description: "The user's last name. If not hashed, Segment will normalize and hash this value.",
+      description: "The user's last name.",
       type: 'string',
       default: {
         '@if': {
@@ -42,11 +50,12 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.lastName' },
           else: { '@path': '$.properties.lastName' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     email: {
       label: 'Email',
-      description: "The user's email address. If not hashed, Segment will normalize and hash this value.",
+      description: "The user's email address.",
       type: 'string',
       default: {
         '@if': {
@@ -54,12 +63,12 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.email' },
           else: { '@path': '$.properties.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     phone: {
       label: 'Phone',
-      description:
-        "The user's phone number. If not hashed, Segment will convert the phone number to the E.164 format and hash this value.",
+      description: "The user's phone number. ",
       type: 'string',
       default: {
         '@if': {
@@ -67,7 +76,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.phone' },
           else: { '@path': '$.properties.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     phone_country_code: {
       label: 'Phone Number Country Code',
@@ -316,8 +326,7 @@ const action: ActionDefinition<Settings, Payload> = {
     { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-
-    return await handleUpdate(
+    return await processBatchPayload(
       request,
       settings,
       audienceSettings,

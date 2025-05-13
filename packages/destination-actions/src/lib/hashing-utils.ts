@@ -24,7 +24,18 @@ export const hashConfigs: {
   sha512: { lengthHex: 128, lengthBase64: 88 }
 }
 
-const slugsToBypassFeatureFlag = ['actions-facebook-custom-audiences']
+const slugsToBypassFeatureFlag = [
+  'actions-facebook-custom-audiences',
+  'actions-linkedin-audiences',
+  'actions-snap-audiences',
+  'actions-snap-conversions',
+  'actions-tiktok-offline-conversions',
+  'tiktok-conversions',
+  'actions-google-enhanced-conversions',
+  'actions-google-campaign-manager-360',
+  'actions-facebook-conversions-api',
+  'actions-tiktok-audiences'
+]
 
 class SmartHashing {
   private preHashed: boolean
@@ -87,7 +98,7 @@ export function processHashing(
   value: string,
   encryptionMethod: EncryptionMethod,
   digest: DigestType,
-  features: Features,
+  features: Features | undefined,
   destinationSlugForBypass: string,
   cleaningFunction?: CleaningFunction
 ): string {
@@ -109,6 +120,39 @@ export function processHashing(
     }
     return smartHashing.hash(value)
   }
+
+  if (smartHashing.isAlreadyHashed(value)) {
+    return value
+  }
+
+  if (cleaningFunction) {
+    value = cleaningFunction(value)
+  }
+
+  return smartHashing.hash(value)
+}
+
+/**
+ * Processes the hashing of a given value based on the provided encryption method, digest type, features, and optional cleaning function.
+ *
+ * @param value - The string value to be hashed.
+ * @param encryptionMethod - The method of encryption to be used.
+ * @param digest - The type of digest to be used.
+ * @param cleaningFunction - An optional function to clean the value before hashing.
+ * @returns The hashed value or the original value if it is already hashed.
+ */
+
+export function processHashingV2(
+  value: string,
+  encryptionMethod: EncryptionMethod,
+  digest: DigestType,
+  cleaningFunction?: CleaningFunction
+): string {
+  if (value.trim() === '') {
+    return ''
+  }
+
+  const smartHashing = new SmartHashing(encryptionMethod, digest)
 
   if (smartHashing.isAlreadyHashed(value)) {
     return value

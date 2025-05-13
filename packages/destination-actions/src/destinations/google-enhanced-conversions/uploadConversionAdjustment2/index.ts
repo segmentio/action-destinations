@@ -6,19 +6,19 @@ import {
   RequestClient
 } from '@segment/actions-core'
 import {
-  hash,
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
-  commonHashedEmailValidation,
+  commonEmailValidation,
   getConversionActionDynamicData,
-  isHashedInformation
+  formatPhone
 } from '../functions'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { PartialErrorResponse, ConversionAdjustmentRequestObjectInterface, UserIdentifierInterface } from '../types'
 import { ModifiedResponse } from '@segment/actions-core'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
+import { processHashingV2 } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Adjustment V2',
@@ -115,10 +115,14 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
+    },
     email_address: {
       label: 'Email Address',
-      description:
-        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
+      description: 'Email address of the individual who triggered the conversion event.',
       type: 'string',
       default: {
         '@if': {
@@ -126,12 +130,13 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.email' },
           else: { '@path': '$.context.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     phone_number: {
       label: 'Phone Number',
       description:
-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.',
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000.',
       type: 'string',
       default: {
         '@if': {
@@ -139,12 +144,12 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.phone' },
           else: { '@path': '$.context.traits.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     first_name: {
       label: 'First Name',
-      description:
-        'First name of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      description: 'First name of the user who performed the conversion.',
       type: 'string',
       default: {
         '@if': {
@@ -156,8 +161,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     last_name: {
       label: 'Last Name',
-      description:
-        'Last name of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      description: 'Last name of the user who performed the conversion.',
       type: 'string',
       default: {
         '@if': {
@@ -165,7 +169,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.lastName' },
           else: { '@path': '$.context.traits.lastName' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     city: {
       label: 'City',
@@ -217,8 +222,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     street_address: {
       label: 'Street Address',
-      description:
-        'Street address of the user who performed the conversion. Segment will hash this value before sending to Google.',
+      description: 'Street address of the user who performed the conversion.',
       type: 'string',
       default: {
         '@if': {
@@ -226,7 +230,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.address.street,' },
           else: { '@path': '$.context.traits.address.street' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     user_agent: {
       label: 'User Agent',
@@ -299,7 +304,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payload.email_address) {
-        const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+        const validatedEmail: string = processHashingV2(payload.email_address, 'sha256', 'hex', commonEmailValidation)
 
         request_object.userIdentifiers.push({
           hashedEmail: validatedEmail
@@ -308,9 +313,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payload.phone_number) {
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: isHashedInformation(payload.phone_number)
-            ? payload.phone_number
-            : hash(payload.phone_number)
+          hashedPhoneNumber: processHashingV2(payload.phone_number, 'sha256', 'hex', (value) =>
+            formatPhone(value, payload.phone_country_code)
+          )
         } as UserIdentifierInterface)
       }
 
@@ -324,22 +329,23 @@ const action: ActionDefinition<Settings, Payload> = {
         payload.street_address
 
       if (containsAddressInfo) {
+        const addressInfo: any = {}
+        if (payload.first_name) {
+          addressInfo.hashedFirstName = processHashingV2(payload.first_name, 'sha256', 'hex')
+        }
+        if (payload.last_name) {
+          addressInfo.hashedLastName = processHashingV2(payload.last_name, 'sha256', 'hex')
+        }
+        if (payload.street_address) {
+          addressInfo.hashedStreetAddress = processHashingV2(payload.street_address, 'sha256', 'hex')
+        }
+        addressInfo.city = payload.city
+        addressInfo.state = payload.state
+        addressInfo.countryCode = payload.country
+        addressInfo.postalCode = payload.postal_code
+
         request_object.userIdentifiers.push({
-          addressInfo: {
-            hashedFirstName: isHashedInformation(String(payload.first_name))
-              ? payload.first_name
-              : hash(payload.first_name),
-            hashedLastName: isHashedInformation(String(payload.last_name))
-              ? payload.last_name
-              : hash(payload.last_name),
-            hashedStreetAddress: isHashedInformation(String(payload.street_address))
-              ? payload.street_address
-              : hash(payload.street_address),
-            city: payload.city,
-            state: payload.state,
-            countryCode: payload.country,
-            postalCode: payload.postal_code
-          }
+          addressInfo
         })
       }
 
@@ -407,7 +413,12 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payloadItem.email_address) {
-        const validatedEmail: string = commonHashedEmailValidation(payloadItem.email_address)
+        const validatedEmail: string = processHashingV2(
+          payloadItem.email_address,
+          'sha256',
+          'hex',
+          commonEmailValidation
+        )
 
         request_object.userIdentifiers.push({
           hashedEmail: validatedEmail
@@ -416,9 +427,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payloadItem.phone_number) {
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: isHashedInformation(payloadItem.phone_number)
-            ? payloadItem.phone_number
-            : hash(payloadItem.phone_number)
+          hashedPhoneNumber: processHashingV2(payloadItem.phone_number, 'sha256', 'hex', (value) =>
+            formatPhone(value, payloadItem.phone_country_code)
+          )
         } as UserIdentifierInterface)
       }
 
@@ -432,22 +443,23 @@ const action: ActionDefinition<Settings, Payload> = {
         payloadItem.street_address
 
       if (containsAddressInfo) {
+        const addressInfo: any = {}
+        if (payloadItem.first_name) {
+          addressInfo.hashedFirstName = processHashingV2(payloadItem.first_name, 'sha256', 'hex')
+        }
+        if (payloadItem.last_name) {
+          addressInfo.hashedLastName = processHashingV2(payloadItem.last_name, 'sha256', 'hex')
+        }
+        if (payloadItem.street_address) {
+          addressInfo.hashedStreetAddress = processHashingV2(payloadItem.street_address, 'sha256', 'hex')
+        }
+        addressInfo.city = payloadItem.city
+        addressInfo.state = payloadItem.state
+        addressInfo.countryCode = payloadItem.country
+        addressInfo.postalCode = payloadItem.postal_code
+
         request_object.userIdentifiers.push({
-          addressInfo: {
-            hashedFirstName: isHashedInformation(String(payloadItem.first_name))
-              ? payloadItem.first_name
-              : hash(payloadItem.first_name),
-            hashedLastName: isHashedInformation(String(payloadItem.last_name))
-              ? payloadItem.last_name
-              : hash(payloadItem.last_name),
-            hashedStreetAddress: isHashedInformation(String(payloadItem.street_address))
-              ? payloadItem.street_address
-              : hash(payloadItem.street_address),
-            city: payloadItem.city,
-            state: payloadItem.state,
-            countryCode: payloadItem.country,
-            postalCode: payloadItem.postal_code
-          }
+          addressInfo
         })
       }
 

@@ -16,17 +16,17 @@ import {
 } from '../types'
 import {
   formatCustomVariables,
-  hash,
   getCustomVariables,
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
-  commonHashedEmailValidation,
+  commonEmailValidation,
   getConversionActionDynamicData,
-  isHashedInformation,
-  memoizedGetCustomVariables
+  memoizedGetCustomVariables,
+  formatPhone
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
+import { processHashingV2 } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Click Conversion V2',
@@ -74,8 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email_address: {
       label: 'Email Address',
-      description:
-        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
+      description: 'Email address of the individual who triggered the conversion event',
       type: 'string',
       default: {
         '@if': {
@@ -83,12 +82,18 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.email' },
           else: { '@path': '$.context.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
+    },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
     },
     phone_number: {
       label: 'Phone Number',
       description:
-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.',
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000',
       type: 'string',
       default: {
         '@if': {
@@ -96,7 +101,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.phone' },
           else: { '@path': '$.context.traits.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     order_id: {
       label: 'Order ID',
@@ -321,7 +327,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payload.email_address) {
-        const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+        const validatedEmail: string = processHashingV2(payload.email_address, 'sha256', 'hex', commonEmailValidation)
 
         request_object.userIdentifiers.push({
           hashedEmail: validatedEmail
@@ -329,11 +335,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payload.phone_number) {
-        // remove '+' from phone number if received in payload duplicacy and add '+'
-        const phoneNumber = '+' + payload.phone_number.split('+').join('')
-
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(phoneNumber)
+          hashedPhoneNumber: processHashingV2(payload.phone_number, 'sha256', 'hex', (value) =>
+            formatPhone(value, payload.phone_country_code)
+          )
         } as UserIdentifierInterface)
       }
 
@@ -434,7 +439,12 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         if (payloadItem.email_address) {
-          const validatedEmail: string = commonHashedEmailValidation(payloadItem.email_address)
+          const validatedEmail: string = processHashingV2(
+            payloadItem.email_address,
+            'sha256',
+            'hex',
+            commonEmailValidation
+          )
 
           request_object.userIdentifiers.push({
             hashedEmail: validatedEmail
@@ -442,13 +452,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         if (payloadItem.phone_number) {
-          // remove '+' from phone number if received in payload duplicacy and add '+'
-          const phoneNumber = '+' + payloadItem.phone_number.split('+').join('')
-
           request_object.userIdentifiers.push({
-            hashedPhoneNumber: isHashedInformation(payloadItem.phone_number)
-              ? payloadItem.phone_number
-              : hash(phoneNumber)
+            hashedPhoneNumber: processHashingV2(payloadItem.phone_number, 'sha256', 'hex', (value) =>
+              formatPhone(value, payloadItem.phone_country_code)
+            )
           } as UserIdentifierInterface)
         }
 

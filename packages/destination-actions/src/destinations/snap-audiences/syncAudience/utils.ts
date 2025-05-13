@@ -1,5 +1,5 @@
 import type { Payload } from './generated-types'
-import { createHash } from 'crypto'
+import { processHashingV2 } from '../../../lib/hashing-utils'
 
 // Filters out events with missing identifiers and sorts based on audience entered/exited
 export const sortPayload = (payload: Payload[]) => {
@@ -50,30 +50,20 @@ const validateAndExtractIdentifier = (
   mobileAdId: string | undefined
 ): string | null => {
   if (schemaType === 'EMAIL_SHA256' && email) {
-    return normalizeAndHash(email)
+    return processHashingV2(email, 'sha256', 'hex', normalize)
   }
   if (schemaType === 'MOBILE_AD_ID_SHA256' && mobileAdId) {
-    return normalizeAndHash(mobileAdId)
+    return processHashingV2(mobileAdId, 'sha256', 'hex', normalize)
   }
   if (schemaType === 'PHONE_SHA256' && phone) {
-    return normalizeAndHashPhone(phone)
+    return processHashingV2(phone, 'sha256', 'hex', normalizePhone)
   }
 
   return null
 }
 
-const hash = (value: string): string => {
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
-}
-
-const isHashed = (identifier: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(identifier)
-
-export const normalizeAndHash = (identifier: string): string => {
-  if (isHashed(identifier)) return identifier
-  const hashedIdentifier = hash(identifier.trim().toLowerCase())
-  return hashedIdentifier
+export const normalize = (identifier: string): string => {
+  return identifier.trim().toLowerCase()
 }
 
 /*
@@ -82,9 +72,7 @@ export const normalizeAndHash = (identifier: string): string => {
   - if the number itself begins with a 0 this should be removed
   - Also exclude any non-numeric characters such as whitespace, parentheses, '+', or '-'.
 */
-export const normalizeAndHashPhone = (phone: string): string => {
-  if (isHashed(phone)) return phone
-
+export const normalizePhone = (phone: string): string => {
   // Remove non-numeric characters and parentheses, '+', '-', ' '
   let normalizedPhone = phone.replace(/[\s()+-]/g, '')
 
@@ -98,6 +86,5 @@ export const normalizeAndHashPhone = (phone: string): string => {
     normalizedPhone = normalizedPhone.substring(1)
   }
 
-  const hashedPhone = hash(normalizedPhone)
-  return hashedPhone
+  return normalizedPhone
 }

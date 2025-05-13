@@ -10,7 +10,7 @@ import {
   EventMetadata,
   DatapProcessingOptions
 } from './types'
-import { createHash } from 'crypto'
+import { processHashingV2 } from '../../lib/hashing-utils'
 
 type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
 type ProductsType = StandardEvent['products'] | CustomEvent['products']
@@ -107,14 +107,15 @@ function getMetadata(
     item_count: cleanNum(metadata?.item_count),
     value_decimal: cleanNum(metadata?.value_decimal),
     products: getProducts(products),
-    conversion_id: hash(clean(conversion_id))
+    conversion_id: smartHash(conversion_id, (value) => value.trim())
   }
 }
 
 function getAdId(device_type?: string, advertising_id?: string): { [key: string]: string | undefined } | undefined {
   if (!device_type) return undefined
   if (!advertising_id) return undefined
-  return device_type === 'ios' ? { idfa: hash(advertising_id) } : { aaid: hash(advertising_id) }
+  const hashedAdId = smartHash(advertising_id)
+  return device_type === 'ios' ? { idfa: hashedAdId } : { aaid: hashedAdId }
 }
 
 function getDataProcessingOptions(
@@ -145,9 +146,9 @@ function getUser(
 
   return {
     ...getAdId(user.device_type, user.advertising_id),
-    email: hashEmail(clean(user.email)),
-    external_id: hash(clean(user.external_id)),
-    ip_address: hash(clean(user.ip_address)),
+    email: smartHash(user.email, canonicalizeEmail),
+    external_id: smartHash(user.external_id, (value) => value.trim()),
+    ip_address: smartHash(user.ip_address, (value) => value.trim()),
     user_agent: clean(user.user_agent),
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
@@ -156,21 +157,13 @@ function getUser(
 }
 
 function canonicalizeEmail(value: string): string {
+  value = value.trim()
   const localPartAndDomain = value.split('@')
   const localPart = localPartAndDomain[0].replace(/\./g, '').split('+')[0]
   return `${localPart.toLowerCase()}@${localPartAndDomain[1].toLowerCase()}`
 }
 
-function hashEmail(email: string | undefined): string | undefined {
-  if (email === undefined) return
-  const canonicalEmail = canonicalizeEmail(email)
-  return hash(canonicalEmail)
-}
-
-const hash = (value: string | undefined): string | undefined => {
+const smartHash = (value: string | undefined, cleaningFunction?: (value: string) => string): string | undefined => {
   if (value === undefined) return
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
+  return processHashingV2(value, 'sha256', 'hex', cleaningFunction)
 }
-

@@ -1,9 +1,8 @@
-import { DynamicFieldItem, DynamicFieldError, RequestClient, IntegrationError } from '@segment/actions-core'
+import { DynamicFieldItem, DynamicFieldError, RequestClient, Features } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
-import { SmartHashing } from '@segment/actions-core'
+import { processHashingV2 } from '../../lib/hashing-utils'
 import { StatsContext } from '@segment/actions-core/destination-kit'
-import { Features } from '@segment/actions-core/mapping-kit'
 import { API_VERSION, BASE_URL, CANARY_API_VERSION, FACEBOOK_CUSTOM_AUDIENCE_FLAGON } from './constants'
 
 // exported for unit testing
@@ -72,20 +71,12 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
     return
   }
 
-  const smartHash = new SmartHashing('sha256')
-
-  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key) || smartHash.isAlreadyHashed(value)) {
+  if (typeof value === 'number' || ['externalId', 'mobileAdId'].includes(key)) {
     row[index] = value
     return
   }
 
-  const normalizationFunction = normalizationFunctions.get(key)
-  if (!normalizationFunction) {
-    throw new IntegrationError(`Normalization function not found for key: ${key}`, `cannot normalize ${key}`, 500)
-  }
-
-  const normalizedValue = normalizationFunction(value)
-  row[index] = smartHash.hash(normalizedValue)
+  row[index] = processHashingV2(value, 'sha256', 'hex', normalizationFunctions.get(key))
 }
 
 export const getApiVersion = (features?: Features, statsContext?: StatsContext): string => {
@@ -101,12 +92,14 @@ export const getApiVersion = (features?: Features, statsContext?: StatsContext):
 export default class FacebookClient {
   request: RequestClient
   adAccountId: string
+  features: Features | undefined
   baseUrl: string
 
   constructor(request: RequestClient, adAccountId: string, features?: Features, statsContext?: StatsContext) {
     this.request = request
     this.adAccountId = this.formatAdAccount(adAccountId)
     this.baseUrl = `${BASE_URL}/${getApiVersion(features, statsContext)}/`
+    this.features = features || undefined
   }
 
   createAudience = async (name: string) => {

@@ -1,9 +1,10 @@
 import type { ActionDefinition, StatsContext } from '@segment/actions-core'
-import { RequestClient, RetryableError, IntegrationError, sha256SmartHash } from '@segment/actions-core'
+import { RequestClient, RetryableError, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
 import { LinkedInAudiencePayload } from '../types'
+import { processHashingV2 } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Segment',
@@ -35,7 +36,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.email' },
           else: { '@path': '$.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     first_name: {
       label: 'User First Name',
@@ -291,7 +293,7 @@ function getUserIds(settings: Settings, payload: Payload): Record<string, string
   if (payload.email && settings.send_email === true) {
     userIds.push({
       idType: 'SHA256_EMAIL',
-      idValue: sha256SmartHash(payload.email)
+      idValue: processHashingV2(payload.email, 'sha256', 'hex')
     })
   }
 

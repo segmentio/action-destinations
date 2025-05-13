@@ -4,6 +4,8 @@ import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 
 import send from './send'
 
+import sendV2 from './sendV2'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Amazon Eventbridge',
   slug: 'actions-amazon-eventbridge',
@@ -58,11 +60,9 @@ const destination: DestinationDefinition<Settings> = {
       createPartnerEventSource: {
         type: 'boolean',
         label: 'Create Partner Event Source',
-        description: `USE WITH CAUTION: This will create the partner event source if it does not already exist.
-                      Use this option if you want to create the partner event source.
-                      projectId or context.protocols.sourceId will be used as the sourceId to 
-                      create the partner event source.
-                      Use with caution.`,
+        description: `If enabled, Segment will check whether Partner Source identified by Segment source ID 
+                      exists in EventBridge. 
+                      If Partner Source does not exist, Segment will create a new Partner Source.`,
         default: false
       }
     },
@@ -78,7 +78,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    send
+    send,
+    sendV2
   }
 }
 

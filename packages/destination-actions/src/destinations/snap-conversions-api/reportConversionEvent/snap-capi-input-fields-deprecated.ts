@@ -40,7 +40,8 @@ const device_model: InputField = {
 const email: InputField = {
   label: '[Deprecated] Email',
   description: 'Deprecated. Use User Data email field.',
-  type: 'string'
+  type: 'string',
+  category: 'hashedPII'
 }
 
 const event_conversion_type: InputField = {
@@ -123,7 +124,8 @@ const page_url: InputField = {
 const phone_number: InputField = {
   label: '[Deprecated] Phone Number',
   description: 'Deprecated. Use User Data phone field.',
-  type: 'string'
+  type: 'string',
+  category: 'hashedPII'
 }
 
 const price: InputField = {

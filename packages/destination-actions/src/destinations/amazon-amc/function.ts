@@ -1,10 +1,10 @@
 import { InvalidAuthenticationError } from '@segment/actions-core'
 import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
-import { createHash } from 'crypto'
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
 import { AudienceRecord, HashedPIIObject } from './types'
 import { CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID } from './utils'
+import { processHashingV2 } from '../../lib/hashing-utils'
 
 export async function processPayload(
   request: RequestClient,
@@ -21,7 +21,8 @@ export async function processPayload(
     body: payloadString,
     headers: {
       'Content-Type': 'application/vnd.amcaudiences.v1+json'
-    }
+    },
+    timeout: 15000
   })
 
   const result = response.data
@@ -147,7 +148,8 @@ export async function processBatchPayload(
     throwHttpErrors: false,
     headers: {
       'Content-Type': 'application/vnd.amcaudiences.v1+json'
-    }
+    },
+    timeout: 15000
   })
   if (!response.ok && response.status == 401) {
     throw new InvalidAuthenticationError(response.statusText)
@@ -195,9 +197,7 @@ export function updateMultiStatusResponses(
 function normalize(value: string, allowedChars: RegExp, trim = true): string {
   let normalized = value.toLowerCase().replace(allowedChars, '')
   if (trim) normalized = normalized.trim()
-  const hash = createHash('sha256')
-  hash.update(normalized)
-  return hash.digest('hex')
+  return normalized
 }
 
 // Define allowed character patterns
@@ -233,28 +233,28 @@ function hashedPayload(payload: Payload): HashedPIIObject {
   const hashedPII: HashedPIIObject = {}
 
   if (payload.firstName) {
-    hashedPII.firstname = normalizeStandard(payload.firstName)
+    hashedPII.firstname = processHashingV2(payload.firstName, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.lastName) {
-    hashedPII.lastname = normalizeStandard(payload.lastName)
+    hashedPII.lastname = processHashingV2(payload.lastName, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.address) {
-    hashedPII.address = normalizeStandard(payload.address)
+    hashedPII.address = processHashingV2(payload.address, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.postal) {
-    hashedPII.postal = normalizeStandard(payload.postal)
+    hashedPII.postal = processHashingV2(payload.postal, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.phone) {
-    hashedPII.phone = normalizePhone(payload.phone)
+    hashedPII.phone = processHashingV2(payload.phone, 'sha256', 'hex', normalizePhone)
   }
   if (payload.city) {
-    hashedPII.city = normalizeStandard(payload.city)
+    hashedPII.city = processHashingV2(payload.city, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.state) {
-    hashedPII.state = normalizeStandard(payload.state)
+    hashedPII.state = processHashingV2(payload.state, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.email) {
-    hashedPII.email = normalizeEmail(payload.email)
+    hashedPII.email = processHashingV2(payload.email, 'sha256', 'hex', normalizeEmail)
   }
 
   return hashedPII

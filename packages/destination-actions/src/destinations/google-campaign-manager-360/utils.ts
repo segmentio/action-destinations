@@ -1,4 +1,3 @@
-import { createHash } from 'crypto'
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Payload as UploadPayload } from './conversionUpload/generated-types'
 import { Payload as Adjustayload } from './conversionAdjustmentUpload/generated-types'
@@ -17,6 +16,7 @@ import {
   ConsentType,
   EncryptionInfo
 } from './types'
+import { processHashingV2 } from '../../lib/hashing-utils'
 
 export async function send(
   request: RequestClient,
@@ -153,16 +153,20 @@ export function getJSON(payloads: UploadPayload[] | Adjustayload[], settings: Se
           userDetails ?? {}
         const identifiers: UserIdentifier[] = []
         if (email) {
-          identifiers.push({ hashedEmail: maybeHash(email) as string })
+          identifiers.push({
+            hashedEmail: processHashingV2(email, 'sha256', 'hex')
+          })
         }
         if (phone) {
-          identifiers.push({ hashedPhoneNumber: maybeHash(phone) as string })
+          identifiers.push({
+            hashedPhoneNumber: processHashingV2(phone, 'sha256', 'hex')
+          })
         }
         if (firstName || lastName || streetAddress || city || state || postalCode || countryCode) {
           const addressInfo: AddressInfo = {
-            hashedFirstName: maybeHash(firstName),
-            hashedLastName: maybeHash(lastName),
-            hashedStreetAddress: maybeHash(streetAddress),
+            hashedFirstName: firstName ? processHashingV2(firstName, 'sha256', 'hex') : undefined,
+            hashedLastName: lastName ? processHashingV2(lastName, 'sha256', 'hex') : undefined,
+            hashedStreetAddress: streetAddress ? processHashingV2(streetAddress, 'sha256', 'hex') : undefined,
             city: city ?? undefined,
             state: state ?? undefined,
             postalCode: postalCode ?? undefined,
@@ -185,7 +189,9 @@ export function getJSON(payloads: UploadPayload[] | Adjustayload[], settings: Se
       encryptedUserIdCandidates:
         encryptedUserIdCandidates
           ?.split(',')
-          .map(maybeHash)
+          .map((value) => {
+            return processHashingV2(value, 'sha256', 'hex')
+          })
           .filter((str): str is string => str !== undefined) ?? []
     } as Conversion
 
@@ -206,22 +212,6 @@ function maybeThrow(message: string, shouldThrow: boolean) {
   if (shouldThrow) {
     throw new PayloadValidationError(message)
   }
-}
-
-export function maybeHash(value: string | undefined): string | undefined {
-  if (value === undefined) {
-    return undefined
-  }
-
-  const isHashed = new RegExp(/[0-9abcdef]{64}/gi).test(value)
-
-  if (isHashed) {
-    return value
-  }
-
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
 }
 
 export function getCustomVarTypeChoices(): Array<{ value: string; label: string }> {

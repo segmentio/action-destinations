@@ -171,6 +171,37 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].options.headers).toMatchSnapshot()
   })
 
+  it('Should detect hashed PII when flag is on and not double hash', async () => {
+    nock(`https://advertising-api.amazon.com`)
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+
+    const response = await testDestination.testAction('syncAudiencesToDSP', {
+      event: {
+        ...event,
+        properties: {
+          audience_key: 'example_event_once_30_4_24_1',
+          example_event_once_30_4_24_1: true,
+          email: 'c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151',
+          phone: '63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b',
+          first_name: '44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d',
+          state: '92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'
+        }
+      },
+      settings,
+      useDefaultMappings: true
+    })
+
+    expect(response.length).toBe(1)
+    expect(response[0].status).toBe(202)
+    expect(response[0].data).toMatchObject({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+    expect(response[0].options.body).toBe(
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"firstname":"44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d","phone":"63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b","state":"92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d","email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}]}],"audienceId":379909525712777677}'
+    )
+    expect(response[0].options.headers).toMatchSnapshot()
+  })
+
   it('Normalise and Hash input with extra characters and spaces', async () => {
     nock(`https://advertising-api.amazon.com`)
       .post('/amc/audiences/records')

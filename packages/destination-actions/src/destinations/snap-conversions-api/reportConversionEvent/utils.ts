@@ -1,20 +1,7 @@
 import { IntegrationError } from '@segment/actions-core'
-import { createHash } from 'crypto'
+import { processHashingV2 } from '../../../lib/hashing-utils'
 
 export const isNullOrUndefined = <T>(v: T | null | undefined): v is null | undefined => v == null
-
-export const hash = (value: string | undefined): string | undefined => {
-  if (value === undefined) return
-
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
-}
-
-const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
-
-export const hashEmailSafe = (email: string | undefined): string | undefined =>
-  isHashedEmail(String(email)) ? email : hash(email)
 
 export const raiseMisconfiguredRequiredFieldErrorIf = (condition: boolean, message: string) => {
   if (condition) {
@@ -81,4 +68,13 @@ export const parseNumberSafe = (v: string | number | undefined): number | undefi
 export const parseDateSafe = (v: string | undefined): number | undefined => {
   const parsed = Date.parse(v ?? '')
   return Number.isSafeInteger(parsed) ? parsed : undefined
+}
+
+export const smartHash = (
+  value: string | undefined,
+  cleaningFunction?: (value: string) => string
+): string | undefined => {
+  if (value === undefined) return
+
+  return processHashingV2(value, 'sha256', 'hex', cleaningFunction)
 }

@@ -1,11 +1,11 @@
-import { createHash } from 'crypto'
+import { processHashingV2 } from '../../lib/hashing-utils'
 
 export function hashAndEncode(property: string): string {
-  return createHash('sha256').update(property).digest('hex')
+  return processHashingV2(property, 'sha256', 'hex')
 }
 
 export function hashAndEncodeToInt(property: string): number {
-  const hash = createHash('sha256').update(property).digest('hex')
+  const hash = processHashingV2(property, 'sha256', 'hex')
   const bigInt = BigInt('0x' + hash)
   let integerString = bigInt.toString()
   if (integerString.length > 16) {
@@ -38,10 +38,14 @@ export function getCreateAudienceURL(dataCenter: string): string {
   return `https://cdp-extensions-api.${getDomain(dataCenter)}.dynamicyield.com/cdp/segment/audiences/subscription`
 }
 
-export function getDataCenter(sectionId: string){
-  return sectionId.toLocaleLowerCase().startsWith("9") ? "EU" : sectionId.toLocaleLowerCase().startsWith("8") ? "US" : "DEV" 
+export function getDataCenter(sectionId: string) {
+  return sectionId.toLocaleLowerCase().startsWith('9')
+    ? 'EU'
+    : sectionId.toLocaleLowerCase().startsWith('8')
+    ? 'US'
+    : 'DEV'
 }
 
-export function getSectionId(sectionId: string){
+export function getSectionId(sectionId: string) {
   return sectionId.toLocaleLowerCase().replace('dev', '')
 }

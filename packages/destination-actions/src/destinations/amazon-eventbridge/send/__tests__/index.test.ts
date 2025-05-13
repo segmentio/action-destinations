@@ -1,19 +1,35 @@
 import { send } from '../../functions' // Adjust path as needed
-import { EventBridgeClient } from '@aws-sdk/client-eventbridge'
-import { Payload } from '../../send/generated-types' // Import the Payload type
-import { Settings } from '../../generated-types' // Import the Settings type
-import { CreatePartnerEventSourceCommand } from '@aws-sdk/client-eventbridge'
 
-jest.mock('@aws-sdk/client-eventbridge') // Mock AWS SDK
+import {
+  PutPartnerEventsCommand,
+  ListPartnerEventSourcesCommand,
+  CreatePartnerEventSourceCommand
+} from '@aws-sdk/client-eventbridge'
+import { Payload } from '../../send/generated-types'
+import { Settings } from '../../generated-types'
 
-const mockSend = jest.fn()
-EventBridgeClient.prototype.send = mockSend
+// Mock AWS SDK
+jest.mock('@aws-sdk/client-eventbridge', () => {
+  const mockSend = jest.fn()
+  return {
+    EventBridgeClient: jest.fn(() => ({
+      send: mockSend
+    })),
+    PutPartnerEventsCommand: jest.fn(),
+    ListPartnerEventSourcesCommand: jest.fn(),
+    CreatePartnerEventSourceCommand: jest.fn(),
+    mockSend
+  }
+})
+
+const { mockSend } = jest.requireMock('@aws-sdk/client-eventbridge')
 
 describe('AWS EventBridge Integration', () => {
-  const settings = {
+  const settings: Settings = {
     awsRegion: 'us-west-2',
     awsAccountId: '123456789012',
-    createPartnerEventSource: true
+    createPartnerEventSource: true,
+    partnerEventSourceName: 'your-partner-event-source-name'
   }
 
   afterEach(() => {
@@ -32,51 +48,142 @@ describe('AWS EventBridge Integration', () => {
         detailType: 'UserSignup',
         data: { user: '123', event: 'signed_up' },
         resources: 'test-resource',
-        enable_batching: true // Add the enable_batching property
+        enable_batching: true
       }
     ]
 
-    const updatedSettings: Settings = {
-      ...settings,
-      partnerEventSourceName: 'your-partner-event-source-name' // Add the partnerEventSourceName property
-    }
+    // Mocking the listPartnerEventSources response to simulate source existence check
+    mockSend.mockResolvedValueOnce({
+      PartnerEventSources: [{ Name: `${settings.partnerEventSourceName}/test-source` }]
+    })
 
-    await send(payloads, updatedSettings)
-    expect(mockSend).toHaveBeenCalled()
+    // Mocking a successful PutPartnerEventsCommand response
+    mockSend.mockResolvedValueOnce({
+      FailedEntryCount: 0,
+      Entries: [{ EventId: '12345' }]
+    })
+
+    await send(payloads, settings)
+
+    expect(mockSend).toHaveBeenCalledWith(expect.any(ListPartnerEventSourcesCommand))
+    expect(mockSend).toHaveBeenCalledWith(expect.any(PutPartnerEventsCommand))
+    expect(mockSend).toHaveBeenCalledTimes(2)
   })
 
-  test('process_data should send event to EventBridge', async () => {
+  test('send should throw an error if FailedEntryCount > 0', async () => {
     const payloads: Payload[] = [
-      // Ensure payloads is of type Payload[]
       {
         sourceId: 'test-source',
         detailType: 'UserSignup',
         data: { user: '123', event: 'signed_up' },
         resources: 'test-resource',
-        enable_batching: true // Add the enable_batching property
+        enable_batching: true
       }
     ]
 
-    // Proper mock setup for List and Put commands
-    mockSend
-      .mockResolvedValueOnce({ PartnerEventSources: [] }) // Simulate "List" finding no source
-      .mockResolvedValueOnce({}) // Simulate successful event send
+    mockSend.mockResolvedValueOnce({
+      PartnerEventSources: [{ Name: `${settings.partnerEventSourceName}/test-source` }]
+    })
+
+    mockSend.mockResolvedValueOnce({
+      FailedEntryCount: 1,
+      Entries: [{ ErrorCode: 'EventBridgeError', ErrorMessage: 'Invalid event' }]
+    })
+
+    await expect(send(payloads, settings)).rejects.toThrow('Invalid event')
+
+    expect(mockSend).toHaveBeenCalledWith(expect.any(ListPartnerEventSourcesCommand))
+    expect(mockSend).toHaveBeenCalledWith(expect.any(PutPartnerEventsCommand))
+    expect(mockSend).toHaveBeenCalledTimes(2)
+  })
+
+  test('ensurePartnerSourceExists should create source if it does not exist', async () => {
+    const payloads: Payload[] = [
+      {
+        sourceId: 'test-source',
+        detailType: 'UserSignup',
+        data: { user: '123', event: 'signed_up' },
+        resources: 'test-resource',
+        enable_batching: true
+      }
+    ]
 
     const updatedSettings: Settings = {
       ...settings,
-      partnerEventSourceName: 'aws.partner/segment.com.test', // Add the partnerEventSourceName property
-      createPartnerEventSource: true // Ensure this is enabled
+      partnerEventSourceName: 'aws.partner/segment.com.test',
+      createPartnerEventSource: true
+    }
+
+    // Simulate "List" finding no source and success on creation
+    mockSend
+      .mockResolvedValueOnce({ PartnerEventSources: [] }) // No source exists
+      .mockResolvedValueOnce({}) // CreatePartnerEventSourceCommand success
+      .mockResolvedValueOnce({ FailedEntryCount: 0 }) // Event sent successfully
+
+    await send(payloads, updatedSettings)
+
+    // Ensure the List command was called
+    expect(mockSend).toHaveBeenCalledWith(expect.any(ListPartnerEventSourcesCommand))
+
+    // Ensure the Create command was called
+    expect(mockSend).toHaveBeenCalledWith(expect.any(CreatePartnerEventSourceCommand))
+
+    // Ensure the event is sent
+    expect(mockSend).toHaveBeenCalledWith(expect.any(PutPartnerEventsCommand))
+
+    // Ensure all three commands are called
+    expect(mockSend).toHaveBeenCalledTimes(3)
+  })
+
+  test('ensurePartnerSourceExists should not create source if it already exists', async () => {
+    // Mock ListPartnerEventSourcesCommand to simulate existing source
+    mockSend
+      .mockResolvedValueOnce({
+        PartnerEventSources: [{ Name: 'aws.partner/segment.com.test/test-source' }]
+      }) // ListPartnerEventSourcesCommand
+      .mockResolvedValueOnce({
+        FailedEntryCount: 0, // Mock success for PutPartnerEventsCommand
+        Entries: [{ EventId: '12345' }]
+      })
+
+    const payloads: Payload[] = [
+      {
+        sourceId: 'test-source',
+        detailType: 'UserSignup',
+        data: { user: '123', event: 'signed_up' },
+        resources: 'test-resource',
+        enable_batching: true
+      }
+    ]
+
+    const updatedSettings: Settings = {
+      ...settings,
+      partnerEventSourceName: 'your-partner-event-source-name',
+      createPartnerEventSource: false
     }
 
     await send(payloads, updatedSettings)
 
-    expect(mockSend).toHaveBeenCalledWith(expect.any(Object))
-    expect(mockSend).toHaveBeenCalledTimes(3) // One for List, one for Put
+    // Ensure it only calls ListPartnerEventSources and PutPartnerEventsCommand
+    expect(mockSend).toHaveBeenCalledTimes(2)
+
+    // Ensure it does NOT call CreatePartnerEventSourceCommand
+    expect(mockSend).not.toHaveBeenCalledWith(
+      expect.objectContaining({ input: expect.objectContaining({ Account: '123456789012' }) })
+    )
   })
 
-  test('ensurePartnerSourceExists should not create source if it already exists', async () => {
+  test('ensurePartnerSourceExists should create source if missing', async () => {
+    // Simulate "ListPartnerEventSources" - No source found
+    mockSend.mockResolvedValueOnce({ PartnerEventSources: [] })
+
+    // Simulate "CreatePartnerEventSource" - Source created
+    mockSend.mockResolvedValueOnce({})
+
+    // Simulate "PutEventsCommand" - Event sent successfully
     mockSend.mockResolvedValueOnce({
-      PartnerEventSources: [{ Name: 'aws.partner/segment.com.test/test-source' }]
+      FailedEntryCount: 0,
+      Entries: [{ EventId: '12345' }]
     })
 
     const payloads: Payload[] = [
@@ -85,45 +192,17 @@ describe('AWS EventBridge Integration', () => {
         detailType: 'UserSignup',
         data: { user: '123', event: 'signed_up' },
         resources: 'test-resource',
-        enable_batching: true // Add the enable_batching property
+        enable_batching: true
       }
     ]
 
-    const updatedSettings: Settings = {
-      ...settings,
-      partnerEventSourceName: 'your-partner-event-source-name', // Add the partnerEventSourceName property
-      createPartnerEventSource: false // Ensure this is disabled
-    }
+    await send(payloads, settings)
 
-    await send(payloads, updatedSettings)
-    expect(mockSend).toHaveBeenCalledTimes(2) // Only ListPartnerEventSources
-  })
-
-  test('ensurePartnerSourceExists should create source if missing', async () => {
-    const mockSend = jest.spyOn(EventBridgeClient.prototype, 'send')
-    mockSend
-      .mockResolvedValueOnce({ PartnerEventSources: [] } as never) // First call: No sources exist
-      .mockResolvedValueOnce({} as never) // Second call: CreatePartnerEventSource
-
-    const payloads: Payload[] = [
-      {
-        sourceId: 'test-source',
-        detailType: 'UserSignup',
-        data: { user: '123', event: 'signed_up' },
-        resources: 'test-resource',
-        enable_batching: true // Add the enable_batching property
-      }
-    ]
-
-    const updatedSettings: Settings = {
-      ...settings,
-      partnerEventSourceName: 'your-partner-event-source-name', // Add the partnerEventSourceName property
-      createPartnerEventSource: true // Ensure this is enabled
-    }
-
-    await send(payloads, updatedSettings)
-
+    // Ensure all three calls are made: List, Create, and Put
     expect(mockSend).toHaveBeenCalledTimes(3)
+
+    // Check if CreatePartnerEventSourceCommand is called
+    expect(mockSend).toHaveBeenCalledWith(expect.any(CreatePartnerEventSourceCommand))
   })
 
   test('should throw error if partner source is missing and createPartnerEventSource is false', async () => {
@@ -155,20 +234,80 @@ describe('AWS EventBridge Integration', () => {
         detailType: 'UserSignup',
         data: { user: '123', event: 'signed_up' },
         resources: 'test-resource',
-        enable_batching: true // Add the enable_batching property
+        enable_batching: true
       }
     ]
 
-    mockSend.mockResolvedValueOnce({})
+    // Ensure correct mock responses for all EventBridge calls
+    mockSend
+      .mockResolvedValueOnce({ PartnerEventSources: [] }) // ListPartnerEventSourcesCommand
+      .mockResolvedValueOnce({}) // CreatePartnerEventSourceCommand
+      .mockResolvedValueOnce({ FailedEntryCount: 0, Entries: [{ EventId: '12345' }] }) // PutEventsCommand
 
-    const updatedSettings: Settings = {
-      ...settings,
-      partnerEventSourceName: 'your-partner-event-source-name', // Add the partnerEventSourceName property
-      createPartnerEventSource: true // Ensure this is enabled
+    await send(payloads, settings)
+
+    expect(mockSend).toHaveBeenCalledTimes(3)
+
+    // Ensure CreatePartnerEventSourceCommand is called
+    expect(mockSend).toHaveBeenCalledWith(expect.any(CreatePartnerEventSourceCommand))
+
+    // Ensure PutEventsCommand is called with expected arguments
+    expect(mockSend).toHaveBeenCalledWith(expect.any(PutPartnerEventsCommand))
+  })
+
+  test('process_data should throw error if event send fails', async () => {
+    const payloads: Payload[] = [
+      {
+        sourceId: 'test-source',
+        detailType: 'UserSignup',
+        data: { user: '123', event: 'signed_up' },
+        resources: 'test-resource',
+        enable_batching: true
+      }
+    ]
+
+    const settings = {
+      awsRegion: 'us-west-2',
+      awsAccountId: '123456789012',
+      partnerEventSourceName: 'test-source'
+      // Other settings here
     }
 
-    await send(payloads, updatedSettings)
+    // Mock a failed response
+    mockSend
+      .mockResolvedValueOnce({
+        PartnerEventSources: [{ Name: 'aws.partner/segment.com.test/test-source' }]
+      }) // ListPartnerEventSourcesCommand
+      .mockResolvedValueOnce({
+        FailedEntryCount: 1,
+        Entries: [{ ErrorCode: 'Error', ErrorMessage: 'Failed' }]
+      })
 
-    expect(mockSend).toHaveBeenCalledWith(expect.any(CreatePartnerEventSourceCommand))
+    // Call the function and assert that it throws an error
+    await expect(send(payloads, settings)).rejects.toThrow(
+      'EventBridge failed with 1 errors: Error: Error, Message: Failed'
+    )
+  })
+
+  test('process_data should send event to EventBridge', async () => {
+    const payloads: Payload[] = [
+      {
+        sourceId: 'test-source',
+        detailType: 'UserSignup',
+        data: { user: '123', event: 'signed_up' },
+        resources: 'test-resource',
+        enable_batching: true
+      }
+    ]
+
+    // Proper mock setup for List and Put commands
+    mockSend
+      .mockResolvedValueOnce({ PartnerEventSources: [] }) // Simulate "List" finding no source
+      .mockResolvedValueOnce({}) // Simulate successful event send
+
+    await send(payloads, settings)
+
+    expect(mockSend).toHaveBeenCalledWith(expect.any(Object))
+    expect(mockSend).toHaveBeenCalledTimes(3) // One for List, one for Put
   })
 })

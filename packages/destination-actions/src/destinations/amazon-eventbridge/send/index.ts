@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from '../functions'
+import { send as sendV2 } from '../functionsv2'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
@@ -16,8 +17,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     detailType: {
       label: 'Detail Type',
-      description: 'The detail type for the event.',
+      description: `Detail Type of the event. Used to determine what fields to expect in the event Detail. 
+                    Value cannot be longer than 128 characters.`,
       type: 'string',
+      maximum: 128,
       default: { '@path': '$.type' },
       required: true
     },
@@ -82,7 +85,10 @@ const action: ActionDefinition<Settings, Payload> = {
     return send([payload], settings)
   },
   performBatch: (_, data) => {
-    const { payload, settings } = data
+    const { payload, settings, features } = data
+    if (features?.['amazon-eventbridge-v2']) {
+      return sendV2(payload, settings)
+    }
     return send(payload, settings)
   }
 }

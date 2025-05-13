@@ -116,14 +116,33 @@ describe('Yahoo Audiences', () => {
             identifier: 'email'
           } as Payload
         ]
-
         // When
         const result = gen_update_segment_payload(payloads)
-
         // Then
         expect(result).toBeTruthy()
         expect(result.data.length).toBe(2)
         expect((result.data as any)[0][4]).toContain(';')
+      })
+
+      it('should not rehash if value is already hashed', () => {
+        const payloads: Payload[] = [
+          {
+            gdpr_flag: false,
+            segment_audience_id: 'aud_123',
+            segment_audience_key: 'sneakers_buyers',
+            segment_computation_action: 'enter',
+            email: '67e28cdcc3e845d3a4da05ca9fe5ddb7320a83b4cc2167f0555a3b04f63511e3',
+            advertising_id: '',
+            phone: '',
+            event_attributes: {
+              sneakers_buyers: true
+            },
+            identifier: 'email'
+          } as Payload
+        ]
+
+        const result = gen_update_segment_payload(payloads)
+        expect(result.data[0]).toContain('67e28cdcc3e845d3a4da05ca9fe5ddb7320a83b4cc2167f0555a3b04f63511e3')
       })
     })
   })

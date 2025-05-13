@@ -48,7 +48,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          timeout: 15000
         })
       } catch (e: any) {
         const error = e as AmazonTestAuthenticationError
@@ -208,7 +209,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         body: payloadString,
         headers: {
           'Content-Type': 'application/vnd.amcaudiences.v1+json'
-        }
+        },
+        timeout: 15000
       })
 
       const res = await response.text()
@@ -228,7 +230,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
       const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
-        method: 'GET'
+        method: 'GET',
+        timeout: 15000
       })
       const res = await response.text()
       // Regular expression to find a audienceId number and replace the audienceId with quoted string
@@ -250,6 +253,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: {
+        ...defaultValues(syncAudiencesToDSP.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }
