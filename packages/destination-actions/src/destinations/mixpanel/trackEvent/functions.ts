@@ -34,7 +34,7 @@ export function getEventProperties(payload: Payload, settings: Settings): Mixpan
     ip: payload.ip,
     id: payload.distinct_id,
     $anon_id: payload.anonymous_id,
-    distinct_id,
+    distinct_id: payload.distinct_id ?? ''
     $app_build_number: payload.app_build,
     $app_version_string: payload.app_version,
     $app_namespace: payload.app_namespace,
