@@ -50,7 +50,8 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Basic ${settings.apiKey}`
+        Authorization: `Basic ${settings.apiKey}`,
+        'User-Agent': 'Segment (Actions)'
       }
     }
   },

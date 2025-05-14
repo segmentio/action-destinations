@@ -1,5 +1,4 @@
 import { transform } from '../index'
-
 describe('validations', () => {
   test('valid', () => {
     expect(() => {

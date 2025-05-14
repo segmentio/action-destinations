@@ -13097,6 +13097,13 @@ lint-staged@^10.5.3:
     string-argv "0.3.1"
     stringify-object "^3.3.0"
 
+liquidjs@^10.21.0:
+  version "10.21.0"
+  resolved "https://registry.yarnpkg.com/liquidjs/-/liquidjs-10.21.0.tgz#d3e43df2144bf6fc12c3ee1f3e6dcabd65b22ba9"
+  integrity sha512-DouqxNU2jfoZzb1LinVjOc/f6ssitGIxiDJT+kEKyYqPSSSd+WmGOAhtWbVm1/n75svu4aQ+FyQ3ctd3wh1bbw==
+  dependencies:
+    commander "^10.0.0"
+
 liquidjs@^10.8.4:
   version "10.12.0"
   resolved "https://registry.yarnpkg.com/liquidjs/-/liquidjs-10.12.0.tgz#1f24fdaee79ab16e65504fd9979513b435838a3b"

@@ -22,10 +22,9 @@ describe('Reddit Conversions Api', () => {
         userId: 'user_id_1',
         properties: {
           click_id: 'click_id_1',
-          conversion_id: 'ea3d01f99e303d2338cfb4e71f182441eb57c9a3cb129c40bcae9f5d641a7375',
           currency: 'USD',
           quantity: 10,
-          total: 100,
+          revenue: 100,
           uuid: 'uuid_1',
           products: [
             { product_id: 'product_id_1', category: 'category_1', name: 'name_1' },
@@ -60,7 +59,7 @@ describe('Reddit Conversions Api', () => {
             click_id: 'click_id_1',
             event_at: '2024-01-08T13:52:50.212Z',
             event_metadata: {
-              conversion_id: '492ebaa71872336ef94c7093b77d2232fdba7e469f716586a816d861367b183f',
+              conversion_id: '5184171f53a0fd17f59ea50fac8e11d9eb589ed0692920ee4f52a357112e6802',
               currency: 'USD',
               item_count: 10,
               products: [
@@ -99,12 +98,11 @@ describe('Reddit Conversions Api', () => {
       const event = createTestEvent({
         timestamp: timestamp,
         event: 'Some Custom Event Name',
-        messageId: 'test-message-id-contact',
+        messageId: '492ebaa71872336ef94c7093b77d2232fdba7e469f716586a816d861367b183f',
         type: 'track',
         userId: 'user_id_1',
         properties: {
           click_id: 'click_id_1',
-          conversion_id: '492ebaa71872336ef94c7093b77d2232fdba7e469f716586a816d861367b183f',
           currency: 'USD',
           quantity: 10,
           total: 100,
@@ -131,8 +129,7 @@ describe('Reddit Conversions Api', () => {
         useDefaultMappings: true,
         mapping: {
           custom_event_name: 'Some Custom Event Name'
-        },
-        features: { 'smart-hashing': true }
+        }
       })
 
       expect(responses.length).toBe(1)
@@ -189,10 +186,10 @@ describe('Reddit Conversions Api', () => {
         userId: 'user_id_1',
         properties: {
           click_id: 'click_id_1',
-          conversion_id: 'ea3d01f99e303d2338cfb4e71f182441eb57c9a3cb129c40bcae9f5d641a7375',
           currency: 'USD',
           quantity: 10,
-          total: 100,
+          revenue: 100,
+          total: 30,
           uuid: 'uuid_1',
           products: [
             { product_id: 'product_id_1', category: 'category_1', name: 'name_1' },
@@ -227,7 +224,7 @@ describe('Reddit Conversions Api', () => {
             click_id: 'click_id_1',
             event_at: '2024-01-08T13:52:50.212Z',
             event_metadata: {
-              conversion_id: '492ebaa71872336ef94c7093b77d2232fdba7e469f716586a816d861367b183f',
+              conversion_id: '5184171f53a0fd17f59ea50fac8e11d9eb589ed0692920ee4f52a357112e6802',
               currency: 'USD',
               item_count: 10,
               products: [
@@ -270,9 +267,8 @@ describe('Reddit Conversions Api', () => {
         userId: 'user_id_1',
         properties: {
           click_id: 'click_id_1',
-          conversion_id: 'ea3d01f99e303d2338cfb4e71f182441eb57c9a3cb129c40bcae9f5d641a7375',
           currency: 'USD',
-          total: 100,
+          revenue: 100,
           uuid: 'uuid_1',
           products: [
             { product_id: 'product_id_1', category: 'category_1', name: 'name_1' },
@@ -307,7 +303,7 @@ describe('Reddit Conversions Api', () => {
             click_id: 'click_id_1',
             event_at: '2024-01-08T13:52:50.212Z',
             event_metadata: {
-              conversion_id: '492ebaa71872336ef94c7093b77d2232fdba7e469f716586a816d861367b183f',
+              conversion_id: '5184171f53a0fd17f59ea50fac8e11d9eb589ed0692920ee4f52a357112e6802',
               currency: 'USD',
               products: [
                 {
@@ -344,12 +340,11 @@ describe('Reddit Conversions Api', () => {
       const event = createTestEvent({
         timestamp: timestamp,
         event: 'Lead Generated',
-        messageId: 'test-message-id-contact',
+        messageId: 'ea3d01f99e303d2338cfb4e71f182441eb57c9a3cb129c40bcae9f5d641a7375',
         type: 'track',
         userId: 'user_id_1',
         properties: {
           click_id: 'click_id_1',
-          conversion_id: 'ea3d01f99e303d2338cfb4e71f182441eb57c9a3cb129c40bcae9f5d641a7375',
           currency: 'USD',
           total: 100,
           uuid: 'uuid_1',
@@ -375,8 +370,7 @@ describe('Reddit Conversions Api', () => {
         useDefaultMappings: true,
         mapping: {
           tracking_type: 'Lead'
-        },
-        features: { 'smart-hashing': true }
+        }
       })
 
       expect(responses.length).toBe(1)
@@ -453,8 +447,7 @@ describe('Reddit Conversions Api', () => {
         useDefaultMappings: true,
         mapping: {
           tracking_type: 'Lead'
-        },
-        features: { 'smart-hashing': true }
+        }
       })
 
       expect(responses.length).toBe(1)
@@ -466,6 +459,7 @@ describe('Reddit Conversions Api', () => {
             event_at: '2024-01-08T13:52:50.212Z',
             event_metadata: {
               currency: 'USD',
+              conversion_id: '5184171f53a0fd17f59ea50fac8e11d9eb589ed0692920ee4f52a357112e6802',
               products: [
                 {
                   category: 'category_1',

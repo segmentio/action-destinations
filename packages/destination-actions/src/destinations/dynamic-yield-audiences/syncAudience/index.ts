@@ -110,7 +110,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
 
-  perform: async (request, { audienceSettings, payload, settings, features }) => {
+  perform: async (request, { audienceSettings, payload, settings }) => {
     const { external_audience_id } = payload
 
     if (!audienceSettings?.audience_name) {
@@ -177,7 +177,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
             {
               type: idTypeToSend,
               encoding: idTypeToSend === 'email' ? '"sha-256"' : 'raw',
-              value: idTypeToSend === 'email' ? hashAndEncode(primaryIdentifier, features || {}) : primaryIdentifier
+              value: idTypeToSend === 'email' ? hashAndEncode(primaryIdentifier) : primaryIdentifier
             }
           ],
           audiences: [
