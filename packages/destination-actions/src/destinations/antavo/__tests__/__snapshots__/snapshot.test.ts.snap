@@ -4,7 +4,6 @@ exports[`Testing snapshot for actions-antavo destination: event action - all fie
 Object {
   "account": "YOUfi0^J9NW]3LPm",
   "action": "YOUfi0^J9NW]3LPm",
-  "api_key": "YOUfi0^J9NW]3LPm",
   "customer": "YOUfi0^J9NW]3LPm",
   "data": Object {
     "testType": "YOUfi0^J9NW]3LPm",
@@ -15,7 +14,6 @@ Object {
 exports[`Testing snapshot for actions-antavo destination: event action - required fields 1`] = `
 Object {
   "action": "YOUfi0^J9NW]3LPm",
-  "api_key": "YOUfi0^J9NW]3LPm",
   "customer": "YOUfi0^J9NW]3LPm",
 }
 `;
@@ -24,7 +22,6 @@ exports[`Testing snapshot for actions-antavo destination: profile action - all f
 Object {
   "account": "0$ZK&EN",
   "action": "profile",
-  "api_key": "0$ZK&EN",
   "customer": "0$ZK&EN",
   "data": Object {
     "birth_date": "0$ZK&EN",
@@ -42,7 +39,6 @@ Object {
 exports[`Testing snapshot for actions-antavo destination: profile action - required fields 1`] = `
 Object {
   "action": "profile",
-  "api_key": "0$ZK&EN",
   "customer": "0$ZK&EN",
   "data": Object {},
 }
