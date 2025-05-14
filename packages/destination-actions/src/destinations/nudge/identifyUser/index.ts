@@ -26,15 +26,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    name: {
-      label: 'User Name',
-      type: 'string',
-      description: 'The name of the user.',
-      required: false,
-      default: {
-        '@path': '$.traits.name'
-      }
-    },
     email: {
       label: 'Email',
       type: 'string',
@@ -42,15 +33,6 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: {
         '@path': '$.email'
-      }
-    },
-    phone: {
-      label: 'Phone Number',
-      type: 'string',
-      description: 'The phone number of the user.',
-      required: false,
-      default: {
-        '@path': '$.traits.phone'
       }
     },
     tz: {
