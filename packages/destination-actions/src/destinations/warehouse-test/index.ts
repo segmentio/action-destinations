@@ -8,7 +8,7 @@ const destination: DestinationDefinition<Settings> = {
   name: 'AWS S3 Warehouse Test',
   slug: 'actions-warehouse-test',
   mode: 'cloud',
-  description: 'Sync Segment event data to you DWH via S#.',
+  description: 'Sync Segment event data to you DWH via S3.',
 
   authentication: {
     scheme: 'custom',
