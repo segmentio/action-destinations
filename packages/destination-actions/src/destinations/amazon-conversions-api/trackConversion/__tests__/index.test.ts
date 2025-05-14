@@ -16,6 +16,18 @@ describe('AmazonConversionsApi.trackConversion', () => {
     expect(action.fields).toHaveProperty('eventType')
     expect(action.fields).toHaveProperty('eventActionSource')
     expect(action.fields).toHaveProperty('countryCode')
+    
+    // Verify match key fields
     expect(action.fields).toHaveProperty('email')
+    expect(action.fields).toHaveProperty('phone')
+    expect(action.fields).toHaveProperty('firstName')
+    expect(action.fields).toHaveProperty('lastName')
+    expect(action.fields).toHaveProperty('address')
+    expect(action.fields).toHaveProperty('city')
+    expect(action.fields).toHaveProperty('state')
+    expect(action.fields).toHaveProperty('postalCode')
+    expect(action.fields).toHaveProperty('maid')
+    expect(action.fields).toHaveProperty('rampId')
+    expect(action.fields).toHaveProperty('matchId')
   })
 })

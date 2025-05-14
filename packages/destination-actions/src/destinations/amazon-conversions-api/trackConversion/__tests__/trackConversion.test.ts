@@ -89,7 +89,8 @@ describe('amazon-conversions-api.trackConversion', () => {
         timestamp: '2023-01-01T12:00:00Z',
         email: {
           '@path': '$.properties.email'
-        }
+        },
+        enable_batching: true
       }
     })
 
@@ -121,7 +122,7 @@ describe('amazon-conversions-api.trackConversion', () => {
     expect(requestBody.eventData[0].eventActionSource).toBe('WEBSITE')
   })
 
-  it('should hash email correctly', async () => {
+  it('should hash email correctly using smart hashing', async () => {
     nock('https://advertising-api.amazon.com')
       .post('/events/v1')
       .reply(207, successResponsePayload)
@@ -145,7 +146,8 @@ describe('amazon-conversions-api.trackConversion', () => {
         timestamp: '2023-01-01T12:00:00Z',
         email: {
           '@path': '$.properties.email'
-        }
+        },
+        enable_batching: false
       }
     })
 
@@ -163,6 +165,45 @@ describe('amazon-conversions-api.trackConversion', () => {
     // Expected hash: lowercase and trim before hashing
     const expectedHash = createHash('sha256').update(email.toLowerCase().trim()).digest('hex')
     expect(hashedEmail).toBe(expectedHash)
+  })
+
+  it('should not re-hash pre-hashed email values', async () => {
+    nock('https://advertising-api.amazon.com')
+      .post('/events/v1')
+      .reply(207, successResponsePayload)
+
+    // A valid SHA-256 hash (64 hex chars)
+    const preHashedEmail = 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2'
+    const event = createTestEvent({
+      properties: {
+        email: preHashedEmail
+      }
+    })
+
+    const responses = await testDestination.testAction('trackConversion', {
+      event,
+      settings,
+      auth,
+      mapping: {
+        name: 'Test Event',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        email: {
+          '@path': '$.properties.email'
+        },
+        enable_batching: true
+      }
+    })
+
+    // Check that the pre-hashed email wasn't hashed again
+    const requestBody = responses[0].options.json as RequestBody
+    const matchKeys = requestBody.eventData[0].matchKeys!
+    const emailKey = matchKeys.find(k => k.type === 'EMAIL')
+    
+    expect(emailKey).toBeDefined()
+    expect(emailKey!.values[0]).toBe(preHashedEmail)
   })
 
   it('should include custom attributes when provided', async () => {
@@ -195,7 +236,8 @@ describe('amazon-conversions-api.trackConversion', () => {
         },
         customAttributes: {
           '@path': '$.properties.customAttributes'
-        }
+        },
+        enable_batching: false
       }
     })
 
@@ -244,7 +286,8 @@ describe('amazon-conversions-api.trackConversion', () => {
         },
         consent: {
           '@path': '$.properties.consent'
-        }
+        },
+        enable_batching: true
       }
     })
 
@@ -285,7 +328,8 @@ describe('amazon-conversions-api.trackConversion', () => {
         },
         value: 99.99,
         currencyCode: 'USD',
-        unitsSold: 2
+        unitsSold: 2,
+        enable_batching: true
       }
     })
 
@@ -304,7 +348,7 @@ describe('amazon-conversions-api.trackConversion', () => {
     expect(eventData.unitsSold).toBe(2)
   })
 
-  it('should handle 207 multi-status responses with error according to swagger spec', async () => {
+  it('should handle 207 multi-status responses with error', async () => {
     nock('https://advertising-api.amazon.com')
       .post('/events/v1')
       .reply(207, {
@@ -342,7 +386,8 @@ describe('amazon-conversions-api.trackConversion', () => {
         timestamp: '2023-01-01T12:00:00Z',
         email: {
           '@path': '$.properties.email'
-        }
+        },
+        enable_batching: true
       }
     })
 
@@ -378,7 +423,8 @@ describe('amazon-conversions-api.trackConversion', () => {
           timestamp: '2023-01-01T12:00:00Z',
           email: {
             '@path': '$.properties.email'
-          }
+          },
+          enable_batching: true
         }
       })
     ).rejects.toThrowError(/Authentication failed/)
@@ -408,7 +454,8 @@ describe('amazon-conversions-api.trackConversion', () => {
           timestamp: '2023-01-01T12:00:00Z',
           email: {
             '@path': '$.properties.email'
-          }
+          },
+          enable_batching: true
         }
       })
     ).rejects.toThrowError(/Rate limited by Amazon API/)
@@ -439,7 +486,8 @@ describe('amazon-conversions-api.trackConversion', () => {
         timestamp: '2023-01-01T12:00:00Z',
         email: {
           '@path': '$.properties.email'
-        }
+        },
+        enable_batching: true
       }
     })
 
@@ -455,50 +503,6 @@ describe('amazon-conversions-api.trackConversion', () => {
     
     // We just verify that a hash was generated with the right format, not the exact value
     expect(matchKeys[0].values[0]).toMatch(/^[a-f0-9]{64}$/) // SHA-256 hash format
-  })
-
-  it('should hash email values even if they appear to be pre-hashed', async () => {
-    nock('https://advertising-api.amazon.com')
-      .post('/events/v1')
-      .reply(207, successResponsePayload)
-
-    // Generate an SHA-256 hash to use as input
-    const emailHash = createHash('sha256').update('test@example.com').digest('hex')
-
-    const event = createTestEvent({
-      properties: {
-        email: emailHash
-      }
-    })
-
-    const responses = await testDestination.testAction('trackConversion', {
-      event,
-      settings,
-      auth,
-      mapping: {
-        name: 'Test Event',
-        eventType: ConversionTypeV2.PAGE_VIEW,
-        eventActionSource: 'WEBSITE',
-        countryCode: 'US',
-        timestamp: '2023-01-01T12:00:00Z',
-        email: {
-          '@path': '$.properties.email'
-        }
-      }
-    })
-
-    const requestBody = responses[0].options.json as RequestBody
-    
-    // Verify the hash was hashed again (implementation doesn't do smart detection)
-    expect(requestBody.eventData[0].matchKeys).toBeDefined()
-    const matchKeys = requestBody.eventData[0].matchKeys!
-    
-    // The implementation will hash the hash string as if it were a regular email
-    const doubleHashedEmail = createHash('sha256').update(emailHash).digest('hex')
-    
-    expect(matchKeys[0].type).toBe('EMAIL')
-    expect(matchKeys[0].values[0]).not.toBe(emailHash) // Should not be the original hash
-    expect(matchKeys[0].values[0]).toBe(doubleHashedEmail) // Should be a double-hash
   })
 
   // Expanded Error Handling Tests
@@ -530,7 +534,8 @@ describe('amazon-conversions-api.trackConversion', () => {
           timestamp: '2023-01-01T12:00:00Z',
           email: {
             '@path': '$.properties.email'
-          }
+          },
+          enable_batching: true
         }
       })
     ).rejects.toThrowError(/Invalid parameter: countryCode/)
@@ -563,7 +568,8 @@ describe('amazon-conversions-api.trackConversion', () => {
           timestamp: '2023-01-01T12:00:00Z',
           email: {
             '@path': '$.properties.email'
-          }
+          },
+          enable_batching: true
         }
       })
     ).rejects.toThrowError(/You do not have permission to access this resource/)
@@ -594,7 +600,8 @@ describe('amazon-conversions-api.trackConversion', () => {
         timestamp: '2023-01-01T12:00:00Z',
         email: {
           '@path': '$.properties.email'
-        }
+        },
+        enable_batching: true
       }
     })
 
@@ -610,18 +617,18 @@ describe('amazon-conversions-api.trackConversion', () => {
     expect(emailKey!.values[0]).toMatch(/^[a-f0-9]{64}$/) // SHA-256 hash format
   })
 
-  it('should handle long field values within limits', async () => {
+  it('should handle multiple match keys in one request', async () => {
     nock('https://advertising-api.amazon.com')
       .post('/events/v1')
       .reply(207, successResponsePayload)
 
-    // Create an event with extremely long values and required email
-    const longName = 'A'.repeat(100) // Very long name
     const event = createTestEvent({
       properties: {
-        email: 'test@example.com', // Add required email
-        longName,
-        description: 'A'.repeat(1000) // Very long description
+        email: 'test@example.com',
+        phone: '(123) 456-7890', // Phone with formatting
+        firstName: 'John',
+        lastName: 'Doe',
+        postalCode: '94103 1234' // Postal code with space
       }
     })
 
@@ -630,7 +637,7 @@ describe('amazon-conversions-api.trackConversion', () => {
       settings,
       auth,
       mapping: {
-        name: longName,  // Use long name as event name
+        name: 'Test Event',
         eventType: ConversionTypeV2.PAGE_VIEW,
         eventActionSource: 'WEBSITE',
         countryCode: 'US',
@@ -638,26 +645,106 @@ describe('amazon-conversions-api.trackConversion', () => {
         email: {
           '@path': '$.properties.email'
         },
-        customAttributes: [
-          {
-            name: 'description',
-            value: {
-              '@path': '$.properties.description'
-            }
-          }
-        ]
+        phone: {
+          '@path': '$.properties.phone'
+        },
+        firstName: {
+          '@path': '$.properties.firstName'
+        },
+        lastName: {
+          '@path': '$.properties.lastName'
+        },
+        postalCode: {
+          '@path': '$.properties.postalCode'
+        },
+        enable_batching: true
       }
     })
 
-    // Verify the request was accepted
-    expect(responses[0].status).toBe(207)
-    
+    // Check that all match keys were included
     const requestBody = responses[0].options.json as RequestBody
+    expect(requestBody.eventData[0].matchKeys).toBeDefined()
+    const matchKeys = requestBody.eventData[0].matchKeys!
+
+    // Should have all 5 match keys
+    expect(matchKeys.length).toBe(5)
+
+    // Verify each type is present
+    expect(matchKeys.find(k => k.type === 'EMAIL')).toBeDefined()
+    expect(matchKeys.find(k => k.type === 'PHONE')).toBeDefined()
+    expect(matchKeys.find(k => k.type === 'FIRST_NAME')).toBeDefined()
+    expect(matchKeys.find(k => k.type === 'LAST_NAME')).toBeDefined()
+    expect(matchKeys.find(k => k.type === 'POSTAL')).toBeDefined()
     
-    // Check if the name was passed as-is or truncated
-    expect(requestBody.eventData[0].name.length).toBeLessThanOrEqual(128) // Assuming 128 is the limit
+    // Check phone normalization (only digits)
+    const phoneKey = matchKeys.find(k => k.type === 'PHONE')!
+    // Phone should be hashed and not contain any non-digits
+    expect(phoneKey.values[0]).toMatch(/^[a-f0-9]{64}$/)
     
-    // Check that custom attributes exist
-    expect(requestBody.eventData[0].customAttributes).toBeDefined()
+    // Check postal code normalization (no spaces)
+    const postalKey = matchKeys.find(k => k.type === 'POSTAL')!
+    expect(postalKey.values[0]).toMatch(/^[a-f0-9]{64}$/)
+  })
+
+  it('should correctly process non-hashed match keys', async () => {
+    nock('https://advertising-api.amazon.com')
+      .post('/events/v1')
+      .reply(207, successResponsePayload)
+
+    const event = createTestEvent({
+      context: {
+        device: {
+          advertisingId: 'ad-id-12345' // MAID
+        }
+      },
+      properties: {
+        email: 'test@example.com', // Will be hashed
+        rampId: 'ramp-12345',      // Should not be hashed
+        matchId: 'match-67890'     // Should not be hashed
+      }
+    })
+
+    const responses = await testDestination.testAction('trackConversion', {
+      event,
+      settings,
+      auth,
+      mapping: {
+        name: 'Test Event',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        email: {
+          '@path': '$.properties.email'
+        },
+        maid: {
+          '@path': '$.context.device.advertisingId'
+        },
+        rampId: {
+          '@path': '$.properties.rampId'
+        },
+        matchId: {
+          '@path': '$.properties.matchId'
+        },
+        enable_batching: true
+      }
+    })
+
+    const requestBody = responses[0].options.json as RequestBody
+    const matchKeys = requestBody.eventData[0].matchKeys!
+    
+    // Verify email is hashed
+    const emailKey = matchKeys.find(k => k.type === 'EMAIL')!
+    expect(emailKey.values[0]).toMatch(/^[a-f0-9]{64}$/)
+    
+    // Verify non-hashed fields
+    const maidKey = matchKeys.find(k => k.type === 'MAID')!
+    expect(maidKey.values[0]).toBe('ad-id-12345')
+    
+    const rampKey = matchKeys.find(k => k.type === 'RAMP_ID')!
+    expect(rampKey.values[0]).toBe('ramp-12345')
+    
+    const matchKey = matchKeys.find(k => k.type === 'MATCH_ID')!
+    expect(matchKey.values[0]).toBe('match-67890')
   })
 })

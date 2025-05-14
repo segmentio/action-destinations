@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { RefreshTokenResponse, AmazonTestAuthenticationError } from './types'
 
-import { InvalidAuthenticationError } from '@segment/actions-core'
+import { defaultValues, InvalidAuthenticationError } from '@segment/actions-core'
 import { getAuthToken } from './utils'
 import trackConversion from './trackConversion'
 
@@ -75,7 +75,128 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-
+  presets: [
+    {
+      name: 'Add to Shopping Cart',
+      subscribe: 'type = "track" AND event = "Product Added"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'ADD_TO_SHOPPING_CART'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Application',
+      subscribe: 'type = "track" AND event = "Application"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'APPLICATION'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Checkout',
+      subscribe: 'type = "track" AND event = "Checkout"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'CHECKOUT'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Contact',
+      subscribe: 'type = "track" AND event = "Callback Started"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'CONTACT'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Lead',
+      subscribe: 'type = "track" AND event = "Generate Lead"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'LEAD'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Off Amazon Purchases',
+      subscribe: 'type = "track" AND event = "Off Amazon Purchases"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'OFF_AMAZON_PURCHASES'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Mobile App First Start',
+      subscribe: 'type = "track" AND event = "Mobile App First Start"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'MOBILE_APP_FIRST_START'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Page View',
+      subscribe: 'type = "page"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'PAGE_VIEW'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Search',
+      subscribe: 'type = "track" AND event = "Products Searched"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'SEARCH'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Sign Up',
+      subscribe: 'type = "track" AND event = "Signed Up"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'SIGN_UP'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Subscribe',
+      subscribe: 'type = "track" AND event = "Subscription Created"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'SUBSCRIBE'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Other',
+      subscribe: 'type = "track" AND event = "Other"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'OTHER'
+      },
+      type: 'automatic'
+    }
+  ],
   actions: {
     trackConversion
   }

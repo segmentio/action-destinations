@@ -39,9 +39,15 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
+    // Make sure enable_batching is included (required field)
+    const mapping = {
+      ...event.properties,
+      enable_batching: true
+    }
+
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: mapping,
       settings: settingsData,
       auth: undefined
     })
@@ -90,9 +96,15 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
+    // Make sure enable_batching is included (required field)
+    const mapping = {
+      ...event.properties,
+      enable_batching: true
+    }
+
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
+      mapping: mapping,
       settings: settingsData,
       auth: undefined
     })

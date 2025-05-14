@@ -39,9 +39,18 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         properties: eventData
       })
 
+      // Make sure enable_batching is included for trackConversion action (required field)
+      let mapping = event.properties
+      if (actionSlug === 'trackConversion') {
+        mapping = {
+          ...event.properties,
+          enable_batching: true
+        }
+      }
+
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: event.properties,
+        mapping: mapping,
         settings: settingsData,
         auth: undefined
       })
@@ -91,9 +100,18 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         properties: eventData
       })
 
+      // Make sure enable_batching is included for trackConversion action (required field)
+      let mapping = event.properties
+      if (actionSlug === 'trackConversion') {
+        mapping = {
+          ...event.properties,
+          enable_batching: true
+        }
+      }
+
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: event.properties,
+        mapping: mapping,
         settings: settingsData,
         auth: undefined
       })

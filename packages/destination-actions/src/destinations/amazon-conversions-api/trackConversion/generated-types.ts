@@ -38,9 +38,49 @@ export interface Payload {
    */
   clientDedupeId?: string
   /**
-   * Customer email address (will be hashed).
+   * Customer email address associated with the event, Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
    */
   email?: string
+  /**
+   * Customer phone number associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
+   */
+  phone?: string
+  /**
+   * Customer first name associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
+   */
+  firstName?: string
+  /**
+   * Customer last name associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
+   */
+  lastName?: string
+  /**
+   * Customer address associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
+   */
+  address?: string
+  /**
+   * Customer city associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
+   */
+  city?: string
+  /**
+   * Customer state associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
+   */
+  state?: string
+  /**
+   * Customer postal code associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
+   */
+  postalCode?: string
+  /**
+   * Mobile advertising ID (MAID). ADID, IDFA, or FIREADID can be passed into this field. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
+   */
+  maid?: string
+  /**
+   * RAMP ID for the customer. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
+   */
+  rampId?: string
+  /**
+   * Match ID for the customer. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
+   */
+  matchId?: string
   /**
    * A list of flags for signaling how an event shall be processed. Events marked for limited data use will not be processed.
    */

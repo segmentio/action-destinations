@@ -1,10 +1,12 @@
 import { IntegrationError } from '@segment/actions-core'
 import type { ActionDefinition } from '@segment/actions-core'
+import { MultiStatusResponse } from '@segment/actions-core'
+import { JSONLikeObject } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { EventData } from '../types'
+import type { EventData, MatchKeyV1 } from '../types'
 import { ConsentData, ConversionTypeV2, CurrencyCodeV1, CustomAttributeV1, MatchKeyTypeV1 } from '../types'
-import { createHash } from 'crypto'
+import { normalizeEmail, normalizePhone, normalizePostal, normalizeStandard, smartHash } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Conversion',
@@ -136,15 +138,113 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: 'Customer email address (will be hashed).',
+      description: 'Customer email address associated with the event, Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.',
       type: 'string',
-      required: true,
+      required: false,
+      category: 'hashedPII',
       default: {
         '@if': {
           exists: { '@path': '$.traits.email' },
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.properties.email' }
         }
+      }
+    },
+    phone: {
+      label: 'Phone Number',
+      description: 'Customer phone number associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.',
+      type: 'string',
+      required: false,
+      category: 'hashedPII',
+      default: {
+        '@path': '$.traits.phone'
+      }
+    },
+    firstName: {
+      label: 'First Name',
+      description: 'Customer first name associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.',
+      type: 'string', 
+      required: false,
+      category: 'hashedPII',
+      default: {
+        '@path': '$.traits.firstName'
+      }
+    },
+    lastName: {
+      label: 'Last Name',
+      description: 'Customer last name associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.',
+      type: 'string',
+      required: false,
+      category: 'hashedPII',
+      default: {
+        '@path': '$.traits.lastName'
+      }
+    },
+    address: {
+      label: 'Address',
+      description: 'Customer address associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.',
+      type: 'string',
+      required: false,
+      category: 'hashedPII',
+      default: {
+        '@path': '$.traits.address'
+      }
+    },
+    city: {
+      label: 'City',
+      description: 'Customer city associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.',
+      type: 'string',
+      required: false,
+      category: 'hashedPII',
+      default: {
+        '@path': '$.traits.city'
+      }
+    },
+    state: {
+      label: 'State',
+      description: 'Customer state associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.',
+      type: 'string',
+      required: false,
+      category: 'hashedPII',
+      default: {
+        '@path': '$.traits.state'
+      }
+    },
+    postalCode: {
+      label: 'Postal Code',
+      description: 'Customer postal code associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.',
+      type: 'string',
+      required: false,
+      category: 'hashedPII',
+      default: {
+        '@path': '$.traits.postalCode'
+      }
+    },
+    maid: {
+      label: 'Mobile Ad ID',
+      description: 'Mobile advertising ID (MAID). ADID, IDFA, or FIREADID can be passed into this field. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.context.device.advertisingId'
+      }
+    },
+    rampId: {
+      label: 'RAMP ID',
+      description: 'RAMP ID for the customer. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.properties.rampId'
+      }
+    },
+    matchId: {
+      label: 'Match ID',
+      description: 'Match ID for the customer. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.properties.matchId'
       }
     },
     dataProcessingOptions: {
@@ -263,132 +363,371 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties.customAttributes'
       }
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'When enabled, Segment will send data in batching.',
+      type: 'boolean',
+      required: true,
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      default: 500,
+      unsafe_hidden: true
     }
   },
 
+  /**
+   * Handles a single conversion event
+   */
   perform: async (request, { payload, settings }) => {
-    // Create timestamp if not provided
-    const timestamp = payload.timestamp || new Date().toISOString()
+    // Use the shared prepareEventData function to process the payload
+    const eventData = prepareEventData(payload)
 
-    // Hash email if provided
-    let matchKeys = undefined
-    if (payload.email) {
-      const hashedEmail = createHash('sha256').update(payload.email.toLowerCase().trim()).digest('hex')
-      matchKeys = [{
-        type: MatchKeyTypeV1.EMAIL,
-        values: [hashedEmail] as [string]
-      }]
+    // Send the request using the shared function
+    const response = await sendEventsRequest(request, settings, eventData)
+    
+    // Check if the response is successful or partial success
+    if (response.ok || response.status === 207) {
+      return response
     }
+    
+    // Handle error responses
+    throw handleAmazonApiError(response)
+  },
 
-    // Prepare event data
-    const eventData: EventData = {
-      name: payload.name,
-      eventType: payload.eventType as ConversionTypeV2,
-      eventActionSource: payload.eventActionSource,
-      countryCode: payload.countryCode,
-      timestamp: timestamp
-    }
-
-    // Add matchKeys if present
-    if (matchKeys) {
-      eventData.matchKeys = matchKeys
-    }
-
-    // Add optional fields if they exist
-    if (payload.value !== undefined) eventData.value = payload.value
-    if (payload.currencyCode) eventData.currencyCode = payload.currencyCode as CurrencyCodeV1
-    if (payload.unitsSold !== undefined) eventData.unitsSold = payload.unitsSold
-    if (payload.clientDedupeId) eventData.clientDedupeId = payload.clientDedupeId
-    if (payload.dataProcessingOptions) eventData.dataProcessingOptions = payload.dataProcessingOptions
-    if (payload.consent) eventData.consent = payload.consent as ConsentData
-    if (payload.customAttributes) eventData.customAttributes = payload.customAttributes as CustomAttributeV1[]
-
-    try {
-      // Make API request to regional endpoint
-      return await request(
-        `${settings.region}/events/v1`,
-        {
-          method: 'POST',
-          json: {
-            eventData: [eventData],
-            ingestionMethod: "SERVER_TO_SERVER"
-          },
-          headers: {
-            'Amazon-Advertising-API-Scope': settings.profileId,
-            'Amazon-Ads-AccountId': settings.advertiserId
-          },
-          timeout: 15000
-        }
-      )
-    } catch (error) {
-      // Check if the error has a response object with status
-      if (error.response && error.response.status) {
-        const status = error.response.status
-        const errorData = error.response.data || {}
-        
-        switch (status) {
-          case 207:
-            // Multi-status response indicates partial success
-            // Return the response, which will include details of success/failures
-            return error.response
-            
-          case 401:
-            throw new IntegrationError(
-              'Authentication failed. Check your API credentials.',
-              'AMAZON_AUTH_ERROR',
-              401
-            )
-            
-          case 403:
-            throw new IntegrationError(
-              'You do not have permission to access this resource.',
-              'AMAZON_FORBIDDEN_ERROR',
-              403
-            )
-            
-          case 415:
-            throw new IntegrationError(
-              'Invalid media type. The Content-Type or Accept headers are invalid.',
-              'AMAZON_MEDIA_TYPE_ERROR',
-              415
-            )
-            
-          case 429:
-            // Extract retry information if available
-            const retryAfter = error.response.headers?.['retry-after'] || ''
-            throw new IntegrationError(
-              `Rate limited by Amazon API. ${retryAfter ? `Try again after ${retryAfter} seconds.` : 'Please try again later.'}`,
-              'AMAZON_RATE_LIMIT_ERROR',
-              429
-            )
-            
-          case 500:
-            throw new IntegrationError(
-              'Amazon API encountered an internal server error. Please try again later.',
-              'AMAZON_SERVER_ERROR',
-              500
-            )
-            
-          case 400:
-          default:
-            // Extract detailed error information if available
-            const errorMessage = errorData.message || error.message || 'Unknown error'
-            throw new IntegrationError(
-              `Failed to send event to Amazon: ${errorMessage}`,
-              'AMAZON_API_ERROR',
-              status || 400
-            )
-        }
-      } else {
-        // If there's no response object, it's likely a network or other client-side error
-        throw new IntegrationError(
-          `Failed to send event to Amazon: ${error.message || 'Unknown error'}`,
-          'AMAZON_CONNECTION_ERROR',
-          500
-        )
+  /**
+   * Process the batch of payloads
+   */
+  performBatch: async (request, { settings, payload: payloads }) => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const validPayloads: EventData[] = []
+    const validPayloadIndicesBitmap: number[] = []
+    
+    // Process each payload and prepare for batching
+    payloads.forEach((payload, index) => {
+      try {
+        // Try to prepare the event data - reuse logic from perform()
+        const eventData = prepareEventData(payload)
+        validPayloads.push(eventData)
+        validPayloadIndicesBitmap.push(index)
+      } catch (error) {
+        // Handle validation errors immediately
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: error.status || 400,
+          errortype: error.code || 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: error.message || 'Validation failed'
+        })
       }
+    })
+    
+    if (validPayloads.length === 0) {
+      return multiStatusResponse
+    }
+    
+    try {
+      // Send the batch to Amazon API using the shared function
+      const response = await sendEventsRequest(request, settings, validPayloads)
+      
+      if (response.ok || response.status === 207) {
+        return handleBatchResponse(response, validPayloads, validPayloadIndicesBitmap, multiStatusResponse)
+      }
+      
+      // Get detailed error information without throwing
+      const apiError = handleAmazonApiError(response)
+      
+      // Apply the specific error details to each payload in the batch
+      validPayloadIndicesBitmap.forEach((index) => {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: apiError.status || 400,
+          errormessage: apiError.message,
+          body: response.data
+        })
+      })
+      
+      return multiStatusResponse
+    } catch (error) {
+      // Handle truly unexpected errors (like network issues)
+      // This should only happen for errors not related to the API response
+      validPayloadIndicesBitmap.forEach((index) => {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: 500,
+          errormessage: error.message || 'Unknown error occurred during request processing'
+        })
+      })
+      
+      return multiStatusResponse
     }
   }
 }
+
+/**
+ * Prepares event data from a payload by processing match keys and formatting event data 
+ * according to Amazon Conversions API requirements
+ * 
+ * @param payload The payload to process
+ * @returns An EventData object ready to send to the API
+ */
+function prepareEventData(payload: Payload): EventData {
+  // Create timestamp if not provided
+  const timestamp = payload.timestamp || new Date().toISOString()
+
+  // Process match keys
+  let matchKeys: MatchKeyV1[] = []
+
+  // Process email
+  if (payload.email) {
+    const hashedEmail = smartHash(payload.email, normalizeEmail)
+    matchKeys.push({
+      type: MatchKeyTypeV1.EMAIL,
+      values: [hashedEmail] as [string]
+    })
+  }
+
+  // Process phone
+  if (payload.phone) {
+    const hashedPhone = smartHash(payload.phone, normalizePhone)
+    matchKeys.push({
+      type: MatchKeyTypeV1.PHONE,
+      values: [hashedPhone] as [string]
+    })
+  }
+
+  // Process first name
+  if (payload.firstName) {
+    const hashedFirstName = smartHash(payload.firstName, normalizeStandard)
+    matchKeys.push({
+      type: MatchKeyTypeV1.FIRST_NAME,
+      values: [hashedFirstName] as [string]
+    })
+  }
+
+  // Process last name
+  if (payload.lastName) {
+    const hashedLastName = smartHash(payload.lastName, normalizeStandard)
+    matchKeys.push({
+      type: MatchKeyTypeV1.LAST_NAME,
+      values: [hashedLastName] as [string]
+    })
+  }
+
+  // Process address
+  if (payload.address) {
+    const hashedAddress = smartHash(payload.address, normalizeStandard)
+    matchKeys.push({
+      type: MatchKeyTypeV1.ADDRESS,
+      values: [hashedAddress] as [string]
+    })
+  }
+
+  // Process city
+  if (payload.city) {
+    const hashedCity = smartHash(payload.city, normalizeStandard)
+    matchKeys.push({
+      type: MatchKeyTypeV1.CITY,
+      values: [hashedCity] as [string]
+    })
+  }
+
+  // Process state
+  if (payload.state) {
+    const hashedState = smartHash(payload.state, normalizeStandard)
+    matchKeys.push({
+      type: MatchKeyTypeV1.STATE,
+      values: [hashedState] as [string]
+    })
+  }
+
+  // Process postal code
+  if (payload.postalCode) {
+    const hashedPostalCode = smartHash(payload.postalCode, normalizePostal)
+    matchKeys.push({
+      type: MatchKeyTypeV1.POSTAL,
+      values: [hashedPostalCode] as [string]
+    })
+  }
+
+  // Process MAID - not hashed
+  if (payload.maid) {
+    matchKeys.push({
+      type: MatchKeyTypeV1.MAID,
+      values: [payload.maid] as [string]
+    })
+  }
+
+  // Process RAMP_ID - not hashed
+  if (payload.rampId) {
+    matchKeys.push({
+      type: MatchKeyTypeV1.RAMP_ID,
+      values: [payload.rampId] as [string]
+    })
+  }
+
+  // Process MATCH_ID - not hashed
+  if (payload.matchId) {
+    matchKeys.push({
+      type: MatchKeyTypeV1.MATCH_ID,
+      values: [payload.matchId] as [string]
+    })
+  }
+
+  // Enforce the maximum limit of 11 match keys
+  if (matchKeys.length > 11) {
+    matchKeys = matchKeys.slice(0, 11)
+  }
+
+  // Check if we have at least one match key after processing
+  if (matchKeys.length === 0) {
+    throw new IntegrationError('At least one valid match key must be provided.', 'MISSING_MATCH_KEY', 400)
+  }
+
+  // Prepare event data
+  const eventData: EventData = {
+    name: payload.name,
+    eventType: payload.eventType as ConversionTypeV2,
+    eventActionSource: payload.eventActionSource,
+    countryCode: payload.countryCode,
+    timestamp: timestamp
+  }
+
+  // Add matchKeys if present
+  if (matchKeys) {
+    eventData.matchKeys = matchKeys
+  }
+
+  // Add optional fields if they exist
+  if (payload.value !== undefined) eventData.value = payload.value
+  if (payload.currencyCode) eventData.currencyCode = payload.currencyCode as CurrencyCodeV1
+  if (payload.unitsSold !== undefined) eventData.unitsSold = payload.unitsSold
+  if (payload.clientDedupeId) eventData.clientDedupeId = payload.clientDedupeId
+  if (payload.dataProcessingOptions) eventData.dataProcessingOptions = payload.dataProcessingOptions
+  if (payload.consent) eventData.consent = payload.consent as ConsentData
+  if (payload.customAttributes) eventData.customAttributes = payload.customAttributes as CustomAttributeV1[]
+
+  return eventData
+}
+
+/**
+ * Process the Amazon API response and update the multi-status response
+ */
+function handleBatchResponse(
+  response: any,
+  validPayloads: EventData[],
+  validPayloadIndicesBitmap: number[],
+  multiStatusResponse: MultiStatusResponse
+): MultiStatusResponse {
+  // No need to check response.ok || response.status === 207
+  // because we only call this function when that condition is true
+  
+  // Handle success or partial success
+  validPayloads.forEach((payload, index) => {
+    const originalIndex = validPayloadIndicesBitmap[index]
+    multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
+      status: 200,
+      sent: payload as unknown as JSONLikeObject,
+      body: response.data || 'success'
+    })
+  })
+
+  return multiStatusResponse
+}
+
+/**
+ * Sends event data to the Amazon Conversions API
+ *
+ * @param request The request client
+ * @param settings The API settings
+ * @param eventData The event data to send (single event or array of events)
+ * @returns The API response
+ */
+async function sendEventsRequest(
+  request: any,
+  settings: Settings,
+  eventData: EventData | EventData[]
+): Promise<any> {
+  // Ensure eventData is always an array
+  const events = Array.isArray(eventData) ? eventData : [eventData];
+  
+  return await request(
+    `${settings.region}/events/v1`,
+    {
+      method: 'POST',
+      json: {
+        eventData: events,
+        ingestionMethod: "SERVER_TO_SERVER"
+      },
+      headers: {
+        'Amazon-Advertising-API-Scope': settings.profileId,
+        'Amazon-Ads-AccountId': settings.advertiserId
+      },
+      timeout: 25000,
+      throwHttpErrors: false
+    }
+  );
+}
+
+/**
+ * Handle errors from the Amazon API based on status codes
+ * 
+ * @param response The API error response
+ * @returns An IntegrationError with appropriate code and message
+ */
+function handleAmazonApiError(response: any): IntegrationError {
+  const status = response.status;
+  const errorData = response.data || {};
+  
+  switch (status) {
+    case 401:
+      return new IntegrationError(
+        'Authentication failed. Check your API credentials.',
+        'AMAZON_AUTH_ERROR',
+        401
+      );
+      
+    case 403:
+      return new IntegrationError(
+        'You do not have permission to access this resource.',
+        'AMAZON_FORBIDDEN_ERROR',
+        403
+      );
+      
+    case 415:
+      return new IntegrationError(
+        'Invalid media type. The Content-Type or Accept headers are invalid.',
+        'AMAZON_MEDIA_TYPE_ERROR',
+        415
+      );
+      
+    case 429:
+      // Extract retry information if available
+      const retryAfter = response.headers?.['retry-after'] || '';
+      return new IntegrationError(
+        `Rate limited by Amazon API. ${retryAfter ? `Try again after ${retryAfter} seconds.` : 'Please try again later.'}`,
+        'AMAZON_RATE_LIMIT_ERROR',
+        429
+      );
+      
+    case 500:
+      return new IntegrationError(
+        'Amazon API encountered an internal server error. Please try again later.',
+        'AMAZON_SERVER_ERROR',
+        500
+      );
+      
+    case 400:
+    default:
+      // Extract detailed error information if available
+      const errorMessage = errorData.message || response.statusText || 'Unknown error';
+      return new IntegrationError(
+        `Failed to send event to Amazon: ${errorMessage}`,
+        'AMAZON_API_ERROR',
+        status || 400
+      );
+  }
+}
+
 
 export default action

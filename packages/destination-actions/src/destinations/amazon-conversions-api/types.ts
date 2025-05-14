@@ -39,8 +39,7 @@ export enum MatchKeyTypeV1 {
 
 /**
  * The identifier used to match people for attribution. Matched key data needs to be normalized and hashed.
- * Email addresses provided must follow the formatting guidelines
- * (https://advertising.amazon.com/dsp/help/ss/en/audiences#GCCXMZYCK4RXWS6C):
+ * Email addresses provided must follow the [formatting guidelines](https://advertising.amazon.com/dsp/help/ss/en/audiences#GCCXMZYCK4RXWS6C):
  * Lowercase, remove all non-alphanumeric characters [a-zA-Z0-9] and [.@-],
  * and remove any leading or trailing whitespace. Only SHA-256 is supported.
  */
@@ -125,11 +124,10 @@ export interface EventData {
     countryCode: string
     timestamp: string
     /**
-     * Array representing the user and device identifier types/values to be used for attribution to traffic events.
-     * Match key value must be normalized and hashed, except for MAID and MATCH_ID which should not be hashed.
+     * Array representing the user and device identifier types/values to be used for attribution to traffic events. 
+     * Match key value must be normalized and hashed, except for MAID and MATCH_ID which should not be hashed. 
      * ADID, IDFA, or FIREADID can be passed into the MAID field for mobile identifiers.
-     * All match keys provided must follow the formatting guidelines
-     * (https://advertising.amazon.com/dsp/help/ss/en/audiences#GCCXMZYCK4RXWS6C).
+     * All match keys provided must follow the [formatting guidelines](https://advertising.amazon.com/dsp/help/ss/en/audiences#GCCXMZYCK4RXWS6C). 
      * Only SHA-256 is supported.
      * @minItems 1
      * @maxItems 11
