@@ -363,7 +363,7 @@ describe('CampaignManager360.conversionAdjustmentUpload', () => {
         })
 
         expect(responses[0].options.body).toBe(
-          `{"conversions":[{"childDirectedTreatment":true,"floodlightActivityId":"23456","floodlightConfigurationId":"34567","gclid":"54321","kind":"dfareporting#conversion","limitAdTracking":true,"nonPersonalizedAd":true,"ordinal":"1","quantity":"2","timestampMicros":"1718042884000","treatmentForUnderage":true,"userIdentifiers":[{"hashedEmail":"8e46bd4eaabb5d6324e327751b599f190dbaacd90066e66c94a046640bed60d0"}],"value":100,"customVariables":[],"encryptedUserIdCandidates":[]}],"kind":"dfareporting#conversionsBatchInsertRequest"}`
+          `{"conversions":[{"childDirectedTreatment":true,"floodlightActivityId":"23456","floodlightConfigurationId":"34567","gclid":"54321","kind":"dfareporting#conversion","limitAdTracking":true,"nonPersonalizedAd":true,"ordinal":"1","quantity":"2","timestampMicros":"1718042884000000","treatmentForUnderage":true,"userIdentifiers":[{"hashedEmail":"8e46bd4eaabb5d6324e327751b599f190dbaacd90066e66c94a046640bed60d0"}],"value":100,"customVariables":[],"encryptedUserIdCandidates":[]}],"kind":"dfareporting#conversionsBatchInsertRequest"}`
         )
         expect(responses.length).toBe(1)
         expect(responses[0].status).toBe(200)

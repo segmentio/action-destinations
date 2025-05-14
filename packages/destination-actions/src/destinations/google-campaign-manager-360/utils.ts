@@ -150,7 +150,7 @@ export function getJSON(
       ordinal,
       quantity,
       timestampMicros: (() => {
-        return String(BigInt(new Date(timestamp).getTime()))
+        return String(BigInt(new Date(timestamp).getTime()) * 1000n)
       })(),
       treatmentForUnderage: treatmentForUnderage ?? undefined,
       userIdentifiers: (() => {
