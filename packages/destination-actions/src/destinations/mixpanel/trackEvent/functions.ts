@@ -27,14 +27,13 @@ export function getEventProperties(payload: Payload, settings: Settings): Mixpan
   // analysis.
   //
   // @see https://developer.mixpanel.com/reference/import-events#propertiesdistinct_id
-  const distinct_id = payload.distinct_id ?? ''
 
   return {
     time: time,
     ip: payload.ip,
     id: payload.distinct_id,
     $anon_id: payload.anonymous_id,
-    distinct_id: payload.distinct_id ?? ''
+    distinct_id: payload.distinct_id ?? '',
     $app_build_number: payload.app_build,
     $app_version_string: payload.app_version,
     $app_namespace: payload.app_namespace,
