@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for amazon-conversions-api destination: trackConversion action - all fields 1`] = `
+Object {
+  "eventData": Array [
+    Object {
+      "clientDedupeId": "#A156k^d",
+      "consent": Object {
+        "amazonConsent": Object {},
+        "geo": Object {},
+        "gpp": "#A156k^d",
+        "tcf": "#A156k^d",
+      },
+      "countryCode": "#A156k^d",
+      "currencyCode": "CAD",
+      "customAttributes": Array [
+        Object {
+          "dataType": "STRING",
+          "name": "#A156k^d",
+          "value": "#A156k^d",
+        },
+      ],
+      "dataProcessingOptions": Array [
+        "LIMITED_DATA_USE",
+      ],
+      "eventActionSource": "ANDROID",
+      "eventType": "CHECKOUT",
+      "matchKeys": Array [
+        Object {
+          "type": "EMAIL",
+          "values": Array [
+            "e482c2ed6964c49a6ab0d8faae0df960efd587bbf35189b037d89a4ebd0aed68",
+          ],
+        },
+      ],
+      "name": "#A156k^d",
+      "timestamp": "#A156k^d",
+      "unitsSold": -5441374736351232,
+      "value": -54413747363512.32,
+    },
+  ],
+  "ingestionMethod": "SERVER_TO_SERVER",
+}
+`;
+
+exports[`Testing snapshot for amazon-conversions-api destination: trackConversion action - required fields 1`] = `
+Object {
+  "eventData": Array [
+    Object {
+      "consent": Object {},
+      "countryCode": "#A156k^d",
+      "eventActionSource": "ANDROID",
+      "eventType": "CHECKOUT",
+      "matchKeys": Array [
+        Object {
+          "type": "EMAIL",
+          "values": Array [
+            "e482c2ed6964c49a6ab0d8faae0df960efd587bbf35189b037d89a4ebd0aed68",
+          ],
+        },
+      ],
+      "name": "#A156k^d",
+      "timestamp": "#A156k^d",
+    },
+  ],
+  "ingestionMethod": "SERVER_TO_SERVER",
+}
+`;
