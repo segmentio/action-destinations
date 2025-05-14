@@ -1,8 +1,12 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import trackEvent from './trackEvent'
+import identifyUser from './identifyUser'
+import groupUser from './groupUser'
+
+import trackPageView from './trackPageView'
 
 interface Settings {
-  workspaceId: string
   apiKey: string
 }
 
@@ -10,7 +14,38 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Roadway AI',
   slug: 'roadwayai',
   mode: 'cloud',
-  description: 'Send browser events (identify, group, track, etc.) to your RoadwayAI endpoint',
+  description: 'Send browser events (identify, group, track, etc.) to your RoadwayAI workspace.',
+
+  presets: [
+    {
+      name: 'Track Event',
+      subscribe: 'type = "track"',
+      partnerAction: 'trackEvent',
+      mapping: defaultValues(trackEvent.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Track Page View',
+      subscribe: 'type = "page"',
+      partnerAction: 'trackPageView',
+      mapping: defaultValues(trackPageView.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Identify User',
+      subscribe: 'type = "identify"',
+      partnerAction: 'identifyUser',
+      mapping: defaultValues(identifyUser.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Group User',
+      subscribe: 'type = "group"',
+      partnerAction: 'groupUser',
+      mapping: defaultValues(groupUser.fields),
+      type: 'automatic'
+    }
+  ],
 
   authentication: {
     scheme: 'custom',
@@ -20,25 +55,23 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Your RoadwayAI API key for authentication',
         type: 'string',
         required: true
-      },
-      workspaceId: {
-        label: 'Workspace ID',
-        description: 'Your RoadwayAI workspace ID where events should be sent',
-        type: 'string',
-        required: true
       }
     },
     testAuthentication: (request, { settings }) =>
-      request(`http://localhost:8000/api/v1/segment/validate-credentials`, {
+      request(`https://app.roadwayai.com/api/v1/segment/validate-credentials`, {
         method: 'POST',
         body: JSON.stringify({
-          api_key: settings.apiKey,
-          workspace_id: settings.workspaceId
+          api_key: settings.apiKey
         })
       })
   },
 
-  actions: { trackEvent }
+  actions: {
+    groupUser,
+    trackEvent,
+    identifyUser,
+    trackPageView
+  }
 }
 
 export default destination
