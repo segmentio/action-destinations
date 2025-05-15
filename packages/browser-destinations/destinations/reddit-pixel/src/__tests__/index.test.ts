@@ -1,5 +1,5 @@
 import { Analytics, Context } from '@segment/analytics-next'
-import { Subscription } from '@segment/browser-destination-runtime/types'
+import { Subscription } from '@segment/browser-destination-runtime'
 import RedditDestination, { destination } from '../index'
 import { RedditPixel } from '../types'
 
@@ -127,7 +127,7 @@ describe('RedditPixel init', () => {
     const [webEvent] = await RedditDestination({
       ...settings,
       subscriptions
-    } as any)
+    })
     reportWebEvent = webEvent
 
     await reportWebEvent.load(Context.system(), {} as Analytics)
@@ -265,7 +265,7 @@ describe('RedditPixel init', () => {
     const [webEvent] = await RedditDestination({
       ...settings,
       subscriptions
-    } as any)
+    })
     reportWebEvent = webEvent
 
     await reportWebEvent.load(Context.system(), {} as Analytics)

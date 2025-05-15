@@ -5,7 +5,6 @@ import { conversion_id, event_metadata, user, products, data_processing_options,
 import { RedditPixel } from '../types'
 import { initPixel, trackCall } from '../utils'
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, RedditPixel, Payload> = {
   title: 'Reddit Pixel - Custom Event',
   description: 'Send Custom Pixel Events to Reddit.',
