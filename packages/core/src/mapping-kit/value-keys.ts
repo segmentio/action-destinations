@@ -1,3 +1,5 @@
+import { getLiquidKeys } from './liquid-directive'
+
 type ValueType = 'enrichment' | 'function' | 'literal' | 'variable'
 
 function isObject(value: any): value is object {
@@ -326,7 +328,7 @@ export function getFieldValueKeys(value: FieldValue): string[] {
           ...getRawKeys(input['@transform'].mapping)
         ],
         '@excludeWhenNull': (_: ExcludeWhenNullDirective) => [''],
-        '@liquid': (input: LiquidDirective) => [input['@liquid']]
+        '@liquid': (input: LiquidDirective) => getLiquidKeys(input['@liquid'])
       })?.filter((k) => k) ?? []
     )
   } else if (isObject(value)) {
