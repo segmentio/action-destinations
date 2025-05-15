@@ -2,7 +2,7 @@ import { Liquid } from 'liquidjs'
 
 const liquidEngine = new Liquid({
   renderLimit: 500, // 500 ms
-  parseLimit: 1e8, // 100M characters,
+  parseLimit: 1000, // 1000 characters. This is also enforced by us to enable a custom error message
   memoryLimit: 1e8 // 100 MB memory
 })
 
