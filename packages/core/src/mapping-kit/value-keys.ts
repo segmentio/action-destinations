@@ -326,7 +326,7 @@ export function getFieldValueKeys(value: FieldValue): string[] {
           ...getRawKeys(input['@transform'].mapping)
         ],
         '@excludeWhenNull': (_: ExcludeWhenNullDirective) => [''],
-        '@liquid': (input: LiquidDirective) => [input['@liquid']]
+        '@liquid': (input: LiquidDirective) => getTemplateKeys(input['@liquid'])
       })?.filter((k) => k) ?? []
     )
   } else if (isObject(value)) {
