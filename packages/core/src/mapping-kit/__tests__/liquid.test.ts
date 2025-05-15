@@ -1,5 +1,5 @@
 import { transform } from '../index'
-
+import { getFieldValueKeys } from '../value-keys'
 describe('@liquid', () => {
   test('connected', () => {
     const output = transform({ field: { '@liquid': 'test' } }, { properties: { test: 'abc' } })
@@ -155,6 +155,40 @@ describe('@liquid', () => {
           transform({ field: { '@liquid': `{{ properties.test | ${filter} }}` } }, { properties: { test: 'test' } })
         ).toThrow(new RegExp(`^filter "${filter}" is disabled`))
       })
+    })
+  })
+
+  describe('getFieldValueKeys', () => {
+    test('simple properties', () => {
+      const res = getFieldValueKeys({
+        '@liquid': '{{ properties.test }}'
+      })
+
+      expect(res).toEqual(expect.arrayContaining(['properties.test']))
+    })
+
+    test('complex properties and filters', () => {
+      const res = getFieldValueKeys({
+        '@liquid': '{{ properties.test | upcase }}'
+      })
+
+      expect(res).toEqual(expect.arrayContaining(['properties.test']))
+    })
+
+    test('nested properties', () => {
+      const res = getFieldValueKeys({
+        '@liquid': '{{ properties.test.nested | upcase }}'
+      })
+
+      expect(res).toEqual(expect.arrayContaining(['properties.test.nested']))
+    })
+
+    test('multiple properties', () => {
+      const res = getFieldValueKeys({
+        '@liquid': '{{ properties.test }} {{ properties.test2 | upcase }}'
+      })
+
+      expect(res).toEqual(expect.arrayContaining(['properties.test', 'properties.test2']))
     })
   })
 })
