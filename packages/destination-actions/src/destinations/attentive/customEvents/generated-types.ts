@@ -24,17 +24,17 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Metadata to associate with the event.
+   * Timestamp for the event, ISO 8601 format.
    */
-  properties?: {
-    [k: string]: unknown
-  }
+  occurredAt?: string
   /**
    * A unique identifier representing this specific event. Should be a UUID format.
    */
   externalEventId?: string
   /**
-   * Timestamp for the event, ISO 8601 format.
+   * Metadata to associate with the event.
    */
-  occurredAt?: string
+  properties?: {
+    [k: string]: unknown
+  }
 }

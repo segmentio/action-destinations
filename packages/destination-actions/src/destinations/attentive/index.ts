@@ -1,6 +1,8 @@
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import customEvents from './customEvents'
+import ecommEvent from './ecommEvent'
+
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Attentive',
@@ -35,18 +37,42 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  actions: {
-    customEvents
-  },
   presets: [
     {
-      name: 'Track Event',
-      subscribe: 'type = "track"',
-      partnerAction: 'customEvents',
-      mapping: defaultValues(customEvents.fields),
+      name: 'View Item',
+      subscribe: 'event = "Product Viewed"',
+      partnerAction: 'ecommEvent',
+      mapping: { 
+        ...defaultValues(ecommEvent.fields),
+        eventType: 'view_item', 
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add to Cart',
+      subscribe: 'event = "Product Added"',
+      partnerAction: 'ecommEvent',
+      mapping: { 
+        ...defaultValues(ecommEvent.fields),
+        eventType: 'add_to_cart', 
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Purchase',
+      subscribe: 'event = "Order Completed"',
+      partnerAction: 'ecommEvent',
+      mapping: { 
+        ...defaultValues(ecommEvent.fields),
+        eventType: 'purchase', 
+      },
       type: 'automatic'
     }
-  ]
+  ],
+  actions: {
+    customEvents,
+    ecommEvent
+  }
 }
 
 export default destination
