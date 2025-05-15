@@ -1,20 +1,19 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { type, occurredAt, userIdentifiers, externalEventId, properties } from '../fields'
+import { eventType, items, occurredAt, userIdentifiers } from '../fields'
 import { API_URL, API_VERSION } from '../config'
-import { formatCustomObject } from '../functions'
+import { formatEcommObject } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Custom Events',
-  description: 'Send Segment analytics events to Attentive.',
-  defaultSubscription: 'type = "track"',
+  title: 'Purchase',
+  description: 'Send Segment ecommerce events to Attentive.',
+  defaultSubscription: 'event = "Product Viewed" or event = "Product Added" or event = "Order Completed"',
   fields: {
-    type,
+    eventType,
+    items,
     userIdentifiers,
-    occurredAt,
-    externalEventId,
-    properties
+    occurredAt
   },
   perform: (request, { payload }) => {
     const {
@@ -24,10 +23,10 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !phone && !clientUserId && Object.keys(customIdentifiers).length === 0) {
       throw new PayloadValidationError('At least one user identifier is required.')
     }
-    
-    return request(`${API_URL}/${API_VERSION}/events/custom`, {
-      method: 'post',
-      json: formatCustomObject(payload)    
+
+    return request(`${API_URL}/${API_VERSION}/events/ecommerce/${eventType}`, {
+      method: 'POST',
+      json: formatEcommObject(payload)
     })
   }
 }
