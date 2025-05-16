@@ -7,7 +7,8 @@ import { ChannelIdentifier, Identifiers, Contact } from '../api/types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Enrol Contact to Program',
-  description: 'Creates a program enrolment',
+  description: 'Creates a program enrolment.',
+  defaultSubscription: 'type = "track" and event = "Enrol Contact to Program"',
    fields: {
       ...contactIdentifier,
       programId: {

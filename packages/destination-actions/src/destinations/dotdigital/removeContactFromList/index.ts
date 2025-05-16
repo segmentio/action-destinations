@@ -10,8 +10,8 @@ import { contactIdentifier } from '../input-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove Contact from List',
-  description: '',
-  defaultSubscription: 'type = "identify"',
+  description: 'Removes a contact from a list.',
+  defaultSubscription: 'type = "track" and event = "Remove Contact from List"',
   fields: {
     ...contactIdentifier,
     listId: {

@@ -6,8 +6,8 @@ import { contactIdentifier } from '../input-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Contact to List',
-  description: '',
-  defaultSubscription: 'type = "identify"',
+  description: 'Adds a contact to a list.',
+  defaultSubscription: 'type = "track" and event = "Add Contact to List"',
   fields: {
     ...contactIdentifier,
     listId: {
