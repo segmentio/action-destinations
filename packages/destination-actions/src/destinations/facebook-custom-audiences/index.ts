@@ -74,14 +74,27 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           body: new URLSearchParams(payload)
         })
       } catch (err) {
-        let status = err.status || err.code
+        let message = err.response?.content || err.message
+        let userTitle: string | undefined, userMsg: string | undefined
 
-        if (!status && err.response && err.response.status) {
-          status = err.response.status
+        if (typeof message === 'string') {
+          try {
+            const parsed = JSON.parse(message)
+
+            if (parsed?.error) {
+              userTitle = parsed.error.error_user_title
+              userMsg = parsed.error.error_user_msg || parsed.error.error_user_message
+            }
+          } catch (e) {
+            // No-Op. Add the error message to the message variable.
+          }
         }
 
-        const message = err.response?.content || err.message
-        throw new IntegrationError(message, 'CREATE_AUDIENCE_FAILED', status || 400)
+        if (userTitle || userMsg) {
+          message = `${userTitle ? userTitle + ': ' : ''}${userMsg || ''}`.trim()
+        }
+
+        throw new IntegrationError(String(message), 'CREATE_AUDIENCE_FAILED', 400)
       }
 
       const r = await response.json()
