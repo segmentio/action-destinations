@@ -153,7 +153,7 @@ function getUser(
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
     screen_dimensions: getScreen(screenDimensions?.height, screenDimensions?.width),
-    phone_number: user.phone_number
+    phone_number: smartHash(user.phone_number, cleanPhoneNumber)
   }
 }
 
@@ -167,4 +167,32 @@ function canonicalizeEmail(value: string): string {
 const smartHash = (value: string | undefined, cleaningFunction?: (value: string) => string): string | undefined => {
   if (value === undefined) return
   return processHashingV2(value, 'sha256', 'hex', cleaningFunction)
+}
+
+function cleanPhoneNumber(phoneNumber: string): string {
+  // if (!phoneNumber) return undefined
+  // Remove leading and trailing whitespace
+  phoneNumber = phoneNumber.trim()
+
+  // Separate the leading "+" character, if present
+  const prefix = '+'
+  if (phoneNumber.startsWith('+')) {
+    phoneNumber = phoneNumber.slice(1)
+  }
+
+  // Remove any potential extensions from the number
+  const extensions = ['ext', 'x', 'anexo', '#', 'poste', 'int']
+  const lower = phoneNumber.toLowerCase()
+  for (const keyword of extensions) {
+    const index = lower.indexOf(keyword)
+    if (index !== -1) {
+      phoneNumber = phoneNumber.slice(0, index)
+      break
+    }
+  }
+
+  // Add the prefix and remove all non-numeric characters
+  const digitsOnly = phoneNumber.replace(/\D/g, '')
+
+  return prefix + digitsOnly
 }
