@@ -5,7 +5,6 @@ const emailIdentifier: InputField = {
   label: 'Email Address',
   description: "The contact's email address.",
   type: 'string',
-  unsafe_hidden: true,
   default: {
     '@if': {
       exists: { '@path': '$.traits.email' },
@@ -25,7 +24,6 @@ const mobileNumberIdentifier: InputField = {
   label: 'Mobile Number',
   description: "The contact's mobile number.",
   type: 'string',
-  unsafe_hidden: true,
   default: {
     '@if': {
       exists: { '@path': '$.traits.phone' },

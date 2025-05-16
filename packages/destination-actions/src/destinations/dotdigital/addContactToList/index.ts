@@ -41,12 +41,8 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     const contactApi = new DotdigitalContactApi(settings, request)
     const dataFieldsApi = new DotdigitalDataFieldsApi(settings, request)
-    const { channelIdentifier, emailIdentifier, mobileNumberIdentifier, listId } = payload
+    const { channelIdentifier, emailIdentifier, mobileNumberIdentifier } = payload
     const identifierValue = channelIdentifier === 'email' ? emailIdentifier : mobileNumberIdentifier
-
-    if (!listId) {
-      throw new PayloadValidationError('List id is required')
-    }
 
     if (!identifierValue) {
       throw new PayloadValidationError(

@@ -32,7 +32,7 @@ const destination: DestinationDefinition<Settings> = {
       password: {
         label: 'Password',
         description: 'Your Dotdigital password.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },
