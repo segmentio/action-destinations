@@ -2,6 +2,8 @@ import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import customEvents from './customEvents'
 import ecommEvent from './ecommEvent'
+import upsertUserAttributes from './upsertUserAttributes'
+import subscribeUser from './subscribeUser'
 
 
 const destination: DestinationDefinition<Settings> = {
@@ -39,6 +41,20 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets: [
     {
+      name: 'Subscribe User',
+      subscribe: 'type = "track" and event = "User Subscribed"',
+      partnerAction: 'subscribeUser',
+      mapping: defaultValues(subscribeUser.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Upsert User Attributes',
+      subscribe: 'type = "identify"',
+      partnerAction: 'upsertUserAttributes',
+      mapping: defaultValues(upsertUserAttributes.fields),
+      type: 'automatic'
+    },
+    {
       name: 'View Item',
       subscribe: 'event = "Product Viewed"',
       partnerAction: 'ecommEvent',
@@ -71,7 +87,9 @@ const destination: DestinationDefinition<Settings> = {
   ],
   actions: {
     customEvents,
-    ecommEvent
+    ecommEvent,
+    upsertUserAttributes,
+    subscribeUser
   }
 }
 

@@ -28,10 +28,6 @@ export interface Payload {
    */
   externalEventId?: string
   /**
-   * The type of event. This name is case sensitive. "Order shipped" and "Order Shipped" would be considered different event types.
-   */
-  type: string
-  /**
    * Metadata to associate with the event.
    */
   properties?: {

@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
+import { SUBSCRIPTION_TYPE_CHOICES, MARKETING } from './constants'
 
 export const eventType: InputField = {
   label: 'Event Type',
@@ -178,4 +179,21 @@ export const properties: InputField = {
   default: {
     '@path': '$.properties'
   }
+}
+
+export const subscriptionType: InputField = {
+  label: 'Subscription Type',
+  description: 'Type of subscription',
+  type: 'string',
+  required: true,
+  choices: SUBSCRIPTION_TYPE_CHOICES,
+  default: MARKETING
+}
+
+export const locale: InputField = {
+  label: 'Locale',
+  description: 'User locale. e.g. "en-US".',
+  type: 'string',
+  required: false,
+  default: { '@path': '$.context.locale' }
 }
