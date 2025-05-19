@@ -3424,91 +3424,12 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-"@segment/action-destinations@^3.288.0":
-  version "3.385.0"
-  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.385.0.tgz#0c1246af1a0c40b6c35805415a70765430fa0b3e"
-  integrity sha512-Pl1uwXx3cBEu3om7gh3nfl3RF0+IW/KQ9mWTJ/VV3AUdMqgo0L02v7KUxFcwcjD+6eTbbMPRQWn/bdgQWsYtfg==
-  dependencies:
-    "@amplitude/ua-parser-js" "^0.7.25"
-    "@aws-sdk/client-eventbridge" "^3.741.0"
-    "@aws-sdk/client-s3" "^3.600.0"
-    "@bufbuild/protobuf" "^2.2.3"
-    "@segment/a1-notation" "^2.1.4"
-    "@segment/actions-core" "^3.152.0"
-    "@segment/actions-shared" "^1.133.0"
-    "@types/node" "^22.13.1"
-    ajv-formats "^2.1.1"
-    aws4 "^1.12.0"
-    cheerio "^1.0.0-rc.10"
-    dayjs "^1.10.7"
-    escape-goat "^3"
-    google-libphonenumber "^3.2.31"
-    kafkajs "^2.2.4"
-    liquidjs "^10.8.4"
-    lodash "^4.17.21"
-    lru-cache "10.4.3"
-    ssh2-sftp-client "^10.0.3"
-
 "@segment/action-emitters@^1.3.6":
   version "1.3.6"
   resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.3.6.tgz#0160442ae99821c43a9465c05226afddec73cbe5"
   integrity sha512-866kjuuebzDdRvls0OGFw9uPRiY5xK9N2unfPdO77TJBSGak31csmhQhYk6lMcanFUlfTewRSVS8Rt0kXQk0iQ==
   dependencies:
     "@types/node" "^18.11.15"
-
-"@segment/actions-core@^3.121.0", "@segment/actions-core@^3.151.0":
-  version "3.151.0"
-  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.151.0.tgz#a3de8afe4ac755c018533862cda0145af10a2c45"
-  integrity sha512-ZkCb2POdAkiEIkHb/+UNmrkUKJMIP5B0jKYCmoHrpaePw1YQZMvKwTCJ0u5tuGtObgpFFlCKk0pq2iApt7RMVA==
-  dependencies:
-    "@lukeed/uuid" "^2.0.0"
-    "@segment/action-emitters" "^1.3.6"
-    "@segment/ajv-human-errors" "^2.15.0"
-    "@segment/destination-subscriptions" "^3.37.0"
-    "@types/node" "^22.13.1"
-    aggregate-error "^3.1.0"
-    ajv "^8.6.3"
-    ajv-formats "^2.1.1"
-    btoa-lite "^1.0.0"
-    cross-fetch "^3.1.4"
-    dayjs "^1.10.7"
-    ts-custom-error "^3.2.0"
-
-"@segment/actions-core@^3.152.0", "@segment/actions-core@^3.153.0":
-  version "3.153.0"
-  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.153.0.tgz#18c6bd37fe3b630fe0f7bbdb109d98ec0ce0f51a"
-  integrity sha512-gFkxopT3v6DlUdkgvvjVIJ8f8bu4WV3I50AIu3qVGDvJmnmEgvbrngeO18SEM7zlJdhkud1zY2zKdfnjLvYdSg==
-  dependencies:
-    "@lukeed/uuid" "^2.0.0"
-    "@segment/action-emitters" "^1.3.6"
-    "@segment/ajv-human-errors" "^2.15.0"
-    "@segment/destination-subscriptions" "^3.37.0"
-    "@types/node" "^22.13.1"
-    aggregate-error "^3.1.0"
-    ajv "^8.6.3"
-    ajv-formats "^2.1.1"
-    btoa-lite "^1.0.0"
-    cross-fetch "^3.1.4"
-    dayjs "^1.10.7"
-    ts-custom-error "^3.2.0"
-
-"@segment/actions-shared@^1.133.0", "@segment/actions-shared@^1.134.0":
-  version "1.134.0"
-  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.134.0.tgz#b11ae2f15c7873f57f13f15fb2db67233e93781e"
-  integrity sha512-7GOjQ92ld6QuW8k4nDsl+Iwk+UOnfAiZEQb10k6ntkm8NKVpkf3f9IuUChYSNTzXGBr92IuvUNii5mffynLJMg==
-  dependencies:
-    "@amplitude/ua-parser-js" "^0.7.25"
-    "@segment/actions-core" "^3.153.0"
-    cheerio "^1.0.0-rc.10"
-    dayjs "^1.10.7"
-    escape-goat "^3"
-    liquidjs "^10.8.4"
-    lodash "^4.17.21"
-
-"@segment/ajv-human-errors@^2.15.0":
-  version "2.15.0"
-  resolved "https://registry.yarnpkg.com/@segment/ajv-human-errors/-/ajv-human-errors-2.15.0.tgz#dfe86a0d869b0ee286e1db7aa736eb9d5aa39a9d"
-  integrity sha512-tgeMMuYYJt3Aar5IIk3kyfL9zMvGsv5d7KsVT/2auri+hEH/L2M1i8X67ne4JjMWZqENYIGY1WuI4oPEL1H/xA==
 
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
@@ -3549,13 +3470,6 @@
   integrity sha512-lZwCyEXT4aaHBLNK433okEKdxGAuyrVmop4BpQqQSJuRz0DglPZgd9B/XjiiWs1UyOankg2aNYMN3VcS8t4eSQ==
   dependencies:
     unfetch "^3.1.1"
-
-"@segment/destination-subscriptions@^3.37.0":
-  version "3.37.0"
-  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.37.0.tgz#99ae16a2fd56469752fc2570465ec1ebb9b32df9"
-  integrity sha512-Al+ABKWlp8LsygKQ0IakmS/4B1MXvTOPDB20mpGA5sMNL+krk2EN4kmaZaA4EfF3ZZjQqmBwTfvQPVGzEJQ3pA==
-  dependencies:
-    "@segment/fql-ts" "^1.10.1"
 
 "@segment/facade@^3.4.9":
   version "3.4.10"
