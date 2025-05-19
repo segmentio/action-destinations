@@ -1,0 +1,4523 @@
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index fe6439bb..bee24cd9 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -62,28 +62,27 @@ Before continuing, please make sure to read our [Code of Conduct](./CODE_OF_COND
+ 
+ 2. Your PR is merged!
+    - Congratulations! Once your PR is merged by a Segment developer, they will deploy your changes and notify you when it’s publicly available. If the destination is in private beta, our folks at Segment will provide a link to access your destination. Once the destination is ready for general availability and has been approved, the destination will be visible from the catalog itself.
+-   - _Note_: we currently do weekly deploys on Wednesdays for all non-emergency changes. Changes should be approved and merged by Tuesday EOD to make the Wednesday release. Thank you!
++   - *Note*: we currently do weekly deploys on Wednesdays for all non-emergency changes. Changes should be approved and merged by Tuesday EOD to make the Wednesday release. Thank you!
+ 
+ ## Write documentation
+ 
+ Documentation ensures users of your destination can enable and configure the destination, and understand how it interacts with your platform.
+ 
+-1. Write your integration’s documentation. Segment provides two templates: [doc-template-new.md](./docs/doc-template-new.md) for new destinations, and [doc-template-update.md](./docs/doc-template-update.md) for updates to existing destinations.
++1. Write your integration’s documentation. Segment provides two templates: [doc-template-new.md](./docs/doc-template-new.md) for new destinations, and [doc-template-update.md](./docs/doc-template-update.md) for updates to existing destinations. 
+ 
+ These templates contain content that automatically pulls in information. Do not edit this content.
+-
+-- The table at the top is the yaml front matter, and it is not rendered in the final documentation.
+-- The snippet `{% include content/plan-grid.md name="actions" %}` indicates which Segment account tiers have access to Destination Actions; all account tiers have access.
+-- The snippet `{% include content/ajs-upgrade.md %}` is a note to encourage customers to upgrade to Analytics.js 2.0.
+-- The snippet `{% include components/actions-fields.html %}` will automatically populate information about your destination’s Settings, Mappings, Actions, and Action fields, using Segment's Public API. This information will be populated as soon as your destination reaches the Public Beta phase. This means you don't need to include any of this information in your documentation.
++  - The table at the top is the yaml front matter, and it is not rendered in the final documentation. 
++  - The snippet `{% include content/plan-grid.md name="actions" %}` indicates which Segment account tiers have access to Destination Actions; all account tiers have access.
++  - The snippet `{% include content/ajs-upgrade.md %}` is a note to encourage customers to upgrade to Analytics.js 2.0. 
++  - The snippet `{% include components/actions-fields.html %}` will automatically populate information about your destination’s Settings, Mappings, Actions, and Action fields, using Segment's Public API. This information will be populated as soon as your destination reaches the Public Beta phase. This means you don't need to include any of this information in your documentation. 
+ 
+ These templates contain sections that you should edit to explain the following:
+ 
+-- The purpose of the destination
+-- Benefits / features of the destination
+-- Steps to add and configure the destination within Segment (replace the destination name with your destination)
+-- Breaking changes compared to a classic version of the destination (if applicable)
+-- Migration steps (if applicable)
++   - The purpose of the destination
++   - Benefits / features of the destination
++   - Steps to add and configure the destination within Segment (replace the destination name with your destination)
++   - Breaking changes compared to a classic version of the destination (if applicable)
++   - Migration steps (if applicable)
+ 
+ To help you write your documentation, see examples of documentation for other destinations: [Slack (Actions) Destination](https://segment.com/docs/connections/destinations/catalog/actions-slack/), [TikTok Conversions Destination](https://segment.com/docs/connections/destinations/catalog/tiktok-conversions/).
+ 
+diff --git a/packages/actions-shared/package.json b/packages/actions-shared/package.json
+index 6f75fbf1..1df683b3 100644
+--- a/packages/actions-shared/package.json
++++ b/packages/actions-shared/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "@segment/actions-shared",
+   "description": "Shared destination action methods and definitions.",
+-  "version": "1.15.0",
++  "version": "1.16.0",
+   "repository": {
+     "type": "git",
+     "url": "https://github.com/segmentio/action-destinations",
+@@ -37,7 +37,7 @@
+   },
+   "dependencies": {
+     "@amplitude/ua-parser-js": "^0.7.25",
+-    "@segment/actions-core": "^3.32.0",
++    "@segment/actions-core": "^3.33.0",
+     "cheerio": "^1.0.0-rc.10",
+     "dayjs": "^1.10.7",
+     "escape-goat": "^3",
+@@ -58,6 +58,5 @@
+     "setupFilesAfterEnv": [
+       "<rootDir>/test/setup-after-env.ts"
+     ]
+-  },
+-  "gitHead": "c661c6248b8a65ae675974191545414ff0019ea6"
++  }
+ }
+diff --git a/packages/ajv-human-errors/package.json b/packages/ajv-human-errors/package.json
+index aad69b5e..274e2bae 100644
+--- a/packages/ajv-human-errors/package.json
++++ b/packages/ajv-human-errors/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@segment/ajv-human-errors",
+-  "version": "2.1.3-alpha.2",
++  "version": "2.1.2",
+   "description": "Human-readable error messages for Ajv (Another JSON Schema Validator).",
+   "repository": {
+     "type": "git",
+@@ -30,6 +30,5 @@
+   },
+   "peerDependencies": {
+     "ajv": "^8.0.0"
+-  },
+-  "gitHead": "c661c6248b8a65ae675974191545414ff0019ea6"
++  }
+ }
+diff --git a/packages/browser-destinations/package.json b/packages/browser-destinations/package.json
+index 8f9ba26e..8a67223d 100644
+--- a/packages/browser-destinations/package.json
++++ b/packages/browser-destinations/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@segment/browser-destinations",
+-  "version": "3.53.0",
++  "version": "3.54.0",
+   "description": "Action based browser destinations",
+   "author": "Netto Farah",
+   "license": "MIT",
+@@ -34,9 +34,9 @@
+     "@braze/web-sdk": "npm:@braze/web-sdk@^4.1.0",
+     "@braze/web-sdk-v3": "npm:@braze/web-sdk@^3.5.1",
+     "@fullstory/browser": "^1.4.9",
+-    "@segment/actions-shared": "^1.15.0",
++    "@segment/actions-shared": "^1.16.0",
+     "@segment/analytics-next": "^1.29.3",
+-    "@segment/destination-subscriptions": "^3.11.1-alpha.0",
++    "@segment/destination-subscriptions": "^3.11.0",
+     "dayjs": "^1.10.7",
+     "tslib": "^2.3.1",
+     "vm-browserify": "^1.1.2"
+@@ -47,7 +47,7 @@
+     "@babel/plugin-transform-modules-commonjs": "^7.13.8",
+     "@babel/preset-env": "^7.13.10",
+     "@babel/preset-typescript": "^7.13.0",
+-    "@segment/actions-core": "^3.32.0",
++    "@segment/actions-core": "^3.33.0",
+     "@types/amplitude-js": "^7.0.1",
+     "@types/jest": "^27.0.0",
+     "babel-jest": "^27.3.1",
+@@ -87,6 +87,5 @@
+       "<rootDir>/test/setup-after-env.ts"
+     ],
+     "forceExit": true
+-  },
+-  "gitHead": "c661c6248b8a65ae675974191545414ff0019ea6"
++  }
+ }
+diff --git a/packages/cli-internal/package.json b/packages/cli-internal/package.json
+index 8bcc1a50..43e9e106 100644
+--- a/packages/cli-internal/package.json
++++ b/packages/cli-internal/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "@segment/actions-cli-internal",
+   "description": "CLI to interact with Segment integrations",
+-  "version": "3.98.0",
++  "version": "3.99.0",
+   "license": "MIT",
+   "repository": {
+     "type": "git",
+@@ -53,8 +53,8 @@
+     "@oclif/config": "^1",
+     "@oclif/errors": "^1",
+     "@oclif/plugin-help": "^3.3",
+-    "@segment/action-destinations": "^3.101.0",
+-    "@segment/actions-core": "^3.32.0",
++    "@segment/action-destinations": "^3.102.0",
++    "@segment/actions-core": "^3.33.0",
+     "chalk": "^4.1.1",
+     "chokidar": "^3.5.1",
+     "dotenv": "^10.0.0",
+@@ -77,7 +77,7 @@
+     "tslib": "^2.3.1"
+   },
+   "optionalDependencies": {
+-    "@segment/browser-destinations": "^3.53.0",
++    "@segment/browser-destinations": "^3.54.0",
+     "@segment/control-plane-service-client": "github:segmentio/control-plane-service-js-client.git#master"
+   },
+   "oclif": {
+diff --git a/packages/cli/package.json b/packages/cli/package.json
+index c62ba593..0c1e8766 100644
+--- a/packages/cli/package.json
++++ b/packages/cli/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "@segment/actions-cli",
+   "description": "CLI to interact with Segment integrations",
+-  "version": "3.98.0",
++  "version": "3.99.0",
+   "license": "MIT",
+   "repository": {
+     "type": "git",
+@@ -56,8 +56,8 @@
+     "@oclif/config": "^1",
+     "@oclif/errors": "^1",
+     "@oclif/plugin-help": "^3.3",
+-    "@segment/action-destinations": "^3.101.0",
+-    "@segment/actions-core": "^3.32.0",
++    "@segment/action-destinations": "^3.102.0",
++    "@segment/actions-core": "^3.33.0",
+     "chalk": "^4.1.1",
+     "chokidar": "^3.5.1",
+     "dotenv": "^10.0.0",
+@@ -80,8 +80,8 @@
+     "tslib": "^2.3.1"
+   },
+   "optionalDependencies": {
+-    "@segment/actions-cli-internal": "^3.98.0",
+-    "@segment/browser-destinations": "^3.53.0"
++    "@segment/actions-cli-internal": "^3.99.0",
++    "@segment/browser-destinations": "^3.54.0"
+   },
+   "oclif": {
+     "commands": "./dist/commands",
+diff --git a/packages/cli/src/commands/validate.ts b/packages/cli/src/commands/validate.ts
+index f287de66..e9fa4fc1 100644
+--- a/packages/cli/src/commands/validate.ts
++++ b/packages/cli/src/commands/validate.ts
+@@ -151,9 +151,7 @@ export default class Validate extends Command {
+           }
+           if (typeof fieldValues?.default !== typ) {
+             errors.push(
+-              new Error(
+-                `The default value for field "${field}" is of type "${typeof fieldValues?.default}", but the type is set to "${typ}".`
+-              )
++              new Error(`The default value for field "${field}" is of type "${typeof fieldValues?.default}", but the type is set to "${typ}".`)
+             )
+           }
+         }
+diff --git a/packages/core/package.json b/packages/core/package.json
+index 30a5f077..cb5338c5 100644
+--- a/packages/core/package.json
++++ b/packages/core/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "@segment/actions-core",
+   "description": "Core runtime for Destinations Actions.",
+-  "version": "3.32.0",
++  "version": "3.33.0",
+   "repository": {
+     "type": "git",
+     "url": "https://github.com/segmentio/fab-5-engine",
+@@ -55,7 +55,7 @@
+   "dependencies": {
+     "@lukeed/uuid": "^2.0.0",
+     "@segment/ajv-human-errors": "^2.1.2",
+-    "@segment/destination-subscriptions": "^3.11.1-alpha.0",
++    "@segment/destination-subscriptions": "^3.11.0",
+     "abort-controller": "^3.0.0",
+     "aggregate-error": "^3.1.0",
+     "ajv": "^8.6.3",
+@@ -75,6 +75,5 @@
+       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
+       "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+     }
+-  },
+-  "gitHead": "c661c6248b8a65ae675974191545414ff0019ea6"
++  }
+ }
+diff --git a/packages/core/src/create-test-event.ts b/packages/core/src/create-test-event.ts
+index 0099ae1e..7599a3fe 100644
+--- a/packages/core/src/create-test-event.ts
++++ b/packages/core/src/create-test-event.ts
+@@ -41,47 +41,3 @@ export function createTestEvent(event: Partial<SegmentEvent> = {}): SegmentEvent
+     ...event
+   }
+ }
+-
+-export function createMessagingTestEvent(event: Partial<SegmentEvent> = {}): SegmentEvent {
+-  return {
+-    anonymousId: uuidv4(),
+-    context: {
+-      ip: '8.8.8.8',
+-      library: {
+-        name: 'analytics.js',
+-        version: '2.11.1'
+-      },
+-      locale: 'en-US',
+-      location: {
+-        city: 'San Francisco',
+-        country: 'United States',
+-        latitude: 40.2964197,
+-        longitude: -76.9411617,
+-        speed: 0
+-      },
+-      page: {
+-        path: '/academy/',
+-        referrer: '',
+-        search: '',
+-        title: 'Analytics Academy',
+-        url: 'https://segment.com/academy/'
+-      },
+-      timezone: 'Europe/Amsterdam',
+-      userAgent:
+-        'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+-    },
+-    event: 'Test Event',
+-    messageId: uuidv4(),
+-    properties: {
+-      firstName: 'First Name',
+-      lastName: 'Browning'
+-    },
+-    receivedAt: new Date().toISOString(),
+-    sentAt: new Date().toISOString(),
+-    timestamp: new Date().toISOString(),
+-    traits: {},
+-    type: 'track',
+-    userId: 'user1234',
+-    ...event
+-  }
+-}
+diff --git a/packages/core/src/index.ts b/packages/core/src/index.ts
+index d602ba6c..7bf86c23 100644
+--- a/packages/core/src/index.ts
++++ b/packages/core/src/index.ts
+@@ -2,7 +2,6 @@ export { Destination, fieldsToJsonSchema } from './destination-kit'
+ export { getAuthData } from './destination-kit/parse-settings'
+ export { transform } from './mapping-kit'
+ export { createTestEvent } from './create-test-event'
+-export { createMessagingTestEvent } from './create-test-event'
+ export { createTestIntegration } from './create-test-integration'
+ export { defaultValues } from './defaults'
+ export { IntegrationError, InvalidAuthenticationError, RetryableError } from './errors'
+diff --git a/packages/core/src/segment-event.ts b/packages/core/src/segment-event.ts
+index 71c037e9..dc92d030 100644
+--- a/packages/core/src/segment-event.ts
++++ b/packages/core/src/segment-event.ts
+@@ -63,7 +63,9 @@ interface AnalyticsContext {
+    * {@link https://github.com/segmentio/analytics.js-integrations/blob/2d5c637c022d2661c23449aed237d0d546bf062d/integrations/segmentio/lib/index.js#L292-L301}
+    */
+   traits?: {
+-    crossDomainId: string
++    crossDomainId?: string
++    // eslint-disable-next-line @typescript-eslint/no-explicit-any
++    [key: string]: any
+   }
+ 
+   /**
+diff --git a/packages/destination-actions/package.json b/packages/destination-actions/package.json
+index a47de21a..accbcaa8 100644
+--- a/packages/destination-actions/package.json
++++ b/packages/destination-actions/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "@segment/action-destinations",
+   "description": "Destination Actions engine and definitions.",
+-  "version": "3.101.1-alpha.0",
++  "version": "3.103.0",
+   "repository": {
+     "type": "git",
+     "url": "https://github.com/segmentio/action-destinations",
+@@ -38,8 +38,8 @@
+   "dependencies": {
+     "@amplitude/ua-parser-js": "^0.7.25",
+     "@segment/a1-notation": "^2.1.4",
+-    "@segment/actions-core": "^3.32.1-alpha.0",
+-    "@segment/actions-shared": "^1.15.1-alpha.0",
++    "@segment/actions-core": "^3.33.0",
++    "@segment/actions-shared": "^1.16.0",
+     "cheerio": "^1.0.0-rc.10",
+     "dayjs": "^1.10.7",
+     "escape-goat": "^3",
+@@ -64,6 +64,5 @@
+     "coverageReporters": [
+       "lcov"
+     ]
+-  },
+-  "gitHead": "67b858eeb09b789e91fcebab08621fa4ae29cb9b"
++  }
+ }
+diff --git a/packages/destination-actions/src/destinations/actions-pardot/prospects/index.ts b/packages/destination-actions/src/destinations/actions-pardot/prospects/index.ts
+index d41b6cd6..c39dee3c 100644
+--- a/packages/destination-actions/src/destinations/actions-pardot/prospects/index.ts
++++ b/packages/destination-actions/src/destinations/actions-pardot/prospects/index.ts
+@@ -195,7 +195,7 @@ const action: ActionDefinition<Settings, Payload> = {
+         const data = (error.response as ModifiedResponse).data as PardotError
+         throw new IntegrationError(
+           `Pardot responded witha error code ${data.code}: ${data.message}. This means Pardot has received the call, but consider the payload to be invalid.  To identify the exact error, please refer to ` +
+-            `https://developer.salesforce.com/docs/marketing/pardot/guide/error-codes.html?q=error#numerical-list-of-error-codes and search for the error code you received.`,
++          `https://developer.salesforce.com/docs/marketing/pardot/guide/error-codes.html?q=error#numerical-list-of-error-codes and search for the error code you received.`,
+           'PARDOT_ERROR',
+           400
+         )
+@@ -203,13 +203,13 @@ const action: ActionDefinition<Settings, Payload> = {
+       //XML error response handles the error in headers.
+       //https://developer.salesforce.com/docs/marketing/pardot/guide/error-codes.html?q=error#numerical-list-of-error-codes
+       else if (error.response.headers.get('content-type')?.includes('text/xml')) {
+-        if (statusCode === 403 || statusCode === 400) {
++        if (statusCode === 403 || statusCode === 400){
+           throw new IntegrationError(
+-            `The Business Unit ID or access_token is invalid. This error is also returned when you use the wrong instance (Sandbox or Prod). ` +
+-              `If you toggled the Sandbox instance, please disconnect and reconnect with your corresponding username.`,
+-            'PARDOT_ERROR',
+-            403
+-          )
++          `The Business Unit ID or access_token is invalid. This error is also returned when you use the wrong instance (Sandbox or Prod). `+
++          `If you toggled the Sandbox instance, please disconnect and reconnect with your corresponding username.`,
++          'PARDOT_ERROR',
++          403
++        )
+         }
+       }
+       throw err
+diff --git a/packages/destination-actions/src/destinations/amplitude/logEvent/generated-types.ts b/packages/destination-actions/src/destinations/amplitude/logEvent/generated-types.ts
+index 59d1aace..82268afc 100644
+--- a/packages/destination-actions/src/destinations/amplitude/logEvent/generated-types.ts
++++ b/packages/destination-actions/src/destinations/amplitude/logEvent/generated-types.ts
+@@ -189,39 +189,6 @@ export interface Payload {
+    * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field
+    */
+   userAgentParsing?: boolean
+-  /**
+-   * The following fields will be set only once per session when using AJS2 as the source
+-   */
+-  setOnce?: {
+-    /**
+-     * The referrer of the web request
+-     */
+-    initial_referrer?: string
+-    initial_utm_source?: string
+-    initial_utm_medium?: string
+-    initial_utm_campaign?: string
+-    initial_utm_term?: string
+-    initial_utm_content?: string
+-    [k: string]: unknown
+-  }
+-  /**
+-   * The following fields will be set every session when using AJS2 as the source
+-   */
+-  setAlways?: {
+-    referrer?: string
+-    utm_source?: string
+-    utm_medium?: string
+-    utm_campaign?: string
+-    utm_term?: string
+-    utm_content?: string
+-    [k: string]: unknown
+-  }
+-  /**
+-   * The following fields will be set only once per session when using AJS2 as the source
+-   */
+-  add?: {
+-    [k: string]: unknown
+-  }
+   /**
+    * UTM Tracking Properties
+    */
+@@ -237,7 +204,7 @@ export interface Payload {
+    */
+   referrer?: string
+   /**
+-   * Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
++   * Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
+    */
+   min_id_length?: number | null
+ }
+diff --git a/packages/destination-actions/src/destinations/amplitude/logEvent/index.ts b/packages/destination-actions/src/destinations/amplitude/logEvent/index.ts
+index 10784b0e..164ab1ee 100644
+--- a/packages/destination-actions/src/destinations/amplitude/logEvent/index.ts
++++ b/packages/destination-actions/src/destinations/amplitude/logEvent/index.ts
+@@ -108,57 +108,11 @@ const action: ActionDefinition<Settings, Payload> = {
+         'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field',
+       default: true
+     },
+-    setOnce: {
+-      label: 'Set Once',
+-      description: 'The following fields will be set only once per session when using AJS2 as the source',
+-      type: 'object',
+-      additionalProperties: true,
+-      properties: {
+-        initial_referrer: {
+-          label: 'Initial Referrer',
+-          type: 'string',
+-          description: 'The referrer of the web request'
+-        },
+-        initial_utm_source: {
+-          label: 'Initial UTM Source',
+-          type: 'string'
+-        },
+-        initial_utm_medium: {
+-          label: 'Initial UTM Medium',
+-          type: 'string'
+-        },
+-        initial_utm_campaign: {
+-          label: 'Initial UTM Campaign',
+-          type: 'string'
+-        },
+-        initial_utm_term: {
+-          label: 'Initial UTM Term',
+-          type: 'string'
+-        },
+-        initial_utm_content: {
+-          label: 'Initial UTM Content',
+-          type: 'string'
+-        }
+-      },
+-      default: {
+-        initial_referrer: { '@path': '$.context.page.referrer' },
+-        initial_utm_source: { '@path': '$.context.campaign.source' },
+-        initial_utm_medium: { '@path': '$.context.campaign.medium' },
+-        initial_utm_campaign: { '@path': '$.context.campaign.name' },
+-        initial_utm_term: { '@path': '$.context.campaign.term' },
+-        initial_utm_content: { '@path': '$.context.campaign.content' }
+-      }
+-    },
+-    setAlways: {
+-      label: 'Set Always',
+-      description: 'The following fields will be set every session when using AJS2 as the source',
++    utm_properties: {
++      label: 'UTM Properties',
+       type: 'object',
+-      additionalProperties: true,
++      description: 'UTM Tracking Properties',
+       properties: {
+-        referrer: {
+-          label: 'Referrer',
+-          type: 'string'
+-        },
+         utm_source: {
+           label: 'UTM Source',
+           type: 'string'
+@@ -181,7 +135,6 @@ const action: ActionDefinition<Settings, Payload> = {
+         }
+       },
+       default: {
+-        referrer: { '@path': '$.context.page.referrer' },
+         utm_source: { '@path': '$.context.campaign.source' },
+         utm_medium: { '@path': '$.context.campaign.medium' },
+         utm_campaign: { '@path': '$.context.campaign.name' },
+@@ -189,71 +142,28 @@ const action: ActionDefinition<Settings, Payload> = {
+         utm_content: { '@path': '$.context.campaign.content' }
+       }
+     },
+-    add: {
+-      label: 'Add',
+-      description: 'The following fields will be set only once per session when using AJS2 as the source',
+-      type: 'object',
+-      additionalProperties: true
+-    },
+-    utm_properties: {
+-      label: 'UTM Properties',
+-      type: 'object',
+-      description: 'UTM Tracking Properties',
+-      properties: {
+-        utm_source: {
+-          label: 'UTM Source',
+-          type: 'string'
+-        },
+-        utm_medium: {
+-          label: 'UTM Medium',
+-          type: 'string'
+-        },
+-        utm_campaign: {
+-          label: 'UTM Campaign',
+-          type: 'string'
+-        },
+-        utm_term: {
+-          label: 'UTM Term',
+-          type: 'string'
+-        },
+-        utm_content: {
+-          label: 'UTM Content',
+-          type: 'string'
+-        }
+-      }
+-    },
+     referrer: {
+       label: 'Referrer',
+       type: 'string',
+       description:
+-        'The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”'
++        'The referrer of the web request. Sent to Amplitude as both last touch “referrer” and first touch “initial_referrer”',
++      default: {
++        '@path': '$.context.page.referrer'
++      }
+     },
+     min_id_length: {
+       label: 'Minimum ID Length',
+       description:
+-        'Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
++        'Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.',
+       allowNull: true,
+       type: 'integer'
+     }
+   },
+   perform: (request, { payload, settings }) => {
+     // Omit revenue properties initially because we will manually stitch those into events as prescribed
+-    const {
+-      time,
+-      session_id,
+-      userAgent,
+-      userAgentParsing,
+-      utm_properties,
+-      referrer,
+-      min_id_length,
+-      library,
+-      setOnce,
+-      setAlways,
+-      add,
+-      ...rest
+-    } = omit(payload, revenueKeys)
++    const { time, session_id, userAgent, userAgentParsing, utm_properties, referrer, min_id_length, library, ...rest } =
++      omit(payload, revenueKeys)
+     const properties = rest as AmplitudeEvent
+-
+     let options
+ 
+     if (properties.platform) {
+@@ -272,21 +182,11 @@ const action: ActionDefinition<Settings, Payload> = {
+       properties.session_id = dayjs.utc(session_id).valueOf()
+     }
+ 
+-    if (Object.keys(Object.fromEntries(Object.entries(setOnce ?? {}).filter(([_, v]) => v))).length) {
+-      properties.user_properties = { ...properties.user_properties, $setOnce: setOnce }
+-    }
+-    if (Object.keys(Object.fromEntries(Object.entries(setAlways ?? {}).filter(([_, v]) => v))).length) {
+-      properties.user_properties = { ...properties.user_properties, $set: setAlways }
+-    }
+-    if (Object.keys(Object.fromEntries(Object.entries(add ?? {}).filter(([_, v]) => v))).length) {
+-      properties.user_properties = { ...properties.user_properties, $add: add }
+-    }
+-
+     if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
+       properties.user_properties = mergeUserProperties(
+-        omit(properties.user_properties ?? {}, ['utm_properties', 'referrer']),
+         convertUTMProperties({ utm_properties }),
+-        convertReferrerProperty({ referrer })
++        convertReferrerProperty({ referrer }),
++        omit(properties.user_properties ?? {}, ['utm_properties', 'referrer'])
+       )
+     }
+ 
+diff --git a/packages/destination-actions/src/destinations/cordial/addProductToCart/__tests__/index.test.ts b/packages/destination-actions/src/destinations/cordial/addProductToCart/__tests__/index.test.ts
+index f9c09d55..dbe1cf8d 100644
+--- a/packages/destination-actions/src/destinations/cordial/addProductToCart/__tests__/index.test.ts
++++ b/packages/destination-actions/src/destinations/cordial/addProductToCart/__tests__/index.test.ts
+@@ -12,10 +12,7 @@ describe('Cordial.addProductToCart', () => {
+     nock.cleanAll()
+   })
+   it('should work with default mappings', async () => {
+-    nock(/api.cordial.io/)
+-      .post('/api/segment/addProductToCart')
+-      .once()
+-      .reply(202, { success: 'success' })
++    nock(/api.cordial.io/).post('/api/segment/addProductToCart').once().reply(202, {success: 'success'})
+ 
+     const event = createTestEvent({
+       event: 'Product Added',
+@@ -32,12 +29,12 @@ describe('Cordial.addProductToCart', () => {
+         image_url: 'https://cdn.example.com/product.jpg',
+         brand: 'Test brand',
+         variant: 'black',
+-        coupon: 'APPLY50%'
++        coupon: 'APPLY50%',
+       }
+     })
+ 
+     const mapping = {
+-      userIdentities: { 'channels.email.address': 'contact@example.com' }
++      userIdentities: {'channels.email.address': 'contact@example.com'}
+     }
+ 
+     const settings = {
+@@ -52,8 +49,8 @@ describe('Cordial.addProductToCart', () => {
+       useDefaultMappings: true
+     })
+ 
+-    expect(responses[0].status).toBe(202)
+-    expect(responses[0].data).toMatchObject({ success: 'success' })
++    expect(responses[0].status).toBe(202);
++    expect(responses[0].data).toMatchObject({success: 'success'});
+     expect(responses[0].options.json).toMatchObject({
+       category: '51easf12',
+       description: undefined,
+@@ -65,19 +62,17 @@ describe('Cordial.addProductToCart', () => {
+         brand: 'Test brand',
+         coupon: 'APPLY50%',
+         variant: 'black'
+-      },
++       },
+       qty: 2,
+       sku: 'TEST-SKU',
+       url: 'https://example.com/product1',
+       userIdentities: {
+-        'channels.email.address': 'contact@example.com'
+-      }
++       'channels.email.address': 'contact@example.com'
++      },
+     })
+   })
+   it('should work with required only', async () => {
+-    nock(/api.cordial.io/)
+-      .post('/api/segment/addProductToCart')
+-      .reply(202, { success: 'success' })
++    nock(/api.cordial.io/).post('/api/segment/addProductToCart').reply(202, {success: 'success'})
+ 
+     const event = createTestEvent({
+       event: 'Product Added',
+@@ -99,12 +94,12 @@ describe('Cordial.addProductToCart', () => {
+     })
+ 
+     const mapping = {
+-      userIdentities: { 'channels.email.address': 'contact@example.com' },
+-      productID: { '@path': '$.properties.product_id' },
+-      sku: { '@path': '$.properties.sku' },
+-      qty: { '@path': '$.properties.quantity' },
+-      category: { '@path': '$.properties.category' },
+-      name: { '@path': '$.properties.name' }
++      userIdentities: {'channels.email.address': 'contact@example.com'},
++      productID: {'@path': '$.properties.product_id'},
++      sku: {'@path': '$.properties.sku'},
++      qty: {'@path': '$.properties.quantity'},
++      category: {'@path': '$.properties.category'},
++      name: {'@path': '$.properties.name'}
+     }
+ 
+     const settings = {
+@@ -119,8 +114,8 @@ describe('Cordial.addProductToCart', () => {
+       useDefaultMappings: false
+     })
+ 
+-    expect(responses[0].status).toBe(202)
+-    expect(responses[0].data).toMatchObject({ success: 'success' })
++    expect(responses[0].status).toBe(202);
++    expect(responses[0].data).toMatchObject({success: 'success'});
+     expect(responses[0].options.json).toMatchObject({
+       category: '51easf12',
+       description: undefined,
+diff --git a/packages/destination-actions/src/destinations/cordial/addProductToCart/index.ts b/packages/destination-actions/src/destinations/cordial/addProductToCart/index.ts
+index 2315c335..0b0e9f80 100644
+--- a/packages/destination-actions/src/destinations/cordial/addProductToCart/index.ts
++++ b/packages/destination-actions/src/destinations/cordial/addProductToCart/index.ts
+@@ -1,7 +1,7 @@
+ import type { ActionDefinition } from '@segment/actions-core'
+ import type { Settings } from '../generated-types'
+ import type { Payload } from './generated-types'
+-import CordialClient from '../cordial-client'
++import CordialClient from "../cordial-client";
+ 
+ const action: ActionDefinition<Settings, Payload> = {
+   title: 'Add Product to Cart',
+@@ -105,7 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
+         coupon: { '@path': '$.properties.coupon' }
+       },
+       defaultObjectUI: 'keyvalue:only'
+-    }
++    },
+   },
+   perform: (request, { settings, payload }) => {
+     const client = new CordialClient(settings, request)
+diff --git a/packages/destination-actions/src/destinations/cordial/index.ts b/packages/destination-actions/src/destinations/cordial/index.ts
+index f93db3cb..6711237e 100644
+--- a/packages/destination-actions/src/destinations/cordial/index.ts
++++ b/packages/destination-actions/src/destinations/cordial/index.ts
+@@ -35,13 +35,13 @@ const destination: DestinationDefinition<Settings> = {
+       }
+     },
+     testAuthentication: (request, { settings }) => {
+-      return request(settings.endpoint + '/api/checkAuth', { headers: { 'Content-Type': 'application/json' } })
++      return request(settings.endpoint + '/api/checkAuth', { headers: { 'Content-Type': 'application/json' }});
+     }
+   },
+ 
+   extendRequest({ settings }) {
+     return {
+-      headers: { 'x-api-key': `${settings.apiKey}`, Accept: 'application/json' }
++      headers: { 'x-api-key': `${settings.apiKey}`, 'Accept': 'application/json'}
+     }
+   },
+ 
+diff --git a/packages/destination-actions/src/destinations/cordial/removeProductFromCart/__tests__/index.test.ts b/packages/destination-actions/src/destinations/cordial/removeProductFromCart/__tests__/index.test.ts
+index aa9e18f3..c6ac64c8 100644
+--- a/packages/destination-actions/src/destinations/cordial/removeProductFromCart/__tests__/index.test.ts
++++ b/packages/destination-actions/src/destinations/cordial/removeProductFromCart/__tests__/index.test.ts
+@@ -12,10 +12,7 @@ describe('Cordial.removeProductFromCart', () => {
+     nock.cleanAll()
+   })
+   it('should work with default mappings', async () => {
+-    nock(/api.cordial.io/)
+-      .post('/api/segment/removeProductFromCart')
+-      .once()
+-      .reply(202, { success: 'success' })
++    nock(/api.cordial.io/).post('/api/segment/removeProductFromCart').once().reply(202, {success: 'success'})
+ 
+     const event = createTestEvent({
+       event: 'Product Removed',
+@@ -28,7 +25,7 @@ describe('Cordial.removeProductFromCart', () => {
+     })
+ 
+     const mapping = {
+-      userIdentities: { 'channels.email.address': 'contact@example.com' }
++      userIdentities: {'channels.email.address': 'contact@example.com'}
+     }
+ 
+     const settings = {
+@@ -43,14 +40,14 @@ describe('Cordial.removeProductFromCart', () => {
+       useDefaultMappings: true
+     })
+ 
+-    expect(responses[0].status).toBe(202)
+-    expect(responses[0].data).toMatchObject({ success: 'success' })
++    expect(responses[0].status).toBe(202);
++    expect(responses[0].data).toMatchObject({success: 'success'});
+     expect(responses[0].options.json).toMatchObject({
+       productID: '51easf12',
+       qty: 2,
+       userIdentities: {
+         'channels.email.address': 'contact@example.com'
+-      }
++      },
+     })
+   })
+ })
+diff --git a/packages/destination-actions/src/destinations/cordial/removeProductFromCart/index.ts b/packages/destination-actions/src/destinations/cordial/removeProductFromCart/index.ts
+index 3213f145..2318645f 100644
+--- a/packages/destination-actions/src/destinations/cordial/removeProductFromCart/index.ts
++++ b/packages/destination-actions/src/destinations/cordial/removeProductFromCart/index.ts
+@@ -1,7 +1,7 @@
+ import type { ActionDefinition } from '@segment/actions-core'
+ import type { Settings } from '../generated-types'
+ import type { Payload } from './generated-types'
+-import CordialClient from '../cordial-client'
++import CordialClient from "../cordial-client";
+ 
+ const action: ActionDefinition<Settings, Payload> = {
+   title: 'Remove Product from Cart',
+diff --git a/packages/destination-actions/src/destinations/cordial/upsertOrder/__tests__/index.test.ts b/packages/destination-actions/src/destinations/cordial/upsertOrder/__tests__/index.test.ts
+index 48f35644..b6188788 100644
+--- a/packages/destination-actions/src/destinations/cordial/upsertOrder/__tests__/index.test.ts
++++ b/packages/destination-actions/src/destinations/cordial/upsertOrder/__tests__/index.test.ts
+@@ -12,20 +12,17 @@ describe('Cordial.upsertOrder', () => {
+     nock.cleanAll()
+   })
+   it('should work with default mappings', async () => {
+-    nock(/api.cordial.io/)
+-      .post('/api/segment/upsertOrder')
+-      .once()
+-      .reply(202, { success: 'success' })
++    nock(/api.cordial.io/).post('/api/segment/upsertOrder').once().reply(202, {success: 'success'})
+ 
+     const event = createTestEvent({
+       event: 'Order Completed',
+       userId: 'abc123',
+       timestamp: '1631210000',
+       properties: {
+-        order_id: 'test-order',
++        order_id: "test-order",
+         total: 546.05,
+         affiliation: 'Google Store',
+-        revenue: 25.0,
++        revenue: 25.00,
+         shipping: 3,
+         tax: 2,
+         discount: 2.5,
+@@ -55,7 +52,7 @@ describe('Cordial.upsertOrder', () => {
+     })
+ 
+     const mapping = {
+-      userIdentities: { 'channels.email.address': 'contact@example.com' }
++      userIdentities: {'channels.email.address': 'contact@example.com'}
+     }
+ 
+     const settings = {
+@@ -70,8 +67,8 @@ describe('Cordial.upsertOrder', () => {
+       useDefaultMappings: true
+     })
+ 
+-    expect(responses[0].status).toBe(202)
+-    expect(responses[0].data).toMatchObject({ success: 'success' })
++    expect(responses[0].status).toBe(202);
++    expect(responses[0].data).toMatchObject({success: 'success'});
+     expect(responses[0].options.json).toMatchObject({
+       userIdentities: { 'channels.email.address': 'contact@example.com' },
+       orderID: 'test-order',
+@@ -112,35 +109,32 @@ describe('Cordial.upsertOrder', () => {
+     })
+   })
+   it('should work with required only', async () => {
+-    nock(/api.cordial.io/)
+-      .post('/api/segment/upsertOrder')
+-      .once()
+-      .reply(202, { success: 'success' })
++    nock(/api.cordial.io/).post('/api/segment/upsertOrder').once().reply(202, {success: 'success'})
+ 
+     const event = createTestEvent({
+       event: 'Order Completed',
+       userId: 'abc123',
+       timestamp: '1631210000',
+       properties: {
+-        order_id: 'test-order',
++        order_id: "test-order",
+         total: 546.05,
+         products: [
+           {
+             product_id: '51easf12',
+             sku: 'TEST-SKU',
+-            name: 'TEST-SKU'
++            name: 'TEST-SKU',
+           },
+           {
+             product_id: 'gserq3eas',
+             sku: 'TEST-SKU2',
+-            name: 'TEST-SKU'
++            name: 'TEST-SKU',
+           }
+         ]
+       }
+     })
+ 
+     const mapping = {
+-      userIdentities: { 'channels.email.address': 'contact@example.com' },
++      userIdentities: {'channels.email.address': 'contact@example.com'},
+       orderID: { '@path': '$.properties.order_id' },
+       purchaseDate: { '@path': '$.timestamp' },
+       status: { '@path': '$.event' },
+@@ -149,9 +143,9 @@ describe('Cordial.upsertOrder', () => {
+         '@arrayPath': [
+           '$.properties.products',
+           {
+-            productID: { '@path': '$.product_id' },
+-            sku: { '@path': '$.sku' },
+-            name: { '@path': '$.name' }
++            productID: {'@path': '$.product_id'},
++            sku: {'@path': '$.sku'},
++            name: {'@path': '$.name'}
+           }
+         ]
+       }
+@@ -169,8 +163,8 @@ describe('Cordial.upsertOrder', () => {
+       useDefaultMappings: false
+     })
+ 
+-    expect(responses[0].status).toBe(202)
+-    expect(responses[0].data).toMatchObject({ success: 'success' })
++    expect(responses[0].status).toBe(202);
++    expect(responses[0].data).toMatchObject({success: 'success'});
+     expect(responses[0].options.json).toMatchObject({
+       userIdentities: { 'channels.email.address': 'contact@example.com' },
+       orderID: 'test-order',
+diff --git a/packages/destination-actions/src/destinations/cordial/upsertOrder/index.ts b/packages/destination-actions/src/destinations/cordial/upsertOrder/index.ts
+index 276d5a67..e1cd94f0 100644
+--- a/packages/destination-actions/src/destinations/cordial/upsertOrder/index.ts
++++ b/packages/destination-actions/src/destinations/cordial/upsertOrder/index.ts
+@@ -1,13 +1,12 @@
+ import type { ActionDefinition } from '@segment/actions-core'
+ import type { Settings } from '../generated-types'
+ import type { Payload } from './generated-types'
+-import CordialClient from '../cordial-client'
++import CordialClient from "../cordial-client";
+ 
+ const action: ActionDefinition<Settings, Payload> = {
+   title: 'Upsert Order',
+   description: 'Upserts order to Cordial',
+-  defaultSubscription:
+-    'event = "Order Completed" or event = "Order Updated" or event = "Order Refunded" or event = "Order Cancelled"',
++  defaultSubscription: 'event = "Order Completed" or event = "Order Updated" or event = "Order Refunded" or event = "Order Cancelled"',
+   fields: {
+     userIdentities: {
+       label: 'User Identities',
+@@ -102,32 +101,32 @@ const action: ActionDefinition<Settings, Payload> = {
+         manufacturerName: {
+           label: 'Manufacturer name',
+           description: 'Manufacturer name of the purchased item.',
+-          type: 'string'
++          type: 'string',
+         },
+         itemPrice: {
+           label: 'Price',
+           description: 'Price of the purchased item.',
+-          type: 'number'
++          type: 'number',
+         },
+         qty: {
+           label: 'Quantity',
+           description: 'Quantity of the purchased item.',
+-          type: 'integer'
++          type: 'integer',
+         },
+         url: {
+           label: 'URL',
+           description: 'URL of the purchased item.',
+-          type: 'string'
++          type: 'string',
+         },
+         imageUrl: {
+           label: 'Image URL',
+           description: 'Image URL of the purchased item.',
+-          type: 'string'
++          type: 'string',
+         },
+         properties: {
+           label: 'Properties',
+           description: 'Additional properties of the purchased item.',
+-          type: 'object'
++          type: 'object',
+         }
+       },
+       default: {
+@@ -164,12 +163,12 @@ const action: ActionDefinition<Settings, Payload> = {
+             properties: {
+               variant: { '@path': '$.variant' },
+               coupon: { '@path': '$.coupon' }
+-            }
++            },
+           }
+         ]
+       },
+       defaultObjectUI: 'keyvalue:only'
+-    }
++    },
+   },
+   perform: (request, { settings, payload }) => {
+     const client = new CordialClient(settings, request)
+diff --git a/packages/destination-actions/src/destinations/customerio/__tests__/trackEvent.test.ts b/packages/destination-actions/src/destinations/customerio/__tests__/trackEvent.test.ts
+index a01d6f05..4d9d714a 100644
+--- a/packages/destination-actions/src/destinations/customerio/__tests__/trackEvent.test.ts
++++ b/packages/destination-actions/src/destinations/customerio/__tests__/trackEvent.test.ts
+@@ -273,7 +273,7 @@ describe('CustomerIO', () => {
+     it('should map messageId to id in the payload', async () => {
+       const settings: Settings = {
+         siteId: '12345',
+-        apiKey: 'abcde'
++        apiKey: 'abcde',
+       }
+       const messageId = 'message123'
+       const userId = 'abc123'
+@@ -303,5 +303,6 @@ describe('CustomerIO', () => {
+         data
+       })
+     })
++
+   })
+ })
+diff --git a/packages/destination-actions/src/destinations/customerio/trackEvent/index.ts b/packages/destination-actions/src/destinations/customerio/trackEvent/index.ts
+index 8990c941..7236e51f 100644
+--- a/packages/destination-actions/src/destinations/customerio/trackEvent/index.ts
++++ b/packages/destination-actions/src/destinations/customerio/trackEvent/index.ts
+@@ -47,8 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
+     },
+     event_id: {
+       label: 'Event ID',
+-      description:
+-        'An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).',
++      description: 'An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).',
+       type: 'string',
+       default: {
+         '@path': '$.messageId'
+diff --git a/packages/destination-actions/src/destinations/engage-messaging-sendgrid/__tests__/send-email.test.ts b/packages/destination-actions/src/destinations/engage-messaging-sendgrid/__tests__/send-email.test.ts
+index 4882a21c..c760db11 100644
+--- a/packages/destination-actions/src/destinations/engage-messaging-sendgrid/__tests__/send-email.test.ts
++++ b/packages/destination-actions/src/destinations/engage-messaging-sendgrid/__tests__/send-email.test.ts
+@@ -93,25 +93,10 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
+       send: true,
+       traitEnrichment: true,
+       toEmail: '',
+-      externalIds: {
+-        '@arrayPath': [
+-          '$.external_ids',
+-          {
+-            id: {
+-              '@path': '$.id'
+-            },
+-            type: {
+-              '@path': '$.type'
+-            },
+-            subscriptionStatus: {
+-              '@path': '$.isSubscribed'
+-            },
+-            groups: {
+-              '@path': '$.groups'
+-            }
+-          }
+-        ]
+-      },
++      externalIds: [
++        { id: userData.email, type: 'email', subscriptionStatus: 'subscribed' },
++        { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
++      ],
+       traits: { '@path': '$.properties' },
+       ...overrides
+     }
+@@ -140,16 +125,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
+         event: createMessagingTestEvent({
+           timestamp,
+           event: 'Audience Entered',
+-          userId: userData.userId,
+-          external_ids: [
+-            {
+-              collection: 'users',
+-              encoding: 'none',
+-              id: userData.email,
+-              isSubscribed: true,
+-              type: 'email'
+-            }
+-          ]
++          userId: userData.userId
+         }),
+         settings,
+         mapping: getDefaultMapping()
+@@ -369,16 +345,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
+         event: createMessagingTestEvent({
+           timestamp,
+           event: 'Audience Entered',
+-          userId: userData.userId,
+-          external_ids: [
+-            {
+-              collection: 'users',
+-              encoding: 'none',
+-              id: userData.email,
+-              isSubscribed: true,
+-              type: 'email'
+-            }
+-          ]
++          userId: userData.userId
+         }),
+         settings,
+         mapping: getDefaultMapping({
+@@ -463,16 +430,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
+         event: createMessagingTestEvent({
+           timestamp,
+           event: 'Audience Entered',
+-          userId: userData.userId,
+-          external_ids: [
+-            {
+-              collection: 'users',
+-              encoding: 'none',
+-              id: userData.email,
+-              isSubscribed: true,
+-              type: 'email'
+-            }
+-          ]
++          userId: userData.userId
+         }),
+         settings,
+         mapping: getDefaultMapping({
+@@ -573,16 +531,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
+         event: createMessagingTestEvent({
+           timestamp,
+           event: 'Audience Entered',
+-          userId: userData.userId,
+-          external_ids: [
+-            {
+-              collection: 'users',
+-              encoding: 'none',
+-              id: userData.email,
+-              isSubscribed: true,
+-              type: 'email'
+-            }
+-          ]
++          userId: userData.userId
+         }),
+         settings,
+         mapping: getDefaultMapping({
+@@ -609,16 +558,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
+         event: createMessagingTestEvent({
+           timestamp,
+           event: 'Audience Entered',
+-          userId: userData.userId,
+-          external_ids: [
+-            {
+-              collection: 'users',
+-              encoding: 'none',
+-              id: userData.email,
+-              isSubscribed: true,
+-              type: 'email'
+-            }
+-          ]
++          userId: userData.userId
+         }),
+         settings,
+         mapping: getDefaultMapping({
+@@ -647,16 +587,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
+         event: createMessagingTestEvent({
+           timestamp,
+           event: 'Audience Entered',
+-          userId: userData.userId,
+-          external_ids: [
+-            {
+-              collection: 'users',
+-              encoding: 'none',
+-              id: userData.email,
+-              isSubscribed: true,
+-              type: 'email'
+-            }
+-          ]
++          userId: userData.userId
+         }),
+         settings,
+         mapping: getDefaultMapping({
+@@ -685,124 +616,44 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
+       nock.cleanAll()
+     })
+ 
+-    it('sends the email when subscriptionStatus is true', async () => {
++    it.each(['subscribed', true])('sends the email when subscriptionStatus = "%s"', async (subscriptionStatus) => {
+       const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+ 
+-      const isSubscribed = true
+       const responses = await sendgrid.testAction('sendEmail', {
+         event: createMessagingTestEvent({
+           timestamp,
+           event: 'Audience Entered',
+-          userId: userData.userId,
+-          external_ids: [
+-            { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
+-            { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+-          ]
++          userId: userData.userId
+         }),
+         settings,
+-        mapping: getDefaultMapping()
++        mapping: getDefaultMapping({
++          externalIds: [
++            { id: userData.email, type: 'email', subscriptionStatus },
++            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
++          ]
++        })
+       })
+ 
+       expect(responses.length).toBeGreaterThan(0)
+       expect(sendGridRequest.isDone()).toEqual(true)
+     })
+ 
+-    it.each([null, false])(
++    it.each(['unsubscribed', 'did not subscribed', '', null, false])(
+       'does NOT send the email when subscriptionStatus = "%s"',
+-      async (isSubscribed: boolean | null) => {
++      async (subscriptionStatus) => {
+         await sendgrid.testAction('sendEmail', {
+           event: createMessagingTestEvent({
+             timestamp,
+             event: 'Audience Entered',
+-            userId: userData.userId,
+-            external_ids: [
+-              { id: userData.email, type: 'email', isSubscribed, collection: 'users', encoding: 'none' },
+-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
+-            ]
++            userId: userData.userId
+           }),
+           settings,
+-          mapping: getDefaultMapping()
+-        })
+-        const sendGridRequest = nock('https://api.sendgrid.com')
+-          .post('/v3/mail/send', sendgridRequestBody)
+-          .reply(200, {})
+-
+-        expect(sendGridRequest.isDone()).toBe(false)
+-      }
+-    )
+-  })
+-
+-  describe('subscription groups', () => {
+-    beforeEach(() => {
+-      nock(`${endpoint}/v1/spaces/spaceId/collections/users/profiles/user_id:${userData.userId}`)
+-        .get('/traits?limit=200')
+-        .reply(200, {
+-          traits: {
+-            firstName: userData.firstName,
+-            lastName: userData.lastName
+-          }
+-        })
+-    })
+-
+-    afterEach(() => {
+-      nock.cleanAll()
+-    })
+-
+-    it('should send email to group', async () => {
+-      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send').reply(200, {})
+-
+-      const responses = await sendgrid.testAction('sendEmail', {
+-        event: createMessagingTestEvent({
+-          timestamp,
+-          event: 'Audience Entered',
+-          userId: userData.userId,
+-          external_ids: [
+-            {
+-              id: userData.email,
+-              type: 'email',
+-              isSubscribed: true,
+-              collection: 'users',
+-              encoding: 'none',
+-              groups: [{ id: 'grp_1', isSubscribed: true }]
+-            }
+-          ]
+-        }),
+-        settings: {
+-          ...settings,
+-          groupId: 'grp_1'
+-        },
+-        mapping: getDefaultMapping()
+-      })
+-
+-      expect(responses.length).toBeGreaterThan(0)
+-      expect(sendGridRequest.isDone()).toEqual(true)
+-    })
+-
+-    it.each([null, false])(
+-      'does NOT send the email to group when group\'s subscriptionStatus = "%s"',
+-      async (isSubscribed: boolean | null) => {
+-        await sendgrid.testAction('sendEmail', {
+-          event: createMessagingTestEvent({
+-            timestamp,
+-            event: 'Audience Entered',
+-            userId: userData.userId,
+-            external_ids: [
+-              {
+-                id: userData.email,
+-                type: 'email',
+-                isSubscribed: true,
+-                collection: 'users',
+-                encoding: 'none',
+-                groups: [{ id: 'grp_1', isSubscribed }]
+-              },
+-              { id: userData.phone, type: 'phone', isSubscribed: true, collection: 'users', encoding: 'none' }
++          mapping: getDefaultMapping({
++            externalIds: [
++              { id: userData.email, type: 'email', subscriptionStatus },
++              { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
+             ]
+-          }),
+-          settings: {
+-            groupId: 'grp_1',
+-            ...settings
+-          },
+-          mapping: getDefaultMapping()
++          })
+         })
+         const sendGridRequest = nock('https://api.sendgrid.com')
+           .post('/v3/mail/send', sendgridRequestBody)
+@@ -812,58 +663,24 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
+       }
+     )
+ 
+-    it('does NOT send email to group when groupId is not in groups', async () => {
+-      await sendgrid.testAction('sendEmail', {
+-        event: createMessagingTestEvent({
+-          timestamp,
+-          event: 'Audience Entered',
+-          userId: userData.userId,
+-          external_ids: [
+-            {
+-              collection: 'users',
+-              encoding: 'none',
+-              id: userData.email,
+-              isSubscribed: true,
+-              type: 'email',
+-              groups: [
+-                {
+-                  id: 'grp_1',
+-                  isSubscribed: true
+-                }
+-              ]
+-            }
+-          ]
+-        }),
+-        settings: {
+-          groupId: 'grp_2',
+-          ...settings
+-        },
+-        mapping: getDefaultMapping()
+-      })
+-
+-      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
+-
+-      expect(sendGridRequest.isDone()).toBe(false)
+-    })
+-
+-    it('does NOT send email to group when external ids are not present', async () => {
+-      await sendgrid.testAction('sendEmail', {
++    it('throws an error when subscriptionStatus is unrecognizable"', async () => {
++      const subscriptionStatus = 'random-string'
++      const response = sendgrid.testAction('sendEmail', {
+         event: createMessagingTestEvent({
+           timestamp,
+           event: 'Audience Entered',
+-          userId: userData.userId,
+-          external_ids: undefined
++          userId: userData.userId
+         }),
+-        settings: {
+-          groupId: 'grp_2',
+-          ...settings
+-        },
+-        mapping: getDefaultMapping()
++        settings,
++        mapping: getDefaultMapping({
++          externalIds: [
++            { id: userData.email, type: 'email', subscriptionStatus },
++            { id: userData.phone, type: 'phone', subscriptionStatus: 'subscribed' }
++          ]
++        })
+       })
+ 
+-      const sendGridRequest = nock('https://api.sendgrid.com').post('/v3/mail/send', sendgridRequestBody).reply(200, {})
+-
+-      expect(sendGridRequest.isDone()).toBe(false)
++      await expect(response).rejects.toThrowError(`Failed to process the subscription state: "${subscriptionStatus}"`)
+     })
+   })
+ })
+diff --git a/packages/destination-actions/src/destinations/engage-messaging-sendgrid/generated-types.ts b/packages/destination-actions/src/destinations/engage-messaging-sendgrid/generated-types.ts
+index 2755862d..e226c76b 100644
+--- a/packages/destination-actions/src/destinations/engage-messaging-sendgrid/generated-types.ts
++++ b/packages/destination-actions/src/destinations/engage-messaging-sendgrid/generated-types.ts
+@@ -25,8 +25,4 @@ export interface Settings {
+    * Source ID
+    */
+   sourceId: string
+-  /**
+-   * Subscription group ID
+-   */
+-  groupId?: string
+ }
+diff --git a/packages/destination-actions/src/destinations/engage-messaging-sendgrid/index.ts b/packages/destination-actions/src/destinations/engage-messaging-sendgrid/index.ts
+index e0c501a5..bbfd1bb9 100644
+--- a/packages/destination-actions/src/destinations/engage-messaging-sendgrid/index.ts
++++ b/packages/destination-actions/src/destinations/engage-messaging-sendgrid/index.ts
+@@ -44,11 +44,6 @@ const destination: DestinationDefinition<Settings> = {
+         description: 'Source ID',
+         type: 'string',
+         required: true
+-      },
+-      groupId: {
+-        label: 'Group ID',
+-        description: 'Subscription group ID',
+-        type: 'string'
+       }
+     },
+     testAuthentication: (request) => {
+diff --git a/packages/destination-actions/src/destinations/engage-messaging-sendgrid/sendEmail/generated-types.ts b/packages/destination-actions/src/destinations/engage-messaging-sendgrid/sendEmail/generated-types.ts
+index e6a91d13..b3765e90 100644
+--- a/packages/destination-actions/src/destinations/engage-messaging-sendgrid/sendEmail/generated-types.ts
++++ b/packages/destination-actions/src/destinations/engage-messaging-sendgrid/sendEmail/generated-types.ts
+@@ -85,16 +85,6 @@ export interface Payload {
+      * The subscription status for the identity.
+      */
+     subscriptionStatus?: string
+-    /**
+-     * Subscription groups and their statuses for this id.
+-     */
+-    groups?: {
+-      id?: string
+-      /**
+-       * Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe
+-       */
+-      isSubscribed?: boolean
+-    }[]
+   }[]
+   /**
+    * Additional custom args that we be passed back opaquely on webhook events
+diff --git a/packages/destination-actions/src/destinations/engage-messaging-sendgrid/sendEmail/index.ts b/packages/destination-actions/src/destinations/engage-messaging-sendgrid/sendEmail/index.ts
+index e66475f4..15c17d99 100644
+--- a/packages/destination-actions/src/destinations/engage-messaging-sendgrid/sendEmail/index.ts
++++ b/packages/destination-actions/src/destinations/engage-messaging-sendgrid/sendEmail/index.ts
+@@ -252,24 +252,6 @@ const action: ActionDefinition<Settings, Payload> = {
+           label: 'ID',
+           description: 'The subscription status for the identity.',
+           type: 'string'
+-        },
+-        groups: {
+-          label: 'Subscription Groups',
+-          description: 'Subscription groups and their statuses for this id.',
+-          type: 'object',
+-          multiple: true,
+-          properties: {
+-            id: {
+-              label: 'Subscription group id',
+-              type: 'string'
+-            },
+-            isSubscribed: {
+-              label: 'status',
+-              description: 'Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe',
+-              // for some reason this still gets deserialized as a string.
+-              type: 'boolean'
+-            }
+-          }
+         }
+       },
+       default: {
+@@ -284,9 +266,6 @@ const action: ActionDefinition<Settings, Payload> = {
+             },
+             subscriptionStatus: {
+               '@path': '$.isSubscribed'
+-            },
+-            groups: {
+-              '@path': '$.groups'
+             }
+           }
+         ]
+@@ -306,7 +285,7 @@ const action: ActionDefinition<Settings, Payload> = {
+       default: { '@path': '$.properties' }
+     }
+   },
+-  perform: async (request, { settings, payload, statsContext, logger }) => {
++  perform: async (request, { settings, payload, statsContext }) => {
+     const statsClient = statsContext?.statsClient
+     const tags = statsContext?.tags
+     tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
+@@ -323,22 +302,6 @@ const action: ActionDefinition<Settings, Payload> = {
+       return
+     } else if (['subscribed', 'true'].includes(emailProfile?.subscriptionStatus)) {
+       statsClient?.incr('actions-personas-messaging-sendgrid.subscribed', 1, tags)
+-      if (settings.groupId) {
+-        if (Object.keys(logger ?? {}).length > 0) {
+-          logger?.info(`groups ${JSON.stringify(payload.externalIds)} payload ${JSON.stringify(payload)}`)
+-        }
+-        const group = (payload.externalIds ?? [])
+-          .flatMap((externalId) => externalId.groups)
+-          .find((group) => group?.id === settings.groupId)
+-        if (!group) {
+-          statsClient?.incr('actions-personas-messaging-sendgrid.group_notfound', 1, tags)
+-          return
+-        } else if (!group.isSubscribed) {
+-          statsClient?.incr('actions-personas-messaging-sendgrid.group_notsubscribed', 1, tags)
+-          return
+-        }
+-        statsClient?.incr('actions-personas-messaging-sendgrid.group_subscribed', 1, tags)
+-      }
+ 
+       let traits
+       if (payload.traitEnrichment) {
+diff --git a/packages/destination-actions/src/destinations/engage-messaging-twilio/sendSms/index.ts b/packages/destination-actions/src/destinations/engage-messaging-twilio/sendSms/index.ts
+index 195e000f..d5a6b0dd 100644
+--- a/packages/destination-actions/src/destinations/engage-messaging-twilio/sendSms/index.ts
++++ b/packages/destination-actions/src/destinations/engage-messaging-twilio/sendSms/index.ts
+@@ -152,7 +152,6 @@ const action: ActionDefinition<Settings, Payload> = {
+     const statsClient = statsContext?.statsClient
+     const tags = statsContext?.tags
+     tags?.push(`space_id:${settings.spaceId}`, `projectid:${settings.sourceId}`)
+-
+     if (!payload.send) {
+       statsClient?.incr('actions-personas-messaging-twilio.send-disabled', 1, tags)
+       return
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadCallConversion.test.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadCallConversion.test.ts
+deleted file mode 100644
+index 4f33564e..00000000
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadCallConversion.test.ts
++++ /dev/null
+@@ -1,69 +0,0 @@
+-import nock from 'nock'
+-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+-import GoogleEnhancedConversions from '../index'
+-
+-const testDestination = createTestIntegration(GoogleEnhancedConversions)
+-const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
+-const customerId = '1234'
+-
+-describe('GoogleEnhancedConversions', () => {
+-  describe('uploadCallConversion', () => {
+-    it('should send an event with default mappings', async () => {
+-      const event = createTestEvent({
+-        timestamp,
+-        event: 'Test Event',
+-        properties: {
+-          email: 'test@gmail.com',
+-          orderId: '1234',
+-          total: '200',
+-          currency: 'USD'
+-        }
+-      })
+-
+-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`).post('').reply(201, {})
+-
+-      const responses = await testDestination.testAction('uploadCallConversion', {
+-        event,
+-        mapping: { conversion_action: '12345', caller_id: '+1234567890' },
+-        useDefaultMappings: true,
+-        settings: {
+-          customerId
+-        }
+-      })
+-
+-      expect(responses[0].options.body).toMatchInlineSnapshot(
+-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"callerId\\":\\"+1234567890\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\"}],\\"partialFailure\\":true}"`
+-      )
+-
+-      expect(responses.length).toBe(1)
+-      expect(responses[0].status).toBe(201)
+-    })
+-
+-    it('should fail if customerId not set', async () => {
+-      const event = createTestEvent({
+-        timestamp,
+-        event: 'Test Event',
+-        properties: {
+-          email: 'test@gmail.com',
+-          orderId: '1234',
+-          total: '200',
+-          currency: 'USD'
+-        }
+-      })
+-
+-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadCallConversions`).post('').reply(201, {})
+-
+-      try {
+-        await testDestination.testAction('uploadCallConversion', {
+-          event,
+-          mapping: { conversion_action: '12345', caller_id: '+1234567890' },
+-          useDefaultMappings: true,
+-          settings: {}
+-        })
+-        fail('the test should have thrown an error')
+-      } catch (e) {
+-        expect(e.message).toBe('Customer id is required for this action. Please set it in destination settings.')
+-      }
+-    })
+-  })
+-})
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadClickConversion.test.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadClickConversion.test.ts
+deleted file mode 100644
+index ec6793eb..00000000
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadClickConversion.test.ts
++++ /dev/null
+@@ -1,131 +0,0 @@
+-import nock from 'nock'
+-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+-import GoogleEnhancedConversions from '../index'
+-
+-const testDestination = createTestIntegration(GoogleEnhancedConversions)
+-const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
+-const customerId = '1234'
+-
+-describe('GoogleEnhancedConversions', () => {
+-  describe('uploadClickConversion', () => {
+-    it('should send an event with default mappings', async () => {
+-      const event = createTestEvent({
+-        timestamp,
+-        event: 'Test Event',
+-        properties: {
+-          gclid: '54321',
+-          email: 'test@gmail.com',
+-          orderId: '1234',
+-          total: '200',
+-          currency: 'USD',
+-          products: [
+-            {
+-              product_id: '1234',
+-              quantity: 3,
+-              price: 10.99
+-            }
+-          ]
+-        }
+-      })
+-
+-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadClickConversions`)
+-        .post('')
+-        .reply(201, {})
+-
+-      const responses = await testDestination.testAction('uploadClickConversion', {
+-        event,
+-        mapping: { conversion_action: '12345' },
+-        useDefaultMappings: true,
+-        settings: {
+-          customerId
+-        }
+-      })
+-
+-      expect(responses[0].options.body).toMatchInlineSnapshot(
+-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
+-      )
+-
+-      expect(responses.length).toBe(1)
+-      expect(responses[0].status).toBe(201)
+-    })
+-
+-    it('should send email and phone user_identifiers', async () => {
+-      const event = createTestEvent({
+-        timestamp,
+-        event: 'Test Event',
+-        properties: {
+-          gclid: '54321',
+-          email: 'test@gmail.com',
+-          phone: '6161729102',
+-          orderId: '1234',
+-          total: '200',
+-          currency: 'USD',
+-          products: [
+-            {
+-              product_id: '1234',
+-              quantity: 3,
+-              price: 10.99
+-            }
+-          ]
+-        }
+-      })
+-
+-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadClickConversions`)
+-        .post('')
+-        .reply(201, {})
+-
+-      const responses = await testDestination.testAction('uploadClickConversion', {
+-        event,
+-        mapping: { conversion_action: '12345' },
+-        useDefaultMappings: true,
+-        settings: {
+-          customerId
+-        }
+-      })
+-
+-      expect(responses[0].options.body).toMatchInlineSnapshot(
+-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"1dba01a96da19f6df771cff07e0a8d822126709b82ae7adc6a3839b3aaa68a16\\"}]}],\\"partialFailure\\":true}"`
+-      )
+-
+-      expect(responses.length).toBe(1)
+-      expect(responses[0].status).toBe(201)
+-    })
+-
+-    it('should fail if customerId not set', async () => {
+-      const event = createTestEvent({
+-        timestamp,
+-        event: 'Test Event',
+-        properties: {
+-          gclid: '54321',
+-          email: 'test@gmail.com',
+-          orderId: '1234',
+-          total: '200',
+-          currency: 'USD',
+-          products: [
+-            {
+-              product_id: '1234',
+-              quantity: 3,
+-              price: 10.99
+-            }
+-          ]
+-        }
+-      })
+-
+-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadClickConversions`)
+-        .post('')
+-        .reply(201, {})
+-
+-      try {
+-        await testDestination.testAction('uploadClickConversion', {
+-          event,
+-          mapping: { conversion_action: '12345' },
+-          useDefaultMappings: true,
+-          settings: {}
+-        })
+-        fail('the test should have thrown an error')
+-      } catch (e) {
+-        expect(e.message).toBe('Customer id is required for this action. Please set it in destination settings.')
+-      }
+-    })
+-  })
+-})
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadConversionAdjustment.test.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadConversionAdjustment.test.ts
+deleted file mode 100644
+index cc72d028..00000000
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/__tests__/uploadConversionAdjustment.test.ts
++++ /dev/null
+@@ -1,204 +0,0 @@
+-import nock from 'nock'
+-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+-import GoogleEnhancedConversions from '../index'
+-
+-const testDestination = createTestIntegration(GoogleEnhancedConversions)
+-const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
+-const customerId = '1234'
+-
+-describe('GoogleEnhancedConversions', () => {
+-  describe('uploadConversionAdjustment', () => {
+-    it('should send an event with default mappings', async () => {
+-      const event = createTestEvent({
+-        timestamp,
+-        event: 'Test Event',
+-        properties: {
+-          gclid: '54321',
+-          email: 'test@gmail.com',
+-          orderId: '1234',
+-          phone: '1234567890',
+-          firstName: 'Jane',
+-          lastName: 'Doe',
+-          address: {
+-            street: '123 Street SW',
+-            city: 'San Diego',
+-            state: 'CA',
+-            postalCode: '982004'
+-          }
+-        }
+-      })
+-
+-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
+-        .post('')
+-        .reply(201, {})
+-
+-      const responses = await testDestination.testAction('uploadConversionAdjustment', {
+-        event,
+-        mapping: {
+-          gclid: '123a',
+-          conversion_action: '12345',
+-          adjustment_type: 'UNSPECIFIED',
+-          conversion_timestamp: timestamp
+-        },
+-        useDefaultMappings: true,
+-        settings: {
+-          customerId
+-        }
+-      })
+-
+-      expect(responses[0].options.body).toMatchInlineSnapshot()
+-
+-      expect(responses.length).toBe(1)
+-      expect(responses[0].status).toBe(201)
+-    })
+-
+-    it('should fail if customerId not set', async () => {
+-      const event = createTestEvent({
+-        timestamp,
+-        event: 'Test Event',
+-        properties: {
+-          gclid: '54321',
+-          email: 'test@gmail.com',
+-          orderId: '1234'
+-        }
+-      })
+-
+-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
+-        .post('')
+-        .reply(201, {})
+-
+-      try {
+-        await testDestination.testAction('uploadConversionAdjustment', {
+-          event,
+-          mapping: { gclid: '123a', conversion_action: '12345', adjustment_type: 'UNSPECIFIED' },
+-          useDefaultMappings: true,
+-          settings: {}
+-        })
+-        fail('the test should have thrown an error')
+-      } catch (e) {
+-        expect(e.message).toBe('Customer id is required for this action. Please set it in destination settings.')
+-      }
+-    })
+-
+-    it('should fail if conversion_type is enhancement and orderid not set', async () => {
+-      const event = createTestEvent({
+-        timestamp,
+-        event: 'Test Event',
+-        properties: {
+-          email: 'test@gmail.com',
+-          phone: '1234567890'
+-        }
+-      })
+-
+-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
+-        .post('')
+-        .reply(201, {})
+-
+-      try {
+-        await testDestination.testAction('uploadConversionAdjustment', {
+-          event,
+-          mapping: { gclid: '123a', conversion_action: '12345', adjustment_type: 'ENHANCEMENT' },
+-          useDefaultMappings: true,
+-          settings: {
+-            customerId
+-          }
+-        })
+-        fail('the test should have thrown an error')
+-      } catch (e) {
+-        expect(e.message).toBe('Order id required for enhancement conversion')
+-      }
+-    })
+-
+-    it('should fail if conversion_type is not enhancement and gclid not set', async () => {
+-      const event = createTestEvent({
+-        timestamp,
+-        event: 'Test Event',
+-        properties: {
+-          email: 'test@gmail.com',
+-          phone: '1234567890'
+-        }
+-      })
+-
+-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
+-        .post('')
+-        .reply(201, {})
+-
+-      try {
+-        await testDestination.testAction('uploadConversionAdjustment', {
+-          event,
+-          mapping: { conversion_action: '12345', adjustment_type: 'UNKNOWN' },
+-          useDefaultMappings: true,
+-          settings: {
+-            customerId
+-          }
+-        })
+-        fail('the test should have thrown an error')
+-      } catch (e) {
+-        expect(e.message).toBe('Gclid required for chosen conversion type')
+-      }
+-    })
+-
+-    it('should fail if conversion_type is not enhancement and conversion_timestamp not set', async () => {
+-      const event = createTestEvent({
+-        timestamp,
+-        event: 'Test Event',
+-        properties: {
+-          email: 'test@gmail.com',
+-          phone: '1234567890'
+-        }
+-      })
+-
+-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
+-        .post('')
+-        .reply(201, {})
+-
+-      try {
+-        await testDestination.testAction('uploadConversionAdjustment', {
+-          event,
+-          mapping: { gclid: '123a', conversion_action: '12345', adjustment_type: 'UNKNOWN' },
+-          useDefaultMappings: true,
+-          settings: {
+-            customerId
+-          }
+-        })
+-        fail('the test should have thrown an error')
+-      } catch (e) {
+-        expect(e.message).toBe('Conversion timestamp required for chosen conversion type')
+-      }
+-    })
+-
+-    it('should fail if conversion_type is not restatement and restatement_value not set', async () => {
+-      const event = createTestEvent({
+-        timestamp,
+-        event: 'Test Event',
+-        properties: {
+-          email: 'test@gmail.com',
+-          phone: '1234567890'
+-        }
+-      })
+-
+-      nock(`https://googleads.googleapis.com/v11/customers/${customerId}:uploadConversionAdjustments`)
+-        .post('')
+-        .reply(201, {})
+-
+-      try {
+-        await testDestination.testAction('uploadConversionAdjustment', {
+-          event,
+-          mapping: {
+-            gclid: '123a',
+-            conversion_action: '12345',
+-            adjustment_type: 'RESTATEMENT',
+-            conversion_timestamp: timestamp
+-          },
+-          useDefaultMappings: true,
+-          settings: {
+-            customerId
+-          }
+-        })
+-        fail('the test should have thrown an error')
+-      } catch (e) {
+-        expect(e.message).toBe('Restatement value required for restatement conversion')
+-      }
+-    })
+-  })
+-})
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/constants.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/constants.ts
+deleted file mode 100644
+index 248af59b..00000000
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/constants.ts
++++ /dev/null
+@@ -1,181 +0,0 @@
+-export const CURRENCY_ISO_CODES = [
+-  'AED',
+-  'AFN',
+-  'ALL',
+-  'AMD',
+-  'ANG',
+-  'AOA',
+-  'ARS',
+-  'AUD',
+-  'AWG',
+-  'AZN',
+-  'BAM',
+-  'BBD',
+-  'BDT',
+-  'BGN',
+-  'BHD',
+-  'BIF',
+-  'BMD',
+-  'BND',
+-  'BOB',
+-  'BOV',
+-  'BRL',
+-  'BSD',
+-  'BTN',
+-  'BWP',
+-  'BYN',
+-  'BZD',
+-  'CAD',
+-  'CDF',
+-  'CHE',
+-  'CHF',
+-  'CHW',
+-  'CLF',
+-  'CLP',
+-  'CNY',
+-  'COP',
+-  'COU',
+-  'CRC',
+-  'CUC',
+-  'CUP',
+-  'CVE',
+-  'CZK',
+-  'DJF',
+-  'DKK',
+-  'DOP',
+-  'DZD',
+-  'EGP',
+-  'ERN',
+-  'ETB',
+-  'EUR',
+-  'FJD',
+-  'FKP',
+-  'GBP',
+-  'GEL',
+-  'GHS',
+-  'GIP',
+-  'GMD',
+-  'GNF',
+-  'GTQ',
+-  'GYD',
+-  'HKD',
+-  'HNL',
+-  'HRK',
+-  'HTG',
+-  'HUF',
+-  'IDR',
+-  'ILS',
+-  'INR',
+-  'IQD',
+-  'IRR',
+-  'ISK',
+-  'JMD',
+-  'JOD',
+-  'JPY',
+-  'KES',
+-  'KGS',
+-  'KHR',
+-  'KMF',
+-  'KPW',
+-  'KRW',
+-  'KWD',
+-  'KYD',
+-  'KZT',
+-  'LAK',
+-  'LBP',
+-  'LKR',
+-  'LRD',
+-  'LSL',
+-  'LYD',
+-  'MAD',
+-  'MDL',
+-  'MGA',
+-  'MKD',
+-  'MMK',
+-  'MNT',
+-  'MOP',
+-  'MRU',
+-  'MUR',
+-  'MVR',
+-  'MWK',
+-  'MXN',
+-  'MXV',
+-  'MYR',
+-  'MZN',
+-  'NAD',
+-  'NGN',
+-  'NIO',
+-  'NOK',
+-  'NPR',
+-  'NZD',
+-  'OMR',
+-  'PAB',
+-  'PEN',
+-  'PGK',
+-  'PHP',
+-  'PKR',
+-  'PLN',
+-  'PYG',
+-  'QAR',
+-  'RON',
+-  'RSD',
+-  'RUB',
+-  'RWF',
+-  'SAR',
+-  'SBD',
+-  'SCR',
+-  'SDG',
+-  'SEK',
+-  'SGD',
+-  'SHP',
+-  'SLL',
+-  'SOS',
+-  'SRD',
+-  'SSP',
+-  'STN',
+-  'SVC',
+-  'SYP',
+-  'SZL',
+-  'THB',
+-  'TJS',
+-  'TMT',
+-  'TND',
+-  'TOP',
+-  'TRY',
+-  'TTD',
+-  'TWD',
+-  'TZS',
+-  'UAH',
+-  'UGX',
+-  'USD',
+-  'USN',
+-  'UYI',
+-  'UYU',
+-  'UYW',
+-  'UZS',
+-  'VES',
+-  'VND',
+-  'VUV',
+-  'WST',
+-  'XAF',
+-  'XAG',
+-  'XAU',
+-  'XBA',
+-  'XBB',
+-  'XBC',
+-  'XBD',
+-  'XCD',
+-  'XDR',
+-  'XOF',
+-  'XPD',
+-  'XPF',
+-  'XPT',
+-  'XSU',
+-  'XTS',
+-  'XUA',
+-  'XXX',
+-  'YER',
+-  'ZAR',
+-  'ZMW',
+-  'ZWC'
+-]
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/functions.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/functions.ts
+deleted file mode 100644
+index 9e2614aa..00000000
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/functions.ts
++++ /dev/null
+@@ -1,38 +0,0 @@
+-import { IntegrationError } from '@segment/actions-core'
+-import { CURRENCY_ISO_CODES } from './constants'
+-import { createHash } from 'crypto'
+-
+-export function verifyCurrency(currency: string): void {
+-  if (!CURRENCY_ISO_CODES.includes(currency.toUpperCase())) {
+-    throw new IntegrationError(`${currency} is not a valid currency code.`, 'Incorrect value format', 400)
+-  }
+-}
+-
+-export const formatCustomVariables = (
+-  customVariables: object | undefined,
+-  customer_id: string | undefined
+-): object | undefined => {
+-  if (!customVariables) {
+-    return undefined
+-  }
+-
+-  const variables: { conversionCustomVariable: string; value: string }[] = []
+-
+-  Object.entries(customVariables).forEach(([key, value]) => {
+-    const variable = {
+-      conversionCustomVariable: `customers/${customer_id}/conversionCustomVariables/${key}`,
+-      value: value
+-    }
+-    variables.push(variable)
+-  })
+-
+-  return variables
+-}
+-
+-export const hash = (value: string | undefined): string | undefined => {
+-  if (value === undefined) return
+-
+-  const hash = createHash('sha256')
+-  hash.update(value)
+-  return hash.digest('hex')
+-}
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/generated-types.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/generated-types.ts
+index fa3ee4b7..3d16ca89 100644
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/generated-types.ts
++++ b/packages/destination-actions/src/destinations/google-enhanced-conversions/generated-types.ts
+@@ -2,11 +2,7 @@
+ 
+ export interface Settings {
+   /**
+-   * You will find this information in the event snippet for your conversion action, for example `send_to: AW-CONVERSION_ID/AW-CONVERSION_LABEL`. In the sample snippet, AW-CONVERSION_ID stands for the conversion ID unique to your account. Enter the conversion Id, without the AW- prefix. **Required if you are using an Action that sends data to the legacy Google Enhanced Conversions API.**
++   * You will find this information in the event snippet for your conversion action, for example `send_to: AW-CONVERSION_ID/AW-CONVERSION_LABEL`. In the sample snippet, AW-CONVERSION_ID stands for the conversion ID unique to your account. Enter the conversion Id, without the AW- prefix.
+    */
+-  conversionTrackingId?: string
+-  /**
+-   * ID of your Google Ads Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you are using an Action that sends data to the Google Ads API.**
+-   */
+-  customerId?: string
++  conversionTrackingId: string
+ }
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/index.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/index.ts
+index cf515cd4..e76a470f 100644
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/index.ts
++++ b/packages/destination-actions/src/destinations/google-enhanced-conversions/index.ts
+@@ -1,9 +1,6 @@
+ import { DestinationDefinition } from '@segment/actions-core'
+ import type { Settings } from './generated-types'
+ import postConversion from './postConversion'
+-import uploadClickConversion from './uploadClickConversion'
+-import uploadCallConversion from './uploadCallConversion'
+-import uploadConversionAdjustment from './uploadConversionAdjustment'
+ 
+ interface RefreshTokenResponse {
+   access_token: string
+@@ -30,14 +27,9 @@ const destination: DestinationDefinition<Settings> = {
+       conversionTrackingId: {
+         label: 'Conversion ID',
+         description:
+-          'You will find this information in the event snippet for your conversion action, for example `send_to: AW-CONVERSION_ID/AW-CONVERSION_LABEL`. In the sample snippet, AW-CONVERSION_ID stands for the conversion ID unique to your account. Enter the conversion Id, without the AW- prefix. **Required if you are using an Action that sends data to the legacy Google Enhanced Conversions API.**',
+-        type: 'string'
+-      },
+-      customerId: {
+-        label: 'Customer ID',
+-        description:
+-          'ID of your Google Ads Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you are using an Action that sends data to the Google Ads API.**',
+-        type: 'string'
++          'You will find this information in the event snippet for your conversion action, for example `send_to: AW-CONVERSION_ID/AW-CONVERSION_LABEL`. In the sample snippet, AW-CONVERSION_ID stands for the conversion ID unique to your account. Enter the conversion Id, without the AW- prefix.',
++        type: 'string',
++        required: true
+       }
+     },
+     testAuthentication: async (_request) => {
+@@ -45,6 +37,7 @@ const destination: DestinationDefinition<Settings> = {
+       const res = await request<UserInfoResponse>('https://www.googleapis.com/oauth2/v3/userinfo', {
+         method: 'GET'
+       })
++
+       return { name: res.data.name || res.data.email }
+       */
+       return true
+@@ -63,18 +56,18 @@ const destination: DestinationDefinition<Settings> = {
+       return { accessToken: res.data.access_token }
+     }
+   },
+-  extendRequest({ auth }) {
++  extendRequest({ settings, auth }) {
+     return {
+       headers: {
+         authorization: `Bearer ${auth?.accessToken}`
++      },
++      searchParams: {
++        conversion_tracking_id: settings.conversionTrackingId
+       }
+     }
+   },
+   actions: {
+-    postConversion,
+-    uploadClickConversion,
+-    uploadCallConversion,
+-    uploadConversionAdjustment
++    postConversion
+   }
+ }
+ 
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/postConversion/index.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/postConversion/index.ts
+index 0223bfa3..339bf916 100644
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/postConversion/index.ts
++++ b/packages/destination-actions/src/destinations/google-enhanced-conversions/postConversion/index.ts
+@@ -209,15 +209,7 @@ const action: ActionDefinition<Settings, Payload> = {
+     }
+   },
+ 
+-  perform: async (request, { payload, settings }) => {
+-    if (!settings.conversionTrackingId) {
+-      throw new IntegrationError(
+-        'Conversion tracking id is required for this action. Please set it in destination settings.',
+-        'Missing required fields.',
+-        400
+-      )
+-    }
+-
++  perform: async (request, { payload }) => {
+     const conversionData = cleanData({
+       oid: payload.transaction_id,
+       user_agent: payload.user_agent,
+@@ -255,9 +247,6 @@ const action: ActionDefinition<Settings, Payload> = {
+     try {
+       return await request('https://www.google.com/ads/event/api/v1', {
+         method: 'post',
+-        searchParams: {
+-          conversion_tracking_id: settings.conversionTrackingId
+-        },
+         json: {
+           pii_data: { ...pii_data, address: [address] },
+           ...conversionData
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadCallConversion/generated-types.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadCallConversion/generated-types.ts
+deleted file mode 100644
+index 9b4b5827..00000000
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadCallConversion/generated-types.ts
++++ /dev/null
+@@ -1,34 +0,0 @@
+-// Generated file. DO NOT MODIFY IT BY HAND.
+-
+-export interface Payload {
+-  /**
+-   * The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for ctId in the URL. For example, if the URL is https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000, your Conversion Action ID is 570000000.
+-   */
+-  conversion_action: string
+-  /**
+-   * The caller id from which this call was placed. Caller id is expected to be in E.164 format with preceding + sign. e.g. "+16502531234".
+-   */
+-  caller_id: string
+-  /**
+-   * The date time at which the call occurred. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".
+-   */
+-  call_timestamp?: string
+-  /**
+-   * The date time at which the conversion occurred. Must be after the click time. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".
+-   */
+-  conversion_timestamp: string
+-  /**
+-   * The value of the conversion for the advertiser.
+-   */
+-  value?: number
+-  /**
+-   * Currency associated with the conversion value. This is the ISO 4217 3-character currency code.
+-   */
+-  currency?: string
+-  /**
+-   * The custom variables associated with this conversion. See Google’s documentation on how to create custom conversion variables.
+-   */
+-  custom_variables?: {
+-    [k: string]: unknown
+-  }
+-}
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadCallConversion/index.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadCallConversion/index.ts
+deleted file mode 100644
+index f889c8cd..00000000
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadCallConversion/index.ts
++++ /dev/null
+@@ -1,118 +0,0 @@
+-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+-import type { Settings } from '../generated-types'
+-import type { Payload } from './generated-types'
+-import { formatCustomVariables, verifyCurrency } from '../functions'
+-
+-const action: ActionDefinition<Settings, Payload> = {
+-  title: 'Upload Call Conversion',
+-  description: 'Upload an offline call conversion to the Google Ads API.',
+-  fields: {
+-    conversion_action: {
+-      label: 'Conversion Action ID',
+-      description:
+-        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for ctId in the URL. For example, if the URL is https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000, your Conversion Action ID is 570000000.',
+-      type: 'string',
+-      required: true,
+-      default: ''
+-    },
+-    caller_id: {
+-      label: 'Caller ID',
+-      description:
+-        'The caller id from which this call was placed. Caller id is expected to be in E.164 format with preceding + sign. e.g. "+16502531234".',
+-      type: 'string',
+-      required: true,
+-      default: ''
+-    },
+-    call_timestamp: {
+-      label: 'Call Timestamp',
+-      description:
+-        'The date time at which the call occurred. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".',
+-      type: 'string'
+-    },
+-    conversion_timestamp: {
+-      label: 'Conversion Timestamp',
+-      description:
+-        'The date time at which the conversion occurred. Must be after the click time. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".',
+-      type: 'string',
+-      required: true,
+-      default: {
+-        '@path': '$.timestamp'
+-      }
+-    },
+-    value: {
+-      label: 'Value',
+-      description: 'The value of the conversion for the advertiser.',
+-      type: 'number',
+-      default: {
+-        '@path': '$.properties.total'
+-      }
+-    },
+-    currency: {
+-      label: 'Currency',
+-      description: 'Currency associated with the conversion value. This is the ISO 4217 3-character currency code.',
+-      type: 'string',
+-      default: {
+-        '@path': '$.properties.currency'
+-      }
+-    },
+-    custom_variables: {
+-      label: 'Custom Variables',
+-      description:
+-        'The custom variables associated with this conversion. See Google’s documentation on how to create custom conversion variables.',
+-      type: 'object',
+-      additionalProperties: true,
+-      defaultObjectUI: 'keyvalue'
+-    }
+-  },
+-  perform: async (request, { settings, payload }) => {
+-    if (!settings.customerId) {
+-      throw new IntegrationError(
+-        'Customer id is required for this action. Please set it in destination settings.',
+-        'Missing required fields.',
+-        400
+-      )
+-    }
+-
+-    settings.customerId = settings.customerId.replace(/[^0-9.]+/g, '')
+-
+-    if (payload.currency) {
+-      verifyCurrency(payload.currency)
+-    }
+-
+-    const request_object: { [key: string]: any } = {
+-      conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
+-      callerId: payload.caller_id,
+-      callStartDateTime: payload.call_timestamp,
+-      conversionDateTime: payload.conversion_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
+-      conversionValue: payload.value,
+-      currencyCode: payload.currency,
+-      customVariables: formatCustomVariables(payload.custom_variables, settings.customerId)
+-    }
+-
+-    const response = await request(
+-      `https://googleads.googleapis.com/v11/customers/${settings.customerId}:uploadCallConversions`,
+-      {
+-        method: 'post',
+-        headers: {
+-          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+-        },
+-        json: {
+-          conversions: [request_object],
+-          partialFailure: true
+-        }
+-      }
+-    )
+-
+-    // Catch and return partial failure error
+-    if (typeof response.data === 'object' && response.data != null) {
+-      Object.entries(response.data).forEach(([key, value]) => {
+-        if (key === 'partialFailureError' && value.code !== 0) {
+-          throw new IntegrationError(value.message, 'INVALID_ARGUMENT', 400)
+-        }
+-      })
+-    }
+-    return response
+-  }
+-}
+-
+-export default action
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadClickConversion/generated-types.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadClickConversion/generated-types.ts
+deleted file mode 100644
+index f598d264..00000000
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadClickConversion/generated-types.ts
++++ /dev/null
+@@ -1,87 +0,0 @@
+-// Generated file. DO NOT MODIFY IT BY HAND.
+-
+-export interface Payload {
+-  /**
+-   * The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for ctId in the URL. For example, if the URL is https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000, your Conversion Action ID is 570000000.
+-   */
+-  conversion_action: string
+-  /**
+-   * The Google click ID (gclid) associated with this conversion.
+-   */
+-  gclid?: string
+-  /**
+-   * The click identifier for clicks associated with app conversions and originating from iOS devices starting with iOS14.
+-   */
+-  gbraid?: string
+-  /**
+-   * The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14.
+-   */
+-  wbraid?: string
+-  /**
+-   * The date time at which the conversion occurred. Must be after the click time. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".
+-   */
+-  conversion_timestamp: string
+-  /**
+-   * Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.
+-   */
+-  email_address?: string
+-  /**
+-   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.
+-   */
+-  phone_number?: string
+-  /**
+-   * The order ID associated with the conversion. An order id can only be used for one conversion per conversion action.
+-   */
+-  order_id?: string
+-  /**
+-   * The value of the conversion for the advertiser.
+-   */
+-  value?: number
+-  /**
+-   * Currency associated with the conversion value. This is the ISO 4217 3-character currency code.
+-   */
+-  currency?: string
+-  /**
+-   * The environment this conversion was recorded on. e.g. App or Web.
+-   */
+-  conversion_environment?: string
+-  /**
+-   * The ID of the Merchant Center account where the items are uploaded.
+-   */
+-  merchant_id?: string
+-  /**
+-   * The ISO 3166 two-character region code of the Merchant Center feed where the items are uploaded.
+-   */
+-  merchant_country_code?: string
+-  /**
+-   * The ISO 639-1 language code of the Merchant Center feed where the items are uploaded.
+-   */
+-  merchant_language_code?: string
+-  /**
+-   * Sum of all transaction-level discounts, such as free shipping and coupon discounts for the whole cart.
+-   */
+-  local_cost?: number & string
+-  /**
+-   * Data of the items purchased.
+-   */
+-  items?: {
+-    /**
+-     * The ID of the item sold.
+-     */
+-    product_id?: string
+-    /**
+-     * Number of items sold.
+-     */
+-    quantity?: number
+-    /**
+-     * Unit price excluding tax, shipping, and any transaction level discounts.
+-     */
+-    price?: number
+-  }[]
+-  /**
+-   * The custom variables associated with this conversion. See Google’s documentation on how to create custom conversion variables.
+-   */
+-  custom_variables?: {
+-    [k: string]: unknown
+-  }
+-}
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadClickConversion/index.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadClickConversion/index.ts
+deleted file mode 100644
+index a61f93af..00000000
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadClickConversion/index.ts
++++ /dev/null
+@@ -1,264 +0,0 @@
+-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+-import type { Settings } from '../generated-types'
+-import type { Payload } from './generated-types'
+-import { CartItem } from './types'
+-import { formatCustomVariables, verifyCurrency, hash } from '../functions'
+-
+-const action: ActionDefinition<Settings, Payload> = {
+-  title: 'Upload Click Conversion',
+-  description: 'Upload an offline click conversion to the Google Ads API.',
+-  fields: {
+-    conversion_action: {
+-      label: 'Conversion Action ID',
+-      description:
+-        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for ctId in the URL. For example, if the URL is https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=570000000, your Conversion Action ID is 570000000.',
+-      type: 'string',
+-      required: true,
+-      default: ''
+-    },
+-    gclid: {
+-      label: 'GCLID',
+-      description: 'The Google click ID (gclid) associated with this conversion.',
+-      type: 'string',
+-      default: ''
+-    },
+-    gbraid: {
+-      label: 'GBRAID',
+-      description:
+-        'The click identifier for clicks associated with app conversions and originating from iOS devices starting with iOS14.',
+-      type: 'string',
+-      default: ''
+-    },
+-    wbraid: {
+-      label: 'WBRAID',
+-      description:
+-        'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14.',
+-      type: 'string',
+-      default: ''
+-    },
+-    conversion_timestamp: {
+-      label: 'Conversion Timestamp',
+-      description:
+-        'The date time at which the conversion occurred. Must be after the click time. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".',
+-      type: 'string',
+-      required: true,
+-      default: {
+-        '@path': '$.timestamp'
+-      }
+-    },
+-    email_address: {
+-      label: 'Email Address',
+-      description:
+-        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
+-      type: 'string',
+-      format: 'email',
+-      default: {
+-        '@if': {
+-          exists: { '@path': '$.properties.email' },
+-          then: { '@path': '$.properties.email' },
+-          else: { '@path': '$context.traits.email' }
+-        }
+-      }
+-    },
+-    phone_number: {
+-      label: 'Phone Number',
+-      description:
+-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.',
+-      type: 'string',
+-      default: {
+-        '@if': {
+-          exists: { '@path': '$.properties.phone' },
+-          then: { '@path': '$.properties.phone' },
+-          else: { '@path': '$context.traits.phone' }
+-        }
+-      }
+-    },
+-    order_id: {
+-      label: 'Order ID',
+-      description:
+-        'The order ID associated with the conversion. An order id can only be used for one conversion per conversion action.',
+-      type: 'string',
+-      default: {
+-        '@path': '$.properties.orderId'
+-      }
+-    },
+-    value: {
+-      label: 'Value',
+-      description: 'The value of the conversion for the advertiser.',
+-      type: 'number',
+-      default: {
+-        '@path': '$.properties.total'
+-      }
+-    },
+-    currency: {
+-      label: 'Currency',
+-      description: 'Currency associated with the conversion value. This is the ISO 4217 3-character currency code.',
+-      type: 'string',
+-      default: {
+-        '@path': '$.properties.currency'
+-      }
+-    },
+-    conversion_environment: {
+-      label: 'Conversion Environment',
+-      description: 'The environment this conversion was recorded on. e.g. App or Web.',
+-      type: 'string',
+-      choices: [
+-        { label: 'APP', value: 'APP' },
+-        { label: 'WEB', value: 'WEB' },
+-        { label: `UNSPECIFIED`, value: 'UNSPECIFIED' }
+-      ]
+-    },
+-    merchant_id: {
+-      label: 'Merchant Center ID',
+-      description: 'The ID of the Merchant Center account where the items are uploaded.',
+-      type: 'string',
+-      default: ''
+-    },
+-    merchant_country_code: {
+-      label: 'Merchant Center Feed Country Code',
+-      description: 'The ISO 3166 two-character region code of the Merchant Center feed where the items are uploaded.',
+-      type: 'string',
+-      default: ''
+-    },
+-    merchant_language_code: {
+-      label: 'Merchant Center Feed Language Code',
+-      description: 'The ISO 639-1 language code of the Merchant Center feed where the items are uploaded.',
+-      type: 'string',
+-      default: ''
+-    },
+-    local_cost: {
+-      label: 'Local Transaction Cost',
+-      description:
+-        'Sum of all transaction-level discounts, such as free shipping and coupon discounts for the whole cart.',
+-      type: 'number',
+-      default: ''
+-    },
+-    items: {
+-      label: 'Items',
+-      description: 'Data of the items purchased.',
+-      type: 'object',
+-      multiple: true,
+-      properties: {
+-        product_id: {
+-          label: 'Product ID',
+-          type: 'string',
+-          description: 'The ID of the item sold.'
+-        },
+-        quantity: {
+-          label: 'Quantity',
+-          type: 'number',
+-          description: 'Number of items sold.'
+-        },
+-        price: {
+-          label: 'Price',
+-          type: 'number',
+-          description: 'Unit price excluding tax, shipping, and any transaction level discounts.'
+-        }
+-      },
+-      default: {
+-        '@arrayPath': [
+-          '$.properties.products',
+-          {
+-            product_id: {
+-              '@path': '$.product_id'
+-            },
+-            quantity: {
+-              '@path': '$.quantity'
+-            },
+-            price: {
+-              '@path': '$.price'
+-            }
+-          }
+-        ]
+-      }
+-    },
+-    custom_variables: {
+-      label: 'Custom Variables',
+-      description:
+-        'The custom variables associated with this conversion. See Google’s documentation on how to create custom conversion variables.',
+-      type: 'object',
+-      additionalProperties: true,
+-      defaultObjectUI: 'keyvalue'
+-    }
+-  },
+-  perform: async (request, { settings, payload }) => {
+-    if (!settings.customerId) {
+-      throw new IntegrationError(
+-        'Customer id is required for this action. Please set it in destination settings.',
+-        'Missing required fields.',
+-        400
+-      )
+-    }
+-    settings.customerId = settings.customerId.replace(/[^0-9.]+/g, '')
+-
+-    let cartItems: CartItem[] = []
+-    if (payload.items) {
+-      cartItems = payload.items.map((product) => {
+-        return {
+-          productId: product.product_id,
+-          quantity: product.quantity,
+-          unitPrice: product.price
+-        } as CartItem
+-      })
+-    }
+-
+-    if (payload.currency) {
+-      verifyCurrency(payload.currency)
+-    }
+-
+-    const request_object: { [key: string]: any } = {
+-      conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
+-      conversionDateTime: payload.conversion_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
+-      gclid: payload.gclid,
+-      gbraid: payload.gbraid,
+-      wbraid: payload.wbraid,
+-      orderId: payload.order_id,
+-      conversionValue: payload.value,
+-      currencyCode: payload.currency,
+-      conversionEnvironment: payload.conversion_environment,
+-      cartData: {
+-        merchantId: payload.merchant_id,
+-        feedCountryCode: payload.merchant_country_code,
+-        feedLanguageCode: payload.merchant_language_code,
+-        localTransactionCost: payload.local_cost,
+-        items: cartItems
+-      },
+-      userIdentifiers: [],
+-      customVariables: formatCustomVariables(payload.custom_variables, settings.customerId)
+-    }
+-
+-    if (payload.email_address) {
+-      request_object.userIdentifiers.push({ hashedEmail: hash(payload.email_address) })
+-    }
+-
+-    if (payload.phone_number) {
+-      request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
+-    }
+-
+-    const response = await request(
+-      `https://googleads.googleapis.com/v11/customers/${settings.customerId}:uploadClickConversions`,
+-      {
+-        method: 'post',
+-        headers: {
+-          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+-        },
+-        json: {
+-          conversions: [request_object],
+-          partialFailure: true
+-        }
+-      }
+-    )
+-
+-    // Catch and return partial failure error
+-    if (typeof response.data === 'object' && response.data != null) {
+-      Object.entries(response.data).forEach(([key, value]) => {
+-        if (key === 'partialFailureError' && value.code !== 0) {
+-          throw new IntegrationError(value.message, 'INVALID_ARGUMENT', 400)
+-        }
+-      })
+-    }
+-    return response
+-  }
+-}
+-
+-export default action
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadClickConversion/types.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadClickConversion/types.ts
+deleted file mode 100644
+index a96db086..00000000
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadClickConversion/types.ts
++++ /dev/null
+@@ -1,5 +0,0 @@
+-export interface CartItem {
+-  productId?: string
+-  quantity?: number
+-  unitPrice?: number
+-}
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadConversionAdjustment/generated-types.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadConversionAdjustment/generated-types.ts
+deleted file mode 100644
+index ac1f9890..00000000
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadConversionAdjustment/generated-types.ts
++++ /dev/null
+@@ -1,76 +0,0 @@
+-// Generated file. DO NOT MODIFY IT BY HAND.
+-
+-export interface Payload {
+-  /**
+-   * The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for ctId in the URL. For example, if the URL is https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=576882000, your Conversion Action ID is 576882000.
+-   */
+-  conversion_action: string
+-  /**
+-   * The adjustment type. See Google’s documentation for details on each type.
+-   */
+-  adjustment_type: string
+-  /**
+-   * The date time at which the adjustment occurred. Must be after the conversion_date_time. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".
+-   */
+-  adjustment_timestamp: string
+-  /**
+-   * The order ID of the conversion to be adjusted. If the conversion was reported with an order ID specified, that order ID must be used as the identifier here. Required for ENHANCEMENT adjustments.
+-   */
+-  order_id?: string
+-  /**
+-   * Google click ID associated with the original conversion for this adjustment. This is used for the GCLID Date Time Pair. Required for non-ENHANCEMENT adjustments. If adjustment is ENHANCEMENT, this value is optional but may be set in addition to the order ID.
+-   */
+-  gclid?: string
+-  /**
+-   * The date time at which the original conversion for this adjustment occurred. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00". This is used for the GCLID Date Time Pair. Required for non-ENHANCEMENT adjustments. If adjustment is ENHANCEMENT, this value is optional but may be set in addition to the order ID.
+-   */
+-  conversion_timestamp?: string
+-  /**
+-   * The restated conversion value. This is the value of the conversion after restatement. For example, to change the value of a conversion from 100 to 70, an adjusted value of 70 should be reported. Required for RESTATEMENT adjustments.
+-   */
+-  restatement_value?: number & string
+-  /**
+-   * The currency of the restated value. If not provided, then the default currency from the conversion action is used, and if that is not set then the account currency is used. This is the ISO 4217 3-character currency code e.g. USD or EUR.
+-   */
+-  restatement_currency_code?: string
+-  /**
+-   * Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.
+-   */
+-  email_address?: string
+-  /**
+-   * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.
+-   */
+-  phone_number?: string
+-  /**
+-   * First name of the user who performed the conversion. Segment will hash this value before sending to Google.
+-   */
+-  first_name?: string
+-  /**
+-   * Last name of the user who performed the conversion. Segment will hash this value before sending to Google.
+-   */
+-  last_name?: string
+-  /**
+-   * City of the user who performed the conversion.
+-   */
+-  city?: string
+-  /**
+-   * State of the user who performed the conversion.
+-   */
+-  state?: string
+-  /**
+-   * 2-letter country code in ISO-3166-1 alpha-2 of the user who performed the conversion.
+-   */
+-  country?: string
+-  /**
+-   * Postal code of the user who performed the conversion.
+-   */
+-  postal_code?: string
+-  /**
+-   * Street address of the user who performed the conversion. Segment will hash this value before sending to Google.
+-   */
+-  street_address?: string
+-  /**
+-   * The user agent to enhance the original conversion. User agent can only be specified in enhancements with user identifiers. This should match the user agent of the request that sent the original conversion so the conversion and its enhancement are either both attributed as same-device or both attributed as cross-device.
+-   */
+-  user_agent?: string
+-}
+diff --git a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadConversionAdjustment/index.ts b/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadConversionAdjustment/index.ts
+deleted file mode 100644
+index 6d19e9cd..00000000
+--- a/packages/destination-actions/src/destinations/google-enhanced-conversions/uploadConversionAdjustment/index.ts
++++ /dev/null
+@@ -1,299 +0,0 @@
+-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+-import { hash } from '../functions'
+-import type { Settings } from '../generated-types'
+-import type { Payload } from './generated-types'
+-
+-const action: ActionDefinition<Settings, Payload> = {
+-  title: 'Upload Conversion Adjustment',
+-  description: 'Upload a conversion adjustment to the Google Ads API.',
+-  fields: {
+-    conversion_action: {
+-      label: 'Conversion Action ID',
+-      description:
+-        'The ID of the conversion action associated with this conversion. To find the Conversion Action ID, click on your conversion in Google Ads and get the value for ctId in the URL. For example, if the URL is https://ads.google.com/aw/conversions/detail?ocid=00000000&ctId=576882000, your Conversion Action ID is 576882000.',
+-      type: 'string',
+-      required: true,
+-      default: ''
+-    },
+-    adjustment_type: {
+-      label: 'Adjustment Type',
+-      description: 'The adjustment type. See Google’s documentation for details on each type.',
+-      type: 'string',
+-      choices: [
+-        { label: 'UNSPECIFIED', value: 'UNSPECIFIED' },
+-        { label: 'UNKNOWN', value: 'UNKNOWN' },
+-        { label: `RETRACTION`, value: 'RETRACTION' },
+-        { label: 'RESTATEMENT', value: 'RESTATEMENT' },
+-        { label: `ENHANCEMENT`, value: 'ENHANCEMENT' }
+-      ],
+-      required: true
+-    },
+-    adjustment_timestamp: {
+-      label: 'Adjustment Timestamp',
+-      description:
+-        'The date time at which the adjustment occurred. Must be after the conversion_date_time. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00".',
+-      type: 'string',
+-      required: true,
+-      default: {
+-        '@path': '$.timestamp'
+-      }
+-    },
+-    order_id: {
+-      label: 'Order ID',
+-      description:
+-        'The order ID of the conversion to be adjusted. If the conversion was reported with an order ID specified, that order ID must be used as the identifier here. Required for ENHANCEMENT adjustments.',
+-      type: 'string',
+-      default: {
+-        '@path': '$.properties.orderId'
+-      }
+-    },
+-    gclid: {
+-      label: 'GCLID',
+-      description:
+-        'Google click ID associated with the original conversion for this adjustment. This is used for the GCLID Date Time Pair. Required for non-ENHANCEMENT adjustments. If adjustment is ENHANCEMENT, this value is optional but may be set in addition to the order ID.',
+-      type: 'string',
+-      default: ''
+-    },
+-    conversion_timestamp: {
+-      label: 'Conversion Timestamp',
+-      description:
+-        'The date time at which the original conversion for this adjustment occurred. The timezone must be specified. The format is "yyyy-mm-dd hh:mm:ss+|-hh:mm", e.g. "2019-01-01 12:32:45-08:00". This is used for the GCLID Date Time Pair. Required for non-ENHANCEMENT adjustments. If adjustment is ENHANCEMENT, this value is optional but may be set in addition to the order ID.',
+-      type: 'string',
+-      default: ''
+-    },
+-    restatement_value: {
+-      label: 'Restatement Value',
+-      description:
+-        'The restated conversion value. This is the value of the conversion after restatement. For example, to change the value of a conversion from 100 to 70, an adjusted value of 70 should be reported. Required for RESTATEMENT adjustments.',
+-      type: 'number',
+-      default: ''
+-    },
+-    restatement_currency_code: {
+-      label: 'Restatement Currency Code',
+-      description:
+-        'The currency of the restated value. If not provided, then the default currency from the conversion action is used, and if that is not set then the account currency is used. This is the ISO 4217 3-character currency code e.g. USD or EUR.',
+-      type: 'string',
+-      default: ''
+-    },
+-    email_address: {
+-      label: 'Email Address',
+-      description:
+-        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
+-      type: 'string',
+-      format: 'email',
+-      default: {
+-        '@if': {
+-          exists: { '@path': '$.properties.email' },
+-          then: { '@path': '$.properties.email' },
+-          else: { '@path': '$context.traits.email' }
+-        }
+-      }
+-    },
+-    phone_number: {
+-      label: 'Phone Number',
+-      description:
+-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.',
+-      type: 'string',
+-      default: {
+-        '@if': {
+-          exists: { '@path': '$.properties.phone' },
+-          then: { '@path': '$.properties.phone' },
+-          else: { '@path': '$context.traits.phone' }
+-        }
+-      }
+-    },
+-    first_name: {
+-      label: 'First Name',
+-      description:
+-        'First name of the user who performed the conversion. Segment will hash this value before sending to Google.',
+-      type: 'string',
+-      default: {
+-        '@if': {
+-          exists: { '@path': '$.properties.firstName' },
+-          then: { '@path': '$.properties.firstName' },
+-          else: { '@path': '$context.traits.firstName' }
+-        }
+-      }
+-    },
+-    last_name: {
+-      label: 'Last Name',
+-      description:
+-        'Last name of the user who performed the conversion. Segment will hash this value before sending to Google.',
+-      type: 'string',
+-      default: {
+-        '@if': {
+-          exists: { '@path': '$.properties.lastName' },
+-          then: { '@path': '$.properties.lastName' },
+-          else: { '@path': '$context.traits.lastName' }
+-        }
+-      }
+-    },
+-    city: {
+-      label: 'City',
+-      description: 'City of the user who performed the conversion.',
+-      type: 'string',
+-      default: {
+-        '@if': {
+-          exists: { '@path': '$.properties.address.city,' },
+-          then: { '@path': '$.properties.address.city,' },
+-          else: { '@path': '$.context.traits.address.city' }
+-        }
+-      }
+-    },
+-    state: {
+-      label: 'State',
+-      description: 'State of the user who performed the conversion.',
+-      type: 'string',
+-      default: {
+-        '@if': {
+-          exists: { '@path': '$.properties.address.state,' },
+-          then: { '@path': '$.properties.address.state,' },
+-          else: { '@path': '$.context.traits.address.state' }
+-        }
+-      }
+-    },
+-    country: {
+-      label: 'Country',
+-      description: '2-letter country code in ISO-3166-1 alpha-2 of the user who performed the conversion.',
+-      type: 'string',
+-      default: {
+-        '@if': {
+-          exists: { '@path': '$.properties.address.country,' },
+-          then: { '@path': '$.properties.address.country,' },
+-          else: { '@path': '$.context.traits.address.country' }
+-        }
+-      }
+-    },
+-    postal_code: {
+-      label: 'Postal Code',
+-      description: 'Postal code of the user who performed the conversion.',
+-      type: 'string',
+-      default: {
+-        '@if': {
+-          exists: { '@path': '$.properties.address.postalCode,' },
+-          then: { '@path': '$.properties.address.postalCode,' },
+-          else: { '@path': '$.context.traits.address.postalCode' }
+-        }
+-      }
+-    },
+-    street_address: {
+-      label: 'Street Address',
+-      description:
+-        'Street address of the user who performed the conversion. Segment will hash this value before sending to Google.',
+-      type: 'string',
+-      default: {
+-        '@if': {
+-          exists: { '@path': '$.properties.address.street,' },
+-          then: { '@path': '$.properties.address.street,' },
+-          else: { '@path': '$.context.traits.address.street' }
+-        }
+-      }
+-    },
+-    user_agent: {
+-      label: 'User Agent',
+-      description:
+-        'The user agent to enhance the original conversion. User agent can only be specified in enhancements with user identifiers. This should match the user agent of the request that sent the original conversion so the conversion and its enhancement are either both attributed as same-device or both attributed as cross-device.',
+-      type: 'string',
+-      default: {
+-        '@path': '$.context.userAgent'
+-      }
+-    }
+-  },
+-  perform: async (request, { settings, payload }) => {
+-    if (!settings.customerId) {
+-      throw new IntegrationError(
+-        'Customer id is required for this action. Please set it in destination settings.',
+-        'Missing required fields.',
+-        400
+-      )
+-    }
+-    settings.customerId = settings.customerId.replace(/[^0-9.]+/g, '')
+-
+-    // Ensuring the required values are set for different types of adjustments
+-    if (payload.adjustment_type == 'ENHANCEMENT' && !payload.order_id) {
+-      throw new IntegrationError('Order id required for enhancement conversion', 'INVALID_ARGUMENT', 400)
+-    } else if (payload.adjustment_type != 'ENHANCEMENT') {
+-      if (!payload.gclid) {
+-        throw new IntegrationError('Gclid required for chosen conversion type', 'INVALID_ARGUMENT', 400)
+-      }
+-      if (!payload.conversion_timestamp) {
+-        throw new IntegrationError('Conversion timestamp required for chosen conversion type', 'INVALID_ARGUMENT', 400)
+-      }
+-      if (payload.adjustment_type == 'RESTATEMENT' && !payload.restatement_value) {
+-        throw new IntegrationError('Restatement value required for restatement conversion', 'INVALID_ARGUMENT', 400)
+-      }
+-    }
+-    const request_object: { [key: string]: any } = {
+-      conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
+-      adjustmentType: payload.adjustment_type,
+-      adjustmentDateTime: payload.adjustment_timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00'),
+-      orderId: payload.order_id,
+-      gclidDateTimePair: {
+-        gclid: payload.gclid,
+-        conversionDateTime: payload.conversion_timestamp
+-      },
+-      restatementValue: {
+-        adjustedValue: payload.restatement_value,
+-        currencyCode: payload.restatement_currency_code
+-      },
+-      userIdentifiers: [],
+-      userAgent: payload.user_agent
+-    }
+-
+-    if (payload.email_address) {
+-      request_object.userIdentifiers.push({ hashedEmail: hash(payload.email_address) })
+-    }
+-
+-    if (payload.phone_number) {
+-      request_object.userIdentifiers.push({ hashedPhoneNumber: hash(payload.phone_number) })
+-    }
+-
+-    if (
+-      payload.first_name ||
+-      payload.last_name ||
+-      payload.city ||
+-      payload.state ||
+-      payload.country ||
+-      payload.postal_code ||
+-      payload.street_address
+-    ) {
+-      request_object.userIdentifiers.push({
+-        addressInfo: {
+-          hashedFirstName: hash(payload.first_name),
+-          hashedLastName: hash(payload.last_name),
+-          hashedStreetAddress: hash(payload.street_address),
+-          city: payload.city,
+-          state: payload.state,
+-          countryCode: payload.country,
+-          postalCode: payload.postal_code
+-        }
+-      })
+-    }
+-
+-    const response = await request(
+-      `https://googleads.googleapis.com/v11/customers/${settings.customerId}:uploadConversionAdjustments`,
+-      {
+-        method: 'post',
+-        headers: {
+-          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+-        },
+-        json: {
+-          conversionAdjustments: [request_object],
+-          partialFailure: true
+-        }
+-      }
+-    )
+-
+-    // Catch and return partial failure error
+-    if (typeof response.data === 'object' && response.data != null) {
+-      Object.entries(response.data).forEach(([key, value]) => {
+-        if (key === 'partialFailureError' && value.code !== 0) {
+-          throw new IntegrationError(value.message, 'INVALID_ARGUMENT', 400)
+-        }
+-      })
+-    }
+-    return response
+-  }
+-}
+-
+-export default action
+diff --git a/packages/destination-actions/src/destinations/google-sheets/postSheet/index.ts b/packages/destination-actions/src/destinations/google-sheets/postSheet/index.ts
+index aa42c325..5f3040a1 100644
+--- a/packages/destination-actions/src/destinations/google-sheets/postSheet/index.ts
++++ b/packages/destination-actions/src/destinations/google-sheets/postSheet/index.ts
+@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
+       label: 'Operation Type',
+       description:
+         "Describes the nature of the operation being performed. Only supported values are 'new' and 'updated'.",
+-      type: 'string',
++      type: 'hidden',
+       required: true,
+       default: { '@path': '$.event' }
+     },
+diff --git a/packages/destination-actions/src/destinations/index.ts b/packages/destination-actions/src/destinations/index.ts
+index a4c20ec9..cc1b9a48 100644
+--- a/packages/destination-actions/src/destinations/index.ts
++++ b/packages/destination-actions/src/destinations/index.ts
+@@ -42,6 +42,7 @@ register('60ae8b97dcb6cc52d5d0d5ab', './google-enhanced-conversions')
+ register('627ea052118e3cd530d28963', './google-sheets')
+ register('62e184d538b54413fe754512', './heap')
+ register('624dddd054ced46facfdb9c0', './launchdarkly')
++register('62f435d1d311567bd5bf0e8d', './linkedin-audiences')
+ register('615c7438d93d9b61b1e9e192', './mixpanel')
+ register('61a8032ea5f157ee37a720be', './metronome')
+ register('620feaa207e70f6c6a765ff7', './moengage')
+@@ -49,7 +50,6 @@ register('62df16e45ba0058c864a75d1', './actions-pardot')
+ register('5f7dd8191ad74f868ab1fc48', './pipedrive')
+ register('62e17e6f687e4a3d32d0f875', './qualtrics')
+ register('61957755c4d820be968457de', './salesforce')
+-register('62e30bad99f1bfb98ee8ce08', './salesforce-marketing-cloud')
+ register('5f7dd8e302173ff732db5cc4', './slack')
+ register('6261a8b6cb4caa70e19116e8', './snap-conversions-api')
+ register('6234b137d3b6404a64f2a0f0', './talon-one')
+diff --git a/packages/destination-actions/src/destinations/intercom/groupIdentifyContact/__tests__/__snapshots__/snapshot.test.ts.snap b/packages/destination-actions/src/destinations/intercom/groupIdentifyContact/__tests__/__snapshots__/snapshot.test.ts.snap
+deleted file mode 100644
+index 7cbb2257..00000000
+--- a/packages/destination-actions/src/destinations/intercom/groupIdentifyContact/__tests__/__snapshots__/snapshot.test.ts.snap
++++ /dev/null
+@@ -1,21 +0,0 @@
+-// Jest Snapshot v1, https://goo.gl/fbAQLP
+-
+-exports[`Testing snapshot for Intercom's groupIdentifyContact destination action: all fields 1`] = `
+-Object {
+-  "query": Object {
+-    "field": "external_id",
+-    "operator": "=",
+-    "value": "AhvvXj",
+-  },
+-}
+-`;
+-
+-exports[`Testing snapshot for Intercom's groupIdentifyContact destination action: required fields 1`] = `
+-Object {
+-  "query": Object {
+-    "field": "external_id",
+-    "operator": "=",
+-    "value": "AhvvXj",
+-  },
+-}
+-`;
+diff --git a/packages/destination-actions/src/destinations/intercom/identifyContact/__tests__/__snapshots__/snapshot.test.ts.snap b/packages/destination-actions/src/destinations/intercom/identifyContact/__tests__/__snapshots__/snapshot.test.ts.snap
+deleted file mode 100644
+index b4ebe5b4..00000000
+--- a/packages/destination-actions/src/destinations/intercom/identifyContact/__tests__/__snapshots__/snapshot.test.ts.snap
++++ /dev/null
+@@ -1,21 +0,0 @@
+-// Jest Snapshot v1, https://goo.gl/fbAQLP
+-
+-exports[`Testing snapshot for Intercom's identifyContact destination action: all fields 1`] = `
+-Object {
+-  "query": Object {
+-    "field": "external_id",
+-    "operator": "=",
+-    "value": "L]WXYCkj",
+-  },
+-}
+-`;
+-
+-exports[`Testing snapshot for Intercom's identifyContact destination action: required fields 1`] = `
+-Object {
+-  "query": Object {
+-    "field": "external_id",
+-    "operator": "=",
+-    "value": "L]WXYCkj",
+-  },
+-}
+-`;
+diff --git a/packages/destination-actions/src/destinations/intercom/identifyContact/__tests__/index.test.ts b/packages/destination-actions/src/destinations/intercom/identifyContact/__tests__/index.test.ts
+index ea759de6..3e66aca6 100644
+--- a/packages/destination-actions/src/destinations/intercom/identifyContact/__tests__/index.test.ts
++++ b/packages/destination-actions/src/destinations/intercom/identifyContact/__tests__/index.test.ts
+@@ -99,6 +99,7 @@ describe('Intercom.identifyContact', () => {
+ 
+   it("should throw a retryable error if the user doesn't come up in a search but is a duplicate", async () => {
+     const event = createTestEvent({ traits: { role: 'lead', name: 'example user', email: 'user@example.com' } })
++
+     nock(`${endpoint}`).post(`/contacts`).reply(409, {})
+     nock(`${endpoint}`).post(`/contacts/search`).reply(200, {})
+ 
+diff --git a/packages/destination-actions/src/destinations/intercom/identifyContact/__tests__/snapshot.test.ts b/packages/destination-actions/src/destinations/intercom/identifyContact/__tests__/snapshot.test.ts
+deleted file mode 100644
+index f9324205..00000000
+--- a/packages/destination-actions/src/destinations/intercom/identifyContact/__tests__/snapshot.test.ts
++++ /dev/null
+@@ -1,75 +0,0 @@
+-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+-import { generateTestData } from '../../../../lib/test-data'
+-import destination from '../../index'
+-import nock from 'nock'
+-
+-const testDestination = createTestIntegration(destination)
+-const actionSlug = 'identifyContact'
+-const destinationSlug = 'Intercom'
+-const seedName = `${destinationSlug}#${actionSlug}`
+-
+-describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
+-  it('required fields', async () => {
+-    const action = destination.actions[actionSlug]
+-    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+-
+-    nock(/.*/).persist().get(/.*/).reply(200)
+-    nock(/.*/).persist().post(/.*/).reply(200)
+-    nock(/.*/).persist().put(/.*/).reply(200)
+-
+-    const event = createTestEvent({
+-      properties: eventData
+-    })
+-
+-    const responses = await testDestination.testAction(actionSlug, {
+-      event: event,
+-      mapping: event.properties,
+-      settings: settingsData,
+-      auth: undefined
+-    })
+-
+-    const request = responses[0].request
+-    const rawBody = await request.text()
+-
+-    try {
+-      const json = JSON.parse(rawBody)
+-      expect(json).toMatchSnapshot()
+-      return
+-    } catch (err) {
+-      expect(rawBody).toMatchSnapshot()
+-    }
+-
+-    expect(request.headers).toMatchSnapshot()
+-  })
+-
+-  it('all fields', async () => {
+-    const action = destination.actions[actionSlug]
+-    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+-
+-    nock(/.*/).persist().get(/.*/).reply(200)
+-    nock(/.*/).persist().post(/.*/).reply(200)
+-    nock(/.*/).persist().put(/.*/).reply(200)
+-
+-    const event = createTestEvent({
+-      properties: eventData
+-    })
+-
+-    const responses = await testDestination.testAction(actionSlug, {
+-      event: event,
+-      mapping: event.properties,
+-      settings: settingsData,
+-      auth: undefined
+-    })
+-
+-    const request = responses[0].request
+-    const rawBody = await request.text()
+-
+-    try {
+-      const json = JSON.parse(rawBody)
+-      expect(json).toMatchSnapshot()
+-      return
+-    } catch (err) {
+-      expect(rawBody).toMatchSnapshot()
+-    }
+-  })
+-})
+diff --git a/packages/destination-actions/src/destinations/linkedin-audiences/__tests__/__snapshots__/snapshot.test.ts.snap b/packages/destination-actions/src/destinations/linkedin-audiences/__tests__/__snapshots__/snapshot.test.ts.snap
+new file mode 100644
+index 00000000..f8a7c0ac
+--- /dev/null
++++ b/packages/destination-actions/src/destinations/linkedin-audiences/__tests__/__snapshots__/snapshot.test.ts.snap
+@@ -0,0 +1,24 @@
++// Jest Snapshot v1, https://goo.gl/fbAQLP
++
++exports[`Testing snapshot for actions-linkedin-audiences destination: updateAudience action - all fields 1`] = `""`;
++
++exports[`Testing snapshot for actions-linkedin-audiences destination: updateAudience action - required fields 1`] = `""`;
++
++exports[`Testing snapshot for actions-linkedin-audiences destination: updateAudience action - required fields 2`] = `
++Headers {
++  Symbol(map): Object {
++    "authorization": Array [
++      "Bearer undefined",
++    ],
++    "content-type": Array [
++      "application/json",
++    ],
++    "linkedin-version": Array [
++      "202207",
++    ],
++    "user-agent": Array [
++      "Segment (Actions)",
++    ],
++  },
++}
++`;
+diff --git a/packages/destination-actions/src/destinations/linkedin-audiences/__tests__/index.test.ts b/packages/destination-actions/src/destinations/linkedin-audiences/__tests__/index.test.ts
+new file mode 100644
+index 00000000..3e97a967
+--- /dev/null
++++ b/packages/destination-actions/src/destinations/linkedin-audiences/__tests__/index.test.ts
+@@ -0,0 +1,19 @@
++import nock from 'nock'
++import { createTestIntegration } from '@segment/actions-core'
++import Definition from '../index'
++
++const testDestination = createTestIntegration(Definition)
++
++describe('Linkedin Audiences', () => {
++  describe('testAuthentication', () => {
++    it('should validate authentication inputs', async () => {
++      nock('https://api.linkedin.com/rest/adAccountsV2').post(/.*/).reply(200, {})
++
++      const authData = {
++        ad_account_id: 'testId'
++      }
++
++      await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
++    })
++  })
++})
+diff --git a/packages/destination-actions/src/destinations/linkedin-audiences/__tests__/snapshot.test.ts b/packages/destination-actions/src/destinations/linkedin-audiences/__tests__/snapshot.test.ts
+new file mode 100644
+index 00000000..b9de1ef9
+--- /dev/null
++++ b/packages/destination-actions/src/destinations/linkedin-audiences/__tests__/snapshot.test.ts
+@@ -0,0 +1,83 @@
++import { createTestEvent, createTestIntegration } from '@segment/actions-core'
++import { generateTestData } from '../../../lib/test-data'
++import destination from '../index'
++import nock from 'nock'
++
++const testDestination = createTestIntegration(destination)
++const destinationSlug = 'actions-linkedin-audiences'
++
++describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
++  for (const actionSlug in destination.actions) {
++    it(`${actionSlug} action - required fields`, async () => {
++      const seedName = `${destinationSlug}#${actionSlug}`
++      const action = destination.actions[actionSlug]
++      const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
++
++      nock(/.*/)
++        .persist()
++        .get(/.*/)
++        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
++      nock(/.*/).persist().post(/.*/).reply(200)
++      nock(/.*/).persist().put(/.*/).reply(200)
++
++      const event = createTestEvent({
++        properties: eventData
++      })
++
++      const responses = await testDestination.testAction(actionSlug, {
++        event: event,
++        mapping: event.properties,
++        settings: settingsData,
++        auth: undefined
++      })
++
++      const request = responses[0].request
++      const rawBody = await request.text()
++
++      try {
++        const json = JSON.parse(rawBody)
++        expect(json).toMatchSnapshot()
++        return
++      } catch (err) {
++        expect(rawBody).toMatchSnapshot()
++      }
++
++      expect(request.headers).toMatchSnapshot()
++    })
++
++    it(`${actionSlug} action - all fields`, async () => {
++      const seedName = `${destinationSlug}#${actionSlug}`
++      const action = destination.actions[actionSlug]
++      const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
++
++      nock(/.*/)
++        .persist()
++        .get(/.*/)
++        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
++      nock(/.*/).persist().post(/.*/).reply(200)
++      nock(/.*/).persist().put(/.*/).reply(200)
++
++      const event = createTestEvent({
++        properties: eventData
++      })
++
++      const responses = await testDestination.testAction(actionSlug, {
++        event: event,
++        mapping: event.properties,
++        settings: settingsData,
++        auth: undefined
++      })
++
++      const request = responses[0].request
++      const rawBody = await request.text()
++
++      try {
++        const json = JSON.parse(rawBody)
++        expect(json).toMatchSnapshot()
++        return
++      } catch (err) {
++        expect(rawBody).toMatchSnapshot()
++      }
++    })
++  }
++})
+diff --git a/packages/destination-actions/src/destinations/linkedin-audiences/generated-types.ts b/packages/destination-actions/src/destinations/linkedin-audiences/generated-types.ts
+new file mode 100644
+index 00000000..0a08a106
+--- /dev/null
++++ b/packages/destination-actions/src/destinations/linkedin-audiences/generated-types.ts
+@@ -0,0 +1,8 @@
++// Generated file. DO NOT MODIFY IT BY HAND.
++
++export interface Settings {
++  /**
++   * The id of the LinkedIn Ad Account where batches should be synced.
++   */
++  ad_account_id: string
++}
+diff --git a/packages/destination-actions/src/destinations/linkedin-audiences/index.ts b/packages/destination-actions/src/destinations/linkedin-audiences/index.ts
+new file mode 100644
+index 00000000..9f919fd5
+--- /dev/null
++++ b/packages/destination-actions/src/destinations/linkedin-audiences/index.ts
+@@ -0,0 +1,67 @@
++import type { DestinationDefinition } from '@segment/actions-core'
++import type { Settings } from './generated-types'
++import updateAudience from './updateAudience'
++import { LINKEDIN_API_VERSION } from './linkedin-properties'
++
++interface RefreshTokenResponse {
++  access_token: string
++  scope: string
++  expires_in: number
++  token_type: string
++}
++
++const destination: DestinationDefinition<Settings> = {
++  name: 'Linkedin Audiences',
++  slug: 'actions-linkedin-audiences',
++  mode: 'cloud',
++
++  authentication: {
++    scheme: 'oauth2',
++    fields: {
++      ad_account_id: {
++        label: 'LinkedIn Ad Account Id',
++        description: 'The id of the LinkedIn Ad Account where batches should be synced.',
++        type: 'string',
++        required: true
++      }
++    },
++    testAuthentication: async (request, { auth, settings }) => {
++      return request(`https://api.linkedin.com/rest/adAccountsV2/${settings.ad_account_id}`, {
++        method: 'POST',
++        headers: {
++          'X-Restli-Protocol-Version': '2.0.0',
++          'LinkedIn-Version': LINKEDIN_API_VERSION,
++          authorization: auth.accessToken
++        }
++      })
++    },
++    refreshAccessToken: async (request, { auth }) => {
++      const res = await request<RefreshTokenResponse>('https://www.linkedin.com/oauth/v2/accessToken', {
++        method: 'POST',
++        body: new URLSearchParams({
++          refresh_token: auth.refreshToken,
++          client_id: auth.clientId,
++          client_secret: auth.clientSecret,
++          grant_type: 'refresh_token'
++        })
++      })
++
++      return { accessToken: res?.data?.access_token }
++    }
++  },
++  extendRequest({ auth }) {
++    return {
++      headers: {
++        authorization: `Bearer ${auth?.accessToken}`,
++        'LinkedIn-Version': LINKEDIN_API_VERSION,
++        'Content-Type': 'application/json'
++      }
++    }
++  },
++
++  actions: {
++    updateAudience
++  }
++}
++
++export default destination
+diff --git a/packages/destination-actions/src/destinations/linkedin-audiences/linkedin-properties.ts b/packages/destination-actions/src/destinations/linkedin-audiences/linkedin-properties.ts
+new file mode 100644
+index 00000000..97c54c44
+--- /dev/null
++++ b/packages/destination-actions/src/destinations/linkedin-audiences/linkedin-properties.ts
+@@ -0,0 +1 @@
++export const LINKEDIN_API_VERSION = '202207'
+diff --git a/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/__tests__/__snapshots__/snapshot.test.ts.snap b/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/__tests__/__snapshots__/snapshot.test.ts.snap
+new file mode 100644
+index 00000000..33e92b82
+--- /dev/null
++++ b/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/__tests__/__snapshots__/snapshot.test.ts.snap
+@@ -0,0 +1,24 @@
++// Jest Snapshot v1, https://goo.gl/fbAQLP
++
++exports[`Testing snapshot for LinkedinAudiences's updateAudience destination action: all fields 1`] = `""`;
++
++exports[`Testing snapshot for LinkedinAudiences's updateAudience destination action: required fields 1`] = `""`;
++
++exports[`Testing snapshot for LinkedinAudiences's updateAudience destination action: required fields 2`] = `
++Headers {
++  Symbol(map): Object {
++    "authorization": Array [
++      "Bearer undefined",
++    ],
++    "content-type": Array [
++      "application/json",
++    ],
++    "linkedin-version": Array [
++      "202207",
++    ],
++    "user-agent": Array [
++      "Segment (Actions)",
++    ],
++  },
++}
++`;
+\ No newline at end of file
+diff --git a/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/__tests__/index.test.ts b/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/__tests__/index.test.ts
+new file mode 100644
+index 00000000..cc16bc06
+--- /dev/null
++++ b/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/__tests__/index.test.ts
+@@ -0,0 +1,136 @@
++import nock from 'nock'
++import { createTestEvent, createTestIntegration } from '@segment/actions-core'
++import Destination from '../../index'
++
++const testDestination = createTestIntegration(Destination)
++
++type AuthTokens = {
++  accessToken: string
++  refreshToken: string
++}
++
++const auth: AuthTokens = {
++  accessToken: 'test',
++  refreshToken: 'test'
++}
++
++const event = createTestEvent({
++  event: 'Audience Entered',
++  type: 'track',
++  properties: {
++    audience_key: 'personas_test_audience'
++  },
++  context: {
++    device: {
++      advertisingId: '123'
++    },
++    traits: {
++      email: 'testing@testing.com'
++    }
++  }
++})
++
++const urlParams = {
++  q: 'account',
++  account: 'urn:li:sponsoredAccount:123',
++  sourceSegmentId: 'personas_test_audience',
++  sourcePlatform: 'SEGMENT'
++}
++
++const updateUsersRequestBody = {
++  elements: [
++    {
++      action: 'ADD',
++      userIds: [
++        {
++          idType: 'SHA256_EMAIL',
++          idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
++        },
++        {
++          idType: 'GOOGLE_AID',
++          idValue: '123'
++        }
++      ]
++    }
++  ]
++}
++
++const createDmpSegmentRequestBody = {
++  name: 'personas_test_audience',
++  sourcePlatform: 'SEGMENT',
++  sourceSegmentId: 'personas_test_audience',
++  account: `urn:li:sponsoredAccount:456`,
++  accessPolicy: 'PRIVATE',
++  type: 'USER',
++  destinations: [
++    {
++      destination: 'LINKEDIN'
++    }
++  ]
++}
++
++describe('LinkedinAudiences.updateAudience', () => {
++  it('should fail if `personas_audience_key` field does not match the `source_segment_id` field', async () => {
++    await expect(
++      testDestination.testAction('updateAudience', {
++        event,
++        settings: {
++          ad_account_id: '123'
++        },
++        useDefaultMappings: true,
++        auth,
++        mapping: {
++          personas_audience_key: 'mismatched_audience'
++        }
++      })
++    ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
++  })
++
++  it('should succeed if an exisitng DMP Segment is found', async () => {
++    nock(`https://api.linkedin.com/rest/dmpSegments`)
++      .get(/.*/)
++      .query(urlParams)
++      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
++    nock('https://api.linkedin.com/rest/dmpSegments/dmp_segment_id/users').post(/.*/, updateUsersRequestBody).reply(200)
++
++    await expect(
++      testDestination.testAction('updateAudience', {
++        event,
++        settings: {
++          ad_account_id: '123'
++        },
++        useDefaultMappings: true,
++        auth,
++        mapping: {
++          personas_audience_key: 'personas_test_audience'
++        }
++      })
++    ).resolves.not.toThrowError()
++  })
++
++  it('should successfully create a new DMP Segment if an existing Segment is not found', async () => {
++    urlParams.account = 'urn:li:sponsoredAccount:456'
++
++    nock(`https://api.linkedin.com/rest/dmpSegments`).get(/.*/).query(urlParams).reply(200, { elements: [] })
++    nock(`https://api.linkedin.com/rest/dmpSegments`)
++      .get(/.*/)
++      .query(urlParams)
++      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
++    nock('https://api.linkedin.com/rest/dmpSegments').post(/.*/, createDmpSegmentRequestBody).reply(200)
++    nock('https://api.linkedin.com/rest/dmpSegments/dmp_segment_id/users').post(/.*/, updateUsersRequestBody).reply(200)
++
++    await expect(
++      testDestination.testAction('updateAudience', {
++        event,
++        settings: {
++          ad_account_id: '456'
++        },
++        useDefaultMappings: true,
++        auth,
++        mapping: {
++          personas_audience_key: 'personas_test_audience'
++        }
++      })
++    ).resolves.not.toThrowError()
++  })
++})
+diff --git a/packages/destination-actions/src/destinations/intercom/groupIdentifyContact/__tests__/snapshot.test.ts b/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/__tests__/snapshot.test.ts
+similarity index 87%
+rename from packages/destination-actions/src/destinations/intercom/groupIdentifyContact/__tests__/snapshot.test.ts
+rename to packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/__tests__/snapshot.test.ts
+index 18940dec..85903289 100644
+--- a/packages/destination-actions/src/destinations/intercom/groupIdentifyContact/__tests__/snapshot.test.ts
++++ b/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/__tests__/snapshot.test.ts
+@@ -4,8 +4,8 @@ import destination from '../../index'
+ import nock from 'nock'
+ 
+ const testDestination = createTestIntegration(destination)
+-const actionSlug = 'groupIdentifyContact'
+-const destinationSlug = 'Intercom'
++const actionSlug = 'updateAudience'
++const destinationSlug = 'LinkedinAudiences'
+ const seedName = `${destinationSlug}#${actionSlug}`
+ 
+ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
+@@ -13,7 +13,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
+     const action = destination.actions[actionSlug]
+     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+ 
+-    nock(/.*/).persist().get(/.*/).reply(200)
++    nock(/.*/)
++      .persist()
++      .get(/.*/)
++      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+     nock(/.*/).persist().post(/.*/).reply(200)
+     nock(/.*/).persist().put(/.*/).reply(200)
+ 
+@@ -46,7 +49,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
+     const action = destination.actions[actionSlug]
+     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+ 
+-    nock(/.*/).persist().get(/.*/).reply(200)
++    nock(/.*/)
++      .persist()
++      .get(/.*/)
++      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+     nock(/.*/).persist().post(/.*/).reply(200)
+     nock(/.*/).persist().put(/.*/).reply(200)
+ 
+diff --git a/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/generated-types.ts b/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/generated-types.ts
+new file mode 100644
+index 00000000..528fefed
+--- /dev/null
++++ b/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/generated-types.ts
+@@ -0,0 +1,40 @@
++// Generated file. DO NOT MODIFY IT BY HAND.
++
++export interface Payload {
++  /**
++   * The display name of the LinkedIn DMP Segment.
++   */
++  dmp_segment_name?: string
++  /**
++   * Enable batching of requests to the LinkedIn DMP Segment.
++   */
++  enable_batching?: boolean
++  /**
++   * The user's email address to send to LinkedIn.
++   */
++  email?: string
++  /**
++   * Whether to send `email` to LinkedIn.
++   */
++  send_email?: boolean
++  /**
++   * The user's Google Advertising ID to send to LinkedIn.
++   */
++  google_advertising_id?: string
++  /**
++   * Whether to send Google Advertising ID to LinkedIn.
++   */
++  send_google_advertising_id?: boolean
++  /**
++   * A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.
++   */
++  source_segment_id?: string
++  /**
++   * The `audience_key` of the Personas audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.
++   */
++  personas_audience_key: string
++  /**
++   * The name of the current Segment event.
++   */
++  event_name?: string
++}
+diff --git a/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/index.ts b/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/index.ts
+new file mode 100644
+index 00000000..8bab4487
+--- /dev/null
++++ b/packages/destination-actions/src/destinations/linkedin-audiences/updateAudience/index.ts
+@@ -0,0 +1,200 @@
++import type { ActionDefinition } from '@segment/actions-core'
++import type { RequestClient } from '@segment/actions-core'
++import { RetryableError } from '@segment/actions-core'
++import type { Settings } from '../generated-types'
++import type { Payload } from './generated-types'
++import { createHash } from 'crypto'
++import { IntegrationError } from '@segment/actions-core'
++
++const action: ActionDefinition<Settings, Payload> = {
++  title: 'Sync To LinkedIn DMP Segment',
++  description: 'Syncs contacts from a Personas Audience to a LinkedIn DMP Segment.',
++  fields: {
++    dmp_segment_name: {
++      label: 'DMP Segment Display Name',
++      description: 'The display name of the LinkedIn DMP Segment.',
++      type: 'string',
++      default: {
++        '@path': '$.properties.audience_key'
++      }
++    },
++    enable_batching: {
++      label: 'Enable Batching',
++      description: 'Enable batching of requests to the LinkedIn DMP Segment.',
++      type: 'boolean',
++      default: true
++    },
++    email: {
++      label: 'User Email',
++      description: "The user's email address to send to LinkedIn.",
++      type: 'hidden',
++      default: {
++        '@path': '$.context.traits.email'
++      }
++    },
++    send_email: {
++      label: 'Send Email',
++      description: 'Whether to send `email` to LinkedIn.',
++      type: 'boolean',
++      default: true
++    },
++    google_advertising_id: {
++      label: 'User Google Advertising ID',
++      description: "The user's Google Advertising ID to send to LinkedIn.",
++      type: 'hidden',
++      default: {
++        '@path': '$.context.device.advertisingId'
++      }
++    },
++    send_google_advertising_id: {
++      label: 'Send Google Advertising ID',
++      description: 'Whether to send Google Advertising ID to LinkedIn.',
++      type: 'boolean',
++      default: true
++    },
++    source_segment_id: {
++      label: 'LinkedIn Source Segment ID',
++      description:
++        "A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.",
++      type: 'hidden',
++      default: {
++        '@path': '$.properties.audience_key'
++      }
++    },
++    personas_audience_key: {
++      label: 'Segment Personas Audience Key',
++      description:
++        'The `audience_key` of the Personas audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.',
++      type: 'string',
++      required: true
++    },
++    event_name: {
++      label: 'Event Name',
++      description: 'The name of the current Segment event.',
++      type: 'hidden',
++      default: {
++        '@path': '$.event'
++      }
++    }
++  },
++  perform: async (request, { settings, payload }) => {
++    return processPayload(request, settings, [payload])
++  },
++  performBatch: async (request, { settings, payload }) => {
++    return processPayload(request, settings, payload)
++  }
++}
++
++async function processPayload(request: RequestClient, settings: Settings, payloads: Payload[]) {
++  if (payloads[0].source_segment_id !== payloads[0].personas_audience_key) {
++    throw new IntegrationError(
++      'The value of `source_segment_id` and `personas_audience_key` must match.',
++      'Invalid settings.',
++      400
++    )
++  }
++
++  const dmpSegmentId = await getDmpSegmentId(request, settings, payloads[0])
++  const elements = extractUsers(payloads)
++  return request(`https://api.linkedin.com/rest/dmpSegments/${dmpSegmentId}/users`, {
++    method: 'POST',
++    headers: {
++      'X-RestLi-Method': 'BATCH_CREATE'
++    },
++    json: {
++      elements
++    }
++  })
++}
++
++async function getDmpSegmentId(request: RequestClient, settings: Settings, payload: Payload) {
++  const res = await getDmpSegment(request, settings, payload)
++  const body = await res.json()
++
++  if (body.elements?.length > 0) {
++    return body.elements[0].id
++  }
++
++  return createDmpSegment(request, settings, payload)
++}
++
++async function getDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
++  return request(
++    `https://api.linkedin.com/rest/dmpSegments?q=account&account=urn:li:sponsoredAccount:${settings.ad_account_id}&sourceSegmentId=${payload.source_segment_id}&sourcePlatform=SEGMENT`
++  )
++}
++
++async function createDmpSegment(request: RequestClient, settings: Settings, payload: Payload) {
++  await request('https://api.linkedin.com/rest/dmpSegments', {
++    method: 'POST',
++    json: {
++      name: payload.dmp_segment_name,
++      sourcePlatform: 'SEGMENT',
++      sourceSegmentId: payload.source_segment_id,
++      account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
++      accessPolicy: 'PRIVATE',
++      type: 'USER',
++      destinations: [
++        {
++          destination: 'LINKEDIN'
++        }
++      ]
++    }
++  })
++
++  const res = await getDmpSegment(request, settings, payload)
++  const body = await res.json()
++
++  if (body.elements?.length > 0) {
++    return body.elements[0].id
++  }
++
++  throw new RetryableError('Failed to fetch or create a LinkedIn DMP Segment.')
++}
++
++function extractUsers(payloads: Payload[]) {
++  const elements: Record<string, any>[] = []
++
++  payloads.forEach((payload: Payload) => {
++    if (!payload.email && !payload.google_advertising_id) {
++      return
++    }
++
++    elements.push({
++      action: getAction(payload),
++      userIds: getUserIds(payload)
++    })
++  })
++
++  return elements
++}
++
++function getAction(payload: Payload) {
++  if (payload.event_name === 'Audience Entered') {
++    return 'ADD'
++  } else if (payload.event_name === 'Audience Exited') {
++    return 'REMOVE'
++  }
++}
++
++function getUserIds(payload: Payload): Record<string, string>[] {
++  const users = []
++
++  if (payload.email) {
++    users.push({
++      idType: 'SHA256_EMAIL',
++      idValue: createHash('sha256').update(payload.email).digest('hex')
++    })
++  }
++
++  if (payload.google_advertising_id) {
++    users.push({
++      idType: 'GOOGLE_AID',
++      idValue: payload.google_advertising_id
++    })
++  }
++
++  return users
++}
++
++export default action
+diff --git a/packages/destination-actions/src/destinations/mixpanel/alias/__tests__/index.test.ts b/packages/destination-actions/src/destinations/mixpanel/alias/__tests__/index.test.ts
+index 2e5d2a4c..dfb8aee1 100644
+--- a/packages/destination-actions/src/destinations/mixpanel/alias/__tests__/index.test.ts
++++ b/packages/destination-actions/src/destinations/mixpanel/alias/__tests__/index.test.ts
+@@ -111,7 +111,7 @@ describe('Mixpanel.alias', () => {
+       settings: {
+         projectToken: MIXPANEL_PROJECT_TOKEN,
+         apiSecret: MIXPANEL_API_SECRET,
+-        sourceName: 'example segment source name'
++        sourceName: 'example segment source name',
+       }
+     })
+     expect(responses.length).toBe(1)
+diff --git a/packages/destination-actions/src/destinations/mixpanel/identifyUser/__tests__/index.test.ts b/packages/destination-actions/src/destinations/mixpanel/identifyUser/__tests__/index.test.ts
+index fe473b39..57aecbab 100644
+--- a/packages/destination-actions/src/destinations/mixpanel/identifyUser/__tests__/index.test.ts
++++ b/packages/destination-actions/src/destinations/mixpanel/identifyUser/__tests__/index.test.ts
+@@ -155,7 +155,7 @@ describe('Mixpanel.identifyUser', () => {
+       settings: {
+         projectToken: MIXPANEL_PROJECT_TOKEN,
+         apiSecret: MIXPANEL_API_SECRET,
+-        sourceName: 'example segment source name'
++        sourceName: 'example segment source name',
+       }
+     })
+     expect(responses.length).toBe(2)
+diff --git a/packages/destination-actions/src/destinations/mixpanel/index.ts b/packages/destination-actions/src/destinations/mixpanel/index.ts
+index f693cadd..4469f3e8 100644
+--- a/packages/destination-actions/src/destinations/mixpanel/index.ts
++++ b/packages/destination-actions/src/destinations/mixpanel/index.ts
+@@ -85,7 +85,7 @@ const destination: DestinationDefinition<Settings> = {
+         label: 'Source Name',
+         description:
+           "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event/page/screen call.",
+-        type: 'string'
++        type: 'string',
+       }
+     },
+     testAuthentication: (request, { settings }) => {
+diff --git a/packages/destination-actions/src/destinations/mixpanel/trackEvent/__tests__/index.test.ts b/packages/destination-actions/src/destinations/mixpanel/trackEvent/__tests__/index.test.ts
+index a2b3daba..fe7e8179 100644
+--- a/packages/destination-actions/src/destinations/mixpanel/trackEvent/__tests__/index.test.ts
++++ b/packages/destination-actions/src/destinations/mixpanel/trackEvent/__tests__/index.test.ts
+@@ -115,7 +115,7 @@ describe('Mixpanel.trackEvent', () => {
+       settings: {
+         projectToken: MIXPANEL_PROJECT_TOKEN,
+         apiSecret: MIXPANEL_API_SECRET,
+-        sourceName: 'example segment source name'
++        sourceName: "example segment source name",
+       }
+     })
+     expect(responses.length).toBe(1)
+@@ -184,7 +184,7 @@ describe('Mixpanel.trackEvent', () => {
+       settings: {
+         projectToken: MIXPANEL_PROJECT_TOKEN,
+         apiSecret: MIXPANEL_API_SECRET,
+-        apiRegion: ApiRegions.US
++        apiRegion: ApiRegions.US,
+       }
+     })
+     expect(responses.length).toBe(1)
+diff --git a/packages/destination-actions/src/destinations/mixpanel/trackEvent/index.ts b/packages/destination-actions/src/destinations/mixpanel/trackEvent/index.ts
+index 6353eeca..1be02b00 100644
+--- a/packages/destination-actions/src/destinations/mixpanel/trackEvent/index.ts
++++ b/packages/destination-actions/src/destinations/mixpanel/trackEvent/index.ts
+@@ -5,6 +5,7 @@ import { MixpanelEvent } from './types'
+ import { getApiServerUrl, getBrowser, getBrowserVersion, cheapGuid } from '../utils'
+ import dayjs from '../../../lib/dayjs'
+ 
++
+ const getEventFromPayload = (payload: Payload, settings: Settings): MixpanelEvent => {
+   const datetime = payload.time
+   const time = datetime && dayjs.utc(datetime).isValid() ? dayjs.utc(datetime).valueOf() : Date.now()
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contact/generated-types.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contact/generated-types.ts
+deleted file mode 100644
+index 944d22b0..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contact/generated-types.ts
++++ /dev/null
+@@ -1,3 +0,0 @@
+-// Generated file. DO NOT MODIFY IT BY HAND.
+-
+-export interface Payload {}
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contact/index.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contact/index.ts
+deleted file mode 100644
+index c0211a24..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/contact/index.ts
++++ /dev/null
+@@ -1,19 +0,0 @@
+-import type { ActionDefinition } from '@segment/actions-core'
+-import type { Settings } from '../generated-types'
+-import type { Payload } from './generated-types'
+-
+-const action: ActionDefinition<Settings, Payload> = {
+-  title: 'Contact',
+-  description: 'TODO',
+-  fields: {},
+-  perform: () => {
+-    //request, data
+-    // Make your partner api request here!
+-    // return request('https://example.com', {
+-    //   method: 'post',
+-    //   json: data.payload
+-    // })
+-  }
+-}
+-
+-export default action
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/generated-types.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/generated-types.ts
+deleted file mode 100644
+index 4ab2786e..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/generated-types.ts
++++ /dev/null
+@@ -1,3 +0,0 @@
+-// Generated file. DO NOT MODIFY IT BY HAND.
+-
+-export interface Settings {}
+diff --git a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/index.ts b/packages/destination-actions/src/destinations/salesforce-marketing-cloud/index.ts
+deleted file mode 100644
+index 2baa21c0..00000000
+--- a/packages/destination-actions/src/destinations/salesforce-marketing-cloud/index.ts
++++ /dev/null
+@@ -1,52 +0,0 @@
+-import type { DestinationDefinition } from '@segment/actions-core'
+-import type { Settings } from './generated-types'
+-
+-import contact from './contact'
+-
+-const destination: DestinationDefinition<Settings> = {
+-  name: 'Salesforce Marketing Cloud (Actions)',
+-  slug: 'actions-salesforce-marketing-cloud',
+-  mode: 'cloud',
+-
+-  authentication: {
+-    scheme: 'oauth2',
+-    fields: {}
+-    // testAuthentication: (request) => {
+-    //   // Return a request that tests/validates the user's credentials.
+-    //   // If you do not have a way to validate the authentication fields safely,
+-    //   // you can remove the `testAuthentication` function, though discouraged.
+-    // },
+-    // refreshAccessToken: async (request, { auth }) => {
+-    //   // Return a request that refreshes the access_token if the API supports it
+-    //   const res = await request('https://www.example.com/oauth/refresh', {
+-    //     method: 'POST',
+-    //     body: new URLSearchParams({
+-    //       refresh_token: auth.refreshToken,
+-    //       client_id: auth.clientId,
+-    //       client_secret: auth.clientSecret,
+-    //       grant_type: 'refresh_token'
+-    //     })
+-    //   })
+-
+-    //   //return { accessToken: res.body.access_token }
+-    // }
+-  },
+-  extendRequest({ auth }) {
+-    return {
+-      headers: {
+-        authorization: `Bearer ${auth?.accessToken}`
+-      }
+-    }
+-  },
+-
+-  // onDelete: async (request, { settings, payload }) => {
+-  //   // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
+-  //   // provided in the payload. If your destination does not support GDPR deletion you should not
+-  //   // implement this function and should remove it completely.
+-
+-  actions: {
+-    contact
+-  }
+-}
+-
+-export default destination
+diff --git a/packages/destination-actions/src/destinations/salesforce/lead/index.ts b/packages/destination-actions/src/destinations/salesforce/lead/index.ts
+index 69af75d5..d7a34924 100644
+--- a/packages/destination-actions/src/destinations/salesforce/lead/index.ts
++++ b/packages/destination-actions/src/destinations/salesforce/lead/index.ts
+@@ -134,11 +134,9 @@ const action: ActionDefinition<Settings, Payload> = {
+     },
+     customFields: customFields
+   },
+-  perform: async (request, { settings, payload, logger }) => {
++  perform: async (request, { settings, payload }) => {
+     const sf: Salesforce = new Salesforce(settings.instanceUrl, request)
+ 
+-    logger?.info('STRATCONN - 15345 - Test Log - Processing Salesforce Lead action')
+-
+     if (payload.operation === 'create') {
+       if (!payload.company || !payload.last_name) {
+         throw new IntegrationError('Missing company or last_name value', 'Misconfigured required field', 400)
+diff --git a/packages/destination-actions/src/lib/engage-test-data/create-messaging-test-event.ts b/packages/destination-actions/src/lib/engage-test-data/create-messaging-test-event.ts
+index 2100b971..ad03aaf0 100644
+--- a/packages/destination-actions/src/lib/engage-test-data/create-messaging-test-event.ts
++++ b/packages/destination-actions/src/lib/engage-test-data/create-messaging-test-event.ts
+@@ -1,23 +1,7 @@
+ import { v4 as uuidv4 } from '@lukeed/uuid'
+ import type { SegmentEvent } from '@segment/actions-core'
+ 
+-type SegmentEventWithExternalIds = SegmentEvent & {
+-  external_ids?: {
+-    id: string
+-    type: 'email' | 'phone'
+-    isSubscribed: boolean | null
+-    collection: 'users'
+-    encoding: 'none'
+-    groups?: {
+-      id: string
+-      isSubscribed: boolean | null
+-    }[]
+-  }[]
+-}
+-
+-export function createMessagingTestEvent(
+-  event: Partial<SegmentEventWithExternalIds> = {}
+-): SegmentEventWithExternalIds {
++export function createMessagingTestEvent(event: Partial<SegmentEvent> = {}): SegmentEvent {
+   return {
+     anonymousId: uuidv4(),
+     context: {
+@@ -57,22 +41,6 @@ export function createMessagingTestEvent(
+     traits: {},
+     type: 'track',
+     userId: 'user1234',
+-    external_ids: [
+-      {
+-        collection: 'users',
+-        encoding: 'none',
+-        groups:
+-          [
+-            {
+-              id: uuidv4(),
+-              isSubscribed: true
+-            }
+-          ] || undefined,
+-        id: uuidv4() + '@unittest.com',
+-        isSubscribed: true,
+-        type: 'email'
+-      }
+-    ],
+     ...event
+   }
+ }
+diff --git a/packages/destination-subscriptions/package.json b/packages/destination-subscriptions/package.json
+index ade3e6d0..a8eb67cf 100644
+--- a/packages/destination-subscriptions/package.json
++++ b/packages/destination-subscriptions/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@segment/destination-subscriptions",
+-  "version": "2.2.0-alpha.45",
++  "version": "3.11.0",
+   "description": "Validate event payload using subscription AST",
+   "license": "MIT",
+   "repository": {
+@@ -67,6 +67,5 @@
+       "path": "dist/cjs/index.js",
+       "limit": "29 KB"
+     }
+-  ],
+-  "gitHead": "c661c6248b8a65ae675974191545414ff0019ea6"
++  ]
+ }
+diff --git a/script/publish-alpha.sh b/script/publish-alpha.sh
+deleted file mode 100755
+index d000e31a..00000000
+--- a/script/publish-alpha.sh
++++ /dev/null
+@@ -1,50 +0,0 @@
+-#!/bin/bash
+-#
+-# Description:
+-#   - A handy utility that takes care of releasing alpha package in staging.
+-#   - Automatically bump to correct next alpha version.
+-#Run:
+-#   - Give execute permission to publish-alpha and run:
+-#   - ~ chmod +x ./bin/publish-alpha.sh
+-#   - ~ ./bin/publish-alpha.sh
+-true
+-brew install coreutils
+-MODULE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+-PACKAGE_DIR="$MODULE_DIR/../packages"
+-IGNORE_DIR=("cli" "cli-internal" "..")
+-export NVM_DIR=$HOME/.nvm;
+-source $NVM_DIR/nvm.sh;
+-
+-# Process and prepare
+-git checkout staging
+-nvm use
+-yarn install
+-
+-# Try to publish alpha version
+-{
+-    yarn lerna publish prerelease --pre-dist-tag next --allow-branch '**' --no-git-tag-version --yes
+-}||{
+-    echo "❌Failed to publish alpha, updating version to next tag"
+-    for d in $(find $PACKAGE_DIR -maxdepth 1 -type d)
+-    do
+-        pkg_path="$(basename "$d")"
+-        if [[ " ${IGNORE_DIR[*]} " =~ " ${pkg_path} " ]]; 
+-        then
+-            continue
+-        else
+-            FILE="$d/package.json"
+-            if [ -f "$FILE" ]; then
+-                # Get the package name in JSON file
+-                pkg_name=$( sed -n 's/.*"name":.*"\(.*\)"\(,\)\{0,1\}/\1/p' "$FILE" )
+-                # Get the next tag from npm
+-                ver=$(npm view  ${pkg_name}@next version)
+-                echo "✅Bumping ${pkg_name} into next tag version ${ver}"
+-                cd ${d}
+-                # Bump to next tag, update package file
+-                npm version --no-git-tag-version ${ver} 
+-            fi
+-        fi
+-    done
+-    cd "${PACKAGE_DIR}/.."
+-    yarn lerna publish prerelease --pre-dist-tag next --allow-branch '**' --no-git-tag-version --yes
+-} 
+\ No newline at end of file
+diff --git a/yarn.lock b/yarn.lock
+index 7cdc16e5..ba3c4674 100644
+--- a/yarn.lock
++++ b/yarn.lock
+@@ -2300,56 +2300,6 @@
+   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
+   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
+ 
+-"@segment/action-destinations@^3.93.3-alpha.5", "@segment/action-destinations@^3.94.1-alpha.12":
+-  version "3.100.0"
+-  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/action-destinations-3.100.0.tgz#c5392ab649f33b0221634f73d1cb00c1dff26cf5"
+-  integrity sha512-3T3AsMZQIr0Yi0eYiTS/q2mdp7dKDBydTzQpJijeOxRHzZ93tAz4F9nCvEcCDZTqkMIlMNPg6pL7zNbiEXeO7g==
+-  dependencies:
+-    "@amplitude/ua-parser-js" "^0.7.25"
+-    "@segment/a1-notation" "^2.1.4"
+-    "@segment/actions-core" "^3.32.0"
+-    "@segment/actions-shared" "^1.15.0"
+-    cheerio "^1.0.0-rc.10"
+-    dayjs "^1.10.7"
+-    escape-goat "^3"
+-    liquidjs "^9.37.0"
+-    lodash "^4.17.21"
+-
+-"@segment/actions-core@^3.32.0":
+-  version "3.32.0"
+-  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.32.0.tgz#3ed714029c30cc0288cf882b7934ae7d3318e8c6"
+-  integrity sha512-sUzY1DM1kciTaUrFBfNwizjliKOknNtYhqyuEhNz+K3vU1oB8LLPjINYG24/fqZMMpLXQgn5RB68TO0hsiC1dg==
+-  dependencies:
+-    "@lukeed/uuid" "^2.0.0"
+-    "@segment/ajv-human-errors" "^2.1.2"
+-    "@segment/destination-subscriptions" "^3.11.0"
+-    abort-controller "^3.0.0"
+-    aggregate-error "^3.1.0"
+-    ajv "^8.6.3"
+-    ajv-formats "^2.1.1"
+-    btoa-lite "^1.0.0"
+-    cross-fetch "^3.1.4"
+-    dayjs "^1.10.7"
+-    ts-custom-error "^3.2.0"
+-
+-"@segment/actions-shared@^1.15.0":
+-  version "1.15.0"
+-  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.15.0.tgz#3eb181a563fe1300916f0f1afbf90e573f8f22ca"
+-  integrity sha512-Pn1qkhTwdRtlYfLcM07LxcrSHBw0yW25/M+YnDM2xYYIwbShMMc5NGtJqulv+J/08M0OMbbEtiRWIqRIri6IRw==
+-  dependencies:
+-    "@amplitude/ua-parser-js" "^0.7.25"
+-    "@segment/actions-core" "^3.32.0"
+-    cheerio "^1.0.0-rc.10"
+-    dayjs "^1.10.7"
+-    escape-goat "^3"
+-    liquidjs "^9.37.0"
+-    lodash "^4.17.21"
+-
+-"@segment/ajv-human-errors@^2.1.2":
+-  version "2.1.2"
+-  resolved "https://registry.yarnpkg.com/@segment/ajv-human-errors/-/ajv-human-errors-2.1.2.tgz#1f63ff6e483b260ad1bce182c0730c27c8fb3bac"
+-  integrity sha512-d1uQndRFLRO01+xW1y5m+joxDgHf5SLJ70YCY2ArLoo2FJ50o6AoX2mEbuGvnKz/IdwnvDugm9Ti3mZQkW1OoA==
+-
+ "@segment/analytics-next@^1.29.3":
+   version "1.29.3"
+   resolved "https://registry.yarnpkg.com/@segment/analytics-next/-/analytics-next-1.29.3.tgz#51ea4d7e487e95c2862ec5d52fd34a113c20161e"
+@@ -2371,21 +2321,6 @@
+   dependencies:
+     unfetch "^3.1.1"
+ 
+-"@segment/browser-destinations@^3.48.2-alpha.6":
+-  version "3.52.0"
+-  resolved "https://registry.yarnpkg.com/@segment/browser-destinations/-/browser-destinations-3.52.0.tgz#f2220ef71c5ad5fc64bfe06fc38ba8324c3ea439"
+-  integrity sha512-GyRR62MvMmbFP4PIr3NeVDYuw48U9M0AgQMd0fiR7QshIKhAEMGg38v8awJIlPTKjougae0in1dG2hWvbMLXjA==
+-  dependencies:
+-    "@braze/web-sdk" "npm:@braze/web-sdk@^4.1.0"
+-    "@braze/web-sdk-v3" "npm:@braze/web-sdk@^3.5.1"
+-    "@fullstory/browser" "^1.4.9"
+-    "@segment/actions-shared" "^1.15.0"
+-    "@segment/analytics-next" "^1.29.3"
+-    "@segment/destination-subscriptions" "^3.11.0"
+-    dayjs "^1.10.7"
+-    tslib "^2.3.1"
+-    vm-browserify "^1.1.2"
+-
+ "@segment/control-plane-service-client@github:segmentio/control-plane-service-js-client.git#master":
+   version "9.3.0"
+   resolved "git+ssh://git@github.com/segmentio/control-plane-service-js-client.git#e5cd6e7cd335cf00640e43a5ece17a290e003ddd"
+@@ -2397,20 +2332,6 @@
+     path-to-regexp "^6.1.0"
+     querystring "^0.2.0"
+ 
+-"@segment/destination-subscriptions@^3.11.0":
+-  version "3.11.0"
+-  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.11.0.tgz#19f4f39ed0a2218e9e3cc83c4cffe9fbbe88ed0f"
+-  integrity sha512-gnhK+xAy069QFXdHtLkEUonrNtshTo9+esa93vN+x2Z02ltLlg0W+ua+00bCyTdKaZ8WhALaMY2ufuYkenOBEA==
+-  dependencies:
+-    "@segment/fql-ts" "^1.10.1"
+-
+-"@segment/destination-subscriptions@^3.11.1-alpha.0":
+-  version "3.11.1-alpha.27"
+-  resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.11.1-alpha.27.tgz#99d47c947dc2031089560d0c911ce3604416af7c"
+-  integrity sha512-MNhYJu7tAL/0+ETHEdcY1fzyfqS5lfc/Ugwvysr3IqhbNWEr/Kgs4IUm/GQ9SE4t9voDA0IZF1I2mKb2bfjiyA==
+-  dependencies:
+-    "@segment/fql-ts" "^1.10.1"
+-
+ "@segment/facade@3.3.10":
+   version "3.3.10"
+   resolved "https://registry.yarnpkg.com/@segment/facade/-/facade-3.3.10.tgz#94381079d326f8d4b2d11e0b2b1a85ca7aac28c4"

@@ -67,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
               action_source: payload.action_source,
               event_source_url: payload.event_source_url,
               event_id: payload.event_id,
-              user_data: hash_user_data({ user_data: payload.user_data }, features || {}),
+              user_data: hash_user_data({ user_data: payload.user_data }),
               app_data: generate_app_data(payload.app_data_field),
               data_processing_options: data_options,
               data_processing_options_country: country_code,

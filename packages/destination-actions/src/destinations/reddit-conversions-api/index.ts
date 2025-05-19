@@ -129,7 +129,12 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'standardEvent',
       mapping: {
         ...defaultValues(standardEvent.fields),
-        tracking_type: 'AddToCart'
+        tracking_type: 'AddToCart',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          itemCount: { '@path': '$.properties.quantity' },
+          value: { '@path': '$.properties.price' }
+        }
       },
       type: 'automatic'
     },
@@ -139,7 +144,12 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'standardEvent',
       mapping: {
         ...defaultValues(standardEvent.fields),
-        tracking_type: 'AddToWishlist'
+        tracking_type: 'AddToWishlist',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          itemCount: { '@path': '$.properties.quantity' },
+          value: { '@path': '$.properties.price' }
+        }
       },
       type: 'automatic'
     },

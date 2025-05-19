@@ -25,7 +25,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   mode: 'cloud',
 
   authentication: {
-    scheme: 'custom',
+    scheme: 'oauth2',
     fields: {
       api_key: {
         type: 'password',
@@ -168,6 +168,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(removeProfileFromList.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'addProfileToList',
+      mapping: defaultValues(addProfileToList.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }

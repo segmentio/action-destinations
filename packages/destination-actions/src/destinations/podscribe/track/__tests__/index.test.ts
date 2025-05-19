@@ -7,6 +7,7 @@ const testDestination = createTestIntegration(Destination)
 
 describe('Podscribe.track', () => {
   const TEST_ADVERTISER = 'test-advertiser'
+  const USER_ID = 'test-user-id'
   const TEST_IP = '11.111.11.11'
   const TEST_TIMESTAMP = '2021-07-12T23:02:40.563Z'
 
@@ -26,7 +27,7 @@ describe('Podscribe.track', () => {
         ip: TEST_IP,
         timestamp: TEST_TIMESTAMP
       },
-      settings: { advertiser: TEST_ADVERTISER }
+      settings: { advertiser: TEST_ADVERTISER, userId: USER_ID }
     })
 
     expect(responses[0].status).toBe(204)
@@ -46,7 +47,7 @@ describe('Podscribe.track', () => {
         ...defaultValues(track.fields),
         podscribeEvent: 'purchase'
       },
-      settings: { advertiser: TEST_ADVERTISER }
+      settings: { advertiser: TEST_ADVERTISER, userId: USER_ID }
     })
 
     expect(responses[0].status).toBe(204)

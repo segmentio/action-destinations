@@ -45,6 +45,15 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     country_code: {
       ...country_code
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['list_id']
     }
   },
   dynamicFields: {
@@ -64,10 +73,13 @@ const action: ActionDefinition<Settings, Payload> = {
       external_id ? [external_id] : undefined,
       phone_number ? [phone_number] : undefined
     )
+    if (!profileIds?.length) {
+      throw new PayloadValidationError('No profiles found for the provided identifiers.')
+    }
     return await removeProfileFromList(request, profileIds, list_id)
   },
-  performBatch: async (request, { payload }) => {
-    return await removeBulkProfilesFromList(request, payload)
+  performBatch: async (request, { payload, statsContext }) => {
+    return await removeBulkProfilesFromList(request, payload, statsContext)
   }
 }
 
