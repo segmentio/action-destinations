@@ -3474,13 +3474,31 @@
     dayjs "^1.10.7"
     ts-custom-error "^3.2.0"
 
-"@segment/actions-shared@^1.132.0":
-  version "1.132.0"
-  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.132.0.tgz#4e02f6ed51491cb8fe55812855fb529dad052d7b"
-  integrity sha512-K2Y1xbj1xh4Hy6MlKSP4YM0KIF94T3zGovNX69Qq63cfScXR5TsO5O9pONGM90JlTVLil5G1G+oxH/OfH38wxQ==
+"@segment/actions-core@^3.152.0", "@segment/actions-core@^3.153.0":
+  version "3.153.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.153.0.tgz#18c6bd37fe3b630fe0f7bbdb109d98ec0ce0f51a"
+  integrity sha512-gFkxopT3v6DlUdkgvvjVIJ8f8bu4WV3I50AIu3qVGDvJmnmEgvbrngeO18SEM7zlJdhkud1zY2zKdfnjLvYdSg==
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/action-emitters" "^1.3.6"
+    "@segment/ajv-human-errors" "^2.15.0"
+    "@segment/destination-subscriptions" "^3.37.0"
+    "@types/node" "^22.13.1"
+    aggregate-error "^3.1.0"
+    ajv "^8.6.3"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
+"@segment/actions-shared@^1.133.0", "@segment/actions-shared@^1.134.0":
+  version "1.134.0"
+  resolved "https://registry.yarnpkg.com/@segment/actions-shared/-/actions-shared-1.134.0.tgz#b11ae2f15c7873f57f13f15fb2db67233e93781e"
+  integrity sha512-7GOjQ92ld6QuW8k4nDsl+Iwk+UOnfAiZEQb10k6ntkm8NKVpkf3f9IuUChYSNTzXGBr92IuvUNii5mffynLJMg==
   dependencies:
     "@amplitude/ua-parser-js" "^0.7.25"
-    "@segment/actions-core" "^3.151.0"
+    "@segment/actions-core" "^3.153.0"
     cheerio "^1.0.0-rc.10"
     dayjs "^1.10.7"
     escape-goat "^3"
@@ -3492,309 +3510,12 @@
   resolved "https://registry.yarnpkg.com/@segment/ajv-human-errors/-/ajv-human-errors-2.15.0.tgz#dfe86a0d869b0ee286e1db7aa736eb9d5aa39a9d"
   integrity sha512-tgeMMuYYJt3Aar5IIk3kyfL9zMvGsv5d7KsVT/2auri+hEH/L2M1i8X67ne4JjMWZqENYIGY1WuI4oPEL1H/xA==
 
-"@segment/analytics-browser-actions-1flow@^1.63.0":
-  version "1.63.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-1flow/-/analytics-browser-actions-1flow-1.63.0.tgz#6e1ceb203090d12a0821bba005378194759ef11e"
-  integrity sha512-KYK29gEmA3OWVY2rk6Asx6KEfQNCWxz4pjfOUH7PCBkH0brWN81Ze45upqW3CsJv/M6Kv2uFeBATE4NNGrZweg==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-adobe-target@^1.82.0":
-  version "1.82.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-adobe-target/-/analytics-browser-actions-adobe-target-1.82.0.tgz#b7ab05615eaed545b64ea00cbc0f43ec2bf1f725"
-  integrity sha512-7Aue+6HWbudIX59TwbgMjvY+MD9YSaO0wIinizsz5ayC9MUwd9m50angblDFqM/AC8x3PoFlzTQF/mQwjlThlQ==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-algolia-plugins@^1.58.0":
-  version "1.58.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-algolia-plugins/-/analytics-browser-actions-algolia-plugins-1.58.0.tgz#58dcd18903849cad0b1dd88976872f1b96630c4e"
-  integrity sha512-dsSSFAYpixJkTDTv38V7hl5VJZZJkG/wsN6dBvEnThVd+c+ElQyp4OMOZubYRk2FfvA25ZP+/je1Ws3zYeXV1g==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-amplitude-plugins@^1.81.0":
-  version "1.81.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-amplitude-plugins/-/analytics-browser-actions-amplitude-plugins-1.81.0.tgz#bf260f5ef3d11b7283aada3aff4084d2eb94dd37"
-  integrity sha512-yXGiqHie5QyzGJ+yF4y99jIgAFFM18L52DzBHYa2kGUZOVeojWKQ6fVhwG1Uy+vGMzKVruTOkvmTfnnHPX052A==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-braze-cloud-plugins@^1.90.0":
-  version "1.90.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-braze-cloud-plugins/-/analytics-browser-actions-braze-cloud-plugins-1.90.0.tgz#a01b0906b1b8a914dc0b643afc22fbe00868332a"
-  integrity sha512-wgCnzeabWAhonMXIlt3atG2DpYKxtbucBd6A/AMVzcG1GbeJ4eyhfBfQHAplGLfbJvW53SBMokQPjshESJeH3g==
-  dependencies:
-    "@segment/analytics-browser-actions-braze" "^1.90.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-braze@^1.90.0":
-  version "1.90.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-braze/-/analytics-browser-actions-braze-1.90.0.tgz#2f15c459de7c32b4c56c284587d1f0832fa8f52e"
-  integrity sha512-14uuzT69xdYMBIK54XYCR92mSyr6h7fzbE69i6K14xfRaTavmqb+q/YxzPkz3t+JpPMrBNYc0CrjcoVaaN+wUg==
-  dependencies:
-    "@braze/web-sdk" "npm:@braze/web-sdk@^5"
-    "@braze/web-sdk-v3" "npm:@braze/web-sdk@^3.5.1"
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-bucket@^1.62.0":
-  version "1.62.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-bucket/-/analytics-browser-actions-bucket-1.62.0.tgz#074e836dde350e529bd12eb2922dd419c3225899"
-  integrity sha512-0UP7gc3z5wZsOSJrI48OAotuBNXCWIA5EBRcMhQ03QwjRmV8gn3xD2FOF1lTpuXVKczum9c8tsS2pOL7v010Lg==
-  dependencies:
-    "@bucketco/tracking-sdk" "^2.0.0"
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-cdpresolution@^1.68.0":
-  version "1.68.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-cdpresolution/-/analytics-browser-actions-cdpresolution-1.68.0.tgz#7e32faece7dd1bf4999b91979c1fd6957154b538"
-  integrity sha512-77a66mP3cvFBMQo+jIwJc7dcFQ9dYJdazXIuRlyxz9VqESMP21pKUuR/355tjSNWQuhgUSWI/XRIHslb/cB0Bg==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-commandbar@^1.81.0":
-  version "1.81.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-commandbar/-/analytics-browser-actions-commandbar-1.81.0.tgz#1f2f76ad55263c0b918a8e71700f24e3d4e6996e"
-  integrity sha512-Ie0ZEnHb19I73yQvTpN6uVbKlbHE9MAB2AGJTy60vEtjHbzhwoa4aZJGv5zuy4YwrjwbAiNg+9Dj3tPMI6BtSg==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-contentstack-web@^1.24.0":
-  version "1.24.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-contentstack-web/-/analytics-browser-actions-contentstack-web-1.24.0.tgz#cac99840180c56b87d859fef634fd954304bf03e"
-  integrity sha512-+9EmBatPvl+p/xDunv89oDhdEVLnWlSDHUII/I3n9+CXHffMlz9gpP6h08ZZf47PqKrIXUOiq4mDswCS7CZVSQ==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-devrev@^1.68.0":
-  version "1.68.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-devrev/-/analytics-browser-actions-devrev-1.68.0.tgz#04892977f695e5301beaa5c8ad7cb56f77c37a1e"
-  integrity sha512-WJ4vU34JVyV7DAbnWS+r3PKgxP07j3nThHg4d+m5asAUeOqojPQTqhnn+VjqqidvZUKSpEW235wFrR7ZcZjTQw==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-friendbuy@^1.82.0":
-  version "1.82.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-friendbuy/-/analytics-browser-actions-friendbuy-1.82.0.tgz#f6c1e927692d5251beb4c38199907cfacd607906"
-  integrity sha512-HoTLMfCBdDUMmQV49keLBwsnvvLk5pb08dQ49D6EDkV97+GxS4dweKFVx3j0M5WGXdQx/EG21pk2Hv0SHklvxA==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/actions-shared" "^1.132.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-fullstory@^1.83.0":
-  version "1.83.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-fullstory/-/analytics-browser-actions-fullstory-1.83.0.tgz#605721ababc39078997f59f5f0896d918d144fd3"
-  integrity sha512-MXO5oyaHyacSkCIlfxPFrtnVrTXwV6Smxedj73flgelb56rOB7jD/955EgiJc7ds+8UTD0lbgu2chNx3hrTq9w==
-  dependencies:
-    "@fullstory/browser" "^2.0.3"
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-google-analytics-4@^1.88.0":
-  version "1.88.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-google-analytics-4/-/analytics-browser-actions-google-analytics-4-1.88.0.tgz#808d72bfbb863c1eb97a64dbbbb5c8c96c3a8f5f"
-  integrity sha512-Fmgs9ZaaMczrwYr4NFGMSy6E0bjVko+HYQ3isuEJljGK1A/PVKO6BG5mvlyyLXIiSVR8V1K6ArLfmur0gbNMQQ==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-google-campaign-manager@^1.72.0":
-  version "1.72.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-google-campaign-manager/-/analytics-browser-actions-google-campaign-manager-1.72.0.tgz#29ce7c1a50ff743e5f9cee742bcddac8db33aa4d"
-  integrity sha512-zK27OfxlksEYXSHjyet5K1aJEwL0K6LgzlEQxTrBdR5KTmlyacueiJ/33JFJnmU3Df+M8LjE830tz1/qLMIThw==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-heap@^1.81.0":
-  version "1.81.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-heap/-/analytics-browser-actions-heap-1.81.0.tgz#e137ee505cd22d0dce1670d917992b53cd5accc1"
-  integrity sha512-wXUT0ScolptbT763qfcFH0/AHOsVEUPGXbAEQOEIHBeZAwy2/ouSPgrykbzK/ws6qQJI14x4xVjD4W8To2XYAw==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-hubspot@^1.81.0":
-  version "1.81.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-hubspot/-/analytics-browser-actions-hubspot-1.81.0.tgz#151dc5364b62a801b7a29fc5cde5a6659b7b2c25"
-  integrity sha512-GiSxz2jANtEn5OUWbXZ9OQMZP7x2d/n05u81QEDZfjQx4JqNnQGI4kknxKrxEwae6O709jdPXqLjmPYUxoiwdA==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-intercom@^1.86.0":
-  version "1.86.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-intercom/-/analytics-browser-actions-intercom-1.86.0.tgz#3d60b8e606bbd05fdaffdbca46d566c413c83c20"
-  integrity sha512-D4uE3jVk/PmdsGZSoCBGfVZMR4AWsCCqIpNgkKSNf4ObcvEaUl8xPvwNCRwWfVwQdlWZbV3OaBPvvPIr9ODdhg==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/actions-shared" "^1.132.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-iterate@^1.81.0":
-  version "1.81.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-iterate/-/analytics-browser-actions-iterate-1.81.0.tgz#79ba8f739fdacd92b43d723decd82067475be083"
-  integrity sha512-9gxNNfYdfTlqJCtE/sHvrhsBjhgn5m0Q4Qp0MMUh4oPhnvZcxoY2BOZT4EqrYjA6Meqxjjpt4Jm0aLDzH5sqMQ==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-jimo@^1.71.0":
-  version "1.71.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-jimo/-/analytics-browser-actions-jimo-1.71.0.tgz#b5f5d22b070414a1afe291f1bb11097839b18c9a"
-  integrity sha512-GLqQy91eiY4LZVElmagJ3PcDkzPWZkcZ2wtrHBm+4JeCrOwiiQl1NoL5qQSotA+uqUDYIkNAj0FbKJblk+1FSw==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-koala@^1.83.0":
-  version "1.83.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-koala/-/analytics-browser-actions-koala-1.83.0.tgz#ad9135e6889d966443fabc9263902c221cf15188"
-  integrity sha512-XoTjjj+f+Hhqu9r4coNAMRsS8JicFHbCVqHU0LavrXLXXf+25qgHj4iRl6L347pPY4c1AzrfV9fG3FK6UgNmRA==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-logrocket@^1.82.0":
-  version "1.82.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-logrocket/-/analytics-browser-actions-logrocket-1.82.0.tgz#a8fad1a19ad435410e86db442fd8314ca6091669"
-  integrity sha512-6vatMtsdxbRHdWkHWA6Sa8WWtee4QeVC2l0rfDzTlYRWyLaJ0RPsuKnIIXwy+57sAP/BkfC6F6G0l3mOTyDPLQ==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-    logrocket "^9.0.0"
-
-"@segment/analytics-browser-actions-pendo-web-actions@^1.71.0":
-  version "1.71.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-pendo-web-actions/-/analytics-browser-actions-pendo-web-actions-1.71.0.tgz#e26ef8ad4791e7b4387417884de5d1cd98285c7a"
-  integrity sha512-vgJjSusZSgRd/t/aM+hFdYJzBI3iCTxB++70eszW9vJFWNf23B7LGydQD2GxKHo4eEXumzgoCP/45H0yR4vL7g==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-playerzero@^1.81.0":
-  version "1.81.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-playerzero/-/analytics-browser-actions-playerzero-1.81.0.tgz#1c8c0a38d8a2976ac7aeb32a26699ff140e9f60d"
-  integrity sha512-VjBwuhYj1YztYXy0vYxSdtnAt1Pe3P+GjaxLJMm7g+KzclMpakcuU8EQdoDxHC3LjaLkmDl3whsN+XWES55xZQ==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-replaybird@^1.62.0":
-  version "1.62.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-replaybird/-/analytics-browser-actions-replaybird-1.62.0.tgz#41b13fc0c48ba0bc803ff3a58517708f1d555992"
-  integrity sha512-QMtVZ2pgJYCMEU7+14uiGZSJ6n3YzWBEtn3I9ulhNXoUdm7XBDl5nK7LkxcRywW5sCPAqzt237mCMxwwVOrInw==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-ripe@^1.81.0":
-  version "1.81.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-ripe/-/analytics-browser-actions-ripe-1.81.0.tgz#14d1b5c7955372ad8fbdb1fef170af825c088f79"
-  integrity sha512-c85rOX5sleCew34RYSzkgZaQVa2by9bONMUTLqBTyG0HCp37kHrkHHZr+TgnRTcQOUKAwG0BXRUnxMER7/+4aw==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sabil/-/analytics-browser-actions-sabil-1.6.0.tgz#4e1faf694e7b9b513e7309b74654abc31e789a37"
   integrity sha512-iDHYNFz3FQWiR6iSe9YWlHF14ztzrF/M2aJL+kKGqW422c3v/bOpYlnP9gbxryLATKH6N+PreYEc6pL+l55NpA==
   dependencies:
     "@segment/browser-destination-runtime" "^1.6.0"
-
-"@segment/analytics-browser-actions-screeb@^1.82.0":
-  version "1.82.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-screeb/-/analytics-browser-actions-screeb-1.82.0.tgz#88538e5074d6d5cf09f52dd8bb7ebdd145c69d9a"
-  integrity sha512-ZDNTVqFcK2QsC2o0Ne5fyTrysdOoASfiVNhjw4JOvsx4zYz2jMihacpUdXl6Y9yWresj4VC0ivWcD7SjkYz/dQ==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-snap-plugins@^1.62.0":
-  version "1.62.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-snap-plugins/-/analytics-browser-actions-snap-plugins-1.62.0.tgz#4c663664baa38d73ddd56c97997e23398d4df678"
-  integrity sha512-PJCGeCAln4PtMRExoRY3O9jvRi7mA6QCQ1vNW1M6EPQmwr5DqXCkbjuA6/Qz/2eO+tCh9bu0uT/boGArqgWxZA==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-sprig@^1.81.0":
-  version "1.81.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sprig/-/analytics-browser-actions-sprig-1.81.0.tgz#ac44e5cbd6daee802ab39154a410e63de8d3c1ee"
-  integrity sha512-nDBWkPWLD/omvWB7mYvYFLXiigJC+AOl0NtYzb4jNCNifF4jVKvedWXsBpbInxtempWl8hGafXOzAB6rHFDRKg==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-stackadapt@^1.83.0":
-  version "1.83.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-stackadapt/-/analytics-browser-actions-stackadapt-1.83.0.tgz#a38c51bc445a7b70a922a2842f7a80ec5120b180"
-  integrity sha512-AyChCGyZybBYU2hnANFAWumghl6Wr4WRDw82E9p6pyhrjJ+n0Uz3IH6MsAecQ/Z+1J/2dbjbp3oBgtjXVh8GvA==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-survicate@^1.57.0":
-  version "1.57.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-survicate/-/analytics-browser-actions-survicate-1.57.0.tgz#c8149e901d572fb272b4d90f2f23e050ea16094a"
-  integrity sha512-HkQHq0e18Fb5GGkUStQN/98kZBy5vob1Sfy8gy7kA/k/iDRlPpx+HvngeG+tJfitv4TuhnFeI7+zSrMuEqb1OA==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-tiktok-pixel@^1.82.0":
-  version "1.82.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-tiktok-pixel/-/analytics-browser-actions-tiktok-pixel-1.82.0.tgz#adc63f7f20fee36cef1f3ad6ad93baa7ed96252b"
-  integrity sha512-3YFuPajW8QjY8tYWjXTJqqS9YkTT8qRwrtU5essNWqENfnGy5UxE7ALlpcMQL/dsxbu04mr+c+a1b/DVV+m5gA==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-upollo@^1.81.0":
-  version "1.81.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-upollo/-/analytics-browser-actions-upollo-1.81.0.tgz#cb87129db078e775c2bd3bac98f434f1b0d09c40"
-  integrity sha512-qfek+xggqGRZ9ZAPCd4KFvv+u+dCd1av+iGHLQjn2n5XDflieJIUHpO/2IPbk2wu33xthwDP0ZFBFx+EIIccqQ==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-userpilot@^1.81.0":
-  version "1.81.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-userpilot/-/analytics-browser-actions-userpilot-1.81.0.tgz#2ea197ffb4222bab707e4abcdac75854aebf9c98"
-  integrity sha512-86O8Hn/0po2AY468xkpBJDciQ0+V4iRlRWzM1HeG7yUZvWjZLB5RDf8HXiQfaBJJ1ZbWFZwf8UGv+f+Cx6W+eg==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-utils@^1.81.0":
-  version "1.81.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-utils/-/analytics-browser-actions-utils-1.81.0.tgz#95a78809dc9bd50d49aa781c46109ca51a9ad1a4"
-  integrity sha512-pNyi9rnB+EkntWk4RZFYK1MIY1Z000tZCwNMXRm+Z+lvyr+AInkt0lMqLeZQEsCTX6E9xGHOokMxWs3mSTIJBg==
-  dependencies:
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-vwo@^1.84.0":
-  version "1.84.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-vwo/-/analytics-browser-actions-vwo-1.84.0.tgz#8f91b7333c9278458f0d9b890700a38d425fc9e4"
-  integrity sha512-Bd6bjox/NUX4jsriGO+Up17tZ/7ipAVPMC0/Djns8RS5VbcLFfVJZAeoE8Yz52iIERxWi6NsVDca6By+CnER+Q==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-actions-wiseops@^1.82.0":
-  version "1.82.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-wiseops/-/analytics-browser-actions-wiseops-1.82.0.tgz#0286b3ef6869881b46ca95cd75a99cfbaead77b4"
-  integrity sha512-q31u33rLrzVJUtT5YN95ix1WxTd9ygrWEgpBZdZQzBKbbJ64jQdDB9o4DUydS8JgXhfW3WtN+wl/rl8QRS7H1A==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
-
-"@segment/analytics-browser-hubble-web@^1.67.0":
-  version "1.67.0"
-  resolved "https://registry.yarnpkg.com/@segment/analytics-browser-hubble-web/-/analytics-browser-hubble-web-1.67.0.tgz#c49b426fec5a2ef20e1d21a644d0cd04955dde13"
-  integrity sha512-v5tt76RVnGsfGpJYnMLCtOq9o4n+HfHTB2rnfiTIPzZGRQaiYp1BTBxE2lWPKOplqZgD6136hrv+4h2UkL2UcA==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
 
 "@segment/analytics-core@1.3.0":
   version "1.3.0"
@@ -3829,65 +3550,12 @@
   dependencies:
     unfetch "^3.1.1"
 
-"@segment/browser-destination-runtime@^1.6.0", "@segment/browser-destination-runtime@^1.80.0":
-  version "1.80.0"
-  resolved "https://registry.yarnpkg.com/@segment/browser-destination-runtime/-/browser-destination-runtime-1.80.0.tgz#f9a262dc230cd695a93f6c6707d77784f2b5ea78"
-  integrity sha512-kx7/yGRYMRLcZUKLyNhUH/RPpLeG0rt5deHZc/tZ7YIZJ4vO+DPcQO+0aqGLZb6lAd/2M6ZyDEeaCbZ4SrUdZw==
-  dependencies:
-    "@segment/actions-core" "^3.151.0"
-
 "@segment/destination-subscriptions@^3.37.0":
   version "3.37.0"
   resolved "https://registry.yarnpkg.com/@segment/destination-subscriptions/-/destination-subscriptions-3.37.0.tgz#99ae16a2fd56469752fc2570465ec1ebb9b32df9"
   integrity sha512-Al+ABKWlp8LsygKQ0IakmS/4B1MXvTOPDB20mpGA5sMNL+krk2EN4kmaZaA4EfF3ZZjQqmBwTfvQPVGzEJQ3pA==
   dependencies:
     "@segment/fql-ts" "^1.10.1"
-
-"@segment/destinations-manifest@^1.71.0":
-  version "1.112.0"
-  resolved "https://registry.yarnpkg.com/@segment/destinations-manifest/-/destinations-manifest-1.112.0.tgz#6973e0aaed660cc804f96767e3556e70658d7dde"
-  integrity sha512-oTz5LG+CjMPVN0GphAd3evcbnaYVaD9Zh2QtP1YaTJ/+TWCsb82a58cYjZZDUNoOuxAgv91ZmPAYp+otZJKy9Q==
-  dependencies:
-    "@segment/analytics-browser-actions-1flow" "^1.63.0"
-    "@segment/analytics-browser-actions-adobe-target" "^1.82.0"
-    "@segment/analytics-browser-actions-algolia-plugins" "^1.58.0"
-    "@segment/analytics-browser-actions-amplitude-plugins" "^1.81.0"
-    "@segment/analytics-browser-actions-braze" "^1.90.0"
-    "@segment/analytics-browser-actions-braze-cloud-plugins" "^1.90.0"
-    "@segment/analytics-browser-actions-bucket" "^1.62.0"
-    "@segment/analytics-browser-actions-cdpresolution" "^1.68.0"
-    "@segment/analytics-browser-actions-commandbar" "^1.81.0"
-    "@segment/analytics-browser-actions-contentstack-web" "^1.24.0"
-    "@segment/analytics-browser-actions-devrev" "^1.68.0"
-    "@segment/analytics-browser-actions-friendbuy" "^1.82.0"
-    "@segment/analytics-browser-actions-fullstory" "^1.83.0"
-    "@segment/analytics-browser-actions-google-analytics-4" "^1.88.0"
-    "@segment/analytics-browser-actions-google-campaign-manager" "^1.72.0"
-    "@segment/analytics-browser-actions-heap" "^1.81.0"
-    "@segment/analytics-browser-actions-hubspot" "^1.81.0"
-    "@segment/analytics-browser-actions-intercom" "^1.86.0"
-    "@segment/analytics-browser-actions-iterate" "^1.81.0"
-    "@segment/analytics-browser-actions-jimo" "^1.71.0"
-    "@segment/analytics-browser-actions-koala" "^1.83.0"
-    "@segment/analytics-browser-actions-logrocket" "^1.82.0"
-    "@segment/analytics-browser-actions-pendo-web-actions" "^1.71.0"
-    "@segment/analytics-browser-actions-playerzero" "^1.81.0"
-    "@segment/analytics-browser-actions-replaybird" "^1.62.0"
-    "@segment/analytics-browser-actions-ripe" "^1.81.0"
-    "@segment/analytics-browser-actions-sabil" "^1.6.0"
-    "@segment/analytics-browser-actions-screeb" "^1.82.0"
-    "@segment/analytics-browser-actions-snap-plugins" "^1.62.0"
-    "@segment/analytics-browser-actions-sprig" "^1.81.0"
-    "@segment/analytics-browser-actions-stackadapt" "^1.83.0"
-    "@segment/analytics-browser-actions-survicate" "^1.57.0"
-    "@segment/analytics-browser-actions-tiktok-pixel" "^1.82.0"
-    "@segment/analytics-browser-actions-upollo" "^1.81.0"
-    "@segment/analytics-browser-actions-userpilot" "^1.81.0"
-    "@segment/analytics-browser-actions-utils" "^1.81.0"
-    "@segment/analytics-browser-actions-vwo" "^1.84.0"
-    "@segment/analytics-browser-actions-wiseops" "^1.82.0"
-    "@segment/analytics-browser-hubble-web" "^1.67.0"
-    "@segment/browser-destination-runtime" "^1.80.0"
 
 "@segment/facade@^3.4.9":
   version "3.4.10"
