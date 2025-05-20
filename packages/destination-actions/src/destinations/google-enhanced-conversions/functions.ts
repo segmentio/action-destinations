@@ -34,7 +34,7 @@ import { RefreshTokenResponse } from '.'
 import { STATUS_CODE_MAPPING } from './constants'
 import { processHashingV2 } from '../../lib/hashing-utils'
 export const API_VERSION = 'v17'
-export const CANARY_API_VERSION = 'v17'
+export const CANARY_API_VERSION = 'v19'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 
 type GoogleAdsErrorData = {
@@ -539,7 +539,7 @@ const handleGoogleAdsError = (error: any) => {
   const errors = (error as GoogleAdsError)?.response?.data?.error?.details ?? []
   for (const errorDetails of errors) {
     for (const errorItem of errorDetails.errors) {
-      // https://developers.google.com/google-ads/api/reference/rpc/v17/DatabaseErrorEnum.DatabaseError
+      // https://developers.google.com/google-ads/api/reference/rpc/v19/DatabaseErrorEnum.DatabaseError
       if (errorItem?.errorCode?.databaseError === 'CONCURRENT_MODIFICATION') {
         throw new RetryableError(
           errorItem?.message ??
