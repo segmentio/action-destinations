@@ -25,13 +25,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   mode: 'cloud',
 
   authentication: {
-    scheme: 'custom',
+    scheme: 'oauth2',
     fields: {
       api_key: {
         type: 'password',
         label: 'API Key',
         description: `You can find this by going to Klaviyo's UI and clicking Account > Settings > API Keys > Create API Key`,
-        required: true
+        required: false
       }
     },
     testAuthentication: (request) => {
