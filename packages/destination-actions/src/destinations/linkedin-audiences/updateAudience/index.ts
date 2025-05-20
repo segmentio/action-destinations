@@ -4,7 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
 import { LinkedInAudiencePayload } from '../types'
-import { processHashingV2 } from '../../../lib/hashing-utils'
+import { processHashing } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Segment',
@@ -293,7 +293,7 @@ function getUserIds(settings: Settings, payload: Payload): Record<string, string
   if (payload.email && settings.send_email === true) {
     userIds.push({
       idType: 'SHA256_EMAIL',
-      idValue: processHashingV2(payload.email, 'sha256', 'hex')
+      idValue: processHashing(payload.email, 'sha256', 'hex')
     })
   }
 

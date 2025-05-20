@@ -10,7 +10,7 @@ import {
   EventMetadata,
   DatapProcessingOptions
 } from './types'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
 type ProductsType = StandardEvent['products'] | CustomEvent['products']
@@ -165,5 +165,5 @@ function canonicalizeEmail(value: string): string {
 
 const smartHash = (value: string | undefined, cleaningFunction?: (value: string) => string): string | undefined => {
   if (value === undefined) return
-  return processHashingV2(value, 'sha256', 'hex', cleaningFunction)
+  return processHashing(value, 'sha256', 'hex', cleaningFunction)
 }
