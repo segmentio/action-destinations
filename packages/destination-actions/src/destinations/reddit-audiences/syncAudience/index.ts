@@ -98,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       label: 'Batch events',
       description:
-        'When enabled, the action will batch events before sending them to LaunchDarkly. In most cases, batching should be enabled.',
+        'When enabled, the action will batch events before sending them to Reddit. In most cases, batching should be enabled.',
       required: false,
       default: true
     },
@@ -107,6 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Max batch size',
       description: 'The maximum number of events to batch when sending data to Reddit.',
       required: false,
+      unsafe_hidden: true,
       default: 2500
     }
   },
