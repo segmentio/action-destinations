@@ -107,7 +107,13 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'integer',
       required: false,
       unsafe_hidden: true,
-      default: 1000,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits.batch_size' },
+          then: { '@path': '$.traits.batch_size' },
+          else: 1000
+        }
+      },
       minimum: 1,
       maximum: 1000
     }
