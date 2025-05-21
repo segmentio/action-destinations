@@ -2,18 +2,21 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { dynamicFields } from './functions/dynamic-field-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Campaign',
   description: 'Trigger a Braze Campaign via API-triggered delivery',
   defaultSubscription: 'type = "track"',
+  dynamicFields,
   fields: {
     campaign_id: {
       label: 'Campaign ID',
       description:
         'The ID of the Braze campaign to trigger. The campaign must be an API-triggered campaign created in Braze.',
       type: 'string',
-      required: true
+      required: true,
+      dynamic: true
     },
     send_id: {
       label: 'Send ID',
@@ -36,6 +39,26 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: false
     },
+    attachments: {
+      label: 'Attachments',
+      description: 'Attachments to send along with the campaign. Limited to 2MB per file.',
+      type: 'object',
+      multiple: true,
+      properties: {
+        file_name: {
+          label: 'File Name',
+          description: 'The name of the file to be attached.',
+          type: 'string',
+          required: true
+        },
+        url: {
+          label: 'URL',
+          description: 'The URL of the file to be attached.',
+          type: 'string',
+          required: true
+        }
+      }
+    },
     recipients: {
       label: 'Recipients',
       description: 'An array of user identifiers to send the campaign to.',
@@ -44,7 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
       properties: {
         external_user_id: {
           label: 'External User ID',
-          description: 'The external ID of the user to send the campaign to.',
+          description: 'External identifier of user to receive message.',
           type: 'string',
           default: {
             '@path': '$.userId'
@@ -52,27 +75,39 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         user_alias: {
           label: 'User Alias',
-          description: 'A user alias object to identify the user.',
-          type: 'object',
-          properties: {
-            alias_name: {
-              label: 'Alias Name',
-              type: 'string'
-            },
-            alias_label: {
-              label: 'Alias Label',
-              type: 'string'
-            }
+          description: 'User alias object to identify the user.',
+          type: 'object'
+        },
+        email: {
+          label: 'Email',
+          description: 'Email address of user to receive message.',
+          type: 'string',
+          default: {
+            '@path': '$.traits.email'
           }
         },
-        braze_id: {
-          label: 'Braze ID',
-          description: 'The Braze user identifier.',
+        prioritization: {
+          label: 'Prioritization',
+          description: 'Prioritization array; required when using email.',
           type: 'string',
-          allowNull: true,
-          default: {
-            '@path': '$.properties.braze_id'
-          }
+          multiple: true
+        },
+        trigger_properties: {
+          label: 'User Trigger Properties',
+          description: 'Properties that will override the default trigger_properties for a specific user.',
+          type: 'object'
+        },
+        send_to_existing_only: {
+          label: 'Send to Existing Only',
+          description:
+            "Defaults to true, can't be used with user aliases; if set to false, an attributes object must also be included.",
+          type: 'boolean'
+        },
+        attributes: {
+          label: 'User Attributes',
+          description:
+            'Fields in the attributes object will create or update an attribute of that name with the given value on the specified user profile before the message is sent and existing values will be overwritten.',
+          type: 'object'
         }
       }
     },
@@ -84,11 +119,6 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_id: {
       label: 'Segment ID',
       description: 'The ID of the segment to send the campaign to.',
-      type: 'string'
-    },
-    audience_id: {
-      label: 'Connected Audience ID',
-      description: 'The ID of the Connected Audience to send the campaign to.',
       type: 'string'
     }
   },
@@ -135,15 +165,39 @@ const action: ActionDefinition<Settings, Payload> = {
           result.external_user_id = recipient.external_user_id
         }
 
-        if (recipient.braze_id) {
-          result.braze_id = recipient.braze_id
-        }
-
         if (recipient.user_alias?.alias_name && recipient.user_alias?.alias_label) {
           result.user_alias = {
             alias_name: recipient.user_alias.alias_name,
             alias_label: recipient.user_alias.alias_label
           }
+        }
+
+        if (recipient.email) {
+          result.email = recipient.email
+        }
+
+        if (recipient.prioritization && recipient.prioritization.length > 0) {
+          result.prioritization = recipient.prioritization
+        }
+
+        if (recipient.trigger_properties) {
+          result.trigger_properties = recipient.trigger_properties
+        }
+
+        if (recipient.send_to_existing_only !== undefined) {
+          result.send_to_existing_only = recipient.send_to_existing_only
+        }
+
+        if (recipient.attributes) {
+          result.attributes = recipient.attributes
+        }
+
+        if (recipient.custom_events?.length) {
+          result.custom_events = recipient.custom_events
+        }
+
+        if (recipient.purchases?.length) {
+          result.purchases = recipient.purchases
         }
 
         return result
@@ -167,6 +221,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.audience) {
       requestBody.audience = payload.audience
+    }
+
+    if (payload.attachments?.length) {
+      requestBody.attachments = payload.attachments
     }
 
     return request(`${settings.endpoint}/campaigns/trigger/send`, {
