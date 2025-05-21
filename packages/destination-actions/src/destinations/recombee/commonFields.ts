@@ -36,7 +36,6 @@ export function interactionFields(interactionName: string): Record<string, Input
       description: `Additional data to be stored with the ${interactionName}. *Keep this field empty unless instructed by the Recombee Support team.*`,
       type: 'object',
       required: false,
-      displayMode: 'collapsed',
       defaultObjectUI: 'keyvalue:only'
     }
   }

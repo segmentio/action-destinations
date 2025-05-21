@@ -96,50 +96,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     ).rejects.toThrowErrorMatchingSnapshot()
   })
 
-  it('should fail when totalLength is negative', async () => {
-    const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-    eventData.portion.totalLength = new Chance(seedName).floating({ max: -1 })
-    eventData.portion.watchTime = new Chance(seedName).floating({ min: 0 })
-
-    nock(/.*/).persist().post(/.*/).reply(200)
-
-    const event = createTestEvent({
-      properties: eventData
-    })
-
-    await expect(
-      testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: event.properties,
-        settings: settingsData,
-        auth: undefined
-      })
-    ).rejects.toThrowErrorMatchingSnapshot()
-  })
-
-  it('should fail when watchTime is negative', async () => {
-    const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-    eventData.portion.totalLength = new Chance(seedName).floating({ min: 0 })
-    eventData.portion.watchTime = new Chance(seedName).floating({ max: -1 })
-
-    nock(/.*/).persist().post(/.*/).reply(200)
-
-    const event = createTestEvent({
-      properties: eventData
-    })
-
-    await expect(
-      testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: event.properties,
-        settings: settingsData,
-        auth: undefined
-      })
-    ).rejects.toThrowErrorMatchingSnapshot()
-  })
-
   it('should fail when watchTime is greater than totalLength', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)

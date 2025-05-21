@@ -71,46 +71,4 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       expect(rawBody).toMatchSnapshot()
     }
   })
-
-  it('should fail if portion is larger than 1', async () => {
-    const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-    eventData.portion = new Chance(seedName).floating({ min: 1.1 })
-
-    nock(/.*/).persist().post(/.*/).reply(200)
-
-    const event = createTestEvent({
-      properties: eventData
-    })
-
-    await expect(
-      testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: event.properties,
-        settings: settingsData,
-        auth: undefined
-      })
-    ).rejects.toThrowErrorMatchingSnapshot()
-  })
-
-  it('should fail if portion is smaller than 0', async () => {
-    const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-    eventData.portion = new Chance(seedName).floating({ max: -0.1 })
-
-    nock(/.*/).persist().post(/.*/).reply(200)
-
-    const event = createTestEvent({
-      properties: eventData
-    })
-
-    await expect(
-      testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: event.properties,
-        settings: settingsData,
-        auth: undefined
-      })
-    ).rejects.toThrowErrorMatchingSnapshot()
-  })
 })

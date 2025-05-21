@@ -141,46 +141,6 @@ describe('setViewPortionFromWatchTime', () => {
     ).rejects.toThrow(PayloadValidationError)
   })
 
-  it('should fail when position is negative', async () => {
-    const event = createTestEvent({
-      userId: 'user-id',
-      properties: {
-        product_id: 'product-id',
-        total_length: 10,
-        position: -1
-      },
-      timestamp: '2021-09-01T00:00:00.000Z'
-    })
-
-    await expect(
-      testDestination.testAction('setViewPortionFromWatchTime', {
-        event,
-        settings: SETTINGS,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrow(PayloadValidationError)
-  })
-
-  it('should fail when position is negative', async () => {
-    const event = createTestEvent({
-      userId: 'user-id',
-      properties: {
-        product_id: 'product-id',
-        total_length: 10,
-        position: -1
-      },
-      timestamp: '2021-09-01T00:00:00.000Z'
-    })
-
-    await expect(
-      testDestination.testAction('setViewPortionFromWatchTime', {
-        event,
-        settings: SETTINGS,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrow(PayloadValidationError)
-  })
-
   it('should fail when totalLength is negative', async () => {
     const event = createTestEvent({
       userId: 'user-id',

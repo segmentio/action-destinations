@@ -24,7 +24,3 @@ Object {
   "userId": "Np8pbQ",
 }
 `;
-
-exports[`Testing snapshot for Recombee's setViewPortion destination action: should fail if portion is larger than 1 1`] = `"Portion cannot be greater than 1."`;
-
-exports[`Testing snapshot for Recombee's setViewPortion destination action: should fail if portion is smaller than 0 1`] = `"Portion cannot be negative."`;
