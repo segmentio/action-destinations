@@ -21,8 +21,9 @@ const destination: DestinationDefinition<Settings> = {
           { value: 'https://r2-api.dotdigital.com', label: 'r2' },
           { value: 'https://r3-api.dotdigital.com', label: 'r3' }
         ],
+        default: 'https://r1-api.dotdigital.com',
         required: true
-      },
+      },    
       username: {
         label: 'Username',
         description: 'Your Dotdigital username',
