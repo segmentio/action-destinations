@@ -98,6 +98,16 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       type: 'string',
       default: { '@path': '$.context.timezone' }
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'integer',
+      required: false,
+      unsafe_hidden: true,
+      default: 100,
+      minimum: 1,
+      maximum: 1000
     }
   },
   perform: (request, { settings, payload }) => {
