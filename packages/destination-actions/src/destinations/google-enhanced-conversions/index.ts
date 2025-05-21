@@ -144,6 +144,11 @@ const destination: AudienceDestinationDefinition<Settings> = {
         if (!status && err.response && err.response.status) {
           status = Number(err.response.status)
         }
+        // NOTE:
+        // We are embedding the entire error message here.
+        // This is not ideal as we should properly parse it and assemble the respective error message.
+        // For now, this and its counterpart in EAMS will parse the error and show it to the user but
+        // ultimately destinations should own this.
         const message = err.response?.content || err.message
 
         throw new IntegrationError(message, 'CREATE_AUDIENCE_FAILED', status || 400)
