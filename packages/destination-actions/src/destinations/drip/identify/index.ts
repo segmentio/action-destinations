@@ -15,6 +15,7 @@ const person = (payload: Payload) => {
     email: payload.email,
     ip_address: payload.ip,
     phone: payload.phone,
+    initial_status: payload.initial_status,
     status: payload.status,
     status_updated_at: payload.status_updated_at,
     tags: payload.tags?.split(',').map((tag) => tag.trim()),
@@ -57,18 +58,25 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: { '@path': '$.traits.phone' }
     },
-    status: {
-      description: "The person's subscription status.",
-      label: 'Status',
+    initial_status: {
+      description: "The person's subscription status if newly identified.",
+      label: 'Initial Status',
       required: false,
       type: 'string',
       default: {
         '@if': {
-          exists: { '@path': '$.traits.status' },
-          then: { '@path': '$.traits.status' },
+          exists: { '@path': '$.traits.initial_status' },
+          then: { '@path': '$.traits.initial_status' },
           else: 'unsubscribed'
         }
       }
+    },
+    status: {
+      description: "The person's subscription status. Overrides initial_status.",
+      label: 'Status',
+      required: false,
+      type: 'string',
+      default: { '@path': '$.traits.status' }
     },
     status_updated_at: {
       description: "The timestamp associated with the update to a person's status.",
@@ -99,9 +107,10 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
   performBatch: (request, { settings, payload }) => {
+    const subs = payload.map(person)
     return request(`https://api.getdrip.com/v2/${settings.accountId}/subscribers/batches`, {
       method: 'POST',
-      json: { subscribers: payload.map(person) }
+      json: { batches: [{ subscribers: subs }] }
     })
   }
 }

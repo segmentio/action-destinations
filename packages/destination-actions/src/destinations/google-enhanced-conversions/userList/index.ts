@@ -1,13 +1,20 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createGoogleAudience, getGoogleAudience, getListIds, handleUpdate, verifyCustomerId } from '../functions'
+import {
+  createGoogleAudience,
+  getGoogleAudience,
+  getListIds,
+  handleUpdate,
+  processBatchPayload,
+  verifyCustomerId
+} from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Customer Match User List',
-  description: 'Sync a Segment Engage Audience into a Google Customer Match User List.',
+  description: 'Sync users into a Google Customer Match User List.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   syncMode: {
     description: 'Define how the records will be synced to Google',
@@ -103,7 +110,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',
       description:
-        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
+        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v19/Consent).',
       type: 'string',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
@@ -116,7 +123,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ad Personalization Consent State',
       type: 'string',
       description:
-        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v19/Consent).',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
@@ -319,8 +326,7 @@ const action: ActionDefinition<Settings, Payload> = {
     { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-
-    return await handleUpdate(
+    return await processBatchPayload(
       request,
       settings,
       audienceSettings,

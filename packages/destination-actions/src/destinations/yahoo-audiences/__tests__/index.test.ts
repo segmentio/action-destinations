@@ -65,10 +65,9 @@ describe('Yahoo Audiences', () => {
       it('trivial', () => {
         // Given
         const payloads: Payload[] = [{} as Payload]
-        const features = {}
 
         // When
-        const result = gen_update_segment_payload(payloads, features)
+        const result = gen_update_segment_payload(payloads)
 
         // Then
         expect(result).toBeTruthy()
@@ -117,10 +116,8 @@ describe('Yahoo Audiences', () => {
             identifier: 'email'
           } as Payload
         ]
-
-        const features = {}
         // When
-        const result = gen_update_segment_payload(payloads, features)
+        const result = gen_update_segment_payload(payloads)
         // Then
         expect(result).toBeTruthy()
         expect(result.data.length).toBe(2)
@@ -143,11 +140,8 @@ describe('Yahoo Audiences', () => {
             identifier: 'email'
           } as Payload
         ]
-        const features = {
-          'smart-hashing': true
-        }
 
-        const result = gen_update_segment_payload(payloads, features)
+        const result = gen_update_segment_payload(payloads)
         expect(result.data[0]).toContain('67e28cdcc3e845d3a4da05ca9fe5ddb7320a83b4cc2167f0555a3b04f63511e3')
       })
     })

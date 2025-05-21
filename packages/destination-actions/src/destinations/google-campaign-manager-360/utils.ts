@@ -1,4 +1,4 @@
-import { RequestClient, PayloadValidationError, Features } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Payload as UploadPayload } from './conversionUpload/generated-types'
 import { Payload as Adjustayload } from './conversionAdjustmentUpload/generated-types'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
@@ -23,10 +23,9 @@ export async function send(
   settings: Settings,
   payloads: UploadPayload[] | Adjustayload[],
   isAdjustment: boolean,
-  auth?: AuthTokens,
-  features?: Features
+  auth?: AuthTokens
 ) {
-  const json = getJSON(payloads, settings, features)
+  const json = getJSON(payloads, settings)
 
   if (json.conversions.length === 0) {
     maybeThrow(`No valid payloads found in batch of size ${payloads.length}`, true)
@@ -48,11 +47,7 @@ export async function send(
   return response
 }
 
-export function getJSON(
-  payloads: UploadPayload[] | Adjustayload[],
-  settings: Settings,
-  features?: Features
-): InsertRequest {
+export function getJSON(payloads: UploadPayload[] | Adjustayload[], settings: Settings): InsertRequest {
   const json: InsertRequest = {
     conversions: [] as Conversion[],
     kind: 'dfareporting#conversionsBatchInsertRequest'
@@ -150,7 +145,7 @@ export function getJSON(
       ordinal,
       quantity,
       timestampMicros: (() => {
-        return String(BigInt(new Date(timestamp).getTime()))
+        return String(BigInt(new Date(timestamp).getTime()) * 1000n)
       })(),
       treatmentForUnderage: treatmentForUnderage ?? undefined,
       userIdentifiers: (() => {
@@ -159,25 +154,19 @@ export function getJSON(
         const identifiers: UserIdentifier[] = []
         if (email) {
           identifiers.push({
-            hashedEmail: processHashing(email, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
+            hashedEmail: processHashing(email, 'sha256', 'hex')
           })
         }
         if (phone) {
           identifiers.push({
-            hashedPhoneNumber: processHashing(phone, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
+            hashedPhoneNumber: processHashing(phone, 'sha256', 'hex')
           })
         }
         if (firstName || lastName || streetAddress || city || state || postalCode || countryCode) {
           const addressInfo: AddressInfo = {
-            hashedFirstName: firstName
-              ? processHashing(firstName, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
-              : undefined,
-            hashedLastName: lastName
-              ? processHashing(lastName, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
-              : undefined,
-            hashedStreetAddress: streetAddress
-              ? processHashing(streetAddress, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
-              : undefined,
+            hashedFirstName: firstName ? processHashing(firstName, 'sha256', 'hex') : undefined,
+            hashedLastName: lastName ? processHashing(lastName, 'sha256', 'hex') : undefined,
+            hashedStreetAddress: streetAddress ? processHashing(streetAddress, 'sha256', 'hex') : undefined,
             city: city ?? undefined,
             state: state ?? undefined,
             postalCode: postalCode ?? undefined,
@@ -201,7 +190,7 @@ export function getJSON(
         encryptedUserIdCandidates
           ?.split(',')
           .map((value) => {
-            return processHashing(value, 'sha256', 'hex', features, 'actions-google-campaign-manager-360')
+            return processHashing(value, 'sha256', 'hex')
           })
           .filter((str): str is string => str !== undefined) ?? []
     } as Conversion

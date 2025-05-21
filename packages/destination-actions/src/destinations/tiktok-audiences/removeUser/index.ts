@@ -77,13 +77,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, payload, statsContext, features }) => {
+  perform: async (request, { settings, payload, statsContext }) => {
     statsContext?.statsClient?.incr('removeUserLegacy', 1, statsContext?.tags)
-    return processPayload(request, settings, [payload], 'delete', features || {})
+    return processPayload(request, settings, [payload], 'delete')
   },
-  performBatch: async (request, { settings, payload, statsContext, features }) => {
+  performBatch: async (request, { settings, payload, statsContext }) => {
     statsContext?.statsClient?.incr('removeUserLegacy', 1, statsContext?.tags)
-    return processPayload(request, settings, payload, 'delete', features || {})
+    return processPayload(request, settings, payload, 'delete')
   }
 }
 

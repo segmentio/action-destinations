@@ -6,7 +6,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Delivr AI Audiences',
   slug: 'actions-delivrai-audiences',
   mode: 'cloud',
-  description: 'Sync Segment Engage Audiences to Delivr AI Audience Segmentation.',
+  description: 'Sync users to Delivr AI Audience Segmentation.',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -47,6 +47,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'updateSegment',
+      mapping: {
+        ...defaultValues(updateSegment.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }

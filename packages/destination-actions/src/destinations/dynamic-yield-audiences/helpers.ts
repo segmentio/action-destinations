@@ -1,12 +1,11 @@
-import { Features } from '@segment/actions-core'
 import { processHashing } from '../../lib/hashing-utils'
 
-export function hashAndEncode(property: string, features: Features): string {
-  return processHashing(property, 'sha256', 'hex', features, 'actions-dynamic-yield-audiences')
+export function hashAndEncode(property: string): string {
+  return processHashing(property, 'sha256', 'hex')
 }
 
-export function hashAndEncodeToInt(property: string, features: Features): number {
-  const hash = processHashing(property, 'sha256', 'hex', features, 'actions-dynamic-yield-audiences')
+export function hashAndEncodeToInt(property: string): number {
+  const hash = processHashing(property, 'sha256', 'hex')
   const bigInt = BigInt('0x' + hash)
   let integerString = bigInt.toString()
   if (integerString.length > 16) {
