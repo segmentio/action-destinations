@@ -81,6 +81,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           try {
             const parsed = JSON.parse(message)
 
+            // NOTE
+            // Since we know the structure of the facebook error response,
+            // we can parse the fields we need to form a user-friendly error message.
+            // EAMS will receive this error message and display it to the user.
+
             if (parsed?.error) {
               userTitle = parsed.error.error_user_title
               userMsg = parsed.error.error_user_msg || parsed.error.error_user_message
