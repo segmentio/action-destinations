@@ -52,15 +52,14 @@ function cleanPropObj(
 
     if (typeof value === 'boolean' || typeof value === 'number') {
       cleanObj[cleanKey] = value
-    } else if (
-      typeof value === 'string' &&
-      (value.toLowerCase().trim() === 'true' || value.toLowerCase().trim() === 'false')
-    ) {
-      // If the value can be cast to a boolean
-      cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
-    } else if (!isNaN(Number(value)) && value !== '' && value !== null) {
-      // If the value can be cast to a number
-      cleanObj[cleanKey] = Number(value)
+    } else if (typeof value === 'string') {
+      if (value.toLowerCase().trim() === 'true' || value.toLowerCase().trim() === 'false') {
+        // If the value can be cast to a boolean
+        cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
+      } else {
+        // This ensures that values like "123" will remain strings.
+        cleanObj[cleanKey] = value.trim()
+      }
     } else if (typeof value === 'object' && value !== null) {
       // If the value is an object
       cleanObj[cleanKey] = JSON.stringify(value).trim()

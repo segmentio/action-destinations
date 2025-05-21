@@ -26,6 +26,10 @@ export interface Payload {
    */
   email_address?: string
   /**
+   * The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.
+   */
+  phone_country_code?: string
+  /**
    * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000
    */
   phone_number?: string
@@ -85,11 +89,11 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).
+   * This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v19/Consent).
    */
   ad_user_data_consent_state?: string
   /**
-   * This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).
+   * This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v19/Consent).
    */
   ad_personalization_consent_state?: string
   /**

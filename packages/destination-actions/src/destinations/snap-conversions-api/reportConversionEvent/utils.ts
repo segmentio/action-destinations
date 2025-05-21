@@ -1,21 +1,7 @@
-import { Features, IntegrationError } from '@segment/actions-core'
-import { createHash } from 'crypto'
+import { IntegrationError } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 
 export const isNullOrUndefined = <T>(v: T | null | undefined): v is null | undefined => v == null
-
-export const hash = (value: string | undefined): string | undefined => {
-  if (value === undefined) return
-
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
-}
-
-const isHashedEmail = (email: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(email)
-
-export const hashEmailSafe = (email: string | undefined): string | undefined =>
-  isHashedEmail(String(email)) ? email : hash(email)
 
 export const raiseMisconfiguredRequiredFieldErrorIf = (condition: boolean, message: string) => {
   if (condition) {
@@ -86,10 +72,9 @@ export const parseDateSafe = (v: string | undefined): number | undefined => {
 
 export const smartHash = (
   value: string | undefined,
-  features?: Features,
   cleaningFunction?: (value: string) => string
 ): string | undefined => {
   if (value === undefined) return
 
-  return processHashing(value, 'sha256', 'hex', features, 'actions-snap-conversions', cleaningFunction)
+  return processHashing(value, 'sha256', 'hex', cleaningFunction)
 }

@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-braze",
-  "version": "1.89.0",
+  "version": "1.93.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -35,8 +35,8 @@
   "dependencies": {
     "@braze/web-sdk": "npm:@braze/web-sdk@^5",
     "@braze/web-sdk-v3": "npm:@braze/web-sdk@^3.5.1",
-    "@segment/actions-core": "^3.151.0",
-    "@segment/browser-destination-runtime": "^1.80.0"
+    "@segment/actions-core": "^3.154.0",
+    "@segment/browser-destination-runtime": "^1.83.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"

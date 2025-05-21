@@ -5,4 +5,8 @@ export interface Settings {
    * Podscribe advertiser lookup key
    */
   advertiser: string
+  /**
+   * Podscribe user ID
+   */
+  userId?: string
 }

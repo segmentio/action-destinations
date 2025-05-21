@@ -69,7 +69,7 @@ const expectedValidatedPayload: Payload[] = [
       date_prop: '2024-01-08',
       datetime_prop: '2024-01-08T13:52:50.212Z',
       num_prop: 123.45,
-      numberish_string_prop: 123.45,
+      numberish_string_prop: '123.45',
       obj_prop: '{"key1":"value1","key2":"value2"}',
       str_prop: 'Hello String!'
     },
@@ -80,7 +80,7 @@ const expectedValidatedPayload: Payload[] = [
       date_sprop: '2024-01-08',
       datetime_sprop: '2024-01-08T13:52:50.212Z',
       num_sprop: 123.45,
-      numberish_string_sprop: 123.45,
+      numberish_string_sprop: '123.45',
       obj_sprop: '{"key1":"value1","key2":"value2"}',
       str_sprop: 'Hello String!'
     }

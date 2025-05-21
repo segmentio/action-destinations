@@ -139,8 +139,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           settings
         })
       },
-      performBatch: (request, { payload, settings, audienceSettings }) => {
+      performBatch: (request, { payload, settings, audienceSettings, statsContext }) => {
         const extras = parseExtraSettingsJson(audienceSettings?.extras)
+
+        if (statsContext) {
+          const { statsClient, tags } = statsContext
+          const set = new Set()
+          for (const p of payload) {
+            set.add(`${p.url} ${p.method} ${JSON.stringify(p.headers)}`)
+          }
+          statsClient?.histogram('webhook.configurable_batch_keys.unique_keys', set.size, tags)
+        }
 
         // Call the same performBatch function from the regular webhook destination
         // and add in our extraSettings
@@ -167,6 +176,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(send.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'send',
+      mapping: defaultValues(send.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }

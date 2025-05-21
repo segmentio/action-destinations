@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-heap",
-  "version": "1.81.0",
+  "version": "1.84.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,8 +15,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.151.0",
-    "@segment/browser-destination-runtime": "^1.80.0"
+    "@segment/actions-core": "^3.154.0",
+    "@segment/browser-destination-runtime": "^1.83.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"

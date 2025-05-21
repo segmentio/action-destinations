@@ -38,6 +38,10 @@ export interface Payload {
    */
   email_address?: string
   /**
+   * The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.
+   */
+  phone_country_code?: string
+  /**
    * Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000
    */
   phone_number?: string

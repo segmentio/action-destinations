@@ -248,7 +248,7 @@ export const eventProperties: Record<string, InputField> = {
     type: 'number',
     description: 'Width, in pixels, of the device screen.',
     default: {
-      '@path': '$.context.screen.density'
+      '@path': '$.context.screen.width'
     }
   },
   screen_height: {
@@ -256,7 +256,7 @@ export const eventProperties: Record<string, InputField> = {
     type: 'number',
     description: 'Height, in pixels, of the device screen.',
     default: {
-      '@path': '$.context.screen.density'
+      '@path': '$.context.screen.height'
     }
   },
   screen_density: {

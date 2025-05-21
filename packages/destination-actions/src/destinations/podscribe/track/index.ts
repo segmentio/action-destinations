@@ -1,7 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { serializeParams } from '../utils'
+import { normalizeEmail, serializeParams } from '../utils'
 import type { Payload } from './generated-types'
+
+import { processHashing } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
@@ -149,9 +151,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
+    if (payload.email) {
+      payload.email = processHashing(payload.email, 'sha256', 'hex', normalizeEmail)
+    }
+
     const params = serializeParams({
       action: payload.podscribeEvent,
       advertiser: settings.advertiser,
+      user_id: settings.userId,
       timestamp: payload.timestamp,
       device_id: payload.anonymousId,
       referrer: payload.referrer,
@@ -166,7 +173,7 @@ const action: ActionDefinition<Settings, Payload> = {
       num_items_purchased: payload.properties?.num_items_purchased,
       is_new_customer: payload.properties?.is_new_customer,
       is_subscription: payload.properties?.is_subscription,
-      library: JSON.stringify(payload.library)
+      library: payload?.library ? JSON.stringify(payload.library) : undefined
     })
 
     return request(`https://verifi.podscribe.com/tag?${params}`)

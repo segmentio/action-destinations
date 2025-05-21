@@ -1,13 +1,12 @@
-import { Features } from '@segment/actions-core'
 import { processHashing } from '../../lib/hashing-utils'
 /**
  * Convert emails to lower case, and hash in SHA256.
  */
-export const formatEmails = (email_addresses: string[] | undefined, features: Features): string[] => {
+export const formatEmails = (email_addresses: string[] | undefined): string[] => {
   const result: string[] = []
   if (email_addresses) {
     email_addresses.forEach((email: string) => {
-      result.push(hashAndEncode(email.toLowerCase(), features))
+      result.push(hashAndEncode(email.toLowerCase()))
     })
   }
   return result
@@ -18,13 +17,13 @@ export const formatEmails = (email_addresses: string[] | undefined, features: Fe
  * Note it is up to the advertiser to pass only valid phone numbers and formats.
  * This function assumes the input is a correctly formatted phone number maximum of 14 characters long with country code included in the input.
  */
-export const formatPhones = (phone_numbers: string[] | undefined, features: Features): string[] => {
+export const formatPhones = (phone_numbers: string[] | undefined): string[] => {
   const result: string[] = []
   if (!phone_numbers) return result
 
   phone_numbers.forEach((phone: string) => {
     // Limit length to 15 characters
-    result.push(hashAndEncode(phone, features, cleaningFunction))
+    result.push(hashAndEncode(phone, cleaningFunction))
   })
   return result
 }
@@ -44,16 +43,16 @@ const cleaningFunction = (phone: string): string => {
  * @param userId
  * @returns Leading/Trailing spaces are trimmed and then userId is hashed.
  */
-export function formatUserIds(userIds: string[] | undefined, features: Features): string[] {
+export function formatUserIds(userIds: string[] | undefined): string[] {
   const result: string[] = []
   if (userIds) {
     userIds.forEach((userId: string) => {
-      result.push(hashAndEncode(userId.toLowerCase(), features))
+      result.push(hashAndEncode(userId.toLowerCase()))
     })
   }
   return result
 }
 
-function hashAndEncode(property: string, features: Features, cleaningFunction?: (value: string) => string): string {
-  return processHashing(property, 'sha256', 'hex', features, 'actions-tiktok-offline-conversions', cleaningFunction)
+function hashAndEncode(property: string, cleaningFunction?: (value: string) => string): string {
+  return processHashing(property, 'sha256', 'hex', cleaningFunction)
 }

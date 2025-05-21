@@ -1,4 +1,4 @@
-import type { Features, RequestClient } from '@segment/actions-core'
+import type { RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload as StandardEvent } from './standardEvent/generated-types'
 import type { Payload as CustomEvent } from './customEvent/generated-types'
@@ -19,13 +19,8 @@ type DataProcessingOptionsType = StandardEvent['data_processing_options'] | Cust
 type UserType = StandardEvent['user'] | CustomEvent['user']
 type ScreenDimensionsType = StandardEvent['screen_dimensions'] | CustomEvent['screen_dimensions']
 
-export async function send(
-  request: RequestClient,
-  settings: Settings,
-  payload: StandardEvent[] | CustomEvent[],
-  features?: Features
-) {
-  const data = createRedditPayload(payload, settings, features)
+export async function send(request: RequestClient, settings: Settings, payload: StandardEvent[] | CustomEvent[]) {
+  const data = createRedditPayload(payload, settings)
   return request(`https://ads-api.reddit.com/api/v2.0/conversions/events/${settings.ad_account_id}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${settings.conversion_token}` },
@@ -33,11 +28,7 @@ export async function send(
   })
 }
 
-function createRedditPayload(
-  payloads: StandardEvent[] | CustomEvent[],
-  settings: Settings,
-  features?: Features
-): StandardEventPayload {
+function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings: Settings): StandardEventPayload {
   const payloadItems: StandardEventPayloadItem[] = []
 
   payloads.forEach((payload) => {
@@ -64,8 +55,8 @@ function createRedditPayload(
         custom_event_name: clean(custom_event_name)
       },
       click_id: clean(click_id),
-      event_metadata: getMetadata(event_metadata, products, conversion_id, features),
-      user: getUser(user, data_processing_options, screen_dimensions, features)
+      event_metadata: getMetadata(event_metadata, products, conversion_id),
+      user: getUser(user, data_processing_options, screen_dimensions)
     }
 
     payloadItems.push(payloadItem)
@@ -105,8 +96,7 @@ function getProducts(products: ProductsType): Product[] | undefined {
 function getMetadata(
   metadata: EventMetadataType,
   products: ProductsType,
-  conversion_id: ConversionIdType,
-  features?: Features
+  conversion_id: ConversionIdType
 ): EventMetadata | undefined {
   if (!metadata && !products && !conversion_id) {
     return undefined
@@ -117,18 +107,14 @@ function getMetadata(
     item_count: cleanNum(metadata?.item_count),
     value_decimal: cleanNum(metadata?.value_decimal),
     products: getProducts(products),
-    conversion_id: smartHash(conversion_id, features, (value) => value.trim())
+    conversion_id: smartHash(conversion_id, (value) => value.trim())
   }
 }
 
-function getAdId(
-  device_type?: string,
-  advertising_id?: string,
-  features?: Features
-): { [key: string]: string | undefined } | undefined {
+function getAdId(device_type?: string, advertising_id?: string): { [key: string]: string | undefined } | undefined {
   if (!device_type) return undefined
   if (!advertising_id) return undefined
-  const hashedAdId = smartHash(advertising_id, features)
+  const hashedAdId = smartHash(advertising_id)
   return device_type === 'ios' ? { idfa: hashedAdId } : { aaid: hashedAdId }
 }
 
@@ -154,16 +140,15 @@ function getScreen(height?: number, width?: number): { height: number; width: nu
 function getUser(
   user: UserType,
   dataProcessingOptions: DataProcessingOptionsType,
-  screenDimensions: ScreenDimensionsType,
-  features?: Features
+  screenDimensions: ScreenDimensionsType
 ): User | undefined {
   if (!user) return
 
   return {
-    ...getAdId(user.device_type, user.advertising_id, features),
-    email: smartHash(user.email, features, canonicalizeEmail),
-    external_id: smartHash(user.external_id, features, (value) => value.trim()),
-    ip_address: smartHash(user.ip_address, features, (value) => value.trim()),
+    ...getAdId(user.device_type, user.advertising_id),
+    email: smartHash(user.email, canonicalizeEmail),
+    external_id: smartHash(user.external_id, (value) => value.trim()),
+    ip_address: smartHash(user.ip_address, (value) => value.trim()),
     user_agent: clean(user.user_agent),
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
@@ -178,11 +163,7 @@ function canonicalizeEmail(value: string): string {
   return `${localPart.toLowerCase()}@${localPartAndDomain[1].toLowerCase()}`
 }
 
-const smartHash = (
-  value: string | undefined,
-  features?: Features,
-  cleaningFunction?: (value: string) => string
-): string | undefined => {
+const smartHash = (value: string | undefined, cleaningFunction?: (value: string) => string): string | undefined => {
   if (value === undefined) return
-  return processHashing(value, 'sha256', 'hex', features, 'actions-reddit-conversions-api', cleaningFunction)
+  return processHashing(value, 'sha256', 'hex', cleaningFunction)
 }
