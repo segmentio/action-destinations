@@ -12,6 +12,8 @@ import trackEvent2 from './trackEvent2'
 import trackPurchase2 from './trackPurchase2'
 import updateUserProfile2 from './updateUserProfile2'
 
+import upsertCatalogItem from './upsertCatalogItem'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Braze Cloud Mode (Actions)',
   slug: 'actions-braze-cloud',
@@ -84,7 +86,8 @@ const destination: DestinationDefinition<Settings> = {
     trackEvent2,
     trackPurchase2,
     updateUserProfile2,
-    createAlias2
+    createAlias2,
+    upsertCatalogItem
   },
   presets: [
     {

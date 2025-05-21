@@ -8,6 +8,7 @@ import { Payload as TrackPurchasePayload } from './trackPurchase/generated-types
 import { Payload as UpdateUserProfilePayload } from './updateUserProfile/generated-types'
 import { getUserAlias } from './userAlias'
 import { HTTPError } from '@segment/actions-core'
+import { ListCatalogsResponse } from './upsertCatalogItem'
 type DateInput = string | Date | number | null | undefined
 type DateOutput = string | undefined | null
 
@@ -631,4 +632,11 @@ export function generateMultiStatusError(batchSize: number, errorMessage: string
   }
 
   return multiStatusResponse
+}
+
+export async function listCatalogs(request: RequestClient, settings: Settings) {
+  const response = await request<ListCatalogsResponse>(`${settings.endpoint}/catalogs`, {
+    method: 'get'
+  })
+  return response?.data?.catalogs
 }
