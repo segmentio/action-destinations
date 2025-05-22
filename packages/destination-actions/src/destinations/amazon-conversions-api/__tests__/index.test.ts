@@ -86,12 +86,12 @@ describe('Amazon Conversions API Destination', () => {
       
       const eventMapping = {
         'Product Added': 'ADD_TO_SHOPPING_CART',
-        'Application': 'APPLICATION',
+        'Application Submitted': 'APPLICATION',
         'Checkout': 'CHECKOUT',
         'Callback Started': 'CONTACT',
         'Generate Lead': 'LEAD',
-        'Off Amazon Purchases': 'OFF_AMAZON_PURCHASES',
-        'Mobile App First Start': 'MOBILE_APP_FIRST_START',
+        'Purchase': 'OFF_AMAZON_PURCHASES',
+        'Launch Application': 'MOBILE_APP_FIRST_START',
         'page': 'PAGE_VIEW',  // For type="page"
         'Products Searched': 'SEARCH',
         'Signed Up': 'SIGN_UP',

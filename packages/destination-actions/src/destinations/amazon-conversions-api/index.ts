@@ -88,7 +88,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Application',
-      subscribe: 'type = "track" AND event = "Application"',
+      subscribe: 'type = "track" AND event = "Application Submitted"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -128,7 +128,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Off Amazon Purchases',
-      subscribe: 'type = "track" AND event = "Off Amazon Purchases"',
+      subscribe: 'type = "track" AND event = "Purchase"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -138,7 +138,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Mobile App First Start',
-      subscribe: 'type = "track" AND event = "Mobile App First Start"',
+      subscribe: 'type = "track" AND event = "Launch Application"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),

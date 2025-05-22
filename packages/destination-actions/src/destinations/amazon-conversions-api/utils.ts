@@ -1,5 +1,5 @@
 import type { RequestClient } from '@segment/actions-core'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 interface AuthTokens {
   refreshToken: string;
@@ -92,5 +92,5 @@ export function normalizePostal(postal: string): string {
  * @returns The properly normalized and hashed value, or original if already hashed
  */
 export function smartHash(value: string, normalizeFunction?: (value: string) => string): string {
-  return processHashingV2(value, 'sha256', 'hex', normalizeFunction)
+  return processHashing(value, 'sha256', 'hex', normalizeFunction)
 }
