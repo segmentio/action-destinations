@@ -15,6 +15,7 @@ import isEmpty from 'lodash/isEmpty'
 import { MinimalFields } from '@segment/actions-core/destination-kit/fields-to-jsonschema'
 import { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '@segment/actions-core/schema-validation'
+import pick from 'lodash/pick'
 
 export interface CatalogSchema {
   description?: string
@@ -157,7 +158,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, syncMode }) => {
-    const { catalog_name = '', item = {}, item_id = '' } = payload
+    const { catalog_name = '', item_id = '' } = payload
+
+    let { item = {} } = payload
 
     // validate catalog_name
     const itemCatalog = await getCatalogMetaByName(request, settings.endpoint, catalog_name)
@@ -168,10 +171,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (syncMode === 'upsert') {
+      //extract only the fields that are present in the catalog
+      item = pick(item, itemCatalog.fields?.map((field) => field.name) ?? [])
+
       // validate item
       if (isObject(item) && isEmpty(item)) {
         throw new IntegrationError('Item is required', 'Item is required', 400)
       }
+
       const schema = createValidationSchema(itemCatalog)
 
       validateSchema(item, schema, { throwIfInvalid: true })
