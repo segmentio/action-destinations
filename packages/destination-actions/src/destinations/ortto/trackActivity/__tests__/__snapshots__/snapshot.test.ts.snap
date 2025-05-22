@@ -20,12 +20,9 @@ Array [
     "properties": Object {
       "testType": "9QX1u",
     },
-    "timestamp": "2108-01-18T15:43:16.331Z",
+    "timestamp": "2108-01-18T04:43:16.331Z",
     "traits": Object {
-      "email": "diudouro@fanpufuju.nz",
-      "first_name": "9QX1u",
-      "last_name": "9QX1u",
-      "phone": "9QX1u",
+      "testType": "9QX1u",
     },
     "user_id": "9QX1u",
   },
@@ -38,6 +35,7 @@ Array [
     "anonymous_id": "9QX1u",
     "event": "9QX1u",
     "message_id": "9QX1u",
+    "timestamp": "2108-01-18T04:43:16.331Z",
     "user_id": "9QX1u",
   },
 ]

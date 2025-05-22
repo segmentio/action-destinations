@@ -15,12 +15,9 @@ Array [
       "state": "2fUSE5G",
     },
     "message_id": "2fUSE5G",
-    "timestamp": "2099-03-03T14:35:24.780Z",
+    "timestamp": "2099-03-03T03:35:24.780Z",
     "traits": Object {
-      "email": "goc@udhuc.th",
-      "first_name": "2fUSE5G",
-      "last_name": "2fUSE5G",
-      "phone": "2fUSE5G",
+      "testType": "2fUSE5G",
     },
     "user_id": "2fUSE5G",
   },
@@ -32,6 +29,7 @@ Array [
   Object {
     "anonymous_id": "2fUSE5G",
     "message_id": "2fUSE5G",
+    "timestamp": "2099-03-03T03:35:24.780Z",
     "user_id": "2fUSE5G",
   },
 ]

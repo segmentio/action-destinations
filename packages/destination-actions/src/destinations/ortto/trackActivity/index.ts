@@ -23,8 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     traits: {
       ...commonFields.traits,
-      description:
-        "key-value custom property pairs to be assigned to the Contact's profile"
+      description: "key-value custom property pairs to be assigned to the Contact's profile"
     },
     audience_update_mode: commonFields.audience_update_mode,
     batch_size: commonFields.batch_size,
@@ -51,7 +50,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Activity properties',
       description: 'An object containing key-value pairs representing activity attributes',
       type: 'object',
-      defaultObjectUI: 'keyvalue'
+      defaultObjectUI: 'keyvalue',
+      default: {
+        '@path': '$.properties'
+      }
     }
   },
   hooks: {
