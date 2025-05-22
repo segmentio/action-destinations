@@ -3,7 +3,8 @@ import {
   ActionDefinition,
   DynamicFieldItem,
   DynamicFieldResponse,
-  isObject
+  isObject,
+  fieldsToJsonSchema
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -11,14 +12,16 @@ import { isValidItemId, getCatalogMetaByName, getCatalogMetas } from '../utils'
 import { RequestClient } from '@segment/actions-core/*'
 import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
 import isEmpty from 'lodash/isEmpty'
-// import { JSONSchema4TypeName } from 'json-schema'
+import { MinimalFields } from '@segment/actions-core/destination-kit/fields-to-jsonschema'
+import { JSONSchema4 } from 'json-schema'
+import { validateSchema } from '@segment/actions-core/schema-validation'
 
 export interface CatalogSchema {
   description?: string
   fields?: {
     name: string
     token: string
-    type: string
+    type: 'string' | 'number' | 'time' | 'boolean'
   }[]
   name: string
   num_items?: Number
@@ -39,14 +42,31 @@ const UPSERT_OPERATION: DependsOnConditions = {
   conditions: [{ type: 'field', fieldKey: '__segment_internal_sync_mode', operator: 'is', value: 'upsert' }]
 }
 
-// function toJsonSchemaType(type: 'string' | 'number' | 'time' | 'boolean'): JSONSchema4TypeName | JSONSchema4TypeName[] {
-//   switch (type) {
-//     case 'time':
-//       return ['string', 'number']
-//     default:
-//       return type
-//   }
-// }
+function toJsonSchemaType(type: 'string' | 'number' | 'time' | 'boolean'): FieldTypeName {
+  switch (type) {
+    case 'time':
+      return 'datetime'
+    default:
+      return type
+  }
+}
+
+function createValidationSchema(itemCatalog: CatalogSchema): JSONSchema4 {
+  const fields: MinimalFields =
+    itemCatalog.fields
+      ?.filter((field) => field.name !== 'id')
+      .reduce((acc, field) => {
+        acc[field.name] = {
+          label: field.name,
+          description: field.name,
+          type: toJsonSchemaType(field.type),
+          required: false
+        }
+        return acc
+      }, {} as MinimalFields) || {}
+
+  return fieldsToJsonSchema(fields)
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Catalog Item',
@@ -152,8 +172,9 @@ const action: ActionDefinition<Settings, Payload> = {
       if (isObject(item) && isEmpty(item)) {
         throw new IntegrationError('Item is required', 'Item is required', 400)
       }
+      const schema = createValidationSchema(itemCatalog)
 
-      itemCatalog.fields = itemCatalog.fields?.filter((field) => field.name !== 'id')
+      validateSchema(item, schema, { throwIfInvalid: true })
 
       return await request(`${settings.endpoint}/catalogs/${catalog_name}/items/${item_id}`, {
         method: 'PUT',
@@ -171,7 +192,7 @@ const action: ActionDefinition<Settings, Payload> = {
           json: true
         })
       } catch (error) {
-        if (error?.status === 400 && error?.response?.data?.errors?.[0]?.id === 'item_not_found') {
+        if (error?.response?.data?.errors?.[0]?.id === 'item-not-found') {
           return {
             status: 200,
             message: 'Could not find item'
