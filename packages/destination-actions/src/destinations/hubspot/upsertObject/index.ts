@@ -41,7 +41,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, { payload, syncMode, subscriptionMetadata, statsContext }) => {
     statsContext?.tags?.push('action:custom_object_batch')
-    syncMode = 'upsert'
     return await send(request, payload, syncMode as SyncMode, subscriptionMetadata, statsContext)
   }
 }
