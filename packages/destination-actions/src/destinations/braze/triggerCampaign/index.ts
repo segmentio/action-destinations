@@ -122,6 +122,83 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string'
     }
   },
+  hooks: {
+    retlOnMappingSave: {
+      label: 'Validate Braze Campaign',
+      description: 'When saving this mapping, we will validate that the campaign exists and can be triggered via API.',
+      inputFields: {
+        campaign_id: {
+          type: 'string',
+          label: 'Campaign ID',
+          description: 'The ID of the Braze campaign to validate.',
+          required: true
+        }
+      },
+      performHook: async (request, { settings, hookInputs }) => {
+        // Check if campaign exists and is API-triggered
+        try {
+          // Make request to Braze API to get campaign details
+          const response = await request(`${settings.endpoint}/campaigns/details`, {
+            method: 'GET',
+            searchParams: new URLSearchParams({
+              campaign_id: hookInputs.campaign_id
+            })
+          })
+
+          const data = response.data as { campaign?: { id: string; name: string; schedule_type: string } }
+
+          // Check if campaign exists
+          if (!data.campaign) {
+            return {
+              error: {
+                message: `Campaign with ID '${hookInputs.campaign_id}' not found.`,
+                code: 'CAMPAIGN_NOT_FOUND'
+              }
+            }
+          }
+
+          // Check if campaign is API-triggered
+          if (data.campaign.schedule_type !== 'api_triggered') {
+            return {
+              error: {
+                message: `Campaign '${data.campaign.name}' (${hookInputs.campaign_id}) is not configured for API triggering. Please update the campaign in Braze to enable API triggering.`,
+                code: 'CAMPAIGN_NOT_API_TRIGGERED'
+              }
+            }
+          }
+
+          // Campaign exists and is API-triggered
+          return {
+            outputs: {
+              id: data.campaign.id,
+              name: data.campaign.name
+            }
+          }
+        } catch (error: any) {
+          return {
+            error: {
+              message: error.message || `Failed to validate campaign with ID '${hookInputs.campaign_id}'`,
+              code: error.status || 'CAMPAIGN_VALIDATION_ERROR'
+            }
+          }
+        }
+      },
+      outputTypes: {
+        id: {
+          type: 'string',
+          label: 'Campaign ID',
+          description: 'The ID of the validated Braze campaign.',
+          required: false
+        },
+        name: {
+          type: 'string',
+          label: 'Campaign Name',
+          description: 'The name of the validated Braze campaign.',
+          required: false
+        }
+      }
+    }
+  },
 
   perform: async (request, { settings, payload }) => {
     // Validate that at least one of the required targeting parameters is provided

@@ -20,7 +20,7 @@ export const dynamicFields = {
         skipResponseCloning: true
       })
 
-      const data = (await response.json()) as CampaignResponse
+      const data = response.data as CampaignResponse
 
       if (!data.campaigns || !Array.isArray(data.campaigns) || data.campaigns.length === 0) {
         return {
