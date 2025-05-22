@@ -118,7 +118,7 @@ const action: ActionDefinition<Settings, Payload> = {
       json: { subscribers: [person(payload)] }
     })
   },
-  performBatch: async (request, { settings, payload }) => {
+  performBatch: (request, { settings, payload }) => {
     const subscribers = payload.map(person)
 
     return request(`https://api.getdrip.com/v2/${settings.accountId}/subscribers/batches`, {
