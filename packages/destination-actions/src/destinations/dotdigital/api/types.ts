@@ -14,12 +14,10 @@ export interface List {
 }
 export interface DataField {
   name: string
-  type: string
+  type: 'string' | 'number' | 'datetime' | 'boolean'
   visibility: string
   defaultValue: string | null
 }
-
-export type DataFieldType = 'string' | 'number' | 'datetime' | 'boolean'
 
 export interface Identifiers {
   email?: string

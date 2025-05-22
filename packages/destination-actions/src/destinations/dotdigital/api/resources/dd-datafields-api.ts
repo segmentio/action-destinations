@@ -17,14 +17,14 @@ class DDDataFieldsApi extends DDApi {
   async getDataFields(): Promise<DynamicFieldResponse> {
     try {
       const choices = []
-      const response: ModifiedResponse = await this.get('/v2/data-fields/')
-      const content: DataField[] = JSON.parse(response.content)
+      const response: ModifiedResponse<DataField[]> = await this.get<DataField[]>('/v2/data-fields/')
+      const content = response.data
 
       choices.push(
-        ...content.map((dataField: DataField) => ({
+        ...content.map((dataField) => ({
           value: dataField.name,
           label: dataField.name,
-          type: dataField.type as DataFieldType | undefined
+          type: dataField.type
         }))
       )
 
@@ -33,7 +33,6 @@ class DDDataFieldsApi extends DDApi {
       return {
         choices: [],
         nextPage: '',
-        // TODO add type for error so correct error message can be surfaced
         error: {
           message: 'Failed to fetch data fields',
           code: 'DATA_FIELDS_FETCH_ERROR'

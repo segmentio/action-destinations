@@ -14,8 +14,8 @@ class DDListsApi extends DDApi {
    * @param {number} skip - Paging number of records to skip
    * @returns {Promise<object>} A promise that resolves to the response of the update operation.
    */
-  async getListsPaging<T = List[]>(select = 1000, skip = 0): Promise<ModifiedResponse<T>> {
-    return await this.get<T>('/v2/address-books', { select, skip })
+  async getListsPaging(select = 1000, skip = 0): Promise<ModifiedResponse<List[]>> {
+    return await this.get<List[]>('/v2/address-books', { select, skip })
   }
 
   /**
@@ -33,7 +33,6 @@ class DDListsApi extends DDApi {
       try {
         const response = await this.getListsPaging(select, skip)
         const content = response.data
-        // Explicitly type parsedContent
         if (content.length === 0) {
           hasMoreData = false
           break
@@ -47,7 +46,6 @@ class DDListsApi extends DDApi {
           skip += select
         }
       } catch (error) {
-        // TODO define a custom error type for List response failures, and pass the details to the returned error object
         return {
           choices: [],
           nextPage: '',
