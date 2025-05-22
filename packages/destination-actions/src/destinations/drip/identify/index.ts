@@ -103,17 +103,13 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     batch_size: {
       label: 'Batch Size',
-      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      disabledInputMethods: ['variable', 'function', 'enrichment'],
+      description:
+        'Maximum number of events to include in each batch. Actual batch sizes may be lower. Max size must be between 1 and 1000 inclusive.',
       type: 'integer',
       required: false,
       unsafe_hidden: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits.batch_size' },
-          then: { '@path': '$.traits.batch_size' },
-          else: 1000
-        }
-      },
+      default: 1000,
       minimum: 1,
       maximum: 1000
     }
