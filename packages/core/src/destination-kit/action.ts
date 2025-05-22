@@ -248,7 +248,7 @@ const isSyncMode = (value: unknown): value is SyncMode => {
   return syncModeTypes.find((validValue) => value === validValue) !== undefined
 }
 
-const INTERNAL_HIDDEN_FIELDS = ['__segment_internal_sync_mode', '__segment_internal_matching_key']
+const INTERNAL_HIDDEN_FIELDS = ['__segment_internal_matching_key']
 const removeInternalHiddenFields = (mapping: JSONObject): JSONObject => {
   return Object.keys(mapping).reduce((acc, key) => {
     return INTERNAL_HIDDEN_FIELDS.includes(key) ? acc : { ...acc, [key]: mapping[key] }
