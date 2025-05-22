@@ -1,11 +1,11 @@
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 export function hashAndEncode(property: string): string {
-  return processHashingV2(property, 'sha256', 'hex')
+  return processHashing(property, 'sha256', 'hex')
 }
 
 export function hashAndEncodeToInt(property: string): number {
-  const hash = processHashingV2(property, 'sha256', 'hex')
+  const hash = processHashing(property, 'sha256', 'hex')
   const bigInt = BigInt('0x' + hash)
   let integerString = bigInt.toString()
   if (integerString.length > 16) {

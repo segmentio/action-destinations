@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Ortto's upsertContactProfile destination action: all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "2fUSE5G",
+    "audience_update_mode": "add",
+    "batch_size": -57176944814325.76,
+    "enable_batching": true,
+    "ip": "47.188.17.159",
+    "location": Object {
+      "city": "2fUSE5G",
+      "country": "2fUSE5G",
+      "post_code": "2fUSE5G",
+      "state": "2fUSE5G",
+    },
+    "message_id": "2fUSE5G",
+    "timestamp": "2099-03-03T14:35:24.780Z",
+    "traits": Object {
+      "email": "goc@udhuc.th",
+      "first_name": "2fUSE5G",
+      "last_name": "2fUSE5G",
+      "phone": "2fUSE5G",
+    },
+    "user_id": "2fUSE5G",
+  },
+]
+`;
+
+exports[`Testing snapshot for Ortto's upsertContactProfile destination action: required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "2fUSE5G",
+    "message_id": "2fUSE5G",
+    "user_id": "2fUSE5G",
+  },
+]
+`;
