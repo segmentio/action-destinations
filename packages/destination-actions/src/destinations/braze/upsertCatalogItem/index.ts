@@ -36,7 +36,7 @@ export interface ListCatalogsResponse {
 
 const UPSERT_OPERATION: DependsOnConditions = {
   match: 'all',
-  conditions: [{ type: 'syncMode', operator: 'is', value: 'upsert' }]
+  conditions: [{ type: 'field', fieldKey: '__segment_internal_sync_mode', operator: 'is', value: 'upsert' }]
 }
 
 // function toJsonSchemaType(type: 'string' | 'number' | 'time' | 'boolean'): JSONSchema4TypeName | JSONSchema4TypeName[] {
@@ -155,7 +155,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       itemCatalog.fields = itemCatalog.fields?.filter((field) => field.name !== 'id')
 
-      return request(`${settings.endpoint}/catalogs/${catalog_name}/items/${item_id}`, {
+      return await request(`${settings.endpoint}/catalogs/${catalog_name}/items/${item_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -166,7 +166,7 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     } else {
       try {
-        return request(`${settings.endpoint}/catalogs/${catalog_name}/items/${item_id}`, {
+        return await request(`${settings.endpoint}/catalogs/${catalog_name}/items/${item_id}`, {
           method: 'DELETE',
           json: true
         })
