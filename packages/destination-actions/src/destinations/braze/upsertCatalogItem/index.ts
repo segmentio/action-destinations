@@ -1,9 +1,16 @@
-import { IntegrationError, ActionDefinition, DynamicFieldItem, DynamicFieldResponse } from '@segment/actions-core'
+import {
+  IntegrationError,
+  ActionDefinition,
+  DynamicFieldItem,
+  DynamicFieldResponse,
+  isObject
+} from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { listCatalogs } from '../utils'
+import { isValidItemId, getCatalogMetaByName, getCatalogMetas } from '../utils'
 import { RequestClient } from '@segment/actions-core/*'
 import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
+import isEmpty from 'lodash/isEmpty'
 // import { JSONSchema4TypeName } from 'json-schema'
 
 export interface CatalogSchema {
@@ -30,10 +37,6 @@ export interface ListCatalogsResponse {
 const UPSERT_OPERATION: DependsOnConditions = {
   match: 'all',
   conditions: [{ type: 'syncMode', operator: 'is', value: 'upsert' }]
-}
-
-function isValidItemId(item_id: string) {
-  return /^[a-zA-Z0-9_-]+$/.test(item_id)
 }
 
 // function toJsonSchemaType(type: 'string' | 'number' | 'time' | 'boolean'): JSONSchema4TypeName | JSONSchema4TypeName[] {
@@ -102,7 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ): Promise<DynamicFieldResponse> => {
       let choices: DynamicFieldItem[] = []
       try {
-        const catalogs = await listCatalogs(request, settings)
+        const catalogs = await getCatalogMetas(request, settings.endpoint)
 
         if (catalogs?.length) {
           choices = catalogs.map((catalog) => ({
@@ -134,31 +137,23 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, syncMode }) => {
-    const catalogs = await listCatalogs(request, settings)
+    const { catalog_name = '', item = {}, item_id = '' } = payload
 
-    const { catalog_name = '' } = payload
+    // validate catalog_name
+    const itemCatalog = await getCatalogMetaByName(request, settings.endpoint, catalog_name)
 
-    if (!catalogs?.length) {
-      throw new IntegrationError('No catalogs found', 'Catalogs not found', 404)
-    }
-    const itemCatalog = catalogs?.find((catalog) => catalog.name === catalog_name)
-
-    if (!itemCatalog) {
-      throw new IntegrationError(`Catalog ${catalog_name} not found`, `Missing catalog`, 404)
-    }
-
-    const { item_id, item } = payload
-
+    // validate item_id
     if (!isValidItemId(item_id)) {
       throw new IntegrationError(`Invalid ID Format`, 'Invalid ID Format', 400)
     }
 
     if (syncMode === 'upsert') {
-      if (!item) {
+      // validate item
+      if (isObject(item) && isEmpty(item)) {
         throw new IntegrationError('Item is required', 'Item is required', 400)
       }
 
-      // itemCatalog.fields = itemCatalog.fields?.filter(field => field.name !== "id")
+      itemCatalog.fields = itemCatalog.fields?.filter((field) => field.name !== 'id')
 
       return await request(`${settings.endpoint}/catalogs/${catalog_name}/items/${item_id}`, {
         method: 'PUT',

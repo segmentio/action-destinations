@@ -634,9 +634,29 @@ export function generateMultiStatusError(batchSize: number, errorMessage: string
   return multiStatusResponse
 }
 
-export async function listCatalogs(request: RequestClient, settings: Settings) {
-  const response = await request<ListCatalogsResponse>(`${settings.endpoint}/catalogs`, {
+export async function getCatalogMetaByName(request: RequestClient, endpoint: string, catalog_name: string) {
+  const catalogs = await getCatalogMetas(request, endpoint)
+
+  //validate catalog_name
+  if (!catalogs?.length) {
+    throw new IntegrationError('No catalogs found', 'Catalogs not found', 404)
+  }
+  const itemCatalog = catalogs?.find((catalog) => catalog.name === catalog_name)
+
+  if (!itemCatalog) {
+    throw new IntegrationError(`Catalog ${catalog_name} not found`, `Missing catalog`, 404)
+  }
+  return itemCatalog
+}
+
+export async function getCatalogMetas(request: RequestClient, endpoint: string) {
+  const response = await request<ListCatalogsResponse>(`${endpoint}/catalogs`, {
     method: 'get'
   })
+
   return response?.data?.catalogs
+}
+
+export function isValidItemId(item_id: string) {
+  return /^[a-zA-Z0-9_-]+$/.test(item_id)
 }
