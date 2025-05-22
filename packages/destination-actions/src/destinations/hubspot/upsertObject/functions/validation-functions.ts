@@ -85,3 +85,80 @@ function cleanProp(str: string): string {
   }
   return str
 }
+
+/**
+ * Merges an array of payloads by their unique `id_field_value`, deduplicating entries and merging their properties.
+ *
+ * For each unique ID:
+ * - Properties and sensitive properties are merged, preferring values from the payload with the latest timestamp.
+ * - Associations are deduplicated by their composite key and merged.
+ * - The resulting payload for each ID contains merged properties, sensitive properties, and associations.
+ * - The `timestamp` field is used only for determining recency and is removed from the final output.
+ *
+ * @param payloads - An array of payloads to merge and deduplicate.
+ * @returns An array of merged and deduplicated payloads, with timestamps removed.
+ */
+export function mergeAndDeduplicateById(payloads: Payload[]): Payload[] {
+  const mergedMap = new Map<string, Payload>()
+
+  for (const incoming of payloads) {
+    const id = incoming.object_details?.id_field_value
+    if (!id) continue
+
+    const incomingTimestamp = incoming.timestamp ? new Date(incoming.timestamp).getTime() : 0
+
+    if (!mergedMap.has(id)) {
+      mergedMap.set(id, { ...incoming })
+      continue
+    }
+
+    const existing = mergedMap.get(id)!
+    const existingTimestamp = existing.timestamp ? new Date(existing.timestamp).getTime() : 0
+
+    // Merge properties
+    const mergedProps: Record<string, unknown> = { ...existing.properties }
+    for (const [key, value] of Object.entries(incoming.properties || {})) {
+      if (!(key in mergedProps) || incomingTimestamp >= existingTimestamp) {
+        mergedProps[key] = value
+      }
+    }
+
+    // Merge sensitive_properties
+    const mergedSensProps: Record<string, unknown> = { ...existing.sensitive_properties }
+    for (const [key, value] of Object.entries(incoming.sensitive_properties || {})) {
+      if (!(key in mergedSensProps) || incomingTimestamp >= existingTimestamp) {
+        mergedSensProps[key] = value
+      }
+    }
+
+    // Merge associations
+    const existingAssociations = existing.associations || []
+    const incomingAssociations = incoming.associations || []
+
+    const associationKey = (assoc: any) =>
+      `${assoc.object_type}|${assoc.association_label}|${assoc.id_field_name}|${assoc.id_field_value}`
+
+    const existingAssocMap = new Map(existingAssociations.map((a) => [associationKey(a), a]))
+
+    for (const assoc of incomingAssociations) {
+      const key = associationKey(assoc)
+      if (!existingAssocMap.has(key)) {
+        existingAssocMap.set(key, assoc)
+      }
+    }
+
+    const mergedAssociations = Array.from(existingAssocMap.values())
+
+    // Save merged record with the latest timestamp
+    mergedMap.set(id, {
+      ...existing,
+      properties: mergedProps,
+      sensitive_properties: mergedSensProps,
+      associations: mergedAssociations,
+      timestamp: incomingTimestamp >= existingTimestamp ? incoming.timestamp : existing.timestamp
+    })
+  }
+
+  // Final output with timestamp removed
+  return Array.from(mergedMap.values()).map(({ timestamp, ...rest }) => rest)
+}
