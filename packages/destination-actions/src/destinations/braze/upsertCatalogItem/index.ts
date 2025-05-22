@@ -70,7 +70,7 @@ const action: ActionDefinition<Settings, Payload> = {
     item: {
       label: 'Catalog Item On to Upsert',
       description:
-        'The item to upsert in the catalog. The item objects should contain fields that exist in the catalog',
+        'The item to upsert in the catalog. The item objects should contain fields that exist in the catalog. The item object is not required when the syncMode is set to delete. The item object should not contain the id field.',
       type: 'object',
       required: UPSERT_OPERATION
     },
@@ -155,7 +155,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       itemCatalog.fields = itemCatalog.fields?.filter((field) => field.name !== 'id')
 
-      return await request(`${settings.endpoint}/catalogs/${catalog_name}/items/${item_id}`, {
+      return request(`${settings.endpoint}/catalogs/${catalog_name}/items/${item_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -164,7 +164,7 @@ const action: ActionDefinition<Settings, Payload> = {
           items: [item]
         }
       })
-    } else if (syncMode === 'delete') {
+    } else {
       try {
         return request(`${settings.endpoint}/catalogs/${catalog_name}/items/${item_id}`, {
           method: 'DELETE',

@@ -6,7 +6,7 @@ export interface Payload {
    */
   catalog_name: string
   /**
-   * The item to upsert in the catalog. The item objects should contain fields that exist in the catalog
+   * The item to upsert in the catalog. The item objects should contain fields that exist in the catalog. The item object is not required when the syncMode is set to delete. The item object should not contain the id field.
    */
   item?: {
     [k: string]: unknown
