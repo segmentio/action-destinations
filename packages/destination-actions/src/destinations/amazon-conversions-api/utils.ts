@@ -1,5 +1,7 @@
-import type { RequestClient } from '@segment/actions-core'
+import { IntegrationError, RequestClient } from '@segment/actions-core'
 import { processHashing } from '../../lib/hashing-utils'
+import type { Settings } from './generated-types'
+import type { EventData } from './types'
 
 interface AuthTokens {
   refreshToken: string;
@@ -93,4 +95,98 @@ export function normalizePostal(postal: string): string {
  */
 export function smartHash(value: string, normalizeFunction?: (value: string) => string): string {
   return processHashing(value, 'sha256', 'hex', normalizeFunction)
+}
+
+/**
+ * Sends event data to the Amazon Conversions API
+ *
+ * @param request The request client
+ * @param settings The API settings
+ * @param eventData The event data to send (single event or array of events)
+ * @returns The API response
+ */
+export async function sendEventsRequest(
+  request: RequestClient,
+  settings: Settings,
+  eventData: EventData | EventData[]
+): Promise<any> {
+  // Ensure eventData is always an array
+  const events = Array.isArray(eventData) ? eventData : [eventData];
+  
+  return await request(
+    `${settings.region}/events/v1`,
+    {
+      method: 'POST',
+      json: {
+        eventData: events,
+        ingestionMethod: "SERVER_TO_SERVER"
+      },
+      headers: {
+        'Amazon-Advertising-API-Scope': settings.profileId,
+        'Amazon-Ads-AccountId': settings.advertiserId
+      },
+      timeout: 25000,
+      throwHttpErrors: false
+    }
+  );
+}
+
+/**
+ * Handle errors from the Amazon API based on status codes
+ * 
+ * @param response The API error response
+ * @returns An IntegrationError with appropriate code and message
+ */
+export function handleAmazonApiError(response: any): IntegrationError {
+  const status = response.status;
+  const errorData = response.data || {};
+  
+  switch (status) {
+    case 401:
+      return new IntegrationError(
+        'Authentication failed. Check your API credentials.',
+        'AMAZON_AUTH_ERROR',
+        401
+      );
+      
+    case 403:
+      return new IntegrationError(
+        'You do not have permission to access this resource.',
+        'AMAZON_FORBIDDEN_ERROR',
+        403
+      );
+      
+    case 415:
+      return new IntegrationError(
+        'Invalid media type. The Content-Type or Accept headers are invalid.',
+        'AMAZON_MEDIA_TYPE_ERROR',
+        415
+      );
+      
+    case 429:
+      // Extract retry information if available
+      const retryAfter = response.headers?.['retry-after'] || '';
+      return new IntegrationError(
+        `Rate limited by Amazon API. ${retryAfter ? `Try again after ${retryAfter} seconds.` : 'Please try again later.'}`,
+        'AMAZON_RATE_LIMIT_ERROR',
+        429
+      );
+      
+    case 500:
+      return new IntegrationError(
+        'Amazon API encountered an internal server error. Please try again later.',
+        'AMAZON_SERVER_ERROR',
+        500
+      );
+      
+    case 400:
+    default:
+      // Extract detailed error information if available
+      const errorMessage = errorData.message || response.statusText || 'Unknown error';
+      return new IntegrationError(
+        `Failed to send event to Amazon: ${errorMessage}`,
+        'AMAZON_API_ERROR',
+        status || 400
+      );
+  }
 }
