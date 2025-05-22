@@ -1,7 +1,7 @@
 import { ModifiedResponse, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
-import { Contact, ChannelIdentifier, Identifiers, ChannelProperties } from '../types'
+import { Contact, ChannelIdentifier, Identifiers, ChannelProperties, UpsertContactJSON, DataFields } from '../types'
 import type { Payload } from '../../addContactToList/generated-types'
 
 class DDContactApi extends DDApi {
@@ -18,8 +18,8 @@ class DDContactApi extends DDApi {
    * @returns A promise that resolves to a ContactResponse.
    */
   async getContact(idType: string, idValue: string | undefined): Promise<Contact> {
-    const response: ModifiedResponse = await this.get(`/contacts/v3/${idType}/${idValue}`)
-    return JSON.parse(response.content)
+    const response: ModifiedResponse<Contact> = await this.get<Contact>(`/contacts/v3/${idType}/${idValue}`)
+    return response.data
   }
 
   /**
@@ -32,8 +32,8 @@ class DDContactApi extends DDApi {
    */
   async fetchOrCreateContact<T>(channelIdentifier: ChannelIdentifier, data: T): Promise<Contact> {
     const [[idType, idValue]] = Object.entries(channelIdentifier)
-    const response: ModifiedResponse = await this.patch(`/contacts/v3/${idType}/${idValue}`, data)
-    return JSON.parse(response.content)
+    const response: ModifiedResponse<Contact> = await this.patch<Contact, T>(`/contacts/v3/${idType}/${idValue}`, data)
+    return response.data
   }
 
   /**
@@ -64,19 +64,19 @@ class DDContactApi extends DDApi {
       })
     }
 
-    const data = {
+    const data: UpsertContactJSON = {
       identifiers,
       channelProperties,
       lists: [listId],
-      dataFields
+      dataFields: dataFields as DataFields
     }
 
-    const response: ModifiedResponse = await this.patch(
+    const response: ModifiedResponse<Contact> = await this.patch<Contact, UpsertContactJSON>(
       `/contacts/v3/${channelIdentifier}/${idValue}?merge-option=overwrite`,
       data
     )
 
-    return JSON.parse(response.content)
+    return response.data
   }
 }
 

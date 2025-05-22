@@ -1,7 +1,7 @@
 import { ModifiedResponse, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
 import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
-import { Contact, Program, ProgramStatus, ProgramEnrolment } from '../types'
+import { Contact, Program, ProgramStatus, ProgramEnrolment, ProgramEnrolementJSON } from '../types'
 
 /**
  * Class representing the Dotdigital Enrolment API.
@@ -18,8 +18,8 @@ class DDEnrolmentApi extends DDApi {
    */
   public async getPrograms(): Promise<DynamicFieldResponse> {
     try {
-      const response: ModifiedResponse = await this.get('/v2/programs')
-      const programs: Program[] = JSON.parse(response.content)
+      const response: ModifiedResponse<Program[]> = await this.get<Program[]>('/v2/programs')
+      const programs = response.data
       const choices = programs
         .filter((program: Program) => program.status === ProgramStatus.Active)
         .map((program: Program) => ({
@@ -31,7 +31,6 @@ class DDEnrolmentApi extends DDApi {
       return {
         choices: [],
         nextPage: '',
-        // TODO add type for error so correct error message can be surfaced
         error: {
           message: 'Failed to fetch Programs',
           code: 'PROGRAM_FETCH_ERROR'
@@ -47,11 +46,15 @@ class DDEnrolmentApi extends DDApi {
    * @returns {Promise<ProgramEnrolment>} A promise resolving to the program enrolment details.
    */
   public async enrolContact(programId: string, contact: Contact): Promise<ProgramEnrolment> {
-    const response: ModifiedResponse = await this.post('/v2/programs/enrolments', {
+    const json: ProgramEnrolementJSON = {
       contacts: [contact.contactId],
       programId
-    })
-    return JSON.parse(response.content) as ProgramEnrolment
+    }
+    const response: ModifiedResponse<ProgramEnrolment> = await this.post<ProgramEnrolment, ProgramEnrolementJSON>(
+      '/v2/programs/enrolments',
+      json
+    )
+    return response.data
   }
 }
 

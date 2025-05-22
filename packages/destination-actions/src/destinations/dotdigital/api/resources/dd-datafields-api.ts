@@ -1,8 +1,9 @@
 import { RequestClient, DynamicFieldResponse, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../../generated-types'
 import DDApi from '../dd-api'
-import { DataField, DataFieldType } from '../types'
+import { DataField } from '../types'
 import type { Payload } from '../../addContactToList/generated-types'
+import type { FieldTypeName } from '@segment/actions-core/destination-kittypes'
 
 class DDDataFieldsApi extends DDApi {
   constructor(settings: Settings, client: RequestClient) {
@@ -18,13 +19,13 @@ class DDDataFieldsApi extends DDApi {
     try {
       const choices = []
       const response: ModifiedResponse<DataField[]> = await this.get<DataField[]>('/v2/data-fields/')
-      const content = response.data
+      const dataFields = response.data
 
       choices.push(
-        ...content.map((dataField) => ({
+        ...dataFields.map((dataField) => ({
           value: dataField.name,
           label: dataField.name,
-          type: dataField.type
+          type: this.mapDataFieldType(dataField.type)
         }))
       )
 
@@ -41,6 +42,21 @@ class DDDataFieldsApi extends DDApi {
     }
   }
 
+  mapDataFieldType(fieldType: string): FieldTypeName {
+    switch (fieldType) {
+      case 'String':
+        return 'string'
+      case 'Numeric':
+        return 'number'
+      case 'Date':
+        return 'datetime'
+      case 'Boolean':
+        return 'boolean'
+      default:
+        throw new PayloadValidationError(`Invalid data field type: ${fieldType}`)
+    }
+  }
+
   isNumeric(value: unknown): boolean {
     const type = typeof value
     return (type === 'number' || type === 'string') && !isNaN(Number(value))
@@ -48,19 +64,21 @@ class DDDataFieldsApi extends DDApi {
 
   async validateDataFields(payload: Payload) {
     if (!payload.dataFields) {
-      return payload.dataFields
+      return
     }
-    const response: ModifiedResponse = await this.get('/v2/data-fields/')
-    const dotdigitalDataFields: DataField[] = JSON.parse(response.content)
+
+    const response: ModifiedResponse<DataField[]> = await this.get<DataField[]>('/v2/data-fields/')
+    const ddDataFields = response.data
 
     for (const [key, value] of Object.entries(payload.dataFields)) {
-      let formattedValue = value
-      const dotdigitalDataField = dotdigitalDataFields.find((obj) => obj.name === key)
-      if (!dotdigitalDataField) {
+      let validatedValue = value
+      const ddDataField = ddDataFields.find((obj) => obj.name === key)
+
+      if (!ddDataField) {
         throw new PayloadValidationError(`Data field ${key} not found in Dotdigital`)
       }
 
-      switch (dotdigitalDataField.type) {
+      switch (ddDataField.type) {
         case 'Date':
           if (typeof value !== 'string') {
             throw new PayloadValidationError(`Data field ${key} value ${value} is not a valid date`)
@@ -69,7 +87,7 @@ class DDDataFieldsApi extends DDApi {
             if (date === undefined) {
               throw new PayloadValidationError(`Data field ${key} value ${value} is not a valid date`)
             }
-            formattedValue = date
+            validatedValue = date
           }
           break
         case 'Numeric':
@@ -83,21 +101,21 @@ class DDDataFieldsApi extends DDApi {
           break
         case 'Boolean':
           if (typeof value === 'string' && value.trim().toLocaleLowerCase() === 'true') {
-            formattedValue = true
+            validatedValue = true
           } else if (typeof value === 'string' && value.trim().toLocaleLowerCase() === 'false') {
-            formattedValue = false
+            validatedValue = false
           }
-          formattedValue = Boolean(formattedValue)
+          validatedValue = Boolean(validatedValue)
           break
         case 'String':
           if (typeof value !== 'string') {
             throw new PayloadValidationError(`Data field ${key} value ${value} is not a valid string`)
           }
-          formattedValue = String(value).trim()
+          validatedValue = String(value).trim()
           break
       }
 
-      payload.dataFields[key] = formattedValue
+      payload.dataFields[key] = validatedValue
     }
     return payload.dataFields
   }

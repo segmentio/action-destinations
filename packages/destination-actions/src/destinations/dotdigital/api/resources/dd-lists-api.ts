@@ -67,7 +67,7 @@ class DDListsApi extends DDApi {
    *
    * @returns A promise that resolves when the contact is deleted.
    */
-  async deleteContactFromList(listId: number, contactId: number): Promise<void> {
+  async deleteContactFromList(listId: number, contactId: number) {
     await this.delete(`/v2/address-books/${listId}/contacts/${contactId}`)
   }
 }

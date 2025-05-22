@@ -1,12 +1,3 @@
-export interface DynamicFieldResponse {
-  choices: Array<{ value: number; label: string }>
-  nextPage?: string
-  error?: {
-    message: string
-    code: string
-  }
-}
-
 export interface List {
   id: number
   name: string
@@ -14,7 +5,7 @@ export interface List {
 }
 export interface DataField {
   name: string
-  type: 'string' | 'number' | 'datetime' | 'boolean'
+  type: 'String' | 'Numeric' | 'Date' | 'Boolean'
   visibility: string
   defaultValue: string | null
 }
@@ -24,7 +15,7 @@ export interface Identifiers {
   mobileNumber?: string
 }
 
-interface DataFields {
+export interface DataFields {
   [key: string]: string | number | boolean | null
 }
 
@@ -81,4 +72,16 @@ export interface ProgramEnrolment {
   addressBooks: null | unknown
 }
 
+export interface ProgramEnrolementJSON {
+  contacts: number[]
+  programId: string
+}
+
 export type ChannelIdentifier = { email: string; 'mobile-number'?: never } | { 'mobile-number': string; email?: never }
+
+export interface UpsertContactJSON {
+  identifiers: Identifiers
+  channelProperties: ChannelProperties
+  lists: number[]
+  dataFields?: DataFields
+}

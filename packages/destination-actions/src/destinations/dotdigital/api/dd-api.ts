@@ -36,8 +36,8 @@ abstract class DDApi {
    *
    * @returns an object of type TResponse containing the response data.
    */
-  protected async post<T, TResponse>(endpoint: string, data: T) {
-    return await this.request<TResponse>(`${this.apiUrl}${endpoint}`, {
+  protected async post<ResponseType, RequestJSON>(endpoint: string, data: RequestJSON) {
+    return await this.request<ResponseType>(`${this.apiUrl}${endpoint}`, {
       method: 'POST',
       json: data,
       headers: { 'Content-Type': 'application/json' }
@@ -61,8 +61,8 @@ abstract class DDApi {
    *
    * @returns an object of type TResponse containing the response data.
    */
-  protected async patch<T, TResponse>(endpoint: string, data: T) {
-    return await this.request<TResponse>(`${this.apiUrl}${endpoint}`, {
+  protected async patch<ResponseType, RequestJSON>(endpoint: string, data: RequestJSON) {
+    return await this.request<ResponseType>(`${this.apiUrl}${endpoint}`, {
       method: 'PATCH',
       json: data,
       headers: { 'Content-Type': 'application/json' }

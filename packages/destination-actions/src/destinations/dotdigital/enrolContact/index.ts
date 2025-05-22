@@ -1,4 +1,4 @@
-import type { ActionDefinition, RequestClient, DynamicFieldResponse } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, DynamicFieldResponse, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { contactIdentifier } from '../input-fields'
@@ -36,10 +36,17 @@ const action: ActionDefinition<Settings, Payload> = {
       mobileNumber: mobileNumberIdentifier ?? undefined
     }
 
-    const channel =
-      channelIdentifier === 'email' ? { email: emailIdentifier } : { 'mobile-number': mobileNumberIdentifier }
+    let channel: ChannelIdentifier
 
-    const contact = await contactApi.fetchOrCreateContact(channel as ChannelIdentifier, { identifiers })
+    if (channelIdentifier === 'email' && typeof emailIdentifier === 'string') {
+      channel = { email: emailIdentifier }
+    } else if (channelIdentifier === 'mobile-number' && typeof mobileNumberIdentifier === 'string') {
+      channel = { 'mobile-number': mobileNumberIdentifier }
+    } else {
+      throw new PayloadValidationError('Invalid channel identifier')
+    }
+
+    const contact = await contactApi.fetchOrCreateContact(channel, { identifiers })
 
     return enrolmentApi.enrolContact(programId, contact)
   }
