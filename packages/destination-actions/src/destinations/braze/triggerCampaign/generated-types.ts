@@ -24,20 +24,90 @@ export interface Payload {
    */
   recipients?: {
     /**
-     * The external ID of the user to send the campaign to.
+     * External identifier of user to receive message.
      */
     external_user_id?: string
     /**
-     * A user alias object to identify the user.
+     * User alias object to identify the user.
      */
     user_alias?: {
       alias_name?: string
       alias_label?: string
     }
     /**
-     * The Braze user identifier.
+     * Email address of user to receive message.
      */
-    braze_id?: string | null
+    email?: string
+    /**
+     * Prioritization array; required when using email.
+     */
+    prioritization?: string[]
+    /**
+     * Properties that will override the default trigger_properties for a specific user.
+     */
+    trigger_properties?: {
+      [k: string]: unknown
+    }
+    /**
+     * Whether the message should only send to users who already exist in Braze.
+     */
+    send_to_existing_only?: boolean
+    /**
+     * Customer attributes that can be updated for the user before the message is sent.
+     */
+    attributes?: {
+      [k: string]: unknown
+    }
+    /**
+     * Custom events that can be performed for the user before the message is sent.
+     */
+    custom_events?: {
+      /**
+       * The name of the custom event.
+       */
+      name: string
+      /**
+       * Time when the event occurred (ISO 8601 format).
+       */
+      time?: string
+      /**
+       * Properties of the custom event.
+       */
+      properties?: {
+        [k: string]: unknown
+      }
+    }[]
+    /**
+     * Purchase events that can be recorded for the user before the message is sent.
+     */
+    purchases?: {
+      /**
+       * The product identifier.
+       */
+      product_id: string
+      /**
+       * The currency code (ISO 4217) of the purchase.
+       */
+      currency: string
+      /**
+       * The price of the product.
+       */
+      price: number
+      /**
+       * The quantity of the product being purchased.
+       */
+      quantity?: number
+      /**
+       * Time when the purchase occurred (ISO 8601 format).
+       */
+      time?: string
+      /**
+       * Properties of the purchase.
+       */
+      properties?: {
+        [k: string]: unknown
+      }
+    }[]
   }[]
   /**
    * A standard audience object to specify the users to send the campaign to.
@@ -53,4 +123,17 @@ export interface Payload {
    * The ID of the Connected Audience to send the campaign to.
    */
   audience_id?: string
+  /**
+   * Attachments to send along with the campaign. Limited to 2MB per file.
+   */
+  attachments?: {
+    /**
+     * The name of the file to be attached.
+     */
+    file_name: string
+    /**
+     * The URL of the file to be attached.
+     */
+    url: string
+  }[]
 }
