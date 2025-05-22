@@ -1,8 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { MultiStatusResponse } from '@segment/actions-core'
-import type { JSONLikeObject } from '@segment/actions-core'
 
 const person = (payload: Payload) => {
   return {
@@ -121,24 +119,12 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
   performBatch: async (request, { settings, payload }) => {
-    const batchSize = payload[0]?.batch_size ?? 1000
-    const multiStatusResponse = new MultiStatusResponse()
-    for (let i = 0; i < payload.length; i += batchSize) {
-      const chunk = payload.slice(i, i + batchSize)
-      const subs = chunk.map(person)
-      const response = await request(`https://api.getdrip.com/v2/${settings.accountId}/subscribers/batches`, {
-        method: 'POST',
-        json: { batches: [{ subscribers: subs }] }
-      })
-      chunk.forEach((_, index) => {
-        multiStatusResponse.pushSuccessResponse({
-          status: response.status,
-          sent: subs[index],
-          body: response.data as JSONLikeObject
-        })
-      })
-    }
-    return multiStatusResponse
+    const subscribers = payload.map(person)
+
+    return request(`https://api.getdrip.com/v2/${settings.accountId}/subscribers/batches`, {
+      method: 'POST',
+      json: { batches: [{ subscribers }] }
+    })
   }
 }
 
