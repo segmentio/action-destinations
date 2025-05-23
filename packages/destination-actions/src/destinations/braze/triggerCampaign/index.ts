@@ -145,23 +145,22 @@ const action: ActionDefinition<Settings, Payload> = {
             })
           })
 
-          const data = response.data as { campaign?: { id: string; name: string; schedule_type: string } }
-
-          // Check if campaign exists
-          if (!data.campaign) {
+          if (!response.ok || !response.data) {
             return {
               error: {
-                message: `Campaign with ID '${hookInputs.campaign_id}' not found.`,
-                code: 'CAMPAIGN_NOT_FOUND'
+                message: `Failed to fetch campaign details for ID '${hookInputs.campaign_id}'`,
+                code: 'CAMPAIGN_FETCH_ERROR'
               }
             }
           }
 
+          const data = response.data as { name: string; schedule_type: string }
+
           // Check if campaign is API-triggered
-          if (data.campaign.schedule_type !== 'api_triggered') {
+          if (data.schedule_type !== 'api_triggered') {
             return {
               error: {
-                message: `Campaign '${data.campaign.name}' (${hookInputs.campaign_id}) is not configured for API triggering. Please update the campaign in Braze to enable API triggering.`,
+                message: `Campaign '${data.name}' (${hookInputs.campaign_id}) is not configured for API triggering. Please update the campaign in Braze to enable API triggering.`,
                 code: 'CAMPAIGN_NOT_API_TRIGGERED'
               }
             }
@@ -170,8 +169,8 @@ const action: ActionDefinition<Settings, Payload> = {
           // Campaign exists and is API-triggered
           return {
             outputs: {
-              id: data.campaign.id,
-              name: data.campaign.name
+              id: hookInputs.campaign_id,
+              name: data.name
             }
           }
         } catch (error: any) {
