@@ -10,6 +10,8 @@ import identify from './identify'
 import track from './track'
 import group from './group'
 
+import page from './page'
+
 declare global {
   interface Window {
     pendo: PendoSDK
@@ -114,7 +116,8 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
   actions: {
     track,
     identify,
-    group
+    group,
+    page
   },
   presets: [
     {

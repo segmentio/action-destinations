@@ -5,37 +5,35 @@ import { PendoSDK } from '../../types'
 
 const subscriptions: Subscription[] = [
   {
-    partnerAction: 'identify',
-    name: 'Send Identify Event',
+    partnerAction: 'page',
+    name: 'Page Load Event',
     enabled: true,
-    subscribe: 'type = "identify"',
+    subscribe: 'type = "page"',
     mapping: {
-      visitorId: {
-        '@path': '$.userId'
-      },
-      visitorData: {
-        '@path': '$.traits'
+      url: {
+        '@path': '$.context.page.url'
       }
     }
   }
 ]
 
-describe('Pendo.identify', () => {
+describe('Pendo.pageLoad', () => {
   const settings = {
     apiKey: 'abc123',
+    setVisitorIdOnLoad: 'disabled',
     region: 'io'
   }
 
   let mockPendo: PendoSDK
-  let identifyAction: any
+  let pageAction: any
   beforeEach(async () => {
     jest.restoreAllMocks()
 
-    const [identifyEvent] = await pendoDestination({
+    const [pageLoadEvent] = await pendoDestination({
       ...settings,
       subscriptions
     })
-    identifyAction = identifyEvent
+    pageAction = pageLoadEvent
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       mockPendo = {
@@ -48,21 +46,19 @@ describe('Pendo.identify', () => {
       }
       return Promise.resolve(mockPendo)
     })
-    await identifyAction.load(Context.system(), {} as Analytics)
+    await pageAction.load(Context.system(), {} as Analytics)
   })
 
-  test('calls the pendo Client identify() function', async () => {
+  test('calls the pendo Client pageLoad() function', async () => {
     const context = new Context({
-      type: 'identify',
-      userId: 'testUserId',
-      traits: {
-        first_name: 'Jimbo'
+      type: 'page',
+      context: {
+        page: {
+          url: 'https://example.com'
+        }
       }
     })
-    await identifyAction.identify?.(context)
-
-    expect(mockPendo.identify).toHaveBeenCalledWith({
-      visitor: { first_name: 'Jimbo', id: 'testUserId' }
-    })
+    await pageAction.page?.(context)
+    expect(mockPendo.pageLoad).toHaveBeenCalledWith('https://example.com')
   })
 })
