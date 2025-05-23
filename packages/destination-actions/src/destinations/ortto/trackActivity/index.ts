@@ -51,11 +51,12 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Activity properties',
       description: 'An object containing key-value pairs representing activity attributes',
       type: 'object',
-      defaultObjectUI: 'keyvalue'
+      defaultObjectUI: 'keyvalue',
+      additionalProperties: true
     }
   },
   hooks: {
-    retlOnMappingSave: {
+    onMappingSave: {
       label: 'Associate Audience',
       description:
         'Link the Contact to an Audience in Ortto. If the Audience does not already exist, it will be created in Ortto.',
@@ -110,7 +111,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return await client.sendActivities(
       settings,
       [payload],
-      (hookOutputs?.retlOnMappingSave?.outputs?.audience_id as string) ?? ''
+      (hookOutputs?.onMappingSave?.outputs?.audience_id as string) ?? ''
     )
   },
   performBatch: async (request, { settings, payload, hookOutputs }) => {
@@ -118,7 +119,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return await client.sendActivities(
       settings,
       payload,
-      (hookOutputs?.retlOnMappingSave?.outputs?.audience_id as string) ?? ''
+      (hookOutputs?.onMappingSave?.outputs?.audience_id as string) ?? ''
     )
   }
 }

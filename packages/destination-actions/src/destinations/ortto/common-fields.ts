@@ -134,6 +134,7 @@ export const commonFields: Record<string, InputField> = {
     description: 'An object containing key-value pairs representing custom properties assigned to Contact profile',
     type: 'object',
     defaultObjectUI: 'keyvalue',
+    additionalProperties: true,
     properties: {
       email: {
         label: 'Email',
