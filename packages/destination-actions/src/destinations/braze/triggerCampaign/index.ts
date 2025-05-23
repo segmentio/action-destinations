@@ -123,7 +123,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   hooks: {
-    retlOnMappingSave: {
+    onMappingSave: {
       label: 'Validate Braze Campaign',
       description: 'When saving this mapping, we will validate that the campaign exists and can be triggered via API.',
       inputFields: {
