@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, PayloadValidationError } from '@segment/actions-core'
 import Destination from '../../index'
 import { Settings } from '../../generated-types'
 import { randomUUID } from 'crypto'
@@ -101,15 +101,7 @@ describe('setViewPortionFromWatchTime', () => {
     })
   })
 
-  it('should fail when portion is out of bounds', async () => {
-    nock('https://rapi-eu-west.recombee.com/')
-      .post(`/${DATABASE_ID}/viewportions/`)
-      .query({
-        hmac_timestamp: /.*/,
-        hmac_sign: /.*/
-      })
-      .reply(400, { message: 'Invalid numeric value "2" for property portion: must be from interval [0,1]' })
-
+  it('should fail when position is larger than totalLength', async () => {
     const event = createTestEvent({
       userId: 'user-id',
       properties: {
@@ -127,5 +119,45 @@ describe('setViewPortionFromWatchTime', () => {
         useDefaultMappings: true
       })
     ).rejects.toThrow()
+  })
+
+  it('should fail when totalLength is 0', async () => {
+    const event = createTestEvent({
+      userId: 'user-id',
+      properties: {
+        product_id: 'product-id',
+        total_length: 0,
+        position: 10
+      },
+      timestamp: '2021-09-01T00:00:00.000Z'
+    })
+
+    await expect(
+      testDestination.testAction('setViewPortionFromWatchTime', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow(PayloadValidationError)
+  })
+
+  it('should fail when totalLength is negative', async () => {
+    const event = createTestEvent({
+      userId: 'user-id',
+      properties: {
+        product_id: 'product-id',
+        total_length: -1,
+        position: 10
+      },
+      timestamp: '2021-09-01T00:00:00.000Z'
+    })
+
+    await expect(
+      testDestination.testAction('setViewPortionFromWatchTime', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow(PayloadValidationError)
   })
 })

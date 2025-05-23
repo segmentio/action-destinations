@@ -7,7 +7,7 @@ Object {
   },
   "cascadeCreate": true,
   "itemId": "Np8pbQ",
-  "portion": -70298178955509.76,
+  "portion": 0.1097,
   "recommId": "Np8pbQ",
   "sessionId": "Np8pbQ",
   "timestamp": "Np8pbQ",
@@ -17,9 +17,10 @@ Object {
 
 exports[`Testing snapshot for Recombee's setViewPortion destination action: required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "Np8pbQ",
-  "portion": -70298178955509.76,
+  "portion": 0.1097,
   "userId": "Np8pbQ",
 }
 `;

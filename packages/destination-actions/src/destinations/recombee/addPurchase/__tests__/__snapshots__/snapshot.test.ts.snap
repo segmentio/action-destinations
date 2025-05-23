@@ -30,6 +30,7 @@ Object {
     Object {
       "method": "POST",
       "params": Object {
+        "additionalData": Object {},
         "cascadeCreate": true,
         "itemId": "o@fME^0ckHa[VN6e&Zv*",
         "userId": "o@fME^0ckHa[VN6e&Zv*",
