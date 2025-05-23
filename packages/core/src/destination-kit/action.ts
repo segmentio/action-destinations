@@ -34,6 +34,7 @@ import {
   SubscriptionMetadata
 } from './index'
 import { get } from '../get'
+import pick from 'lodash/pick'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -333,6 +334,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
     payload = removeEmptyValues(payload, this.schema, true) as Payload
 
+    // add internal hidden fields before validation
+    const internalFields = pick(bundle.mapping, INTERNAL_HIDDEN_FIELDS)
+    payload = { ...payload, ...internalFields }
+
     // Validate the resolved payload against the schema
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
@@ -392,6 +397,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     // Remove internal hidden fields
     const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
+    const internalFields = pick(bundle.mapping, INTERNAL_HIDDEN_FIELDS)
 
     let payloads = transformBatch(mapping, bundle.data) as Payload[]
     const batchPayloadLength = payloads.length
@@ -415,8 +421,12 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
         for (let i = 0; i < payloads.length; i++) {
           // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-          const payload = removeEmptyValues(payloads[i], schema) as Payload
+          let payload = removeEmptyValues(payloads[i], schema) as Payload
           // Validate payload schema
+
+          // Add internal hidden fields before validation
+          payload = { ...payload, ...internalFields }
+
           try {
             validateSchema(payload, schema, validationOptions)
           } catch (e) {
