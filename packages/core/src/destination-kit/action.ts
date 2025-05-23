@@ -34,6 +34,7 @@ import {
   SubscriptionMetadata
 } from './index'
 import { get } from '../get'
+import pick from 'lodash/pick'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -332,6 +333,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
     payload = removeEmptyValues(payload, this.schema, true) as Payload
+
+    // add internal hidden fields before validation
+    const internalFields = pick(bundle.mapping, INTERNAL_HIDDEN_FIELDS)
+    payload = { ...payload, ...internalFields }
 
     // Validate the resolved payload against the schema
     if (this.schema) {
