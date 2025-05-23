@@ -397,6 +397,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     // Remove internal hidden fields
     const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
+    const internalFields = pick(bundle.mapping, INTERNAL_HIDDEN_FIELDS)
 
     let payloads = transformBatch(mapping, bundle.data) as Payload[]
     const batchPayloadLength = payloads.length
@@ -420,8 +421,12 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
         for (let i = 0; i < payloads.length; i++) {
           // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-          const payload = removeEmptyValues(payloads[i], schema) as Payload
+          let payload = removeEmptyValues(payloads[i], schema) as Payload
           // Validate payload schema
+
+          // Add internal hidden fields before validation
+          payload = { ...payload, ...internalFields }
+
           try {
             validateSchema(payload, schema, validationOptions)
           } catch (e) {
