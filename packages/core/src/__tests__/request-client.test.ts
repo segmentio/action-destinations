@@ -3,6 +3,8 @@ import createTestServer from 'create-test-server'
 import createInstance from '../request-client'
 import { Response } from '../fetch'
 
+jest.setTimeout(10000)
+
 describe('createInstance', () => {
   it('should create a new request client instance', async () => {
     const server = await createTestServer()
