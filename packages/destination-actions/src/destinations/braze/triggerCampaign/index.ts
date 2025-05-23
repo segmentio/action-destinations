@@ -134,6 +134,20 @@ const action: ActionDefinition<Settings, Payload> = {
           required: true
         }
       },
+      outputTypes: {
+        id: {
+          type: 'string',
+          label: 'Campaign ID',
+          description: 'The ID of the validated Braze campaign.',
+          required: false
+        },
+        name: {
+          type: 'string',
+          label: 'Campaign Name',
+          description: 'The name of the validated Braze campaign.',
+          required: false
+        }
+      },
       performHook: async (request, { settings, hookInputs }) => {
         // Check if campaign exists and is API-triggered
         try {
@@ -168,7 +182,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
           // Campaign exists and is API-triggered
           return {
-            outputs: {
+            successMessage: `Campaign '${data.name}' (${hookInputs.campaign_id}) is valid and can be triggered via API.`,
+            savedData: {
               id: hookInputs.campaign_id,
               name: data.name
             }
@@ -180,20 +195,6 @@ const action: ActionDefinition<Settings, Payload> = {
               code: error.status || 'CAMPAIGN_VALIDATION_ERROR'
             }
           }
-        }
-      },
-      outputTypes: {
-        id: {
-          type: 'string',
-          label: 'Campaign ID',
-          description: 'The ID of the validated Braze campaign.',
-          required: false
-        },
-        name: {
-          type: 'string',
-          label: 'Campaign Name',
-          description: 'The name of the validated Braze campaign.',
-          required: false
         }
       }
     }
