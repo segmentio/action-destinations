@@ -31,12 +31,6 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Your Amazon Advertiser Account ID.',
         type: 'string',
         required: true
-      },
-      profileId: {
-        label: 'Amazon Profile ID',
-        description: 'Your Amazon Advertising API Profile ID.',
-        type: 'string',
-        required: true
       }
     },
     testAuthentication: async (request, { auth, settings }) => {

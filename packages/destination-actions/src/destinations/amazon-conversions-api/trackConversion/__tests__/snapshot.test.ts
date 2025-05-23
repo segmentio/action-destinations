@@ -17,8 +17,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     settingsData = {
       ...settingsData,
       region: 'https://advertising-api.amazon.com',
-      advertiserId: 'test-advertiser-id',
-      profileId: 'test-profile-id'
+      advertiserId: 'test-advertiser-id'
     }
 
     // Mock specific Amazon API requests with proper URL
@@ -74,8 +73,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     settingsData = {
       ...settingsData,
       region: 'https://advertising-api.amazon.com',
-      advertiserId: 'test-advertiser-id',
-      profileId: 'test-profile-id'
+      advertiserId: 'test-advertiser-id'
     }
 
     // Mock specific Amazon API requests with proper URL

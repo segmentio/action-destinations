@@ -98,8 +98,7 @@ describe('Amazon Conversions API Utils', () => {
       const mockRegion = 'https://advertising-api.amazon.com'
       const settings = {
         region: mockRegion,
-        advertiserId: 'test-advertiser-id',
-        profileId: 'test-profile-id'
+        advertiserId: 'test-advertiser-id'
       }
       
       const eventData: EventData = {
@@ -133,7 +132,6 @@ describe('Amazon Conversions API Utils', () => {
         ingestionMethod: 'SERVER_TO_SERVER'
       })
       expect(options.headers).toEqual({
-        'Amazon-Advertising-API-Scope': settings.profileId,
         'Amazon-Ads-AccountId': settings.advertiserId
       })
       expect(options.timeout).toBe(25000)
@@ -148,8 +146,7 @@ describe('Amazon Conversions API Utils', () => {
       const mockRegion = 'https://advertising-api.amazon.com'
       const settings = {
         region: mockRegion,
-        advertiserId: 'test-advertiser-id',
-        profileId: 'test-profile-id'
+        advertiserId: 'test-advertiser-id'
       }
       
       const eventDataBatch: EventData[] = [

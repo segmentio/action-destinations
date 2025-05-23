@@ -9,8 +9,4 @@ export interface Settings {
    * Your Amazon Advertiser Account ID.
    */
   advertiserId: string
-  /**
-   * Your Amazon Advertising API Profile ID.
-   */
-  profileId: string
 }

@@ -122,7 +122,6 @@ export async function sendEventsRequest(
         ingestionMethod: "SERVER_TO_SERVER"
       },
       headers: {
-        'Amazon-Advertising-API-Scope': settings.profileId,
         'Amazon-Ads-AccountId': settings.advertiserId
       },
       timeout: 25000,

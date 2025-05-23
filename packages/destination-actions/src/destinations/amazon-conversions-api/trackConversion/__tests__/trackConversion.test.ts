@@ -39,8 +39,7 @@ const testDestination = createTestIntegration(Destination)
 
 const settings = {
   region: 'https://advertising-api.amazon.com',
-  advertiserId: 'test-advertiser-id',
-  profileId: 'test-profile-id'
+  advertiserId: 'test-advertiser-id'
 }
 
 const auth = {

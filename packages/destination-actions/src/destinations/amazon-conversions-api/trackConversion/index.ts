@@ -125,7 +125,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     unitsSold: {
       label: 'Units Sold',
-      description: 'The number of items purchased (only for OFF_AMAZON_PURCHASES).',
+      description: 'The number of items purchased. Only applicable for OFF_AMAZON_PURCHASES event type. If not provided on the event, a default of 1 will be applied.',
       type: 'integer',
       required: false,
       default: {
