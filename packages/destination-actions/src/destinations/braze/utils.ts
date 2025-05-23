@@ -8,6 +8,7 @@ import { Payload as TrackPurchasePayload } from './trackPurchase/generated-types
 import { Payload as UpdateUserProfilePayload } from './updateUserProfile/generated-types'
 import { getUserAlias } from './userAlias'
 import { HTTPError } from '@segment/actions-core'
+import { ListCatalogsResponse } from './upsertCatalogItem'
 type DateInput = string | Date | number | null | undefined
 type DateOutput = string | undefined | null
 
@@ -631,4 +632,31 @@ export function generateMultiStatusError(batchSize: number, errorMessage: string
   }
 
   return multiStatusResponse
+}
+
+export async function getCatalogMetaByName(request: RequestClient, endpoint: string, catalog_name: string) {
+  const catalogs = await getCatalogMetas(request, endpoint)
+
+  //validate catalog_name
+  if (!catalogs?.length) {
+    throw new IntegrationError('No catalogs found', 'Catalogs not found', 404)
+  }
+  const itemCatalog = catalogs?.find((catalog) => catalog.name === catalog_name)
+
+  if (!itemCatalog) {
+    throw new IntegrationError(`Catalog ${catalog_name} not found`, `Missing catalog`, 404)
+  }
+  return itemCatalog
+}
+
+export async function getCatalogMetas(request: RequestClient, endpoint: string) {
+  const response = await request<ListCatalogsResponse>(`${endpoint}/catalogs`, {
+    method: 'get'
+  })
+
+  return response?.data?.catalogs
+}
+
+export function isValidItemId(item_id: string) {
+  return /^[a-zA-Z0-9_-]+$/.test(item_id)
 }
