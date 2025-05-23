@@ -255,6 +255,10 @@ const action: ActionDefinition<Settings, Payload> = {
       properties.session_id = formatSessionId(session_id)
     }
 
+    if (properties.event_type) {
+      properties.event_type = '[Segment] ' + properties.event_type
+    }
+
     if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
       properties.user_properties = mergeUserProperties(
         convertUTMProperties({ utm_properties }),
@@ -286,7 +290,7 @@ const action: ActionDefinition<Settings, Payload> = {
         // Or track revenue per product
         ...(trackRevenuePerProduct ? getRevenueProperties(product as EventRevenue) : {}),
         event_properties: product,
-        event_type: 'Product Purchased',
+        event_type: '[Segment] Product Purchased',
         insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined,
         library: 'segment'
       })
