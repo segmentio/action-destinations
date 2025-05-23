@@ -47,6 +47,7 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true,
       readOnly: true
     },
+    // note that this must be `properties` to be processed by the warehouse pipeline
     properties: {
       label: 'Columns',
       description: `Additional columns to write to Snowflake.`,
