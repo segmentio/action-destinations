@@ -164,6 +164,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // validate catalog_name
     const itemCatalog = await getCatalogMetaByName(request, settings.endpoint, catalog_name)
+    const schema = createValidationSchema(itemCatalog)
+
+    const mappedFields = itemCatalog.fields?.map((field) => field.name) ?? []
 
     // validate item_id
     if (!isValidItemId(item_id)) {
@@ -172,14 +175,12 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (syncMode === 'upsert') {
       //extract only the fields that are present in the catalog
-      item = pick(item, itemCatalog.fields?.map((field) => field.name) ?? [])
+      item = pick(item, mappedFields)
 
       // validate item
       if (isObject(item) && isEmpty(item)) {
         throw new IntegrationError('Item is required', 'Item is required', 400)
       }
-
-      const schema = createValidationSchema(itemCatalog)
 
       validateSchema(item, schema, { throwIfInvalid: true })
 
@@ -209,6 +210,57 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     }
+  },
+  performBatch: async (request, { settings, payload, syncMode }) => {
+    const { catalog_name = '' } = payload[0]
+    const itemCatalog = await getCatalogMetaByName(request, settings.endpoint, catalog_name)
+    const schema = createValidationSchema(itemCatalog)
+    const mappedFields = itemCatalog.fields?.map((field) => field.name) ?? []
+
+    const items = []
+
+    for (const body of payload) {
+      const { item_id = '', item = {} } = body
+
+      // validate item_id
+      if (!isValidItemId(item_id)) {
+        continue
+      }
+      if (syncMode === 'upsert') {
+        //extract only the fields that are present in the catalog
+        const filteredItem = pick(item, mappedFields)
+
+        // validate item
+        if (isObject(filteredItem) && isEmpty(filteredItem)) {
+          continue
+        }
+
+        if (validateSchema(filteredItem, schema, { throwIfInvalid: false })) {
+          items.push({
+            id: item_id,
+            ...filteredItem
+          })
+        }
+      } else {
+        items.push({
+          id: item_id
+        })
+      }
+    }
+    if (items.length === 0) {
+      throw new IntegrationError('No valid items to upsert', 'No valid items to upsert', 400)
+    }
+
+    const response = await request(`${settings.endpoint}/catalogs/${catalog_name}/items/`, {
+      method: syncMode === 'upsert' ? 'PUT' : 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      json: {
+        items
+      }
+    })
+    return response
   }
 }
 
