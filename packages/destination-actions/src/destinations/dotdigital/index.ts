@@ -7,7 +7,7 @@ import addContactToList from './addContactToList'
 const destination: DestinationDefinition<Settings> = {
   name: 'Dotdigital',
   slug: 'actions-dotdigital',
-  description: 'Add and remove Contacts from Dotdigital lists, and enrol Contacts in Dotdigital Programs.',
+  description: 'Send Segment events and user profile data to Dotdigital.',
   mode: 'cloud',
   authentication: {
     scheme: 'basic',
