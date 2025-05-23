@@ -40,20 +40,41 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     gclid: {
       label: 'GCLID',
-      description: 'The Google click ID (gclid) associated with this conversion.',
-      type: 'string'
+      description: 'The Google click ID (gclid) associated with this conversion. if not provided, GBRAID or WBRAID is required.',
+      type: 'string',
+      required: {
+        match: 'all',
+        conditions: [
+          { fieldKey: 'gbraid', operator: 'is_not', value: [undefined, null, ''] },
+          { fieldKey: 'wbraid', operator: 'is_not', value: [undefined, null, ''] }
+        ]
+      }
     },
     gbraid: {
       label: 'GBRAID',
       description:
-        'The click identifier for clicks associated with app conversions and originating from iOS devices starting with iOS14.',
-      type: 'string'
+        'The click identifier for clicks associated with app conversions and originating from iOS devices starting with iOS14. if not provided, GCLID or WBRAID is required.',
+      type: 'string',
+      required: {
+        match: 'all',
+        conditions: [
+          { fieldKey: 'gclid', operator: 'is_not', value: [undefined, null, ''] },
+          { fieldKey: 'wbraid', operator: 'is_not', value: [undefined, null, ''] }
+        ]
+      }
     },
     wbraid: {
       label: 'WBRAID',
       description:
-        'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14.',
-      type: 'string'
+        'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14. if not provided, GCLID or GBRAID is required.',
+      type: 'string',
+      required: {
+        match: 'all',
+        conditions: [
+          { fieldKey: 'gclid', operator: 'is_not', value: [undefined, null, ''] },
+          { fieldKey: 'gbraid', operator: 'is_not', value: [undefined, null, ''] }
+        ]
+      }
     },
     conversion_timestamp: {
       label: 'Conversion Timestamp',
@@ -200,7 +221,7 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_variables: {
       label: 'Custom Variables',
       description:
-        'The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables) ',
+        'The custom variables associated with this conversion. Will not be sent if GBRAID or WBRAID fields populated. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables) ',
       type: 'object',
       additionalProperties: true,
       defaultObjectUI: 'keyvalue:only'
@@ -308,7 +329,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     // Retrieves all of the custom variables that the customer has created in their Google Ads account
-    if (payload.custom_variables) {
+    if (payload.custom_variables && !payload.gbraid && !payload.wbraid) {
       const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
       if (customVariableIds?.data?.length) {
         request_object.customVariables = formatCustomVariables(
