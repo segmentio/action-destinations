@@ -30,7 +30,7 @@ export interface Payload {
    */
   currencyCode?: string
   /**
-   * The number of items purchased (only for OFF_AMAZON_PURCHASES).
+   * The number of items purchased. Only applicable for OFF_AMAZON_PURCHASES event type. If not provided on the event, a default of 1 will be applied.
    */
   unitsSold?: number
   /**
@@ -137,4 +137,12 @@ export interface Payload {
      */
     value: string
   }[]
+  /**
+   * When enabled, Segment will send data in batching.
+   */
+  enable_batching: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
