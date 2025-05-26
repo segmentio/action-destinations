@@ -82,23 +82,3 @@ export interface Payload {
    */
   segment_id?: string
 }
-// Generated file. DO NOT MODIFY IT BY HAND.
-
-export interface OnMappingSaveInputs {
-  /**
-   * The ID of the Braze campaign to validate.
-   */
-  campaign_id: string
-}
-// Generated file. DO NOT MODIFY IT BY HAND.
-
-export interface OnMappingSaveOutputs {
-  /**
-   * The ID of the validated Braze campaign.
-   */
-  id: string
-  /**
-   * The name of the validated Braze campaign.
-   */
-  name: string
-}

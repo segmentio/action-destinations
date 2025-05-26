@@ -122,89 +122,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string'
     }
   },
-  hooks: {
-    onMappingSave: {
-      label: 'Validate Braze Campaign',
-      description: 'When saving this mapping, we will validate that the campaign exists and can be triggered via API.',
-      inputFields: {
-        campaign_id: {
-          type: 'string',
-          label: 'Campaign ID',
-          description: 'The ID of the Braze campaign to validate.',
-          required: true
-        }
-      },
-      outputTypes: {
-        id: {
-          type: 'string',
-          label: 'Campaign ID',
-          description: 'The ID of the validated Braze campaign.',
-          required: true
-        },
-        name: {
-          type: 'string',
-          label: 'Campaign Name',
-          description: 'The name of the validated Braze campaign.',
-          required: true
-        }
-      },
-      performHook: async (request, { settings, hookInputs }) => {
-        // Check if campaign exists and is API-triggered
-        try {
-          // Make request to Braze API to get campaign details
-          const response = await request(`${settings.endpoint}/campaigns/details`, {
-            method: 'GET',
-            searchParams: new URLSearchParams({
-              campaign_id: hookInputs.campaign_id
-            })
-          })
-
-          if (!response.ok || !response.data) {
-            return {
-              error: {
-                message: `Failed to fetch campaign details for ID '${hookInputs.campaign_id}'`,
-                code: 'CAMPAIGN_FETCH_ERROR'
-              }
-            }
-          }
-
-          const data = response.data as { name: string; schedule_type: string }
-
-          // Check if campaign is API-triggered
-          if (data.schedule_type !== 'api_triggered') {
-            return {
-              error: {
-                message: `Campaign '${data.name}' (${hookInputs.campaign_id}) is not configured for API triggering. Please update the campaign in Braze to enable API triggering.`,
-                code: 'CAMPAIGN_NOT_API_TRIGGERED'
-              }
-            }
-          }
-
-          // Campaign exists and is API-triggered
-          return {
-            successMessage: `Campaign '${data.name}' (${hookInputs.campaign_id}) is valid and can be triggered via API.`,
-            savedData: {
-              id: hookInputs.campaign_id,
-              name: data.name
-            }
-          }
-        } catch (error: any) {
-          return {
-            error: {
-              message: error.message || `Failed to validate campaign with ID '${hookInputs.campaign_id}'`,
-              code: error.status || 'CAMPAIGN_VALIDATION_ERROR'
-            }
-          }
-        }
-      }
-    }
-  },
 
   perform: async (request, { settings, payload }) => {
     // Validate that at least one of the required targeting parameters is provided
-    if (!payload.broadcast && !payload.recipients?.length && !payload.segment_id && !payload.audience) {
+    if (!(payload.broadcast && payload.segment_id) && !payload.recipients?.length && !payload.audience) {
       throw new IntegrationError(
-        'One of "recipients", "segment_id", "audience_id", "audience", or "broadcast" must be provided.',
+        'One of "recipients", "segment_id with broadcast" or "audience", must be provided.',
         'Missing required fields',
         400
       )
