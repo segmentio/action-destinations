@@ -139,13 +139,13 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           label: 'Campaign ID',
           description: 'The ID of the validated Braze campaign.',
-          required: false
+          required: true
         },
         name: {
           type: 'string',
           label: 'Campaign Name',
           description: 'The name of the validated Braze campaign.',
-          required: false
+          required: true
         }
       },
       performHook: async (request, { settings, hookInputs }) => {
@@ -202,13 +202,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { settings, payload }) => {
     // Validate that at least one of the required targeting parameters is provided
-    if (
-      !payload.broadcast &&
-      !payload.recipients?.length &&
-      !payload.segment_id &&
-      !payload.audience_id &&
-      !payload.audience
-    ) {
+    if (!payload.broadcast && !payload.recipients?.length && !payload.segment_id && !payload.audience) {
       throw new IntegrationError(
         'One of "recipients", "segment_id", "audience_id", "audience", or "broadcast" must be provided.',
         'Missing required fields',
@@ -269,14 +263,6 @@ const action: ActionDefinition<Settings, Payload> = {
           result.attributes = recipient.attributes
         }
 
-        if (recipient.custom_events?.length) {
-          result.custom_events = recipient.custom_events
-        }
-
-        if (recipient.purchases?.length) {
-          result.purchases = recipient.purchases
-        }
-
         return result
       })
 
@@ -290,10 +276,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.segment_id) {
       requestBody.segment_id = payload.segment_id
-    }
-
-    if (payload.audience_id) {
-      requestBody.audience_id = payload.audience_id
     }
 
     if (payload.audience) {
