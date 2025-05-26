@@ -248,13 +248,6 @@ const isSyncMode = (value: unknown): value is SyncMode => {
   return syncModeTypes.find((validValue) => value === validValue) !== undefined
 }
 
-const INTERNAL_HIDDEN_FIELDS = ['__segment_internal_sync_mode', '__segment_internal_matching_key']
-const removeInternalHiddenFields = (mapping: JSONLikeObject): JSONLikeObject => {
-  return Object.keys(mapping).reduce((acc, key) => {
-    return INTERNAL_HIDDEN_FIELDS.includes(key) ? acc : { ...acc, [key]: mapping[key] }
-  }, {})
-}
-
 /**
  * Action is the beginning step for all partner actions. Entrypoints always start with the
  * MapAndValidateInput step.
@@ -341,8 +334,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       results.push({ output: 'Payload validated' })
     }
 
-    payload = removeInternalHiddenFields(payload) as Payload
-
     let hookOutputs = {}
     if (this.definition.hooks) {
       for (const hookType in this.definition.hooks) {
@@ -411,11 +402,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
         for (let i = 0; i < payloads.length; i++) {
           // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-          let payload = removeEmptyValues(payloads[i], schema) as Payload
+          const payload = removeEmptyValues(payloads[i], schema) as Payload
           // Validate payload schema
           try {
             validateSchema(payload, schema, validationOptions)
-            payload = removeInternalHiddenFields(payload) as Payload
           } catch (e) {
             // Validation failed with an exception, record the filtered out event
             multiStatusResponse[i] = {
