@@ -15,14 +15,35 @@ interface CampaignResponse {
 export const dynamicFields = {
   campaign_id: async (request: RequestClient, { settings }: { settings: Settings }): Promise<DynamicFieldResponse> => {
     try {
-      const response = await request(`${settings.endpoint}/campaigns/list`, {
-        method: 'GET',
-        skipResponseCloning: true
-      })
+      const allCampaigns: Campaign[] = []
+      let page = 0
+      // Keep fetching campaigns until we get an empty array
+      //eslint-disable-next-line no-constant-condition
+      while (true) {
+        const response = await request(`${settings.endpoint}/campaigns/list`, {
+          method: 'GET',
+          skipResponseCloning: true,
+          searchParams: {
+            page: page.toString()
+          }
+        })
 
-      const data = response.data as CampaignResponse
+        const data = response.data as CampaignResponse
 
-      if (!data.campaigns || !Array.isArray(data.campaigns) || data.campaigns.length === 0) {
+        if (!data.campaigns || !Array.isArray(data.campaigns)) {
+          break
+        }
+
+        // Add campaigns from current page to our collection
+        if (data.campaigns) {
+          allCampaigns.push(...data.campaigns)
+        }
+
+        // Move to next page
+        page++
+      }
+
+      if (allCampaigns.length === 0) {
         return {
           choices: [],
           error: {
@@ -33,7 +54,7 @@ export const dynamicFields = {
       }
 
       // Display all campaigns that can be triggered via the API
-      const campaigns = data.campaigns.map((campaign) => ({
+      const campaigns = allCampaigns.map((campaign) => ({
         label: campaign.name,
         value: campaign.id
       }))
