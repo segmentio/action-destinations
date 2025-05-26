@@ -55,6 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Catalog Name',
       description: 'The Name of the catalog to which the item belongs.',
       type: 'string',
+      dynamic: true,
       required: true
     },
     item: {
