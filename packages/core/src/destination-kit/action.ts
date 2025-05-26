@@ -248,13 +248,6 @@ const isSyncMode = (value: unknown): value is SyncMode => {
   return syncModeTypes.find((validValue) => value === validValue) !== undefined
 }
 
-const INTERNAL_HIDDEN_FIELDS = ['__segment_internal_sync_mode', '__segment_internal_matching_key']
-const removeInternalHiddenFields = (mapping: JSONObject): JSONObject => {
-  return Object.keys(mapping).reduce((acc, key) => {
-    return INTERNAL_HIDDEN_FIELDS.includes(key) ? acc : { ...acc, [key]: mapping[key] }
-  }, {})
-}
-
 /**
  * Action is the beginning step for all partner actions. Entrypoints always start with the
  * MapAndValidateInput step.
@@ -323,11 +316,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // TODO cleanup results... not sure it's even used
     const results: Result[] = []
 
-    // Remove internal hidden fields
-    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
-
     // Resolve/transform the mapping with the input data
-    let payload = transform(mapping, bundle.data) as Payload
+    let payload = transform(bundle.mapping, bundle.data) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
@@ -390,10 +380,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
 
-    // Remove internal hidden fields
-    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
-
-    let payloads = transformBatch(mapping, bundle.data) as Payload[]
+    let payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
     const batchPayloadLength = payloads.length
 
     const multiStatusResponse: ResultMultiStatusNode[] = []

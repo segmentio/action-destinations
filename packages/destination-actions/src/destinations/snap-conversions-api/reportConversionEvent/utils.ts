@@ -1,5 +1,5 @@
 import { IntegrationError } from '@segment/actions-core'
-import { processHashingV2 } from '../../../lib/hashing-utils'
+import { processHashing } from '../../../lib/hashing-utils'
 
 export const isNullOrUndefined = <T>(v: T | null | undefined): v is null | undefined => v == null
 
@@ -76,5 +76,5 @@ export const smartHash = (
 ): string | undefined => {
   if (value === undefined) return
 
-  return processHashingV2(value, 'sha256', 'hex', cleaningFunction)
+  return processHashing(value, 'sha256', 'hex', cleaningFunction)
 }

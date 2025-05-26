@@ -24,11 +24,11 @@ const standardFields = new Set([
 ])
 
 interface Mapping {
-  incoming_key: string
-  destination_key: string
+  incomingKey: string
+  destinationKey: string
   label: string
-  data_type: string
-  is_pii: boolean
+  type: string
+  isPii: boolean
 }
 
 export async function performForwardProfiles(request: RequestClient, events: Payload[]) {
@@ -73,7 +73,7 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
       upsertProfileMapping(
         input: {
           advertiserId: ${advertiserId},
-          mappingSchema: "${getProfileMappings(Array.from(fieldsToMap), fieldTypes)}",
+          mappingSchemaV2: ${getProfileMappings(Array.from(fieldsToMap), fieldTypes)},
           mappableType: "${EXTERNAL_PROVIDER}",
         }
       ) {
@@ -112,11 +112,11 @@ function getProfileMappings(customFields: string[], fieldTypes: Record<string, s
   const mappingSchema: Mapping[] = []
   for (const field of customFields) {
     mappingSchema.push({
-      incoming_key: field,
-      destination_key: field === 'userId' ? 'external_id' : field,
+      incomingKey: field,
+      destinationKey: field === 'userId' ? 'external_id' : field,
       label: generateLabel(field),
-      data_type: fieldTypes[field] ?? 'string',
-      is_pii: false
+      type: fieldTypes[field] ?? 'string',
+      isPii: false
     })
   }
   return stringifyJsonWithEscapedQuotes(mappingSchema)

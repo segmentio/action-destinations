@@ -64,6 +64,7 @@ export type {
   BaseDefinition,
   DestinationDefinition,
   AudienceDestinationDefinition,
+  WarehouseDestinationDefinition,
   ExecuteInput,
   Subscription,
   SubscriptionStats,
@@ -104,3 +105,5 @@ export {
   ActionDestinationErrorResponse,
   MultiStatusResponse
 } from './destination-kit/action'
+
+export { validateSchema } from './schema-validation'
