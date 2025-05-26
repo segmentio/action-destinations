@@ -206,7 +206,7 @@ const action: ActionDefinition<Settings, Payload> = {
       !payload.broadcast &&
       !payload.recipients?.length &&
       !payload.segment_id &&
-      !payload.audience_id &&
+      // !payload.audience_id &&
       !payload.audience
     ) {
       throw new IntegrationError(
@@ -269,13 +269,13 @@ const action: ActionDefinition<Settings, Payload> = {
           result.attributes = recipient.attributes
         }
 
-        if (recipient.custom_events?.length) {
-          result.custom_events = recipient.custom_events
-        }
+        // if (recipient.custom_events?.length) {
+        //   result.custom_events = recipient.custom_events
+        // }
 
-        if (recipient.purchases?.length) {
-          result.purchases = recipient.purchases
-        }
+        // if (recipient.purchases?.length) {
+        //   result.purchases = recipient.purchases
+        // }
 
         return result
       })
@@ -292,9 +292,9 @@ const action: ActionDefinition<Settings, Payload> = {
       requestBody.segment_id = payload.segment_id
     }
 
-    if (payload.audience_id) {
-      requestBody.audience_id = payload.audience_id
-    }
+    // if (payload.audience_id) {
+    //   requestBody.audience_id = payload.audience_id
+    // }
 
     if (payload.audience) {
       requestBody.audience = payload.audience
