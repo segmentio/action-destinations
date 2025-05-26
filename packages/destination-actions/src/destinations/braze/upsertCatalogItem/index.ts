@@ -3,19 +3,14 @@ import {
   ActionDefinition,
   DynamicFieldItem,
   DynamicFieldResponse,
-  isObject,
-  fieldsToJsonSchema
+  isObject
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { isValidItemId, getCatalogMetaByName, getCatalogMetas } from '../utils'
+import { isValidItemId, getCatalogMetas } from '../utils'
 import { RequestClient } from '@segment/actions-core/*'
 import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
 import isEmpty from 'lodash/isEmpty'
-import { MinimalFields } from '@segment/actions-core/destination-kit/fields-to-jsonschema'
-import { JSONSchema4 } from 'json-schema'
-import { validateSchema } from '@segment/actions-core/schema-validation'
-import pick from 'lodash/pick'
 
 export interface CatalogSchema {
   description?: string
@@ -43,32 +38,6 @@ const UPSERT_OPERATION: DependsOnConditions = {
   conditions: [{ type: 'field', fieldKey: '__segment_internal_sync_mode', operator: 'is', value: 'upsert' }]
 }
 
-function toJsonSchemaType(type: 'string' | 'number' | 'time' | 'boolean'): FieldTypeName {
-  switch (type) {
-    case 'time':
-      return 'datetime'
-    default:
-      return type
-  }
-}
-
-function createValidationSchema(itemCatalog: CatalogSchema): JSONSchema4 {
-  const fields: MinimalFields =
-    itemCatalog.fields
-      ?.filter((field) => field.name !== 'id')
-      .reduce((acc, field) => {
-        acc[field.name] = {
-          label: field.name,
-          description: field.name,
-          type: toJsonSchemaType(field.type),
-          required: false
-        }
-        return acc
-      }, {} as MinimalFields) || {}
-
-  return fieldsToJsonSchema(fields)
-}
-
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Catalog Item',
   description: 'Updates or insert items to relevant catalogs',
@@ -93,7 +62,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The item to upsert in the catalog. The item objects should contain fields that exist in the catalog. The item object is not required when the syncMode is set to delete. The item object should not contain the id field.',
       type: 'object',
-      required: UPSERT_OPERATION
+      required: UPSERT_OPERATION,
+      additionalProperties: true
     },
     item_id: {
       label: 'Item ID',
@@ -160,13 +130,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload, syncMode }) => {
     const { catalog_name = '', item_id = '' } = payload
 
-    let { item = {} } = payload
-
-    // validate catalog_name
-    const itemCatalog = await getCatalogMetaByName(request, settings.endpoint, catalog_name)
-    const schema = createValidationSchema(itemCatalog)
-
-    const mappedFields = itemCatalog.fields?.map((field) => field.name) ?? []
+    const { item = {} } = payload
 
     // validate item_id
     if (!isValidItemId(item_id)) {
@@ -174,15 +138,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (syncMode === 'upsert') {
-      //extract only the fields that are present in the catalog
-      item = pick(item, mappedFields)
-
       // validate item
       if (isObject(item) && isEmpty(item)) {
         throw new IntegrationError('Item is required', 'Item is required', 400)
       }
-
-      validateSchema(item, schema, { throwIfInvalid: true })
 
       return await request(`${settings.endpoint}/catalogs/${catalog_name}/items/${item_id}`, {
         method: 'PUT',
@@ -213,9 +172,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, { settings, payload, syncMode }) => {
     const { catalog_name = '' } = payload[0]
-    const itemCatalog = await getCatalogMetaByName(request, settings.endpoint, catalog_name)
-    const schema = createValidationSchema(itemCatalog)
-    const mappedFields = itemCatalog.fields?.map((field) => field.name) ?? []
 
     const items = []
 
@@ -227,19 +183,9 @@ const action: ActionDefinition<Settings, Payload> = {
         continue
       }
       if (syncMode === 'upsert') {
-        //extract only the fields that are present in the catalog
-        const filteredItem = pick(item, mappedFields)
-
         // validate item
-        if (isObject(filteredItem) && isEmpty(filteredItem)) {
+        if (isObject(item) && isEmpty(item)) {
           continue
-        }
-
-        if (validateSchema(filteredItem, schema, { throwIfInvalid: false })) {
-          items.push({
-            id: item_id,
-            ...filteredItem
-          })
         }
       } else {
         items.push({
