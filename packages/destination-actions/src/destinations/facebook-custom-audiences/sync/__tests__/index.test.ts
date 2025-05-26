@@ -259,7 +259,7 @@ describe('FacebookCustomAudiences.sync', () => {
               [
                 event.properties?.id, // external_id
                 '816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343', // email
-                processHashingV2(
+                processHashing(
                   (event.properties?.phone as string) || '',
                   'sha256',
                   'hex',
@@ -272,26 +272,26 @@ describe('FacebookCustomAudiences.sync', () => {
                 EMPTY, // last_name
                 EMPTY, // first_name
                 EMPTY, // first_initial
-                processHashingV2(
+                processHashing(
                   (event.properties?.city as string) || '',
                   'sha256',
                   'hex',
                   normalizationFunctions.get('city')
                 ),
-                processHashingV2(
+                processHashing(
                   (event.properties?.state as string) || '',
                   'sha256',
                   'hex',
                   normalizationFunctions.get('state')
                 ),
-                processHashingV2(
+                processHashing(
                   (event.properties?.zip_code as string) || '',
                   'sha256',
                   'hex',
                   normalizationFunctions.get('zip')
                 ),
                 '2024', // mobile_advertiser_id,
-                processHashingV2('US', 'sha256', 'hex', normalizationFunctions.get('country')) // country
+                processHashing('US', 'sha256', 'hex', normalizationFunctions.get('country')) // country
               ]
             ],
             app_ids: ['2024']
