@@ -10,7 +10,7 @@ import {
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { generateMultiStatusError } from '../utils'
-import { RequestClient } from '@segment/actions-core/*'
+import { RequestClient } from '@segment/actions-core'
 import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
 import isEmpty from 'lodash/isEmpty'
 import { getCatalogMetas, isValidItemId, processUpsertCatalogItemMultiStatusResponse } from './utils'

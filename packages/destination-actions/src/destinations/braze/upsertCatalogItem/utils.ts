@@ -2,7 +2,6 @@ import { RequestClient } from '@segment/actions-core/create-request-client'
 import { ListCatalogsResponse, UpsertCatalogItemErrorResponse } from './types'
 import { MultiStatusResponse } from '@segment/actions-core/destination-kit/action'
 import { JSONLikeObject } from '@segment/actions-core/json-object'
-import { ErrorCodes } from '@segment/actions-core/errors'
 
 export async function getCatalogMetas(request: RequestClient, endpoint: string) {
   const response = await request<ListCatalogsResponse>(`${endpoint}/catalogs`, {
@@ -32,7 +31,7 @@ export function processUpsertCatalogItemMultiStatusResponse(
         const index = validPayloadMap.get(itemId) as number
         multiStatusResponse.setErrorResponseAtIndex(index, {
           status: 400,
-          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: error.message || 'Unknown error'
         })
         validPayloadMap.delete(itemId)
@@ -43,7 +42,7 @@ export function processUpsertCatalogItemMultiStatusResponse(
     validPayloadMap.forEach((index, itemId) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 500,
-        errortype: ErrorCodes.INTERNAL_SERVER_ERROR,
+        errortype: 'INTERNAL_SERVER_ERROR',
         errormessage: `Item with ID ${itemId} could not be processed due to invalid catalog items in the request.`
       })
     })
