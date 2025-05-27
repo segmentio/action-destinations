@@ -1,7 +1,7 @@
 import { DynamicFieldItem, DynamicFieldError, RequestClient, Features } from '@segment/actions-core'
 import { Payload } from './sync/generated-types'
 import { segmentSchemaKeyToArrayIndex, SCHEMA_PROPERTIES, normalizationFunctions } from './fbca-properties'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { API_VERSION, BASE_URL, CANARY_API_VERSION, FACEBOOK_CUSTOM_AUDIENCE_FLAGON } from './constants'
 
@@ -76,7 +76,7 @@ const appendToDataRow = (key: string, value: string | number, row: (string | num
     return
   }
 
-  row[index] = processHashingV2(value, 'sha256', 'hex', normalizationFunctions.get(key))
+  row[index] = processHashing(value, 'sha256', 'hex', normalizationFunctions.get(key))
 }
 
 export const getApiVersion = (features?: Features, statsContext?: StatsContext): string => {

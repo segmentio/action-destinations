@@ -10,7 +10,7 @@ import {
   EventMetadata,
   DatapProcessingOptions
 } from './types'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
 type ProductsType = StandardEvent['products'] | CustomEvent['products']
@@ -169,7 +169,6 @@ const smartHash = (
   cleaningFunction?: (value: string) => string | undefined
 ): string | undefined => {
   if (value === undefined) return
-
   const cleaned = cleaningFunction ? cleaningFunction(value) : value
   if (cleaned === undefined) return
 

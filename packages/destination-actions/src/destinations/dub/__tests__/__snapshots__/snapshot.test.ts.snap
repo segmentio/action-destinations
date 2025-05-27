@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-dub destination: trackLead action - all fields 1`] = `
+Object {
+  "clickId": "uUe02wAuftZ764*HD",
+  "customerAvatar": "uUe02wAuftZ764*HD",
+  "customerEmail": "tawejce@asumumij.pr",
+  "customerName": "uUe02wAuftZ764*HD",
+  "eventName": "uUe02wAuftZ764*HD",
+  "eventQuantity": 46070292933509.12,
+  "externalId": "uUe02wAuftZ764*HD",
+  "metadata": Object {
+    "testType": "uUe02wAuftZ764*HD",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-dub destination: trackLead action - required fields 1`] = `
+Object {
+  "clickId": "uUe02wAuftZ764*HD",
+  "eventName": "uUe02wAuftZ764*HD",
+  "externalId": "uUe02wAuftZ764*HD",
+}
+`;
+
+exports[`Testing snapshot for actions-dub destination: trackSale action - all fields 1`] = `
+Object {
+  "amount": -33981092163747.84,
+  "currency": "QAR",
+  "eventName": "!]HaklO$m",
+  "externalId": "!]HaklO$m",
+  "invoiceId": "!]HaklO$m",
+  "leadEventName": "!]HaklO$m",
+  "metadata": Object {
+    "testType": "!]HaklO$m",
+  },
+  "paymentProcessor": "!]HaklO$m",
+}
+`;
+
+exports[`Testing snapshot for actions-dub destination: trackSale action - required fields 1`] = `
+Object {
+  "amount": -33981092163747.84,
+  "externalId": "!]HaklO$m",
+  "paymentProcessor": "!]HaklO$m",
+}
+`;
