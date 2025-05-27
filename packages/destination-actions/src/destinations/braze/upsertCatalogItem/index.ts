@@ -155,7 +155,7 @@ const action: ActionDefinition<Settings, Payload> = {
           message: 'Could not find item'
         }
       } else {
-        throw new IntegrationError(`${error?.response?.data?.errors?.[0]?.message}`, 'Error deleting item', 500)
+        throw new IntegrationError(`${error?.response?.data?.errors?.[0]?.message}`, 'Error deleting item', 400)
       }
     }
   },
