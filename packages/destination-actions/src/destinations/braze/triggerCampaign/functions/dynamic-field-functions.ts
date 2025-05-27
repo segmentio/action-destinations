@@ -30,7 +30,7 @@ export const dynamicFields = {
 
         const data = response.data as CampaignResponse
 
-        if (!data.campaigns || !Array.isArray(data.campaigns)) {
+        if (!data.campaigns || !Array.isArray(data.campaigns) || data.campaigns.length === 0) {
           break
         }
 
