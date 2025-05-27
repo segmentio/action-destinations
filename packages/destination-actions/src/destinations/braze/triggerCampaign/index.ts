@@ -119,7 +119,8 @@ const action: ActionDefinition<Settings, Payload> = {
     segment_id: {
       label: 'Segment ID',
       description: 'The ID of the segment to send the campaign to.',
-      type: 'string'
+      type: 'string',
+      dynamic: true
     }
   },
 
