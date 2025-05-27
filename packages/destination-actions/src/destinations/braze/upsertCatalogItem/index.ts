@@ -3,11 +3,14 @@ import {
   ActionDefinition,
   DynamicFieldItem,
   DynamicFieldResponse,
-  isObject
+  isObject,
+  ErrorCodes,
+  MultiStatusResponse,
+  JSONLikeObject
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { isValidItemId, getCatalogMetas } from '../utils'
+import { isValidItemId, getCatalogMetas, generateMultiStatusError } from '../utils'
 import { RequestClient } from '@segment/actions-core/*'
 import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
 import isEmpty from 'lodash/isEmpty'
@@ -36,6 +39,50 @@ export interface ListCatalogsResponse {
 const UPSERT_OPERATION: DependsOnConditions = {
   match: 'all',
   conditions: [{ type: 'field', fieldKey: '__segment_internal_sync_mode', operator: 'is', value: 'upsert' }]
+}
+
+interface UpsertCatalogItemErrorResponse {
+  message?: string
+  errors: {
+    id?: string
+    message?: string
+    parameters?: string[]
+    parameter_values?: string[] | JSONLikeObject[]
+  }[]
+}
+
+function processUpsertCatalogItemMultiStatusResponse(
+  response: UpsertCatalogItemErrorResponse,
+  multiStatusResponse: MultiStatusResponse,
+  validPayloadMap: Map<string, number>
+): void {
+  const { errors = [] } = response
+
+  errors.forEach((error) => {
+    const isObject = Array.isArray(error?.parameters) && error.parameters.length > 1
+    error.parameter_values?.forEach((parameter_value) => {
+      const itemId = isObject ? ((parameter_value as JSONLikeObject)?.['id'] as string) : (parameter_value as string)
+
+      if (validPayloadMap.has(itemId)) {
+        const index = validPayloadMap.get(itemId) as number
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+          errormessage: error.message || 'Unknown error'
+        })
+        validPayloadMap.delete(itemId)
+      }
+    })
+  })
+  if (validPayloadMap.size > 0) {
+    validPayloadMap.forEach((index, itemId) => {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 500,
+        errortype: ErrorCodes.INTERNAL_SERVER_ERROR,
+        errormessage: `Item with ID ${itemId} could not be processed due to invalid catalog items in the request.`
+      })
+    })
+  }
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -77,14 +124,15 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     enable_batching: {
       type: 'boolean',
-      label: 'Batch Data to Braze',
+      label: 'Batch Data to Braze?',
       description: 'If true, Segment will batch events before sending to Braze.',
       default: true
     },
     batch_size: {
       type: 'number',
       label: 'Batch Size',
-      description: 'If batching is enabled, this is of events to include in each batch. Maximum 50 events per batch.',
+      description:
+        'If batching is enabled, this is the number of events to include in each batch. Maximum 50 events per batch.',
       minimum: 1,
       maximum: 50,
       default: 50
@@ -129,23 +177,34 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, syncMode }) => {
+    if (syncMode !== 'upsert' && syncMode !== 'delete') {
+      // Return a multi-status error if the syncMode is invalid
+      throw new IntegrationError(
+        'Invalid syncMode, must be set to "upsert" or "delete"',
+        'PAYLOAD_VALIDATION_FAILED',
+        400
+      )
+    }
+
     const { catalog_name = '', item_id = '' } = payload
 
     const { item = {} } = payload
 
     // validate item_id
     if (!isValidItemId(item_id)) {
-      throw new IntegrationError(`Invalid ID Format`, 'Invalid ID Format', 400)
+      throw new IntegrationError(`Invalid ID Format`, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
     }
 
     if (syncMode === 'upsert') {
       // validate item
       if (isObject(item) && isEmpty(item)) {
-        throw new IntegrationError('Item is required', 'Item is required', 400)
+        throw new IntegrationError('Item is required', ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
       }
+    }
 
+    try {
       return await request(`${settings.endpoint}/catalogs/${catalog_name}/items/${item_id}`, {
-        method: 'PUT',
+        method: syncMode === 'upsert' ? 'PUT' : 'DELETE',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -153,61 +212,96 @@ const action: ActionDefinition<Settings, Payload> = {
           items: [item]
         }
       })
-    } else {
-      try {
-        return await request(`${settings.endpoint}/catalogs/${catalog_name}/items/${item_id}`, {
-          method: 'DELETE',
-          json: true
-        })
-      } catch (error) {
-        if (error?.response?.data?.errors?.[0]?.id === 'item-not-found') {
-          return {
-            status: 200,
-            message: 'Could not find item'
-          }
-        } else {
-          throw new IntegrationError(`${error?.response?.data?.errors?.[0]?.message}`, 'Error deleting item', 500)
+    } catch (error) {
+      if (error?.response?.data?.errors?.[0]?.id === 'item-not-found' && syncMode === 'delete') {
+        return {
+          status: 200,
+          message: 'Could not find item'
         }
+      } else {
+        throw new IntegrationError(`${error?.response?.data?.errors?.[0]?.message}`, 'Error deleting item', 500)
       }
     }
   },
   performBatch: async (request, { settings, payload, syncMode }) => {
+    if (syncMode !== 'upsert' && syncMode !== 'delete') {
+      // Return a multi-status error if the syncMode is invalid
+      return generateMultiStatusError(payload.length, 'Invalid syncMode, must be set to "upsert" or "delete"')
+    }
+
+    const multiStatusResponse = new MultiStatusResponse()
+
+    const validPayloadMap = new Map<string, number>()
+
     const { catalog_name = '' } = payload[0]
 
     const items = []
 
-    for (const body of payload) {
-      const { item_id = '', item = {} } = body
+    for (let batchIndex = 0; batchIndex < payload.length; batchIndex++) {
+      const { item_id = '', item = {} } = payload[batchIndex]
+
+      let body = {}
 
       // validate item_id
       if (!isValidItemId(item_id)) {
+        multiStatusResponse.setErrorResponseAtIndex(batchIndex, {
+          status: 400,
+          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+          errormessage: 'Invalid ID Format'
+        })
         continue
       }
       if (syncMode === 'upsert') {
         // validate item
         if (isObject(item) && isEmpty(item)) {
+          multiStatusResponse.setErrorResponseAtIndex(batchIndex, {
+            status: 400,
+            errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+            errormessage: 'Item is required'
+          })
           continue
         }
+        body = {
+          id: item_id,
+          ...item
+        }
       } else {
-        items.push({
+        body = {
           id: item_id
-        })
+        }
       }
+      items.push(body)
+      validPayloadMap.set(item_id, batchIndex)
+
+      multiStatusResponse.setSuccessResponseAtIndex(batchIndex, {
+        status: 200,
+        sent: body,
+        body: 'success'
+      })
     }
     if (items.length === 0) {
-      throw new IntegrationError('No valid items to upsert', 'No valid items to upsert', 400)
+      return multiStatusResponse
     }
 
-    const response = await request(`${settings.endpoint}/catalogs/${catalog_name}/items/`, {
-      method: syncMode === 'upsert' ? 'PUT' : 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      json: {
-        items
-      }
-    })
-    return response
+    try {
+      await request(`${settings.endpoint}/catalogs/${catalog_name}/items/`, {
+        method: syncMode === 'upsert' ? 'PUT' : 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        json: {
+          items
+        }
+      })
+    } catch (error) {
+      processUpsertCatalogItemMultiStatusResponse(
+        error?.response?.data as UpsertCatalogItemErrorResponse,
+        multiStatusResponse,
+        validPayloadMap
+      )
+    }
+
+    return multiStatusResponse
   }
 }
 
