@@ -5,84 +5,20 @@ import {
   DynamicFieldResponse,
   isObject,
   ErrorCodes,
-  MultiStatusResponse,
-  JSONLikeObject
+  MultiStatusResponse
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { isValidItemId, getCatalogMetas, generateMultiStatusError } from '../utils'
+import { generateMultiStatusError } from '../utils'
 import { RequestClient } from '@segment/actions-core/*'
 import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
 import isEmpty from 'lodash/isEmpty'
-
-export interface CatalogSchema {
-  description?: string
-  fields?: {
-    name: string
-    token: string
-    type: 'string' | 'number' | 'time' | 'boolean'
-  }[]
-  name: string
-  num_items?: Number
-  storage_size?: Number
-  updated_at?: string
-  selections_size?: Number
-  source?: Number
-  selections: unknown[]
-}
-
-export interface ListCatalogsResponse {
-  catalogs?: CatalogSchema[]
-  message?: string
-}
+import { getCatalogMetas, isValidItemId, processUpsertCatalogItemMultiStatusResponse } from './utils'
+import { UpsertCatalogItemErrorResponse } from './types'
 
 const UPSERT_OPERATION: DependsOnConditions = {
   match: 'all',
   conditions: [{ type: 'field', fieldKey: '__segment_internal_sync_mode', operator: 'is', value: 'upsert' }]
-}
-
-interface UpsertCatalogItemErrorResponse {
-  message?: string
-  errors: {
-    id?: string
-    message?: string
-    parameters?: string[]
-    parameter_values?: string[] | JSONLikeObject[]
-  }[]
-}
-
-function processUpsertCatalogItemMultiStatusResponse(
-  response: UpsertCatalogItemErrorResponse,
-  multiStatusResponse: MultiStatusResponse,
-  validPayloadMap: Map<string, number>
-): void {
-  const { errors = [] } = response
-
-  errors.forEach((error) => {
-    const isObject = Array.isArray(error?.parameters) && error.parameters.length > 1
-    error.parameter_values?.forEach((parameter_value) => {
-      const itemId = isObject ? ((parameter_value as JSONLikeObject)?.['id'] as string) : (parameter_value as string)
-
-      if (validPayloadMap.has(itemId)) {
-        const index = validPayloadMap.get(itemId) as number
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-          errormessage: error.message || 'Unknown error'
-        })
-        validPayloadMap.delete(itemId)
-      }
-    })
-  })
-  if (validPayloadMap.size > 0) {
-    validPayloadMap.forEach((index, itemId) => {
-      multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: 500,
-        errortype: ErrorCodes.INTERNAL_SERVER_ERROR,
-        errormessage: `Item with ID ${itemId} could not be processed due to invalid catalog items in the request.`
-      })
-    })
-  }
 }
 
 const action: ActionDefinition<Settings, Payload> = {
