@@ -164,13 +164,20 @@ function canonicalizeEmail(value: string): string {
   return `${localPart.toLowerCase()}@${localPartAndDomain[1].toLowerCase()}`
 }
 
-const smartHash = (value: string | undefined, cleaningFunction?: (value: string) => string): string | undefined => {
+const smartHash = (
+  value: string | undefined,
+  cleaningFunction?: (value: string) => string | undefined
+): string | undefined => {
   if (value === undefined) return
-  return processHashingV2(value, 'sha256', 'hex', cleaningFunction)
+
+  const cleaned = cleaningFunction ? cleaningFunction(value) : value
+  if (cleaned === undefined) return
+
+  return processHashingV2(cleaned, 'sha256', 'hex')
 }
 
-function cleanPhoneNumber(phoneNumber: string): string {
-  // if (!phoneNumber) return undefined
+function cleanPhoneNumber(phoneNumber: string): string | undefined {
+  if (!phoneNumber) return undefined
   // Remove leading and trailing whitespace
   phoneNumber = phoneNumber.trim()
 
