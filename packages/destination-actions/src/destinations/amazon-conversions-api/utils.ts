@@ -1,10 +1,14 @@
-import { IntegrationError, RequestClient, OAuth2ClientCredentials } from '@segment/actions-core'
+import { ModifiedResponse, IntegrationError, RequestClient, OAuth2ClientCredentials } from '@segment/actions-core'
 import { DependsOnConditions, FieldCondition } from '@segment/actions-core/destination-kit/types'
 import { processHashing } from '../../lib/hashing-utils'
-import type { Settings } from './generated-types'
-import { MatchKeyV1, AmazonConsentFormat, ConsentData, RegionValue, EventData, Region, ConversionTypeV2, CurrencyCodeV1, CustomAttributeV1, MatchKeyTypeV1  } from './types'
 import { Payload } from './trackConversion/generated-types'
-import { ModifiedResponse } from '@segment/actions-core/*'
+import { Settings } from './generated-types'
+import { MatchKeyV1, AmazonConsentFormat, ConsentData, RegionValue, EventData, Region, ConversionTypeV2, CurrencyCodeV1, CustomAttributeV1, MatchKeyTypeV1  } from './types'
+
+const alphanumeric = /[^a-z0-9]/g
+const emailAllowed = /[^a-z0-9.@-]/g
+const nonDigits = /[^\d]/g
+const whitespace = /\s+/g
 
 export function validateMatchKey(forFieldName: string): DependsOnConditions {
   const allConditions: FieldCondition[] = [
@@ -28,7 +32,7 @@ export function validateMatchKey(forFieldName: string): DependsOnConditions {
   }
 }
 
-export function validateConsent(consent: Payload['consent'], region: RegionValue): ConsentData | undefined {
+function validateConsent(consent: Payload['consent'], region: RegionValue): ConsentData | undefined {
   const { ipAddress, amznAdStorage, amznUserData, tcf, gpp } = consent || {}
   const hasAnyConsent = hasStringValue(ipAddress) || hasStringValue(tcf) || hasStringValue(gpp) || (hasStringValue(amznAdStorage) && hasStringValue(amznUserData))
   if (region === Region.EU) {
@@ -56,7 +60,28 @@ export function validateConsent(consent: Payload['consent'], region: RegionValue
   }
 }
 
-export function hasStringValue(value: string | null | undefined): boolean {
+function validateCountryCode(input: string): string {
+  const normalized = input.trim()
+
+  // Regex to match locale format: language-region (e.g., en-US)
+  const localeMatch = normalized.match(/^[a-zA-Z]{2,3}-([A-Z]{2})$/)
+  if (localeMatch) {
+    return localeMatch[1]
+  }
+  
+  // Regex to match ISO 3166-1 alpha-2 country codes (e.g., US, CA, GB)
+  if (/^[A-Z]{2}$/.test(normalized)) {
+    return normalized
+  }
+
+  throw new IntegrationError(
+    'Country code must be in ISO 3166-1 alpha-2 format (e.g., US, CA) or a valid locale format (e.g., en-US).',
+    'MISSING_COUNTRY_CODE',
+    400
+  )
+}
+
+function hasStringValue(value: string | null | undefined): boolean {
   return typeof value === 'string' && value.trim().length > 0
 }
 
@@ -81,39 +106,36 @@ export async function getAuthToken(request: RequestClient, auth: OAuth2ClientCre
   return response.data.access_token
 }
 
-export function normalize(value: string, allowedChars: RegExp, trim = true): string {
+function normalize(value: string, allowedChars: RegExp, trim = true): string {
   let normalized = value.toLowerCase().replace(allowedChars, '')
-  if (trim) normalized = normalized.trim()
+  if (trim) {
+    normalized = normalized.trim()
+  }
   return normalized
 }
 
-const alphanumeric = /[^a-z0-9]/g
-const emailAllowed = /[^a-z0-9.@-]/g
-const nonDigits = /[^\d]/g
-const whitespace = /\s+/g
-
-export function normalizeEmail(email: string): string {
+function normalizeEmail(email: string): string {
   return normalize(email, emailAllowed)
 }
 
-export function normalizePhone(phone: string): string {
+function normalizePhone(phone: string): string {
   return normalize(phone, nonDigits)
 }
 
-export function normalizeStandard(value: string): string {
+function normalizeStandard(value: string): string {
   return normalize(value, alphanumeric)
 }
 
-export function normalizePostal(postal: string): string {
+function normalizePostal(postal: string): string {
   return normalize(postal, whitespace, false)
 }
 
-export function smartHash(value: string, normalizeFunction?: (value: string) => string): string {
+function smartHash(value: string, normalizeFunction?: (value: string) => string): string {
   return processHashing(value, 'sha256', 'hex', normalizeFunction)
 }
 
-export async function sendEventsRequest<T>(request: RequestClient, settings: Settings, events: EventData[]): Promise<ModifiedResponse<T>> {
-  return await request<T>(
+export async function sendEventsRequest(request: RequestClient, settings: Settings, events: EventData[], throwHttpErrors: boolean): Promise<ModifiedResponse> {
+  return await request(
     `${settings.region}/events/v1`,
     {
       method: 'POST',
@@ -125,65 +147,9 @@ export async function sendEventsRequest<T>(request: RequestClient, settings: Set
         'Amazon-Ads-AccountId': settings.advertiserId
       },
       timeout: 15000,
-      throwHttpErrors: false
+      throwHttpErrors
     }
   )
-}
-
-export function handleAmazonApiError(response: any): IntegrationError {
-  const status = response.status;
-  const errorData = response.data || {}
-  
-  switch (status) {
-    case 401:
-      return new IntegrationError(
-        'Authentication failed. Check your API credentials.',
-        'AMAZON_AUTH_ERROR',
-        401
-      );
-      
-    case 403:
-      return new IntegrationError(
-        'You do not have permission to access this resource.',
-        'AMAZON_FORBIDDEN_ERROR',
-        403
-      );
-      
-    case 415:
-      return new IntegrationError(
-        'Invalid media type. The Content-Type or Accept headers are invalid.',
-        'AMAZON_MEDIA_TYPE_ERROR',
-        415
-      );
-      
-    case 429:
-      // Extract retry information if available
-      const retryAfter = response.headers?.['retry-after'] || '';
-      return new IntegrationError(
-        `Rate limited by Amazon API. ${retryAfter ? `Try again after ${retryAfter} seconds.` : 'Please try again later.'}`,
-        'AMAZON_RATE_LIMIT_ERROR',
-        429
-      );
-      
-    case 500:
-      return new IntegrationError(
-        'Amazon API encountered an internal server error. Please try again later.',
-        'AMAZON_SERVER_ERROR',
-        500
-      );
-      
-    case 400:
-    default:
-      // Extract detailed error information if available
-      {
-      const errorMessage = errorData.message || response.statusText || 'Unknown error';
-      return new IntegrationError(
-        `Failed to send event to Amazon: ${errorMessage}`,
-        'AMAZON_API_ERROR',
-        status || 400
-      );
-    }
-  }
 }
 
 export function prepareEventData(payload: Payload, settings: Settings): EventData {
@@ -285,7 +251,7 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     name: payload.name,
     eventType: payload.eventType as ConversionTypeV2,
     eventActionSource: payload.eventActionSource,
-    countryCode: payload.countryCode,
+    countryCode: validateCountryCode(payload.countryCode),
     timestamp: payload.timestamp
   }
 

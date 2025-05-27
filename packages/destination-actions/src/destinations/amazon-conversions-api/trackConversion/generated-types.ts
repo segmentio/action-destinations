@@ -14,7 +14,7 @@ export interface Payload {
    */
   eventActionSource: string
   /**
-   * ISO 3166-1 alpha-2 country code (e.g., US, GB).
+   * ISO 3166-1 alpha-2 country code. e.g., US, GB. Also accepts locale codes. e.g en-US, en-GB
    */
   countryCode: string
   /**
@@ -95,19 +95,17 @@ export interface Payload {
    */
   consent?: {
     /**
-     * IP address of the user associated with the conversion event.
+     * Captures the user's geographic information (IP address) for consent checking.
      */
     ipAddress?: string
-
     /**
-     * Whether the user has consented to cookie based tracking.
+     * Amazon Consent Format: Captures whether the user has consented to cookie based tracking.
      */
     amznAdStorage?: string
     /**
-     * Whether the user has consented to use personal data for advertising.
+     * Amazon Consent Format. Captures whether the user has consented to use personal data for advertising.
      */
     amznUserData?: string
-
     /**
      * An encoded Transparency and Consent Framework (TCF) string describing user consent choices.
      */

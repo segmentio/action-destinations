@@ -1,8 +1,3 @@
-export interface AuthTokens {
-  refreshToken: string
-  [key: string]: unknown
-}
-
 export const Region = {
   NA: 'https://advertising-api.amazon.com',
   EU: 'https://advertising-api-eu.amazon.com',
@@ -159,16 +154,4 @@ export interface EventData {
     dataProcessingOptions?: string[]
     consent?: ConsentData
     customAttributes?: CustomAttributeV1[]
-}
-
-export interface AmazonApiResponse {
-    status: string
-    [key: string]: any
-}
-
-export interface RefreshTokenResponse {
-    access_token: string
-    token_type: string
-    expires_in: number
-    refresh_token: string
 }

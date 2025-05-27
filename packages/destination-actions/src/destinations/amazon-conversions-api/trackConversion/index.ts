@@ -1,10 +1,8 @@
-import { ActionDefinition } from '@segment/actions-core'
-import { MultiStatusResponse } from '@segment/actions-core'
-import { JSONLikeObject } from '@segment/actions-core'
+import { ActionDefinition, MultiStatusResponse, JSONLikeObject } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { EventData, AmazonApiResponse } from '../types'
-import { sendEventsRequest, handleAmazonApiError, prepareEventData } from '../utils'
+import type { EventData } from '../types'
+import { sendEventsRequest, prepareEventData } from '../utils'
 import { fields } from './fields'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -14,34 +12,24 @@ const action: ActionDefinition<Settings, Payload> = {
   fields,
   perform: async (request, { payload, settings }) => {
     const eventData = prepareEventData(payload, settings)
-    const response = await sendEventsRequest<AmazonApiResponse>(request, settings, [eventData])
-    if (response.ok || response.status === 207) {
-      return response
-    }    
-    throw handleAmazonApiError(response)
+    return await sendEventsRequest(request, settings, [eventData], true)
   },
 
-  /**
-   * Process the batch of payloads
-   */
   performBatch: async (request, { settings, payload: payloads }) => {
     const multiStatusResponse = new MultiStatusResponse()
     const validPayloads: EventData[] = []
-    const validPayloadIndicesBitmap: number[] = []
-    
-    // Process each payload and prepare for batching
+    const indexMap: number[] = []
+      
     payloads.forEach((payload, index) => {
       try {
-        // Try to prepare the event data - reuse logic from perform()
         const eventData = prepareEventData(payload, settings)
         validPayloads.push(eventData)
-        validPayloadIndicesBitmap.push(index)
+        indexMap.push(index)
       } catch (error) {
-        // Handle validation errors immediately
         multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: error.status || 400,
-          errortype: error.code || 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: error.message || 'Validation failed'
+          status: error?.status || 400,
+          errortype: error?.code || 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: error?.message || 'Validation failed'
         })
       }
     })
@@ -50,66 +38,38 @@ const action: ActionDefinition<Settings, Payload> = {
       return multiStatusResponse
     }
     
-    try {
-      // Send the batch to Amazon API using the shared function
-      const response = await sendEventsRequest(request, settings, validPayloads)
-      
-      if (response.ok || response.status === 207) {
-        return handleBatchResponse(response, validPayloads, validPayloadIndicesBitmap, multiStatusResponse)
-      }
-      
-      // Get detailed error information without throwing
-      const apiError = handleAmazonApiError(response)
-      
-      // Apply the specific error details to each payload in the batch
-      validPayloadIndicesBitmap.forEach((index) => {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: apiError.status || 400,
-          errormessage: apiError.message,
-          body: response.data
+    const response = await sendEventsRequest(request, settings, validPayloads, false)
+
+    if (response.ok || response.status === 207) {
+      indexMap.forEach((originalIndex, i) => {
+        
+        // TODO: if the individual event was successful, we can set the success response
+        multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
+          status: 200,
+          sent: validPayloads[i] as unknown as JSONLikeObject,
+          body: {} // TODO: body: should contain the data returned by the API, if any, for this particular successful event. 
+        })
+
+        // TODO: if the individial event failed, we set the error response 
+        multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+          status: 400, // TODO the status should be taken from the individual response 
+          sent: validPayloads[i] as unknown as JSONLikeObject,
+          body: {}, // TODO: body: should contain the data returned by the API, if any, for this particular failed event.
+          errormessage: 'Amazon API request failed' // TODO: errormessage should be taken from the individual response
         })
       })
-      
-      return multiStatusResponse
-    } catch (error) {
-      // Handle truly unexpected errors (like network issues)
-      // This should only happen for errors not related to the API response
-      validPayloadIndicesBitmap.forEach((index) => {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 500,
-          errormessage: error.message || 'Unknown error occurred during request processing'
+    } else {
+      indexMap.forEach((originalIndex, i) => {
+        multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+          status: response.status,
+          sent: validPayloads[i] as unknown as JSONLikeObject,
+          errormessage: response.statusText || 'Amazon API request failed'
         })
       })
-      
-      return multiStatusResponse
     }
+
+    return multiStatusResponse
   }
 }
-
-/**
- * Process the Amazon API response and update the multi-status response
- */
-function handleBatchResponse(
-  response: any,
-  validPayloads: EventData[],
-  validPayloadIndicesBitmap: number[],
-  multiStatusResponse: MultiStatusResponse
-): MultiStatusResponse {
-  // No need to check response.ok || response.status === 207
-  // because we only call this function when that condition is true
-  
-  // Handle success or partial success
-  validPayloads.forEach((payload, index) => {
-    const originalIndex = validPayloadIndicesBitmap[index]
-    multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
-      status: 200,
-      sent: payload as unknown as JSONLikeObject,
-      body: response.data || 'success'
-    })
-  })
-
-  return multiStatusResponse
-}
-
 
 export default action

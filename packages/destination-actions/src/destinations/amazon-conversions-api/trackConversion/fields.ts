@@ -46,11 +46,11 @@ export const fields: Record<string, InputField> = {
     },
     countryCode: {
       label: 'Country Code',
-      description: 'ISO 3166-1 alpha-2 country code (e.g., US, GB).',
+      description: 'ISO 3166-1 alpha-2 country code. e.g., US, GB. Also accepts locale codes. e.g en-US, en-GB',
       type: 'string',
       required: true,
       default: {
-        '@path': '$.context.location.country'
+        '@path': '$.context.locale'
       }
     },
     timestamp: {
@@ -287,9 +287,7 @@ export const fields: Record<string, InputField> = {
       description: 'A list of flags for signaling how an event shall be processed. Events marked for limited data use will not be processed.',
       type: 'string',
       multiple: true,
-      choices: [
-        { label: 'Limited Data Use', value: 'LIMITED_DATA_USE' }
-      ],
+      default: ['LIMITED_DATA_USE'],
       required: false
     },
     consent: {

@@ -1,6 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { Region, RefreshTokenResponse } from './types'
+import { Region } from './types'
 import { defaultValues, InvalidAuthenticationError } from '@segment/actions-core'
 import { getAuthToken } from './utils'
 import trackConversion from './trackConversion'
@@ -9,13 +9,13 @@ const destination: DestinationDefinition<Settings> = {
   name: 'Amazon Conversions Api',
   slug: 'amazon-conversions-api',
   mode: 'cloud',
-  description: 'Send conversion events to Amazon Conversions API.',
+  description: 'Send conversion event data to Amazon Events API.',
   authentication: {
     scheme: 'oauth2',
     fields: {
       region: {
         label: 'Region',
-        description: 'Region for API Endpoint, either NA, EU, FE.',
+        description: 'API Endpoint Region.',
         choices: [
           { label: 'North America (NA)', value: Region.NA },
           { label: 'Europe (EU)', value: Region.EU },
@@ -36,23 +36,13 @@ const destination: DestinationDefinition<Settings> = {
       if (!auth?.accessToken) {
         throw new InvalidAuthenticationError('Please authenticate via Oauth before enabling the destination.')
       }
-
-      try {
-        await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          timeout: 15000
-        })
-      } catch (error) {
-        if (error.message === 'Unauthorized') {
-          throw new InvalidAuthenticationError(
-            'Invalid Amazon Oauth access token. Please reauthenticate to retrieve a valid access token before enabling the destination.'
-          )
-        }
-        throw error
-      }
+      return await request(`${settings.region}/v2/profiles`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 15000
+      })
     },
     refreshAccessToken: async (request, { auth }) => {
       return { accessToken: await getAuthToken(request, auth) }

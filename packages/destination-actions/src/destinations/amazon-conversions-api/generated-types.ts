@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Region for API Endpoint, either NA, EU, FE.
+   * API Endpoint Region.
    */
   region: string
   /**
