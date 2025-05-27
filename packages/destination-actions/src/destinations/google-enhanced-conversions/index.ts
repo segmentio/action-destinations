@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, defaultValues } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
 import uploadCallConversion from './uploadCallConversion'
@@ -129,13 +129,30 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
       createAudienceInput.settings.customerId = verifyCustomerId(createAudienceInput.settings.customerId)
       const auth = createAudienceInput.settings.oauth
-      const userListId = await createGoogleAudience(
-        request,
-        createAudienceInput,
-        auth,
-        createAudienceInput.features,
-        createAudienceInput.statsContext
-      )
+
+      let userListId
+      try {
+        userListId = await createGoogleAudience(
+          request,
+          createAudienceInput,
+          auth,
+          createAudienceInput.features,
+          createAudienceInput.statsContext
+        )
+      } catch (err) {
+        let status = err.status || err.code
+        if (!status && err.response && err.response.status) {
+          status = Number(err.response.status)
+        }
+        // NOTE:
+        // We are embedding the entire error message here.
+        // This is not ideal as we should properly parse it and assemble the respective error message.
+        // For now, this and its counterpart in EAMS will parse the error and show it to the user but
+        // ultimately destinations should own this.
+        const message = err.response?.content || err.message
+
+        throw new IntegrationError(message, 'CREATE_AUDIENCE_FAILED', status || 400)
+      }
 
       return {
         externalId: userListId

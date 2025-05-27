@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Dub's trackSale destination action: all fields 1`] = `
+Object {
+  "amount": -65815284987985.92,
+  "currency": "XPF",
+  "eventName": "IYY@B2$",
+  "externalId": "IYY@B2$",
+  "invoiceId": "IYY@B2$",
+  "leadEventName": "IYY@B2$",
+  "metadata": Object {
+    "testType": "IYY@B2$",
+  },
+  "paymentProcessor": "IYY@B2$",
+}
+`;
+
+exports[`Testing snapshot for Dub's trackSale destination action: required fields 1`] = `
+Object {
+  "amount": -65815284987985.92,
+  "externalId": "IYY@B2$",
+  "paymentProcessor": "IYY@B2$",
+}
+`;

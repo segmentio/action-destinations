@@ -1,7 +1,7 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 import { Payload } from './reportConversionEvent/generated-types'
 import isEmpty from 'lodash/isEmpty'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 // Implementation of Pinterest user data object
 // https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters
@@ -172,72 +172,72 @@ export const normalisedAndHashed = (payload: UserData) => {
     if (!isEmpty(payload.user_data?.email)) {
       // Regex removes all whitespace in the string.
       payload.user_data.email = payload.user_data?.email?.map((el: string) =>
-        processHashingV2(el, 'sha256', 'hex', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.phone)) {
       // Regex removes all non-numeric characters from the string.
       payload.user_data.phone = payload.user_data?.phone?.map((el: string) =>
-        processHashingV2(el, 'sha256', 'hex', normalizePhone)
+        processHashing(el, 'sha256', 'hex', normalizePhone)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.gender)) {
       payload.user_data.gender = payload.user_data?.gender?.map((el: string) => {
-        return processHashingV2(el, 'sha256', 'hex', normalizeGender)
+        return processHashing(el, 'sha256', 'hex', normalizeGender)
       }) as string[]
     }
 
     if (!isEmpty(payload.user_data?.last_name)) {
       payload.user_data.last_name = payload.user_data?.last_name?.map((el: string) =>
-        processHashingV2(el, 'sha256', 'hex', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.first_name)) {
       payload.user_data.first_name = payload.user_data?.first_name?.map((el: string) =>
-        processHashingV2(el, 'sha256', 'hex', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.city)) {
       payload.user_data.city = payload.user_data?.city?.map((el: string) =>
-        processHashingV2(el, 'sha256', 'hex', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.state)) {
       payload.user_data.state = payload.user_data?.state?.map((el: string) =>
-        processHashingV2(el, 'sha256', 'hex', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.zip)) {
       payload.user_data.zip = payload.user_data?.zip?.map((el: string) =>
-        processHashingV2(el, 'sha256', 'hex', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.country)) {
       payload.user_data.country = payload.user_data?.country?.map((el: string) =>
-        processHashingV2(el, 'sha256', 'hex', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
 
     if (!isEmpty(payload.user_data?.external_id)) {
       payload.user_data.external_id = payload.user_data?.external_id?.map((el: string) =>
-        processHashingV2(el, 'sha256', 'hex', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
     if (!isEmpty(payload.user_data?.hashed_maids)) {
       payload.user_data.hashed_maids = payload.user_data?.hashed_maids?.map((el: string) =>
-        processHashingV2(el, 'sha256', 'hex', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
     if (!isEmpty(payload.user_data?.date_of_birth)) {
       payload.user_data.date_of_birth = payload.user_data?.date_of_birth?.map((el: string) =>
-        processHashingV2(el, 'sha256', 'hex', normalize)
+        processHashing(el, 'sha256', 'hex', normalize)
       ) as string[]
     }
   }

@@ -152,7 +152,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     if (payload.email) {
-      payload.email = processHashing(payload.email, 'sha256', 'hex', undefined, 'podscribe', normalizeEmail)
+      payload.email = processHashing(payload.email, 'sha256', 'hex', normalizeEmail)
     }
 
     const params = serializeParams({
