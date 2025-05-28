@@ -251,10 +251,6 @@ const action: ActionDefinition<Settings, Payload> = {
       options = { min_id_length }
     }
 
-    if (properties.event_type) {
-      properties.event_type = '[Segment] ' + properties.event_type
-    }
-
     const setUserProperties = (
       name: '$setOnce' | '$set' | '$add',
       obj: Payload['setOnce'] | Payload['setAlways'] | Payload['add']
