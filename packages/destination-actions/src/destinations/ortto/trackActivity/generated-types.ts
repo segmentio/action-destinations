@@ -54,6 +54,7 @@ export interface Payload {
      * The Contact's last name
      */
     last_name?: string
+    [k: string]: unknown
   }
   /**
    * Indicates whether the Contact should be added to or removed from the Audience.
@@ -80,7 +81,7 @@ export interface Payload {
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
-export interface RetlOnMappingSaveInputs {
+export interface OnMappingSaveInputs {
   /**
    * The name of the Ortto Audience to link the Contact to.
    */
@@ -88,7 +89,7 @@ export interface RetlOnMappingSaveInputs {
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
-export interface RetlOnMappingSaveOutputs {
+export interface OnMappingSaveOutputs {
   /**
    * The ID of the Ortto Audience Contacts will be linked to.
    */
