@@ -20,7 +20,7 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
-   * If batching is enabled, this is of events to include in each batch. Maximum 50 events per batch.
+   * If batching is enabled, this is the number of events to include in each batch. Maximum 50 events per batch.
    */
   batch_size?: number
 }
