@@ -301,6 +301,36 @@ describe('amazon-conversions-api.trackConversion', () => {
     expect(consent.amazonConsent!.amznAdStorage).toBe('GRANTED')
   })
 
+  it('should require at least one identifier field', async () => {
+    nock('https://advertising-api.amazon.com')
+      .post('/events/v1')
+      .reply(207, successResponsePayload)
+
+    const event = createTestEvent({
+      properties: {
+        // No identifier fields provided
+      }
+    })
+
+    // All identifier fields are missing, so this should fail validation
+    await expect(
+      testDestination.testAction('trackConversion', {
+        event,
+        settings,
+        auth,
+        mapping: {
+          name: 'Test Event',
+          eventType: ConversionTypeV2.PAGE_VIEW,
+          eventActionSource: 'WEBSITE',
+          countryCode: 'US',
+          timestamp: '2023-01-01T12:00:00Z',
+          // No identifier fields provided in mapping
+          enable_batching: true
+        }
+      })
+    ).rejects.toThrowError(/At least one valid match key must be provided/)
+  })
+
   it('should handle different event types', async () => {
     nock('https://advertising-api.amazon.com')
       .post('/events/v1')
@@ -537,7 +567,7 @@ describe('amazon-conversions-api.trackConversion', () => {
           enable_batching: true
         }
       })
-    ).rejects.toThrowError(/Invalid parameter: countryCode/)
+    ).rejects.toThrowError(/Country code must be in ISO 3166-1 alpha-2 format/)
   })
 
   it('should handle forbidden error with 403 response', async () => {

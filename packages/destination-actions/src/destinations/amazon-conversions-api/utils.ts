@@ -1,7 +1,42 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { DependsOnConditions, FieldCondition } from '@segment/actions-core/destination-kit/types'
 import { processHashing } from '../../lib/hashing-utils'
 import type { Settings } from './generated-types'
 import type { EventData } from './types'
+import type { Payload } from './trackConversion/generated-types'
+
+/**
+ * Helper function to validate if a string value exists and is not empty
+ * 
+ * @param value The string value to validate
+ * @returns true if the value is a non-empty string, false otherwise
+ */
+export function hasStringValue(value: string | null | undefined): boolean {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+/**
+ * Validates that at least one consent field is present
+ * 
+ * @param consent The consent data object from the payload
+ * @returns true if at least one consent field is present, false otherwise
+ */
+export function validateConsent(consent?: Payload['consent']): boolean {
+  if (!consent) return false
+  
+  // Check geo field - validate ipAddress
+  const hasGeo = consent.geo?.ipAddress ? hasStringValue(consent.geo.ipAddress) : false
+  
+  // Check amazonConsent - validate both amznAdStorage and amznUserData
+  const hasAmazonConsent = consent.amazonConsent ? 
+    (hasStringValue(consent.amazonConsent.amznAdStorage) && hasStringValue(consent.amazonConsent.amznUserData)) : false
+  
+  // Check TCF and GPP strings
+  const hasTcf = hasStringValue(consent.tcf)
+  const hasGpp = hasStringValue(consent.gpp)
+  
+  return !!(hasGeo || hasAmazonConsent || hasTcf || hasGpp)
+}
 
 interface AuthTokens {
   refreshToken: string;
@@ -27,7 +62,7 @@ export async function getAuthToken(request: RequestClient, auth: AuthTokens): Pr
           // Amazon ads refresh token API throws error with authorization header so explicity overriding Authorization header here.
           authorization: ''
         },
-        timeout: 15000
+        timeout: 2500
       }
     )
 
@@ -124,7 +159,7 @@ export async function sendEventsRequest(
       headers: {
         'Amazon-Ads-AccountId': settings.advertiserId
       },
-      timeout: 25000,
+      timeout: 15000,
       throwHttpErrors: false
     }
   );
@@ -187,5 +222,67 @@ export function handleAmazonApiError(response: any): IntegrationError {
         'AMAZON_API_ERROR',
         status || 400
       );
+  }
+}
+
+/**
+ * Validates and normalizes a country code from either ISO or locale format
+ * 
+ * @param input The country code or locale to validate
+ * @returns A normalized ISO 3166-1 alpha-2 country code
+ * @throws IntegrationError if the input is not a valid country code or locale
+ */
+export function validateCountryCode(input: string): string {
+  const normalized = input.trim()
+
+  // Regex to match locale format: language-region (e.g., en-US)
+  const localeMatch = normalized.match(/^[a-zA-Z]{2,3}-([A-Z]{2})$/)
+  if (localeMatch) {
+    return localeMatch[1]
+  }
+  
+  // Regex to match ISO 3166-1 alpha-2 country codes (e.g., US, CA, GB)
+  if (/^[A-Z]{2}$/.test(normalized)) {
+    return normalized
+  }
+
+  throw new IntegrationError(
+    'Country code must be in ISO 3166-1 alpha-2 format (e.g., US, CA) or a valid locale format (e.g., en-US).',
+    'MISSING_COUNTRY_CODE',
+    400
+  )
+}
+
+
+/**
+ * Creates a validation rule that requires at least one of the identifier fields to be non-empty.
+ * When applied to each identifier field, this ensures that at least one field must have a value.
+ * 
+ * @param fieldName The name of the current field being validated
+ * @returns A DependsOnConditions object for field validation
+ */
+export function requireAtLeastOneIdentifier(fieldName: string): DependsOnConditions {
+  // Create conditions checking if each identifier field is empty
+  const allEmptyConditions: FieldCondition[] = [
+    { fieldKey: 'email', operator: 'is', value: [undefined, null, ''] },
+    { fieldKey: 'phone', operator: 'is', value: [undefined, null, ''] },
+    { fieldKey: 'firstName', operator: 'is', value: [undefined, null, ''] },
+    { fieldKey: 'lastName', operator: 'is', value: [undefined, null, ''] },
+    { fieldKey: 'address', operator: 'is', value: [undefined, null, ''] },
+    { fieldKey: 'city', operator: 'is', value: [undefined, null, ''] },
+    { fieldKey: 'state', operator: 'is', value: [undefined, null, ''] },
+    { fieldKey: 'postalCode', operator: 'is', value: [undefined, null, ''] },
+    { fieldKey: 'maid', operator: 'is', value: [undefined, null, ''] },
+    { fieldKey: 'rampId', operator: 'is', value: [undefined, null, ''] },
+    { fieldKey: 'matchId', operator: 'is', value: [undefined, null, ''] }
+  ]
+  
+  const conditions = allEmptyConditions.filter(condition => condition.fieldKey !== fieldName)
+  
+  // Return a DependsOnConditions object that requires ALL conditions to match
+  // If ALL OTHER identifier fields are empty, this field becomes required
+  return {
+    match: 'all',
+    conditions
   }
 }

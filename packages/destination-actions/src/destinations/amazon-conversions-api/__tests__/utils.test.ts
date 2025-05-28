@@ -1,6 +1,7 @@
 import { getAuthToken, sendEventsRequest, handleAmazonApiError } from '../utils'
 import nock from 'nock'
 import { IntegrationError, RequestClient } from '@segment/actions-core'
+import { FieldCondition } from '@segment/actions-core/destination-kit/types'
 import { ConversionTypeV2, EventData } from '../types'
 
 describe('Amazon Conversions API Utils', () => {
@@ -134,7 +135,7 @@ describe('Amazon Conversions API Utils', () => {
       expect(options.headers).toEqual({
         'Amazon-Ads-AccountId': settings.advertiserId
       })
-      expect(options.timeout).toBe(25000)
+      expect(options.timeout).toBe(15000)
       expect(options.throwHttpErrors).toBe(false)
       
       // Verify the response is returned correctly
@@ -310,6 +311,113 @@ describe('Amazon Conversions API Utils', () => {
       expect(error.message).toContain('Failed to send event to Amazon: Unknown error')
       expect(error.code).toBe('AMAZON_API_ERROR')
       expect(error.status).toBe(400) // Default to 400
+    })
+  })
+
+  describe('validateCountryCode', () => {
+    it('should accept valid ISO 3166-1 alpha-2 country codes', () => {
+      const { validateCountryCode } = require('../utils')
+      
+      // Test various valid country codes
+      expect(validateCountryCode('US')).toBe('US')
+      expect(validateCountryCode('GB')).toBe('GB')
+      expect(validateCountryCode('CA')).toBe('CA')
+      expect(validateCountryCode('JP')).toBe('JP')
+      
+      // Should handle whitespace
+      expect(validateCountryCode(' US ')).toBe('US')
+    })
+    
+    it('should extract country code from locale format', () => {
+      const { validateCountryCode } = require('../utils')
+      
+      // Test valid locale formats
+      expect(validateCountryCode('en-US')).toBe('US')
+      expect(validateCountryCode('fr-CA')).toBe('CA')
+      expect(validateCountryCode('ja-JP')).toBe('JP')
+      expect(validateCountryCode('en-GB')).toBe('GB')
+    })
+    
+    it('should throw error for invalid country code formats', () => {
+      const { validateCountryCode } = require('../utils')
+      
+      // Test various invalid formats
+      expect(() => validateCountryCode('USA')).toThrow(/Country code must be in ISO 3166-1 alpha-2 format/)
+      expect(() => validateCountryCode('us')).toThrow(/Country code must be in ISO 3166-1 alpha-2 format/)
+      expect(() => validateCountryCode('123')).toThrow(/Country code must be in ISO 3166-1 alpha-2 format/)
+      expect(() => validateCountryCode('en_US')).toThrow(/Country code must be in ISO 3166-1 alpha-2 format/)
+      expect(() => validateCountryCode('')).toThrow(/Country code must be in ISO 3166-1 alpha-2 format/)
+    })
+  })
+
+  describe('requireAtLeastOneIdentifier', () => {
+    it('should create correct conditions structure', () => {
+      const { requireAtLeastOneIdentifier } = require('../utils')
+      
+      // Test with a specific field
+      const result = requireAtLeastOneIdentifier('email')
+      
+      // Verify the structure is correct
+      expect(result).toHaveProperty('match', 'all')
+      expect(result).toHaveProperty('conditions')
+      expect(Array.isArray(result.conditions)).toBe(true)
+    })
+    
+    it('should exclude the current field from conditions', () => {
+      const { requireAtLeastOneIdentifier } = require('../utils')
+      
+      // Test with different fields
+      const emailResult = requireAtLeastOneIdentifier('email')
+      const phoneResult = requireAtLeastOneIdentifier('phone')
+      
+      // Verify the current field is excluded
+      const emailConditions = emailResult.conditions
+      const phoneConditions = phoneResult.conditions
+      
+      // Email field should not be in conditions when email is the current field
+      expect(emailConditions.some((c: FieldCondition) => c.fieldKey === 'email')).toBe(false)
+      
+      // Phone field should not be in conditions when phone is the current field
+      expect(phoneConditions.some((c: FieldCondition) => c.fieldKey === 'phone')).toBe(false)
+      
+      // But email should be in phone conditions and vice versa
+      expect(phoneConditions.some((c: FieldCondition) => c.fieldKey === 'email')).toBe(true)
+      expect(emailConditions.some((c: FieldCondition) => c.fieldKey === 'phone')).toBe(true)
+    })
+    
+    it('should include conditions for all identifier fields except current one', () => {
+      const { requireAtLeastOneIdentifier } = require('../utils')
+      
+      const result = requireAtLeastOneIdentifier('email')
+      
+      // Define all identifier fields that should be included in the conditions
+      const identifierFields = [
+        'phone', 'firstName', 'lastName', 'address', 
+        'city', 'state', 'postalCode', 'maid', 
+        'rampId', 'matchId'
+      ]
+      
+      // Verify every identifier field except 'email' is in conditions
+      for (const field of identifierFields) {
+        expect(result.conditions.some((c: FieldCondition) => c.fieldKey === field)).toBe(true)
+      }
+      
+      // And verify 'email' is not in conditions
+      expect(result.conditions.some((c: FieldCondition) => c.fieldKey === 'email')).toBe(false)
+    })
+    
+    it('should have the correct operator and value checks', () => {
+      const { requireAtLeastOneIdentifier } = require('../utils')
+      
+      const result = requireAtLeastOneIdentifier('email')
+      
+      // Check the first condition as an example
+      const condition = result.conditions[0]
+      expect(condition.operator).toBe('is')
+      expect(Array.isArray(condition.value)).toBe(true)
+      expect(condition.value).toContain(undefined)
+      expect(condition.value).toContain(null)
+      expect(condition.value).toContain('')
     })
   })
 })

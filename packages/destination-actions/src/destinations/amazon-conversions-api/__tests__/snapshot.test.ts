@@ -39,12 +39,13 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         properties: eventData
       })
 
-      // Make sure enable_batching is included for trackConversion action (required field)
+      // Make sure enable_batching and valid countryCode are included for trackConversion action
       let mapping = event.properties
       if (actionSlug === 'trackConversion') {
         mapping = {
           ...event.properties,
-          enable_batching: true
+          enable_batching: true,
+          countryCode: 'US'  // Add valid country code in ISO format
         }
       }
 
@@ -100,12 +101,13 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         properties: eventData
       })
 
-      // Make sure enable_batching is included for trackConversion action (required field)
+      // Make sure enable_batching and valid countryCode are included for trackConversion action
       let mapping = event.properties
       if (actionSlug === 'trackConversion') {
         mapping = {
           ...event.properties,
-          enable_batching: true
+          enable_batching: true,
+          countryCode: 'US'  // Add valid country code in ISO format
         }
       }
 

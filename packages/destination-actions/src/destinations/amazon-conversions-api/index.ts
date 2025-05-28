@@ -1,7 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import type { RefreshTokenResponse, AmazonTestAuthenticationError } from './types'
+import type { RefreshTokenResponse } from './types'
 
+import { Region } from './types'
 import { defaultValues, InvalidAuthenticationError } from '@segment/actions-core'
 import { getAuthToken } from './utils'
 import trackConversion from './trackConversion'
@@ -18,9 +19,9 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Region',
         description: 'Region for API Endpoint, either NA, EU, FE.',
         choices: [
-          { label: 'North America (NA)', value: 'https://advertising-api.amazon.com' },
-          { label: 'Europe (EU)', value: 'https://advertising-api-eu.amazon.com' },
-          { label: 'Far East (FE)', value: 'https://advertising-api-fe.amazon.com' }
+          { label: 'North America (NA)', value: Region.NA },
+          { label: 'Europe (EU)', value: Region.EU },
+          { label: 'Far East (FE)', value: Region.FE }
         ],
         default: 'https://advertising-api.amazon.com',
         type: 'string',
@@ -38,23 +39,13 @@ const destination: DestinationDefinition<Settings> = {
             throw new InvalidAuthenticationError('Please authenticate via Oauth before enabling the destination.')
           }
     
-          try {
-            await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
+          return await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json'
               },
-              timeout: 15000
+              timeout: 2500
             })
-          } catch (e: any) {
-            const error = e as AmazonTestAuthenticationError
-            if (error.message === 'Unauthorized') {
-              throw new InvalidAuthenticationError(
-                'Invalid Amazon Oauth access token. Please reauthenticate to retrieve a valid access token before enabling the destination.'
-              )
-            }
-            throw e
-          }
         },
     refreshAccessToken: async (request, { auth }) => {
       const authToken = await getAuthToken(request, auth)
@@ -177,16 +168,6 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(trackConversion.fields),
         eventType: 'SUBSCRIBE'
-      },
-      type: 'automatic'
-    },
-    {
-      name: 'Other',
-      subscribe: 'type = "track" AND event = "Other"',
-      partnerAction: 'trackConversion',
-      mapping: {
-        ...defaultValues(trackConversion.fields),
-        eventType: 'OTHER'
       },
       type: 'automatic'
     }

@@ -11,7 +11,7 @@ Object {
         "gpp": "J0[p[5E(EUCnQ$e4IRX",
         "tcf": "J0[p[5E(EUCnQ$e4IRX",
       },
-      "countryCode": "J0[p[5E(EUCnQ$e4IRX",
+      "countryCode": "US",
       "currencyCode": "NOK",
       "customAttributes": Array [
         Object {
@@ -108,12 +108,72 @@ Object {
   "eventData": Array [
     Object {
       "consent": Object {},
-      "countryCode": "J0[p[5E(EUCnQ$e4IRX",
+      "countryCode": "US",
       "eventActionSource": "WEBSITE",
       "eventType": "OTHER",
       "matchKeys": Array [
         Object {
+          "type": "EMAIL",
+          "values": Array [
+            "79da0497818ef8ce6a78a70caf8e2777ed21e6cfa08bc4cb2afae4305011b240",
+          ],
+        },
+        Object {
+          "type": "PHONE",
+          "values": Array [
+            "d86c993d110ef8006edd379e345f801f90ecc4561092e6c0d6209163f53c84e0",
+          ],
+        },
+        Object {
+          "type": "FIRST_NAME",
+          "values": Array [
+            "2889e3ea1fa098a5f789f7d1b19424b924dad31f598a420e8e5c227549bfd6fb",
+          ],
+        },
+        Object {
+          "type": "LAST_NAME",
+          "values": Array [
+            "2889e3ea1fa098a5f789f7d1b19424b924dad31f598a420e8e5c227549bfd6fb",
+          ],
+        },
+        Object {
+          "type": "ADDRESS",
+          "values": Array [
+            "2889e3ea1fa098a5f789f7d1b19424b924dad31f598a420e8e5c227549bfd6fb",
+          ],
+        },
+        Object {
+          "type": "CITY",
+          "values": Array [
+            "2889e3ea1fa098a5f789f7d1b19424b924dad31f598a420e8e5c227549bfd6fb",
+          ],
+        },
+        Object {
+          "type": "STATE",
+          "values": Array [
+            "2889e3ea1fa098a5f789f7d1b19424b924dad31f598a420e8e5c227549bfd6fb",
+          ],
+        },
+        Object {
+          "type": "POSTAL",
+          "values": Array [
+            "55aa872382b4660c454033e7e7089998338b9771aca81a42cb00f9477694ffcc",
+          ],
+        },
+        Object {
           "type": "MAID",
+          "values": Array [
+            "J0[p[5E(EUCnQ$e4IRX",
+          ],
+        },
+        Object {
+          "type": "RAMP_ID",
+          "values": Array [
+            "J0[p[5E(EUCnQ$e4IRX",
+          ],
+        },
+        Object {
+          "type": "MATCH_ID",
           "values": Array [
             "J0[p[5E(EUCnQ$e4IRX",
           ],

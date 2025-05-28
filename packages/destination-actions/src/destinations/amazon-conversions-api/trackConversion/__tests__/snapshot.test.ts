@@ -38,10 +38,11 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
-    // Make sure enable_batching is included (required field)
+    // Make sure enable_batching and valid countryCode are included
     const mapping = {
       ...event.properties,
-      enable_batching: true
+      enable_batching: true,
+      countryCode: 'US'  // Ensure valid country code in ISO format
     }
 
     const responses = await testDestination.testAction(actionSlug, {
@@ -94,10 +95,11 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       properties: eventData
     })
 
-    // Make sure enable_batching is included (required field)
+    // Make sure enable_batching and valid countryCode are included
     const mapping = {
       ...event.properties,
-      enable_batching: true
+      enable_batching: true,
+      countryCode: 'US'  // Ensure valid country code in ISO format
     }
 
     const responses = await testDestination.testAction(actionSlug, {

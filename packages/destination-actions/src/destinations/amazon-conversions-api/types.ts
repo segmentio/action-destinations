@@ -1,3 +1,9 @@
+export const Region = {
+  NA: 'https://advertising-api.amazon.com',
+  EU: 'https://advertising-api-eu.amazon.com',
+  FE: 'https://advertising-api-fe.amazon.com'
+} as const
+
 export interface GeographicConsentData {
     ipAddress?: string
 }

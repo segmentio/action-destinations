@@ -78,7 +78,7 @@ describe('Amazon Conversions API Destination', () => {
       expect(presetEventTypes).toContain('SEARCH')
       expect(presetEventTypes).toContain('SIGN_UP')
       expect(presetEventTypes).toContain('SUBSCRIBE')
-      expect(presetEventTypes).toContain('OTHER')
+      // 'OTHER' event type has been removed from the supported types
     })
 
     it('should map Segment events to the correct Amazon event types', () => {
@@ -95,8 +95,7 @@ describe('Amazon Conversions API Destination', () => {
         'page': 'PAGE_VIEW',  // For type="page"
         'Products Searched': 'SEARCH',
         'Signed Up': 'SIGN_UP',
-        'Subscription Created': 'SUBSCRIBE',
-        'Other': 'OTHER'
+        'Subscription Created': 'SUBSCRIBE'
       }
 
       // Check each mapping has a preset

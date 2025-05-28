@@ -11,7 +11,7 @@ Object {
         "gpp": "#A156k^d",
         "tcf": "#A156k^d",
       },
-      "countryCode": "#A156k^d",
+      "countryCode": "US",
       "currencyCode": "CAD",
       "customAttributes": Array [
         Object {
@@ -108,12 +108,72 @@ Object {
   "eventData": Array [
     Object {
       "consent": Object {},
-      "countryCode": "#A156k^d",
+      "countryCode": "US",
       "eventActionSource": "ANDROID",
       "eventType": "CHECKOUT",
       "matchKeys": Array [
         Object {
+          "type": "EMAIL",
+          "values": Array [
+            "e482c2ed6964c49a6ab0d8faae0df960efd587bbf35189b037d89a4ebd0aed68",
+          ],
+        },
+        Object {
+          "type": "PHONE",
+          "values": Array [
+            "0fecf9247f3ddc84db8a804fa3065c013baf6b7c2458c2ba2bf56c2e1d42ddd4",
+          ],
+        },
+        Object {
+          "type": "FIRST_NAME",
+          "values": Array [
+            "c6843db7a418d6520c030983486fa17bc1edb05f9b89ac1ea98ba94db044027d",
+          ],
+        },
+        Object {
+          "type": "LAST_NAME",
+          "values": Array [
+            "c6843db7a418d6520c030983486fa17bc1edb05f9b89ac1ea98ba94db044027d",
+          ],
+        },
+        Object {
+          "type": "ADDRESS",
+          "values": Array [
+            "c6843db7a418d6520c030983486fa17bc1edb05f9b89ac1ea98ba94db044027d",
+          ],
+        },
+        Object {
+          "type": "CITY",
+          "values": Array [
+            "c6843db7a418d6520c030983486fa17bc1edb05f9b89ac1ea98ba94db044027d",
+          ],
+        },
+        Object {
+          "type": "STATE",
+          "values": Array [
+            "c6843db7a418d6520c030983486fa17bc1edb05f9b89ac1ea98ba94db044027d",
+          ],
+        },
+        Object {
+          "type": "POSTAL",
+          "values": Array [
+            "f16c098ecf8933107920a826a9f24e837f01a462fb8a35b6d7de827a3c711778",
+          ],
+        },
+        Object {
           "type": "MAID",
+          "values": Array [
+            "#A156k^d",
+          ],
+        },
+        Object {
+          "type": "RAMP_ID",
+          "values": Array [
+            "#A156k^d",
+          ],
+        },
+        Object {
+          "type": "MATCH_ID",
           "values": Array [
             "#A156k^d",
           ],
