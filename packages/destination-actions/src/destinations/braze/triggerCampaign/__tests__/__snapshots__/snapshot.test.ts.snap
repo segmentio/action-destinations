@@ -27,6 +27,10 @@ Object {
       "trigger_properties": Object {
         "testType": "FOoSsHJVqqKt3",
       },
+      "user_alias": Object {
+        "alias_label": "test-alias-label",
+        "alias_name": "test-alias",
+      },
     },
   ],
   "send_id": "FOoSsHJVqqKt3",
