@@ -1,76 +1,364 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for Braze's upsertCatalogItem destination action: it should work with batched events with delete syncmode 1`] = `
-Headers {
-  Symbol(map): Object {
-    "authorization": Array [
-      "Bearer undefined",
-    ],
-    "content-type": Array [
-      "application/json",
-    ],
-    "user-agent": Array [
-      "Segment (Actions)",
-    ],
-  },
-}
-`;
-
-exports[`Testing snapshot for Braze's upsertCatalogItem destination action: it should work with batched events with delete syncmode 2`] = `
-Object {
-  "items": Array [
-    Object {
-      "id": "car001",
-    },
-    Object {
-      "id": "car002",
-    },
-  ],
-}
-`;
-
-exports[`Testing snapshot for Braze's upsertCatalogItem destination action: it should work with batched events with upsert syncmode 1`] = `
-Headers {
-  Symbol(map): Object {
-    "authorization": Array [
-      "Bearer undefined",
-    ],
-    "content-type": Array [
-      "application/json",
-    ],
-    "user-agent": Array [
-      "Segment (Actions)",
-    ],
-  },
-}
-`;
-
-exports[`Testing snapshot for Braze's upsertCatalogItem destination action: it should work with batched events with upsert syncmode 2`] = `
-Object {
-  "items": Array [
-    Object {
-      "discontinued": false,
-      "id": "car001",
-      "inception_date": "2012-06-22T04:00:00Z",
-      "name": "Model S",
-      "price": 79999.99,
-    },
-    Object {
-      "discontinued": false,
-      "id": "car002",
-      "inception_date": "2012-06-22T04:00:00Z",
-      "name": "Model S",
-      "price": 79999.99,
-    },
-  ],
-}
-`;
-
 exports[`Testing snapshot for Braze's upsertCatalogItem destination action: required fields 1`] = `
 Object {
   "items": Array [
     Object {
       "testType": "QHsZ3qpWie",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's upsertCatalogItem destination action: should skip events with missing item objects with upsert syncmode  1`] = `
+Array [
+  Response {
+    "content": "",
+    "data": "",
+    "options": Object {
+      "afterResponse": Array [
+        [Function],
+        [Function],
+        [Function],
+      ],
+      "beforeRequest": Array [
+        [Function],
+      ],
+      "body": "{\\"items\\":[{\\"id\\":\\"car001\\",\\"name\\":\\"Model S\\",\\"inception_date\\":\\"2012-06-22T04:00:00Z\\",\\"price\\":79999.99,\\"discontinued\\":false}]}",
+      "headers": Headers {
+        Symbol(map): Object {
+          "authorization": Array [
+            "Bearer undefined",
+          ],
+          "content-type": Array [
+            "application/json",
+          ],
+          "user-agent": Array [
+            "Segment (Actions)",
+          ],
+        },
+      },
+      "json": Object {
+        "items": Array [
+          Object {
+            "discontinued": false,
+            "id": "car001",
+            "inception_date": "2012-06-22T04:00:00Z",
+            "name": "Model S",
+            "price": 79999.99,
+          },
+        ],
+      },
+      "method": "PUT",
+      "signal": AbortSignal {
+        Symbol(kEvents): Map {},
+        Symbol(events.maxEventTargetListeners): 0,
+        Symbol(events.maxEventTargetListenersWarned): false,
+        Symbol(kHandlers): Map {},
+        Symbol(kAborted): false,
+        Symbol(kReason): undefined,
+        Symbol(kComposite): false,
+      },
+      "statsContext": Object {},
+      "throwHttpErrors": true,
+      "timeout": 30000,
+    },
+    "request": Request {
+      "agent": undefined,
+      "compress": true,
+      "counter": 0,
+      "follow": 20,
+      "size": 0,
+      "timeout": 30000,
+      Symbol(Body internals): Object {
+        "body": Object {
+          "data": Array [
+            123,
+            34,
+            105,
+            116,
+            101,
+            109,
+            115,
+            34,
+            58,
+            91,
+            123,
+            34,
+            105,
+            100,
+            34,
+            58,
+            34,
+            99,
+            97,
+            114,
+            48,
+            48,
+            49,
+            34,
+            44,
+            34,
+            110,
+            97,
+            109,
+            101,
+            34,
+            58,
+            34,
+            77,
+            111,
+            100,
+            101,
+            108,
+            32,
+            83,
+            34,
+            44,
+            34,
+            105,
+            110,
+            99,
+            101,
+            112,
+            116,
+            105,
+            111,
+            110,
+            95,
+            100,
+            97,
+            116,
+            101,
+            34,
+            58,
+            34,
+            50,
+            48,
+            49,
+            50,
+            45,
+            48,
+            54,
+            45,
+            50,
+            50,
+            84,
+            48,
+            52,
+            58,
+            48,
+            48,
+            58,
+            48,
+            48,
+            90,
+            34,
+            44,
+            34,
+            112,
+            114,
+            105,
+            99,
+            101,
+            34,
+            58,
+            55,
+            57,
+            57,
+            57,
+            57,
+            46,
+            57,
+            57,
+            44,
+            34,
+            100,
+            105,
+            115,
+            99,
+            111,
+            110,
+            116,
+            105,
+            110,
+            117,
+            101,
+            100,
+            34,
+            58,
+            102,
+            97,
+            108,
+            115,
+            101,
+            125,
+            93,
+            125,
+          ],
+          "type": "Buffer",
+        },
+        "disturbed": false,
+        "error": null,
+      },
+      Symbol(Request internals): Object {
+        "headers": Headers {
+          Symbol(map): Object {
+            "authorization": Array [
+              "Bearer undefined",
+            ],
+            "content-type": Array [
+              "application/json",
+            ],
+            "user-agent": Array [
+              "Segment (Actions)",
+            ],
+          },
+        },
+        "method": "PUT",
+        "parsedURL": Url {
+          "auth": null,
+          "hash": null,
+          "host": "rest.iad-01.braze.com",
+          "hostname": "rest.iad-01.braze.com",
+          "href": "https://rest.iad-01.braze.com/catalogs/cars/items/",
+          "path": "/catalogs/cars/items/",
+          "pathname": "/catalogs/cars/items/",
+          "port": null,
+          "protocol": "https:",
+          "query": null,
+          "search": null,
+          "slashes": true,
+        },
+        "redirect": "follow",
+        "signal": AbortSignal {
+          Symbol(kEvents): Map {},
+          Symbol(events.maxEventTargetListeners): 0,
+          Symbol(events.maxEventTargetListenersWarned): false,
+          Symbol(kHandlers): Map {},
+          Symbol(kAborted): false,
+          Symbol(kReason): undefined,
+          Symbol(kComposite): false,
+        },
+      },
+    },
+    "size": 0,
+    "timeout": 30000,
+    Symbol(Body internals): Object {
+      "body": PassThrough {
+        "_events": Object {
+          "close": undefined,
+          "data": undefined,
+          "drain": undefined,
+          "end": undefined,
+          "error": undefined,
+          "finish": undefined,
+          "prefinish": [Function],
+          "readable": undefined,
+          "unpipe": undefined,
+        },
+        "_eventsCount": 1,
+        "_maxListeners": undefined,
+        "_readableState": ReadableState {
+          "awaitDrainWriters": null,
+          "buffer": Array [],
+          "bufferIndex": 0,
+          "highWaterMark": 65536,
+          "length": 0,
+          "pipes": Array [],
+          Symbol(kState): 1049356,
+        },
+        "_writableState": WritableState {
+          "bufferedIndex": 0,
+          "corked": 0,
+          "highWaterMark": 65536,
+          "length": 0,
+          "onwrite": [Function],
+          "pendingcb": 0,
+          "writelen": 0,
+          Symbol(kState): 1091466508,
+          Symbol(kBufferedValue): null,
+        },
+        "allowHalfOpen": true,
+        Symbol(shapeMode): true,
+        Symbol(kCapture): false,
+        Symbol(kCallback): null,
+      },
+      "disturbed": false,
+      "error": null,
+    },
+    Symbol(Response internals): Object {
+      "counter": 0,
+      "headers": Object {},
+      "status": 200,
+      "statusText": "OK",
+      "url": "https://rest.iad-01.braze.com/catalogs/cars/items/",
+    },
+  },
+]
+`;
+
+exports[`Testing snapshot for Braze's upsertCatalogItem destination action: should work with batched events with delete syncmode 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer undefined",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's upsertCatalogItem destination action: should work with batched events with delete syncmode 2`] = `
+Object {
+  "items": Array [
+    Object {
+      "id": "car001",
+    },
+    Object {
+      "id": "car002",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for Braze's upsertCatalogItem destination action: should work with batched events with upsert syncmode 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer undefined",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's upsertCatalogItem destination action: should work with batched events with upsert syncmode 2`] = `
+Object {
+  "items": Array [
+    Object {
+      "discontinued": false,
+      "id": "car001",
+      "inception_date": "2012-06-22T04:00:00Z",
+      "name": "Model S",
+      "price": 79999.99,
+    },
+    Object {
+      "discontinued": false,
+      "id": "car002",
+      "inception_date": "2012-06-22T04:00:00Z",
+      "name": "Model S",
+      "price": 79999.99,
     },
   ],
 }

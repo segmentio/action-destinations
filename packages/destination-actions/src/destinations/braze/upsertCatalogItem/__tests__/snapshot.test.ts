@@ -209,7 +209,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     }
   })
 
-  it('it should work with batched events with upsert syncmode', async () => {
+  it('should work with batched events with upsert syncmode', async () => {
     const action = destination.actions[actionSlug]
     const [settingsData] = generateTestData(seedName, destination, action, true)
 
@@ -285,7 +285,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     expect(responses[0].options.headers).toMatchSnapshot()
     expect(responses[0].options.json).toMatchSnapshot()
   })
-  it('it should work with batched events with delete syncmode', async () => {
+  it('should work with batched events with delete syncmode', async () => {
     const action = destination.actions[actionSlug]
     const [settingsData] = generateTestData(seedName, destination, action, true)
     nock(/.*/).persist().delete(/.*/).reply(200)
@@ -357,5 +357,70 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.headers).toMatchSnapshot()
     expect(responses[0].options.json).toMatchSnapshot()
+  })
+  it('should skip events with missing item objects with upsert syncmode ', async () => {
+    const action = destination.actions[actionSlug]
+    const [settingsData] = generateTestData(seedName, destination, action, true)
+    nock(/.*/).persist().put(/.*/).reply(200)
+
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        event: 'Test Event 1',
+        type: 'identify',
+        receivedAt,
+        properties: {
+          id: 'car001',
+          name: 'Model S',
+          manufacturer: 'Tesla',
+          price: 79999.99,
+          discontinued: false,
+          inception_date: '2012-06-22T04:00:00Z'
+        }
+      }),
+      createTestEvent({
+        event: 'Test Event 2',
+        type: 'identify',
+        receivedAt,
+        properties: {
+          id: 'car002'
+        }
+      })
+    ]
+
+    const responses = await testDestination.testBatchAction(actionSlug, {
+      events,
+      useDefaultMappings: false,
+      mapping: {
+        catalog_name: 'cars',
+        item_id: {
+          '@path': '$.properties.id'
+        },
+        item: {
+          name: {
+            '@path': '$.properties.name'
+          },
+          launch_date: {
+            '@path': '$.properties.launch_date'
+          },
+          inception_date: {
+            '@path': '$.properties.inception_date'
+          },
+          price: {
+            '@path': '$.properties.price'
+          },
+          discontinued: {
+            '@path': '$.properties.discontinued'
+          },
+          manufacturer: {
+            '@path': '$.properties.company'
+          }
+        },
+        enable_batching: true,
+        __segment_internal_sync_mode: 'upsert'
+      },
+      settings: { ...settingsData, endpoint: settings.endpoint }
+    })
+
+    expect(responses).toMatchSnapshot()
   })
 })
