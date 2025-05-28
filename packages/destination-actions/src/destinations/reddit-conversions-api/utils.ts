@@ -172,7 +172,7 @@ const smartHash = (
   const cleaned = cleaningFunction ? cleaningFunction(value) : value
   if (cleaned === undefined) return
 
-  return processHashingV2(cleaned, 'sha256', 'hex')
+  return processHashing(cleaned, 'sha256', 'hex')
 }
 
 function cleanPhoneNumber(phoneNumber: string): string | undefined {
