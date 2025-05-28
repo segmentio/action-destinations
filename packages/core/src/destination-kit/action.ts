@@ -34,8 +34,6 @@ import {
   SubscriptionMetadata
 } from './index'
 import { get } from '../get'
-import pick from 'lodash/pick'
-import assign from 'lodash/assign'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -390,7 +388,14 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     // Remove internal hidden fields
-    const internalFields = pick(bundle.mapping, INTERNAL_HIDDEN_FIELDS)
+    const internalFields = {} as JSONLikeObject
+
+    INTERNAL_HIDDEN_FIELDS.forEach((field) => {
+      if (bundle.mapping?.[field]) {
+        internalFields[field] = bundle.mapping[field]
+      }
+    })
+
     const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
 
     let payloads = transformBatch(mapping, bundle.data) as Payload[]
@@ -415,7 +420,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
         for (let i = 0; i < payloads.length; i++) {
           // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-          const payload = assign({}, removeEmptyValues(payloads[i], schema) as Payload, internalFields)
+          const payload = removeEmptyValues({ ...payloads[i], ...internalFields }, schema) as Payload
           // Validate payload schema
           try {
             validateSchema(payload, schema, validationOptions)
