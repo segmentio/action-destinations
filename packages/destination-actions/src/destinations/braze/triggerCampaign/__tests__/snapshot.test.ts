@@ -12,7 +12,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
-
     // Add the required targeting parameter (recipients array with minimal required field)
     const modifiedEventData = {
       ...eventData,
@@ -53,7 +52,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('all fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
@@ -61,50 +59,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const event = createTestEvent({
       properties: eventData
     })
-
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
-      settings: settingsData,
-      auth: undefined
-    })
-
-    const request = responses[0].request
-    const rawBody = await request.text()
-
-    try {
-      const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
-    } catch (err) {
-      expect(rawBody).toMatchSnapshot()
-    }
-    expect(request.headers).toMatchSnapshot()
-  })
-
-  // Test a specific case where broadcast is true and segment_id is provided
-  it('broadcast with segment_id', async () => {
-    const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-
-    // Override specific fields for this test case
-    const customEventData = {
-      ...eventData,
-      broadcast: true,
-      segment_id: 'test-segment-123',
-      recipients: [] // Empty array instead of undefined
-    }
-
-    nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
-    nock(/.*/).persist().put(/.*/).reply(200)
-
-    const event = createTestEvent({
-      properties: customEventData
-    })
-
-    const responses = await testDestination.testAction(actionSlug, {
-      event: event,
-      mapping: customEventData,
       settings: settingsData,
       auth: undefined
     })
@@ -273,7 +230,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       campaign_id: 'campaign-123',
       // Remove all targeting parameters
       broadcast: false,
-      segment_id: '',
       recipients: [],
       audience: null
     }
@@ -293,7 +249,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         settings: settingsData,
         auth: undefined
       })
-    ).rejects.toThrowError('One of "recipients", "segment_id with broadcast" or "audience", must be provided.')
+    ).rejects.toThrowError('One of "recipients", "broadcast" or "audience", must be provided.')
   })
 
   // Test error case when campaign_id is missing
@@ -305,8 +261,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const invalidEventData = {
       // Missing campaign_id
       broadcast: true,
-      segment_id: 'segment-123',
-      recipients: [],
       audience: null
     }
 

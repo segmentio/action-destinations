@@ -115,12 +115,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Audience',
       description: 'A standard audience object to specify the users to send the campaign to.',
       type: 'object'
-    },
-    segment_id: {
-      label: 'Segment ID',
-      description: 'The ID of the segment to send the campaign to.',
-      type: 'string',
-      dynamic: true
     }
   },
 
@@ -131,9 +125,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     // Validate that at least one of the required targeting parameters is provided
-    if (!(payload.broadcast && payload.segment_id) && !payload.recipients?.length && !payload.audience) {
+    if (!payload.broadcast && !payload.recipients?.length && !payload.audience) {
       throw new IntegrationError(
-        'One of "recipients", "segment_id with broadcast" or "audience", must be provided.',
+        'One of "recipients", "broadcast" or "audience", must be provided.',
         'Missing required fields',
         400
       )
@@ -201,10 +195,6 @@ const action: ActionDefinition<Settings, Payload> = {
       if (validRecipients.length > 0) {
         requestBody.recipients = validRecipients
       }
-    }
-
-    if (payload.segment_id) {
-      requestBody.segment_id = payload.segment_id
     }
 
     if (payload.audience) {

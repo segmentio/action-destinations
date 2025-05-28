@@ -77,8 +77,4 @@ export interface Payload {
   audience?: {
     [k: string]: unknown
   }
-  /**
-   * The ID of the segment to send the campaign to.
-   */
-  segment_id?: string
 }
