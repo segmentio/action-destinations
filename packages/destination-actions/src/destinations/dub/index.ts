@@ -27,6 +27,15 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
+  presets: [
+    {
+      name: 'Dub Browser Plugin',
+      subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+      partnerAction: 'dubPlugin',
+      mapping: {},
+      type: 'automatic'
+    }
+  ],
   actions: {
     trackLead,
     trackSale
