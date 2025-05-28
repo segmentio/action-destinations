@@ -164,28 +164,18 @@ function canonicalizeEmail(value: string): string {
   return `${localPart.toLowerCase()}@${localPartAndDomain[1].toLowerCase()}`
 }
 
-const smartHash = (
-  value: string | undefined,
-  cleaningFunction?: (value: string) => string | undefined
-): string | undefined => {
+const smartHash = (value: string | undefined, cleaningFunction?: (value: string) => string): string | undefined => {
   if (value === undefined) return
-  const cleaned = cleaningFunction ? cleaningFunction(value) : value
-  if (cleaned === undefined) return
-
-  return processHashingV2(cleaned, 'sha256', 'hex')
+  return processHashing(value, 'sha256', 'hex', cleaningFunction)
 }
 
-function cleanPhoneNumber(phoneNumber: string): string | undefined {
-  if (!phoneNumber) return undefined
-  // Remove leading and trailing whitespace
+function cleanPhoneNumber(phoneNumber: string): string {
+  if (!phoneNumber) return ""
   phoneNumber = phoneNumber.trim()
-
-  // Separate the leading "+" character, if present
   const prefix = '+'
   if (phoneNumber.startsWith('+')) {
     phoneNumber = phoneNumber.slice(1)
   }
-
   // Remove any potential extensions from the number
   const extensions = ['ext', 'x', 'anexo', '#', 'poste', 'int']
   const lower = phoneNumber.toLowerCase()
@@ -196,7 +186,6 @@ function cleanPhoneNumber(phoneNumber: string): string | undefined {
       break
     }
   }
-
   // Add the prefix and remove all non-numeric characters
   const digitsOnly = phoneNumber.replace(/\D/g, '')
 
