@@ -622,6 +622,8 @@ Array [
 ]
 `;
 
+exports[`Testing snapshot for Braze's upsertCatalogItem destination action: should resolve to multi-status in case of failures with upsert syncmode 2`] = `"Some of the fields given do not exist in the catalog"`;
+
 exports[`Testing snapshot for Braze's upsertCatalogItem destination action: should skip events with missing item objects with upsert syncmode  1`] = `
 Array [
   Response {
