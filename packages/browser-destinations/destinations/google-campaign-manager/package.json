@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-google-campaign-manager",
-  "version": "1.74.1-staging-19d90b126.0",
+  "version": "1.74.1-staging-a17bd1b9a.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,7 +15,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "1.82.1-staging-19d90b126.0"
+    "@segment/browser-destination-runtime": "1.82.1-staging-a17bd1b9a.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
