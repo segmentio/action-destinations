@@ -23,8 +23,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: event.properties,
       settings: settingsData,
+      mapping: { ...event.properties, __segment_internal_sync_mode: 'upsert' },
       auth: undefined
     })
 
