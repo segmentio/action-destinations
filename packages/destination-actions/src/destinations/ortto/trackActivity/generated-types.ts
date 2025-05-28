@@ -2,13 +2,13 @@
 
 export interface Payload {
   /**
-   * Event timestamp
+   * Event timestamp (ISO 8601)
    */
-  timestamp?: string
+  timestamp: string
   /**
    * Message ID
    */
-  message_id?: string
+  message_id: string
   /**
    * The unique user identifier
    */
@@ -38,22 +38,6 @@ export interface Payload {
    * key-value custom property pairs to be assigned to the Contact's profile
    */
   traits?: {
-    /**
-     * The Contact's email address
-     */
-    email?: string
-    /**
-     * The Contact's phone number (including the country code is strongly recommended)
-     */
-    phone?: string
-    /**
-     * The Contact's first name
-     */
-    first_name?: string
-    /**
-     * The Contact's last name
-     */
-    last_name?: string
     [k: string]: unknown
   }
   /**

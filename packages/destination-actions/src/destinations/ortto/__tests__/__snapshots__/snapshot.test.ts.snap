@@ -22,10 +22,7 @@ Array [
     },
     "timestamp": "2021-07-12T23:02:40.563Z",
     "traits": Object {
-      "email": "vepaj@apzujhuw.sm",
-      "first_name": "]25AcEh01MO",
-      "last_name": "]25AcEh01MO",
-      "phone": "]25AcEh01MO",
+      "testType": "]25AcEh01MO",
     },
     "user_id": "]25AcEh01MO",
   },
@@ -61,10 +58,7 @@ Array [
     "message_id": "TBOtXZm4yQy]54s",
     "timestamp": "2021-07-12T23:02:40.563Z",
     "traits": Object {
-      "email": "cu@wolpawwe.me",
-      "first_name": "TBOtXZm4yQy]54s",
-      "last_name": "TBOtXZm4yQy]54s",
-      "phone": "TBOtXZm4yQy]54s",
+      "testType": "TBOtXZm4yQy]54s",
     },
     "user_id": "TBOtXZm4yQy]54s",
   },

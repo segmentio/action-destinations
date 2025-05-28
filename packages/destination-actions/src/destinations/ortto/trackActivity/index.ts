@@ -51,8 +51,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Activity properties',
       description: 'An object containing key-value pairs representing activity attributes',
       type: 'object',
-      defaultObjectUI: 'keyvalue',
-      additionalProperties: true
+      defaultObjectUI: 'keyvalue',    
+      default: {
+        '@path': '$.properties'
+      }
     }
   },
   hooks: {

@@ -3,10 +3,11 @@ import { InputField } from '@segment/actions-core'
 export const commonFields: Record<string, InputField> = {
   timestamp: {
     label: 'Timestamp',
-    description: 'Event timestamp',
+    description: 'Event timestamp (ISO 8601)',
     type: 'string',
     readOnly: true,
     format: 'date-time',
+    required: true,
     default: {
       '@path': '$.timestamp'
     }
@@ -16,6 +17,7 @@ export const commonFields: Record<string, InputField> = {
     description: 'Message ID',
     type: 'string',
     readOnly: true,
+    required: true,
     default: {
       '@path': '$.messageId'
     }
@@ -134,62 +136,11 @@ export const commonFields: Record<string, InputField> = {
     description: 'An object containing key-value pairs representing custom properties assigned to Contact profile',
     type: 'object',
     defaultObjectUI: 'keyvalue',
-    additionalProperties: true,
-    properties: {
-      email: {
-        label: 'Email',
-        description: "The Contact's email address",
-        placeholder: 'john.smith@example.com',
-        type: 'string',
-        format: 'email'
-      },
-      phone: {
-        label: 'Phone Number',
-        description: "The Contact's phone number (including the country code is strongly recommended)",
-        placeholder: '+15555555555',
-        type: 'string'
-      },
-      first_name: {
-        label: 'First Name',
-        description: "The Contact's first name",
-        placeholder: 'John',
-        type: 'string'
-      },
-      last_name: {
-        label: 'Last Name',
-        description: "The Contact's last name",
-        placeholder: 'Smith',
-        type: 'string'
-      }
-    },
-    default: {
-      email: {
-        '@if': {
-          exists: { '@path': '$.traits.email' },
-          then: { '@path': '$.traits.email' },
-          else: { '@path': '$.context.traits.email' }
-        }
-      },
-      phone: {
-        '@if': {
-          exists: { '@path': '$.traits.phone' },
-          then: { '@path': '$.traits.phone' },
-          else: { '@path': '$.context.traits.phone' }
-        }
-      },
-      first_name: {
-        '@if': {
-          exists: { '@path': '$.traits.first_name' },
-          then: { '@path': '$.traits.first_name' },
-          else: { '@path': '$.context.traits.first_name' }
-        }
-      },
-      last_name: {
-        '@if': {
-          exists: { '@path': '$.traits.last_name' },
-          then: { '@path': '$.traits.last_name' },
-          else: { '@path': '$.context.traits.last_name' }
-        }
+    default:  {
+      '@if': {
+        exists: { '@path': '$.traits' },
+        then: { '@path': '$.traits' },
+        else: { '@path': '$.context.traits' }
       }
     }
   },
