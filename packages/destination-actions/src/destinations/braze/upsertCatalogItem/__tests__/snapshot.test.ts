@@ -423,4 +423,89 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     expect(responses).toMatchSnapshot()
   })
+  it('should resolve to multi-status in case of failures with upsert syncmode', async () => {
+    const action = destination.actions[actionSlug]
+    const [settingsData] = generateTestData(seedName, destination, action, true)
+    nock(settings.endpoint)
+      .persist()
+      .put('/catalogs/cars/items/')
+      .replyWithError({
+        message: 'Invalid Request',
+        code: 400,
+        errors: [
+          {
+            id: 'invalid-fields',
+            message: 'Some of the fields given do not exist in the catalog',
+            parameters: ['id'],
+            parameter_values: ['car002']
+          }
+        ]
+      })
+
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        event: 'Test Event 1',
+        type: 'identify',
+        receivedAt,
+        properties: {
+          id: 'car001',
+          name: 'Model S',
+          manufacturer: 'Tesla',
+          price: 79999.99,
+          discontinued: false,
+          inception_date: '2012-06-22T04:00:00Z'
+        }
+      }),
+      createTestEvent({
+        event: 'Test Event 2',
+        type: 'identify',
+        receivedAt,
+        properties: {
+          id: 'car002',
+          name: 'Mustang 2005',
+          manufacturer: 'Ford',
+          price: 55999.5,
+          in_stock: false,
+          discontinued: false,
+          inception_date: '1964-04-17T07:00:00Z'
+        }
+      })
+    ]
+
+    const responses = await testDestination.testBatchAction(actionSlug, {
+      events,
+      useDefaultMappings: false,
+      mapping: {
+        catalog_name: 'cars',
+        item_id: {
+          '@path': '$.properties.id'
+        },
+        item: {
+          name: {
+            '@path': '$.properties.name'
+          },
+          launch_date: {
+            '@path': '$.properties.launch_date'
+          },
+          inception_date: {
+            '@path': '$.properties.inception_date'
+          },
+          price: {
+            '@path': '$.properties.price'
+          },
+          discontinued: {
+            '@path': '$.properties.discontinued'
+          },
+          manufacturer: {
+            '@path': '$.properties.company'
+          }
+        },
+        enable_batching: true,
+        __segment_internal_sync_mode: 'upsert'
+      },
+      settings: { ...settingsData, endpoint: settings.endpoint }
+    })
+
+    expect(responses).toMatchSnapshot()
+  })
 })
