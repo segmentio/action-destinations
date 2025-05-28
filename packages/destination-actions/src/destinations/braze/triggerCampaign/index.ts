@@ -119,11 +119,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
-    // Validate that campaign_id is provided
-    if (!payload.campaign_id) {
-      throw new IntegrationError('Campaign ID must be provided.', 'Missing required field', 400)
-    }
-
     // Validate that at least one of the required targeting parameters is provided
     if (!payload.broadcast && !payload.recipients?.length && !payload.audience) {
       throw new IntegrationError(
