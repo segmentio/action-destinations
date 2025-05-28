@@ -155,7 +155,11 @@ const action: ActionDefinition<Settings, Payload> = {
           message: 'Could not find item'
         }
       } else {
-        throw new IntegrationError(`${error?.response?.data?.errors?.[0]?.message}`, 'Error deleting item', 400)
+        throw new IntegrationError(
+          `${error?.response?.data?.errors?.[0]?.message}`,
+          `Error ${syncMode}ing item`,
+          (error?.response?.status as number) ?? 500
+        )
       }
     }
   },
