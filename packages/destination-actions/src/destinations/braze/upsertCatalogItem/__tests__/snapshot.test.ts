@@ -429,9 +429,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(settings.endpoint)
       .persist()
       .put('/catalogs/cars/items/')
-      .replyWithError({
+      .reply(400, {
         message: 'Invalid Request',
-        code: 400,
         errors: [
           {
             id: 'invalid-fields',
