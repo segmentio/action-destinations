@@ -34,6 +34,7 @@ import {
   SubscriptionMetadata
 } from './index'
 import { get } from '../get'
+import pick from 'lodash/pick'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -248,6 +249,13 @@ const isSyncMode = (value: unknown): value is SyncMode => {
   return syncModeTypes.find((validValue) => value === validValue) !== undefined
 }
 
+const INTERNAL_HIDDEN_FIELDS = ['__segment_internal_sync_mode', '__segment_internal_matching_key']
+const removeInternalHiddenFields = (mapping: JSONObject): JSONObject => {
+  return Object.keys(mapping).reduce((acc, key) => {
+    return INTERNAL_HIDDEN_FIELDS.includes(key) ? acc : { ...acc, [key]: mapping[key] }
+  }, {})
+}
+
 /**
  * Action is the beginning step for all partner actions. Entrypoints always start with the
  * MapAndValidateInput step.
@@ -380,7 +388,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
 
-    let payloads = transformBatch(bundle.mapping, bundle.data) as Payload[]
+    // Remove internal hidden fields
+    const internalFields = pick(bundle.mapping, INTERNAL_HIDDEN_FIELDS)
+    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
+
+    let payloads = transformBatch(mapping, bundle.data) as Payload[]
     const batchPayloadLength = payloads.length
 
     const multiStatusResponse: ResultMultiStatusNode[] = []
@@ -405,7 +417,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
           const payload = removeEmptyValues(payloads[i], schema) as Payload
           // Validate payload schema
           try {
-            validateSchema(payload, schema, validationOptions)
+            validateSchema(Object.assign({}, payload, internalFields), schema, validationOptions)
           } catch (e) {
             // Validation failed with an exception, record the filtered out event
             multiStatusResponse[i] = {
