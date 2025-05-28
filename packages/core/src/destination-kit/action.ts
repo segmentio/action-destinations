@@ -35,6 +35,7 @@ import {
 } from './index'
 import { get } from '../get'
 import pick from 'lodash/pick'
+import assign from 'lodash/assign'
 
 type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
@@ -414,10 +415,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
         for (let i = 0; i < payloads.length; i++) {
           // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-          const payload = removeEmptyValues(payloads[i], schema) as Payload
+          const payload = assign({}, removeEmptyValues(payloads[i], schema) as Payload, internalFields)
           // Validate payload schema
           try {
-            validateSchema(Object.assign({}, payload, internalFields), schema, validationOptions)
+            validateSchema(payload, schema, validationOptions)
           } catch (e) {
             // Validation failed with an exception, record the filtered out event
             multiStatusResponse[i] = {
