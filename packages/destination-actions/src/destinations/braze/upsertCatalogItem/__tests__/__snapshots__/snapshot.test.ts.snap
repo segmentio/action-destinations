@@ -28,7 +28,7 @@ Object {
     },
     Object {
       "discontinued": false,
-      "id": "car001",
+      "id": "car002",
       "inception_date": "2012-06-22T04:00:00Z",
       "name": "Model S",
       "price": 79999.99,
