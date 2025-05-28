@@ -1,5 +1,34 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Testing snapshot for Braze's upsertCatalogItem destination action: it should work with batched events with delete syncmode 1`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer undefined",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's upsertCatalogItem destination action: it should work with batched events with delete syncmode 2`] = `
+Object {
+  "items": Array [
+    Object {
+      "id": "car001",
+    },
+    Object {
+      "id": "car002",
+    },
+  ],
+}
+`;
+
 exports[`Testing snapshot for Braze's upsertCatalogItem destination action: it should work with batched events with upsert syncmode 1`] = `
 Headers {
   Symbol(map): Object {
