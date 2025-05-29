@@ -253,8 +253,8 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         click_id: {
           '@if': {
-            exists: { '@path': '$.context.integrations.Nextdoor Conversions API.click_id' },
-            then: { '@path': '$.context.integrations.Nextdoor Conversions API.click_id' },
+            exists: { '@path': '$.integrations.Nextdoor Conversions API.click_id' },
+            then: { '@path': '$.integrations.Nextdoor Conversions API.click_id' },
             else: { '@path': '$.properties.click_id' }
           }
         },
