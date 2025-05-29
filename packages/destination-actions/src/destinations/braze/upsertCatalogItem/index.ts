@@ -241,7 +241,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     try {
-      await request(`${settings.endpoint}/catalogs/${catalog_name}/items/`, {
+      const response = await request(`${settings.endpoint}/catalogs/${catalog_name}/items/`, {
         method: syncMode === 'upsert' ? 'PUT' : 'DELETE',
         headers: {
           'Content-Type': 'application/json'
@@ -255,7 +255,7 @@ const action: ActionDefinition<Settings, Payload> = {
         multiStatusResponse.setSuccessResponseAtIndex(index, {
           status: 200,
           sent: { ...payload[index]?.item, id } as JSONLikeObject,
-          body: 'success'
+          body: response?.data as JSONLikeObject
         })
       })
     } catch (error) {
