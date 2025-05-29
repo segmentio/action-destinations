@@ -15,7 +15,6 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       choices: [
-        { label: 'Conversion', value: 'conversion' },
         { label: 'Custom Conversion 1', value: 'custom_conversion_1' },
         { label: 'Custom Conversion 2', value: 'custom_conversion_2' },
         { label: 'Custom Conversion 3', value: 'custom_conversion_3' },
@@ -44,12 +43,6 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.timestamp' }
     },
-    event_timezone: {
-      label: 'Event Time Zone',
-      description: 'The timezone of the event. TODO: Add more information about this field.',
-      type: 'string',
-      required: false
-    },
     action_source: {
       label: 'Action Source',
       description: 'Indicates the channel through which conversion happened.',
@@ -70,7 +63,15 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Action Source url',
       description: 'The browser URL where the event happened (required for web events).',
       type: 'string',
-      required: false,
+      required: {
+        conditions: [
+          {
+            fieldKey: 'action_source', 
+            operator: 'is',
+            value: 'website'
+          }
+        ] 
+      },
       default: { '@path': '$.context.page.url' }
     },
     delivery_optimization: {
@@ -252,8 +253,8 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         click_id: {
           '@if': {
-            exists: { '@path': '$.context.integrations.Nextdoor Conversions API.traits.click_id' },
-            then: { '@path': '$.context.integrations.Nextdoor Conversions API.traits.click_id' },
+            exists: { '@path': '$.context.integrations.Nextdoor Conversions API.click_id' },
+            then: { '@path': '$.context.integrations.Nextdoor Conversions API.click_id' },
             else: { '@path': '$.properties.click_id' }
           }
         },
@@ -397,7 +398,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     const apiKey = settings.apiKey
-    const hashFields = omit(payload.customer, ['click_id']) as Record<string, string>
+    const hashFields = omit(payload.customer, ['click_id', 'client_ip_address']) as Record<string, string>
 
     for (const [key, value] of Object.entries(hashFields)) {
       hashFields[key] = hashAndEncode(value)
@@ -433,10 +434,10 @@ const action: ActionDefinition<Settings, Payload> = {
       client_id: settings.client_id,
       action_source_url: payload.action_source_url,
       delivery_optimization: payload.delivery_optimization,
-      event_timezone: payload.event_timezone,
       customer: {
         click_id: payload.customer?.click_id ? payload.customer.click_id : undefined,
         pixel_id: settings.pixel_id,
+        client_ip_address: payload.customer?.client_ip_address ? payload.customer.client_ip_address : undefined,
         ...hashFields
       },
       custom,
