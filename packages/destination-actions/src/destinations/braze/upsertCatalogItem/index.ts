@@ -14,7 +14,7 @@ import { generateMultiStatusError } from '../utils'
 import { RequestClient } from '@segment/actions-core'
 import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
 import isEmpty from 'lodash/isEmpty'
-import { getCatalogMetas, isValidItemId, processUpsertCatalogItemMultiStatusResponse } from './utils'
+import { getCatalogMetas, isValidItemId, processMultiStatusErrorResponse } from './utils'
 import { UpsertCatalogItemErrorResponse } from './types'
 
 const UPSERT_OPERATION: DependsOnConditions = {
@@ -24,7 +24,7 @@ const UPSERT_OPERATION: DependsOnConditions = {
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Catalog Item',
-  description: 'Updates or insert items to relevant catalogs',
+  description: 'Upserts or deletes items in  a catalog',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
     label: 'How to sync records',
@@ -37,13 +37,14 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     catalog_name: {
       label: 'Catalog Name',
-      description: 'The name of the catalog to which the item belongs.',
+      description: 'The name of the catalog to upsert the item to.',
       type: 'string',
       dynamic: true,
-      required: true
+      required: true,
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
     },
     item: {
-      label: 'Catalog Item On to Upsert',
+      label: 'Catalog item to upsert or delete',
       description:
         'The item to upsert in the catalog. The item objects should contain fields that exist in the catalog. The item object is not required when the syncMode is set to delete. The item object should not contain the id field.',
       type: 'object',
@@ -53,7 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
     item_id: {
       label: 'Item ID',
       description:
-        'The unique identifier for the item. This field is required. Maximum 250 characters. Supported characters for item ID names are letters, numbers, hyphens, and underscores.',
+        'The unique identifier for the item. Maximum 250 characters. Supported characters: letters, numbers, hyphens, and underscores.',
       type: 'string',
       required: true,
       maximum: 250,
@@ -125,7 +126,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload, syncMode }) => {
     if (syncMode !== 'upsert' && syncMode !== 'delete') {
-      // Return a multi-status error if the syncMode is invalid
       throw new IntegrationError(
         'Invalid syncMode, must be set to "upsert" or "delete"',
         'PAYLOAD_VALIDATION_FAILED',
@@ -160,7 +160,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       })
     } catch (error) {
-      if (error?.response?.data?.errors?.[0]?.id === 'item-not-found' && syncMode === 'delete') {
+      if (
+        (error?.response?.data as UpsertCatalogItemErrorResponse)?.errors?.[0]?.id === 'item-not-found' &&
+        syncMode === 'delete'
+      ) {
         return {
           status: 200,
           message: 'Could not find item'
@@ -192,6 +195,15 @@ const action: ActionDefinition<Settings, Payload> = {
       const { item_id = '', item = {} } = payload[batchIndex]
 
       let body = {}
+
+      if (!validPayloadMap.has(item_id)) {
+        multiStatusResponse.setErrorResponseAtIndex(batchIndex, {
+          status: 400,
+          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+          errormessage: 'Every item in the batch must have a unique item_id'
+        })
+        continue
+      }
 
       // validate item_id
       if (!isValidItemId(item_id)) {
@@ -247,7 +259,7 @@ const action: ActionDefinition<Settings, Payload> = {
         })
       })
     } catch (error) {
-      processUpsertCatalogItemMultiStatusResponse(
+      processMultiStatusErrorResponse(
         error?.response?.data as UpsertCatalogItemErrorResponse,
         multiStatusResponse,
         validPayloadMap,
