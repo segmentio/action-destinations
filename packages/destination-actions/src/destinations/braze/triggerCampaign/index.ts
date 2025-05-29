@@ -38,7 +38,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Must be set to true when sending a message to an entire segment that a campaign targets. Only one of "broadcast", "recipients" or "audience" should be provided.',
       type: 'boolean',
-      default: false,
       required: {
         match: 'all',
         conditions: [
@@ -235,81 +234,9 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    // Prepare the request body with only defined fields
-    const requestBody: Record<string, unknown> = {
-      campaign_id: payload.campaign_id
-    }
-
-    if (payload.send_id) {
-      requestBody.send_id = payload.send_id
-    }
-
-    if (payload.trigger_properties) {
-      requestBody.trigger_properties = payload.trigger_properties
-    }
-
-    if (payload.broadcast !== undefined) {
-      requestBody.broadcast = payload.broadcast
-    }
-
-    if (payload.recipients?.length) {
-      // Extract only the fields that are actually defined for each recipient
-      const recipients = payload.recipients.map((recipient) => {
-        const result: Record<string, unknown> = {}
-
-        if (recipient.external_user_id) {
-          result.external_user_id = recipient.external_user_id
-        }
-
-        if (recipient.user_alias?.alias_name && recipient.user_alias?.alias_label) {
-          result.user_alias = {
-            alias_name: recipient.user_alias.alias_name,
-            alias_label: recipient.user_alias.alias_label
-          }
-        }
-
-        if (recipient.email) {
-          result.email = recipient.email
-        }
-
-        if (recipient.prioritization && recipient.prioritization.length > 0) {
-          result.prioritization = recipient.prioritization
-        }
-
-        if (recipient.trigger_properties) {
-          result.trigger_properties = recipient.trigger_properties
-        }
-
-        if (recipient.send_to_existing_only !== undefined) {
-          result.send_to_existing_only = recipient.send_to_existing_only
-        }
-
-        if (recipient.attributes) {
-          result.attributes = recipient.attributes
-        }
-
-        return result
-      })
-
-      // Only include recipients that have at least one identifier
-      const validRecipients = recipients.filter((r) => Object.keys(r).length > 0)
-
-      if (validRecipients.length > 0) {
-        requestBody.recipients = validRecipients
-      }
-    }
-
-    if (payload.audience) {
-      requestBody.audience = payload.audience
-    }
-
-    if (payload.attachments?.length) {
-      requestBody.attachments = payload.attachments
-    }
-
     return request(`${settings.endpoint}/campaigns/trigger/send`, {
       method: 'post',
-      json: requestBody
+      json: payload
     })
   }
 }

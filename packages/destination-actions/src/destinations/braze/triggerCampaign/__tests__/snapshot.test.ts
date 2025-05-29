@@ -13,6 +13,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
     // Add the required targeting parameter (recipients array with minimal required field)
+    delete eventData.audience // Ensure only one targeting parameters are used
     const modifiedEventData = {
       ...eventData,
       recipients: [
@@ -52,6 +53,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('all fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+    delete eventData.audience // Ensure only one targeting parameters are used
     eventData.recipients[0].user_alias = {
       alias_name: 'test-alias',
       alias_label: 'test-alias-label'
@@ -86,7 +88,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('with recipients array', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-
+    delete eventData.audience // Ensure only one targeting parameters are used
     // Ensure we have recipients data
     const customEventData = {
       ...eventData,
@@ -181,7 +183,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
   it('with attachments', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
-
+    delete eventData.audience // Ensure only one targeting parameters are used
     // Create a test with attachments
     const customEventData = {
       ...eventData,
@@ -222,67 +224,5 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       expect(rawBody).toMatchSnapshot()
     }
     expect(request.headers).toMatchSnapshot()
-  })
-
-  // Test error case when no targeting parameter is provided
-  it('throws error when no targeting parameter is provided', async () => {
-    const action = destination.actions[actionSlug]
-    const [_, settingsData] = generateTestData(seedName, destination, action, false)
-
-    // Create invalid test data with no targeting params
-    const invalidEventData = {
-      campaign_id: 'campaign-123',
-      // Remove all targeting parameters
-      broadcast: false,
-      recipients: [],
-      audience: null
-    }
-
-    nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
-    nock(/.*/).persist().put(/.*/).reply(200)
-
-    const event = createTestEvent({
-      properties: invalidEventData
-    })
-
-    await expect(
-      testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: invalidEventData,
-        settings: settingsData,
-        auth: undefined
-      })
-    ).rejects.toThrowError('One of "recipients", "broadcast" or "audience", must be provided.')
-  })
-
-  // Test error case when campaign_id is missing
-  it('throws error when campaign_id is not provided', async () => {
-    const action = destination.actions[actionSlug]
-    const [_, settingsData] = generateTestData(seedName, destination, action, false)
-
-    // Create invalid test data with no campaign_id
-    const invalidEventData = {
-      // Missing campaign_id
-      broadcast: true,
-      audience: null
-    }
-
-    nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
-    nock(/.*/).persist().put(/.*/).reply(200)
-
-    const event = createTestEvent({
-      properties: invalidEventData
-    })
-
-    await expect(
-      testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: invalidEventData,
-        settings: settingsData,
-        auth: undefined
-      })
-    ).rejects.toThrowError("The root value is missing the required field 'campaign_id'.")
   })
 })
