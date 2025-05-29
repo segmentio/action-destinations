@@ -106,7 +106,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'Maximum number of events to include in each batch. Actual batch sizes may be lower. Max size must be between 1 and 1000 inclusive.',
       type: 'integer',
       required: false,
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       default: 1000,
       minimum: 1,
       maximum: 1000
