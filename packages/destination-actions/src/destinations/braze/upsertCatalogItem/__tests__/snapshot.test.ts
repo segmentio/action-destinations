@@ -1,4 +1,4 @@
-import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, DynamicFieldResponse, SegmentEvent } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
@@ -52,8 +52,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [settingsData] = generateTestData(seedName, destination, action, true)
 
-    nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
@@ -578,5 +576,122 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       expect(error.message).toMatchSnapshot()
       expect(error.status).toBe(400)
     }
+  })
+  it('should resolve catalog_name dynamic fields', async () => {
+    nock(/.*/)
+      .persist()
+      .get(/.*/)
+      .reply(200, {
+        catalogs: [
+          {
+            description: 'My Restaurants',
+            fields: [
+              {
+                name: 'id',
+                type: 'string'
+              },
+              {
+                name: 'Name',
+                type: 'string'
+              },
+              {
+                name: 'City',
+                type: 'string'
+              },
+              {
+                name: 'Cuisine',
+                type: 'string'
+              },
+              {
+                name: 'Rating',
+                type: 'number'
+              },
+              {
+                name: 'Loyalty_Program',
+                type: 'boolean'
+              },
+              {
+                name: 'Created_At',
+                type: 'time'
+              }
+            ],
+            name: 'restaurants',
+            num_items: 10,
+            updated_at: '2022-11-02T20:04:06.879+00:00'
+          },
+          {
+            description: 'My Catalog',
+            fields: [
+              {
+                name: 'id',
+                type: 'string'
+              },
+              {
+                name: 'string_field',
+                type: 'string'
+              },
+              {
+                name: 'number_field',
+                type: 'number'
+              },
+              {
+                name: 'boolean_field',
+                type: 'boolean'
+              },
+              {
+                name: 'time_field',
+                type: 'time'
+              }
+            ],
+            name: 'my_catalog',
+            num_items: 3,
+            updated_at: '2022-11-02T09:03:19.967+00:00'
+          }
+        ],
+        message: 'success'
+      })
+
+    const responses = (await testDestination.testDynamicField(actionSlug, 'catalog_name', {
+      settings,
+      payload: {}
+    })) as DynamicFieldResponse
+
+    expect(responses).toMatchSnapshot()
+    expect(responses.choices).toHaveLength(2)
+  })
+  it('should return empty choices if no catalogs found', async () => {
+    nock(/.*/).persist().get(/.*/).reply(200, {
+      catalogs: [],
+      message: 'No catalogs found'
+    })
+
+    const responses = (await testDestination.testDynamicField(actionSlug, 'catalog_name', {
+      settings,
+      payload: {}
+    })) as DynamicFieldResponse
+
+    expect(responses).toMatchSnapshot()
+    expect(responses.choices).toHaveLength(0)
+    expect(responses.error).toEqual({
+      message: 'No catalogs found. Please create a catalog first',
+      code: '404'
+    })
+  })
+  it('should return error if unknown error occurs while fetching catalogs', async () => {
+    nock(/.*/).persist().get(/.*/).reply(500, {
+      message: 'Unknown error'
+    })
+
+    const responses = (await testDestination.testDynamicField(actionSlug, 'catalog_name', {
+      settings,
+      payload: {}
+    })) as DynamicFieldResponse
+
+    expect(responses).toMatchSnapshot()
+    expect(responses.choices).toHaveLength(0)
+    expect(responses.error).toEqual({
+      message: 'Unknown error. Please try again later',
+      code: '500'
+    })
   })
 })
