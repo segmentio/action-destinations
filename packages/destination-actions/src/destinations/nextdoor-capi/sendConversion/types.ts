@@ -6,7 +6,6 @@ export interface NDPayload {
   client_id: string
   action_source_url?: string
   delivery_optimization: boolean
-  event_timezone?: string
 
   customer: {
     [k: string]: string | undefined

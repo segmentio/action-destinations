@@ -64,7 +64,6 @@ describe('Nextdoor Conversions Api', () => {
           event_name: 'custom_conversion_1',
           action_source: 'website',
           event_id: 'test_event_id',
-          event_timezone: 'America/Los_Angeles',
           custom: {
             delivery_category: 'in_store',
             order_id: 'order_id_1',
@@ -105,7 +104,7 @@ describe('Nextdoor Conversions Api', () => {
         customer: {
           city: '5aa34886f7f3741de8460690b636f4c8b7c2044df88e2e8adbb4f7e6f8534931',
           click_id: 'click_id_1',
-          client_ip_address: '5feaf188de296cd3b17f7c66fd3a2aec9b694815f2b1180631f7b52f57029777',
+          client_ip_address: '111.111.111.111',
           country: '9b202ecbc6d45c6d8901d989a918878397a3eb9d00e8f48022fc051b19d21a1d',
           date_of_birth: '109b73865ffbc15a9e11c6e050b64082138cb757748d9012013a5cfccde4b01d',
           email: 'f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a',
@@ -121,7 +120,6 @@ describe('Nextdoor Conversions Api', () => {
         event_id: 'test_event_id',
         event_name: 'custom_conversion_1',
         event_time: '2024-01-08T13:52:50.212Z',
-        event_timezone: 'America/Los_Angeles',
         partner_id: 'segment',
         test_event: 'false'
       })
