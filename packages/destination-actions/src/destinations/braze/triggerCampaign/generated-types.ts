@@ -16,7 +16,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Must be set to true when sending a message to an entire segment that a campaign targets.
+   * Must be set to true when sending a message to an entire segment that a campaign targets. Only one of "broadcast", "recipients" or "audience" should be provided.
    */
   broadcast?: boolean
   /**
@@ -33,7 +33,7 @@ export interface Payload {
     url: string
   }[]
   /**
-   * An array of user identifiers to send the campaign to.
+   * An array of user identifiers to send the campaign to. Only one of "recipients", "broadcast" or "audience" should be provided.
    */
   recipients?: {
     /**
@@ -72,7 +72,7 @@ export interface Payload {
     }
   }[]
   /**
-   * A standard audience object to specify the users to send the campaign to.
+   * A standard audience object to specify the users to send the campaign to. Only one of "recipients", "broadcast" or "audience" should be provided.
    */
   audience?: {
     [k: string]: unknown
