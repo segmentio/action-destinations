@@ -49,6 +49,7 @@ describe('Pendo.group', () => {
         initialize: jest.fn(),
         isReady: jest.fn(),
         track: jest.fn(),
+        pageLoad: jest.fn(),
         identify: jest.fn(),
         flushNow: jest.fn()
       }

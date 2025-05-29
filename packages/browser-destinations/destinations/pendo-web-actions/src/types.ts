@@ -19,6 +19,7 @@ export type PendoOptions = {
 export type PendoSDK = {
   initialize: ({ visitor, account }: PendoOptions) => void
   track: (eventName: string, metadata?: { [key: string]: unknown }) => void
+  pageLoad: (url?: string) => void
   identify: (data: PendoOptions) => void
   flushNow: (force: boolean) => void
   isReady: () => boolean
