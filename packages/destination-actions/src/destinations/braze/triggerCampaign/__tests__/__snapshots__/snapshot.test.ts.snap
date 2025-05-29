@@ -8,9 +8,6 @@ Object {
       "url": "FOoSsHJVqqKt3",
     },
   ],
-  "audience": Object {
-    "testType": "FOoSsHJVqqKt3",
-  },
   "broadcast": false,
   "campaign_id": "FOoSsHJVqqKt3",
   "recipients": Array [
@@ -58,6 +55,7 @@ Headers {
 
 exports[`Testing snapshot for Braze's triggerCampaign destination action: required fields 1`] = `
 Object {
+  "broadcast": false,
   "campaign_id": "FOoSsHJVqqKt3",
   "recipients": Array [
     Object {
@@ -96,9 +94,6 @@ Object {
       "url": "https://example.com/image.jpg",
     },
   ],
-  "audience": Object {
-    "testType": "FOoSsHJVqqKt3",
-  },
   "broadcast": false,
   "campaign_id": "FOoSsHJVqqKt3",
   "recipients": Array [
@@ -113,6 +108,9 @@ Object {
       ],
       "send_to_existing_only": false,
       "trigger_properties": Object {
+        "testType": "FOoSsHJVqqKt3",
+      },
+      "user_alias": Object {
         "testType": "FOoSsHJVqqKt3",
       },
     },
@@ -168,6 +166,7 @@ Object {
   },
   "broadcast": false,
   "campaign_id": "FOoSsHJVqqKt3",
+  "recipients": Array [],
   "send_id": "FOoSsHJVqqKt3",
   "trigger_properties": Object {
     "testType": "FOoSsHJVqqKt3",
@@ -199,9 +198,6 @@ Object {
       "url": "FOoSsHJVqqKt3",
     },
   ],
-  "audience": Object {
-    "testType": "FOoSsHJVqqKt3",
-  },
   "broadcast": false,
   "campaign_id": "FOoSsHJVqqKt3",
   "recipients": Array [
