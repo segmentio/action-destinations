@@ -5,7 +5,8 @@ import {
   DynamicFieldResponse,
   isObject,
   ErrorCodes,
-  MultiStatusResponse
+  MultiStatusResponse,
+  JSONLikeObject
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -36,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     catalog_name: {
       label: 'Catalog Name',
-      description: 'The Name of the catalog to which the item belongs.',
+      description: 'The name of the catalog to which the item belongs.',
       type: 'string',
       dynamic: true,
       required: true
@@ -71,7 +72,17 @@ const action: ActionDefinition<Settings, Payload> = {
         'If batching is enabled, this is the number of events to include in each batch. Maximum 50 events per batch.',
       minimum: 1,
       maximum: 50,
-      default: 50
+      default: 50,
+      unsafe_hidden: true
+    },
+    batch_keys: {
+      type: 'string',
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['catalog_name']
     }
   },
   dynamicFields: {
@@ -212,12 +223,6 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       items.push(body)
       validPayloadMap.set(item_id, batchIndex)
-
-      multiStatusResponse.setSuccessResponseAtIndex(batchIndex, {
-        status: 200,
-        sent: body,
-        body: 'success'
-      })
     }
     if (items.length === 0) {
       return multiStatusResponse
@@ -233,11 +238,20 @@ const action: ActionDefinition<Settings, Payload> = {
           items
         }
       })
+
+      validPayloadMap.forEach((index, id) => {
+        multiStatusResponse.setSuccessResponseAtIndex(index, {
+          status: 200,
+          sent: { ...payload[index]?.item, id } as JSONLikeObject,
+          body: 'success'
+        })
+      })
     } catch (error) {
       processUpsertCatalogItemMultiStatusResponse(
         error?.response?.data as UpsertCatalogItemErrorResponse,
         multiStatusResponse,
-        validPayloadMap
+        validPayloadMap,
+        payload
       )
     }
 

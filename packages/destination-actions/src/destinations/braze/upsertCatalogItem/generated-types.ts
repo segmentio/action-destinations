@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The Name of the catalog to which the item belongs.
+   * The name of the catalog to which the item belongs.
    */
   catalog_name: string
   /**
@@ -23,4 +23,8 @@ export interface Payload {
    * If batching is enabled, this is the number of events to include in each batch. Maximum 50 events per batch.
    */
   batch_size?: number
+  /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
 }

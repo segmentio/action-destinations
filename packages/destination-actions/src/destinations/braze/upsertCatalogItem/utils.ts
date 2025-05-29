@@ -2,6 +2,7 @@ import { RequestClient } from '@segment/actions-core/create-request-client'
 import { ListCatalogsResponse, UpsertCatalogItemErrorResponse } from './types'
 import { MultiStatusResponse } from '@segment/actions-core/destination-kit/action'
 import { JSONLikeObject } from '@segment/actions-core/json-object'
+import { Payload } from './generated-types'
 
 export async function getCatalogMetas(request: RequestClient, endpoint: string) {
   const response = await request<ListCatalogsResponse>(`${endpoint}/catalogs`, {
@@ -18,11 +19,12 @@ export function isValidItemId(item_id: string) {
 export function processUpsertCatalogItemMultiStatusResponse(
   response: UpsertCatalogItemErrorResponse,
   multiStatusResponse: MultiStatusResponse,
-  validPayloadMap: Map<string, number>
+  validPayloadMap: Map<string, number>,
+  payload: Payload[]
 ): void {
   const { errors = [] } = response
 
-  errors.forEach((error) => {
+  errors?.forEach((error) => {
     const isObject = Array.isArray(error?.parameters) && error.parameters.length > 1
     error.parameter_values?.forEach((parameter_value) => {
       const itemId = isObject ? ((parameter_value as JSONLikeObject)?.['id'] as string) : (parameter_value as string)
@@ -32,7 +34,8 @@ export function processUpsertCatalogItemMultiStatusResponse(
         multiStatusResponse.setErrorResponseAtIndex(index, {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: error.message || 'Unknown error'
+          errormessage: error.message || 'Unknown error',
+          sent: { ...payload[index]?.item, id: itemId } as JSONLikeObject
         })
         validPayloadMap.delete(itemId)
       }
@@ -43,7 +46,8 @@ export function processUpsertCatalogItemMultiStatusResponse(
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 500,
         errortype: 'INTERNAL_SERVER_ERROR',
-        errormessage: `Item with ID ${itemId} could not be processed due to invalid catalog items in the request.`
+        errormessage: `Item with ID ${itemId} could not be processed due to invalid catalog items in the batch request.`,
+        sent: { ...payload[index]?.item, id: itemId } as JSONLikeObject
       })
     })
   }
