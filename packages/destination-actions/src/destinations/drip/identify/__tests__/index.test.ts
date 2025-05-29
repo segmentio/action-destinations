@@ -88,12 +88,16 @@ describe('Drip.identify', () => {
     })
 
     const body = {
-      subscribers: [
+      batches: [
         {
-          email: 'foo@bar.com',
-          ip_address: '8.8.8.8', // This could be wrong. Is this the IP address of the client, or segment?
-          initial_status: 'unsubscribed',
-          time_zone: 'Europe/Amsterdam'
+          subscribers: [
+            {
+              email: 'foo@bar.com',
+              ip_address: '8.8.8.8',
+              initial_status: 'unsubscribed',
+              time_zone: 'Europe/Amsterdam'
+            }
+          ]
         }
       ]
     }
@@ -158,19 +162,23 @@ describe('Drip.identify', () => {
     })
 
     const body = {
-      subscribers: [
+      batches: [
         {
-          custom_fields: {
-            plan: 'premium',
-            company: 'Acme Inc'
-          },
-          email: 'test@example.com',
-          ip_address: '127.0.0.1',
-          initial_status: 'awaiting_confirmation',
-          status: 'active',
-          status_updated_at: '2023-01-01T00:00:00Z',
-          tags: ['vip', 'premium'],
-          time_zone: 'UTC'
+          subscribers: [
+            {
+              custom_fields: {
+                plan: 'premium',
+                company: 'Acme Inc'
+              },
+              email: 'test@example.com',
+              ip_address: '127.0.0.1',
+              initial_status: 'awaiting_confirmation',
+              status: 'active',
+              status_updated_at: '2023-01-01T00:00:00Z',
+              tags: ['vip', 'premium'],
+              time_zone: 'UTC'
+            }
+          ]
         }
       ]
     }

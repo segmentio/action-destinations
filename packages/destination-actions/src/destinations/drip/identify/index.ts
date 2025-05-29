@@ -98,6 +98,18 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       type: 'string',
       default: { '@path': '$.context.timezone' }
+    },
+    batch_size: {
+      label: 'Batch Size',
+      disabledInputMethods: ['variable', 'function', 'enrichment'],
+      description:
+        'Maximum number of events to include in each batch. Actual batch sizes may be lower. Max size must be between 1 and 1000 inclusive.',
+      type: 'integer',
+      required: false,
+      unsafe_hidden: true,
+      default: 1000,
+      minimum: 1,
+      maximum: 1000
     }
   },
   perform: (request, { settings, payload }) => {
@@ -107,9 +119,11 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
   performBatch: (request, { settings, payload }) => {
+    const subscribers = payload.map(person)
+
     return request(`https://api.getdrip.com/v2/${settings.accountId}/subscribers/batches`, {
       method: 'POST',
-      json: { subscribers: payload.map(person) }
+      json: { batches: [{ subscribers }] }
     })
   }
 }

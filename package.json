@@ -116,6 +116,7 @@
   },
   "dependencies": {
     "chance": "^1.1.8",
+    "liquidjs": "^10.21.0",
     "xml-js": "^1.6.11"
   }
 }
