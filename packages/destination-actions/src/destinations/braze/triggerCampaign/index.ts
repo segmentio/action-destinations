@@ -35,9 +35,40 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     broadcast: {
       label: 'Broadcast',
-      description: 'Must be set to true when sending a message to an entire segment that a campaign targets.',
+      description:
+        'Must be set to true when sending a message to an entire segment that a campaign targets. Only one of "broadcast", "recipients" or "audience" should be provided.',
       type: 'boolean',
-      default: false
+      default: false,
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'recipients',
+            operator: 'is',
+            value: undefined
+          },
+          {
+            fieldKey: 'audience',
+            operator: 'is',
+            value: undefined
+          }
+        ]
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'recipients',
+            operator: 'is',
+            value: undefined
+          },
+          {
+            fieldKey: 'audience',
+            operator: 'is',
+            value: undefined
+          }
+        ]
+      }
     },
     attachments: {
       label: 'Attachments',
@@ -61,9 +92,40 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     recipients: {
       label: 'Recipients',
-      description: 'An array of user identifiers to send the campaign to.',
+      description:
+        'An array of user identifiers to send the campaign to. Only one of "recipients", "broadcast" or "audience" should be provided.',
       type: 'object',
       multiple: true,
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'broadcast',
+            operator: 'is',
+            value: undefined
+          },
+          {
+            fieldKey: 'audience',
+            operator: 'is',
+            value: undefined
+          }
+        ]
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'broadcast',
+            operator: 'is',
+            value: undefined
+          },
+          {
+            fieldKey: 'audience',
+            operator: 'is',
+            value: undefined
+          }
+        ]
+      },
       properties: {
         external_user_id: {
           label: 'External User ID',
@@ -113,22 +175,62 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     audience: {
       label: 'Audience',
-      description: 'A standard audience object to specify the users to send the campaign to.',
-      type: 'object'
+      description:
+        'A standard audience object to specify the users to send the campaign to. Only one of "recipients", "broadcast" or "audience" should be provided.',
+      type: 'object',
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'broadcast',
+            operator: 'is',
+            value: undefined
+          },
+          {
+            fieldKey: 'recipients',
+            operator: 'is',
+            value: undefined
+          }
+        ]
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'broadcast',
+            operator: 'is',
+            value: undefined
+          },
+          {
+            fieldKey: 'recipients',
+            operator: 'is',
+            value: undefined
+          }
+        ]
+      }
     }
   },
 
   perform: async (request, { settings, payload }) => {
-    // Validate that campaign_id is provided
-    if (!payload.campaign_id) {
-      throw new IntegrationError('Campaign ID must be provided.', 'Missing required field', 400)
-    }
+    // Count how many targeting parameters are provided
+    let targetingParamsCount = 0
+    if (payload.broadcast) targetingParamsCount++
+    if (payload.recipients?.length) targetingParamsCount++
+    if (payload.audience) targetingParamsCount++
 
-    // Validate that at least one of the required targeting parameters is provided
-    if (!payload.broadcast && !payload.recipients?.length && !payload.audience) {
+    // Validate that exactly one of the required targeting parameters is provided
+    if (targetingParamsCount === 0) {
       throw new IntegrationError(
         'One of "recipients", "broadcast" or "audience", must be provided.',
         'Missing required fields',
+        400
+      )
+    }
+
+    if (targetingParamsCount > 1) {
+      throw new IntegrationError(
+        'Only one of "recipients", "broadcast" or "audience" should be provided.',
+        'Multiple targeting parameters provided',
         400
       )
     }

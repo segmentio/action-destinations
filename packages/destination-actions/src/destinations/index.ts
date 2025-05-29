@@ -199,6 +199,7 @@ register('67b676d98524c4e51f99b5a0', './warehouse-test')
 register('682db61f6c600fdb90251392', './eagleeye')
 register('682db6914f35aafb2757ef24', './dub')
 register('682db7017819e7e055f55cb4', './ortto')
+register('68370e58cb330586908573b7', './dotdigital')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

@@ -71,3 +71,4 @@ register('66ccaa142d6b2d223bb1ebda', '@segment/analytics-browser-actions-content
 register('66cc77c24eb01c13ec52cbef', '@segment/analytics-browser-actions-evolv-ai')
 register('66cc766ef4b1c152177239a0', '@segment/analytics-browser-actions-reddit-plugins')
 register('66cc76e29693c9e5591bf029', '@segment/analytics-browser-actions-nextdoor-plugins')
+register('682db6914f35aafb2757ef24', '@segment/analytics-browser-actions-dub-plugins')

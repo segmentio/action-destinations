@@ -27,7 +27,6 @@ export const dynamicFields = {
             page: page.toString()
           }
         })
-
         const data = response.data as CampaignResponse
 
         if (!data.campaigns || !Array.isArray(data.campaigns) || data.campaigns.length === 0) {
