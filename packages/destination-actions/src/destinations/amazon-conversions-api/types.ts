@@ -1,8 +1,12 @@
 export const Region = {
-  NA: 'https://advertising-api.amazon.com',
-  EU: 'https://advertising-api-eu.amazon.com',
-  FE: 'https://advertising-api-fe.amazon.com'
+    NA: 'https://advertising-api.amazon.com',
+    EU: 'https://advertising-api-eu.amazon.com',
+    FE: 'https://advertising-api-fe.amazon.com'
 } as const
+
+export type RegionKey = keyof typeof Region
+
+export type RegionValue = typeof Region[RegionKey]
 
 export interface GeographicConsentData {
     ipAddress?: string
@@ -50,16 +54,7 @@ export enum MatchKeyTypeV1 {
  * and remove any leading or trailing whitespace. Only SHA-256 is supported.
  */
 export interface MatchKeyV1 {
-    /**
-     * Type of user identifier used for matching
-     */
     type: MatchKeyTypeV1
-    
-    /**
-     * List of SHA-256 hashed identifier values of the customer who performed the event.
-     * Must be a single value that matches the pattern: ^[a-fA-F0-9]{64}$
-     * minItems: 1, maxItems: 1
-     */
     values: [string] // Array with exactly one element
 }
 
@@ -129,33 +124,14 @@ export interface EventData {
     eventActionSource: string
     countryCode: string
     timestamp: string
-    /**
-     * Array representing the user and device identifier types/values to be used for attribution to traffic events. 
-     * Match key value must be normalized and hashed, except for MAID and MATCH_ID which should not be hashed. 
-     * ADID, IDFA, or FIREADID can be passed into the MAID field for mobile identifiers.
-     * All match keys provided must follow the [formatting guidelines](https://advertising.amazon.com/dsp/help/ss/en/audiences#GCCXMZYCK4RXWS6C). 
-     * Only SHA-256 is supported.
-     * @minItems 1
-     * @maxItems 11
-     */
     matchKeys?: MatchKeyV1[]
     value?: number
-    /**
-     * The currencyCode associated with the 'value' of the event in ISO-4217 format.
-     * Only applicable for OFF_AMAZON_PURCHASES event type.
-     */
     currencyCode?: CurrencyCodeV1
     unitsSold?: number
     clientDedupeId?: string
     dataProcessingOptions?: string[]
     consent?: ConsentData
     customAttributes?: CustomAttributeV1[]
-}
-
-export interface AmazonApiResponse {
-    requestId: string
-    status: string
-    [key: string]: any
 }
 
 export interface RefreshTokenResponse {
@@ -165,8 +141,36 @@ export interface RefreshTokenResponse {
     refresh_token: string
 }
 
-export interface AmazonTestAuthenticationError extends Error {
-    response?: {
-        data?: any
-    }
+export interface SubErrorV1 {
+    errorCode?: number
+    errorType?: string
+    errorMessage?: string
+}
+
+export interface BatchError {
+    httpStatusCode?: string
+    itemRequestId?: string
+    index: number
+    itemId?: string
+    subErrors?: SubErrorV1[]
+}
+
+export interface ImportEventBatchSuccess {
+    index: number
+}
+
+export interface EventDataSuccessResponseV1 extends ImportEventBatchSuccess {
+    message?: string
+}
+
+export interface EventDataErrorResponseV1 extends BatchError { }
+
+export interface ImportConversionEventsResponse {
+    success?: EventDataSuccessResponseV1[]
+    error?: EventDataErrorResponseV1[]
+}
+
+export interface AuthTokens {
+    refreshToken: string;
+    [key: string]: any;
 }

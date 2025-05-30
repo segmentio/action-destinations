@@ -10,11 +10,11 @@ export interface Payload {
    */
   eventType: string
   /**
-   * The platform from which the event was sourced.
+   * The platform from which the event was sourced. If no value is provided, then website is used as default.
    */
   eventActionSource: string
   /**
-   * ISO 3166-1 alpha-2 country code (e.g., US, GB).
+   * ISO 3166-1 alpha-2 country code. e.g., US, GB. Also accepts locale codes. e.g en-US, en-GB.
    */
   countryCode: string
   /**
@@ -38,79 +38,74 @@ export interface Payload {
    */
   clientDedupeId?: string
   /**
-   * Customer email address associated with the event, Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
+   * Match keys are used to identify the customer associated with the event for attribution. At least one match key must be provided.
    */
-  email?: string
-  /**
-   * Customer phone number associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
-   */
-  phone?: string
-  /**
-   * Customer first name associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
-   */
-  firstName?: string
-  /**
-   * Customer last name associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
-   */
-  lastName?: string
-  /**
-   * Customer address associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
-   */
-  address?: string
-  /**
-   * Customer city associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
-   */
-  city?: string
-  /**
-   * Customer state associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
-   */
-  state?: string
-  /**
-   * Customer postal code associated with the event. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
-   */
-  postalCode?: string
-  /**
-   * Mobile advertising ID (MAID). ADID, IDFA, or FIREADID can be passed into this field. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
-   */
-  maid?: string
-  /**
-   * RAMP ID for the customer. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
-   */
-  rampId?: string
-  /**
-   * Match ID for the customer. Used for attribution to traffic events. Out of email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId fields, at-least one valid customer identifier must be provided.
-   */
-  matchId?: string
+  matchKeys: {
+    /**
+     * Customer email address associated with the event.
+     */
+    email?: string
+    /**
+     * Customer phone number associated with the event.
+     */
+    phone?: string
+    /**
+     * Customer first name associated with the event.
+     */
+    firstName?: string
+    /**
+     * Customer last name associated with the event.
+     */
+    lastName?: string
+    /**
+     * Customer address associated with the event.
+     */
+    address?: string
+    /**
+     * Customer city associated with the event.
+     */
+    city?: string
+    /**
+     * Customer state associated with the event.
+     */
+    state?: string
+    /**
+     * Customer postal code associated with the event.
+     */
+    postalCode?: string
+    /**
+     * Mobile advertising ID (MAID). ADID, IDFA, or FIREADID can be passed into this field.
+     */
+    maid?: string
+    /**
+     * RAMP ID for the customer. Used for attribution to traffic events.
+     */
+    rampId?: string
+    /**
+     * Match ID for the customer.
+     */
+    matchId?: string
+  }
   /**
    * A list of flags for signaling how an event shall be processed. Events marked for limited data use will not be processed.
    */
   dataProcessingOptions?: string[]
   /**
-   * Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of geo, amazonConsent, tcf, or gpp.
+   * Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.
    */
   consent?: {
     /**
-     * Captures the user's geographic information for consent checking.
+     * Captures the user's geographic information (IP address) for consent checking.
      */
-    geo?: {
-      /**
-       * IP address of the user associated with the conversion event.
-       */
-      ipAddress?: string
-    }
+    ipAddress?: string
     /**
-     * Captures whether a user has consented to data use for advertising purposes.
+     * Amazon Consent Format: Captures whether the user has consented to cookie based tracking.
      */
-    amazonConsent?: {
-      /**
-       * Whether the user has consented to cookie based tracking.
-       */
-      amznAdStorage?: string
-      /**
-       * Whether the user has consented to use personal data for advertising.
-       */
-      amznUserData?: string
-    }
+    amznAdStorage?: string
+    /**
+     * Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.
+     */
+    amznUserData?: string
     /**
      * An encoded Transparency and Consent Framework (TCF) string describing user consent choices.
      */

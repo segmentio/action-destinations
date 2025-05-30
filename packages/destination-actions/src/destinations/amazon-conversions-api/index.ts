@@ -10,6 +10,7 @@ import trackConversion from './trackConversion'
 const destination: DestinationDefinition<Settings> = {
   name: 'Amazon Conversions Api',
   slug: 'amazon-conversions-api',
+  description: 'Amazon conversion API destination to send conversion event data to Amazon.',
   mode: 'cloud',
 
   authentication: {
@@ -23,7 +24,7 @@ const destination: DestinationDefinition<Settings> = {
           { label: 'Europe (EU)', value: Region.EU },
           { label: 'Far East (FE)', value: Region.FE }
         ],
-        default: 'https://advertising-api.amazon.com',
+        default: Region.NA,
         type: 'string',
         required: true
       },
@@ -35,18 +36,18 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { auth, settings }) => {
-          if (!auth?.accessToken) {
-            throw new InvalidAuthenticationError('Please authenticate via Oauth before enabling the destination.')
-          }
-    
-          return await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              timeout: 2500
-            })
+      if (!auth?.accessToken) {
+        throw new InvalidAuthenticationError('Please authenticate via Oauth before enabling the destination.')
+      }
+
+      return await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
         },
+        timeout: 2500
+      })
+    },
     refreshAccessToken: async (request, { auth }) => {
       const authToken = await getAuthToken(request, auth)
       return { accessToken: authToken }
@@ -83,7 +84,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Checkout',
-      subscribe: 'type = "track" AND event = "Checkout"',
+      subscribe: 'type = "track" AND event = "Checkout Started"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -103,7 +104,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Lead',
-      subscribe: 'type = "track" AND event = "Generate Lead"',
+      subscribe: 'type = "track" AND event = "Lead Generated"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -113,7 +114,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Off Amazon Purchases',
-      subscribe: 'type = "track" AND event = "Purchase"',
+      subscribe: 'type = "track" AND event = "Order Completed"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -123,7 +124,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Mobile App First Start',
-      subscribe: 'type = "track" AND event = "Launch Application"',
+      subscribe: 'type = "track" AND event = "Application Opened"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
