@@ -68,6 +68,10 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     if (stale(raw, updated, payload.sessionLength)) {
       id = newSession
       storage.set('analytics_session_id', id)
+      window.analytics
+        .track('session_start', {})
+        .then(() => true)
+        .catch(() => true)
     } else {
       // we are storing the session id regardless, so it gets synced between different storage mediums
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- id can't be null because of stale check
