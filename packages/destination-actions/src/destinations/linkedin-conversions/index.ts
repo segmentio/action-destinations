@@ -90,7 +90,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   extendRequest({ auth }) {
     // Repeat calls to the same LinkedIn API endpoint were failing due to a `socket hang up`.
-    // This seems to fix it: https://stackoverflow.com/questions/62500011/reuse-tcp-connection-with-node-fetch-in-node-js
+    // This seems to fix it- https://stackoverflow.com/questions/62500011/reuse-tcp-connection-with-node-fetch-in-node-js
     // Copied from LinkedIn Audiences extendRequest, which also ran into this issue.
     const agent = new https.Agent({ keepAlive: true })
 
