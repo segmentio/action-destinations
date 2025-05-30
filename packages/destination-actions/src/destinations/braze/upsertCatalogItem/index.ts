@@ -196,7 +196,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
       let body = {}
 
-      if (!validPayloadMap.has(item_id)) {
+      if (validPayloadMap.has(item_id)) {
         multiStatusResponse.setErrorResponseAtIndex(batchIndex, {
           status: 400,
           errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,

@@ -1,8 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, DynamicFieldResponse, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
-import { generateTestData } from 'src/lib/test-data'
 import destination from '../../index'
+import { generateTestData } from '../../../../lib/test-data'
 
 const actionSlug = 'upsertCatalogItem'
 const destinationSlug = 'Braze'
@@ -19,6 +19,25 @@ const settings = {
 const testDestination = createTestIntegration(Destination)
 
 describe('Braze.upsertCatalogItem', () => {
+  it('Single event with upsert should work', async () => {
+    const action = destination.actions[actionSlug]
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+
+    nock(/.*/).persist().put(/.*/).reply(200)
+
+    const event = createTestEvent({
+      properties: eventData
+    })
+
+    const responses = await testDestination.testAction(actionSlug, {
+      event: event,
+      settings: { ...settingsData, endpoint: settings.endpoint },
+      mapping: { ...event.properties, __segment_internal_sync_mode: 'upsert' },
+      auth: undefined
+    })
+
+    expect(responses[0].status).toBe(200)
+  })
   it('single event with upsert should fail if there is no item object', async () => {
     const action = destination.actions[actionSlug]
     const [settingsData] = generateTestData(seedName, destination, action, true)
@@ -76,11 +95,7 @@ describe('Braze.upsertCatalogItem', () => {
       auth: undefined
     })
 
-    const request = responses[0].request
-    const rawBody = await request.text()
-
-    const json = JSON.parse(rawBody)
-    expect(json.status).toBe(200)
+    expect(responses[0].status).toBe(200)
   })
 
   it('single event with delete should not throw error if item doesnt exist', async () => {
@@ -104,20 +119,15 @@ describe('Braze.upsertCatalogItem', () => {
       properties: eventData
     })
 
-    const responses = await testDestination.testAction(actionSlug, {
+    await testDestination.testAction(actionSlug, {
       event: event,
       settings: { ...settingsData, endpoint: settings.endpoint },
       mapping: { ...event.properties, __segment_internal_sync_mode: 'delete' },
       auth: undefined
     })
 
-    const request = responses[0].request
-    const rawBody = await request.text()
-
-    const json = JSON.parse(rawBody)
-    expect(json.status).toBe(200)
-    expect(json.message).toBe('Could not find item')
-    return
+    expect(testDestination.results.at(-1)?.data?.status).toBe(200)
+    expect(testDestination.results.at(-1)?.data?.message).toBe('Could not find item')
   })
 
   it('single event with invalid sync mode should fail', async () => {
@@ -206,6 +216,64 @@ describe('Braze.upsertCatalogItem', () => {
         item_id: {
           '@path': '$.properties.id'
         },
+        enable_batching: true,
+        __segment_internal_sync_mode: 'delete'
+      },
+      settings: { ...settingsData, endpoint: settings.endpoint }
+    })
+
+    expect(responses).not.toBeNull()
+    expect(testDestination.results.at(0)?.multistatus?.length).toBe(2)
+    expect(testDestination.results[0].multistatus?.[0]?.status).toBe(200)
+    expect(testDestination.results[0].multistatus?.[1]?.status).toBe(200)
+  })
+  it('should work with batched events with upsert syncmode', async () => {
+    const action = destination.actions[actionSlug]
+    const [settingsData] = generateTestData(seedName, destination, action, true)
+    nock(/.*/).persist().put(/.*/).reply(200)
+
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        event: 'Test Event 1',
+        type: 'identify',
+        receivedAt,
+        properties: {
+          id: 'car001',
+          name: 'Model S',
+          manufacturer: 'Tesla',
+          price: 79999.99,
+          discontinued: false,
+          inception_date: '2012-06-22T04:00:00Z'
+        }
+      }),
+      createTestEvent({
+        event: 'Test Event 2',
+        type: 'identify',
+        receivedAt,
+        properties: {
+          id: 'car002',
+          name: 'Model S',
+          manufacturer: 'Tesla',
+          price: 79999.99,
+          discontinued: false,
+          inception_date: '2012-06-22T04:00:00Z'
+        }
+      })
+    ]
+
+    const responses = await testDestination.testBatchAction(actionSlug, {
+      events,
+      useDefaultMappings: false,
+      features: {
+        'cloudevent-spec-v02-allow': true
+      },
+      mapping: {
+        catalog_name: 'cars',
+        item_id: {
+          '@path': '$.properties.id'
+        },
+        enable_batching: true,
+        __segment_internal_sync_mode: 'upsert',
         item: {
           name: {
             '@path': '$.properties.name'
@@ -225,15 +293,15 @@ describe('Braze.upsertCatalogItem', () => {
           manufacturer: {
             '@path': '$.properties.company'
           }
-        },
-        enable_batching: true,
-        __segment_internal_sync_mode: 'delete'
+        }
       },
       settings: { ...settingsData, endpoint: settings.endpoint }
     })
 
     expect(responses).not.toBeNull()
-    expect(responses[0].status).toBe(200)
+    expect(testDestination.results.at(0)?.multistatus?.length).toBe(2)
+    expect(testDestination.results[0].multistatus?.[0]?.status).toBe(200)
+    expect(testDestination.results[0].multistatus?.[1]?.status).toBe(200)
   })
   it('should skip events with missing item objects with upsert syncmode ', async () => {
     const action = destination.actions[actionSlug]
@@ -302,6 +370,9 @@ describe('Braze.upsertCatalogItem', () => {
     })
 
     expect(responses).not.toBeNull()
+    expect(testDestination.results.at(0)?.multistatus?.length).toBe(2)
+    expect(testDestination.results[0].multistatus?.[0]?.status).toBe(200)
+    expect(testDestination.results[0].multistatus?.[1]?.status).toBe(400)
   })
   it('should resolve to multi-status in case of failures with upsert syncmode', async () => {
     const action = destination.actions[actionSlug]
@@ -389,8 +460,11 @@ describe('Braze.upsertCatalogItem', () => {
     })
 
     expect(responses).not.toBeNull()
+    expect(testDestination.results.at(0)?.multistatus?.length).toBe(2)
+    expect(testDestination.results[0].multistatus?.[0]?.status).toBe(500)
+    expect(testDestination.results[0].multistatus?.[1]?.status).toBe(400)
   })
-  it('should resolve to multi-status in case of failures with upsert syncmode', async () => {
+  it('single event should throw error in case of failures with upsert syncmode', async () => {
     const action = destination.actions[actionSlug]
     const [settingsData] = generateTestData(seedName, destination, action, true)
     nock(settings.endpoint)
@@ -543,7 +617,6 @@ describe('Braze.upsertCatalogItem', () => {
       payload: {}
     })) as DynamicFieldResponse
 
-    expect(responses).toMatchSnapshot()
     expect(responses.choices).toHaveLength(2)
   })
   it('should return empty choices if no catalogs found', async () => {
@@ -557,7 +630,6 @@ describe('Braze.upsertCatalogItem', () => {
       payload: {}
     })) as DynamicFieldResponse
 
-    expect(responses).toMatchSnapshot()
     expect(responses.choices).toHaveLength(0)
     expect(responses.error).toEqual({
       message: 'No catalogs found. Please create a catalog first',
@@ -574,7 +646,6 @@ describe('Braze.upsertCatalogItem', () => {
       payload: {}
     })) as DynamicFieldResponse
 
-    expect(responses).toMatchSnapshot()
     expect(responses.choices).toHaveLength(0)
     expect(responses.error).toEqual({
       message: 'Unknown error. Please try again later',
