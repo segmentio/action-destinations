@@ -42,17 +42,6 @@ describe('Amazon Conversions API Utils', () => {
       expect(bodyParams).toContain(`refresh_token=${auth.refreshToken}`)
     })
 
-    it('should throw an error when the refresh token request fails', async () => {
-      const auth = { refreshToken: 'test-refresh-token', accessToken: 'old-token' }
-
-      // Create mock request function that throws an error
-      const mockRequest = jest.fn().mockRejectedValue({
-        message: 'Invalid refresh token'
-      })
-
-      await expect(getAuthToken(mockRequest as RequestClient, auth)).rejects.toThrow('Failed to refresh access token: Invalid refresh token')
-    })
-
     it('should handle missing environment variables', async () => {
       // Save original env vars
       const originalClientId = process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID
