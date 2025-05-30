@@ -50,6 +50,10 @@ beforeEach(async () => {
   })
   window.localStorage.clear()
 
+  window.analytics = {
+    track: jest.fn(() => Promise.resolve())
+  } as any
+
   ajs = new Analytics({
     writeKey: 'w_123'
   })
