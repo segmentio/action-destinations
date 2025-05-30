@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The name of the catalog to which the item belongs.
+   * The name of the catalog to upsert the item to.
    */
   catalog_name: string
   /**
@@ -12,7 +12,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The unique identifier for the item. This field is required. Maximum 250 characters. Supported characters for item ID names are letters, numbers, hyphens, and underscores.
+   * The unique identifier for the item. Maximum 250 characters. Supported characters: letters, numbers, hyphens, and underscores.
    */
   item_id: string
   /**
