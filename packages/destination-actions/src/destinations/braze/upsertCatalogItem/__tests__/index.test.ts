@@ -372,6 +372,82 @@ describe('Braze.upsertCatalogItem', () => {
     expect(testDestination.results[0].multistatus?.[0]?.status).toBe(200)
     expect(testDestination.results[0].multistatus?.[1]?.status).toBe(400)
   })
+  it('should skip events with duplicate item_id with upsert syncmode ', async () => {
+    const action = destination.actions[actionSlug]
+    const [settingsData] = generateTestData(seedName, destination, action, true)
+    nock(/.*/).persist().put(/.*/).reply(200)
+
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        event: 'Test Event 1',
+        type: 'identify',
+        receivedAt,
+        properties: {
+          id: 'car001',
+          name: 'Model S',
+          manufacturer: 'Tesla',
+          price: 79999.99,
+          discontinued: false,
+          inception_date: '2012-06-22T04:00:00Z'
+        }
+      }),
+      createTestEvent({
+        event: 'Test Event 2',
+        type: 'identify',
+        receivedAt,
+        properties: {
+          id: 'car001',
+          name: 'Model S',
+          manufacturer: 'Tesla',
+          price: 79999.99,
+          discontinued: false,
+          inception_date: '2012-06-22T04:00:00Z'
+        }
+      })
+    ]
+
+    const responses = await testDestination.testBatchAction(actionSlug, {
+      events,
+      useDefaultMappings: false,
+      features: {
+        'cloudevent-spec-v02-allow': true
+      },
+      mapping: {
+        catalog_name: 'cars',
+        item_id: {
+          '@path': '$.properties.id'
+        },
+        item: {
+          name: {
+            '@path': '$.properties.name'
+          },
+          launch_date: {
+            '@path': '$.properties.launch_date'
+          },
+          inception_date: {
+            '@path': '$.properties.inception_date'
+          },
+          price: {
+            '@path': '$.properties.price'
+          },
+          discontinued: {
+            '@path': '$.properties.discontinued'
+          },
+          manufacturer: {
+            '@path': '$.properties.company'
+          }
+        },
+        enable_batching: true,
+        __segment_internal_sync_mode: 'upsert'
+      },
+      settings: { ...settingsData, endpoint: settings.endpoint }
+    })
+
+    expect(responses).not.toBeNull()
+    expect(testDestination.results.at(0)?.multistatus?.length).toBe(2)
+    expect(testDestination.results[0].multistatus?.[0]?.status).toBe(200)
+    expect(testDestination.results[0].multistatus?.[1]?.status).toBe(400)
+  })
   it('should resolve to multi-status in case of failures with upsert syncmode', async () => {
     const action = destination.actions[actionSlug]
     const [settingsData] = generateTestData(seedName, destination, action, true)
