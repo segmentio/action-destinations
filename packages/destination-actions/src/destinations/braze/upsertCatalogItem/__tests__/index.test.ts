@@ -9,8 +9,6 @@ const destinationSlug = 'Braze'
 const seedName = `${destinationSlug}#${actionSlug}`
 const receivedAt = '2021-08-03T17:40:04.055Z'
 
-jest.setTimeout(30000000)
-
 const settings = {
   app_id: 'my-app-id',
   api_key: 'my-api-key',
