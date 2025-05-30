@@ -49,7 +49,8 @@ const action: ActionDefinition<Settings, Payload> = {
         'The item to upsert in the catalog. The item objects should contain fields that exist in the catalog. The item object is not required when the syncMode is set to delete. The item object should not contain the id field.',
       type: 'object',
       required: UPSERT_OPERATION,
-      additionalProperties: true
+      additionalProperties: true,
+      depends_on: UPSERT_OPERATION
     },
     item_id: {
       label: 'Item ID',
