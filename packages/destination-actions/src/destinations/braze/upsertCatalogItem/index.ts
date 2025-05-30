@@ -5,7 +5,8 @@ import {
   DynamicFieldResponse,
   isObject,
   ErrorCodes,
-  MultiStatusResponse
+  MultiStatusResponse,
+  JSONLikeObject
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -13,7 +14,7 @@ import { generateMultiStatusError } from '../utils'
 import { RequestClient } from '@segment/actions-core'
 import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
 import isEmpty from 'lodash/isEmpty'
-import { getCatalogMetas, isValidItemId, processUpsertCatalogItemMultiStatusResponse } from './utils'
+import { getCatalogMetas, isValidItemId, processMultiStatusErrorResponse } from './utils'
 import { UpsertCatalogItemErrorResponse } from './types'
 
 const UPSERT_OPERATION: DependsOnConditions = {
@@ -23,7 +24,7 @@ const UPSERT_OPERATION: DependsOnConditions = {
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Catalog Item',
-  description: 'Updates or insert items to relevant catalogs',
+  description: 'Upserts or deletes items in  a catalog',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
     label: 'How to sync records',
@@ -36,23 +37,25 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     catalog_name: {
       label: 'Catalog Name',
-      description: 'The Name of the catalog to which the item belongs.',
+      description: 'The name of the catalog to upsert the item to.',
       type: 'string',
       dynamic: true,
-      required: true
+      required: true,
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
     },
     item: {
-      label: 'Catalog Item On to Upsert',
+      label: 'Catalog item to upsert or delete',
       description:
         'The item to upsert in the catalog. The item objects should contain fields that exist in the catalog. The item object is not required when the syncMode is set to delete. The item object should not contain the id field.',
       type: 'object',
       required: UPSERT_OPERATION,
-      additionalProperties: true
+      additionalProperties: true,
+      depends_on: UPSERT_OPERATION
     },
     item_id: {
       label: 'Item ID',
       description:
-        'The unique identifier for the item. This field is required. Maximum 250 characters. Supported characters for item ID names are letters, numbers, hyphens, and underscores.',
+        'The unique identifier for the item. Maximum 250 characters. Supported characters: letters, numbers, hyphens, and underscores.',
       type: 'string',
       required: true,
       maximum: 250,
@@ -71,7 +74,17 @@ const action: ActionDefinition<Settings, Payload> = {
         'If batching is enabled, this is the number of events to include in each batch. Maximum 50 events per batch.',
       minimum: 1,
       maximum: 50,
-      default: 50
+      default: 50,
+      unsafe_hidden: true
+    },
+    batch_keys: {
+      type: 'string',
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['catalog_name']
     }
   },
   dynamicFields: {
@@ -114,7 +127,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, payload, syncMode }) => {
     if (syncMode !== 'upsert' && syncMode !== 'delete') {
-      // Return a multi-status error if the syncMode is invalid
       throw new IntegrationError(
         'Invalid syncMode, must be set to "upsert" or "delete"',
         'PAYLOAD_VALIDATION_FAILED',
@@ -149,7 +161,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       })
     } catch (error) {
-      if (error?.response?.data?.errors?.[0]?.id === 'item-not-found' && syncMode === 'delete') {
+      if (
+        (error?.response?.data as UpsertCatalogItemErrorResponse)?.errors?.[0]?.id === 'item-not-found' &&
+        syncMode === 'delete'
+      ) {
         return {
           status: 200,
           message: 'Could not find item'
@@ -182,6 +197,15 @@ const action: ActionDefinition<Settings, Payload> = {
 
       let body = {}
 
+      if (validPayloadMap.has(item_id)) {
+        multiStatusResponse.setErrorResponseAtIndex(batchIndex, {
+          status: 400,
+          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+          errormessage: 'Every item in the batch must have a unique item_id'
+        })
+        continue
+      }
+
       // validate item_id
       if (!isValidItemId(item_id)) {
         multiStatusResponse.setErrorResponseAtIndex(batchIndex, {
@@ -212,19 +236,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       items.push(body)
       validPayloadMap.set(item_id, batchIndex)
-
-      multiStatusResponse.setSuccessResponseAtIndex(batchIndex, {
-        status: 200,
-        sent: body,
-        body: 'success'
-      })
     }
     if (items.length === 0) {
       return multiStatusResponse
     }
 
     try {
-      await request(`${settings.endpoint}/catalogs/${catalog_name}/items/`, {
+      const response = await request(`${settings.endpoint}/catalogs/${catalog_name}/items/`, {
         method: syncMode === 'upsert' ? 'PUT' : 'DELETE',
         headers: {
           'Content-Type': 'application/json'
@@ -233,11 +251,20 @@ const action: ActionDefinition<Settings, Payload> = {
           items
         }
       })
+
+      validPayloadMap.forEach((index, id) => {
+        multiStatusResponse.setSuccessResponseAtIndex(index, {
+          status: 200,
+          sent: { ...payload[index]?.item, id } as JSONLikeObject,
+          body: response?.data as JSONLikeObject
+        })
+      })
     } catch (error) {
-      processUpsertCatalogItemMultiStatusResponse(
+      processMultiStatusErrorResponse(
         error?.response?.data as UpsertCatalogItemErrorResponse,
         multiStatusResponse,
-        validPayloadMap
+        validPayloadMap,
+        payload
       )
     }
 
