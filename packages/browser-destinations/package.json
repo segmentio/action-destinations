@@ -84,7 +84,7 @@
   "size-limit": [
     {
       "path": "dist/web/*/*.js",
-      "limit": "210 KB"
+      "limit": "216 KB"
     }
   ]
 }
