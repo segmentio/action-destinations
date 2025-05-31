@@ -147,7 +147,12 @@ export interface SubErrorV1 {
     errorMessage?: string
 }
 
-export interface BatchError {
+export interface EventDataSuccessResponseV1 {
+    index: number,
+    message?: string
+}
+
+export interface EventDataErrorResponseV1 {
     httpStatusCode?: string
     itemRequestId?: string
     index: number
@@ -155,22 +160,7 @@ export interface BatchError {
     subErrors?: SubErrorV1[]
 }
 
-export interface ImportEventBatchSuccess {
-    index: number
-}
-
-export interface EventDataSuccessResponseV1 extends ImportEventBatchSuccess {
-    message?: string
-}
-
-export interface EventDataErrorResponseV1 extends BatchError { }
-
 export interface ImportConversionEventsResponse {
     success?: EventDataSuccessResponseV1[]
     error?: EventDataErrorResponseV1[]
-}
-
-export interface AuthTokens {
-    refreshToken: string;
-    [key: string]: any;
 }

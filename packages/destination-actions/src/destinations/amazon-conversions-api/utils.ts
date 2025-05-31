@@ -1,11 +1,10 @@
-import { RequestClient } from '@segment/actions-core'
-import { AuthTokens } from './types'
+import { OAuth2ClientCredentials, RequestClient } from '@segment/actions-core'
 
 
 /**
  * Utility function to get a refreshed auth token
  */
-export async function getAuthToken(request: RequestClient, auth: AuthTokens): Promise<string> {
+export async function getAuthToken(request: RequestClient, auth: OAuth2ClientCredentials): Promise<string> {
   const response = await request<{ access_token: string }>(
     'https://api.amazon.com/auth/o2/token',
     {

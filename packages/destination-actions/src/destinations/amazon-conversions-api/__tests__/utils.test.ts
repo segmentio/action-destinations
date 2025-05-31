@@ -1,6 +1,6 @@
 import { getAuthToken } from '../utils'
 import nock from 'nock'
-import { RequestClient } from '@segment/actions-core'
+import { OAuth2ClientCredentials, RequestClient } from '@segment/actions-core'
 
 describe('Amazon Conversions API Utils', () => {
   beforeEach(() => {
@@ -21,7 +21,7 @@ describe('Amazon Conversions API Utils', () => {
         data: { access_token: mockAccessToken }
       })
 
-      const token = await getAuthToken(mockRequest as RequestClient, auth)
+      const token = await getAuthToken(mockRequest as RequestClient, auth as OAuth2ClientCredentials)
       expect(token).toBe(mockAccessToken)
 
       // Verify the request was made with correct parameters
@@ -59,7 +59,7 @@ describe('Amazon Conversions API Utils', () => {
           data: { access_token: 'new-token' }
         })
 
-        await getAuthToken(mockRequest as RequestClient, auth)
+        await getAuthToken(mockRequest as RequestClient, auth as OAuth2ClientCredentials)
 
         // Check that request was called
         expect(mockRequest).toHaveBeenCalled()

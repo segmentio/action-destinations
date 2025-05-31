@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { EventData } from '../types'
+import type { EventData, ImportConversionEventsResponse } from '../types'
 import { MultiStatusResponse, JSONLikeObject } from '@segment/actions-core'
 import {
   sendEventsRequest,
@@ -18,7 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { payload, settings }) => {
     const eventData = prepareEventData(payload, settings)
-    return await sendEventsRequest(request, settings, eventData, true)
+    return await sendEventsRequest<ImportConversionEventsResponse>(request, settings, eventData, true)
   },
 
   performBatch: async (request, { settings, payload: payloads }) => {
@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     try {
       // Send the batch to Amazon API using the shared function
-      const response = await sendEventsRequest(request, settings, validPayloads, false)
+      const response = await sendEventsRequest<ImportConversionEventsResponse>(request, settings, validPayloads, false)
 
       if (response.status === 207) {
         return handleBatchResponse(response, validPayloads, validPayloadIndicesBitmap, multiStatusResponse)

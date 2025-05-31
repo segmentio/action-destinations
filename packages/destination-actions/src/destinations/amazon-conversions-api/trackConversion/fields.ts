@@ -302,10 +302,11 @@ export const fields: Record<string, InputField> = {
     description: 'A list of flags for signaling how an event shall be processed. Events marked for limited data use will not be processed.',
     type: 'string',
     multiple: true,
+    required: false,
+    additionalProperties: false,
     choices: [
       { label: 'Limited Data Use', value: 'LIMITED_DATA_USE' }
     ],
-    required: false,
     default: {
       '@path': '$.properties.dataProcessingOptions'
     }
@@ -315,6 +316,7 @@ export const fields: Record<string, InputField> = {
     description: 'Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.',
     type: 'object',
     required: false,
+    additionalProperties: false,
     properties: {
       ipAddress: {
         label: 'Geographic Consent: IP Address',
@@ -381,7 +383,6 @@ export const fields: Record<string, InputField> = {
         description: 'Data type of the custom attribute.',
         type: 'string',
         required: false,
-        default: 'STRING',
         choices: [
           { label: 'String', value: 'STRING' },
           { label: 'Number', value: 'NUMBER' },

@@ -13,8 +13,9 @@ import {
     handleBatchResponse,
     prepareEventData
 } from '../utils'
-import { RequestClient, MultiStatusResponse } from '@segment/actions-core'
-import { Region, EventData, ConversionTypeV2 } from '../../types'
+import { RequestClient, MultiStatusResponse, ModifiedResponse } from '@segment/actions-core'
+import { Region, EventData, ConversionTypeV2, ImportConversionEventsResponse } from '../../types'
+import { Payload } from '../generated-types'
 
 describe('trackConversion utils', () => {
     describe('hasStringValue', () => {
@@ -190,7 +191,7 @@ describe('trackConversion utils', () => {
                 data: { success: true }
             })
 
-            const response = await sendEventsRequest(mockRequest as unknown as RequestClient, settings, eventData)
+            const response = await sendEventsRequest<ImportConversionEventsResponse>(mockRequest as unknown as RequestClient, settings, eventData)
 
             expect(response.status).toBe(200)
             expect(response.data).toEqual({ success: true })
@@ -222,7 +223,7 @@ describe('trackConversion utils', () => {
                 { ...eventData, name: 'second_event' }
             ]
 
-            const response = await sendEventsRequest(mockRequest as unknown as RequestClient, settings, multipleEvents)
+            const response = await sendEventsRequest<ImportConversionEventsResponse>(mockRequest as unknown as RequestClient, settings, multipleEvents)
 
             expect(response.status).toBe(200)
             expect(mockRequest).toHaveBeenCalledWith(
@@ -313,7 +314,7 @@ describe('trackConversion utils', () => {
                     success: [{ index: 1, message: 'Success' }],
                     error: [{ index: 2, httpStatusCode: '400', subErrors: [{ errorMessage: 'Invalid data' }] }]
                 }
-            }
+            } as unknown as ModifiedResponse<ImportConversionEventsResponse>
 
             const validPayloads = [
                 { name: 'event1', eventType: ConversionTypeV2.PAGE_VIEW, eventActionSource: 'website', countryCode: 'US', timestamp: '2023-01-01T12:00:00Z' },
@@ -355,7 +356,7 @@ describe('trackConversion utils', () => {
                     success: [],
                     error: []
                 }
-            }
+            } as unknown as ModifiedResponse<ImportConversionEventsResponse>;
 
             const validPayloads = [
                 { name: 'event1', eventType: ConversionTypeV2.PAGE_VIEW, eventActionSource: 'website', countryCode: 'US', timestamp: '2023-01-01T12:00:00Z' },
@@ -365,7 +366,7 @@ describe('trackConversion utils', () => {
             const multiStatusResponse = new MultiStatusResponse()
 
             expect(() => handleBatchResponse(response, validPayloads, validPayloadIndicesBitmap, multiStatusResponse))
-                .toThrow('Something went wrong during Amazon conversion events API processing')
+                .toThrow('Unable to match event in request payload to response from Amazon API')
         })
     })
 
@@ -476,7 +477,7 @@ describe('trackConversion utils', () => {
                 }
             }
 
-            const result = prepareEventData(modifiedPayload as any, settings)
+            const result = prepareEventData(modifiedPayload as unknown as Payload, settings)
 
             // Only 11 match keys should be included
             expect(result.matchKeys?.length).toBe(11)

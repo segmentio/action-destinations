@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient, APIError, MultiStatusResponse, JSONLikeObject } from '@segment/actions-core'
+import { IntegrationError, RequestClient, APIError, MultiStatusResponse, JSONLikeObject, ModifiedResponse } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import type { Settings } from '../generated-types'
 import type { EventData, ConsentData, RegionValue, AmazonConsentFormat, ImportConversionEventsResponse, EventDataSuccessResponseV1, EventDataErrorResponseV1, MatchKeyV1, ConversionTypeV2, CurrencyCodeV1, CustomAttributeV1 } from '../types'
@@ -24,39 +24,26 @@ export function hasStringValue(value: string | null | undefined): boolean {
  */
 export function validateConsent(consent: Payload['consent'], region: RegionValue): ConsentData | undefined {
     const { ipAddress, amznAdStorage, amznUserData, tcf, gpp } = consent || {}
-    const hasAnyConsent = hasStringValue(ipAddress) || hasStringValue(tcf) || hasStringValue(gpp) || (hasStringValue(amznAdStorage) && hasStringValue(amznUserData))
-    if (region === Region.EU) {
-        if (!hasAnyConsent) {
-            throw new IntegrationError(
-                'At least one type of consent (Geographic info, Amazon consent, Transparency and Consent Framework (TCF), Global Privacy Platform (GPP)) is required for the EU region.',
-                'MISSING_CONSENT',
-                400
-            )
-        }
+    const consentData: Partial<ConsentData> = {
+        ...(hasStringValue(ipAddress) && { geo: { ipAddress } }),
+        ...(hasStringValue(amznAdStorage) && hasStringValue(amznUserData) && {
+            amazonConsent: {
+                amznAdStorage,
+                amznUserData
+            } as AmazonConsentFormat
+        }),
+        ...(hasStringValue(tcf) && { tcf }),
+        ...(hasStringValue(gpp) && { gpp })
     }
-
-    if (!hasAnyConsent) {
-        return undefined
+    const hasAnyConsent = Object.keys(consentData).length > 0
+    if (region === Region.EU && !hasAnyConsent) {
+        throw new IntegrationError(
+            'At least one type of consent (Geographic info, Amazon consent, Transparency and Consent Framework (TCF), Global Privacy Platform (GPP)) is required for the EU region.',
+            'MISSING_CONSENT',
+            400
+        )
     }
-
-    const consentData: Partial<ConsentData> = {}
-    if (hasStringValue(ipAddress)) {
-        consentData.geo = { ipAddress }
-    }
-    if (hasStringValue(amznAdStorage) && hasStringValue(amznUserData)) {
-        consentData.amazonConsent = {
-            amznAdStorage,
-            amznUserData
-        } as AmazonConsentFormat
-    }
-    if (hasStringValue(tcf)) {
-        consentData.tcf = tcf
-    }
-    if (hasStringValue(gpp)) {
-        consentData.gpp = gpp
-    }
-
-    return consentData as ConsentData
+    return hasAnyConsent ? (consentData as ConsentData) : undefined
 }
 
 /**
@@ -128,16 +115,16 @@ export function smartHash(value: string, normalizeFunction?: (value: string) => 
  * @param throwHttpErrors Whether to throw HTTP errors (defaults to false)
  * @returns The API response with ImportConversionEventsResponse data
  */
-export async function sendEventsRequest(
+export async function sendEventsRequest<ImportConversionEventsResponse>(
     request: RequestClient,
     settings: Settings,
     eventData: EventData | EventData[],
-    throwHttpErrors: boolean = false
-): Promise<{ status: number; data?: ImportConversionEventsResponse; statusText?: string }> {
+    throwHttpErrors = false
+): Promise<ModifiedResponse<ImportConversionEventsResponse>> {
     // Ensure eventData is always an array
     const events = Array.isArray(eventData) ? eventData : [eventData];
 
-    return await request(
+    return await request<ImportConversionEventsResponse>(
         `${settings.region}/events/v1`,
         {
             method: 'POST',
@@ -187,7 +174,7 @@ export function validateCountryCode(input: string): string {
  * Handles 207 multistatus responses with errors
  */
 export function handleBatchResponse(
-    response: { status: number; data?: ImportConversionEventsResponse },
+    response: ModifiedResponse<ImportConversionEventsResponse>,
     validPayloads: EventData[],
     validPayloadIndicesBitmap: number[],
     multiStatusResponse: MultiStatusResponse
@@ -217,14 +204,12 @@ export function handleBatchResponse(
 
         validPayloads.forEach((payload, arrayPosition) => {
             const originalIndex = validPayloadIndicesBitmap[arrayPosition];
-
             if (errorMap[arrayPosition]) {
                 const errorResult = errorMap[arrayPosition];
                 multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
                     status: parseInt(errorResult.httpStatusCode || '400', 10),
                     sent: payload as unknown as JSONLikeObject,
                     body: errorResult as unknown as JSONLikeObject,
-                    errortype: (errorResult.subErrors?.[0]?.errorType || 'PAYLOAD_VALIDATION_FAILED') as any,
                     errormessage: errorResult.subErrors?.[0]?.errorMessage || 'Error processing payload'
                 });
             } else if (successMap[arrayPosition]) {
@@ -235,7 +220,7 @@ export function handleBatchResponse(
                 });
             } else {
                 // should never happen
-                throw new APIError('Something went wrong during Amazon conversion events API processing', 500)
+                throw new APIError('Unable to match event in request payload to response from Amazon API', 500)
             }
         });
     }
@@ -248,88 +233,88 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     // Process match keys
     let matchKeys: MatchKeyV1[] = []
 
-    if (email) {
+    if (email && typeof email === 'string') {
         const hashedEmail = smartHash(email, normalizeEmail)
         matchKeys.push({
             type: MatchKeyTypeV1.EMAIL,
-            values: [hashedEmail] as [string]
+            values: [hashedEmail]
         })
     }
 
-    if (phone) {
+    if (phone && typeof phone === 'string') {
         const hashedPhone = smartHash(phone, normalizePhone)
         matchKeys.push({
             type: MatchKeyTypeV1.PHONE,
-            values: [hashedPhone] as [string]
+            values: [hashedPhone]
         })
     }
 
-    if (firstName) {
+    if (firstName && typeof firstName === 'string') {
         const hashedFirstName = smartHash(firstName, normalizeStandard)
         matchKeys.push({
             type: MatchKeyTypeV1.FIRST_NAME,
-            values: [hashedFirstName] as [string]
+            values: [hashedFirstName]
         })
     }
 
-    if (lastName) {
+    if (lastName && typeof lastName === 'string') {
         const hashedLastName = smartHash(lastName, normalizeStandard)
         matchKeys.push({
             type: MatchKeyTypeV1.LAST_NAME,
-            values: [hashedLastName] as [string]
+            values: [hashedLastName]
         })
     }
 
-    if (address) {
+    if (address && typeof address === 'string') {
         const hashedAddress = smartHash(address, normalizeStandard)
         matchKeys.push({
             type: MatchKeyTypeV1.ADDRESS,
-            values: [hashedAddress] as [string]
+            values: [hashedAddress]
         })
     }
 
-    if (city) {
+    if (city && typeof city === 'string') {
         const hashedCity = smartHash(city, normalizeStandard)
         matchKeys.push({
             type: MatchKeyTypeV1.CITY,
-            values: [hashedCity] as [string]
+            values: [hashedCity]
         })
     }
 
-    if (state) {
+    if (state && typeof state === 'string') {
         const hashedState = smartHash(state, normalizeStandard)
         matchKeys.push({
             type: MatchKeyTypeV1.STATE,
-            values: [hashedState] as [string]
+            values: [hashedState]
         })
     }
 
-    if (postalCode) {
+    if (postalCode && typeof postalCode === 'string') {
         const hashedPostalCode = smartHash(postalCode, normalizePostal)
         matchKeys.push({
             type: MatchKeyTypeV1.POSTAL,
-            values: [hashedPostalCode] as [string]
+            values: [hashedPostalCode]
         })
     }
 
-    if (maid) {
+    if (maid && typeof maid === 'string') {
         matchKeys.push({
             type: MatchKeyTypeV1.MAID,
-            values: [maid] as [string]
+            values: [maid]
         })
     }
 
-    if (rampId) {
+    if (rampId && typeof rampId === 'string') {
         matchKeys.push({
             type: MatchKeyTypeV1.RAMP_ID,
-            values: [rampId] as [string]
+            values: [rampId]
         })
     }
 
-    if (matchId) {
+    if (matchId && typeof matchId === 'string') {
         matchKeys.push({
             type: MatchKeyTypeV1.MATCH_ID,
-            values: [matchId] as [string]
+            values: [matchId]
         })
     }
 
