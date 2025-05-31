@@ -61,7 +61,7 @@ export function normalize(value: string, allowedChars: RegExp, trim = true): str
 
 // RegExp patterns for normalization
 const alphanumeric = /[^a-z0-9]/g
-const emailAllowed = /[^a-z0-9.@+\-]/g
+const emailAllowed = /[^a-z0-9.@+-]/g;
 const nonDigits = /[^\d]/g
 const whitespace = /\s+/g
 
