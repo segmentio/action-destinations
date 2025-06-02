@@ -20,3 +20,45 @@ export interface Payload {
    */
   batch_size?: number
 }
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface OnMappingSaveInputs {
+  /**
+   * Whether to select an existing catalog or create a new one in Braze.
+   */
+  operation: string
+  /**
+   * The unique name of the catalog.
+   */
+  selected_catalog_name?: string
+  /**
+   * The name of the catalog. Must be unique. Maximum 250 characters. Supported characters: letters, numbers, hyphens, and underscores.
+   */
+  created_catalog_name?: string
+  /**
+   * The description of the catalog. Maximum 250 characters.
+   */
+  description?: string
+  /**
+   * A list of fields to create in the catalog. Maximum 500 fields.
+   */
+  columns?: {
+    /**
+     * The name of the field.
+     */
+    name: string
+    /**
+     * The data type of the field.
+     */
+    type: string
+    [k: string]: unknown
+  }[]
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface OnMappingSaveOutputs {
+  /**
+   * The name of the catalog.
+   */
+  catalog_name: string
+}
