@@ -18,10 +18,6 @@ export interface Payload {
    */
   type: string
   /**
-   * Audience or journey ID - hidden as we drop it in the warehouse pipeline, but need it for observability metrics.
-   */
-  computationId: string
-  /**
    * Additional columns to write to Snowflake.
    */
   properties: {
