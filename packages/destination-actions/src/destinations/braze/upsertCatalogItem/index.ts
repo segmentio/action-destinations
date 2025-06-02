@@ -75,7 +75,7 @@ async function createCatalog(
   }
 }
 
-export const catalogHook: ActionHookDefinition<Settings, Payload, any, any, any> = {
+const catalogHook: ActionHookDefinition<Settings, Payload, any, any, any> = {
   label: 'Select or Create a Catalog',
   description: 'Select an existing catalog or create a new one in Braze.',
   inputFields: {
@@ -170,6 +170,9 @@ export const catalogHook: ActionHookDefinition<Settings, Payload, any, any, any>
       }
     }
   },
+  hooks: {
+    // Removed circular reference to catalogHook
+  },
   performHook: async (request, { settings, hookInputs }): Promise<ActionHookResponse<{ catalog_name: string }>> => {
     if (hookInputs.operation === 'select') {
       // If the operation is select, we don't need to create a catalog
@@ -248,6 +251,9 @@ const action: ActionDefinition<Settings, Payload> = {
     //   multiple: true,
     //   default: ['catalog_name']
     // }
+  },
+  hooks: {
+    onMappingSave: { ...catalogHook }
   },
   perform: async (request, { settings, payload, syncMode, hookOutputs }) => {
     if (syncMode !== 'upsert' && syncMode !== 'delete') {
