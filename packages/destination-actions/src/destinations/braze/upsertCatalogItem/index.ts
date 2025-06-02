@@ -9,7 +9,7 @@ import {
   JSONLikeObject
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import type { Payload } from './generated-types'
+import type { OnMappingSaveInputs, OnMappingSaveOutputs, Payload } from './generated-types'
 import { generateMultiStatusError } from '../utils'
 import { RequestClient } from '@segment/actions-core'
 import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
@@ -38,12 +38,12 @@ async function createCatalog(
   endpoint: string,
   hookInputs: any
 ): Promise<ActionHookResponse<{ catalog_name: string }>> {
-  const { name, description, columns } = hookInputs
+  const { created_catalog_name, description, columns } = hookInputs
 
   const body = {
     catalogs: [
       {
-        name,
+        name: created_catalog_name,
         description,
         fields: columns.map((column: any) => ({
           name: column.name,
@@ -65,7 +65,7 @@ async function createCatalog(
     return {
       successMessage: 'Catalog created successfully',
       savedData: {
-        catalog_name: name
+        catalog_name: created_catalog_name
       }
     }
   } catch (error) {
@@ -75,7 +75,7 @@ async function createCatalog(
   }
 }
 
-const catalogHook: ActionHookDefinition<Settings, Payload, any, any, any> = {
+const catalogHook: ActionHookDefinition<Settings, Payload, any, OnMappingSaveInputs, OnMappingSaveOutputs> = {
   label: 'Select or Create a Catalog',
   description: 'Select an existing catalog or create a new one in Braze.',
   inputFields: {
@@ -84,8 +84,8 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, any, any> = {
       description: 'Whether to select an existing catalog or create a new one in Braze.',
       type: 'string',
       choices: [
-        { label: 'Create a new Data Extension', value: 'create' },
-        { label: 'Select an existing Data Extension', value: 'select' }
+        { label: 'Create a new catalog', value: 'create' },
+        { label: 'Select an existing catalog', value: 'select' }
       ],
       required: true
     },
@@ -171,12 +171,12 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, any, any> = {
     }
   },
   performHook: async (request, { settings, hookInputs }): Promise<ActionHookResponse<{ catalog_name: string }>> => {
-    if (hookInputs.operation === 'select') {
+    if (hookInputs?.operation === 'select') {
       // If the operation is select, we don't need to create a catalog
       return {
         successMessage: 'Catalog selected successfully',
         savedData: {
-          catalog_name: hookInputs?.selected_catalog_name
+          catalog_name: hookInputs?.selected_catalog_name ?? ''
         }
       }
     }
@@ -185,7 +185,7 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, any, any> = {
   outputTypes: {
     catalog_name: {
       label: 'Catalog Name',
-      description: 'The name of the data extension.',
+      description: 'The name of the catalog.',
       type: 'string',
       required: true
     }
@@ -211,8 +211,8 @@ const action: ActionDefinition<Settings, Payload> = {
         'The item to upsert in the catalog. The item objects should contain fields that exist in the catalog. The item object is not required when the syncMode is set to delete. The item object should not contain the id field.',
       type: 'object',
       required: UPSERT_OPERATION,
-      additionalProperties: true,
-      depends_on: UPSERT_OPERATION
+      depends_on: UPSERT_OPERATION,
+      dynamic: true
     },
     item_id: {
       label: 'Item ID',
@@ -251,6 +251,36 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   hooks: {
     onMappingSave: { ...catalogHook }
+  },
+  dynamicFields: {
+    item: {
+      __keys__: async (request, { settings, hookOutputs }) => {
+        const catalog_name = hookOutputs?.onMappingSave?.outputs?.catalog_name || ''
+
+        const catalogs = await getCatalogMetas(request, settings.endpoint)
+
+        if (catalogs?.length) {
+          return {
+            choices: []
+          }
+        }
+        const catalog = catalogs?.find((catalog) => catalog.name === catalog_name)
+
+        if (catalog && Array.isArray(catalog.fields)) {
+          const choices: DynamicFieldItem[] = catalog.fields.map((field) => ({
+            label: field.name,
+            value: field.name
+          }))
+          return {
+            choices
+          }
+        }
+
+        return {
+          choices: []
+        }
+      }
+    }
   },
   perform: async (request, { settings, payload, syncMode, hookOutputs }) => {
     if (syncMode !== 'upsert' && syncMode !== 'delete') {
