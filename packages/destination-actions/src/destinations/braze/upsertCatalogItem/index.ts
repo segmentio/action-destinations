@@ -16,10 +16,180 @@ import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destin
 import isEmpty from 'lodash/isEmpty'
 import { getCatalogMetas, isValidItemId, processMultiStatusErrorResponse } from './utils'
 import { UpsertCatalogItemErrorResponse } from './types'
+import { ActionHookDefinition, ActionHookResponse } from '@segment/actions-core/destination-kit'
 
 const UPSERT_OPERATION: DependsOnConditions = {
   match: 'all',
   conditions: [{ type: 'field', fieldKey: '__segment_internal_sync_mode', operator: 'is', value: 'upsert' }]
+}
+
+const CREATE_OPERATION: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'create' }]
+}
+
+const SELECT_OPERATION: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'select' }]
+}
+
+async function createCatalog(
+  request: RequestClient,
+  endpoint: string,
+  hookInputs: any
+): Promise<ActionHookResponse<{ catalog_name: string }>> {
+  const { name, description, columns } = hookInputs
+
+  const body = {
+    catalogs: [
+      {
+        name,
+        description,
+        fields: columns.map((column: any) => ({
+          name: column.name,
+          type: column.type
+        }))
+      }
+    ]
+  }
+
+  try {
+    await request(`${endpoint}/catalogs`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      json: body
+    })
+
+    return {
+      successMessage: 'Catalog created successfully',
+      savedData: {
+        catalog_name: name
+      }
+    }
+  } catch (error) {
+    return {
+      error: { message: error || 'Unknown Error', code: 'ERROR' }
+    }
+  }
+}
+
+export const catalogHook: ActionHookDefinition<Settings, Payload, any, any, any> = {
+  label: 'Select or Create a Catalog',
+  description: 'Select an existing catalog or create a new one in Braze.',
+  inputFields: {
+    operation: {
+      label: 'Operation',
+      description: 'Whether to select an existing catalog or create a new one in Braze.',
+      type: 'string',
+      choices: [
+        { label: 'Create a new Data Extension', value: 'create' },
+        { label: 'Select an existing Data Extension', value: 'select' }
+      ],
+      required: true
+    },
+    selected_catalog_name: {
+      label: 'Catalog Name',
+      description: 'The unique name of the catalog.',
+      type: 'string',
+      required: SELECT_OPERATION,
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
+      depends_on: SELECT_OPERATION,
+      dynamic: async (request: RequestClient, { settings }: { settings: Settings }): Promise<DynamicFieldResponse> => {
+        let choices: DynamicFieldItem[] = []
+        try {
+          const catalogs = await getCatalogMetas(request, settings.endpoint)
+
+          if (catalogs?.length) {
+            choices = catalogs.map((catalog) => ({
+              label: catalog.name,
+              value: catalog.name,
+              type: 'string' as FieldTypeName,
+              description: catalog?.description
+            }))
+            return {
+              choices
+            }
+          }
+          return {
+            choices,
+            error: {
+              message: 'No catalogs found. Please create a catalog first',
+              code: '404'
+            }
+          }
+        } catch (err) {
+          return {
+            choices,
+            error: {
+              message: 'Unknown error. Please try again later',
+              code: '500'
+            }
+          }
+        }
+      }
+    },
+    created_catalog_name: {
+      label: 'Catalog Name',
+      description:
+        'The name of the catalog. Must be unique. Maximum 250 characters. Supported characters: letters, numbers, hyphens, and underscores.',
+      type: 'string',
+      required: CREATE_OPERATION,
+      depends_on: CREATE_OPERATION
+    },
+    description: {
+      label: 'Catalog Description',
+      description: 'The description of the catalog. Maximum 250 characters.',
+      type: 'string',
+      depends_on: CREATE_OPERATION
+    },
+    columns: {
+      label: 'Catalog Fields',
+      description: 'A list of fields to create in the catalog. Maximum 500 fields.',
+      type: 'object' as FieldTypeName,
+      multiple: true,
+      defaultObjectUI: 'arrayeditor',
+      additionalProperties: true,
+      required: CREATE_OPERATION,
+      depends_on: CREATE_OPERATION,
+      properties: {
+        name: {
+          label: 'Field Name',
+          description: 'The name of the field.',
+          type: 'string',
+          required: true
+        },
+        type: {
+          label: 'Field Type',
+          description: 'The data type of the field.',
+          type: 'string',
+          required: true,
+          choices: ['string', 'number', 'time', 'boolean', 'object', 'array']
+        }
+      }
+    }
+  },
+  performHook: async (request, { settings, hookInputs }): Promise<ActionHookResponse<{ catalog_name: string }>> => {
+    if (hookInputs.operation === 'select') {
+      // If the operation is select, we don't need to create a catalog
+      return {
+        successMessage: 'Catalog selected successfully',
+        savedData: {
+          catalog_name: hookInputs?.selected_catalog_name
+        }
+      }
+    }
+    return await createCatalog(request, settings.endpoint, hookInputs)
+  },
+  outputTypes: {
+    catalog_name: {
+      label: 'Catalog Name',
+      description: 'The name of the data extension.',
+      type: 'string',
+      required: true
+    }
+  }
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -35,14 +205,6 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   fields: {
-    catalog_name: {
-      label: 'Catalog Name',
-      description: 'The name of the catalog to upsert the item to.',
-      type: 'string',
-      dynamic: true,
-      required: true,
-      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
-    },
     item: {
       label: 'Catalog item to upsert or delete',
       description:
@@ -76,56 +238,18 @@ const action: ActionDefinition<Settings, Payload> = {
       maximum: 50,
       default: 50,
       unsafe_hidden: true
-    },
-    batch_keys: {
-      type: 'string',
-      label: 'Batch Keys',
-      description: 'The keys to use for batching the events.',
-      unsafe_hidden: true,
-      required: false,
-      multiple: true,
-      default: ['catalog_name']
     }
+    // batch_keys: {
+    //   type: 'string',
+    //   label: 'Batch Keys',
+    //   description: 'The keys to use for batching the events.',
+    //   unsafe_hidden: true,
+    //   required: false,
+    //   multiple: true,
+    //   default: ['catalog_name']
+    // }
   },
-  dynamicFields: {
-    catalog_name: async (
-      request: RequestClient,
-      { settings }: { settings: Settings }
-    ): Promise<DynamicFieldResponse> => {
-      let choices: DynamicFieldItem[] = []
-      try {
-        const catalogs = await getCatalogMetas(request, settings.endpoint)
-
-        if (catalogs?.length) {
-          choices = catalogs.map((catalog) => ({
-            label: catalog.name,
-            value: catalog.name,
-            type: 'string' as FieldTypeName,
-            description: catalog?.description
-          }))
-          return {
-            choices
-          }
-        }
-        return {
-          choices,
-          error: {
-            message: 'No catalogs found. Please create a catalog first',
-            code: '404'
-          }
-        }
-      } catch (err) {
-        return {
-          choices,
-          error: {
-            message: 'Unknown error. Please try again later',
-            code: '500'
-          }
-        }
-      }
-    }
-  },
-  perform: async (request, { settings, payload, syncMode }) => {
+  perform: async (request, { settings, payload, syncMode, hookOutputs }) => {
     if (syncMode !== 'upsert' && syncMode !== 'delete') {
       throw new IntegrationError(
         'Invalid syncMode, must be set to "upsert" or "delete"',
@@ -134,7 +258,9 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    const { catalog_name = '', item_id = '' } = payload
+    const catalog_name = hookOutputs?.onMappingSave?.outputs?.catalog_name
+
+    const { item_id = '' } = payload
 
     const { item = {} } = payload
 
@@ -178,17 +304,17 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  performBatch: async (request, { settings, payload, syncMode }) => {
+  performBatch: async (request, { settings, payload, syncMode, hookOutputs }) => {
     if (syncMode !== 'upsert' && syncMode !== 'delete') {
       // Return a multi-status error if the syncMode is invalid
       return generateMultiStatusError(payload.length, 'Invalid syncMode, must be set to "upsert" or "delete"')
     }
 
+    const catalog_name = hookOutputs?.onMappingSave?.outputs?.catalog_name
+
     const multiStatusResponse = new MultiStatusResponse()
 
     const validPayloadMap = new Map<string, number>()
-
-    const { catalog_name = '' } = payload[0]
 
     const items = []
 
