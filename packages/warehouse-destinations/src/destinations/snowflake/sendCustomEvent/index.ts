@@ -39,7 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       additionalProperties: true,
       default: {
-        entityContext: {
+        entity_context: {
           '@json': {
             mode: 'encode',
             value: {
@@ -47,12 +47,12 @@ const action: ActionDefinition<Settings, Payload> = {
             }
           }
         },
-        userId: { '@path': '$.userId' },
-        audienceKey: { '@path': '$.properties.audience_key' },
-        personasComputationKey: { '@path': '$.context.personas.computation_key' },
-        personasComputationId: { '@path': '$.context.personas.computation_id' },
-        personasComputationRunId: { '@path': '$.context.personas.computation_run_id' },
-        personasActivationId: { '@path': '$.context.personas.event_emitter_id' }
+        user_id: { '@path': '$.userId' },
+        audience_key: { '@path': '$.properties.audience_key' },
+        personas_computation_key: { '@path': '$.context.personas.computation_key' },
+        personas_computation_id: { '@path': '$.context.personas.computation_id' },
+        personas_computationRun_id: { '@path': '$.context.personas.computation_run_id' },
+        personas_activation_id: { '@path': '$.context.personas.event_emitter_id' }
       }
     },
     // include all segment timestamp fields - https://segment.com/docs/connections/spec/common/#timestamp-overview
