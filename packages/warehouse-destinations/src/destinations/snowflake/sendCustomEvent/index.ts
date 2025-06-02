@@ -6,13 +6,6 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Custom Event',
   description: 'Record custom events in Snowflake',
   fields: {
-    timestamp: {
-      label: 'Timestamp',
-      description: 'Timestamp of the event',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.timestamp' }
-    },
     messageId: {
       label: 'Message ID',
       description: 'Name of column for the unique identifier for the message.',
@@ -62,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         audienceKey: {
           label: 'Audience Key',
-          description: 'The Kky of the audience.',
+          description: 'The key of the audience.',
           type: 'string',
           default: { '@path': '$.properties.audience_key' }
         },
@@ -91,6 +84,35 @@ const action: ActionDefinition<Settings, Payload> = {
           default: { '@path': '$.context.personas.event_emitter_id' }
         }
       }
+    },
+    // include all segment timestamp fields - https://segment.com/docs/connections/spec/common/#timestamp-overview
+    timestamp: {
+      label: 'Timestamp',
+      description: 'Timestamp of the event',
+      type: 'datetime',
+      required: true,
+      default: { '@path': '$.timestamp' }
+    },
+    originalTimestamp: {
+      label: 'Original Timestamp',
+      description: 'Time on the client device when call was invoked.',
+      type: 'datetime',
+      required: true,
+      default: { '@path': '$.originalTimestamp' }
+    },
+    sentAt: {
+      label: 'Sent At',
+      description: 'Time on client device when call was sent.',
+      type: 'datetime',
+      required: false,
+      default: { '@path': '$.sentAt' }
+    },
+    receivedAt: {
+      label: 'Received At',
+      description: 'Time on Segment server clock when call was received.',
+      type: 'datetime',
+      required: false,
+      default: { '@path': '$.receivedAt' }
     }
   },
   perform: () => {
