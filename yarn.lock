@@ -3456,7 +3456,7 @@
   dependencies:
     "@types/node" "^18.11.15"
 
-"@segment/actions-core@^3.121.0", "@segment/actions-core@^3.155.0":
+"@segment/actions-core@^3.121.0", "@segment/actions-core@^3.152.0", "@segment/actions-core@^3.155.0":
   version "3.155.0"
   resolved "https://registry.yarnpkg.com/@segment/actions-core/-/actions-core-3.155.0.tgz#2c8cbb703a50d874e26c1ee997d08a2f4c8c5003"
   integrity sha512-59yLCWVJ2fkYAxkn17do1eDU7FIaXxf7r+uyklHlmFKEatbzbQjWYJ3Q8jZfygDk4xHkpMr7BOAnTqlS6SQPDg==

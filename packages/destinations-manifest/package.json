@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.117.1-staging-4586f4fef.0",
+  "version": "1.117.1-staging-dbf70accf.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
