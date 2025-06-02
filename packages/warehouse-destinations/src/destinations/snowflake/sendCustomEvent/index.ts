@@ -37,16 +37,6 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.type' },
       readOnly: true
     },
-    computationId: {
-      label: 'Computation ID',
-      description:
-        'Audience or journey ID - hidden as we drop it in the warehouse pipeline, but need it for observability metrics.',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.context.personas.computation_id' },
-      unsafe_hidden: true,
-      readOnly: true
-    },
     // note that this must be `properties` to be processed by the warehouse pipeline
     properties: {
       label: 'Columns',
@@ -63,6 +53,42 @@ const action: ActionDefinition<Settings, Payload> = {
               '@path': '$.properties.data_graph_entity_context'
             }
           }
+        },
+        userId: {
+          label: 'User ID',
+          description: 'Unique ID for the user.',
+          type: 'string',
+          default: { '@path': '$.userId' }
+        },
+        audienceKey: {
+          label: 'Audience Key',
+          description: 'The Kky of the audience.',
+          type: 'string',
+          default: { '@path': '$.properties.audience_key' }
+        },
+        personasComputationKey: {
+          label: 'Personas Computation Key',
+          description: 'Computation key set by Segment Personas.',
+          type: 'string',
+          default: { '@path': '$.context.personas.computation_key' }
+        },
+        personasComputationId: {
+          label: 'Personas Computation ID',
+          description: 'Computation ID set by Segment Personas.',
+          type: 'string',
+          default: { '@path': '$.context.personas.computation_id' }
+        },
+        personasComputationRunId: {
+          label: 'Personas Computation Run ID',
+          description: 'Unique ID for this run, set by Segment Personas.',
+          type: 'string',
+          default: { '@path': '$.context.personas.computation_run_id' }
+        },
+        personasActivationId: {
+          label: 'Personas Activation ID',
+          description: 'ID of the activation, set by Segment Personas.',
+          type: 'string',
+          default: { '@path': '$.context.personas.event_emitter_id' }
         }
       }
     }
