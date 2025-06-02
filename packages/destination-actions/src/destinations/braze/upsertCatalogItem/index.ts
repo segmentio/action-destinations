@@ -170,9 +170,6 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, any, any> = {
       }
     }
   },
-  hooks: {
-    // Removed circular reference to catalogHook
-  },
   performHook: async (request, { settings, hookInputs }): Promise<ActionHookResponse<{ catalog_name: string }>> => {
     if (hookInputs.operation === 'select') {
       // If the operation is select, we don't need to create a catalog
