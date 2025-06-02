@@ -47,42 +47,12 @@ const action: ActionDefinition<Settings, Payload> = {
             }
           }
         },
-        userId: {
-          label: 'User ID',
-          description: 'Unique ID for the user.',
-          type: 'string',
-          default: { '@path': '$.userId' }
-        },
-        audienceKey: {
-          label: 'Audience Key',
-          description: 'The key of the audience.',
-          type: 'string',
-          default: { '@path': '$.properties.audience_key' }
-        },
-        personasComputationKey: {
-          label: 'Personas Computation Key',
-          description: 'Computation key set by Segment Personas.',
-          type: 'string',
-          default: { '@path': '$.context.personas.computation_key' }
-        },
-        personasComputationId: {
-          label: 'Personas Computation ID',
-          description: 'Computation ID set by Segment Personas.',
-          type: 'string',
-          default: { '@path': '$.context.personas.computation_id' }
-        },
-        personasComputationRunId: {
-          label: 'Personas Computation Run ID',
-          description: 'Unique ID for this run, set by Segment Personas.',
-          type: 'string',
-          default: { '@path': '$.context.personas.computation_run_id' }
-        },
-        personasActivationId: {
-          label: 'Personas Activation ID',
-          description: 'ID of the activation, set by Segment Personas.',
-          type: 'string',
-          default: { '@path': '$.context.personas.event_emitter_id' }
-        }
+        userId: { '@path': '$.userId' },
+        audienceKey: { '@path': '$.properties.audience_key' },
+        personasComputationKey: { '@path': '$.context.personas.computation_key' },
+        personasComputationId: { '@path': '$.context.personas.computation_id' },
+        personasComputationRunId: { '@path': '$.context.personas.computation_run_id' },
+        personasActivationId: { '@path': '$.context.personas.event_emitter_id' }
       }
     },
     // include all segment timestamp fields - https://segment.com/docs/connections/spec/common/#timestamp-overview
