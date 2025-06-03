@@ -9,7 +9,7 @@ import trackConversion from './trackConversion'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Amazon Conversions Api',
-  slug: 'amazon-conversions-api',
+  slug: 'actions-amazon-conversions-api',
   description: 'Amazon conversion API destination to send conversion event data to Amazon.',
   mode: 'cloud',
 
