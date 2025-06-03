@@ -13,7 +13,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Click ID',
       description: 'The ID of the click in Dub. You can read this value from "dub_id" cookie.',
       type: 'string',
-      required: true
+      required: true,
+      default: {
+        '@path': '$.integrations.Dub (Actions).dub_id'
+      }
     },
     eventName: {
       label: 'Event Name',

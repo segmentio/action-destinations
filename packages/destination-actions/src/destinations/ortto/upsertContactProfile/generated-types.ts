@@ -2,13 +2,13 @@
 
 export interface Payload {
   /**
-   * Event timestamp
+   * Event timestamp (ISO 8601)
    */
-  timestamp?: string
+  timestamp: string
   /**
    * Message ID
    */
-  message_id?: string
+  message_id: string
   /**
    * The unique user identifier
    */
@@ -38,22 +38,7 @@ export interface Payload {
    * An object containing key-value pairs representing custom properties assigned to Contact profile
    */
   traits?: {
-    /**
-     * The Contact's email address
-     */
-    email?: string
-    /**
-     * The Contact's phone number (including the country code is strongly recommended)
-     */
-    phone?: string
-    /**
-     * The Contact's first name
-     */
-    first_name?: string
-    /**
-     * The Contact's last name
-     */
-    last_name?: string
+    [k: string]: unknown
   }
   /**
    * Indicates whether the Contact should be added to or removed from the Audience.
@@ -66,7 +51,7 @@ export interface Payload {
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
-export interface RetlOnMappingSaveInputs {
+export interface OnMappingSaveInputs {
   /**
    * The name of the Ortto Audience to link the Contact to.
    */
@@ -74,7 +59,7 @@ export interface RetlOnMappingSaveInputs {
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
-export interface RetlOnMappingSaveOutputs {
+export interface OnMappingSaveOutputs {
   /**
    * The ID of the Ortto Audience Contacts will be linked to.
    */
