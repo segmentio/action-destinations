@@ -1,6 +1,6 @@
 import { RequestClient } from '@segment/actions-core/create-request-client'
 import { ListCatalogsResponse, UpsertCatalogItemErrorResponse } from './types'
-import { MultiStatusResponse } from '@segment/actions-core/destination-kit/action'
+import { ActionHookResponse, MultiStatusResponse } from '@segment/actions-core/destination-kit/action'
 import { JSONLikeObject } from '@segment/actions-core/json-object'
 import { Payload } from './generated-types'
 
@@ -10,6 +10,52 @@ export async function getCatalogMetas(request: RequestClient, endpoint: string) 
   })
 
   return response?.data?.catalogs
+}
+
+export async function createCatalog(
+  request: RequestClient,
+  endpoint: string,
+  hookInputs: any
+): Promise<ActionHookResponse<{ catalog_name: string }>> {
+  const { created_catalog_name, description, columns } = hookInputs
+
+  const fields = [{ name: 'id', type: 'string' }].concat(
+    columns.map((column: any) => ({
+      name: column.name,
+      type: column.type
+    }))
+  )
+
+  const body = {
+    catalogs: [
+      {
+        name: created_catalog_name,
+        description,
+        fields
+      }
+    ]
+  }
+
+  try {
+    await request(`${endpoint}/catalogs`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      json: body
+    })
+
+    return {
+      successMessage: 'Catalog created successfully',
+      savedData: {
+        catalog_name: created_catalog_name
+      }
+    }
+  } catch (error) {
+    return {
+      error: { message: error || 'Unknown Error', code: 'ERROR' }
+    }
+  }
 }
 
 export function isValidItemId(item_id: string) {

@@ -14,7 +14,7 @@ import { generateMultiStatusError } from '../utils'
 import { RequestClient } from '@segment/actions-core'
 import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
 import isEmpty from 'lodash/isEmpty'
-import { getCatalogMetas, isValidItemId, processMultiStatusErrorResponse } from './utils'
+import { createCatalog, getCatalogMetas, isValidItemId, processMultiStatusErrorResponse } from './utils'
 import { UpsertCatalogItemErrorResponse } from './types'
 import { ActionHookDefinition, ActionHookResponse } from '@segment/actions-core/destination-kit'
 
@@ -31,52 +31,6 @@ const CREATE_OPERATION: DependsOnConditions = {
 const SELECT_OPERATION: DependsOnConditions = {
   match: 'all',
   conditions: [{ fieldKey: 'operation', operator: 'is', value: 'select' }]
-}
-
-async function createCatalog(
-  request: RequestClient,
-  endpoint: string,
-  hookInputs: any
-): Promise<ActionHookResponse<{ catalog_name: string }>> {
-  const { created_catalog_name, description, columns } = hookInputs
-
-  const fields = [{ name: 'id', type: 'string' }].concat(
-    columns.map((column: any) => ({
-      name: column.name,
-      type: column.type
-    }))
-  )
-
-  const body = {
-    catalogs: [
-      {
-        name: created_catalog_name,
-        description,
-        fields
-      }
-    ]
-  }
-
-  try {
-    await request(`${endpoint}/catalogs`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      json: body
-    })
-
-    return {
-      successMessage: 'Catalog created successfully',
-      savedData: {
-        catalog_name: created_catalog_name
-      }
-    }
-  } catch (error) {
-    return {
-      error: { message: error || 'Unknown Error', code: 'ERROR' }
-    }
-  }
 }
 
 const catalogHook: ActionHookDefinition<Settings, Payload, any, OnMappingSaveInputs, OnMappingSaveOutputs> = {
@@ -198,7 +152,7 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, OnMappingSaveInp
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Catalog Item',
-  description: 'Upserts or deletes items in  a catalog',
+  description: 'Upserts or deletes items in a catalog',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
     label: 'How to sync records',
@@ -290,7 +244,7 @@ const action: ActionDefinition<Settings, Payload> = {
         return {
           choices: [],
           error: {
-            message: `Catalog not found or has no fields. ${JSON.stringify({ payload, catalog_name, catalogs })}`,
+            message: `Catalog not found or has no fields.`,
             code: '404'
           }
         }
