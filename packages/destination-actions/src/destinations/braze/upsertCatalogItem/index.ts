@@ -40,15 +40,19 @@ async function createCatalog(
 ): Promise<ActionHookResponse<{ catalog_name: string }>> {
   const { created_catalog_name, description, columns } = hookInputs
 
+  const fields = [{ name: 'id', type: 'string' }].concat(
+    columns.map((column: any) => ({
+      name: column.name,
+      type: column.type
+    }))
+  )
+
   const body = {
     catalogs: [
       {
         name: created_catalog_name,
         description,
-        fields: columns.map((column: any) => ({
-          name: column.name,
-          type: column.type
-        }))
+        fields
       }
     ]
   }
@@ -146,7 +150,7 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, OnMappingSaveInp
     },
     columns: {
       label: 'Catalog Fields',
-      description: 'A list of fields to create in the catalog. Maximum 500 fields.',
+      description: 'A list of fields to create in the catalog. Maximum 500 fields. ID field is added by default.',
       type: 'object' as FieldTypeName,
       multiple: true,
       defaultObjectUI: 'arrayeditor',
@@ -271,10 +275,12 @@ const action: ActionDefinition<Settings, Payload> = {
         const catalog = catalogs?.find((catalog) => catalog.name === catalog_name)
 
         if (catalog && Array.isArray(catalog.fields)) {
-          const choices: DynamicFieldItem[] = catalog.fields.map((field) => ({
-            label: field.name,
-            value: field.name
-          }))
+          const choices: DynamicFieldItem[] = catalog.fields
+            .map((field) => ({
+              label: field.name,
+              value: field.name
+            }))
+            .filter((field) => field.value !== 'id') // Exclude the id field from the dynamic fields
           return {
             choices
           }
