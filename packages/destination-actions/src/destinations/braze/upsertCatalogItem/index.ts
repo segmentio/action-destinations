@@ -255,15 +255,15 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     item: {
       __keys__: async (request, { settings, payload }) => {
-        const catalog_name = (payload as any)?.created_catalog_name ?? (payload as any)?.selected_catalog_name ?? ''
+        const catalog_name = (payload as any)?.onMappingSave?.outputs?.catalog_name ?? ''
 
         const catalogs = await getCatalogMetas(request, settings.endpoint)
 
-        if (catalogs?.length) {
+        if (!catalogs?.length) {
           return {
             choices: [],
             error: {
-              message: 'No catalogs found. Please create a catalog first',
+              message: `No catalogs found. Please create a catalog first, JSON`,
               code: '404'
             }
           }
@@ -283,7 +283,7 @@ const action: ActionDefinition<Settings, Payload> = {
         return {
           choices: [],
           error: {
-            message: 'Catalog not found or has no fields',
+            message: `Catalog not found or has no fields. ${JSON.stringify({ payload, catalog_name, catalogs })}`,
             code: '404'
           }
         }
