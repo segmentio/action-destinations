@@ -351,6 +351,8 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
         ...(payload.dataProcessingOptions && { dataProcessingOptions: payload.dataProcessingOptions }),
         ...(consent && { consent }),
         ...(payload.customAttributes && { customAttributes: payload.customAttributes as CustomAttributeV1[] }),
+        ...(payload.amazonImpressionId && { amazonImpressionId: payload.amazonImpressionId }),
+        ...(payload.amazonClickId && { amazonClickId: payload.amazonClickId })
     })
 
     return eventData

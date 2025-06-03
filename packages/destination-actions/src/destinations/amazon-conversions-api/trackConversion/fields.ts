@@ -28,7 +28,10 @@ export const fields: Record<string, InputField> = {
       { label: 'Sign Up', value: 'SIGN_UP' },
       { label: 'Subscribe', value: 'SUBSCRIBE' },
       { label: 'Other', value: 'OTHER' }
-    ]
+    ],
+    default: {
+      '@path': '$.properties.eventType'
+    }
   },
   eventActionSource: {
     label: 'Event Action Source',
@@ -405,6 +408,24 @@ export const fields: Record<string, InputField> = {
           value: { '@path': '$.value' }
         }
       ]
+    }
+  },
+  amazonImpressionId: {
+    label: 'Amazon impression ID',
+    description: 'The Amazon impression ID associated with the event.',
+    type: 'string',
+    required: false,
+    default: {
+      '@path': '$.properties.amazonImpressionId'
+    }
+  },
+  amazonClickId: {
+    label: 'Amazon click ID',
+    description: 'The Amazon click ID associated with the event.',
+    type: 'string',
+    required: false,
+    default: {
+      '@path': '$.properties.amazonClickId'
     }
   },
   enable_batching: {

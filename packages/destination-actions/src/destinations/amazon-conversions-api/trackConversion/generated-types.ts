@@ -133,6 +133,14 @@ export interface Payload {
     value: string
   }[]
   /**
+   * The Amazon impression ID associated with the event.
+   */
+  amazonImpressionId?: string
+  /**
+   * The Amazon click ID associated with the event.
+   */
+  amazonClickId?: string
+  /**
    * When enabled, Segment will send data in batching.
    */
   enable_batching: boolean

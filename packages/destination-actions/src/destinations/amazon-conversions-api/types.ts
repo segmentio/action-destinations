@@ -132,6 +132,8 @@ export interface EventData {
     dataProcessingOptions?: string[]
     consent?: ConsentData
     customAttributes?: CustomAttributeV1[]
+    amazonImpressionId?: string
+    amazonClickId?: string
 }
 
 export interface RefreshTokenResponse {
