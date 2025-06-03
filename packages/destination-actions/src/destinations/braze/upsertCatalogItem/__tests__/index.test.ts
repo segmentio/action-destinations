@@ -30,7 +30,15 @@ describe('Braze.upsertCatalogItem', () => {
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       settings: { ...settingsData, endpoint: settings.endpoint },
-      mapping: { ...event.properties, __segment_internal_sync_mode: 'upsert' },
+      mapping: {
+        ...event.properties,
+        __segment_internal_sync_mode: 'upsert',
+        onMappingSave: {
+          outputs: {
+            catalog_name: 'cars'
+          }
+        }
+      },
       auth: undefined
     })
 
@@ -60,7 +68,11 @@ describe('Braze.upsertCatalogItem', () => {
       await testDestination.testAction(actionSlug, {
         event: event,
         mapping: {
-          catalog_name: 'cars',
+          onMappingSave: {
+            outputs: {
+              catalog_name: 'cars'
+            }
+          },
           item_id: {
             '@path': '$.properties.id'
           },
@@ -89,7 +101,15 @@ describe('Braze.upsertCatalogItem', () => {
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       settings: { ...settingsData, endpoint: settings.endpoint },
-      mapping: { ...event.properties, __segment_internal_sync_mode: 'delete' },
+      mapping: {
+        ...event.properties,
+        __segment_internal_sync_mode: 'delete',
+        onMappingSave: {
+          outputs: {
+            catalog_name: 'cars'
+          }
+        }
+      },
       auth: undefined
     })
 
@@ -120,7 +140,15 @@ describe('Braze.upsertCatalogItem', () => {
     await testDestination.testAction(actionSlug, {
       event: event,
       settings: { ...settingsData, endpoint: settings.endpoint },
-      mapping: { ...event.properties, __segment_internal_sync_mode: 'delete' },
+      mapping: {
+        ...event.properties,
+        __segment_internal_sync_mode: 'delete',
+        onMappingSave: {
+          outputs: {
+            catalog_name: 'cars'
+          }
+        }
+      },
       auth: undefined
     })
 
@@ -154,7 +182,11 @@ describe('Braze.upsertCatalogItem', () => {
       await testDestination.testAction(actionSlug, {
         event: event,
         mapping: {
-          catalog_name: 'cars',
+          onMappingSave: {
+            outputs: {
+              catalog_name: 'cars'
+            }
+          },
           item_id: {
             '@path': '$.properties.id'
           },
@@ -210,7 +242,11 @@ describe('Braze.upsertCatalogItem', () => {
         'cloudevent-spec-v02-allow': true
       },
       mapping: {
-        catalog_name: 'cars',
+        onMappingSave: {
+          outputs: {
+            catalog_name: 'cars'
+          }
+        },
         item_id: {
           '@path': '$.properties.id'
         },
@@ -266,7 +302,11 @@ describe('Braze.upsertCatalogItem', () => {
         'cloudevent-spec-v02-allow': true
       },
       mapping: {
-        catalog_name: 'cars',
+        onMappingSave: {
+          outputs: {
+            catalog_name: 'cars'
+          }
+        },
         item_id: {
           '@path': '$.properties.id'
         },
@@ -337,7 +377,11 @@ describe('Braze.upsertCatalogItem', () => {
         'cloudevent-spec-v02-allow': true
       },
       mapping: {
-        catalog_name: 'cars',
+        onMappingSave: {
+          outputs: {
+            catalog_name: 'cars'
+          }
+        },
         item_id: {
           '@path': '$.properties.id'
         },
@@ -413,7 +457,11 @@ describe('Braze.upsertCatalogItem', () => {
         'cloudevent-spec-v02-allow': true
       },
       mapping: {
-        catalog_name: 'cars',
+        onMappingSave: {
+          outputs: {
+            catalog_name: 'cars'
+          }
+        },
         item_id: {
           '@path': '$.properties.id'
         },
@@ -503,7 +551,11 @@ describe('Braze.upsertCatalogItem', () => {
         'cloudevent-spec-v02-allow': true
       },
       mapping: {
-        catalog_name: 'cars',
+        onMappingSave: {
+          outputs: {
+            catalog_name: 'cars'
+          }
+        },
         item_id: {
           '@path': '$.properties.id'
         },
@@ -579,7 +631,11 @@ describe('Braze.upsertCatalogItem', () => {
           'cloudevent-spec-v02-allow': true
         },
         mapping: {
-          catalog_name: 'cars',
+          onMappingSave: {
+            outputs: {
+              catalog_name: 'cars'
+            }
+          },
           item_id: {
             '@path': '$.properties.id'
           },
@@ -612,7 +668,7 @@ describe('Braze.upsertCatalogItem', () => {
       expect(error.status).toBe(400)
     }
   })
-  it('should resolve catalog_name dynamic fields', async () => {
+  it('should resolve item.__keys__ dynamic fields', async () => {
     nock(/.*/)
       .persist()
       .get(/.*/)
@@ -686,44 +742,59 @@ describe('Braze.upsertCatalogItem', () => {
         message: 'success'
       })
 
-    const responses = (await testDestination.testDynamicField(actionSlug, 'catalog_name', {
+    const responses = (await testDestination.testDynamicField(actionSlug, 'item.__keys__', {
       settings,
-      payload: {}
+      payload: {
+        onMappingSave: {
+          outputs: {
+            catalog_name: 'my_catalog'
+          }
+        }
+      }
     })) as DynamicFieldResponse
 
-    expect(responses.choices).toHaveLength(2)
+    expect(responses.choices).toHaveLength(4)
   })
-  it('should return empty choices if no catalogs found', async () => {
+  it('should return empty choice for item.__keys__ if no catalogs fields are found', async () => {
     nock(/.*/).persist().get(/.*/).reply(200, {
       catalogs: [],
       message: 'No catalogs found'
     })
 
-    const responses = (await testDestination.testDynamicField(actionSlug, 'catalog_name', {
+    const responses = (await testDestination.testDynamicField(actionSlug, 'item.__keys__', {
       settings,
-      payload: {}
+      payload: {
+        onMappingSave: {
+          outputs: {
+            catalog_name: 'my_catalog'
+          }
+        }
+      }
     })) as DynamicFieldResponse
 
     expect(responses.choices).toHaveLength(0)
     expect(responses.error).toEqual({
-      message: 'No catalogs found. Please create a catalog first',
+      message: 'No catalogs found. Please create a catalog first.',
       code: '404'
     })
   })
-  it('should return error if unknown error occurs while fetching catalogs', async () => {
+  it('should return error if unknown error occurs while fetching catalogs fields for item.__keys__', async () => {
     nock(/.*/).persist().get(/.*/).reply(500, {
       message: 'Unknown error'
     })
 
-    const responses = (await testDestination.testDynamicField(actionSlug, 'catalog_name', {
+    const responses = (await testDestination.testDynamicField(actionSlug, 'item.__keys__', {
       settings,
-      payload: {}
+      payload: {
+        onMappingSave: {
+          outputs: {
+            catalog_name: 'my_catalog'
+          }
+        }
+      }
     })) as DynamicFieldResponse
 
     expect(responses.choices).toHaveLength(0)
-    expect(responses.error).toEqual({
-      message: 'Unknown error. Please try again later',
-      code: '500'
-    })
+    expect(responses.error).toHaveProperty('code', '500')
   })
 })
