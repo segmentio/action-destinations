@@ -6,7 +6,7 @@ describe('Amazon Conversions API Destination', () => {
   it('should be properly configured', () => {
     // Test destination structure
     expect(Destination).toHaveProperty('name', 'Amazon Conversions Api')
-    expect(Destination).toHaveProperty('slug', 'amazon-conversions-api')
+    expect(Destination).toHaveProperty('slug', 'actions-amazon-conversions-api')
     expect(Destination).toHaveProperty('mode', 'cloud')
 
     // Test authentication exists
