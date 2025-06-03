@@ -115,7 +115,8 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, OnMappingSaveInp
       properties: {
         name: {
           label: 'Field Name',
-          description: 'The name of the field.',
+          description:
+            'The name of the field. Maximum 250 characters. Supported characters: letters, numbers, hyphens, and underscores.',
           type: 'string',
           required: true
         },
@@ -199,15 +200,6 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 50,
       unsafe_hidden: true
     }
-    // batch_keys: {
-    //   type: 'string',
-    //   label: 'Batch Keys',
-    //   description: 'The keys to use for batching the events.',
-    //   unsafe_hidden: true,
-    //   required: false,
-    //   multiple: true,
-    //   default: ['catalog_name']
-    // }
   },
   hooks: {
     onMappingSave: { ...catalogHook }
