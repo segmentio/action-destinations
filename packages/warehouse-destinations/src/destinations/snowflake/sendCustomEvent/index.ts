@@ -6,13 +6,6 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Custom Event',
   description: 'Record custom events in Snowflake',
   fields: {
-    timestamp: {
-      label: 'Timestamp',
-      description: 'Timestamp of the event',
-      type: 'string',
-      required: true,
-      default: { '@path': '$.timestamp' }
-    },
     messageId: {
       label: 'Message ID',
       description: 'Name of column for the unique identifier for the message.',
@@ -46,7 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       additionalProperties: true,
       default: {
-        entityContext: {
+        entity_context: {
           '@json': {
             mode: 'encode',
             value: {
@@ -54,43 +47,42 @@ const action: ActionDefinition<Settings, Payload> = {
             }
           }
         },
-        userId: {
-          label: 'User ID',
-          description: 'Unique ID for the user.',
-          type: 'string',
-          default: { '@path': '$.userId' }
-        },
-        audienceKey: {
-          label: 'Audience Key',
-          description: 'The Kky of the audience.',
-          type: 'string',
-          default: { '@path': '$.properties.audience_key' }
-        },
-        personasComputationKey: {
-          label: 'Personas Computation Key',
-          description: 'Computation key set by Segment Personas.',
-          type: 'string',
-          default: { '@path': '$.context.personas.computation_key' }
-        },
-        personasComputationId: {
-          label: 'Personas Computation ID',
-          description: 'Computation ID set by Segment Personas.',
-          type: 'string',
-          default: { '@path': '$.context.personas.computation_id' }
-        },
-        personasComputationRunId: {
-          label: 'Personas Computation Run ID',
-          description: 'Unique ID for this run, set by Segment Personas.',
-          type: 'string',
-          default: { '@path': '$.context.personas.computation_run_id' }
-        },
-        personasActivationId: {
-          label: 'Personas Activation ID',
-          description: 'ID of the activation, set by Segment Personas.',
-          type: 'string',
-          default: { '@path': '$.context.personas.event_emitter_id' }
-        }
+        user_id: { '@path': '$.userId' },
+        audience_key: { '@path': '$.properties.audience_key' },
+        personas_computation_key: { '@path': '$.context.personas.computation_key' },
+        personas_computation_id: { '@path': '$.context.personas.computation_id' },
+        personas_computationRun_id: { '@path': '$.context.personas.computation_run_id' },
+        personas_activation_id: { '@path': '$.context.personas.event_emitter_id' }
       }
+    },
+    // include all segment timestamp fields - https://segment.com/docs/connections/spec/common/#timestamp-overview
+    timestamp: {
+      label: 'Timestamp',
+      description: 'Timestamp of the event',
+      type: 'datetime',
+      required: true,
+      default: { '@path': '$.timestamp' }
+    },
+    originalTimestamp: {
+      label: 'Original Timestamp',
+      description: 'Time on the client device when call was invoked.',
+      type: 'datetime',
+      required: true,
+      default: { '@path': '$.originalTimestamp' }
+    },
+    sentAt: {
+      label: 'Sent At',
+      description: 'Time on client device when call was sent.',
+      type: 'datetime',
+      required: false,
+      default: { '@path': '$.sentAt' }
+    },
+    receivedAt: {
+      label: 'Received At',
+      description: 'Time on Segment server clock when call was received.',
+      type: 'datetime',
+      required: false,
+      default: { '@path': '$.receivedAt' }
     }
   },
   perform: () => {

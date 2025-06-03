@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * Timestamp of the event
-   */
-  timestamp: string
-  /**
    * Name of column for the unique identifier for the message.
    */
   messageId: string
@@ -23,4 +19,20 @@ export interface Payload {
   properties: {
     [k: string]: unknown
   }
+  /**
+   * Timestamp of the event
+   */
+  timestamp: string | number
+  /**
+   * Time on the client device when call was invoked.
+   */
+  originalTimestamp: string | number
+  /**
+   * Time on client device when call was sent.
+   */
+  sentAt?: string | number
+  /**
+   * Time on Segment server clock when call was received.
+   */
+  receivedAt?: string | number
 }
