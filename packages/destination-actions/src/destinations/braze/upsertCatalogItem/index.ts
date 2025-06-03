@@ -254,14 +254,18 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     item: {
-      __keys__: async (request, { settings, hookOutputs }) => {
-        const catalog_name = hookOutputs?.onMappingSave?.outputs?.catalog_name || ''
+      __keys__: async (request, { settings, payload }) => {
+        const catalog_name = (payload as any)?.onMappingSave?.outputs?.catalog_name ?? ''
 
         const catalogs = await getCatalogMetas(request, settings.endpoint)
 
         if (catalogs?.length) {
           return {
-            choices: []
+            choices: [],
+            error: {
+              message: 'No catalogs found. Please create a catalog first',
+              code: '404'
+            }
           }
         }
         const catalog = catalogs?.find((catalog) => catalog.name === catalog_name)
@@ -277,7 +281,11 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         return {
-          choices: []
+          choices: [],
+          error: {
+            message: 'Catalog not found or has no fields',
+            code: '404'
+          }
         }
       }
     }
