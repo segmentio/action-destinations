@@ -95,6 +95,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'An array of user identifiers to send the campaign to. Only one of "recipients", "broadcast" or "audience" should be provided.',
       type: 'object',
       multiple: true,
+      defaultObjectUI: 'arrayeditor',
       required: {
         match: 'all',
         conditions: [
