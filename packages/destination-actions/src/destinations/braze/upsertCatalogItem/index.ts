@@ -255,7 +255,7 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     item: {
       __keys__: async (request, { settings, payload }) => {
-        const catalog_name = (payload as any)?.onMappingSave?.outputs?.catalog_name ?? ''
+        const catalog_name = (payload as any)?.created_catalog_name ?? (payload as any)?.selected_catalog_name ?? ''
 
         const catalogs = await getCatalogMetas(request, settings.endpoint)
 
