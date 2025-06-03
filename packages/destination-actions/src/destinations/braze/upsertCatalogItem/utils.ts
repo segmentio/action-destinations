@@ -2,7 +2,7 @@ import { RequestClient } from '@segment/actions-core/create-request-client'
 import { ListCatalogsResponse, UpsertCatalogItemErrorResponse } from './types'
 import { ActionHookResponse, MultiStatusResponse } from '@segment/actions-core/destination-kit/action'
 import { JSONLikeObject } from '@segment/actions-core/json-object'
-import { Payload } from './generated-types'
+import { OnMappingSaveInputs, Payload } from './generated-types'
 
 export async function getCatalogMetas(request: RequestClient, endpoint: string) {
   const response = await request<ListCatalogsResponse>(`${endpoint}/catalogs`, {
@@ -15,15 +15,17 @@ export async function getCatalogMetas(request: RequestClient, endpoint: string) 
 export async function createCatalog(
   request: RequestClient,
   endpoint: string,
-  hookInputs: any
+  hookInputs?: OnMappingSaveInputs
 ): Promise<ActionHookResponse<{ catalog_name: string }>> {
-  const { created_catalog_name, description, columns } = hookInputs
+  const { created_catalog_name = '', description = '', columns = [] } = hookInputs ?? {}
 
-  const fields = [{ name: 'id', type: 'string' }].concat(
-    columns.map((column: any) => ({
-      name: column.name,
-      type: column.type
-    }))
+  const fields: { name: string; type: string }[] = [{ name: 'id', type: 'string' }].concat(
+    columns
+      ?.filter((column) => column.name !== 'id') // Ensure 'id' is always the first field and not duplicated and string type
+      .map((column) => ({
+        name: column?.name,
+        type: column?.type
+      }))
   )
 
   const body = {

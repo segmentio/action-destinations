@@ -41,6 +41,7 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, OnMappingSaveInp
       label: 'Operation',
       description: 'Whether to select an existing catalog or create a new one in Braze.',
       type: 'string',
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
       choices: [
         { label: 'Create a new catalog', value: 'create' },
         { label: 'Select an existing catalog', value: 'select' }
