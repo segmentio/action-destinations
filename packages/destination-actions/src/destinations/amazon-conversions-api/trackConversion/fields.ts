@@ -28,10 +28,7 @@ export const fields: Record<string, InputField> = {
       { label: 'Sign Up', value: 'SIGN_UP' },
       { label: 'Subscribe', value: 'SUBSCRIBE' },
       { label: 'Other', value: 'OTHER' }
-    ],
-    default: {
-      '@path': '$.properties.eventType'
-    }
+    ]
   },
   eventActionSource: {
     label: 'Event Action Source',
