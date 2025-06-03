@@ -14,7 +14,7 @@ import { generateMultiStatusError } from '../utils'
 import { RequestClient } from '@segment/actions-core'
 import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
 import isEmpty from 'lodash/isEmpty'
-import { getCatalogMetas, isValidItemId, processMultiStatusErrorResponse } from './utils'
+import { createCatalog, getCatalogMetas, isValidItemId, processMultiStatusErrorResponse } from './utils'
 import { UpsertCatalogItemErrorResponse } from './types'
 import { ActionHookDefinition, ActionHookResponse } from '@segment/actions-core/destination-kit'
 
@@ -33,52 +33,6 @@ const SELECT_OPERATION: DependsOnConditions = {
   conditions: [{ fieldKey: 'operation', operator: 'is', value: 'select' }]
 }
 
-async function createCatalog(
-  request: RequestClient,
-  endpoint: string,
-  hookInputs: any
-): Promise<ActionHookResponse<{ catalog_name: string }>> {
-  const { created_catalog_name, description, columns } = hookInputs
-
-  const fields = [{ name: 'id', type: 'string' }].concat(
-    columns.map((column: any) => ({
-      name: column.name,
-      type: column.type
-    }))
-  )
-
-  const body = {
-    catalogs: [
-      {
-        name: created_catalog_name,
-        description,
-        fields
-      }
-    ]
-  }
-
-  try {
-    await request(`${endpoint}/catalogs`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      json: body
-    })
-
-    return {
-      successMessage: 'Catalog created successfully',
-      savedData: {
-        catalog_name: created_catalog_name
-      }
-    }
-  } catch (error) {
-    return {
-      error: { message: error || 'Unknown Error', code: 'ERROR' }
-    }
-  }
-}
-
 const catalogHook: ActionHookDefinition<Settings, Payload, any, OnMappingSaveInputs, OnMappingSaveOutputs> = {
   label: 'Select or Create a Catalog',
   description: 'Select an existing catalog or create a new one in Braze.',
@@ -87,6 +41,7 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, OnMappingSaveInp
       label: 'Operation',
       description: 'Whether to select an existing catalog or create a new one in Braze.',
       type: 'string',
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
       choices: [
         { label: 'Create a new catalog', value: 'create' },
         { label: 'Select an existing catalog', value: 'select' }
@@ -119,7 +74,7 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, OnMappingSaveInp
           return {
             choices,
             error: {
-              message: 'No catalogs found. Please create a catalog first',
+              message: 'No catalogs found. Please create a catalog first.',
               code: '404'
             }
           }
@@ -198,7 +153,7 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, OnMappingSaveInp
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Catalog Item',
-  description: 'Upserts or deletes items in  a catalog',
+  description: 'Upserts or deletes items in a catalog',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
     label: 'How to sync records',
@@ -261,37 +216,45 @@ const action: ActionDefinition<Settings, Payload> = {
     item: {
       __keys__: async (request, { settings, payload }) => {
         const catalog_name = (payload as any)?.onMappingSave?.outputs?.catalog_name ?? ''
+        try {
+          const catalogs = await getCatalogMetas(request, settings.endpoint)
 
-        const catalogs = await getCatalogMetas(request, settings.endpoint)
+          if (!catalogs?.length) {
+            return {
+              choices: [],
+              error: {
+                message: 'No catalogs found. Please create a catalog first.',
+                code: '404'
+              }
+            }
+          }
+          const catalog = catalogs?.find((catalog) => catalog.name === catalog_name)
 
-        if (!catalogs?.length) {
+          if (catalog && Array.isArray(catalog.fields)) {
+            const choices: DynamicFieldItem[] = catalog.fields
+              .map((field) => ({
+                label: field.name,
+                value: field.name
+              }))
+              .filter((field) => field.value !== 'id') // Exclude the id field from the dynamic fields
+            return {
+              choices
+            }
+          }
           return {
             choices: [],
             error: {
-              message: `No catalogs found. Please create a catalog first, JSON`,
+              message: `Catalog "${catalog_name}" not found or has no fields.`,
               code: '404'
             }
           }
-        }
-        const catalog = catalogs?.find((catalog) => catalog.name === catalog_name)
-
-        if (catalog && Array.isArray(catalog.fields)) {
-          const choices: DynamicFieldItem[] = catalog.fields
-            .map((field) => ({
-              label: field.name,
-              value: field.name
-            }))
-            .filter((field) => field.value !== 'id') // Exclude the id field from the dynamic fields
+        } catch (error) {
           return {
-            choices
-          }
-        }
-
-        return {
-          choices: [],
-          error: {
-            message: `Catalog not found or has no fields. ${JSON.stringify({ payload, catalog_name, catalogs })}`,
-            code: '404'
+            choices: [],
+            error: {
+              message: error,
+              code: '500'
+            }
           }
         }
       }
