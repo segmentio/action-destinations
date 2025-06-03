@@ -40,7 +40,7 @@ export interface OnMappingSaveInputs {
    */
   description?: string
   /**
-   * A list of fields to create in the catalog. Maximum 500 fields.
+   * A list of fields to create in the catalog. Maximum 500 fields. ID field is added by default.
    */
   columns?: {
     /**
