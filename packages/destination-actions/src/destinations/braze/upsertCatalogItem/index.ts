@@ -216,6 +216,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       required: UPSERT_OPERATION,
       depends_on: UPSERT_OPERATION,
+      defaultObjectUI: 'keyvalue:only',
       dynamic: true
     },
     item_id: {
