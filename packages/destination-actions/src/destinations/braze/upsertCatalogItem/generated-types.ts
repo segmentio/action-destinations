@@ -44,7 +44,7 @@ export interface OnMappingSaveInputs {
    */
   columns?: {
     /**
-     * The name of the field.
+     * The name of the field. Maximum 250 characters. Supported characters: letters, numbers, hyphens, and underscores.
      */
     name: string
     /**
