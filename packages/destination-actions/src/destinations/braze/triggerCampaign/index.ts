@@ -87,7 +87,8 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           required: true
         }
-      }
+      },
+      defaultObjectUI: 'arrayeditor'
     },
     recipients: {
       label: 'Recipients',
@@ -172,13 +173,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'Prioritization array; required when using email. This prioritization will be applied to all recipients.',
       type: 'string',
       multiple: true,
-      defaultObjectUI: 'arrayeditor',
-      choices: [
-        { label: 'Identified', value: 'identified' },
-        { label: 'Unidentified', value: 'unidentified' },
-        { label: 'Most recently updated', value: 'most_recently_updated' },
-        { label: 'Least recently updated', value: 'least_recently_updated' }
-      ]
+      defaultObjectUI: 'arrayeditor'
     },
     audience: {
       label: 'Audience',
