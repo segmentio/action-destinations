@@ -191,18 +191,6 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Second priority in the prioritization sequence',
           type: 'string',
           choices: prioritizationChoices
-        },
-        third_priority: {
-          label: 'Third Priority',
-          description: 'Third priority in the prioritization sequence',
-          type: 'string',
-          choices: prioritizationChoices
-        },
-        fourth_priority: {
-          label: 'Fourth Priority',
-          description: 'Fourth priority in the prioritization sequence',
-          type: 'string',
-          choices: prioritizationChoices
         }
       }
     },
@@ -271,9 +259,14 @@ const action: ActionDefinition<Settings, Payload> = {
     // Apply the top-level prioritization to each recipient if recipients are provided
     if (payload.recipients?.length && payload.prioritization) {
       // Convert prioritization object to array
-      const prioritizationArray: string[] = Object.values(payload.prioritization)
-
+      const prioritizationArray: string[] = []
       // Only add prioritization if we have values
+      if (payload.prioritization?.first_priority) {
+        prioritizationArray.push(payload.prioritization.first_priority)
+      }
+      if (payload.prioritization?.second_priority) {
+        prioritizationArray.push(payload.prioritization.second_priority)
+      }
       if (prioritizationArray.length > 0) {
         payload.recipients = payload.recipients.map((recipient) => ({
           ...recipient,
