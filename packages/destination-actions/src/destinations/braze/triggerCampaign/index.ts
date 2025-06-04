@@ -4,6 +4,13 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { dynamicFields } from './functions/dynamic-field-functions'
 
+const prioritizationChoices = [
+  { label: 'Identified', value: 'identified' },
+  { label: 'Unidentified', value: 'unidentified' },
+  { label: 'Most recently updated', value: 'most_recently_updated' },
+  { label: 'Least recently updated', value: 'least_recently_updated' }
+]
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Campaign',
   description: 'Trigger a Braze Campaign via API-triggered delivery',
@@ -170,10 +177,34 @@ const action: ActionDefinition<Settings, Payload> = {
     prioritization: {
       label: 'Prioritization',
       description:
-        'Prioritization array; required when using email. This prioritization will be applied to all recipients.',
-      type: 'string',
-      multiple: true,
-      defaultObjectUI: 'arrayeditor'
+        'Prioritization settings; required when using email. This prioritization will be applied to all recipients.',
+      type: 'object',
+      properties: {
+        first_priority: {
+          label: 'First Priority',
+          description: 'First priority in the prioritization sequence',
+          type: 'string',
+          choices: prioritizationChoices
+        },
+        second_priority: {
+          label: 'Second Priority',
+          description: 'Second priority in the prioritization sequence',
+          type: 'string',
+          choices: prioritizationChoices
+        },
+        third_priority: {
+          label: 'Third Priority',
+          description: 'Third priority in the prioritization sequence',
+          type: 'string',
+          choices: prioritizationChoices
+        },
+        fourth_priority: {
+          label: 'Fourth Priority',
+          description: 'Fourth priority in the prioritization sequence',
+          type: 'string',
+          choices: prioritizationChoices
+        }
+      }
     },
     audience: {
       label: 'Audience',
@@ -239,10 +270,16 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Apply the top-level prioritization to each recipient if recipients are provided
     if (payload.recipients?.length && payload.prioritization) {
-      payload.recipients = payload.recipients.map((recipient) => ({
-        ...recipient,
-        prioritization: payload.prioritization
-      }))
+      // Convert prioritization object to array
+      const prioritizationArray: string[] = Object.values(payload.prioritization)
+
+      // Only add prioritization if we have values
+      if (prioritizationArray.length > 0) {
+        payload.recipients = payload.recipients.map((recipient) => ({
+          ...recipient,
+          prioritization: prioritizationArray
+        }))
+      }
 
       // Remove the top-level prioritization as it's now applied to each recipient
       delete payload.prioritization

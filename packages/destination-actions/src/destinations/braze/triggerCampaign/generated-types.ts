@@ -51,11 +51,6 @@ export interface Payload {
      */
     email?: string
     /**
-     * Prioritization array; required when using email.
-     * Values can only be: 'identified', 'unidentified', 'most_recently_updated', 'least_recently_updated'
-     */
-    prioritization?: ('identified' | 'unidentified' | 'most_recently_updated' | 'least_recently_updated')[]
-    /**
      * Properties that will override the default trigger_properties for a specific user.
      */
     trigger_properties?: {
@@ -73,10 +68,26 @@ export interface Payload {
     }
   }[]
   /**
-   * Prioritization array; required when using email. This prioritization will be applied to all recipients.
-   * Values can only be: 'identified', 'unidentified', 'most_recently_updated', 'least_recently_updated'
+   * Prioritization settings; required when using email. This prioritization will be applied to all recipients.
    */
-  prioritization?: ('identified' | 'unidentified' | 'most_recently_updated' | 'least_recently_updated')[]
+  prioritization?: {
+    /**
+     * First priority in the prioritization sequence
+     */
+    first_priority?: string
+    /**
+     * Second priority in the prioritization sequence
+     */
+    second_priority?: string
+    /**
+     * Third priority in the prioritization sequence
+     */
+    third_priority?: string
+    /**
+     * Fourth priority in the prioritization sequence
+     */
+    fourth_priority?: string
+  }
   /**
    * A standard audience object to specify the users to send the campaign to. Only one of "recipients", "broadcast" or "audience" should be provided.
    */
