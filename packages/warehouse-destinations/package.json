@@ -1,0 +1,31 @@
+{
+  "name": "@segment/warehouse-destinations",
+  "version": "1.1.0",
+  "description": "Definitions for warehouse destinations. Only used for definitions - should not be imported for anything other than types.",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "build": "yarn tsc -b tsconfig.build.json",
+    "clean": "tsc -b tsconfig.build.json --clean",
+    "postclean": "rm -rf dist",
+    "prepublishOnly": "yarn build",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "engines": {
+    "node": "^18.17 || ^22.13"
+  },
+  "engineStrict": true,
+  "license": "MIT",
+  "dependencies": {
+    "@segment/actions-core": "^3.152.0",
+    "globby": "^14.1.0"
+  }
+}
