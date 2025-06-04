@@ -151,7 +151,8 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Prioritization',
           description: 'Prioritization array; required when using email.',
           type: 'string',
-          multiple: true
+          multiple: true,
+          defaultObjectUI: 'arrayeditor'
         },
         trigger_properties: {
           label: 'User Trigger Properties',
