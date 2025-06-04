@@ -51,10 +51,6 @@ export interface Payload {
      */
     email?: string
     /**
-     * Prioritization array; required when using email.
-     */
-    prioritization?: string[]
-    /**
      * Properties that will override the default trigger_properties for a specific user.
      */
     trigger_properties?: {
@@ -71,6 +67,10 @@ export interface Payload {
       [k: string]: unknown
     }
   }[]
+  /**
+   * Prioritization array; required when using email. This prioritization will be applied to all recipients.
+   */
+  prioritization?: string[]
   /**
    * A standard audience object to specify the users to send the campaign to. Only one of "recipients", "broadcast" or "audience" should be provided.
    */
