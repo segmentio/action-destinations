@@ -172,7 +172,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Prioritization array; required when using email. This prioritization will be applied to all recipients.',
       type: 'string',
-      multiple: true
+      multiple: true,
+      defaultObjectUI: 'arrayeditor'
     },
     audience: {
       label: 'Audience',
