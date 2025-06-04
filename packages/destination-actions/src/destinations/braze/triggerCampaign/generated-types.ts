@@ -79,14 +79,6 @@ export interface Payload {
      * Second priority in the prioritization sequence
      */
     second_priority?: string
-    /**
-     * Third priority in the prioritization sequence
-     */
-    third_priority?: string
-    /**
-     * Fourth priority in the prioritization sequence
-     */
-    fourth_priority?: string
   }
   /**
    * A standard audience object to specify the users to send the campaign to. Only one of "recipients", "broadcast" or "audience" should be provided.
