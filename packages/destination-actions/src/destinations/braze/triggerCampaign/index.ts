@@ -147,13 +147,6 @@ const action: ActionDefinition<Settings, Payload> = {
             '@path': '$.traits.email'
           }
         },
-        prioritization: {
-          label: 'Prioritization',
-          description: 'Prioritization array; required when using email.',
-          type: 'string',
-          multiple: true,
-          defaultObjectUI: 'arrayeditor'
-        },
         trigger_properties: {
           label: 'User Trigger Properties',
           description: 'Properties that will override the default trigger_properties for a specific user.',
@@ -172,6 +165,20 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'object'
         }
       }
+    },
+    prioritization: {
+      label: 'Prioritization',
+      description:
+        'Prioritization array; required when using email. This prioritization will be applied to all recipients.',
+      type: 'string',
+      multiple: true,
+      defaultObjectUI: 'arrayeditor',
+      choices: [
+        { label: 'Identified', value: 'identified' },
+        { label: 'Unidentified', value: 'unidentified' },
+        { label: 'Most recently updated', value: 'most_recently_updated' },
+        { label: 'Least recently updated', value: 'least_recently_updated' }
+      ]
     },
     audience: {
       label: 'Audience',
@@ -233,6 +240,17 @@ const action: ActionDefinition<Settings, Payload> = {
         'Multiple targeting parameters provided',
         400
       )
+    }
+
+    // Apply the top-level prioritization to each recipient if recipients are provided
+    if (payload.recipients?.length && payload.prioritization) {
+      payload.recipients = payload.recipients.map((recipient) => ({
+        ...recipient,
+        prioritization: payload.prioritization
+      }))
+
+      // Remove the top-level prioritization as it's now applied to each recipient
+      delete payload.prioritization
     }
 
     return request(`${settings.endpoint}/campaigns/trigger/send`, {
