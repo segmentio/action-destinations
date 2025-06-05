@@ -33,6 +33,58 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    emails_to_identify: {
+      label: 'Emails to Identify',
+      description:
+        'Email addresses to identify users. Each entry requires an external_id, email, and prioritization array.',
+      type: 'object',
+      multiple: true,
+      properties: {
+        external_id: {
+          label: 'External ID',
+          description: 'The external ID to associate with this email.',
+          type: 'string',
+          required: true
+        },
+        email: {
+          label: 'Email',
+          description: 'The email address to identify.',
+          type: 'string',
+          required: true
+        },
+        prioritization: {
+          label: 'Prioritization',
+          description: 'Prioritization settings for user merging if multiple users are found',
+          type: 'object',
+          required: true,
+          properties: {
+            first_priority: {
+              label: 'First Priority',
+              description: 'First priority for user merging if multiple users are found',
+              type: 'string',
+              required: true,
+              choices: [
+                { value: 'identified', label: 'Identified' },
+                { value: 'unidentified', label: 'Unidentified' },
+                { value: 'most_recently_updated', label: 'Most Recently Updated' },
+                { value: 'least_recently_updated', label: 'Least Recently Updated' }
+              ]
+            },
+            second_priority: {
+              label: 'Second Priority',
+              description: 'Second priority for user merging if multiple users are found',
+              type: 'string',
+              choices: [
+                { value: 'identified', label: 'Identified' },
+                { value: 'unidentified', label: 'Unidentified' },
+                { value: 'most_recently_updated', label: 'Most Recently Updated' },
+                { value: 'least_recently_updated', label: 'Least Recently Updated' }
+              ]
+            }
+          }
+        }
+      }
+    },
     merge_behavior: {
       label: 'Merge Behavior',
       description:
@@ -55,17 +107,37 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload, syncMode }) => {
     if (syncMode === 'add' || syncMode === 'upsert') {
+      const requestBody: Record<string, any> = {}
+
+      if (payload.external_id) {
+        requestBody.aliases_to_identify = [
+          {
+            external_id: payload.external_id,
+            user_alias: payload.user_alias
+          }
+        ]
+      }
+
+      if (payload.emails_to_identify && payload.emails_to_identify.length > 0) {
+        // Transform the prioritization object into the prioritization array that Braze's API expects
+        requestBody.emails_to_identify = payload.emails_to_identify.map((item) => ({
+          external_id: item.external_id,
+          email: item.email,
+          prioritization: [item.prioritization.first_priority, item.prioritization.second_priority]
+        }))
+      }
+
+      if (Object.keys(requestBody).length === 0) {
+        throw new IntegrationError('Either external_id or emails_to_identify must be provided', 'Validation Error', 400)
+      }
+
+      if (payload.merge_behavior !== undefined) {
+        requestBody.merge_behavior = payload.merge_behavior
+      }
+
       return request(`${settings.endpoint}/users/identify`, {
         method: 'post',
-        json: {
-          aliases_to_identify: [
-            {
-              external_id: payload.external_id,
-              user_alias: payload.user_alias
-            }
-          ],
-          ...(payload.merge_behavior !== undefined && { merge_behavior: payload.merge_behavior })
-        }
+        json: requestBody
       })
     }
 
