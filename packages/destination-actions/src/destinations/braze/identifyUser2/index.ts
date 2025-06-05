@@ -120,11 +120,21 @@ const action: ActionDefinition<Settings, Payload> = {
 
       if (payload.emails_to_identify && payload.emails_to_identify.length > 0) {
         // Transform the prioritization object into the prioritization array that Braze's API expects
-        requestBody.emails_to_identify = payload.emails_to_identify.map((item) => ({
-          external_id: item.external_id,
-          email: item.email,
-          prioritization: [item.prioritization.first_priority, item.prioritization.second_priority]
-        }))
+        requestBody.emails_to_identify = payload.emails_to_identify.map((item) => {
+          // Create prioritization array with at least one element (first_priority is required)
+          const prioritization = [item.prioritization.first_priority]
+
+          // Add second_priority to the array if it exists
+          if (item.prioritization.second_priority) {
+            prioritization.push(item.prioritization.second_priority)
+          }
+
+          return {
+            external_id: item.external_id,
+            email: item.email,
+            prioritization
+          }
+        })
       }
 
       if (Object.keys(requestBody).length === 0) {

@@ -13,14 +13,28 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
+    // Add prioritization with first_priority to avoid validation errors
+    const customEventData = {
+      ...eventData,
+      emails_to_identify: [
+        {
+          external_id: 'test-user-1',
+          email: 'test1@example.com',
+          prioritization: {
+            first_priority: 'identified'
+          }
+        }
+      ]
+    }
+
     const event = createTestEvent({
-      properties: eventData
+      properties: customEventData
     })
 
     await expect(
       testDestination.testAction(actionSlug, {
         event: event,
-        mapping: { ...event.properties, __segment_internal_sync_mode: 'delete' },
+        mapping: { ...customEventData, __segment_internal_sync_mode: 'delete' },
         settings: settingsData,
         auth: undefined
       })
@@ -31,14 +45,28 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
+    // Add prioritization with first_priority to avoid validation errors
+    const customEventData = {
+      ...eventData,
+      emails_to_identify: [
+        {
+          external_id: 'test-user-1',
+          email: 'test1@example.com',
+          prioritization: {
+            first_priority: 'identified'
+          }
+        }
+      ]
+    }
+
     const event = createTestEvent({
-      properties: eventData
+      properties: customEventData
     })
 
     await expect(
       testDestination.testAction(actionSlug, {
         event: event,
-        mapping: { ...event.properties, __segment_internal_sync_mode: 'update' },
+        mapping: { ...customEventData, __segment_internal_sync_mode: 'update' },
         settings: settingsData,
         auth: undefined
       })
@@ -46,6 +74,52 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
   })
 
   it('snapshot with all fields', async () => {
+    const action = destination.actions[actionSlug]
+    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+
+    // Add prioritization with first_priority to avoid validation errors
+    const customEventData = {
+      ...eventData,
+      emails_to_identify: [
+        {
+          external_id: 'test-user-1',
+          email: 'test1@example.com',
+          prioritization: {
+            first_priority: 'identified',
+            second_priority: 'most_recently_updated'
+          }
+        }
+      ]
+    }
+
+    nock(/.*/).persist().get(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().put(/.*/).reply(200)
+
+    const event = createTestEvent({
+      properties: customEventData
+    })
+
+    const responses = await testDestination.testAction(actionSlug, {
+      event: event,
+      mapping: { ...customEventData, __segment_internal_sync_mode: 'add' },
+      settings: settingsData,
+      auth: undefined
+    })
+
+    const request = responses[0].request
+    const rawBody = await request.text()
+
+    try {
+      const json = JSON.parse(rawBody)
+      expect(json).toMatchSnapshot()
+      return
+    } catch (err) {
+      expect(rawBody).toMatchSnapshot()
+    }
+  })
+
+  it('snapshot with emails_to_identify field', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
@@ -57,9 +131,31 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
       properties: eventData
     })
 
+    // Add emails_to_identify field to the mapping
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: { ...event.properties, __segment_internal_sync_mode: 'add' },
+      mapping: {
+        ...event.properties,
+        __segment_internal_sync_mode: 'add',
+        emails_to_identify: [
+          {
+            external_id: 'test-user-1',
+            email: 'test1@example.com',
+            prioritization: {
+              first_priority: 'identified',
+              second_priority: 'most_recently_updated'
+            }
+          },
+          {
+            external_id: 'test-user-2',
+            email: 'test2@example.com',
+            prioritization: {
+              first_priority: 'unidentified'
+              // Second priority is optional, so not including it here
+            }
+          }
+        ]
+      },
       settings: settingsData,
       auth: undefined
     })
