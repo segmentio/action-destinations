@@ -11,6 +11,48 @@ Object {
       },
     },
   ],
+  "emails_to_identify": Array [
+    Object {
+      "email": "test1@example.com",
+      "external_id": "test-user-1",
+      "prioritization": Array [
+        "identified",
+        "most_recently_updated",
+      ],
+    },
+  ],
+  "merge_behavior": "none",
+}
+`;
+
+exports[`Testing snapshot for Braze's identifyUser2 destination V2 action: snapshot with emails_to_identify field 1`] = `
+Object {
+  "aliases_to_identify": Array [
+    Object {
+      "external_id": "O$J@g9^nDz",
+      "user_alias": Object {
+        "alias_label": "O$J@g9^nDz",
+        "alias_name": "O$J@g9^nDz",
+      },
+    },
+  ],
+  "emails_to_identify": Array [
+    Object {
+      "email": "test1@example.com",
+      "external_id": "test-user-1",
+      "prioritization": Array [
+        "identified",
+        "most_recently_updated",
+      ],
+    },
+    Object {
+      "email": "test2@example.com",
+      "external_id": "test-user-2",
+      "prioritization": Array [
+        "unidentified",
+      ],
+    },
+  ],
   "merge_behavior": "none",
 }
 `;

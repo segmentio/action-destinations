@@ -13,14 +13,29 @@ export interface Payload {
     alias_label: string
   }
   /**
-   * An array of email objects to identify. Each object should contain an external_id, email, and prioritization object.
+   * Email addresses to identify users. Each entry requires an external_id, email, and prioritization array.
    */
   emails_to_identify?: {
+    /**
+     * The external ID to associate with this email.
+     */
     external_id: string
+    /**
+     * The email address to identify.
+     */
     email: string
+    /**
+     * Prioritization settings for user merging if multiple users are found
+     */
     prioritization: {
+      /**
+       * First priority for user merging if multiple users are found
+       */
       first_priority: string
-      second_priority: string
+      /**
+       * Second priority for user merging if multiple users are found
+       */
+      second_priority?: string
     }
   }[]
   /**
