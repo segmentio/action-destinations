@@ -36,5 +36,5 @@ export function trackCall(rdt: RedditPixel, payload: StandardEvent | CustomEvent
     customEventName: (payload as CustomEvent).custom_event_name ?? undefined
   }
 
-  rdt.track((payload as StandardEvent).tracking_type ?? 'Custom', fullPayload)
+  rdt.track((payload as StandardEvent)?.tracking_type ?? 'Custom', fullPayload)
 }
