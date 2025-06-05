@@ -13,6 +13,17 @@ export interface Payload {
     alias_label: string
   }
   /**
+   * An array of email objects to identify. Each object should contain an external_id, email, and prioritization object.
+   */
+  emails_to_identify?: {
+    external_id: string
+    email: string
+    prioritization: {
+      first_priority: string
+      second_priority: string
+    }
+  }[]
+  /**
    * Sets the endpoint to merge some fields found exclusively on the anonymous user to the identified user. See [the docs](https://www.braze.com/docs/api/endpoints/user_data/post_user_identify/#request-parameters).
    */
   merge_behavior?: string

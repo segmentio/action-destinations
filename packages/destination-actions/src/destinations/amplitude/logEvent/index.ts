@@ -203,6 +203,10 @@ const action: ActionDefinition<Settings, Payload> = {
       properties.session_id = formatSessionId(session_id)
     }
 
+    if (properties.event_type) {
+      properties.event_type = '[Segment] ' + properties.event_type
+    }
+
     if (Object.keys(payload.utm_properties ?? {}).length || payload.referrer) {
       properties.user_properties = mergeUserProperties(
         convertUTMProperties({ utm_properties }),
