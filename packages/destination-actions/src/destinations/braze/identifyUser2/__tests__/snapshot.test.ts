@@ -13,18 +13,18 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    // Add prioritization with first_priority to avoid validation errors
+    // Add emails_to_identify and prioritization fields
     const customEventData = {
       ...eventData,
       emails_to_identify: [
         {
           external_id: 'test-user-1',
-          email: 'test1@example.com',
-          prioritization: {
-            first_priority: 'identified'
-          }
+          email: 'test1@example.com'
         }
-      ]
+      ],
+      prioritization: {
+        first_priority: 'identified'
+      }
     }
 
     const event = createTestEvent({
@@ -45,18 +45,18 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    // Add prioritization with first_priority to avoid validation errors
+    // Add emails_to_identify and prioritization fields
     const customEventData = {
       ...eventData,
       emails_to_identify: [
         {
           external_id: 'test-user-1',
-          email: 'test1@example.com',
-          prioritization: {
-            first_priority: 'identified'
-          }
+          email: 'test1@example.com'
         }
-      ]
+      ],
+      prioritization: {
+        first_priority: 'identified'
+      }
     }
 
     const event = createTestEvent({
@@ -77,19 +77,19 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    // Add prioritization with first_priority to avoid validation errors
+    // Add emails_to_identify and prioritization fields
     const customEventData = {
       ...eventData,
       emails_to_identify: [
         {
           external_id: 'test-user-1',
-          email: 'test1@example.com',
-          prioritization: {
-            first_priority: 'identified',
-            second_priority: 'most_recently_updated'
-          }
+          email: 'test1@example.com'
         }
-      ]
+      ],
+      prioritization: {
+        first_priority: 'identified',
+        second_priority: 'most_recently_updated'
+      }
     }
 
     nock(/.*/).persist().get(/.*/).reply(200)
@@ -140,21 +140,17 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
         emails_to_identify: [
           {
             external_id: 'test-user-1',
-            email: 'test1@example.com',
-            prioritization: {
-              first_priority: 'identified',
-              second_priority: 'most_recently_updated'
-            }
+            email: 'test1@example.com'
           },
           {
             external_id: 'test-user-2',
-            email: 'test2@example.com',
-            prioritization: {
-              first_priority: 'unidentified'
-              // Second priority is optional, so not including it here
-            }
+            email: 'test2@example.com'
           }
-        ]
+        ],
+        prioritization: {
+          first_priority: 'identified',
+          second_priority: 'most_recently_updated'
+        }
       },
       settings: settingsData,
       auth: undefined

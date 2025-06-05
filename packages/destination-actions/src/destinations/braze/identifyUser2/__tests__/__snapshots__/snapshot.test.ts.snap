@@ -49,7 +49,8 @@ Object {
       "email": "test2@example.com",
       "external_id": "test-user-2",
       "prioritization": Array [
-        "unidentified",
+        "identified",
+        "most_recently_updated",
       ],
     },
   ],

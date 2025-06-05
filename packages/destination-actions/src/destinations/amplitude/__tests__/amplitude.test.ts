@@ -21,7 +21,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             city: 'San Francisco',
             country: 'United States'
           })
@@ -148,7 +148,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Null User',
+            event_type: 'Null User',
             user_id: null
           })
         ])
@@ -180,13 +180,13 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Order Completed',
+            event_type: 'Order Completed',
             revenue: 1_999,
             event_properties: event.properties,
             library: 'segment'
           }),
           expect.objectContaining({
-            event_type: '[Segment] Product Purchased',
+            event_type: 'Product Purchased',
             // @ts-ignore i know what i'm doing
             event_properties: event.properties.products[0],
             library: 'segment'
@@ -221,7 +221,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Order Completed',
+            event_type: 'Order Completed',
             event_properties: event.properties,
             revenue: 9_999
           })
@@ -258,11 +258,11 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Order Completed',
+            event_type: 'Order Completed',
             event_properties: event.properties
           }),
           expect.objectContaining({
-            event_type: '[Segment] Product Purchased',
+            event_type: 'Product Purchased',
             revenue: 500,
             // @ts-ignore i know what i'm doing
             event_properties: event.properties.products[0]
@@ -291,7 +291,7 @@ describe('Amplitude', () => {
       expect(responses[0].options.json).toMatchObject({
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             event_properties: {},
             user_properties: {
               'some-trait-key': 'some-trait-value'
@@ -331,7 +331,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             user_properties: expect.objectContaining({
               'some-trait-key': 'some-trait-value',
               $set: {
@@ -384,7 +384,7 @@ describe('Amplitude', () => {
               "device_model": "Mac OS",
               "device_type": undefined,
               "event_properties": Object {},
-              "event_type": "[Segment] Test Event",
+              "event_type": "Test Event",
               "library": "segment",
               "os_name": "Mac OS",
               "os_version": "53",
@@ -432,7 +432,7 @@ describe('Amplitude', () => {
               "device_model": "iPhone",
               "device_type": "mobile",
               "event_properties": Object {},
-              "event_type": "[Segment] Test Event",
+              "event_type": "Test Event",
               "ip": "8.8.8.8",
               "language": "en-US",
               "library": "segment",
@@ -486,7 +486,7 @@ describe('Amplitude', () => {
               "device_model": "iPhone",
               "device_type": "mobile",
               "event_properties": Object {},
-              "event_type": "[Segment] Test Event",
+              "event_type": "Test Event",
               "ip": "8.8.8.8",
               "language": "en-US",
               "library": "segment",
@@ -527,7 +527,7 @@ describe('Amplitude', () => {
         api_key: '',
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             city: 'San Francisco',
             country: 'United States'
           })
@@ -561,7 +561,7 @@ describe('Amplitude', () => {
         api_key: '',
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             city: 'San Francisco',
             country: 'United States'
           })
@@ -601,7 +601,7 @@ describe('Amplitude', () => {
               "device_model": "Mac OS",
               "device_type": undefined,
               "event_properties": Object {},
-              "event_type": "[Segment] Test Event",
+              "event_type": "Test Event",
               "library": "segment",
               "os_name": "iPhone OS",
               "os_version": "8.1.3",
@@ -645,12 +645,12 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Order Completed',
+            event_type: 'Order Completed',
             event_properties: event.properties,
             library: 'segment'
           }),
           expect.objectContaining({
-            event_type: '[Segment] Product Purchased',
+            event_type: 'Product Purchased',
             revenue: 3_998,
             price: 1_999,
             quantity: 2,
@@ -702,12 +702,12 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Order Completed',
+            event_type: 'Order Completed',
             event_properties: event.properties,
             library: 'segment'
           }),
           expect.objectContaining({
-            event_type: '[Segment] Product Purchased',
+            event_type: 'Product Purchased',
             revenue: 3_998,
             price: 1_999,
             quantity: 2,
@@ -716,7 +716,7 @@ describe('Amplitude', () => {
             library: 'segment'
           }),
           expect.objectContaining({
-            event_type: '[Segment] Product Purchased',
+            event_type: 'Product Purchased',
             revenue: 1_999,
             // @ts-ignore i know what i'm doing
             event_properties: event.properties.products[1],
@@ -756,12 +756,12 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Order Completed',
+            event_type: 'Order Completed',
             event_properties: event.properties,
             library: 'segment'
           }),
           expect.objectContaining({
-            event_type: '[Segment] Product Purchased',
+            event_type: 'Product Purchased',
             revenue: 3_998,
             price: 1_999,
             quantity: 2,
@@ -834,7 +834,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             city: 'San Francisco',
             country: 'United States'
           })
@@ -905,7 +905,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Null User',
+            event_type: 'Null User',
             user_id: null
           })
         ])
@@ -937,7 +937,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Order Completed',
+            event_type: 'Order Completed',
             event_properties: event.properties,
             library: 'segment'
           })
@@ -971,7 +971,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Order Completed',
+            event_type: 'Order Completed',
             event_properties: event.properties
           })
         ])
@@ -998,7 +998,7 @@ describe('Amplitude', () => {
       expect(responses[0].options.json).toMatchObject({
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             event_properties: {},
             user_properties: {
               'some-trait-key': 'some-trait-value'
@@ -1038,7 +1038,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             user_properties: expect.objectContaining({
               'some-trait-key': 'some-trait-value',
               $set: {
@@ -1091,7 +1091,7 @@ describe('Amplitude', () => {
               "device_model": "Mac OS",
               "device_type": undefined,
               "event_properties": Object {},
-              "event_type": "[Segment] Test Event",
+              "event_type": "Test Event",
               "library": "segment",
               "os_name": "Mac OS",
               "os_version": "53",
@@ -1139,7 +1139,7 @@ describe('Amplitude', () => {
               "device_model": "iPhone",
               "device_type": "mobile",
               "event_properties": Object {},
-              "event_type": "[Segment] Test Event",
+              "event_type": "Test Event",
               "ip": "8.8.8.8",
               "language": "en-US",
               "library": "segment",
@@ -1193,7 +1193,7 @@ describe('Amplitude', () => {
               "device_model": "iPhone",
               "device_type": "mobile",
               "event_properties": Object {},
-              "event_type": "[Segment] Test Event",
+              "event_type": "Test Event",
               "ip": "8.8.8.8",
               "language": "en-US",
               "library": "segment",
@@ -1234,7 +1234,7 @@ describe('Amplitude', () => {
         api_key: '',
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             city: 'San Francisco',
             country: 'United States'
           })
@@ -1268,7 +1268,7 @@ describe('Amplitude', () => {
         api_key: '',
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             city: 'San Francisco',
             country: 'United States'
           })
@@ -1308,7 +1308,7 @@ describe('Amplitude', () => {
               "device_model": "Mac OS",
               "device_type": undefined,
               "event_properties": Object {},
-              "event_type": "[Segment] Test Event",
+              "event_type": "Test Event",
               "library": "segment",
               "os_name": "iPhone OS",
               "os_version": "8.1.3",
@@ -1338,7 +1338,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             city: 'San Francisco',
             country: 'United States'
           })
@@ -1409,7 +1409,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Null User',
+            event_type: 'Null User',
             user_id: null
           })
         ])
@@ -1441,7 +1441,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Order Completed',
+            event_type: 'Order Completed',
             event_properties: event.properties,
             library: 'segment'
           })
@@ -1475,7 +1475,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Order Completed',
+            event_type: 'Order Completed',
             event_properties: event.properties
           })
         ])
@@ -1502,7 +1502,7 @@ describe('Amplitude', () => {
       expect(responses[0].options.json).toMatchObject({
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             event_properties: {},
             user_properties: {
               'some-trait-key': 'some-trait-value'
@@ -1542,7 +1542,7 @@ describe('Amplitude', () => {
         api_key: undefined,
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             user_properties: expect.objectContaining({
               'some-trait-key': 'some-trait-value',
               $set: {
@@ -1595,7 +1595,7 @@ describe('Amplitude', () => {
               "device_model": "Mac OS",
               "device_type": undefined,
               "event_properties": Object {},
-              "event_type": "[Segment] Test Event",
+              "event_type": "Test Event",
               "library": "segment",
               "os_name": "Mac OS",
               "os_version": "53",
@@ -1643,7 +1643,7 @@ describe('Amplitude', () => {
               "device_model": "iPhone",
               "device_type": "mobile",
               "event_properties": Object {},
-              "event_type": "[Segment] Test Event",
+              "event_type": "Test Event",
               "ip": "8.8.8.8",
               "language": "en-US",
               "library": "segment",
@@ -1697,7 +1697,7 @@ describe('Amplitude', () => {
               "device_model": "iPhone",
               "device_type": "mobile",
               "event_properties": Object {},
-              "event_type": "[Segment] Test Event",
+              "event_type": "Test Event",
               "ip": "8.8.8.8",
               "language": "en-US",
               "library": "segment",
@@ -1738,7 +1738,7 @@ describe('Amplitude', () => {
         api_key: '',
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             city: 'San Francisco',
             country: 'United States'
           })
@@ -1772,7 +1772,7 @@ describe('Amplitude', () => {
         api_key: '',
         events: expect.arrayContaining([
           expect.objectContaining({
-            event_type: '[Segment] Test Event',
+            event_type: 'Test Event',
             city: 'San Francisco',
             country: 'United States'
           })
@@ -1909,7 +1909,7 @@ describe('Amplitude', () => {
               "device_model": "Mac OS",
               "device_type": undefined,
               "event_properties": Object {},
-              "event_type": "[Segment] Test Event",
+              "event_type": "Test Event",
               "library": "segment",
               "os_name": "iPhone OS",
               "os_version": "8.1.3",
@@ -1946,24 +1946,24 @@ describe('Amplitude', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[0].data).toMatchObject({})
     expect(responses[0].options.json).toMatchInlineSnapshot(`
-      Object {
-        "api_key": undefined,
-        "events": Array [
-          Object {
-            "device_id": "foo",
-            "event_properties": Object {},
-            "event_type": "[Segment] Test Event",
-            "idfv": "foo",
-            "library": "segment",
-            "time": 1618245157710,
-            "use_batch_endpoint": false,
-            "user_id": "user1234",
-            "user_properties": Object {},
-          },
-        ],
-        "options": undefined,
-      }
-    `)
+        Object {
+          "api_key": undefined,
+          "events": Array [
+            Object {
+              "device_id": "foo",
+              "event_properties": Object {},
+              "event_type": "Test Event",
+              "idfv": "foo",
+              "library": "segment",
+              "time": 1618245157710,
+              "use_batch_endpoint": false,
+              "user_id": "user1234",
+              "user_properties": Object {},
+            },
+          ],
+          "options": undefined,
+        }
+      `)
   })
 
   describe('identifyUser', () => {
