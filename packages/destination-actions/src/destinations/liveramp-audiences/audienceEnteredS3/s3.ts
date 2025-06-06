@@ -20,6 +20,15 @@ function validateS3(payload: Payload) {
   }
 }
 
+function isValidS3Path(path: string): boolean {
+  if (typeof path !== 'string') return false
+  if (path.startsWith('/')) return false
+  if (path.includes('\\')) return false
+  const byteLength = Buffer.byteLength(path, 'utf8')
+  if (byteLength > 1024) return false
+  return true
+}
+
 async function uploadS3(
   payload: Payload,
   filename: string,
@@ -47,4 +56,4 @@ async function uploadS3(
   })
 }
 
-export { validateS3, uploadS3 }
+export { validateS3, uploadS3, isValidS3Path }
