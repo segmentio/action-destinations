@@ -381,27 +381,31 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
+    const validatedPayloads: Payload[] = payload.reduce<Payload[]>((acc, p) => {
+      if ([p.gclid, p.gbraid, p.wbraid].filter(Boolean).length !== 1) {
+        if (p.gclid) {
+          delete p.gbraid
+          delete p.wbraid
+        } else if (p.gbraid) {
+          delete p.gclid
+          delete p.wbraid
+        } else if (p.wbraid) {
+          delete p.gclid
+          delete p.gbraid
+        } else {
+          return acc // skip this item
+        }
+      }
+      acc.push(p)
+      return acc
+    }, [])
+
     const customerId = settings.customerId.replace(/-/g, '')
 
     const getCustomVariables = memoizedGetCustomVariables()
 
     const request_objects: ClickConversionRequestObjectInterface[] = await Promise.all(
-      payload.map(async (payloadItem) => {
-
-        if ([payloadItem.gclid, payloadItem.gbraid, payloadItem.wbraid].filter(Boolean).length !== 1) {
-          // ensure only one of GCLID, GBRAID or WBRAID is provided. We don't have the luxury of throwing an error in batch mode
-          if (payloadItem.gclid) {
-            delete payloadItem.gbraid
-            delete payloadItem.wbraid
-          } else if (payloadItem.gbraid) {
-            delete payloadItem.gclid
-            delete payloadItem.wbraid
-          } else if (payloadItem.wbraid) {
-            delete payloadItem.gclid
-            delete payloadItem.gbraid
-          }
-        }
-
+      validatedPayloads.map(async (payloadItem) => {
         let cartItems: CartItemInterface[] = []
         if (payloadItem.items && Array.isArray(payloadItem.items)) {
           cartItems = payloadItem.items.map((product) => {
@@ -448,7 +452,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         // Retrieves all of the custom variables that the customer has created in their Google Ads account
-        if (payloadItem.custom_variables) {
+        if (payloadItem.custom_variables && !payloadItem.gbraid && !payloadItem.wbraid) {
           const customVariableIds = await getCustomVariables(customerId, auth, request, features, statsContext)
           if (customVariableIds?.data?.length) {
             request_object.customVariables = formatCustomVariables(

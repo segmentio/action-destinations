@@ -367,27 +367,33 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
+    const validatedPayloads: Payload[] = payload.reduce<Payload[]>((acc, p) => {
+      if ([p.gclid, p.gbraid, p.wbraid].filter(Boolean).length !== 1) {
+        if (p.gclid) {
+          delete p.gbraid
+          delete p.wbraid
+        } else if (p.gbraid) {
+          delete p.gclid
+          delete p.wbraid
+        } else if (p.wbraid) {
+          delete p.gclid
+          delete p.gbraid
+        } else {
+          return acc // skip this item
+        }
+      }
+      acc.push(p)
+      return acc
+    }, [])
+
     const customerId = settings.customerId.replace(/-/g, '')
 
     const getCustomVariables = memoizedGetCustomVariables()
 
+
+
     const request_objects: ClickConversionRequestObjectInterface[] = await Promise.all(
-      payload.map(async (payload) => {
-
-        if ([payload.gclid, payload.gbraid, payload.wbraid].filter(Boolean).length !== 1) {
-          // ensure only one of GCLID, GBRAID or WBRAID is provided. We don't have the luxury of throwing an error in batch mode
-          if (payload.gclid) {
-            delete payload.gbraid
-            delete payload.wbraid
-          } else if (payload.gbraid) {
-            delete payload.gclid
-            delete payload.wbraid
-          } else if (payload.wbraid) {
-            delete payload.gclid
-            delete payload.gbraid
-          }
-        }
-
+      validatedPayloads.map(async (payload) => {
         let cartItems: CartItemInterface[] = []
         if (payload.items) {
           cartItems = payload.items.map((product) => {
@@ -435,7 +441,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         // Retrieves all of the custom variables that the customer has created in their Google Ads account
-        if (payload.custom_variables) {
+        if (payload.custom_variables && !payload.gbraid && !payload.wbraid) {
           const customVariableIds = await getCustomVariables(customerId, auth, request, features, statsContext)
           if (customVariableIds?.data?.length) {
             request_object.customVariables = formatCustomVariables(
