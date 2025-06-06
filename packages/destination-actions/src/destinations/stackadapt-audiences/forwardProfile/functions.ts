@@ -97,7 +97,7 @@ export async function performForwardProfiles(request: RequestClient, events: Pay
         if (traits[key] || traits[key] === 0) {
           const type = getType(traits[key])
           if (fieldTypes[camelCaseKey] && fieldTypes[camelCaseKey] !== type) {
-            fieldTypes[camelCaseKey] = 'string'
+            fieldTypes[camelCaseKey] = 'STRING'
           } else {
             fieldTypes[camelCaseKey] = type
           }
@@ -115,7 +115,7 @@ function getProfileMappings(customFields: string[], fieldTypes: Record<string, s
       incomingKey: field,
       destinationKey: field === 'userId' ? 'external_id' : field,
       label: generateLabel(field),
-      type: fieldTypes[field] ?? 'string',
+      type: fieldTypes[field] ?? 'STRING',
       isPii: false
     })
   }
@@ -138,8 +138,8 @@ function generateLabel(field: string) {
 }
 
 function getType(value: unknown) {
-  if (isDateStr(value)) return 'date'
-  return typeof value
+  if (isDateStr(value)) return 'DATE'
+  return (typeof value).toUpperCase()
 }
 
 function isDateStr(value: unknown) {
