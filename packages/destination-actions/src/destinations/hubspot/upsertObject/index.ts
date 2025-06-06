@@ -7,7 +7,7 @@ import { Client } from './client'
 import { AssociationSyncMode, SyncMode, SchemaMatch } from './types'
 import { dynamicFields } from './functions/dynamic-field-functions'
 import { getSchemaFromCache, saveSchemaToCache } from './functions/cache-functions'
-import { validate } from './functions/validation-functions'
+import { mergeAndDeduplicateById, validate } from './functions/validation-functions'
 import { objectSchema, compareSchemas } from './functions/schema-functions'
 import { sendFromRecords } from './functions/hubspot-record-functions'
 import {
@@ -52,6 +52,10 @@ const send = async (
   subscriptionMetadata?: SubscriptionMetadata,
   statsContext?: StatsContext
 ) => {
+  if (syncMode === 'upsert') {
+    payloads = mergeAndDeduplicateById(payloads)
+  }
+
   const {
     object_details: { object_type: objectType, property_group: propertyGroup },
     association_sync_mode: assocationSyncMode
