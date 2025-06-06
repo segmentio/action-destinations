@@ -323,11 +323,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // TODO cleanup results... not sure it's even used
     const results: Result[] = []
 
-    // Remove internal hidden fields
-    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
-
     // Resolve/transform the mapping with the input data
-    let payload = transform(mapping, bundle.data) as Payload
+    let payload = transform(bundle.mapping, bundle.data) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
@@ -391,6 +388,14 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     // Remove internal hidden fields
+    const internalFields = {} as JSONLikeObject
+
+    INTERNAL_HIDDEN_FIELDS.forEach((field) => {
+      if (bundle.mapping?.[field]) {
+        internalFields[field] = bundle.mapping[field]
+      }
+    })
+
     const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
 
     let payloads = transformBatch(mapping, bundle.data) as Payload[]
@@ -415,7 +420,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
         for (let i = 0; i < payloads.length; i++) {
           // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-          const payload = removeEmptyValues(payloads[i], schema) as Payload
+          const payload = removeEmptyValues({ ...payloads[i], ...internalFields }, schema) as Payload
           // Validate payload schema
           try {
             validateSchema(payload, schema, validationOptions)
