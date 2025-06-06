@@ -1,5 +1,5 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { uploadS3, validateS3 } from './s3'
+import { isValidS3Path, uploadS3 } from './s3'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
 import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
@@ -85,6 +85,13 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true,
       required: false,
       default: 170000
+    },
+    s3_aws_bucket_path: {
+      label: 'AWS Bucket Path [optional]',
+      description:
+        'Optional path within the S3 bucket where the files will be uploaded to. If not provided, files will be uploaded to the root of the bucket. Example: "audiences/"',
+      required: false,
+      type: 'string'
     }
   },
   perform: async (
@@ -124,7 +131,13 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     )
   }
 
-  validateS3(input.payloads[0])
+  // ? Is it ok to assume that all the payloads will have the same path?
+  // validate s3 path
+  if (input.payloads[0].s3_aws_bucket_path && !isValidS3Path(input.payloads[0].s3_aws_bucket_path)) {
+    throw new PayloadValidationError(
+      `Invalid S3 bucket path: ${input.payloads[0].s3_aws_bucket_path}. Must be a valid S3 URI format (e.g., s3://bucket-name/path/).`
+    )
+  }
 
   const { filename, fileContents } = generateFile(input.payloads)
 
@@ -140,7 +153,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     return sendEventToAWS(input.request, {
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 's3',
-      filename,
+      filename: input.payloads[0].s3_aws_bucket_path ? `${input.payloads[0].s3_aws_bucket_path}/${filename}` : filename,
       destinationInstanceID: subscriptionMetadata?.destinationConfigId,
       subscriptionId: subscriptionMetadata?.actionConfigId,
       fileContents,
