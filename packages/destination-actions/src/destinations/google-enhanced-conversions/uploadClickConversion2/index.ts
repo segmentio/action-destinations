@@ -48,40 +48,19 @@ const action: ActionDefinition<Settings, Payload> = {
     gclid: {
       label: 'GCLID',
       description: 'The Google click ID (gclid) associated with this conversion. if not provided, GBRAID or WBRAID is required.',
-      type: 'string',
-      required: {
-        match: 'all',
-        conditions: [
-          { fieldKey: 'gbraid', operator: 'is_not', value: [undefined, null, ''] },
-          { fieldKey: 'wbraid', operator: 'is_not', value: [undefined, null, ''] }
-        ]
-      }
+      type: 'string'
     },
     gbraid: {
       label: 'GBRAID',
       description:
         'The click identifier for clicks associated with app conversions and originating from iOS devices starting with iOS14. if not provided, GCLID or WBRAID is required.',
-      type: 'string',
-      required: {
-        match: 'all',
-        conditions: [
-          { fieldKey: 'gclid', operator: 'is_not', value: [undefined, null, ''] },
-          { fieldKey: 'wbraid', operator: 'is_not', value: [undefined, null, ''] }
-        ]
-      }
+      type: 'string'
     },
     wbraid: {
       label: 'WBRAID',
       description:
         'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14. if not provided, GCLID or GBRAID is required.',
-      type: 'string',
-      required: {
-        match: 'all',
-        conditions: [
-          { fieldKey: 'gclid', operator: 'is_not', value: [undefined, null, ''] },
-          { fieldKey: 'gbraid', operator: 'is_not', value: [undefined, null, ''] }
-        ]
-      }
+      type: 'string'
     },
     conversion_timestamp: {
       label: 'Conversion Timestamp',
@@ -289,6 +268,11 @@ const action: ActionDefinition<Settings, Payload> = {
           'Customer ID is required for this action. Please set it in destination settings.'
         )
       }
+      
+      if ([payload.gclid, payload.gbraid, payload.wbraid].filter(Boolean).length !== 1) {
+        throw new PayloadValidationError('Only one of GCLID, GBRAID or WBRAID should be provided.')
+      }
+
       settings.customerId = settings.customerId.replace(/-/g, '')
 
       let cartItems: CartItemInterface[] = []
@@ -403,6 +387,21 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const request_objects: ClickConversionRequestObjectInterface[] = await Promise.all(
       payload.map(async (payloadItem) => {
+
+        if ([payloadItem.gclid, payloadItem.gbraid, payloadItem.wbraid].filter(Boolean).length !== 1) {
+          // ensure only one of GCLID, GBRAID or WBRAID is provided. We don't have the luxury of throwing an error in batch mode
+          if (payloadItem.gclid) {
+            delete payloadItem.gbraid
+            delete payloadItem.wbraid
+          } else if (payloadItem.gbraid) {
+            delete payloadItem.gclid
+            delete payloadItem.wbraid
+          } else if (payloadItem.wbraid) {
+            delete payloadItem.gclid
+            delete payloadItem.gbraid
+          }
+        }
+
         let cartItems: CartItemInterface[] = []
         if (payloadItem.items && Array.isArray(payloadItem.items)) {
           cartItems = payloadItem.items.map((product) => {
