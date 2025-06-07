@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-posthog destination: event action - all fields 1`] = `
+Object {
+  "api_key": "scGkpY98jhDM)^PXi",
+  "distinct_id": "scGkpY98jhDM)^PXi",
+  "event": "scGkpY98jhDM)^PXi",
+  "properties": Object {
+    "testType": "scGkpY98jhDM)^PXi",
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
+
+exports[`Testing snapshot for actions-posthog destination: event action - required fields 1`] = `
+Object {
+  "api_key": "scGkpY98jhDM)^PXi",
+  "distinct_id": "scGkpY98jhDM)^PXi",
+  "event": "scGkpY98jhDM)^PXi",
+  "properties": Object {
+    "testType": "scGkpY98jhDM)^PXi",
+  },
+}
+`;
