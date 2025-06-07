@@ -7,7 +7,7 @@ export default class BaseRequestInterface {
   private static baseURL = 'https://main-api.nudgenow.com/api/integration/segment'
 
   public static async track(request: RequestClient, settings: Settings, payload: TrackPayload) {
-    return await request(this.baseURL + '/track-event/batch', {
+    return await request(this.baseURL + '/events/batch', {
       method: 'POST',
       json: [payload],
       headers: {
@@ -18,7 +18,7 @@ export default class BaseRequestInterface {
   }
 
   public static async batchTrack(request: RequestClient, settings: Settings, payload: TrackPayload[]) {
-    return await request(this.baseURL + '/track-event/batch', {
+    return await request(this.baseURL + '/events/batch', {
       method: 'POST',
       json: payload,
       headers: {

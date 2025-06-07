@@ -12,7 +12,7 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       apikey: {
         label: 'API Key',
-        description: 'Client Public API Key',
+        description: 'Private Backend API Key',
         type: 'string',
         required: true,
       },
@@ -21,7 +21,7 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Platform for the API call',
         type: 'string',
         required: true,
-        default: '11', // 11 = Segment
+        default: '17', // 17 = Segment
       }
     },
     // testAuthentication: (request) => {
