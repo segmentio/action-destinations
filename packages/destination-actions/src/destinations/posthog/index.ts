@@ -3,6 +3,8 @@ import type { Settings } from './generated-types'
 
 import event from './event'
 
+import identify from './identify'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Posthog',
   slug: 'actions-posthog',
@@ -38,7 +40,8 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   actions: {
-    event
+    event,
+    identify
   }
 }
 

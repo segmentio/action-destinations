@@ -3,20 +3,10 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Event',
+  title: 'Identify',
   description:
-    'Track a single event in Posthog. Every event request must contain an `api_key`, `distinct_id`, and `event` field with the name. Both the `properties` and `timestamp` fields are optional.',
-  defaultSubscription: 'type = "track" and event != "Order Completed"',
+    'Updates person properties. Read more in our [identify docs](https://posthog.com/docs/product-analytics/identify).',
   fields: {
-    event_name: {
-      label: 'Event Name',
-      description: 'The name of the event to track',
-      type: 'string',
-      default: {
-        '@path': '$.event'
-      },
-      required: true
-    },
     distinct_id: {
       label: 'Distinct ID',
       description: 'The distinct ID of the user',
@@ -28,12 +18,12 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     properties: {
       label: 'Properties',
-      description: 'The properties of the event',
+      description: 'The properties of the user',
       type: 'object',
-      required: false,
       default: {
-        '@path': '$.properties'
-      }
+        '@path': '$.traits'
+      },
+      required: true
     },
     timestamp: {
       label: 'Timestamp',
@@ -52,9 +42,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     const payload = {
       api_key: data.settings.api_key,
-      event: data.payload.event_name,
       distinct_id: data.payload.distinct_id,
-      properties: data.payload.properties,
+      properties: {
+        $set: data.payload.properties
+      },
       timestamp: data.payload.timestamp
     }
     return request(url, {

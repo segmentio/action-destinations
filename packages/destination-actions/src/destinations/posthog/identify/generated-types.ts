@@ -2,17 +2,13 @@
 
 export interface Payload {
   /**
-   * The name of the event to track
-   */
-  event_name: string
-  /**
    * The distinct ID of the user
    */
   distinct_id: string
   /**
-   * The properties of the event
+   * The properties of the user
    */
-  properties?: {
+  properties: {
     [k: string]: unknown
   }
   /**

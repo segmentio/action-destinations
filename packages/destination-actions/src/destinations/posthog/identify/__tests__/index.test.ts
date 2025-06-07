@@ -4,25 +4,27 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('Posthog.event', () => {
+describe('Posthog.identify', () => {
   const endpoint = 'https://app.posthog.com'
   const apiKey = 'test-api-key'
   const projectId = 'test-project-id'
 
   beforeEach(() => nock.cleanAll())
 
-  it('should send event to PostHog', async () => {
+  it('should send identify event to PostHog', async () => {
     const event = createTestEvent({
-      event: 'Test Event',
       userId: 'test-user-id',
-      properties: {
-        testProperty: 'test-value'
-      }
+      traits: {
+        name: 'Test User',
+        email: 'test@example.com',
+        plan: 'premium'
+      },
+      receivedAt: '2024-01-01T00:00:00.000Z'
     })
 
     nock(endpoint).post('/i/v0/e/').reply(200, {})
 
-    const responses = await testDestination.testAction('event', {
+    const responses = await testDestination.testAction('identify', {
       event,
       useDefaultMappings: true,
       settings: {
@@ -37,27 +39,28 @@ describe('Posthog.event', () => {
     const payload = JSON.parse(responses[0].options.body as string)
     expect(payload).toMatchObject({
       api_key: apiKey,
-      event: event.event,
       distinct_id: event.userId,
-      properties: event.properties
+      properties: {
+        $set: event.traits
+      }
     })
     expect(payload.timestamp).toBe(event.receivedAt)
   })
 
   it('should throw error if required fields are missing', async () => {
     const event = createTestEvent({
-      properties: {
-        testProperty: 'test-value'
+      traits: {
+        name: 'Test User'
       }
     })
 
     await expect(
-      testDestination.testAction('event', {
+      testDestination.testAction('identify', {
         event,
         mapping: {
-          // Only provide properties, missing required event_name and distinct_id
+          // Only provide properties, missing required distinct_id
           properties: {
-            '@path': '$.properties'
+            '@path': '$.traits'
           }
         },
         settings: {
