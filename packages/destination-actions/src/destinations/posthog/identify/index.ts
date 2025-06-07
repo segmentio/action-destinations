@@ -41,6 +41,7 @@ const action: ActionDefinition<Settings, Payload> = {
       'Content-Type': 'application/json'
     }
     const payload = {
+      event: '$identify',
       api_key: data.settings.api_key,
       distinct_id: data.payload.distinct_id,
       properties: {

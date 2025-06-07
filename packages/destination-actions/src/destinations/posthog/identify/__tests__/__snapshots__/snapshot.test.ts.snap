@@ -4,6 +4,7 @@ exports[`Testing snapshot for Posthog's identify destination action: all fields 
 Object {
   "api_key": "5fdYDWiv]V!gh$",
   "distinct_id": "5fdYDWiv]V!gh$",
+  "event": "$identify",
   "properties": Object {
     "$set": Object {
       "testType": "5fdYDWiv]V!gh$",
@@ -17,6 +18,7 @@ exports[`Testing snapshot for Posthog's identify destination action: required fi
 Object {
   "api_key": "5fdYDWiv]V!gh$",
   "distinct_id": "5fdYDWiv]V!gh$",
+  "event": "$identify",
   "properties": Object {
     "$set": Object {
       "testType": "5fdYDWiv]V!gh$",

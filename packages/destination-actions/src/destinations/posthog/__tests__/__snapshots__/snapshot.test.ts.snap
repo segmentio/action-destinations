@@ -24,6 +24,7 @@ exports[`Testing snapshot for actions-posthog destination: identify action - all
 Object {
   "api_key": "Y@^Qn@JBH%2A45seK8B[",
   "distinct_id": "Y@^Qn@JBH%2A45seK8B[",
+  "event": "$identify",
   "properties": Object {
     "$set": Object {
       "testType": "Y@^Qn@JBH%2A45seK8B[",
@@ -37,6 +38,7 @@ exports[`Testing snapshot for actions-posthog destination: identify action - req
 Object {
   "api_key": "Y@^Qn@JBH%2A45seK8B[",
   "distinct_id": "Y@^Qn@JBH%2A45seK8B[",
+  "event": "$identify",
   "properties": Object {
     "$set": Object {
       "testType": "Y@^Qn@JBH%2A45seK8B[",

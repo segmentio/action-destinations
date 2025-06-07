@@ -38,6 +38,7 @@ describe('Posthog.identify', () => {
     expect(responses[0].status).toBe(200)
     const payload = JSON.parse(responses[0].options.body as string)
     expect(payload).toMatchObject({
+      event: '$identify',
       api_key: apiKey,
       distinct_id: event.userId,
       properties: {
