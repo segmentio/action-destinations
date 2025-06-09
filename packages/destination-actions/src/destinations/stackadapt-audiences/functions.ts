@@ -71,6 +71,7 @@ export function sha256hash(data: string) {
   return hash.digest('hex')
 }
 
+// transform an array of mapping objects into a string which can be sent as parameter in a GQL request
 export function stringifyJsonWithEscapedQuotes(value: unknown) {
   let jsonString = JSON.stringify(value);
   
