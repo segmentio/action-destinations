@@ -164,7 +164,8 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Send to Existing Only',
           description:
             "Defaults to true, can't be used with user aliases; if set to false, an attributes object must also be included.",
-          type: 'boolean'
+          type: 'boolean',
+          default: true
         },
         attributes: {
           label: 'User Attributes',

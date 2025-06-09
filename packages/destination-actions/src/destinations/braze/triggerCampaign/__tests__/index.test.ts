@@ -135,4 +135,89 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
       `The root value is missing the required field 'broadcast'. The root value must match "then" schema. The root value is missing the required field 'recipients'. The root value must match "then" schema. The root value is missing the required field 'audience'. The root value must match "then" schema.`
     )
   })
+
+  // Test to verify prioritization object transforms correctly
+  it('transforms prioritization object into array and applies to recipients', async () => {
+    const action = destination.actions[actionSlug]
+    const [_, settingsData] = generateTestData(seedName, destination, action, false)
+
+    // Create test data with recipients and prioritization
+    const validEventData = {
+      campaign_id: 'campaign-123',
+      recipients: [{ external_user_id: 'user-123' }, { external_user_id: 'user-456' }],
+      prioritization: {
+        first_priority: 'identified',
+        second_priority: 'most_recently_updated'
+      }
+    }
+
+    // Mock the API request
+    const mockRequest = nock('https://rest.iad-01.braze.com')
+      .post('/campaigns/trigger/send', (body) => {
+        // Check that the top-level prioritization is removed
+        expect(body.prioritization).toBeUndefined()
+
+        // Check that the prioritization array is applied to each recipient
+        expect(body.recipients.length).toBe(2)
+        expect(body.recipients[0].prioritization).toEqual(['identified', 'most_recently_updated'])
+        expect(body.recipients[1].prioritization).toEqual(['identified', 'most_recently_updated'])
+
+        return true
+      })
+      .reply(200, { success: true })
+
+    const event = createTestEvent({
+      properties: validEventData
+    })
+
+    const responses = await testDestination.testAction(actionSlug, {
+      event: event,
+      mapping: validEventData,
+      settings: { ...settingsData, endpoint: 'https://rest.iad-01.braze.com' },
+      auth: undefined
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(mockRequest.isDone()).toBe(true)
+  })
+
+  // Test to verify prioritization with only first_priority
+  it('creates prioritization array with just first_priority', async () => {
+    const action = destination.actions[actionSlug]
+    const [_, settingsData] = generateTestData(seedName, destination, action, false)
+
+    // Create test data with recipients and only first_priority
+    const validEventData = {
+      campaign_id: 'campaign-123',
+      recipients: [{ external_user_id: 'user-123' }],
+      prioritization: {
+        first_priority: 'unidentified'
+      }
+    }
+
+    // Mock the API request
+    const mockRequest = nock('https://rest.iad-01.braze.com')
+      .post('/campaigns/trigger/send', (body) => {
+        // Check that the prioritization array contains only the first priority
+        expect(body.recipients[0].prioritization).toEqual(['unidentified'])
+        return true
+      })
+      .reply(200, { success: true })
+
+    const event = createTestEvent({
+      properties: validEventData
+    })
+
+    const responses = await testDestination.testAction(actionSlug, {
+      event: event,
+      mapping: validEventData,
+      settings: { ...settingsData, endpoint: 'https://rest.iad-01.braze.com' },
+      auth: undefined
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(mockRequest.isDone()).toBe(true)
+  })
 })

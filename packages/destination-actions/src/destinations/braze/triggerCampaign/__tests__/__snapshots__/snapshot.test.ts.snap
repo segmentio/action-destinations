@@ -18,7 +18,8 @@ Object {
       "email": "job@binjogih.lb",
       "external_user_id": "FOoSsHJVqqKt3",
       "prioritization": Array [
-        "FOoSsHJVqqKt3",
+        "most_recently_updated",
+        "most_recently_updated",
       ],
       "send_to_existing_only": false,
       "trigger_properties": Object {
@@ -104,7 +105,8 @@ Object {
       "email": "job@binjogih.lb",
       "external_user_id": "FOoSsHJVqqKt3",
       "prioritization": Array [
-        "FOoSsHJVqqKt3",
+        "most_recently_updated",
+        "most_recently_updated",
       ],
       "send_to_existing_only": false,
       "trigger_properties": Object {
@@ -166,6 +168,10 @@ Object {
   },
   "broadcast": false,
   "campaign_id": "FOoSsHJVqqKt3",
+  "prioritization": Object {
+    "first_priority": "most_recently_updated",
+    "second_priority": "most_recently_updated",
+  },
   "recipients": Array [],
   "send_id": "FOoSsHJVqqKt3",
   "trigger_properties": Object {
@@ -204,6 +210,10 @@ Object {
     Object {
       "email": "test@example.com",
       "external_user_id": "user-123",
+      "prioritization": Array [
+        "most_recently_updated",
+        "most_recently_updated",
+      ],
       "trigger_properties": Object {
         "customData": "test",
         "name": "John Doe",
@@ -212,6 +222,10 @@ Object {
     Object {
       "email": "another@example.com",
       "external_user_id": "user-456",
+      "prioritization": Array [
+        "most_recently_updated",
+        "most_recently_updated",
+      ],
     },
   ],
   "send_id": "FOoSsHJVqqKt3",
