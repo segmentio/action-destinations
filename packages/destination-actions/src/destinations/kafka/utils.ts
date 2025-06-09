@@ -1,68 +1,34 @@
-import { Kafka, ProducerRecord, Partitioners, SASLOptions, KafkaConfig, KafkaJSError } from 'kafkajs'
-import { DynamicFieldResponse, IntegrationError } from '@segment/actions-core'
+import { Kafka, ProducerRecord, Partitioners, SASLOptions, KafkaConfig, KafkaJSError, Producer } from 'kafkajs'
+import { DynamicFieldResponse, IntegrationError, Features } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
-import { DependsOnConditions } from '@segment/actions-core/destination-kittypes'
+import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
+import { PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
 
-export const DEFAULT_PARTITIONER = 'DefaultPartitioner'
+const producersByConfig: Record<string, CachedProducer> = {}
 
-export const DEPENDS_ON_PLAIN_OR_SCRAM: DependsOnConditions = {
-  match: 'any',
-  conditions: [
-    {
-      fieldKey: 'mechanism',
-      operator: 'is',
-      value: 'plain'
-    },
-    {
-      fieldKey: 'mechanism',
-      operator: 'is',
-      value: 'scram-sha-256'
-    },
-    {
-      fieldKey: 'mechanism',
-      operator: 'is',
-      value: 'scram-sha-512'
-    }
-  ]
-}
-export const DEPEONDS_ON_AWS: DependsOnConditions = {
-  conditions: [
-    {
-      fieldKey: 'mechanism',
-      operator: 'is',
-      value: 'aws'
-    }
-  ]
-}
-export const DEPENDS_ON_CLIENT_CERT: DependsOnConditions = {
-  conditions: [
-    {
-      fieldKey: 'mechanism',
-      operator: 'is',
-      value: 'client-cert-auth'
-    }
-  ]
-}
+const serializeKafkaConfig = (settings: Settings): string => {
+  const config = {
+    clientId: settings.clientId,
+    brokers: settings.brokers
+      .trim()
+      .split(',')
+      .map((b) => b.trim())
+      .sort(),
+    mechanism: settings.mechanism,
+    username: settings.username,
+    password: settings.password,
+    accessKeyId: settings.accessKeyId,
+    secretAccessKey: settings.secretAccessKey,
+    authorizationIdentity: settings.authorizationIdentity,
+    ssl_ca: settings.ssl_ca,
+    ssl_cert: settings.ssl_cert,
+    ssl_key: settings.ssl_key,
+    ssl_reject_unauthorized_ca: settings.ssl_reject_unauthorized_ca,
+    ssl_enabled: settings.ssl_enabled
+  }
 
-interface Message {
-  value: string
-  key?: string
-  headers?: { [key: string]: string }
-  partition?: number
-  partitionerType?: typeof DEFAULT_PARTITIONER
-}
-
-interface TopicMessages {
-  topic: string
-  messages: Message[]
-}
-
-interface SSLConfig {
-  ca: string[]
-  rejectUnauthorized?: boolean
-  key?: string
-  cert?: string
+  return JSON.stringify(config)
 }
 
 export const getTopics = async (settings: Settings): Promise<DynamicFieldResponse> => {
@@ -169,7 +135,44 @@ const getProducer = (settings: Settings) => {
   })
 }
 
-export const sendData = async (settings: Settings, payload: Payload[]) => {
+export const getOrCreateProducer = async (settings: Settings): Promise<Producer> => {
+  const key = serializeKafkaConfig(settings)
+  const now = Date.now()
+
+  const cached = producersByConfig[key]
+
+  if (cached) {
+    const isExpired = now - cached.lastUsed > PRODUCER_TTL_MS
+    if (!isExpired) {
+      cached.lastUsed = now
+      return cached.producer
+    }
+
+    if (cached.isConnected) {
+      try {
+        await cached.producer.disconnect()
+      } catch {
+        // Intentionally ignoring disconnect errors
+      }
+    }
+
+    delete producersByConfig[key]
+  }
+
+  const kafka = getKafka(settings)
+  const producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner })
+  await producer.connect()
+
+  producersByConfig[key] = {
+    producer,
+    isConnected: true,
+    lastUsed: now
+  }
+
+  return producer
+}
+
+export const sendData = async (settings: Settings, payload: Payload[], features: Features | undefined) => {
   validate(settings)
 
   const groupedPayloads: { [topic: string]: Payload[] } = {}
@@ -196,9 +199,13 @@ export const sendData = async (settings: Settings, payload: Payload[]) => {
     )
   }))
 
-  const producer = getProducer(settings)
-
-  await producer.connect()
+  let producer: Producer
+  if (features && features[FLAGON_NAME]) {
+    producer = await getOrCreateProducer(settings)
+  } else {
+    producer = getProducer(settings)
+    await producer.connect()
+  }
 
   for (const data of topicMessages) {
     try {
@@ -212,5 +219,12 @@ export const sendData = async (settings: Settings, payload: Payload[]) => {
     }
   }
 
-  await producer.disconnect()
+  if (features && features[FLAGON_NAME]) {
+    const key = serializeKafkaConfig(settings)
+    if (producersByConfig[key]) {
+      producersByConfig[key].lastUsed = Date.now()
+    }
+  } else {
+    await producer.disconnect()
+  }
 }
