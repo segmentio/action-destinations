@@ -14,7 +14,13 @@ import { generateMultiStatusError } from '../utils'
 import { RequestClient } from '@segment/actions-core'
 import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
 import isEmpty from 'lodash/isEmpty'
-import { createCatalog, getCatalogMetas, isValidItemId, processMultiStatusErrorResponse } from './utils'
+import {
+  createCatalog,
+  getCatalogMetas,
+  getCatalogNames,
+  isValidItemId,
+  processMultiStatusErrorResponse
+} from './utils'
 import { UpsertCatalogItemErrorResponse } from './types'
 import { ActionHookDefinition, ActionHookResponse } from '@segment/actions-core/destination-kit'
 
@@ -56,37 +62,7 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, OnMappingSaveInp
       disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
       depends_on: SELECT_OPERATION,
       dynamic: async (request: RequestClient, { settings }: { settings: Settings }): Promise<DynamicFieldResponse> => {
-        let choices: DynamicFieldItem[] = []
-        try {
-          const catalogs = await getCatalogMetas(request, settings.endpoint)
-
-          if (catalogs?.length) {
-            choices = catalogs.map((catalog) => ({
-              label: catalog.name,
-              value: catalog.name,
-              type: 'string' as FieldTypeName,
-              description: catalog?.description
-            }))
-            return {
-              choices
-            }
-          }
-          return {
-            choices,
-            error: {
-              message: 'No catalogs found. Please create a catalog first.',
-              code: '404'
-            }
-          }
-        } catch (err) {
-          return {
-            choices,
-            error: {
-              message: 'Unknown error. Please try again later',
-              code: '500'
-            }
-          }
-        }
+        return getCatalogNames(request, { settings })
       }
     },
     created_catalog_name: {
