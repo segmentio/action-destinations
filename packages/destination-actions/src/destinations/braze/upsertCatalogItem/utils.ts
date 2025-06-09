@@ -3,6 +3,9 @@ import { ListCatalogsResponse, UpsertCatalogItemErrorResponse } from './types'
 import { ActionHookResponse, MultiStatusResponse } from '@segment/actions-core/destination-kit/action'
 import { JSONLikeObject } from '@segment/actions-core/json-object'
 import { OnMappingSaveInputs, Payload } from './generated-types'
+import { DynamicFieldItem, DynamicFieldResponse } from '@segment/actions-core/index'
+import { FieldTypeName } from '@segment/actions-core/destination-kit/types'
+import { Settings } from '../generated-types'
 
 export async function getCatalogMetas(request: RequestClient, endpoint: string) {
   const response = await request<ListCatalogsResponse>(`${endpoint}/catalogs`, {
@@ -55,7 +58,10 @@ export async function createCatalog(
     }
   } catch (error) {
     return {
-      error: { message: error || 'Unknown Error', code: 'ERROR' }
+      error: {
+        message: (error?.response?.data as UpsertCatalogItemErrorResponse).errors?.[0]?.message ?? 'Unknown Error',
+        code: 'ERROR'
+      }
     }
   }
 }
@@ -101,5 +107,42 @@ export function processMultiStatusErrorResponse(
         body: JSON.stringify(errors)
       })
     })
+  }
+}
+
+export async function getCatalogNames(
+  request: RequestClient,
+  { settings }: { settings: Settings }
+): Promise<DynamicFieldResponse> {
+  let choices: DynamicFieldItem[] = []
+  try {
+    const catalogs = await getCatalogMetas(request, settings.endpoint)
+
+    if (catalogs?.length) {
+      choices = catalogs.map((catalog) => ({
+        label: catalog.name,
+        value: catalog.name,
+        type: 'string' as FieldTypeName,
+        description: catalog?.description
+      }))
+      return {
+        choices
+      }
+    }
+    return {
+      choices,
+      error: {
+        message: 'No catalogs found. Please create a catalog first.',
+        code: '404'
+      }
+    }
+  } catch (err) {
+    return {
+      choices,
+      error: {
+        message: 'Unknown error. Please try again later',
+        code: '500'
+      }
+    }
   }
 }
