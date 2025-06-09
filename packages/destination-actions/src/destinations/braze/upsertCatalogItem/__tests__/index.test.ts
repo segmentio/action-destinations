@@ -994,34 +994,6 @@ describe('Braze.upsertCatalogItem', () => {
             name: 'restaurants',
             num_items: 10,
             updated_at: '2022-11-02T20:04:06.879+00:00'
-          },
-          {
-            description: 'My Catalog',
-            fields: [
-              {
-                name: 'id',
-                type: 'string'
-              },
-              {
-                name: 'string_field',
-                type: 'string'
-              },
-              {
-                name: 'number_field',
-                type: 'number'
-              },
-              {
-                name: 'boolean_field',
-                type: 'boolean'
-              },
-              {
-                name: 'time_field',
-                type: 'time'
-              }
-            ],
-            name: 'my_catalog',
-            num_items: 3,
-            updated_at: '2022-11-02T09:03:19.967+00:00'
           }
         ],
         message: 'success'
@@ -1066,7 +1038,7 @@ describe('Braze.upsertCatalogItem', () => {
       successMessage: 'Catalog created successfully'
     })
   })
-  it('should create catalog', async () => {
+  it('should throw eero if cant create catalog', async () => {
     nock(/.*/)
       .persist()
       .post(/.*/, {
