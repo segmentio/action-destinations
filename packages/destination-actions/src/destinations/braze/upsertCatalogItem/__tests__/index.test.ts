@@ -1124,5 +1124,6 @@ describe('Braze.upsertCatalogItem', () => {
     })
 
     expect(response?.error?.code).toEqual('ERROR')
+    expect(response?.error?.message).toEqual('A catalog with that name already exists')
   })
 })
