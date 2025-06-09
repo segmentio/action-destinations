@@ -8,6 +8,26 @@ function newSessionId(): number {
   return now()
 }
 
+function startSession() {
+  window.analytics
+    .track('session_start', {})
+    .then(() => true)
+    .catch(() => true)
+}
+
+function endSession() {
+  window.analytics
+    .track('session_end', {})
+    .then(() => true)
+    .catch(() => true)
+}
+
+function withinSessionLimit(newTimeStamp: number, updated: number | null): boolean {
+  // This checks if the new timestamp is within 30 minutes of the last updated timestamp
+  const deltaTime = newTimeStamp - (updated ?? 0)
+  return deltaTime < 30 * 60 * 1000 // 30 minutes
+}
+
 function now(): number {
   return new Date().getTime()
 }
@@ -68,14 +88,19 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     if (stale(raw, updated, payload.sessionLength)) {
       id = newSession
       storage.set('analytics_session_id', id)
-      window.analytics
-        .track('session_start', {})
-        .then(() => true)
-        .catch(() => true)
+      startSession()
     } else {
       // we are storing the session id regardless, so it gets synced between different storage mediums
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- id can't be null because of stale check
       storage.set('analytics_session_id', id!)
+    }
+
+    const withInSessionLimit = withinSessionLimit(newSession, updated)
+    if (!withInSessionLimit) {
+      // end previous session
+      endSession()
+      // start new session
+      startSession()
     }
 
     storage.set('analytics_session_id.last_access', newSession)
