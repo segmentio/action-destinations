@@ -9,7 +9,7 @@ import {
 import Destination from '../../index'
 import destination from '../../index'
 import { generateTestData } from '../../../../lib/test-data'
-import { getCatalogNames } from '../utils'
+import { createCatalog, getCatalogNames } from '../utils'
 
 const actionSlug = 'upsertCatalogItem'
 const destinationSlug = 'Braze'
@@ -915,5 +915,242 @@ describe('Braze.upsertCatalogItem', () => {
         code: '500'
       }
     })
+  })
+  it('should create catalog', async () => {
+    nock(/.*/)
+      .persist()
+      .post(/.*/, {
+        catalogs: [
+          {
+            description: 'My Restaurants',
+            fields: [
+              {
+                name: 'id',
+                type: 'string'
+              },
+              {
+                name: 'Name',
+                type: 'string'
+              },
+              {
+                name: 'City',
+                type: 'string'
+              },
+              {
+                name: 'Cuisine',
+                type: 'string'
+              },
+              {
+                name: 'Rating',
+                type: 'number'
+              },
+              {
+                name: 'Loyalty_Program',
+                type: 'boolean'
+              },
+              {
+                name: 'Created_At',
+                type: 'time'
+              }
+            ],
+            name: 'restaurants'
+          }
+        ]
+      })
+      .reply(200, {
+        catalogs: [
+          {
+            description: 'My Restaurants',
+            fields: [
+              {
+                name: 'id',
+                type: 'string'
+              },
+              {
+                name: 'Name',
+                type: 'string'
+              },
+              {
+                name: 'City',
+                type: 'string'
+              },
+              {
+                name: 'Cuisine',
+                type: 'string'
+              },
+              {
+                name: 'Rating',
+                type: 'number'
+              },
+              {
+                name: 'Loyalty_Program',
+                type: 'boolean'
+              },
+              {
+                name: 'Created_At',
+                type: 'time'
+              }
+            ],
+            name: 'restaurants',
+            num_items: 10,
+            updated_at: '2022-11-02T20:04:06.879+00:00'
+          },
+          {
+            description: 'My Catalog',
+            fields: [
+              {
+                name: 'id',
+                type: 'string'
+              },
+              {
+                name: 'string_field',
+                type: 'string'
+              },
+              {
+                name: 'number_field',
+                type: 'number'
+              },
+              {
+                name: 'boolean_field',
+                type: 'boolean'
+              },
+              {
+                name: 'time_field',
+                type: 'time'
+              }
+            ],
+            name: 'my_catalog',
+            num_items: 3,
+            updated_at: '2022-11-02T09:03:19.967+00:00'
+          }
+        ],
+        message: 'success'
+      })
+
+    const response = await createCatalog(requestClient, settings.endpoint, {
+      created_catalog_name: 'restaurants',
+      description: 'My Restaurants',
+      columns: [
+        {
+          name: 'Name',
+          type: 'string'
+        },
+        {
+          name: 'City',
+          type: 'string'
+        },
+        {
+          name: 'Cuisine',
+          type: 'string'
+        },
+        {
+          name: 'Rating',
+          type: 'number'
+        },
+        {
+          name: 'Loyalty_Program',
+          type: 'boolean'
+        },
+        {
+          name: 'Created_At',
+          type: 'time'
+        }
+      ],
+      operation: 'create'
+    })
+
+    expect(response).toEqual({
+      savedData: {
+        catalog_name: 'restaurants'
+      },
+      successMessage: 'Catalog created successfully'
+    })
+  })
+  it('should create catalog', async () => {
+    nock(/.*/)
+      .persist()
+      .post(/.*/, {
+        catalogs: [
+          {
+            description: 'My Restaurants',
+            fields: [
+              {
+                name: 'id',
+                type: 'string'
+              },
+              {
+                name: 'Name',
+                type: 'string'
+              },
+              {
+                name: 'City',
+                type: 'string'
+              },
+              {
+                name: 'Cuisine',
+                type: 'string'
+              },
+              {
+                name: 'Rating',
+                type: 'number'
+              },
+              {
+                name: 'Loyalty_Program',
+                type: 'boolean'
+              },
+              {
+                name: 'Created_At',
+                type: 'time'
+              }
+            ],
+            name: 'restaurants'
+          }
+        ]
+      })
+      .reply(400, {
+        errors: [
+          {
+            id: 'catalog-name-already-exists',
+            message: 'A catalog with that name already exists',
+            parameters: ['name'],
+            parameter_values: ['restaurants']
+          }
+        ],
+        message: 'Invalid Request'
+      })
+
+    const response = await createCatalog(requestClient, settings.endpoint, {
+      created_catalog_name: 'restaurants',
+      description: 'My Restaurants',
+      columns: [
+        {
+          name: 'Name',
+          type: 'string'
+        },
+        {
+          name: 'City',
+          type: 'string'
+        },
+        {
+          name: 'Cuisine',
+          type: 'string'
+        },
+        {
+          name: 'Rating',
+          type: 'number'
+        },
+        {
+          name: 'Loyalty_Program',
+          type: 'boolean'
+        },
+        {
+          name: 'Created_At',
+          type: 'time'
+        }
+      ],
+      operation: 'create'
+    })
+
+    expect(response?.error?.code).toEqual('ERROR')
   })
 })
