@@ -58,7 +58,10 @@ export async function createCatalog(
     }
   } catch (error) {
     return {
-      error: { message: error || 'Unknown Error', code: 'ERROR' }
+      error: {
+        message: (error?.response?.data as UpsertCatalogItemErrorResponse).errors?.[0]?.message ?? 'Unknown Error',
+        code: 'ERROR'
+      }
     }
   }
 }

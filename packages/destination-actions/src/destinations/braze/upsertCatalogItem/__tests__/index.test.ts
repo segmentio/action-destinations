@@ -1,8 +1,15 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, DynamicFieldResponse, SegmentEvent } from '@segment/actions-core'
+import {
+  createRequestClient,
+  createTestEvent,
+  createTestIntegration,
+  DynamicFieldResponse,
+  SegmentEvent
+} from '@segment/actions-core'
 import Destination from '../../index'
 import destination from '../../index'
 import { generateTestData } from '../../../../lib/test-data'
+import { createCatalog, getCatalogNames } from '../utils'
 
 const actionSlug = 'upsertCatalogItem'
 const destinationSlug = 'Braze'
@@ -15,6 +22,7 @@ const settings = {
   endpoint: 'https://rest.iad-01.braze.com' as const
 }
 const testDestination = createTestIntegration(Destination)
+const requestClient = createRequestClient()
 
 describe('Braze.upsertCatalogItem', () => {
   it('Single event with upsert should work', async () => {
@@ -796,5 +804,326 @@ describe('Braze.upsertCatalogItem', () => {
 
     expect(responses.choices).toHaveLength(0)
     expect(responses.error).toHaveProperty('code', '500')
+  })
+  it('should get catalog names', async () => {
+    nock(/.*/)
+      .persist()
+      .get(/.*/)
+      .reply(200, {
+        catalogs: [
+          {
+            description: 'My Restaurants',
+            fields: [
+              {
+                name: 'id',
+                type: 'string'
+              },
+              {
+                name: 'Name',
+                type: 'string'
+              },
+              {
+                name: 'City',
+                type: 'string'
+              },
+              {
+                name: 'Cuisine',
+                type: 'string'
+              },
+              {
+                name: 'Rating',
+                type: 'number'
+              },
+              {
+                name: 'Loyalty_Program',
+                type: 'boolean'
+              },
+              {
+                name: 'Created_At',
+                type: 'time'
+              }
+            ],
+            name: 'restaurants',
+            num_items: 10,
+            updated_at: '2022-11-02T20:04:06.879+00:00'
+          },
+          {
+            description: 'My Catalog',
+            fields: [
+              {
+                name: 'id',
+                type: 'string'
+              },
+              {
+                name: 'string_field',
+                type: 'string'
+              },
+              {
+                name: 'number_field',
+                type: 'number'
+              },
+              {
+                name: 'boolean_field',
+                type: 'boolean'
+              },
+              {
+                name: 'time_field',
+                type: 'time'
+              }
+            ],
+            name: 'my_catalog',
+            num_items: 3,
+            updated_at: '2022-11-02T09:03:19.967+00:00'
+          }
+        ],
+        message: 'success'
+      })
+
+    const response = await getCatalogNames(requestClient, { settings })
+
+    expect(response.choices.length).toEqual(2)
+    expect(response.choices[0].value).toEqual('restaurants')
+    expect(response.choices[1].value).toEqual('my_catalog')
+  })
+  it('should throw error if catalogs doesnt exist', async () => {
+    nock(/.*/).persist().get(/.*/).reply(200, {
+      catalogs: [],
+      message: 'success'
+    })
+
+    const response = await getCatalogNames(requestClient, { settings })
+
+    expect(response).toEqual({
+      choices: [],
+      error: {
+        message: 'No catalogs found. Please create a catalog first.',
+        code: '404'
+      }
+    })
+  })
+  it('should throw error if get catalogs API fail', async () => {
+    nock(/.*/).persist().get(/.*/).reply(500, {
+      message: 'something went wrong'
+    })
+
+    const response = await getCatalogNames(requestClient, { settings })
+
+    expect(response).toEqual({
+      choices: [],
+      error: {
+        message: 'Unknown error. Please try again later',
+        code: '500'
+      }
+    })
+  })
+  it('should create catalog', async () => {
+    nock(/.*/)
+      .persist()
+      .post(/.*/, {
+        catalogs: [
+          {
+            description: 'My Restaurants',
+            fields: [
+              {
+                name: 'id',
+                type: 'string'
+              },
+              {
+                name: 'Name',
+                type: 'string'
+              },
+              {
+                name: 'City',
+                type: 'string'
+              },
+              {
+                name: 'Cuisine',
+                type: 'string'
+              },
+              {
+                name: 'Rating',
+                type: 'number'
+              },
+              {
+                name: 'Loyalty_Program',
+                type: 'boolean'
+              },
+              {
+                name: 'Created_At',
+                type: 'time'
+              }
+            ],
+            name: 'restaurants'
+          }
+        ]
+      })
+      .reply(200, {
+        catalogs: [
+          {
+            description: 'My Restaurants',
+            fields: [
+              {
+                name: 'id',
+                type: 'string'
+              },
+              {
+                name: 'Name',
+                type: 'string'
+              },
+              {
+                name: 'City',
+                type: 'string'
+              },
+              {
+                name: 'Cuisine',
+                type: 'string'
+              },
+              {
+                name: 'Rating',
+                type: 'number'
+              },
+              {
+                name: 'Loyalty_Program',
+                type: 'boolean'
+              },
+              {
+                name: 'Created_At',
+                type: 'time'
+              }
+            ],
+            name: 'restaurants',
+            num_items: 10,
+            updated_at: '2022-11-02T20:04:06.879+00:00'
+          }
+        ],
+        message: 'success'
+      })
+
+    const response = await createCatalog(requestClient, settings.endpoint, {
+      created_catalog_name: 'restaurants',
+      description: 'My Restaurants',
+      columns: [
+        {
+          name: 'Name',
+          type: 'string'
+        },
+        {
+          name: 'City',
+          type: 'string'
+        },
+        {
+          name: 'Cuisine',
+          type: 'string'
+        },
+        {
+          name: 'Rating',
+          type: 'number'
+        },
+        {
+          name: 'Loyalty_Program',
+          type: 'boolean'
+        },
+        {
+          name: 'Created_At',
+          type: 'time'
+        }
+      ],
+      operation: 'create'
+    })
+
+    expect(response).toEqual({
+      savedData: {
+        catalog_name: 'restaurants'
+      },
+      successMessage: 'Catalog created successfully'
+    })
+  })
+  it('should throw eero if cant create catalog', async () => {
+    nock(/.*/)
+      .persist()
+      .post(/.*/, {
+        catalogs: [
+          {
+            description: 'My Restaurants',
+            fields: [
+              {
+                name: 'id',
+                type: 'string'
+              },
+              {
+                name: 'Name',
+                type: 'string'
+              },
+              {
+                name: 'City',
+                type: 'string'
+              },
+              {
+                name: 'Cuisine',
+                type: 'string'
+              },
+              {
+                name: 'Rating',
+                type: 'number'
+              },
+              {
+                name: 'Loyalty_Program',
+                type: 'boolean'
+              },
+              {
+                name: 'Created_At',
+                type: 'time'
+              }
+            ],
+            name: 'restaurants'
+          }
+        ]
+      })
+      .reply(400, {
+        errors: [
+          {
+            id: 'catalog-name-already-exists',
+            message: 'A catalog with that name already exists',
+            parameters: ['name'],
+            parameter_values: ['restaurants']
+          }
+        ],
+        message: 'Invalid Request'
+      })
+
+    const response = await createCatalog(requestClient, settings.endpoint, {
+      created_catalog_name: 'restaurants',
+      description: 'My Restaurants',
+      columns: [
+        {
+          name: 'Name',
+          type: 'string'
+        },
+        {
+          name: 'City',
+          type: 'string'
+        },
+        {
+          name: 'Cuisine',
+          type: 'string'
+        },
+        {
+          name: 'Rating',
+          type: 'number'
+        },
+        {
+          name: 'Loyalty_Program',
+          type: 'boolean'
+        },
+        {
+          name: 'Created_At',
+          type: 'time'
+        }
+      ],
+      operation: 'create'
+    })
+
+    expect(response?.error?.code).toEqual('ERROR')
+    expect(response?.error?.message).toEqual('A catalog with that name already exists')
   })
 })
