@@ -27,4 +27,20 @@ export interface Payload {
   customFields?: {
     [k: string]: unknown
   }
+  /**
+   * The name of the contact / user
+   */
+  contactName?: string
+  /**
+   * The email of the contact / user
+   */
+  contactEmail?: string
+  /**
+   * The phone number of the contact / user
+   */
+  contactPhone?: string
+  /**
+   * The role of the contact / user. For example primary, secondary, user, etc
+   */
+  contactRole?: string
 }
