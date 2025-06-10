@@ -2,9 +2,9 @@ import { AudienceDestinationDefinition, IntegrationError } from '@segment/action
 import type { AudienceSettings, Settings } from './generated-types'
 
 import ingest from './ingest'
-import { buildHeaders, getAuthSettings, getAuthToken } from '../display-video-360/shared'
-import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL } from '../display-video-360/constants'
-import { handleRequestError } from '../display-video-360/errors'
+import { buildHeaders, getAuthSettings, getAuthToken } from './shared'
+import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL } from './constants'
+import { handleRequestError } from './errors'
 
 export interface RefreshTokenResponse {
   access_token: string
@@ -20,11 +20,70 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   authentication: {
     scheme: 'oauth2',
-    fields: {},
-    testAuthentication: (_request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+    fields: {
+      /*destinations: {
+        label: 'Destinations',
+        description: 'List of destinations to which the audience will be synced. Each destination must have a unique combination of operatingAccountId, product, and productDestinationId.',
+        type: 'object' as FieldType,
+        multiple: true,
+        // defaultObjectUI: 'arrayeditor',
+        // additionalProperties: true,
+        // required: CREATE_OPERATION,
+        // depends_on: CREATE_OPERATION,
+        properties: {
+          operatingAccountId: {
+            label: 'Operating Account ID',
+            description:
+              'The ID of the operating account, used throughout Google Data Manager. Use this ID when you contact Google support to help our teams locate your specific account.',
+            type: 'string',
+            required: true
+          },
+          product: {
+            label: 'Product',
+            description: 'The product for which you want to create or manage audiences.',
+            type: 'string',
+            multiple: true,
+            required: true,
+            choices: [
+              { label: 'Google Ads', value: 'GOOGLE_ADS' },
+              { label: 'Display & Video 360', value: 'DISPLAY_VIDEO_360' },
+            ]
+          },
+          productDestinationId: {
+            label: 'Product Destination ID',
+            description:
+              'The ID of the product destination, used to identify the specific destination for audience management.',
+            type: 'string',
+            required: true
+          }
+        }
+      },*/
+    },
+    testAuthentication: async (request, { auth }) => {
+      // Call the Google Audience Partner API to test authentication
+      const accessToken = auth?.accessToken
+      if (!accessToken) {
+        throw new Error('Missing access token for authentication test.')
+      }
+      const response = await request(
+        'https://audiencepartner.googleapis.com/v2/products/DATA_PARTNER/customers/8283492941/audiencePartner:searchStream',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+            'login-customer-id': 'products/DATA_PARTNER/customers/8283492941'
+          },
+          body: JSON.stringify({
+            query: 'SELECT product_link.display_video_advertiser.display_video_advertiser FROM product_link '
+          })
+        }
+      )
+      // If the API returns a 2xx response, authentication is valid
+      if (response.status < 200 || response.status >= 300) {
+        throw new Error('Authentication failed: ' + response.statusText)
+      }
+      return response
     },
     refreshAccessToken: async (request, { auth }) => {
       // Return a request that refreshes the access_token if the API supports it
@@ -58,7 +117,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   actions: {
     ingest
   },
-  presets: [],
   audienceConfig: {
     mode: {
       type: 'synced',

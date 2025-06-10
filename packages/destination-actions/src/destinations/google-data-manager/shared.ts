@@ -1,19 +1,16 @@
-import { IntegrationError, RequestClient, StatsContext, HTTPError } from '@segment/actions-core'
-import { OAUTH_URL, USER_UPLOAD_ENDPOINT, SEGMENT_DMP_ID } from './constants'
+import { HTTPError, IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
+import { OAUTH_URL, SEGMENT_DMP_ID, USER_UPLOAD_ENDPOINT } from './constants'
 import type { RefreshTokenResponse } from './types'
-import { create, fromBinary, toBinary } from '@bufbuild/protobuf'
+import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
 
 import {
-  UserIdType,
+  ErrorCode,
   UpdateUsersDataRequest,
   UpdateUsersDataRequestSchema,
-  UserDataOperationSchema,
   UpdateUsersDataResponse,
-  ErrorCode,
-  UpdateUsersDataResponseSchema
+  UpdateUsersDataResponseSchema,
+  UserDataOperationSchema
 } from './proto/protofile'
-
-import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
 import type { AudienceSettings } from './generated-types'
 
 type DV360AuthCredentials = { refresh_token: string; access_token: string; client_id: string; client_secret: string }
@@ -61,41 +58,8 @@ export const buildHeaders = (audienceSettings: AudienceSettings | undefined, acc
   }
 }
 
-export const assembleRawOps = (payload: UpdateHandlerPayload, operation: ListOperation): UserOperation[] => {
-  const rawOperations = []
-  const audienceId = parseInt(payload.external_audience_id.split('/').pop() || '-1')
-  const isDelete = operation === 'remove'
-
-  if (payload.google_gid) {
-    rawOperations.push({
-      UserId: payload.google_gid,
-      UserIdType: UserIdType.GOOGLE_USER_ID,
-      UserListId: audienceId,
-      Delete: isDelete
-    })
-  }
-
-  if (payload.mobile_advertising_id) {
-    const isIDFA = payload.mobile_advertising_id.includes('-')
-
-    rawOperations.push({
-      UserId: payload.mobile_advertising_id,
-      UserIdType: isIDFA ? UserIdType.IDFA : UserIdType.ANDROID_ADVERTISING_ID,
-      UserListId: audienceId,
-      Delete: isDelete
-    })
-  }
-
-  if (payload.partner_provided_id) {
-    rawOperations.push({
-      UserId: payload.partner_provided_id,
-      UserIdType: UserIdType.PARTNER_PROVIDED_ID,
-      UserListId: audienceId,
-      Delete: isDelete
-    })
-  }
-
-  return rawOperations
+export const assembleRawOps = (_payload: UpdateHandlerPayload, _operation: ListOperation): UserOperation[] => {
+  return []
 }
 
 const handleErrorCode = (

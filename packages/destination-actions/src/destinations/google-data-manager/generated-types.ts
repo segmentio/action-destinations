@@ -1,6 +1,19 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
-export interface Settings {}
+export interface Settings {
+  /**
+   * The ID of the operating account, used throughout Google Data Manager. Use this ID when you contact Google support to help our teams locate your specific account.
+   */
+  operatingAccountId: string
+  /**
+   * The product for which you want to create or manage audiences.
+   */
+  product: string
+  /**
+   * The ID of the product destination, used to identify the specific destination for audience management.
+   */
+  productDestinationId: string
+}
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface AudienceSettings {

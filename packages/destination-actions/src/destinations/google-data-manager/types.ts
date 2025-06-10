@@ -1,3 +1,5 @@
+import type { Payload as AddToAudiencePayload } from './ingest/generated-types'
+
 export interface RefreshTokenResponse {
   access_token: string
 }
@@ -21,3 +23,4 @@ export type UserOperation = {
 }
 
 export type ListOperation = 'add' | 'remove'
+export type UpdateHandlerPayload = AddToAudiencePayload
