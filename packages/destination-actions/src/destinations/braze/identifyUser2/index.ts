@@ -3,6 +3,12 @@ import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
+const prioritizationChoices = [
+  { value: 'unidentified', label: 'Unidentified' },
+  { value: 'most_recently_updated', label: 'Most Recently Updated' },
+  { value: 'least_recently_updated', label: 'Least Recently Updated' }
+]
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User V2',
   description:
@@ -19,7 +25,16 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'A user alias object. See [the docs](https://www.braze.com/docs/api/objects_filters/user_alias_object/).',
       type: 'object',
-      required: true,
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'emails_to_identify',
+            operator: 'is',
+            value: undefined
+          }
+        ]
+      },
       properties: {
         alias_name: {
           label: 'Alias Name',
@@ -38,6 +53,16 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Email addresses to identify users. Each entry requires an external_id and email.',
       type: 'object',
       multiple: true,
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'user_alias',
+            operator: 'is',
+            value: undefined
+          }
+        ]
+      },
       properties: {
         external_id: {
           label: 'External ID',
@@ -74,23 +99,13 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'First priority for user merging if multiple users are found',
           type: 'string',
           required: true,
-          choices: [
-            { value: 'identified', label: 'Identified' },
-            { value: 'unidentified', label: 'Unidentified' },
-            { value: 'most_recently_updated', label: 'Most Recently Updated' },
-            { value: 'least_recently_updated', label: 'Least Recently Updated' }
-          ]
+          choices: prioritizationChoices
         },
         second_priority: {
           label: 'Second Priority',
           description: 'Second priority for user merging if multiple users are found',
           type: 'string',
-          choices: [
-            { value: 'identified', label: 'Identified' },
-            { value: 'unidentified', label: 'Unidentified' },
-            { value: 'most_recently_updated', label: 'Most Recently Updated' },
-            { value: 'least_recently_updated', label: 'Least Recently Updated' }
-          ]
+          choices: prioritizationChoices
         }
       }
     },
@@ -117,13 +132,17 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload, syncMode }) => {
     if (syncMode === 'add' || syncMode === 'upsert') {
       const requestBody: Record<string, any> = {
-        aliases_to_identify: [
+        ...(payload.merge_behavior !== undefined && { merge_behavior: payload.merge_behavior })
+      }
+
+      // Add aliases_to_identify if user_alias is provided
+      if (payload.user_alias) {
+        requestBody.aliases_to_identify = [
           {
             external_id: payload.external_id,
             user_alias: payload.user_alias
           }
-        ],
-        ...(payload.merge_behavior !== undefined && { merge_behavior: payload.merge_behavior })
+        ]
       }
 
       if (payload.emails_to_identify && payload.emails_to_identify.length > 0) {
