@@ -59,7 +59,7 @@ export interface Payload {
     /**
      * Defaults to true, can't be used with user aliases; if set to false, an attributes object must also be included.
      */
-    send_to_existing_only?: boolean
+    send_to_existing_only: boolean
     /**
      * Fields in the attributes object will create or update an attribute of that name with the given value on the specified user profile before the message is sent and existing values will be overwritten.
      */

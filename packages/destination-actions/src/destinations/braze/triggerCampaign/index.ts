@@ -2,14 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { dynamicFields } from './functions/dynamic-field-functions'
-
-const prioritizationChoices = [
-  { label: 'Identified', value: 'identified' },
-  { label: 'Unidentified', value: 'unidentified' },
-  { label: 'Most recently updated', value: 'most_recently_updated' },
-  { label: 'Least recently updated', value: 'least_recently_updated' }
-]
+import { dynamicFields, allPrioritizationChoices } from './functions/dynamic-field-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Campaign',
@@ -186,13 +179,24 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'First Priority',
           description: 'First priority in the prioritization sequence',
           type: 'string',
-          choices: prioritizationChoices
+          choices: allPrioritizationChoices
         },
         second_priority: {
           label: 'Second Priority',
           description: 'Second priority in the prioritization sequence',
           type: 'string',
-          choices: prioritizationChoices
+          dynamic: true,
+          choices: allPrioritizationChoices,
+          depends_on: {
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'first_priority',
+                operator: 'is_not',
+                value: undefined
+              }
+            ]
+          }
         }
       }
     },
