@@ -40,8 +40,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (channelIdentifier === 'email' && typeof emailIdentifier === 'string') {
       channel = { email: emailIdentifier }
-    } else if (channelIdentifier === 'mobile-number' && typeof mobileNumberIdentifier === 'string') {
-      channel = { 'mobile-number': mobileNumberIdentifier }
+    } else if (channelIdentifier === 'mobileNumber' && typeof mobileNumberIdentifier === 'string') {
+      channel = { 'mobileNumber': mobileNumberIdentifier }
     } else {
       throw new PayloadValidationError('Invalid channel identifier')
     }
