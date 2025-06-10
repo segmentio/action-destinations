@@ -9,7 +9,7 @@ const channelIdentifier: InputField = {
   required: true,
   choices: [
     { label: 'Email address', value: 'email' },
-    { label: 'Mobile number', value: 'mobile-number' }
+    { label: 'Mobile number', value: 'mobileNumber' }
   ]
 }
 
@@ -45,10 +45,10 @@ const mobileNumberIdentifier: InputField = {
     }
   },
   depends_on: {
-    conditions: [{ fieldKey: 'channelIdentifier', operator: 'is', value: 'mobile-number' }]
+    conditions: [{ fieldKey: 'channelIdentifier', operator: 'is', value: 'mobileNumber' }]
   },
   required: {
-    conditions: [{ fieldKey: 'channelIdentifier', operator: 'is', value: 'mobile-number' }]
+    conditions: [{ fieldKey: 'channelIdentifier', operator: 'is', value: 'mobileNumber' }]
   }
 }
 
