@@ -188,6 +188,7 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Second priority in the prioritization sequence',
           type: 'string',
           dynamic: true,
+          choices: allPrioritizationChoices,
           depends_on: {
             match: 'all',
             conditions: [
