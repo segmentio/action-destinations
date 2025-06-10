@@ -165,7 +165,8 @@ const action: ActionDefinition<Settings, Payload> = {
           description:
             "Defaults to true, can't be used with user aliases; if set to false, an attributes object must also be included.",
           type: 'boolean',
-          default: true
+          default: true,
+          required: true
         },
         attributes: {
           label: 'User Attributes',

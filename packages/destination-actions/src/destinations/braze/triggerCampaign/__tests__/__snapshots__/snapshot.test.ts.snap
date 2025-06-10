@@ -61,6 +61,7 @@ Object {
   "recipients": Array [
     Object {
       "external_user_id": "test-user-123",
+      "send_to_existing_only": true,
     },
   ],
   "send_id": "FOoSsHJVqqKt3",
@@ -214,6 +215,7 @@ Object {
         "most_recently_updated",
         "most_recently_updated",
       ],
+      "send_to_existing_only": true,
       "trigger_properties": Object {
         "customData": "test",
         "name": "John Doe",
@@ -226,6 +228,7 @@ Object {
         "most_recently_updated",
         "most_recently_updated",
       ],
+      "send_to_existing_only": true,
     },
   ],
   "send_id": "FOoSsHJVqqKt3",

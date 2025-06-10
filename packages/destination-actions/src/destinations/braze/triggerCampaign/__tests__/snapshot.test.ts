@@ -18,7 +18,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       ...eventData,
       recipients: [
         {
-          external_user_id: 'test-user-123'
+          external_user_id: 'test-user-123',
+          send_to_existing_only: true
         }
       ]
     }
@@ -96,6 +97,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         {
           external_user_id: 'user-123',
           email: 'test@example.com',
+          send_to_existing_only: true,
           trigger_properties: {
             name: 'John Doe',
             customData: 'test'
@@ -103,7 +105,8 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
         },
         {
           external_user_id: 'user-456',
-          email: 'another@example.com'
+          email: 'another@example.com',
+          send_to_existing_only: true
         }
       ]
     }
