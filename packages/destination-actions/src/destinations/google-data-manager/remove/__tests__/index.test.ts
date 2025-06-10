@@ -1,9 +1,11 @@
-// import nock from 'nock'
-// import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-// import Destination from '../../index'
+/*
+import nock from 'nock'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import Destination from '../../index'
 
-// const testDestination = createTestIntegration(Destination)
+const testDestination = createTestIntegration(Destination)
 
 describe('GoogleDataManager.remove', () => {
   // TODO: Test your action
 })
+*/
