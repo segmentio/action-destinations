@@ -49,7 +49,7 @@ describe('Remove contact from list', () => {
   it('should remove contact from list with mobile number identifier', async () => {
     // Mock getContact function
     nock(settings.api_host)
-      .get('/contacts/v3/mobile-number/1234567890')
+      .get('/contacts/v3/mobileNumber/1234567890')
       .reply(200, { contactId: '123', lists: [{ id: 123456 }] }) // Correct format for lists
 
     // Mock deleteContactFromList function
@@ -66,7 +66,7 @@ describe('Remove contact from list', () => {
 
     const mapping = {
       listId: 123456,
-      channelIdentifier: 'mobile-number',
+      channelIdentifier: 'mobileNumber',
       mobileNumberIdentifier: {
         '@path': '$.context.traits.phone'
       }
