@@ -80,7 +80,7 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
     const invalidEventData = {
       campaign_id: 'campaign-123',
       broadcast: true,
-      recipients: [{ external_user_id: 'user-123' }],
+      recipients: [{ external_user_id: 'user-123', send_to_existing_only: true }],
       audience: null
     }
 
@@ -144,7 +144,10 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
     // Create test data with recipients and prioritization
     const validEventData = {
       campaign_id: 'campaign-123',
-      recipients: [{ external_user_id: 'user-123' }, { external_user_id: 'user-456' }],
+      recipients: [
+        { external_user_id: 'user-123', send_to_existing_only: true },
+        { external_user_id: 'user-456', send_to_existing_only: true }
+      ],
       prioritization: {
         first_priority: 'identified',
         second_priority: 'most_recently_updated'
@@ -190,7 +193,7 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
     // Create test data with recipients and only first_priority
     const validEventData = {
       campaign_id: 'campaign-123',
-      recipients: [{ external_user_id: 'user-123' }],
+      recipients: [{ external_user_id: 'user-123', send_to_existing_only: true }],
       prioritization: {
         first_priority: 'unidentified'
       }
