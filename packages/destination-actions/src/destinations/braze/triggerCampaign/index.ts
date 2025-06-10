@@ -8,7 +8,9 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Campaign',
   description: 'Trigger a Braze Campaign via API-triggered delivery',
   defaultSubscription: 'type = "track"',
-  dynamicFields,
+  dynamicFields: {
+    ...dynamicFields
+  },
   fields: {
     campaign_id: {
       label: 'Campaign ID',
@@ -186,12 +188,11 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Second priority in the prioritization sequence',
           type: 'string',
           dynamic: true,
-          choices: allPrioritizationChoices,
           depends_on: {
             match: 'all',
             conditions: [
               {
-                fieldKey: 'first_priority',
+                fieldKey: 'prioritization.first_priority',
                 operator: 'is_not',
                 value: undefined
               }
@@ -276,7 +277,8 @@ const action: ActionDefinition<Settings, Payload> = {
       if (prioritizationArray.length > 0) {
         payload.recipients = payload.recipients.map((recipient) => ({
           ...recipient,
-          prioritization: prioritizationArray
+          prioritization: prioritizationArray,
+          ...(recipient.send_to_existing_only !== true ? { send_to_existing_only: false } : {})
         }))
       }
 
