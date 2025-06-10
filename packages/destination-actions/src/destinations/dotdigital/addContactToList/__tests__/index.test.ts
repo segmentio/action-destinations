@@ -45,7 +45,7 @@ describe('Add Contact To List', () => {
   it('should add contact to list with mobile number identifier', async () => {
     // Mock upsertContact  function
     nock(settings.api_host)
-      .patch(`/contacts/v3/mobile-number/1234567890?merge-option=overwrite`)
+      .patch(`/contacts/v3/mobileNumber/1234567890?merge-option=overwrite`)
       .reply(200, { contactId: 123 })
 
     const event = createTestEvent({
@@ -59,7 +59,7 @@ describe('Add Contact To List', () => {
 
     const mapping = {
       listId: 123456,
-      channelIdentifier: 'mobile-number',
+      channelIdentifier: 'mobileNumber',
       mobileNumberIdentifier: {
         '@path': '$.context.traits.phone'
       }
