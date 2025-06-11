@@ -5,7 +5,7 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 
 describe('Posthog.event', () => {
-  const endpoint = 'https://app.posthog.com'
+  const endpoint = 'https://us.i.posthog.com'
   const apiKey = 'test-api-key'
   const projectId = 'test-project-id'
 
@@ -20,7 +20,7 @@ describe('Posthog.event', () => {
       }
     })
 
-    nock(endpoint).post('/i/v0/e/').reply(200, {})
+    nock(endpoint).post('/batch/').reply(200, {})
 
     const responses = await testDestination.testAction('event', {
       event,
@@ -28,7 +28,8 @@ describe('Posthog.event', () => {
       settings: {
         api_key: apiKey,
         endpoint: endpoint,
-        project_id: projectId
+        project_id: projectId,
+        historical_migration: false
       }
     })
 
@@ -37,11 +38,19 @@ describe('Posthog.event', () => {
     const payload = JSON.parse(responses[0].options.body as string)
     expect(payload).toMatchObject({
       api_key: apiKey,
-      event: event.event,
-      distinct_id: event.userId,
-      properties: event.properties
+      historical_migration: false,
+      batch: [
+        {
+          event: event.event,
+          properties: {
+            ...event.properties,
+            distinct_id: event.userId,
+            $process_person_profile: false
+          },
+          timestamp: event.receivedAt
+        }
+      ]
     })
-    expect(payload.timestamp).toBe(event.receivedAt)
   })
 
   it('should throw error if required fields are missing', async () => {
@@ -63,7 +72,8 @@ describe('Posthog.event', () => {
         settings: {
           api_key: apiKey,
           endpoint: endpoint,
-          project_id: projectId
+          project_id: projectId,
+          historical_migration: false
         }
       })
     ).rejects.toThrow()

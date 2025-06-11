@@ -30,7 +30,8 @@ describe('Posthog.identify', () => {
       settings: {
         api_key: apiKey,
         endpoint: endpoint,
-        project_id: projectId
+        project_id: projectId,
+        historical_migration: false
       }
     })
 
@@ -67,7 +68,8 @@ describe('Posthog.identify', () => {
         settings: {
           api_key: apiKey,
           endpoint: endpoint,
-          project_id: projectId
+          project_id: projectId,
+          historical_migration: false
         }
       })
     ).rejects.toThrow()

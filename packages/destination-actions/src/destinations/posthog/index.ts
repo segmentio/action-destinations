@@ -36,13 +36,22 @@ const destination: DestinationDefinition<Settings> = {
         ],
         default: 'https://us.i.posthog.com',
         required: true
+      },
+      historical_migration: {
+        label: 'Historical Migration',
+        description:
+          'If enabled, this ensures that events are processed in order without triggering our spike detection systems.',
+        type: 'boolean',
+        default: false,
+        required: true
       }
     }
   },
   actions: {
     event,
     identify
-  }
+  },
+  presets: []
 }
 
 export default destination

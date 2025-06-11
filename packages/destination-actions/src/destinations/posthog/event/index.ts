@@ -1,4 +1,5 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
+import { BatchEvent } from 'src/destinations/posthog/event/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -35,6 +36,14 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties'
       }
     },
+    anonymous_event_capture: {
+      label: 'Anonymous Event Capture',
+      description:
+        'To capture [anonymous events](https://posthog.com/docs/data/anonymous-vs-identified-events), set this field to `true`',
+      type: 'boolean',
+      default: false,
+      required: true
+    },
     timestamp: {
       label: 'Timestamp',
       description: 'The timestamp of the event',
@@ -43,26 +52,53 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.receivedAt'
       },
       required: false
+    },
+    enable_batching: {
+      label: 'Enable Batching',
+      description: 'If enabled, this action will be batched and processed in bulk.',
+      type: 'boolean',
+      default: false,
+      required: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      default: 100,
+      unsafe_hidden: true
     }
   },
-  perform: (request, data) => {
-    const url = `${data.settings.endpoint}/i/v0/e/`
-    const headers = {
-      'Content-Type': 'application/json'
-    }
-    const payload = {
-      api_key: data.settings.api_key,
-      event: data.payload.event_name,
-      distinct_id: data.payload.distinct_id,
-      properties: data.payload.properties,
-      timestamp: data.payload.timestamp
-    }
-    return request(url, {
-      method: 'post',
-      headers,
-      body: JSON.stringify(payload)
-    })
+  perform: (request, { settings, payload }) => {
+    return send(request, settings, [payload])
+  },
+  performBatch: (request, { settings, payload }) => {
+    return send(request, settings, payload)
   }
+}
+
+function send(request: RequestClient, settings: Settings, payload: Payload[]) {
+  const url = `${settings.endpoint}/batch/`
+  const headers = {
+    'Content-Type': 'application/json'
+  }
+  const batch: BatchEvent[] = payload.map((payload) => ({
+    event: payload.event_name,
+    timestamp: payload.timestamp,
+    properties: {
+      ...payload.properties,
+      distinct_id: payload.distinct_id,
+      $process_person_profile: payload.anonymous_event_capture
+    }
+  }))
+  return request(url, {
+    method: 'post',
+    headers,
+    body: JSON.stringify({
+      api_key: settings.api_key,
+      historical_migration: settings.historical_migration,
+      batch
+    })
+  })
 }
 
 export default action

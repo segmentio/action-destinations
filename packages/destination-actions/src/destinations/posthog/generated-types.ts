@@ -13,4 +13,8 @@ export interface Settings {
    * API Endpoint URL based on project region
    */
   endpoint: string
+  /**
+   * If enabled, this ensures that events are processed in order without triggering our spike detection systems.
+   */
+  historical_migration: boolean
 }
