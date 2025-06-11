@@ -77,7 +77,7 @@ export interface ProgramEnrolementJSON {
   programId: string
 }
 
-export type ChannelIdentifier = { email: string; 'mobile-number'?: never } | { 'mobile-number': string; email?: never }
+export type ChannelIdentifier = { email: string; mobileNumber?: never } | { mobileNumber: string; email?: never }
 
 export interface UpsertContactJSON {
   identifiers: Identifiers

@@ -46,6 +46,11 @@ export const event_metadata: InputField = {
       {
         fieldKey: 'tracking_type',
         operator: 'is',
+        value: [null, undefined, '']
+      },
+      {
+        fieldKey: 'tracking_type',
+        operator: 'is',
         value: 'AddToCart'
       },
       {
