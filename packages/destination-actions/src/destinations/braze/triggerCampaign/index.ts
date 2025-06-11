@@ -1,5 +1,5 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, HTTPError, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { dynamicFields, allPrioritizationChoices } from './functions/dynamic-field-functions'
@@ -287,10 +287,21 @@ const action: ActionDefinition<Settings, Payload> = {
       delete payload.prioritization
     }
 
-    return request(`${settings.endpoint}/campaigns/trigger/send`, {
-      method: 'post',
-      json: payload
-    })
+    try {
+      return await request(`${settings.endpoint}/campaigns/trigger/send`, {
+        method: 'post',
+        json: payload
+      })
+    } catch (error) {
+      // Handle error response format specific to trigger/send endpoint
+      if (error instanceof HTTPError && error.response) {
+        const responseContent = error.response as ModifiedResponse<{ message?: string }>
+        if (responseContent.data?.message) {
+          throw new IntegrationError(responseContent.data.message, 'BRAZE_API_ERROR', error.response.status)
+        }
+      }
+      throw error
+    }
   }
 }
 
