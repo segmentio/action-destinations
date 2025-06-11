@@ -1,14 +1,11 @@
 import { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
+import { Settings } from './generated-types'
+
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
 import groupUser from './groupUser'
-
 import trackPageView from './trackPageView'
-
-interface Settings {
-  apiKey: string
-}
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Roadway AI',
@@ -57,13 +54,14 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: (request, { settings }) =>
-      request(`https://app.roadwayai.com/api/v1/segment/validate-credentials`, {
+    testAuthentication: (request, { settings }) => {
+      return request(`https://app.roadwayai.com/api/v1/segment/validate-credentials`, {
         method: 'POST',
         body: JSON.stringify({
           api_key: settings.apiKey
         })
       })
+    }
   },
 
   actions: {

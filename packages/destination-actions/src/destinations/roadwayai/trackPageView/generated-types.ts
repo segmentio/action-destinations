@@ -6,6 +6,16 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
+   * UTM tracking and campaign attribution properties
+   */
+  utm_properties?: {
+    utm_source?: string
+    utm_medium?: string
+    utm_campaign?: string
+    utm_term?: string
+    utm_content?: string
+  }
+  /**
    * The ID used to uniquely identify a person in RoadwayAI.
    */
   id?: string

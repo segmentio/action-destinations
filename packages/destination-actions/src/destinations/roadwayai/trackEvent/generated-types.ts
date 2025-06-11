@@ -6,10 +6,6 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
-   * The name of the action being performed.
-   */
-  event: string
-  /**
    * A distinct ID specified by you.
    */
   distinct_id?: string
@@ -34,98 +30,6 @@ export interface Payload {
    */
   timestamp?: string | number
   /**
-   * The name of your application.
-   */
-  app_name?: string
-  /**
-   * The namespace of your application.
-   */
-  app_namespace?: string
-  /**
-   * The current build of your application.
-   */
-  app_build?: string
-  /**
-   * The current version of your application.
-   */
-  app_version?: string
-  /**
-   * The name of the mobile operating system or browser that the user is using.
-   */
-  os_name?: string
-  /**
-   * The version of the mobile operating system or browser the user is using.
-   */
-  os_version?: string
-  /**
-   * A unique identifier for the device the user is using.
-   */
-  device_id?: string
-  /**
-   * The type of the user's device.
-   */
-  device_type?: string
-  /**
-   * The name of the user's device.
-   */
-  device_name?: string
-  /**
-   * The device manufacturer that the user is using.
-   */
-  device_manufacturer?: string
-  /**
-   * The device model that the user is using.
-   */
-  device_model?: string
-  /**
-   * The current country of the user.
-   */
-  country?: string
-  /**
-   * The current region of the user.
-   */
-  region?: string
-  /**
-   * The language set by the user.
-   */
-  language?: string
-  /**
-   * The full URL of the webpage on which the event is triggered.
-   */
-  url?: string
-  /**
-   * Width, in pixels, of the device screen.
-   */
-  screen_width?: number
-  /**
-   * Height, in pixels, of the device screen.
-   */
-  screen_height?: number
-  /**
-   * Pixel density of the device screen.
-   */
-  screen_density?: number
-  /**
-   * Referrer url
-   */
-  referrer?: string
-  /**
-   * User agent
-   */
-  userAgent?: string
-  /**
-   * The event timezone
-   */
-  timezone?: string
-  /**
-   * The App Platform, if applicable
-   */
-  app_platform?: string
-  /**
-   * The Event Original Name, if applicable
-   */
-  name?: string
-  /**
    * An object of key-value pairs that represent additional data to be sent along with the event.
    */
   event_properties?: {
@@ -138,7 +42,62 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * UTM Tracking Properties
+   * The name of the action being performed.
+   */
+  event: string
+  /**
+   * The Event Original Name, if applicable
+   */
+  name?: string
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
+  /**
+   * Application-specific properties and metadata
+   */
+  app_properties?: {
+    /**
+     * The name of your application.
+     */
+    app_name?: string
+    /**
+     * The current version of your application.
+     */
+    app_version?: string
+  }
+  /**
+   * User location and locale information
+   */
+  location_properties?: {
+    /**
+     * The current country of the user.
+     */
+    country?: string
+    /**
+     * The current region of the user.
+     */
+    region?: string
+    /**
+     * The language set by the user.
+     */
+    language?: string
+  }
+  /**
+   * Web page context and navigation information
+   */
+  page_properties?: {
+    /**
+     * The full URL of the webpage on which the event is triggered.
+     */
+    url?: string
+    /**
+     * Referrer URL
+     */
+    referrer?: string
+  }
+  /**
+   * UTM tracking and campaign attribution properties
    */
   utm_properties?: {
     utm_source?: string
@@ -147,8 +106,4 @@ export interface Payload {
     utm_term?: string
     utm_content?: string
   }
-  /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
-   */
-  batch_size?: number
 }

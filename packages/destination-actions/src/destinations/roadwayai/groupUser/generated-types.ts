@@ -22,7 +22,7 @@ export interface Payload {
    */
   group_name?: string
   /**
-   * The time the event occured in UTC
+   * The time the event occurred in UTC
    */
   timestamp: string
   /**
