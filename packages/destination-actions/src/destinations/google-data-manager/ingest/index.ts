@@ -6,12 +6,13 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Ingest',
   description: '',
   fields: {},
-  perform: (_request, _data) => {
+  perform: async (_request, _data) => {
     // Make your partner api request here!
     // return request('https://example.com', {
     //   method: 'post',
     //   json: data.payload
     // })
+    return
   }
 }
 

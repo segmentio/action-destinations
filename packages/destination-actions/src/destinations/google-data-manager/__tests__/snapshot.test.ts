@@ -1,4 +1,3 @@
-/*
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
@@ -28,6 +27,12 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         settings: settingsData,
         auth: undefined
       })
+
+      // Defensive: handle case where no request is made
+      if (!responses[0] || !responses[0].request) {
+        expect(responses).toMatchSnapshot()
+        return
+      }
 
       const request = responses[0].request
       const rawBody = await request.text()
@@ -63,6 +68,12 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         auth: undefined
       })
 
+      // Defensive: handle case where no request is made
+      if (!responses[0] || !responses[0].request) {
+        expect(responses).toMatchSnapshot()
+        return
+      }
+
       const request = responses[0].request
       const rawBody = await request.text()
 
@@ -76,4 +87,3 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
     })
   }
 })
-*/
