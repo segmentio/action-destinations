@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-google-data-manager destination: ingest action - all fields 1`] = `Array []`;
+
+exports[`Testing snapshot for actions-google-data-manager destination: ingest action - required fields 1`] = `Array []`;
+
+exports[`Testing snapshot for actions-google-data-manager destination: remove action - all fields 1`] = `Array []`;
+
+exports[`Testing snapshot for actions-google-data-manager destination: remove action - required fields 1`] = `Array []`;
