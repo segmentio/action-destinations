@@ -39,4 +39,8 @@ export interface Payload {
    * The person's timezone.
    */
   timezone?: string
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower. Max size must be between 1 and 1000 inclusive.
+   */
+  batch_size?: number
 }

@@ -152,8 +152,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     if (payload.email) {
-      payload.email = processHashing(payload.email, 'sha256', 'hex', undefined, 'podscribe', normalizeEmail)
+      payload.email = processHashing(payload.email, 'sha256', 'hex', normalizeEmail)
     }
+
+    const { total, order_id, currency, coupon, num_items_purchased, is_new_customer, is_subscription, ...properties } =
+      payload.properties || {}
 
     const params = serializeParams({
       action: payload.podscribeEvent,
@@ -165,15 +168,16 @@ const action: ActionDefinition<Settings, Payload> = {
       url: payload.url,
       ip: payload.ip,
       user_agent: payload.userAgent,
-      order_value: payload.properties?.total,
-      order_number: payload.properties?.order_id,
-      currency: payload.properties?.currency,
-      discount_code: payload.properties?.coupon,
+      order_value: total,
+      order_number: order_id,
+      currency: currency,
+      discount_code: coupon,
       hashed_email: payload?.email,
-      num_items_purchased: payload.properties?.num_items_purchased,
-      is_new_customer: payload.properties?.is_new_customer,
-      is_subscription: payload.properties?.is_subscription,
-      library: payload?.library ? JSON.stringify(payload.library) : undefined
+      num_items_purchased: num_items_purchased,
+      is_new_customer: is_new_customer,
+      is_subscription: is_subscription,
+      library: payload?.library ? JSON.stringify(payload.library) : undefined,
+      properties: Object.keys(properties).length > 0 ? JSON.stringify(properties) : undefined
     })
 
     return request(`https://verifi.podscribe.com/tag?${params}`)

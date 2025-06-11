@@ -524,7 +524,7 @@ describe('GoogleEnhancedConversions', () => {
             code: 400,
             details: [
               {
-                '@type': 'type.googleapis.com/google.ads.googleads.v17.errors.GoogleAdsFailure',
+                '@type': 'type.googleapis.com/google.ads.googleads.v19.errors.GoogleAdsFailure',
                 errors: [
                   {
                     errorCode: {
@@ -628,7 +628,7 @@ describe('GoogleEnhancedConversions', () => {
             code: 400,
             details: [
               {
-                '@type': 'type.googleapis.com/google.ads.googleads.v17.errors.GoogleAdsFailure',
+                '@type': 'type.googleapis.com/google.ads.googleads.v19.errors.GoogleAdsFailure',
                 errors: [
                   {
                     errorCode: {
@@ -752,7 +752,7 @@ describe('GoogleEnhancedConversions', () => {
             code: 400,
             details: [
               {
-                '@type': 'type.googleapis.com/google.ads.googleads.v17.errors.GoogleAdsFailure',
+                '@type': 'type.googleapis.com/google.ads.googleads.v19.errors.GoogleAdsFailure',
                 errors: [
                   {
                     errorCode: {
@@ -964,7 +964,7 @@ describe('GoogleEnhancedConversions', () => {
             message: 'Mocking Partial Failure Error',
             details: [
               {
-                '@type': 'type.googleapis.com/google.ads.googleads.v17.errors.GoogleAdsFailure',
+                '@type': 'type.googleapis.com/google.ads.googleads.v19.errors.GoogleAdsFailure',
                 errors: [
                   {
                     errorCode: {
@@ -1363,7 +1363,7 @@ describe('GoogleEnhancedConversions', () => {
             code: 400,
             details: [
               {
-                '@type': 'type.googleapis.com/google.ads.googleads.v17.errors.GoogleAdsFailure',
+                '@type': 'type.googleapis.com/google.ads.googleads.v19.errors.GoogleAdsFailure',
                 errors: [
                   {
                     errorCode: {
@@ -1466,7 +1466,7 @@ describe('GoogleEnhancedConversions', () => {
             code: 400,
             details: [
               {
-                '@type': 'type.googleapis.com/google.ads.googleads.v17.errors.GoogleAdsFailure',
+                '@type': 'type.googleapis.com/google.ads.googleads.v19.errors.GoogleAdsFailure',
                 errors: [
                   {
                     errorCode: {
