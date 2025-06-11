@@ -1,4 +1,4 @@
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 /**
  * Convert emails to lower case, and hash in SHA256.
  */
@@ -54,5 +54,5 @@ export function formatUserIds(userIds: string[] | undefined): string[] {
 }
 
 function hashAndEncode(property: string, cleaningFunction?: (value: string) => string): string {
-  return processHashingV2(property, 'sha256', 'hex', cleaningFunction)
+  return processHashing(property, 'sha256', 'hex', cleaningFunction)
 }

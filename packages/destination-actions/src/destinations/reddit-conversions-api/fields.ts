@@ -192,6 +192,11 @@ export const user: InputField = {
       description:
         "The value from the first-party Pixel '_rdt_uuid' cookie on your domain. Note that it is in the '{timestamp}.{uuid}' format. You may use the full value or just the UUID portion.",
       type: 'string'
+    },
+    phone_number: {
+      label: 'Phone Number',
+      description: 'The phone number of the user in E.164 standard format.',
+      type: 'string'
     }
   },
   default: {
@@ -218,6 +223,13 @@ export const user: InputField = {
         exists: { '@path': '$.integrations.Reddit Conversions Api.uuid' },
         then: { '@path': '$.integrations.Reddit Conversions Api.uuid' },
         else: { '@path': '$.properties.uuid' }
+      }
+    },
+    phone_number: {
+      '@if': {
+        exists: { '@path': '$.context.traits.phone' },
+        then: { '@path': '$.context.traits.phone' },
+        else: { '@path': '$.properties.phone' }
       }
     }
   }

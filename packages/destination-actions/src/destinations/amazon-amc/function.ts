@@ -4,7 +4,7 @@ import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
 import { AudienceRecord, HashedPIIObject } from './types'
 import { CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID } from './utils'
-import { processHashingV2 } from '../../lib/hashing-utils'
+import { processHashing } from '../../lib/hashing-utils'
 
 export async function processPayload(
   request: RequestClient,
@@ -233,28 +233,28 @@ function hashedPayload(payload: Payload): HashedPIIObject {
   const hashedPII: HashedPIIObject = {}
 
   if (payload.firstName) {
-    hashedPII.firstname = processHashingV2(payload.firstName, 'sha256', 'hex', normalizeStandard)
+    hashedPII.firstname = processHashing(payload.firstName, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.lastName) {
-    hashedPII.lastname = processHashingV2(payload.lastName, 'sha256', 'hex', normalizeStandard)
+    hashedPII.lastname = processHashing(payload.lastName, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.address) {
-    hashedPII.address = processHashingV2(payload.address, 'sha256', 'hex', normalizeStandard)
+    hashedPII.address = processHashing(payload.address, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.postal) {
-    hashedPII.postal = processHashingV2(payload.postal, 'sha256', 'hex', normalizeStandard)
+    hashedPII.postal = processHashing(payload.postal, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.phone) {
-    hashedPII.phone = processHashingV2(payload.phone, 'sha256', 'hex', normalizePhone)
+    hashedPII.phone = processHashing(payload.phone, 'sha256', 'hex', normalizePhone)
   }
   if (payload.city) {
-    hashedPII.city = processHashingV2(payload.city, 'sha256', 'hex', normalizeStandard)
+    hashedPII.city = processHashing(payload.city, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.state) {
-    hashedPII.state = processHashingV2(payload.state, 'sha256', 'hex', normalizeStandard)
+    hashedPII.state = processHashing(payload.state, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.email) {
-    hashedPII.email = processHashingV2(payload.email, 'sha256', 'hex', normalizeEmail)
+    hashedPII.email = processHashing(payload.email, 'sha256', 'hex', normalizeEmail)
   }
 
   return hashedPII

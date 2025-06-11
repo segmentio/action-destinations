@@ -25,7 +25,7 @@ import {
   formatPhone
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
-import { processHashingV2 } from '../../../lib/hashing-utils'
+import { processHashing } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Click Conversion',
@@ -208,7 +208,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',
       description:
-        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
+        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v19/Consent).',
       type: 'string',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
@@ -220,7 +220,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ad Personalization Consent State',
       type: 'string',
       description:
-        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v19/Consent).',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
@@ -319,7 +319,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     if (payload.email_address) {
-      const validatedEmail: string = processHashingV2(payload.email_address, 'sha256', 'hex', commonEmailValidation)
+      const validatedEmail: string = processHashing(payload.email_address, 'sha256', 'hex', commonEmailValidation)
 
       request_object.userIdentifiers.push({
         hashedEmail: validatedEmail
@@ -328,7 +328,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (payload.phone_number) {
       request_object.userIdentifiers.push({
-        hashedPhoneNumber: processHashingV2(payload.phone_number, 'sha256', 'hex', (value) =>
+        hashedPhoneNumber: processHashing(payload.phone_number, 'sha256', 'hex', (value) =>
           formatPhone(value, payload.phone_country_code)
         )
       } as UserIdentifierInterface)
@@ -426,7 +426,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         if (payload.email_address) {
-          const validatedEmail: string = processHashingV2(payload.email_address, 'sha256', 'hex', commonEmailValidation)
+          const validatedEmail: string = processHashing(payload.email_address, 'sha256', 'hex', commonEmailValidation)
 
           request_object.userIdentifiers.push({
             hashedEmail: validatedEmail
@@ -435,7 +435,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
         if (payload.phone_number) {
           request_object.userIdentifiers.push({
-            hashedPhoneNumber: processHashingV2(payload.phone_number, 'sha256', 'hex', (value) =>
+            hashedPhoneNumber: processHashing(payload.phone_number, 'sha256', 'hex', (value) =>
               formatPhone(value, payload.phone_country_code)
             )
           } as UserIdentifierInterface)

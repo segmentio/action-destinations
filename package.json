@@ -21,6 +21,7 @@
     "clean": "sh scripts/clean.sh",
     "cli": "yarn workspace @segment/actions-cli",
     "cloud": "yarn workspace @segment/action-destinations",
+    "warehouse": "yarn workspace @segment/warehouse-destinations",
     "core": "yarn workspace @segment/actions-core",
     "lint": "ls -d ./packages/* | xargs -I {} eslint '{}/**/*.ts' --cache",
     "postversion": "bash scripts/postversion.sh",
@@ -115,6 +116,7 @@
   },
   "dependencies": {
     "chance": "^1.1.8",
+    "liquidjs": "^10.21.0",
     "xml-js": "^1.6.11"
   }
 }
