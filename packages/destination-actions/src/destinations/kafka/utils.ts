@@ -4,6 +4,7 @@ import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
 import { PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 
 const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -135,7 +136,7 @@ const getProducer = (settings: Settings) => {
   })
 }
 
-export const getOrCreateProducer = async (settings: Settings): Promise<Producer> => {
+export const getOrCreateProducer = async (settings: Settings, statsContext: StatsContext | undefined): Promise<Producer> => {
   const key = serializeKafkaConfig(settings)
   const now = Date.now()
 
@@ -145,14 +146,16 @@ export const getOrCreateProducer = async (settings: Settings): Promise<Producer>
     const isExpired = now - cached.lastUsed > PRODUCER_TTL_MS
     if (!isExpired) {
       cached.lastUsed = now
+      statsContext?.statsClient?.incr('kafka_connection_reused', 1, statsContext?.tags)
       return cached.producer
     }
 
     if (cached.isConnected) {
       try {
+        statsContext?.statsClient?.incr('kafka_connection_closed', 1, statsContext?.tags)
         await cached.producer.disconnect()
       } catch {
-        // Intentionally ignoring disconnect errors
+        statsContext?.statsClient?.incr('kafka_disconnect_error', 1, statsContext?.tags)
       }
     }
 
@@ -162,7 +165,7 @@ export const getOrCreateProducer = async (settings: Settings): Promise<Producer>
   const kafka = getKafka(settings)
   const producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner })
   await producer.connect()
-
+  statsContext?.statsClient?.incr('kafka_connection_opened', 1, statsContext?.tags)
   producersByConfig[key] = {
     producer,
     isConnected: true,
@@ -172,7 +175,7 @@ export const getOrCreateProducer = async (settings: Settings): Promise<Producer>
   return producer
 }
 
-export const sendData = async (settings: Settings, payload: Payload[], features: Features | undefined) => {
+export const sendData = async (settings: Settings, payload: Payload[], features: Features | undefined, statsContext: StatsContext | undefined) => {
   validate(settings)
 
   const groupedPayloads: { [topic: string]: Payload[] } = {}
@@ -201,7 +204,7 @@ export const sendData = async (settings: Settings, payload: Payload[], features:
 
   let producer: Producer
   if (features && features[FLAGON_NAME]) {
-    producer = await getOrCreateProducer(settings)
+    producer = await getOrCreateProducer(settings, statsContext)
   } else {
     producer = getProducer(settings)
     await producer.connect()
