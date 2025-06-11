@@ -40,9 +40,13 @@ export interface Payload {
    */
   avatar_image_url?: string
   /**
-   * The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/articles/183-enable-identity-verification-for-web-and-mobile) for more information on how to set this field.
+   * The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/collections/12295815-messenger-security) for more information on how to set this field.
    */
   user_hash?: string
+  /**
+   * The intercom user JWT is used to secure your messenger for your users. See [Intercom docs](https://www.intercom.com/help/en/collections/12295815-messenger-security) for more information on how to set this field.
+   */
+  intercom_user_jwt?: string
   /**
    * The user's company.
    */
