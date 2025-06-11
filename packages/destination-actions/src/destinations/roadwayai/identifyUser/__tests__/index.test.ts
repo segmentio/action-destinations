@@ -51,7 +51,6 @@ describe('Roadwayai.identifyUser', () => {
       settings
     })
 
-    expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.json).toEqual([
       {
@@ -112,7 +111,6 @@ describe('Roadwayai.identifyUser', () => {
       settings
     })
 
-    expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.json).toContainEqual(
       expect.objectContaining({

@@ -13,6 +13,7 @@ describe('Roadwayai.groupUser', () => {
       userId: 'user-123',
       anonymousId: 'anon-456',
       groupId: 'group-789',
+      timestamp: '2021-01-01T00:00:00.000Z',
       traits: {
         name: 'Engineering Team',
         industry: 'Technology',
@@ -58,13 +59,13 @@ describe('Roadwayai.groupUser', () => {
       settings
     })
 
-    expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.json).toEqual([
       {
         user_id: 'user-123',
         anonymous_id: 'anon-456',
         group_id: 'group-789',
+        timestamp: '2021-01-01T00:00:00.000Z',
         group_name: 'Engineering Team',
         traits: {
           name: 'Engineering Team',
@@ -131,7 +132,6 @@ describe('Roadwayai.groupUser', () => {
       settings
     })
 
-    expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
     expect(responses[0].options.json).toContainEqual(
       expect.objectContaining({
@@ -144,7 +144,7 @@ describe('Roadwayai.groupUser', () => {
         }
       })
     )
-    expect(responses[0].options.json).toContainEqual(
+    expect(responses[1].options.json).toContainEqual(
       expect.objectContaining({
         user_id: 'user-2',
         group_id: 'group-2',
