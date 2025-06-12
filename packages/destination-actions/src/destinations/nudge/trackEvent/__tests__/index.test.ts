@@ -29,7 +29,7 @@ describe('Nudge.trackEvent', () => {
   it('should succeed', async () => {
     const event = createTestEvent({ timestamp, event: 'Test Event 1', userId: 'test_may_12_2' })
 
-    nock(API_URL).post('/integration/segment/track-event/batch').reply(200, {})
+    nock(API_URL).post('/integration/segment/events/batch').reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
@@ -49,7 +49,7 @@ describe('Nudge.trackEvent', () => {
       createTestEvent({ timestamp, event: 'Test event 3' })
     ]
 
-    nock(API_URL).post('/integration/segment/track-event/batch').reply(200, {})
+    nock(API_URL).post('/integration/segment/events/batch').reply(200, {})
 
     const responses = await testDestination.testBatchAction('trackEvent', {
       events,
