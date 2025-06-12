@@ -248,13 +248,6 @@ const isSyncMode = (value: unknown): value is SyncMode => {
   return syncModeTypes.find((validValue) => value === validValue) !== undefined
 }
 
-const INTERNAL_HIDDEN_FIELDS = ['__segment_internal_sync_mode', '__segment_internal_matching_key']
-const removeInternalHiddenFields = (mapping: JSONObject): JSONObject => {
-  return Object.keys(mapping).reduce((acc, key) => {
-    return INTERNAL_HIDDEN_FIELDS.includes(key) ? acc : { ...acc, [key]: mapping[key] }
-  }, {})
-}
-
 /**
  * Action is the beginning step for all partner actions. Entrypoints always start with the
  * MapAndValidateInput step.
@@ -387,16 +380,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
 
-    // Remove internal hidden fields
-    const internalFields = {} as JSONLikeObject
-
-    INTERNAL_HIDDEN_FIELDS.forEach((field) => {
-      if (bundle.mapping?.[field]) {
-        internalFields[field] = bundle.mapping[field]
-      }
-    })
-
-    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
+    const mapping: JSONObject = bundle.mapping
 
     let payloads = transformBatch(mapping, bundle.data) as Payload[]
     const batchPayloadLength = payloads.length
@@ -419,9 +403,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         const filteredPayload: Payload[] = []
 
         for (let i = 0; i < payloads.length; i++) {
-          // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-          const payload = removeEmptyValues({ ...payloads[i], ...internalFields }, schema) as Payload
           // Validate payload schema
+          const payload = removeEmptyValues(payloads[i], schema) as Payload
           try {
             validateSchema(payload, schema, validationOptions)
           } catch (e) {

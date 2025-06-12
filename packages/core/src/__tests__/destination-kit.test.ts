@@ -282,7 +282,13 @@ const destinationWithSyncMode: DestinationDefinition<JSONObject> = {
       title: 'Send a Custom Event',
       description: 'Send events to a custom event in API',
       defaultSubscription: 'type = "track"',
-      fields: {},
+      fields: {
+        sampleField: {
+          label: 'Sample Field',
+          description: 'Just a sample field',
+          type: 'string'
+        }
+      },
       syncMode: {
         default: 'add',
         description: 'Select the sync mode for the subscription',
