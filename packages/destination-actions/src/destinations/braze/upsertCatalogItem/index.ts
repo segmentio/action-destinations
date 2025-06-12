@@ -125,8 +125,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Catalog Item',
   description: 'Upserts or deletes items in a catalog',
   syncMode: {
-    description:
-      'Define how the records from your destination will be synced. The item object is not required when the syncMode is set to delete.',
+    description: 'Define how the records from your destination will be synced.',
     label: 'How to sync records',
     default: 'upsert',
     choices: [
