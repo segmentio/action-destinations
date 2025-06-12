@@ -6,9 +6,9 @@ import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer 
 import { PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 
-const producersByConfig: Record<string, CachedProducer> = {}
+export const producersByConfig: Record<string, CachedProducer> = {}
 
-const serializeKafkaConfig = (settings: Settings): string => {
+export const serializeKafkaConfig = (settings: Settings): string => {
   const config = {
     clientId: settings.clientId,
     brokers: settings.brokers
