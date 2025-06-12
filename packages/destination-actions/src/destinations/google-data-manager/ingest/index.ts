@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Ingest',
-  description: '',
+  description: 'Ingest data into Google Data Manager.',
   fields: {},
   perform: async (_request, _data) => {
     // Make your partner api request here!

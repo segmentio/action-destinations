@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Remove',
-  description: '',
+  description: 'Remove data from Google Data Manager.',
   fields: {},
   perform: async (_request, _data) => {
     // Make your partner api request here!
