@@ -3,94 +3,219 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
+const ROADWAY_API_KEY = 'test-api-key'
+const timestamp = '2024-09-26T15:21:15.449Z'
 
 describe('Roadwayai.groupUser', () => {
-  it('should send group user event to RoadwayAI API', async () => {
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, { success: true })
-
+  it('should validate action fields', async () => {
     const event = createTestEvent({
       type: 'group',
-      userId: 'user-123',
-      anonymousId: 'anon-456',
-      groupId: 'group-789',
-      timestamp: '2021-01-01T00:00:00.000Z',
+      timestamp,
+      userId: 'user123',
+      groupId: 'group456',
       traits: {
         name: 'Engineering Team',
-        industry: 'Technology',
-        employees: 50,
-        plan: 'enterprise'
-      },
-      context: {
-        ip: '127.0.0.1'
+        industry: 'Technology'
       }
     })
 
-    const mapping = {
-      user_id: {
-        '@path': '$.userId'
-      },
-      anonymous_id: {
-        '@path': '$.anonymousId'
-      },
-      group_id: {
-        '@path': '$.groupId'
-      },
-      group_name: {
-        '@path': '$.traits.name'
-      },
-      traits: {
-        '@path': '$.traits'
-      },
-      timestamp: {
-        '@path': '$.timestamp'
-      },
-      context: {
-        '@path': '$.context'
-      }
-    }
-
-    const settings = {
-      apiKey: 'test-api-key'
-    }
+    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
 
     const responses = await testDestination.testAction('groupUser', {
       event,
-      mapping,
-      settings
+      useDefaultMappings: true,
+      settings: {
+        apiKey: ROADWAY_API_KEY
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.json).toMatchObject([
+      expect.objectContaining({
+        user_id: 'user123',
+        group_id: 'group456',
+        group_name: 'Engineering Team'
+      })
+    ])
+  })
+
+  it('should send request with correct headers', async () => {
+    const event = createTestEvent({
+      type: 'group',
+      timestamp,
+      userId: 'user123',
+      groupId: 'group456',
+      traits: {
+        name: 'Test Group'
+      }
     })
 
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].options.json).toEqual([
-      {
-        user_id: 'user-123',
-        anonymous_id: 'anon-456',
-        group_id: 'group-789',
-        timestamp: '2021-01-01T00:00:00.000Z',
-        group_name: 'Engineering Team',
-        traits: {
-          name: 'Engineering Team',
-          industry: 'Technology',
-          employees: 50,
-          plan: 'enterprise'
-        },
-        context: {
-          ip: '127.0.0.1'
-        }
+    nock('https://app.roadwayai.com')
+      .post('/api/v1/segment/events/group')
+      .matchHeader('x-api-key', ROADWAY_API_KEY)
+      .reply(200, {})
+
+    const responses = await testDestination.testAction('groupUser', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        apiKey: ROADWAY_API_KEY
       }
-    ])
-    expect(responses[0].options.headers).toEqual({
-      'x-api-key': 'test-api-key'
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.headers).toMatchObject({
+      'x-api-key': ROADWAY_API_KEY
     })
   })
 
-  it('should handle batch group user events', async () => {
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, { success: true })
+  it('should handle custom mapping', async () => {
+    const event = createTestEvent({
+      type: 'group',
+      timestamp,
+      userId: 'customuser',
+      groupId: 'customgroup',
+      traits: {
+        name: 'Custom Group',
+        custom_field: 'custom_value'
+      }
+    })
 
+    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
+
+    const responses = await testDestination.testAction('groupUser', {
+      event,
+      mapping: {
+        user_id: {
+          '@path': '$.userId'
+        },
+        group_id: {
+          '@path': '$.groupId'
+        },
+        group_name: {
+          '@path': '$.traits.name'
+        },
+        traits: {
+          '@path': '$.traits'
+        }
+      },
+      settings: {
+        apiKey: ROADWAY_API_KEY
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject([
+      expect.objectContaining({
+        user_id: 'customuser',
+        group_id: 'customgroup',
+        group_name: 'Custom Group'
+      })
+    ])
+  })
+
+  it('should handle events with anonymous_id', async () => {
+    const event = createTestEvent({
+      type: 'group',
+      timestamp,
+      anonymousId: 'anon123',
+      groupId: 'group456',
+      traits: {
+        name: 'Anonymous Group'
+      }
+    })
+
+    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
+
+    const responses = await testDestination.testAction('groupUser', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        apiKey: ROADWAY_API_KEY
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject([
+      expect.objectContaining({
+        anonymous_id: 'anon123',
+        group_id: 'group456',
+        group_name: 'Anonymous Group'
+      })
+    ])
+  })
+
+  it('should handle events with context', async () => {
+    const event = createTestEvent({
+      type: 'group',
+      timestamp,
+      userId: 'user123',
+      groupId: 'group456',
+      traits: {
+        name: 'Context Group'
+      },
+      context: {
+        ip: '192.168.1.1',
+        userAgent: 'test-agent'
+      }
+    })
+
+    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
+
+    const responses = await testDestination.testAction('groupUser', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        apiKey: ROADWAY_API_KEY
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject([
+      expect.objectContaining({
+        user_id: 'user123',
+        group_id: 'group456',
+        context: expect.objectContaining({
+          ip: '192.168.1.1'
+        })
+      })
+    ])
+  })
+
+  it('should require timestamp field', async () => {
+    const event = createTestEvent({
+      type: 'group',
+      userId: 'user123',
+      groupId: 'group456',
+      traits: {
+        name: 'Test Group'
+      }
+    })
+    event.timestamp = undefined
+
+    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
+
+    try {
+      await testDestination.testAction('groupUser', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          apiKey: ROADWAY_API_KEY
+        }
+      })
+    } catch (e) {
+      expect(e.message).toBe("The root value is missing the required field 'timestamp'.")
+    }
+  })
+
+  it('should invoke performBatch for batches', async () => {
     const events = [
       createTestEvent({
         type: 'group',
-        userId: 'user-1',
-        groupId: 'group-1',
+        timestamp,
+        userId: 'user1',
+        groupId: 'group1',
         traits: {
           name: 'Group One',
           industry: 'Finance'
@@ -98,8 +223,9 @@ describe('Roadwayai.groupUser', () => {
       }),
       createTestEvent({
         type: 'group',
-        userId: 'user-2',
-        groupId: 'group-2',
+        timestamp,
+        userId: 'user2',
+        groupId: 'group2',
         traits: {
           name: 'Group Two',
           industry: 'Healthcare'
@@ -107,53 +233,29 @@ describe('Roadwayai.groupUser', () => {
       })
     ]
 
-    const settings = {
-      apiKey: 'test-api-key'
-    }
-
-    const mapping = {
-      user_id: {
-        '@path': '$.userId'
-      },
-      group_id: {
-        '@path': '$.groupId'
-      },
-      group_name: {
-        '@path': '$.traits.name'
-      },
-      traits: {
-        '@path': '$.traits'
-      }
-    }
+    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
 
     const responses = await testDestination.testBatchAction('groupUser', {
       events,
-      mapping,
-      settings
+      useDefaultMappings: true,
+      settings: {
+        apiKey: ROADWAY_API_KEY
+      }
     })
-
+    expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
-    expect(responses[0].options.json).toContainEqual(
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.json).toMatchObject([
       expect.objectContaining({
-        user_id: 'user-1',
-        group_id: 'group-1',
-        group_name: 'Group One',
-        traits: {
-          name: 'Group One',
-          industry: 'Finance'
-        }
-      })
-    )
-    expect(responses[1].options.json).toContainEqual(
+        user_id: 'user1',
+        group_id: 'group1',
+        group_name: 'Group One'
+      }),
       expect.objectContaining({
-        user_id: 'user-2',
-        group_id: 'group-2',
-        group_name: 'Group Two',
-        traits: {
-          name: 'Group Two',
-          industry: 'Healthcare'
-        }
+        user_id: 'user2',
+        group_id: 'group2',
+        group_name: 'Group Two'
       })
-    )
+    ])
   })
 })

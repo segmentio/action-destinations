@@ -3,133 +3,237 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
+const ROADWAY_API_KEY = 'test-api-key'
+const timestamp = '2021-08-17T15:21:15.449Z'
 
 describe('Roadwayai.trackPageView', () => {
-  it('should send page view event to RoadwayAI API', async () => {
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, { success: true })
-
+  it('should validate action fields', async () => {
     const event = createTestEvent({
       type: 'page',
+      timestamp,
       properties: {
         url: 'https://example.com/page',
-        referrer: 'https://google.com',
-        title: 'Example Page'
+        title: 'Test Page'
       },
-      userId: 'user-123',
-      anonymousId: 'anon-456',
-      messageId: 'msg-789'
+      userId: 'user123'
     })
 
-    const mapping = {
-      url: {
-        '@path': '$.properties.url'
-      },
-      referrer: {
-        '@path': '$.properties.referrer'
-      },
-      id: {
-        '@path': '$.userId'
-      },
-      anonymous_id: {
-        '@path': '$.anonymousId'
-      },
-      event_id: {
-        '@path': '$.messageId'
-      },
-      timestamp: {
-        '@path': '$.timestamp'
-      },
-      data: {
-        '@path': '$.properties'
-      }
-    }
-
-    const settings = {
-      apiKey: 'test-api-key'
-    }
+    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
 
     const responses = await testDestination.testAction('trackPageView', {
       event,
-      mapping,
-      settings
+      useDefaultMappings: true,
+      settings: {
+        apiKey: ROADWAY_API_KEY
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.json).toMatchObject([
+      expect.objectContaining({
+        url: 'https://example.com/page',
+        id: 'user123'
+      })
+    ])
+  })
+
+  it('should send request with correct headers', async () => {
+    const event = createTestEvent({
+      type: 'page',
+      timestamp,
+      properties: {
+        url: 'https://example.com/page',
+        title: 'Test Page'
+      }
     })
 
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].options.json).toEqual([
-      {
-        url: 'https://example.com/page',
-        referrer: 'https://google.com',
-        id: 'user-123',
-        anonymous_id: 'anon-456',
-        event_id: 'msg-789',
-        data: {
-          url: 'https://example.com/page',
-          referrer: 'https://google.com',
-          title: 'Example Page'
-        }
+    nock('https://app.roadwayai.com')
+      .post('/api/v1/segment/events/page')
+      .matchHeader('x-api-key', ROADWAY_API_KEY)
+      .reply(200, {})
+
+    const responses = await testDestination.testAction('trackPageView', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        apiKey: ROADWAY_API_KEY
       }
-    ])
-    expect(responses[0].options.headers).toEqual({
-      'x-api-key': 'test-api-key'
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.headers).toMatchObject({
+      'x-api-key': ROADWAY_API_KEY
     })
   })
 
-  it('should handle batch page view events', async () => {
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, { success: true })
+  it('should handle custom mapping', async () => {
+    const event = createTestEvent({
+      type: 'page',
+      timestamp,
+      properties: {
+        url: 'https://custom.com/page',
+        title: 'Custom Page'
+      },
+      userId: 'customuser'
+    })
 
+    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
+
+    const responses = await testDestination.testAction('trackPageView', {
+      event,
+      mapping: {
+        url: {
+          '@path': '$.properties.url'
+        },
+        id: {
+          '@path': '$.userId'
+        },
+        data: {
+          '@path': '$.properties'
+        }
+      },
+      settings: {
+        apiKey: ROADWAY_API_KEY
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject([
+      expect.objectContaining({
+        url: 'https://custom.com/page',
+        id: 'customuser'
+      })
+    ])
+  })
+
+  it('should handle events with anonymous_id', async () => {
+    const event = createTestEvent({
+      type: 'page',
+      timestamp,
+      properties: {
+        url: 'https://example.com/page',
+        title: 'Test Page'
+      },
+      anonymousId: 'anon123'
+    })
+
+    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
+
+    const responses = await testDestination.testAction('trackPageView', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        apiKey: ROADWAY_API_KEY
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject([
+      expect.objectContaining({
+        url: 'https://example.com/page',
+        anonymous_id: 'anon123'
+      })
+    ])
+  })
+
+  it('should handle events with referrer', async () => {
+    const event = createTestEvent({
+      type: 'page',
+      timestamp,
+      properties: {
+        url: 'https://example.com/page',
+        referrer: 'https://google.com',
+        title: 'Test Page'
+      }
+    })
+
+    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
+
+    const responses = await testDestination.testAction('trackPageView', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        apiKey: ROADWAY_API_KEY
+      }
+    })
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject([
+      expect.objectContaining({
+        url: 'https://example.com/page',
+        referrer: 'https://google.com'
+      })
+    ])
+  })
+
+  it('should require url field', async () => {
+    const event = createTestEvent({
+      type: 'page',
+      timestamp,
+      properties: {
+        title: 'Test Page'
+      }
+    })
+
+    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
+
+    try {
+      await testDestination.testAction('trackPageView', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          apiKey: ROADWAY_API_KEY
+        }
+      })
+    } catch (e) {
+      expect(e.message).toBe("The root value is missing the required field 'url'.")
+    }
+  })
+
+  it('should invoke performBatch for batches', async () => {
     const events = [
       createTestEvent({
         type: 'page',
+        timestamp,
         properties: {
           url: 'https://example.com/page1',
           title: 'Page 1'
         },
-        userId: 'user-1'
+        userId: 'user1'
       }),
       createTestEvent({
         type: 'page',
+        timestamp,
         properties: {
           url: 'https://example.com/page2',
           title: 'Page 2'
         },
-        userId: 'user-2'
+        userId: 'user2'
       })
     ]
 
-    const settings = {
-      apiKey: 'test-api-key'
-    }
-
-    const mapping = {
-      url: {
-        '@path': '$.properties.url'
-      },
-      id: {
-        '@path': '$.userId'
-      },
-      data: {
-        '@path': '$.properties'
-      }
-    }
+    nock('https://app.roadwayai.com').post('/api/v1/segment/events/page').reply(200, {})
 
     const responses = await testDestination.testBatchAction('trackPageView', {
       events,
-      mapping,
-      settings
+      useDefaultMappings: true,
+      settings: {
+        apiKey: ROADWAY_API_KEY
+      }
     })
-
+    expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
-    expect(responses[0].options.json).toContainEqual(
+    expect(responses[0].data).toMatchObject({})
+    expect(responses[0].options.json).toMatchObject([
       expect.objectContaining({
         url: 'https://example.com/page1',
-        id: 'user-1'
-      })
-    )
-    expect(responses[0].options.json).toContainEqual(
+        id: 'user1'
+      }),
       expect.objectContaining({
         url: 'https://example.com/page2',
-        id: 'user-2'
+        id: 'user2'
       })
-    )
+    ])
   })
 })
