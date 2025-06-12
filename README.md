@@ -817,7 +817,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'number',
       unsafe_hidden: true, // consider if this should be exposed to customers. Please avoid by default.
       required: false,
-      default: 2,000,000 // 2 MB
+      default: 2000000 // 2 MB
     }
   },
   performBatch: async (request, { settings, payload }) => { ... }
