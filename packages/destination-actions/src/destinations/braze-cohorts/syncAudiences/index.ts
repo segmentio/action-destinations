@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
 import { CohortChanges } from '../braze-cohorts-types'
-import { StateContext } from '@segment/actions-core/destination-kit'
+import { StateContext, StatsContext } from '@segment/actions-core/destination-kit'
 import isEmpty from 'lodash/isEmpty'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -101,25 +101,45 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      default: ['cohort_name', 'cohort_id'], // This ensures all payloads from same audience are batched together.
+      multiple: true,
+      required: false
     }
   },
   perform: async (request, { settings, payload, stateContext }) => {
     return processPayload(request, settings, [payload], stateContext)
   },
-  performBatch: async (request, { settings, payload, stateContext }) => {
-    return processPayload(request, settings, payload, stateContext)
+  performBatch: async (request, { settings, payload, stateContext, statsContext }) => {
+    return processPayload(request, settings, payload, stateContext, statsContext)
   }
 }
 async function processPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  stateContext?: StateContext
+  stateContext?: StateContext,
+  statsContext?: StatsContext
 ) {
   validate(payloads)
   const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
   const { cohort_name, cohort_id } = payloads[0]
   const cohortChanges: Array<CohortChanges> = []
+
+  const set = new Set()
+  for (const p of payloads) {
+    set.add(`${p.cohort_name} ${p.cohort_id}`)
+  }
+  statsContext?.statsClient?.histogram(
+    'braze.cohorts.configurable_batch_keys.unique_keys',
+    set.size,
+    statsContext?.tags
+  )
 
   if (stateContext?.getRequestContext?.('cohort_name') != cohort_name) {
     await syncAudiencesApiClient.createCohort(settings, payloads[0])
