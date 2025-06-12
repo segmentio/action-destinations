@@ -326,6 +326,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Validate the resolved payload against the schema
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
+      // AJV schema validator removes non mandatory fields post validation
+      // Refer https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
+      // https://github.com/segmentio/action-destinations/blob/d245e420e56957e784c29b5c09d80f3e1e64e6c5/packages/core/src/schema-validation.ts#L21
       validateSchema(payload, this.schema, {
         schemaKey,
         statsContext: bundle.statsContext,
@@ -406,6 +409,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
           // Validate payload schema
           const payload = removeEmptyValues(payloads[i], schema) as Payload
           try {
+            // AJV schema validator removes non mandatory fields post validation
+            // Refer https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
+            // https://github.com/segmentio/action-destinations/blob/d245e420e56957e784c29b5c09d80f3e1e64e6c5/packages/core/src/schema-validation.ts#L21
             validateSchema(payload, schema, validationOptions)
           } catch (e) {
             // Validation failed with an exception, record the filtered out event
