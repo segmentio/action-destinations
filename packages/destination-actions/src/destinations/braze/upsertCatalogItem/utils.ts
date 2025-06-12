@@ -101,7 +101,7 @@ export function processMultiStatusErrorResponse(
     validPayloadMap.forEach((index, itemId) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 500,
-        errortype: 'INTERNAL_SERVER_ERROR',
+        errortype: 'RETRYABLE_ERROR',
         errormessage: `Item with ID ${itemId} could not be processed due to invalid catalog items in the batch request.`,
         sent: { ...payload[index]?.item, id: itemId } as JSONLikeObject,
         body: JSON.stringify(errors)

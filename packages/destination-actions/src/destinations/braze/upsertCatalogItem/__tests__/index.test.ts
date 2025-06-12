@@ -246,9 +246,6 @@ describe('Braze.upsertCatalogItem', () => {
     const responses = await testDestination.testBatchAction(actionSlug, {
       events,
       useDefaultMappings: false,
-      features: {
-        'cloudevent-spec-v02-allow': true
-      },
       mapping: {
         onMappingSave: {
           outputs: {
@@ -306,9 +303,6 @@ describe('Braze.upsertCatalogItem', () => {
     const responses = await testDestination.testBatchAction(actionSlug, {
       events,
       useDefaultMappings: false,
-      features: {
-        'cloudevent-spec-v02-allow': true
-      },
       mapping: {
         onMappingSave: {
           outputs: {
@@ -381,9 +375,7 @@ describe('Braze.upsertCatalogItem', () => {
     const responses = await testDestination.testBatchAction(actionSlug, {
       events,
       useDefaultMappings: false,
-      features: {
-        'cloudevent-spec-v02-allow': true
-      },
+
       mapping: {
         onMappingSave: {
           outputs: {
@@ -461,9 +453,7 @@ describe('Braze.upsertCatalogItem', () => {
     const responses = await testDestination.testBatchAction(actionSlug, {
       events,
       useDefaultMappings: false,
-      features: {
-        'cloudevent-spec-v02-allow': true
-      },
+
       mapping: {
         onMappingSave: {
           outputs: {
@@ -555,9 +545,7 @@ describe('Braze.upsertCatalogItem', () => {
     const responses = await testDestination.testBatchAction(actionSlug, {
       events,
       useDefaultMappings: false,
-      features: {
-        'cloudevent-spec-v02-allow': true
-      },
+
       mapping: {
         onMappingSave: {
           outputs: {
@@ -635,9 +623,6 @@ describe('Braze.upsertCatalogItem', () => {
       await testDestination.testAction(actionSlug, {
         event,
         useDefaultMappings: false,
-        features: {
-          'cloudevent-spec-v02-allow': true
-        },
         mapping: {
           onMappingSave: {
             outputs: {
