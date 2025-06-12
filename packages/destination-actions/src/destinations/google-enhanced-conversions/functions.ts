@@ -33,7 +33,7 @@ import type { Payload as UserListPayload } from './userList/generated-types'
 import { RefreshTokenResponse } from '.'
 import { STATUS_CODE_MAPPING } from './constants'
 import { processHashing } from '../../lib/hashing-utils'
-export const API_VERSION = 'v17'
+export const API_VERSION = 'v19'
 export const CANARY_API_VERSION = 'v19'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 
