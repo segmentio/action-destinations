@@ -693,7 +693,7 @@ The perform method will be invoked once for every event subscription that trigge
 
 ## Batching Requests
 
-Sometimes your customers have a lot of events, and your API supports a more efficient way to receive and process those large sets of data. We have early, experimental support for batching.
+Sometimes your customers have a lot of events, and your API supports a more efficient way to receive and process those large sets of data.
 
 You can implement an _additional_ perform method named `performBatch` in the action definition, alongside the `perform` method. The method signature looks like identical to `perform` except the `payload` is an array of data, where each item is an object matching your action’s field schema:
 
@@ -735,7 +735,92 @@ Keep in mind a few important things about how batching works:
 - Batches may have to up 1,000 events, currently. This, too, is subject to change.
 - Batch sizes are not guaranteed. Due to the way that batches are accumulated internally, you may see smaller batch sizes than you expect when sending low rates of events.
 
-Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
+### Advanced batching configurations
+
+The following are some advanced batching configurations for Cloud Mode destinations. Please consult with Segment before using any of these features as this could have significant impact on your destination's performance.
+
+### Batch Keys
+
+In case you have special requirement to group events into batches based on certain field configurations, you can declare those using `batch_keys` field in your action configuration. It is important that the fields chosen for grouping are of low cardinality to avoid forming small batches.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    list_id: {...},
+    enable_batching: {...}
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true, // this should always be hidden and shouldn't be exposed to customers.
+      required: false,
+      multiple: true,
+      default: ['list_id']
+    },
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
+}
+```
+
+### Batch Size
+
+In case you need to control the maximum number of events that can be batched together for a specific action, you can declare the `batch_size` field in your action configuration. This field allows you to define the upper limit for the number of events in a single batch. It is important to use judgement when deciding to expose this field to customers, as it can impact delivery performance. If not specified, the default batch size of 1000 will be used. Please note this default value is subject to change.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    list_id: {...},
+    enable_batching: {...}
+    batch_size: {
+      label: 'Batch Size',
+      description: 'The maximum number of events to include in a single batch.',
+      type: 'number',
+      unsafe_hidden: true, // consider if this should be exposed to customers.
+      default: 10000,
+      required: false
+    }
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
+}
+```
+
+### Batch Bytes
+
+In addition to `batch_size`, you can also control the maximum size of a batch in terms of bytes using the `batch_bytes` field in your action configuration. This field allows you to set an upper limit on the total byte size of a single batch. This can be useful when the destination API has limitations on request payload size. Exercise caution when using this field and avoid exposing it to customers as it can affect delivery performance. If not specified, a default byte limit of 4MB will be considered. Please note this default value is subject to change.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    list_id: {...},
+    enable_batching: {...},
+    batch_size: {
+      label: 'Batch Size',
+      description: 'The maximum number of events to include in a single batch.',
+      type: 'number',
+      unsafe_hidden: true,
+      required: false
+    },
+    batch_bytes: {
+      label: 'Batch Bytes',
+      description: 'The maximum size of a batch in bytes.',
+      type: 'number',
+      unsafe_hidden: true, // consider if this should be exposed to customers. Please avoid by default.
+      required: false,
+      default: 2,000,000 // 2 MB
+    }
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
+}
+```
 
 ## Parsing MultiStatus Responses
 
@@ -1042,7 +1127,3 @@ SOFTWARE.
 ## Contributing
 
 All third party contributors acknowledge that any contributions they provide will be made under the same open source license that the open source project is provided under.
-
-```
-
-```
