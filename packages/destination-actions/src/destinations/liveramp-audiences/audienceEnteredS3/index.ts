@@ -153,7 +153,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     return sendEventToAWS(input.request, {
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 's3',
-      filename: input.payloads[0].s3_aws_bucket_path ? `${input.payloads[0].s3_aws_bucket_path}/${filename}` : filename,
+      filename: filename,
       destinationInstanceID: subscriptionMetadata?.destinationConfigId,
       subscriptionId: subscriptionMetadata?.actionConfigId,
       fileContents,
@@ -161,7 +161,8 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
         s3BucketName: input.payloads[0].s3_aws_bucket_name,
         s3Region: input.payloads[0].s3_aws_region,
         s3AccessKeyId: input.payloads[0].s3_aws_access_key,
-        s3SecretAccessKey: input.payloads[0].s3_aws_secret_key
+        s3SecretAccessKey: input.payloads[0].s3_aws_secret_key,
+        s3BucketPath: input.payloads[0].s3_aws_bucket_path
       }
     })
   }
