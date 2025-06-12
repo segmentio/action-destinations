@@ -741,7 +741,9 @@ The following are some advanced batching configurations for Cloud Mode destinati
 
 ### Batch Keys
 
-In case you have special requirement to group events into batches based on certain field configurations, you can declare those using `batch_keys` field in your action configuration. It is important that the fields chosen for grouping are of low cardinality to avoid forming small batches.
+By default, Segment groups events using destination instance, settings, action instance, and action mapping settings. For `AudienceDestinationDefinition` implementations, `computation_key` (audience key), audience config settings, and `externalAudienceId` (unique external audience identifier) are also used for batch grouping.
+
+In case you have special requirement to group events into batches based on mapping resolved value of certain field configurations, you can declare those using `batch_keys` field in your action configuration. It is important that the fields chosen for grouping are of low cardinality to avoid forming small batches.
 
 ```js
 const action: ActionDefinition<Settings, Payload> = {
@@ -767,7 +769,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
 ### Batch Size
 
-In case you need to control the maximum number of events that can be batched together for a specific action, you can declare the `batch_size` field in your action configuration. This field allows you to define the upper limit for the number of events in a single batch. It is important to use judgement when deciding to expose this field to customers, as it can impact delivery performance. If not specified, the default batch size of 1000 will be used. Please note this default value is subject to change.
+In case you need to control the maximum number of events that can be batched together for a specific action, you can declare the `batch_size` field in your action configuration. This field allows you to define the upper limit for the number of events in a single batch. It is important to use judgement when deciding to expose this field to customers, as it can impact delivery performance. When exposed, ensure that min and max limits of batch size values is enforced for validation. If a `batch_size` is not specified, the default batch size of 1000 will be used. Please note this default value is subject to change.
 
 ```js
 const action: ActionDefinition<Settings, Payload> = {
@@ -792,7 +794,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
 ### Batch Bytes
 
-In addition to `batch_size`, you can also control the maximum size of a batch in terms of bytes using the `batch_bytes` field in your action configuration. This field allows you to set an upper limit on the total byte size of a single batch. This can be useful when the destination API has limitations on request payload size. Exercise caution when using this field and avoid exposing it to customers as it can affect delivery performance. If not specified, a default byte limit of 4MB will be considered. Please note this default value is subject to change.
+In addition to `batch_size`, you can also control the maximum size of a batch in terms of bytes using the `batch_bytes` field in your action configuration. This field allows you to set an upper limit on the total byte size of the batch payload that can be received in your `performBatch` function. This can be useful when the destination API has limitations on request payload size. Exercise caution when using this field and avoid exposing it to customers as it can affect delivery performance. If not specified, a default byte limit of 4MB will be considered. Please note this default value is subject to change.
 
 ```js
 const action: ActionDefinition<Settings, Payload> = {
