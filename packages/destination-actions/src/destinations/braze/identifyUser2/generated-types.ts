@@ -8,25 +8,16 @@ export interface Payload {
   /**
    * A user alias object. See [the docs](https://www.braze.com/docs/api/objects_filters/user_alias_object/).
    */
-  user_alias: {
+  user_alias?: {
     alias_name: string
     alias_label: string
   }
   /**
-   * Email addresses to identify users. Each entry requires an external_id and email.
+   * Email address to identify user.
    */
-  emails_to_identify?: {
-    /**
-     * The external ID to associate with this email.
-     */
-    external_id: string
-    /**
-     * The email address to identify.
-     */
-    email: string
-  }[]
+  email_to_identify?: string
   /**
-   * Prioritization settings for user merging if multiple users are found. Required when emails_to_identify is provided.
+   * Prioritization settings for user merging if multiple users are found. Required when email_to_identify is provided.
    */
   prioritization?: {
     /**

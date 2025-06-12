@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
         match: 'all',
         conditions: [
           {
-            fieldKey: 'emails_to_identify',
+            fieldKey: 'email_to_identify',
             operator: 'is',
             value: undefined
           }
@@ -48,11 +48,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    emails_to_identify: {
-      label: 'Emails to Identify',
-      description: 'Email addresses to identify users. Each entry requires an external_id and email.',
-      type: 'object',
-      multiple: true,
+    email_to_identify: {
+      label: 'Email to Identify',
+      description: 'Email address to identify user.',
+      type: 'string',
       required: {
         match: 'all',
         conditions: [
@@ -62,32 +61,18 @@ const action: ActionDefinition<Settings, Payload> = {
             value: undefined
           }
         ]
-      },
-      properties: {
-        external_id: {
-          label: 'External ID',
-          description: 'The external ID to associate with this email.',
-          type: 'string',
-          required: true
-        },
-        email: {
-          label: 'Email',
-          description: 'The email address to identify.',
-          type: 'string',
-          required: true
-        }
       }
     },
     prioritization: {
       label: 'Prioritization',
       description:
-        'Prioritization settings for user merging if multiple users are found. Required when emails_to_identify is provided.',
+        'Prioritization settings for user merging if multiple users are found. Required when email_to_identify is provided.',
       type: 'object',
       required: {
         match: 'all',
         conditions: [
           {
-            fieldKey: 'emails_to_identify',
+            fieldKey: 'email_to_identify',
             operator: 'is_not',
             value: undefined
           }
@@ -145,23 +130,22 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
 
-      if (payload.emails_to_identify && payload.emails_to_identify.length > 0) {
-        // Transform emails_to_identify and use the global prioritization object
-        requestBody.emails_to_identify = payload.emails_to_identify.map((item) => {
-          // Create prioritization array with at least one element (first_priority is required)
-          const prioritization = [payload.prioritization!.first_priority]
+      if (payload.email_to_identify) {
+        // Create prioritization array with at least one element (first_priority is required)
+        const prioritization = [payload.prioritization!.first_priority]
 
-          // Add second_priority to the array if it exists
-          if (payload.prioritization!.second_priority) {
-            prioritization.push(payload.prioritization!.second_priority)
-          }
+        // Add second_priority to the array if it exists
+        if (payload.prioritization!.second_priority) {
+          prioritization.push(payload.prioritization!.second_priority)
+        }
 
-          return {
-            external_id: item.external_id,
-            email: item.email,
+        requestBody.emails_to_identify = [
+          {
+            external_id: payload.external_id,
+            email: payload.email_to_identify,
             prioritization
           }
-        })
+        ]
       }
 
       return request(`${settings.endpoint}/users/identify`, {

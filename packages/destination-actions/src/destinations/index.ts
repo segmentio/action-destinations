@@ -201,6 +201,7 @@ register('682db6914f35aafb2757ef24', './dub')
 register('682db7017819e7e055f55cb4', './ortto')
 register('68370e58cb330586908573b7', './dotdigital')
 register('683ef14a3f9aac157e3a3446', './amazon-conversions-api')
+register('684a923b272a5d1e02f33914', './google-data-manager')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
