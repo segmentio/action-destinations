@@ -1,7 +1,6 @@
 import {
   IntegrationError,
   ActionDefinition,
-  DynamicFieldItem,
   DynamicFieldResponse,
   isObject,
   ErrorCodes,
@@ -14,13 +13,7 @@ import type { OnMappingSaveInputs, OnMappingSaveOutputs, Payload } from './gener
 import { RequestClient } from '@segment/actions-core'
 import { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 import isEmpty from 'lodash/isEmpty'
-import {
-  createCatalog,
-  getCatalogMetas,
-  getCatalogNames,
-  isValidItemId,
-  processMultiStatusErrorResponse
-} from './utils'
+import { createCatalog, getCatalogNames, getItemKeys, isValidItemId, processMultiStatusErrorResponse } from './utils'
 import { UpsertCatalogItemErrorResponse } from './types'
 import { ActionHookDefinition, ActionHookResponse } from '@segment/actions-core/destination-kit'
 
@@ -184,48 +177,7 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     item: {
       __keys__: async (request, { settings, payload }) => {
-        const catalog_name = (payload as any)?.onMappingSave?.outputs?.catalog_name ?? ''
-        try {
-          const catalogs = await getCatalogMetas(request, settings.endpoint)
-
-          if (!catalogs?.length) {
-            return {
-              choices: [],
-              error: {
-                message: 'No catalogs found. Please create a catalog first.',
-                code: '404'
-              }
-            }
-          }
-          const catalog = catalogs?.find((catalog) => catalog.name === catalog_name)
-
-          if (catalog && Array.isArray(catalog.fields)) {
-            const choices: DynamicFieldItem[] = catalog.fields
-              .map((field) => ({
-                label: field.name,
-                value: field.name
-              }))
-              .filter((field) => field.value !== 'id') // Exclude the id field from the dynamic fields
-            return {
-              choices
-            }
-          }
-          return {
-            choices: [],
-            error: {
-              message: `Catalog "${catalog_name}" not found or has no fields.`,
-              code: '404'
-            }
-          }
-        } catch (error) {
-          return {
-            choices: [],
-            error: {
-              message: error,
-              code: '500'
-            }
-          }
-        }
+        return await getItemKeys(request, settings, payload)
       }
     }
   },
