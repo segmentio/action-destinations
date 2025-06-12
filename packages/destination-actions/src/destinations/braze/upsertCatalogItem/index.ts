@@ -258,7 +258,7 @@ const action: ActionDefinition<Settings, Payload> = {
         })
         continue
       }
-      let body: JSONObject = {}
+      let body: JSONObject = { id: item_id }
       if (syncMode === 'upsert') {
         // validate item
         if (isObject(item) && isEmpty(item)) {
@@ -273,8 +273,6 @@ const action: ActionDefinition<Settings, Payload> = {
           id: item_id,
           ...item
         }
-      } else {
-        body['id'] = item_id
       }
       items.push(body)
       validPayloadMap.set(item_id, batchIndex)
