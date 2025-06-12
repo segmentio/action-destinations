@@ -137,6 +137,14 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     //------------
     // AWS FLOW
     // -----------
+
+    // Ensure that empty chunks do not end up in Outbound Controller's S3 bucket.
+    if (input.payloads.length === 0) {
+      throw new PayloadValidationError(
+        `No payloads found to process. Please ensure that the payloads array is not empty.`
+      )
+    }
+
     return sendEventToAWS(input.request, {
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 's3',

@@ -386,4 +386,25 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       "
     `)
   })
+
+  // it('should fail if payloads array is empty', async () => {
+  //   await expect(
+  //     testDestination.testBatchAction('syncAudience', {
+  //       events: [
+  //         createTestEvent({
+  //           event: 'Audience Entered',
+  //           type: 'track',
+  //           properties: {
+  //             audience_key: 'personas_test_audience'
+  //           },
+  //           context: {
+  //             personas: {
+  //               external_audience_id: 'external_audience_id'
+  //             }
+  //           }
+  //         })
+  //       ]
+  //     })
+  //   ).rejects.toThrow('No payloads found to process. Please ensure that the payloads array is not empty.')
+  // })
 })

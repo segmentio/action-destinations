@@ -87,6 +87,13 @@ export async function processPayload(input: ProcessPayloadInput) {
     // AWS FLOW
     // -----------
 
+    // Ensure that empty chunks do not end up in Outbound Controller's S3 bucket.
+    if (input.payloads.length === 0) {
+      throw new PayloadValidationError(
+        `No payloads found to process. Please ensure that the payloads array is not empty.`
+      )
+    }
+
     // Send request to AWS to be processed
     return sendEventToAWS(input.request, {
       TDDAuthToken: input.settings.auth_token,
