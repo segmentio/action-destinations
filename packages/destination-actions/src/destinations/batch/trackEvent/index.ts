@@ -67,21 +67,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    console.dir(data, { depth: null }) // log the resolved payload before mappings
     const newPayload = buildProfileJsonWithEvents(data.payload)
-    console.dir(newPayload, { depth: null }) // log the resolved payload after mappings
 
-    return request('https://api.batch.com/2.2/profiles/update', {
+    return request('https://api.batch.com/2.5/profiles/update', {
       method: 'post',
       json: newPayload
-    })
-  },
-  performBatch: (request, data) => {
-    console.dir(data.payload, { depth: null }) // log the resolved payload after mappings
-
-    return request('https://api.batch.com/2.2/profiles/update', {
-      method: 'post',
-      json: data.payload
     })
   }
 }
@@ -102,12 +92,10 @@ function buildProfileJsonWithEvents(data: Payload) {
         const value = eventAttributes[key]
         // Check if the value is an ISO 8601 date and add 'date()' prefix to the key
         if (isISO8601Date(value as string)) {
-          console.dir('value date = ' + value, { depth: null })
           obj[`date(${key})`] = value
         }
         // Check if the value is a valid URL and add 'url()' prefix to the key
         else if (isValidUrl(value as string)) {
-          console.dir('value url = ' + value, { depth: null })
           obj[`url(${key})`] = value
         } else {
           obj[key] = value

@@ -17,31 +17,31 @@ export interface Payload {
     /**
      * The profile's email
      */
-    $email_address?: string | null
+    email_address?: string | null
     /**
      * The profile's marketing emails subscription. You can set it to subscribed , unsubscribed , or null to reset the marketing emails subscription.
      */
-    $email_marketing?: string | null
+    email_marketing?: string | null
     /**
      * The profile's phone number
      */
-    $phone_number?: string | null
+    phone_number?: string | null
     /**
      * The profile's marketing SMS subscription. You can set it to subscribed , unsubscribed , or null to reset the marketing SMS subscription.
      */
-    $sms_marketing?: string | null
+    sms_marketing?: string | null
     /**
      * The profile's language.
      */
-    $language?: string | null
+    language?: string | null
     /**
      * The profile's region
      */
-    $region?: string | null
+    region?: string | null
     /**
      * The profile’s time zone name from IANA Time Zone Database  (e.g., “Europe/Paris”). Only valid time zone values will be set.
      */
-    $timezone?: string | null
+    timezone?: string | null
     /**
      * The profile’s custom attributes
      */

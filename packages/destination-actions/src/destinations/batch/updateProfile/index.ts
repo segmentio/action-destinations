@@ -27,7 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Profile data',
       type: 'object',
       properties: {
-        $email_address: {
+        email_address: {
           label: 'Email',
           description: "The profile's email",
           type: 'string',
@@ -36,14 +36,14 @@ const action: ActionDefinition<Settings, Payload> = {
             '@path': '$.traits.email'
           }
         },
-        $email_marketing: {
+        email_marketing: {
           label: 'Email marketing subscribe',
           description:
             "The profile's marketing emails subscription. You can set it to subscribed , unsubscribed , or null to reset the marketing emails subscription.",
           type: 'string',
           allowNull: true
         },
-        $phone_number: {
+        phone_number: {
           label: 'Phone Number',
           description: "The profile's phone number",
           type: 'string',
@@ -52,14 +52,14 @@ const action: ActionDefinition<Settings, Payload> = {
             '@path': '$.traits.phone_number'
           }
         },
-        $sms_marketing: {
+        sms_marketing: {
           label: 'SMS marketing subscribe',
           description:
             "The profile's marketing SMS subscription. You can set it to subscribed , unsubscribed , or null to reset the marketing SMS subscription.",
           type: 'string',
           allowNull: true
         },
-        $language: {
+        language: {
           label: 'Language',
           description: "The profile's language.",
           type: 'string',
@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
             '@path': '$.traits.language'
           }
         },
-        $region: {
+        region: {
           label: 'Region',
           description: "The profile's region",
           type: 'string',
@@ -77,7 +77,7 @@ const action: ActionDefinition<Settings, Payload> = {
             '@path': '$.context.location.country'
           }
         },
-        $timezone: {
+        timezone: {
           label: 'Timezone',
           description:
             'The profile’s time zone name from IANA Time Zone Database  (e.g., “Europe/Paris”). Only valid time zone values will be set.',
@@ -107,19 +107,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, data) => {
     const newPayload = buildProfileJson(data.payload)
-    console.dir(newPayload, { depth: null }) // log the resolved payload after mappings
 
-    return request('https://api.batch.com/2.2/profiles/update', {
+    return request('https://api.batch.com/2.5/profiles/update', {
       method: 'post',
       json: newPayload
-    })
-  },
-  performBatch: (request, data) => {
-    console.dir(data.payload, { depth: null }) // log the resolved payload after mappings
-
-    return request('https://api.batch.com/2.2/profiles/update', {
-      method: 'post',
-      json: data.payload
     })
   }
 }
@@ -135,13 +126,13 @@ function buildProfileJson(data: Payload): Payload[] {
 
   // Extract standard attributes
   const attributes = {
-    $email_address: data.attributes?.$email_address || null,
-    $email_marketing: data.attributes?.$email_marketing || null,
-    $phone_number: data.attributes?.$phone_number || null,
-    $sms_marketing: data.attributes?.$sms_marketing || null,
-    $language: data.attributes?.$language || null,
-    $region: data.attributes?.$region || null,
-    $timezone: data.attributes?.$timezone || null
+    $email_address: data.attributes?.email_address || null,
+    $email_marketing: data.attributes?.email_marketing || null,
+    $phone_number: data.attributes?.phone_number || null,
+    $sms_marketing: data.attributes?.sms_marketing || null,
+    $language: data.attributes?.language || null,
+    $region: data.attributes?.region || null,
+    $timezone: data.attributes?.timezone || null
   }
 
   // Extract custom properties with batch size limitation
@@ -156,12 +147,10 @@ function buildProfileJson(data: Payload): Payload[] {
       const value = customProperties[key]
       // Check if the value is an ISO 8601 date and add 'date()' prefix to the key
       if (isISO8601Date(value as string)) {
-        console.dir('value date = ' + value, { depth: null })
         obj[`date(${key})`] = value
       }
       // Check if the value is a valid URL and add 'url()' prefix to the key
       else if (isValidUrl(value as string)) {
-        console.dir('value url = ' + value, { depth: null })
         obj[`url(${key})`] = value
       } else {
         obj[key] = value
