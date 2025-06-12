@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-wiseops",
-  "version": "1.84.1-staging-27ef7ca8a.0",
+  "version": "1.84.1-staging-af9efa6f2.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,8 +15,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "3.153.1-staging-27ef7ca8a.0",
-    "@segment/browser-destination-runtime": "1.82.1-staging-27ef7ca8a.0"
+    "@segment/actions-core": "3.153.1-staging-af9efa6f2.0",
+    "@segment/browser-destination-runtime": "1.82.1-staging-af9efa6f2.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"

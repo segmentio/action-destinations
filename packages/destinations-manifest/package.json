@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.118.1-staging-27ef7ca8a.0",
+  "version": "1.118.1-staging-af9efa6f2.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -29,7 +29,7 @@
     "@segment/analytics-browser-actions-google-campaign-manager": "^1.76.0",
     "@segment/analytics-browser-actions-heap": "^1.85.0",
     "@segment/analytics-browser-actions-hubspot": "^1.85.0",
-    "@segment/analytics-browser-actions-intercom": "1.91.1-staging-27ef7ca8a.0",
+    "@segment/analytics-browser-actions-intercom": "1.91.1-staging-af9efa6f2.0",
     "@segment/analytics-browser-actions-iterate": "^1.85.0",
     "@segment/analytics-browser-actions-jimo": "^1.75.0",
     "@segment/analytics-browser-actions-koala": "^1.87.0",
@@ -39,18 +39,18 @@
     "@segment/analytics-browser-actions-replaybird": "^1.66.0",
     "@segment/analytics-browser-actions-ripe": "^1.85.0",
     "@segment/analytics-browser-actions-sabil": "^1.6.0",
-    "@segment/analytics-browser-actions-screeb": "1.84.1-staging-27ef7ca8a.0",
-    "@segment/analytics-browser-actions-snap-plugins": "1.64.1-staging-27ef7ca8a.0",
-    "@segment/analytics-browser-actions-sprig": "1.83.1-staging-27ef7ca8a.0",
-    "@segment/analytics-browser-actions-stackadapt": "1.85.1-staging-27ef7ca8a.0",
-    "@segment/analytics-browser-actions-survicate": "1.59.1-staging-27ef7ca8a.0",
-    "@segment/analytics-browser-actions-tiktok-pixel": "1.84.1-staging-27ef7ca8a.0",
-    "@segment/analytics-browser-actions-upollo": "1.83.1-staging-27ef7ca8a.0",
-    "@segment/analytics-browser-actions-userpilot": "1.83.1-staging-27ef7ca8a.0",
-    "@segment/analytics-browser-actions-utils": "1.83.1-staging-27ef7ca8a.0",
-    "@segment/analytics-browser-actions-vwo": "1.86.1-staging-27ef7ca8a.0",
-    "@segment/analytics-browser-actions-wiseops": "1.84.1-staging-27ef7ca8a.0",
-    "@segment/analytics-browser-hubble-web": "1.69.1-staging-27ef7ca8a.0",
-    "@segment/browser-destination-runtime": "1.82.1-staging-27ef7ca8a.0"
+    "@segment/analytics-browser-actions-screeb": "1.84.1-staging-af9efa6f2.0",
+    "@segment/analytics-browser-actions-snap-plugins": "1.64.1-staging-af9efa6f2.0",
+    "@segment/analytics-browser-actions-sprig": "1.83.1-staging-af9efa6f2.0",
+    "@segment/analytics-browser-actions-stackadapt": "1.85.1-staging-af9efa6f2.0",
+    "@segment/analytics-browser-actions-survicate": "1.59.1-staging-af9efa6f2.0",
+    "@segment/analytics-browser-actions-tiktok-pixel": "1.84.1-staging-af9efa6f2.0",
+    "@segment/analytics-browser-actions-upollo": "1.83.1-staging-af9efa6f2.0",
+    "@segment/analytics-browser-actions-userpilot": "1.83.1-staging-af9efa6f2.0",
+    "@segment/analytics-browser-actions-utils": "1.83.1-staging-af9efa6f2.0",
+    "@segment/analytics-browser-actions-vwo": "1.86.1-staging-af9efa6f2.0",
+    "@segment/analytics-browser-actions-wiseops": "1.84.1-staging-af9efa6f2.0",
+    "@segment/analytics-browser-hubble-web": "1.69.1-staging-af9efa6f2.0",
+    "@segment/browser-destination-runtime": "1.82.1-staging-af9efa6f2.0"
   }
 }
