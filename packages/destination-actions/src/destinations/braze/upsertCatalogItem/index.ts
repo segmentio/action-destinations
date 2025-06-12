@@ -1,26 +1,19 @@
 import {
   IntegrationError,
   ActionDefinition,
-  DynamicFieldItem,
   DynamicFieldResponse,
   isObject,
   ErrorCodes,
   MultiStatusResponse,
-  JSONLikeObject
+  JSONLikeObject,
+  JSONObject
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { OnMappingSaveInputs, OnMappingSaveOutputs, Payload } from './generated-types'
-import { generateMultiStatusError } from '../utils'
 import { RequestClient } from '@segment/actions-core'
-import { DependsOnConditions, FieldTypeName } from '@segment/actions-core/destination-kit/types'
+import { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 import isEmpty from 'lodash/isEmpty'
-import {
-  createCatalog,
-  getCatalogMetas,
-  getCatalogNames,
-  isValidItemId,
-  processMultiStatusErrorResponse
-} from './utils'
+import { createCatalog, getCatalogNames, getItemKeys, isValidItemId, processMultiStatusErrorResponse } from './utils'
 import { UpsertCatalogItemErrorResponse } from './types'
 import { ActionHookDefinition, ActionHookResponse } from '@segment/actions-core/destination-kit'
 
@@ -82,7 +75,7 @@ const catalogHook: ActionHookDefinition<Settings, Payload, any, OnMappingSaveInp
     columns: {
       label: 'Catalog Fields',
       description: 'A list of fields to create in the catalog. Maximum 500 fields. ID field is added by default.',
-      type: 'object' as FieldTypeName,
+      type: 'object',
       multiple: true,
       defaultObjectUI: 'arrayeditor',
       additionalProperties: true,
@@ -132,7 +125,8 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Catalog Item',
   description: 'Upserts or deletes items in a catalog',
   syncMode: {
-    description: 'Define how the records from your destination will be synced.',
+    description:
+      'Define how the records from your destination will be synced. The item object is not required when the syncMode is set to delete.',
     label: 'How to sync records',
     default: 'upsert',
     choices: [
@@ -142,9 +136,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   fields: {
     item: {
-      label: 'Catalog item to upsert or delete',
+      label: 'Catalog item to upsert',
       description:
-        'The item to upsert in the catalog. The item objects should contain fields that exist in the catalog. The item object is not required when the syncMode is set to delete. The item object should not contain the id field.',
+        'The item to upsert in the catalog. The item object should contain fields that exist in the catalog. The item object should not contain the id field.',
       type: 'object',
       required: UPSERT_OPERATION,
       depends_on: UPSERT_OPERATION,
@@ -183,60 +177,11 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     item: {
       __keys__: async (request, { settings, payload }) => {
-        const catalog_name = (payload as any)?.onMappingSave?.outputs?.catalog_name ?? ''
-        try {
-          const catalogs = await getCatalogMetas(request, settings.endpoint)
-
-          if (!catalogs?.length) {
-            return {
-              choices: [],
-              error: {
-                message: 'No catalogs found. Please create a catalog first.',
-                code: '404'
-              }
-            }
-          }
-          const catalog = catalogs?.find((catalog) => catalog.name === catalog_name)
-
-          if (catalog && Array.isArray(catalog.fields)) {
-            const choices: DynamicFieldItem[] = catalog.fields
-              .map((field) => ({
-                label: field.name,
-                value: field.name
-              }))
-              .filter((field) => field.value !== 'id') // Exclude the id field from the dynamic fields
-            return {
-              choices
-            }
-          }
-          return {
-            choices: [],
-            error: {
-              message: `Catalog "${catalog_name}" not found or has no fields.`,
-              code: '404'
-            }
-          }
-        } catch (error) {
-          return {
-            choices: [],
-            error: {
-              message: error,
-              code: '500'
-            }
-          }
-        }
+        return await getItemKeys(request, settings, payload)
       }
     }
   },
   perform: async (request, { settings, payload, syncMode, hookOutputs }) => {
-    if (syncMode !== 'upsert' && syncMode !== 'delete') {
-      throw new IntegrationError(
-        'Invalid syncMode, must be set to "upsert" or "delete"',
-        'PAYLOAD_VALIDATION_FAILED',
-        400
-      )
-    }
-
     const catalog_name = hookOutputs?.onMappingSave?.outputs?.catalog_name
 
     const { item_id = '' } = payload
@@ -284,11 +229,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   performBatch: async (request, { settings, payload, syncMode, hookOutputs }) => {
-    if (syncMode !== 'upsert' && syncMode !== 'delete') {
-      // Return a multi-status error if the syncMode is invalid
-      return generateMultiStatusError(payload.length, 'Invalid syncMode, must be set to "upsert" or "delete"')
-    }
-
     const catalog_name = hookOutputs?.onMappingSave?.outputs?.catalog_name
 
     const multiStatusResponse = new MultiStatusResponse()
@@ -299,8 +239,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
     for (let batchIndex = 0; batchIndex < payload.length; batchIndex++) {
       const { item_id = '', item = {} } = payload[batchIndex]
-
-      let body = {}
 
       if (validPayloadMap.has(item_id)) {
         multiStatusResponse.setErrorResponseAtIndex(batchIndex, {
@@ -320,6 +258,7 @@ const action: ActionDefinition<Settings, Payload> = {
         })
         continue
       }
+      let body: JSONObject = { id: item_id }
       if (syncMode === 'upsert') {
         // validate item
         if (isObject(item) && isEmpty(item)) {
@@ -333,10 +272,6 @@ const action: ActionDefinition<Settings, Payload> = {
         body = {
           id: item_id,
           ...item
-        }
-      } else {
-        body = {
-          id: item_id
         }
       }
       items.push(body)

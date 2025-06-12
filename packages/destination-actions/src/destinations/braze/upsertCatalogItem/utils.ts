@@ -101,7 +101,7 @@ export function processMultiStatusErrorResponse(
     validPayloadMap.forEach((index, itemId) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 500,
-        errortype: 'INTERNAL_SERVER_ERROR',
+        errortype: 'RETRYABLE_ERROR',
         errormessage: `Item with ID ${itemId} could not be processed due to invalid catalog items in the batch request.`,
         sent: { ...payload[index]?.item, id: itemId } as JSONLikeObject,
         body: JSON.stringify(errors)
@@ -141,6 +141,55 @@ export async function getCatalogNames(
       choices,
       error: {
         message: 'Unknown error. Please try again later',
+        code: '500'
+      }
+    }
+  }
+}
+
+export async function getItemKeys(
+  request: RequestClient,
+  settings: Settings,
+  payload: Payload
+): Promise<DynamicFieldResponse> {
+  const catalog_name = (payload as any)?.onMappingSave?.outputs?.catalog_name ?? ''
+  try {
+    const catalogs = await getCatalogMetas(request, settings.endpoint)
+
+    if (!catalogs?.length) {
+      return {
+        choices: [],
+        error: {
+          message: 'No catalogs found. Please create a catalog first.',
+          code: '404'
+        }
+      }
+    }
+    const catalog = catalogs?.find((catalog) => catalog.name === catalog_name)
+
+    if (catalog && Array.isArray(catalog.fields)) {
+      const choices: DynamicFieldItem[] = catalog.fields
+        .map((field) => ({
+          label: field.name,
+          value: field.name
+        }))
+        .filter((field) => field.value !== 'id') // Exclude the id field from the dynamic fields
+      return {
+        choices
+      }
+    }
+    return {
+      choices: [],
+      error: {
+        message: `Catalog "${catalog_name}" not found or has no fields.`,
+        code: '404'
+      }
+    }
+  } catch (error) {
+    return {
+      choices: [],
+      error: {
+        message: error,
         code: '500'
       }
     }

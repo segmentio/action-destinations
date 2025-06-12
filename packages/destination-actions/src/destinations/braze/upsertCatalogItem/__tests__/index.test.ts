@@ -163,52 +163,6 @@ describe('Braze.upsertCatalogItem', () => {
     expect(testDestination.results.at(-1)?.data?.status).toBe(200)
     expect(testDestination.results.at(-1)?.data?.message).toBe('Could not find item')
   })
-
-  it('single event with invalid sync mode should fail', async () => {
-    const action = destination.actions[actionSlug]
-    const [settingsData] = generateTestData(seedName, destination, action, true)
-
-    nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
-    nock(/.*/).persist().put(/.*/).reply(200)
-
-    const event = createTestEvent({
-      event: 'Test Event 1',
-      type: 'identify',
-      receivedAt,
-      properties: {
-        id: 'car001',
-        name: 'Model S',
-        manufacturer: 'Tesla',
-        price: 79999.99,
-        discontinued: false,
-        inception_date: '2012-06-22T04:00:00Z'
-      }
-    })
-
-    try {
-      await testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: {
-          onMappingSave: {
-            outputs: {
-              catalog_name: 'cars'
-            }
-          },
-          item_id: {
-            '@path': '$.properties.id'
-          },
-          enable_batching: false,
-          __segment_internal_sync_mode: 'update'
-        },
-        settings: { ...settingsData, endpoint: settings.endpoint },
-        auth: undefined
-      })
-    } catch (error) {
-      expect(error.code).toBe('PAYLOAD_VALIDATION_FAILED')
-      expect(error.status).toBe(400)
-    }
-  })
   it('should work with batched events with delete syncmode', async () => {
     const action = destination.actions[actionSlug]
     const [settingsData] = generateTestData(seedName, destination, action, true)
@@ -246,9 +200,6 @@ describe('Braze.upsertCatalogItem', () => {
     const responses = await testDestination.testBatchAction(actionSlug, {
       events,
       useDefaultMappings: false,
-      features: {
-        'cloudevent-spec-v02-allow': true
-      },
       mapping: {
         onMappingSave: {
           outputs: {
@@ -306,9 +257,6 @@ describe('Braze.upsertCatalogItem', () => {
     const responses = await testDestination.testBatchAction(actionSlug, {
       events,
       useDefaultMappings: false,
-      features: {
-        'cloudevent-spec-v02-allow': true
-      },
       mapping: {
         onMappingSave: {
           outputs: {
@@ -381,9 +329,7 @@ describe('Braze.upsertCatalogItem', () => {
     const responses = await testDestination.testBatchAction(actionSlug, {
       events,
       useDefaultMappings: false,
-      features: {
-        'cloudevent-spec-v02-allow': true
-      },
+
       mapping: {
         onMappingSave: {
           outputs: {
@@ -461,9 +407,7 @@ describe('Braze.upsertCatalogItem', () => {
     const responses = await testDestination.testBatchAction(actionSlug, {
       events,
       useDefaultMappings: false,
-      features: {
-        'cloudevent-spec-v02-allow': true
-      },
+
       mapping: {
         onMappingSave: {
           outputs: {
@@ -555,9 +499,7 @@ describe('Braze.upsertCatalogItem', () => {
     const responses = await testDestination.testBatchAction(actionSlug, {
       events,
       useDefaultMappings: false,
-      features: {
-        'cloudevent-spec-v02-allow': true
-      },
+
       mapping: {
         onMappingSave: {
           outputs: {
@@ -635,9 +577,6 @@ describe('Braze.upsertCatalogItem', () => {
       await testDestination.testAction(actionSlug, {
         event,
         useDefaultMappings: false,
-        features: {
-          'cloudevent-spec-v02-allow': true
-        },
         mapping: {
           onMappingSave: {
             outputs: {
