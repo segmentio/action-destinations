@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Batch's updateProfile destination action: all fields 1`] = `
+Array [
+  Object {
+    "attributes": Object {
+      "$email_address": "*yCKAwocn#",
+      "$email_marketing": "*yCKAwocn#",
+      "$language": "*yCKAwocn#",
+      "$phone_number": "*yCKAwocn#",
+      "$region": "*yCKAwocn#",
+      "$sms_marketing": "*yCKAwocn#",
+      "$timezone": "*yCKAwocn#",
+    },
+    "identifiers": Object {
+      "custom_id": "*yCKAwocn#",
+    },
+  },
+]
+`;
+
+exports[`Testing snapshot for Batch's updateProfile destination action: required fields 1`] = `
+Array [
+  Object {
+    "attributes": Object {
+      "$email_address": null,
+      "$email_marketing": null,
+      "$language": null,
+      "$phone_number": null,
+      "$region": null,
+      "$sms_marketing": null,
+      "$timezone": null,
+    },
+    "identifiers": Object {
+      "custom_id": "*yCKAwocn#",
+    },
+  },
+]
+`;
