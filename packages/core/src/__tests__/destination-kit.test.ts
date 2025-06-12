@@ -282,13 +282,7 @@ const destinationWithSyncMode: DestinationDefinition<JSONObject> = {
       title: 'Send a Custom Event',
       description: 'Send events to a custom event in API',
       defaultSubscription: 'type = "track"',
-      fields: {
-        sampleField: {
-          label: 'Sample Field',
-          description: 'Just a sample field',
-          type: 'string'
-        }
-      },
+      fields: {},
       syncMode: {
         default: 'add',
         description: 'Select the sync mode for the subscription',
@@ -755,7 +749,7 @@ describe('destination kit', () => {
 
       expect(res).toEqual([
         {
-          multistatus: [{ body: {}, sent: {}, status: 200 }]
+          multistatus: [{ body: {}, sent: { __segment_internal_sync_mode: 'add' }, status: 200 }]
         }
       ])
     })
