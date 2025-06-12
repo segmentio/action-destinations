@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Whether to log session start and end events. If enabled, a session start event will be logged when the user first visits the site, and a session end event will be logged when the user leaves the site.
+   * When enabled, the session start and end timestamps will be sent to Amplitude. This is useful for tracking user sessions.
    */
-  log_session_start_and_end?: boolean
+  trackSession?: boolean
 }
