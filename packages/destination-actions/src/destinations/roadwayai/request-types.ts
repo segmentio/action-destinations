@@ -9,7 +9,6 @@
  */
 export interface TrackEventRequest {
   event: string
-  distinct_id?: string
   anonymous_id?: string
   user_id?: string
   group_id?: string

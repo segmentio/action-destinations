@@ -6,10 +6,6 @@ export interface Payload {
    */
   enable_batching?: boolean
   /**
-   * A distinct ID specified by you.
-   */
-  distinct_id?: string
-  /**
    * A distinct ID randomly generated prior to calling identify.
    */
   anonymous_id?: string

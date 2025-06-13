@@ -8,17 +8,12 @@ export const commonFields: Record<string, InputField> = {
     unsafe_hidden: true,
     default: true
   },
-
-  distinct_id: {
-    label: 'Distinct ID',
+  user_id: {
+    label: 'User ID',
     type: 'string',
-    description: 'A distinct ID specified by you.',
+    description: 'The distinct ID after calling identify.',
     default: {
-      '@if': {
-        exists: { '@path': '$.userId' },
-        then: { '@path': '$.userId' },
-        else: { '@path': '$.anonymousId' }
-      }
+      '@path': '$.userId'
     }
   },
 
@@ -28,15 +23,6 @@ export const commonFields: Record<string, InputField> = {
     description: 'A distinct ID randomly generated prior to calling identify.',
     default: {
       '@path': '$.anonymousId'
-    }
-  },
-
-  user_id: {
-    label: 'User ID',
-    type: 'string',
-    description: 'The distinct ID after calling identify.',
-    default: {
-      '@path': '$.userId'
     }
   },
 
@@ -167,23 +153,28 @@ export const utmProperties: InputField = {
   properties: {
     utm_source: {
       label: 'UTM Source',
-      type: 'string'
+      type: 'string',
+      description: 'The source of the campaign.'
     },
     utm_medium: {
       label: 'UTM Medium',
-      type: 'string'
+      type: 'string',
+      description: 'The medium of the campaign.'
     },
     utm_campaign: {
       label: 'UTM Campaign',
-      type: 'string'
+      type: 'string',
+      description: 'The name of the campaign.'
     },
     utm_term: {
       label: 'UTM Term',
-      type: 'string'
+      type: 'string',
+      description: 'The term of the campaign.'
     },
     utm_content: {
       label: 'UTM Content',
-      type: 'string'
+      type: 'string',
+      description: 'The content of the campaign.'
     }
   },
   default: {
@@ -225,9 +216,8 @@ export const trackEventFields: Record<string, InputField> = {
     description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
     type: 'number',
     required: false,
-    default: 1000,
-    minimum: 1,
-    maximum: 2000
+    unsafe_hidden: true,
+    default: 1000
   }
 }
 

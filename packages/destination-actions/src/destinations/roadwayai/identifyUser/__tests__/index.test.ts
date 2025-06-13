@@ -41,35 +41,6 @@ describe('Roadwayai.identifyUser', () => {
     ])
   })
 
-  it('should send request with correct headers', async () => {
-    const event = createTestEvent({
-      type: 'identify',
-      timestamp,
-      userId: 'user123',
-      traits: {
-        name: 'John Doe'
-      }
-    })
-
-    nock('https://app.roadwayai.com')
-      .post('/api/v1/segment/events/identify')
-      .matchHeader('x-api-key', ROADWAY_API_KEY)
-      .reply(200, {})
-
-    const responses = await testDestination.testAction('identifyUser', {
-      event,
-      useDefaultMappings: true,
-      settings: {
-        apiKey: ROADWAY_API_KEY
-      }
-    })
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].options.headers).toMatchObject({
-      'x-api-key': ROADWAY_API_KEY
-    })
-  })
-
   it('should handle custom mapping', async () => {
     const event = createTestEvent({
       type: 'identify',

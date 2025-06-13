@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "page"',
   fields: getTrackPageViewFields(),
   perform: async (request, { settings, payload }) => {
-    const flattenedPayload = flattenPayload(payload) as TrackPageViewRequest
+    const flattenedPayload = flattenPayload<TrackPageViewRequest>(payload)
     return request(`https://app.roadwayai.com/api/v1/segment/events/page`, {
       method: 'POST',
       headers: {
@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, { settings, payload }) => {
-    const transformedPayloads = flattenPayloadBatch(payload) as TrackPageViewRequest[]
+    const transformedPayloads = flattenPayloadBatch<TrackPageViewRequest[]>(payload)
 
     return request(`https://app.roadwayai.com/api/v1/segment/events/page`, {
       method: 'POST',

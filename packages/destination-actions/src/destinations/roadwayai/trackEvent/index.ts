@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track"',
   fields: getTrackEventFields(),
   perform: async (request, { settings, payload }) => {
-    const flattenedPayload = flattenPayload(payload) as TrackEventRequest
+    const flattenedPayload = flattenPayload<TrackEventRequest>(payload)
 
     return request(`https://app.roadwayai.com/api/v1/segment/events/track`, {
       method: 'POST',
@@ -23,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, { settings, payload }) => {
-    const transformedPayloads = flattenPayloadBatch(payload) as TrackEventRequest[]
+    const transformedPayloads = flattenPayloadBatch<TrackEventRequest[]>(payload)
 
     return request(`https://app.roadwayai.com/api/v1/segment/events/track`, {
       method: 'POST',

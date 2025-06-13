@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify"',
   fields: getIdentifyUserFields(),
   perform: async (request, { settings, payload }) => {
-    const flattenedPayload = flattenPayload(payload) as IdentifyUserRequest
+    const flattenedPayload = flattenPayload<IdentifyUserRequest>(payload)
     return request(`https://app.roadwayai.com/api/v1/segment/events/identify`, {
       method: 'POST',
       headers: {
@@ -22,7 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, { settings, payload }) => {
-    const transformedPayloads = flattenPayloadBatch(payload) as IdentifyUserRequest[]
+    const transformedPayloads = flattenPayloadBatch<IdentifyUserRequest[]>(payload)
 
     return request(`https://app.roadwayai.com/api/v1/segment/events/identify`, {
       method: 'POST',

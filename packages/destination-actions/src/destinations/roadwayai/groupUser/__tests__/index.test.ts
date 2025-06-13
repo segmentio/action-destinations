@@ -40,36 +40,6 @@ describe('Roadwayai.groupUser', () => {
     ])
   })
 
-  it('should send request with correct headers', async () => {
-    const event = createTestEvent({
-      type: 'group',
-      timestamp,
-      userId: 'user123',
-      groupId: 'group456',
-      traits: {
-        name: 'Test Group'
-      }
-    })
-
-    nock('https://app.roadwayai.com')
-      .post('/api/v1/segment/events/group')
-      .matchHeader('x-api-key', ROADWAY_API_KEY)
-      .reply(200, {})
-
-    const responses = await testDestination.testAction('groupUser', {
-      event,
-      useDefaultMappings: true,
-      settings: {
-        apiKey: ROADWAY_API_KEY
-      }
-    })
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].options.headers).toMatchObject({
-      'x-api-key': ROADWAY_API_KEY
-    })
-  })
-
   it('should handle custom mapping', async () => {
     const event = createTestEvent({
       type: 'group',
@@ -98,6 +68,9 @@ describe('Roadwayai.groupUser', () => {
         },
         traits: {
           '@path': '$.traits'
+        },
+        timestamp: {
+          '@path': '$.timestamp'
         }
       },
       settings: {

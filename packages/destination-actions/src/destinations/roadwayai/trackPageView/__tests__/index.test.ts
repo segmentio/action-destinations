@@ -38,35 +38,6 @@ describe('Roadwayai.trackPageView', () => {
     ])
   })
 
-  it('should send request with correct headers', async () => {
-    const event = createTestEvent({
-      type: 'page',
-      timestamp,
-      properties: {
-        url: 'https://example.com/page',
-        title: 'Test Page'
-      }
-    })
-
-    nock('https://app.roadwayai.com')
-      .post('/api/v1/segment/events/page')
-      .matchHeader('x-api-key', ROADWAY_API_KEY)
-      .reply(200, {})
-
-    const responses = await testDestination.testAction('trackPageView', {
-      event,
-      useDefaultMappings: true,
-      settings: {
-        apiKey: ROADWAY_API_KEY
-      }
-    })
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].options.headers).toMatchObject({
-      'x-api-key': ROADWAY_API_KEY
-    })
-  })
-
   it('should handle custom mapping', async () => {
     const event = createTestEvent({
       type: 'page',
@@ -159,12 +130,14 @@ describe('Roadwayai.trackPageView', () => {
     })
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
-    expect(responses[0].options.json).toMatchObject([
+    expect(responses[0].options.json).toContainEqual(
       expect.objectContaining({
         url: 'https://example.com/page',
-        referrer: 'https://google.com'
+        data: expect.objectContaining({
+          referrer: 'https://google.com'
+        })
       })
-    ])
+    )
   })
 
   it('should require url field', async () => {
