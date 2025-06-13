@@ -78,24 +78,44 @@ export function processMultiStatusErrorResponse(
 ): void {
   const { errors = [] } = response
 
+  let isValidCatalog = true
+
   errors?.forEach((error) => {
     const isObject = Array.isArray(error?.parameters) && error.parameters.length > 1
-    error.parameter_values?.forEach((parameter_value) => {
-      const itemId = isObject ? ((parameter_value as JSONLikeObject)?.['id'] as string) : (parameter_value as string)
 
-      if (validPayloadMap.has(itemId)) {
-        const index = validPayloadMap.get(itemId) as number
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: error.message || 'Unknown error',
-          sent: { ...payload[index]?.item, id: itemId } as JSONLikeObject,
-          body: error
-        })
-        validPayloadMap.delete(itemId)
-      }
-    })
+    if (error?.id !== 'catalog-not-found') {
+      error.parameter_values?.forEach((parameter_value) => {
+        const itemId = isObject ? ((parameter_value as JSONLikeObject)?.['id'] as string) : (parameter_value as string)
+
+        if (validPayloadMap.has(itemId)) {
+          const index = validPayloadMap.get(itemId) as number
+          multiStatusResponse.setErrorResponseAtIndex(index, {
+            status: 400,
+            errortype: 'PAYLOAD_VALIDATION_FAILED',
+            errormessage: error.message || 'Unknown error',
+            sent: { ...payload[index]?.item, id: itemId } as JSONLikeObject,
+            body: error
+          })
+          validPayloadMap.delete(itemId)
+        }
+      })
+    } else {
+      isValidCatalog = false
+    }
   })
+  if (!isValidCatalog) {
+    // If the catalog is not valid, we set all remaining payloads as internal server error
+    validPayloadMap.forEach((index, itemId) => {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'BAD_REQUEST',
+        errormessage: `Catalog not found. Please create a catalog first.`,
+        sent: { ...payload[index]?.item, id: itemId } as JSONLikeObject,
+        body: JSON.stringify(errors)
+      })
+    })
+    return
+  }
   if (validPayloadMap.size > 0) {
     // If there are still valid payloads left, we set them as internal server error so that the event can be retried later
     validPayloadMap.forEach((index, itemId) => {
