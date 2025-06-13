@@ -101,6 +101,15 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.timestamp'
       }
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      default: ['cohort_name', 'cohort_id'], // This ensures all payloads from same audience are batched together.
+      multiple: true,
+      required: false
     }
   },
   perform: async (request, { settings, payload, stateContext }) => {
