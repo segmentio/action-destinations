@@ -14,9 +14,9 @@ Object {
   "emails_to_identify": Array [
     Object {
       "email": "test1@example.com",
-      "external_id": "test-user-1",
+      "external_id": "O$J@g9^nDz",
       "prioritization": Array [
-        "identified",
+        "least_recently_updated",
         "most_recently_updated",
       ],
     },
@@ -25,35 +25,57 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for Braze's identifyUser2 destination V2 action: snapshot with emails_to_identify field 1`] = `
+exports[`Testing snapshot for Braze's identifyUser2 destination V2 action: snapshot with both user_alias and email_to_identify fields 1`] = `
 Object {
   "aliases_to_identify": Array [
     Object {
-      "external_id": "O$J@g9^nDz",
+      "external_id": "test-user-4",
       "user_alias": Object {
-        "alias_label": "O$J@g9^nDz",
-        "alias_name": "O$J@g9^nDz",
+        "alias_label": "legacy-alias-label",
+        "alias_name": "legacy-alias-name",
       },
     },
   ],
   "emails_to_identify": Array [
     Object {
+      "email": "test4@example.com",
+      "external_id": "test-user-4",
+      "prioritization": Array [
+        "most_recently_updated",
+        "unidentified",
+      ],
+    },
+  ],
+  "merge_behavior": "merge",
+}
+`;
+
+exports[`Testing snapshot for Braze's identifyUser2 destination V2 action: snapshot with email_to_identify field only 1`] = `
+Object {
+  "emails_to_identify": Array [
+    Object {
       "email": "test1@example.com",
       "external_id": "test-user-1",
       "prioritization": Array [
-        "identified",
-        "most_recently_updated",
-      ],
-    },
-    Object {
-      "email": "test2@example.com",
-      "external_id": "test-user-2",
-      "prioritization": Array [
-        "identified",
+        "least_recently_updated",
         "most_recently_updated",
       ],
     },
   ],
-  "merge_behavior": "none",
+  "merge_behavior": "merge",
+}
+`;
+
+exports[`Testing snapshot for Braze's identifyUser2 destination V2 action: snapshot with minimal user_alias field only 1`] = `
+Object {
+  "aliases_to_identify": Array [
+    Object {
+      "external_id": "test-user-7",
+      "user_alias": Object {
+        "alias_label": "minimal-label",
+        "alias_name": "minimal-alias",
+      },
+    },
+  ],
 }
 `;

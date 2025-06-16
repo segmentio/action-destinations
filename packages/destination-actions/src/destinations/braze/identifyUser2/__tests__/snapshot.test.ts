@@ -16,14 +16,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
     // Add emails_to_identify and prioritization fields
     const customEventData = {
       ...eventData,
-      emails_to_identify: [
-        {
-          external_id: 'test-user-1',
-          email: 'test1@example.com'
-        }
-      ],
+      email_to_identify: 'test1@example.com',
       prioritization: {
-        first_priority: 'identified'
+        first_priority: 'most_recently_updated'
       }
     }
 
@@ -48,14 +43,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
     // Add emails_to_identify and prioritization fields
     const customEventData = {
       ...eventData,
-      emails_to_identify: [
-        {
-          external_id: 'test-user-1',
-          email: 'test1@example.com'
-        }
-      ],
+      email_to_identify: 'test1@example.com',
       prioritization: {
-        first_priority: 'identified'
+        first_priority: 'most_recently_updated'
       }
     }
 
@@ -80,14 +70,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
     // Add emails_to_identify and prioritization fields
     const customEventData = {
       ...eventData,
-      emails_to_identify: [
-        {
-          external_id: 'test-user-1',
-          email: 'test1@example.com'
-        }
-      ],
+      email_to_identify: 'test1@example.com',
       prioritization: {
-        first_priority: 'identified',
+        first_priority: 'least_recently_updated',
         second_priority: 'most_recently_updated'
       }
     }
@@ -95,6 +80,47 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
+
+    const event = createTestEvent({
+      properties: customEventData
+    })
+    const responses = await testDestination.testAction(actionSlug, {
+      event: event,
+      mapping: { ...customEventData, __segment_internal_sync_mode: 'add' },
+      settings: settingsData,
+      auth: undefined
+    })
+
+    const request = responses[0].request
+    const rawBody = await request.text()
+
+    try {
+      const json = JSON.parse(rawBody)
+      expect(json).toMatchSnapshot()
+      return
+    } catch (err) {
+      expect(rawBody).toMatchSnapshot()
+    }
+  })
+
+  it('snapshot with email_to_identify field only', async () => {
+    const action = destination.actions[actionSlug]
+    const [, settingsData] = generateTestData(seedName, destination, action, false)
+
+    nock(/.*/).persist().get(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().put(/.*/).reply(200)
+
+    // Use only email_to_identify fields (no user_alias)
+    const customEventData = {
+      external_id: 'test-user-1',
+      email_to_identify: 'test1@example.com',
+      prioritization: {
+        first_priority: 'least_recently_updated',
+        second_priority: 'most_recently_updated'
+      },
+      merge_behavior: 'merge'
+    }
 
     const event = createTestEvent({
       properties: customEventData
@@ -119,39 +145,76 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination V2
     }
   })
 
-  it('snapshot with emails_to_identify field', async () => {
+  it('snapshot with both user_alias and email_to_identify fields', async () => {
     const action = destination.actions[actionSlug]
-    const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+    const [, settingsData] = generateTestData(seedName, destination, action, false)
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
+    // Use both user_alias and email_to_identify to match earlier event data format
+    const customEventData = {
+      external_id: 'test-user-4',
+      user_alias: {
+        alias_name: 'legacy-alias-name',
+        alias_label: 'legacy-alias-label'
+      },
+      email_to_identify: 'test4@example.com',
+      prioritization: {
+        first_priority: 'most_recently_updated',
+        second_priority: 'unidentified'
+      },
+      merge_behavior: 'merge'
+    }
+
     const event = createTestEvent({
-      properties: eventData
+      properties: customEventData
     })
 
-    // Add emails_to_identify field to the mapping
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: {
-        ...event.properties,
-        __segment_internal_sync_mode: 'add',
-        emails_to_identify: [
-          {
-            external_id: 'test-user-1',
-            email: 'test1@example.com'
-          },
-          {
-            external_id: 'test-user-2',
-            email: 'test2@example.com'
-          }
-        ],
-        prioritization: {
-          first_priority: 'identified',
-          second_priority: 'most_recently_updated'
-        }
-      },
+      mapping: { ...customEventData, __segment_internal_sync_mode: 'add' },
+      settings: settingsData,
+      auth: undefined
+    })
+
+    const request = responses[0].request
+    const rawBody = await request.text()
+
+    try {
+      const json = JSON.parse(rawBody)
+      expect(json).toMatchSnapshot()
+      return
+    } catch (err) {
+      expect(rawBody).toMatchSnapshot()
+    }
+  })
+
+  it('snapshot with minimal user_alias field only', async () => {
+    const action = destination.actions[actionSlug]
+    const [, settingsData] = generateTestData(seedName, destination, action, false)
+
+    nock(/.*/).persist().get(/.*/).reply(200)
+    nock(/.*/).persist().post(/.*/).reply(200)
+    nock(/.*/).persist().put(/.*/).reply(200)
+
+    // Minimal user_alias only without merge_behavior
+    const customEventData = {
+      external_id: 'test-user-7',
+      user_alias: {
+        alias_name: 'minimal-alias',
+        alias_label: 'minimal-label'
+      }
+    }
+
+    const event = createTestEvent({
+      properties: customEventData
+    })
+
+    const responses = await testDestination.testAction(actionSlug, {
+      event: event,
+      mapping: { ...customEventData, __segment_internal_sync_mode: 'upsert' },
       settings: settingsData,
       auth: undefined
     })
