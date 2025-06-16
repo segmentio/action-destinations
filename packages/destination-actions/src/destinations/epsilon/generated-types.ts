@@ -9,4 +9,12 @@ export interface Settings {
    * Your Epsilon password.
    */
   password: string
+  /**
+   * Your Epsilon site ID. Contact Epsilon support for assistance.
+   */
+  siteId: string
+  /**
+   * Your Company ID. Contact Epsilon support for assistance.
+   */
+  dtm_cid: string
 }
