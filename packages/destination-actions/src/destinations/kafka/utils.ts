@@ -3,12 +3,12 @@ import { DynamicFieldResponse, IntegrationError, Features } from '@segment/actio
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
-import { PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
+import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 
-const producersByConfig: Record<string, CachedProducer> = {}
+export const producersByConfig: Record<string, CachedProducer> = {}
 
-const serializeKafkaConfig = (settings: Settings): string => {
+export const serializeKafkaConfig = (settings: Settings): string => {
   const config = {
     clientId: settings.clientId,
     brokers: settings.brokers
@@ -48,6 +48,7 @@ const getKafka = (settings: Settings) => {
       .trim()
       .split(',')
       .map((broker) => broker.trim()),
+    requestTimeout: PRODUCER_REQUEST_TIMEOUT_MS,
     sasl: ((): SASLOptions | undefined => {
       switch (settings.mechanism) {
         case 'plain':
@@ -136,7 +137,10 @@ const getProducer = (settings: Settings) => {
   })
 }
 
-export const getOrCreateProducer = async (settings: Settings, statsContext: StatsContext | undefined): Promise<Producer> => {
+export const getOrCreateProducer = async (
+  settings: Settings,
+  statsContext: StatsContext | undefined
+): Promise<Producer> => {
   const key = serializeKafkaConfig(settings)
   const now = Date.now()
 
@@ -147,9 +151,9 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
     if (!isExpired) {
       cached.lastUsed = now
       statsContext?.statsClient?.incr('kafka_connection_reused', 1, statsContext?.tags)
+      await cached.producer.connect() // this is idempotent, so is safe
       return cached.producer
     }
-
     if (cached.isConnected) {
       try {
         statsContext?.statsClient?.incr('kafka_connection_closed', 1, statsContext?.tags)
@@ -158,7 +162,6 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
         statsContext?.statsClient?.incr('kafka_disconnect_error', 1, statsContext?.tags)
       }
     }
-
     delete producersByConfig[key]
   }
 
@@ -171,11 +174,15 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
     isConnected: true,
     lastUsed: now
   }
-
   return producer
 }
 
-export const sendData = async (settings: Settings, payload: Payload[], features: Features | undefined, statsContext: StatsContext | undefined) => {
+export const sendData = async (
+  settings: Settings,
+  payload: Payload[],
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
+) => {
   validate(settings)
 
   const groupedPayloads: { [topic: string]: Payload[] } = {}
