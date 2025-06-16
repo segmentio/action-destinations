@@ -227,8 +227,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  performBatch: async (request, { settings, payload, syncMode, hookOutputs }) => {
+  performBatch: async (request, { settings, payload, syncMode, hookOutputs, logger }) => {
     const catalog_name = hookOutputs?.onMappingSave?.outputs?.catalog_name
+
+    logger?.crit(`upsertCatlogItem batch_size: ${payload.length}`)
 
     const multiStatusResponse = new MultiStatusResponse()
 
@@ -279,6 +281,8 @@ const action: ActionDefinition<Settings, Payload> = {
     if (items.length === 0) {
       return multiStatusResponse
     }
+
+    logger?.crit(`upsertCatlogItem payload_size: ${items.length}`)
 
     try {
       const response = await request(`${settings.endpoint}/catalogs/${catalog_name}/items/`, {
