@@ -247,7 +247,7 @@ const action: ActionDefinition<Settings, Payload> = {
         })
         continue
       }
-
+      let body: JSONObject = {}
       // validate item_id
       if (!isValidItemId(item_id)) {
         multiStatusResponse.setErrorResponseAtIndex(batchIndex, {
@@ -257,7 +257,6 @@ const action: ActionDefinition<Settings, Payload> = {
         })
         continue
       }
-      let body: JSONObject = { id: item_id }
       if (syncMode === 'upsert') {
         // validate item
         if (isObject(item) && isEmpty(item)) {
@@ -269,10 +268,11 @@ const action: ActionDefinition<Settings, Payload> = {
           continue
         }
         body = {
-          id: item_id,
-          ...item
+          ...(item as JSONObject)
         }
       }
+      body.id = item_id
+
       items.push(body)
       validPayloadMap.set(item_id, batchIndex)
     }
