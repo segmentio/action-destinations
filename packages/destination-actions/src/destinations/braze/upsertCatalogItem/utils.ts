@@ -104,11 +104,11 @@ export function processMultiStatusErrorResponse(
     }
   })
   if (!isValidCatalog) {
-    // If the catalog is not valid, we set all remaining payloads as internal server error
+    // If the catalog is not valid, we set all remaining payloads as not found
     validPayloadMap.forEach((index, itemId) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: 400,
-        errortype: 'BAD_REQUEST',
+        status: 404,
+        errortype: 'NOT_FOUND',
         errormessage: `Catalog not found. Please create a catalog first.`,
         sent: { ...payload[index]?.item, id: itemId } as JSONLikeObject,
         body: JSON.stringify(errors)
