@@ -337,7 +337,7 @@ describe('getOrCreateProducer', () => {
     const result = await getOrCreateProducer(settings, undefined)
 
     expect(result).toBe(fakeProducer)
-    expect(fakeProducer.connect).not.toHaveBeenCalled()
+    expect(fakeProducer.connect).toHaveBeenCalled() // this is a no-op since it's already connected, but is done to ensure the producer is ready anyway. It's an  idempotent operation.
   })
 
   it('getOrCreateProducer replaces expired connections and creates a new connection', async () => {

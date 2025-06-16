@@ -147,9 +147,9 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
     if (!isExpired) {
       cached.lastUsed = now
       statsContext?.statsClient?.incr('kafka_connection_reused', 1, statsContext?.tags)
+      await cached.producer.connect() // this is idempotent, so is safe
       return cached.producer
     }
-
     if (cached.isConnected) {
       try {
         statsContext?.statsClient?.incr('kafka_connection_closed', 1, statsContext?.tags)
@@ -158,7 +158,6 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
         statsContext?.statsClient?.incr('kafka_disconnect_error', 1, statsContext?.tags)
       }
     }
-
     delete producersByConfig[key]
   }
 
@@ -171,7 +170,6 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
     isConnected: true,
     lastUsed: now
   }
-
   return producer
 }
 
