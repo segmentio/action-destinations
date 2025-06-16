@@ -1,6 +1,5 @@
 import { RequestClient, DynamicFieldResponse } from '@segment/actions-core'
 import type { Settings } from '../../generated-types'
-import type { Payload } from '../generated-types'
 
 interface Campaign {
   id: string
@@ -13,18 +12,12 @@ interface CampaignResponse {
   message?: string
 }
 
-// Define identification and update choices - export for use in index.ts
-export const identificationChoices = [
+export const prioritizationChoices = [
   { label: 'Identified', value: 'identified' },
-  { label: 'Unidentified', value: 'unidentified' }
-]
-
-export const updatedChoices = [
+  { label: 'Unidentified', value: 'unidentified' },
   { label: 'Most recently updated', value: 'most_recently_updated' },
   { label: 'Least recently updated', value: 'least_recently_updated' }
 ]
-
-export const allPrioritizationChoices = [...identificationChoices, ...updatedChoices]
 
 export const dynamicFields = {
   campaign_id: async (request: RequestClient, { settings }: { settings: Settings }): Promise<DynamicFieldResponse> => {
@@ -83,25 +76,6 @@ export const dynamicFields = {
           code: error.status || '500'
         }
       }
-    }
-  },
-  'prioritization.second_priority': async (
-    _request: RequestClient,
-    { payload }: { payload?: Payload }
-  ): Promise<DynamicFieldResponse> => {
-    const firstPriority = payload?.prioritization?.first_priority
-
-    if (!firstPriority) {
-      return { choices: allPrioritizationChoices }
-    }
-
-    // Check if first priority is an identification choice
-    if (firstPriority === 'identified' || firstPriority === 'unidentified') {
-      // If first priority is identification related, show only updated choices
-      return { choices: updatedChoices }
-    } else {
-      // If first priority is update related, show only identification choices
-      return { choices: identificationChoices }
     }
   }
 }

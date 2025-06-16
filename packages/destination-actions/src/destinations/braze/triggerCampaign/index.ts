@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { IntegrationError, HTTPError, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { dynamicFields, allPrioritizationChoices } from './functions/dynamic-field-functions'
+import { dynamicFields, prioritizationChoices } from './functions/dynamic-field-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Campaign',
@@ -159,9 +159,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Send to Existing Only',
           description:
             "Defaults to true, can't be used with user aliases; if set to false, an attributes object must also be included.",
-          type: 'boolean',
-          default: true,
-          required: true
+          type: 'boolean'
         },
         attributes: {
           label: 'User Attributes',
@@ -181,24 +179,13 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'First Priority',
           description: 'First priority in the prioritization sequence',
           type: 'string',
-          choices: allPrioritizationChoices
+          choices: prioritizationChoices
         },
         second_priority: {
           label: 'Second Priority',
           description: 'Second priority in the prioritization sequence',
           type: 'string',
-          dynamic: true,
-          choices: allPrioritizationChoices,
-          depends_on: {
-            match: 'all',
-            conditions: [
-              {
-                fieldKey: 'prioritization.first_priority',
-                operator: 'is_not',
-                value: undefined
-              }
-            ]
-          }
+          choices: prioritizationChoices
         }
       }
     },
@@ -278,8 +265,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (prioritizationArray.length > 0) {
         payload.recipients = payload.recipients.map((recipient) => ({
           ...recipient,
-          prioritization: prioritizationArray,
-          ...(recipient.send_to_existing_only !== true ? { send_to_existing_only: false } : {})
+          prioritization: prioritizationArray
         }))
       }
 
