@@ -1,5 +1,5 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { isValidS3Path, uploadS3 } from './s3'
+import { isValidS3Path, normalizeS3Path, uploadS3 } from './s3'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
 import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
@@ -131,11 +131,11 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     )
   }
 
-  // ? Is it ok to assume that all the payloads will have the same path?
   // validate s3 path
+  input.payloads[0].s3_aws_bucket_path = normalizeS3Path(input.payloads[0].s3_aws_bucket_path)
   if (input.payloads[0].s3_aws_bucket_path && !isValidS3Path(input.payloads[0].s3_aws_bucket_path)) {
     throw new PayloadValidationError(
-      `Invalid S3 bucket path: ${input.payloads[0].s3_aws_bucket_path}. Must be a valid S3 URI format (e.g., s3://bucket-name/path/).`
+      `Invalid S3 bucket path. It must be a valid S3 object key, avoid leading/trailing slashes and forbidden characters (e.g., \\ { } ^ [ ] % \` " < > # | ~). Use a relative path like "folder1/folder2".`
     )
   }
 
