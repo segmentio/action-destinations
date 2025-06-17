@@ -36,7 +36,7 @@ describe('GoogleEnhancedConversions', () => {
           gclid: '54321',
           email: 'test@gmail.com',
           orderId: '1234',
-          phone: '1234567890',
+          phone: '3234567890',
           firstName: 'Jane',
           lastName: 'Doe',
           currency: 'USD',
@@ -87,7 +87,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -99,7 +99,7 @@ describe('GoogleEnhancedConversions', () => {
           gclid: '54321',
           email: 'test@gmail.com',
           orderId: '1234',
-          phone: '1234567890',
+          phone: '3234567890',
           firstName: 'Jane',
           lastName: 'Doe',
           currency: 'USD',
@@ -150,7 +150,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -162,7 +162,7 @@ describe('GoogleEnhancedConversions', () => {
           gclid: '54321',
           email: 'test@gmail.com',
           orderId: '1234',
-          phone: '1234567890',
+          phone: '3234567890',
           firstName: 'Jane',
           lastName: 'Doe',
           currency: 'USD',
@@ -214,7 +214,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -226,7 +226,7 @@ describe('GoogleEnhancedConversions', () => {
           gclid: '54321',
           email: 'test@gmail.com',
           orderId: '1234',
-          phone: '1234567890',
+          phone: '3234567890',
           firstName: 'Jane',
           lastName: 'Doe',
           currency: 'USD',
@@ -278,7 +278,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -290,7 +290,7 @@ describe('GoogleEnhancedConversions', () => {
           gclid: '54321',
           email: 'test@gmail.com',
           orderId: '1234',
-          phone: '1234567890',
+          phone: '3234567890',
           firstName: 'Jane',
           lastName: 'Doe',
           currency: 'USD',
@@ -342,7 +342,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -354,7 +354,7 @@ describe('GoogleEnhancedConversions', () => {
           gclid: '54321',
           email: 'test@gmail.com',
           orderId: '1234',
-          phone: '1234567890',
+          phone: '3234567890',
           firstName: 'Jane',
           lastName: 'Doe',
           currency: 'USD',
@@ -406,7 +406,7 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"remove\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -418,7 +418,7 @@ describe('GoogleEnhancedConversions', () => {
           gclid: '54321',
           email: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674', //'test@gmail.com'
           orderId: '1234',
-          phone: '422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8', //'1234567890'
+          phone: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0', //'3234567890'
           firstName: '4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332', //'Jane'
           lastName: 'fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7', //'Doe
           currency: 'USD',
@@ -469,7 +469,210 @@ describe('GoogleEnhancedConversions', () => {
         `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
       )
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
+        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
+      )
+    })
+
+    it('Does not format phone if country code already added', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Audience Entered',
+        properties: {
+          gclid: '54321',
+          email: 'test@gmail.com',
+          orderId: '1234',
+          phone: '+3234567890',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          currency: 'USD',
+          value: '123',
+          address: {
+            street: '123 Street SW',
+            city: 'San Diego',
+            state: 'CA',
+            postalCode: '982004'
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features: {
+          'google-enhanced-phone-validation-check': true
+        }
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
+      )
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"15a36d1cf8c33da64ac3c45039986f871a796d44645d6d8efe3c8413359620eb\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
+      )
+    })
+
+    it('Does not format phone if country code already added and country code is in properties', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Audience Entered',
+        properties: {
+          gclid: '54321',
+          email: 'test@gmail.com',
+          orderId: '1234',
+          phone: '+3234567890',
+          phone_country_code: '+1',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          currency: 'USD',
+          value: '123',
+          address: {
+            street: '123 Street SW',
+            city: 'San Diego',
+            state: 'CA',
+            postalCode: '982004'
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          phone_country_code: {
+            '@path': '$.properties.phone_country_code'
+          },
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features: {
+          'google-enhanced-phone-validation-check': true
+        }
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
+      )
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"15a36d1cf8c33da64ac3c45039986f871a796d44645d6d8efe3c8413359620eb\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
+      )
+    })
+
+    it('Format phone number if country code is added', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Audience Entered',
+        properties: {
+          gclid: '54321',
+          email: 'test@gmail.com',
+          orderId: '1234',
+          phone: '3234567890',
+          phone_country_code: '+91',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          currency: 'USD',
+          value: '123',
+          address: {
+            street: '123 Street SW',
+            city: 'San Diego',
+            state: 'CA',
+            postalCode: '982004'
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          phone_country_code: {
+            '@path': '$.properties.phone_country_code'
+          },
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
+      )
+      expect(responses[1].options.body).toMatchInlineSnapshot(
+        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"df7c233443c263c8a532f65c745c38f411ef984acbc02af10b45203472774e6d\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
       )
     })
 
@@ -482,7 +685,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -502,7 +705,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test+1@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -586,7 +789,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -606,7 +809,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -706,7 +909,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -726,7 +929,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -791,7 +994,7 @@ describe('GoogleEnhancedConversions', () => {
                     hashedEmail: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
                   },
                   {
-                    hashedPhoneNumber: '422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8'
+                    hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0'
                   }
                 ]
               }
@@ -803,7 +1006,7 @@ describe('GoogleEnhancedConversions', () => {
                     hashedEmail: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
                   },
                   {
-                    hashedPhoneNumber: '422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8'
+                    hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0'
                   }
                 ]
               }
@@ -829,7 +1032,7 @@ describe('GoogleEnhancedConversions', () => {
                     hashedEmail: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
                   },
                   {
-                    hashedPhoneNumber: '422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8'
+                    hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0'
                   }
                 ]
               }
@@ -841,7 +1044,7 @@ describe('GoogleEnhancedConversions', () => {
                     hashedEmail: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674'
                   },
                   {
-                    hashedPhoneNumber: '422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8'
+                    hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0'
                   }
                 ]
               }
@@ -863,7 +1066,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test+1@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -884,7 +1087,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'invalid_email',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -899,7 +1102,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test+2@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -937,7 +1140,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test+3@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -1042,7 +1245,7 @@ describe('GoogleEnhancedConversions', () => {
                 hashedEmail: 'ede2e3d4c737f00aaab14de19e6ce9e20248a35ea030882b72d5d22de1f867d6'
               },
               {
-                hashedPhoneNumber: '422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8'
+                hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0'
               }
             ]
           }
@@ -1103,7 +1306,7 @@ describe('GoogleEnhancedConversions', () => {
                 hashedEmail: 'faca876f60e93cf76a50b2f7c980168ef03c49a6313038b6386057e98cc3cffc'
               },
               {
-                hashedPhoneNumber: '422ce82c6fc1724ac878042f7d055653ab5e983d186e616826a72d4384b68af8'
+                hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0'
               }
             ]
           }
@@ -1169,7 +1372,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -1190,7 +1393,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'invalid_email',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -1266,7 +1469,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test+1@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -1313,7 +1516,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -1333,7 +1536,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -1416,7 +1619,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
@@ -1436,7 +1639,7 @@ describe('GoogleEnhancedConversions', () => {
             gclid: '54321',
             email: 'test@gmail.com',
             orderId: '1234',
-            phone: '1234567890',
+            phone: '3234567890',
             firstName: 'Jane',
             lastName: 'Doe',
             currency: 'USD',
