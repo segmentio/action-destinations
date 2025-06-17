@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package google.ads.datamanager.v1;
+
+option go_package = "google.golang.org/genproto/googleapis/ads/datamanager/v1;datamanager";
+option java_multiple_files = true;
+option java_outer_classname = "UserDataProto";
+option java_package = "com.google.ads.datamanager.v1";
+
+// Operation to add or remove a user from user lists.
+message UserDataOperation {
+  // The user identifier.
+  string user_id = 1;
+  // The type of user identifier.
+  UserIdType user_id_type = 2;
+  // The user list IDs to add or remove the user from.
+  repeated int64 user_list_ids = 3;
+  // The timestamp when the user was added to the list (seconds since epoch).
+  repeated int64 time_added_to_user_list = 4;
+  // Whether to remove the user from the list.
+  bool remove = 5;
+  // Whether the user has opted out.
+  bool opt_out = 6;
+  // The data source ID.
+  uint32 data_source_id = 7;
+}
+
+// Request to update users in user lists.
+message UpdateUsersDataRequest {
+  repeated UserDataOperation operations = 1;
+  bool send_notifications = 2;
+  bool process_consent = 3;
+}
+
+// Error information for a user data operation.
+message ErrorInfo {
+  repeated int64 user_list_ids = 1;
+  string user_id = 2;
+  UserIdType user_id_type = 3;
+  ErrorCode error_code = 4;
+}
+
+// Notification information for a user data operation.
+message NotificationInfo {
+  string user_id = 1;
+  NotificationCode notification_code = 2;
+}
+
+// Response for updating users in user lists.
+message UpdateUsersDataResponse {
+  ErrorCode status = 1;
+  repeated ErrorInfo errors = 2;
+  repeated NotificationInfo notifications = 3;
+  NotificationStatus notification_status = 4;
+}
+
+enum UserIdType {
+  USER_ID_TYPE_UNSPECIFIED = 0;
+  GOOGLE_USER_ID = 1;
+  IDFA = 2;
+  ANDROID_ADVERTISING_ID = 3;
+  RIDA = 4;
+  AFAI = 5;
+  MSAID = 6;
+  GENERIC_DEVICE_ID = 7;
+  PARTNER_PROVIDED_ID = 8;
+}
+
+enum NotificationCode {
+  NOTIFICATION_CODE_UNSPECIFIED = 0;
+  INACTIVE_COOKIE = 1;
+}
+
+enum NotificationStatus {
+  NOTIFICATION_STATUS_UNSPECIFIED = 0;
+  NO_NOTIFICATION = 1;
+  NOTIFICATIONS_OMITTED = 2;
+}
+
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+  NO_ERROR = 1;
+  PARTIAL_SUCCESS = 2;
+  PERMISSION_DENIED = 3;
+  BAD_DATA = 4;
+  BAD_COOKIE = 5;
+  BAD_ATTRIBUTE_ID = 6;
+  BAD_NETWORK_ID = 7;
+  REQUEST_TOO_BIG = 8;
+  EMPTY_REQUEST = 9;
+  INTERNAL_ERROR = 10;
+  BAD_DATA_SOURCE_ID = 11;
+  BAD_TIMESTAMP = 12;
+  MISSING_CONSENT_WILL_BE_DROPPED = 13;
+  MISSING_CONSENT = 14;
+  UNKNOWN_ID = 15;
+}

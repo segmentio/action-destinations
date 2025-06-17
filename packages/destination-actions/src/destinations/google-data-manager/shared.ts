@@ -12,6 +12,7 @@ import {
   UserDataOperationSchema
 } from './proto/protofile'
 import type { AudienceSettings } from './generated-types'
+import { create, fromBinary, toBinary } from '@bufbuild/protobuf'
 
 type DV360AuthCredentials = { refresh_token: string; access_token: string; client_id: string; client_secret: string }
 
@@ -53,8 +54,8 @@ export const buildHeaders = (audienceSettings: AudienceSettings | undefined, acc
     // @ts-ignore - TS doesn't know about the oauth property
     Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
-    'Login-Customer-Id': `products/DATA_PARTNER/customers/${SEGMENT_DMP_ID}`,
-    'Linked-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
+    'Login-Customer-Id': `products/DATA_PARTNER/customers/${SEGMENT_DMP_ID}`
+    // 'Linked-Customer-Id': `products/${audienceSettings.accountType}/customers/${audienceSettings?.advertiserId}`
   }
 }
 

@@ -25,7 +25,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth: { accessToken: 'test-access-token', refreshToken: 'test-refresh-token' }
     })
 
     const request = responses[0].request
@@ -58,7 +58,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth: { accessToken: 'test-access-token', refreshToken: 'test-refresh-token' }
     })
 
     const request = responses[0].request

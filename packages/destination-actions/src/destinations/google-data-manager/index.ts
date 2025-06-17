@@ -21,59 +21,34 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   authentication: {
     scheme: 'oauth2',
     fields: {
-      /*destinations: {
-        label: 'Destinations',
-        description: 'List of destinations to which the audience will be synced. Each destination must have a unique combination of operatingAccountId, product, and productDestinationId.',
-        type: 'object' as FieldType,
-        multiple: true,
-        // defaultObjectUI: 'arrayeditor',
-        // additionalProperties: true,
-        // required: CREATE_OPERATION,
-        // depends_on: CREATE_OPERATION,
-        properties: {
-          operatingAccountId: {
-            label: 'Operating Account ID',
-            description:
-              'The ID of the operating account, used throughout Google Data Manager. Use this ID when you contact Google support to help our teams locate your specific account.',
-            type: 'string',
-            required: true
-          },
-          product: {
-            label: 'Product',
-            description: 'The product for which you want to create or manage audiences.',
-            type: 'string',
-            multiple: true,
-            required: true,
-            choices: [
-              { label: 'Google Ads', value: 'GOOGLE_ADS' },
-              { label: 'Display & Video 360', value: 'DISPLAY_VIDEO_360' },
-            ]
-          },
-          productDestinationId: {
-            label: 'Product Destination ID',
-            description:
-              'The ID of the product destination, used to identify the specific destination for audience management.',
-            type: 'string',
-            required: true
-          }
-        }
-      },*/
+      productLink: {
+        type: 'string',
+        label: 'Product Link',
+        description:
+          'The product link to use for audience management. This should be in the format `products/DATA_PARTNER/customers/8283492941`.',
+        required: true
+      }
     },
-    testAuthentication: async (request, { auth }) => {
+    testAuthentication: async (request, { auth, settings }) => {
       // Call the Google Audience Partner API to test authentication
-      const accessToken = auth?.accessToken
+      const accessToken = auth.accessToken
       if (!accessToken) {
         throw new Error('Missing access token for authentication test.')
       }
       const response = await request(
-        'https://audiencepartner.googleapis.com/v2/products/DATA_PARTNER/customers/8283492941/audiencePartner:searchStream',
+        'https://audiencepartner.googleapis.com/v2/productLink/audiencePartner:searchStream'.replace(
+          'productLink',
+          settings.productLink
+        ),
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${accessToken}`,
-            'login-customer-id': 'products/DATA_PARTNER/customers/8283492941'
+            'login-customer-id': settings.productLink
           },
+
+          // TODO: Test query to validate authentication to different products
           body: JSON.stringify({
             query: 'SELECT product_link.display_video_advertiser.display_video_advertiser FROM product_link '
           })
@@ -124,7 +99,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const { audienceName, audienceSettings, statsContext } = createAudienceInput
-      const { accountType } = audienceSettings || {}
+      // const { accountType } = audienceSettings || {}
       const advertiserId = audienceSettings?.advertiserId.trim()
       const { statsClient, tags: statsTags } = statsContext || {}
       const statsName = 'createAudience'
@@ -145,7 +120,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      if (!accountType) {
+      /* if (!accountType) {
         statsTags?.push('error:missing-settings')
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing account type value', 'MISSING_REQUIRED_FIELD', 400)
@@ -155,8 +130,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const partnerCreateAudienceUrl = CREATE_AUDIENCE_URL.replace('advertiserID', advertiserId).replace(
         'accountType',
         accountType
-      )
-
+      )*/
+      // TODO: Multiple calls to different endpoints for different products
+      const partnerCreateAudienceUrl = CREATE_AUDIENCE_URL.replace('advertiserID', advertiserId)
+      const listTypeMap = { basicUserList: {}, type: 'REMARKETING', membershipStatus: 'OPEN' }
       let response
       try {
         const authToken = await getAuthToken(request, authSettings)
@@ -190,7 +167,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async getAudience(request, getAudienceInput) {
       const { statsContext, audienceSettings } = getAudienceInput
       const { statsClient, tags: statsTags } = statsContext || {}
-      const { accountType } = audienceSettings || {}
+      // const { accountType } = audienceSettings || {}
       const advertiserId = audienceSettings?.advertiserId.trim()
       const statsName = 'getAudience'
       statsTags?.push(`slug:${destination.slug}`)
@@ -204,7 +181,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing required advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      if (!accountType) {
+      /*if (!accountType) {
         statsTags?.push('error:missing-settings')
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing account type value', 'MISSING_REQUIRED_FIELD', 400)
@@ -213,15 +190,20 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId).replace(
         'accountType',
         accountType
-      )
-
+      )*/
+      const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId)
       try {
         const authToken = await getAuthToken(request, authSettings)
         const response = await request(advertiserGetAudienceUrl, {
           headers: buildHeaders(audienceSettings, authToken),
           method: 'POST',
           json: {
-            query: `SELECT user_list.name, user_list.description, user_list.membership_status, user_list.match_rate_percentage FROM user_list WHERE user_list.resource_name = "${getAudienceInput.externalId}"`
+            query: `SELECT user_list.name,
+                           user_list.description,
+                           user_list.membership_status,
+                           user_list.match_rate_percentage
+                    FROM user_list
+                    WHERE user_list.resource_name = "${getAudienceInput.externalId}"`
           }
         })
 
@@ -249,22 +231,36 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   audienceFields: {
     advertiserId: {
-      type: 'string',
       label: 'Advertiser ID',
-      required: true,
       description:
-        'The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.'
-    },
-    accountType: {
+        'The ID of the advertiser in Google Data Manager. This is used to identify the specific advertiser for audience management.',
       type: 'string',
-      label: 'Account Type',
-      description: 'The type of the advertiser account you have linked to this Display & Video 360 destination.',
+      required: true
+    },
+    operatingAccountId: {
+      label: 'Operating Account ID',
+      description:
+        'The ID of the operating account, used throughout Google Data Manager. Use this ID when you contact Google support to help our teams locate your specific account.',
+      type: 'string',
+      required: true
+    },
+    product: {
+      label: 'Product',
+      description: 'The product for which you want to create or manage audiences.',
+      type: 'string',
+      multiple: true,
       required: true,
       choices: [
-        { label: 'Advertiser', value: 'DISPLAY_VIDEO_ADVERTISER' },
-        { label: 'Partner', value: 'DISPLAY_VIDEO_PARTNER' },
-        { label: 'Publisher', value: 'GOOGLE_AD_MANAGER' }
+        { label: 'Google Ads', value: 'GOOGLE_ADS' },
+        { label: 'Display & Video 360', value: 'DISPLAY_VIDEO_360' }
       ]
+    },
+    productDestinationId: {
+      label: 'Product Destination ID',
+      description:
+        'The ID of the product destination, used to identify the specific destination for audience management.',
+      type: 'string',
+      required: true
     }
   }
 }

@@ -1,5 +1,69 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for GoogleDataManager's ingest destination action: all fields 1`] = `Array []`;
+exports[`Testing snapshot for GoogleDataManager's ingest destination action: all fields 1`] = `
+Object {
+  "audienceMembers": Array [
+    Object {
+      "consent": Object {
+        "adPersonalization": "CONSENT_GRANTED",
+        "adUserData": "CONSENT_GRANTED",
+      },
+      "userData": Object {
+        "userIdentifiers": Array [
+          Object {
+            "address": Object {
+              "familyName": "b#TgBtvsSl",
+              "givenName": "b#TgBtvsSl",
+              "postalCode": "b#TgBtvsSl",
+              "regionCode": "b#TgBtvsSl",
+            },
+            "emailAddress": "b#TgBtvsSl",
+            "phoneNumber": "b#TgBtvsSl",
+          },
+        ],
+      },
+    },
+  ],
+  "destinations": Array [
+    Object {
+      "loginAccount": Object {
+        "accountId": "8172370552",
+        "product": "DATA_PARTNER",
+      },
+      "operatingAccount": Object {},
+    },
+  ],
+  "encoding": "BASE64",
+}
+`;
 
-exports[`Testing snapshot for GoogleDataManager's ingest destination action: required fields 1`] = `Array []`;
+exports[`Testing snapshot for GoogleDataManager's ingest destination action: required fields 1`] = `
+Object {
+  "audienceMembers": Array [
+    Object {
+      "consent": Object {
+        "adPersonalization": "CONSENT_GRANTED",
+        "adUserData": "CONSENT_GRANTED",
+      },
+      "userData": Object {
+        "userIdentifiers": Array [
+          Object {
+            "address": Object {},
+            "emailAddress": "b#TgBtvsSl",
+          },
+        ],
+      },
+    },
+  ],
+  "destinations": Array [
+    Object {
+      "loginAccount": Object {
+        "accountId": "8172370552",
+        "product": "DATA_PARTNER",
+      },
+      "operatingAccount": Object {},
+    },
+  ],
+  "encoding": "BASE64",
+}
+`;
