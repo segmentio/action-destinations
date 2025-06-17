@@ -12,13 +12,6 @@ interface CampaignResponse {
   message?: string
 }
 
-export const prioritizationChoices = [
-  { label: 'Identified', value: 'identified' },
-  { label: 'Unidentified', value: 'unidentified' },
-  { label: 'Most recently updated', value: 'most_recently_updated' },
-  { label: 'Least recently updated', value: 'least_recently_updated' }
-]
-
 export const dynamicFields = {
   campaign_id: async (request: RequestClient, { settings }: { settings: Settings }): Promise<DynamicFieldResponse> => {
     try {

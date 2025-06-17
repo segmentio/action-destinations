@@ -2,7 +2,14 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { IntegrationError, HTTPError, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { dynamicFields, prioritizationChoices } from './functions/dynamic-field-functions'
+import { dynamicFields } from './functions/dynamic-field-functions'
+
+const prioritizationChoices = [
+  { label: 'Identified', value: 'identified' },
+  { label: 'Unidentified', value: 'unidentified' },
+  { label: 'Most recently updated', value: 'most_recently_updated' },
+  { label: 'Least recently updated', value: 'least_recently_updated' }
+]
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Campaign',
