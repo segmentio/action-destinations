@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-posthog destination: event action - all fields 1`] = `
+Object {
+  "api_key": "scGkpY98jhDM)^PXi",
+  "batch": Array [
+    Object {
+      "event": "$screen",
+      "properties": Object {
+        "$process_person_profile": false,
+        "$screen_name": "scGkpY98jhDM)^PXi",
+        "distinct_id": "scGkpY98jhDM)^PXi",
+        "testType": "scGkpY98jhDM)^PXi",
+      },
+      "timestamp": "2021-02-01T00:00:00.000Z",
+    },
+  ],
+  "historical_migration": false,
+}
+`;
+
+exports[`Testing snapshot for actions-posthog destination: event action - required fields 1`] = `
+Object {
+  "api_key": "scGkpY98jhDM)^PXi",
+  "batch": Array [
+    Object {
+      "event": "$screen",
+      "properties": Object {
+        "$process_person_profile": false,
+        "$screen_name": "scGkpY98jhDM)^PXi",
+        "distinct_id": "scGkpY98jhDM)^PXi",
+      },
+    },
+  ],
+  "historical_migration": false,
+}
+`;
+
+exports[`Testing snapshot for actions-posthog destination: identify action - all fields 1`] = `
+Object {
+  "api_key": "Y@^Qn@JBH%2A45seK8B[",
+  "distinct_id": "Y@^Qn@JBH%2A45seK8B[",
+  "event": "$identify",
+  "properties": Object {
+    "$set": Object {
+      "testType": "Y@^Qn@JBH%2A45seK8B[",
+    },
+  },
+  "timestamp": "2021-02-01T00:00:00.000Z",
+}
+`;
+
+exports[`Testing snapshot for actions-posthog destination: identify action - required fields 1`] = `
+Object {
+  "api_key": "Y@^Qn@JBH%2A45seK8B[",
+  "distinct_id": "Y@^Qn@JBH%2A45seK8B[",
+  "event": "$identify",
+  "properties": Object {
+    "$set": Object {
+      "testType": "Y@^Qn@JBH%2A45seK8B[",
+    },
+  },
+}
+`;

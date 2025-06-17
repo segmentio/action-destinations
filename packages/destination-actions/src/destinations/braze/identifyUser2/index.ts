@@ -81,7 +81,6 @@ const action: ActionDefinition<Settings, Payload> = {
         'Prioritization settings for user merging if multiple users are found. Required when email_to_identify is provided.',
       type: 'object',
       required: {
-        match: 'all',
         conditions: [
           {
             fieldKey: 'email_to_identify',
@@ -91,7 +90,6 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       },
       depends_on: {
-        match: 'all',
         conditions: [
           {
             fieldKey: 'email_to_identify',

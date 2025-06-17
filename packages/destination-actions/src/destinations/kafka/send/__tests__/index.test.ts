@@ -373,3 +373,90 @@ describe('getOrCreateProducer', () => {
     expect(result).not.toBe(oldProducer)
   })
 })
+
+describe('getOrCreateProducer', () => {
+  const settings = {
+    clientId: 'testClientId',
+    brokers: 'https://broker1:9092,https://broker2:9092',
+    mechanism: 'plain',
+    username: 'testUsername',
+    password: 'testPassword',
+    accessKeyId: 'testAccessKeyId',
+    secretAccessKey: 'testSecretAccessKey',
+    authorizationIdentity: 'testAuthorizationIdentity',
+    ssl_ca: 'testCACert',
+    ssl_cert: 'testCert',
+    ssl_key: 'testKey',
+    ssl_reject_unauthorized_ca: true,
+    ssl_enabled: true
+  }
+
+  afterEach(() => {
+    for (const key in producersByConfig) {
+      delete producersByConfig[key]
+    }
+    jest.restoreAllMocks()
+  })
+
+  it('getOrCreateProducer ensures existing connections are reused', async () => {
+    const now = Date.now()
+    const key = serializeKafkaConfig(settings)
+
+    const fakeProducer = {
+      connect: jest.fn(),
+      disconnect: jest.fn(),
+      send: jest.fn(),
+      sendBatch: jest.fn(),
+      transaction: jest.fn()
+    } as unknown as Producer
+
+    // Insert into producer cache as active and recent
+    producersByConfig[key] = {
+      producer: fakeProducer,
+      isConnected: true,
+      lastUsed: now
+    }
+
+    jest.spyOn(Date, 'now').mockReturnValue(now)
+
+    const result = await getOrCreateProducer(settings, undefined)
+
+    expect(result).toBe(fakeProducer)
+    expect(fakeProducer.connect).toHaveBeenCalled() // this is a no-op since it's already connected, but is done to ensure the producer is ready anyway. It's an  idempotent operation.
+  })
+
+  it('getOrCreateProducer replaces expired connections and creates a new connection', async () => {
+    const now = Date.now()
+    const expiredTime = now - 31 * 60 * 1000 // 31 minutes ago
+    const key = serializeKafkaConfig(settings)
+
+    const oldProducer = {
+      connect: jest.fn(),
+      disconnect: jest.fn(),
+      send: jest.fn(),
+      sendBatch: jest.fn(),
+      transaction: jest.fn()
+    } as unknown as Producer
+
+    // Put expired producer in cache
+    producersByConfig[key] = {
+      producer: oldProducer,
+      isConnected: true,
+      lastUsed: expiredTime
+    }
+
+    jest.spyOn(Date, 'now').mockReturnValue(now)
+
+    const result = await getOrCreateProducer(settings, undefined)
+
+    // Expect the old producer to be cleaned up
+    expect(oldProducer.disconnect).toHaveBeenCalled()
+
+    // Expect a new producer to have connected
+    expect(result.connect).toHaveBeenCalled()
+
+    // Cache should now hold a new producer
+    expect(producersByConfig[key].producer).toBe(result)
+    expect(result).not.toBe(oldProducer)
+  })
+})

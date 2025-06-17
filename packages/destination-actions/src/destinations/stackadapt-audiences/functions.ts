@@ -24,7 +24,7 @@ interface TokenInfoResponse {
   }
 }
 
-export const EXTERNAL_PROVIDER = 'SEGMENT_IO'
+export const EXTERNAL_PROVIDER = 'segmentio'
 export const GQL_ENDPOINT = 'https://api.stackadapt.com/graphql'
 
 export async function advertiserIdFieldImplementation(
@@ -71,6 +71,13 @@ export function sha256hash(data: string) {
   return hash.digest('hex')
 }
 
+// transform an array of mapping objects into a string which can be sent as parameter in a GQL request
 export function stringifyJsonWithEscapedQuotes(value: unknown) {
-  return JSON.stringify(value).replace(/"/g, '\\"')
+  let jsonString = JSON.stringify(value)
+
+  // Then use regex to unquote the type field
+  jsonString = jsonString.replace(/"type":"([^"]+)"/g, (_, typeValue) => `"type":${typeValue.toUpperCase()}`)
+
+  // Finally escape all remaining quotes
+  return jsonString.replace(/"/g, '\\"')
 }
