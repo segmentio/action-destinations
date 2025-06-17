@@ -169,7 +169,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    prioritizatio: {
+    prioritization: {
       label: 'Prioritization',
       description:
         'Prioritization settings; required when using email. This prioritization will be applied to all recipients.',
