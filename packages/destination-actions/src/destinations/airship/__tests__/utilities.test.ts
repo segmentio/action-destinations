@@ -121,6 +121,18 @@ describe('Testing _parse_date', () => {
   })
 })
 
+describe('Testing _parse_date', () => {
+  it('should NOT parse a short string into a date object', () => {
+    expect(_private._parse_date('30122')).toBeNull()
+  })
+})
+
+describe('Testing _parse_date', () => {
+  it('should parse a date-looking string into a date object', () => {
+    expect(_private._parse_date('2025-06-11')).toBeInstanceOf(Date)
+  })
+})
+
 describe('Testing _parse_and_format_date', () => {
   it('should modify a valid date string', () => {
     expect(_private._parse_and_format_date('2023-05-09T00:47:43.378Z')).toEqual('2023-05-09T00:47:43')
