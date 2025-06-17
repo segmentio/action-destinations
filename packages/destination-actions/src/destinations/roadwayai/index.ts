@@ -9,7 +9,7 @@ import trackPageView from './trackPageView'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Roadway AI',
-  slug: 'roadwayai',
+  slug: 'roadwayai-actions',
   mode: 'cloud',
   description: 'Send browser events (identify, group, track, etc.) to your RoadwayAI workspace.',
 
