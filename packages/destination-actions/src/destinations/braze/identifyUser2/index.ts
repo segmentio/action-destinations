@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
-    prioritizatio: {
+    prioritization: {
       label: 'Prioritization',
       description:
         'Prioritization settings for user merging if multiple users are found. Required when email_to_identify is provided.',
