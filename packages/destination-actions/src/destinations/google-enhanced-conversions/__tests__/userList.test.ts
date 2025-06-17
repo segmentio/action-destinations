@@ -526,7 +526,7 @@ describe('GoogleEnhancedConversions', () => {
           customerId
         },
         features: {
-          'google-enhanced-phone-validation-check': false
+          'google-enhanced-phone-validation-check': true
         }
       })
 
