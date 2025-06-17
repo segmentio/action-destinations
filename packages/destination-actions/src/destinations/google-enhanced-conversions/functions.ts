@@ -36,6 +36,10 @@ import { processHashing } from '../../lib/hashing-utils'
 export const API_VERSION = 'v19'
 export const CANARY_API_VERSION = 'v19'
 export const FLAGON_NAME = 'google-enhanced-canary-version'
+export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
+import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+
+const phoneUtil = PhoneNumberUtil.getInstance()
 
 type GoogleAdsErrorData = {
   error: {
@@ -439,16 +443,52 @@ export function formatToE164(phoneNumber: string, countryCode: string): string {
   return formattedPhoneNumber
 }
 
-export const formatPhone = (phone: string, countryCode?: string): string => {
+export const formatPhone = (phone: string, countryCode?: string, features?: Features | undefined): string => {
   // Check if phone number is already hashed before doing any formatting
   if (isHashedInformation(phone)) {
     return phone
   }
-  const formattedPhone = formatToE164(phone, countryCode ?? '+1')
+  let formattedPhone
+  if (features && features[FLAGON_NAME_PHONE_VALIDATION_CHECK]) {
+    formattedPhone = validateAndFormatToE164(phone, countryCode ?? '+1')
+  } else {
+    // If phone validation check is disabled, just format to E.164
+    formattedPhone = formatToE164(phone, countryCode ?? '+1')
+  }
   return formattedPhone
 }
 
-const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syncMode?: string) => {
+export const validateAndFormatToE164 = (phoneNumber: string, countryCode?: string): string => {
+  try {
+    let regionCode = 'US' // default region
+
+    // If numeric country code is provided, convert to region code
+    if (countryCode) {
+      const intCode = parseInt(countryCode.replace(/\D/g, ''))
+      regionCode = phoneUtil.getRegionCodeForCountryCode(intCode) || 'US'
+    }
+
+    // Parse the phone number using region
+    const parsedNumber = phoneUtil.parseAndKeepRawInput(phoneNumber, regionCode)
+
+    // Validate the number
+    if (!phoneUtil.isValidNumber(parsedNumber)) {
+      return phoneNumber
+    }
+
+    // Return E.164 formatted number
+    return phoneUtil.format(parsedNumber, PhoneNumberFormat.E164)
+  } catch (error) {
+    return phoneNumber
+  }
+}
+
+const extractUserIdentifiers = (
+  payloads: UserListPayload[],
+  idType: string,
+  syncMode?: string,
+  features?: Features | undefined
+) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
   // Map user data to Google Ads API format
@@ -469,7 +509,7 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
       if (payload.phone) {
         identifiers.push({
           hashedPhoneNumber: processHashing(payload.phone, 'sha256', 'hex', (value) =>
-            formatPhone(value, payload.phone_country_code)
+            formatPhone(value, payload.phone_country_code, features)
           )
         })
       }
@@ -625,7 +665,7 @@ export const handleUpdate = async (
   }
   const id_type = hookListType ?? audienceSettings.external_id_type
   // Format the user data for Google Ads API
-  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode)
+  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode, features)
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Create an offline user data job
   const offlineUserJobResponse = await createOfflineUserJob(
@@ -782,7 +822,7 @@ const runOfflineUserJob = async (
   }
 }
 
-export const createIdentifierExtractors = () => ({
+export const createIdentifierExtractors = (features?: Features | undefined) => ({
   MOBILE_ADVERTISING_ID: (payload: UserListPayload) => {
     return payload.mobile_advertising_id?.trim() ? { mobileId: payload.mobile_advertising_id.trim() } : null
   },
@@ -803,7 +843,7 @@ export const createIdentifierExtractors = () => ({
     if (payload.phone) {
       identifiers.push({
         hashedPhoneNumber: processHashing(payload.phone, 'sha256', 'hex', (value) =>
-          formatPhone(value, payload.phone_country_code)
+          formatPhone(value, payload.phone_country_code, features)
         )
       })
     }
@@ -827,14 +867,15 @@ const extractBatchUserIdentifiers = (
   payloads: UserListPayload[],
   idType: string,
   multiStatusResponse: MultiStatusResponse,
-  syncMode?: string
+  syncMode?: string,
+  features?: Features | undefined
 ) => {
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
   const validPayloadIndicesBitmap: number[] = []
 
   //Identify the user identifiers based on the idType
-  const extractors = createIdentifierExtractors()
+  const extractors = createIdentifierExtractors(features)
 
   payloads.forEach((payload, index) => {
     let userIdentifiers
@@ -933,7 +974,8 @@ export const processBatchPayload = async (
     payloads,
     id_type,
     multiStatusResponse,
-    syncMode
+    syncMode,
+    features
   )
   // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
