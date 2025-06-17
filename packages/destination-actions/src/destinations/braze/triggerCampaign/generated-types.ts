@@ -68,7 +68,7 @@ export interface Payload {
     }
   }[]
   /**
-   * Prioritization settings; required when using email. This prioritization will be applied to all recipients.
+   * Prioritization settings; required when using email in recipients. This prioritization will be applied to all recipients.
    */
   prioritization?: {
     /**
