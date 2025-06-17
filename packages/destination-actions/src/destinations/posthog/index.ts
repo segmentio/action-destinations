@@ -1,10 +1,7 @@
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
 import event from './event'
-
 import identify from './identify'
-import e from 'cors'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Posthog',

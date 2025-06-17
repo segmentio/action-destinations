@@ -1,5 +1,5 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
-import { BatchJSON } from 'src/destinations/posthog/types'
+import { BatchJSON } from '../types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
