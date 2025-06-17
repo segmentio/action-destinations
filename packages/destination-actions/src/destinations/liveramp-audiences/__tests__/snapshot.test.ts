@@ -81,6 +81,7 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destinatio
     eventData.s3_aws_bucket_name = 'bucket'
     eventData.s3_aws_region = 'us-west'
     eventData.filename = 'myfile'
+    eventData.s3_aws_bucket_path = 'folder1/folder2'
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
