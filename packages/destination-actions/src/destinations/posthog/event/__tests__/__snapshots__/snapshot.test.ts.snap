@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Posthog's event destination action: all fields 1`] = `
+Object {
+  "api_key": ")z(DntC*1pA^Oh]x",
+  "batch": Array [
+    Object {
+      "event": "$screen",
+      "properties": Object {
+        "$process_person_profile": false,
+        "$screen_name": ")z(DntC*1pA^Oh]x",
+        "distinct_id": ")z(DntC*1pA^Oh]x",
+        "testType": ")z(DntC*1pA^Oh]x",
+      },
+      "timestamp": "2021-02-01T00:00:00.000Z",
+    },
+  ],
+  "historical_migration": false,
+}
+`;
+
+exports[`Testing snapshot for Posthog's event destination action: required fields 1`] = `
+Object {
+  "api_key": ")z(DntC*1pA^Oh]x",
+  "batch": Array [
+    Object {
+      "event": "$screen",
+      "properties": Object {
+        "$process_person_profile": false,
+        "$screen_name": ")z(DntC*1pA^Oh]x",
+        "distinct_id": ")z(DntC*1pA^Oh]x",
+      },
+    },
+  ],
+  "historical_migration": false,
+}
+`;
