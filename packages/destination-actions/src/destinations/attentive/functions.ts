@@ -11,7 +11,7 @@ type UserIdentifiers =
 
 type Items = EcommEvent['items']
 
-export function validate(payload: CustomEvent | EcommEvent | CustomAttributesEvent): void {
+export function validate(payload: CustomEvent | EcommEvent | CustomAttributesEvent | SubscribeUserEvent) {
   const {
     userIdentifiers: { phone, email, clientUserId, ...customIdentifiers }
   } = payload
@@ -20,6 +20,13 @@ export function validate(payload: CustomEvent | EcommEvent | CustomAttributesEve
     throw new PayloadValidationError('At least one user identifier is required.')
   }
 } 
+
+export function validateSubscribeUser(payload: SubscribeUserEvent) {
+  const { userIdentifiers, locale } = payload 
+  if (!userIdentifiers && !locale) {
+    throw new PayloadValidationError('Either locale or signUpSourceId is required.')
+  }
+}
 
 function formatUser(userIdentifiers: UserIdentifiers): User {
   const { phone, email, clientUserId, ...customIdentifiers } = userIdentifiers
@@ -48,11 +55,12 @@ function formatItems(items: Items): Array<Item> {
 }
 
 function formatLocale(locale?: string): { language: string, country: string } {
-  if (!locale) return { language: 'en', country: 'US' }
-
-  const parts = locale.split('_')
+  if(!locale) {
+    throw new PayloadValidationError('Locale Signup Source ID is required.')
+  }
+  const parts = locale.split('-')
   if (parts.length !== 2 || !parts[0] || !parts[1]) {
-    throw new PayloadValidationError('Invalid locale format. Expected format: "language_country" e.g. "en_US".')
+    throw new PayloadValidationError('Invalid locale format. Expected format: "language-country" e.g. "en-US".')
   }
 
   const [language, country] = parts
@@ -76,6 +84,10 @@ export function formatCustomEventJSON(payload: CustomEvent): CustomEventJSON {
     userIdentifiers
   } = payload
   
+  if (Object.values(properties ?? {}).some(value => Array.isArray(value))) {
+    throw new PayloadValidationError('Properties cannot contain arrays.')
+  }
+
   return {
     type,
     properties,
@@ -87,27 +99,29 @@ export function formatCustomEventJSON(payload: CustomEvent): CustomEventJSON {
 
 export function formatUpsertUserAttributesJSON(payload: CustomAttributesEvent): UpsertUserAttributesJSON {
   const { 
-    properties, 
-    externalEventId, 
-    occurredAt, 
+    properties,  
     userIdentifiers 
   } = payload
-  
+
+  if (Object.values(properties ?? {}).some(value => typeof value === 'object' || Array.isArray(value))) {
+    throw new PayloadValidationError('Properties cannot contain objects or arrays.')
+  }
+
   return {
     properties,
-    externalEventId,
-    occurredAt,
     user: formatUser(userIdentifiers)
   }
 }
 
 export function formatSubscribeUserJSON(payload: SubscribeUserEvent): SubscribeUserJSON {
-  const { externalEventId, occurredAt, userIdentifiers, subscriptionType } = payload
+  const { externalEventId, occurredAt, userIdentifiers, subscriptionType, signUpSourceId, singleOptIn } = payload
   return {
     externalEventId,
     occurredAt,
     subscriptionType: subscriptionType as SubscriptionType,
     locale: formatLocale(payload?.locale),
+    signUpSourceId,
+    singleOptIn,
     user: formatUser(userIdentifiers)
   }
 }

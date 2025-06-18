@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { userIdentifiers, externalEventId, occurredAt, properties } from '../fields'
+import { userIdentifiers, properties } from '../fields'
 import { API_URL, API_VERSION } from '../constants'
 import { formatUpsertUserAttributesJSON, validate } from '../functions'
 
@@ -11,13 +11,12 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "identify"',
   fields: {
     userIdentifiers,
-    occurredAt,
-    externalEventId,
     properties: {
       ...properties,
       default: {
         '@path': '$.traits'
-      }
+      },
+      required: true
     }
   },
   perform: (request, { payload }) => {

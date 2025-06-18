@@ -2,7 +2,7 @@
 
 exports[`Testing snapshot for Attentive's customEvents destination action: all fields 1`] = `
 Object {
-  "externalEventId": "808f3a12-c154-500d-86ba-36b96b797f92",
+  "externalEventId": "*8ANaCHkFXR*[r23fd",
   "occurredAt": "*8ANaCHkFXR*[r23fd",
   "properties": Object {
     "testType": "*8ANaCHkFXR*[r23fd",
@@ -11,7 +11,7 @@ Object {
   "user": Object {
     "email": "zat@kulihesa.dm",
     "externalIdentifiers": Object {
-      "clientUserId": "808f3a12-c154-500d-86ba-36b96b797f92",
+      "clientUserId": "*8ANaCHkFXR*[r23fd",
     },
     "phone": "*8ANaCHkFXR*[r23fd",
   },

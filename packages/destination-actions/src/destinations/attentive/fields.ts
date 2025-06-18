@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
-import { SUBSCRIPTION_TYPE_CHOICES, MARKETING } from './constants'
+import { SUBSCRIPTION_TYPE_CHOICES, TRANSACTIONAL } from './constants'
 
 export const eventType: InputField = {
   label: 'Event Type',
@@ -104,9 +104,8 @@ export const type: InputField = {
 
 export const externalEventId: InputField = {
   label: 'External Event Id',
-  description: 'A unique identifier representing this specific event. Should be a UUID format.',
+  description: 'A unique identifier representing this specific event.',
   type: 'string',
-  format: 'uuid',
   required: false,
   default: {
     '@path': '$.messageId'
@@ -148,7 +147,6 @@ export const userIdentifiers: InputField = {
       label: 'Client User ID',
       description: 'A primary ID for a user. Should be a UUID.',
       type: 'string',
-      format: 'uuid',
       required: false
     }
   },
@@ -187,13 +185,41 @@ export const subscriptionType: InputField = {
   type: 'string',
   required: true,
   choices: SUBSCRIPTION_TYPE_CHOICES,
-  default: MARKETING
+  default: TRANSACTIONAL
 }
 
 export const locale: InputField = {
   label: 'Locale',
-  description: 'User locale. e.g. "en-US".',
+  description: 'User locale. e.g. "en-US". Either Locale or Signup Source ID is required.',
   type: 'string',
-  required: false,
+  allowNull: false,
+  required: {
+    match: 'any',
+    conditions: [
+      { fieldKey: 'signUpSourceId', operator: 'is', value: undefined },
+      { fieldKey: 'signUpSourceId', operator: 'is', value: "" }
+    ]
+  },
   default: { '@path': '$.context.locale' }
+}
+
+export const signUpSourceId: InputField = {
+  label: 'Signup Source ID',
+  description: 'A unique identifier for the sign up source. Talk to your Attentive represenative. Either Locale or Signup Source ID is required.',
+  type: 'string',
+  required: {
+    match: 'any',
+    conditions: [
+      { fieldKey: 'locale', operator: 'is', value: undefined },
+      { fieldKey: 'locale', operator: 'is', value: "" }
+    ]
+  }
+}
+
+export const singleOptIn: InputField = {
+  label: 'Single Opt-In',
+  description: 'Whether to use single opt-in for the subscription.',
+  type: 'boolean',
+  required: false,
+  default: false
 }

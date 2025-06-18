@@ -24,7 +24,7 @@ export interface Payload {
    */
   occurredAt?: string
   /**
-   * A unique identifier representing this specific event. Should be a UUID format.
+   * A unique identifier representing this specific event.
    */
   externalEventId?: string
   /**
@@ -32,7 +32,15 @@ export interface Payload {
    */
   subscriptionType: string
   /**
-   * User locale. e.g. "en-US".
+   * User locale. e.g. "en-US". Either Locale or Signup Source ID is required.
    */
   locale?: string
+  /**
+   * A unique identifier for the sign up source. Talk to your Attentive represenative. Either Locale or Signup Source ID is required.
+   */
+  signUpSourceId?: string
+  /**
+   * Whether to use single opt-in for the subscription.
+   */
+  singleOptIn?: boolean
 }

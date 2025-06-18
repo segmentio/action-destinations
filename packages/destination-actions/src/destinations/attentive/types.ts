@@ -10,12 +10,10 @@ export interface CustomEventJSON {
   occurredAt?: string
   user: User
   type: string
-  properties?: Record<string, unknown>
+  properties?: Record<string, unknown> // cannot contain arrays
 }
 export interface UpsertUserAttributesJSON {
-  properties?: Record<string, unknown>
-  externalEventId?: string
-  occurredAt?: string
+  properties: Record<string, unknown> // cannot contain arrays or objects
   user: User
 }
 export interface SubscribeUserJSON {
@@ -26,7 +24,9 @@ export interface SubscribeUserJSON {
   locale?: {
     language: string
     country: string
-  }
+  },
+  signUpSourceId?: string // locale or signUpSourceId is required
+  singleOptIn?: boolean
 }
 export interface User {
   phone?: string

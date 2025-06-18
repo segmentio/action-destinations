@@ -24,7 +24,7 @@ export interface Payload {
    */
   occurredAt?: string
   /**
-   * A unique identifier representing this specific event. Should be a UUID format.
+   * A unique identifier representing this specific event.
    */
   externalEventId?: string
   /**
