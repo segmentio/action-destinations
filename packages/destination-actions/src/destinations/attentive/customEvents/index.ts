@@ -42,7 +42,6 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Client User ID',
           description: 'A primary ID for a user. Should be a UUID.',
           type: 'string',
-          format: 'uuid',
           required: false
         }
       },
@@ -77,7 +76,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'External Event Id',
       description: 'A unique identifier representing this specific event. Should be a UUID format.',
       type: 'string',
-      format: 'uuid',
       required: false,
       default: {
         '@path': '$.messageId'
