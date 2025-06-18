@@ -168,6 +168,16 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'string',
           choices: prioritizationChoices
         }
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'broadcast',
+            operator: 'is_not',
+            value: true
+          }
+        ]
       }
     },
     audience: {
