@@ -846,7 +846,7 @@ const runOfflineUserJob = async (
   }
 }
 
-export const createIdentifierExtractors = (features?: Features | undefined) => ({
+export const createIdentifierExtractors = (features?: Features) => ({
   MOBILE_ADVERTISING_ID: (payload: UserListPayload) => {
     return payload.mobile_advertising_id?.trim() ? { mobileId: payload.mobile_advertising_id.trim() } : null
   },
@@ -892,7 +892,7 @@ const extractBatchUserIdentifiers = (
   idType: string,
   multiStatusResponse: MultiStatusResponse,
   syncMode?: string,
-  features?: Features | undefined
+  features?: Features
 ) => {
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
