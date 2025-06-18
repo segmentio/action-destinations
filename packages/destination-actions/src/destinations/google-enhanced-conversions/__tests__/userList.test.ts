@@ -3,6 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import GoogleEnhancedConversions from '../index'
 import { API_VERSION } from '../functions'
 import { SegmentEvent } from '@segment/actions-core'
+import { PayloadValidationError } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(GoogleEnhancedConversions)
 const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
@@ -699,19 +700,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
-        .post(/.*/)
-        .reply(200, { data: 'offlineDataJob' })
-
-      const responses = await testDestination.testAction('userList', {
+      const responses = testDestination.testAction('userList', {
         event,
         mapping: {
           ad_user_data_consent_state: 'GRANTED',
@@ -737,13 +726,7 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      expect(responses.length).toEqual(3)
-      expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"job\\":{\\"type\\":\\"CUSTOMER_MATCH_USER_LIST\\",\\"customerMatchUserListMetadata\\":{\\"userList\\":\\"customers/1234/userLists/1234\\",\\"consent\\":{\\"adUserData\\":\\"GRANTED\\",\\"adPersonalization\\":\\"GRANTED\\"}}}}"`
-      )
-      expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"operations\\":[{\\"create\\":{\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"13d9dd811fb4b328638a4a1329c1527d9b00021cc535a99a5bd72b99c1b22ba4\\"},{\\"addressInfo\\":{\\"hashedFirstName\\":\\"4f23798d92708359b734a18172c9c864f1d48044a754115a0d4b843bca3a5332\\",\\"hashedLastName\\":\\"fd53ef835b15485572a6e82cf470dcb41fd218ae5751ab7531c956a2a6bcd3c7\\",\\"countryCode\\":\\"\\",\\"postalCode\\":\\"\\"}}]}}],\\"enable_warnings\\":true}"`
-      )
+      await expect(responses).rejects.toThrow(PayloadValidationError)
     })
 
     it('should successfully handle error other than CONCURRENT_MODIFICATION from createOfflineUserDataJobs API', async () => {
@@ -1185,6 +1168,28 @@ describe('GoogleEnhancedConversions', () => {
             }
           }
         }),
+        //invalid phone country code
+        createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          properties: {
+            gclid: '54321',
+            email: 'test+2@gmail.com',
+            orderId: '1234',
+            phone: '3234567890',
+            phoneCountryCode: '999',
+            firstName: 'Jane',
+            lastName: 'Doe',
+            currency: 'USD',
+            value: '123',
+            address: {
+              street: '123 Street SW',
+              city: 'San Diego',
+              state: 'CA',
+              postalCode: '982004'
+            }
+          }
+        }),
         // Missing email ,phone and addressInfo which is necessary for CONTACT_INFO
         createTestEvent({
           timestamp,
@@ -1295,11 +1300,21 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`).post(/.*/).reply(200, { done: true })
 
+      const mappingWithPhoneCountryCode = {
+        ...mapping,
+        phone_country_code: {
+          '@path': '$.properties.phoneCountryCode'
+        }
+      }
+
       const responses = await testDestination.executeBatch('userList', {
         events,
-        mapping,
+        mapping: mappingWithPhoneCountryCode,
         settings: {
           customerId
+        },
+        features: {
+          'google-enhanced-phone-validation-check': true
         }
       })
 
@@ -1357,15 +1372,22 @@ describe('GoogleEnhancedConversions', () => {
         sent: '/customers/1234/userLists/1234:run',
         body: { done: true }
       })
-      // Missing email ,phone and addressInfo which is necessary for CONTACT_INFO
+
       expect(responses[3]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Invalid country calling code',
+        errorreporter: 'INTEGRATIONS'
+      })
+      // Missing email ,phone and addressInfo which is necessary for CONTACT_INFO
+      expect(responses[4]).toMatchObject({
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'Missing or Invalid data for CONTACT_INFO.',
         errorreporter: 'INTEGRATIONS'
       })
       //Partial Failure(invalid payload) due to invalid Payload
-      expect(responses[4]).toMatchObject({
+      expect(responses[5]).toMatchObject({
         status: 400,
         errortype: 'BAD_REQUEST',
         errormessage: 'The SHA256 encoded value is malformed.',

@@ -488,7 +488,7 @@ export const validateAndFormatToE164 = (
     // Validate the number
     if (!phoneUtil.isValidNumber(parsedNumber)) {
       statsContext?.statsClient?.incr('validateAndFormatPhone.error', 1, statsContext?.tags)
-      return phoneNumber
+      throw new PayloadValidationError('Invalid phone number or country code.')
     }
 
     statsContext?.statsClient?.incr('validateAndFormatPhone.success', 1, statsContext?.tags)
@@ -496,7 +496,7 @@ export const validateAndFormatToE164 = (
     return phoneUtil.format(parsedNumber, PhoneNumberFormat.E164)
   } catch (error) {
     statsContext?.statsClient?.incr('validateAndFormatPhone.error', 1, statsContext?.tags)
-    return phoneNumber
+    throw new PayloadValidationError((error as Error).message || 'Invalid phone number or country code.')
   }
 }
 
