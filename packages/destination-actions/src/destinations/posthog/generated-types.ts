@@ -16,5 +16,5 @@ export interface Settings {
   /**
    * If enabled, this ensures that events are processed in order without triggering our spike detection systems. Affects events sent via the track Action only.
    */
-  historical_migration: boolean
+  historical_migration?: boolean
 }
