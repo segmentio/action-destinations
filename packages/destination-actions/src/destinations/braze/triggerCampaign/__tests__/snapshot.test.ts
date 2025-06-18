@@ -143,17 +143,20 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-    // Create a test with audience data
+    // Create a test with audience data and broadcast true
     const customEventData = {
       ...eventData,
+      broadcast: true, // Required when using audience without recipients
       audience: {
         AND: [
           { custom_attribute: { attribute_name: 'eye_color', comparison: 'equals', value: 'blue' } },
           { custom_attribute: { attribute_name: 'age', comparison: 'greater_than', value: 30 } }
         ]
-      },
-      recipients: [] // Empty array instead of undefined
+      }
+      // recipients not included when broadcast is true
     }
+    // Remove recipients since we're using broadcast
+    delete customEventData.recipients
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
