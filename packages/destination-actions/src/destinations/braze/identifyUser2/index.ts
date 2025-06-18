@@ -93,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
         conditions: [
           {
             fieldKey: 'email_to_identify',
-            operator: 'is_not',
+            operator: 'is',
             value: undefined
           }
         ]
