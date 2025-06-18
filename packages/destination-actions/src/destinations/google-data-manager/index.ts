@@ -50,7 +50,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
           // TODO: Test query to validate authentication to different products
           body: JSON.stringify({
-            query: 'SELECT product_link.display_video_advertiser.display_video_advertiser FROM product_link '
+            query: 'SELECT product_link.display_video_advertiser.display_video_advertiser FROM product_link'
           })
         }
       )
@@ -138,7 +138,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       try {
         const authToken = await getAuthToken(request, authSettings)
         response = await request(partnerCreateAudienceUrl, {
-          headers: buildHeaders(createAudienceInput.audienceSettings, authToken),
+          headers: buildHeaders(createAudienceInput.audienceSettings, createAudienceInput.settings, authToken),
           method: 'POST',
           json: {
             operations: [
@@ -195,7 +195,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       try {
         const authToken = await getAuthToken(request, authSettings)
         const response = await request(advertiserGetAudienceUrl, {
-          headers: buildHeaders(audienceSettings, authToken),
+          headers: buildHeaders(audienceSettings, getAudienceInput.settings, authToken),
           method: 'POST',
           json: {
             query: `SELECT user_list.name,
