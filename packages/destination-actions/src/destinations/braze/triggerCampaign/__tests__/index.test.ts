@@ -1,4 +1,4 @@
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, IntegrationError } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
@@ -273,6 +273,44 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
+    expect(mockRequest.isDone()).toBe(true)
+  })
+
+  // Test error handling for Braze API errors
+  it('handles Braze API errors and surfaces error message as IntegrationError', async () => {
+    const action = destination.actions[actionSlug]
+    const [_, settingsData] = generateTestData(seedName, destination, action, false)
+
+    // Create valid test data that will trigger an API error
+    const eventData = {
+      campaign_id: 'invalid-campaign-123',
+      broadcast: true
+    }
+
+    // Mock the API request to return an error with a message
+    const mockRequest = nock('https://rest.iad-01.braze.com')
+      .post('/campaigns/trigger/send')
+      .reply(400, { message: 'Campaign with id invalid-campaign-123 not found' })
+
+    const event = createTestEvent({
+      properties: eventData
+    })
+
+    // Check that the error is thrown
+    try {
+      await testDestination.testAction(actionSlug, {
+        event: event,
+        mapping: eventData,
+        settings: { ...settingsData, endpoint: 'https://rest.iad-01.braze.com' },
+        auth: undefined
+      })
+    } catch (error) {
+      // The error should be an IntegrationError with the correct message and code
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect(error.message).toBe('Campaign with id invalid-campaign-123 not found')
+      expect(error.code).toBe('BRAZE_API_ERROR')
+    }
+
     expect(mockRequest.isDone()).toBe(true)
   })
 })
