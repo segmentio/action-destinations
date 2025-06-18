@@ -9,8 +9,8 @@ const destinationSlug = 'Braze'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
-  // Test error case when no targeting parameter is provided
-  it('throws error when no targeting parameter is provided', async () => {
+  // Test error case when neither broadcast nor recipients is provided
+  it('throws error when neither broadcast nor recipients is provided', async () => {
     const action = destination.actions[actionSlug]
     const [_, settingsData] = generateTestData(seedName, destination, action, false)
 
@@ -38,7 +38,7 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
         settings: settingsData,
         auth: undefined
       })
-    ).rejects.toThrowError('One of "recipients", "broadcast" or "audience", must be provided.')
+    ).rejects.toThrowError('Either "broadcast" must be true or "recipients" list must be provided.')
   })
 
   // Test error case when campaign_id is missing
@@ -71,12 +71,12 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
     ).rejects.toThrowError("The root value is missing the required field 'campaign_id'.")
   })
 
-  // Test error case: multiple targeting parameters provided
-  it('throws error when multiple targeting parameters are provided', async () => {
+  // Test error case: broadcast is true and recipients are provided
+  it('throws error when broadcast is true and recipients are provided', async () => {
     const action = destination.actions[actionSlug]
     const [_, settingsData] = generateTestData(seedName, destination, action, false)
 
-    // Create test data with multiple targeting parameters
+    // Create test data with both broadcast and recipients
     const invalidEventData = {
       campaign_id: 'campaign-123',
       broadcast: true,
@@ -99,41 +99,93 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
         settings: settingsData,
         auth: undefined
       })
-    ).rejects.toThrowError('Only one of "recipients", "broadcast" or "audience" should be provided.')
+    ).rejects.toThrowError('When "broadcast" is true, "recipients" list cannot be included.')
   })
 
-  // Test error case when no targeting parameter is provided, all null
-  it('throws error when no targeting parameter is provided', async () => {
+  // Test success case: broadcast with optional audience
+  it('allows broadcast with optional audience', async () => {
     const action = destination.actions[actionSlug]
     const [_, settingsData] = generateTestData(seedName, destination, action, false)
 
-    // Create invalid test data with no targeting params
-    const invalidEventData = {
+    // Create valid test data with broadcast and audience
+    const validEventData = {
       campaign_id: 'campaign-123',
-      // Remove all targeting parameters
-      broadcast: null,
-      recipients: null,
-      audience: null
+      broadcast: true,
+      audience: {
+        AND: [
+          {
+            custom_attribute: {
+              custom_attribute_name: 'test_attribute',
+              comparison: 'equals',
+              value: 'test_value'
+            }
+          }
+        ]
+      }
     }
 
-    nock(/.*/).persist().get(/.*/).reply(200)
-    nock(/.*/).persist().post(/.*/).reply(200)
-    nock(/.*/).persist().put(/.*/).reply(200)
+    // Mock the API request
+    const mockRequest = nock('https://rest.iad-01.braze.com')
+      .post('/campaigns/trigger/send', (body) => {
+        expect(body.campaign_id).toBe('campaign-123')
+        expect(body.broadcast).toBe(true)
+        expect(body.audience).toBeDefined()
+        expect(body.recipients).toBeUndefined()
+        return true
+      })
+      .reply(200, { success: true })
 
     const event = createTestEvent({
-      properties: invalidEventData
+      properties: validEventData
     })
 
-    await expect(
-      testDestination.testAction(actionSlug, {
-        event: event,
-        mapping: invalidEventData,
-        settings: settingsData,
-        auth: undefined
+    const responses = await testDestination.testAction(actionSlug, {
+      event: event,
+      mapping: validEventData,
+      settings: { ...settingsData, endpoint: 'https://rest.iad-01.braze.com' },
+      auth: undefined
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(mockRequest.isDone()).toBe(true)
+  })
+
+  // Test success case: broadcast without audience
+  it('allows broadcast without audience', async () => {
+    const action = destination.actions[actionSlug]
+    const [_, settingsData] = generateTestData(seedName, destination, action, false)
+
+    // Create valid test data with just broadcast
+    const validEventData = {
+      campaign_id: 'campaign-123',
+      broadcast: true
+    }
+
+    // Mock the API request
+    const mockRequest = nock('https://rest.iad-01.braze.com')
+      .post('/campaigns/trigger/send', (body) => {
+        expect(body.campaign_id).toBe('campaign-123')
+        expect(body.broadcast).toBe(true)
+        expect(body.recipients).toBeUndefined()
+        return true
       })
-    ).rejects.toThrowError(
-      `The root value is missing the required field 'broadcast'. The root value must match "then" schema. The root value is missing the required field 'recipients'. The root value must match "then" schema. The root value is missing the required field 'audience'. The root value must match "then" schema.`
-    )
+      .reply(200, { success: true })
+
+    const event = createTestEvent({
+      properties: validEventData
+    })
+
+    const responses = await testDestination.testAction(actionSlug, {
+      event: event,
+      mapping: validEventData,
+      settings: { ...settingsData, endpoint: 'https://rest.iad-01.braze.com' },
+      auth: undefined
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(mockRequest.isDone()).toBe(true)
   })
 
   // Test to verify prioritization object transforms correctly

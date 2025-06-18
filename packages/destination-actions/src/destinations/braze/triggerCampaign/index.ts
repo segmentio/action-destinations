@@ -96,25 +96,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     recipients: {
       label: 'Recipients',
-      description:
-        'An array of user identifiers to send the campaign to. It can not be used with "broadcast" or "audience".',
+      description: 'An array of user identifiers to send the campaign to. It can not be used with "broadcast".',
       type: 'object',
       multiple: true,
-      required: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'broadcast',
-            operator: 'is',
-            value: undefined
-          },
-          {
-            fieldKey: 'audience',
-            operator: 'is',
-            value: undefined
-          }
-        ]
-      },
       depends_on: {
         match: 'all',
         conditions: [
@@ -122,11 +106,6 @@ const action: ActionDefinition<Settings, Payload> = {
             fieldKey: 'broadcast',
             operator: 'is_not',
             value: true
-          },
-          {
-            fieldKey: 'audience',
-            operator: 'is',
-            value: undefined
           }
         ]
       },
@@ -196,21 +175,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'A standard audience object to specify the users to send the campaign to. Including "audience" will only send to users in the audience',
       type: 'object',
-      required: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'broadcast',
-            operator: 'is',
-            value: undefined
-          },
-          {
-            fieldKey: 'recipients',
-            operator: 'is',
-            value: undefined
-          }
-        ]
-      },
       depends_on: {
         match: 'all',
         conditions: [
@@ -230,25 +194,20 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
-    // Count how many targeting parameters are provided
-    let targetingParamsCount = 0
-    if (payload.broadcast) targetingParamsCount++
-    if (payload.recipients?.length) targetingParamsCount++
-    if (payload.audience) targetingParamsCount++
-
-    // Validate that exactly one of the required targeting parameters is provided
-    if (targetingParamsCount === 0) {
+    // Validate that either broadcast OR recipients is provided (both are required, but mutually exclusive)
+    if (!payload.broadcast && (!payload.recipients || payload.recipients.length === 0)) {
       throw new IntegrationError(
-        'One of "recipients", "broadcast" or "audience", must be provided.',
+        'Either "broadcast" must be true or "recipients" list must be provided.',
         'Missing required fields',
         400
       )
     }
 
-    if (targetingParamsCount > 1) {
+    // If broadcast is true, recipients list cannot be included
+    if (payload.broadcast && payload.recipients && payload.recipients.length > 0) {
       throw new IntegrationError(
-        'Only one of "recipients", "broadcast" or "audience" should be provided.',
-        'Multiple targeting parameters provided',
+        'When "broadcast" is true, "recipients" list cannot be included.',
+        'Invalid targeting parameters',
         400
       )
     }
