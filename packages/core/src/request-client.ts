@@ -255,21 +255,28 @@ class RequestClient {
       ...options,
       method: getRequestMethod(options.method ?? 'get'),
       throwHttpErrors: options.throwHttpErrors !== false,
-      timeout: options.timeout ?? DEFAULT_REQUEST_TIMEOUT
+      timeout: options.timeout ?? false
     } as NormalizedOptions
 
     // Timeout support. Use our own abort controller so consumers can pass in their own `signal`
     // if they wish to use timeouts alongside other logic to abort a request
     this.abortController = new AbortController()
-    if (this.options.signal) {
-      // Listen to consumer abort events to also abort our internal controller
-      this.options.signal.addEventListener('abort', () => {
-        this.abortController.abort()
-      })
-    }
+    // if (this.options.signal) {
+    //   // Listen to consumer abort events to also abort our internal controller
+    //   this.options.signal.addEventListener('abort', () => {
+    //     this.abortController.abort()
+    //   })
+    // }
 
     // Use our internal abort controller for fetch
-    this.options.signal = this.abortController.signal
+
+    // const signals: AbortSignal[] = [this.abortController.signal]
+    // if (this.options.signal) {
+    //   // If the user provided a signal, we want to use it alongside our own
+    //   signals.push(this.options.signal)
+    // }
+    // // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    // this.options.signal = AbortSignal.any(signals)
 
     // Construct a request object to send to the Fetch API
     this.request = new Request(url, this.options)
