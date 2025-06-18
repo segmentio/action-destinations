@@ -167,13 +167,12 @@ Object {
       },
     ],
   },
-  "broadcast": false,
+  "broadcast": true,
   "campaign_id": "FOoSsHJVqqKt3",
   "prioritization": Object {
     "first_priority": "most_recently_updated",
     "second_priority": "most_recently_updated",
   },
-  "recipients": Array [],
   "send_id": "FOoSsHJVqqKt3",
   "trigger_properties": Object {
     "testType": "FOoSsHJVqqKt3",
