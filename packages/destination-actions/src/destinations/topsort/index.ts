@@ -5,6 +5,8 @@ import type { Settings } from './generated-types'
 
 import impression from './impression'
 
+import impressionsList from './impressionsList'
+
 import click from './click'
 
 import purchase from './purchase'
@@ -45,6 +47,13 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "track" and event = "Order Completed"',
       partnerAction: 'purchase',
       mapping: defaultValues(purchase.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Impressions List',
+      subscribe: 'type = "track" and event = "Product List Viewed"',
+      partnerAction: 'impressionsList',
+      mapping: defaultValues(impressionsList.fields),
       type: 'automatic'
     },
     {
