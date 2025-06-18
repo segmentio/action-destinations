@@ -45,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
     broadcast: {
       label: 'Broadcast',
       description:
-        'Must be set to true when sending a message to an entire segment that a campaign targets. Only one of "broadcast", "recipients" or "audience" should be provided.',
+        'If set to true, and if the audience is not provided, the campaign will be sent to all the users in the segment targeted by the campaign. It can not be used with "recipients".',
       type: 'boolean',
       required: {
         match: 'all',
@@ -67,11 +67,6 @@ const action: ActionDefinition<Settings, Payload> = {
         conditions: [
           {
             fieldKey: 'recipients',
-            operator: 'is',
-            value: undefined
-          },
-          {
-            fieldKey: 'audience',
             operator: 'is',
             value: undefined
           }
@@ -102,7 +97,7 @@ const action: ActionDefinition<Settings, Payload> = {
     recipients: {
       label: 'Recipients',
       description:
-        'An array of user identifiers to send the campaign to. Only one of "recipients", "broadcast" or "audience" should be provided.',
+        'An array of user identifiers to send the campaign to. It can not be used with "broadcast" or "audience".',
       type: 'object',
       multiple: true,
       required: {
@@ -125,8 +120,8 @@ const action: ActionDefinition<Settings, Payload> = {
         conditions: [
           {
             fieldKey: 'broadcast',
-            operator: 'is',
-            value: undefined
+            operator: 'is_not',
+            value: true
           },
           {
             fieldKey: 'audience',
@@ -199,7 +194,7 @@ const action: ActionDefinition<Settings, Payload> = {
     audience: {
       label: 'Audience',
       description:
-        'A standard audience object to specify the users to send the campaign to. Only one of "recipients", "broadcast" or "audience" should be provided.',
+        'A standard audience object to specify the users to send the campaign to. Including "audience" will only send to users in the audience',
       type: 'object',
       required: {
         match: 'all',
@@ -220,14 +215,14 @@ const action: ActionDefinition<Settings, Payload> = {
         match: 'all',
         conditions: [
           {
-            fieldKey: 'broadcast',
+            fieldKey: 'recipients',
             operator: 'is',
             value: undefined
           },
           {
-            fieldKey: 'recipients',
+            fieldKey: 'broadcast',
             operator: 'is',
-            value: undefined
+            value: true
           }
         ]
       }
