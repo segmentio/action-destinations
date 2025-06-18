@@ -446,8 +446,8 @@ export function formatToE164(phoneNumber: string, countryCode: string): string {
 export const formatPhone = (
   phone: string,
   countryCode?: string,
-  features?: Features | undefined,
-  statsContext?: StatsContext | undefined
+  features?: Features,
+  statsContext?: StatsContext
 ): string => {
   // Check if phone number is already hashed before doing any formatting
   if (isHashedInformation(phone)) {
@@ -471,7 +471,7 @@ export const formatPhone = (
 export const validateAndFormatToE164 = (
   phoneNumber: string,
   countryCode?: string,
-  statsContext?: StatsContext | undefined
+  statsContext?: StatsContext
 ): string => {
   try {
     let regionCode = 'US' // default region
