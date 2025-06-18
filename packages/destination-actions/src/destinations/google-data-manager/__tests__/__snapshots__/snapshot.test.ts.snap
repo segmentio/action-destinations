@@ -1,9 +1,69 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-google-data-manager destination: ingest action - all fields 1`] = `Array []`;
+exports[`Testing snapshot for actions-google-data-manager destination: ingest action - all fields 1`] = `
+Object {
+  "audienceMembers": Array [
+    Object {
+      "consent": Object {
+        "adPersonalization": "CONSENT_GRANTED",
+        "adUserData": "CONSENT_GRANTED",
+      },
+      "userData": Object {
+        "userIdentifiers": Array [
+          Object {
+            "address": Object {
+              "familyName": "ZWTB^0A]@#Be(",
+              "givenName": "ZWTB^0A]@#Be(",
+              "postalCode": "ZWTB^0A]@#Be(",
+              "regionCode": "ZWTB^0A]@#Be(",
+            },
+            "emailAddress": "ZWTB^0A]@#Be(",
+            "phoneNumber": "ZWTB^0A]@#Be(",
+          },
+        ],
+      },
+    },
+  ],
+  "destinations": Array [
+    Object {
+      "loginAccount": Object {
+        "accountId": "8172370552",
+        "product": "DATA_PARTNER",
+      },
+      "operatingAccount": Object {},
+    },
+  ],
+  "encoding": "BASE64",
+}
+`;
 
-exports[`Testing snapshot for actions-google-data-manager destination: ingest action - required fields 1`] = `Array []`;
-
-exports[`Testing snapshot for actions-google-data-manager destination: remove action - all fields 1`] = `Array []`;
-
-exports[`Testing snapshot for actions-google-data-manager destination: remove action - required fields 1`] = `Array []`;
+exports[`Testing snapshot for actions-google-data-manager destination: ingest action - required fields 1`] = `
+Object {
+  "audienceMembers": Array [
+    Object {
+      "consent": Object {
+        "adPersonalization": "CONSENT_GRANTED",
+        "adUserData": "CONSENT_GRANTED",
+      },
+      "userData": Object {
+        "userIdentifiers": Array [
+          Object {
+            "address": Object {},
+            "emailAddress": "ZWTB^0A]@#Be(",
+          },
+        ],
+      },
+    },
+  ],
+  "destinations": Array [
+    Object {
+      "loginAccount": Object {
+        "accountId": "8172370552",
+        "product": "DATA_PARTNER",
+      },
+      "operatingAccount": Object {},
+    },
+  ],
+  "encoding": "BASE64",
+}
+`;
