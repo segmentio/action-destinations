@@ -443,22 +443,36 @@ export function formatToE164(phoneNumber: string, countryCode: string): string {
   return formattedPhoneNumber
 }
 
-export const formatPhone = (phone: string, countryCode?: string, features?: Features | undefined): string => {
+export const formatPhone = (
+  phone: string,
+  countryCode?: string,
+  features?: Features | undefined,
+  statsContext?: StatsContext | undefined
+): string => {
   // Check if phone number is already hashed before doing any formatting
   if (isHashedInformation(phone)) {
     return phone
   }
   let formattedPhone
   if (features && features[FLAGON_NAME_PHONE_VALIDATION_CHECK]) {
-    formattedPhone = validateAndFormatToE164(phone, countryCode ?? '+1')
+    formattedPhone = validateAndFormatToE164(phone, countryCode ?? '+1', statsContext)
   } else {
     // If phone validation check is disabled, just format to E.164
     formattedPhone = formatToE164(phone, countryCode ?? '+1')
   }
+
+  // TODO: Log stats for pre-formatted phone numbers, Will remove it in clean up
+  if (phone == formattedPhone) {
+    statsContext?.statsClient?.incr('validateAndFormatPhone.pre_formatted', 1, statsContext?.tags)
+  }
   return formattedPhone
 }
 
-export const validateAndFormatToE164 = (phoneNumber: string, countryCode?: string): string => {
+export const validateAndFormatToE164 = (
+  phoneNumber: string,
+  countryCode?: string,
+  statsContext?: StatsContext | undefined
+): string => {
   try {
     let regionCode = 'US' // default region
 
@@ -473,12 +487,15 @@ export const validateAndFormatToE164 = (phoneNumber: string, countryCode?: strin
 
     // Validate the number
     if (!phoneUtil.isValidNumber(parsedNumber)) {
+      statsContext?.statsClient?.incr('validateAndFormatPhone.error', 1, statsContext?.tags)
       return phoneNumber
     }
 
+    statsContext?.statsClient?.incr('validateAndFormatPhone.success', 1, statsContext?.tags)
     // Return E.164 formatted number
     return phoneUtil.format(parsedNumber, PhoneNumberFormat.E164)
   } catch (error) {
+    statsContext?.statsClient?.incr('validateAndFormatPhone.error', 1, statsContext?.tags)
     return phoneNumber
   }
 }
@@ -487,7 +504,8 @@ const extractUserIdentifiers = (
   payloads: UserListPayload[],
   idType: string,
   syncMode?: string,
-  features?: Features | undefined
+  features?: Features | undefined,
+  statsContext?: StatsContext | undefined
 ) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
@@ -509,7 +527,7 @@ const extractUserIdentifiers = (
       if (payload.phone) {
         identifiers.push({
           hashedPhoneNumber: processHashing(payload.phone, 'sha256', 'hex', (value) =>
-            formatPhone(value, payload.phone_country_code, features)
+            formatPhone(value, payload.phone_country_code, features, statsContext)
           )
         })
       }
@@ -665,7 +683,13 @@ export const handleUpdate = async (
   }
   const id_type = hookListType ?? audienceSettings.external_id_type
   // Format the user data for Google Ads API
-  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode, features)
+  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(
+    payloads,
+    id_type,
+    syncMode,
+    features,
+    statsContext
+  )
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Create an offline user data job
   const offlineUserJobResponse = await createOfflineUserJob(
