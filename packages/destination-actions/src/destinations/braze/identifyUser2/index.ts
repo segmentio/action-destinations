@@ -93,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
         conditions: [
           {
             fieldKey: 'email_to_identify',
-            operator: 'is',
+            operator: 'is_not',
             value: undefined
           }
         ]
@@ -103,7 +103,6 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'First Priority',
           description: 'First priority for user merging if multiple users are found',
           type: 'string',
-          required: true,
           choices: prioritizationChoices
         },
         second_priority: {
