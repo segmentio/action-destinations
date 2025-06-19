@@ -1,6 +1,6 @@
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
-import { RequestClient, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, MultiStatusResponse, JSONLikeObject } from '@segment/actions-core'
 import { JSON, JSONItem, ResponseJSON } from './types'
 
 export function validate(payloads: Payload[]): Payload[]{
@@ -13,8 +13,10 @@ export function validate(payloads: Payload[]): Payload[]{
     return payloads
 }
 
-export async function send(request: RequestClient, payloads: Payload[], settings: Settings) {
+export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean) {
+
     validate(payloads)
+  
     const json: JSON = payloads.map(payload => buildJSON(payload, settings.organizationId))
 
     const response = await request<ResponseJSON>(`${settings.integrationURL}/subscriber`, {
@@ -25,6 +27,29 @@ export async function send(request: RequestClient, payloads: Payload[], settings
             'Authorization': `Bearer ${settings.apiKey}`
         }
     })
+
+    if(isBatch){
+        const multiStatusResponse = new MultiStatusResponse()
+        response.data.forEach((res, index) => {
+            if (res.code >= 200 && res.code < 300) {
+                multiStatusResponse.setSuccessResponseAtIndex(index, {
+                    status: res.code,
+                    sent: json[index] as unknown as JSONLikeObject,
+                    body: res as unknown as JSONLikeObject
+                });
+            } else {
+                multiStatusResponse.setErrorResponseAtIndex(index, {
+                    status: res.code,
+                    sent: json[index] as unknown as JSONLikeObject,
+                    body: res as unknown as JSONLikeObject,
+                    errormessage: res.description
+                })
+            }
+        })
+        return multiStatusResponse
+    }
+    
+    return response 
 }
 
 function buildJSON(payload: Payload, organizationId: string): JSONItem {

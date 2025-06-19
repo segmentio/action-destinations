@@ -154,11 +154,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.timestamp' }
     }
   },
-  perform: (request, {payload, settings}) => {
-    send(request, [payload], settings)
+  perform: async (request, {payload, settings}) => {
+    await send(request, [payload], settings, false)
   },
-  performBatch: (request, { payload, settings }) => {
-    send(request, payload, settings)
+  performBatch: async (request, { payload, settings }) => {
+    await send(request, payload, settings, true)
   }
 }
 
