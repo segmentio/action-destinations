@@ -1,13 +1,13 @@
-import { ActionDefinition, RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError, StatsContext, Features } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
 import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import { Client } from './client'
-import { AssociationSyncMode, SyncMode, SchemaMatch } from './types'
+import { AssociationSyncMode, SyncMode, SchemaMatch, RequestData } from './types'
 import { dynamicFields } from './functions/dynamic-field-functions'
 import { getSchemaFromCache, saveSchemaToCache } from './functions/cache-functions'
-import { mergeAndDeduplicateById, validate } from './functions/validation-functions'
+import { ensureValidTimestamps, mergeAndDeduplicateById, validate } from './functions/validation-functions'
 import { objectSchema, compareSchemas } from './functions/schema-functions'
 import { sendFromRecords } from './functions/hubspot-record-functions'
 import {
@@ -16,6 +16,7 @@ import {
   sendAssociations
 } from './functions/hubspot-association-functions'
 import { getSchemaFromHubspot, createProperties } from './functions/hubspot-properties-functions'
+import { HUBSPOT_DEDUPLICATION_FLAGON } from './constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object V2',
@@ -39,9 +40,11 @@ const action: ActionDefinition<Settings, Payload> = {
     statsContext?.tags?.push('action:custom_object')
     return await send(request, [payload], syncMode as SyncMode, subscriptionMetadata, statsContext)
   },
-  performBatch: async (request, { payload, syncMode, subscriptionMetadata, statsContext }) => {
+  performBatch: async (request, data) => {
+    const requestData = data as RequestData<Settings, Payload[]>
+    const { payload, syncMode, subscriptionMetadata, statsContext, features, rawData } = requestData
     statsContext?.tags?.push('action:custom_object_batch')
-    return await send(request, payload, syncMode as SyncMode, subscriptionMetadata, statsContext)
+    return await send(request, payload, syncMode, subscriptionMetadata, statsContext, features, rawData?.timestamp)
   }
 }
 
@@ -50,9 +53,12 @@ const send = async (
   payloads: Payload[],
   syncMode: SyncMode,
   subscriptionMetadata?: SubscriptionMetadata,
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  features?: Features,
+  fallbackTimestamp?: string
 ) => {
-  if (syncMode === 'upsert') {
+  if (features && features[HUBSPOT_DEDUPLICATION_FLAGON] && (syncMode === 'upsert' || syncMode === 'update')) {
+    payloads = ensureValidTimestamps(payloads, fallbackTimestamp)
     payloads = mergeAndDeduplicateById(payloads)
   }
 

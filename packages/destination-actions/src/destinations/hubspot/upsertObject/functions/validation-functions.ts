@@ -1,5 +1,6 @@
 import { PayloadValidationError } from '@segment/actions-core'
 import { Payload } from '../generated-types'
+import { Association } from '../types'
 
 export function validate(payloads: Payload[]): Payload[] {
   const length = payloads.length
@@ -91,7 +92,7 @@ function cleanProp(str: string): string {
  *
  * For each unique ID:
  * - Properties and sensitive properties are merged, preferring values from the payload with the latest timestamp.
- * - Associations are deduplicated by their composite key and merged.
+ * - Associations are merged.
  * - The resulting payload for each ID contains merged properties, sensitive properties, and associations.
  * - The `timestamp` field is used only for determining recency and is removed from the final output.
  *
@@ -107,12 +108,12 @@ export function mergeAndDeduplicateById(payloads: Payload[]): Payload[] {
 
     const incomingTimestamp = incoming.timestamp ? new Date(incoming.timestamp).getTime() : 0
 
-    if (!mergedMap.has(id)) {
+    const existing = mergedMap.get(id)
+    if (!existing) {
       mergedMap.set(id, { ...incoming })
       continue
     }
 
-    const existing = mergedMap.get(id)!
     const existingTimestamp = existing.timestamp ? new Date(existing.timestamp).getTime() : 0
 
     // Merge properties
@@ -135,7 +136,7 @@ export function mergeAndDeduplicateById(payloads: Payload[]): Payload[] {
     const existingAssociations = existing.associations || []
     const incomingAssociations = incoming.associations || []
 
-    const associationKey = (assoc: any) =>
+    const associationKey = (assoc: Association) =>
       `${assoc.object_type}|${assoc.association_label}|${assoc.id_field_name}|${assoc.id_field_value}`
 
     const existingAssocMap = new Map(existingAssociations.map((a) => [associationKey(a), a]))
@@ -161,4 +162,38 @@ export function mergeAndDeduplicateById(payloads: Payload[]): Payload[] {
 
   // Final output with timestamp removed
   return Array.from(mergedMap.values()).map(({ timestamp, ...rest }) => rest)
+}
+
+/**
+ * Ensures that each payload in the provided array has a valid timestamp.
+ * If a payload's timestamp is invalid, it is replaced with the provided fallback timestamp.
+ *
+ * @param payloads - An array of payload objects, each potentially containing a `timestamp` property.
+ * @param fallbackTimestamp - The timestamp string to use when a payload's timestamp is invalid.
+ * @returns A new array of payloads with valid timestamps.
+ */
+export function ensureValidTimestamps(payloads: Payload[], fallbackTimestamp?: string): Payload[] {
+  const safeFallback = isValidTimestamp(fallbackTimestamp) ? fallbackTimestamp : new Date().toISOString()
+
+  return payloads.map((p) => ({
+    ...p,
+    timestamp: isValidTimestamp(p.timestamp) ? p.timestamp : safeFallback
+  }))
+}
+
+/**
+ * Checks if the provided value is a valid timestamp.
+ *
+ * Accepts strings, numbers, or Date objects and verifies if they can be converted
+ * to a valid date. Returns `true` if the value represents a valid timestamp,
+ * otherwise returns `false`.
+ *
+ * @param ts - The value to validate as a timestamp.
+ * @returns `true` if `ts` is a valid timestamp, otherwise `false`.
+ */
+function isValidTimestamp(ts: unknown): ts is string | number | Date {
+  if (typeof ts === 'string' || typeof ts === 'number' || ts instanceof Date) {
+    return !isNaN(new Date(ts).getTime())
+  }
+  return false
 }

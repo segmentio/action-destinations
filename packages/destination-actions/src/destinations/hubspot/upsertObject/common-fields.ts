@@ -145,7 +145,6 @@ export const commonFields: Record<string, InputField> = {
     type: 'string',
     required: false,
     default: { '@path': '$.timestamp' },
-    dynamic: true,
     disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
   }
 }
