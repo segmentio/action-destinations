@@ -1,21 +1,45 @@
-import { createTestIntegration } from '@segment/actions-core'
-import Destination from '../../index'
-
-const testDestination = createTestIntegration(Destination)
+import nock from 'nock'
+import ingest from '../index'
 
 describe('GoogleDataManager.ingest', () => {
-  it('should be defined', () => {
-    expect(testDestination).toBeDefined()
-    expect(testDestination.actions.ingest).toBeDefined()
+  afterEach(() => {
+    nock.cleanAll()
   })
 
-  it('should call perform without error', async () => {
-    const action = testDestination.actions.ingest
-    const perform = action.definition.perform
-    expect(typeof perform).toBe('function')
-    // Since there are no fields, we can call with empty data
-    await expect(perform({} as any, { payload: {}, settings: {} } as any)).resolves.toBeUndefined()
-  })
+  it('should send a valid payload to the ingest endpoint', async () => {
+    const payload = {
+      emailAddress: 'test@test.com',
+      audienceId: 'test',
+      enable_batching: true
+    }
 
-  // TODO: Add more tests when the action is implemented
+    const mockRequest = jest.fn().mockResolvedValue({ status: 200 })
+    const executeInput = {
+      payload: payload,
+      audienceSettings: {
+        advertiserId: '8142508276',
+        product: 'GOOGLE_ADS',
+        productDestinationId: '9001371543'
+      },
+      settings: { productLink: 'products/DATA_PARTNER/customers/8172370552' },
+      auth: {
+        accessToken: 'test-access-token',
+        refreshToken: 'test-refresh-token'
+      }
+    }
+    const response = await ingest.perform(mockRequest, executeInput)
+    expect(response.status).toBe(200)
+    expect(mockRequest).toHaveBeenCalledWith(
+      'https://datamanager.googleapis.com/v1/audienceMembers:ingest',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-access-token',
+          Accept: 'application/json'
+        })
+        // TODO: check the outbound payload structure
+      })
+    )
+  })
 })
