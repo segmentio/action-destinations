@@ -1,0 +1,254 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Braze's triggerCampaign destination action: all fields 1`] = `
+Object {
+  "attachments": Array [
+    Object {
+      "file_name": "FOoSsHJVqqKt3",
+      "url": "FOoSsHJVqqKt3",
+    },
+  ],
+  "broadcast": false,
+  "campaign_id": "FOoSsHJVqqKt3",
+  "recipients": Array [
+    Object {
+      "attributes": Object {
+        "testType": "FOoSsHJVqqKt3",
+      },
+      "email": "job@binjogih.lb",
+      "external_user_id": "FOoSsHJVqqKt3",
+      "prioritization": Array [
+        "most_recently_updated",
+        "most_recently_updated",
+      ],
+      "send_to_existing_only": false,
+      "trigger_properties": Object {
+        "testType": "FOoSsHJVqqKt3",
+      },
+      "user_alias": Object {
+        "alias_label": "test-alias-label",
+        "alias_name": "test-alias",
+      },
+    },
+  ],
+  "send_id": "FOoSsHJVqqKt3",
+  "trigger_properties": Object {
+    "testType": "FOoSsHJVqqKt3",
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's triggerCampaign destination action: all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer FOoSsHJVqqKt3",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's triggerCampaign destination action: required fields 1`] = `
+Object {
+  "broadcast": false,
+  "campaign_id": "FOoSsHJVqqKt3",
+  "recipients": Array [
+    Object {
+      "external_user_id": "test-user-123",
+      "send_to_existing_only": true,
+    },
+  ],
+  "send_id": "FOoSsHJVqqKt3",
+}
+`;
+
+exports[`Testing snapshot for Braze's triggerCampaign destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer FOoSsHJVqqKt3",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's triggerCampaign destination action: with attachments 1`] = `
+Object {
+  "attachments": Array [
+    Object {
+      "file_name": "test-document.pdf",
+      "url": "https://example.com/test-document.pdf",
+    },
+    Object {
+      "file_name": "image.jpg",
+      "url": "https://example.com/image.jpg",
+    },
+  ],
+  "broadcast": false,
+  "campaign_id": "FOoSsHJVqqKt3",
+  "recipients": Array [
+    Object {
+      "attributes": Object {
+        "testType": "FOoSsHJVqqKt3",
+      },
+      "email": "job@binjogih.lb",
+      "external_user_id": "FOoSsHJVqqKt3",
+      "prioritization": Array [
+        "most_recently_updated",
+        "most_recently_updated",
+      ],
+      "send_to_existing_only": false,
+      "trigger_properties": Object {
+        "testType": "FOoSsHJVqqKt3",
+      },
+      "user_alias": Object {
+        "testType": "FOoSsHJVqqKt3",
+      },
+    },
+  ],
+  "send_id": "FOoSsHJVqqKt3",
+  "trigger_properties": Object {
+    "testType": "FOoSsHJVqqKt3",
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's triggerCampaign destination action: with attachments 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer FOoSsHJVqqKt3",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's triggerCampaign destination action: with audience object 1`] = `
+Object {
+  "attachments": Array [
+    Object {
+      "file_name": "FOoSsHJVqqKt3",
+      "url": "FOoSsHJVqqKt3",
+    },
+  ],
+  "audience": Object {
+    "AND": Array [
+      Object {
+        "custom_attribute": Object {
+          "attribute_name": "eye_color",
+          "comparison": "equals",
+          "value": "blue",
+        },
+      },
+      Object {
+        "custom_attribute": Object {
+          "attribute_name": "age",
+          "comparison": "greater_than",
+          "value": 30,
+        },
+      },
+    ],
+  },
+  "broadcast": true,
+  "campaign_id": "FOoSsHJVqqKt3",
+  "prioritization": Object {
+    "first_priority": "most_recently_updated",
+    "second_priority": "most_recently_updated",
+  },
+  "send_id": "FOoSsHJVqqKt3",
+  "trigger_properties": Object {
+    "testType": "FOoSsHJVqqKt3",
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's triggerCampaign destination action: with audience object 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer FOoSsHJVqqKt3",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's triggerCampaign destination action: with recipients array 1`] = `
+Object {
+  "attachments": Array [
+    Object {
+      "file_name": "FOoSsHJVqqKt3",
+      "url": "FOoSsHJVqqKt3",
+    },
+  ],
+  "broadcast": false,
+  "campaign_id": "FOoSsHJVqqKt3",
+  "recipients": Array [
+    Object {
+      "email": "test@example.com",
+      "external_user_id": "user-123",
+      "prioritization": Array [
+        "most_recently_updated",
+        "most_recently_updated",
+      ],
+      "send_to_existing_only": true,
+      "trigger_properties": Object {
+        "customData": "test",
+        "name": "John Doe",
+      },
+    },
+    Object {
+      "email": "another@example.com",
+      "external_user_id": "user-456",
+      "prioritization": Array [
+        "most_recently_updated",
+        "most_recently_updated",
+      ],
+      "send_to_existing_only": true,
+    },
+  ],
+  "send_id": "FOoSsHJVqqKt3",
+  "trigger_properties": Object {
+    "testType": "FOoSsHJVqqKt3",
+  },
+}
+`;
+
+exports[`Testing snapshot for Braze's triggerCampaign destination action: with recipients array 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer FOoSsHJVqqKt3",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

@@ -11,6 +11,7 @@ import updateUserProfile from './updateUserProfile'
 import trackEvent2 from './trackEvent2'
 import trackPurchase2 from './trackPurchase2'
 import updateUserProfile2 from './updateUserProfile2'
+import triggerCampaign from './triggerCampaign'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Braze Cloud Mode (Actions)',
@@ -84,7 +85,8 @@ const destination: DestinationDefinition<Settings> = {
     trackEvent2,
     trackPurchase2,
     updateUserProfile2,
-    createAlias2
+    createAlias2,
+    triggerCampaign
   },
   presets: [
     {
