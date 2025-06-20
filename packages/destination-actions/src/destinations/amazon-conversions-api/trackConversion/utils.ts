@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient, APIError, MultiStatusResponse, JSONLikeObject, ModifiedResponse } from '@segment/actions-core'
+import { IntegrationError, RequestClient, MultiStatusResponse, JSONLikeObject, ModifiedResponse, InvalidAuthenticationError, APIError } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import type { Settings } from '../generated-types'
 import type { EventData, ConsentData, RegionValue, AmazonConsentFormat, ImportConversionEventsResponse, EventDataSuccessResponseV1, EventDataErrorResponseV1, MatchKeyV1, ConversionTypeV2, CurrencyCodeV1, CustomAttributeV1 } from '../types'
@@ -179,52 +179,60 @@ export function handleBatchResponse(
     validPayloadIndicesBitmap: number[],
     multiStatusResponse: MultiStatusResponse
 ): MultiStatusResponse {
-    // Handle 207 multistatus responses
-    if (response.status === 207 && response.data) {
-        const responseData = response.data;
+    if (!response.ok && response.status == 401) {
+        throw new InvalidAuthenticationError(response.statusText)
+    }
+    else if (response.status === 207 && response.data) {
+        const responseData = response.data
+        const successMap: Record<number, EventDataSuccessResponseV1> = {}
+        const errorMap: Record<number, EventDataErrorResponseV1> = {}
 
-        const successMap: Record<number, EventDataSuccessResponseV1> = {};
-        const errorMap: Record<number, EventDataErrorResponseV1> = {};
-
-        // Populate success map (adjusting for 1-based API indexing)
         if (responseData.success && Array.isArray(responseData.success)) {
             responseData.success.forEach((item) => {
-                const jsIndex = item.index - 1;
-                successMap[jsIndex] = item;
-            });
+                successMap[item.index - 1] = item
+            })
         }
 
-        // Populate error map (adjusting for 1-based API indexing)
         if (responseData.error && Array.isArray(responseData.error)) {
             responseData.error.forEach((item) => {
-                const jsIndex = item.index - 1;
-                errorMap[jsIndex] = item;
-            });
+                errorMap[item.index - 1] = item
+            })
         }
 
         validPayloads.forEach((payload, arrayPosition) => {
-            const originalIndex = validPayloadIndicesBitmap[arrayPosition];
+            const originalIndex = validPayloadIndicesBitmap[arrayPosition]
             if (errorMap[arrayPosition]) {
-                const errorResult = errorMap[arrayPosition];
+                const errorResult = errorMap[arrayPosition]
                 multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
                     status: parseInt(errorResult.httpStatusCode || '400', 10),
                     sent: payload as unknown as JSONLikeObject,
                     body: errorResult as unknown as JSONLikeObject,
                     errormessage: errorResult.subErrors?.[0]?.errorMessage || 'Error processing payload'
-                });
-            } else if (successMap[arrayPosition]) {
+                })
+            } 
+            else if (successMap[arrayPosition]) {
                 multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
                     status: 200,
                     sent: payload as unknown as JSONLikeObject,
                     body: successMap[arrayPosition] as unknown as JSONLikeObject
-                });
-            } else {
+                })
+            } 
+            else {
                 // should never happen
                 throw new APIError('Unable to match event in request payload to response from Amazon API', 500)
             }
-        });
+        })
+    } 
+    else {
+        validPayloadIndicesBitmap.forEach((originalIndex, arrayPosition) => {
+            multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+                status: response.status || 400,
+                errormessage: response.statusText || 'Amazon API request failed',
+                sent: validPayloads[arrayPosition] as unknown as JSONLikeObject,
+            })
+        })
     }
-    return multiStatusResponse;
+    return multiStatusResponse
 }
 
 export function prepareEventData(payload: Payload, settings: Settings): EventData {
