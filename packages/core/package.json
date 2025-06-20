@@ -29,6 +29,10 @@
     "./mapping-kit/*": {
       "require": "./dist/cjs/mapping-kit/*.js",
       "default": "./dist/esm/mapping-kit/*.js"
+    },
+    "./schema-validation": {
+      "require": "./dist/cjs/schema-validation.js",
+      "default": "./dist/esm/schema-validation.js"
     }
   },
   "typesVersions": {
