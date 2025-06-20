@@ -3,7 +3,8 @@ import {
   AudienceDestinationDefinition,
   PayloadValidationError,
   APIError,
-  defaultValues
+  defaultValues,
+  InvalidAuthenticationError
 } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 
@@ -34,10 +35,41 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         required: false
       }
     },
-    testAuthentication: (request) => {
+    testAuthentication: (request, { auth }) => {
+      if (!auth.accessToken) {
+        throw new InvalidAuthenticationError('Please authenticate via Oauth before enabling the destination.')
+      }
       return request(`${API_URL}/accounts/`, {
         method: 'get'
       })
+    },
+    refreshAccessToken: async (request, { auth }) => {
+      const endpoint = 'https://a.klaviyo.com/oauth/token'
+      try {
+        const response = await request(endpoint, {
+          method: 'POST',
+          body: new URLSearchParams({
+            grant_type: 'refresh_token',
+            refresh_token: auth.refreshToken,
+            client_id: auth.clientId,
+            client_secret: auth.clientSecret
+          }).toString(),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        })
+        const jsonResponse = await response.json()
+        // Optionally log the response using console.log or another logger if available
+        console.info('Klaviyo refresh access token response:', jsonResponse)
+        return jsonResponse
+      } catch (error) {
+        console.log('Klaviyo refresh access token error:', error)
+        if (error instanceof APIError && error.status == 400) {
+          throw new InvalidAuthenticationError(
+            'Invalid Klaviyo Oauth access token. Please reauthenticate to retrieve a valid access token before enabling the destination.'
+          )
+        }
+      }
     }
   },
 
@@ -60,9 +92,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     })
   },
 
-  extendRequest({ settings }) {
+  extendRequest({ settings, auth }) {
     return {
-      headers: buildHeaders(settings.api_key)
+      headers: buildHeaders(settings.api_key, auth?.accessToken)
     }
   },
   audienceFields: {
@@ -79,7 +111,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     async createAudience(request, createAudienceInput) {
       const audienceName = createAudienceInput.audienceName
-      const apiKey = createAudienceInput.settings.api_key
       const defaultAudienceId = createAudienceInput.audienceSettings?.listId
 
       if (defaultAudienceId) {
@@ -89,14 +120,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       if (!audienceName) {
         throw new PayloadValidationError('Missing audience name value')
       }
-
-      if (!apiKey) {
-        throw new PayloadValidationError('Missing Api Key value')
-      }
-
       const response = await request(`${API_URL}/lists`, {
         method: 'POST',
-        headers: buildHeaders(apiKey),
         json: {
           data: { type: 'list', attributes: { name: audienceName } }
         }
@@ -114,11 +139,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       const listId = getAudienceInput.externalId
-      const apiKey = getAudienceInput.settings.api_key
 
       const response = await request(`${API_URL}/lists/${listId}`, {
         method: 'GET',
-        headers: buildHeaders(apiKey),
         throwHttpErrors: false
       })
 
