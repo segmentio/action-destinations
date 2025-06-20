@@ -52,7 +52,6 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
   title: 'Session Plugin',
   description: 'Generates a Session ID and attaches it to every Amplitude browser based event.',
   platform: 'web',
-  hidden: true,
   defaultSubscription: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
   fields: {
     sessionLength: {
@@ -60,6 +59,13 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       type: 'number',
       required: false,
       description: 'Time in milliseconds to be used before considering a session stale.'
+    },
+    allowSessionTracking: {
+      label: 'Allow Session Tracking',
+      type: 'boolean',
+      default: false,
+      required: false,
+      description: 'Generate session start and session end events. This is useful for tracking user sessions.'
     }
   },
   lifecycleHook: 'enrichment',
@@ -88,7 +94,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     if (stale(raw, updated, payload.sessionLength)) {
       id = newSession
       storage.set('analytics_session_id', id)
-      startSession()
+      if (payload.allowSessionTracking) startSession()
     } else {
       // we are storing the session id regardless, so it gets synced between different storage mediums
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- id can't be null because of stale check
@@ -96,7 +102,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     }
 
     const withInSessionLimit = withinSessionLimit(newSession, updated)
-    if (!withInSessionLimit) {
+    if (!withInSessionLimit && payload.allowSessionTracking) {
       // end previous session
       endSession()
       // start new session
