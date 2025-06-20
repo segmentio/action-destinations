@@ -14,8 +14,8 @@ export const fields: Record<string, InputField> = {
       //{ label: 'Facebook Messenger', value: CHANNELS.MESSENGER },
       { label: 'RCS', value: CHANNELS.RCS }
     ],
-    default: CHANNELS.MMS,
-    disabledInputMethods: ['literal', 'variable', 'function', 'enrichment']
+    default: CHANNELS.MMS
+    //disabledInputMethods: ['literal', 'variable', 'function', 'enrichment']
   },
   senderType: {
     label: 'Sender Type',
