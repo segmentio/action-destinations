@@ -1,4 +1,4 @@
-import { createTestEvent, createTestIntegration, IntegrationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, PayloadValidationError, APIError } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
@@ -10,7 +10,7 @@ const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   // Test error case when neither broadcast nor recipients is provided
-  it('throws error when neither broadcast nor recipients is provided', async () => {
+  it('throws PayloadValidationError when neither broadcast nor recipients is provided', async () => {
     const action = destination.actions[actionSlug]
     const [_, settingsData] = generateTestData(seedName, destination, action, false)
 
@@ -38,7 +38,7 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
         settings: settingsData,
         auth: undefined
       })
-    ).rejects.toThrowError('Either "broadcast" must be true or "recipients" list must be provided.')
+    ).rejects.toThrow(PayloadValidationError)
   })
 
   // Test error case when campaign_id is missing
@@ -72,7 +72,7 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
   })
 
   // Test error case: broadcast is true and recipients are provided
-  it('throws error when broadcast is true and recipients are provided', async () => {
+  it('throws PayloadValidationError when broadcast is true and recipients are provided', async () => {
     const action = destination.actions[actionSlug]
     const [_, settingsData] = generateTestData(seedName, destination, action, false)
 
@@ -99,7 +99,7 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
         settings: settingsData,
         auth: undefined
       })
-    ).rejects.toThrowError('When "broadcast" is true, "recipients" list cannot be included.')
+    ).rejects.toThrow(PayloadValidationError)
   })
 
   // Test success case: broadcast with optional audience
@@ -277,7 +277,7 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
   })
 
   // Test error handling for Braze API errors
-  it('handles Braze API errors and surfaces error message as IntegrationError', async () => {
+  it('handles Braze API errors and surfaces error message as APIError', async () => {
     const action = destination.actions[actionSlug]
     const [_, settingsData] = generateTestData(seedName, destination, action, false)
 
@@ -305,10 +305,10 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
         auth: undefined
       })
     } catch (error) {
-      // The error should be an IntegrationError with the correct message and code
-      expect(error).toBeInstanceOf(IntegrationError)
+      // The error should be an APIError with the correct message and status
+      expect(error).toBeInstanceOf(APIError)
       expect(error.message).toBe('Campaign with id invalid-campaign-123 not found')
-      expect(error.code).toBe('BRAZE_API_ERROR')
+      expect(error.status).toBe(400)
     }
 
     expect(mockRequest.isDone()).toBe(true)
