@@ -23,6 +23,7 @@ interface SendToAWSRequest {
     s3Region?: string
     s3AccessKeyId?: string
     s3SecretAccessKey?: string
+    s3BucketPath?: string
   }
 }
 
@@ -42,6 +43,7 @@ interface LRMetaPayload {
     s3Region: string
     s3AccessKeyId: string
     s3SecretAccessKey: string
+    s3BucketPath?: string
   }
 }
 
@@ -90,7 +92,8 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
       s3BucketName: input.s3Info?.s3BucketName || '',
       s3Region: input.s3Info?.s3Region || '',
       s3AccessKeyId: input.s3Info?.s3AccessKeyId || '',
-      s3SecretAccessKey: input.s3Info?.s3SecretAccessKey || ''
+      s3SecretAccessKey: input.s3Info?.s3SecretAccessKey || '',
+      s3BucketPath: input.s3Info?.s3BucketPath || ''
     }
   }
 

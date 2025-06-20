@@ -83,7 +83,8 @@ describe('Liveramp Audiences', () => {
           audience_key: 'audience_key',
           delimiter: ',',
           filename: 'filename.csv',
-          enable_batching: true
+          enable_batching: true,
+          s3_aws_bucket_path: 'folder1/folder2'
         },
         subscriptionMetadata: {
           destinationConfigId: 'destinationConfigId',
@@ -125,6 +126,39 @@ describe('Liveramp Audiences', () => {
         expect(e).toBeInstanceOf(PayloadValidationError)
         expect(e.message).toEqual(
           `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: 3`
+        )
+        expect(e.status).toEqual(400)
+      }
+    })
+
+    it(`should throw error if S3 bucket path is invalid`, async () => {
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_access_key: 's3_aws_access_key',
+            s3_aws_secret_key: 's3_aws_secret_key',
+            s3_aws_bucket_name: 's3_aws_bucket_name',
+            s3_aws_region: 's3_aws_region',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true,
+            s3_aws_bucket_path: '/invalid[]/path/'
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          }
+        })
+      } catch (e) {
+        expect(e).toBeInstanceOf(PayloadValidationError)
+        expect(e.message).toEqual(
+          `Invalid S3 bucket path. It must be a valid S3 object key, avoid leading/trailing slashes and forbidden characters (e.g., \\ { } ^ [ ] % \` " < > # | ~). Use a relative path like "folder1/folder2".`
         )
         expect(e.status).toEqual(400)
       }

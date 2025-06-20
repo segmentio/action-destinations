@@ -206,6 +206,55 @@ const destination: AudienceDestinationDefinition<Settings> = {
       mapping: defaultValues(userList.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'postConversion',
+      mapping: defaultValues(postConversion.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadClickConversion',
+      mapping: defaultValues(uploadClickConversion.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadCallConversion',
+      mapping: defaultValues(uploadCallConversion.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadConversionAdjustment',
+      mapping: defaultValues(uploadConversionAdjustment.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadConversionAdjustment2',
+      mapping: defaultValues(uploadConversionAdjustment2.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadClickConversion2',
+      mapping: defaultValues(uploadClickConversion2.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadCallConversion2',
+      mapping: defaultValues(uploadCallConversion2.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }
