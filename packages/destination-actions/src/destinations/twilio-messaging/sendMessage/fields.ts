@@ -11,21 +11,21 @@ export const fields: Record<string, InputField> = {
       { label: 'SMS', value: CHANNELS.SMS },
       { label: 'MMS', value: CHANNELS.MMS },
       { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
-      { label: 'Facebook Messenger', value: CHANNELS.MESSENGER }
-    ],
-    default: CHANNELS.MMS,
-    disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+      { label: 'RCS', value: CHANNELS.RCS }
+    ]
   },
   senderType: {
     label: 'Sender Type',
-    description: "The Sender type to use for the message. Depending on the selected 'Channel' this can be a phone number, messaging service, or Messenger sender ID.",
+    description:
+      "The Sender type to use for the message. Depending on the selected 'Channel' this can be a phone number, messaging service, or Messenger sender ID.",
     type: 'string',
     required: true,
     dynamic: true
   },
   contentTemplateType: {
     label: 'Content Template Type',
-    description: 'The Content Template type to use for the message. Selecting "Inline" will allow you to define the message body directly. For all other options a Content Template must be pre-defined in Twilio.',
+    description:
+      'The Content Template type to use for the message. Selecting "Inline" will allow you to define the message body directly. For all other options a Content Template must be pre-defined in Twilio.',
     type: 'string',
     required: true,
     dynamic: true
@@ -66,7 +66,8 @@ export const fields: Record<string, InputField> = {
   },
   fromPhoneNumber: {
     label: 'From Phone Number',
-    description: "The Twilio phone number (E.164 format) or Short Code. If not in the dropdown, enter it directly. Please ensure the number supports the selected 'Channel' type.",
+    description:
+      "The Twilio phone number (E.164 format) or Short Code. If not in the dropdown, enter it directly. Please ensure the number supports the selected 'Channel' type.",
     type: 'string',
     dynamic: true,
     required: false,
@@ -84,7 +85,8 @@ export const fields: Record<string, InputField> = {
   },
   fromMessengerSenderId: {
     label: 'From Messenger Sender ID',
-    description: "The unique identifier for your Facebook Page, used to send messages via Messenger. You can find this in your Facebook Page settings.",
+    description:
+      'The unique identifier for your Facebook Page, used to send messages via Messenger. You can find this in your Facebook Page settings.',
     type: 'string',
     required: false,
     default: undefined,
@@ -212,26 +214,6 @@ export const fields: Record<string, InputField> = {
     type: 'string',
     multiple: true,
     required: false,
-    depends_on: {
-      match: 'all',
-      conditions: [
-        {
-          fieldKey: 'contentTemplateType',
-          operator: 'is',
-          value: ALL_CONTENT_TYPES.INLINE.friendly_name
-        }
-      ]
-    }
-  },
-  inlineVariables: {
-    label: 'Inline Variables',
-    description:
-      "Variables to be send with the inline message. e.g. 'first_name' would match with {{first_name}} in the Inline Template message body.",
-    type: 'object',
-    required: false,
-    defaultObjectUI: 'keyvalue',
-    additionalProperties: true,
-    default: undefined,
     depends_on: {
       match: 'all',
       conditions: [

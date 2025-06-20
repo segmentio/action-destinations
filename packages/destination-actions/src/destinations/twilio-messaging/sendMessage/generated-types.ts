@@ -61,12 +61,6 @@ export interface Payload {
    */
   inlineMediaUrls?: string[]
   /**
-   * Variables to be send with the inline message. e.g. 'first_name' would match with {{first_name}} in the Inline Template message body.
-   */
-  inlineVariables?: {
-    [k: string]: unknown
-  }
-  /**
    * The number of seconds between 1-14400 that the message is valid for. Default is 14400. If the message is not delivered within this time, it will not be delivered.
    */
   validityPeriod?: number

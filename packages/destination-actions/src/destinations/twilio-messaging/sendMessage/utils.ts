@@ -4,13 +4,11 @@ import { Settings } from '../generated-types'
 import {
   SEND_SMS_URL,
   ACCOUNT_SID_TOKEN,
-  TOKEN_REGEX,
   E164_REGEX,
   TWILIO_SHORT_CODE_REGEX,
   FIELD_REGEX,
   MESSAGING_SERVICE_SID_REGEX,
   CONTENT_SID_REGEX,
-  INLINE_CONTENT_TYPES,
   ALL_CONTENT_TYPES,
   SENDER_TYPE,
   CHANNELS
@@ -26,8 +24,6 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     toMessengerPageUserId,
     contentTemplateType,
     contentVariables,
-    inlineBody,
-    inlineVariables,
     validityPeriod,
     sendAt,
     mediaUrls,
@@ -40,7 +36,9 @@ export async function send(request: RequestClient, payload: Payload, settings: S
       case 'MMS': {
         toPhoneNumber = toPhoneNumber?.trim() ?? ''
         if (!(E164_REGEX.test(toPhoneNumber) || TWILIO_SHORT_CODE_REGEX.test(toPhoneNumber))) {
-          throw new PayloadValidationError("'To' field should be a valid phone number in E.164 format or a Twilio Short Code");
+          throw new PayloadValidationError(
+            "'To' field should be a valid phone number in E.164 format or a Twilio Short Code"
+          )
         }
         return toPhoneNumber
       }
@@ -84,7 +82,9 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     if (senderType === SENDER_TYPE.MESSENGER_SENDER_ID) {
       fromMessengerSenderId = fromMessengerSenderId?.trim()
       if (!fromMessengerSenderId) {
-        throw new PayloadValidationError("'From Messenger Sender ID' field is required when sending from a Messenger Sender ID.")
+        throw new PayloadValidationError(
+          "'From Messenger Sender ID' field is required when sending from a Messenger Sender ID."
+        )
       }
       return { From: `messenger:${fromMessengerSenderId}` }
     }
@@ -110,10 +110,6 @@ export async function send(request: RequestClient, payload: Payload, settings: S
 
     if (contentSid && !CONTENT_SID_REGEX.test(contentSid)) {
       throw new PayloadValidationError("Content SID should start with 'HX' followed by 32 hexadecimal characters.")
-    }
-
-    if (contentTemplateType === INLINE_CONTENT_TYPES.INLINE.friendly_name && inlineBody) {
-      return { Body: encodeURIComponent(replaceTokens(inlineBody, inlineVariables)) }
     } else {
       return {
         ContentSid: contentSid as string,
@@ -127,9 +123,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     if (supportsMedia) {
       const urls: string[] =
         contentTemplateType === ALL_CONTENT_TYPES.INLINE.friendly_name
-          ? inlineMediaUrls
-              ?.filter((item) => item.trim() !== '')
-              .map((item) => replaceTokens(item.trim(), inlineVariables)) ?? []
+          ? inlineMediaUrls?.filter((item) => item.trim() !== '').map((item) => item.trim()) ?? []
           : mediaUrls?.map((item) => item.url.trim()) ?? []
 
       if (urls.length > 10) {
@@ -174,10 +168,6 @@ export function parseFieldValue(value: string | undefined | null): string | unde
   }
   const match = FIELD_REGEX.exec(value)
   return match ? match[1] : value
-}
-
-function replaceTokens(str: string, tokens: { [k: string]: unknown } | undefined): string {
-  return str.replace(TOKEN_REGEX, (_, key) => String(tokens?.[key] ?? ''))
 }
 
 function encode(twilioPayload: TwilioPayload): string {
