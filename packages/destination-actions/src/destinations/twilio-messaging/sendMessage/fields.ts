@@ -11,7 +11,7 @@ export const fields: Record<string, InputField> = {
       { label: 'SMS', value: CHANNELS.SMS },
       { label: 'MMS', value: CHANNELS.MMS },
       { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
-      { label: 'Facebook Messenger', value: CHANNELS.MESSENGER },
+      //{ label: 'Facebook Messenger', value: CHANNELS.MESSENGER },
       { label: 'RCS', value: CHANNELS.RCS }
     ],
     default: CHANNELS.MMS,
