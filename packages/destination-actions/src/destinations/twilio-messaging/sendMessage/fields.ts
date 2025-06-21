@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { ALL_CONTENT_TYPES, SENDER_TYPE, CHANNELS, CONTENT_TYPE_FRIENDLY_NAMES_SUPPORTING_MEDIA } from './constants'
+import { ALL_CONTENT_TYPES, SENDER_TYPE, CHANNELS } from './constants'
 
 export const fields: Record<string, InputField> = {
   channel: {
@@ -136,35 +136,6 @@ export const fields: Record<string, InputField> = {
           fieldKey: 'contentTemplateType',
           operator: 'is_not',
           value: ALL_CONTENT_TYPES.INLINE.friendly_name
-        }
-      ]
-    }
-  },
-  mediaUrls: {
-    label: 'Media URLs',
-    description:
-      'The URLs of the media to include with the message. The URLs should be configured in the Content Template in Twilio.',
-    type: 'object',
-    multiple: true,
-    required: false,
-    properties: {
-      url: {
-        label: 'URL',
-        type: 'string',
-        description: 'The URL of the media to include with the message.',
-        required: true,
-        dynamic: true,
-        allowNull: false,
-        disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
-      }
-    },
-    depends_on: {
-      match: 'all',
-      conditions: [
-        {
-          fieldKey: 'contentTemplateType',
-          operator: 'is',
-          value: CONTENT_TYPE_FRIENDLY_NAMES_SUPPORTING_MEDIA
         }
       ]
     }

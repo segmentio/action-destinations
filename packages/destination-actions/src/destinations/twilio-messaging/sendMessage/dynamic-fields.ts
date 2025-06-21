@@ -97,6 +97,7 @@ export async function dynamicFromPhoneNumber(
         capabilities: {
           sms: boolean
           mms: boolean
+          rcs: boolean
         }
       }>
     }
@@ -148,7 +149,12 @@ export async function dynamicFromPhoneNumber(
   }
 
   const phoneNumbers: string[] = PhoneNumResp.data.incoming_phone_numbers
-    .filter((n) => (channel === CHANNELS.SMS && n.capabilities.sms) || (n.capabilities.mms && channel === CHANNELS.MMS))
+    .filter(
+      (n) =>
+        (channel === CHANNELS.SMS && n.capabilities.sms) ||
+        (n.capabilities.mms && channel === CHANNELS.MMS) ||
+        (n.capabilities.rcs && channel === CHANNELS.RCS)
+    )
     .map((n) => n.phone_number)
 
   numbers.push(...phoneNumbers)
