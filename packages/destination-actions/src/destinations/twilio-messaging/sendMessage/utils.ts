@@ -109,6 +109,13 @@ export async function send(request: RequestClient, payload: Payload, settings: S
   const getContent = (): Content => {
     contentSid = parseFieldValue(contentSid)
 
+    if (contentTemplateType === ALL_CONTENT_TYPES.INLINE.friendly_name) {
+      // For inline content, we return Body instead of ContentSid
+      // The inlineBody already contains variables in {{variable}} format
+      const body = payload.inlineBody || ''
+      return { Body: body }
+    }
+
     if (contentSid && !CONTENT_SID_REGEX.test(contentSid)) {
       throw new PayloadValidationError("Content SID should start with 'HX' followed by 32 hexadecimal characters.")
     } else {

@@ -153,7 +153,7 @@ export async function dynamicFromPhoneNumber(
       (n) =>
         (channel === CHANNELS.SMS && n.capabilities.sms) ||
         (n.capabilities.mms && channel === CHANNELS.MMS) ||
-        (n.capabilities.rcs && channel === CHANNELS.RCS)
+        (channel === CHANNELS.RCS && (n.capabilities.sms || n.capabilities.mms))
     )
     .map((n) => n.phone_number)
 
