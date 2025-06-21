@@ -43,13 +43,13 @@ export const PREDEFINED_CONTENT_TYPES: PredefinedContentTypes = {
     friendly_name: 'Text',
     name: 'twilio/text',
     supports_media: false,
-    supported_channels: [CHANNELS.SMS, CHANNELS.WHATSAPP, CHANNELS.MESSENGER]
+    supported_channels: [CHANNELS.SMS, CHANNELS.WHATSAPP, CHANNELS.MESSENGER, CHANNELS.RCS]
   },
   MEDIA: {
     friendly_name: 'Media',
     name: 'twilio/media',
     supports_media: true,
-    supported_channels: [CHANNELS.MMS, CHANNELS.WHATSAPP, CHANNELS.MESSENGER]
+    supported_channels: [CHANNELS.MMS, CHANNELS.WHATSAPP, CHANNELS.MESSENGER, CHANNELS.RCS]
   },
   QUICK_REPLY: {
     friendly_name: 'Quick Reply',
