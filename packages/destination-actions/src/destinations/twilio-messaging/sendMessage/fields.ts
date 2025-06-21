@@ -10,8 +10,8 @@ export const fields: Record<string, InputField> = {
     choices: [
       { label: 'SMS', value: CHANNELS.SMS },
       { label: 'MMS', value: CHANNELS.MMS },
-      { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
-      { label: 'RCS', value: CHANNELS.RCS }
+      { label: 'WhatsApp', value: CHANNELS.WHATSAPP }
+      //{ label: 'RCS', value: CHANNELS.RCS } (still hiding this in production)
     ]
   },
   senderType: {
