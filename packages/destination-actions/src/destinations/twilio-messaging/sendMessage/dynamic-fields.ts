@@ -120,6 +120,12 @@ export async function dynamicFromPhoneNumber(
     return createErrorResponse("Use 'From Messenger Sender ID' field for specifying the sender ID.")
   }
 
+  if (channel === CHANNELS.WHATSAPP) {
+    return createErrorResponse(
+      'For WhatsApp channel, please manually enter your WhatsApp Business phone number in E.164 format.'
+    )
+  }
+
   if (supportsShortCodes) {
     const shortCodeResp = await getData<ShortCodeResponseType>(
       request,
@@ -153,7 +159,7 @@ export async function dynamicFromPhoneNumber(
       (n) =>
         (channel === CHANNELS.SMS && n.capabilities.sms) ||
         (n.capabilities.mms && channel === CHANNELS.MMS) ||
-        (channel === CHANNELS.RCS && (n.capabilities.sms || n.capabilities.mms))
+        (n.capabilities.rcs && channel === CHANNELS.RCS)
     )
     .map((n) => n.phone_number)
 
