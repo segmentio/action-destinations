@@ -126,6 +126,10 @@ export async function dynamicFromPhoneNumber(
     )
   }
 
+  if (channel === CHANNELS.RCS) {
+    return createErrorResponse('Please manually enter your RCS phone number in E.164 format.')
+  }
+
   if (supportsShortCodes) {
     const shortCodeResp = await getData<ShortCodeResponseType>(
       request,
@@ -155,12 +159,7 @@ export async function dynamicFromPhoneNumber(
   }
 
   const phoneNumbers: string[] = PhoneNumResp.data.incoming_phone_numbers
-    .filter(
-      (n) =>
-        (channel === CHANNELS.SMS && n.capabilities.sms) ||
-        (n.capabilities.mms && channel === CHANNELS.MMS) ||
-        (n.capabilities.rcs && channel === CHANNELS.RCS)
-    )
+    .filter((n) => (channel === CHANNELS.SMS && n.capabilities.sms) || (n.capabilities.mms && channel === CHANNELS.MMS))
     .map((n) => n.phone_number)
 
   numbers.push(...phoneNumbers)
