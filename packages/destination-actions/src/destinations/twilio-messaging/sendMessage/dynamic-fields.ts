@@ -97,6 +97,7 @@ export async function dynamicFromPhoneNumber(
         capabilities: {
           sms: boolean
           mms: boolean
+          rcs: boolean
         }
       }>
     }
@@ -117,6 +118,16 @@ export async function dynamicFromPhoneNumber(
 
   if (channel === CHANNELS.MESSENGER) {
     return createErrorResponse("Use 'From Messenger Sender ID' field for specifying the sender ID.")
+  }
+
+  if (channel === CHANNELS.WHATSAPP) {
+    return createErrorResponse(
+      'For WhatsApp channel, please manually enter your WhatsApp Business phone number in E.164 format.'
+    )
+  }
+
+  if (channel === CHANNELS.RCS) {
+    return createErrorResponse('Please manually enter your RCS phone number in E.164 format.')
   }
 
   if (supportsShortCodes) {

@@ -33,7 +33,8 @@ export async function send(request: RequestClient, payload: Payload, settings: S
   const getTo = (): string => {
     switch (channel) {
       case 'SMS':
-      case 'MMS': {
+      case 'MMS':
+      case 'RCS': {
         toPhoneNumber = toPhoneNumber?.trim() ?? ''
         if (!(E164_REGEX.test(toPhoneNumber) || TWILIO_SHORT_CODE_REGEX.test(toPhoneNumber))) {
           throw new PayloadValidationError(
