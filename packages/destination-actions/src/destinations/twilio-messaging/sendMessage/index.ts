@@ -7,7 +7,6 @@ import {
   dynamicFromPhoneNumber,
   dynamicMessagingServiceSid,
   dynamicContentSid,
-  dynamicMediaUrls,
   dynamicContentVariables,
   dynamicContentTemplateType
 } from './dynamic-fields'
@@ -33,18 +32,13 @@ const action: ActionDefinition<Settings, Payload> = {
     contentSid: async (request, { payload }) => {
       return await dynamicContentSid(request, payload)
     },
-    mediaUrls: {
-      url: async (request, { payload }) => {
-        return await dynamicMediaUrls(request, payload)
-      }
-    },
     contentVariables: {
       __keys__: async (request, { payload }) => {
         return await dynamicContentVariables(request, payload)
       }
     }
   },
-  perform: async (request, { payload, settings }) => { 
+  perform: async (request, { payload, settings }) => {
     return await send(request, payload, settings)
   }
 }

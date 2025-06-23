@@ -9,26 +9,15 @@ import {
   FIELD_REGEX,
   MESSAGING_SERVICE_SID_REGEX,
   CONTENT_SID_REGEX,
-  ALL_CONTENT_TYPES,
   SENDER_TYPE,
   CHANNELS
 } from './constants'
 import { TwilioPayload, Sender, Content } from './types'
 
 export async function send(request: RequestClient, payload: Payload, settings: Settings) {
-  let { toPhoneNumber, fromPhoneNumber, fromMessengerSenderId, messagingServiceSid, contentSid } = payload
+  let { toPhoneNumber, fromPhoneNumber, messagingServiceSid, contentSid } = payload
 
-  const {
-    channel,
-    senderType,
-    toMessengerPageUserId,
-    contentTemplateType,
-    contentVariables,
-    validityPeriod,
-    sendAt,
-    mediaUrls,
-    inlineMediaUrls
-  } = payload
+  const { channel, senderType, contentVariables, validityPeriod, sendAt, inlineMediaUrls, inlineBody } = payload
 
   const getTo = (): string => {
     switch (channel) {
@@ -49,14 +38,6 @@ export async function send(request: RequestClient, payload: Payload, settings: S
           throw new PayloadValidationError("'To' field should be a valid phone number in E.164 format")
         }
         return `whatsapp:${toPhoneNumber}`
-      }
-      case 'Messenger': {
-        if (!toMessengerPageUserId) {
-          throw new PayloadValidationError(
-            "'Messenger Page or User ID' field is required when Channel field set to 'Messenger'"
-          )
-        }
-        return `messenger:${toMessengerPageUserId.trim()}`
       }
       default: {
         throw new PayloadValidationError('Unsupported Channel')
@@ -80,15 +61,6 @@ export async function send(request: RequestClient, payload: Payload, settings: S
       }
       return channel === CHANNELS.WHATSAPP ? { From: `whatsapp:${fromPhoneNumber}` } : { From: fromPhoneNumber }
     }
-    if (senderType === SENDER_TYPE.MESSENGER_SENDER_ID) {
-      fromMessengerSenderId = fromMessengerSenderId?.trim()
-      if (!fromMessengerSenderId) {
-        throw new PayloadValidationError(
-          "'From Messenger Sender ID' field is required when sending from a Messenger Sender ID."
-        )
-      }
-      return { From: `messenger:${fromMessengerSenderId}` }
-    }
     if (senderType === SENDER_TYPE.MESSAGING_SERVICE) {
       messagingServiceSid = parseFieldValue(messagingServiceSid)
       if (!messagingServiceSid) {
@@ -109,41 +81,48 @@ export async function send(request: RequestClient, payload: Payload, settings: S
   const getContent = (): Content => {
     contentSid = parseFieldValue(contentSid)
 
-    if (contentSid && !CONTENT_SID_REGEX.test(contentSid)) {
-      throw new PayloadValidationError("Content SID should start with 'HX' followed by 32 hexadecimal characters.")
-    } else {
-      return {
-        ContentSid: contentSid as string,
-        ...(Object.keys(contentVariables ?? {}).length > 0 && { ContentVariables: JSON.stringify(contentVariables) })
+    // If we have a contentSid, this is a ContentTemplateMessage
+    if (contentSid) {
+      if (!CONTENT_SID_REGEX.test(contentSid)) {
+        throw new PayloadValidationError("Content SID should start with 'HX' followed by 32 hexadecimal characters.")
       }
+
+      const contentTemplate: { ContentSid: string; ContentVariables?: string } = {
+        ContentSid: contentSid
+      }
+
+      if (Object.keys(contentVariables ?? {}).length > 0) {
+        contentTemplate.ContentVariables = JSON.stringify(contentVariables)
+      }
+
+      return contentTemplate
+    }
+
+    return {
+      Body: inlineBody || ''
     }
   }
 
-  const getMediaUrl = (): { MediaUrl: string[] } | {} => {
-    const supportsMedia = Object.values(ALL_CONTENT_TYPES).find((type) => type.supports_media)
-    if (supportsMedia) {
-      const urls: string[] =
-        contentTemplateType === ALL_CONTENT_TYPES.INLINE.friendly_name
-          ? inlineMediaUrls?.filter((item) => item.trim() !== '').map((item) => item.trim()) ?? []
-          : mediaUrls?.map((item) => item.url.trim()) ?? []
-
-      if (urls.length > 10) {
-        throw new PayloadValidationError('Media URL cannot contain more than 10 URLs')
-      }
-
-      urls
-        .filter((url) => url.trim() !== '')
-        .some((url) => {
-          try {
-            new URL(url)
-            return false
-          } catch {
-            throw new PayloadValidationError(`Media URL ${url} is not a valid URL.`)
-          }
-        })
-      return urls.length > 0 ? { MediaUrl: urls } : {}
+  const getInlineMediaUrls = (): { MediaUrl: string[] } | {} => {
+    if (!inlineMediaUrls || inlineMediaUrls.length === 0) {
+      return {}
     }
-    return {}
+
+    const urls: string[] = inlineMediaUrls.filter((item) => item.trim() !== '').map((item) => item.trim())
+
+    if (urls.length > 10) {
+      throw new PayloadValidationError('Media URL cannot contain more than 10 URLs')
+    }
+
+    urls.forEach((url) => {
+      try {
+        new URL(url)
+      } catch {
+        throw new PayloadValidationError(`Media URL ${url} is not a valid URL.`)
+      }
+    })
+
+    return urls.length > 0 ? { MediaUrl: urls } : {}
   }
 
   const twilioPayload: TwilioPayload = (() => ({
@@ -152,7 +131,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     ...getValidityPeriod(),
     ...getSender(),
     ...getContent(),
-    ...getMediaUrl()
+    ...getInlineMediaUrls()
   }))()
 
   const encodedBody = encode(twilioPayload)
@@ -177,7 +156,7 @@ function encode(twilioPayload: TwilioPayload): string {
   Object.entries(twilioPayload).forEach(([key, value]) => {
     if (key === 'MediaUrl' && Array.isArray(value)) {
       value.forEach((url) => {
-        encodedSmsBody.append(`MediaUrl`, url)
+        encodedSmsBody.append('MediaUrl', url)
       })
     } else {
       encodedSmsBody.append(key, String(value))
