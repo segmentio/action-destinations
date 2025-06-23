@@ -38,15 +38,6 @@ export interface Payload {
    */
   contentSid?: string
   /**
-   * The URLs of the media to include with the message. The URLs should be configured in the Content Template in Twilio.
-   */
-  mediaUrls?: {
-    /**
-     * The URL of the media to include with the message.
-     */
-    url: string
-  }[]
-  /**
    * Variables to be used in the Content Template. The Variables must be defined in the Content Template in Twilio.
    */
   contentVariables?: {
