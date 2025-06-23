@@ -409,7 +409,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
           // Validate payload schema
           const payload = removeEmptyValues(payloads[i], schema) as Payload
           try {
-            // AJV schema validator removes non mandatory fields post validation
+            // AJV schema validator only removes fields that are not defined in the schema (Refer ajv docs)
             // Refer https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
             // https://github.com/segmentio/action-destinations/blob/d245e420e56957e784c29b5c09d80f3e1e64e6c5/packages/core/src/schema-validation.ts#L21
             validateSchema(payload, schema, validationOptions)
