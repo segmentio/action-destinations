@@ -279,6 +279,12 @@ class RequestClient {
     // this.options.signal = AbortSignal.any(signals)
 
     // Construct a request object to send to the Fetch API
+    // if (this.options.signal) {
+    //   // Listen to consumer abort events to also abort our internal controller
+    //   this.options.signal.addEventListener('abort', () => {
+    //     this.options.signal?.throwIfAborted()
+    //   })
+    // }
     this.request = new Request(url, this.options)
 
     // Parse search params and merge them with the request URL
