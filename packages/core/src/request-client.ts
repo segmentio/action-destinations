@@ -254,37 +254,27 @@ class RequestClient {
     this.options = {
       ...options,
       method: getRequestMethod(options.method ?? 'get'),
-      throwHttpErrors: options.throwHttpErrors !== false,
-      timeout: options.timeout ?? false
+      throwHttpErrors: options.throwHttpErrors !== false
     } as NormalizedOptions
 
     // Timeout support. Use our own abort controller so consumers can pass in their own `signal`
     // if they wish to use timeouts alongside other logic to abort a request
     this.abortController = new AbortController()
-    // if (this.options.signal) {
-    //   // Listen to consumer abort events to also abort our internal controller
-    //   this.options.signal.addEventListener('abort', () => {
-    //     this.abortController.abort()
-    //   })
-    // }
 
     // Use our internal abort controller for fetch
+    const signals: AbortSignal[] = [this.abortController.signal]
+    if (this.options?.signal) {
+      // If the user provided a signal, we want to use it alongside our own
+      signals.push(this.options.signal)
+      this.options.timeout = options?.timeout ?? false
+    } else {
+      this.options.timeout = options?.timeout ?? DEFAULT_REQUEST_TIMEOUT
+    }
 
-    // const signals: AbortSignal[] = [this.abortController.signal]
-    // if (this.options.signal) {
-    //   // If the user provided a signal, we want to use it alongside our own
-    //   signals.push(this.options.signal)
-    // }
-    // // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     // this.options.signal = AbortSignal.any(signals)
 
     // Construct a request object to send to the Fetch API
-    // if (this.options.signal) {
-    //   // Listen to consumer abort events to also abort our internal controller
-    //   this.options.signal.addEventListener('abort', () => {
-    //     this.options.signal?.throwIfAborted()
-    //   })
-    // }
     this.request = new Request(url, this.options)
 
     // Parse search params and merge them with the request URL
