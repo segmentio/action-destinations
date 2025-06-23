@@ -1,6 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { SEGMENT_DMP_ID } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Ingest',
@@ -116,7 +117,7 @@ const action: ActionDefinition<Settings, Payload> = {
             product: audienceSettings.product // TODO: add multiple entries for different products
           },
           loginAccount: {
-            accountId: '8172370552', // segment id
+            accountId: `${SEGMENT_DMP_ID}`, // segment id
             product: 'DATA_PARTNER'
           },
           productDestinationId: audienceSettings.productDestinationId

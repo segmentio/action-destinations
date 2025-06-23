@@ -20,7 +20,7 @@ export interface AudienceSettings {
   /**
    * The product for which you want to create or manage audiences.
    */
-  product: string[]
+  product: string
   /**
    * The ID of the product destination, used to identify the specific destination for audience management.
    */

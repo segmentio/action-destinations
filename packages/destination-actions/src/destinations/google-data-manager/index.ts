@@ -248,7 +248,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Product',
       description: 'The product for which you want to create or manage audiences.',
       type: 'string',
-      multiple: true,
       required: true,
       choices: [
         { label: 'Google Ads', value: 'GOOGLE_ADS' },
