@@ -249,7 +249,7 @@ describe('TwilioMessaging.sendMessage', () => {
     ).rejects.toThrow(PayloadValidationError)
   })
 
-  it('should throw error for too many media URLs', async () => {
+  it('should throw error for too many inline media URLs', async () => {
     const manyUrls = Array.from({ length: 11 }, (_, i) => `https://example.com/image${i}.jpg`)
 
     await expect(

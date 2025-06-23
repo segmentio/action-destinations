@@ -8,7 +8,6 @@ import {
   GET_MESSAGING_SERVICE_SIDS_URL,
   GET_ALL_CONTENTS_URL,
   GET_CONTENT_VARIABLES_URL,
-  GET_CONTENT_URL,
   INLINE_CONTENT_TYPES,
   PREDEFINED_CONTENT_TYPES,
   SENDER_TYPE,
@@ -16,7 +15,7 @@ import {
 } from './constants'
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { parseFieldValue, validateContentSid } from './utils'
+import { parseFieldValue } from './utils'
 import { ContentTypeName, Channel } from './types'
 
 interface ResultError {
@@ -239,68 +238,6 @@ export async function dynamicContentSid(request: RequestClient, payload: Payload
         label: `${c.friendly_name} [${c.sid}]`,
         value: `${c.friendly_name} [${c.sid}]`
       }))
-  }
-}
-
-export async function dynamicMediaUrls(request: RequestClient, payload: Payload): Promise<DynamicFieldResponse> {
-  interface ResponseType {
-    data: {
-      friendly_name: string
-      sid: string
-      types: {
-        [key in ContentTypeName]: {
-          media: string[]
-        }
-      }
-    }
-  }
-
-  const { contentTemplateType, mediaUrls } = payload
-  const contentSid = parseFieldValue(payload.contentSid)
-
-  if (contentTemplateType === INLINE_CONTENT_TYPES.INLINE.friendly_name) {
-    return createErrorResponse("Use the 'Inline Media URLs' field for specifying Media URLs for an inline message.")
-  }
-  if ([undefined, '', null].includes(contentSid)) {
-    return createErrorResponse("Select 'Content Template SID' first.")
-  }
-  if (validateContentSid(contentSid as string) === false) {
-    return createErrorResponse('Invalid Content Template SID. SID should match with the pattern HX[0-9a-fA-F]{32}')
-  }
-
-  const response = await getData<ResponseType>(
-    request,
-    GET_CONTENT_URL.replace(CONTENT_SID_TOKEN, contentSid as string)
-  )
-
-  if (isErrorResponse(response)) {
-    return response
-  }
-
-  const name = Object.values(PREDEFINED_CONTENT_TYPES).find((type) => type.friendly_name === contentTemplateType)
-    ?.name as ContentTypeName
-
-  const urls = response.data?.types?.[name]?.media ?? []
-
-  if (urls.length === 0) {
-    return createErrorResponse(
-      'No Media URLs found for this Content Template. If media files are required please create them in Twilio first.'
-    )
-  }
-
-  const selectedUrls: string[] = mediaUrls?.map((m) => m.url) ?? []
-
-  const filteredUrls = urls.filter((url) => !selectedUrls.includes(url))
-
-  if (filteredUrls.length === 0) {
-    return createErrorResponse('No additional Media URLs found for this Content Template.')
-  }
-
-  return {
-    choices: filteredUrls.map((url) => ({
-      label: url,
-      value: url
-    }))
   }
 }
 

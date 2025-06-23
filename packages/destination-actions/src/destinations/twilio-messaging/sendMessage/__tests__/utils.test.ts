@@ -21,8 +21,8 @@ describe('Utils', () => {
 
   describe('validateContentSid', () => {
     it('should validate correct Content SID format', () => {
-      expect(validateContentSid('test')).toBe(true)
-      expect(validateContentSid('test')).toBe(true)
+      expect(validateContentSid('HX1234567890abcdef1234567890abcdef')).toBe(true)
+      expect(validateContentSid('HX9876543210fedcba9876543210fedcba')).toBe(true)
     })
 
     it('should reject invalid Content SID format', () => {
