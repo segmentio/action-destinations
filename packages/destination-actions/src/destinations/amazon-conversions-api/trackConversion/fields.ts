@@ -371,6 +371,8 @@ export const fields: Record<string, InputField> = {
     type: 'object',
     multiple: true,
     required: false,
+    defaultObjectUI: 'arrayeditor',
+    additionalProperties: false,
     properties: {
       name: {
         label: 'Name',
@@ -395,16 +397,6 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: true
       }
-    },
-    default: {
-      '@arrayPath': [
-        '$.properties.custom_attributes',
-        {
-          name: { '@path': '$.name' },
-          dataType: { '@path': '$.data_type' },
-          value: { '@path': '$.value' }
-        }
-      ]
     }
   },
   amazonImpressionId: {
