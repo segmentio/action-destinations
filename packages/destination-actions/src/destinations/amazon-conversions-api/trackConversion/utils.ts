@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient, MultiStatusResponse, JSONLikeObject, ModifiedResponse, InvalidAuthenticationError, APIError } from '@segment/actions-core'
+import { IntegrationError, RequestClient, MultiStatusResponse, JSONLikeObject, ModifiedResponse, APIError } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import type { Settings } from '../generated-types'
 import type { EventData, ConsentData, RegionValue, AmazonConsentFormat, ImportConversionEventsResponse, EventDataSuccessResponseV1, EventDataErrorResponseV1, MatchKeyV1, ConversionTypeV2, CurrencyCodeV1, CustomAttributeV1 } from '../types'
@@ -179,10 +179,7 @@ export function handleBatchResponse(
     validPayloadIndicesBitmap: number[],
     multiStatusResponse: MultiStatusResponse
 ): MultiStatusResponse {
-    if (!response.ok && response.status == 401) {
-        throw new InvalidAuthenticationError(response.statusText)
-    }
-    else if (response.status === 207 && response.data) {
+    if (response.status === 207 && response.data) {
         const responseData = response.data
         const successMap: Record<number, EventDataSuccessResponseV1> = {}
         const errorMap: Record<number, EventDataErrorResponseV1> = {}
