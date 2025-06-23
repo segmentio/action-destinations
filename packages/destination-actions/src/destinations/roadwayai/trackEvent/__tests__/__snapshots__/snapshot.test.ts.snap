@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Roadwayai's trackEvent destination action: all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "zw]U%LTXzHg",
+    "app_name": "zw]U%LTXzHg",
+    "app_version": "zw]U%LTXzHg",
+    "batch_size": -12001698864168.96,
+    "context": Object {
+      "testType": "zw]U%LTXzHg",
+    },
+    "country": "zw]U%LTXzHg",
+    "enable_batching": true,
+    "event": "zw]U%LTXzHg",
+    "event_properties": Object {
+      "testType": "zw]U%LTXzHg",
+    },
+    "group_id": "zw]U%LTXzHg",
+    "insert_id": "zw]U%LTXzHg",
+    "language": "zw]U%LTXzHg",
+    "name": "zw]U%LTXzHg",
+    "referrer": "zw]U%LTXzHg",
+    "region": "zw]U%LTXzHg",
+    "timestamp": "2021-02-01T00:00:00.000Z",
+    "url": "zw]U%LTXzHg",
+    "user_id": "zw]U%LTXzHg",
+    "utm_campaign": "zw]U%LTXzHg",
+    "utm_content": "zw]U%LTXzHg",
+    "utm_medium": "zw]U%LTXzHg",
+    "utm_source": "zw]U%LTXzHg",
+    "utm_term": "zw]U%LTXzHg",
+  },
+]
+`;
+
+exports[`Testing snapshot for Roadwayai's trackEvent destination action: required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "zw]U%LTXzHg",
+    "event": "zw]U%LTXzHg",
+    "group_id": "zw]U%LTXzHg",
+    "insert_id": "zw]U%LTXzHg",
+    "user_id": "zw]U%LTXzHg",
+  },
+]
+`;
