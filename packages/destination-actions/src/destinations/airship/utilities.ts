@@ -378,6 +378,10 @@ function _parse_date(attribute_value: any): Date | null {
   /*
   This function is for converting dates or returning null if they're not valid.
   */
+  if (attribute_value.length < 8) {
+    return null // Reduce false positive dates
+  }
+
   // Attempt to parse the attribute_value as a Date
   const date = new Date(attribute_value)
 

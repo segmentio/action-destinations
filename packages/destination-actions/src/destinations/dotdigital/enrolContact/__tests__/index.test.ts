@@ -47,7 +47,7 @@ describe('Enroll Contact to Program', () => {
 
   it('should enroll contact to a program with mobile number identifier', async () => {
     // Mock API calls for enrolling contact
-    nock(settings.api_host).get('/contacts/v3/mobile-number/1234567890').reply(200, { contactId: '123' })
+    nock(settings.api_host).get('/contacts/v3/mobileNumber/1234567890').reply(200, { contactId: '123' })
 
     nock(settings.api_host)
       .post('/v2/programs/enrolments', { contacts: ['123'], programId: '456' }) // Updated body
@@ -64,7 +64,7 @@ describe('Enroll Contact to Program', () => {
 
     const mapping = {
       programId: 456,
-      channelIdentifier: 'mobile-number',
+      channelIdentifier: 'mobileNumber',
       mobileNumberIdentifier: {
         '@path': '$.context.traits.phone'
       }
