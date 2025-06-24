@@ -91,7 +91,7 @@ describe('Braze.upsertCatalogItem', () => {
         auth: undefined
       })
     } catch (error) {
-      expect(error.code).toBe('PAYLOAD_VALIDATION_FAILED')
+      expect(error.code).toBe('AggregateAjvError')
       expect(error.status).toBe(400)
     }
   })
