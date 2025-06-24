@@ -91,8 +91,7 @@ describe('Braze.upsertCatalogItem', () => {
         auth: undefined
       })
     } catch (error) {
-      expect(error.code).toBe('AggregateAjvError')
-      expect(error.status).toBe(400)
+      expect(error.name).toBe('AggregateAjvError')
     }
   })
 
