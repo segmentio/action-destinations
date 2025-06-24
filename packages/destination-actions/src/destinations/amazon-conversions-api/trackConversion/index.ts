@@ -2,11 +2,7 @@ import { ActionDefinition, MultiStatusResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { EventData, ImportConversionEventsResponse } from '../types'
-import {
-  sendEventsRequest,
-  handleBatchResponse,
-  prepareEventData
-} from './utils'
+import { sendEventsRequest, handleBatchResponse, prepareEventData, handleResponse } from './utils'
 import { fields } from './fields'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -17,7 +13,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { payload, settings }) => {
     const eventData = prepareEventData(payload, settings)
-    return await sendEventsRequest<ImportConversionEventsResponse>(request, settings, eventData, true)
+    const response = await sendEventsRequest<ImportConversionEventsResponse>(request, settings, eventData)
+    return handleResponse(response)
   },
 
   performBatch: async (request, { settings, payload: payloads }) => {
@@ -43,7 +40,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return multiStatusResponse
     }
 
-    const response = await sendEventsRequest<ImportConversionEventsResponse>(request, settings, validPayloads, false)
+    const response = await sendEventsRequest<ImportConversionEventsResponse>(request, settings, validPayloads)
 
     return handleBatchResponse(response, validPayloads, validPayloadIndicesBitmap, multiStatusResponse)
   }
