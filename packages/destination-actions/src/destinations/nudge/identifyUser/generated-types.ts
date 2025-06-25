@@ -6,6 +6,14 @@ export interface Payload {
    */
   ext_id: string
   /**
+   * The name of the user
+   */
+  name?: string
+  /**
+   * The phone number of the user
+   */
+  phone?: string
+  /**
    * The email of the user.
    */
   email?: string

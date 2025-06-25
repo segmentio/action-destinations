@@ -16,13 +16,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true,
       },
-      platform: {
-        label: 'Platform',
-        description: 'Platform for the API call',
-        type: 'string',
-        required: true,
-        default: '17', // 17 = Segment
-      }
     },
     // testAuthentication: (request) => {
     //   // Return a request that tests/validates the user's credentials.

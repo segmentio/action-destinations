@@ -2,11 +2,7 @@
 
 export interface Settings {
   /**
-   * Client Public API Key
+   * Private Backend API Key
    */
   apikey: string
-  /**
-   * Platform for the API call
-   */
-  platform: string
 }
