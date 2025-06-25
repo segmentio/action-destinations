@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import BaseRequestInterface from '../common/baseRequestInterface'
+import { sanitize } from '../common/transforms'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -13,36 +14,14 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description: 'The name of the action being performed.',
       required: true,
-      default: {
-        '@case': {
-          operator: 'lower',
-          value: {
-            '@replace': {
-              pattern: ' ',
-              replacement: '_',
-              value: { '@path': '$.event' }
-            }
-          }
-        }
-      }
+      default: { '@path': '$.event' }
     },
     ext_id: {
       label: 'User ID',
       type: 'string',
       description: 'The ID of the user performing the action.',
       required: true,
-      default: {
-        '@case': {
-          operator: 'lower',
-          value: {
-            '@replace': {
-              pattern: ' ',
-              replacement: '_',
-              value: { '@path': '$.userId' }
-            }
-          }
-        }
-      }
+      default: { '@path': '$.userId' }
     },
     occurred_at: {
       label: 'Event Timestamp',
@@ -65,10 +44,18 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { settings, payload }) => {
+    payload.ext_id = sanitize(payload.ext_id);
+    payload.name = sanitize(payload.name);
+
     return BaseRequestInterface.track(request, settings, payload)
   },
 
   performBatch: async (request, { settings, payload }) => {
+    payload.forEach(it => {
+      it.ext_id = sanitize(it.ext_id);
+      it.name = sanitize(it.name);
+    });
+
     return BaseRequestInterface.batchTrack(request, settings, payload)
   }
 }

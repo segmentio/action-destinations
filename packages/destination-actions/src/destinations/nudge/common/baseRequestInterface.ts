@@ -5,6 +5,7 @@ import type { Payload as IdentifyPayload } from '../identifyUser/generated-types
 
 export default class BaseRequestInterface {
   private static baseURL = 'https://main-api.nudgenow.com/api/integration/segment'
+  private static platform = '17';
 
   public static async track(request: RequestClient, settings: Settings, payload: TrackPayload) {
     return await request(this.baseURL + '/events/batch', {
@@ -12,7 +13,7 @@ export default class BaseRequestInterface {
       json: [payload],
       headers: {
         apikey: settings.apikey,
-        p: settings.platform
+        p: this.platform
       }
     })
   }
@@ -23,7 +24,7 @@ export default class BaseRequestInterface {
       json: payload,
       headers: {
         apikey: settings.apikey,
-        p: settings.platform
+        p: this.platform
       }
     })
   }
@@ -34,7 +35,7 @@ export default class BaseRequestInterface {
       json: payload,
       headers: {
         apikey: settings.apikey,
-        p: settings.platform
+        p: this.platform
       }
     })
   }
