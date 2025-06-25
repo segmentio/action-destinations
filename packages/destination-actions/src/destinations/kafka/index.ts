@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { validate, getTopics, DEPENDS_ON_CLIENT_CERT, DEPEONDS_ON_AWS, DEPENDS_ON_PLAIN_OR_SCRAM } from './utils'
+import { validate, getTopics } from './utils'
+import { DEPENDS_ON_CLIENT_CERT, DEPEONDS_ON_AWS, DEPENDS_ON_PLAIN_OR_SCRAM } from './depends-on'
 import send from './send'
 
 const destination: DestinationDefinition<Settings> = {

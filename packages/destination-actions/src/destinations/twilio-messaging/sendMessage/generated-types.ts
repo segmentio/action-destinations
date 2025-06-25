@@ -38,15 +38,6 @@ export interface Payload {
    */
   contentSid?: string
   /**
-   * The URLs of the media to include with the message. The URLs should be configured in the Content Template in Twilio.
-   */
-  mediaUrls?: {
-    /**
-     * The URL of the media to include with the message.
-     */
-    url: string
-  }[]
-  /**
    * Variables to be used in the Content Template. The Variables must be defined in the Content Template in Twilio.
    */
   contentVariables?: {
@@ -60,12 +51,6 @@ export interface Payload {
    * The URLs of the media to sent with the inline message. The URLs must be publicaly accessible.
    */
   inlineMediaUrls?: string[]
-  /**
-   * Variables to be send with the inline message. e.g. 'first_name' would match with {{first_name}} in the Inline Template message body.
-   */
-  inlineVariables?: {
-    [k: string]: unknown
-  }
   /**
    * The number of seconds between 1-14400 that the message is valid for. Default is 14400. If the message is not delivered within this time, it will not be delivered.
    */

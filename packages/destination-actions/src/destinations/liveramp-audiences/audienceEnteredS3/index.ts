@@ -1,5 +1,5 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { uploadS3, validateS3 } from './s3'
+import { isValidS3Path, normalizeS3Path, uploadS3 } from './s3'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
 import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
@@ -85,6 +85,13 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true,
       required: false,
       default: 170000
+    },
+    s3_aws_bucket_path: {
+      label: 'AWS Bucket Path [optional]',
+      description:
+        'Optional path within the S3 bucket where the files will be uploaded to. If not provided, files will be uploaded to the root of the bucket. Example: "folder1/folder2"',
+      required: false,
+      type: 'string'
     }
   },
   perform: async (
@@ -124,7 +131,13 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     )
   }
 
-  validateS3(input.payloads[0])
+  // validate s3 path
+  input.payloads[0].s3_aws_bucket_path = normalizeS3Path(input.payloads[0].s3_aws_bucket_path)
+  if (input.payloads[0].s3_aws_bucket_path && !isValidS3Path(input.payloads[0].s3_aws_bucket_path)) {
+    throw new PayloadValidationError(
+      `Invalid S3 bucket path. It must be a valid S3 object key, avoid leading/trailing slashes and forbidden characters (e.g., \\ { } ^ [ ] % \` " < > # | ~). Use a relative path like "folder1/folder2".`
+    )
+  }
 
   const { filename, fileContents } = generateFile(input.payloads)
 
@@ -140,7 +153,7 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
     return sendEventToAWS(input.request, {
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 's3',
-      filename,
+      filename: filename,
       destinationInstanceID: subscriptionMetadata?.destinationConfigId,
       subscriptionId: subscriptionMetadata?.actionConfigId,
       fileContents,
@@ -148,7 +161,8 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
         s3BucketName: input.payloads[0].s3_aws_bucket_name,
         s3Region: input.payloads[0].s3_aws_region,
         s3AccessKeyId: input.payloads[0].s3_aws_access_key,
-        s3SecretAccessKey: input.payloads[0].s3_aws_secret_key
+        s3SecretAccessKey: input.payloads[0].s3_aws_secret_key,
+        s3BucketPath: input.payloads[0].s3_aws_bucket_path
       }
     })
   }
