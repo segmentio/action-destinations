@@ -152,7 +152,7 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
     headers: {
       'Amazon-Ads-AccountId': settings.advertiserId
     },
-    timeout: 15000,
+    timeout: 25000,
     throwHttpErrors: false
   })
 }
