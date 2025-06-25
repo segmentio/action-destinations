@@ -1,4 +1,5 @@
 import { Liquid } from 'liquidjs'
+import { StatsContext } from '../destination-kit'
 
 const liquidEngine = new Liquid({
   renderLimit: 500, // 500 ms
@@ -58,7 +59,7 @@ export function getLiquidKeys(liquidValue: string): string[] {
   return liquidEngine.fullVariablesSync(liquidValue)
 }
 
-export function evaluateLiquid(liquidValue: any, event: any): string {
+export function evaluateLiquid(liquidValue: any, event: any, statsContext?: StatsContext | undefined): string {
   if (typeof liquidValue !== 'string') {
     // type checking of @liquid directive is done in validate.ts as well
     throw new Error('liquid template value must be a string')
@@ -72,7 +73,20 @@ export function evaluateLiquid(liquidValue: any, event: any): string {
     throw new Error('liquid template values are limited to 1000 characters')
   }
 
-  const res = liquidEngine.parseAndRenderSync(liquidValue, event)
+  let status = 'success'
+  let res
+  const start = performance.now()
+  try {
+    res = liquidEngine.parseAndRenderSync(liquidValue, event)
+  } catch (_e) {
+    status = 'fail'
+  }
+  const duration = performance.now() - start
+
+  statsContext?.statsClient?.histogram('liquid.template.evaluation_ms', duration, [
+    ...statsContext.tags,
+    `result:${status}` // status = success/fail, not in the psudocode for simplicity
+  ])
 
   if (typeof res !== 'string') {
     return 'error'
