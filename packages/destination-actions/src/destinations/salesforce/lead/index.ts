@@ -62,11 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The lead's first name.",
       type: 'string',
       default: {
-        '@if': {
-          exists: { '@path': '$.traits.first_name' },
-          then: { '@path': '$.traits.first_name' },
-          else: { '@path': '$.properties.first_name' }
-        }
+        '@liquid': "{{ userId | replace: ' ', '_' | downcase }}"
       },
       depends_on: hideIfDeleteOperation
     },
