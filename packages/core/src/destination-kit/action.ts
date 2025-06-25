@@ -318,7 +318,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     const results: Result[] = []
 
     // Resolve/transform the mapping with the input data
-    let payload = transform(bundle.mapping, bundle.data) as Payload
+    let payload = transform(bundle.mapping, bundle.data, bundle.statsContext) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
