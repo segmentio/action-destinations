@@ -272,7 +272,7 @@ class RequestClient {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    // this.options.signal = AbortSignal.any(signals)
+    this.options.signal = AbortSignal.any(signals)
 
     // Construct a request object to send to the Fetch API
     this.request = new Request(url, this.options)

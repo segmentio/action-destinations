@@ -6,6 +6,7 @@ import type { ModifiedResponse } from './types'
 
 export interface ResponseError extends Error {
   status?: number
+  code?: string
 }
 
 const baseClient = createInstance({
