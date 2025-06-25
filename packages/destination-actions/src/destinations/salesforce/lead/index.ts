@@ -62,7 +62,16 @@ const action: ActionDefinition<Settings, Payload> = {
       description: "The lead's first name.",
       type: 'string',
       default: {
-        '@liquid': "{{ userId | replace: ' ', '_' | downcase }}"
+        '@case': {
+          operator: 'lower',
+          value: {
+            '@replace': {
+              pattern: ' ',
+              replacement: '_',
+              value: { '@path': '$.userId' }
+            }
+          }
+        }
       },
       depends_on: hideIfDeleteOperation
     },
