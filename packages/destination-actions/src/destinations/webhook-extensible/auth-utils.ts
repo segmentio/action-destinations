@@ -9,6 +9,14 @@ export const sendRefreshTokenReq = async (
   auth: any
 ): Promise<RefreshAccessTokenResult> => {
   const { oauth } = settings.dynamicAuthSettings
+  if (oauth?.type === 'noAuth') {
+    return { accessToken: '' }
+  } else if (settings?.dynamicAuthSettings?.bearer) {
+    return {
+      accessToken: settings?.dynamicAuthSettings?.bearer?.bearerToken || ''
+    }
+  }
+
   const { url, options } = getRequestData(oauth, auth)
   const res = await request<RefreshTokenResponse>(url, options)
 
