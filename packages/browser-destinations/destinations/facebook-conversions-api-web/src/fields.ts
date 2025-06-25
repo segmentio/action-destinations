@@ -1,4 +1,5 @@
 import type { InputField } from '@segment/actions-core'
+import { ACTION_SOURCES } from './types'
 
 export const eventID: InputField = {
     label: 'Event ID',
@@ -12,6 +13,23 @@ export const eventSourceUrl: InputField = {
     description: 'The URL of the page where the event occurred. Can be used to override the default URL taken from the current page.',
     type: 'string',
     default: { '@path': '$.context.page.url' }
+}
+
+export const actionSource: InputField = {
+  label: 'Action Source',
+  description: 'The source of the event. This can be used to specify where the event originated from.',
+  type: 'string',
+  choices: [
+    { label: 'Email', value: ACTION_SOURCES.email },
+    { label: 'Website', value: ACTION_SOURCES.website },
+    { label: 'App', value: ACTION_SOURCES.app },
+    { label: 'Phone Call', value: ACTION_SOURCES.phone_call },
+    { label: 'Chat', value: ACTION_SOURCES.chat },
+    { label: 'Physical Store', value: ACTION_SOURCES.physical_store },
+    { label: 'System Generated', value: ACTION_SOURCES.system_generated },
+    { label: 'Other', value: ACTION_SOURCES.other }
+  ],
+  default: ACTION_SOURCES.website
 }
 
 export const userData: InputField = {

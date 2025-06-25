@@ -35,6 +35,19 @@ export type FBClient = {
     (command: 'trackSingleCustom', pixelId: string, event: string, params?: FBEvent, options?: Options): void
 }
 
+export type ActionSource = typeof ACTION_SOURCES[keyof typeof ACTION_SOURCES]
+
+export const ACTION_SOURCES = {
+  email: 'email',
+  website: 'website',
+  app: 'app',
+  phone_call: 'phone_call',
+  chat: 'chat',
+  physical_store: 'physical_store',
+  system_generated: 'system_generated',
+  other: 'other'
+} as const
+
 export type Options = { 
     eventID?: string 
     eventSourceUrl?: string
@@ -45,7 +58,7 @@ export type Options = {
 export type UserData = {
     // Identifiers
     external_id?: string // Unique user ID from your system (SHA-256)
-    
+
     em?: string // Email (SHA-256)
     ph?: string // Phone number (SHA-256)
     fn?: string // First name (SHA-256)
@@ -58,12 +71,3 @@ export type UserData = {
     country?: string // Country code (SHA-256)
 }
 
-export type ActionSource =
-    | 'email'
-    | 'website'
-    | 'app'
-    | 'phone_call'
-    | 'chat'
-    | 'physical_store'
-    | 'system_generated'
-    | 'other'

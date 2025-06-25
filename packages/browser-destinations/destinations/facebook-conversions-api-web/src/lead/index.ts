@@ -1,8 +1,8 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { eventID, currency, value } from '../fields'
-import type { FBClient } from '../types'
+import { eventID, eventSourceUrl, actionSource, userData, currency, value } from '../fields'
+import type { FBClient, Options, ActionSource } from '../types'
 
 // Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
@@ -12,14 +12,22 @@ const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
   defaultSubscription: 'type = "track" and event = "Signed Up"',
   fields: {
     eventID,
+    eventSourceUrl,
+    actionSource,
+    userData,
     currency,
     value
   },
   perform: (client, { payload, settings }) => {
     const { pixelId } = settings
-    const { currency, value, eventID } = payload
-    const options = eventID ? { eventID } : undefined 
-    client('trackSingle',pixelId, 'Lead', { currency, value }, options)
+    const { eventID, eventSourceUrl, actionSource, userData, currency, value,  } = payload
+    const options: Options | undefined = { 
+      eventID,
+      eventSourceUrl,
+      actionSource: actionSource as ActionSource,
+      userData 
+    }
+    client('trackSingle', pixelId, 'Lead', { currency, value }, options)
   }
 }
 
