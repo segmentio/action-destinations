@@ -861,10 +861,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       if (error.name === 'AggregateAjvError' || error.name === 'ValidationError') {
         error.status = 400
       }
-      if (error?.name === 'AbortError') {
-        error.status = 504
-        error.code = 'REQUESTCLIENTERROR'
-      }
 
       throw error
     } finally {

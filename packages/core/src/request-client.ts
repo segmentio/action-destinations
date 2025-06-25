@@ -217,6 +217,17 @@ export class TimeoutError extends CustomError {
   }
 }
 
+export class RequestClientError extends CustomError {
+  code: string
+  status: number
+
+  constructor(message = 'Request was aborted') {
+    super(message)
+    this.code = 'REQUESTCLIENTERROR'
+    this.status = 504
+  }
+}
+
 /**
  * Given a request, reject the request when a timeout is exceeded
  */
@@ -297,8 +308,15 @@ class RequestClient {
   }
 
   async executeRequest<T extends Response>(): Promise<T> {
-    let response = await this.fetch()
-
+    let response
+    try {
+      response = await this.fetch()
+    } catch (err) {
+      if ((err as Error)?.name === 'AbortError') {
+        throw new RequestClientError()
+      }
+      throw err
+    }
     for (const hook of this.options.afterResponse ?? []) {
       const modifiedResponse = await hook(this.request, this.options, response)
       if (modifiedResponse instanceof Response) {
