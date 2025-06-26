@@ -387,7 +387,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     const mapping: JSONObject = bundle.mapping
 
-    let payloads = transformBatch(mapping, bundle.data) as Payload[]
+    let payloads = transformBatch(mapping, bundle.data, bundle.statsContext) as Payload[]
     const batchPayloadLength = payloads.length
 
     const multiStatusResponse: ResultMultiStatusNode[] = []

@@ -396,13 +396,25 @@ function resolve(mapping: JSONLike, payload: JSONObject, statsContext?: StatsCon
   }
 
   if (Array.isArray(mapping)) {
-    return mapping.map((value) => resolve(value, payload))
+    return mapping.map((value) => resolve(value, payload, statsContext))
   }
 
   const resolved: JSONLikeObject = {}
 
   for (const key of Object.keys(mapping)) {
-    resolved[key] = resolve(mapping[key], payload)
+    let originalTags: string[] = []
+    const statsTagsExist = statsContext?.tags !== undefined
+
+    if (statsTagsExist) {
+      originalTags = statsContext.tags
+      statsContext.tags = [...statsContext.tags, `fieldKey:${key}`]
+    }
+
+    resolved[key] = resolve(mapping[key], payload, statsContext)
+
+    if (statsTagsExist) {
+      statsContext.tags = originalTags
+    }
   }
 
   return resolved
@@ -441,7 +453,11 @@ function transform(
  * @param mapping - the directives and raw values
  * @param data - the array input data to apply to directives
  */
-function transformBatch(mapping: JSONLikeObject, data: Array<InputData> | undefined = []): JSONObject[] {
+function transformBatch(
+  mapping: JSONLikeObject,
+  data: Array<InputData> | undefined = [],
+  statsContext?: StatsContext | undefined
+): JSONObject[] {
   const realType = realTypeOf(data)
   if (!isArray(data)) {
     throw new Error(`data must be an array, got ${realType}`)
@@ -452,7 +468,7 @@ function transformBatch(mapping: JSONLikeObject, data: Array<InputData> | undefi
   // throws if the mapping config is invalid
   validate(mappingToProcess)
 
-  const resolved = data.map((d) => resolve(mappingToProcess, d as JSONObject))
+  const resolved = data.map((d) => resolve(mappingToProcess, d as JSONObject, statsContext))
 
   // Cast because we know there are no `undefined` values after `removeUndefined`
   return removeUndefined(resolved) as JSONObject[]

@@ -60,7 +60,6 @@ export function getLiquidKeys(liquidValue: string): string[] {
 }
 
 export function evaluateLiquid(liquidValue: any, event: any, statsContext?: StatsContext | undefined): string {
-  const fieldId = 'TODO'
   if (typeof liquidValue !== 'string') {
     // type checking of @liquid directive is done in validate.ts as well
     throw new Error('liquid template value must be a string')
@@ -86,7 +85,6 @@ export function evaluateLiquid(liquidValue: any, event: any, statsContext?: Stat
 
   statsContext?.statsClient?.histogram('liquid.template.evaluation_ms', duration, [
     ...statsContext.tags,
-    `field_id:${fieldId}`,
     `result:${status}` // status = success/fail, not in the psudocode for simplicity
   ])
 
