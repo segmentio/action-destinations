@@ -22,20 +22,19 @@ export type FBStandardEventType =
 
 export type LeadEvent = {
     currency?: string
-    value?: number
+    value?: number, 
+    [key: string]: unknown 
 }
 
 export type FBEvent = LeadEvent
 
 export type FBClient = {
     (command: 'init', pixelId: string): void
-    (command: 'track', event: FBStandardEventType, params?: FBEvent, options?: Options): void
+    (command: 'track', event: FBStandardEventType, params?: FBEvent): void
     (command: 'trackSingle', pixelId: string, event: FBStandardEventType, params?: FBEvent, options?: Options): void
-    (command: 'trackCustom', event: string, params?: FBEvent, options?: Options): void
+    (command: 'trackCustom', event: string, params?: FBEvent): void
     (command: 'trackSingleCustom', pixelId: string, event: string, params?: FBEvent, options?: Options): void
 }
-
-export type ActionSource = typeof ACTION_SOURCES[keyof typeof ACTION_SOURCES]
 
 export const ACTION_SOURCES = {
   email: 'email',
@@ -47,6 +46,8 @@ export const ACTION_SOURCES = {
   system_generated: 'system_generated',
   other: 'other'
 } as const
+
+export type ActionSource = typeof ACTION_SOURCES[keyof typeof ACTION_SOURCES]
 
 export type Options = { 
     eventID?: string 
@@ -71,3 +72,21 @@ export type UserData = {
     country?: string // Country code (SHA-256)
 }
 
+export const LDU = {
+  Disabled: {key: 'Disabled', state: undefined, country: undefined},
+  GeolocationLogic: {key: 'GeolocationLogic', state: 0, country: 0},
+  California: {key: 'California', state: 1000, country: 1},
+  Colorado: {key: 'Colorado', state: 1001, country: 1},
+  Connecticut: {key: 'Connecticut', state: 1002, country: 1},
+  Florida: {key: 'Florida', state: 1003, country: 1},
+  Oregon: {key: 'Oregon', state: 1004, country: 1},
+  Texas: {key: 'Texas', state: 1005, country: 1},
+  Montana: {key: 'Montana', state: 1006, country: 1},
+  Delaware: {key: 'Delaware', state: 1007, country: 1},
+  Nebraska: {key: 'Nebraska', state: 1008, country: 1},
+  NewHampshire: {key: 'NewHampshire', state: 1009, country: 1},
+  NewJersey: {key: 'NewJersey', state: 1010, country: 1},
+  Minnesota: {key: 'Minnesota', state: 1011, country: 1}
+} as const
+
+export type LDU = typeof LDU[keyof typeof LDU]
