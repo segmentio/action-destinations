@@ -16,6 +16,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `List of active programs`,
       type: 'string',
       required: true,
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
       dynamic: true
     }
   },
