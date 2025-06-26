@@ -1,4 +1,4 @@
-import { PayloadValidationError } from '@segment/actions-core'
+import { PayloadValidationError, StatsContext } from '@segment/actions-core'
 import { Payload } from '../generated-types'
 import { Association } from '../types'
 
@@ -99,7 +99,7 @@ function cleanProp(str: string): string {
  * @param payloads - An array of payloads to merge and deduplicate.
  * @returns An array of merged and deduplicated payloads, with timestamps removed.
  */
-export function mergeAndDeduplicateById(payloads: Payload[]): Payload[] {
+export function mergeAndDeduplicateById(payloads: Payload[], statsContext?: StatsContext): Payload[] {
   const mergedMap = new Map<string, Payload>()
 
   for (const incoming of payloads) {
@@ -115,6 +115,7 @@ export function mergeAndDeduplicateById(payloads: Payload[]): Payload[] {
     }
 
     const existingTimestamp = existing.timestamp ? new Date(existing.timestamp).getTime() : 0
+    statsContext?.statsClient?.incr('hubspot.upsert_object.merged_payload', 1, statsContext?.tags)
 
     // Merge properties
     const mergedProps: Record<string, unknown> = { ...existing.properties }
@@ -144,6 +145,7 @@ export function mergeAndDeduplicateById(payloads: Payload[]): Payload[] {
     for (const assoc of incomingAssociations) {
       const key = associationKey(assoc)
       if (!existingAssocMap.has(key)) {
+        statsContext?.statsClient?.incr('hubspot.upsert_object.merged_associations', 1, statsContext?.tags)
         existingAssocMap.set(key, assoc)
       }
     }
@@ -166,19 +168,23 @@ export function mergeAndDeduplicateById(payloads: Payload[]): Payload[] {
 
 /**
  * Ensures that each payload in the provided array has a valid timestamp.
- * If a payload's timestamp is invalid, it is replaced with the provided fallback timestamp.
+ * If a payload's timestamp is invalid, it attempts to use the corresponding timestamp from the `rawData` array if it is valid.
+ * If neither is valid, it sets the timestamp to the current ISO date string.
  *
- * @param payloads - An array of payload objects, each potentially containing a `timestamp` property.
- * @param fallbackTimestamp - The timestamp string to use when a payload's timestamp is invalid.
- * @returns A new array of payloads with valid timestamps.
+ * @param payloads - The array of payload objects to validate and update.
+ * @param rawData - (Optional) An array of raw payload objects to use as a fallback for timestamps.
+ * @returns The updated array of payloads with valid timestamps.
  */
-export function ensureValidTimestamps(payloads: Payload[], fallbackTimestamp?: string): Payload[] {
-  const safeFallback = isValidTimestamp(fallbackTimestamp) ? fallbackTimestamp : new Date().toISOString()
-
-  return payloads.map((p) => ({
-    ...p,
-    timestamp: isValidTimestamp(p.timestamp) ? p.timestamp : safeFallback
-  }))
+export function ensureValidTimestamps(payloads: Payload[], rawData?: Payload[]): Payload[] {
+  payloads.forEach((item, index) => {
+    if (!isValidTimestamp(item.timestamp)) {
+      item.timestamp =
+        rawData && rawData[index] && isValidTimestamp(rawData[index]?.timestamp)
+          ? item.timestamp
+          : new Date().toISOString()
+    }
+  })
+  return payloads
 }
 
 /**

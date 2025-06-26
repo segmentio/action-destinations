@@ -44,7 +44,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const requestData = data as RequestData<Settings, Payload[]>
     const { payload, syncMode, subscriptionMetadata, statsContext, features, rawData } = requestData
     statsContext?.tags?.push('action:custom_object_batch')
-    return await send(request, payload, syncMode, subscriptionMetadata, statsContext, features, rawData?.timestamp)
+    return await send(request, payload, syncMode, subscriptionMetadata, statsContext, features, rawData)
   }
 }
 
@@ -55,11 +55,11 @@ const send = async (
   subscriptionMetadata?: SubscriptionMetadata,
   statsContext?: StatsContext,
   features?: Features,
-  fallbackTimestamp?: string
+  rawData?: Payload[]
 ) => {
   if (features && features[HUBSPOT_DEDUPLICATION_FLAGON] && (syncMode === 'upsert' || syncMode === 'update')) {
-    payloads = ensureValidTimestamps(payloads, fallbackTimestamp)
-    payloads = mergeAndDeduplicateById(payloads)
+    payloads = ensureValidTimestamps(payloads, rawData)
+    payloads = mergeAndDeduplicateById(payloads, statsContext)
   }
 
   const {

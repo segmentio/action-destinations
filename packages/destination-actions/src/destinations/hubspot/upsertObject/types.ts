@@ -212,9 +212,7 @@ export interface CreatePropsReqItem {
 }
 
 export interface RequestData<Settings, Payload> {
-  rawData: {
-    timestamp: string
-  }
+  rawData: Payload
   payload: Payload
   syncMode: SyncMode
   subscriptionMetadata: SubscriptionMetadata
