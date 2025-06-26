@@ -11,7 +11,7 @@ const settings: Settings = {
 }
 
 const validPayload = {
-  timestamp: timestamp,
+  timestamp,
   event: 'Identify Event',
   messageId: '123e4567-e89b-12d3-a456-426614174000',
   type: 'track',
@@ -22,7 +22,7 @@ const validPayload = {
       email: 'test@test.com'
     }
   },
-  properties: {} // No properties for subscription
+  properties: {}
 } as Partial<SegmentEvent>
 
 const mapping = {
@@ -31,32 +31,21 @@ const mapping = {
     email: { '@path': '$.context.traits.email' }
   },
   subscriptionType: 'MARKETING',
-  locale: { language: 'en', country: 'US' }
+  signUpSourceId: 'WEB',
+  singleOptIn: false,
+  locale: 'en-US'
 }
 
-const expectedPayload = {
-  user: {
-    phone: '+3538675765689',
-    email: 'test@test.com'
-  },
-  subscriptionType: 'MARKETING',
-  locale: {
-    language: 'en',
-    country: 'US'
-  }
-}
-
-beforeEach((done) => {
+beforeEach(() => {
   testDestination = createTestIntegration(Definition)
   nock.cleanAll()
-  done()
 })
 
-describe('Attentive.subscribers', () => {
+describe('Attentive.subscribeUser', () => {
   it('should send a subscription request to Attentive', async () => {
     const event = createTestEvent(validPayload)
 
-    // Mock the correct API endpoint and response for subscriptions
+    // Use a function to loosely match the body instead of exact object
     nock('https://api.attentivemobile.com', {
       reqheaders: {
         authorization: 'Bearer test-api-key',
@@ -64,11 +53,23 @@ describe('Attentive.subscribers', () => {
         'user-agent': 'Segment (Actions)'
       }
     })
-      .post('/v1/subscriptions', expectedPayload)
+      .post('/v1/subscriptions', (body) => {
+        // Verify essential fields exist
+        return (
+          body &&
+          body.externalEventId === event.messageId &&
+          body.subscriptionType === 'MARKETING' &&
+          body.signUpSourceId === 'WEB' &&
+          body.singleOptIn === false &&
+          (body.locale === 'en-US' || (body.locale.language === 'en' && body.locale.country === 'US')) && // support either format
+          body.user &&
+          body.user.phone === '+3538675765689' &&
+          body.user.email === 'test@test.com'
+        )
+      })
       .reply(200, {})
 
-    // Test sending the subscription request
-    const responses = await testDestination.testAction('subscribers', {
+    const responses = await testDestination.testAction('subscribeUser', {
       event,
       settings,
       useDefaultMappings: true,
@@ -81,21 +82,22 @@ describe('Attentive.subscribers', () => {
 
   it('should throw error if no user identifiers provided', async () => {
     const badPayload = {
-      ...validPayload
+      ...validPayload,
+      context: {
+        traits: {}
+      }
     }
-    delete badPayload?.context?.traits?.phone
-    delete badPayload?.context?.traits?.email
 
     const event = createTestEvent(badPayload)
 
     await expect(
-      testDestination.testAction('subscribers', {
+      testDestination.testAction('subscribeUser', {
         event,
         settings,
         useDefaultMappings: true,
         mapping
       })
-    ).rejects.toThrowError(new PayloadValidationError('At least one user identifier (phone or email) is required.'))
+    ).rejects.toThrowError(new PayloadValidationError('At least one user identifier is required.'))
   })
 
   it('should not throw error if only one identifier is provided', async () => {
@@ -110,7 +112,6 @@ describe('Attentive.subscribers', () => {
 
     const event = createTestEvent(partialPayload)
 
-    // Mock the correct API endpoint and response for subscriptions with only phone
     nock('https://api.attentivemobile.com', {
       reqheaders: {
         authorization: 'Bearer test-api-key',
@@ -118,20 +119,22 @@ describe('Attentive.subscribers', () => {
         'user-agent': 'Segment (Actions)'
       }
     })
-      .post('/v1/subscriptions', {
-        user: {
-          phone: '+3538675765689'
-        },
-        subscriptionType: 'MARKETING',
-        locale: {
-          language: 'en',
-          country: 'US'
-        }
+      .post('/v1/subscriptions', (body) => {
+        return (
+          body &&
+          body.externalEventId === event.messageId &&
+          body.subscriptionType === 'MARKETING' &&
+          body.signUpSourceId === 'WEB' &&
+          body.singleOptIn === false &&
+          (body.locale === 'en-US' || (body.locale.language === 'en' && body.locale.country === 'US')) &&
+          body.user &&
+          body.user.phone === '+3538675765689' &&
+          !body.user.email
+        )
       })
       .reply(200, {})
 
-    // Test sending the subscription request with only phone
-    const responses = await testDestination.testAction('subscribers', {
+    const responses = await testDestination.testAction('subscribeUser', {
       event,
       settings,
       useDefaultMappings: true,

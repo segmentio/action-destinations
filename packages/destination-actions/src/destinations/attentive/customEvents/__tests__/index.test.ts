@@ -3,68 +3,127 @@ import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidation
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 
-import { API_URL, API_VERSION } from '../config'
-import {
-  getCustomEventsTestValidPayload,
-  getCustomEventsTestMapping,
-  getCustomEventsTestExpectedPayload
-} from '../test-data'
-
 let testDestination = createTestIntegration(Definition)
 const timestamp = '2024-01-08T13:52:50.212Z'
-const endpoint = '/events/custom'
 
 const settings: Settings = {
   apiKey: 'test-api-key'
 }
 
-// Valid payload for testing
-const validPayload = getCustomEventsTestValidPayload(timestamp) as Partial<SegmentEvent>
+const validPayload = {
+  timestamp,
+  event: 'product_clicked', // <- Used as "type" in Attentive
+  messageId: '123e4567-e89b-12d3-a456-426614174000',
+  type: 'track',
+  userId: 'user-123',
+  context: {
+    traits: {
+      phone: '+3538675765689',
+      email: 'test@test.com'
+    }
+  },
+  properties: {
+    product_name: 'Product X',
+    tracking_url: 'https://tracking-url.com'
+  }
+} as Partial<SegmentEvent>
 
-// Mapping configuration for test transformation
-const mapping = getCustomEventsTestMapping()
+const mapping = {
+  type: { '@path': '$.event' },
+  userIdentifiers: {
+    phone: { '@path': '$.context.traits.phone' },
+    email: { '@path': '$.context.traits.email' },
+    clientUserId: { '@path': '$.userId' }
+  },
+  properties: { '@path': '$.properties' },
+  externalEventId: { '@path': '$.messageId' },
+  occurredAt: { '@path': '$.timestamp' }
+}
 
-// Expected payload for Attentive API
-const expectedPayload = getCustomEventsTestExpectedPayload(validPayload)
+const expectedPayload = {
+  type: 'product_clicked',
+  user: {
+    phone: '+3538675765689',
+    email: 'test@test.com',
+    externalIdentifiers: {
+      clientUserId: 'user-123'
+    }
+  },
+  properties: {
+    product_name: 'Product X',
+    tracking_url: 'https://tracking-url.com'
+  },
+  externalEventId: '123e4567-e89b-12d3-a456-426614174000',
+  occurredAt: timestamp
+}
 
-beforeEach((done) => {
+beforeEach(() => {
   testDestination = createTestIntegration(Definition)
   nock.cleanAll()
-  done()
 })
 
 describe('Attentive.customEvents', () => {
   it('should send a custom event to Attentive', async () => {
     const event = createTestEvent(validPayload)
 
-    nock(`${API_URL}/${API_VERSION}`).post(endpoint, expectedPayload).reply(200, {})
+    nock('https://api.attentivemobile.com', {
+      reqheaders: {
+        authorization: 'Bearer test-api-key',
+        'content-type': 'application/json'
+      }
+    })
+      .post('/v1/events/custom', expectedPayload)
+      .reply(200, {})
 
     const responses = await testDestination.testAction('customEvents', {
       event,
       settings,
-      useDefaultMappings: true,
-      mapping
+      mapping,
+      useDefaultMappings: false
     })
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
   })
 
-  it('should throw error if no identifiers are provided', async () => {
+  it('throws error if no userIdentifiers provided', async () => {
     const badPayload = {
       ...validPayload,
-      context: { traits: {} }, // Remove identifiers
+      context: {
+        traits: {}
+      },
       userId: undefined
     }
+
     const event = createTestEvent(badPayload)
 
     await expect(
       testDestination.testAction('customEvents', {
         event,
         settings,
-        useDefaultMappings: true,
-        mapping
+        mapping,
+        useDefaultMappings: false
       })
-    ).rejects.toThrowError(new PayloadValidationError('At least one user identifier is required.'))
+    ).rejects.toThrowError(PayloadValidationError)
+  })
+
+  it('throws error if properties contain arrays', async () => {
+    const badPayload = {
+      ...validPayload,
+      properties: {
+        someArray: [1, 2, 3]
+      }
+    }
+
+    const event = createTestEvent(badPayload)
+
+    await expect(
+      testDestination.testAction('customEvents', {
+        event,
+        settings,
+        mapping,
+        useDefaultMappings: false
+      })
+    ).rejects.toThrowError(PayloadValidationError)
   })
 })

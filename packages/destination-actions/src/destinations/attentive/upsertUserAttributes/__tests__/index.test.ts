@@ -11,7 +11,7 @@ const settings: Settings = {
 }
 
 const validPayload = {
-  timestamp: timestamp,
+  timestamp,
   event: 'Custom Attribute Event',
   messageId: '123e4567-e89b-12d3-a456-426614174000',
   type: 'track',
@@ -23,7 +23,6 @@ const validPayload = {
     }
   },
   properties: {
-    // Properties section
     age: '24',
     birthday: '1986-11-16',
     'sign up': '2021-04-23T16:04:33Z',
@@ -42,52 +41,40 @@ const mapping = {
   properties: { '@path': '$.properties' }
 }
 
-const _expectedPayload = {
-  properties: {
-    // Expected payload for the API (properties are mapped directly)
-    age: '24',
-    birthday: '1986-11-16',
-    'sign up': '2021-04-23T16:04:33Z',
-    'favorite team': 'Minnesota Vikings',
-    'Gift card balance': '50.89',
-    VIP: 'TRUE'
-  },
-  user: {
-    phone: '+3538675765689',
-    email: 'test@test.com',
-    externalIdentifiers: {
-      clientUserId: '123e4567-e89b-12d3-a456-426614174000'
-    }
-  }
-}
-
-beforeEach((done) => {
+beforeEach(() => {
   testDestination = createTestIntegration(Definition)
   nock.cleanAll()
-  done()
 })
 
-describe('Attentive.customAttributes', () => {
+describe('Attentive.upsertUserAttributes', () => {
   it('should send custom attributes to Attentive', async () => {
     const event = createTestEvent(validPayload)
 
-    // Mock the correct API endpoint and response for custom attributes
-    nock('https://api.attentivemobile.com')
+    nock('https://api.attentivemobile.com', {
+      reqheaders: {
+        authorization: 'Bearer test-api-key',
+        'content-type': 'application/json'
+      }
+    })
       .post('/v1/attributes/custom', (body) => {
         return (
+          body &&
           body.properties.age === '24' &&
           body.properties.birthday === '1986-11-16' &&
+          body.properties['sign up'] === '2021-04-23T16:04:33Z' &&
+          body.properties['favorite team'] === 'Minnesota Vikings' &&
+          body.properties['Gift card balance'] === '50.89' &&
+          body.properties.VIP === 'TRUE' &&
+          body.user &&
           body.user.phone === '+3538675765689' &&
           body.user.email === 'test@test.com' &&
+          body.user.externalIdentifiers &&
           body.user.externalIdentifiers.clientUserId === '123e4567-e89b-12d3-a456-426614174000'
         )
       })
-      .matchHeader('authorization', 'Bearer test-api-key')
-      .matchHeader('content-type', 'application/json')
       .reply(200, {})
 
-    // Test sending the custom attributes
-    const responses = await testDestination.testAction('customAttributes', {
+    const responses = await testDestination.testAction('upsertUserAttributes', {
       event,
       settings,
       useDefaultMappings: true,
@@ -109,7 +96,7 @@ describe('Attentive.customAttributes', () => {
     const event = createTestEvent(badPayload)
 
     await expect(
-      testDestination.testAction('customAttributes', {
+      testDestination.testAction('upsertUserAttributes', {
         event,
         settings,
         useDefaultMappings: true,
