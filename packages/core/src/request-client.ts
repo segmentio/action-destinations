@@ -210,7 +210,7 @@ export class TimeoutError extends CustomError {
   code: string
 
   constructor(request: Request, options: NormalizedOptions) {
-    super(`Request timed out`)
+    super(`Request timed out after ${options.timeout}ms`)
     this.request = request
     this.options = options
     this.code = 'ETIMEDOUT'
