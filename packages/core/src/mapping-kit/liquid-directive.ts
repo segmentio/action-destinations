@@ -1,5 +1,6 @@
 import { Liquid } from 'liquidjs'
 import { StatsContext } from '../destination-kit'
+import { performance } from 'perf_hooks'
 
 const liquidEngine = new Liquid({
   renderLimit: 500, // 500 ms
