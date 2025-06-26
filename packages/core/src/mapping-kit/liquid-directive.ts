@@ -74,19 +74,25 @@ export function evaluateLiquid(liquidValue: any, event: any, statsContext?: Stat
     throw new Error('liquid template values are limited to 1000 characters')
   }
 
-  let status = 'success'
   let res
   const start = performance.now()
+  let duration
   try {
     res = liquidEngine.parseAndRenderSync(liquidValue, event)
-  } catch (_e) {
-    status = 'fail'
+  } catch (e) {
+    duration = performance.now() - start
+
+    statsContext?.statsClient?.histogram('liquid.template.evaluation_ms', duration, [
+      ...statsContext.tags,
+      `result:fail` // status = success/fail, not in the psudocode for simplicity
+    ])
+    throw e
   }
-  const duration = performance.now() - start
+  duration = performance.now() - start
 
   statsContext?.statsClient?.histogram('liquid.template.evaluation_ms', duration, [
     ...statsContext.tags,
-    `result:${status}` // status = success/fail, not in the psudocode for simplicity
+    `result:success` // status = success/fail, not in the psudocode for simplicity
   ])
 
   if (typeof res !== 'string') {
