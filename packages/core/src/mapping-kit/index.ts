@@ -8,10 +8,11 @@ import validate from './validate'
 import { arrify } from '../arrify'
 import { flattenObject } from './flatten'
 import { evaluateLiquid } from './liquid-directive'
+import { StatsContext } from '../destination-kit'
 
 export type InputData = { [key: string]: unknown }
 export type Features = { [key: string]: boolean }
-type Directive = (options: JSONValue, payload: JSONObject) => JSONLike
+type Directive = (options: JSONValue, payload: JSONObject, statsContext?: StatsContext | undefined) => JSONLike
 type StringDirective = (value: string, payload: JSONObject) => JSONLike
 
 interface Directives {
@@ -42,13 +43,17 @@ function registerStringDirective(name: string, fn: StringDirective): void {
   })
 }
 
-function runDirective(obj: JSONObject, payload: JSONObject): JSONLike {
+function runDirective(obj: JSONObject, payload: JSONObject, statsContext?: StatsContext | undefined): JSONLike {
   const name = Object.keys(obj).find((key) => key.startsWith('@')) as string
   const directiveFn = directives[name]
   const value = obj[name]
 
   if (typeof directiveFn !== 'function') {
     throw new Error(`${name} is not a valid directive, got ${realTypeOf(directiveFn)}`)
+  }
+
+  if (name === '@liquid') {
+    return directiveFn(value, payload, statsContext)
   }
 
   return directiveFn(value, payload)
@@ -326,8 +331,8 @@ registerDirective('@excludeWhenNull', (value, payload) => {
   return cleanNulls(resolved)
 })
 
-registerDirective('@liquid', (opts, payload) => {
-  return evaluateLiquid(opts, payload)
+registerDirective('@liquid', (opts, payload, statsContext) => {
+  return evaluateLiquid(opts, payload, statsContext)
 })
 
 // Recursively remove all null values from an object
@@ -381,23 +386,35 @@ function getMappingToProcess(mapping: JSONLikeObject): JSONLikeObject {
  * @param payload - the input data to apply to the mapping directives
  * @todo support arrays or array directives?
  */
-function resolve(mapping: JSONLike, payload: JSONObject): JSONLike {
+function resolve(mapping: JSONLike, payload: JSONObject, statsContext?: StatsContext | undefined): JSONLike {
   if (!isObject(mapping) && !isArray(mapping)) {
     return mapping
   }
 
   if (isDirective(mapping)) {
-    return runDirective(mapping, payload)
+    return runDirective(mapping, payload, statsContext)
   }
 
   if (Array.isArray(mapping)) {
-    return mapping.map((value) => resolve(value, payload))
+    return mapping.map((value) => resolve(value, payload, statsContext))
   }
 
   const resolved: JSONLikeObject = {}
 
   for (const key of Object.keys(mapping)) {
-    resolved[key] = resolve(mapping[key], payload)
+    let originalTags: string[] = []
+    const statsTagsExist = statsContext?.tags !== undefined
+
+    if (statsTagsExist) {
+      originalTags = statsContext.tags
+      statsContext.tags = [...statsContext.tags, `fieldKey:${key}`]
+    }
+
+    resolved[key] = resolve(mapping[key], payload, statsContext)
+
+    if (statsTagsExist) {
+      statsContext.tags = originalTags
+    }
   }
 
   return resolved
@@ -409,7 +426,11 @@ function resolve(mapping: JSONLike, payload: JSONObject): JSONLike {
  * @param mapping - the directives and raw values
  * @param data - the input data to apply to directives
  */
-function transform(mapping: JSONLikeObject, data: InputData | undefined = {}): JSONObject {
+function transform(
+  mapping: JSONLikeObject,
+  data: InputData | undefined = {},
+  statsContext?: StatsContext | undefined
+): JSONObject {
   const realType = realTypeOf(data)
   if (realType !== 'object') {
     throw new Error(`data must be an object, got ${realType}`)
@@ -420,7 +441,7 @@ function transform(mapping: JSONLikeObject, data: InputData | undefined = {}): J
   // throws if the mapping config is invalid
   validate(mappingToProcess)
 
-  const resolved = resolve(mappingToProcess, data as JSONObject)
+  const resolved = resolve(mappingToProcess, data as JSONObject, statsContext)
   const cleaned = removeUndefined(resolved)
 
   // Cast because we know there are no `undefined` values anymore
@@ -432,7 +453,11 @@ function transform(mapping: JSONLikeObject, data: InputData | undefined = {}): J
  * @param mapping - the directives and raw values
  * @param data - the array input data to apply to directives
  */
-function transformBatch(mapping: JSONLikeObject, data: Array<InputData> | undefined = []): JSONObject[] {
+function transformBatch(
+  mapping: JSONLikeObject,
+  data: Array<InputData> | undefined = [],
+  statsContext?: StatsContext | undefined
+): JSONObject[] {
   const realType = realTypeOf(data)
   if (!isArray(data)) {
     throw new Error(`data must be an array, got ${realType}`)
@@ -443,7 +468,7 @@ function transformBatch(mapping: JSONLikeObject, data: Array<InputData> | undefi
   // throws if the mapping config is invalid
   validate(mappingToProcess)
 
-  const resolved = data.map((d) => resolve(mappingToProcess, d as JSONObject))
+  const resolved = data.map((d) => resolve(mappingToProcess, d as JSONObject, statsContext))
 
   // Cast because we know there are no `undefined` values after `removeUndefined`
   return removeUndefined(resolved) as JSONObject[]
