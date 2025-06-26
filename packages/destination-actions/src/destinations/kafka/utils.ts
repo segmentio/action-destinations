@@ -1,10 +1,17 @@
 import { Kafka, ProducerRecord, Partitioners, SASLOptions, KafkaConfig, KafkaJSError, Producer } from 'kafkajs'
-import { DynamicFieldResponse, IntegrationError, Features } from '@segment/actions-core'
+import {
+  DynamicFieldResponse,
+  IntegrationError,
+  Features,
+  StatsContext,
+  MultiStatusResponse,
+  JSONLikeObject
+} from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
 import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
-import { StatsContext } from '@segment/actions-core/destination-kit'
+import { handleKafkaError } from './errors'
 
 export const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -183,6 +190,17 @@ export const sendData = async (
   features: Features | undefined,
   statsContext: StatsContext | undefined
 ) => {
+  // Assume everything to be successful by default
+  const multiStatusResponse = new MultiStatusResponse()
+
+  for (let i = 0; i < payload.length; i++) {
+    multiStatusResponse.setSuccessResponseAtIndex(i, {
+      sent: payload[i].payload as JSONLikeObject,
+      body: 'Message sent successfully',
+      status: 200
+    })
+  }
+
   validate(settings)
 
   const groupedPayloads: { [topic: string]: Payload[] } = {}
@@ -221,11 +239,7 @@ export const sendData = async (
     try {
       await producer.send(data as ProducerRecord)
     } catch (error) {
-      throw new IntegrationError(
-        `Kafka Producer Error: ${(error as KafkaJSError).message}`,
-        'KAFKA_PRODUCER_ERROR',
-        400
-      )
+      handleKafkaError(error as KafkaJSError, `Failed to deliver message to kafka: ${(error as Error).message}`)
     }
   }
 
@@ -237,4 +251,8 @@ export const sendData = async (
   } else {
     await producer.disconnect()
   }
+
+  // Streaming events just need to return a truthy response to indicate success
+  // Sending a multiStatusResponse would work for both streaming and batch mode
+  return multiStatusResponse
 }
