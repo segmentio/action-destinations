@@ -1,10 +1,18 @@
 import { Kafka, ProducerRecord, Partitioners, SASLOptions, KafkaConfig, KafkaJSError, Producer } from 'kafkajs'
-import { DynamicFieldResponse, IntegrationError, Features } from '@segment/actions-core'
+import {
+  DynamicFieldResponse,
+  IntegrationError,
+  Features,
+  StatsContext,
+  MultiStatusResponse,
+  JSONLikeObject,
+  ModifiedResponse
+} from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
 import { DEFAULT_PARTITIONER, Message, TopicMessages, SSLConfig, CachedProducer } from './types'
 import { PRODUCER_REQUEST_TIMEOUT_MS, PRODUCER_TTL_MS, FLAGON_NAME } from './constants'
-import { StatsContext } from '@segment/actions-core/destination-kit'
+import { handleKafkaError } from './errors'
 
 export const producersByConfig: Record<string, CachedProducer> = {}
 
@@ -137,7 +145,10 @@ const getProducer = (settings: Settings) => {
   })
 }
 
-export const getOrCreateProducer = async (settings: Settings, statsContext: StatsContext | undefined): Promise<Producer> => {
+export const getOrCreateProducer = async (
+  settings: Settings,
+  statsContext: StatsContext | undefined
+): Promise<Producer> => {
   const key = serializeKafkaConfig(settings)
   const now = Date.now()
 
@@ -174,7 +185,23 @@ export const getOrCreateProducer = async (settings: Settings, statsContext: Stat
   return producer
 }
 
-export const sendData = async (settings: Settings, payload: Payload[], features: Features | undefined, statsContext: StatsContext | undefined) => {
+export const sendData = async (
+  settings: Settings,
+  payload: Payload[],
+  features: Features | undefined,
+  statsContext: StatsContext | undefined
+) => {
+  // Assume everything to be successful by default
+  const multiStatusResponse = new MultiStatusResponse()
+
+  for (let i = 0; i < payload.length; i++) {
+    multiStatusResponse.setSuccessResponseAtIndex(i, {
+      sent: payload[i].payload as JSONLikeObject,
+      body: 'Message sent successfully',
+      status: 200
+    })
+  }
+
   validate(settings)
 
   const groupedPayloads: { [topic: string]: Payload[] } = {}
@@ -213,11 +240,7 @@ export const sendData = async (settings: Settings, payload: Payload[], features:
     try {
       await producer.send(data as ProducerRecord)
     } catch (error) {
-      throw new IntegrationError(
-        `Kafka Producer Error: ${(error as KafkaJSError).message}`,
-        'KAFKA_PRODUCER_ERROR',
-        400
-      )
+      return handleKafkaError(error as KafkaJSError, `Failed to deliver message to kafka: ${(error as Error).message}`)
     }
   }
 
@@ -228,5 +251,70 @@ export const sendData = async (settings: Settings, payload: Payload[], features:
     }
   } else {
     await producer.disconnect()
+  }
+
+  return generateHttpResponse({
+    status: 200,
+    statusText: 'OK',
+    url: 'https://kafka.segment.com',
+    data: '{"message": "Messages sent successfully"}'
+  })
+}
+
+type ModifiedResponseInput = {
+  status: number
+  statusText: string
+  url: string
+  data: string
+}
+
+export function generateHttpResponse(input: ModifiedResponseInput): ModifiedResponse<any> {
+  const headers = new Headers({
+    'Content-Type': 'application/json'
+  }) as Headers & { toJSON: () => Record<string, string> }
+  headers.toJSON = () => {
+    const jsonHeaders: Record<string, string> = {}
+    headers.forEach((value, key) => {
+      jsonHeaders[key] = value
+    })
+    return jsonHeaders
+  }
+
+  const encoder = new TextEncoder()
+  const encodedBytes = encoder.encode(input.data)
+
+  return {
+    status: input.status,
+    statusText: input.statusText,
+    ok: true,
+    url: input.url,
+    headers: headers as Headers & { toJSON: () => Record<string, string> },
+    content: input.data,
+    data: input.data ? JSON.parse(input.data) : undefined,
+    redirected: false,
+    type: 'default',
+    clone: function () {
+      return { ...this }
+    },
+    body: null,
+    bodyUsed: false,
+    arrayBuffer: async function () {
+      return encodedBytes.buffer
+    },
+    blob: async function () {
+      return new Blob([input.data], { type: 'application/json' })
+    },
+    formData: async function () {
+      throw new Error('formData not implemented')
+    },
+    json: async function () {
+      return input.data ? JSON.parse(input.data) : undefined
+    },
+    text: async function () {
+      return input.data
+    },
+    bytes: async function () {
+      return encodedBytes
+    }
   }
 }
