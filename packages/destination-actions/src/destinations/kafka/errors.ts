@@ -1,6 +1,5 @@
 import { KafkaJSError } from 'kafkajs'
-import { ModifiedResponse } from '@segment/actions-core'
-import { generateHttpResponse } from './utils'
+import { IntegrationError, RetryableError } from '@segment/actions-core'
 
 export type KafkaResponse = {
   kafkaStatus: string
@@ -1112,48 +1111,15 @@ export const KafkaErrorMap = new Map<number, KafkaResponse>([
  * @param defaultMessage - Default error message if no specific mapping found
  * @returns IntegrationError or RetryableError based on error type
  */
-export const handleKafkaError = (error: KafkaJSError, defaultMessage: string): ModifiedResponse<any> => {
-  // Extract error code from KafkaJS error
-  let errorCode: number | undefined
-
-  // KafkaJS errors often contain error codes in different formats
-  if ('errorCode' in error && typeof error.errorCode === 'number') {
-    errorCode = error.errorCode
-  } else if (error.cause && typeof error.cause === 'object' && error.cause !== null && 'code' in error.cause) {
-    errorCode = (error.cause as { code: number }).code
-  } else if (error.message) {
-    // Try to extract error code from message (e.g., "Error code: 3")
-    const match = error.message.match(/(?:error code:?\s*|code\s*=\s*)(-?\d+)/i)
-    if (match) {
-      errorCode = parseInt(match[1], 10)
+export const handleKafkaError = (error: KafkaJSError, defaultMessage: string) => {
+  if (error instanceof KafkaJSError) {
+    if (error.retriable) {
+      return new RetryableError(error.message)
+    } else {
+      return new IntegrationError(error.message, 'KAFKA_ERROR', 400)
     }
   }
 
-  // Look up error in our mapping
-  if (errorCode !== undefined && KafkaErrorMap.has(errorCode)) {
-    const kafkaError = KafkaErrorMap.get(errorCode)
-
-    if (kafkaError) {
-      return generateHttpResponse({
-        status: kafkaError.httpResponseCode,
-        statusText: kafkaError.httpResponseMessage,
-        url: 'https://kafka.segment.com',
-        data: JSON.stringify({
-          message: kafkaError.httpResponseMessage,
-          kafkaStatus: kafkaError.kafkaStatus
-        })
-      })
-    }
-  }
-
-  // Fallback for unmapped errors
-  return generateHttpResponse({
-    status: 400,
-    statusText: 'Bad Request',
-    url: 'https://kafka.segment.com',
-    data: JSON.stringify({
-      message: defaultMessage,
-      kafkaStatus: 'UNKNOWN_ERROR'
-    })
-  })
+  // Fallback to default error handling
+  return new IntegrationError(defaultMessage, 'KAFKA_ERROR', 400)
 }
