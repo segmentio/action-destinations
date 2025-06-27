@@ -1,0 +1,67 @@
+import type { Settings } from './generated-types'
+import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
+import { browserDestination } from '@segment/browser-destination-runtime/shim'
+import lead from './lead'
+import { initScript } from './init-script'
+import { FBClient, LDU } from './types'
+
+declare global {
+  interface Window {
+    fbq: FBClient
+  }
+}
+
+export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
+  name: 'Facebook Conversions Api Web',
+  slug: 'actions-facebook-conversions-api-web',
+  mode: 'device',
+  description: 'Send events to Facebook Conversions API from the browser.',
+  settings: {
+    pixelId: {
+      description: 'The Pixel ID associated with your Facebook Pixel.',
+      label: 'Pixel ID',
+      type: 'string',
+      required: true  
+    },
+    disablePushState: {
+      description: "If set to true, prevents Facebook Pixel from sending PageView events on history state changes. Set to true if you want to trigger PageView events manually via the pageView Action.",
+      label: 'Disable Push State',
+      type: 'boolean'
+    },
+    ldu: {
+      label: 'Limited Data User (LDU)',
+      description: 'Specify if and how Limited Data Use should apply.',
+      type: 'string',
+      required: true,
+      choices: [
+        { label: 'LDU disabled', value: LDU.Disabled.key},
+        { label: "LDU enabled - Use Meta Geolocation Logic", value: LDU.GeolocationLogic.key },
+        { label: 'LDU enabled - California only', value: LDU.California.key },
+        { label: 'LDU enabled - Colorado only', value: LDU.Colorado.key },
+        { label: 'LDU enabled - Connecticut only', value: LDU.Connecticut.key },
+        { label: 'LDU enabled - Florida only', value: LDU.Florida.key },
+        { label: 'LDU enabled - Oregon only', value: LDU.Oregon.key },
+        { label: 'LDU enabled - Texas only', value: LDU.Texas.key },
+        { label: 'LDU enabled - Montana only', value: LDU.Montana.key },
+        { label: 'LDU enabled - Delaware only', value: LDU.Delaware.key },
+        { label: 'LDU enabled - Nebraska only', value: LDU.Nebraska.key },
+        { label: 'LDU enabled - New Hampshire only', value: LDU.NewHampshire.key },
+        { label: 'LDU enabled - New Jersey only', value: LDU.NewJersey.key },
+        { label: 'LDU enabled - Minnesota only', value: LDU.Minnesota.key }
+      ],
+      default: LDU.Disabled.key
+    }
+  },
+  initialize: async ({ settings }, deps) => {
+    const { pixelId, disablePushState, ldu } = settings
+    initScript(pixelId, ldu as keyof typeof LDU, disablePushState)
+    await deps.resolveWhen(() => typeof window.fbq === 'function', 100)
+    return window.fbq
+  },
+
+  actions: {
+    lead
+  }
+}
+
+export default browserDestination(destination)
