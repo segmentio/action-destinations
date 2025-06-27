@@ -1,18 +1,23 @@
-import { LDU, UserData } from './types'
+import { LDU, UserData, Options, ActionSource } from './types'
 import { US_STATE_CODES, COUNTRY_CODES} from './constants'
+import { Payload } from './lead/generated-types'
 
 export function getLDU(ldu: keyof typeof LDU) {
     const lduObj = LDU[ldu]
     return { country: lduObj.country, state: lduObj.state }
 }
 
-export function buildOptions(): Options | undefined {
-      const options: Options | undefined = { 
-        eventID,
-        eventSourceUrl,
-        actionSource: actionSource as ActionSource | undefined,
-        userData: santizeUserData(userData as UserData) 
-      }
+export function buildOptions(payload: Payload): Options | undefined {
+  const { eventID, eventSourceUrl, actionSource, userData } = payload    
+  
+  const options: Options = { 
+    eventID,
+    eventSourceUrl,
+    actionSource: actionSource as ActionSource | undefined,
+    userData: santizeUserData(userData as UserData) 
+  }
+
+  return Object.values(options).some(Boolean) ? options : undefined
 }
 
 export function santizeUserData(userData: UserData): UserData | undefined {
