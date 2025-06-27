@@ -10,7 +10,6 @@ export interface ResponseError extends Error {
 }
 
 const baseClient = createInstance({
-  // timeout: DEFAULT_REQUEST_TIMEOUT,
   headers: {
     'user-agent': 'Segment (Actions)'
   },
