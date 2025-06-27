@@ -135,7 +135,7 @@ export const fields: Record<string, InputField> = {
   },
   clientDedupeId: {
     label: 'Client Dedupe ID',
-    description: 'The client specified id for the event. For events with the same clientDedupeId only the latest event will be kept.',
+    description: 'Amazon Conversions API uses the `clientDedupeId` field to prevent duplicate events. By default, Segment maps the messageId to this field. For events with the same clientDedupeId, only the latest event will be processed. Please be advised that deduplication occurs across all event types, rather than being limited to individual event types.',
     type: 'string',
     required: false,
     default: {
@@ -218,7 +218,7 @@ export const fields: Record<string, InputField> = {
       },
       matchId: {
         label: 'Match ID',
-        description: 'Match ID for the customer.',
+        description: 'Match ID serves as an anonymous, opaque unique identifier that corresponds to individual users within an advertiser system, such as loyalty membership identifications and order references. This functionality enables advertisers to precisely monitor campaign effectiveness while maintaining customer data privacy, eliminating the need to share sensitive information like hashed email addresses or phone numbers with Amazon, particularly when analyzing complex customer journeys across multiple channels and devices. The advertisers who implement the Amazon Advertising Tag (AAT) on their websites can transmit match_id as a parameter in conjunction with online event tracking. The Amazon system subsequently correlates these identifiers with users through cookies or hashed Personally Identifiable Information (PII). In instances where users complete offline conversions, advertisers can report these activities through the Conversions API (CAPI) utilizing the corresponding match_id, ensuring seamless cross-channel attribution.',
         type: 'string',
         required: false
       }
