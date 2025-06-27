@@ -55,7 +55,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(`https://app.roadwayai.com/api/v1/segment/validate-credentials`, {
+      return request(`https://production.api.roadwayai.com/api/v1/segment/validate-credentials`, {
         method: 'POST',
         body: JSON.stringify({
           api_key: settings.apiKey
