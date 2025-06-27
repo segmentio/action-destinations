@@ -80,7 +80,7 @@
     "@types/json-schema": "^7.0.7",
     "benny": "^3.7.0",
     "create-test-server": "^3.0.1",
-    "jest": "^27.3.1"
+    "jest": "^27.5.1"
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.0",
