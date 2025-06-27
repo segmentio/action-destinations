@@ -246,7 +246,7 @@ describe('request()', () => {
       controller.abort()
     }, 500)
 
-    await expect(request(server.url, { signal: controller.signal })).rejects.toThrowError('The user aborted a request.')
+    await expect(request(server.url, { signal: controller.signal })).rejects.toThrowError('Request was aborted')
     await server.close()
   })
 
