@@ -1,6 +1,5 @@
 import { Liquid } from 'liquidjs'
 import { StatsContext } from '../destination-kit'
-import { performance } from 'perf_hooks'
 
 const liquidEngine = new Liquid({
   renderLimit: 500, // 500 ms
@@ -75,12 +74,12 @@ export function evaluateLiquid(liquidValue: any, event: any, statsContext?: Stat
   }
 
   let res
-  const start = performance.now()
+  const start = Date.now()
   let duration
   try {
     res = liquidEngine.parseAndRenderSync(liquidValue, event)
   } catch (e) {
-    duration = performance.now() - start
+    duration = Date.now() - start
 
     statsContext?.statsClient?.histogram('liquid.template.evaluation_ms', duration, [
       ...statsContext.tags,
@@ -88,7 +87,7 @@ export function evaluateLiquid(liquidValue: any, event: any, statsContext?: Stat
     ])
     throw e
   }
-  duration = performance.now() - start
+  duration = Date.now() - start
 
   statsContext?.statsClient?.histogram('liquid.template.evaluation_ms', duration, [
     ...statsContext.tags,
