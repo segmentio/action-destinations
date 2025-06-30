@@ -146,9 +146,9 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         country: {
           '@if': {
-            exists: { '@path': '$.traits.address.country' },
-            then: { '@path': '$.traits.address.country' },
-            else: { '@path': '$.context.traits.address.country' }
+            exists: { '@path': '$.traits.country' },
+            then: { '@path': '$.traits.country' },
+            else: { '@path': '$.properties.country' }
           }
         },
         state: {
