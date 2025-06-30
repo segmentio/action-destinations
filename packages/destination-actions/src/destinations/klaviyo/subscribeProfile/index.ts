@@ -55,6 +55,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       default: '-59'
     },
+    historical_import: {
+      label: 'Historical Import',
+      description: `When set to true, the profile will be subscribed as a historical import. This is useful for importing existing profiles into Klaviyo without sending them an email or SMS.`,
+      type: 'boolean',
+      default: false
+    },
     consented_at: {
       label: 'Consented At',
       description: `The timestamp of when the profile's consent was gathered.`,
@@ -84,7 +90,15 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { payload }) => {
-    const { email, phone_number: initialPhoneNumber, consented_at, list_id, custom_source, country_code } = payload
+    const {
+      email,
+      phone_number: initialPhoneNumber,
+      consented_at,
+      list_id,
+      custom_source,
+      country_code,
+      historical_import
+    } = payload
 
     const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
     if (!email && !phone_number) {
@@ -92,7 +106,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
 
     const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
-    const subData = formatSubscribeRequestBody(profileToSubscribe, list_id, custom_source)
+    const subData = formatSubscribeRequestBody(profileToSubscribe, list_id, custom_source, historical_import)
 
     return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
       method: 'POST',
@@ -158,7 +172,12 @@ const action: ActionDefinition<Settings, Payload> = {
       // max number of profiles is 100 per request
       for (let i = 0; i < profiles.length; i += 100) {
         const profilesSubset = profiles.slice(i, i + 100)
-        const subData = formatSubscribeRequestBody(profilesSubset, list_id, custom_source)
+        const subData = formatSubscribeRequestBody(
+          profilesSubset,
+          list_id,
+          custom_source,
+          payload[0]?.historical_import
+        )
 
         const response = request<Response>(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
           method: 'POST',
