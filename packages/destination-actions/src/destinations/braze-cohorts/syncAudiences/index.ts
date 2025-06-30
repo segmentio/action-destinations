@@ -107,7 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The keys to use for batching the events.',
       type: 'string',
       unsafe_hidden: true,
-      default: ['cohort_name', 'cohort_id', 'event_properties'], // This ensures all payloads from same audience are batched together.
+      default: ['cohort_name', 'cohort_id'], // This ensures all payloads from same audience are batched together.
       // Event Properties ensures audience exited and entered events are batched together.
       multiple: true,
       required: false
@@ -132,22 +132,23 @@ async function processPayload(
   const { cohort_name, cohort_id } = payloads[0]
   const cohortChanges: Array<CohortChanges> = []
 
-  const set = new Set()
+  const all_external_ids = new Array<string>()
+  const uniqueIds = new Set<string>()
   for (const p of payloads) {
-    set.add(`${p.cohort_name} ${p.cohort_id}`)
+    all_external_ids.push(`${p.external_id}`)
+    uniqueIds.add(`${p.external_id}`)
   }
-  statsContext?.statsClient?.histogram(
-    'braze.cohorts.configurable_batch_keys.unique_keys',
-    set.size,
-    statsContext?.tags
-  )
+  statsContext?.statsClient?.histogram('braze.cohorts.unique_external_ids', uniqueIds.size, statsContext?.tags)
+  statsContext?.statsClient?.histogram('braze.cohorts.all_external_ids', all_external_ids.length, statsContext?.tags)
 
   if (stateContext?.getRequestContext?.('cohort_name') != cohort_name) {
     await syncAudiencesApiClient.createCohort(settings, payloads[0])
     //setting cohort_name in cache context with ttl 0 so that it can keep the value as long as possible.
     stateContext?.setResponseContext?.(`cohort_name`, cohort_name, {})
   }
+
   const { addUsers, removeUsers } = extractUsers(payloads)
+
   const hasAddUsers = hasUsersToAddOrRemove(addUsers)
   const hasRemoveUsers = hasUsersToAddOrRemove(removeUsers)
 
