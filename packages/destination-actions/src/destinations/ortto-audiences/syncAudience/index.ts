@@ -167,9 +167,9 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         post_code: {
           '@if': {
-            exists: { '@path': '$.traits.address.postal_code' },
-            then: { '@path': '$.traits.address.postal_code' },
-            else: { '@path': '$.context.traits.address.postal_code' }
+            exists: { '@path': '$.traits.postal_code' },
+            then: { '@path': '$.traits.postal_code' },
+            else: { '@path': '$.properties.postal_code' }
           }
         }
       }
