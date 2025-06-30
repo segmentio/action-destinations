@@ -69,6 +69,11 @@ export interface RequestOptions extends Omit<RequestInit, 'headers'> {
    * Uses the provided https.Agent
    */
   agent?: https.Agent
+  /**
+   * Used to emulate an http request.
+   * If set, instead of making a real HTTP request, the provided response will be returned.
+   */
+  emulateHttpResponse?: Response
 }
 
 /**
@@ -319,6 +324,11 @@ class RequestClient {
       if (newOptions && isObject(newOptions)) {
         this.setOptions(this.request.url, mergeOptions(this.options, newOptions))
       }
+    }
+
+    // If we have an emulateHttpResponse, return it instead of making a real request
+    if (this.options.emulateHttpResponse) {
+      return Promise.resolve(this.options.emulateHttpResponse)
     }
 
     if (this.options.timeout === false) {
