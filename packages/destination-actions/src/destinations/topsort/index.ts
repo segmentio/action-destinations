@@ -73,6 +73,7 @@ const destination: DestinationDefinition<Settings> = {
   ],
   actions: {
     impression,
+    impressionsList,
     click,
     purchase
   }
