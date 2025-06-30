@@ -4,8 +4,8 @@ import {
   IntegrationError,
   Features,
   StatsContext,
-  MultiStatusResponse,
-  JSONLikeObject
+  RequestClient,
+  Response
 } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
@@ -185,22 +185,12 @@ export const getOrCreateProducer = async (
 }
 
 export const sendData = async (
+  request: RequestClient,
   settings: Settings,
   payload: Payload[],
   features: Features | undefined,
   statsContext: StatsContext | undefined
 ) => {
-  // Assume everything to be successful by default
-  const multiStatusResponse = new MultiStatusResponse()
-
-  for (let i = 0; i < payload.length; i++) {
-    multiStatusResponse.setSuccessResponseAtIndex(i, {
-      sent: payload[i].payload as JSONLikeObject,
-      body: 'Message sent successfully',
-      status: 200
-    })
-  }
-
   validate(settings)
 
   const groupedPayloads: { [topic: string]: Payload[] } = {}
@@ -228,18 +218,25 @@ export const sendData = async (
   }))
 
   let producer: Producer
-  if (features && features[FLAGON_NAME]) {
-    producer = await getOrCreateProducer(settings, statsContext)
-  } else {
-    producer = getProducer(settings)
-    await producer.connect()
+  try {
+    if (features && features[FLAGON_NAME]) {
+      producer = await getOrCreateProducer(settings, statsContext)
+    } else {
+      producer = getProducer(settings)
+      await producer.connect()
+    }
+  } catch (error) {
+    return handleKafkaError(request, settings.brokers, error as KafkaJSError, settings.brokers)
   }
 
   for (const data of topicMessages) {
     try {
       await producer.send(data as ProducerRecord)
+
+      // If the send was successful, emulate an HTTP request to record a trace
+      await emulateSuccessfulHttpRequest(request, settings.brokers, data)
     } catch (error) {
-      handleKafkaError(error as KafkaJSError, `Failed to deliver message to kafka: ${(error as Error).message}`)
+      return handleKafkaError(request, settings.brokers, error as KafkaJSError, settings.brokers)
     }
   }
 
@@ -251,8 +248,23 @@ export const sendData = async (
   } else {
     await producer.disconnect()
   }
+}
 
-  // Streaming events just need to return a truthy response to indicate success
-  // Sending a multiStatusResponse would work for both streaming and batch mode
-  return multiStatusResponse
+function emulateSuccessfulHttpRequest(request: RequestClient, url: string, data: TopicMessages) {
+  const emulateHttpResponse = new Response(JSON.stringify({ status: 'success' }), {
+    headers: { 'Content-Type': 'application/json' },
+    status: 200,
+    statusText: 'OK'
+  })
+
+  return request(url, {
+    method: 'POST',
+    json: {
+      data
+    },
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    emulateHttpResponse
+  })
 }

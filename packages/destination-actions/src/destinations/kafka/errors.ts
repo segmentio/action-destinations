@@ -1,5 +1,6 @@
 import { KafkaJSError } from 'kafkajs'
-import { IntegrationError, RetryableError } from '@segment/actions-core'
+import { IntegrationError, RetryableError, RequestClient, Response } from '@segment/actions-core'
+import { TopicMessages } from './types'
 
 export type KafkaResponse = {
   kafkaStatus: string
@@ -1111,35 +1112,61 @@ export const KafkaErrorMap = new Map<number, KafkaResponse>([
  * @param defaultMessage - Default error message if no specific mapping found
  * @returns IntegrationError or RetryableError based on error type
  */
-export const handleKafkaError = (error: KafkaJSError, defaultMessage: string) => {
-  // Extract error code from KafkaJS error
-  let errorCode: number | undefined
+export async function handleKafkaError(
+  request: RequestClient,
+  url: string,
+  error: KafkaJSError,
+  defaultMessage: string,
+  data?: TopicMessages
+) {
+  const httpErrorBody: HttpErrorBody = {
+    name: error.name,
+    message: error.message,
+    retryable: error.retriable
+  }
 
-  // KafkaJS errors often contain error codes in different formats
-  if ('errorCode' in error && typeof error.errorCode === 'number') {
-    errorCode = error.errorCode
-  } else if (error.cause && typeof error.cause === 'object' && error.cause !== null && 'code' in error.cause) {
-    errorCode = (error.cause as { code: number }).code
-  } else if (error.message) {
-    // Try to extract error code from message (e.g., "Error code: 3")
-    const match = error.message.match(/(?:error code:?\s*|code\s*=\s*)(-?\d+)/i)
-    if (match) {
-      errorCode = parseInt(match[1], 10)
+  if (error instanceof KafkaJSError) {
+    if (error.retriable) {
+      await emulateFailedHttpRequest(request, url, httpErrorBody, data)
+      return new RetryableError(error.message)
+    } else {
+      await emulateFailedHttpRequest(request, url, httpErrorBody, data)
+      return new IntegrationError(error.message, 'KAFKA_ERROR', 400)
     }
   }
 
-  // Look up error in our mapping
-  if (errorCode !== undefined && KafkaErrorMap.has(errorCode)) {
-    const kafkaError = KafkaErrorMap.get(errorCode)
-    if (kafkaError) {
-      if (kafkaError.isRetryableError) {
-        throw new RetryableError(kafkaError.httpResponseMessage)
-      } else {
-        throw new IntegrationError(kafkaError.httpResponseMessage, kafkaError.kafkaStatus, kafkaError.httpResponseCode)
-      }
-    }
-  }
+  // Fallback to default error handling
+  await emulateFailedHttpRequest(request, url, httpErrorBody, data)
+  return new IntegrationError(defaultMessage, 'KAFKA_ERROR', 400)
+}
 
-  // Fallback for unmapped errors
-  throw new IntegrationError(`${defaultMessage}: ${error.message}`, 'KAFKA_ERROR', 500)
+type HttpErrorBody = {
+  name: string
+  message: string
+  retryable: boolean
+}
+
+function emulateFailedHttpRequest(
+  request: RequestClient,
+  url: string,
+  httpErrorBody: HttpErrorBody,
+  data?: TopicMessages
+) {
+  const emulateHttpResponse = new Response(JSON.stringify(httpErrorBody), {
+    headers: { 'Content-Type': 'application/json' },
+    status: httpErrorBody.retryable ? 503 : 400,
+    statusText: 'Kafka Error'
+  })
+
+  return request(url, {
+    method: 'POST',
+    json: {
+      data
+    },
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    emulateHttpResponse,
+    throwHttpErrors: false
+  })
 }
