@@ -107,7 +107,11 @@ const action: ActionDefinition<Settings, Payload> = {
       placeholder: '180.1.12.125',
       type: 'string',
       format: 'ipv4',
-      default: { '@path': '$.context.ip' },
+      default: '@if': {
+          exists: { '@path': '$.traits.ip' },
+          then: { '@path': '$.traits.ip' },
+          else: { '@path': '$.properties.ip' }
+        },
       allowNull: true
     },
     location: {
