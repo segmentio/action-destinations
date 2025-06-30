@@ -50,6 +50,7 @@ describe('Subscribe Profile', () => {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
           custom_source: 'Marketing Event',
+          historical_import: false,
           profiles: {
             data: [
               {
@@ -121,6 +122,7 @@ describe('Subscribe Profile', () => {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
           custom_source: '-59',
+          historical_import: false,
           profiles: {
             data: [
               {
@@ -194,6 +196,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
+          historical_import: false,
           custom_source: 'Marketing Event',
           profiles: {
             data: [
@@ -261,6 +264,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
+          historical_import: false,
           custom_source: '-59',
           profiles: {
             data: [
@@ -463,6 +467,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
+          historical_import: false,
           profiles: {
             data: [
               {
@@ -547,6 +552,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
+          historical_import: false,
           custom_source: '-59',
           profiles: {
             data: [
@@ -672,6 +678,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
+          historical_import: false,
           custom_source: 'Test Event',
           profiles: {
             data: [
@@ -706,6 +713,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
+          historical_import: false,
           custom_source: 'Test Event',
           profiles: {
             data: [
@@ -741,6 +749,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
+          historical_import: false,
           custom_source: 'Marketing Event',
           profiles: {
             data: [
