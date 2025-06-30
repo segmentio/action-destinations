@@ -104,7 +104,6 @@ const unobfuscatedOutput = {
     mainFields: ['exports', 'module', 'browser', 'main'],
     extensions: ['.ts', '.js'],
     fallback: {
-      perf_hooks: false, // perf_hooks is not available in the browser. This fixes a build error.
       vm: require.resolve('vm-browserify'),
       crypto: false
     },
