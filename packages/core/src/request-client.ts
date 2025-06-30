@@ -224,7 +224,7 @@ export class RequestClientError extends CustomError {
   constructor(message = 'Request was aborted') {
     super(message)
     this.code = 'REQUESTCLIENTERROR'
-    this.status = 504
+    this.status = 408
   }
 }
 
