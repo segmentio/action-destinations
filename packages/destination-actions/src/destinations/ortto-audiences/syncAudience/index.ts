@@ -153,9 +153,9 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         state: {
           '@if': {
-            exists: { '@path': '$.traits.address.state' },
-            then: { '@path': '$.traits.address.state' },
-            else: { '@path': '$.context.traits.address.state' }
+            exists: { '@path': '$.traits.state' },
+            then: { '@path': '$.traits.state' },
+            else: { '@path': '$.properties.state' }
           }
         },
         city: {
