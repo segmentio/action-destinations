@@ -176,8 +176,13 @@ function validate(payloads: Payload[]): void {
 }
 
 function extractUsers(payloads: Payload[]) {
-  const addUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [] }
-  const removeUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [], should_remove: true }
+  const addUsers: CohortChanges = { user_ids: new Set(), device_ids: new Set(), aliases: new Set() }
+  const removeUsers: CohortChanges = {
+    user_ids: new Set(),
+    device_ids: new Set(),
+    aliases: new Set(),
+    should_remove: true
+  }
 
   payloads.forEach((payload: Payload) => {
     const { event_properties, external_id, device_id, user_alias, personas_audience_key } = payload
@@ -185,11 +190,11 @@ function extractUsers(payloads: Payload[]) {
     const user = userEnteredOrRemoved ? addUsers : removeUsers
 
     if (external_id) {
-      user?.user_ids?.push(external_id)
+      user?.user_ids?.add(external_id)
     } else if (device_id) {
-      user?.device_ids?.push(device_id)
+      user?.device_ids?.add(device_id)
     } else if (user_alias) {
-      user?.aliases?.push(user_alias)
+      user?.aliases?.add(user_alias)
     }
   })
 
