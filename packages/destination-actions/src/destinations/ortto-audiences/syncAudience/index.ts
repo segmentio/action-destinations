@@ -160,9 +160,9 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         city: {
           '@if': {
-            exists: { '@path': '$.traits.address.city' },
-            then: { '@path': '$.traits.address.city' },
-            else: { '@path': '$.context.traits.address.city' }
+            exists: { '@path': '$.traits.city' },
+            then: { '@path': '$.traits.city' },
+            else: { '@path': '$.properties.city' }
           }
         },
         post_code: {
