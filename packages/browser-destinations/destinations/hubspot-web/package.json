@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-hubspot",
-  "version": "1.83.1-staging-1a09c01e3.0",
+  "version": "1.83.1-staging-ad255360b.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,8 +15,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "3.153.1-staging-1a09c01e3.0",
-    "@segment/browser-destination-runtime": "1.82.1-staging-1a09c01e3.0"
+    "@segment/actions-core": "3.153.1-staging-ad255360b.0",
+    "@segment/browser-destination-runtime": "1.82.1-staging-ad255360b.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
