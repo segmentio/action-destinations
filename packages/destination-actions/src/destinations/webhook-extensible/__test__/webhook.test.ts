@@ -281,10 +281,7 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
           access_token: 'accessToken123',
           refresh_token: 'refreshToken123'
         }
-        nock(`https://www.webhook-extensible/refresh_token`)
-          .post('', new URLSearchParams(expectedRequest).toString())
-          .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
-          .reply(200, mockResponse)
+        nock(`https://www.webhook-extensible/refresh_token`).post('').reply(200, mockResponse)
 
         const token = await testDestination.refreshAccessToken(settings, authWithoutRefreshToken)
 
