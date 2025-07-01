@@ -6,8 +6,8 @@ import type { FBClient } from '../types'
 import { buildOptions } from '../utils'
 
 const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
-  title: 'Lead',
-  description: 'Track a Lead event to Facebook Conversions API. Trigger this when a sign up is completed.',
+  title: 'Complete Registration',
+  description: 'Track a Complete Registration event to Facebook Conversions API. Trigger this when a registration form is completed.',
   platform: 'web',
   defaultSubscription: 'type = "track" and event = "Signed Up"',
   fields: {
@@ -23,7 +23,7 @@ const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
     const { pixelId } = settings
     const { custom_data, currency, value} = payload
     const options = buildOptions(payload)
-    client('trackSingle', pixelId, 'Lead', { currency, value, ...(custom_data as Record<string, unknown> || {}) }, options)
+    client('trackSingle', pixelId, 'CompleteRegistration', { currency, value, ...(custom_data as Record<string, unknown> || {}) }, options)
   }
 }
 

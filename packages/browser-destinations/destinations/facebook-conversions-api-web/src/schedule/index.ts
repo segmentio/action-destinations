@@ -1,29 +1,24 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { optionsFields, commonFields, currency, value } from '../fields'
+import { optionsFields, commonFields } from '../fields'
 import type { FBClient } from '../types'
 import { buildOptions } from '../utils'
 
 const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
-  title: 'Lead',
-  description: 'Track a Lead event to Facebook Conversions API. Trigger this when a sign up is completed.',
+  title: 'Search',
+  description: 'Track a Schedule event to Facebook Conversions API. Trigger this when a search is made.',
   platform: 'web',
-  defaultSubscription: 'type = "track" and event = "Signed Up"',
+  defaultSubscription: 'type = "track" and event = "Products Searched"',
   fields: {
     ...optionsFields, 
-    currency,
-    value: {
-      ...value, 
-      default: { '@path': '$.properties.value' }
-    },
     ...commonFields
   },
   perform: (client, { payload, settings }) => {
     const { pixelId } = settings
-    const { custom_data, currency, value} = payload
+    const { custom_data } = payload
     const options = buildOptions(payload)
-    client('trackSingle', pixelId, 'Lead', { currency, value, ...(custom_data as Record<string, unknown> || {}) }, options)
+    client('trackSingle', pixelId, 'Search', { ...(custom_data as Record<string, unknown> || {}) }, options)
   }
 }
 

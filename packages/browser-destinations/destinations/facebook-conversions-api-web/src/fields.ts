@@ -1,6 +1,5 @@
 import type { InputField } from '@segment/actions-core'
 import { ACTION_SOURCES } from './types'
-import { listCountries } from './utils'
 
 export const eventName: InputField = {
     label: 'Event Name',
@@ -67,27 +66,24 @@ export const contents: InputField = {
     'A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.',
   type: 'object',
   multiple: true,
+  additionalProperties: true,
   properties: {
     id: {
       label: 'ID',
       description: 'The product ID of the purchased item.',
-      type: 'string'
+      type: 'string',
+      required: true
     },
     quantity: {
       label: 'Quantity',
       description: 'The number of items purchased.',
-      type: 'integer'
+      type: 'integer',
+      required: true
     },
     item_price: {
       label: 'Item Price',
       description: 'The price of the item.',
       type: 'number'
-    },
-    delivery_category: {
-      label: 'Delivery Category',
-      description:
-        'The type of delivery for a purchase event. Supported values are "in_store", "curbside", and "home_delivery".',
-      type: 'string'
     }
   }
 }
@@ -140,8 +136,7 @@ export const status: InputField = {
 export const value: InputField = {
     label: 'Value',
     description: 'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
-    type: 'number',
-    default: { '@path': '$.properties.value' }
+    type: 'number'
 }
 
 export const custom_data: InputField = {
