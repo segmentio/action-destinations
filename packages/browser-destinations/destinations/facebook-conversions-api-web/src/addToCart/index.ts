@@ -44,7 +44,7 @@ const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
     const { pixelId } = settings
     const { custom_data, currency, value} = payload
     const options = buildOptions(payload)
-    client('trackSingle', pixelId, 'AddToCart', { content_ids, contents, currency, value, ...(custom_data as Record<string, unknown> || {}) }, options)
+    client('trackSingle', pixelId, 'AddToCart', { content_ids, content_type, contents, currency, value, ...(custom_data as Record<string, unknown> || {}) }, options)
   }
 }
 

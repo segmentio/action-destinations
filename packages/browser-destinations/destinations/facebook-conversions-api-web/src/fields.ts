@@ -5,6 +5,7 @@ export const eventName: InputField = {
     label: 'Event Name',
     description: 'The name of the event to be sent to Facebook Conversions API. This should match the event name used in your Facebook Pixel implementation.',
     type: 'string',
+    required: true,
     choices: [
         { label: 'Custom Event', value: 'CustomEvent' },
         { label: 'Add Payment Info', value: 'AddPaymentInfo' },

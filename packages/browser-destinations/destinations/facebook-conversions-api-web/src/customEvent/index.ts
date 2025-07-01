@@ -1,17 +1,20 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { optionsFields, commonFields, content_ids, content_type, contents, currency, num_items, value } from '../fields'
+import { optionsFields, commonFields, eventName, content_category, content_ids, content_name, content_type, contents, currency, delivery_category, num_items, predicted_ltv, search_string, status, value } from '../fields'
 import type { FBClient } from '../types'
 import { buildOptions } from '../utils'
 
 const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
-  title: 'Custom',
-  description: 'Track a Custom event to Facebook Conversions API. Build your own custom event to send. You can also use this Action to trigger Standard events with any field.',
+  title: 'Custom Event',
+  description: 'Track a Custom Event to Facebook Conversions API. Build your own custom event to send. You can also use this Action to trigger Standard events containing any type of field.',
   platform: 'web',
   fields: {
+    eventName,
     ...optionsFields, 
+    content_category,
     content_ids, 
+    content_name,
     content_type, 
     contents: {
       ...contents,
@@ -26,22 +29,13 @@ const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
         ]
       }
     },
-    currency: {
-      ...currency, 
-      required: true
-    }, 
+    currency,
+    delivery_category,
     num_items, 
-    value: {
-      ...value, 
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties.total' },
-          then: { '@path': '$.properties.total' },
-          else: { '@path': '$.properties.revenue' }
-        }
-      }
-    },
+    predicted_ltv,
+    search_string,
+    status,
+    value,
     ...commonFields
   },
   perform: (client, { payload, settings }) => {
