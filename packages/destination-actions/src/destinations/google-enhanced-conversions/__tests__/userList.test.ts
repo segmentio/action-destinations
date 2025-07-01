@@ -3,6 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import GoogleEnhancedConversions from '../index'
 import { API_VERSION } from '../functions'
 import { SegmentEvent } from '@segment/actions-core'
+import { PayloadValidationError } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(GoogleEnhancedConversions)
 const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
@@ -676,6 +677,58 @@ describe('GoogleEnhancedConversions', () => {
       )
     })
 
+    it('Return same phone number if country code is wrong', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Audience Entered',
+        properties: {
+          gclid: '54321',
+          email: 'test@gmail.com',
+          orderId: '1234',
+          phone: '3234567890',
+          phone_country_code: '+999',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          currency: 'USD',
+          value: '123',
+          address: {
+            street: '123 Street SW',
+            city: 'San Diego',
+            state: 'CA',
+            postalCode: '982004'
+          }
+        }
+      })
+
+      const responses = testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          phone_country_code: {
+            '@path': '$.properties.phone_country_code'
+          },
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features: {
+          'google-enhanced-phone-validation-check': true
+        }
+      })
+
+      await expect(responses).rejects.toThrow(PayloadValidationError)
+    })
+
     it('should successfully handle error other than CONCURRENT_MODIFICATION from createOfflineUserDataJobs API', async () => {
       const events: SegmentEvent[] = [
         createTestEvent({
@@ -1115,6 +1168,28 @@ describe('GoogleEnhancedConversions', () => {
             }
           }
         }),
+        //invalid phone country code
+        createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          properties: {
+            gclid: '54321',
+            email: 'test+2@gmail.com',
+            orderId: '1234',
+            phone: '3234567890',
+            phoneCountryCode: '999',
+            firstName: 'Jane',
+            lastName: 'Doe',
+            currency: 'USD',
+            value: '123',
+            address: {
+              street: '123 Street SW',
+              city: 'San Diego',
+              state: 'CA',
+              postalCode: '982004'
+            }
+          }
+        }),
         // Missing email ,phone and addressInfo which is necessary for CONTACT_INFO
         createTestEvent({
           timestamp,
@@ -1225,11 +1300,21 @@ describe('GoogleEnhancedConversions', () => {
 
       nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`).post(/.*/).reply(200, { done: true })
 
+      const mappingWithPhoneCountryCode = {
+        ...mapping,
+        phone_country_code: {
+          '@path': '$.properties.phoneCountryCode'
+        }
+      }
+
       const responses = await testDestination.executeBatch('userList', {
         events,
-        mapping,
+        mapping: mappingWithPhoneCountryCode,
         settings: {
           customerId
+        },
+        features: {
+          'google-enhanced-phone-validation-check': true
         }
       })
 
@@ -1287,15 +1372,22 @@ describe('GoogleEnhancedConversions', () => {
         sent: '/customers/1234/userLists/1234:run',
         body: { done: true }
       })
-      // Missing email ,phone and addressInfo which is necessary for CONTACT_INFO
+
       expect(responses[3]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Invalid country calling code',
+        errorreporter: 'INTEGRATIONS'
+      })
+      // Missing email ,phone and addressInfo which is necessary for CONTACT_INFO
+      expect(responses[4]).toMatchObject({
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'Missing or Invalid data for CONTACT_INFO.',
         errorreporter: 'INTEGRATIONS'
       })
       //Partial Failure(invalid payload) due to invalid Payload
-      expect(responses[4]).toMatchObject({
+      expect(responses[5]).toMatchObject({
         status: 400,
         errortype: 'BAD_REQUEST',
         errormessage: 'The SHA256 encoded value is malformed.',

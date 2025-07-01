@@ -23,7 +23,7 @@ export interface Payload {
     /**
      * First priority for user merging if multiple users are found
      */
-    first_priority: string
+    first_priority?: string
     /**
      * Second priority for user merging if multiple users are found
      */

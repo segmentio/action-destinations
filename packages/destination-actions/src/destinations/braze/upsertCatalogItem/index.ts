@@ -6,8 +6,7 @@ import {
   ErrorCodes,
   MultiStatusResponse,
   JSONLikeObject,
-  JSONObject,
-  ModifiedResponse
+  JSONObject
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { OnMappingSaveInputs, OnMappingSaveOutputs, Payload } from './generated-types'
@@ -228,7 +227,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  performBatch: async (request, { settings, payload, syncMode, hookOutputs, logger }) => {
+  performBatch: async (request, { settings, payload, syncMode, hookOutputs }) => {
     const catalog_name = hookOutputs?.onMappingSave?.outputs?.catalog_name
 
     const multiStatusResponse = new MultiStatusResponse()
@@ -281,14 +280,11 @@ const action: ActionDefinition<Settings, Payload> = {
       return multiStatusResponse
     }
 
-    let response: ModifiedResponse<unknown> | undefined
-
     try {
-      response = await request(`${settings.endpoint}/catalogs/${catalog_name}/items/`, {
+      const response = await request(`${settings.endpoint}/catalogs/${catalog_name}/items/`, {
         method: syncMode === 'upsert' ? 'PUT' : 'DELETE',
         headers: {
-          'Content-Type': 'application/json',
-          'X-Braze-Batch': 'true'
+          'Content-Type': 'application/json'
         },
         json: {
           items
@@ -303,18 +299,11 @@ const action: ActionDefinition<Settings, Payload> = {
         })
       })
     } catch (error) {
-      response = error
       processMultiStatusErrorResponse(
         error?.response?.data as UpsertCatalogItemErrorResponse,
         multiStatusResponse,
         validPayloadMap,
         payload
-      )
-    } finally {
-      logger?.crit(
-        `upsertCatlogItem payload_size: ${items.length}; batch_size: ${payload.length}; unique_id_count: ${
-          validPayloadMap.size
-        }; response: ${JSON.stringify(response)}`
       )
     }
 

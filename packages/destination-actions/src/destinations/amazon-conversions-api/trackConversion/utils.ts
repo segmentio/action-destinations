@@ -1,10 +1,10 @@
 import {
   IntegrationError,
   RequestClient,
-  APIError,
   MultiStatusResponse,
   JSONLikeObject,
-  ModifiedResponse
+  ModifiedResponse,
+  APIError
 } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import type { Settings } from '../generated-types'
@@ -138,8 +138,7 @@ export function smartHash(value: string, normalizeFunction?: (value: string) => 
 export async function sendEventsRequest<ImportConversionEventsResponse>(
   request: RequestClient,
   settings: Settings,
-  eventData: EventData | EventData[],
-  throwHttpErrors = false
+  eventData: EventData | EventData[]
 ): Promise<ModifiedResponse<ImportConversionEventsResponse>> {
   // Ensure eventData is always an array
   const events = Array.isArray(eventData) ? eventData : [eventData]
@@ -153,8 +152,8 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
     headers: {
       'Amazon-Ads-AccountId': settings.advertiserId
     },
-    timeout: 15000,
-    throwHttpErrors
+    timeout: 25000,
+    throwHttpErrors: false
   })
 }
 
@@ -186,6 +185,22 @@ export function validateCountryCode(input: string): string {
   )
 }
 
+export function handleResponse(
+  response: ModifiedResponse<ImportConversionEventsResponse>
+): ModifiedResponse<ImportConversionEventsResponse> {
+  if (response.status === 207 && response.data) {
+    const responseData = response.data
+
+    if (responseData.error && Array.isArray(responseData.error) && responseData.error.length > 0) {
+      return {
+        ...response,
+        status: Number(responseData.error[0].httpStatusCode) || 400
+      }
+    }
+  }
+  return response
+}
+
 /**
  * Process the Amazon API response and update the multi-status response
  * Handles 207 multistatus responses with errors
@@ -196,26 +211,20 @@ export function handleBatchResponse(
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse
 ): MultiStatusResponse {
-  // Handle 207 multistatus responses
   if (response.status === 207 && response.data) {
     const responseData = response.data
-
     const successMap: Record<number, EventDataSuccessResponseV1> = {}
     const errorMap: Record<number, EventDataErrorResponseV1> = {}
 
-    // Populate success map (adjusting for 1-based API indexing)
     if (responseData.success && Array.isArray(responseData.success)) {
       responseData.success.forEach((item) => {
-        const jsIndex = item.index - 1
-        successMap[jsIndex] = item
+        successMap[item.index - 1] = item
       })
     }
 
-    // Populate error map (adjusting for 1-based API indexing)
     if (responseData.error && Array.isArray(responseData.error)) {
       responseData.error.forEach((item) => {
-        const jsIndex = item.index - 1
-        errorMap[jsIndex] = item
+        errorMap[item.index - 1] = item
       })
     }
 
@@ -239,6 +248,14 @@ export function handleBatchResponse(
         // should never happen
         throw new APIError('Unable to match event in request payload to response from Amazon API', 500)
       }
+    })
+  } else {
+    validPayloadIndicesBitmap.forEach((originalIndex, arrayPosition) => {
+      multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+        status: response.status || 400,
+        errormessage: response.statusText || 'Amazon API request failed',
+        sent: validPayloads[arrayPosition] as unknown as JSONLikeObject
+      })
     })
   }
   return multiStatusResponse

@@ -233,6 +233,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   transactionContext?: TransactionContext
   stateContext?: StateContext
   subscriptionMetadata?: SubscriptionMetadata
+  signal?: AbortSignal
 }
 
 type FillMultiStatusResponseInput = {
@@ -317,7 +318,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     const results: Result[] = []
 
     // Resolve/transform the mapping with the input data
-    let payload = transform(bundle.mapping, bundle.data, bundle.statsContext) as Payload
+    let payload = transform(bundle.mapping, bundle.data) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
@@ -326,6 +327,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Validate the resolved payload against the schema
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
+      // AJV schema validator removes non mandatory fields post validation
+      // Refer https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
+      // https://github.com/segmentio/action-destinations/blob/d245e420e56957e784c29b5c09d80f3e1e64e6c5/packages/core/src/schema-validation.ts#L21
       validateSchema(payload, this.schema, {
         schemaKey,
         statsContext: bundle.statsContext,
@@ -366,7 +370,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       hookOutputs,
       syncMode: isSyncMode(syncMode) ? syncMode : undefined,
       matchingKey: matchingKey ? String(matchingKey) : undefined,
-      subscriptionMetadata: bundle.subscriptionMetadata
+      subscriptionMetadata: bundle.subscriptionMetadata,
+      signal: bundle?.signal
     }
     // Construct the request client and perform the action
     const output = await this.performRequest(this.definition.perform, dataBundle)
@@ -382,7 +387,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
     const mapping: JSONObject = bundle.mapping
 
-    let payloads = transformBatch(mapping, bundle.data, bundle.statsContext) as Payload[]
+    let payloads = transformBatch(mapping, bundle.data) as Payload[]
     const batchPayloadLength = payloads.length
 
     const multiStatusResponse: ResultMultiStatusNode[] = []
@@ -406,6 +411,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
           // Validate payload schema
           const payload = removeEmptyValues(payloads[i], schema) as Payload
           try {
+            // AJV schema validator only removes fields that are not defined in the schema (Refer ajv docs)
+            // Refer https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
+            // https://github.com/segmentio/action-destinations/blob/d245e420e56957e784c29b5c09d80f3e1e64e6c5/packages/core/src/schema-validation.ts#L21
             validateSchema(payload, schema, validationOptions)
           } catch (e) {
             // Validation failed with an exception, record the filtered out event
@@ -467,7 +475,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         subscriptionMetadata: bundle.subscriptionMetadata,
         hookOutputs,
         syncMode: isSyncMode(syncMode) ? syncMode : undefined,
-        matchingKey: matchingKey ? String(matchingKey) : undefined
+        matchingKey: matchingKey ? String(matchingKey) : undefined,
+        signal: bundle?.signal
       }
 
       const requestClient = this.createRequestClient(data)
@@ -689,7 +698,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     const options = this.extendRequest?.(data) ?? {}
     return createRequestClient(options, {
       afterResponse: [this.afterResponse.bind(this)],
-      statsContext: data.statsContext
+      statsContext: data.statsContext,
+      signal: data?.signal
     })
   }
 

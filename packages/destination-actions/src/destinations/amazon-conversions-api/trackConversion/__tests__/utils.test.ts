@@ -11,6 +11,7 @@ import {
   sendEventsRequest,
   validateCountryCode,
   handleBatchResponse,
+  handleResponse,
   prepareEventData
 } from '../utils'
 import { RequestClient, MultiStatusResponse, ModifiedResponse } from '@segment/actions-core'
@@ -248,7 +249,7 @@ describe('trackConversion utils', () => {
       )
     })
 
-    it('should respect throwHttpErrors option', async () => {
+    it('should respect throwHttpErrors value always being false', async () => {
       nock(settings.region).post('/events/v1').reply(400, { error: 'Bad Request' })
 
       const mockRequest = jest.fn().mockResolvedValue({
@@ -256,7 +257,7 @@ describe('trackConversion utils', () => {
         data: { error: 'Bad Request' }
       })
 
-      await sendEventsRequest(mockRequest as unknown as RequestClient, settings, eventData, false)
+      await sendEventsRequest(mockRequest as unknown as RequestClient, settings, eventData)
 
       expect(mockRequest).toHaveBeenCalledWith(
         expect.any(String),
@@ -266,20 +267,6 @@ describe('trackConversion utils', () => {
       )
 
       mockRequest.mockClear()
-
-      // When throwHttpErrors is true, the request should include that option
-      try {
-        await sendEventsRequest(mockRequest as unknown as RequestClient, settings, eventData, true)
-      } catch (error) {
-        // Exception might be thrown depending on the mock implementation
-      }
-
-      expect(mockRequest).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          throwHttpErrors: true
-        })
-      )
     })
   })
 
@@ -303,6 +290,62 @@ describe('trackConversion utils', () => {
     })
   })
 
+  describe('handleResponse', () => {
+    let setSuccessSpy: jest.SpyInstance
+    let setErrorSpy: jest.SpyInstance
+
+    beforeEach(() => {
+      // Setup spies on MultiStatusResponse
+      setSuccessSpy = jest.spyOn(MultiStatusResponse.prototype, 'setSuccessResponseAtIndex')
+      setErrorSpy = jest.spyOn(MultiStatusResponse.prototype, 'setErrorResponseAtIndex')
+    })
+
+    afterEach(() => {
+      setSuccessSpy.mockRestore()
+      setErrorSpy.mockRestore()
+    })
+
+    it('perform() should process 207 multistatus and return an error if necessary', () => {
+      const response = {
+        status: 207,
+        data: {
+          success: [],
+          error: [{ index: 1, httpStatusCode: '400', subErrors: [{ errorMessage: 'Invalid data' }] }]
+        }
+      } as unknown as ModifiedResponse<ImportConversionEventsResponse>
+
+      const result = handleResponse(response)
+
+      expect(result).toMatchObject({
+        status: 400,
+        data: {
+          success: [],
+          error: [{ index: 1, httpStatusCode: '400', subErrors: [{ errorMessage: 'Invalid data' }] }]
+        }
+      })
+    })
+
+    it('perform() should process 207 multistatus and return sucess if necessary', () => {
+      const response = {
+        status: 207,
+        data: {
+          success: [{ index: 1, message: null }],
+          error: []
+        }
+      } as unknown as ModifiedResponse<ImportConversionEventsResponse>
+
+      const result = handleResponse(response)
+
+      expect(result).toMatchObject({
+        status: 207,
+        data: {
+          success: [{ index: 1, message: null }],
+          error: []
+        }
+      })
+    })
+  })
+
   describe('handleBatchResponse', () => {
     let setSuccessSpy: jest.SpyInstance
     let setErrorSpy: jest.SpyInstance
@@ -318,7 +361,7 @@ describe('trackConversion utils', () => {
       setErrorSpy.mockRestore()
     })
 
-    it('should process 207 multistatus responses correctly', () => {
+    it('should process 207 multistatus responses from a performBatch() correctly', () => {
       const response = {
         status: 207,
         data: {

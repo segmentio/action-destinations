@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, APIError } from '@segment/actions-core'
 import Braze from '../../index'
 
 const testDestination = createTestIntegration(Braze)
@@ -39,8 +39,8 @@ describe('Braze IdentifyUser2', () => {
         userId: 'test-user-123'
       })
 
-      await expect(
-        testDestination.testAction('identifyUser2', {
+      try {
+        await testDestination.testAction('identifyUser2', {
           event,
           settings,
           mapping: {
@@ -53,15 +53,20 @@ describe('Braze IdentifyUser2', () => {
             __segment_internal_sync_mode: 'add'
           }
         })
-      ).rejects.toThrow(
-        "Request can not contain both of 'most_recently_updated' and 'least_recently_updated' values in the 'prioritization' array"
-      )
+        fail('Expected error to be thrown')
+      } catch (error) {
+        expect(error).toBeInstanceOf(APIError)
+        expect(error.message).toBe(
+          "Request can not contain both of 'most_recently_updated' and 'least_recently_updated' values in the 'prioritization' array"
+        )
+        expect(error.status).toBe(400)
+      }
     })
 
     it('should handle 4xx responses with message field (catch block)', async () => {
       // Mock a 400 status with message in response body
       const mockResponse = {
-        message: 'Invalid request - prioritization values are not allowed'
+        message: 'Invalid request - Mock Error'
       }
 
       nock(settings.endpoint).post('/users/identify').reply(400, mockResponse)
@@ -71,8 +76,8 @@ describe('Braze IdentifyUser2', () => {
         userId: 'test-user-123'
       })
 
-      await expect(
-        testDestination.testAction('identifyUser2', {
+      try {
+        await testDestination.testAction('identifyUser2', {
           event,
           settings,
           mapping: {
@@ -84,7 +89,12 @@ describe('Braze IdentifyUser2', () => {
             __segment_internal_sync_mode: 'add'
           }
         })
-      ).rejects.toThrow('Invalid request - prioritization values are not allowed')
+        fail('Expected error to be thrown')
+      } catch (error) {
+        expect(error).toBeInstanceOf(APIError)
+        expect(error.message).toBe('Invalid request - Mock Error')
+        expect(error.status).toBe(400)
+      }
     })
 
     it('should succeed when no errors are present in 2xx response', async () => {

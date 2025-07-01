@@ -215,10 +215,21 @@ export class TimeoutError extends CustomError {
   code: string
 
   constructor(request: Request, options: NormalizedOptions) {
-    super(`Request timed out`)
+    super(`Request timed out after ${options.timeout}ms`)
     this.request = request
     this.options = options
     this.code = 'ETIMEDOUT'
+  }
+}
+
+export class RequestClientError extends CustomError {
+  code: string
+  status: number
+
+  constructor(message = 'Request was aborted') {
+    super(message)
+    this.code = 'REQUESTCLIENTERROR'
+    this.status = 408
   }
 }
 
@@ -259,22 +270,25 @@ class RequestClient {
     this.options = {
       ...options,
       method: getRequestMethod(options.method ?? 'get'),
-      throwHttpErrors: options.throwHttpErrors !== false,
-      timeout: options.timeout ?? DEFAULT_REQUEST_TIMEOUT
+      throwHttpErrors: options.throwHttpErrors !== false
     } as NormalizedOptions
 
     // Timeout support. Use our own abort controller so consumers can pass in their own `signal`
     // if they wish to use timeouts alongside other logic to abort a request
     this.abortController = new AbortController()
-    if (this.options.signal) {
-      // Listen to consumer abort events to also abort our internal controller
-      this.options.signal.addEventListener('abort', () => {
-        this.abortController.abort()
-      })
-    }
 
     // Use our internal abort controller for fetch
-    this.options.signal = this.abortController.signal
+    const signals: AbortSignal[] = [this.abortController.signal]
+    if (this.options?.signal) {
+      // If the user provided a signal, we want to use it alongside our own
+      signals.push(this.options.signal)
+      this.options.timeout = options?.timeout ?? false
+    } else {
+      this.options.timeout = options?.timeout ?? DEFAULT_REQUEST_TIMEOUT
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    this.options.signal = AbortSignal.any(signals)
 
     // Construct a request object to send to the Fetch API
     this.request = new Request(url, this.options)
@@ -299,8 +313,15 @@ class RequestClient {
   }
 
   async executeRequest<T extends Response>(): Promise<T> {
-    let response = await this.fetch()
-
+    let response
+    try {
+      response = await this.fetch()
+    } catch (err) {
+      if ((err as Error)?.name === 'AbortError') {
+        throw new RequestClientError()
+      }
+      throw err
+    }
     for (const hook of this.options.afterResponse ?? []) {
       const modifiedResponse = await hook(this.request, this.options, response)
       if (modifiedResponse instanceof Response) {

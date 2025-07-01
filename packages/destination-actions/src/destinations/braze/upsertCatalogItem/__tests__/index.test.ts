@@ -91,8 +91,7 @@ describe('Braze.upsertCatalogItem', () => {
         auth: undefined
       })
     } catch (error) {
-      expect(error.code).toBe('PAYLOAD_VALIDATION_FAILED')
-      expect(error.status).toBe(400)
+      expect(error.name).toBe('AggregateAjvError')
     }
   })
 
@@ -629,8 +628,8 @@ describe('Braze.upsertCatalogItem', () => {
 
     expect(responses).not.toBeNull()
     expect(testDestination.results.at(0)?.multistatus?.length).toBe(2)
-    expect(testDestination.results[0].multistatus?.[0]?.status).toBe(400)
-    expect(testDestination.results[0].multistatus?.[1]?.status).toBe(400)
+    expect(testDestination.results[0].multistatus?.[0]?.status).toBe(404)
+    expect(testDestination.results[0].multistatus?.[1]?.status).toBe(404)
   })
   it('single event should throw error in case of failures with upsert syncmode', async () => {
     const action = destination.actions[actionSlug]

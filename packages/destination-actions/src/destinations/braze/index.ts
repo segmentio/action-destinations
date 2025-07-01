@@ -88,8 +88,8 @@ const destination: DestinationDefinition<Settings> = {
     trackPurchase2,
     updateUserProfile2,
     createAlias2,
-    triggerCampaign,
-    upsertCatalogItem
+    upsertCatalogItem,
+    triggerCampaign
   },
   presets: [
     {

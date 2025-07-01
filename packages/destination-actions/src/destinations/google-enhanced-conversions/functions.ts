@@ -446,8 +446,8 @@ export function formatToE164(phoneNumber: string, countryCode: string): string {
 export const formatPhone = (
   phone: string,
   countryCode?: string,
-  features?: Features | undefined,
-  statsContext?: StatsContext | undefined
+  features?: Features,
+  statsContext?: StatsContext
 ): string => {
   // Check if phone number is already hashed before doing any formatting
   if (isHashedInformation(phone)) {
@@ -471,7 +471,7 @@ export const formatPhone = (
 export const validateAndFormatToE164 = (
   phoneNumber: string,
   countryCode?: string,
-  statsContext?: StatsContext | undefined
+  statsContext?: StatsContext
 ): string => {
   try {
     let regionCode = 'US' // default region
@@ -488,7 +488,7 @@ export const validateAndFormatToE164 = (
     // Validate the number
     if (!phoneUtil.isValidNumber(parsedNumber)) {
       statsContext?.statsClient?.incr('validateAndFormatPhone.error', 1, statsContext?.tags)
-      return phoneNumber
+      throw new PayloadValidationError('Invalid phone number or country code.')
     }
 
     statsContext?.statsClient?.incr('validateAndFormatPhone.success', 1, statsContext?.tags)
@@ -496,7 +496,7 @@ export const validateAndFormatToE164 = (
     return phoneUtil.format(parsedNumber, PhoneNumberFormat.E164)
   } catch (error) {
     statsContext?.statsClient?.incr('validateAndFormatPhone.error', 1, statsContext?.tags)
-    return phoneNumber
+    throw new PayloadValidationError((error as Error).message || 'Invalid phone number or country code.')
   }
 }
 
@@ -846,7 +846,7 @@ const runOfflineUserJob = async (
   }
 }
 
-export const createIdentifierExtractors = (features?: Features | undefined) => ({
+export const createIdentifierExtractors = (features?: Features) => ({
   MOBILE_ADVERTISING_ID: (payload: UserListPayload) => {
     return payload.mobile_advertising_id?.trim() ? { mobileId: payload.mobile_advertising_id.trim() } : null
   },
@@ -892,7 +892,7 @@ const extractBatchUserIdentifiers = (
   idType: string,
   multiStatusResponse: MultiStatusResponse,
   syncMode?: string,
-  features?: Features | undefined
+  features?: Features
 ) => {
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []

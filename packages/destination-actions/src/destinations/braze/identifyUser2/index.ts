@@ -1,5 +1,5 @@
 import type { ActionDefinition, ModifiedResponse } from '@segment/actions-core'
-import { IntegrationError, HTTPError } from '@segment/actions-core'
+import { APIError, IntegrationError, HTTPError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -177,7 +177,7 @@ const action: ActionDefinition<Settings, Payload> = {
         if (response.data.errors && Array.isArray(response.data.errors) && response.data.errors.length > 0) {
           // Throw an error with details from the first error
           const firstError = response.data.errors[0]
-          throw new IntegrationError(firstError.type, 'PAYLOAD_VALIDATION_FAILED', 400)
+          throw new APIError(firstError.type, 400)
         }
 
         return response
@@ -186,11 +186,7 @@ const action: ActionDefinition<Settings, Payload> = {
           // In catch block, check the message field for error information
           const errorResponse = error.response as ModifiedResponse<BrazeIdentifyUserAPIResponse>
           if (errorResponse?.data?.message) {
-            throw new IntegrationError(
-              errorResponse.data.message,
-              'PAYLOAD_VALIDATION_FAILED',
-              errorResponse.status || 400
-            )
+            throw new APIError(errorResponse.data.message, errorResponse.status || 400)
           }
         }
         // Re-throw the original error if it's not a Braze API error with message

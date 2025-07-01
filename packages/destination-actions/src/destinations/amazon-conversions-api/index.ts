@@ -63,6 +63,17 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets: [
     {
+      name: 'Other',
+      subscribe:
+        'type = "track" AND event != "Product Added" and event != "Application Submitted" and event != "Checkout Started" and event != "Callback Started" and event != "Lead Generated" and event != "Order Completed" and event != "Application Opened" and event != "Products Searched" and event != "Signed Up" and event != "Subscription Created"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'OTHER'
+      },
+      type: 'automatic'
+    },
+    {
       name: 'Add to Shopping Cart',
       subscribe: 'type = "track" AND event = "Product Added"',
       partnerAction: 'trackConversion',

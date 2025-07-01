@@ -76,7 +76,7 @@ export function processMultiStatusErrorResponse(
   validPayloadMap: Map<string, number>,
   payload: Payload[]
 ): void {
-  const { errors = [] } = response
+  const { errors = [] } = response ?? {}
 
   let isValidCatalog = true
 

@@ -1,5 +1,5 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { IntegrationError, HTTPError, ModifiedResponse } from '@segment/actions-core'
+import { HTTPError, ModifiedResponse, PayloadValidationError, APIError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { dynamicFields } from './functions/dynamic-field-functions'
@@ -206,20 +206,12 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload }) => {
     // Validate that either broadcast OR recipients is provided (both are required, but mutually exclusive)
     if (!payload.broadcast && (!payload.recipients || payload.recipients.length === 0)) {
-      throw new IntegrationError(
-        'Either "broadcast" must be true or "recipients" list must be provided.',
-        'Missing required fields',
-        400
-      )
+      throw new PayloadValidationError('Either "broadcast" must be true or "recipients" list must be provided.')
     }
 
     // If broadcast is true, recipients list cannot be included
     if (payload.broadcast && payload.recipients && payload.recipients.length > 0) {
-      throw new IntegrationError(
-        'When "broadcast" is true, "recipients" list cannot be included.',
-        'Invalid targeting parameters',
-        400
-      )
+      throw new PayloadValidationError('When "broadcast" is true, "recipients" list cannot be included.')
     }
 
     // Apply the top-level prioritization to each recipient if recipients are provided
@@ -254,7 +246,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (error instanceof HTTPError && error.response) {
         const responseContent = error.response as ModifiedResponse<{ message?: string }>
         if (responseContent.data?.message) {
-          throw new IntegrationError(responseContent.data.message, 'BRAZE_API_ERROR', error.response.status)
+          throw new APIError(responseContent.data.message, error.response.status)
         }
       }
       throw error
