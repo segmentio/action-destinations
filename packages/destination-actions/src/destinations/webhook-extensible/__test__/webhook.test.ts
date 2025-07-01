@@ -51,8 +51,29 @@ const bearerTypeSettings = {
   }
 }
 
+const bearerTypeSettings2 = {
+  oauth: {},
+  dynamicAuthSettings: {
+    oauth: {
+      clientId: 'clientID',
+      clientSecret: 'clientSecret',
+      type: 'bearer'
+    },
+    bearer: {
+      bearerToken: 'BearerToken1'
+    }
+  }
+}
+
 const auth = {
   refreshToken: 'refreshToken1',
+  accessToken: 'accessToken1',
+  clientId: 'clientID',
+  clientSecret: 'clientSecret'
+}
+
+const authWithoutRefreshToken = {
+  refreshToken: '',
   accessToken: 'accessToken1',
   clientId: 'clientID',
   clientSecret: 'clientSecret'
@@ -242,6 +263,32 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
         const token = await testDestination.refreshAccessToken(bearerTypeSettings, auth)
 
         expect(token).toEqual({ accessToken: mockResponse.access_token })
+      })
+
+      it('should return empty access token for bearer refresh type', async () => {
+        const mockResponse = {
+          access_token: ''
+        }
+        nock(`https://www.webhook-extensible/refresh_token`).post('').reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(bearerTypeSettings2, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token })
+      })
+
+      it('should return access token for authCode type', async () => {
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`)
+          .post('', new URLSearchParams(expectedRequest).toString())
+          .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+          .reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(settings, authWithoutRefreshToken)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token, refreshToken: mockResponse.refresh_token })
       })
 
       it('should return access token for authCode type', async () => {
