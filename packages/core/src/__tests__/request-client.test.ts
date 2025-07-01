@@ -3,7 +3,7 @@ import createTestServer from 'create-test-server'
 import createInstance from '../request-client'
 import { Response } from '../fetch'
 
-jest.setTimeout(10000)
+jest.setTimeout(11000)
 
 describe('createInstance', () => {
   it('should create a new request client instance', async () => {
@@ -211,7 +211,7 @@ describe('request()', () => {
       ]
     })
 
-    await expect(request(server.url, { timeout: 500 })).rejects.toThrowError('Request timed out')
+    await expect(request(server.url, { timeout: 500 })).rejects.toThrowError('Request timed out after 500ms')
     expect(called).toBe(false)
     await server.close()
   })
@@ -226,7 +226,7 @@ describe('request()', () => {
 
     const request = createInstance()
 
-    await expect(request(server.url, { timeout: 500 })).rejects.toThrowError('Request timed out')
+    await expect(request(server.url, { timeout: 500 })).rejects.toThrowError('Request timed out after 500ms')
     await server.close()
   })
 
@@ -246,7 +246,7 @@ describe('request()', () => {
       controller.abort()
     }, 500)
 
-    await expect(request(server.url, { signal: controller.signal })).rejects.toThrowError('The user aborted a request.')
+    await expect(request(server.url, { signal: controller.signal })).rejects.toThrowError('Request was aborted')
     await server.close()
   })
 
@@ -259,6 +259,20 @@ describe('request()', () => {
     const request = createInstance()
 
     await expect(request(server.url, { timeout: 1000 })).resolves.toMatchObject({ ok: true })
+    await server.close()
+  })
+
+  it('to be aborted after default timeout (10s) if `timeout` or `signal` is not provided', async () => {
+    const server = await createTestServer()
+    server.get('/', (_request, response) => {
+      setTimeout(() => {
+        response.end()
+      }, 10001)
+    })
+
+    const request = createInstance()
+
+    await expect(request(server.url)).rejects.toThrowError('Request timed out after 10000ms')
     await server.close()
   })
 

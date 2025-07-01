@@ -322,6 +322,7 @@ interface EventInput<Settings> {
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
   readonly subscriptionMetadata?: SubscriptionMetadata
+  readonly signal?: AbortSignal
 }
 
 interface BatchEventInput<Settings> {
@@ -339,6 +340,7 @@ interface BatchEventInput<Settings> {
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
   readonly subscriptionMetadata?: SubscriptionMetadata
+  readonly signal?: AbortSignal
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -359,6 +361,7 @@ interface OnEventOptions {
   /** Handler to perform synchronization. If set, the refresh access token method will be synchronized across
    * all events across multiple instances of the destination using the same account for a given source*/
   synchronizeRefreshAccessToken?: () => Promise<void>
+  signal?: AbortSignal
 }
 
 /** Transaction variables and setTransaction method are passed from mono service for few Segment built integrations.
@@ -620,7 +623,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       logger,
       engageDestinationCache,
       transactionContext,
-      stateContext
+      stateContext,
+      signal
     }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
@@ -645,7 +649,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       engageDestinationCache,
       transactionContext,
       stateContext,
-      subscriptionMetadata
+      subscriptionMetadata,
+      signal
     })
   }
 
@@ -662,7 +667,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       logger,
       engageDestinationCache,
       transactionContext,
-      stateContext
+      stateContext,
+      signal
     }: BatchEventInput<Settings>
   ) {
     const action = this.actions[actionSlug]
@@ -688,7 +694,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       engageDestinationCache,
       transactionContext,
       stateContext,
-      subscriptionMetadata
+      subscriptionMetadata,
+      signal
     })
   }
 
@@ -740,7 +747,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       /** Engage internal use only. DO NOT USE. */
       engageDestinationCache: options?.engageDestinationCache,
       transactionContext: options?.transactionContext,
-      stateContext: options?.stateContext
+      stateContext: options?.stateContext,
+      signal: options?.signal
     }
 
     let results: Result[] | null = null
