@@ -1,31 +1,36 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { optionsFields, commonFields, content_ids, contents, currency, value } from '../fields'
+import { optionsFields, commonFields, content_ids, content_type, contents, currency, num_items, value } from '../fields'
 import type { FBClient } from '../types'
 import { buildOptions } from '../utils'
 
 const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
-  title: 'Add To Wishlist',
-  description: 'Track an Add To Wishlist event to Facebook Conversions API. Trigger this when a product is added to a wishlist.',
+  title: 'Custom',
+  description: 'Track a Custom event to Facebook Conversions API. Build your own custom event to send. You can also use this Action to trigger Standard events with any field.',
   platform: 'web',
-  defaultSubscription: 'type = "track" and event = "Product Added To Wishlist"',
   fields: {
     ...optionsFields, 
     content_ids, 
+    content_type, 
     contents: {
       ...contents,
-      default:
-      {
-        id: { '@path': '$.properties.id' },
-        quantity: { '@path': '$.properties.quantity' },
-        item_price: { '@path': '$.properties.price' }
+      default: {
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            id: { '@path': '$.id' },
+            quantity: { '@path': '$.quantity' },
+            item_price: { '@path': '$.price' }
+          }
+        ]
       }
     },
     currency: {
       ...currency, 
       required: true
     }, 
+    num_items, 
     value: {
       ...value, 
       required: true,
@@ -43,7 +48,7 @@ const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
     const { pixelId } = settings
     const { custom_data, currency, value} = payload
     const options = buildOptions(payload)
-    client('trackSingle', pixelId, 'AddToWishlist', { content_ids, contents, currency, value, ...(custom_data as Record<string, unknown> || {}) }, options)
+    client('trackSingle', pixelId, 'Purchase', { content_ids, content_type, contents, currency, num_items, value, ...(custom_data as Record<string, unknown> || {}) }, options)
   }
 }
 

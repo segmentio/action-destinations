@@ -16,15 +16,11 @@ const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
     content_type,
     contents: {
       ...contents,
-      default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            id: { '@path': '$.id' },
-            quantity: { '@path': '$.quantity' },
-            item_price: { '@path': '$.price' }
-          }
-        ]
+      default:
+      {
+        id: { '@path': '$.properties.id' },
+        quantity: { '@path': '$.properties.quantity' },
+        item_price: { '@path': '$.properties.price' }
       }
     },
     currency: {

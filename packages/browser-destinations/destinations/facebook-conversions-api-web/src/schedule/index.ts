@@ -6,10 +6,9 @@ import type { FBClient } from '../types'
 import { buildOptions } from '../utils'
 
 const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
-  title: 'Search',
-  description: 'Track a Schedule event to Facebook Conversions API. Trigger this when a search is made.',
+  title: 'Schedule',
+  description: 'Track a Schedule event to Facebook Conversions API. Trigger this when a person books an appointment to visit one of your locations.',
   platform: 'web',
-  defaultSubscription: 'type = "track" and event = "Products Searched"',
   fields: {
     ...optionsFields, 
     ...commonFields
@@ -18,7 +17,7 @@ const action: BrowserActionDefinition<Settings, FBClient, Payload> = {
     const { pixelId } = settings
     const { custom_data } = payload
     const options = buildOptions(payload)
-    client('trackSingle', pixelId, 'Search', { ...(custom_data as Record<string, unknown> || {}) }, options)
+    client('trackSingle', pixelId, 'Schedule', { ...(custom_data as Record<string, unknown> || {}) }, options)
   }
 }
 
