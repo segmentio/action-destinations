@@ -1,32 +1,69 @@
 import type { InputField } from '@segment/actions-core'
 import { ACTION_SOURCES } from './types'
 
-export const eventName: InputField = {
-    label: 'Event Name',
-    description: 'The name of the event to be sent to Facebook Conversions API. This should match the event name used in your Facebook Pixel implementation.',
-    type: 'string',
+export const event_config: InputField = {
+    label: 'Event Configuration',
+    description: 'Specify the type of Facebook Conversions API event to send.',
+    type: 'object',
     required: true,
-    choices: [
-        { label: 'Custom Event', value: 'CustomEvent' },
-        { label: 'Add Payment Info', value: 'AddPaymentInfo' },
-        { label: 'Add To Cart', value: 'AddToCart' },
-        { label: 'Add To Wishlist', value: 'AddToWishlist' },
-        { label: 'Complete Registration', value: 'CompleteRegistration' },
-        { label: 'Contact', value: 'Contact' },
-        { label: 'Customize Product', value: 'CustomizeProduct' },
-        { label: 'Donate', value: 'Donate' },
-        { label: 'Find Location', value: 'FindLocation' },
-        { label: 'Initiate Checkout', value: 'InitiateCheckout' },
-        { label: 'Lead', value: 'Lead' },
-        { label: 'Purchase', value: 'Purchase' },
-        { label: 'Schedule', value: 'Schedule' },
-        { label: 'Search', value: 'Search' },
-        { label: 'Start Trial', value: 'StartTrial' },
-        { label: 'Submit Application', value: 'SubmitApplication' },
-        { label: 'Subscribe', value: 'Subscribe' },
-        { label: 'View Content', value: 'ViewContent' }
-    ],
-    default: 'CustomEvent',
+    additionalProperties: false,
+    properties: {
+        event_name: {
+            label: 'Event Name',
+            description: "Facebook Conversions API Event Name to send. Select 'Custom Event' to send a non standard event.",
+            type: 'string',
+            required: true,
+            choices: [
+                { label: 'Custom Event', value: 'CustomEvent' },
+                { label: 'Add Payment Info', value: 'AddPaymentInfo' },
+                { label: 'Add To Cart', value: 'AddToCart' },
+                { label: 'Add To Wishlist', value: 'AddToWishlist' },
+                { label: 'Complete Registration', value: 'CompleteRegistration' },
+                { label: 'Contact', value: 'Contact' },
+                { label: 'Customize Product', value: 'CustomizeProduct' },
+                { label: 'Donate', value: 'Donate' },
+                { label: 'Find Location', value: 'FindLocation' },
+                { label: 'Initiate Checkout', value: 'InitiateCheckout' },
+                { label: 'Lead', value: 'Lead' },
+                { label: 'Purchase', value: 'Purchase' },
+                { label: 'Schedule', value: 'Schedule' },
+                { label: 'Search', value: 'Search' },
+                { label: 'Start Trial', value: 'StartTrial' },
+                { label: 'Submit Application', value: 'SubmitApplication' },
+                { label: 'Subscribe', value: 'Subscribe' },
+                { label: 'View Content', value: 'ViewContent' }
+            ]
+        },
+        custom_event_name:{
+            label: 'Custom Event Name',
+            description: 'Custom event name to send to Facebook',
+            type: 'string',
+            depends_on: {
+                match: 'any',
+                conditions: [
+                {
+                    fieldKey: 'event_name',
+                    operator: 'is',
+                    value: 'CustomEvent'
+                },
+                {
+                    fieldKey: 'show_fields',
+                    operator: 'is',
+                    value: 'true'
+                }]
+            }
+        },
+        show_fields: {
+            label: 'Show all fields',
+            description: 'Show all fields, even those which are not relevant to the selected Event Name.',
+            type: 'boolean',
+            default: false
+        }
+    },
+    default: {
+        show_fields: false,
+        default: {'@path': '$.event'}
+    }
 }
 
 export const content_category: InputField = {
@@ -40,7 +77,21 @@ export const content_ids: InputField = {
     label: 'Content IDs',
     description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
     type: 'string',
-    multiple: true
+    multiple: true,
+    depends_on: {
+        'match': 'any',
+        conditions: [
+        {
+            fieldKey: 'event_name',
+            operator: 'is',
+            value: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'InitiateCheckout', 'Purchase', 'Search', 'ViewContent']
+        },
+        {
+            fieldKey: 'show_fields',
+            operator: 'is',
+            value: 'true'
+        }]
+    }
 }
 
 export const content_name: InputField = {
@@ -58,42 +109,83 @@ export const content_type: InputField = {
     choices: [
         { value: 'product', label: 'Product' },
         { value: 'product_group', label: 'Product Group' }
-    ]
+    ],
+    depends_on: {
+        'match': 'any',
+        conditions: [
+        {
+            fieldKey: 'event_name',
+            operator: 'is',
+            value: [ 'AddToCart', 'Purchase', 'Search', 'ViewContent']
+        },
+        {
+            fieldKey: 'show_fields',
+            operator: 'is',
+            value: 'true'
+        }]
+    }
 }
 
 export const contents: InputField = {
-  label: 'Contents',
-  description:
-    'A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.',
-  type: 'object',
-  multiple: true,
-  additionalProperties: true,
-  properties: {
-    id: {
-      label: 'ID',
-      description: 'The product ID of the purchased item.',
-      type: 'string',
-      required: true
+    label: 'Contents',
+    description: 'A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.',
+    type: 'object',
+    multiple: true,
+    additionalProperties: true,
+    properties: {
+        id: {
+            label: 'ID',
+            description: 'The product ID of the purchased item.',
+            type: 'string',
+            required: true
+        },
+        quantity: {
+            label: 'Quantity',
+            description: 'The number of items purchased.',
+            type: 'integer',
+            required: true
+        },
+        item_price: {
+            label: 'Item Price',
+            description: 'The price of the item.',
+            type: 'number'
+        }
     },
-    quantity: {
-      label: 'Quantity',
-      description: 'The number of items purchased.',
-      type: 'integer',
-      required: true
-    },
-    item_price: {
-      label: 'Item Price',
-      description: 'The price of the item.',
-      type: 'number'
+    depends_on: {
+        'match': 'any',
+        conditions: [
+        {
+            fieldKey: 'event_name',
+            operator: 'is',
+            value: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'InitiateCheckout', 'Purchase', 'Search', 'ViewContent']
+        },
+        {
+            fieldKey: 'show_fields',
+            operator: 'is',
+            value: 'true'
+        }]
     }
-  }
 }
 
 export const currency: InputField = {
     label: 'Currency',
     description: 'The currency for the value specified. Currency must be a valid ISO 4217 three-digit currency code.',
     type: 'string',
-    default: { '@path': '$.properties.currency' }
+    default: { '@path': '$.properties.currency' },
+        depends_on: {
+        'match': 'any',
+        conditions: [
+        {
+            fieldKey: 'event_name',
+            operator: 'is',
+            value: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'CompleteRegistration', 'InitiateCheckout', 'Lead', 'Purchase', 'Search', 'StartTrial', 'Subscribe', 'ViewContent']
+        },
+        {
+            fieldKey: 'show_fields',
+            operator: 'is',
+            value: 'true'
+        }]
+    }
 }
 
 export const delivery_category: InputField = {
@@ -137,7 +229,22 @@ export const status: InputField = {
 export const value: InputField = {
     label: 'Value',
     description: 'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
-    type: 'number'
+    type: 'number',
+    default: { '@path': '$.properties.currency' },
+    depends_on: {
+        'match': 'any',
+        conditions: [
+        {
+            fieldKey: 'event_name',
+            operator: 'is',
+            value: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'CompleteRegistration', 'InitiateCheckout', 'Lead', 'Purchase', 'Search', 'StartTrial', 'Subscribe', 'ViewContent']
+        },
+        {
+            fieldKey: 'show_fields',
+            operator: 'is',
+            value: 'true'
+        }]
+    }
 }
 
 export const custom_data: InputField = {
@@ -260,20 +367,35 @@ export const userData: InputField = {
     }
 }
 
-export const optionsFields: {
-    eventID: InputField
-    eventSourceUrl: InputField
-    actionSource: InputField
-    userData: InputField
-} = {
-    eventID,
-    eventSourceUrl,
-    actionSource,
-    userData    
-}
-
-export const commonFields: {
-    custom_data: InputField
-} = {
-    custom_data
+export const AllFields = {
+    event_config, 
+    content_category,
+    content_ids, 
+    content_name,
+    content_type, 
+    contents: {
+      ...contents,
+      default: {
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            id: { '@path': '$.id' },
+            quantity: { '@path': '$.quantity' },
+            item_price: { '@path': '$.price' }
+          }
+        ]
+      }
+    },
+    currency,
+    delivery_category,
+    num_items, 
+    predicted_ltv,
+    search_string,
+    status,
+    value,
+    custom_data,
+    eventID, 
+    eventSourceUrl, 
+    actionSource, 
+    userData
 }

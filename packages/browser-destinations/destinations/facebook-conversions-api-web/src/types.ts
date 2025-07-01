@@ -19,21 +19,48 @@ export type FBStandardEventType =
   | 'SubmitApplication'
   | 'Subscribe'
 
+export type FBNonStandardEventType = 'CustomEvent'
 
-export type LeadEvent = {
-    currency?: string
-    value?: number, 
-    [key: string]: unknown 
-}
-
-export type FBEvent = LeadEvent
+export type FieldName = 
+ | 'content_category' 
+ | 'content_ids'
+ | 'content_name'
+ | 'content_type'
+ | 'contents'
+ | 'currency'
+ | 'num_items'
+ | 'predicted_ltv'
+ | 'status'
+ | 'value'
 
 export type FBClient = {
     (command: 'init', pixelId: string): void
-    (command: 'track', event: FBStandardEventType, params?: FBEvent): void
+   
     (command: 'trackSingle', pixelId: string, event: FBStandardEventType, params?: FBEvent, options?: Options): void
-    (command: 'trackCustom', event: string, params?: FBEvent): void
     (command: 'trackSingleCustom', pixelId: string, event: string, params?: FBEvent, options?: Options): void
+
+    (command: 'track', event: FBStandardEventType, params?: FBEvent): void
+    (command: 'trackCustom', event: string, params?: FBEvent): void
+}
+
+export type FBEvent = {
+  content_category?: string
+  content_ids?: string[]
+  content_name?: string
+  content_type?: string
+  contents?: {
+    id: string
+    quantity: number
+    item_price?: number
+    [k: string]: unknown
+  }[]
+  currency?: string
+  delivery_category?: string
+  num_items?: number
+  value?: number 
+  custom_data?: {
+    [k: string]: unknown
+  }
 }
 
 export const ACTION_SOURCES = {

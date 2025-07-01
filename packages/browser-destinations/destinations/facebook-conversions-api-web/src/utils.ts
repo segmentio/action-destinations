@@ -1,6 +1,6 @@
 import { LDU, UserData, Options, ActionSource } from './types'
 import { US_STATE_CODES, COUNTRY_CODES} from './constants'
-import { Payload } from './lead/generated-types'
+import { Payload } from './send/generated-types'
 
 export function getLDU(ldu: keyof typeof LDU) {
     const lduObj = LDU[ldu]
@@ -88,3 +88,17 @@ function sanitizeCountry(country?: string): string | undefined {
 
   return undefined
 }
+
+// export function show(fieldName: FieldName): boolean {
+//   const conditions = []
+//   switch(fieldName){
+//     case : {
+//       conditions.push(
+//       {
+//         fieldKey: 'environment',
+//         operator: 'is_not',
+//         value: ''
+//       })
+//     } 
+//   }
+// }
