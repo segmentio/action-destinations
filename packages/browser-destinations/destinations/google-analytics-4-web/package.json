@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-google-analytics-4",
-  "version": "1.93.0",
+  "version": "1.93.1-staging-2dfbf3ffe.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,8 +15,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.156.0",
-    "@segment/browser-destination-runtime": "^1.85.0"
+    "@segment/actions-core": "3.156.1-staging-2dfbf3ffe.0",
+    "@segment/browser-destination-runtime": "1.85.1-staging-2dfbf3ffe.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
