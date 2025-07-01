@@ -1,9 +1,6 @@
-import type { DestinationDefinition } from '@segment/actions-core'
+import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
-
 import updateProfile from './updateProfile'
-import trackEvent from './trackEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Batch',
@@ -26,39 +23,41 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    testAuthentication: async (request, { settings }) => {
-      // Check the authentification
-      const response = await request('https://api.batch.com/2.2/profiles/update', {
+    testAuthentication: async (request) => {
+      return await request('https://api.batch.com/2.5/profiles/update', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${settings.apiToken}`,
-          'X-Batch-Project': `${settings.projectKey}`
-        }
+        // Sample body for test
+        body: JSON.stringify([
+          {
+            identifiers: {
+              custom_id: 'test-custom-id'
+            }
+          }
+        ])
       })
-
-      // If the response is a status code of 200, this means that authentication is valid
-      if (response.status !== 200) {
-        throw new Error('Invalid API token or project key')
-      }
     }
   },
-
   extendRequest({ settings }) {
     return {
       headers: {
-        'Content-Type': 'application/json', // Content Type
-        Authorization: `Bearer ${settings.apiToken}`, // REST API Key
-        'X-Batch-Project': `${settings.projectKey}` // Project Key
-      },
-      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${settings.apiToken}`,
+        'X-Batch-Project': `${settings.projectKey}`
+      }
     }
   },
-
   actions: {
-    updateProfile,
-    trackEvent
-  }
+    updateProfile
+  },
+  presets: [
+    {
+      name: 'Update Profile',
+      subscribe: 'type = "identify" or type = "track"',
+      partnerAction: 'updateProfile',
+      mapping: defaultValues(updateProfile.fields),
+      type: 'automatic'
+    }
+  ]
 }
 
 export default destination

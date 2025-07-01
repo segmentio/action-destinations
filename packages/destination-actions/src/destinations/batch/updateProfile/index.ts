@@ -1,15 +1,19 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { MAX_BATCH_SIZE } from './constants'
+import { mapPayload } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update User Profile',
-  description: 'Update or create a profile with attributes in Batch',
+  description: 'Sends user events or creates and updates user profiles in Batch.',
+  defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     identifiers: {
       label: 'Identifiers',
-      description: "Identifiant(s) de l'utilisateur",
+      description: 'User identifiers',
       type: 'object',
+      required: true,
       properties: {
         custom_id: {
           label: 'User ID',
@@ -22,24 +26,30 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
-    attributes: {
-      label: 'Attributes',
-      description: 'Profile data',
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of attributes to include in each batch.',
+      type: 'number',
+      default: MAX_BATCH_SIZE,
+      readOnly: true,
+      unsafe_hidden: true
+    },
+    profileAttributes: {
+      label: 'Profile attributes',
+      description: 'Attributes for the user profile',
       type: 'object',
+      additionalProperties: true,
       properties: {
+        language: {
+          label: 'Language',
+          description:
+            "The profile's language. This can be sent as a locale (e.g., 'en-US') or a language code (e.g., 'en').",
+          type: 'string',
+          allowNull: true
+        },
         email_address: {
           label: 'Email',
           description: "The profile's email",
-          type: 'string',
-          allowNull: true,
-          default: {
-            '@path': '$.traits.email'
-          }
-        },
-        email_marketing: {
-          label: 'Email marketing subscribe',
-          description:
-            "The profile's marketing emails subscription. You can set it to subscribed , unsubscribed , or null to reset the marketing emails subscription.",
           type: 'string',
           allowNull: true
         },
@@ -47,140 +57,117 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Phone Number',
           description: "The profile's phone number",
           type: 'string',
+          allowNull: true
+        },
+        email_marketing: {
+          label: 'Email marketing subscribe',
+          description:
+            "The profile's marketing emails subscription. Setting to null will reset the marketing emails subscription.",
+          type: 'string',
           allowNull: true,
-          default: {
-            '@path': '$.traits.phone_number'
-          }
+          choices: [
+            { label: 'Subscribed', value: 'subscribed' },
+            { label: 'Unsubscribed', value: 'unsubscribed' }
+          ]
         },
         sms_marketing: {
           label: 'SMS marketing subscribe',
           description:
-            "The profile's marketing SMS subscription. You can set it to subscribed , unsubscribed , or null to reset the marketing SMS subscription.",
-          type: 'string',
-          allowNull: true
-        },
-        language: {
-          label: 'Language',
-          description: "The profile's language.",
+            "The profile's marketing SMS subscription. Setting to 'Reset' will reset the marketing SMS subscription.",
           type: 'string',
           allowNull: true,
-          default: {
-            '@path': '$.traits.language'
-          }
-        },
-        region: {
-          label: 'Region',
-          description: "The profile's region",
-          type: 'string',
-          allowNull: true,
-          default: {
-            '@path': '$.context.location.country'
-          }
+          choices: [
+            { label: 'Subscribed', value: 'subscribed' },
+            { label: 'Unsubscribed', value: 'unsubscribed' }
+          ]
         },
         timezone: {
           label: 'Timezone',
           description:
-            'The profile’s time zone name from IANA Time Zone Database  (e.g., “Europe/Paris”). Only valid time zone values will be set.',
+            "The profile's time zone name from IANA Time Zone Database (e.g., “Europe/Paris”). Only valid time zone values will be set.",
           type: 'string',
-          allowNull: true,
-          default: {
-            '@path': '$.context.timezone'
-          }
+          allowNull: true
         },
-        properties: {
-          label: 'Custom attributes',
-          description: 'The profile’s custom attributes ',
-          type: 'object',
-          default: {
-            '@path': '$.properties'
-          }
-        },
-        batch_size: {
-          label: 'Batch Size',
-          description: 'Maximum number of attributes to include in each batch.',
-          type: 'number',
-          default: 50,
-          unsafe_hidden: true
+        region: {
+          label: 'Region',
+          description:
+            "The profile's region. This can be sent as a locale (e.g., 'en-US') or a country code (e.g., 'US').",
+          type: 'string',
+          allowNull: true
         }
+      },
+      default: {
+        language: { '@path': '$.context.locale' },
+        email_address: {
+          '@if': {
+            exists: { '@path': '$.context.traits.email' },
+            then: { '@path': '$.context.traits.email' },
+            else: { '@path': '$.traits.email' }
+          }
+        },
+        phone_number: {
+          '@if': {
+            exists: { '@path': '$.context.traits.phone' },
+            then: { '@path': '$.context.traits.phone' },
+            else: { '@path': '$.traits.phone' }
+          }
+        },
+        email_marketing: {
+          '@if': {
+            exists: { '@path': '$.context.traits.email_marketing' },
+            then: { '@path': '$.context.traits.email_marketing' },
+            else: { '@path': '$.traits.email_marketing' }
+          }
+        },
+        sms_marketing: {
+          '@if': {
+            exists: { '@path': '$.context.traits.sms_marketing' },
+            then: { '@path': '$.context.traits.sms_marketing' },
+            else: { '@path': '$.traits.sms_marketing' }
+          }
+        },
+        timezone: {
+          '@if': {
+            exists: { '@path': '$.context.timezone' },
+            then: { '@path': '$.context.timezone' },
+            else: { '@path': '$.traits.timezone' }
+          }
+        },
+        region: { '@path': '$.context.locale' }
       }
+    },
+    eventName: {
+      label: 'Event Name',
+      description: 'The name of the event.',
+      type: 'string',
+      default: {
+        '@path': '$.event'
+      }
+    },
+    eventAttributes: {
+      label: 'Event Attributes',
+      description: "An object containining the event's attributes",
+      type: 'object',
+      default: {
+        '@path': '$.properties'
+      },
+      additionalProperties: true
     }
   },
-  perform: (request, data) => {
-    const newPayload = buildProfileJson(data.payload)
-
-    return request('https://api.batch.com/2.5/profiles/update', {
-      method: 'post',
-      json: newPayload
-    })
+  perform: (request, { payload }) => {
+    return send(request, [payload])
+  },
+  performBatch: (request, { payload }) => {
+    return send(request, payload)
   }
 }
 
-function buildProfileJson(data: Payload): Payload[] {
-  // Retrieve the batch size dynamically or default to 50
-  const batchSize = data.attributes?.batch_size || 50
-
-  // Extract identifiers
-  const identifiers = {
-    custom_id: data.identifiers?.custom_id || '' // Unique identifier
-  }
-
-  // Extract standard attributes
-  const attributes = {
-    $email_address: data.attributes?.email_address || null,
-    $email_marketing: data.attributes?.email_marketing || null,
-    $phone_number: data.attributes?.phone_number || null,
-    $sms_marketing: data.attributes?.sms_marketing || null,
-    $language: data.attributes?.language || null,
-    $region: data.attributes?.region || null,
-    $timezone: data.attributes?.timezone || null
-  }
-
-  // Extract custom properties with batch size limitation
-  const customProperties = data.attributes?.properties || {}
-  Object.keys(attributes).forEach((key) => {
-    delete customProperties[key]
+async function send(request: RequestClient, payload: Payload[]) {
+  const json = payload.map(mapPayload)
+  return await request('https://api.batch.com/2.5/profiles/update', {
+    method: 'post',
+    json
   })
-
-  const limitedProperties = Object.keys(customProperties)
-    .slice(0, batchSize) // Limit the size to batchSize
-    .reduce((obj: Record<string, any>, key: string) => {
-      const value = customProperties[key]
-      // Check if the value is an ISO 8601 date and add 'date()' prefix to the key
-      if (isISO8601Date(value as string)) {
-        obj[`date(${key})`] = value
-      }
-      // Check if the value is a valid URL and add 'url()' prefix to the key
-      else if (isValidUrl(value as string)) {
-        obj[`url(${key})`] = value
-      } else {
-        obj[key] = value
-      }
-
-      return obj
-    }, {})
-
-  // Merge standard attributes and custom properties
-  const fullAttributes = { ...attributes, ...limitedProperties }
-
-  // Wrap the output in an array
-  return [
-    {
-      identifiers: identifiers,
-      attributes: fullAttributes
-    }
-  ]
-}
-
-// Utility function to check if a string is in ISO 8601 date format
-function isISO8601Date(value: string): boolean {
-  const iso8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3,6})?Z$/
-  return typeof value === 'string' && iso8601Regex.test(value)
-}
-
-// Utility function to check if a string is a valid URL
-function isValidUrl(value: string): boolean {
-  const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i
-  return typeof value === 'string' && urlRegex.test(value)
 }
 
 export default action
