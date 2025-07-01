@@ -70,7 +70,16 @@ export const content_category: InputField = {
     label: 'Content Category',
     description: 'The category of the content associated with the event.',
     type: 'string',
-    default: { '@path': '$.properties.category' }
+    default: { '@path': '$.properties.category' },
+    depends_on: {
+        'match': 'any',
+        conditions: [
+        {
+            fieldKey: 'show_fields',
+            operator: 'is',
+            value: 'true'
+        }]
+    }
 }
 
 export const content_ids: InputField = {
@@ -98,7 +107,16 @@ export const content_name: InputField = {
     label: 'Content Name',
     description: 'The name of the page or product associated with the event.',
     type: 'string',
-    default: { '@path': '$.properties.name' }
+    default: { '@path': '$.properties.name' },
+    depends_on: {
+        'match': 'any',
+        conditions: [
+        {
+            fieldKey: 'show_fields',
+            operator: 'is',
+            value: 'true'
+        }]
+    }
 }
 
 export const content_type: InputField = {
@@ -197,33 +215,98 @@ export const delivery_category: InputField = {
         { value: 'curbside', label: 'Curbside' },
         { value: 'home_delivery', label: 'Home Delivery' }
     ],
-    default: 'home_delivery'
+    default: 'home_delivery',
+    depends_on: {
+        'match': 'any',
+        conditions: [
+        {
+            fieldKey: 'show_fields',
+            operator: 'is',
+            value: 'true'
+        }]
+    }
 }
 
 export const num_items: InputField = {
     label: 'Number of Items',
     description: 'The number of items when checkout was initiated.',
     type: 'integer',
-    default: { '@path': '$.properties.quantity' }  
+    default: { '@path': '$.properties.quantity' },
+    depends_on: {
+        'match': 'any',
+        conditions: [
+        {
+            fieldKey: 'event_name',
+            operator: 'is',
+            value: ['InitiateCheckout', 'Purchase']
+        },
+        {
+            fieldKey: 'show_fields',
+            operator: 'is',
+            value: 'true'
+        }]
+    }
 }
 
 export const predicted_ltv: InputField = {
     label: 'Predicted LTV',
     description: 'Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.',
-    type: 'number'
+    type: 'number',
+    depends_on: {
+        'match': 'any',
+        conditions: [
+        {
+            fieldKey: 'event_name',
+            operator: 'is',
+            value: ['StartTrial', 'Subscribe']
+        },
+        {
+            fieldKey: 'show_fields',
+            operator: 'is',
+            value: 'true'
+        }]
+    }
 }
 
 export const search_string: InputField = {
     label: 'Search String',
     description: 'The string entered by the user for the search.',
     type: 'string',
-    default: { '@path': '$.properties.query' }
+    default: { '@path': '$.properties.query' },
+    depends_on: {
+        'match': 'any',
+        conditions: [
+        {
+            fieldKey: 'event_name',
+            operator: 'is',
+            value: ['Search']
+        },
+        {
+            fieldKey: 'show_fields',
+            operator: 'is',
+            value: 'true'
+        }]
+    }
 }
 
 export const status: InputField = {
     label: 'Registration Status',
     description: 'The status of the registration. true for completed registrations, false otherwise.',
-    type: 'boolean'
+    type: 'boolean',
+    depends_on: {
+        'match': 'any',
+        conditions: [
+        {
+            fieldKey: 'event_name',
+            operator: 'is',
+            value: ['CompleteRegistration']
+        },
+        {
+            fieldKey: 'show_fields',
+            operator: 'is',
+            value: 'true'
+        }]
+    }
 }
 
 export const value: InputField = {
