@@ -718,6 +718,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   ): Promise<Result[]> {
     const isBatch = Array.isArray(events)
 
+    if (options?.statsContext?.tags !== undefined) {
+      options.statsContext.tags = [...options.statsContext.tags, `partnerAction:${subscription.partnerAction}`]
+    }
+
     const subscriptionStartedAt = time()
     const actionSlug = subscription.partnerAction
     const input = {
