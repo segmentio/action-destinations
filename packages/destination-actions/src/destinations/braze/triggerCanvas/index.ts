@@ -1,8 +1,7 @@
-import { ActionDefinition, APIError, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, APIError, ModifiedResponse, PayloadValidationError, HTTPError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { dynamicFields } from './functions/dynamic-field-functions'
-import { HTTPError } from '@segment/actions-core/*'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Canvas',
