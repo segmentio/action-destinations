@@ -112,6 +112,16 @@ const action: ActionDefinition<Settings, Payload> = {
             value: true
           }
         ]
+      },
+      required: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'broadcast',
+            operator: 'is_not',
+            value: true
+          }
+        ]
       }
     },
     prioritization: {
