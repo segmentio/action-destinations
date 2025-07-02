@@ -9,6 +9,10 @@ export const sendRefreshTokenReq = async (
   auth: any
 ): Promise<RefreshAccessTokenResult> => {
   const { oauth } = settings.dynamicAuthSettings
+  if (oauth?.type === 'noAuth' || settings?.dynamicAuthSettings?.bearer) {
+    return { accessToken: '' }
+  }
+
   const { url, options } = getRequestData(oauth, auth)
   const res = await request<RefreshTokenResponse>(url, options)
 
@@ -54,7 +58,8 @@ const getRequestUrl = (oauth: any, customQuery: any) => {
 
 const getRequestOptions = (oauth: any, auth: any, customHeaders: object, customBody: object): RequestOptions => {
   let bodyParams = {}
-  const { clientId, clientSecret } = auth
+  const clientId = oauth?.clientId ?? auth?.clientId
+  const clientSecret = oauth?.clientSecret ?? auth?.clientSecret
   const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
     Authorization: `Basic ${Buffer.from(clientId + ':' + clientSecret).toString('base64')}`,
