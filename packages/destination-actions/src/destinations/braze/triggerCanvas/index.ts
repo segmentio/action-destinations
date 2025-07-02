@@ -18,7 +18,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
 
     canvas_entry_properties: {
-      label: 'Canvas Entry Properties',
+      label: 'Canvas Entry Propertie',
       description:
         'Optional data that will be used to personalize the canvas message. Personalization key-value pairs that will apply to all users in this request.',
       type: 'object',
