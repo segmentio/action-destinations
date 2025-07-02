@@ -3,6 +3,13 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { dynamicFields } from './functions/dynamic-field-functions'
 
+const prioritizationChoices = [
+  { label: 'Identified', value: 'identified' },
+  { label: 'Unidentified', value: 'unidentified' },
+  { label: 'Most recently updated', value: 'most_recently_updated' },
+  { label: 'Least recently updated', value: 'least_recently_updated' }
+]
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Canvas',
   description: 'Trigger a Braze Canvas to deliver a cross-channel message to the specified user.',
@@ -129,12 +136,14 @@ const action: ActionDefinition<Settings, Payload> = {
         first_priority: {
           label: 'First Priority',
           description: 'First priority in the prioritization sequence',
-          type: 'string'
+          type: 'string',
+          choices: prioritizationChoices
         },
         second_priority: {
           label: 'Second Priority',
           description: 'Second priority in the prioritization sequence',
-          type: 'string'
+          type: 'string',
+          choices: prioritizationChoices
         }
       },
       depends_on: {
@@ -167,6 +176,30 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.broadcast && payload.recipients && payload.recipients.length > 0) {
       throw new PayloadValidationError('When "broadcast" is true, "recipients" list cannot be included.')
     }
+
+    // Apply the top-level prioritization to each recipient if recipients are provided
+    if (payload.recipients?.length && payload.prioritization) {
+      // Convert prioritization object to array
+      const prioritizationArray: string[] = []
+
+      // Only add prioritization if we have values
+      if (payload.prioritization?.first_priority) {
+        prioritizationArray.push(payload.prioritization.first_priority)
+      }
+      if (payload.prioritization?.second_priority) {
+        prioritizationArray.push(payload.prioritization.second_priority)
+      }
+      if (prioritizationArray.length > 0) {
+        payload.recipients = payload.recipients.map((recipient) => ({
+          ...recipient,
+          prioritization: prioritizationArray
+        }))
+      }
+
+      // Remove the top-level prioritization as it's now applied to each recipient
+      delete payload.prioritization
+    }
+
     try {
       return await request(`${settings.endpoint}/canvas/trigger/send`, {
         method: 'POST',
