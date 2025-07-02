@@ -31,10 +31,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Broadcast',
       description:
         'If set to true, the canvas will be sent to all the users in the segment targeted by the canvas. It cannot be used with "recipients".',
-      type: 'boolean',
-      default: {
-        '@path': '$.properties.broadcast'
-      }
+      type: 'boolean'
     },
     recipients: {
       label: 'Recipients',
