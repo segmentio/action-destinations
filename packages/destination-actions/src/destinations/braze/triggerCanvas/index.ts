@@ -153,17 +153,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'A standard audience object to specify the users to send the canvas to. Including "audience" will only send to users in the audience',
       type: 'object',
-      defaultObjectUI: 'keyvalue',
-      depends_on: {
-        match: 'all',
-        conditions: [
-          {
-            fieldKey: 'broadcast',
-            operator: 'is',
-            value: true
-          }
-        ]
-      }
+      defaultObjectUI: 'keyvalue'
     }
   },
   dynamicFields,
