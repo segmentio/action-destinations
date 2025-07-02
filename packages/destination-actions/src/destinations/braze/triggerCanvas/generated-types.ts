@@ -24,7 +24,7 @@ export interface Payload {
      */
     external_user_id?: string
     /**
-     * User alias object to identify the user.
+     * User alias object of the user.
      */
     user_alias?: {
       /**

@@ -56,7 +56,7 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         user_alias: {
           label: 'User Alias',
-          description: 'User alias object to identify the user.',
+          description: 'User alias object of the user.',
           type: 'object',
           properties: {
             alias_name: {
@@ -77,7 +77,6 @@ const action: ActionDefinition<Settings, Payload> = {
             }
           }
         },
-
         email: {
           label: 'Email',
           description: 'Email address of user to receive message.',

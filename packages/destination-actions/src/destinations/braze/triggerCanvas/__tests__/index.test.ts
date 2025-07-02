@@ -398,7 +398,7 @@ describe(`Unit tests for ${destinationSlug}'s ${actionSlug} destination action:`
             alias_name: 'test-alias',
             alias_label: 'test-alias-label'
           },
-          send_to_existing_only: false,
+          send_to_existing_only: true,
           attributes: {
             email: 'test@example.com'
           }

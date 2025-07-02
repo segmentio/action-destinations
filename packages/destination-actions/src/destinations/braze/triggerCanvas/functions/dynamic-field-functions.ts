@@ -41,7 +41,6 @@ export const dynamicFields = {
 
         const canvases = response?.data?.canvases || []
 
-        // If we got less canvases than expected or none, we've reached the end
         if (canvases.length === 0) {
           hasMore = false
         } else {
