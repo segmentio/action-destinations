@@ -1,7 +1,8 @@
-import { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, APIError, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { dynamicFields } from './functions/dynamic-field-functions'
+import { HTTPError } from '@segment/actions-core/*'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Canvas',
@@ -161,17 +162,37 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields,
   perform: async (request, { payload, settings }) => {
-    return request(`${settings.endpoint}/canvas/trigger/send`, {
-      method: 'POST',
-      json: {
-        canvas_id: payload.canvas_id,
-        canvas_entry_properties: payload.canvas_entry_properties,
-        broadcast: payload.broadcast,
-        recipients: payload.recipients,
-        prioritization: payload.prioritization,
-        audience: payload.audience
+    // Validate that either broadcast OR recipients is provided (both are required, but mutually exclusive)
+    if (!payload.broadcast && (!payload.recipients || payload.recipients.length === 0)) {
+      throw new PayloadValidationError('Either "broadcast" must be true or "recipients" list must be provided.')
+    }
+
+    // If broadcast is true, recipients list cannot be included
+    if (payload.broadcast && payload.recipients && payload.recipients.length > 0) {
+      throw new PayloadValidationError('When "broadcast" is true, "recipients" list cannot be included.')
+    }
+    try {
+      return await request(`${settings.endpoint}/canvas/trigger/send`, {
+        method: 'POST',
+        json: {
+          canvas_id: payload.canvas_id,
+          canvas_entry_properties: payload.canvas_entry_properties,
+          broadcast: payload.broadcast,
+          recipients: payload.recipients,
+          prioritization: payload.prioritization,
+          audience: payload.audience
+        }
+      })
+    } catch (error) {
+      // Handle error response format specific to trigger/send endpoint
+      if (error instanceof HTTPError && error.response) {
+        const responseContent = error.response as ModifiedResponse<{ message?: string }>
+        if (responseContent.data?.message) {
+          throw new APIError(responseContent.data.message, error.response.status)
+        }
       }
-    })
+      throw error
+    }
   }
 }
 
