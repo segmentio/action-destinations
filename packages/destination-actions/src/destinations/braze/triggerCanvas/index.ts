@@ -14,10 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'The ID of the canvas to trigger. The canvas must be API-triggered and the status must be "Draft" or "Active".',
       type: 'string',
       required: true,
-      dynamic: true,
-      default: {
-        '@path': '$.properties.canvas_id'
-      }
+      dynamic: true
     },
 
     canvas_entry_properties: {
@@ -104,6 +101,16 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'object',
           defaultObjectUI: 'keyvalue'
         }
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'broadcast',
+            operator: 'is_not',
+            value: true
+          }
+        ]
       }
     },
     prioritization: {
@@ -122,6 +129,16 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Second priority in the prioritization sequence',
           type: 'string'
         }
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'broadcast',
+            operator: 'is_not',
+            value: true
+          }
+        ]
       }
     },
     audience: {
@@ -129,7 +146,17 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'A standard audience object to specify the users to send the canvas to. Including "audience" will only send to users in the audience',
       type: 'object',
-      defaultObjectUI: 'keyvalue'
+      defaultObjectUI: 'keyvalue',
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'broadcast',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
     }
   },
   dynamicFields,
