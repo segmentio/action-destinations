@@ -112,7 +112,8 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
   },
   perform: (cj, { payload }) => {
     const { enterpriseId, pageType, referringChannel, cartSubtotal, items, userId } = payload
-    cj.sitepage(
+
+    cj.sitePage(
       enterpriseId,
       pageType,
       referringChannel,

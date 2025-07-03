@@ -1,7 +1,7 @@
 
 
 export interface CJ {
-  sitepage: (
+  sitePage: (
     enterpriseId: number,
     pageType: string,
     referringChannel?: string,
