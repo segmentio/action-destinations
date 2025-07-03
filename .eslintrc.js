@@ -47,8 +47,7 @@ module.exports = {
     '@typescript-eslint/restrict-template-expressions': 'off',
     '@typescript-eslint/unbound-method': 'off',
     '@typescript-eslint/no-unsafe-argument': 'warn',
-    '@typescript-eslint/no-misused-promises': 'warn',
-    '@typescript-eslint/no-unnecessary-type-assertion': 'warn'
+    '@typescript-eslint/no-misused-promises': 'warn'
   },
   overrides: [
     {
