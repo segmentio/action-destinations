@@ -28,13 +28,19 @@ export interface Payload {
    */
   externalEventId?: string
   /**
-   * The type of event. This name is case sensitive. "Order shipped" and "Order Shipped" would be considered different event types.
+   * Type of subscription
    */
-  type: string
+  subscriptionType: string
   /**
-   * Metadata to associate with the event.
+   * User locale. e.g. "en-US". Either Locale or Signup Source ID is required.
    */
-  properties?: {
-    [k: string]: unknown
-  }
+  locale?: string
+  /**
+   * A unique identifier for the sign up source. Talk to your Attentive represenative. Either Locale or Signup Source ID is required.
+   */
+  signUpSourceId?: string
+  /**
+   * Whether to use single opt-in for the subscription.
+   */
+  singleOptIn?: boolean
 }
