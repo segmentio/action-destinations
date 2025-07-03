@@ -19,7 +19,7 @@ describe('Roadwayai.groupUser', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
 
     const responses = await testDestination.testAction('groupUser', {
       event,
@@ -52,7 +52,7 @@ describe('Roadwayai.groupUser', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
 
     const responses = await testDestination.testAction('groupUser', {
       event,
@@ -99,7 +99,7 @@ describe('Roadwayai.groupUser', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
 
     const responses = await testDestination.testAction('groupUser', {
       event,
@@ -134,7 +134,7 @@ describe('Roadwayai.groupUser', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
 
     const responses = await testDestination.testAction('groupUser', {
       event,
@@ -167,7 +167,7 @@ describe('Roadwayai.groupUser', () => {
     })
     event.timestamp = undefined
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
 
     try {
       await testDestination.testAction('groupUser', {
@@ -206,7 +206,7 @@ describe('Roadwayai.groupUser', () => {
       })
     ]
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/group').reply(200, {})
 
     const responses = await testDestination.testBatchAction('groupUser', {
       events,
