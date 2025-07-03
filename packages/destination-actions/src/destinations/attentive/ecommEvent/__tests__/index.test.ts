@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Definition from '../../index' // adjust path if needed
 import { Settings } from '../../generated-types'
 
