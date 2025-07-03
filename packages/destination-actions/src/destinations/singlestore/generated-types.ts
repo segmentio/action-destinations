@@ -6,10 +6,6 @@ export interface Settings {
    */
   host: string
   /**
-   * The port of the Singlestore database.
-   */
-  port: number
-  /**
    * The username of the Singlestore database.
    */
   username: string
@@ -21,8 +17,4 @@ export interface Settings {
    * The name of the database.
    */
   dbName: string
-  /**
-   * The environment of the Singlestore database.
-   */
-  environment: string
 }

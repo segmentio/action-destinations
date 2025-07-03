@@ -1,3 +1,16 @@
+
+export type CreateTableJSONRequest = {
+  sql: string // The SQL query to create the table
+  database: string // The name of the database where the table will be created 
+}
+
+export type CreateTableJSONResponse = {
+  ok: boolean // Indicates whether the table creation was successful
+  error?: string 
+}
+
+
+
 export interface SingleStoreCreateJSON {
   host: string
   port: number
