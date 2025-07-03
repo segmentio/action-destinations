@@ -180,7 +180,7 @@ export function ensureValidTimestamps(payloads: Payload[], rawData?: Payload[]):
     if (!isValidTimestamp(item.timestamp)) {
       item.timestamp =
         rawData && Array.isArray(rawData) && rawData[index] && isValidTimestamp(rawData[index]?.timestamp)
-          ? item.timestamp
+          ? rawData[index]?.timestamp
           : new Date().toISOString()
     }
   })

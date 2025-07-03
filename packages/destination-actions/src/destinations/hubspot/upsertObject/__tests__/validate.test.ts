@@ -1,4 +1,4 @@
-import { mergeAndDeduplicateById, validate } from '../functions/validation-functions'
+import { mergeAndDeduplicateById, validate, ensureValidTimestamps } from '../functions/validation-functions'
 import { Payload } from '../generated-types'
 
 const payload: Payload = {
@@ -87,6 +87,22 @@ const expectedValidatedPayload: Payload[] = [
   }
 ]
 
+const basePayload = (overrides: Partial<Payload> = {}) => ({
+  object_details: {
+    id_field_name: 'email',
+    id_field_value: 'user@example.com',
+    object_type: 'contact',
+    ...((overrides.object_details as object) || {})
+  },
+  association_sync_mode: 'upsert',
+  enable_batching: true,
+  batch_size: 100,
+  properties: { foo: 'bar' },
+  sensitive_properties: { secret: '123' },
+  timestamp: '2024-01-01T00:00:00.000Z',
+  ...overrides
+})
+
 describe('Hubspot.upsertObject', () => {
   it('validate function should ensure no leading or trailing spaces in properties sent to Hubspot', async () => {
     const validatedPayload = validate([payload])
@@ -95,22 +111,6 @@ describe('Hubspot.upsertObject', () => {
 })
 
 describe('mergeAndDeduplicateById', () => {
-  const basePayload = (overrides: Partial<Payload> = {}) => ({
-    object_details: {
-      id_field_name: 'email',
-      id_field_value: 'user@example.com',
-      object_type: 'contact',
-      ...((overrides.object_details as object) || {})
-    },
-    association_sync_mode: 'upsert',
-    enable_batching: true,
-    batch_size: 100,
-    properties: { foo: 'bar' },
-    sensitive_properties: { secret: '123' },
-    timestamp: '2024-01-01T00:00:00.000Z',
-    ...overrides
-  })
-
   it('returns empty array for empty input', () => {
     expect(mergeAndDeduplicateById([])).toEqual([])
   })
@@ -199,5 +199,32 @@ describe('mergeAndDeduplicateById', () => {
     const payloads: Payload[] = [basePayload({ timestamp: '2024-01-01T00:00:00.000Z' })]
     const result = mergeAndDeduplicateById(payloads)
     expect(result[0]).not.toHaveProperty('timestamp')
+  })
+})
+
+describe('ensureValidTimestamps', () => {
+  it('should keep valid ISO string timestamps unchanged', () => {
+    const now = new Date().toISOString()
+    const payloads = [basePayload({ timestamp: now })]
+    const result = ensureValidTimestamps(payloads)
+    expect(result[0].timestamp).toBe(now)
+  })
+
+  it('should use valid timestamp from rawData if available', () => {
+    const validRawTimestamp = new Date('2023-01-01T00:00:00.000Z').toISOString()
+    const payloads: Payload[] = [basePayload({ timestamp: 'invalid-date' })]
+    const rawData: Payload[] = [basePayload({ timestamp: validRawTimestamp })]
+    const result = ensureValidTimestamps(payloads, rawData)
+    expect(result[0].timestamp).toBe(validRawTimestamp)
+    const ts = Date.parse(result[0].timestamp as string)
+    expect(ts).not.toBeNaN()
+  })
+
+  it('should fallback to current ISO string if rawData timestamp is invalid', () => {
+    const payloads: Payload[] = [basePayload({ timestamp: 'invalid-date' })]
+    const rawData: Payload[] = [basePayload({ timestamp: 'also-invalid' })]
+    const result = ensureValidTimestamps(payloads, rawData)
+    const ts = Date.parse(result[0].timestamp as string)
+    expect(ts).not.toBeNaN()
   })
 })
