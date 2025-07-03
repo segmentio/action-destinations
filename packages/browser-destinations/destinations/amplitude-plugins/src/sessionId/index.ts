@@ -8,16 +8,16 @@ function newSessionId(): number {
   return now()
 }
 
-function startSession() {
+function startSession(eventName = 'session_started') {
   window.analytics
-    .track('session_start', {})
+    .track(eventName, {})
     .then(() => true)
     .catch(() => true)
 }
 
-function endSession() {
+function endSession(eventName = 'session_ended') {
   window.analytics
-    .track('session_end', {})
+    .track(eventName, {})
     .then(() => true)
     .catch(() => true)
 }
@@ -65,7 +65,40 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       type: 'boolean',
       default: false,
       required: false,
-      description: 'Generate session start and session end events. This is useful for tracking user sessions.'
+      description:
+        'Generate session start and session end events. This is useful for tracking user sessions. NOTE: This will generate a Segment track() event which will also get send to all Destinations connected to the JS Source'
+    },
+    sessionStartEvent: {
+      label: 'Session Start Event',
+      type: 'string',
+      default: 'session_started',
+      required: false,
+      description: 'The event name to use for the session start event.',
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'allowSessionTracking',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
+    },
+    sessionEndEvent: {
+      label: 'Session End Event',
+      type: 'string',
+      default: 'session_ended',
+      required: false,
+      description: 'The event name to use for the session end event.',
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'allowSessionTracking',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
     }
   },
   lifecycleHook: 'enrichment',
@@ -94,7 +127,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     if (stale(raw, updated, payload.sessionLength)) {
       id = newSession
       storage.set('analytics_session_id', id)
-      if (payload.allowSessionTracking) startSession()
+      if (payload.allowSessionTracking) startSession(payload.sessionStartEvent)
     } else {
       // we are storing the session id regardless, so it gets synced between different storage mediums
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- id can't be null because of stale check
@@ -104,9 +137,9 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     const withInSessionLimit = withinSessionLimit(newSession, updated)
     if (!withInSessionLimit && payload.allowSessionTracking) {
       // end previous session
-      endSession()
+      endSession(payload.sessionEndEvent)
       // start new session
-      startSession()
+      startSession(payload.sessionStartEvent)
     }
 
     storage.set('analytics_session_id.last_access', newSession)
