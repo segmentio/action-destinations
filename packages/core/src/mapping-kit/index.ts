@@ -9,6 +9,7 @@ import { arrify } from '../arrify'
 import { flattenObject } from './flatten'
 import { evaluateLiquid } from './liquid-directive'
 import { StatsContext } from '../destination-kit'
+import { isLiquidDirective } from './value-keys'
 
 export type InputData = { [key: string]: unknown }
 export type Features = { [key: string]: boolean }
@@ -392,7 +393,12 @@ function resolve(mapping: JSONLike, payload: JSONObject, statsContext?: StatsCon
   }
 
   if (isDirective(mapping)) {
-    return runDirective(mapping, payload, statsContext)
+    if (isLiquidDirective(mapping)) {
+      // Only include stats, and therefore extra fieldKey tags, if the mapping is a liquid directive to save on costs
+      return runDirective(mapping, payload, statsContext)
+    }
+
+    return runDirective(mapping, payload)
   }
 
   if (Array.isArray(mapping)) {
