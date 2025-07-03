@@ -179,7 +179,7 @@ export function ensureValidTimestamps(payloads: Payload[], rawData?: Payload[]):
   payloads.forEach((item, index) => {
     if (!isValidTimestamp(item.timestamp)) {
       item.timestamp =
-        rawData && rawData[index] && isValidTimestamp(rawData[index]?.timestamp)
+        rawData && Array.isArray(rawData) && rawData[index] && isValidTimestamp(rawData[index]?.timestamp)
           ? item.timestamp
           : new Date().toISOString()
     }
