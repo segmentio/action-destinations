@@ -8,6 +8,26 @@ function newSessionId(): number {
   return now()
 }
 
+function startSession() {
+  window.analytics
+    .track('session_start', {})
+    .then(() => true)
+    .catch(() => true)
+}
+
+function endSession() {
+  window.analytics
+    .track('session_end', {})
+    .then(() => true)
+    .catch(() => true)
+}
+
+function withinSessionLimit(newTimeStamp: number, updated: number | null): boolean {
+  // This checks if the new timestamp is within 30 minutes of the last updated timestamp
+  const deltaTime = newTimeStamp - (updated ?? 0)
+  return deltaTime < 30 * 60 * 1000 // 30 minutes
+}
+
 function now(): number {
   return new Date().getTime()
 }
@@ -32,7 +52,6 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
   title: 'Session Plugin',
   description: 'Generates a Session ID and attaches it to every Amplitude browser based event.',
   platform: 'web',
-  hidden: true,
   defaultSubscription: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
   fields: {
     sessionLength: {
@@ -40,6 +59,13 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       type: 'number',
       required: false,
       description: 'Time in milliseconds to be used before considering a session stale.'
+    },
+    allowSessionTracking: {
+      label: 'Allow Session Tracking',
+      type: 'boolean',
+      default: false,
+      required: false,
+      description: 'Generate session start and session end events. This is useful for tracking user sessions.'
     }
   },
   lifecycleHook: 'enrichment',
@@ -68,10 +94,19 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     if (stale(raw, updated, payload.sessionLength)) {
       id = newSession
       storage.set('analytics_session_id', id)
+      if (payload.allowSessionTracking) startSession()
     } else {
       // we are storing the session id regardless, so it gets synced between different storage mediums
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- id can't be null because of stale check
       storage.set('analytics_session_id', id!)
+    }
+
+    const withInSessionLimit = withinSessionLimit(newSession, updated)
+    if (!withInSessionLimit && payload.allowSessionTracking) {
+      // end previous session
+      endSession()
+      // start new session
+      startSession()
     }
 
     storage.set('analytics_session_id.last_access', newSession)
