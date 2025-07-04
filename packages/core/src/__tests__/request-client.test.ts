@@ -276,6 +276,44 @@ describe('request()', () => {
     await server.close()
   })
 
+  it('`signal` should abort the request if `signal` has short duration than `timeout`', async () => {
+    const server = await createTestServer()
+    server.get('/', (_request, response) => {
+      setTimeout(() => {
+        response.end()
+      }, 10001)
+    })
+
+    const request = createInstance()
+
+    await expect(
+      request(server.url, {
+        timeout: 5000,
+        signal: AbortSignal.timeout(4000)
+      })
+    ).rejects.toThrowError('Request was aborted')
+    await server.close()
+  })
+
+  it('`timeout` should abort the request if `signal` has longer duration than `timeout`', async () => {
+    const server = await createTestServer()
+    server.get('/', (_request, response) => {
+      setTimeout(() => {
+        response.end()
+      }, 10001)
+    })
+
+    const request = createInstance()
+
+    await expect(
+      request(server.url, {
+        timeout: 4000,
+        signal: AbortSignal.timeout(5000)
+      })
+    ).rejects.toThrowError('Request timed out after 4000ms')
+    await server.close()
+  })
+
   it('`throwHttpErrors` should not throw for non-2xx status codes when `false`', async () => {
     const server = await createTestServer()
     server.get('/', (_request, response) => {
