@@ -22,6 +22,10 @@ export interface Payload {
    */
   custom_source?: string
   /**
+   * When set to true, the profile will be subscribed as a historical import. This is useful for importing existing profiles into Klaviyo without sending them an email or SMS.
+   */
+  historical_import?: boolean
+  /**
    * The timestamp of when the profile's consent was gathered.
    */
   consented_at?: string | number

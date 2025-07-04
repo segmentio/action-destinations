@@ -261,7 +261,8 @@ export function formatSubscribeProfile(
 export function formatSubscribeRequestBody(
   profiles: SubscribeProfile | SubscribeProfile[],
   list_id: string | undefined,
-  custom_source: string | undefined
+  custom_source: string | undefined,
+  historical_import: boolean | undefined = false
 ) {
   if (!Array.isArray(profiles)) {
     profiles = [profiles]
@@ -272,6 +273,7 @@ export function formatSubscribeRequestBody(
     data: {
       type: 'profile-subscription-bulk-create-job',
       attributes: {
+        historical_import: historical_import ?? false,
         profiles: {
           data: profiles
         }
