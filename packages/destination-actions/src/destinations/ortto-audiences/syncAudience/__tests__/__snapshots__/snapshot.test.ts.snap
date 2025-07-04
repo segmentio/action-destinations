@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for OrttoAudiences's syncAudience destination action: all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "%VsiFv",
+    "audience": Object {
+      "id": "%VsiFv",
+      "mode": "remove",
+    },
+    "ip": "24.231.165.64",
+    "location": Object {
+      "city": "%VsiFv",
+      "country": "%VsiFv",
+      "post_code": "%VsiFv",
+      "state": "%VsiFv",
+    },
+    "message_id": "%VsiFv",
+    "traits": Object {
+      "testType": "%VsiFv",
+    },
+    "user_id": "%VsiFv",
+  },
+]
+`;
+
+exports[`Testing snapshot for OrttoAudiences's syncAudience destination action: required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "%VsiFv",
+    "audience": Object {
+      "id": "%VsiFv",
+      "mode": "remove",
+    },
+    "message_id": "%VsiFv",
+    "traits": Object {
+      "testType": "%VsiFv",
+    },
+    "user_id": "%VsiFv",
+  },
+]
+`;
