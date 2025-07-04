@@ -8,7 +8,7 @@ Read the [README](../README.md) to understand the purpose of this repository and
 
 - [`action-destinations`](../packages/destination-actions): This contains all cloud-mode destinations. All new destinations are registered manually and the destination metadata id is then updated in [index.ts](../packages/destination-actions/src/index.ts).
 - [`browser-destinations`](../packages/browser-destinations): This contains all browser-mode destinations. All new destinations are registered manually and the destination metadata id is then updated in [destination-manifest/index.ts](../packages/destinations-manifest/src/index.ts).
-- [`core`](../packages/core): This contains all the core framework for running the destinations. Any changes made here will affect both cloud-mode and browser-mode destinations. Thorough regression testing is requried for these changes.
+- [`core`](../packages/core): This contains all the core framework for running the destinations. Any changes made here will affect both cloud-mode and browser-mode destinations. Thorough regression testing is required for these changes.
 - [`destination-subscriptions`](../packages/destination-subscriptions): This package validates event payloads against an action's subscription AST.
 - [`browser-destination-runtime`](../packages/browser-destination-runtime): This package contains the runtime for browser-mode destinations, including the logic for executing actions and handling events.
 
