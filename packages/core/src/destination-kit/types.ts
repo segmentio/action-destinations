@@ -83,6 +83,7 @@ export interface ExecuteInput<
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
   readonly subscriptionMetadata?: SubscriptionMetadata
+  readonly signal?: AbortSignal
 }
 
 export interface DynamicFieldResponse {
