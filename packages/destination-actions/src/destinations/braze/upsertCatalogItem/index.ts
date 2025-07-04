@@ -153,6 +153,15 @@ const action: ActionDefinition<Settings, Payload> = {
       maximum: 250,
       minimum: 1
     },
+    object_id: {
+      label: 'Object ID',
+      description:
+        'The unique identifier for the item. Maximum 250 characters. Supported characters: letters, numbers, hyphens, and underscores.',
+      type: 'string',
+      required: true,
+      maximum: 250,
+      minimum: 1
+    },
     enable_batching: {
       type: 'boolean',
       label: 'Batch Data to Braze?',
