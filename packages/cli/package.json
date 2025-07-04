@@ -75,6 +75,7 @@
     "mustache": "^4.2.0",
     "ora": "^5.4.0",
     "prompts": "^2.4.2",
+    "read-pkg-up": "^6.0.0",
     "slugify": "^1.6.1",
     "to-title-case": "^1.0.0",
     "tsconfig-paths": "^3.9.0",
@@ -105,7 +106,8 @@
     "moduleNameMapper": {
       "@segment/actions-core": "<rootDir>/../core/src",
       "@segment/ajv-human-errors": "<rootDir>/../ajv-human-errors/src",
-      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src"
+      "@segment/destination-subscriptions": "<rootDir>/../destination-subscriptions/src",
+      "@segment/browser-destination-runtime/(.*)": "<rootDir>/../browser-destination-runtime/src/$1"
     },
     "globals": {
       "ts-jest": {
