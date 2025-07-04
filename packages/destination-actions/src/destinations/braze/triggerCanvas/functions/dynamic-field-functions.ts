@@ -29,6 +29,7 @@ export const dynamicFields = {
       // Initialize variables for pagination
       let page = 0
       let hasMore = true
+      const MAX_PAGES = 100 // Limit to prevent infinite loops in case of API issues
 
       // Fetch all canvases with pagination
       while (hasMore) {
@@ -41,7 +42,7 @@ export const dynamicFields = {
 
         const canvases = response?.data?.canvases || []
 
-        if (canvases.length === 0) {
+        if (canvases.length === 0 || page >= MAX_PAGES) {
           hasMore = false
         } else {
           // Process this page of canvases

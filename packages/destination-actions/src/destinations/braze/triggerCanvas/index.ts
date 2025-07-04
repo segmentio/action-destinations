@@ -202,14 +202,7 @@ const action: ActionDefinition<Settings, Payload> = {
     try {
       return await request(`${settings.endpoint}/canvas/trigger/send`, {
         method: 'POST',
-        json: {
-          canvas_id: payload.canvas_id,
-          canvas_entry_properties: payload.canvas_entry_properties,
-          broadcast: payload.broadcast,
-          recipients: payload.recipients,
-          prioritization: payload.prioritization,
-          audience: payload.audience
-        }
+        json: payload
       })
     } catch (error) {
       // Handle error response format specific to trigger/send endpoint
