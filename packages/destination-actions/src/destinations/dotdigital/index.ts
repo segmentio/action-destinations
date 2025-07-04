@@ -4,8 +4,14 @@ import type { Settings } from './generated-types'
 import removeContactFromList from './removeContactFromList'
 import enrolContact from './enrolContact'
 import addContactToList from './addContactToList'
+import sendTransactionalSms from './sendTransactionalSms'
+import sendSms from './sendSms'
+import sendEmailCampaign from './sendEmailCampaign'
+import sendTransactionalEmail from './sendTransactionalEmail'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Dotdigital',
+  description: 'Send Segment events and user profile data to Dotdigital.',
   slug: 'actions-dotdigital',
   description: 'Send Segment events and user profile data to Dotdigital.',
   mode: 'cloud',
@@ -52,7 +58,11 @@ const destination: DestinationDefinition<Settings> = {
   actions: {
     removeContactFromList,
     enrolContact,
-    addContactToList
+    addContactToList,
+    sendTransactionalSms,
+    sendSms,
+    sendEmailCampaign,
+    sendTransactionalEmail
   }
 }
 
