@@ -1,5 +1,6 @@
 import type { InputField } from '@segment/actions-core'
-import { ACTION_SOURCES } from './types'
+import { ACTION_SOURCES } from '../types'
+import { getDependenciesFor } from './depends-on'
 
 export const event_config: InputField = {
     label: 'Event Configuration',
@@ -38,20 +39,7 @@ export const event_config: InputField = {
             label: 'Custom Event Name',
             description: 'Custom event name to send to Facebook',
             type: 'string',
-            depends_on: {
-                match: 'any',
-                conditions: [
-                {
-                    fieldKey: 'event_name',
-                    operator: 'is',
-                    value: 'CustomEvent'
-                },
-                {
-                    fieldKey: 'show_fields',
-                    operator: 'is',
-                    value: 'true'
-                }]
-            }
+            depends_on: getDependenciesFor('custom_event_name')
         },
         show_fields: {
             label: 'Show all fields',
@@ -62,7 +50,7 @@ export const event_config: InputField = {
     },
     default: {
         show_fields: false,
-        default: {'@path': '$.event'}
+        custom_event_name: {'@path': '$.event'}
     }
 }
 
@@ -71,15 +59,7 @@ export const content_category: InputField = {
     description: 'The category of the content associated with the event.',
     type: 'string',
     default: { '@path': '$.properties.category' },
-    depends_on: {
-        'match': 'any',
-        conditions: [
-        {
-            fieldKey: 'show_fields',
-            operator: 'is',
-            value: 'true'
-        }]
-    }
+    depends_on: getDependenciesFor('content_category')
 }
 
 export const content_ids: InputField = {
@@ -87,20 +67,7 @@ export const content_ids: InputField = {
     description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
     type: 'string',
     multiple: true,
-    depends_on: {
-        'match': 'any',
-        conditions: [
-        {
-            fieldKey: 'event_name',
-            operator: 'is',
-            value: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'InitiateCheckout', 'Purchase', 'Search', 'ViewContent']
-        },
-        {
-            fieldKey: 'show_fields',
-            operator: 'is',
-            value: 'true'
-        }]
-    }
+    depends_on: getDependenciesFor('content_ids')
 }
 
 export const content_name: InputField = {
@@ -108,15 +75,7 @@ export const content_name: InputField = {
     description: 'The name of the page or product associated with the event.',
     type: 'string',
     default: { '@path': '$.properties.name' },
-    depends_on: {
-        'match': 'any',
-        conditions: [
-        {
-            fieldKey: 'show_fields',
-            operator: 'is',
-            value: 'true'
-        }]
-    }
+    depends_on: getDependenciesFor('content_name')
 }
 
 export const content_type: InputField = {
@@ -128,20 +87,7 @@ export const content_type: InputField = {
         { value: 'product', label: 'Product' },
         { value: 'product_group', label: 'Product Group' }
     ],
-    depends_on: {
-        'match': 'any',
-        conditions: [
-        {
-            fieldKey: 'event_name',
-            operator: 'is',
-            value: [ 'AddToCart', 'Purchase', 'Search', 'ViewContent']
-        },
-        {
-            fieldKey: 'show_fields',
-            operator: 'is',
-            value: 'true'
-        }]
-    }
+    depends_on: getDependenciesFor('content_type')
 }
 
 export const contents: InputField = {
@@ -169,41 +115,25 @@ export const contents: InputField = {
             type: 'number'
         }
     },
-    depends_on: {
-        'match': 'any',
-        conditions: [
-        {
-            fieldKey: 'event_name',
-            operator: 'is',
-            value: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'InitiateCheckout', 'Purchase', 'Search', 'ViewContent']
-        },
-        {
-            fieldKey: 'show_fields',
-            operator: 'is',
-            value: 'true'
-        }]
-    }
-}
+    default: {
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            id: { '@path': '$.id' },
+            quantity: { '@path': '$.quantity' },
+            item_price: { '@path': '$.price' }
+          }
+        ]
+    },
+    depends_on: getDependenciesFor('contents')
+}    
 
 export const currency: InputField = {
     label: 'Currency',
     description: 'The currency for the value specified. Currency must be a valid ISO 4217 three-digit currency code.',
     type: 'string',
     default: { '@path': '$.properties.currency' },
-        depends_on: {
-        'match': 'any',
-        conditions: [
-        {
-            fieldKey: 'event_name',
-            operator: 'is',
-            value: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'CompleteRegistration', 'InitiateCheckout', 'Lead', 'Purchase', 'Search', 'StartTrial', 'Subscribe', 'ViewContent']
-        },
-        {
-            fieldKey: 'show_fields',
-            operator: 'is',
-            value: 'true'
-        }]
-    }
+    depends_on: getDependenciesFor('currency')
 }
 
 export const delivery_category: InputField = {
@@ -216,15 +146,7 @@ export const delivery_category: InputField = {
         { value: 'home_delivery', label: 'Home Delivery' }
     ],
     default: 'home_delivery',
-    depends_on: {
-        'match': 'any',
-        conditions: [
-        {
-            fieldKey: 'show_fields',
-            operator: 'is',
-            value: 'true'
-        }]
-    }
+    depends_on: getDependenciesFor('delivery_category')
 }
 
 export const num_items: InputField = {
@@ -232,40 +154,14 @@ export const num_items: InputField = {
     description: 'The number of items when checkout was initiated.',
     type: 'integer',
     default: { '@path': '$.properties.quantity' },
-    depends_on: {
-        'match': 'any',
-        conditions: [
-        {
-            fieldKey: 'event_name',
-            operator: 'is',
-            value: ['InitiateCheckout', 'Purchase']
-        },
-        {
-            fieldKey: 'show_fields',
-            operator: 'is',
-            value: 'true'
-        }]
-    }
+    depends_on: getDependenciesFor('num_items')
 }
 
 export const predicted_ltv: InputField = {
     label: 'Predicted LTV',
     description: 'Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.',
     type: 'number',
-    depends_on: {
-        'match': 'any',
-        conditions: [
-        {
-            fieldKey: 'event_name',
-            operator: 'is',
-            value: ['StartTrial', 'Subscribe']
-        },
-        {
-            fieldKey: 'show_fields',
-            operator: 'is',
-            value: 'true'
-        }]
-    }
+    depends_on: getDependenciesFor('predicted_ltv')
 }
 
 export const search_string: InputField = {
@@ -273,40 +169,14 @@ export const search_string: InputField = {
     description: 'The string entered by the user for the search.',
     type: 'string',
     default: { '@path': '$.properties.query' },
-    depends_on: {
-        'match': 'any',
-        conditions: [
-        {
-            fieldKey: 'event_name',
-            operator: 'is',
-            value: ['Search']
-        },
-        {
-            fieldKey: 'show_fields',
-            operator: 'is',
-            value: 'true'
-        }]
-    }
+    depends_on: getDependenciesFor('search_string')
 }
 
 export const status: InputField = {
     label: 'Registration Status',
     description: 'The status of the registration. true for completed registrations, false otherwise.',
     type: 'boolean',
-    depends_on: {
-        'match': 'any',
-        conditions: [
-        {
-            fieldKey: 'event_name',
-            operator: 'is',
-            value: ['CompleteRegistration']
-        },
-        {
-            fieldKey: 'show_fields',
-            operator: 'is',
-            value: 'true'
-        }]
-    }
+    depends_on: getDependenciesFor('status')
 }
 
 export const value: InputField = {
@@ -314,20 +184,7 @@ export const value: InputField = {
     description: 'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
     type: 'number',
     default: { '@path': '$.properties.currency' },
-    depends_on: {
-        'match': 'any',
-        conditions: [
-        {
-            fieldKey: 'event_name',
-            operator: 'is',
-            value: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'CompleteRegistration', 'InitiateCheckout', 'Lead', 'Purchase', 'Search', 'StartTrial', 'Subscribe', 'ViewContent']
-        },
-        {
-            fieldKey: 'show_fields',
-            operator: 'is',
-            value: 'true'
-        }]
-    }
+    depends_on: getDependenciesFor('value')
 }
 
 export const custom_data: InputField = {
@@ -456,19 +313,7 @@ export const AllFields = {
     content_ids, 
     content_name,
     content_type, 
-    contents: {
-      ...contents,
-      default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            id: { '@path': '$.id' },
-            quantity: { '@path': '$.quantity' },
-            item_price: { '@path': '$.price' }
-          }
-        ]
-      }
-    },
+    contents,
     currency,
     delivery_category,
     num_items, 

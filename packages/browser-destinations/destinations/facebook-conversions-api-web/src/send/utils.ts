@@ -1,6 +1,6 @@
-import { LDU, UserData, Options, ActionSource } from './types'
+import { LDU, UserData, Options, ActionSource } from '../types'
 import { US_STATE_CODES, COUNTRY_CODES} from './constants'
-import { Payload } from './send/generated-types'
+import { Payload } from './generated-types'
 
 export function getLDU(ldu: keyof typeof LDU) {
     const lduObj = LDU[ldu]
@@ -8,16 +8,16 @@ export function getLDU(ldu: keyof typeof LDU) {
 }
 
 export function buildOptions(payload: Payload): Options | undefined {
-  const { eventID, eventSourceUrl, actionSource, userData } = payload    
-  
-  const options: Options = { 
-    eventID,
-    eventSourceUrl,
-    actionSource: actionSource as ActionSource | undefined,
-    userData: santizeUserData(userData as UserData) 
-  }
+    const { eventID, eventSourceUrl, actionSource, userData } = payload    
+    
+    const options: Options = { 
+        eventID,
+        eventSourceUrl,
+        actionSource: actionSource as ActionSource | undefined,
+        userData: santizeUserData(userData as UserData) 
+    }
 
-  return Object.values(options).some(Boolean) ? options : undefined
+    return Object.values(options).some(Boolean) ? options : undefined
 }
 
 export function santizeUserData(userData: UserData): UserData | undefined {
@@ -52,53 +52,39 @@ function formatDate(isoDate?: string): string | undefined {
 }
 
 function sanitizeState(state?: string): string | undefined {
-  if (typeof state !== 'string' || !state.trim()) {
+    if (typeof state !== 'string' || !state.trim()) {
+        return undefined
+    }
+
+    const normalized = state.replace(/\s+/g, '').toLowerCase()
+
+    const abbreviation = US_STATE_CODES.get(normalized)
+    if (abbreviation) {
+        return abbreviation
+    }
+
+    if (/^[a-z]{2}$/i.test(normalized)) {
+        return normalized.toLowerCase()
+    }
+
     return undefined
-  }
-
-  const normalized = state.replace(/\s+/g, '').toLowerCase()
-
-  const abbreviation = US_STATE_CODES.get(normalized)
-  if (abbreviation) {
-    return abbreviation
-  }
-
-  if (/^[a-z]{2}$/i.test(normalized)) {
-    return normalized.toLowerCase()
-  }
-
-  return undefined
 }
 
 function sanitizeCountry(country?: string): string | undefined {
-  if (typeof country !== 'string' || !country.trim()) {
+    if (typeof country !== 'string' || !country.trim()) {
+        return undefined
+    }
+
+    const normalized = country.replace(/\s+/g, '').toUpperCase()
+
+    const abbreviation = COUNTRY_CODES.get(normalized)
+    if (abbreviation) {
+        return abbreviation
+    }
+
+    if (/^[A-Z]{2}$/.test(normalized)) {
+        return normalized.toLowerCase()
+    }
+
     return undefined
-  }
-
-  const normalized = country.replace(/\s+/g, '').toUpperCase()
-
-  const abbreviation = COUNTRY_CODES.get(normalized)
-  if (abbreviation) {
-    return abbreviation
-  }
-
-  if (/^[A-Z]{2}$/.test(normalized)) {
-    return normalized.toLowerCase()
-  }
-
-  return undefined
 }
-
-// export function show(fieldName: FieldName): boolean {
-//   const conditions = []
-//   switch(fieldName){
-//     case : {
-//       conditions.push(
-//       {
-//         fieldKey: 'environment',
-//         operator: 'is_not',
-//         value: ''
-//       })
-//     } 
-//   }
-// }

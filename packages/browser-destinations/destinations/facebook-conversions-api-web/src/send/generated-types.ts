@@ -1,15 +1,18 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface Payload {
-  custom_event_name?:string 
   /**
    * Specify the type of Facebook Conversions API event to send.
    */
   event_config: {
     /**
-     * Facebook Conversions API Event Name to send.
+     * Facebook Conversions API Event Name to send. Select 'Custom Event' to send a non standard event.
      */
     event_name: string
+    /**
+     * Custom event name to send to Facebook
+     */
+    custom_event_name?: string
     /**
      * Show all fields, even those which are not relevant to the selected Event Name.
      */

@@ -4,6 +4,7 @@ import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import send from './send'
 import { initScript } from './init-script'
 import { FBClient, LDU } from './types'
+import { defaultValues } from '@segment/actions-core'
 
 declare global {
   interface Window {
@@ -61,7 +62,24 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
 
   actions: {
     send
-  }
+  },
+  presets: [
+    {
+      name: 'AddPaymentInfo',
+      subscribe: 'event = "Payment Info Added"',
+      partnerAction: 'send',
+      mapping: 
+      { 
+        ...defaultValues(send.fields),
+        event_config: {
+          event_name: 'AddPaymentInfo',
+          custom_event_name: null,
+          show_fields: false
+        }
+      },
+      type: 'automatic'
+    },
+  ]
 }
 
 export default browserDestination(destination)

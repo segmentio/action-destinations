@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 import { LDU } from './types'
-import { getLDU } from './utils';
+import { getLDU } from './send/utils';
 
 export function initScript(pixelId: string, ldu: keyof typeof LDU, disablePushState?: boolean ) {
   (function(f, b, e, v, n, t, s) {
