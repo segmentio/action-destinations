@@ -79,6 +79,61 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
       },
       type: 'automatic'
     },
+    {
+      name: 'AddToCart',
+      subscribe: 'event = "Product Added"',
+      partnerAction: 'send',
+      mapping: 
+      { 
+        ...defaultValues(send.fields),
+        event_config: {
+          event_name: 'AddToCart',
+          custom_event_name: null,
+          show_fields: false
+        },
+        content: {
+          id: { '@path': '$.properties.product_id' },
+          quantity: { '@path': '$.properties.quantity' },
+          item_price: { '@path': '$.properties.price' }
+        }
+      },
+      type: 'automatic'
+    },    
+    {
+      name: 'AddToWishlist',
+      subscribe: 'event = "Product Added To Wishlist"',
+      partnerAction: 'send',
+      mapping: 
+      { 
+        ...defaultValues(send.fields),
+        event_config: {
+          event_name: 'AddToWishlist',
+          custom_event_name: null,
+          show_fields: false
+        },
+        content: {
+          id: { '@path': '$.properties.product_id' },
+          quantity: { '@path': '$.properties.quantity' },
+          item_price: { '@path': '$.properties.price' }
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'CompleteRegistration',
+      subscribe: 'event = "Signed Up"',
+      partnerAction: 'send',
+      mapping: 
+      { 
+        ...defaultValues(send.fields),
+        event_config: {
+          event_name: 'CompleteRegistration',
+          custom_event_name: null,
+          show_fields: false
+        }
+      },
+      type: 'automatic'
+    }
   ]
 }
 

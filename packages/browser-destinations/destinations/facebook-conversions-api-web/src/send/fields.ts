@@ -1,6 +1,7 @@
 import type { InputField } from '@segment/actions-core'
 import { ACTION_SOURCES } from '../types'
 import { getDependenciesFor } from './depends-on'
+import { CURRENCY_ISO_CODES } from './constants'
 
 export const event_config: InputField = {
     label: 'Event Configuration',
@@ -67,7 +68,29 @@ export const content_ids: InputField = {
     description: "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
     type: 'string',
     multiple: true,
-    depends_on: getDependenciesFor('content_ids')
+    allowNull: false,
+    minimum: 1,
+    depends_on: getDependenciesFor('content_ids'),
+    required: {
+        match: 'all',
+        conditions: [
+        {
+            fieldKey: 'event_config.event_name',
+            operator: 'is',
+            value: ['AddToCart', 'Purchase', 'ViewContent']
+        },
+        {
+            fieldKey: 'contents', 
+            operator: 'is_not',
+            value: undefined
+        },
+        {
+            fieldKey: 'contents', 
+            operator: 'is_not',
+            value: ''
+        }
+        ]
+    }
 }
 
 export const content_name: InputField = {
@@ -95,6 +118,8 @@ export const contents: InputField = {
     description: 'A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.',
     type: 'object',
     multiple: true,
+    allowNull: false,
+    minimum: 1,
     additionalProperties: true,
     properties: {
         id: {
@@ -125,7 +150,27 @@ export const contents: InputField = {
           }
         ]
     },
-    depends_on: getDependenciesFor('contents')
+    depends_on: getDependenciesFor('contents'),
+    required: {
+        match: 'all',
+        conditions: [
+        {
+            fieldKey: 'event_config.event_name',
+            operator: 'is',
+            value: ['AddToCart', 'Purchase', 'ViewContent']
+        },
+        {
+            fieldKey: 'content_ids', 
+            operator: 'is_not',
+            value: undefined
+        },
+        {
+            fieldKey: 'content_ids', 
+            operator: 'is_not',
+            value: ''
+        }
+        ]
+    }
 }    
 
 export const currency: InputField = {
@@ -133,7 +178,23 @@ export const currency: InputField = {
     description: 'The currency for the value specified. Currency must be a valid ISO 4217 three-digit currency code.',
     type: 'string',
     default: { '@path': '$.properties.currency' },
-    depends_on: getDependenciesFor('currency')
+    depends_on: getDependenciesFor('currency'),
+    choices:(() => {
+        return [...CURRENCY_ISO_CODES].map(code => ({
+            value: code,
+            label: code
+        }))
+    })(),
+    required: {
+        match: 'all',
+        conditions: [
+            {
+                fieldKey: 'event_config.event_name',
+                operator: 'is',
+                value: 'Purchase'
+            }
+        ]
+    }
 }
 
 export const delivery_category: InputField = {
@@ -184,7 +245,17 @@ export const value: InputField = {
     description: 'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
     type: 'number',
     default: { '@path': '$.properties.currency' },
-    depends_on: getDependenciesFor('value')
+    depends_on: getDependenciesFor('value'),
+    required: {
+        match: 'all',
+        conditions: [
+            {
+                fieldKey: 'event_config.event_name',
+                operator: 'is',
+                value: 'Purchase'
+            }
+        ]
+    }
 }
 
 export const custom_data: InputField = {

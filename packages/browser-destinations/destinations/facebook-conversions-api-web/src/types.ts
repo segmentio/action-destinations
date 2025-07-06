@@ -35,10 +35,8 @@ export type FieldName =
 
 export type FBClient = {
     (command: 'init', pixelId: string): void
-   
     (command: 'trackSingle', pixelId: string, event: FBStandardEventType, params?: FBEvent, options?: Options): void
     (command: 'trackSingleCustom', pixelId: string, event: string, params?: FBEvent, options?: Options): void
-
     (command: 'track', event: FBStandardEventType, params?: FBEvent): void
     (command: 'trackCustom', event: string, params?: FBEvent): void
 }
