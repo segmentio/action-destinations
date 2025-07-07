@@ -1,21 +1,14 @@
-import { ActionDefinition, DynamicFieldResponse } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { GetDatabaseJSON, MaybeTimeoutError } from '../types'
+import { ExecJSONRequest, ExecJSONResponse } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Data',
-  description: 'Send data to Singlestore.',
+  description: 'Send data to SingleStore.',
   defaultSubscription:
     'type = "track" or type = "screen" or type = "identify" or type = "page" or type = "group" or type = "alias"',
   fields: {
-    database: {
-      label: 'Database',
-      description: 'The name of the SingleStore database to send data to.',
-      type: 'string',
-      required: true,
-      dynamic: true
-    },
     message: {
       label: 'Message',
       description: 'The complete event payload.',
@@ -25,83 +18,51 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.'
       }
     },
-    enable_batching: {
-      label: 'Enable Batching',
-      description: 'Whether to enable batching of messages before sending.',
-      type: 'boolean',
-      required: true,
-      unsafe_hidden: true,
-      readOnly: true,
-      default: true
-    },
     max_batch_size: {
       label: 'Max Batch Size',
-      description: 'The maximum number of messages to include in a batch.',
+      description: 'The maximum number of rows to include in a batch.',
       type: 'number',
       required: true,
-      unsafe_hidden: true,
-      readOnly: true,
-      default: 1000
+      default: 100
     }
   },
-  dynamicFields: {
-    database: async (_,__): Promise<DynamicFieldResponse> => {
-      // const destination_id = destinationId(settings)
-      // const json: GetDatabaseJSON = {
-      //   destinationIdentifier: destination_id
-      // }
-      // try {
-      //   await request<GetDatabaseJSON>(getDatabaseURL, {
-      //     method: 'POST',
-      //     headers: {
-      //       'x-security-key': process.env.ACTIONS_SINGLE_STORE_X_SECURITY_KEY as string
-      //     },
-      //     json
-      //   })
-      // } catch (err) {
-      //   return {
-      //     choices: [],
-      //     nextPage: '',
-      //     error: {
-      //       message: (err as MaybeTimeoutError).response?.data?.error?.message ?? 'Unknown error',
-      //       code: (err as MaybeTimeoutError).response?.data?.error?.code ?? 'Unknown error'
-      //     }
-      //   }
-      // }
 
-      return Promise.resolve({
-        choices: [
-          {
-            label: "db",
-            value: "db"
-          }
-        ]
-      } as DynamicFieldResponse)
+  performBatch: async (request, { payload, settings }) => {
+    const { host, port, username, password, dbName, tableName } = settings
+    const url = `https://${host}:${port}/api/v2/exec`
+    const encodedCredentials = btoa(`${username}:${password}`)
+
+    const sqlValuesClause = Array(payload.length).fill('(?)').join(', ');
+    const sql = `INSERT INTO ${tableName} VALUES ${sqlValuesClause}`
+
+    const requestData: ExecJSONRequest = {
+      sql,
+      database: dbName,
+      args: payload.map(item => item.message)
+    }
+
+    const response = await request<ExecJSONResponse>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Basic ${encodedCredentials}`
+      },
+      json: requestData,
+      throwHttpErrors: false
+    })
+
+    const responeData: ExecJSONResponse = response.data
+    if (responeData.ok) {
+      return responeData
+    }
+    else {
+      throw new IntegrationError(`Failed to insert data: ${responeData.error || 'Unknown error'}`, 'Bad Request', 400)
     }
   },
-  perform: async (_) => {
-    // checkChamber()
-    // const { kafkaConfig, kafkaTopic } = getKafkaConfiguration(settings)
-    // const producerRecord = getProducerRecord(kafkaTopic, payload.message)
 
-    // try {
-    //   const producer = new Kafka(kafkaConfig).producer({
-    //     createPartitioner: Partitioners.DefaultPartitioner
-    //   })
-    //   await producer.connect()
-    //   await producer.send(producerRecord)
-    //   await producer.disconnect()
-    // } catch (error) {
-    //   throw new IntegrationError(
-    //     `Kafka Connection Error: ${(error as KafkaJSError).message}`,
-    //     'KAFKA_CONNECTION_ERROR',
-    //     400
-    //   )
-    // }
+  perform: async (request, { payload, settings }) => {
+    return await action.performBatch?.(request, { payload: [payload], settings })
   },
-  // performBatch: async (request, { payload, settings }) => {
-
-  // }
 }
 
 export default action
