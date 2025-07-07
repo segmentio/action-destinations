@@ -1,107 +1,140 @@
-import { ActionDefinition, DynamicFieldResponse } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { GetDatabaseJSON, MaybeTimeoutError } from '../types'
+import {send} from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Data',
-  description: 'Send data to Singlestore.',
-  defaultSubscription:
-    'type = "track" or type = "screen" or type = "identify" or type = "page" or type = "group" or type = "alias"',
+  description: 'Send data to SingleStore.',
+  defaultSubscription: 'type = "track" or type = "screen" or type = "identify" or type = "page" or type = "group" or type = "alias"',
   fields: {
-    database: {
-      label: 'Database',
-      description: 'The name of the SingleStore database to send data to.',
+    messageid: {
+      label: 'Message ID',
+      description: 'A unique identifier for the message.',
       type: 'string',
       required: true,
-      dynamic: true
-    },
-    message: {
-      label: 'Message',
-      description: 'The complete event payload.',
-      type: 'object',
-      required: true,
       default: {
-        '@path': '$.'
+        '@path': '$.messageId'
       }
     },
-    enable_batching: {
-      label: 'Enable Batching',
-      description: 'Whether to enable batching of messages before sending.',
-      type: 'boolean',
+    timestamp: {
+      label: 'Timestamp',
+      description: 'The timestamp of the event.',
+      type: 'string',
       required: true,
-      unsafe_hidden: true,
-      readOnly: true,
-      default: true
+      default: {
+        '@path': '$.timestamp'
+      }
+    },
+    type: {
+      label: 'Type',
+      description: 'The type of the event (e.g., "track", "identify", "page", "screen", "group", "alias").',
+      type: 'string',
+      required: true,
+      choices: [
+        { label: 'Track', value: 'track' },
+        { label: 'Identify', value: 'identify' },
+        { label: 'Page', value: 'page' },
+        { label: 'Screen', value: 'screen' },
+        { label: 'Group', value: 'group' },
+        { label: 'Alias', value: 'alias' }
+      ],
+      default: {
+        '@path': '$.type'
+      }
+    },
+    event: {
+      label: 'Event',
+      description: 'The name of the event. Only required for "track" events.',
+      type: 'string',
+      required: {
+          conditions: [{ fieldKey: 'type', operator: 'is', value: 'track' }]
+      },
+      default: {
+        '@path': '$.event'
+      }
+    },
+    name: {
+      label: 'Name',
+      description: 'The name of the page or screen.',
+      type: 'string',
+      default: {
+        '@path': '$.name'
+      }
+    },
+    properties: {
+      label: 'Properties',
+      description: 'The properties of the track, page or screen event.',
+      type: 'object',
+      default: {
+        '@path': '$.properties'
+      }
+    },
+    userId: {
+      label: 'User ID',
+      description: 'The user ID associated with the event.',
+      type: 'string',
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    anonymousId: {
+      label: 'Anonymous ID',
+      description: 'The anonymous ID associated with the event.',
+      type: 'string',
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
+    groupId: {
+      label: 'Group ID',
+      description: 'The group ID associated with the event.',
+      type: 'string',
+      default: {
+        '@path': '$.groupId'
+      }
+    },
+    traits: {
+      label: 'Traits',
+      description: 'The traits of the user associated with the event.',
+      type: 'object',
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits' },
+          then: { '@path': '$.context.traits' },
+          else: { '@path': '$.traits' }
+        } 
+      }
+    },
+    context: {
+      label: 'Context',
+      description: 'The context of the event. Contains user environment information.',
+      type: 'object',
+      default: {
+        '@path': '$.context'
+      }
     },
     max_batch_size: {
       label: 'Max Batch Size',
-      description: 'The maximum number of messages to include in a batch.',
+      description: 'The maximum number of rows to include in a batch.',
       type: 'number',
       required: true,
-      unsafe_hidden: true,
-      readOnly: true,
-      default: 1000
+      default: 100
+    },
+    enable_batching: {
+        type: 'boolean',
+        label: 'Enable Batching',
+        description: 'Batch events to SingleStore',
+        default: true,
+        unsafe_hidden: true
     }
   },
-  dynamicFields: {
-    database: async (_,__): Promise<DynamicFieldResponse> => {
-      // const destination_id = destinationId(settings)
-      // const json: GetDatabaseJSON = {
-      //   destinationIdentifier: destination_id
-      // }
-      // try {
-      //   await request<GetDatabaseJSON>(getDatabaseURL, {
-      //     method: 'POST',
-      //     headers: {
-      //       'x-security-key': process.env.ACTIONS_SINGLE_STORE_X_SECURITY_KEY as string
-      //     },
-      //     json
-      //   })
-      // } catch (err) {
-      //   return {
-      //     choices: [],
-      //     nextPage: '',
-      //     error: {
-      //       message: (err as MaybeTimeoutError).response?.data?.error?.message ?? 'Unknown error',
-      //       code: (err as MaybeTimeoutError).response?.data?.error?.code ?? 'Unknown error'
-      //     }
-      //   }
-      // }
-
-      return Promise.resolve({
-        choices: [
-          {
-            label: "db",
-            value: "db"
-          }
-        ]
-      } as DynamicFieldResponse)
-    }
+  perform: async (request, { payload, settings }) => {
+    return await send(request, [payload], settings) 
   },
-  perform: async (_) => {
-    // checkChamber()
-    // const { kafkaConfig, kafkaTopic } = getKafkaConfiguration(settings)
-    // const producerRecord = getProducerRecord(kafkaTopic, payload.message)
-
-    // try {
-    //   const producer = new Kafka(kafkaConfig).producer({
-    //     createPartitioner: Partitioners.DefaultPartitioner
-    //   })
-    //   await producer.connect()
-    //   await producer.send(producerRecord)
-    //   await producer.disconnect()
-    // } catch (error) {
-    //   throw new IntegrationError(
-    //     `Kafka Connection Error: ${(error as KafkaJSError).message}`,
-    //     'KAFKA_CONNECTION_ERROR',
-    //     400
-    //   )
-    // }
-  },
-  // performBatch: async (request, { payload, settings }) => {
-
-  // }
+  performBatch: async (request, { payload, settings }) => {
+    return await send(request, payload, settings) 
+  }
 }
 
 export default action
