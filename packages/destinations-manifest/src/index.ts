@@ -73,3 +73,4 @@ register('66cc766ef4b1c152177239a0', '@segment/analytics-browser-actions-reddit-
 register('66cc76e29693c9e5591bf029', '@segment/analytics-browser-actions-nextdoor-plugins')
 register('682db6914f35aafb2757ef24', '@segment/analytics-browser-actions-dub-plugins')
 register('68383577d2c19626da376944', '@segment/analytics-browser-actions-reddit-pixel')
+register('686b6e058e93b64b2fe576a3', '@segment/analytics-browser-actions-facebook-conversions-api-web')

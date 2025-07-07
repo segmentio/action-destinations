@@ -51,6 +51,7 @@
     "@segment/analytics-browser-actions-vwo": "^1.90.0",
     "@segment/analytics-browser-actions-wiseops": "^1.88.0",
     "@segment/analytics-browser-hubble-web": "^1.73.0",
+    "@segment/analytics-browser-actions-facebook-conversions-api-web": "^1.0.0",
     "@segment/browser-destination-runtime": "^1.86.0"
   }
 }
