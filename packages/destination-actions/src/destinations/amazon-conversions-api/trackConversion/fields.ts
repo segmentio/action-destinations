@@ -367,7 +367,7 @@ export const fields: Record<string, InputField> = {
   },
   customAttributes: {
     label: 'Custom Attributes',
-    description: 'Custom attributes associated with the event to provide additional context.',
+    description: 'Custom attributes associated with the event to provide additional context. Only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.',
     type: 'object',
     multiple: true,
     required: false,
@@ -379,17 +379,6 @@ export const fields: Record<string, InputField> = {
         description: 'Name of the custom attribute. Only letters, numbers and the underscore character are allowed.',
         type: 'string',
         required: true
-      },
-      dataType: {
-        label: 'Data Type',
-        description: 'Data type of the custom attribute.',
-        type: 'string',
-        required: false,
-        choices: [
-          { label: 'String', value: 'STRING' },
-          { label: 'Number', value: 'NUMBER' },
-          { label: 'Boolean', value: 'BOOLEAN' }
-        ]
       },
       value: {
         label: 'Value',

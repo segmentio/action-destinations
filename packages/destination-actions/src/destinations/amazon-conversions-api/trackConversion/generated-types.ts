@@ -116,17 +116,13 @@ export interface Payload {
     gpp?: string
   }
   /**
-   * Custom attributes associated with the event to provide additional context.
+   * Custom attributes associated with the event to provide additional context. Only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.
    */
   customAttributes?: {
     /**
      * Name of the custom attribute. Only letters, numbers and the underscore character are allowed.
      */
     name: string
-    /**
-     * Data type of the custom attribute.
-     */
-    dataType?: string
     /**
      * Value of the custom attribute. Max length 256 characters.
      */
