@@ -19,7 +19,7 @@ export interface Payload {
    */
   profileAttributes?: {
     /**
-     * The profile's language. This can be sent as a locale (e.g., 'en-US') or a language code (e.g., 'en').
+     * The profile's language. This can be sent as a locale (e.g. 'en-US') or a language code (e.g. 'en').
      */
     language?: string | null
     /**
@@ -35,7 +35,7 @@ export interface Payload {
      */
     email_marketing?: string | null
     /**
-     * The profile's marketing SMS subscription. Setting to 'Reset' will reset the marketing SMS subscription.
+     * The profile's marketing SMS subscription. Setting to null will reset the marketing SMS subscription.
      */
     sms_marketing?: string | null
     /**

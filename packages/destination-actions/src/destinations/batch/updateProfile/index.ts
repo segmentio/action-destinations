@@ -6,12 +6,12 @@ import { mapPayload } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update User Profile',
-  description: 'Sends user events or creates and updates user profiles in Batch.',
+  description: 'Sends user events and create or updates user profiles in Batch.',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields: {
     identifiers: {
       label: 'Identifiers',
-      description: "User identifiers",
+      description: 'User identifiers',
       type: 'object',
       required: true,
       properties: {
@@ -36,13 +36,14 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     profileAttributes: {
       label: 'Profile attributes',
-      description: "Attributes for the user profile",
+      description: 'Attributes for the user profile',
       type: 'object',
       additionalProperties: true,
       properties: {
         language: {
           label: 'Language',
-          description: "The profile's language. This can be sent as a locale (e.g., 'en-US') or a language code (e.g., 'en').",
+          description:
+            "The profile's language. This can be sent as a locale (e.g. 'en-US') or a language code (e.g. 'en').",
           type: 'string',
           allowNull: true
         },
@@ -72,7 +73,7 @@ const action: ActionDefinition<Settings, Payload> = {
         sms_marketing: {
           label: 'SMS marketing subscribe',
           description:
-            "The profile's marketing SMS subscription. Setting to 'Reset' will reset the marketing SMS subscription.",
+            "The profile's marketing SMS subscription. Setting to null will reset the marketing SMS subscription.",
           type: 'string',
           allowNull: true,
           choices: [
@@ -82,13 +83,15 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         timezone: {
           label: 'Timezone',
-          description: "The profile's time zone name from IANA Time Zone Database (e.g., “Europe/Paris”). Only valid time zone values will be set.",
+          description:
+            "The profile's time zone name from IANA Time Zone Database (e.g., “Europe/Paris”). Only valid time zone values will be set.",
           type: 'string',
           allowNull: true
         },
         region: {
           label: 'Region',
-          description: "The profile's region. This can be sent as a locale (e.g., 'en-US') or a country code (e.g., 'US').",
+          description:
+            "The profile's region. This can be sent as a locale (e.g., 'en-US') or a country code (e.g., 'US').",
           type: 'string',
           allowNull: true
         }
@@ -123,8 +126,14 @@ const action: ActionDefinition<Settings, Payload> = {
             else: { '@path': '$.traits.sms_marketing' }
           }
         },
-        timezone: {'@path': '$.traits.timezone'},
-        region: {'@path': '$.context.locale'}
+        timezone: {
+          '@if': {
+            exists: { '@path': '$.context.timezone' },
+            then: { '@path': '$.context.timezone' },
+            else: { '@path': '$.traits.timezone' }
+          }
+        },
+        region: { '@path': '$.context.locale' }
       }
     },
     eventName: {
@@ -141,19 +150,18 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       default: {
         '@path': '$.properties'
-      },
-      additionalProperties: true
+      }
     }
   },
-  perform: (request, {payload}) => {
+  perform: (request, { payload }) => {
     return send(request, [payload])
   },
-  performBatch: (request, {payload}) => {
+  performBatch: (request, { payload }) => {
     return send(request, payload)
   }
 }
 
-async function  send(request: RequestClient, payload: Payload[]){
+async function send(request: RequestClient, payload: Payload[]) {
   const json = payload.map(mapPayload)
   return await request('https://api.batch.com/2.5/profiles/update', {
     method: 'post',

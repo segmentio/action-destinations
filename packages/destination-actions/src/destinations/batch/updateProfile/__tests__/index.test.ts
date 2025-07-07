@@ -11,10 +11,7 @@ const settings = {
 const testDestination = createTestIntegration(Destination)
 
 describe('Batch.updateProfile', () => {
-  // TODO: Test my action
   it('should process required fields correctly', async () => {
-    const action = Destination.actions.updateProfile
-
     const eventData = {
       receivedAt: '2025-01-02T14:18:45.187Z',
       timestamp: '2025-01-02T14:18:42.235Z',
@@ -42,13 +39,12 @@ describe('Batch.updateProfile', () => {
       properties: eventData
     })
 
-    const responses = await testDestination.testAction(action.slug, {
+    const responses = await testDestination.testAction('updateProfile', {
       event: event,
       mapping: event.properties,
       settings: settings,
       auth: undefined
     })
-    console.log('testAction : ' + testDestination.testAction)
 
     const request = responses[0].request
     const rawBody = await request.text()

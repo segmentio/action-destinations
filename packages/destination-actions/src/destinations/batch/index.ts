@@ -24,18 +24,25 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request) => {
-      return await request('https://api.batch.com/2.2/profiles/update', {
+      return await request('https://api.batch.com/2.5/profiles/update', {
         method: 'POST',
-        body: JSON.stringify({ installation_id: 'test-installation-id' }) // Sample body for test
+
+        body: JSON.stringify([
+          {
+            identifiers: {
+              custom_id: 'test-custom-id'
+            }
+          }
+        ])
       })
     }
   },
   extendRequest({ settings }) {
     return {
       headers: {
-        'Content-Type': 'application/json', 
-        Authorization: `Bearer ${settings.apiToken}`, 
-        'X-Batch-Project': `${settings.projectKey}` 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${settings.apiToken}`,
+        'X-Batch-Project': `${settings.projectKey}`
       }
     }
   },
