@@ -22,17 +22,17 @@ function endSession(eventName = 'session_ended') {
     .catch(() => true)
 }
 
-function withinSessionLimit(newTimeStamp: number, updated: number | null): boolean {
-  // This checks if the new timestamp is within 30 minutes of the last updated timestamp
+const THIRTY_MINUTES = 30 * 60000
+
+function withinSessionLimit(newTimeStamp: number, updated: number | null, length: number = THIRTY_MINUTES): boolean {
+  // This checks if the new timestamp is within the specified length of the last updated timestamp
   const deltaTime = newTimeStamp - (updated ?? 0)
-  return deltaTime < 30 * 60 * 1000 // 30 minutes
+  return deltaTime < length
 }
 
 function now(): number {
   return new Date().getTime()
 }
-
-const THIRTY_MINUTES = 30 * 60000
 
 function stale(id: number | null, updated: number | null, length: number = THIRTY_MINUTES): id is null {
   if (id === null || updated === null) {
@@ -123,6 +123,12 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     const raw = storage.get('analytics_session_id')
     const updated = storage.get('analytics_session_id.last_access')
 
+    const withInSessionLimit = withinSessionLimit(newSession, updated, payload.sessionLength)
+    if (!withInSessionLimit && payload.allowSessionTracking) {
+      // end previous session
+      endSession(payload.sessionEndEvent)
+    }
+
     let id: number | null = raw
     if (stale(raw, updated, payload.sessionLength)) {
       id = newSession
@@ -132,14 +138,6 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
       // we are storing the session id regardless, so it gets synced between different storage mediums
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- id can't be null because of stale check
       storage.set('analytics_session_id', id!)
-    }
-
-    const withInSessionLimit = withinSessionLimit(newSession, updated)
-    if (!withInSessionLimit && payload.allowSessionTracking) {
-      // end previous session
-      endSession(payload.sessionEndEvent)
-      // start new session
-      startSession(payload.sessionStartEvent)
     }
 
     storage.set('analytics_session_id.last_access', newSession)
