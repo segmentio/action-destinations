@@ -66,7 +66,7 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
   presets: [
     {
       name: 'AddPaymentInfo',
-      subscribe: 'event = "Payment Info Added"',
+      subscribe: 'event = "Payment Info Entered"',
       partnerAction: 'send',
       mapping: 
       { 
@@ -130,6 +130,71 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
           event_name: 'CompleteRegistration',
           custom_event_name: null,
           show_fields: false
+        }
+      },
+      type: 'automatic'
+    }, 
+    {
+      name: 'InitiateCheckout',
+      subscribe: 'event = "Checkout Started"',
+      partnerAction: 'send',
+      mapping: 
+      { 
+        ...defaultValues(send.fields),
+        event_config: {
+          event_name: 'InitiateCheckout',
+          custom_event_name: null,
+          show_fields: false
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Purchase',
+      subscribe: 'event = "Order Completed"',
+      partnerAction: 'send',
+      mapping: 
+      { 
+        ...defaultValues(send.fields),
+        event_config: {
+          event_name: 'Purchase',
+          custom_event_name: null,
+          show_fields: false
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Search',
+      subscribe: 'event = "Products Searched"',
+      partnerAction: 'send',
+      mapping: 
+      { 
+        ...defaultValues(send.fields),
+        event_config: {
+          event_name: 'Search',
+          custom_event_name: null,
+          show_fields: false
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'ViewContent',
+      subscribe: 'event = "Product Viewed"',
+      partnerAction: 'send',
+      mapping: 
+      { 
+        ...defaultValues(send.fields),
+        event_config: {
+          event_name: 'ViewContent',
+          custom_event_name: null,
+          show_fields: false
+        },
+        content: {
+          id: { '@path': '$.properties.product_id' },
+          quantity: { '@path': '$.properties.quantity' },
+          item_price: { '@path': '$.properties.price' }
         }
       },
       type: 'automatic'
