@@ -165,6 +165,10 @@ function validate(payloads: Payload[]): void {
 }
 
 function extractUsers(payloads: Payload[]) {
+  // sort by time in descending order
+  // This is important because if a user is added and removed in the same batch,
+  // we want to ensure that the last action is taken.
+  payloads = payloads.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
   const addUsers: CohortChanges = { user_ids: new Set(), device_ids: new Set(), aliases: new Set() }
   const removeUsers: CohortChanges = {
     user_ids: new Set(),
@@ -178,11 +182,12 @@ function extractUsers(payloads: Payload[]) {
     const userEnteredOrRemoved: boolean = event_properties[`${personas_audience_key}`] as boolean
     const user = userEnteredOrRemoved ? addUsers : removeUsers
 
-    if (external_id) {
+    // If the user is already in the cohort, we don't need to add them again.
+    if (external_id && !addUsers.user_ids?.has(external_id) && !removeUsers.user_ids?.has(external_id)) {
       user?.user_ids?.add(external_id)
-    } else if (device_id) {
+    } else if (device_id && !addUsers.device_ids?.has(device_id) && !removeUsers.device_ids?.has(device_id)) {
       user?.device_ids?.add(device_id)
-    } else if (user_alias) {
+    } else if (user_alias && !addUsers.aliases?.has(user_alias) && !removeUsers.aliases?.has(user_alias)) {
       user?.aliases?.add(user_alias)
     }
   })
