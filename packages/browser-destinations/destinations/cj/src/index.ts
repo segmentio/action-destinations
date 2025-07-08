@@ -4,8 +4,9 @@ import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import { initializePixel } from './init-script'
 import { CJ } from './types'
 
-
 import sitePage from './sitePage'
+
+import order from './order'
 
 declare global {
   interface Window {
@@ -25,16 +26,22 @@ export const destination: BrowserDestinationDefinition<Settings, CJ> = {
       description: 'Your Commission Junction Tag ID.',
       type: 'number',
       required: true
+    },
+    actionTrackerId: {
+      label: 'Action Tracker ID',
+      description: 'Used with the "Order" Action only. Can be overridden at the Action level. This is a static value provided by CJ. Each account may have multiple actions and each will be referenced by a different actionTrackerId value.',
+      type: 'string'
     }
   },
   initialize: async ({ settings }, deps) => {
-    initializePixel(settings)  
+    initializePixel(settings)
     await deps.resolveWhen(() => window.cj != null, 100)
-    return window.cj 
+    return window.cj
   },
 
   actions: {
-    sitePage
+    sitePage,
+    order
   }
 }
 

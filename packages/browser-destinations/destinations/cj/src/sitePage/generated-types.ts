@@ -1,7 +1,10 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface Payload {
-    userId?: string
+  /**
+   * A unique ID assigned by you to the user.
+   */
+  userId?: string
   /**
    * Your CJ Enterprise ID.
    */

@@ -3,10 +3,9 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { CJ } from '../types'
 
-// Change from unknown to the partner SDK types
 const action: BrowserActionDefinition<Settings, CJ, Payload> = {
   title: 'Site Page',
-  description: '',
+  description: 'Send site page data to CJ.',
   defaultSubscription: 'type = "page"',
   platform: 'web',
   fields: {
@@ -64,7 +63,7 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
       label: 'Cart Subtotal',
       description: 'The cart subtotal to be sent to CJ.',
       type: 'number',
-      required: false,
+      required: false
     },
     items: {
       label: 'Items',
@@ -111,16 +110,7 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
     }
   },
   perform: (cj, { payload }) => {
-    const { enterpriseId, pageType, referringChannel, cartSubtotal, items, userId } = payload
-
-    cj.sitePage(
-      enterpriseId,
-      pageType,
-      referringChannel,
-      cartSubtotal,
-      items,
-      userId
-    )
+    cj.sitePage = payload
   }
 }
 

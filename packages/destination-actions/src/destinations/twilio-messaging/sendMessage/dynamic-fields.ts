@@ -268,7 +268,7 @@ export async function dynamicContentVariables(request: RequestClient, payload: P
 
   if (variables.length === 0) {
     return createErrorResponse(
-      'No Variables found for the selected Content Template. If variable are required please createthem in Twilio first.'
+      'No Variables found for the selected Content Template. If variable are required please create them in Twilio first.'
     )
   }
 
