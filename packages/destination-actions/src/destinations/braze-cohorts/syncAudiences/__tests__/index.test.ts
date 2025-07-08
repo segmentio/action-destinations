@@ -477,4 +477,273 @@ describe('BrazeCohorts.syncAudiences', () => {
     expect(responses[0].options.json).toMatchSnapshot()
     expect(responses[1].options.json).toMatchSnapshot()
   })
+
+  it('should dedupe add users in batch events', async () => {
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
+    const timestamp = new Date()
+    const timestampWithDelay = timestamp
+    timestampWithDelay.setMinutes(timestamp.getMinutes() + 1)
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        ...event,
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: true
+        },
+        userId: 'test-user-id',
+        timestamp: timestamp.toISOString()
+      }),
+      createTestEvent({
+        context: {
+          personas: {
+            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+            computation_key: 'j_o_jons__step_1_ns3i7'
+          }
+        },
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: true
+        },
+        userId: 'test-user-id',
+        timestamp: timestampWithDelay.toISOString()
+      })
+    ]
+    const responses = await testDestination.testBatchAction('syncAudiences', {
+      events,
+      settings: {
+        endpoint: 'https://rest.iad-01.braze.com',
+        client_secret: 'valid_client_secret_key'
+      },
+      useDefaultMappings: true,
+      mapping: {
+        personas_audience_key: 'j_o_jons__step_1_ns3i7'
+      }
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(201)
+    expect(responses[1].status).toBe(201)
+    expect(responses[1].options.json).toMatchObject({
+      cohort_changes: expect.arrayContaining([
+        expect.objectContaining({
+          user_ids: ['test-user-id'],
+          aliases: [],
+          device_ids: []
+        })
+      ])
+    })
+  })
+
+  it('should dedupe across add and remove users in batch events by timestamp', async () => {
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
+    const timestamp = new Date()
+    const timestampWithDelay = new Date()
+    timestampWithDelay.setMinutes(timestamp.getMinutes() + 1)
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        ...event,
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: true
+        },
+        userId: 'test-user-id',
+        timestamp: timestamp.toISOString()
+      }),
+      createTestEvent({
+        context: {
+          personas: {
+            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+            computation_key: 'j_o_jons__step_1_ns3i7'
+          }
+        },
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: false
+        },
+        userId: 'test-user-id',
+        timestamp: timestampWithDelay.toISOString()
+      })
+    ]
+    const responses = await testDestination.testBatchAction('syncAudiences', {
+      events,
+      settings: {
+        endpoint: 'https://rest.iad-01.braze.com',
+        client_secret: 'valid_client_secret_key'
+      },
+      useDefaultMappings: true,
+      mapping: {
+        personas_audience_key: 'j_o_jons__step_1_ns3i7'
+      }
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(201)
+    expect(responses[1].status).toBe(201)
+    expect(responses[1].options.json).toMatchObject({
+      cohort_changes: expect.arrayContaining([
+        expect.objectContaining({
+          user_ids: ['test-user-id'],
+          aliases: [],
+          device_ids: [],
+          should_remove: true
+        })
+      ])
+    })
+  })
+
+  it('should dedupe across add and remove users in batch events by timestamp for device_ids', async () => {
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
+    const timestamp = new Date()
+    const timestampWithDelay = new Date()
+    timestampWithDelay.setMinutes(timestamp.getMinutes() + 1)
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        context: {
+          personas: {
+            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+            computation_key: 'j_o_jons__step_1_ns3i7'
+          },
+          device: {
+            id: 'test-device-id'
+          }
+        },
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: true
+        },
+        timestamp: timestamp.toISOString()
+      }),
+      createTestEvent({
+        context: {
+          personas: {
+            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+            computation_key: 'j_o_jons__step_1_ns3i7'
+          },
+          device: {
+            id: 'test-device-id'
+          }
+        },
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: false
+        },
+        timestamp: timestampWithDelay.toISOString()
+      })
+    ]
+    const responses = await testDestination.testBatchAction('syncAudiences', {
+      events,
+      settings: {
+        endpoint: 'https://rest.iad-01.braze.com',
+        client_secret: 'valid_client_secret_key'
+      },
+      useDefaultMappings: true,
+      mapping: {
+        personas_audience_key: 'j_o_jons__step_1_ns3i7',
+        device_id: {
+          '@path': '$.context.device.id'
+        },
+        external_id: {
+          '@path': '$.notGiven'
+        }
+      }
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(201)
+    expect(responses[1].status).toBe(201)
+    expect(responses[1].options.json).toMatchObject({
+      cohort_changes: expect.arrayContaining([
+        expect.objectContaining({
+          user_ids: [],
+          aliases: [],
+          device_ids: ['test-device-id'],
+          should_remove: true
+        })
+      ])
+    })
+  })
+
+  it('should dedupe across add and remove users in batch events by timestamp for aliases', async () => {
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
+    const timestamp = new Date()
+    const timestampWithDelay = new Date()
+    timestampWithDelay.setMinutes(timestamp.getMinutes() + 1)
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        context: {
+          personas: {
+            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+            computation_key: 'j_o_jons__step_1_ns3i7'
+          },
+          traits: {
+            email: 'test@example.com'
+          }
+        },
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: true
+        },
+        timestamp: timestampWithDelay.toISOString()
+      }),
+      createTestEvent({
+        context: {
+          personas: {
+            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+            computation_key: 'j_o_jons__step_1_ns3i7'
+          },
+          traits: {
+            email: 'test@example.com'
+          }
+        },
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: false
+        },
+        timestamp: timestamp.toISOString()
+      })
+    ]
+    const responses = await testDestination.testBatchAction('syncAudiences', {
+      events,
+      settings: {
+        endpoint: 'https://rest.iad-01.braze.com',
+        client_secret: 'valid_client_secret_key'
+      },
+      useDefaultMappings: true,
+      mapping: {
+        personas_audience_key: 'j_o_jons__step_1_ns3i7',
+        external_id: {
+          '@path': '$.notGiven'
+        },
+        user_alias: {
+          alias_name: 'email',
+          alias_label: {
+            '@path': '$.context.traits.email'
+          }
+        }
+      }
+    })
+
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(201)
+    expect(responses[1].status).toBe(201)
+    expect(responses[1].options.json).toMatchObject({
+      cohort_changes: expect.arrayContaining([
+        expect.objectContaining({
+          user_ids: [],
+          aliases: [
+            {
+              alias_label: 'test@example.com',
+              alias_name: 'email'
+            }
+          ],
+          device_ids: [],
+          should_remove: undefined
+        })
+      ])
+    })
+  })
 })
