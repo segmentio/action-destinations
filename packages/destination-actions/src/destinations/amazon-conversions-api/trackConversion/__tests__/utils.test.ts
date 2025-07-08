@@ -590,14 +590,71 @@ describe('trackConversion utils', () => {
           amznAdStorage: 'GRANTED',
           amznUserData: 'GRANTED'
         },
-        customAttributes: [
-          { name: 'color', dataType: 'STRING', value: 'blue' },
-          { name: 'size', dataType: 'STRING', value: 'medium' }
-        ],
+        customAttributes: {
+          color: 'blue',
+          size: 'medium',
+          age: 30,
+          stringNum: "9099", // should stay as string
+          stringBool: 'true', // should stay as string
+          stringNegBool: 'false', // should stay as string
+          isMember: true,
+          preferences: { newsletter: true, notifications: false }, // should stringify object
+          tags: ['premium', 'loyalty', 9099], // should stringify array
+          iAmNull: null, // should be ignored
+          iAmUndefined: undefined // should be ignored
+        },
         enable_batching: true
       }
 
       const result = prepareEventData(payload, settings)
+
+      const customAttributes = [
+        {
+          dataType: "STRING",
+          name: "color",
+          value: "blue"
+        },
+        {
+          dataType: "STRING",
+          name: "size",
+          value: "medium"
+        },
+        {
+          dataType: "NUMBER",
+          name: "age",
+          value: "30"
+        },
+        {
+          dataType: "STRING",
+          name: "stringNum",
+          value: "9099"
+        },
+        {
+          dataType: "STRING",
+          name: "stringBool",
+          value: "true"
+        },
+        {
+          dataType: "STRING",
+          name: "stringNegBool",
+          value: "false"
+        },
+        {
+          dataType: "BOOLEAN",
+          name: "isMember",
+          value: "true"
+        },
+        {
+          dataType: "STRING",
+          name: "preferences",
+          value: "{\"newsletter\":true,\"notifications\":false}"
+        },
+        {
+          dataType: "STRING",
+          name: "tags",
+          value: "[\"premium\",\"loyalty\",9099]"
+        }
+      ]
 
       // Check all optional fields are included
       expect(result.value).toBe(99.99)
@@ -606,7 +663,7 @@ describe('trackConversion utils', () => {
       expect(result.clientDedupeId).toBe('dedup-123')
       expect(result.dataProcessingOptions).toEqual(['LIMITED_DATA_USE'])
       expect(result.consent).toBeDefined()
-      expect(result.customAttributes).toEqual(payload.customAttributes)
+      expect(result.customAttributes).toEqual(customAttributes)
     })
   })
 })

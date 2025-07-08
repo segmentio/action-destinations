@@ -119,19 +119,8 @@ export interface Payload {
    * Custom attributes associated with the event to provide additional context.
    */
   customAttributes?: {
-    /**
-     * Name of the custom attribute. Only letters, numbers and the underscore character are allowed.
-     */
-    name: string
-    /**
-     * Data type of the custom attribute.
-     */
-    dataType?: string
-    /**
-     * Value of the custom attribute. Max length 256 characters.
-     */
-    value: string
-  }[]
+    [k in string]: unknown
+  }
   /**
    * The Amazon impression ID associated with the event.
    */

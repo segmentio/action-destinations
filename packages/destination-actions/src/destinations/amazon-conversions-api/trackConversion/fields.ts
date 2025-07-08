@@ -369,35 +369,9 @@ export const fields: Record<string, InputField> = {
     label: 'Custom Attributes',
     description: 'Custom attributes associated with the event to provide additional context.',
     type: 'object',
-    multiple: true,
     required: false,
-    defaultObjectUI: 'arrayeditor',
-    additionalProperties: false,
-    properties: {
-      name: {
-        label: 'Name',
-        description: 'Name of the custom attribute. Only letters, numbers and the underscore character are allowed.',
-        type: 'string',
-        required: true
-      },
-      dataType: {
-        label: 'Data Type',
-        description: 'Data type of the custom attribute.',
-        type: 'string',
-        required: false,
-        choices: [
-          { label: 'String', value: 'STRING' },
-          { label: 'Number', value: 'NUMBER' },
-          { label: 'Boolean', value: 'BOOLEAN' }
-        ]
-      },
-      value: {
-        label: 'Value',
-        description: 'Value of the custom attribute. Max length 256 characters.',
-        type: 'string',
-        required: true
-      }
-    }
+    additionalProperties: true,
+    defaultObjectUI: 'keyvalue'
   },
   amazonImpressionId: {
     label: 'Amazon impression ID',

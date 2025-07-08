@@ -43,7 +43,6 @@ describe('trackConversion fields', () => {
         expect(fields.dataProcessingOptions?.multiple).toBe(true)
         expect(fields.consent?.type).toBe('object')
         expect(fields.customAttributes?.type).toBe('object')
-        expect(fields.customAttributes?.multiple).toBe(true)
         expect(fields.enable_batching.type).toBe('boolean')
         expect(fields.batch_size?.type).toBe('number')
     })
@@ -109,15 +108,5 @@ describe('trackConversion fields', () => {
         expect(fields.consent?.properties?.amznUserData).toBeDefined()
         expect(fields.consent?.properties?.tcf).toBeDefined()
         expect(fields.consent?.properties?.gpp).toBeDefined()
-    })
-
-    it('should define customAttributes with proper nested structure', () => {
-        expect(fields.customAttributes?.properties).toBeDefined()
-        expect(fields.customAttributes?.properties?.name).toBeDefined()
-        expect(fields.customAttributes?.properties?.name.required).toBe(true)
-        expect(fields.customAttributes?.properties?.dataType).toBeDefined()
-        expect(fields.customAttributes?.properties?.dataType?.choices).toContainEqual({ label: 'String', value: 'STRING' })
-        expect(fields.customAttributes?.properties?.value).toBeDefined()
-        expect(fields.customAttributes?.properties?.value.required).toBe(true)
     })
 })
