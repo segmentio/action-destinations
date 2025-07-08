@@ -83,6 +83,13 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       unsafe_hidden: true,
       default: 50000
+    },
+    compress_file: {
+      label: 'GZIP Compress File',
+      description: 'Compress the file with GZIP before uploading it to SFTP. Recommended for faster uploads.',
+      type: 'boolean',
+      required: false,
+      default: true
     }
   },
   perform: async (
@@ -146,7 +153,8 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
       sftpInfo: {
         sftpUsername: input.payloads[0].sftp_username,
         sftpPassword: input.payloads[0].sftp_password,
-        sftpFolderPath: input.payloads[0].sftp_folder_path
+        sftpFolderPath: input.payloads[0].sftp_folder_path,
+        gzipCompressFile: input.payloads[0].compress_file
       }
     })
   }

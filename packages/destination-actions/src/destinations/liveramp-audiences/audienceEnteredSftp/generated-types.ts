@@ -45,4 +45,8 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
+  /**
+   * Compress the file with GZIP before uploading it to SFTP. Recommended for faster uploads.
+   */
+  compress_file?: boolean
 }

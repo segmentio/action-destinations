@@ -53,4 +53,8 @@ export interface Payload {
    * Optional path within the S3 bucket where the files will be uploaded to. If not provided, files will be uploaded to the root of the bucket. Example: "folder1/folder2"
    */
   s3_aws_bucket_path?: string
+  /**
+   * Compress the file with GZIP before uploading it to SFTP. Recommended for faster uploads.
+   */
+  compress_file?: boolean
 }

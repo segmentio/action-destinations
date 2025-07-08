@@ -92,6 +92,13 @@ const action: ActionDefinition<Settings, Payload> = {
         'Optional path within the S3 bucket where the files will be uploaded to. If not provided, files will be uploaded to the root of the bucket. Example: "folder1/folder2"',
       required: false,
       type: 'string'
+    },
+    compress_file: {
+      label: 'GZIP Compress File',
+      description: 'Compress the file with GZIP before uploading it to SFTP. Recommended for faster uploads.',
+      type: 'boolean',
+      required: false,
+      default: true
     }
   },
   perform: async (
@@ -162,7 +169,8 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
         s3Region: input.payloads[0].s3_aws_region,
         s3AccessKeyId: input.payloads[0].s3_aws_access_key,
         s3SecretAccessKey: input.payloads[0].s3_aws_secret_key,
-        s3BucketPath: input.payloads[0].s3_aws_bucket_path
+        s3BucketPath: input.payloads[0].s3_aws_bucket_path,
+        gzipCompressFile: input.payloads[0].compress_file
       }
     })
   }

@@ -17,6 +17,7 @@ interface SendToAWSRequest {
     sftpUsername?: string
     sftpPassword?: string
     sftpFolderPath?: string
+    gzipCompressFile?: boolean
   }
   s3Info?: {
     s3BucketName?: string
@@ -24,6 +25,7 @@ interface SendToAWSRequest {
     s3AccessKeyId?: string
     s3SecretAccessKey?: string
     s3BucketPath?: string
+    gzipCompressFile?: boolean
   }
 }
 
