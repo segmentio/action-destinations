@@ -107,8 +107,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The keys to use for batching the events.',
       type: 'string',
       unsafe_hidden: true,
-      default: ['cohort_name', 'cohort_id', 'event_properties'], // This ensures all payloads from same audience are batched together.
-      // Event Properties ensures audience exited and entered events are batched together.
+      default: ['cohort_name', 'cohort_id'],
       multiple: true,
       required: false
     }
