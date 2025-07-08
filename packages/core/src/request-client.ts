@@ -228,6 +228,17 @@ export class RequestClientError extends CustomError {
   }
 }
 
+export class RequestTimeoutError extends CustomError {
+  code: string
+  status: number
+
+  constructor(message = 'Request timed out before receiving a response') {
+    super(message)
+    this.code = 'REQUESTTIMEOUTERROR'
+    this.status = 408
+  }
+}
+
 /**
  * Given a request, reject the request when a timeout is exceeded
  */
@@ -279,6 +290,7 @@ class RequestClient {
       signals.push(this.options.signal)
       this.options.timeout = options?.timeout ?? false
     } else {
+      // Apply the default timeout unless explicitly set to false
       this.options.timeout = options?.timeout ?? DEFAULT_REQUEST_TIMEOUT
     }
 
@@ -313,6 +325,9 @@ class RequestClient {
       response = await this.fetch()
     } catch (err) {
       if ((err as Error)?.name === 'AbortError') {
+        if (this.request.signal?.reason?.name === 'TimeoutError') {
+          throw new RequestTimeoutError()
+        }
         throw new RequestClientError()
       }
       throw err
