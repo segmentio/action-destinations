@@ -78,7 +78,7 @@ describe('Liveramp Audiences', () => {
         mapping: {
           s3_aws_access_key: 's3_aws_access_key',
           s3_aws_secret_key: 's3_aws_secret_key',
-          s3_aws_bucket_name: 's3_aws_bucket_name',
+          s3_aws_bucket_name: 's3-aws-bucket-name',
           s3_aws_region: 's3_aws_region',
           audience_key: 'audience_key',
           delimiter: ',',
@@ -106,7 +106,7 @@ describe('Liveramp Audiences', () => {
           mapping: {
             s3_aws_access_key: 's3_aws_access_key',
             s3_aws_secret_key: 's3_aws_secret_key',
-            s3_aws_bucket_name: 's3_aws_bucket_name',
+            s3_aws_bucket_name: 's3-aws-bucket-name',
             s3_aws_region: 's3_aws_region',
             audience_key: 'audience_key',
             delimiter: ',',
@@ -131,6 +131,38 @@ describe('Liveramp Audiences', () => {
       }
     })
 
+    it(`should throw error if S3 bucket name is invalid`, async () => {
+      try {
+        await testDestination.executeBatch('audienceEnteredS3', {
+          events: mockedEvents,
+          mapping: {
+            s3_aws_access_key: 's3_aws_access_key',
+            s3_aws_secret_key: 's3_aws_secret_key',
+            s3_aws_bucket_name: 'for-liveramp/folder01/folder_001/',
+            s3_aws_region: 's3_aws_region',
+            audience_key: 'audience_key',
+            delimiter: ',',
+            filename: 'filename.csv',
+            enable_batching: true
+          },
+          subscriptionMetadata: {
+            destinationConfigId: 'destinationConfigId',
+            actionConfigId: 'actionConfigId'
+          },
+          settings: {
+            __segment_internal_engage_force_full_sync: true,
+            __segment_internal_engage_batch_sync: true
+          }
+        })
+      } catch (e) {
+        expect(e).toBeInstanceOf(PayloadValidationError)
+        expect(e.message).toEqual(
+          `Invalid S3 bucket name: "for-liveramp/folder01/folder_001/". Bucket names cannot contain '/' characters, must be lowercase, and follow AWS naming conventions.`
+        )
+        expect(e.status).toEqual(400)
+      }
+    })
+
     it(`should throw error if S3 bucket path is invalid`, async () => {
       try {
         await testDestination.executeBatch('audienceEnteredS3', {
@@ -138,7 +170,7 @@ describe('Liveramp Audiences', () => {
           mapping: {
             s3_aws_access_key: 's3_aws_access_key',
             s3_aws_secret_key: 's3_aws_secret_key',
-            s3_aws_bucket_name: 's3_aws_bucket_name',
+            s3_aws_bucket_name: 's3-aws-bucket-name',
             s3_aws_region: 's3_aws_region',
             audience_key: 'audience_key',
             delimiter: ',',
