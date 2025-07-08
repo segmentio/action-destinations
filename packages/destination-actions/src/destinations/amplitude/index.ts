@@ -102,6 +102,14 @@ const destination: DestinationDefinition<Settings> = {
           }
         ],
         default: 'north_america'
+      },
+      trackSession: {
+        label: 'Track Session Start and End timestamps',
+        description:
+          'When enabled, the session start and end timestamps will be sent to Amplitude. This is useful for tracking user sessions.',
+        required: false,
+        type: 'boolean',
+        default: false
       }
     },
     testAuthentication: (request, { settings }) => {
