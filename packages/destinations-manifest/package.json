@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.121.0",
+  "version": "1.121.1-staging-ef83da9f2.0",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
@@ -23,6 +23,7 @@
     "@segment/analytics-browser-actions-commandbar": "^1.87.0",
     "@segment/analytics-browser-actions-contentstack-web": "^1.30.0",
     "@segment/analytics-browser-actions-devrev": "^1.74.0",
+    "@segment/analytics-browser-actions-facebook-conversions-api-web": "1.0.1-staging-ef83da9f2.0",
     "@segment/analytics-browser-actions-friendbuy": "^1.88.0",
     "@segment/analytics-browser-actions-fullstory": "^1.89.0",
     "@segment/analytics-browser-actions-google-analytics-4": "^1.94.0",
@@ -51,7 +52,6 @@
     "@segment/analytics-browser-actions-vwo": "^1.90.0",
     "@segment/analytics-browser-actions-wiseops": "^1.88.0",
     "@segment/analytics-browser-hubble-web": "^1.73.0",
-    "@segment/analytics-browser-actions-facebook-conversions-api-web": "^1.0.0",
     "@segment/browser-destination-runtime": "^1.86.0"
   }
 }
