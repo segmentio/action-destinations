@@ -18,7 +18,7 @@ describe('Roadwayai.identifyUser', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/identify').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/identify').reply(200, {})
 
     const responses = await testDestination.testAction('identifyUser', {
       event,
@@ -52,7 +52,7 @@ describe('Roadwayai.identifyUser', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/identify').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/identify').reply(200, {})
 
     const responses = await testDestination.testAction('identifyUser', {
       event,
@@ -94,7 +94,7 @@ describe('Roadwayai.identifyUser', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/identify').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/identify').reply(200, {})
 
     const responses = await testDestination.testAction('identifyUser', {
       event,
@@ -128,7 +128,7 @@ describe('Roadwayai.identifyUser', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/identify').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/identify').reply(200, {})
 
     const responses = await testDestination.testAction('identifyUser', {
       event,
@@ -158,7 +158,7 @@ describe('Roadwayai.identifyUser', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/identify').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/identify').reply(200, {})
 
     const responses = await testDestination.testAction('identifyUser', {
       event,
@@ -199,7 +199,7 @@ describe('Roadwayai.identifyUser', () => {
       })
     ]
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/identify').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/identify').reply(200, {})
 
     const responses = await testDestination.testBatchAction('identifyUser', {
       events,

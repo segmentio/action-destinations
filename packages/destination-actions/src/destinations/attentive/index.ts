@@ -1,6 +1,10 @@
 import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import customEvents from './customEvents'
+import ecommEvent from './ecommEvent'
+import upsertUserAttributes from './upsertUserAttributes'
+import subscribeUser from './subscribeUser'
+
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Attentive',
@@ -35,18 +39,58 @@ const destination: DestinationDefinition<Settings> = {
       }
     }
   },
-  actions: {
-    customEvents
-  },
   presets: [
     {
-      name: 'Track Event',
-      subscribe: 'type = "track"',
-      partnerAction: 'customEvents',
-      mapping: defaultValues(customEvents.fields),
+      name: 'Subscribe User',
+      subscribe: 'type = "track" and event = "User Subscribed"',
+      partnerAction: 'subscribeUser',
+      mapping: defaultValues(subscribeUser.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Upsert User Attributes',
+      subscribe: 'type = "identify"',
+      partnerAction: 'upsertUserAttributes',
+      mapping: defaultValues(upsertUserAttributes.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'View Item',
+      subscribe: 'event = "Product Viewed"',
+      partnerAction: 'ecommEvent',
+      mapping: { 
+        ...defaultValues(ecommEvent.fields),
+        eventType: 'view_item', 
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add to Cart',
+      subscribe: 'event = "Product Added"',
+      partnerAction: 'ecommEvent',
+      mapping: { 
+        ...defaultValues(ecommEvent.fields),
+        eventType: 'add_to_cart', 
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Purchase',
+      subscribe: 'event = "Order Completed"',
+      partnerAction: 'ecommEvent',
+      mapping: { 
+        ...defaultValues(ecommEvent.fields),
+        eventType: 'purchase', 
+      },
       type: 'automatic'
     }
-  ]
+  ],
+  actions: {
+    customEvents,
+    ecommEvent,
+    upsertUserAttributes,
+    subscribeUser
+  }
 }
 
 export default destination

@@ -7,7 +7,7 @@ const testDestination = createTestIntegration(Definition)
 describe('Roadway AI', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://app.roadwayai.com').post('/api/v1/segment/validate-credentials').reply(200, { success: true })
+      nock('https://production.api.roadwayai.com').post('/api/v1/segment/validate-credentials').reply(200, { success: true })
 
       const settings = {
         apiKey: 'test-api-key'
@@ -17,7 +17,7 @@ describe('Roadway AI', () => {
     })
 
     it('should throw error when authentication fails', async () => {
-      nock('https://app.roadwayai.com')
+      nock('https://production.api.roadwayai.com')
         .post('/api/v1/segment/validate-credentials')
         .reply(401, { error: 'Invalid API key' })
 

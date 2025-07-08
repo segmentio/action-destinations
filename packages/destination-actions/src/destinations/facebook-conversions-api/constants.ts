@@ -404,6 +404,7 @@ export const COUNTRY_CODES = new Map<string, string>([
   ['pakistan', 'pk'],
   ['palau', 'pw'],
   ['palestinianterritory,occupied', 'ps'],
+  ['palestine', 'ps'],
   ['panama', 'pa'],
   ['papuanewguinea', 'pg'],
   ['paraguay', 'py'],

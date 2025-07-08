@@ -16,7 +16,7 @@ describe('Roadwayai.trackEvent', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/track').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/track').reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
@@ -47,7 +47,7 @@ describe('Roadwayai.trackEvent', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/track').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/track').reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
@@ -88,7 +88,7 @@ describe('Roadwayai.trackEvent', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/track').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/track').reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
@@ -117,7 +117,7 @@ describe('Roadwayai.trackEvent', () => {
       }
     })
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/track').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/track').reply(200, {})
 
     const responses = await testDestination.testAction('trackEvent', {
       event,
@@ -140,7 +140,7 @@ describe('Roadwayai.trackEvent', () => {
     const event = createTestEvent({ timestamp })
     event.event = undefined
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/track').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/track').reply(200, {})
 
     try {
       await testDestination.testAction('trackEvent', {
@@ -169,7 +169,7 @@ describe('Roadwayai.trackEvent', () => {
       })
     ]
 
-    nock('https://app.roadwayai.com').post('/api/v1/segment/events/track').reply(200, {})
+    nock('https://production.api.roadwayai.com').post('/api/v1/segment/events/track').reply(200, {})
 
     const responses = await testDestination.testBatchAction('trackEvent', {
       events,
