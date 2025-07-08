@@ -246,9 +246,7 @@ describe('request()', () => {
       controller.abort()
     }, 500)
 
-    await expect(request(server.url, { signal: controller.signal })).rejects.toThrowError(
-      'Request timed out before receiving a response'
-    )
+    await expect(request(server.url, { signal: controller.signal })).rejects.toThrowError('Request was aborted')
     await server.close()
   })
 
