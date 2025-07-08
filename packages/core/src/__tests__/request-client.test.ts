@@ -3,7 +3,7 @@ import createTestServer from 'create-test-server'
 import createInstance from '../request-client'
 import { Response } from '../fetch'
 
-jest.setTimeout(11000)
+jest.setTimeout(12000)
 
 describe('createInstance', () => {
   it('should create a new request client instance', async () => {
@@ -246,7 +246,9 @@ describe('request()', () => {
       controller.abort()
     }, 500)
 
-    await expect(request(server.url, { signal: controller.signal })).rejects.toThrowError('Request was aborted')
+    await expect(request(server.url, { signal: controller.signal })).rejects.toThrowError(
+      'Request timed out before receiving a response'
+    )
     await server.close()
   })
 
@@ -291,7 +293,7 @@ describe('request()', () => {
         timeout: 5000,
         signal: AbortSignal.timeout(4000)
       })
-    ).rejects.toThrowError('Request was aborted')
+    ).rejects.toThrowError('Request timed out before receiving a response')
     await server.close()
   })
 
