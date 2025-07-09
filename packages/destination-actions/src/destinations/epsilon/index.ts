@@ -1,7 +1,7 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import standardFieldsEvent from './standardFieldsEvent'
+import sendEvent from './sendEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Epsilon (Actions)',
@@ -24,12 +24,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      siteId: {
-        label: 'Site ID',
-        description: 'Your Epsilon site ID. Contact Epsilon support for assistance.',
-        type: 'string',
-        required: true
-      },
       dtm_cid: {
         label: 'Company ID',
         description: 'Your Company ID. Contact Epsilon support for assistance.',
@@ -43,70 +37,73 @@ const destination: DestinationDefinition<Settings> = {
       // you can remove the `testAuthentication` function, though discouraged.
     }
   },
-
   extendRequest({ settings }) {
     return {
       username: settings.username,
       password: settings.password
     }
   },
-
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
-  },
   actions: {
-    standardFieldsEvent
+    sendEvent
   },
   presets: [
     {
-      name: 'First Open',
-      subscribe: 'type = "track" and event = "Application Installed"',
-      partnerAction: 'standardFieldsEvent',
+      name: 'First App Open/App Download',
+      subscribe: 'event = "Application Installed"',
+      partnerAction: 'sendEvent',
       mapping: { 
-        ...defaultValues(standardFieldsEvent.fields),
+        ...defaultValues(sendEvent.fields),
         dtm_event: 'firstOpen',
       },
       type: 'automatic'
     },
     {
       name: 'App Open',
-      subscribe: 'type = "track" and event = "Application Opened"',
-      partnerAction: 'standardFieldsEvent',
+      subscribe: 'event = "Application Opened"',
+      partnerAction: 'sendEvent',
             mapping: { 
-        ...defaultValues(standardFieldsEvent.fields),
+        ...defaultValues(sendEvent.fields),
         dtm_event: 'appOpen',
       },
       type: 'automatic'
     },
     {
-      name: 'Sign In',
-      subscribe: 'type = "track" and event = "Signed In"',
-      partnerAction: 'standardFieldsEvent',
+      name: 'Sign in/Create Account',
+      subscribe: 'event = "Signed In"',
+      partnerAction: 'sendEvent',
             mapping: { 
-        ...defaultValues(standardFieldsEvent.fields),
+        ...defaultValues(sendEvent.fields),
         dtm_event: 'signIn',
       },
       type: 'automatic'
     },
     {
-      name: 'Find a Store',
-      subscribe: 'type = "track" and event = "Store Location Searched"',
-      partnerAction: 'standardFieldsEvent',
+      name: 'Add to Saved List',
+      subscribe: 'event = "Product Added To Wishlist"',
+      partnerAction: 'sendEvent',
             mapping: { 
-        ...defaultValues(standardFieldsEvent.fields),
-        dtm_event: 'store',
+        ...defaultValues(sendEvent.fields),
+        dtm_event: 'addSavedList',
       },
       type: 'automatic'
     },
     {
-      name: 'Reward Signup',
-      subscribe: 'type = "track" and event = "Subscribed to Rewards Program"',
-      partnerAction: 'standardFieldsEvent',
+      name: 'Add to Cart',
+      subscribe: 'event = "Product Added"',
+      partnerAction: 'sendEvent',
             mapping: { 
-        ...defaultValues(standardFieldsEvent.fields),
-        dtm_event: 'rewardSignup',
+        ...defaultValues(sendEvent.fields),
+        dtm_event: 'cart',
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Transaction Complete',
+      subscribe: 'event = "Order Completed"',
+      partnerAction: 'sendEvent',
+            mapping: { 
+        ...defaultValues(sendEvent.fields),
+        dtm_event: 'conversion',
       },
       type: 'automatic'
     }

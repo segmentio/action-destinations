@@ -1,16 +1,17 @@
-export interface EpsilonPayload {
-  id: string
-  jsonrpc: "2.0"
-  method: "syncEvent"
+export type EpsilonPayload = {
+  id: string;
+  jsonrpc: '2.0';
+  method: 'syncEvent';
   params: {
-    appId: string
-    dtm_event: string // standard field 
-    version: string
+    appId: string;
+    dtm_event: string;
+    version: string;
     eventData: BaseEventData | NonTransactionEventData | TransactionEventData
-  }
-}
+  };
+};
 
-export interface BaseEventData {
+export type BaseEventData = {
+    dtmc_tms: 9 // standard field - indicates Segment Partner / vendor
     dtm_cid: string // standard field 
     dtm_cmagic: string // standard field 
     dtm_fid: string // standard field  
@@ -26,7 +27,7 @@ export interface BaseEventData {
     dtm_user_id?: string // standard field 
 }
 
-export interface NonTransactionEventData extends BaseEventData {
+export type NonTransactionEventData = BaseEventData & {
     dtmc_department?: string
     dtmc_category?: string
     dtmc_sub_category?: string
@@ -36,16 +37,23 @@ export interface NonTransactionEventData extends BaseEventData {
     dtmc_mpn?: string
 }
 
-export interface TransactionEventData extends BaseEventData {
+export type TransactionEventData = BaseEventData & {
     dtmc_transaction_id: string
-    dtm_conv_val: string
+    dtm_conv_val: number
     dtm_items: {
-    product_id: string
-        item_amount: string
-        item_quantity: string
-        item_discount?: string
+      product_id: string
+      item_amount: number
+      item_quantity: number
+      item_discount?: number
+      [k : string]: unknown
     }[]
     dtm_conv_curr: string
     dtmc_conv_type: string
-    dtmc_store_location: string
+    dtmc_conv_store_location: string
 }
+
+export type CustomEventData = Partial<
+  BaseEventData &
+  NonTransactionEventData &
+  TransactionEventData
+>
