@@ -10,14 +10,24 @@ import {
   MESSAGING_SERVICE_SID_REGEX,
   CONTENT_SID_REGEX,
   SENDER_TYPE,
-  CHANNELS
+  CHANNELS,
+  ALL_CONTENT_TYPES
 } from './constants'
 import { TwilioPayload, Sender, Content } from './types'
 
 export async function send(request: RequestClient, payload: Payload, settings: Settings) {
   let { toPhoneNumber, fromPhoneNumber, messagingServiceSid, contentSid } = payload
 
-  const { channel, senderType, contentVariables, validityPeriod, sendAt, inlineMediaUrls, inlineBody } = payload
+  const {
+    channel,
+    senderType,
+    contentVariables,
+    validityPeriod,
+    sendAt,
+    inlineMediaUrls,
+    inlineBody,
+    contentTemplateType
+  } = payload
 
   const getTo = (): string => {
     switch (channel) {
@@ -79,28 +89,35 @@ export async function send(request: RequestClient, payload: Payload, settings: S
   }
 
   const getContent = (): Content => {
+    if (contentTemplateType === ALL_CONTENT_TYPES.INLINE.friendly_name) {
+      return {
+        Body: inlineBody || ''
+      }
+    }
+
     contentSid = parseFieldValue(contentSid)
 
-    // If we have a contentSid, this is a ContentTemplateMessage
-    if (contentSid) {
-      if (!CONTENT_SID_REGEX.test(contentSid)) {
-        throw new PayloadValidationError("Content SID should start with 'HX' followed by 32 hexadecimal characters.")
-      }
-
-      const contentTemplate: { ContentSid: string; ContentVariables?: string } = {
-        ContentSid: contentSid
-      }
-
-      if (Object.keys(contentVariables ?? {}).length > 0) {
-        contentTemplate.ContentVariables = JSON.stringify(contentVariables)
-      }
-
-      return contentTemplate
+    if (!contentSid) {
+      throw new PayloadValidationError(
+        "'Content Template SID' field value is required when sending a content template message."
+      )
     }
 
-    return {
-      Body: inlineBody || ''
+    if (!CONTENT_SID_REGEX.test(contentSid)) {
+      throw new PayloadValidationError(
+        "'Content Template SID' field value should start with 'HX' followed by 32 hexadecimal characters."
+      )
     }
+
+    const contentTemplate: { ContentSid: string; ContentVariables?: string } = {
+      ContentSid: contentSid
+    }
+
+    if (Object.keys(contentVariables ?? {}).length > 0) {
+      contentTemplate.ContentVariables = JSON.stringify(contentVariables)
+    }
+
+    return contentTemplate
   }
 
   const getInlineMediaUrls = (): { MediaUrl: string[] } | {} => {
