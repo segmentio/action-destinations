@@ -121,6 +121,10 @@ export async function send(request: RequestClient, payload: Payload, settings: S
   }
 
   const getInlineMediaUrls = (): { MediaUrl: string[] } | {} => {
+    if (contentTemplateType !== ALL_CONTENT_TYPES.INLINE.friendly_name) {
+      return {}
+    }
+
     if (!inlineMediaUrls || inlineMediaUrls.length === 0) {
       return {}
     }
