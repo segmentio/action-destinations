@@ -1,7 +1,7 @@
 import type { RequestClient, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from '../syncAudiences/generated-types'
-import { CohortChanges, UserAlias } from '../braze-cohorts-types'
+import { CohortChanges } from '../braze-cohorts-types'
 
 interface APIResponse {
   message: string
@@ -45,24 +45,12 @@ export class SyncAudiences {
         client_secret: settings.client_secret,
         cohort_id: cohort_id,
         cohort_changes: cohortChanges.map((change) => ({
-          user_ids: toMayBeArray(change.user_ids),
-          device_ids: toMayBeArray(change.device_ids),
-          aliases: transformAliases(change.aliases),
+          user_ids: change.user_ids,
+          device_ids: change.device_ids,
+          aliases: change.aliases,
           should_remove: change.should_remove
         }))
       }
     })
   }
-}
-
-function toMayBeArray<T>(set: Set<T> | undefined): T[] | undefined {
-  return set ? Array.from(set) : undefined
-}
-
-function transformAliases(aliases: Map<string, UserAlias> | undefined): UserAlias[] | undefined {
-  if (!aliases) return undefined
-  return Array.from(aliases.values()).map((alias) => ({
-    alias_name: alias.alias_name,
-    alias_label: alias.alias_label
-  }))
 }

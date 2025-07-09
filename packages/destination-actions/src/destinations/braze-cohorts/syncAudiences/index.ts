@@ -2,7 +2,7 @@ import { ActionDefinition, RequestClient, PayloadValidationError } from '@segmen
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
-import { CohortChanges } from '../braze-cohorts-types'
+import { CohortChanges, UserAlias } from '../braze-cohorts-types'
 import { StateContext } from '@segment/actions-core/destination-kit'
 import isEmpty from 'lodash/isEmpty'
 
@@ -168,8 +168,8 @@ function extractUsers(payloads: Payload[]) {
   // This is important because if a user is added and removed in the same batch,
   // we want to ensure that the last action is taken.
   payloads = payloads.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
-  const addUsers: CohortChanges = { user_ids: new Set(), device_ids: new Set(), aliases: new Map() }
-  const removeUsers: CohortChanges = {
+  const addUsers = { user_ids: new Set(), device_ids: new Set(), aliases: new Map() }
+  const removeUsers = {
     user_ids: new Set(),
     device_ids: new Set(),
     aliases: new Map(),
@@ -195,9 +195,30 @@ function extractUsers(payloads: Payload[]) {
   })
 
   return {
-    addUsers,
-    removeUsers
+    addUsers: {
+      user_ids: toMayBeArray(addUsers.user_ids),
+      device_ids: toMayBeArray(addUsers.device_ids),
+      aliases: transformAliases(addUsers.aliases)
+    } as CohortChanges,
+    removeUsers: {
+      user_ids: toMayBeArray(removeUsers.user_ids),
+      device_ids: toMayBeArray(removeUsers.device_ids),
+      aliases: transformAliases(removeUsers.aliases),
+      should_remove: removeUsers.should_remove
+    } as CohortChanges
   }
+}
+
+function transformAliases(aliases: Map<string, UserAlias> | undefined): UserAlias[] | undefined {
+  if (!aliases) return undefined
+  return Array.from(aliases.values()).map((alias) => ({
+    alias_name: alias.alias_name,
+    alias_label: alias.alias_label
+  }))
+}
+
+function toMayBeArray<T>(set: Set<T> | undefined): T[] | undefined {
+  return set ? Array.from(set) : undefined
 }
 
 function hasUsersToAddOrRemove(user: CohortChanges): boolean {
