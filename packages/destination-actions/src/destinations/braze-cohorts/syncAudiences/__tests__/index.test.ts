@@ -518,6 +518,9 @@ describe('BrazeCohorts.syncAudiences', () => {
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
+      },
+      features: {
+        'dedupe-braze-cohorts-v2': true
       }
     })
 
@@ -575,6 +578,9 @@ describe('BrazeCohorts.syncAudiences', () => {
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
+      },
+      features: {
+        'dedupe-braze-cohorts-v2': true
       }
     })
 
@@ -648,6 +654,9 @@ describe('BrazeCohorts.syncAudiences', () => {
         external_id: {
           '@path': '$.notGiven'
         }
+      },
+      features: {
+        'dedupe-braze-cohorts-v2': true
       }
     })
 
@@ -724,6 +733,9 @@ describe('BrazeCohorts.syncAudiences', () => {
             '@path': '$.context.traits.email'
           }
         }
+      },
+      features: {
+        'dedupe-braze-cohorts-v2': true
       }
     })
 

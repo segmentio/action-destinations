@@ -1,4 +1,4 @@
-import { ActionDefinition, RequestClient, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, PayloadValidationError, Features } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
@@ -112,18 +112,19 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: async (request, { settings, payload, stateContext }) => {
-    return processPayload(request, settings, [payload], stateContext)
+  perform: async (request, { settings, payload, stateContext, features }) => {
+    return processPayload(request, settings, [payload], stateContext, features)
   },
-  performBatch: async (request, { settings, payload, stateContext }) => {
-    return processPayload(request, settings, payload, stateContext)
+  performBatch: async (request, { settings, payload, stateContext, features }) => {
+    return processPayload(request, settings, payload, stateContext, features)
   }
 }
 async function processPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  stateContext?: StateContext
+  stateContext?: StateContext,
+  features?: Features
 ) {
   validate(payloads)
   const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
@@ -135,7 +136,12 @@ async function processPayload(
     //setting cohort_name in cache context with ttl 0 so that it can keep the value as long as possible.
     stateContext?.setResponseContext?.(`cohort_name`, cohort_name, {})
   }
-  const { addUsers, removeUsers } = extractUsers(payloads)
+  let addUsers: CohortChanges, removeUsers: CohortChanges
+  if (features?.['dedupe-braze-cohorts-v2']) {
+    ;({ addUsers, removeUsers } = extractUsersV2(payloads))
+  } else {
+    ;({ addUsers, removeUsers } = extractUsers(payloads))
+  }
   const hasAddUsers = hasUsersToAddOrRemove(addUsers)
   const hasRemoveUsers = hasUsersToAddOrRemove(removeUsers)
 
@@ -163,7 +169,7 @@ function validate(payloads: Payload[]): void {
   }
 }
 
-function extractUsers(payloads: Payload[]) {
+function extractUsersV2(payloads: Payload[]) {
   // sort by time in descending order
   // This is important because if a user is added and removed in the same batch,
   // we want to ensure that the last action is taken.
@@ -206,6 +212,30 @@ function extractUsers(payloads: Payload[]) {
       aliases: transformAliases(removeUsers.aliases),
       should_remove: removeUsers.should_remove
     } as CohortChanges
+  }
+}
+
+function extractUsers(payloads: Payload[]) {
+  const addUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [] }
+  const removeUsers: CohortChanges = { user_ids: [], device_ids: [], aliases: [], should_remove: true }
+
+  payloads.forEach((payload: Payload) => {
+    const { event_properties, external_id, device_id, user_alias, personas_audience_key } = payload
+    const userEnteredOrRemoved: boolean = event_properties[`${personas_audience_key}`] as boolean
+    const user = userEnteredOrRemoved ? addUsers : removeUsers
+
+    if (external_id) {
+      user?.user_ids?.push(external_id)
+    } else if (device_id) {
+      user?.device_ids?.push(device_id)
+    } else if (user_alias) {
+      user?.aliases?.push(user_alias)
+    }
+  })
+
+  return {
+    addUsers,
+    removeUsers
   }
 }
 
