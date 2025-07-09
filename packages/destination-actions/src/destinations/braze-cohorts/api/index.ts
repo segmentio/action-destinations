@@ -45,16 +45,12 @@ export class SyncAudiences {
         client_secret: settings.client_secret,
         cohort_id: cohort_id,
         cohort_changes: cohortChanges.map((change) => ({
-          user_ids: toMayBeArray(change.user_ids),
-          device_ids: toMayBeArray(change.device_ids),
-          aliases: toMayBeArray(change.aliases),
+          user_ids: change.user_ids,
+          device_ids: change.device_ids,
+          aliases: change.aliases,
           should_remove: change.should_remove
         }))
       }
     })
   }
-}
-
-function toMayBeArray<T>(set: Set<T> | undefined): T[] | undefined {
-  return set ? Array.from(set) : undefined
 }
