@@ -6,6 +6,6 @@ export interface UserAlias {
 export interface CohortChanges {
   user_ids?: Set<string>
   device_ids?: Set<string>
-  aliases?: Set<UserAlias>
+  aliases?: Map<string, UserAlias>
   should_remove?: boolean
 }

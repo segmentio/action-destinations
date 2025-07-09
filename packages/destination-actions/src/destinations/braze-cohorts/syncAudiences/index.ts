@@ -168,11 +168,11 @@ function extractUsers(payloads: Payload[]) {
   // This is important because if a user is added and removed in the same batch,
   // we want to ensure that the last action is taken.
   payloads = payloads.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
-  const addUsers: CohortChanges = { user_ids: new Set(), device_ids: new Set(), aliases: new Set() }
+  const addUsers: CohortChanges = { user_ids: new Set(), device_ids: new Set(), aliases: new Map() }
   const removeUsers: CohortChanges = {
     user_ids: new Set(),
     device_ids: new Set(),
-    aliases: new Set(),
+    aliases: new Map(),
     should_remove: true
   }
 
@@ -186,8 +186,11 @@ function extractUsers(payloads: Payload[]) {
       user?.user_ids?.add(external_id)
     } else if (device_id && !addUsers.device_ids?.has(device_id) && !removeUsers.device_ids?.has(device_id)) {
       user?.device_ids?.add(device_id)
-    } else if (user_alias && !addUsers.aliases?.has(user_alias) && !removeUsers.aliases?.has(user_alias)) {
-      user?.aliases?.add(user_alias)
+    } else if (user_alias) {
+      const aliasKey = `${user_alias.alias_name}:${user_alias.alias_label}`
+      if (!addUsers.aliases?.has(aliasKey) && !removeUsers.aliases?.has(aliasKey)) {
+        user?.aliases?.set(aliasKey, user_alias)
+      }
     }
   })
 
