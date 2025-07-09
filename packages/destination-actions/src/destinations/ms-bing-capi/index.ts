@@ -11,15 +11,9 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'basic',
     fields: {
-      username: {
-        label: 'Username',
-        description: 'Your Ms Bing Capi username',
-        type: 'string',
-        required: true
-      },
-      password: {
-        label: 'password',
-        description: 'Your Ms Bing Capi password.',
+      ApiToken: {
+        label: 'Bing ApiToken',
+        description: 'Your Bing API Token.',
         type: 'string',
         required: true
       }
