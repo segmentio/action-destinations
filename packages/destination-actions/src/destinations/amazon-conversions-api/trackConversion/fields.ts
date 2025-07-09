@@ -388,24 +388,6 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
-  amazonImpressionId: {
-    label: 'Amazon impression ID',
-    description: 'The Amazon impression ID associated with the event.',
-    type: 'string',
-    required: false,
-    default: {
-      '@path': '$.properties.amazonImpressionId'
-    }
-  },
-  amazonClickId: {
-    label: 'Amazon click ID',
-    description: 'The Amazon click ID associated with the event.',
-    type: 'string',
-    required: false,
-    default: {
-      '@path': '$.properties.amazonClickId'
-    }
-  },
   enable_batching: {
     label: 'Enable Batching',
     description: 'When enabled, Segment will send data in batching.',
