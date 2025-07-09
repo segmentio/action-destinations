@@ -2,6 +2,7 @@ import { DestinationDefinition, IntegrationError } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { ExecJSONRequest, ExecJSONResponse } from './types'
 import send from './send'
+import btoa from 'btoa-lite'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'SingleStore',
@@ -21,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Port',
         description: 'The port of the SingleStore Data API. Defaults to 443.',
         type: 'string',
-        default: "443"
+        default: '443'
       },
       username: {
         label: 'Username',
@@ -52,23 +53,25 @@ const destination: DestinationDefinition<Settings> = {
     testAuthentication: async (request, { settings }) => {
       const { host, port, username, password, dbName, tableName } = settings
 
-      console.log(JSON.stringify(settings, null, 2))
-
-
       const url = `https://${host}:${port}/api/v2/exec`
       const encodedCredentials = btoa(`${username}:${password}`)
+
       const sql = `
-                CREATE TABLE IF NOT EXISTS \`${tableName}\` (
-                    \`message\` JSON COLLATE utf8_bin,
-                    \`timestamp\` as JSON_EXTRACT_STRING(\`message\`,'timestamp') PERSISTED datetime,
-                    \`event\` AS JSON_EXTRACT_STRING(\`message\`, 'event') PERSISTED VARCHAR(255),
-                    \`messageId\` AS JSON_EXTRACT_STRING(\`message\`, 'messageId') PERSISTED VARCHAR(255),
-                    \`user_id\` AS JSON_EXTRACT_STRING(\`message\`, 'userId') PERSISTED VARCHAR(255),
-                    \`anonymous_id\` AS JSON_EXTRACT_STRING(\`message\`, 'anonymousId') PERSISTED VARCHAR(255),
-                    \`type\` AS JSON_EXTRACT_STRING(\`message\`, 'type') PERSISTED VARCHAR(255),
-                    SHARD KEY ()
-                ) AUTOSTATS_CARDINALITY_MODE=PERIODIC AUTOSTATS_HISTOGRAM_MODE=CREATE SQL_MODE='STRICT_ALL_TABLES';
-            `;
+        CREATE TABLE IF NOT EXISTS \`${tableName.replace(/`/g, '``')}\` (
+          messageId VARCHAR(255) NOT NULL,
+          timestamp DATETIME NOT NULL,
+          type VARCHAR(255) NOT NULL,
+          event VARCHAR(255),
+          name VARCHAR(255),
+          properties JSON,
+          userId VARCHAR(255),
+          anonymousId VARCHAR(255),
+          groupId VARCHAR(255),
+          traits JSON,
+          context JSON,
+          SHARD KEY ()
+        ) AUTOSTATS_CARDINALITY_MODE=PERIODIC AUTOSTATS_HISTOGRAM_MODE=CREATE SQL_MODE='STRICT_ALL_TABLES';
+      `
 
       const requestData: ExecJSONRequest = {
         sql,
@@ -84,11 +87,14 @@ const destination: DestinationDefinition<Settings> = {
         throwHttpErrors: false
       })
 
-      const responeData: ExecJSONResponse = response.data
-      if (typeof responeData.ok === 'boolean' && responeData.ok === false) {
-         throw new IntegrationError(`Failed to create table: ${responeData.error || 'Unknown error'}`, 'Bad Request', 400)
+      if (response.status !== 200 || response.ok === false) {
+        throw new IntegrationError(
+          `Failed to create table: ${(await response.text()) || 'Unknown error'}`,
+          response.statusText,
+          response.status
+        )
       }
-      return responeData
+      return response
     }
   },
   actions: {
