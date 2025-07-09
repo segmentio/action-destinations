@@ -22,10 +22,11 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
       description: 'The Pixel ID associated with your Facebook Pixel.',
       label: 'Pixel ID',
       type: 'string',
-      required: true  
+      required: true
     },
     disablePushState: {
-      description: "If set to true, prevents Facebook Pixel from sending PageView events on history state changes. Set to true if you want to trigger PageView events manually via the pageView Action.",
+      description:
+        'If set to true, prevents Facebook Pixel from sending PageView events on history state changes. Set to true if you want to trigger PageView events manually via the pageView Action.',
       label: 'Disable Push State',
       type: 'boolean'
     },
@@ -35,8 +36,8 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
       type: 'string',
       required: true,
       choices: [
-        { label: 'LDU disabled', value: LDU.Disabled.key},
-        { label: "LDU enabled - Use Meta Geolocation Logic", value: LDU.GeolocationLogic.key },
+        { label: 'LDU disabled', value: LDU.Disabled.key },
+        { label: 'LDU enabled - Use Meta Geolocation Logic', value: LDU.GeolocationLogic.key },
         { label: 'LDU enabled - California only', value: LDU.California.key },
         { label: 'LDU enabled - Colorado only', value: LDU.Colorado.key },
         { label: 'LDU enabled - Connecticut only', value: LDU.Connecticut.key },
@@ -68,8 +69,7 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
       name: 'AddPaymentInfo',
       subscribe: 'event = "Payment Info Entered"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'AddPaymentInfo',
@@ -83,38 +83,26 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
       name: 'AddToCart',
       subscribe: 'event = "Product Added"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'AddToCart',
           custom_event_name: null,
           show_fields: false
-        },
-        content: {
-          id: { '@path': '$.properties.product_id' },
-          quantity: { '@path': '$.properties.quantity' },
-          item_price: { '@path': '$.properties.price' }
         }
       },
       type: 'automatic'
-    },    
+    },
     {
       name: 'AddToWishlist',
       subscribe: 'event = "Product Added To Wishlist"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'AddToWishlist',
           custom_event_name: null,
           show_fields: false
-        },
-        content: {
-          id: { '@path': '$.properties.product_id' },
-          quantity: { '@path': '$.properties.quantity' },
-          item_price: { '@path': '$.properties.price' }
         }
       },
       type: 'automatic'
@@ -123,8 +111,7 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
       name: 'CompleteRegistration',
       subscribe: 'event = "Signed Up"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'CompleteRegistration',
@@ -133,13 +120,12 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
         }
       },
       type: 'automatic'
-    }, 
+    },
     {
       name: 'InitiateCheckout',
       subscribe: 'event = "Checkout Started"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'InitiateCheckout',
@@ -153,8 +139,7 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
       name: 'Purchase',
       subscribe: 'event = "Order Completed"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'Purchase',
@@ -168,8 +153,7 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
       name: 'Search',
       subscribe: 'event = "Products Searched"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'Search',
@@ -183,18 +167,12 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
       name: 'ViewContent',
       subscribe: 'event = "Product Viewed"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'ViewContent',
           custom_event_name: null,
           show_fields: false
-        },
-        content: {
-          id: { '@path': '$.properties.product_id' },
-          quantity: { '@path': '$.properties.quantity' },
-          item_price: { '@path': '$.properties.price' }
         }
       },
       type: 'automatic'
