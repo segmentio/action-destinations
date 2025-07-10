@@ -6,14 +6,27 @@ import { UserProperty } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert User Profile',
-  description: '',
+  description: 'Send user profile updates to Aampe.',
+  defaultSubscription: 'type = "identify"',
   fields: {
     contact_id,
-    event_name,
+    event_name: {
+      ...event_name,
+      default: 'User Profile Updated'
+    },
     timestamp,
     metadata,
     event_id,
-    user_properties
+    user_properties: {
+      ...user_properties,
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits' },
+          then: { '@path': '$.traits' },
+          else: { '@path': '$.context.traits' }
+        }
+      }
+    }
   },
   perform: (request, { payload, settings }) => {
     const { contact_id, event_name, timestamp, metadata, event_id, user_properties } = payload

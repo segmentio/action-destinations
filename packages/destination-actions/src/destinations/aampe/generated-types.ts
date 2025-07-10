@@ -6,7 +6,7 @@ export interface Settings {
    */
   apiKey: string
   /**
-   * Your Aampe region.
+   * Your data region
    */
   region: string
 }

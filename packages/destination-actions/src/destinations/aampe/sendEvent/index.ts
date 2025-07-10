@@ -6,7 +6,7 @@ import { contact_id, event_name, timestamp, timezone, metadata, event_id } from 
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event',
-  description: 'Send events and user properties to Aampe.',
+  description: 'Send analytics, page and screen events to Aampe.',
   defaultSubscription: 'type = "track" or type = "page" or type = "screen"',
   fields: {
     contact_id,
