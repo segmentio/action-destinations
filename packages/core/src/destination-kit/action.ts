@@ -233,6 +233,7 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   transactionContext?: TransactionContext
   stateContext?: StateContext
   subscriptionMetadata?: SubscriptionMetadata
+  signal?: AbortSignal
 }
 
 type FillMultiStatusResponseInput = {
@@ -369,7 +370,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       hookOutputs,
       syncMode: isSyncMode(syncMode) ? syncMode : undefined,
       matchingKey: matchingKey ? String(matchingKey) : undefined,
-      subscriptionMetadata: bundle.subscriptionMetadata
+      subscriptionMetadata: bundle.subscriptionMetadata,
+      signal: bundle?.signal
     }
     // Construct the request client and perform the action
     const output = await this.performRequest(this.definition.perform, dataBundle)
@@ -473,7 +475,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         subscriptionMetadata: bundle.subscriptionMetadata,
         hookOutputs,
         syncMode: isSyncMode(syncMode) ? syncMode : undefined,
-        matchingKey: matchingKey ? String(matchingKey) : undefined
+        matchingKey: matchingKey ? String(matchingKey) : undefined,
+        signal: bundle?.signal
       }
 
       const requestClient = this.createRequestClient(data)
@@ -695,7 +698,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     const options = this.extendRequest?.(data) ?? {}
     return createRequestClient(options, {
       afterResponse: [this.afterResponse.bind(this)],
-      statsContext: data.statsContext
+      statsContext: data.statsContext,
+      signal: data?.signal
     })
   }
 
