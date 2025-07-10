@@ -117,7 +117,6 @@ Object {
   "data": Object {
     "attributes": Object {
       "custom_source": "TsKr#",
-      "historical_import": true,
       "profiles": Object {
         "data": Array [
           Object {
@@ -139,11 +138,13 @@ Object {
                 },
               },
             },
+            "historical_import": false,
             "type": "profile",
           },
         ],
       },
     },
+    "historical_import": true,
     "relationships": Object {
       "list": Object {
         "data": Object {

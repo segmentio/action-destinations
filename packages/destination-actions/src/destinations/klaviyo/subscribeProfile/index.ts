@@ -105,8 +105,14 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
 
-    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
-    const subData = formatSubscribeRequestBody(profileToSubscribe, list_id, custom_source, historical_import)
+    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at, historical_import)
+    delete profileToSubscribe.historical_import // remove historical_import from profile to avoid sending it to Klaviyo
+    const subData = formatSubscribeRequestBody(
+      profileToSubscribe,
+      list_id,
+      custom_source,
+      historical_import !== undefined ? historical_import : false
+    )
 
     return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
       method: 'POST',
@@ -168,16 +174,34 @@ const action: ActionDefinition<Settings, Payload> = {
     const requests: Promise<ModifiedResponse<Response>>[] = []
     batches.forEach((key) => {
       const { list_id, custom_source, profiles } = sortedProfilesObject[key]
+      const trueHistoricalImport: SubscribeProfile[] = []
+      const falseHistoricalImport: SubscribeProfile[] = []
+
+      profiles.forEach((profile) => {
+        if (profile.historical_import) {
+          trueHistoricalImport.push(profile)
+        } else {
+          falseHistoricalImport.push(profile)
+        }
+        delete profile.historical_import // remove historical_import from profile to avoid sending it to Klaviyo
+      })
 
       // max number of profiles is 100 per request
-      for (let i = 0; i < profiles.length; i += 100) {
-        const profilesSubset = profiles.slice(i, i + 100)
-        const subData = formatSubscribeRequestBody(
-          profilesSubset,
-          list_id,
-          custom_source,
-          payload[0]?.historical_import
-        )
+      for (let i = 0; i < trueHistoricalImport.length; i += 100) {
+        const profilesSubset = trueHistoricalImport.slice(i, i + 100)
+        const subData = formatSubscribeRequestBody(profilesSubset, list_id, custom_source, true)
+
+        const response = request<Response>(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
+          method: 'POST',
+          json: subData
+        })
+
+        requests.push(response)
+      }
+
+      for (let i = 0; i < falseHistoricalImport.length; i += 100) {
+        const profilesSubset = falseHistoricalImport.slice(i, i + 100)
+        const subData = formatSubscribeRequestBody(profilesSubset, list_id, custom_source, false)
 
         const response = request<Response>(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
           method: 'POST',
@@ -205,7 +229,7 @@ function sortBatches(batchPayload: Payload[]) {
   const output: SortedBatches = {}
 
   batchPayload.forEach((payload) => {
-    const { email, phone_number, custom_source, consented_at, list_id } = payload
+    const { email, phone_number, custom_source, consented_at, list_id, historical_import } = payload
 
     const listId = list_id || 'noListId'
     const customSource = custom_source || 'noCustomSource'
@@ -215,7 +239,12 @@ function sortBatches(batchPayload: Payload[]) {
 
     // if a batch with this key does not exist, create it
     if (!output[key]) {
-      const batch: { list_id?: string; custom_source?: string; profiles: SubscribeProfile[] } = {
+      const batch: {
+        list_id?: string
+        custom_source?: string
+        historical_import?: boolean
+        profiles: SubscribeProfile[]
+      } = {
         profiles: []
       }
 
@@ -227,11 +256,13 @@ function sortBatches(batchPayload: Payload[]) {
         batch.custom_source = custom_source
       }
 
+      batch.historical_import = historical_import != undefined ? historical_import : false
+
       output[key] = batch
     }
 
     // format profile data klaviyo api spec
-    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
+    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at, historical_import)
 
     // add profile to batch
     output[key].profiles.push(profileToSubscribe)

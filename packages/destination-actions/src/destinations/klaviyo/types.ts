@@ -141,6 +141,7 @@ export interface GetProfileResponse {
 
 export interface SubscribeProfile {
   type: string
+  historical_import?: boolean
   attributes: {
     email?: string
     phone_number?: string

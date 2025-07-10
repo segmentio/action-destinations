@@ -223,10 +223,12 @@ export async function getProfiles(
 export function formatSubscribeProfile(
   email: string | undefined,
   phone_number: string | undefined,
-  consented_at: string | number | undefined
+  consented_at: string | number | undefined,
+  historical_import: boolean | undefined = false
 ) {
   const profileToSubscribe: SubscribeProfile = {
     type: 'profile',
+    historical_import: historical_import,
     attributes: {
       subscriptions: {}
     }
@@ -262,7 +264,7 @@ export function formatSubscribeRequestBody(
   profiles: SubscribeProfile | SubscribeProfile[],
   list_id: string | undefined,
   custom_source: string | undefined,
-  historical_import: boolean | undefined = false
+  historical_import: boolean
 ) {
   if (!Array.isArray(profiles)) {
     profiles = [profiles]
@@ -273,7 +275,7 @@ export function formatSubscribeRequestBody(
     data: {
       type: 'profile-subscription-bulk-create-job',
       attributes: {
-        historical_import: historical_import ?? false,
+        historical_import: historical_import,
         profiles: {
           data: profiles
         }
