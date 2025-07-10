@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * Timestamp for when the event happened.
    */
-  time: string
+  timestamp: string
   /**
    * Event properties.
    */

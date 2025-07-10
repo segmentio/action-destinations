@@ -19,7 +19,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       region: {
         label: 'Region',
-        description: 'Your Aampe region.',
+        description: 'Your data region',
         type: 'string',
         required: true,
         choices: [
@@ -32,7 +32,7 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ settings }) {
     return {
       headers: {
-        authorization: `Bearer ${settings.apiKey}`
+        Authorization: `Bearer ${settings.apiKey}`
       }
     }
   },

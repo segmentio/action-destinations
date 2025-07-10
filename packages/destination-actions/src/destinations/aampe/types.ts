@@ -1,7 +1,7 @@
 export interface UserEvent {
     contact_id: string
     event_name: string
-    time: number
+    timestamp: number
     timezone?: string
     metadata?: Record<string, unknown>
     event_id?: string
