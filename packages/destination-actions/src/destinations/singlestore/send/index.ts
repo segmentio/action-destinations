@@ -1,12 +1,13 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {send} from './utils'
+import { send } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Data',
   description: 'Send data to SingleStore.',
-  defaultSubscription: 'type = "track" or type = "screen" or type = "identify" or type = "page" or type = "group" or type = "alias"',
+  defaultSubscription:
+    'type = "track" or type = "screen" or type = "identify" or type = "page" or type = "group" or type = "alias"',
   fields: {
     messageid: {
       label: 'Message ID',
@@ -48,7 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The name of the event. Only required for "track" events.',
       type: 'string',
       required: {
-          conditions: [{ fieldKey: 'type', operator: 'is', value: 'track' }]
+        conditions: [{ fieldKey: 'type', operator: 'is', value: 'track' }]
       },
       default: {
         '@path': '$.event'
@@ -103,7 +104,7 @@ const action: ActionDefinition<Settings, Payload> = {
           exists: { '@path': '$.context.traits' },
           then: { '@path': '$.context.traits' },
           else: { '@path': '$.traits' }
-        } 
+        }
       }
     },
     context: {
@@ -122,18 +123,18 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 100
     },
     enable_batching: {
-        type: 'boolean',
-        label: 'Enable Batching',
-        description: 'Batch events to SingleStore',
-        default: true,
-        unsafe_hidden: true
+      type: 'boolean',
+      label: 'Enable Batching',
+      description: 'Batch events to SingleStore',
+      default: true,
+      unsafe_hidden: true
     }
   },
   perform: async (request, { payload, settings }) => {
-    return await send(request, [payload], settings) 
+    return await send(request, [payload], settings)
   },
   performBatch: async (request, { payload, settings }) => {
-    return await send(request, payload, settings) 
+    return await send(request, payload, settings)
   }
 }
 
