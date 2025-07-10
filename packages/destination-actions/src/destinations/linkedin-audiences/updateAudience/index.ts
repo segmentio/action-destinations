@@ -96,7 +96,11 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at '$.properties.audience_key' in Personas events.
       default: {
-        '@path': '$.properties.audience_key'
+        '@if': {
+          exists: { '@path': '$.properties.audience_key' },
+          then: { '@path': '$.properties.audience_key' },
+          else: { '@path': '$.context.personas.computation_key' }
+        }
       }
     },
     personas_audience_key: {
