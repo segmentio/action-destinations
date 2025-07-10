@@ -91,7 +91,7 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
           custom_event_name: null,
           show_fields: false
         },
-        content: {
+        contents: {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
           item_price: { '@path': '$.properties.price' }
@@ -111,7 +111,7 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
           custom_event_name: null,
           show_fields: false
         },
-        content: {
+        contents: {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
           item_price: { '@path': '$.properties.price' }
@@ -191,7 +191,7 @@ export const destination: BrowserDestinationDefinition<Settings, FBClient> = {
           custom_event_name: null,
           show_fields: false
         },
-        content: {
+        contents: {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
           item_price: { '@path': '$.properties.price' }
