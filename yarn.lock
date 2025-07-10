@@ -8779,9 +8779,9 @@ exit@^0.1.2:
   integrity sha512-Zk/eNKV2zbjpKzrsQ+n1G6poVbErQxJ0LBOJXaKZ1EViLzH+hrLu9cdXI4zw9dBQJslwBEpbQ2P1oS7nDxs6jQ==
 
 expect-webdriverio@^3.0.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/expect-webdriverio/-/expect-webdriverio-3.6.0.tgz#529dd8a05cf952ed31c28541f8411f8d30182dc9"
-  integrity sha512-8HuVToXDVzkKgUKIUzW/v3bP4ZoMDEwCjX9QmlRlMIvjt3HOSzSIBnRMv8lpeVTUKoR9DZNr/lSuKH4Amx4BBg==
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/expect-webdriverio/-/expect-webdriverio-3.7.0.tgz#5695df79520b561a1011b2876f066424d026201b"
+  integrity sha512-JaBUjjtZHCmGPwjYIUPDGGOgkPL96GfN1XFYSD4bzHAOX6ITIOJ4Z+rHjS0+Yxyc+bxGKJEhsJMjUnFdPxQElA==
   dependencies:
     expect "^28.1.0"
     jest-matcher-utils "^28.1.0"
