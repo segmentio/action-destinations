@@ -459,5 +459,105 @@ describe('LinkedinAudiences.updateAudience', () => {
         })
       ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
     })
+
+    it('should use context.personas.computation_key as source_segment_id when properties.audience_key does not exist', async () => {
+      const eventWithComputationKey = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          // No audience_key property
+        },
+        context: {
+          personas: {
+            computation_key: 'from_computation_key' // gitleaks:allow
+          },
+          traits: {
+            email: 'testing@testing.com'
+          },
+          device: {
+            advertisingId: '123'
+          }
+        }
+      })
+
+      const expectedUrlParams = {
+        q: 'account',
+        account: 'urn:li:sponsoredAccount:123',
+        sourceSegmentId: 'from_computation_key', // gitleaks:allow
+        sourcePlatform: LINKEDIN_SOURCE_PLATFORM
+      }
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(expectedUrlParams)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/).reply(200)
+
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event: eventWithComputationKey,
+          settings: {
+            ad_account_id: '123',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'from_computation_key' // gitleaks:allow
+          }
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should prioritize properties.audience_key over context.personas.computation_key when both exist', async () => {
+      const eventWithBothKeys = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          audience_key: 'from_properties_audience_key' // gitleaks:allow
+        },
+        context: {
+          personas: {
+            computation_key: 'from_computation_key' // gitleaks:allow
+          },
+          traits: {
+            email: 'testing@testing.com'
+          },
+          device: {
+            advertisingId: '123'
+          }
+        }
+      })
+
+      const expectedUrlParams = {
+        q: 'account',
+        account: 'urn:li:sponsoredAccount:123',
+        sourceSegmentId: 'from_properties_audience_key', // Should use this, not computation_key // gitleaks:allow
+        sourcePlatform: LINKEDIN_SOURCE_PLATFORM
+      }
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(expectedUrlParams)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/).reply(200)
+
+      await expect(
+        testDestination.testAction('updateAudience', {
+          event: eventWithBothKeys,
+          settings: {
+            ad_account_id: '123',
+            send_email: true,
+            send_google_advertising_id: true
+          },
+          useDefaultMappings: true,
+          auth,
+          mapping: {
+            personas_audience_key: 'from_properties_audience_key' // gitleaks:allow
+          }
+        })
+      ).resolves.not.toThrowError()
+    })
   })
 })
