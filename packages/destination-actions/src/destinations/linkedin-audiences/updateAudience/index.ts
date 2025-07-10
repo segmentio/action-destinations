@@ -94,7 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         "A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.",
       type: 'string',
-      unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at '$.properties.audience_key' in Personas events.
+      unsafe_hidden: true, // This field is hidden from customers because the desired value always appears at '$.properties.audience_key' in Personas events and at '$.context.personas.computation_key' for events coming from Journeys v2.
       default: {
         '@if': {
           exists: { '@path': '$.properties.audience_key' },
