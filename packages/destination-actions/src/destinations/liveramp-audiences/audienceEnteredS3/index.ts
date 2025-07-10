@@ -1,5 +1,5 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
-import { isValidS3Path, normalizeS3Path, uploadS3 } from './s3'
+import { isValidS3Path, isValidS3BucketName, normalizeS3Path, uploadS3 } from './s3'
 import { generateFile } from '../operations'
 import { sendEventToAWS } from '../awsClient'
 import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
@@ -32,7 +32,8 @@ const action: ActionDefinition<Settings, Payload> = {
     s3_aws_region: {
       label: 'AWS Region (S3 only)',
       description: 'Region where the S3 bucket is hosted.',
-      type: 'string'
+      type: 'string',
+      required: true
     },
     audience_key: {
       label: 'LiveRamp Audience Key',
@@ -128,6 +129,13 @@ async function processData(input: ProcessDataInput<Payload>, subscriptionMetadat
   if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
       `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
+    )
+  }
+
+  // validate s3 bucket name
+  if (input.payloads[0].s3_aws_bucket_name && !isValidS3BucketName(input.payloads[0].s3_aws_bucket_name)) {
+    throw new PayloadValidationError(
+      `Invalid S3 bucket name: "${input.payloads[0].s3_aws_bucket_name}". Bucket names cannot contain '/' characters, must be lowercase, and follow AWS naming conventions.`
     )
   }
 
