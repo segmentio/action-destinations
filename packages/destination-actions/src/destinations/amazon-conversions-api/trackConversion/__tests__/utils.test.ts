@@ -571,7 +571,7 @@ describe('trackConversion utils', () => {
     })
 
     it('should include optional fields when provided', () => {
-      const payload = {
+      const payload: Payload = {
         name: 'purchase_event',
         eventType: ConversionTypeV2.OFF_AMAZON_PURCHASES,
         eventActionSource: 'WEBSITE',
@@ -591,17 +591,19 @@ describe('trackConversion utils', () => {
           amznUserData: 'GRANTED'
         },
         customAttributes: {
-          color: 'blue',
-          size: 'medium',
-          age: 30,
-          stringNum: "9099", // should stay as string
-          stringBool: 'true', // should stay as string
-          stringNegBool: 'false', // should stay as string
-          isMember: true,
-          preferences: { newsletter: true, notifications: false }, // should stringify object
-          tags: ['premium', 'loyalty', 9099], // should stringify array
-          iAmNull: null, // should be ignored
-          iAmUndefined: undefined // should be ignored
+          brand: 'brand1',
+          category: 'category1',
+          productId: 'productId1',
+          attr1: 'attr1value',
+          attr2: 'attr2value',
+          attr3: undefined,
+          attr4: 'undefined',
+          attr5: '999.99',
+          attr6: 'true',
+          attr7: 'false',
+          attr8: 'true',
+          attr9: '{"newsletter":true,"notifications":false}',
+          attr10: '["premium","loyalty",9099]'
         },
         enable_batching: true
       }
@@ -610,49 +612,52 @@ describe('trackConversion utils', () => {
 
       const customAttributes = [
         {
-          dataType: "STRING",
-          name: "color",
-          value: "blue"
+          name: 'brand',
+          value: 'brand1'
         },
         {
-          dataType: "STRING",
-          name: "size",
-          value: "medium"
+          name: 'category',
+          value: 'category1'
         },
         {
-          dataType: "NUMBER",
-          name: "age",
-          value: "30"
+          name: 'productId',
+          value: 'productId1'
         },
         {
-          dataType: "STRING",
-          name: "stringNum",
-          value: "9099"
+          name: 'attr1',
+          value: 'attr1value'
         },
         {
-          dataType: "STRING",
-          name: "stringBool",
-          value: "true"
+          name: 'attr2',
+          value: 'attr2value'
         },
         {
-          dataType: "STRING",
-          name: "stringNegBool",
-          value: "false"
+          name: 'attr4',
+          value: 'undefined'
         },
         {
-          dataType: "BOOLEAN",
-          name: "isMember",
-          value: "true"
+          name: 'attr5',
+          value: '999.99'
         },
         {
-          dataType: "STRING",
-          name: "preferences",
-          value: "{\"newsletter\":true,\"notifications\":false}"
+          name: 'attr6',
+          value: 'true'
         },
         {
-          dataType: "STRING",
-          name: "tags",
-          value: "[\"premium\",\"loyalty\",9099]"
+          name: 'attr7',
+          value: 'false'
+        },
+        {
+          name: 'attr8',
+          value: 'true'
+        },
+        {
+          name: 'attr9',
+          value: '{"newsletter":true,"notifications":false}'
+        },
+        {
+          name: 'attr10',
+          value: '["premium","loyalty",9099]'
         }
       ]
 

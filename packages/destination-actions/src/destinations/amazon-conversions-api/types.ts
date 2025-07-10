@@ -1,7 +1,7 @@
 export const Region = {
-    NA: 'https://advertising-api.amazon.com',
-    EU: 'https://advertising-api-eu.amazon.com',
-    FE: 'https://advertising-api-fe.amazon.com'
+  NA: 'https://advertising-api.amazon.com',
+  EU: 'https://advertising-api-eu.amazon.com',
+  FE: 'https://advertising-api-fe.amazon.com'
 } as const
 
 export type RegionKey = keyof typeof Region
@@ -9,42 +9,59 @@ export type RegionKey = keyof typeof Region
 export type RegionValue = typeof Region[RegionKey]
 
 export interface GeographicConsentData {
-    ipAddress?: string
+  ipAddress?: string
 }
 
 export interface AmazonConsentFormat {
-    amznAdStorage?: 'GRANTED' | 'DENIED'
-    amznUserData?: 'GRANTED' | 'DENIED'
+  amznAdStorage?: 'GRANTED' | 'DENIED'
+  amznUserData?: 'GRANTED' | 'DENIED'
 }
 
 export interface ConsentData {
-    geo?: GeographicConsentData
-    amazonConsent?: AmazonConsentFormat
-    tcf?: string
-    gpp?: string
+  geo?: GeographicConsentData
+  amazonConsent?: AmazonConsentFormat
+  tcf?: string
+  gpp?: string
 }
 
+export const CustomAttributeV1Names = [
+  'brand',
+  'category',
+  'productId',
+  'attr1',
+  'attr2',
+  'attr3',
+  'attr4',
+  'attr5',
+  'attr6',
+  'attr7',
+  'attr8',
+  'attr9',
+  'attr10'
+] as const
+
+export type CustomAttributeV1Name = typeof CustomAttributeV1Names[number]
+
 export interface CustomAttributeV1 {
-    name: string
-    dataType?: 'STRING' | 'NUMBER' | 'BOOLEAN'
-    value: string
+  name: CustomAttributeV1Name
+  value: string
 }
 
 /**
  * Types of user identifiers that can be used for matching an event to a user.
  */
 export enum MatchKeyTypeV1 {
-    EMAIL = 'EMAIL',
-    PHONE = 'PHONE',
-    FIRST_NAME = 'FIRST_NAME',
-    LAST_NAME = 'LAST_NAME',
-    ADDRESS = 'ADDRESS',
-    CITY = 'CITY',
-    STATE = 'STATE',
-    POSTAL = 'POSTAL',
-    MAID = 'MAID',
-    RAMP_ID = 'RAMP_ID',
-    MATCH_ID = 'MATCH_ID'
+  EMAIL = 'EMAIL',
+  PHONE = 'PHONE',
+  FIRST_NAME = 'FIRST_NAME',
+  LAST_NAME = 'LAST_NAME',
+  ADDRESS = 'ADDRESS',
+  CITY = 'CITY',
+  STATE = 'STATE',
+  POSTAL = 'POSTAL',
+  MAID = 'MAID',
+  RAMP_ID = 'RAMP_ID',
+  MATCH_ID = 'MATCH_ID'
 }
 
 /**
@@ -54,8 +71,8 @@ export enum MatchKeyTypeV1 {
  * and remove any leading or trailing whitespace. Only SHA-256 is supported.
  */
 export interface MatchKeyV1 {
-    type: MatchKeyTypeV1
-    values: [string] // Array with exactly one element
+  type: MatchKeyTypeV1
+  values: [string] // Array with exactly one element
 }
 
 /**
@@ -78,18 +95,18 @@ export interface MatchKeyV1 {
  * - OTHER - Customer actions that don't fit the definition of the standard event types.
  */
 export enum ConversionTypeV2 {
-    ADD_TO_SHOPPING_CART = 'ADD_TO_SHOPPING_CART',
-    APPLICATION = 'APPLICATION',
-    CHECKOUT = 'CHECKOUT',
-    CONTACT = 'CONTACT',
-    LEAD = 'LEAD',
-    OFF_AMAZON_PURCHASES = 'OFF_AMAZON_PURCHASES',
-    MOBILE_APP_FIRST_START = 'MOBILE_APP_FIRST_START',
-    PAGE_VIEW = 'PAGE_VIEW',
-    SEARCH = 'SEARCH',
-    SIGN_UP = 'SIGN_UP',
-    SUBSCRIBE = 'SUBSCRIBE',
-    OTHER = 'OTHER'
+  ADD_TO_SHOPPING_CART = 'ADD_TO_SHOPPING_CART',
+  APPLICATION = 'APPLICATION',
+  CHECKOUT = 'CHECKOUT',
+  CONTACT = 'CONTACT',
+  LEAD = 'LEAD',
+  OFF_AMAZON_PURCHASES = 'OFF_AMAZON_PURCHASES',
+  MOBILE_APP_FIRST_START = 'MOBILE_APP_FIRST_START',
+  PAGE_VIEW = 'PAGE_VIEW',
+  SEARCH = 'SEARCH',
+  SIGN_UP = 'SIGN_UP',
+  SUBSCRIBE = 'SUBSCRIBE',
+  OTHER = 'OTHER'
 }
 
 /**
@@ -98,71 +115,69 @@ export enum ConversionTypeV2 {
  * If not provided, the currencyCode setting on the event will be used.
  */
 export enum CurrencyCodeV1 {
-    AED = 'AED',
-    AUD = 'AUD',
-    BRL = 'BRL',
-    CAD = 'CAD',
-    CNY = 'CNY',
-    EUR = 'EUR',
-    GBP = 'GBP',
-    INR = 'INR',
-    JPY = 'JPY',
-    MXN = 'MXN',
-    SAR = 'SAR',
-    SEK = 'SEK',
-    SGD = 'SGD',
-    TRY = 'TRY',
-    USD = 'USD',
-    DKK = 'DKK',
-    NOK = 'NOK',
-    NZD = 'NZD'
+  AED = 'AED',
+  AUD = 'AUD',
+  BRL = 'BRL',
+  CAD = 'CAD',
+  CNY = 'CNY',
+  EUR = 'EUR',
+  GBP = 'GBP',
+  INR = 'INR',
+  JPY = 'JPY',
+  MXN = 'MXN',
+  SAR = 'SAR',
+  SEK = 'SEK',
+  SGD = 'SGD',
+  TRY = 'TRY',
+  USD = 'USD',
+  DKK = 'DKK',
+  NOK = 'NOK',
+  NZD = 'NZD'
 }
 
 export interface EventData {
-    name: string
-    eventType: ConversionTypeV2
-    eventActionSource: string
-    countryCode: string
-    timestamp: string
-    matchKeys?: MatchKeyV1[]
-    value?: number
-    currencyCode?: CurrencyCodeV1
-    unitsSold?: number
-    clientDedupeId?: string
-    dataProcessingOptions?: string[]
-    consent?: ConsentData
-    customAttributes?: CustomAttributeV1[]
-    amazonImpressionId?: string
-    amazonClickId?: string
+  name: string
+  eventType: ConversionTypeV2
+  eventActionSource: string
+  countryCode: string
+  timestamp: string
+  matchKeys?: MatchKeyV1[]
+  value?: number
+  currencyCode?: CurrencyCodeV1
+  unitsSold?: number
+  clientDedupeId?: string
+  dataProcessingOptions?: string[]
+  consent?: ConsentData
+  customAttributes?: CustomAttributeV1[]
 }
 
 export interface RefreshTokenResponse {
-    access_token: string
-    token_type: string
-    expires_in: number
-    refresh_token: string
+  access_token: string
+  token_type: string
+  expires_in: number
+  refresh_token: string
 }
 
 export interface SubErrorV1 {
-    errorCode?: number
-    errorType?: string
-    errorMessage?: string
+  errorCode?: number
+  errorType?: string
+  errorMessage?: string
 }
 
 export interface EventDataSuccessResponseV1 {
-    index: number,
-    message?: string
+  index: number
+  message?: string
 }
 
 export interface EventDataErrorResponseV1 {
-    httpStatusCode?: string
-    itemRequestId?: string
-    index: number
-    itemId?: string
-    subErrors?: SubErrorV1[]
+  httpStatusCode?: string
+  itemRequestId?: string
+  index: number
+  itemId?: string
+  subErrors?: SubErrorV1[]
 }
 
 export interface ImportConversionEventsResponse {
-    success?: EventDataSuccessResponseV1[]
-    error?: EventDataErrorResponseV1[]
+  success?: EventDataSuccessResponseV1[]
+  error?: EventDataErrorResponseV1[]
 }

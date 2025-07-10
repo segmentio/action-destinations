@@ -116,19 +116,62 @@ export interface Payload {
     gpp?: string
   }
   /**
-   * Custom attributes associated with the event to provide additional context.
+   * Custom attributes associated with the event to provide additional context. Only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.
    */
   customAttributes?: {
-    [k in string]: unknown
+    /**
+     * The brand associated with the event.
+     */
+    brand?: string
+    /**
+     * The category associated with the event.
+     */
+    category?: string
+    /**
+     * The product ID associated with the event.
+     */
+    productId?: string
+    /**
+     * Custom attribute 1 associated with the event.
+     */
+    attr1?: string
+    /**
+     * Custom attribute 2 associated with the event.
+     */
+    attr2?: string
+    /**
+     * Custom attribute 3 associated with the event.
+     */
+    attr3?: string
+    /**
+     * Custom attribute 4 associated with the event.
+     */
+    attr4?: string
+    /**
+     * Custom attribute 5 associated with the event.
+     */
+    attr5?: string
+    /**
+     * Custom attribute 6 associated with the event.
+     */
+    attr6?: string
+    /**
+     * Custom attribute 7 associated with the event.
+     */
+    attr7?: string
+    /**
+     * Custom attribute 8 associated with the event.
+     */
+    attr8?: string
+    /**
+     * Custom attribute 9 associated with the event.
+     */
+    attr9?: string
+    /**
+     * Custom attribute 10 associated with the event.
+     */
+    attr10?: string
   }
-  /**
-   * The Amazon impression ID associated with the event.
-   */
-  amazonImpressionId?: string
-  /**
-   * The Amazon click ID associated with the event.
-   */
-  amazonClickId?: string
   /**
    * When enabled, Segment will send data in batching.
    */

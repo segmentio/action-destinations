@@ -4,7 +4,8 @@ import {
   MultiStatusResponse,
   JSONLikeObject,
   ModifiedResponse,
-  APIError
+  APIError,
+  PayloadValidationError
 } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import type { Settings } from '../generated-types'
@@ -21,7 +22,7 @@ import type {
   CurrencyCodeV1,
   CustomAttributeV1
 } from '../types'
-import { MatchKeyTypeV1, Region } from '../types'
+import { MatchKeyTypeV1, Region, CustomAttributeV1Names, CustomAttributeV1Name } from '../types'
 import type { Payload } from './generated-types'
 
 /**
@@ -262,11 +263,10 @@ export function handleBatchResponse(
 }
 
 export function prepareEventData(payload: Payload, settings: Settings): EventData {
-  const { 
-    customAttributes, 
-    matchKeys: { email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId } = {} 
+  const {
+    customAttributes,
+    matchKeys: { email, phone, firstName, lastName, address, city, state, postalCode, maid, rampId, matchId } = {}
   } = payload
-
 
   // Process match keys
   let matchKeys: MatchKeyV1[] = []
@@ -371,20 +371,16 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
 
   Object.entries(customAttributes ?? {}).forEach(([key, value]) => {
     if (value === undefined || value === null) return
-    let dataType: 'STRING' | 'NUMBER' | 'BOOLEAN' = 'STRING'
 
-    if (typeof value === 'number') {
-      dataType = 'NUMBER'
-    } else if (typeof value === 'boolean') {
-      dataType = 'BOOLEAN'
-    } else if (typeof value !== 'string') {
-      value = JSON.stringify(value) // stringify arrays and objects
+    if (!CustomAttributeV1Names.includes(key as CustomAttributeV1Name)) {
+      throw new PayloadValidationError(
+        `Invalid custom attribute name: ${key}. Allowed names are: ${CustomAttributeV1Names.join(', ')}`
+      )
     }
 
     customAttributeArray.push({
-      name: key,
-      dataType,
-      value: String(value)
+      name: key as CustomAttributeV1Name,
+      value: typeof value === 'object' ? JSON.stringify(value) : String(value)
     })
   })
 
@@ -410,9 +406,9 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     ...(payload.clientDedupeId && { clientDedupeId: payload.clientDedupeId }),
     ...(payload.dataProcessingOptions && { dataProcessingOptions: payload.dataProcessingOptions }),
     ...(consent && { consent }),
-    ...(payload.customAttributes && { customAttributes: customAttributeArray.length>0 ? customAttributeArray : undefined }),
-    ...(payload.amazonImpressionId && { amazonImpressionId: payload.amazonImpressionId }),
-    ...(payload.amazonClickId && { amazonClickId: payload.amazonClickId })
+    ...(payload.customAttributes && {
+      customAttributes: customAttributeArray.length > 0 ? customAttributeArray : undefined
+    })
   })
 
   return eventData

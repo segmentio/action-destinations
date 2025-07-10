@@ -32,7 +32,8 @@ export const fields: Record<string, InputField> = {
   },
   eventActionSource: {
     label: 'Event Action Source',
-    description: 'The platform from which the event was sourced. If no value is provided, then website is used as default.',
+    description:
+      'The platform from which the event was sourced. If no value is provided, then website is used as default.',
     type: 'string',
     required: true,
     choices: [
@@ -79,7 +80,8 @@ export const fields: Record<string, InputField> = {
   },
   currencyCode: {
     label: 'Currency Code',
-    description: 'The currencyCode associated with the \'value\' of the event in ISO-4217 format. Only applicable for OFF_AMAZON_PURCHASES event type.',
+    description:
+      "The currencyCode associated with the 'value' of the event in ISO-4217 format. Only applicable for OFF_AMAZON_PURCHASES event type.",
     type: 'string',
     required: false,
     depends_on: {
@@ -117,7 +119,8 @@ export const fields: Record<string, InputField> = {
   },
   unitsSold: {
     label: 'Units Sold',
-    description: 'The number of items purchased. Only applicable for OFF_AMAZON_PURCHASES event type. If not provided on the event, a default of 1 will be applied.',
+    description:
+      'The number of items purchased. Only applicable for OFF_AMAZON_PURCHASES event type. If not provided on the event, a default of 1 will be applied.',
     type: 'integer',
     required: false,
     depends_on: {
@@ -135,7 +138,8 @@ export const fields: Record<string, InputField> = {
   },
   clientDedupeId: {
     label: 'Client Dedupe ID',
-    description: 'Amazon Conversions API uses the `clientDedupeId` field to prevent duplicate events. By default, Segment maps the messageId to this field. For events with the same clientDedupeId, only the latest event will be processed. Please be advised that deduplication occurs across all event types, rather than being limited to individual event types.',
+    description:
+      'Amazon Conversions API uses the `clientDedupeId` field to prevent duplicate events. By default, Segment maps the messageId to this field. For events with the same clientDedupeId, only the latest event will be processed. Please be advised that deduplication occurs across all event types, rather than being limited to individual event types.',
     type: 'string',
     required: false,
     default: {
@@ -144,7 +148,8 @@ export const fields: Record<string, InputField> = {
   },
   matchKeys: {
     label: 'Match Keys',
-    description: 'Match keys are used to identify the customer associated with the event for attribution. At least one match key must be provided.',
+    description:
+      'Match keys are used to identify the customer associated with the event for attribution. At least one match key must be provided.',
     type: 'object',
     required: true,
     properties: {
@@ -218,7 +223,8 @@ export const fields: Record<string, InputField> = {
       },
       matchId: {
         label: 'Match ID',
-        description: 'Match ID serves as an anonymous, opaque unique identifier that corresponds to individual users within an advertiser system, such as loyalty membership identifications and order references. This functionality enables advertisers to precisely monitor campaign effectiveness while maintaining customer data privacy, eliminating the need to share sensitive information like hashed email addresses or phone numbers with Amazon, particularly when analyzing complex customer journeys across multiple channels and devices. The advertisers who implement the Amazon Advertising Tag (AAT) on their websites can transmit match_id as a parameter in conjunction with online event tracking. The Amazon system subsequently correlates these identifiers with users through cookies or hashed Personally Identifiable Information (PII). In instances where users complete offline conversions, advertisers can report these activities through the Conversions API (CAPI) utilizing the corresponding match_id, ensuring seamless cross-channel attribution.',
+        description:
+          'Match ID serves as an anonymous, opaque unique identifier that corresponds to individual users within an advertiser system, such as loyalty membership identifications and order references. This functionality enables advertisers to precisely monitor campaign effectiveness while maintaining customer data privacy, eliminating the need to share sensitive information like hashed email addresses or phone numbers with Amazon, particularly when analyzing complex customer journeys across multiple channels and devices. The advertisers who implement the Amazon Advertising Tag (AAT) on their websites can transmit match_id as a parameter in conjunction with online event tracking. The Amazon system subsequently correlates these identifiers with users through cookies or hashed Personally Identifiable Information (PII). In instances where users complete offline conversions, advertisers can report these activities through the Conversions API (CAPI) utilizing the corresponding match_id, ensuring seamless cross-channel attribution.',
         type: 'string',
         required: false
       }
@@ -299,21 +305,21 @@ export const fields: Record<string, InputField> = {
   },
   dataProcessingOptions: {
     label: 'Data Processing Options',
-    description: 'A list of flags for signaling how an event shall be processed. Events marked for limited data use will not be processed.',
+    description:
+      'A list of flags for signaling how an event shall be processed. Events marked for limited data use will not be processed.',
     type: 'string',
     multiple: true,
     required: false,
     additionalProperties: false,
-    choices: [
-      { label: 'Limited Data Use', value: 'LIMITED_DATA_USE' }
-    ],
+    choices: [{ label: 'Limited Data Use', value: 'LIMITED_DATA_USE' }],
     default: {
       '@path': '$.properties.dataProcessingOptions'
     }
   },
   consent: {
     label: 'Consent',
-    description: 'Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.',
+    description:
+      'Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.',
     type: 'object',
     required: false,
     additionalProperties: false,
@@ -336,7 +342,8 @@ export const fields: Record<string, InputField> = {
       },
       amznUserData: {
         label: 'User Data Consent',
-        description: 'Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.',
+        description:
+          'Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.',
         type: 'string',
         required: false,
         choices: [
@@ -367,28 +374,93 @@ export const fields: Record<string, InputField> = {
   },
   customAttributes: {
     label: 'Custom Attributes',
-    description: 'Custom attributes associated with the event to provide additional context.',
+    description:
+      'Custom attributes associated with the event to provide additional context. Only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.',
     type: 'object',
     required: false,
-    additionalProperties: true,
-    defaultObjectUI: 'keyvalue'
-  },
-  amazonImpressionId: {
-    label: 'Amazon impression ID',
-    description: 'The Amazon impression ID associated with the event.',
-    type: 'string',
-    required: false,
+    defaultObjectUI: 'keyvalue',
+    additionalProperties: false,
+    properties: {
+      brand: {
+        label: 'Brand',
+        description: 'The brand associated with the event.',
+        type: 'string'
+      },
+      category: {
+        label: 'Category',
+        description: 'The category associated with the event.',
+        type: 'string'
+      },
+      productId: {
+        label: 'Product ID',
+        description: 'The product ID associated with the event.',
+        type: 'string'
+      },
+      attr1: {
+        label: 'Attribute 1',
+        description: 'Custom attribute 1 associated with the event.',
+        type: 'string'
+      },
+      attr2: {
+        label: 'Attribute 2',
+        description: 'Custom attribute 2 associated with the event.',
+        type: 'string'
+      },
+      attr3: {
+        label: 'Attribute 3',
+        description: 'Custom attribute 3 associated with the event.',
+        type: 'string'
+      },
+      attr4: {
+        label: 'Attribute 4',
+        description: 'Custom attribute 4 associated with the event.',
+        type: 'string'
+      },
+      attr5: {
+        label: 'Attribute 5',
+        description: 'Custom attribute 5 associated with the event.',
+        type: 'string'
+      },
+      attr6: {
+        label: 'Attribute 6',
+        description: 'Custom attribute 6 associated with the event.',
+        type: 'string'
+      },
+      attr7: {
+        label: 'Attribute 7',
+        description: 'Custom attribute 7 associated with the event.',
+        type: 'string'
+      },
+      attr8: {
+        label: 'Attribute 8',
+        description: 'Custom attribute 8 associated with the event.',
+        type: 'string'
+      },
+      attr9: {
+        label: 'Attribute 9',
+        description: 'Custom attribute 9 associated with the event.',
+        type: 'string'
+      },
+      attr10: {
+        label: 'Attribute 10',
+        description: 'Custom attribute 10 associated with the event.',
+        type: 'string'
+      }
+    },
     default: {
-      '@path': '$.properties.amazonImpressionId'
-    }
-  },
-  amazonClickId: {
-    label: 'Amazon click ID',
-    description: 'The Amazon click ID associated with the event.',
-    type: 'string',
-    required: false,
-    default: {
-      '@path': '$.properties.amazonClickId'
+      brand: { '@path': '$.properties.brand' },
+      category: { '@path': '$.properties.category' },
+      productId: { '@path': '$.properties.productId' },
+      attr1: { '@path': '$.properties.attr1' },
+      attr2: { '@path': '$.properties.attr2' },
+      attr3: { '@path': '$.properties.attr3' },
+      attr4: { '@path': '$.properties.attr4' },
+      attr5: { '@path': '$.properties.attr5' },
+      attr6: { '@path': '$.properties.attr6' },
+      attr7: { '@path': '$.properties.attr7' },
+      attr8: { '@path': '$.properties.attr8' },
+      attr9: { '@path': '$.properties.attr9' },
+      attr10: { '@path': '$.properties.attr10' }
     }
   },
   enable_batching: {
