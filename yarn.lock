@@ -4692,7 +4692,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/glob@*", "@types/glob@^9.0.0":
+"@types/glob@*":
   version "9.0.0"
   resolved "https://registry.yarnpkg.com/@types/glob/-/glob-9.0.0.tgz#7b942fafe09c55671912b34f04e8e4676faf32b1"
   integrity sha512-00UxlRaIUvYm4R4W9WYkN8/J+kV8fmOQ7okeH6YFtGWFMt3odD45tpG5yA5wnL7HE6lLgjaTW5n14ju2hl2NNA==
