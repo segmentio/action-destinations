@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-rupt",
-  "version": "1.76.1-staging-4147c365d.0",
+  "version": "1.77.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,8 +15,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "3.157.1-staging-4147c365d.0",
-    "@segment/browser-destination-runtime": "1.86.1-staging-4147c365d.0"
+    "@segment/actions-core": "^3.158.0",
+    "@segment/browser-destination-runtime": "^1.87.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
