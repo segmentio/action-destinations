@@ -204,6 +204,8 @@ register('68516bd8ca73bd53f38a0104', './roadwayai')
 register('68516c107fc235f3572f8a64', './posthog')
 register('6863e71f2a1e1ddc4b4612bf', './nudge')
 register('686799c65fcebef2a98c8141', './ortto-audiences')
+register('6870f42bdaad87a11d764e91', './eagleeye-audiences')
+
 
 
 function register(id: MetadataId, destinationPath: string) {
