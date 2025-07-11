@@ -22,7 +22,7 @@ import type {
   CurrencyCodeV1,
   CustomAttributeV1
 } from '../types'
-import { MatchKeyTypeV1, Region, CustomAttributeV1Names, CustomAttributeV1Name } from '../types'
+import { MatchKeyTypeV1, Region } from '../types'
 import type { Payload } from './generated-types'
 
 /**
@@ -368,18 +368,11 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
 
   // Process custom attributes
   const customAttributeArray: CustomAttributeV1[] = []
-
   Object.entries(customAttributes ?? {}).forEach(([key, value]) => {
     if (value === undefined || value === null) return
 
-    if (!CustomAttributeV1Names.includes(key as CustomAttributeV1Name)) {
-      throw new PayloadValidationError(
-        `Invalid custom attribute name: ${key}. Allowed names are: ${CustomAttributeV1Names.join(', ')}`
-      )
-    }
-
     customAttributeArray.push({
-      name: key as CustomAttributeV1Name,
+      name: key,
       value: typeof value === 'object' ? JSON.stringify(value) : String(value)
     })
   })

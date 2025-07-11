@@ -375,11 +375,11 @@ export const fields: Record<string, InputField> = {
   customAttributes: {
     label: 'Custom Attributes',
     description:
-      'Custom attributes associated with the event to provide additional context. Only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.',
+      'Custom attributes associated with the event to provide additional context. Note that only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.',
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue',
-    additionalProperties: false,
+    additionalProperties: true,
     properties: {
       brand: {
         label: 'Brand',

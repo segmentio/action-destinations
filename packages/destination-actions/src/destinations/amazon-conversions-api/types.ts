@@ -23,27 +23,8 @@ export interface ConsentData {
   tcf?: string
   gpp?: string
 }
-
-export const CustomAttributeV1Names = [
-  'brand',
-  'category',
-  'productId',
-  'attr1',
-  'attr2',
-  'attr3',
-  'attr4',
-  'attr5',
-  'attr6',
-  'attr7',
-  'attr8',
-  'attr9',
-  'attr10'
-] as const
-
-export type CustomAttributeV1Name = typeof CustomAttributeV1Names[number]
-
 export interface CustomAttributeV1 {
-  name: CustomAttributeV1Name
+  name: string
   value: string
 }
 

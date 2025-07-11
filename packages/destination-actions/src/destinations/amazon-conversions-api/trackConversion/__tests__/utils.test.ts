@@ -603,7 +603,12 @@ describe('trackConversion utils', () => {
           attr7: 'false',
           attr8: 'true',
           attr9: '{"newsletter":true,"notifications":false}',
-          attr10: '["premium","loyalty",9099]'
+          attr10: '["premium","loyalty",9099]',
+          someOtherAttr: null, // This should be ignored
+          someOtherAttr2: undefined, // This should also be ignored
+          someOtherAttr3: 'valid', // This should be included
+          someOtherAttr4: 123, // This should be included as a string
+          someOtherAttr5: true // This should be included as a string
         },
         enable_batching: true
       }
@@ -658,6 +663,18 @@ describe('trackConversion utils', () => {
         {
           name: 'attr10',
           value: '["premium","loyalty",9099]'
+        },
+        {
+          name: 'someOtherAttr3',
+          value: 'valid'
+        },
+        {
+          name: 'someOtherAttr4',
+          value: '123'
+        },
+        {
+          name: 'someOtherAttr5',
+          value: 'true'
         }
       ]
 

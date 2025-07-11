@@ -116,7 +116,7 @@ export interface Payload {
     gpp?: string
   }
   /**
-   * Custom attributes associated with the event to provide additional context. Only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.
+   * Custom attributes associated with the event to provide additional context. Note that only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.
    */
   customAttributes?: {
     /**
@@ -171,6 +171,7 @@ export interface Payload {
      * Custom attribute 10 associated with the event.
      */
     attr10?: string
+    [k: string]: unknown
   }
   /**
    * When enabled, Segment will send data in batching.
