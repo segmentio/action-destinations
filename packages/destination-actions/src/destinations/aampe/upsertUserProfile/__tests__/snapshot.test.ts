@@ -24,7 +24,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
-      settings: settingsData,
+      settings: {
+        ...settingsData,
+        region: 'https://ingestion.api.aampe.com/v1/'
+      },
       auth: undefined
     })
 
@@ -57,7 +60,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
-      settings: settingsData,
+      settings: {
+        ...settingsData,
+        region: 'https://ingestion.api.aampe.com/v1/'
+      },
       auth: undefined
     })
 

@@ -24,7 +24,7 @@ export interface Payload {
    */
   event_id?: string
   /**
-   * User properties.
+   * User properties. Make sure to update the default mapping if you are sending user proferties via properties object in a track, page or screen event.
    */
   user_properties: {
     [k: string]: unknown

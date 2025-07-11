@@ -61,9 +61,15 @@ export const event_id: InputField = {
 
 export const user_properties: InputField = {
   label: 'User Properties',
-  description: 'User properties.',
+  description: 'User properties. Make sure to update the default mapping if you are sending user proferties via properties object in a track, page or screen event.',
   type: 'object',
   defaultObjectUI: 'keyvalue',
-  default: { '@path': '$.context.traits' },
+  default: {
+    '@if': {
+      exists: { '@path': '$.traits' },
+      then: { '@path': '$.traits' },
+      else: { '@path': '$.context.traits' }
+    }
+  },
   required: true
 }

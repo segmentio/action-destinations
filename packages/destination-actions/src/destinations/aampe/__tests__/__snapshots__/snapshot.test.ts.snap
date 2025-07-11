@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-aampe destination: sendEvent action - all fields 1`] = `
+Object {
+  "contact_id": "hPrzI[",
+  "event_id": "hPrzI[",
+  "event_name": "hPrzI[",
+  "metadata": Object {
+    "testType": "hPrzI[",
+  },
+  "timestamp": 2055216088.982,
+  "timezone": "hPrzI[",
+}
+`;
+
+exports[`Testing snapshot for actions-aampe destination: sendEvent action - required fields 1`] = `
+Object {
+  "contact_id": "hPrzI[",
+  "event_id": "hPrzI[",
+  "event_name": "hPrzI[",
+  "timestamp": 2055216088.982,
+}
+`;
+
+exports[`Testing snapshot for actions-aampe destination: upsertUserProfile action - all fields 1`] = `
+Object {
+  "contact_id": "w#PIrr",
+  "event_id": "w#PIrr",
+  "event_name": "w#PIrr",
+  "metadata": Object {
+    "testType": "w#PIrr",
+  },
+  "timestamp": 2718710834.24,
+  "user_properties": Object {
+    "testType": "w#PIrr",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-aampe destination: upsertUserProfile action - required fields 1`] = `
+Object {
+  "contact_id": "w#PIrr",
+  "event_id": "w#PIrr",
+  "event_name": "w#PIrr",
+  "timestamp": 2718710834.24,
+  "user_properties": Object {
+    "testType": "w#PIrr",
+  },
+}
+`;

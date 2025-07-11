@@ -345,24 +345,19 @@ describe('Aampe.upsertUserProfile', () => {
       receivedAt
     })
 
-    const responses = await testDestination.testAction('upsertUserProfile', {
-      event,
-      settings,
-      mapping: {
-        contact_id: 'user123',
-        event_name: 'identify',
-        timestamp: '2023-01-01T00:00:00.000Z',
-        user_properties: {}
-      }
-    })
+    await expect(
+      testDestination.testAction('upsertUserProfile', {
+        event,
+        settings,
+        mapping: {
+          contact_id: 'user123',
+          event_name: 'identify',
+          timestamp: '2023-01-01T00:00:00.000Z',
+          user_properties: {}
+        }
+      })
+    ).rejects.toThrowError('Upsert User Profile action requires at least one user property to be set')
 
-    expect(responses.length).toBeGreaterThan(0)
-    expect(responses[0].options.json).toMatchObject({
-      contact_id: 'user123',
-      event_name: 'identify',
-      timestamp: expect.any(Number),
-      user_properties: {}
-    })
   })
 
   it('should handle error responses', async () => {
