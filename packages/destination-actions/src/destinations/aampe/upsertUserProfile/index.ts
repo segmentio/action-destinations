@@ -34,9 +34,7 @@ const action: ActionDefinition<Settings, Payload> = {
       event_id,
       user_properties
     }
-
-    console.log(`${settings.region}properties`)
-
+    
     return request(`${settings.region}properties`, {
       method: 'post',
       json

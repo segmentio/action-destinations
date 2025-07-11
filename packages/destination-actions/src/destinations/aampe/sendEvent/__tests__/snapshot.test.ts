@@ -2,6 +2,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
+import { usURL } from '../../constants'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'sendEvent'
@@ -26,7 +27,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       mapping: event.properties,
       settings: {
         ...settingsData,
-        region: 'https://ingestion.api.aampe.com/v1/'
+        region: usURL
       },
       auth: undefined
     })
@@ -62,7 +63,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       mapping: event.properties,
       settings: {
         ...settingsData,
-        region: 'https://ingestion.api.aampe.com/v1/'
+        region: usURL
       },
       auth: undefined
     })

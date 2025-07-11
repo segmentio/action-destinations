@@ -1,12 +1,13 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
+import { usURL } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
   apiKey: 'test-api-key',
-  region: 'https://ingestion.api.aampe.com/v1/'
+  region: usURL
 }
 
 const receivedAt = '2023-01-01T00:00:00.000Z'

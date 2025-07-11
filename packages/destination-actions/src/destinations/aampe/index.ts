@@ -2,6 +2,7 @@ import { DestinationDefinition, defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
 import upsertUserProfile from './upsertUserProfile'
+import { usURL } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Aampe',
@@ -23,9 +24,9 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true,
         choices: [
-          { label: 'US', value: 'https://ingestion.api.aampe.com/v1/' }
+          { label: 'US', value: usURL }
         ],
-        default: 'https://ingestion.api.aampe.com/v1/'
+        default: usURL
       }
     }
   },
