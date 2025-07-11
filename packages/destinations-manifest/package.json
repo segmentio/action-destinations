@@ -23,7 +23,6 @@
     "@segment/analytics-browser-actions-commandbar": "1.88.1-staging-d047d98e0.0",
     "@segment/analytics-browser-actions-contentstack-web": "1.31.1-staging-d047d98e0.0",
     "@segment/analytics-browser-actions-devrev": "1.75.1-staging-d047d98e0.0",
-    "@segment/analytics-browser-actions-facebook-conversions-api-web": "1.1.1-staging-f958b46aa.0",
     "@segment/analytics-browser-actions-friendbuy": "1.89.1-staging-d047d98e0.0",
     "@segment/analytics-browser-actions-fullstory": "1.90.1-staging-d047d98e0.0",
     "@segment/analytics-browser-actions-google-analytics-4": "1.95.1-staging-d047d98e0.0",
