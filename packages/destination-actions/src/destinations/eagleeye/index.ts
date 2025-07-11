@@ -4,7 +4,7 @@ import type { Settings, AudienceSettings } from './generated-types'
 import triggerBehavioralAction from './triggerBehavioralAction'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
-  name: 'Eagle Eye Audiences',
+  name: 'Eagle Eye',
   slug: 'actions-eagleeye',
   mode: 'cloud',
   description: 'Synchronize Segment audiences to trigger behavioral actions in Eagle Eye AIR, enabling customer rewards.',
