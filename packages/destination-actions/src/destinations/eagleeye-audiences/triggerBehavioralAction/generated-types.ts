@@ -10,7 +10,7 @@ export interface Payload {
    */
   walletTransactionReference?: string
   /**
-   * Accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001
+   * If connecting to an Engage Audience the default mapping should be left as is. This field accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001
    */
   behavioralActionTriggerReferences: string
 }
