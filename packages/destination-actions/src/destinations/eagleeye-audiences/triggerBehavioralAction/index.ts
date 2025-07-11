@@ -25,7 +25,8 @@ const action: ActionDefinition<Settings, Payload> = {
     behavioralActionTriggerReferences: {
       label: 'Behavioral Action trigger reference',
       type: 'string',
-      description: 'If connecting to an Engage Audience the default mapping should be left as is. This field accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001',
+      description:
+        'If connecting to an Engage Audience the default mapping should be left as is. This field accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001',
       default: {
         '@path': '$.context.personas.external_audience_id'
       },
@@ -35,7 +36,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload }) => {
     const triggerReferences = payload.behavioralActionTriggerReferences.replace(/\s*/g, '').split(',')
 
-    if(triggerReferences.length === 0 || triggerReferences[0] === '') {
+    if (triggerReferences.length === 0 || triggerReferences[0] === '') {
       throw new PayloadValidationError('Behavioral Action trigger references cannot be empty')
     }
 

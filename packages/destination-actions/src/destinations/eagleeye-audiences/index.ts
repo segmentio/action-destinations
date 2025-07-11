@@ -7,7 +7,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Eagle Eye',
   slug: 'actions-eagleeye',
   mode: 'cloud',
-  description: 'Synchronize Segment audiences to trigger behavioral actions in Eagle Eye AIR, enabling customer rewards.',
+  description:
+    'Synchronize Segment audiences to trigger behavioral actions in Eagle Eye AIR, enabling customer rewards.',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -30,7 +31,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     behavioralActionTriggerReferences: {
       label: 'Behavioral Action trigger reference',
       type: 'string',
-      description: 'Required if connecting to an Engage Audience. Accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001',
+      description:
+        'Required if connecting to an Engage Audience. Accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001',
       required: false
     }
   },
@@ -42,7 +44,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async createAudience(_, createAudienceInput) {
       const triggerRef = createAudienceInput?.audienceSettings?.behavioralActionTriggerReferences?.trim()
 
-      if(!triggerRef) {
+      if (!triggerRef) {
         throw new IntegrationError(
           'Behavioral Action trigger references cannot be empty',
           'Invalid Audience Settings',
