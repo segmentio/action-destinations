@@ -3,6 +3,7 @@ import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
 import nock from 'nock'
 import { usURL } from '../constants'
+import { time } from 'console'
 
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-aampe'
@@ -24,7 +25,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: event.properties,
+        mapping: 
+        { 
+          ...event.properties,
+          timestamp: "2023-10-01T00:00:00.000Z"
+        },
         settings: {
           ...settingsData,
           region: usURL
@@ -61,7 +66,10 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: event.properties,
+        mapping: { 
+          ...event.properties,
+          timestamp: "2023-10-01T00:00:00.000Z"
+        },
         settings: {
           ...settingsData,
           region: usURL

@@ -8,7 +8,7 @@ Object {
   "metadata": Object {
     "testType": "hPrzI[",
   },
-  "timestamp": 2055216088.982,
+  "timestamp": 1696118400,
   "timezone": "hPrzI[",
 }
 `;
@@ -18,7 +18,7 @@ Object {
   "contact_id": "hPrzI[",
   "event_id": "hPrzI[",
   "event_name": "hPrzI[",
-  "timestamp": 2055216088.982,
+  "timestamp": 1696118400,
 }
 `;
 
@@ -30,7 +30,7 @@ Object {
   "metadata": Object {
     "testType": "w#PIrr",
   },
-  "timestamp": 2718710834.24,
+  "timestamp": 1696118400,
   "user_properties": Object {
     "testType": "w#PIrr",
   },
@@ -42,7 +42,7 @@ Object {
   "contact_id": "w#PIrr",
   "event_id": "w#PIrr",
   "event_name": "w#PIrr",
-  "timestamp": 2718710834.24,
+  "timestamp": 1696118400,
   "user_properties": Object {
     "testType": "w#PIrr",
   },

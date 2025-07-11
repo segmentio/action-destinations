@@ -8,7 +8,7 @@ Object {
   "metadata": Object {
     "testType": "t*5dhap2",
   },
-  "timestamp": 2563722126.002,
+  "timestamp": 1696118400,
   "timezone": "t*5dhap2",
 }
 `;
@@ -18,6 +18,6 @@ Object {
   "contact_id": "t*5dhap2",
   "event_id": "t*5dhap2",
   "event_name": "t*5dhap2",
-  "timestamp": 2563722126.002,
+  "timestamp": 1696118400,
 }
 `;
