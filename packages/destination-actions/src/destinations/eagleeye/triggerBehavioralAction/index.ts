@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { BehavioralActionPayload } from './types'
@@ -25,14 +25,19 @@ const action: ActionDefinition<Settings, Payload> = {
     behavioralActionTriggerReferences: {
       label: 'Behavioral Action trigger reference',
       type: 'string',
-      description:
-        'Accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001',
-      default: '',
+      description: 'If connecting to an Engage Audience the default mapping should be left as is. This field accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001',
+      default: {
+        '@path': '$.context.personas.external_audience_id'
+      },
       required: true
     }
   },
   perform: (request, { settings, payload }) => {
     const triggerReferences = payload.behavioralActionTriggerReferences.replace(/\s*/g, '').split(',')
+
+    if(triggerReferences.length === 0 || triggerReferences[0] === '') {
+      throw new PayloadValidationError('Behavioral Action trigger references cannot be empty')
+    }
 
     const behavioralActionPayload: BehavioralActionPayload = {
       type: 'services/trigger',
