@@ -1,11 +1,8 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import { initializePixel } from './init-script'
 import { CJ } from './types'
-
 import sitePage from './sitePage'
-
 import order from './order'
 
 declare global {
@@ -19,12 +16,12 @@ export const destination: BrowserDestinationDefinition<Settings, CJ> = {
   name: 'Commission Junction',
   slug: 'actions-cj',
   mode: 'device',
-
+  description: 'The Commission Junction Browser Destination allows you to install the CJ Javascript pixel onto your site and pass mapped Segment events and metadata to CJ.',
   settings: {
     tagId: {
       label: 'Tag ID',
       description: 'Your Commission Junction Tag ID.',
-      type: 'number',
+      type: 'string',
       required: true
     },
     actionTrackerId: {
@@ -33,9 +30,14 @@ export const destination: BrowserDestinationDefinition<Settings, CJ> = {
       type: 'string'
     }
   },
-  initialize: async ({ settings }, deps) => {
-    initializePixel(settings)
-    await deps.resolveWhen(() => window.cj != null, 100)
+  initialize: async () => {
+    
+    if (!window.cj) {
+      window.cj = {} as CJ
+    }
+
+    console.log('Initializing empty CJ object on window.cj')
+
     return window.cj
   },
 
@@ -44,5 +46,6 @@ export const destination: BrowserDestinationDefinition<Settings, CJ> = {
     order
   }
 }
+
 
 export default browserDestination(destination)
