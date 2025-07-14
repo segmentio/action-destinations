@@ -44,7 +44,12 @@ export class SyncAudiences {
         partner_api_key: this.partnerApiKey,
         client_secret: settings.client_secret,
         cohort_id: cohort_id,
-        cohort_changes: cohortChanges
+        cohort_changes: cohortChanges.map((change) => ({
+          user_ids: change.user_ids,
+          device_ids: change.device_ids,
+          aliases: change.aliases,
+          should_remove: change.should_remove
+        }))
       }
     })
   }
