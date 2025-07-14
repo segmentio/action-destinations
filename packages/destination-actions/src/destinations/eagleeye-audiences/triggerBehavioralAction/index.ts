@@ -6,7 +6,7 @@ import { BehavioralActionPayload } from './types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Trigger Behavioral Action',
   description: 'Trigger behavioral actions in AIR based on tracked events',
-  defaultSubscription: 'type = "track"',
+  defaultSubscription: 'type = "track" or type = "identify"',
   fields: {
     identityValue: {
       label: 'User identity value',
@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'If connecting to an Engage Audience the default mapping should be left as is. This field accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001',
       default: {
-        '@path': '$.context.personas.external_audience_id'
+        '@path': '$.context.personas.audience_settings.behavioralActionTriggerReferences'
       },
       required: true
     }
