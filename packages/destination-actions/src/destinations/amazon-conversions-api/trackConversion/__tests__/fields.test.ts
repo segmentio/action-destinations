@@ -115,8 +115,6 @@ describe('trackConversion fields', () => {
         expect(fields.customAttributes?.properties).toBeDefined()
         expect(fields.customAttributes?.properties?.name).toBeDefined()
         expect(fields.customAttributes?.properties?.name.required).toBe(true)
-        expect(fields.customAttributes?.properties?.dataType).toBeDefined()
-        expect(fields.customAttributes?.properties?.dataType?.choices).toContainEqual({ label: 'String', value: 'STRING' })
         expect(fields.customAttributes?.properties?.value).toBeDefined()
         expect(fields.customAttributes?.properties?.value.required).toBe(true)
     })

@@ -26,7 +26,6 @@ export interface ConsentData {
 
 export interface CustomAttributeV1 {
     name: string
-    dataType?: 'STRING' | 'NUMBER' | 'BOOLEAN'
     value: string
 }
 

@@ -47,11 +47,11 @@ export function validateConsent(consent: Payload['consent'], region: RegionValue
     ...(hasStringValue(ipAddress) && { geo: { ipAddress } }),
     ...(hasStringValue(amznAdStorage) &&
       hasStringValue(amznUserData) && {
-        amazonConsent: {
-          amznAdStorage,
-          amznUserData
-        } as AmazonConsentFormat
-      }),
+      amazonConsent: {
+        amznAdStorage,
+        amznUserData
+      } as AmazonConsentFormat
+    }),
     ...(hasStringValue(tcf) && { tcf }),
     ...(hasStringValue(gpp) && { gpp })
   }
@@ -385,9 +385,7 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     ...(payload.clientDedupeId && { clientDedupeId: payload.clientDedupeId }),
     ...(payload.dataProcessingOptions && { dataProcessingOptions: payload.dataProcessingOptions }),
     ...(consent && { consent }),
-    ...(payload.customAttributes && { customAttributes: payload.customAttributes as CustomAttributeV1[] }),
-    ...(payload.amazonImpressionId && { amazonImpressionId: payload.amazonImpressionId }),
-    ...(payload.amazonClickId && { amazonClickId: payload.amazonClickId })
+    ...(payload.customAttributes && { customAttributes: payload.customAttributes as CustomAttributeV1[] })
   })
 
   return eventData

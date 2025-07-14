@@ -367,7 +367,7 @@ export const fields: Record<string, InputField> = {
   },
   customAttributes: {
     label: 'Custom Attributes',
-    description: 'Custom attributes associated with the event to provide additional context.',
+    description: 'Custom attributes associated with the event to provide additional context. Only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.',
     type: 'object',
     multiple: true,
     required: false,
@@ -380,41 +380,12 @@ export const fields: Record<string, InputField> = {
         type: 'string',
         required: true
       },
-      dataType: {
-        label: 'Data Type',
-        description: 'Data type of the custom attribute.',
-        type: 'string',
-        required: false,
-        choices: [
-          { label: 'String', value: 'STRING' },
-          { label: 'Number', value: 'NUMBER' },
-          { label: 'Boolean', value: 'BOOLEAN' }
-        ]
-      },
       value: {
         label: 'Value',
         description: 'Value of the custom attribute. Max length 256 characters.',
         type: 'string',
         required: true
       }
-    }
-  },
-  amazonImpressionId: {
-    label: 'Amazon impression ID',
-    description: 'The Amazon impression ID associated with the event.',
-    type: 'string',
-    required: false,
-    default: {
-      '@path': '$.properties.amazonImpressionId'
-    }
-  },
-  amazonClickId: {
-    label: 'Amazon click ID',
-    description: 'The Amazon click ID associated with the event.',
-    type: 'string',
-    required: false,
-    default: {
-      '@path': '$.properties.amazonClickId'
     }
   },
   enable_batching: {

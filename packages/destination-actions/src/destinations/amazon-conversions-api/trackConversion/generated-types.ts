@@ -116,7 +116,7 @@ export interface Payload {
     gpp?: string
   }
   /**
-   * Custom attributes associated with the event to provide additional context.
+   * Custom attributes associated with the event to provide additional context. Only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.
    */
   customAttributes?: {
     /**
@@ -124,22 +124,10 @@ export interface Payload {
      */
     name: string
     /**
-     * Data type of the custom attribute.
-     */
-    dataType?: string
-    /**
      * Value of the custom attribute. Max length 256 characters.
      */
     value: string
   }[]
-  /**
-   * The Amazon impression ID associated with the event.
-   */
-  amazonImpressionId?: string
-  /**
-   * The Amazon click ID associated with the event.
-   */
-  amazonClickId?: string
   /**
    * When enabled, Segment will send data in batching.
    */
