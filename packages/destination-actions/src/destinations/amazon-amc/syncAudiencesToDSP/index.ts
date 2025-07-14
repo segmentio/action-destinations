@@ -117,7 +117,9 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       required: false,
-      default: 10000
+      default: 10000,
+      maximum: 10000,
+      minimum: 1500
     }
   },
   perform: (request, { settings, payload, audienceSettings }) => {
