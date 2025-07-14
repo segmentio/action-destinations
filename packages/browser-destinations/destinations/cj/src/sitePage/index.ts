@@ -1,32 +1,15 @@
-/* eslint-disable */
-// @ts-nocheck
+
 
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { CJ } from '../types'
-import { SitePage } from '../types'
-
-
-function sendSitePageToCJ(tagId) {
-  (function (a, b, c, d) {
-    a = `//www.mczbf.com/tags/${tagId}/tag.js`;
-    b = document;
-    c = "script";
-    d = b.createElement(c);
-    d.src = a;
-    d.type = "text/java" + c;
-    d.async = true;
-    d.id = "cjapitag";
-    a = b.getElementsByTagName(c)[0];
-    a.parentNode.insertBefore(d, a);
-  })();
-}
+import { send } from '../utils'
 
 const action: BrowserActionDefinition<Settings, CJ, Payload> = {
   title: 'Site Page',
   description: 'Send site page data to CJ.',
-  defaultSubscription: 'type = "page" or type = "track"',
+  defaultSubscription: 'type = "page"',
   platform: 'web',
   fields: {
     userId: {
@@ -130,18 +113,9 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
     }
   },
   perform: (cj, { payload, settings}) => {
-
-
     cj.sitePage = payload
-
     const { tagId } = settings
-    
-    console.log('Action step 1: Sending site page data to CJ:', tagId)
-    
-    sendSitePageToCJ(tagId)
-
-    console.log('Action step 2: Sending site page data to CJ:', tagId)
-
+    send(tagId)
   }
 }
 

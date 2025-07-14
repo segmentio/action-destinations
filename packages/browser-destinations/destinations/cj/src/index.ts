@@ -4,6 +4,7 @@ import { browserDestination } from '@segment/browser-destination-runtime/shim'
 import { CJ } from './types'
 import sitePage from './sitePage'
 import order from './order'
+import { defaultValues } from '@segment/actions-core'
 
 declare global {
   interface Window {
@@ -11,7 +12,6 @@ declare global {
   }
 }
 
-// Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, CJ> = {
   name: 'Commission Junction',
   slug: 'actions-cj',
@@ -31,20 +31,24 @@ export const destination: BrowserDestinationDefinition<Settings, CJ> = {
     }
   },
   initialize: async () => {
-    
     if (!window.cj) {
       window.cj = {} as CJ
     }
-
-    console.log('Initializing empty CJ object on window.cj')
-
     return window.cj
   },
-
   actions: {
     sitePage,
     order
-  }
+  },
+  presets: [
+    {
+      name: 'Send Order',
+      subscribe: 'event = "Order Completed"',
+      partnerAction: 'order',
+      mapping: defaultValues(order.fields),
+      type: 'automatic'
+    },
+  ]
 }
 
 
