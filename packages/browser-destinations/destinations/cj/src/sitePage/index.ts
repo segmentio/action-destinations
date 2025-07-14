@@ -5,6 +5,7 @@ import type { BrowserActionDefinition } from '@segment/browser-destination-runti
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { CJ } from '../types'
+import { SitePage } from '../types'
 
 
 function sendSitePageToCJ(tagId) {
