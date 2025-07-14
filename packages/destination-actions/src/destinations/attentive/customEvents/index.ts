@@ -8,7 +8,7 @@ import { formatCustomEventJSON, validate } from '../functions'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Custom Events',
   description: 'Send custom Segment analytics events to Attentive.',
-  defaultSubscription: 'type = "track" and event != "Product Viewed" and event != "Product Added" and event != "Order Completed"',
+  defaultSubscription: 'type = "track" and event != "Product Viewed" and event != "Product Added" and event != "Order Completed" and event != "User Subscribed"',
   fields: {
     userIdentifiers,
     occurredAt,

@@ -60,7 +60,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'ecommEvent',
       mapping: { 
         ...defaultValues(ecommEvent.fields),
-        eventType: 'view_item', 
+        eventType: 'view-item', 
       },
       type: 'automatic'
     },
@@ -70,7 +70,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'ecommEvent',
       mapping: { 
         ...defaultValues(ecommEvent.fields),
-        eventType: 'add_to_cart', 
+        eventType: 'add-to-cart', 
       },
       type: 'automatic'
     },
