@@ -1,5 +1,5 @@
 import { IntegrationError, RequestClient } from '@segment/actions-core'
-import { OAUTH_URL, SEGMENT_DMP_ID } from './constants'
+import { OAUTH_URL, SEGMENT_DATA_PARTNER_ID } from './constants'
 import type { RefreshTokenResponse } from './types'
 
 import type { AudienceSettings, Settings } from './generated-types'
@@ -8,9 +8,9 @@ type AuthCredentials = { refresh_token: string; access_token: string; client_id:
 
 export const getAuthSettings = (): AuthCredentials => {
   return {
-    refresh_token: process.env.ACTIONS_DISPLAY_VIDEO_360_REFRESH_TOKEN,
-    client_id: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_ID,
-    client_secret: process.env.ACTIONS_DISPLAY_VIDEO_360_CLIENT_SECRET
+    refresh_token: process.env.ACTIONS_GOOGLE_DATA_MANAGER_REFRESH_TOKEN,
+    client_id: process.env.ACTIONS_GOOGLE_DATA_MANAGER_CLIENT_ID,
+    client_secret: process.env.ACTIONS_GOOGLE_DATA_MANAGER_CLIENT_SECRET
   } as AuthCredentials
 }
 
@@ -48,7 +48,7 @@ export const buildHeaders = (
     // @ts-ignore - TS doesn't know about the oauth property
     Authorization: `Bearer ${accessToken}`,
     'Content-Type': 'application/json',
-    'login-customer-Id': `products/DATA_PARTNER/customers/${SEGMENT_DMP_ID}`, // this is the Segment account id
-    'linked-customer-id': settings?.productLink
+    'login-customer-Id': `products/DATA_PARTNER/customers/${SEGMENT_DATA_PARTNER_ID}`, // this is the Segment account id
+    'linked-customer-id': settings?.advertiserAccountId
   }
 }

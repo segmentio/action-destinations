@@ -1,11 +1,153 @@
-import nock from 'nock'
+import destination from '../index'
+import { IntegrationError } from '@segment/actions-core'
 
-describe('Google Data Manager - testAuthentication', () => {
-  afterEach(() => {
-    nock.cleanAll()
+// Mocks
+jest.mock('../shared', () => ({
+  buildHeaders: jest.fn(() => ({})),
+  getAuthSettings: jest.fn(() => ({})),
+  getAuthToken: jest.fn(() => 'mock-token')
+}))
+jest.mock('../errors', () => ({
+  handleRequestError: jest.fn((error) => error)
+}))
+jest.mock('../functions', () => ({
+  verifyCustomerId: jest.fn()
+}))
+
+const mockRequest = jest.fn()
+const mockStatsClient = { incr: jest.fn() }
+
+const baseSettings = { advertiserAccountId: '12345' }
+const baseAudienceSettings = { description: 'desc', membershipDurationDays: '30' }
+
+// Helper to reset mocks
+function resetMocks() {
+  jest.clearAllMocks()
+  mockRequest.mockReset()
+}
+
+describe('Google Data Manager Destination', () => {
+  beforeEach(resetMocks)
+
+  describe('authentication', () => {
+    it('should authenticate successfully', async () => {
+      mockRequest.mockResolvedValue({ status: 200 })
+      const result = await destination.authentication.testAuthentication(mockRequest, {
+        auth: { accessToken: 'token' },
+        settings: baseSettings
+      })
+      expect(result.status).toBe(200)
+    })
+
+    it('should fail authentication with missing token', async () => {
+      await expect(
+        destination.authentication.testAuthentication(mockRequest, {
+          auth: {},
+          settings: baseSettings
+        })
+      ).rejects.toThrow('Missing access token for authentication test.')
+    })
+
+    it('should fail authentication with bad response', async () => {
+      mockRequest.mockResolvedValue({ status: 401, statusText: 'Unauthorized' })
+      await expect(
+        destination.authentication.testAuthentication(mockRequest, {
+          auth: { accessToken: 'token' },
+          settings: baseSettings
+        })
+      ).rejects.toThrow('Authentication failed: Unauthorized')
+    })
+
+    it('should refresh access token', async () => {
+      mockRequest.mockResolvedValue({ json: async () => ({ access_token: 'new-token' }) })
+      const result = await destination.authentication.refreshAccessToken(mockRequest, {
+        auth: { refreshToken: 'rt', clientId: 'cid', clientSecret: 'cs' }
+      })
+      expect(result.accessToken).toBe('new-token')
+    })
   })
 
-  it('should succeed with valid access token and productLink', async () => {
-    return
+  describe('audienceConfig', () => {
+    it('should create audience successfully', async () => {
+      mockRequest.mockResolvedValue({ json: async () => ({ results: [{ resourceName: 'aud-id' }] }) })
+      const result = await destination.audienceConfig.createAudience(mockRequest, {
+        audienceName: 'Test Audience',
+        settings: baseSettings,
+        statsContext: { statsClient: mockStatsClient, tags: [] },
+        audienceSettings: baseAudienceSettings
+      })
+      expect(result.externalId).toBe('aud-id')
+      expect(mockStatsClient.incr).toHaveBeenCalledWith('createAudience.success', 1, expect.any(Array))
+    })
+
+    it('should throw error if audienceName is missing', async () => {
+      await expect(
+        destination.audienceConfig.createAudience(mockRequest, {
+          audienceName: '',
+          settings: baseSettings,
+          statsContext: { statsClient: mockStatsClient, tags: [] },
+          audienceSettings: baseAudienceSettings
+        })
+      ).rejects.toThrow(IntegrationError)
+    })
+
+    it('should handle error in createAudience', async () => {
+      mockRequest.mockRejectedValue(new Error('fail'))
+      await expect(
+        destination.audienceConfig.createAudience(mockRequest, {
+          audienceName: 'Test Audience',
+          settings: baseSettings,
+          statsContext: { statsClient: mockStatsClient, tags: [] },
+          audienceSettings: baseAudienceSettings
+        })
+      ).rejects.toThrow('fail')
+    })
+
+    it('should get audience successfully', async () => {
+      mockRequest.mockResolvedValue({ json: async () => [{ results: [{ userList: { resourceName: 'aud-id' } }] }] })
+      const result = await destination.audienceConfig.getAudience(mockRequest, {
+        externalId: 'aud-id',
+        settings: baseSettings,
+        statsContext: { statsClient: mockStatsClient, tags: [] },
+        audienceSettings: baseAudienceSettings
+      })
+      expect(result.externalId).toBe('aud-id')
+      expect(mockStatsClient.incr).toHaveBeenCalledWith('getAudience.success', 1, expect.any(Array))
+    })
+
+    it('should throw error if advertiserId is missing in getAudience', async () => {
+      await expect(
+        destination.audienceConfig.getAudience(mockRequest, {
+          externalId: 'aud-id',
+          settings: { advertiserAccountId: '' },
+          statsContext: { statsClient: mockStatsClient, tags: [] },
+          audienceSettings: baseAudienceSettings
+        })
+      ).rejects.toThrow(IntegrationError)
+    })
+
+    it('should throw error if foundId does not match externalId', async () => {
+      mockRequest.mockResolvedValue({ json: async () => [{ results: [{ userList: { resourceName: 'other-id' } }] }] })
+      await expect(
+        destination.audienceConfig.getAudience(mockRequest, {
+          externalId: 'aud-id',
+          settings: baseSettings,
+          statsContext: { statsClient: mockStatsClient, tags: [] },
+          audienceSettings: baseAudienceSettings
+        })
+      ).rejects.toThrow(IntegrationError)
+    })
+
+    it('should handle error in getAudience', async () => {
+      mockRequest.mockRejectedValue(new Error('fail'))
+      await expect(
+        destination.audienceConfig.getAudience(mockRequest, {
+          externalId: 'aud-id',
+          settings: baseSettings,
+          statsContext: { statsClient: mockStatsClient, tags: [] },
+          audienceSettings: baseAudienceSettings
+        })
+      ).rejects.toThrow('fail')
+    })
   })
 })

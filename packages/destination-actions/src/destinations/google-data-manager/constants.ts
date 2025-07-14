@@ -5,4 +5,4 @@ export const BASE_URL = `https://audiencepartner.googleapis.com/${GOOGLE_API_VER
 export const CREATE_AUDIENCE_URL = `${BASE_URL}userLists:mutate`
 export const GET_AUDIENCE_URL = `${BASE_URL}audiencePartner:searchStream`
 export const OAUTH_URL = 'https://accounts.google.com/o/oauth2/token'
-export const SEGMENT_DMP_ID = '8152223833'
+export const SEGMENT_DATA_PARTNER_ID = '8152223833'

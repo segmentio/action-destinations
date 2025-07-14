@@ -1,7 +1,8 @@
-import type { Payload as AddToAudiencePayload } from './ingest/generated-types'
-
 export interface RefreshTokenResponse {
   access_token: string
+  scope: string
+  expires_in: number
+  token_type: string
 }
 
 export interface GoogleAPIError {
@@ -14,13 +15,3 @@ export interface GoogleAPIError {
     }
   }
 }
-
-export type UserOperation = {
-  UserId: string
-  UserIdType: number
-  UserListId: number
-  Delete: boolean
-}
-
-export type ListOperation = 'add' | 'remove'
-export type UpdateHandlerPayload = AddToAudiencePayload
