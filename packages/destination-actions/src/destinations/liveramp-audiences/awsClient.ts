@@ -78,7 +78,7 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
   const metadata: LRMetaPayload = {
     audienceKey: input.audienceComputeId || '',
     uploadType: input.uploadType,
-    filename: input.filename,
+    filename: input.gzipCompressFile ? `${input.filename}.gz` : input.filename,
     gzipCompressFile: input.gzipCompressFile
   }
 
