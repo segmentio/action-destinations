@@ -171,7 +171,17 @@ const destination: DestinationDefinition<Settings> = {
         eventType: 'SUBSCRIBE'
       },
       type: 'automatic'
-    }
+    },
+    {
+      name: 'Other',
+      subscribe: 'type = "track" AND event = "Other"',
+      partnerAction: 'trackConversion',
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        eventType: 'OTHER'
+      },
+      type: 'automatic'
+    },
   ],
   actions: {
     trackConversion

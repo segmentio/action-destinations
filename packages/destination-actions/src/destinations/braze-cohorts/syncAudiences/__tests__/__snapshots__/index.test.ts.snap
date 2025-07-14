@@ -17,6 +17,7 @@ Object {
     Object {
       "aliases": Array [],
       "device_ids": Array [],
+      "should_remove": undefined,
       "user_ids": Array [
         "w8KWCsdTxe1Ydaf3s62UMc",
       ],
@@ -215,6 +216,7 @@ Object {
     Object {
       "aliases": Array [],
       "device_ids": Array [],
+      "should_remove": undefined,
       "user_ids": Array [
         "w8KWCsdTxe1Ydaf3s62UMc",
       ],

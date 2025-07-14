@@ -13,6 +13,8 @@ import trackPurchase2 from './trackPurchase2'
 import updateUserProfile2 from './updateUserProfile2'
 import triggerCampaign from './triggerCampaign'
 
+import upsertCatalogItem from './upsertCatalogItem'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Braze Cloud Mode (Actions)',
   slug: 'actions-braze-cloud',
@@ -86,6 +88,7 @@ const destination: DestinationDefinition<Settings> = {
     trackPurchase2,
     updateUserProfile2,
     createAlias2,
+    upsertCatalogItem,
     triggerCampaign
   },
   presets: [

@@ -30,8 +30,71 @@ const settings = {
   }
 }
 
+const settingsWithoutClientCreds = {
+  oauth: {},
+  dynamicAuthSettings: {
+    oauth: {
+      type: 'authCode',
+      scopes: 'scope',
+      authorizationServerUrl: 'https://www.webhook-extensible/authorize',
+      accessTokenServerUrl: 'https://www.webhook-extensible/access_token',
+      refreshTokenServerUrl: 'https://www.webhook-extensible/refresh_token',
+      access: {
+        access_token: 'accessToken1',
+        token_type: 'bearer',
+        expires_in: 86400,
+        refresh_token: 'refreshToken1',
+        scope: 'scope'
+      },
+      customParams: {}
+    }
+  }
+}
+
+const noAuthSettings = {
+  oauth: {},
+  dynamicAuthSettings: {
+    oauth: {
+      type: 'noAuth'
+    }
+  }
+}
+
+const bearerTypeSettings = {
+  oauth: {},
+  dynamicAuthSettings: {
+    oauth: {
+      type: 'bearer'
+    },
+    bearer: {
+      bearerToken: 'BearerToken1'
+    }
+  }
+}
+
+const bearerTypeSettings2 = {
+  oauth: {},
+  dynamicAuthSettings: {
+    oauth: {
+      clientId: 'clientID',
+      clientSecret: 'clientSecret',
+      type: 'bearer'
+    },
+    bearer: {
+      bearerToken: 'BearerToken1'
+    }
+  }
+}
+
 const auth = {
   refreshToken: 'refreshToken1',
+  accessToken: 'accessToken1',
+  clientId: 'clientID',
+  clientSecret: 'clientSecret'
+}
+
+const authWithoutRefreshToken = {
+  refreshToken: '',
   accessToken: 'accessToken1',
   clientId: 'clientID',
   clientSecret: 'clientSecret'
@@ -94,6 +157,27 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
             url,
             method: 'PUT',
             headers: { [headerField]: headerValue },
+            data
+          }
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+      })
+
+      it('send for noAuth with no header', async () => {
+        const url = 'https://example.build'
+        const event = createTestEvent()
+        const data = { cool: true }
+
+        nock(url).put('/', data).reply(200)
+
+        const responses = await testDestination.testAction('send', {
+          settings: noAuthSettings,
+          event,
+          mapping: {
+            url,
+            method: 'PUT',
             data
           }
         })
@@ -180,6 +264,63 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
     })
 
     describe('refreshAccessToken', () => {
+      it('should return empty access token for noAuth refresh type', async () => {
+        const mockResponse = {
+          access_token: ''
+        }
+        nock(`https://www.webhook-extensible/refresh_token`).post('').reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(noAuthSettings, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token })
+      })
+
+      it('should return empty access token for bearer refresh type', async () => {
+        const mockResponse = {
+          access_token: ''
+        }
+        nock(`https://www.webhook-extensible/refresh_token`).post('').reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(bearerTypeSettings, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token })
+      })
+
+      it('should return empty access token for bearer refresh type', async () => {
+        const mockResponse = {
+          access_token: ''
+        }
+        nock(`https://www.webhook-extensible/refresh_token`).post('').reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(bearerTypeSettings2, auth)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token })
+      })
+
+      it('should return access token for authCode type', async () => {
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`).post('').reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(settings, authWithoutRefreshToken)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token, refreshToken: mockResponse.refresh_token })
+      })
+
+      it('should return access token for authCode type data from oauth', async () => {
+        const mockResponse = {
+          access_token: 'accessToken123',
+          refresh_token: 'refreshToken123'
+        }
+        nock(`https://www.webhook-extensible/refresh_token`).post('').reply(200, mockResponse)
+
+        const token = await testDestination.refreshAccessToken(settingsWithoutClientCreds, authWithoutRefreshToken)
+
+        expect(token).toEqual({ accessToken: mockResponse.access_token, refreshToken: mockResponse.refresh_token })
+      })
+
       it('should return access token for authCode type', async () => {
         const mockResponse = {
           access_token: 'accessToken123',
