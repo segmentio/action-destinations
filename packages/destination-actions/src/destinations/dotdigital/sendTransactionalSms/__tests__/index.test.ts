@@ -27,7 +27,9 @@ describe('Send transactional Sms', () => {
     })
 
     const mapping = {
-      to: '$.context.traits.phone',
+      to: {
+        '@path': '$.context.traits.phone'
+      },
       message: 'hello world!',
     }
 
@@ -50,13 +52,15 @@ describe('Send transactional Sms', () => {
       type: 'track',
       context: {
         traits: {
-          mobileNumber: '+441234567890'
+          phone: '+441234567890'
         }
       }
     })
 
     const mapping = {
-      to: '$.context.traits.phone',
+      to: {
+        '@path':'$.context.traits.phone',
+      },
       from: 'Segment',
       message: 'hello world!',
     }

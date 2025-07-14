@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     email: {
       label: 'Email',
-      description: "If the contact does not exist in your Dotdigital account, the campaign won't be sent.",
+      description: "A single email address to send the campaign to. If the contact does not exist in your Dotdigital account, the campaign won't be sent.",
       type: 'string',
       default: {
         '@if': {

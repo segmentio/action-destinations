@@ -9,16 +9,12 @@ class DDCpaasApi extends DDApi {
   }
 
   async sendTransactionalSms(body: CpaasMessageBody): Promise<unknown> {
-    try {
-      const response: ModifiedResponse = await this.post(
-        `/cpaas/messages`,
-        body
-      )
+    const response: ModifiedResponse = await this.post(
+      `/cpaas/messages`,
+      body
+    )
 
-      return response.data
-    } catch(error) {
-      throw error as Error ?? 'Failed to send transactional SMS'
-    }
+    return response.data
   }
 }
 
