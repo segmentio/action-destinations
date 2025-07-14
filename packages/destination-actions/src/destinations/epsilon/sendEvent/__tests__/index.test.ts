@@ -5,5 +5,5 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 
 describe('Epsilon.send', () => {
-  // TODO: Test your action
+  
 })

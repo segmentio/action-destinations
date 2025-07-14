@@ -1,1 +1,1 @@
-export const URL = "https://segment-webhook.mplxtms.com/segment/webhook"
+export const URL = "https://login.dotomi.com/tags"

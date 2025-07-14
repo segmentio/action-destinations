@@ -83,7 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
     let eventData: BaseEventData | NonTransactionEventData | TransactionEventData = {
         dtmc_tms: 9,
         dtm_cid:  dtm_cid.trim(),
-        dtm_cmagic: processHashing(dtm_cid, 'md5', 'hex', (value: string) => value?.trim()).substring(0, 5),
+        dtm_cmagic: processHashing(dtm_cid, 'md5', 'hex', (value: string) => value?.trim()).substring(0, 6),
         dtm_fid,
         dtm_promo_id,
         idfa: deviceType === 'ios' ? advertisingId : undefined,

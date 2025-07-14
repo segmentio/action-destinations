@@ -38,12 +38,12 @@ export type NonTransactionEventData = BaseEventData & {
 }
 
 export type TransactionEventData = BaseEventData & {
-    dtmc_transaction_id: string
+    dtmc_transaction_id?: string
     dtm_conv_val: number
-    dtm_items: {
-      product_id: string
-      item_amount: number
-      item_quantity: number
+    dtm_items?: {
+      product_id?: string
+      item_amount?: number
+      item_quantity?: number
       item_discount?: number
       [k : string]: unknown
     }[]

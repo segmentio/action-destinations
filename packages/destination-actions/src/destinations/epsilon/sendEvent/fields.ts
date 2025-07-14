@@ -65,58 +65,59 @@ export const identifiers: InputField = {
     deviceID: {
       label: 'Device ID',
       description: 'Mobile Device ID (IDFV or Google App Set ID).',
-      type: 'string',
-      default: { '@path': '$.context.device.id' }
+      type: 'string'
     },
     advertisingId: {
       label: 'Advertising ID',
       description: 'Mobile Ad ID (IDFA or Google Add ID).',
-      type: 'string',
-      default: { '@path': '$.context.device.advertisingId' }
+      type: 'string'
     },
     dtm_user_agent: {
       label: 'User Agent',
       description: 'User agent of the mobile device.',
-      type: 'string',
-      default: { '@path': '$.context.userAgent' }
+      type: 'string'
     },
     dtm_user_ip: {
       label: 'IP Address',
       description: 'IP address of the user.',
-      type: 'string',
-      default: { '@path': '$.context.ip' }
+      type: 'string'
     },
     dtm_email_hash: {
       label: 'Email address',
       description: 'Accepts hashed or unhashed emails. Segment will ensure that a non hashed email is hashed before being sent to Epsilon',
-      type: 'string',
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.traits.email' },
-          then: { '@path': '$.context.traits.email' },
-          else: { '@path': '$.properties.email' }
-        }
-      }
+      type: 'string'
     },
     dtm_mobile_hash: {
       label: 'Mobile Hash',
       description: 'Accepts hashed or unhashed mobile numbers. Segment will ensure that a non hashed mobile number is hashed before being sent to Epsilon',
-      type: 'string',
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.traits.phone' },
-          then: { '@path': '$.context.traits.phone' },
-          else: { '@path': '$.properties.phone' }
-        }
-      }
+      type: 'string'
     },
     dtm_user_id: {
       label: 'User ID',
       description: 'Unique identifier for the user.',
-      type: 'string',
-      default: { '@path': '$.userId' }
+      type: 'string'
+    }
+  },
+  default: {
+    deviceID: { '@path': '$.context.device.id' },
+    advertisingId: { '@path': '$.context.device.advertisingId' },
+    dtm_user_agent: { '@path': '$.context.userAgent' },
+    dtm_user_ip: { '@path': '$.context.ip' },
+    dtm_email_hash: {
+      '@if': {
+        exists: { '@path': '$.context.traits.email' },
+        then: { '@path': '$.context.traits.email' },
+        else: { '@path': '$.properties.email' }
+      }
     },
-
+    dtm_mobile_hash: {
+      '@if': {
+        exists: { '@path': '$.context.traits.phone' },
+        then: { '@path': '$.context.traits.phone' },
+        else: { '@path': '$.properties.phone' }
+      }
+    },
+    dtm_user_id: { '@path': '$.userId' }
   }
 }
 
@@ -229,7 +230,6 @@ export const dtmc_transaction_id: InputField = {
   label: 'Transaction ID',
   description: 'Unique identifier for the transaction.',
   type: 'string',
-  required: true,
   default: { '@path': '$.properties.order_id' },
   depends_on: {
     conditions: [
@@ -264,26 +264,22 @@ export const dtm_items : InputField = {
   description: 'An array of all items in the conversion.',
   type: 'object', 
   multiple: true,
-  required: true,
   additionalProperties: true,
   properties: {
       product_id: {
         label: 'Product ID',
         description: 'Unique identifier / SKU for the product.',
-        type: 'string',
-        required: true
+        type: 'string'
       },
       item_amount: {
         label: 'Item Amount',
         description: 'Unit cost / price for 1 unit of the item.',
-        type: 'number',
-        required: true
+        type: 'number'
       },
       item_quantity: {
         label: 'Item Quantity',
         description: 'number of SKU items in the transaction.',
-        type: 'integer',
-        required: true
+        type: 'integer'
       },
       item_discount: {
         label: 'Item Discount',
@@ -294,7 +290,7 @@ export const dtm_items : InputField = {
   default: {
     '@arrayPath': [
       '$.properties.products', {
-        productId: { '@path': '$.product_id' },
+        product_id: { '@path': '$.product_id' },
         price: { '@path': '$.price' },
         quantity: { '@path': '$.quantity' },
         category: { '@path': '$.discount' }

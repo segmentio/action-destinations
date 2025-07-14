@@ -12,35 +12,19 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'basic',
     fields: {
-      username: {
-        label: 'Username',
-        description: 'Your Epsilon username',
-        type: 'string',
-        required: true
-      },
-      password: {
-        label: 'password',
-        description: 'Your Epsilon password.',
-        type: 'string',
-        required: true
-      },
       dtm_cid: {
         label: 'Company ID',
         description: 'Your Company ID. Contact Epsilon support for assistance.',
         type: 'string',
         required: true
       }
-    },
-    testAuthentication: (request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
     }
   },
-  extendRequest({ settings }) {
+  extendRequest(_) {
     return {
-      username: settings.username,
-      password: settings.password
+      headers: {
+        'Content-Type': 'application/json'
+      }
     }
   },
   actions: {
@@ -61,7 +45,7 @@ const destination: DestinationDefinition<Settings> = {
       name: 'App Open',
       subscribe: 'event = "Application Opened"',
       partnerAction: 'sendEvent',
-            mapping: { 
+      mapping: { 
         ...defaultValues(sendEvent.fields),
         dtm_event: 'appOpen',
       },

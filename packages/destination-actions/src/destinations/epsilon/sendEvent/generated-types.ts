@@ -93,7 +93,7 @@ export interface Payload {
   /**
    * Unique identifier for the transaction.
    */
-  dtmc_transaction_id: string
+  dtmc_transaction_id?: string
   /**
    * Contains the total purchase price in decimal format. Do not include any tax or shipping costs.
    */
@@ -101,19 +101,19 @@ export interface Payload {
   /**
    * An array of all items in the conversion.
    */
-  dtm_items: {
+  dtm_items?: {
     /**
      * Unique identifier / SKU for the product.
      */
-    product_id: string
+    product_id?: string
     /**
      * Unit cost / price for 1 unit of the item.
      */
-    item_amount: number
+    item_amount?: number
     /**
      * number of SKU items in the transaction.
      */
-    item_quantity: number
+    item_quantity?: number
     /**
      * Discount value from the original amount.
      */
