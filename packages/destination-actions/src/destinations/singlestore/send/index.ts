@@ -120,7 +120,9 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The maximum number of rows to include in a batch.',
       type: 'number',
       required: true,
-      default: 100
+      default: 100,
+      minimum: 1,
+      maximum: 1000
     },
     enable_batching: {
       type: 'boolean',
