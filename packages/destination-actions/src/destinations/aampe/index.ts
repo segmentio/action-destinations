@@ -5,7 +5,7 @@ import upsertUserProfile from './upsertUserProfile'
 import { usURL } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Aampe',
+  name: 'Aampe (Actions)',
   slug: 'actions-aampe',
   mode: 'cloud',
 
