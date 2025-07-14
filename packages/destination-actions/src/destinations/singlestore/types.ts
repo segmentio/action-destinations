@@ -1,41 +1,26 @@
-export interface SingleStoreCreateJSON {
-  host: string
-  port: number
-  username: string // The username of the Singlestore database
-  password: string // The password of the Singlestore database
-  dbName: string
-  destinationIdentifier: string
-  noRollbackOnFailure: boolean
-  kafkaUsername: string // The username of the Kafka instance. Gets genertated by the Destination
-  kafkaPassword: string // The password of the Kafka instance. Gets genertated by the Destinatiom
-  kafkaTopic: string // The topic of the Kafka instance. Gets genertated by the Destination
+export type ExecJSONRequest = {
+  sql: string // The SQL query
+  database: string // The name of the database
+  args?: FlattenedArgs
 }
 
-export interface SingleStoreMessage {
-  type: string
-  event: string
-  timestamp: string
-  messageId: string
-  message: string
+export type ExecJSONResponse = {
+  ok?: boolean // Indicates whether the query was successful
+  error?: string
 }
 
-export interface GetDatabaseJSON {
-  destinationIdentifier: string
-}
+export type FlatArgsTuple = [
+  string, // messageid
+  string, // timestamp
+  string, // type
+  string | null, // event
+  string | null, // name
+  Record<string, unknown> | null, // properties
+  string | null, // userId
+  string | null, // anonymousId
+  string | null, // groupId
+  Record<string, unknown> | null, // traits
+  Record<string, unknown> | null // context
+]
 
-export interface GetDatabaseResponse {
-  kafkaUserName: string
-  kafkaPassword: string
-  kafkaTopic: string
-}
-
-export interface MaybeTimeoutError {
-  response: {
-    data: {
-      error: {
-        message: string
-        code: string
-      }
-    }
-  }
-}
+export type FlattenedArgs = FlatArgsTuple[number][]

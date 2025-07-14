@@ -2,19 +2,19 @@
 
 export interface Settings {
   /**
-   * The host of the Singlestore database.
+   * The host of the SingleStore database.
    */
   host: string
   /**
-   * The port of the Singlestore database.
+   * The port of the SingleStore Data API. Defaults to 443.
    */
-  port: number
+  port?: string
   /**
-   * The username of the Singlestore database.
+   * The username of the SingleStore database.
    */
   username: string
   /**
-   * The password of the Singlestore database.
+   * The password of the SingleStore database.
    */
   password: string
   /**
@@ -22,7 +22,7 @@ export interface Settings {
    */
   dbName: string
   /**
-   * The environment of the Singlestore database.
+   * The name of the table. Defaults to "segment_data".
    */
-  environment: string
+  tableName: string
 }
