@@ -1,13 +1,13 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { usURL } from '../../constants'
+import { SingaporeURL } from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
 const settings = {
   apiKey: 'test-api-key',
-  region: usURL
+  region: SingaporeURL
 }
 
 const receivedAt = '2023-01-01T00:00:00.000Z'
@@ -18,7 +18,7 @@ describe('Aampe.upsertUserProfile', () => {
   })
 
   it('should upsert user profile with required fields', async () => {
-    nock('https://ingestion.api.aampe.com')
+    nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
       .post('/v1/properties')
       .reply(200, { success: true })
 
@@ -60,7 +60,7 @@ describe('Aampe.upsertUserProfile', () => {
   })
 
   it('should convert timestamp to Unix timestamp', async () => {
-    nock('https://ingestion.api.aampe.com')
+    nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
       .post('/v1/properties')
       .reply(200, { success: true })
 
@@ -92,7 +92,7 @@ describe('Aampe.upsertUserProfile', () => {
   })
 
   it('should include optional fields when provided', async () => {
-    nock('https://ingestion.api.aampe.com')
+    nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
       .post('/v1/properties')
       .reply(200, { success: true })
 
@@ -136,7 +136,7 @@ describe('Aampe.upsertUserProfile', () => {
   })
 
   it('should handle missing optional fields gracefully', async () => {
-    nock('https://ingestion.api.aampe.com')
+    nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
       .post('/v1/properties')
       .reply(200, { success: true })
 
@@ -176,7 +176,7 @@ describe('Aampe.upsertUserProfile', () => {
   })
 
   it('should use anonymousId when userId is not available', async () => {
-    nock('https://ingestion.api.aampe.com')
+    nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
       .post('/v1/properties')
       .reply(200, { success: true })
 
@@ -208,7 +208,7 @@ describe('Aampe.upsertUserProfile', () => {
   })
 
   it('should handle complex user properties', async () => {
-    nock('https://ingestion.api.aampe.com')
+    nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
       .post('/v1/properties')
       .reply(200, { success: true })
 
@@ -285,7 +285,7 @@ describe('Aampe.upsertUserProfile', () => {
   })
 
   it('should handle custom mappings', async () => {
-    nock('https://ingestion.api.aampe.com')
+    nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
       .post('/v1/properties')
       .reply(200, { success: true })
 
@@ -335,7 +335,7 @@ describe('Aampe.upsertUserProfile', () => {
   })
 
   it('should handle empty traits', async () => {
-    nock('https://ingestion.api.aampe.com')
+    nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
       .post('/v1/properties')
       .reply(200, { success: true })
 
@@ -362,7 +362,7 @@ describe('Aampe.upsertUserProfile', () => {
   })
 
   it('should handle error responses', async () => {
-    nock('https://ingestion.api.aampe.com')
+    nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
       .post('/v1/properties')
       .reply(400, { error: 'Bad Request' })
 
@@ -392,7 +392,7 @@ describe('Aampe.upsertUserProfile', () => {
   })
 
   it('should include proper authorization header', async () => {
-    nock('https://ingestion.api.aampe.com')
+    nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
       .post('/v1/properties')
       .reply(200, { success: true })
 
@@ -423,7 +423,7 @@ describe('Aampe.upsertUserProfile', () => {
   })
 
   it('should handle different data types in user properties', async () => {
-    nock('https://ingestion.api.aampe.com')
+    nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
       .post('/v1/properties')
       .reply(200, { success: true })
 
