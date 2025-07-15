@@ -1,13 +1,13 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { usURL } from '../constants'
+import { SingaporeURL } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
 
 const settings = {
   apiKey: 'test-api-key',
-  region: usURL
+  region: SingaporeURL
 }
 
 const receivedAt = '2023-01-01T00:00:00.000Z'
@@ -19,7 +19,7 @@ describe('Aampe', () => {
 
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock('https://ingestion.api.aampe.com')
+      nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
         .get('/v1/')
         .reply(200, {})
 
@@ -29,7 +29,7 @@ describe('Aampe', () => {
 
   describe('sendEvent', () => {
     it('should work with default mappings', async () => {
-      nock('https://ingestion.api.aampe.com')
+      nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
         .post('/v1/events')
         .reply(200, { success: true })
 
@@ -64,7 +64,7 @@ describe('Aampe', () => {
     })
 
     it('should work with custom mappings', async () => {
-      nock('https://ingestion.api.aampe.com')
+      nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
         .post('/v1/events')
         .reply(200, { success: true })
 
@@ -108,7 +108,7 @@ describe('Aampe', () => {
     })
 
     it('should work with anonymous users', async () => {
-      nock('https://ingestion.api.aampe.com')
+      nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
         .post('/v1/events')
         .reply(200, { success: true })
 
@@ -137,7 +137,7 @@ describe('Aampe', () => {
     })
 
     it('should work with page events', async () => {
-      nock('https://ingestion.api.aampe.com')
+      nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
         .post('/v1/events')
         .reply(200, { success: true })
 
@@ -172,7 +172,7 @@ describe('Aampe', () => {
     })
 
     it('should work with screen events', async () => {
-      nock('https://ingestion.api.aampe.com')
+      nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
         .post('/v1/events')
         .reply(200, { success: true })
 
@@ -205,7 +205,7 @@ describe('Aampe', () => {
     })
 
     it('should handle timezone from context', async () => {
-      nock('https://ingestion.api.aampe.com')
+      nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
         .post('/v1/events')
         .reply(200, { success: true })
 
@@ -236,7 +236,7 @@ describe('Aampe', () => {
     })
 
     it('should handle error responses', async () => {
-      nock('https://ingestion.api.aampe.com')
+      nock('https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app')
         .post('/v1/events')
         .reply(400, { error: 'Bad Request' })
 
