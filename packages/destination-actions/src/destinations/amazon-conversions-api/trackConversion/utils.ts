@@ -4,8 +4,7 @@ import {
   MultiStatusResponse,
   JSONLikeObject,
   ModifiedResponse,
-  APIError,
-  PayloadValidationError
+  APIError
 } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import type { Settings } from '../generated-types'
