@@ -3,7 +3,6 @@ import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
 import nock from 'nock'
 import { SingaporeURL } from '../constants'
-import { time } from 'console'
 
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-aampe'
