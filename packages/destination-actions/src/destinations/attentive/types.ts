@@ -1,4 +1,4 @@
-import { SUBSCRIPTION_TYPES } from "./constants"
+import { SUBSCRIPTION_TYPES } from './constants'
 
 export interface EcommEventJSON {
   items: Item[]
@@ -24,7 +24,7 @@ export interface SubscribeUserJSON {
   locale?: {
     language: string
     country: string
-  },
+  }
   signUpSourceId?: string // locale or signUpSourceId is required
   singleOptIn?: boolean
 }
@@ -43,10 +43,7 @@ export interface Item {
   productImage?: string
   productUrl?: string
   name?: string
-  price: {
-    value: number
-    currency?: string
-  }
+  price: [value: number, currency?: string]
   quantity?: number
 }
 export type SubscriptionType = typeof SUBSCRIPTION_TYPES[number]

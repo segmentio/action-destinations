@@ -5,10 +5,10 @@ Object {
   "items": Array [
     Object {
       "name": "Test Product",
-      "price": Object {
-        "currency": "USD",
-        "value": 100,
-      },
+      "price": Array [
+        100,
+        "USD",
+      ],
       "productId": "test-product-id",
       "productImage": "https://example.com/image.jpg",
       "productUrl": "https://example.com/product",
@@ -32,10 +32,10 @@ Object {
   "items": Array [
     Object {
       "name": "Test Product",
-      "price": Object {
-        "currency": "USD",
-        "value": 100,
-      },
+      "price": Array [
+        100,
+        "USD",
+      ],
       "productId": "test-product-id",
       "productImage": "https://example.com/image.jpg",
       "productUrl": "https://example.com/product",
