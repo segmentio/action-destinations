@@ -114,11 +114,13 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     batch_size: {
       label: 'Batch Size',
-      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      description:
+        'Maximum number of events to include in each batch. Actual batch sizes may be lower. Minimum value is 1500 and maximum is 10000.',
       type: 'number',
-      unsafe_hidden: true,
       required: false,
-      default: 10000
+      default: 10000,
+      maximum: 10000,
+      minimum: 1500
     }
   },
   perform: (request, { settings, payload, audienceSettings }) => {
