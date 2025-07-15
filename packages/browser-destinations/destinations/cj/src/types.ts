@@ -1,5 +1,5 @@
 export interface CJ {
-  sitePage: {
+  sitePage?: {
     enterpriseId: number,
     pageType: string,
     referringChannel?: string,
@@ -7,7 +7,7 @@ export interface CJ {
     items?: Item[],
     userId?: string
   },
-  order: SimpleOrder | AdvancedOrder
+  order?: SimpleOrder | AdvancedOrder
 }
 
 export interface Item {

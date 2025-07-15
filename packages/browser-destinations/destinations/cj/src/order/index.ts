@@ -66,7 +66,7 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
       ...financeVerticals,
       ...networkServicesVerticals
     }
-
+    cj.sitePage = undefined
     cj.order = order  
 
     const { tagId } = settings

@@ -113,6 +113,7 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
     }
   },
   perform: (cj, { payload, settings}) => {
+    cj.order = undefined
     cj.sitePage = payload
     const { tagId } = settings
     send(tagId)
