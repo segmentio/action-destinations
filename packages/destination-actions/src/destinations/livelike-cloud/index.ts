@@ -4,6 +4,8 @@ import { apiBaseUrl } from './properties'
 
 import trackEvent from './trackEvent'
 
+import userGroup from './userGroup'
+
 const presets: DestinationDefinition['presets'] = [
   {
     name: 'Track User Actions',
@@ -80,7 +82,8 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets,
   actions: {
-    trackEvent
+    trackEvent,
+    userGroup
   }
 }
 
