@@ -130,14 +130,10 @@ export type CustomVarTypeChoices = typeof CustomVarTypeChoices[number]
 
 export interface SuccessMaybeErrorResponse {
   hasFailures: boolean
-  status?: [
-    {
-      errors?: [
-        {
-          code: string
-          message: string
-        }
-      ]
-    }
-  ]
+  status?: Array<{
+    errors?: Array<{
+      code: string
+      message: string
+    }>
+  }>
 }
