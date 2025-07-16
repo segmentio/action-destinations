@@ -59,15 +59,15 @@ const destination: DestinationDefinition<Settings> = {
 
       const sql = `
         CREATE TABLE IF NOT EXISTS \`${tableName.replace(/`/g, '``')}\` (
-          messageId VARCHAR(255) NOT NULL,
-          timestamp DATETIME NOT NULL,
-          type VARCHAR(255) NOT NULL,
-          event VARCHAR(255),
-          name VARCHAR(255),
+          messageId TEXT NOT NULL,
+          timestamp DATETIME(6) NOT NULL,
+          type TEXT NOT NULL,
+          event TEXT,
+          name TEXT,
           properties JSON,
-          userId VARCHAR(255),
-          anonymousId VARCHAR(255),
-          groupId VARCHAR(255),
+          userId TEXT,
+          anonymousId TEXT,
+          groupId TEXT,
           traits JSON,
           context JSON,
           SHARD KEY ()
