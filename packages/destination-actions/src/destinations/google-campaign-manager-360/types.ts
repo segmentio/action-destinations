@@ -127,3 +127,17 @@ export type Source = typeof Source[keyof typeof Source]
 export const CustomVarTypeChoices = Array.from({ length: 100 }, (_, i) => `U${i + 1}`)
 
 export type CustomVarTypeChoices = typeof CustomVarTypeChoices[number]
+
+export interface SuccessMaybeErrorResponse {
+  hasFailures: boolean
+  status?: [
+    {
+      errors?: [
+        {
+          code: string
+          message: string
+        }
+      ]
+    }
+  ]
+}
