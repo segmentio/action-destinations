@@ -74,11 +74,12 @@ export const sendEventToAWS = async (request: RequestClient, input: SendToAWSReq
   const userdataFilePath = `/${ACTION_SLUG}/${aggreagtedFilePath}/${uuidValue}.csv`
   const metadataFilePath = `/${ACTION_SLUG}/${aggreagtedFilePath}/meta.json`
 
+  const fileName = input.gzipCompressFile && !input.filename.endsWith('.gz') ? `${input.filename}.gz` : input.filename
   // Create Metadata
   const metadata: LRMetaPayload = {
     audienceKey: input.audienceComputeId || '',
     uploadType: input.uploadType,
-    filename: input.filename,
+    filename: fileName,
     gzipCompressFile: input.gzipCompressFile
   }
 
