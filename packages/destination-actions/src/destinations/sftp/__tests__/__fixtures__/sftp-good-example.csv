@@ -1,0 +1,6 @@
+audience_key,email,first_name,last_name,city,state,age
+"user1","user1@example.com","John","Doe","San Francisco","CA","30"
+"user2","user2@example.com","Jane","Smith","New York","NY","25"
+"user3","user3@example.com","Bob","Johnson","Chicago","IL","35"
+"user4","user4@example.com","Alice","Brown","Los Angeles","CA","28"
+"user5","user5@example.com","Charlie","Wilson","Seattle","WA","32"
