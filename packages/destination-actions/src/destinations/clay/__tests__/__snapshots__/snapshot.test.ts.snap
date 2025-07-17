@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-clay destination: pageVisit action - all fields 1`] = `
+Object {
+  "anonymousId": "eu76@B#kao",
+  "ip": "eu76@B#kao",
+  "messageId": Any<String>,
+  "page": Object {
+    "testType": "eu76@B#kao",
+  },
+  "timestamp": Any<String>,
+  "url": "eu76@B#kao",
+  "userAgent": "eu76@B#kao",
+  "userId": "eu76@B#kao",
+}
+`;
+
+exports[`Testing snapshot for actions-clay destination: pageVisit action - required fields 1`] = `
+Object {
+  "ip": "eu76@B#kao",
+  "messageId": Any<String>,
+}
+`;
