@@ -194,6 +194,50 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses[1].status).toBe(201)
     })
 
+    it('excludes custom variables if gbraid or wbraid are set', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          wbraid: '54321',
+          orderId: '1234',
+          total: '200',
+          currency: 'USD',
+          products: [
+            {
+              product_id: '1234',
+              quantity: 3,
+              price: 10.99
+            }
+          ]
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(201, { results: [{}] })
+
+      const responses = await testDestination.testAction('uploadClickConversion', {
+        event,
+        mapping: {
+          conversion_action: '12345',
+          custom_variables: { username: 'spongebob' },
+          wbraid: { '@path': '$.properties.wbraid' }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"wbraid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[]}],\\"partialFailure\\":true}"`
+      )
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
     it('fails if customerId not set - basic', async () => {
       const event = createTestEvent({
         timestamp,
@@ -1002,6 +1046,69 @@ describe('GoogleEnhancedConversions', () => {
 
       expect(responses.length).toBe(2)
       expect(responses[1].status).toBe(201)
+    })
+
+    it('excludes custom variables if gbraid or wbraid set', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 1',
+          properties: {
+            wbraid: '54321',
+            orderId: '1234',
+            total: '200',
+            currency: 'USD',
+            products: [
+              {
+                product_id: '1234',
+                quantity: 3,
+                price: 10.99
+              }
+            ]
+          }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 2',
+          properties: {
+            wbraid: '54321',
+            orderId: '1234',
+            total: '200',
+            currency: 'USD',
+            products: [
+              {
+                product_id: '1234',
+                quantity: 3,
+                price: 10.99
+              }
+            ]
+          }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(201, { results: [{}] })
+
+      const responses = await testDestination.testBatchAction('uploadClickConversion', {
+        events,
+        mapping: {
+          conversion_action: '12345',
+          custom_variables: { username: 'spongebob' },
+          wbraid: { '@path': '$.properties.wbraid' }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        }
+      })
+
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"wbraid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"wbraid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[]}],\\"partialFailure\\":true}"`
+      )
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
     })
 
     it('fails if customerId not set - basic', async () => {
