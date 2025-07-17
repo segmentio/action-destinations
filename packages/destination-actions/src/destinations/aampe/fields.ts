@@ -22,7 +22,7 @@ export const event_name: InputField = {
     '@if': {
       exists: { '@path': '$.event' },
       then: { '@path': '$.event' },
-      else: { '@path': '$.name' }
+      else: { '@path': '$.type' }
     }
   },
   required: true
