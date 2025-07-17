@@ -293,7 +293,7 @@ export const dtm_items : InputField = {
         product_id: { '@path': '$.product_id' },
         price: { '@path': '$.price' },
         quantity: { '@path': '$.quantity' },
-        category: { '@path': '$.discount' }
+        item_discount: { '@path': '$.discount' }
       }
     ]
   },

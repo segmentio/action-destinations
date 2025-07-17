@@ -16,8 +16,8 @@ import {
   dtm_items,
   dtm_conv_curr,
   dtmc_conv_type,
-  dtmc_conv_store_location
-
+  dtmc_conv_store_location,
+  customEventName
 } from './fields'
 import { URL } from './constants'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -40,7 +40,8 @@ const action: ActionDefinition<Settings, Payload> = {
     dtm_items,
     dtm_conv_curr,
     dtmc_conv_type,
-    dtmc_conv_store_location
+    dtmc_conv_store_location,
+    customEventName
   },
   perform: (request, {payload, settings}) => {
 
@@ -65,6 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
       dtm_conv_curr,
       dtmc_conv_type,
       dtmc_conv_store_location,
+      customEventName,
       identifiers: {
         deviceID,
         advertisingId,
@@ -170,11 +172,13 @@ const action: ActionDefinition<Settings, Payload> = {
       method: 'syncEvent',
       params: {
         appId,
-        dtm_event,
+        dtm_event: dtm_event === 'custom' ? customEventName as string : dtm_event,
         version,
         eventData
       }
     }
+
+    console.log('Epsilon Payload:', JSON.stringify(json, null, 2))
 
     return request(URL, {
       method: 'post',
