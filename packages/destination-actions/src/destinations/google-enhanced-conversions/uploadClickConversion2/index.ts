@@ -47,7 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     gclid: {
       label: 'GCLID',
-      description: 'The Google click ID (gclid) associated with this conversion. One of GCLID, GBRAID or WBRAID must be provided.',
+      description:
+        'The Google click ID (gclid) associated with this conversion. One of GCLID, GBRAID or WBRAID must be provided.',
       type: 'string'
     },
     gbraid: {
@@ -268,9 +269,9 @@ const action: ActionDefinition<Settings, Payload> = {
           'Customer ID is required for this action. Please set it in destination settings.'
         )
       }
-      
+
       if ([payload.gclid, payload.gbraid, payload.wbraid].filter(Boolean).length !== 1) {
-        throw new PayloadValidationError('Only one of GCLID, GBRAID or WBRAID should be provided.')
+        throw new PayloadValidationError('Exactly one of GCLID, GBRAID or WBRAID should be provided.')
       }
 
       settings.customerId = settings.customerId.replace(/-/g, '')
