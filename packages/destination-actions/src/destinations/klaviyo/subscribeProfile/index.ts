@@ -81,7 +81,7 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true,
       required: false,
       multiple: true,
-      default: ['list_id', 'custom_source']
+      default: ['list_id', 'custom_source', 'historical_import']
     }
   },
   dynamicFields: {
@@ -105,7 +105,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('Phone Number or Email is required.')
     }
 
-    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
+    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at, historical_import)
     const subData = formatSubscribeRequestBody(profileToSubscribe, list_id, custom_source, historical_import)
 
     return await request(`${API_URL}/profile-subscription-bulk-create-jobs/`, {
@@ -205,7 +205,7 @@ function sortBatches(batchPayload: Payload[]) {
   const output: SortedBatches = {}
 
   batchPayload.forEach((payload) => {
-    const { email, phone_number, custom_source, consented_at, list_id } = payload
+    const { email, phone_number, custom_source, consented_at, list_id, historical_import } = payload
 
     const listId = list_id || 'noListId'
     const customSource = custom_source || 'noCustomSource'
@@ -231,7 +231,7 @@ function sortBatches(batchPayload: Payload[]) {
     }
 
     // format profile data klaviyo api spec
-    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at)
+    const profileToSubscribe = formatSubscribeProfile(email, phone_number, consented_at, historical_import)
 
     // add profile to batch
     output[key].profiles.push(profileToSubscribe)

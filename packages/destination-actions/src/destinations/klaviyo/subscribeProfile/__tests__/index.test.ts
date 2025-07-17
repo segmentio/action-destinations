@@ -43,14 +43,15 @@ describe('Subscribe Profile', () => {
       email: 'segment@email.com',
       phone_number: '+17067675219',
       list_id: '',
-      timestamp: '2024-04-01T18:37:06.558Z'
+      timestamp: '2024-04-01T18:37:06.558Z',
+      historical_import: true
     }
     const requestBody = {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
           custom_source: 'Marketing Event',
-          historical_import: false,
+          historical_import: true,
           profiles: {
             data: [
               {
@@ -89,6 +90,9 @@ describe('Subscribe Profile', () => {
           email: payload.email,
           phone_number: payload.phone_number
         }
+      },
+      properties: {
+        historical_import: payload.historical_import
       }
     })
     const mapping = {
@@ -104,6 +108,9 @@ describe('Subscribe Profile', () => {
       },
       custom_source: {
         '@path': '$.event'
+      },
+      historical_import: {
+        '@path': '$.properties.historical_import'
       }
     }
     await expect(
@@ -115,14 +122,15 @@ describe('Subscribe Profile', () => {
       email: 'segment@email.com',
       phone_number: '+17067675219',
       list_id: '12345',
-      timestamp: '2024-04-01T18:37:06.558Z'
+      timestamp: '2024-04-01T18:37:06.558Z',
+      historical_import: true
     }
     const requestBody = {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
           custom_source: '-59',
-          historical_import: false,
+          historical_import: true,
           profiles: {
             data: [
               {
@@ -168,6 +176,9 @@ describe('Subscribe Profile', () => {
           email: payload.email,
           phone_number: payload.phone_number
         }
+      },
+      properties: {
+        historical_import: payload.historical_import
       }
     })
     const mapping = {
@@ -180,6 +191,9 @@ describe('Subscribe Profile', () => {
       },
       phone_number: {
         '@path': '$.context.traits.phone_number'
+      },
+      historical_import: {
+        '@path': '$.properties.historical_import'
       }
     }
     await expect(
@@ -190,13 +204,14 @@ describe('Subscribe Profile', () => {
     const payload = {
       email: 'segment@email.com',
       list_id: '12345',
-      timestamp: '2024-04-01T18:37:06.558Z'
+      timestamp: '2024-04-01T18:37:06.558Z',
+      historical_import: true
     }
     const requestBody = {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
-          historical_import: false,
+          historical_import: true,
           custom_source: 'Marketing Event',
           profiles: {
             data: [
@@ -235,6 +250,9 @@ describe('Subscribe Profile', () => {
         traits: {
           email: payload.email
         }
+      },
+      properties: {
+        historical_import: payload.historical_import
       }
     })
     const mapping = {
@@ -248,6 +266,9 @@ describe('Subscribe Profile', () => {
       phone_number: {
         '@path': '$.context.traits.phone_number'
       },
+      historical_import: {
+        '@path': '$.properties.historical_import'
+      },
       custom_source: 'Marketing Event'
     }
     await expect(
@@ -258,13 +279,14 @@ describe('Subscribe Profile', () => {
     const payload = {
       phone_number: '+17067675219',
       list_id: '12345',
-      timestamp: '2024-04-01T18:37:06.558Z'
+      timestamp: '2024-04-01T18:37:06.558Z',
+      historical_import: true
     }
     const requestBody = {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
-          historical_import: false,
+          historical_import: true,
           custom_source: '-59',
           profiles: {
             data: [
@@ -303,6 +325,9 @@ describe('Subscribe Profile', () => {
         traits: {
           phone_number: payload.phone_number
         }
+      },
+      properties: {
+        historical_import: payload.historical_import
       }
     })
     const mapping = {
@@ -315,6 +340,9 @@ describe('Subscribe Profile', () => {
       },
       phone_number: {
         '@path': '$.context.traits.phone_number'
+      },
+      historical_import: {
+        '@path': '$.properties.historical_import'
       }
     }
     await expect(
@@ -516,6 +544,9 @@ describe('Subscribe Profile', () => {
       },
       phone_number: {
         '@path': '$.context.traits.phone_number'
+      },
+      historical_import: {
+        '@path': '$.properties.historical_import'
       }
     }
     const events = [
@@ -526,6 +557,9 @@ describe('Subscribe Profile', () => {
           traits: {
             email: 'test@email.com'
           }
+        },
+        properties: {
+          historical_import: true
         }
       }),
       createTestEvent({
@@ -535,6 +569,9 @@ describe('Subscribe Profile', () => {
           traits: {
             phone_number: '+17067675129'
           }
+        },
+        properties: {
+          historical_import: true
         }
       }),
       createTestEvent({
@@ -545,6 +582,9 @@ describe('Subscribe Profile', () => {
             email: 'test2@email.com',
             phone_number: '+17067665437'
           }
+        },
+        properties: {
+          historical_import: true
         }
       })
     ]
@@ -552,7 +592,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
-          historical_import: false,
+          historical_import: true,
           custom_source: '-59',
           profiles: {
             data: [
@@ -640,6 +680,9 @@ describe('Subscribe Profile', () => {
       },
       custom_source: {
         '@path': '$.event'
+      },
+      historical_import: {
+        '@path': '$.properties.historical_import'
       }
     }
     const events = [
@@ -651,6 +694,9 @@ describe('Subscribe Profile', () => {
             email: 'test@email.com',
             list_id: '1'
           }
+        },
+        properties: {
+          historical_import: true
         }
       }),
       createTestEvent({
@@ -661,6 +707,9 @@ describe('Subscribe Profile', () => {
             phone_number: '+17067675129',
             list_id: '2'
           }
+        },
+        properties: {
+          historical_import: true
         }
       }),
       createTestEvent({
@@ -671,6 +720,9 @@ describe('Subscribe Profile', () => {
           traits: {
             email: 'test2@email.com'
           }
+        },
+        properties: {
+          historical_import: true
         }
       })
     ]
@@ -678,7 +730,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
-          historical_import: false,
+          historical_import: true,
           custom_source: 'Test Event',
           profiles: {
             data: [
@@ -713,7 +765,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
-          historical_import: false,
+          historical_import: true,
           custom_source: 'Test Event',
           profiles: {
             data: [
@@ -749,7 +801,7 @@ describe('Subscribe Profile', () => {
       data: {
         type: 'profile-subscription-bulk-create-job',
         attributes: {
-          historical_import: false,
+          historical_import: true,
           custom_source: 'Marketing Event',
           profiles: {
             data: [

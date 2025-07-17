@@ -223,7 +223,8 @@ export async function getProfiles(
 export function formatSubscribeProfile(
   email: string | undefined,
   phone_number: string | undefined,
-  consented_at: string | number | undefined
+  consented_at: string | number | undefined,
+  historical_import: boolean | undefined = false
 ) {
   const profileToSubscribe: SubscribeProfile = {
     type: 'profile',
@@ -239,7 +240,7 @@ export function formatSubscribeProfile(
         consent: 'SUBSCRIBED'
       }
     }
-    if (consented_at) {
+    if (historical_import && consented_at) {
       profileToSubscribe.attributes.subscriptions.email.marketing.consented_at = consented_at
     }
   }
@@ -250,7 +251,7 @@ export function formatSubscribeProfile(
         consent: 'SUBSCRIBED'
       }
     }
-    if (consented_at) {
+    if (historical_import && consented_at) {
       profileToSubscribe.attributes.subscriptions.sms.marketing.consented_at = consented_at
     }
   }
