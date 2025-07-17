@@ -200,7 +200,7 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_variables: {
       label: 'Custom Variables',
       description:
-        'The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value Will not be sent if GBRAID or WBRAID fields populated. See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables) ',
+        'The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value. Will not be sent if GBRAID or WBRAID fields populated. See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables) ',
       type: 'object',
       additionalProperties: true,
       defaultObjectUI: 'keyvalue:only'

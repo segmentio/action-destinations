@@ -47,19 +47,19 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     gclid: {
       label: 'GCLID',
-      description: 'The Google click ID (gclid) associated with this conversion. if not provided, GBRAID or WBRAID is required.',
+      description: 'The Google click ID (gclid) associated with this conversion. One of GCLID, GBRAID or WBRAID must be provided.',
       type: 'string'
     },
     gbraid: {
       label: 'GBRAID',
       description:
-        'The click identifier for clicks associated with app conversions and originating from iOS devices starting with iOS14. if not provided, GCLID or WBRAID is required.',
+        'The click identifier for clicks associated with app conversions and originating from iOS devices starting with iOS14. One of GCLID, GBRAID or WBRAID must be provided.',
       type: 'string'
     },
     wbraid: {
       label: 'WBRAID',
       description:
-        'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14. if not provided, GCLID or GBRAID is required.',
+        'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14. One of GCLID, GBRAID or WBRAID must be provided.',
       type: 'string'
     },
     conversion_timestamp: {
@@ -207,7 +207,7 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_variables: {
       label: 'Custom Variables',
       description:
-        'The custom variables associated with this conversion. Will not be sent if GBRAID or WBRAID fields populated. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables) ',
+        'The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value. Will not be sent if GBRAID or WBRAID fields populated. See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables) ',
       type: 'object',
       additionalProperties: true,
       defaultObjectUI: 'keyvalue:only'
@@ -381,17 +381,18 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
+    // It would be preferable to validate using required: field conditions, but they don't work for this use case.
     const validatedPayloads: Payload[] = payload.reduce<Payload[]>((acc, p) => {
       if ([p.gclid, p.gbraid, p.wbraid].filter(Boolean).length !== 1) {
         if (p.gclid) {
-          delete p.gbraid
-          delete p.wbraid
+          p.gbraid = undefined
+          p.wbraid = undefined
         } else if (p.gbraid) {
-          delete p.gclid
-          delete p.wbraid
+          p.gclid = undefined
+          p.wbraid = undefined
         } else if (p.wbraid) {
-          delete p.gclid
-          delete p.gbraid
+          p.gclid = undefined
+          p.gbraid = undefined
         } else {
           return acc // skip this item
         }

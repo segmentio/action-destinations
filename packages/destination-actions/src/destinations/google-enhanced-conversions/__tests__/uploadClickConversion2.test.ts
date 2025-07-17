@@ -38,7 +38,7 @@ describe('GoogleEnhancedConversions', () => {
         event,
         mapping: {
           conversion_action: '12345',
-          gclid: '54321',
+          gclid: { '@path': '$.properties.gclid' },
           __segment_internal_sync_mode: 'add'
         },
         useDefaultMappings: true,
@@ -83,7 +83,7 @@ describe('GoogleEnhancedConversions', () => {
       const responses = await testDestination.testAction('uploadClickConversion2', {
         event,
         mapping: {
-          gclid: '54321',
+          gclid: { '@path': '$.properties.gclid' },
           conversion_action: '12345',
           __segment_internal_sync_mode: 'add'
         },
@@ -129,7 +129,7 @@ describe('GoogleEnhancedConversions', () => {
       const responses = await testDestination.testAction('uploadClickConversion2', {
         event,
         mapping: {
-          gclid: '54321',
+          gclid: { '@path': '$.properties.gclid' },
           conversion_action: '12345',
           __segment_internal_sync_mode: 'add'
         },
@@ -236,7 +236,7 @@ describe('GoogleEnhancedConversions', () => {
         await testDestination.testAction('uploadClickConversion2', {
           event,
           mapping: {
-            gclid: '54321',
+            gclid: { '@path': '$.properties.gclid' },
             conversion_action: '12345',
             __segment_internal_sync_mode: 'add'
           },
@@ -277,7 +277,7 @@ describe('GoogleEnhancedConversions', () => {
         event,
         features: { 'google-enhanced-v12': true },
         mapping: {
-          gclid: '54321',
+          gclid: { '@path': '$.properties.gclid' },
           conversion_action: '12345',
           __segment_internal_sync_mode: 'add'
         },
@@ -324,7 +324,7 @@ describe('GoogleEnhancedConversions', () => {
         event,
         features: { 'google-enhanced-v12': true },
         mapping: {
-          gclid: '54321',
+          gclid: { '@path': '$.properties.gclid' },
           conversion_action: '12345',
           __segment_internal_sync_mode: 'add'
         },
@@ -371,7 +371,7 @@ describe('GoogleEnhancedConversions', () => {
           event,
           features: { 'google-enhanced-v12': true },
           mapping: {
-            gclid: '54321',
+            gclid: { '@path': '$.properties.gclid' },
             conversion_action: '12345',
             __segment_internal_sync_mode: 'add'
           },
@@ -508,7 +508,7 @@ describe('GoogleEnhancedConversions', () => {
           event,
           features: { 'google-enhanced-v12': true },
           mapping: {
-            gclid: '54321',
+            gclid: { '@path': '$.properties.gclid' },
             conversion_action: '12345',
             __segment_internal_sync_mode: 'add'
           },
@@ -550,7 +550,7 @@ describe('GoogleEnhancedConversions', () => {
       const responses = await testDestination.testAction('uploadClickConversion2', {
         event,
         mapping: {
-          gclid: '54321',
+          gclid: { '@path': '$.properties.gclid' },
           conversion_action: '12345',
           ad_user_data_consent_state: 'DENIED',
           ad_personalization_consent_state: 'DENIED',
@@ -597,7 +597,7 @@ describe('GoogleEnhancedConversions', () => {
         await testDestination.testAction('uploadClickConversion2', {
           event,
           mapping: {
-            gclid: '54321',
+            gclid: { '@path': '$.properties.gclid' },
             conversion_action: '12345',
             __segment_internal_sync_mode: 'upsert'
           },
@@ -659,7 +659,7 @@ describe('GoogleEnhancedConversions', () => {
       const responses = await testDestination.testBatchAction('uploadClickConversion2', {
         events,
         mapping: {
-          gclid: '54321',
+          gclid: { '@path': '$.properties.gclid' },
           conversion_action: '12345',
           __segment_internal_sync_mode: 'add'
         },
@@ -726,7 +726,7 @@ describe('GoogleEnhancedConversions', () => {
       const responses = await testDestination.testBatchAction('uploadClickConversion2', {
         events,
         mapping: {
-          gclid: '54321',
+          gclid: { '@path': '$.properties.gclid' },
           conversion_action: '12345',
           __segment_internal_sync_mode: 'add'
         },
@@ -794,7 +794,7 @@ describe('GoogleEnhancedConversions', () => {
       const responses = await testDestination.testBatchAction('uploadClickConversion2', {
         events,
         mapping: {
-          gclid: '54321',
+          gclid: { '@path': '$.properties.gclid' },
           conversion_action: '12345',
           __segment_internal_sync_mode: 'add'
         },
@@ -873,7 +873,7 @@ describe('GoogleEnhancedConversions', () => {
       const responses = await testDestination.testBatchAction('uploadClickConversion2', {
         events,
         mapping: {
-          gclid: '54321',
+          gclid: { '@path': '$.properties.gclid' },
           conversion_action: '12345',
           custom_variables: { username: 'spongebob' },
           __segment_internal_sync_mode: 'add'
@@ -941,6 +941,7 @@ describe('GoogleEnhancedConversions', () => {
           events,
           mapping: {
             conversion_action: '12345',
+            gclid: { '@path': '$.properties.gclid' },
             __segment_internal_sync_mode: 'add'
           },
           useDefaultMappings: true,
@@ -1000,7 +1001,7 @@ describe('GoogleEnhancedConversions', () => {
         events,
         features: { 'google-enhanced-v12': true },
         mapping: {
-          gclid: '54321',
+          gclid: { '@path': '$.properties.gclid' },
           conversion_action: '12345',
           __segment_internal_sync_mode: 'add'
         },
@@ -1403,7 +1404,7 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
-
+ 
     it('fails if sync mode is not supported', async () => {
       const events: SegmentEvent[] = [
         createTestEvent({

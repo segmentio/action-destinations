@@ -222,6 +222,9 @@ export function getApiVersion(features?: Features, statsContext?: StatsContext):
   const version = features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
   tags?.push(`version:${version}`)
   statsClient?.incr(`google_api_version`, 1, tags)
+
+  console.log(`XXXXXXXXXXXXXXXXXXXXXXXXXXX: ${version}`)
+
   return version
 }
 
