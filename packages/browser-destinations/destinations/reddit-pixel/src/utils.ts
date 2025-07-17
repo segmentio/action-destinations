@@ -5,6 +5,7 @@ import { RedditPixel, EventMetadata } from './types'
 
 export function initPixel(rdt: RedditPixel, payload: StandardEvent | CustomEvent, settings: Settings) {
   rdt.init(settings.pixel_id, {
+    partner: 'SEGMENT',
     ...(settings.ldu && {
       dpm: 'LDU', // Currently "LDU" is the only value supported if the LDU toggle is enabled.
       dpcc: payload.data_processing_options?.country,
