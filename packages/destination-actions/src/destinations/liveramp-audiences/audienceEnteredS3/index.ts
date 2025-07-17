@@ -32,7 +32,8 @@ const action: ActionDefinition<Settings, Payload> = {
     s3_aws_region: {
       label: 'AWS Region (S3 only)',
       description: 'Region where the S3 bucket is hosted.',
-      type: 'string'
+      type: 'string',
+      required: true
     },
     audience_key: {
       label: 'LiveRamp Audience Key',

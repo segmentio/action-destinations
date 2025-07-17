@@ -16,7 +16,7 @@ export interface Payload {
   /**
    * Region where the S3 bucket is hosted.
    */
-  s3_aws_region?: string
+  s3_aws_region: string
   /**
    * Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers. See more information on [LiveRamp Audience Key](https://docs.liveramp.com/connect/en/onboarding-terms-and-concepts.html#audience-key)
    */
