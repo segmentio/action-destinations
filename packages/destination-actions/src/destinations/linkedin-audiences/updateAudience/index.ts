@@ -17,7 +17,11 @@ const action: ActionDefinition<Settings, Payload> = {
         'The display name of the LinkedIn DMP Segment. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in LinkedIn.',
       type: 'string',
       default: {
-        '@path': '$.properties.audience_key'
+        '@if': {
+          exists: { '@path': '$.properties.audience_key' },
+          then: { '@path': '$.properties.audience_key' },
+          else: { '@path': '$.context.personas.computation_key' }
+        }
       }
     },
     enable_batching: {
