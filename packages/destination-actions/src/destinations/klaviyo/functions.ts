@@ -127,9 +127,9 @@ export async function createProfile(
   }
 }
 
-export function buildHeaders(authKey: string) {
+export function buildHeaders(authKey?: string, accessToken?: string) {
   return {
-    Authorization: `Klaviyo-API-Key ${authKey}`,
+    Authorization: authKey ? `Klaviyo-API-Key ${authKey}` : `Bearer ${accessToken}`,
     Accept: 'application/json',
     revision: REVISION_DATE,
     'Content-Type': 'application/json'
