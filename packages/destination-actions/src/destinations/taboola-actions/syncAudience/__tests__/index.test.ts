@@ -57,7 +57,8 @@ describe('Taboola.syncAudience', () => {
             }
           ]
         }
-      ]
+      ],
+      integration_source: 'segment.com'
     }
 
     nock('https://backstage.taboola.com')
@@ -243,7 +244,8 @@ describe('Taboola.syncAudience', () => {
             }
           ]
         }
-      ]
+      ],
+      integration_source: 'segment.com'
     }
 
     nock('https://backstage.taboola.com')

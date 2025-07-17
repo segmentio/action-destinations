@@ -17,6 +17,7 @@ interface TaboolaPayload {
   operation: 'ADD' | 'REMOVE'
   audience_id: number
   identities: Cluster[]
+  integration_source?: string
 }
 
 interface RefreshTokenResponse {
@@ -96,7 +97,8 @@ export class TaboolaClient {
                 json: {
                   operation: action as 'ADD' | 'REMOVE',
                   audience_id: Number(external_audience_id),
-                  identities
+                  identities,
+                  integration_source: 'segment.com'
                 } as TaboolaPayload
               }
             )
