@@ -35,7 +35,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -43,7 +43,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -77,7 +77,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -85,7 +85,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -119,7 +119,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -127,7 +127,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -175,7 +175,11 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
-        mapping: { conversion_action: '12345', custom_variables: { username: 'spongebob' } },
+        mapping: {
+          conversion_action: '12345',
+          custom_variables: { username: 'spongebob' },
+          gclid: { '@path': '$.properties.gclid' }
+        },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -183,7 +187,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(2)
@@ -217,7 +221,7 @@ describe('GoogleEnhancedConversions', () => {
       try {
         await testDestination.testAction('uploadClickConversion', {
           event,
-          mapping: { conversion_action: '12345' },
+          mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
           useDefaultMappings: true,
           settings: {}
         })
@@ -254,7 +258,7 @@ describe('GoogleEnhancedConversions', () => {
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
         features: { 'google-enhanced-v12': true },
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -262,7 +266,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -297,7 +301,7 @@ describe('GoogleEnhancedConversions', () => {
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
         features: { 'google-enhanced-v12': true },
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -305,7 +309,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -340,7 +344,7 @@ describe('GoogleEnhancedConversions', () => {
         await testDestination.testAction('uploadClickConversion', {
           event,
           features: { 'google-enhanced-v12': true },
-          mapping: { conversion_action: '12345' },
+          mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
           useDefaultMappings: true,
           settings: {}
         })
@@ -376,7 +380,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -387,7 +391,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -423,7 +427,8 @@ describe('GoogleEnhancedConversions', () => {
         event,
         mapping: {
           conversion_action: '12345',
-          ad_personalization_consent_state: 'GRANTED'
+          ad_personalization_consent_state: 'GRANTED',
+          gclid: { '@path': '$.properties.gclid' }
         },
         useDefaultMappings: true,
         settings: {
@@ -432,7 +437,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"1dba01a96da19f6df771cff07e0a8d822126709b82ae7adc6a3839b3aaa68a16\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"1dba01a96da19f6df771cff07e0a8d822126709b82ae7adc6a3839b3aaa68a16\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(1)
@@ -467,7 +472,7 @@ describe('GoogleEnhancedConversions', () => {
         await testDestination.testAction('uploadClickConversion', {
           event,
           features: { 'google-enhanced-v12': true },
-          mapping: { conversion_action: '12345' },
+          mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
           useDefaultMappings: true,
           settings: {
             customerId
@@ -508,7 +513,8 @@ describe('GoogleEnhancedConversions', () => {
         mapping: {
           conversion_action: '12345',
           ad_user_data_consent_state: 'DENIED',
-          ad_personalization_consent_state: 'DENIED'
+          ad_personalization_consent_state: 'DENIED',
+          gclid: { '@path': '$.properties.gclid' }
         },
         useDefaultMappings: true,
         settings: {
@@ -517,7 +523,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[0].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}}],\\"partialFailure\\":true}"`
       )
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
@@ -549,7 +555,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -588,7 +594,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -627,7 +633,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testAction('uploadClickConversion', {
         event,
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -690,14 +696,16 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testBatchAction('uploadClickConversion', {
         events,
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
         }
       })
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(`"{\\"conversions\\":[],\\"partialFailure\\":true}"`)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
+      )
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
@@ -751,14 +759,16 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testBatchAction('uploadClickConversion', {
         events,
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
         }
       })
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(`"{\\"conversions\\":[],\\"partialFailure\\":true}"`)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
+      )
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
@@ -812,14 +822,16 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testBatchAction('uploadClickConversion', {
         events,
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
         }
       })
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(`"{\\"conversions\\":[],\\"partialFailure\\":true}"`)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
+      )
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
@@ -885,7 +897,11 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testBatchAction('uploadClickConversion', {
         events,
-        mapping: { conversion_action: '12345', custom_variables: { username: 'spongebob' } },
+        mapping: {
+          conversion_action: '12345',
+          custom_variables: { username: 'spongebob' },
+          gclid: { '@path': '$.properties.gclid' }
+        },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -893,7 +909,7 @@ describe('GoogleEnhancedConversions', () => {
       })
 
       expect(responses[1].options.body).toMatchInlineSnapshot(
-        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[],\\"customVariables\\":[{\\"conversionCustomVariable\\":\\"customers/1234/conversionCustomVariables/123445\\",\\"value\\":\\"spongebob\\"}]}],\\"partialFailure\\":true}"`
       )
 
       expect(responses.length).toBe(2)
@@ -947,7 +963,7 @@ describe('GoogleEnhancedConversions', () => {
       try {
         await testDestination.testBatchAction('uploadClickConversion', {
           events,
-          mapping: { conversion_action: '12345' },
+          mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
           useDefaultMappings: true,
           settings: {}
         })
@@ -1004,14 +1020,16 @@ describe('GoogleEnhancedConversions', () => {
       const responses = await testDestination.testBatchAction('uploadClickConversion', {
         events,
         features: { 'google-enhanced-v12': true },
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
         }
       })
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(`"{\\"conversions\\":[],\\"partialFailure\\":true}"`)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
+      )
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
@@ -1066,14 +1084,16 @@ describe('GoogleEnhancedConversions', () => {
       const responses = await testDestination.testBatchAction('uploadClickConversion', {
         events,
         features: { 'google-enhanced-v12': true },
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
         }
       })
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(`"{\\"conversions\\":[],\\"partialFailure\\":true}"`)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"},{\\"hashedPhoneNumber\\":\\"76ff44c6428f2fc2750fec01cb3190423adaebb21e797d942f339f3c7c1761dd\\"}]}],\\"partialFailure\\":true}"`
+      )
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
@@ -1127,7 +1147,7 @@ describe('GoogleEnhancedConversions', () => {
         await testDestination.testBatchAction('uploadClickConversion', {
           events,
           features: { 'google-enhanced-v12': true },
-          mapping: { conversion_action: '12345' },
+          mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
           useDefaultMappings: true,
           settings: {}
         })
@@ -1183,7 +1203,7 @@ describe('GoogleEnhancedConversions', () => {
 
       const responses = await testDestination.testBatchAction('uploadClickConversion', {
         events,
-        mapping: { conversion_action: '12345' },
+        mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
         useDefaultMappings: true,
         settings: {
           customerId
@@ -1193,7 +1213,9 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(`"{\\"conversions\\":[],\\"partialFailure\\":true}"`)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674\\"}]}],\\"partialFailure\\":true}"`
+      )
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
@@ -1249,7 +1271,8 @@ describe('GoogleEnhancedConversions', () => {
         events,
         mapping: {
           conversion_action: '12345',
-          ad_personalization_consent_state: 'GRANTED'
+          ad_personalization_consent_state: 'GRANTED',
+          gclid: { '@path': '$.properties.gclid' }
         },
         useDefaultMappings: true,
         settings: {
@@ -1257,7 +1280,9 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(`"{\\"conversions\\":[],\\"partialFailure\\":true}"`)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"},{\\"hashedPhoneNumber\\":\\"64eab4e4d9e8e4f801e34d4f9043494ac3ccf778fb428dcbb555e632bb29d84b\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"},{\\"hashedPhoneNumber\\":\\"1dba01a96da19f6df771cff07e0a8d822126709b82ae7adc6a3839b3aaa68a16\\"}],\\"consent\\":{\\"adPersonalization\\":\\"GRANTED\\"}}],\\"partialFailure\\":true}"`
+      )
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
@@ -1311,7 +1336,7 @@ describe('GoogleEnhancedConversions', () => {
         await testDestination.testBatchAction('uploadClickConversion', {
           events,
           features: { 'google-enhanced-v12': true },
-          mapping: { conversion_action: '12345' },
+          mapping: { conversion_action: '12345', gclid: { '@path': '$.properties.gclid' } },
           useDefaultMappings: true,
           settings: {
             customerId
@@ -1372,7 +1397,8 @@ describe('GoogleEnhancedConversions', () => {
         mapping: {
           conversion_action: '12345',
           ad_user_data_consent_state: 'DENIED',
-          ad_personalization_consent_state: 'DENIED'
+          ad_personalization_consent_state: 'DENIED',
+          gclid: { '@path': '$.properties.gclid' }
         },
         useDefaultMappings: true,
         settings: {
@@ -1380,7 +1406,9 @@ describe('GoogleEnhancedConversions', () => {
         }
       })
 
-      expect(responses[0].options.body).toMatchInlineSnapshot(`"{\\"conversions\\":[],\\"partialFailure\\":true}"`)
+      expect(responses[0].options.body).toMatchInlineSnapshot(
+        `"{\\"conversions\\":[{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"a295fa4e457ca8c72751ffb6196f34b2349dcd91443b8c70ad76082d30dbdcd9\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}},{\\"conversionAction\\":\\"customers/1234/conversionActions/12345\\",\\"conversionDateTime\\":\\"2021-06-10 18:08:04+00:00\\",\\"gclid\\":\\"54321\\",\\"orderId\\":\\"1234\\",\\"conversionValue\\":200,\\"currencyCode\\":\\"USD\\",\\"cartData\\":{\\"items\\":[{\\"productId\\":\\"1234\\",\\"quantity\\":3,\\"unitPrice\\":10.99}]},\\"userIdentifiers\\":[{\\"hashedEmail\\":\\"cc2e166955ec49675e749f9dce21db0cbd2979d4aac4a845bdde35ccb642bc47\\"}],\\"consent\\":{\\"adUserData\\":\\"DENIED\\",\\"adPersonalization\\":\\"DENIED\\"}}],\\"partialFailure\\":true}"`
+      )
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
     })
