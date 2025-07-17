@@ -4,8 +4,8 @@ import destination from '../../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const actionSlug = 'send'
-const destinationSlug = 'Epsilon'
+const actionSlug = 'sendEvent'
+const destinationSlug = 'actions-epsilon'
 const seedName = `${destinationSlug}#${actionSlug}`
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
