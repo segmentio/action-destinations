@@ -70,6 +70,12 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The Segment messageId',
       label: 'MessageId',
       default: { '@path': '$.messageId' }
+    },
+    properties: {
+      type: 'object',
+      label: 'Properties',
+      description: 'Properties to associate with the event',
+      default: { '@path': '$.properties' }
     }
   },
   perform: (request, { payload, settings }) => {

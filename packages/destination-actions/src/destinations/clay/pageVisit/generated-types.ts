@@ -35,4 +35,10 @@ export interface Payload {
    * The Segment messageId
    */
   messageId: string
+  /**
+   * Properties to associate with the event
+   */
+  properties?: {
+    [k: string]: unknown
+  }
 }
