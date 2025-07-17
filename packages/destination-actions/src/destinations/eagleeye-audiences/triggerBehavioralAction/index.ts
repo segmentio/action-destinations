@@ -20,7 +20,8 @@ const action: ActionDefinition<Settings, Payload> = {
     walletTransactionReference: {
       label: 'Wallet transaction reference',
       type: 'string',
-      description: 'Optional wallet transaction reference from the event triggering this Behavioral Action'
+      description: 'Optional wallet transaction reference from the event triggering this Behavioral Action',
+      default: { '@path': '$.messageId'}
     },
     behavioralActionTriggerReferences: {
       label: 'Behavioral Action trigger reference',
