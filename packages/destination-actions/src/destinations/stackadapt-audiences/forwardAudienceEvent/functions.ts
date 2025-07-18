@@ -7,13 +7,16 @@ const audienceMapping = stringifyJsonWithEscapedQuotes([
     incomingKey: 'audienceId',
     destinationKey: 'external_id',
     type: 'string',
-    label: 'External Audience ID'
+    label: 'External Audience ID',
+    isPii: false,
   },
   {
     incomingKey: 'audienceName',
     destinationKey: 'name',
     type: 'string',
-    label: 'External Audience Name'
+    label: 'External Audience Name',
+    isPii: false,
+
   }
 ])
 
