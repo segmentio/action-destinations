@@ -117,6 +117,7 @@ Object {
   "data": Object {
     "attributes": Object {
       "custom_source": "TsKr#",
+      "historical_import": true,
       "profiles": Object {
         "data": Array [
           Object {
@@ -161,6 +162,7 @@ Object {
   "default": Array [
     "list_id",
     "custom_source",
+    "historical_import",
   ],
   "description": "The keys to use for batching the events.",
   "label": "Batch Keys",
