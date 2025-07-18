@@ -17,26 +17,15 @@ class DDEnrolmentApi extends DDApi {
    * @returns {Promise<DynamicFieldResponse>} A promise resolving to the list of active programs.
    */
   public async getPrograms(): Promise<DynamicFieldResponse> {
-    try {
-      const response: ModifiedResponse<Program[]> = await this.get<Program[]>('/v2/programs')
-      const programs = response.data
-      const choices = programs
-        .filter((program: Program) => program.status === ProgramStatus.Active)
-        .map((program: Program) => ({
-          value: program.id.toString(),
-          label: program.name
-        }))
-      return { choices }
-    } catch (error) {
-      return {
-        choices: [],
-        nextPage: '',
-        error: {
-          message: 'Failed to fetch Programs',
-          code: 'PROGRAM_FETCH_ERROR'
-        }
-      }
-    }
+    const response: ModifiedResponse<Program[]> = await this.get<Program[]>('/v2/programs')
+    const programs = response.data
+    const choices = programs
+      .filter((program: Program) => program.status === ProgramStatus.Active)
+      .map((program: Program) => ({
+        value: program.id.toString(),
+        label: program.name
+      }))
+    return { choices }
   }
 
   /**

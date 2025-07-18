@@ -30,30 +30,19 @@ class DDListsApi extends DDApi {
 
     let hasMoreData = true
     while (hasMoreData) {
-      try {
-        const response = await this.getListsPaging(select, skip)
-        const content = response.data
-        if (content.length === 0) {
-          hasMoreData = false
-          break
-        } else {
-          choices.push(
-            ...content.map((list: List) => ({
-              value: list.id.toString(),
-              label: list.name
-            }))
-          )
-          skip += select
-        }
-      } catch (error) {
-        return {
-          choices: [],
-          nextPage: '',
-          error: {
-            message: 'Failed to fetch lists',
-            code: 'LIST_FETCH_ERROR'
-          }
-        }
+      const response = await this.getListsPaging(select, skip)
+      const content = response.data
+      if (content.length === 0) {
+        hasMoreData = false
+        break
+      } else {
+        choices.push(
+          ...content.map((list: List) => ({
+            value: list.id.toString(),
+            label: list.name
+          }))
+        )
+        skip += select
       }
     }
     return { choices: choices }

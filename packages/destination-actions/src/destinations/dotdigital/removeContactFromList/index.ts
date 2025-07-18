@@ -15,6 +15,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `The List to remove the Contact from.`,
       type: 'number',
       required: true,
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment'],
       dynamic: true
     }
   },

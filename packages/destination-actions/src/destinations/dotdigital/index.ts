@@ -1,13 +1,19 @@
+import btoa from 'btoa-lite'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import removeContactFromList from './removeContactFromList'
 import enrolContact from './enrolContact'
 import addContactToList from './addContactToList'
+import sendTransactionalSms from './sendTransactionalSms'
+import sendSms from './sendSms'
+import sendEmailCampaign from './sendEmailCampaign'
+import sendTransactionalEmail from './sendTransactionalEmail'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Dotdigital',
-  slug: 'actions-dotdigital',
   description: 'Send Segment events and user profile data to Dotdigital.',
+  slug: 'actions-dotdigital',
   mode: 'cloud',
   authentication: {
     scheme: 'basic',
@@ -44,15 +50,19 @@ const destination: DestinationDefinition<Settings> = {
 
   extendRequest({ settings }) {
     return {
-      username: settings.username,
-      password: settings.password
+      headers: { Authorization: `Basic ${btoa(settings.username + ':' + settings.password)}`, 'x-ddg-integration-token': '7d1e8cff-4856-4f45-93d3-dac7377a53c2'},
+      responseType: 'json'
     }
   },
 
   actions: {
     removeContactFromList,
     enrolContact,
-    addContactToList
+    addContactToList,
+    sendTransactionalSms,
+    sendSms,
+    sendEmailCampaign,
+    sendTransactionalEmail
   }
 }
 

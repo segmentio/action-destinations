@@ -16,30 +16,19 @@ class DDDataFieldsApi extends DDApi {
    * @returns A promise that resolves to a DynamicFieldResponse.
    */
   async getDataFields(): Promise<DynamicFieldResponse> {
-    try {
-      const choices = []
-      const response: ModifiedResponse<DataField[]> = await this.get<DataField[]>('/v2/data-fields/')
-      const dataFields = response.data
+    const choices = []
+    const response: ModifiedResponse<DataField[]> = await this.get<DataField[]>('/v2/data-fields/')
+    const dataFields = response.data
 
-      choices.push(
-        ...dataFields.map((dataField) => ({
-          value: dataField.name,
-          label: dataField.name,
-          type: this.mapDataFieldType(dataField.type)
-        }))
-      )
+    choices.push(
+      ...dataFields.map((dataField) => ({
+        value: dataField.name,
+        label: dataField.name,
+        type: this.mapDataFieldType(dataField.type)
+      }))
+    )
 
-      return { choices }
-    } catch (error) {
-      return {
-        choices: [],
-        nextPage: '',
-        error: {
-          message: 'Failed to fetch data fields',
-          code: 'DATA_FIELDS_FETCH_ERROR'
-        }
-      }
-    }
+    return { choices }
   }
 
   mapDataFieldType(fieldType: string): FieldTypeName {
