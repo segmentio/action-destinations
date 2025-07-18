@@ -89,4 +89,28 @@ async function testAuthenticationSFTP(sftp: Client, payload: Payload) {
   })
 }
 
-export { validateSFTP, uploadSFTP, doSFTP, testAuthenticationSFTP, Client }
+async function testSFTPFileRead(sftp: Client, payload: Payload) {
+  return doSFTP(sftp, payload, async (sftp) => {
+    try {
+      const folderContents = await sftp.list(payload.sftp_folder_path as string)
+      const testFile = folderContents.find((item) => item.type === '-')
+      if (!testFile) {
+        return
+      }
+      const testFilePath = path.join(payload.sftp_folder_path as string, testFile.name)
+      await sftp.get(testFilePath)
+    } catch (error) {
+      const sftpError = error as SFTPError
+      if (sftpError?.code === SFTPErrorCode.NO_SUCH_FILE) {
+        throw new PayloadValidationError(`Could not find SFTP folder path: ${payload.sftp_folder_path}`)
+      }
+      throw new PayloadValidationError(
+        `Failed to read from SFTP folder: ${payload.sftp_folder_path}. ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`
+      )
+    }
+  })
+}
+
+export { validateSFTP, uploadSFTP, doSFTP, testAuthenticationSFTP, testSFTPFileRead, Client }
