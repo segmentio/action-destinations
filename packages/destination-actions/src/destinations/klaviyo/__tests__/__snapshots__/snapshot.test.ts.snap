@@ -162,6 +162,7 @@ Object {
   "default": Array [
     "list_id",
     "custom_source",
+    "historical_import",
   ],
   "description": "The keys to use for batching the events.",
   "label": "Batch Keys",
