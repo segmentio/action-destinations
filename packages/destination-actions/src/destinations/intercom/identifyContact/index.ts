@@ -43,15 +43,6 @@ const action: ActionDefinition<Settings, Payload> = {
       format: 'email',
       default: {
         '@path': '$.traits.email'
-      },
-      depends_on: {
-        conditions: [
-          {
-            fieldKey: 'role',
-            operator: 'is',
-            value: 'user'
-          }
-        ]
       }
     },
     phone: {
