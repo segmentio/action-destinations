@@ -19,6 +19,7 @@ const action: BrowserActionDefinition<Settings, RedditPixel, Payload> = {
     conversion_id
   },
   perform: (rdt, { payload, settings }) => {
+    console.log('Reddit Pixel Action called: ')
     initPixel(rdt, payload, settings)
     trackCall(rdt, payload)
   }
