@@ -1,5 +1,3 @@
-
-
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -81,7 +79,7 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
           required: true
         },
         itemId: {
-          label: 'Item ID', 
+          label: 'Item ID',
           description: 'The item sku.',
           type: 'string',
           required: true
@@ -112,11 +110,17 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
       }
     }
   },
-  perform: (cj, { payload, settings}) => {
-    cj.order = undefined
+  perform: (cj, { payload, settings }) => {
     cj.sitePage = payload
     const { tagId } = settings
     send(tagId)
+      .then(() => {
+        cj.sitePage = undefined
+        cj.order = undefined
+      })
+      .catch((err) => {
+        console.warn(err)
+      })
   }
 }
 
