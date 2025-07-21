@@ -28,7 +28,7 @@ describe('Intercom.identifyContact', () => {
     expect(responses.length).toBe(2)
     expect(responses[0].status).toBe(200)
     expect(responses[1].options.body).toBe(
-      `{"role":"lead","external_id":"user1234","email":"user@example.com","name":"example user","last_seen_at":${convertedTimestamp}}`
+      `{"role":"lead","email":"user@example.com","name":"example user","last_seen_at":${convertedTimestamp}}`
     )
   })
 
@@ -50,14 +50,14 @@ describe('Intercom.identifyContact', () => {
     expect(responses[0].status).toBe(200)
     expect(responses[1].data).toMatchObject({})
     expect(responses[1].options.body).toBe(
-      `{"role":"lead","external_id":"user1234","email":"user@example.com","name":"example user","last_seen_at":${convertedTimestamp}}`
+      `{"role":"lead","email":"user@example.com","name":"example user","last_seen_at":${convertedTimestamp}}`
     )
   })
 
   it('should search by an external_id only when a userId is passed', async () => {
     const userId = '9999'
 
-    const event = createTestEvent({ traits: { role: 'lead', name: 'example user', email: 'user@example.com' } })
+    const event = createTestEvent({ traits: { role: 'user', name: 'example user', email: 'user@example.com' } })
 
     nock(`${endpoint}`)
       .post(`/contacts/search`, /(?!.*email)(external_id)/i) // external_id exists in the body, but NOT email
