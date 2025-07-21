@@ -12,6 +12,7 @@ import trackEvent2 from './trackEvent2'
 import trackPurchase2 from './trackPurchase2'
 import updateUserProfile2 from './updateUserProfile2'
 import triggerCampaign from './triggerCampaign'
+import triggerCanvas from './triggerCanvas'
 
 import upsertCatalogItem from './upsertCatalogItem'
 
@@ -89,7 +90,8 @@ const destination: DestinationDefinition<Settings> = {
     updateUserProfile2,
     createAlias2,
     upsertCatalogItem,
-    triggerCampaign
+    triggerCampaign,
+    triggerCanvas
   },
   presets: [
     {
@@ -136,6 +138,13 @@ const destination: DestinationDefinition<Settings> = {
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Trigger Canvas',
+      subscribe: 'type = "track" and event = "Trigger Canvas"',
+      partnerAction: 'triggerCanvas',
+      mapping: defaultValues(triggerCanvas.fields),
+      type: 'automatic'
     },
     {
       name: 'Entities Audience Entered',
