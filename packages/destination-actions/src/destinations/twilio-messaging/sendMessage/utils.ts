@@ -159,8 +159,25 @@ export async function send(request: RequestClient, payload: Payload, settings: S
       if (typeof v === 'object') {
         throw new PayloadValidationError(`Tag value for key "${k}" cannot be an object or array.`)
       }
+
+     
+      if (k.length > 128) {
+        throw new PayloadValidationError(`Tag value "${k}" exceeds the maximum tag key length of 128 characters.`)
+      }
+
       tags[k] = String(v).trim()
+
+      if ((tags[k] as string).length > 128) {
+        throw new PayloadValidationError(`Tag value "${k}" exceeds the maximum tag value length of 128 characters.`)
+      }
     }
+
+    if(Object.keys(tags).length > 10) {
+      throw new PayloadValidationError('Tags cannot contain more than 10 key-value pairs.')
+    }
+
+
+
     return Object.keys(tags).length > 0 ? { Tags: JSON.stringify(JSON.stringify(tags)) } : {}
   }
 
