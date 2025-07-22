@@ -26,7 +26,8 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     sendAt,
     inlineMediaUrls,
     inlineBody,
-    contentTemplateType
+    contentTemplateType,
+    tags
   } = payload
 
   const getTo = (): string => {
@@ -146,13 +147,31 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     return urls.length > 0 ? { MediaUrl: urls } : {}
   }
 
+  const getTags = (): { Tags: string } | {} => {
+    if (!tags || typeof tags !== 'object') return {}
+    for (const k in tags) {
+      const v = tags[k]
+
+      if (v == null || String(v).trim() === '') {
+        delete tags[k]
+        continue
+      }
+      if (typeof v === 'object') {
+        throw new PayloadValidationError(`Tag value for key "${k}" cannot be an object or array.`)
+      }
+      tags[k] = String(v).trim()
+    }
+    return Object.keys(tags).length > 0 ? { Tags: JSON.stringify(JSON.stringify(tags)) } : {}
+  }
+
   const twilioPayload: TwilioPayload = (() => ({
     To: getTo(),
     ...getSendAt(),
     ...getValidityPeriod(),
     ...getSender(),
     ...getContent(),
-    ...getInlineMediaUrls()
+    ...getInlineMediaUrls(),
+    ...getTags()
   }))()
 
   const encodedBody = encode(twilioPayload)
@@ -186,6 +205,7 @@ function encode(twilioPayload: TwilioPayload): string {
 
   return encodedSmsBody.toString()
 }
+
 export function validateContentSid(contentSid: string) {
   return /^HX[0-9a-fA-F]{32}$/.test(contentSid)
 }

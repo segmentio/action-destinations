@@ -10,7 +10,7 @@ export const fields: Record<string, InputField> = {
     choices: [
       { label: 'SMS', value: CHANNELS.SMS },
       { label: 'MMS', value: CHANNELS.MMS },
-      { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
+      { label: 'WhatsApp', value: CHANNELS.WHATSAPP }
       //{ label: 'RCS', value: CHANNELS.RCS } Will be hidden for private beta
     ]
   },
@@ -213,5 +213,12 @@ export const fields: Record<string, InputField> = {
     format: 'date-time',
     required: false,
     default: undefined
+  },
+  tags: {
+    label: 'Tags',
+    description: 'Custom tags to be included in the message. Key:value pairs of strings are allowed.',
+    type: 'object',
+    required: false,
+    defaultObjectUI: 'keyvalue'
   }
 }
