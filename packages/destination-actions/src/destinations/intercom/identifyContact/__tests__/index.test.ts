@@ -115,4 +115,66 @@ describe('Intercom.identifyContact', () => {
       )
     )
   })
+
+  it('should filter out external_id for leads based on depends_on conditions', async () => {
+    const event = createTestEvent({
+      traits: {
+        role: 'lead',
+        name: 'example user',
+        email: 'user@example.com'
+      }
+    })
+
+    let requestBody: any
+    nock(`${endpoint}`).post(`/contacts/search`).reply(200, { total_count: 0, data: [] })
+    nock(`${endpoint}`)
+      .post(`/contacts`, (body) => {
+        requestBody = body
+        return true
+      })
+      .reply(200, {})
+
+    await testDestination.testAction('identifyContact', {
+      event,
+      mapping: { role: { '@path': '$.traits.role' } },
+      useDefaultMappings: true
+    })
+
+    // Verify that external_id is NOT included in the request body for leads
+    expect(requestBody).not.toHaveProperty('external_id')
+    expect(requestBody).toHaveProperty('role', 'lead')
+    expect(requestBody).toHaveProperty('email', 'user@example.com')
+    expect(requestBody).toHaveProperty('name', 'example user')
+  })
+
+  it('should include external_id for users based on depends_on conditions', async () => {
+    const event = createTestEvent({
+      traits: {
+        role: 'user',
+        name: 'example user',
+        email: 'user@example.com'
+      }
+    })
+
+    let requestBody: any
+    nock(`${endpoint}`).post(`/contacts/search`).reply(200, { total_count: 0, data: [] })
+    nock(`${endpoint}`)
+      .post(`/contacts`, (body) => {
+        requestBody = body
+        return true
+      })
+      .reply(200, {})
+
+    await testDestination.testAction('identifyContact', {
+      event,
+      mapping: { role: { '@path': '$.traits.role' } },
+      useDefaultMappings: true
+    })
+
+    // Verify that external_id IS included in the request body for users
+    expect(requestBody).toHaveProperty('external_id', 'user1234')
+    expect(requestBody).toHaveProperty('role', 'user')
+    expect(requestBody).toHaveProperty('email', 'user@example.com')
+    expect(requestBody).toHaveProperty('name', 'example user')
+  })
 })
