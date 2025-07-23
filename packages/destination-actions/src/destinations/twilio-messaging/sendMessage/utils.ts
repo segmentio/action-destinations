@@ -88,7 +88,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     }
     throw new PayloadValidationError('Unsupported Sender Type')
   }
-
+ 
   const getContent = (): Content => {
     if (contentTemplateType === ALL_CONTENT_TYPES.INLINE.friendly_name) {
       return {
