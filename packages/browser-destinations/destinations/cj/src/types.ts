@@ -18,6 +18,7 @@ export interface Item {
 }
 
 export interface SimpleOrder {
+  trackingSource: 'Segment',
   enterpriseId: number
   pageType?: string
   userId?: string

@@ -51,6 +51,7 @@ const action: BrowserActionDefinition<Settings, CJ, Payload> = {
     const hashedEmail = smartHash(emailHash ?? '', normalizeEmail) ?? undefined
 
     const order: SimpleOrder | AdvancedOrder = {
+      trackingSource: 'Segment',
       userId,
       enterpriseId,
       pageType,
