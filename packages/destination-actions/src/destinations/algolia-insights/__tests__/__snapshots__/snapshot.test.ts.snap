@@ -155,6 +155,41 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-algolia-insights destination: productListViewedEvents action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "rV6HQ[S7QuqZWEj%HvC",
+      "eventType": "click",
+      "index": "rV6HQ[S7QuqZWEj%HvC",
+      "objectIDs": Array [
+        "rV6HQ[S7QuqZWEj%HvC",
+      ],
+      "queryID": "rV6HQ[S7QuqZWEj%HvC",
+      "testType": "rV6HQ[S7QuqZWEj%HvC",
+      "timestamp": null,
+      "userToken": "rV6HQ[S7QuqZWEj%HvC",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-algolia-insights destination: productListViewedEvents action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "eventName": "Product List Viewed",
+      "eventType": "view",
+      "index": "rV6HQ[S7QuqZWEj%HvC",
+      "objectIDs": Array [
+        "rV6HQ[S7QuqZWEj%HvC",
+      ],
+      "userToken": "rV6HQ[S7QuqZWEj%HvC",
+    },
+  ],
+}
+`;
+
 exports[`Testing snapshot for actions-algolia-insights destination: productViewedEvents action - all fields 1`] = `
 Object {
   "events": Array [
