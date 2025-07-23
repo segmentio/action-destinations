@@ -1,8 +1,6 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface Payload {
-
-  customEventName?: string
   /**
    * Unique identifier for the message. Used for cache busting.
    */
@@ -134,4 +132,8 @@ export interface Payload {
    * For Pickup conversions, denote the store location of the pickup.
    */
   dtmc_conv_store_location?: string
+  /**
+   * The name of the custom event to send to Epsilon.
+   */
+  customEventName?: string
 }
