@@ -2,15 +2,15 @@
 
 export interface Payload {
   /**
-   * Product ID of the viewed item.
+   * Product IDs of the viewed items.
    */
-  objectID: string
+  objectIDs: string[]
   /**
    * Name of the targeted search index.
    */
   index: string
   /**
-   * Query ID of the list on which the item was viewed.
+   * Query ID of the list on which the items were viewed.
    */
   queryID?: string
   /**
@@ -28,7 +28,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The name of the event to be send to Algolia. Defaults to 'Product Viewed'
+   * The name of the event to be send to Algolia. Defaults to 'Product List Viewed'
    */
   eventName?: string
   /**

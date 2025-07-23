@@ -7,11 +7,11 @@ import type { Payload } from './generated-types'
 export const productViewedEvents: ActionDefinition<Settings, Payload> = {
   title: 'Product Viewed Events',
   description:
-    'Product view events act as a positive signal for associated record objects — the associated Product ID.  Query ID is optional and indicates that the view events is the result of a search query.',
+    'Product view events act as a positive signal for associated record objects — the associated Product ID. Query ID is optional and indicates that the view event is the result of a search query.',
   fields: {
     objectID: {
       label: 'Product ID',
-      description: 'Product ID of the clicked item.',
+      description: 'Product ID of the viewed item.',
       type: 'string',
       required: true,
       default: {
