@@ -47,12 +47,14 @@ export async function send(
     }
   )
 
-  if (response.status >= 200 && response.status < 300 && response.data.hasFailures === true) {
-    const firstError = response.data.status?.[0]?.errors?.[0]
-    if (firstError) {
-      throw new IntegrationError(firstError.message, firstError.code, 400)
-    }
-    throw new IntegrationError('200 response contained unknown error', ErrorCodes.UNKNOWN_ERROR, 400)
+  const isSuccess = response.status >= 200 && response.status < 300
+  const hasFailures = response?.data?.hasFailures === true
+
+  if (isSuccess && hasFailures) {
+    const firstError = response?.data?.status?.[0]?.errors?.[0]
+    const message = firstError?.message ?? '200 response contained unknown error'
+    const code = firstError?.code ?? ErrorCodes.UNKNOWN_ERROR
+    throw new IntegrationError(message, code, 400)
   }
 
   return response
