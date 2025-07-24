@@ -47,7 +47,8 @@ describe('AlgoliaInsights.productListViewedEvents', () => {
     expect(algoliaEvent.eventName).toBe('Product List Viewed')
     expect(algoliaEvent.eventType).toBe('view')
     expect(algoliaEvent.index).toBe(event.properties?.search_index)
-    expect(algoliaEvent.userToken).toBe(event.userId)
+    expect(algoliaEvent.userToken).toBe(event.anonymousId)
+    expect(algoliaEvent.authenticatedUserToken).toBe(event.userId)
     expect(algoliaEvent.objectIDs).toEqual(['9876', '5432'])
   })
 
@@ -84,5 +85,53 @@ describe('AlgoliaInsights.productListViewedEvents', () => {
     })
     const algoliaEvent = await testAlgoliaDestination(event)
     expect(algoliaEvent.queryID).toBe(event.properties?.query_id)
+  })
+
+  it('should pass anonymousId as user token if present', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Product List Viewed',
+      properties: {
+        query_id: '1234',
+        search_index: 'fashion_1',
+        products: [{ product_id: '9876' }]
+      },
+      anonymousId: 'anon-user-1234'
+    })
+    const algoliaEvent = await testAlgoliaDestination(event)
+    expect(algoliaEvent.userToken).toBe(event.anonymousId)
+  })
+
+  it('should pass userId as user token if anonymousId not present', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Product List Viewed',
+      properties: {
+        query_id: '1234',
+        search_index: 'fashion_1',
+        products: [{ product_id: '9876' }]
+      },
+      anonymousId: undefined,
+      userId: 'authed-user-1234'
+    })
+    const algoliaEvent = await testAlgoliaDestination(event)
+    expect(algoliaEvent.userToken).toBe(event.userId)
+  })
+
+  it('should pass userId and anonymousId if present', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Product List Viewed',
+      properties: {
+        query_id: '1234',
+        search_index: 'fashion_1',
+        products: [{ product_id: '9876' }]
+      },
+      anonymousId: 'anon-user-1234',
+      userId: 'authed-user-1234'
+    })
+    const algoliaEvent = await testAlgoliaDestination(event)
+    expect(algoliaEvent.userToken).toBe(event.anonymousId)
+    expect(algoliaEvent.authenticatedUserToken).toBe(event.userId)
   })
 })

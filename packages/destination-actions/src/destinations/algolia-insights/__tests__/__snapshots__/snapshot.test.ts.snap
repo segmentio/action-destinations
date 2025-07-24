@@ -4,6 +4,7 @@ exports[`Testing snapshot for actions-algolia-insights destination: conversionEv
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": "U[ABpE$k",
       "currency": "HTG",
       "eventName": "U[ABpE$k",
       "eventSubtype": "purchase",
@@ -86,6 +87,7 @@ exports[`Testing snapshot for actions-algolia-insights destination: productClick
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": "LLjxSD^^GnH",
       "eventName": "LLjxSD^^GnH",
       "eventType": "conversion",
       "index": "LLjxSD^^GnH",
@@ -124,6 +126,7 @@ exports[`Testing snapshot for actions-algolia-insights destination: productListF
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": "6O0djra",
       "eventName": "6O0djra",
       "eventType": "view",
       "filters": Array [
@@ -159,6 +162,7 @@ exports[`Testing snapshot for actions-algolia-insights destination: productListV
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": "rV6HQ[S7QuqZWEj%HvC",
       "eventName": "rV6HQ[S7QuqZWEj%HvC",
       "eventType": "click",
       "index": "rV6HQ[S7QuqZWEj%HvC",
@@ -194,6 +198,7 @@ exports[`Testing snapshot for actions-algolia-insights destination: productViewe
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": "BLFCPcmz",
       "eventName": "BLFCPcmz",
       "eventType": "view",
       "index": "BLFCPcmz",

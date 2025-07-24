@@ -4,6 +4,7 @@ exports[`Testing snapshot for AlgoliaInsights's productListViewedEvents destinat
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": "lx7Lx",
       "eventName": "lx7Lx",
       "eventType": "view",
       "index": "lx7Lx",
@@ -23,6 +24,7 @@ exports[`Testing snapshot for AlgoliaInsights's productListViewedEvents destinat
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": "user1234",
       "eventName": "Product List Viewed",
       "eventType": "view",
       "index": "lx7Lx",
