@@ -47,20 +47,19 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     gclid: {
       label: 'GCLID',
-      description:
-        'The Google click ID (gclid) associated with this conversion. One of GCLID, GBRAID or WBRAID must be provided.',
+      description: 'The Google click ID (gclid) associated with this conversion.',
       type: 'string'
     },
     gbraid: {
       label: 'GBRAID',
       description:
-        'The click identifier for clicks associated with app conversions and originating from iOS devices starting with iOS14. One of GCLID, GBRAID or WBRAID must be provided.',
+        'The click identifier for clicks associated with app conversions and originating from iOS devices starting with iOS14.',
       type: 'string'
     },
     wbraid: {
       label: 'WBRAID',
       description:
-        'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14. One of GCLID, GBRAID or WBRAID must be provided.',
+        'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14.',
       type: 'string'
     },
     conversion_timestamp: {
@@ -208,7 +207,7 @@ const action: ActionDefinition<Settings, Payload> = {
     custom_variables: {
       label: 'Custom Variables',
       description:
-        'The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value. Will not be sent if GBRAID or WBRAID fields populated. See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables) ',
+        'The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables) ',
       type: 'object',
       additionalProperties: true,
       defaultObjectUI: 'keyvalue:only'
@@ -269,11 +268,6 @@ const action: ActionDefinition<Settings, Payload> = {
           'Customer ID is required for this action. Please set it in destination settings.'
         )
       }
-
-      if ([payload.gclid, payload.gbraid, payload.wbraid].filter(Boolean).length !== 1) {
-        throw new PayloadValidationError('Exactly one of GCLID, GBRAID or WBRAID should be provided.')
-      }
-
       settings.customerId = settings.customerId.replace(/-/g, '')
 
       let cartItems: CartItemInterface[] = []
@@ -322,7 +316,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       // Retrieves all of the custom variables that the customer has created in their Google Ads account
-      if (payload.custom_variables && !payload.gbraid && !payload.wbraid) {
+      if (payload.custom_variables) {
         const customVariableIds = await getCustomVariables(settings.customerId, auth, request, features, statsContext)
         if (customVariableIds?.data?.length) {
           request_object.customVariables = formatCustomVariables(
@@ -382,32 +376,12 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    // It would be preferable to validate using required: field conditions, but they don't work for this use case.
-    const validatedPayloads: Payload[] = payload.reduce<Payload[]>((acc, p) => {
-      if ([p.gclid, p.gbraid, p.wbraid].filter(Boolean).length !== 1) {
-        if (p.gclid) {
-          p.gbraid = undefined
-          p.wbraid = undefined
-        } else if (p.gbraid) {
-          p.gclid = undefined
-          p.wbraid = undefined
-        } else if (p.wbraid) {
-          p.gclid = undefined
-          p.gbraid = undefined
-        } else {
-          return acc // skip this item
-        }
-      }
-      acc.push(p)
-      return acc
-    }, [])
-
     const customerId = settings.customerId.replace(/-/g, '')
 
     const getCustomVariables = memoizedGetCustomVariables()
 
     const request_objects: ClickConversionRequestObjectInterface[] = await Promise.all(
-      validatedPayloads.map(async (payloadItem) => {
+      payload.map(async (payloadItem) => {
         let cartItems: CartItemInterface[] = []
         if (payloadItem.items && Array.isArray(payloadItem.items)) {
           cartItems = payloadItem.items.map((product) => {
@@ -454,7 +428,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         // Retrieves all of the custom variables that the customer has created in their Google Ads account
-        if (payloadItem.custom_variables && !payloadItem.gbraid && !payloadItem.wbraid) {
+        if (payloadItem.custom_variables) {
           const customVariableIds = await getCustomVariables(customerId, auth, request, features, statsContext)
           if (customVariableIds?.data?.length) {
             request_object.customVariables = formatCustomVariables(
