@@ -44,23 +44,35 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Hidden fields used to figure out if user is added or removed from an Engage Audience',
       type: 'object',
       unsafe_hidden: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.traits' },
-          then: { '@path': '$.traits' },
-          else: { '@path': '$.properties' }
+      defaultObjectUI: 'keyvalue',
+      additionalProperties: true,
+      required: true,
+      properties: {
+        livelike_profile_id: {
+          label: 'LiveLike User Profile ID',
+          type: 'string',
+          description: 'The unique LiveLike user identifier.'
+        },
+        email: {
+          label: 'Email',
+          type: 'string',
+          description: 'The email address of the user.'
         }
-      }
-    },
-    livelike_profile_id: {
-      label: 'LiveLike User Profile ID',
-      type: 'string',
-      description: 'The unique LiveLike user identifier.',
+      },
       default: {
-        '@if': {
-          exists: {'@path': '$.traits.livelike_profile_id'},
-          then: {'@path': '$.traits.livelike_profile_id' },
-          else: {'@path': '$.properties.livelike_profile_id'} 
+        livelike_profile_id: {
+          '@if': {
+            exists: { '@path': '$.traits.livelike_profile_id' },
+            then: { '@path': '$.traits.livelike_profile_id' },
+            else: { '@path': '$.properties.livelike_profile_id' }
+          }
+        },
+        email: {
+          '@if': {
+            exists: { '@path': '$.traits.email' },
+            then: { '@path': '$.traits.email' },
+            else: { '@path': '$.properties.email' }
+          }
         }
       }
     },
@@ -71,25 +83,16 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.userId'
       }
-    },
-    user_group_id: {
-      label: 'User Group ID',
-      type: 'string',
-      description: 'The unique identifier for the User Group in LiveLike.',
-      default: {
-        '@if': {
-          exists: {'@path': '$.traits.user_group_id'},
-          then: {'@path': '$.traits.user_group_id' },
-          else: {'@path': '$.properties.user_group_id'} 
-        }
-      }
     }
   },
   perform: (request, { settings, payload }) => {
     const url = `${apiBaseUrl}/applications/${settings.clientId}/segment-audience-sync/`
-    const { audience_id, audience_name, action, timestamp, livelike_profile_id, user_id, user_group_id, traits_or_properties } = payload
+    const { audience_id, audience_name, action, timestamp, user_id, traits_or_properties: { livelike_profile_id } = {}, traits_or_properties } = payload;
     const actionValue = typeof action === 'boolean' ? action : traits_or_properties?.[audience_name]
-
+    delete traits_or_properties[audience_name]
+    if(livelike_profile_id){
+      delete traits_or_properties[livelike_profile_id]
+    }
     if(typeof actionValue !== 'boolean') {
       throw new PayloadValidationError('Action must be a boolean value (true for add, false for remove). If connecting to an Engage Audience, leave this field empty and ensure the audience_id and audience_name field mappings are left to their default values.')
     }
@@ -101,7 +104,7 @@ const action: ActionDefinition<Settings, Payload> = {
       timestamp,
       livelike_profile_id,
       user_id,
-      user_group_id
+      traits_or_properties
     }
 
     return request(url, {

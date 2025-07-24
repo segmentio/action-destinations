@@ -8,5 +8,7 @@ export interface UserGroupJSON {
     // optional fields
     livelike_profile_id?: string
     user_id?: string
-    user_group_id?: string
+    traits_or_properties?: {
+        [k: string]: unknown
+    }
 }

@@ -1,13 +1,38 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
 export interface Payload {
-    audience_id: string
-    audience_name: string
-    action: boolean // true for add, false for remove
-    timestamp: string // optional, defaults to current time
-
+  /**
+   * The unique identifier for the Segment Audience.
+   */
+  audience_id: string
+  /**
+   * The name of the Segment Audience.
+   */
+  audience_name: string
+  /**
+   * Set to true to add the user to the User Group, set to false to remove the user from the User Group. If connecting to an Engage Audience, leave this field empty.
+   */
+  action?: boolean
+  /**
+   * The timestamp of the event.
+   */
+  timestamp: string
+  /**
+   * Hidden fields used to figure out if user is added or removed from an Engage Audience
+   */
+  traits_or_properties: {
+    /**
+     * The unique LiveLike user identifier.
+     */
     livelike_profile_id?: string
-    user_id?: string
-    user_group_id?: string
-    traits_or_properties?: Record<string, unknown>
+    /**
+     * The email address of the user.
+     */
+    email?: string
+    [k: string]: unknown
+  }
+  /**
+   * A unique identifier for a user.
+   */
+  user_id?: string
 }
