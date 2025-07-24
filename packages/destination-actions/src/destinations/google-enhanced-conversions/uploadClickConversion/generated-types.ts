@@ -6,15 +6,15 @@ export interface Payload {
    */
   conversion_action: number
   /**
-   * The Google click ID (gclid) associated with this conversion. One of GCLID, GBRAID or WBRAID must be provided.
+   * The Google click ID (gclid) associated with this conversion.
    */
   gclid?: string
   /**
-   * The click identifier for clicks associated with app conversions and originating from iOS devices starting with iOS14. One of GCLID, GBRAID or WBRAID must be provided.
+   * The click identifier for clicks associated with app conversions and originating from iOS devices starting with iOS14.
    */
   gbraid?: string
   /**
-   * The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14. One of GCLID, GBRAID or WBRAID must be provided.
+   * The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14.
    */
   wbraid?: string
   /**
@@ -83,7 +83,7 @@ export interface Payload {
     price?: number
   }[]
   /**
-   * The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value. Will not be sent if GBRAID or WBRAID fields populated. See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables)
+   * The custom variables associated with this conversion. On the left-hand side, input the name of the custom variable as it appears in your Google Ads account. On the right-hand side, map the Segment field that contains the corresponding value See [Google’s documentation on how to create custom conversion variables.](https://developers.google.com/google-ads/api/docs/conversions/conversion-custom-variables)
    */
   custom_variables?: {
     [k: string]: unknown
