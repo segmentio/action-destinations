@@ -4,7 +4,7 @@ export const eventProperties: Record<string, InputField> = {
   enable_batching: {
     type: 'boolean',
     label: 'Batch Data to Customer.io',
-    description: 'Set as true to ensure Segment sends data to Mixpanel in batches.',
+    description: 'Set as true to ensure Segment sends data to Customer.io in batches.',
     default: true
   },
   batch_size: {
