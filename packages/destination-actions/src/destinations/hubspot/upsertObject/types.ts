@@ -1,4 +1,4 @@
-import { Features, StatsContext } from '@segment/actions-core/*'
+import { StatsContext } from '@segment/actions-core/*'
 import { Payload } from './generated-types'
 import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 
@@ -217,7 +217,6 @@ export interface RequestData<Settings, Payload> {
   syncMode: SyncMode
   subscriptionMetadata: SubscriptionMetadata
   statsContext?: StatsContext
-  features?: Features
   settings: Settings
 }
 

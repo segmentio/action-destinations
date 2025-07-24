@@ -1,4 +1,4 @@
-import { ActionDefinition, RequestClient, IntegrationError, StatsContext, Features } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, IntegrationError, StatsContext } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { commonFields } from './common-fields'
@@ -16,7 +16,6 @@ import {
   sendAssociations
 } from './functions/hubspot-association-functions'
 import { getSchemaFromHubspot, createProperties } from './functions/hubspot-properties-functions'
-import { HUBSPOT_DEDUPLICATION_FLAGON } from './constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Custom Object V2',
@@ -42,9 +41,9 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, data) => {
     const requestData = data as RequestData<Settings, Payload[]>
-    const { payload, syncMode, subscriptionMetadata, statsContext, features, rawData } = requestData
+    const { payload, syncMode, subscriptionMetadata, statsContext, rawData } = requestData
     statsContext?.tags?.push('action:custom_object_batch')
-    return await send(request, payload, syncMode, subscriptionMetadata, statsContext, features, rawData)
+    return await send(request, payload, syncMode, subscriptionMetadata, statsContext, rawData)
   }
 }
 
@@ -54,10 +53,9 @@ const send = async (
   syncMode: SyncMode,
   subscriptionMetadata?: SubscriptionMetadata,
   statsContext?: StatsContext,
-  features?: Features,
   rawData?: Payload[]
 ) => {
-  if (features && features[HUBSPOT_DEDUPLICATION_FLAGON] && (syncMode === 'upsert' || syncMode === 'update')) {
+  if (syncMode === 'upsert' || syncMode === 'update') {
     payloads = ensureValidTimestamps(payloads, rawData)
     payloads = mergeAndDeduplicateById(payloads, statsContext)
   }
