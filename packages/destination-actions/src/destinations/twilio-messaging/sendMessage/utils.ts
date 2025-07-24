@@ -188,7 +188,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     ...getSender(),
     ...getContent(),
     ...getInlineMediaUrls(),
-    ...getTags()
+    ...{ Tags: {"campaign_name": "Spring Sale 2022","message_type": "cart_abandoned"}}
   }))()
 
   const encodedBody = encode(twilioPayload)

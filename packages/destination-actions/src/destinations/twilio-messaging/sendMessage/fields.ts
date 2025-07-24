@@ -7,6 +7,7 @@ export const fields: Record<string, InputField> = {
     description: 'The channel to send the message on.',
     type: 'string',
     required: true,
+    default: CHANNELS.SMS,
     choices: [
       { label: 'SMS', value: CHANNELS.SMS },
       { label: 'MMS', value: CHANNELS.MMS },
@@ -20,6 +21,7 @@ export const fields: Record<string, InputField> = {
       "The Sender type to use for the message. Depending on the selected 'Channel' this can be a phone number, messaging service, or Messenger sender ID.",
     type: 'string',
     required: true,
+    default: "Phone number",
     dynamic: true
   },
   contentTemplateType: {
@@ -28,6 +30,7 @@ export const fields: Record<string, InputField> = {
       'The Content Template type to use for the message. Selecting "Inline" will allow you to define the message body directly. For all other options a Content Template must be pre-defined in Twilio.',
     type: 'string',
     required: true,
+    default: "Text",
     dynamic: true
   },
   toPhoneNumber: {
@@ -35,7 +38,7 @@ export const fields: Record<string, InputField> = {
     description: 'The number to send the message to (E.164 format).',
     type: 'string',
     required: false,
-    default: undefined,
+    default: "+353858737577",
     depends_on: {
       match: 'all',
       conditions: [
@@ -71,7 +74,7 @@ export const fields: Record<string, InputField> = {
     type: 'string',
     dynamic: true,
     required: false,
-    default: undefined,
+    default: "+12515721976",
     depends_on: {
       match: 'all',
       conditions: [
@@ -127,6 +130,7 @@ export const fields: Record<string, InputField> = {
     type: 'string',
     dynamic: true,
     required: false,
+    default: "HXce5b6598005d6375a040c9e7a48c1d15",
     allowNull: false,
     disabledInputMethods: ['variable', 'function'],
     depends_on: {
