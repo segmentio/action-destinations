@@ -2,15 +2,15 @@
 
 export interface Payload {
   /**
-   * The name of the page
+   * The name of the event
    */
-  name?: string
+  event: string
   /**
    * The type of the event. Either "page" or "track"
    */
   type: string
   /**
-   * The timestamp of the page event
+   * The timestamp of the track event
    */
   timestamp?: string
   /**

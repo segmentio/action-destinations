@@ -4,16 +4,16 @@ import type { Payload } from './generated-types'
 import { CLAY_API_BASE_URL } from '../index'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Page Visit',
-  description: 'Send a page event to Clay',
-  defaultSubscription: 'type = "page"',
+  title: 'Track',
+  description: 'Send a track event to Clay',
+  defaultSubscription: 'type = "track"',
   fields: {
-    name: {
+    event: {
       type: 'string',
-      description: 'The name of the page',
+      required: true,
+      description: 'The name of the event',
       label: 'Event Name',
-      required: false,
-      default: { '@path': '$.name' }
+      default: { '@path': '$.event' }
     },
     type: {
       type: 'string',
@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       format: 'date-time',
       required: false,
-      description: 'The timestamp of the page event',
+      description: 'The timestamp of the track event',
       label: 'Timestamp',
       default: { '@path': '$.timestamp' }
     },

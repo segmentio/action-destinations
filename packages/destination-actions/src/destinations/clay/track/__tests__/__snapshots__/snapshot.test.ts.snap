@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Clay's track destination action: all fields 1`] = `
+Object {
+  "anonymousId": "s#NxR#]zhFrIncI7QBq",
+  "event": "s#NxR#]zhFrIncI7QBq",
+  "ip": "s#NxR#]zhFrIncI7QBq",
+  "messageId": "s#NxR#]zhFrIncI7QBq",
+  "page": Object {
+    "path": "s#NxR#]zhFrIncI7QBq",
+    "referrer": "s#NxR#]zhFrIncI7QBq",
+    "search": "s#NxR#]zhFrIncI7QBq",
+    "title": "s#NxR#]zhFrIncI7QBq",
+    "url": "s#NxR#]zhFrIncI7QBq",
+  },
+  "properties": Object {
+    "testType": "s#NxR#]zhFrIncI7QBq",
+  },
+  "timestamp": "2050-11-27T17:19:35.865Z",
+  "type": "s#NxR#]zhFrIncI7QBq",
+  "userAgent": "s#NxR#]zhFrIncI7QBq",
+  "userId": "s#NxR#]zhFrIncI7QBq",
+}
+`;
+
+exports[`Testing snapshot for Clay's track destination action: required fields 1`] = `
+Object {
+  "event": "s#NxR#]zhFrIncI7QBq",
+  "ip": "s#NxR#]zhFrIncI7QBq",
+  "messageId": "s#NxR#]zhFrIncI7QBq",
+  "type": "s#NxR#]zhFrIncI7QBq",
+}
+`;

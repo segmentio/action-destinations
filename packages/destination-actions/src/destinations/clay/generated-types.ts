@@ -2,11 +2,11 @@
 
 export interface Settings {
   /**
-   * Your Clay connection key for page visit events
+   * Your Clay connection key
    */
   connection_key: string
   /**
-   * Your Clay secret key for page visit events
+   * Your Clay secret key
    */
   secret_key: string
 }

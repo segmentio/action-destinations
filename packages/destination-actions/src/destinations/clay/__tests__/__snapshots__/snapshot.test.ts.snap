@@ -5,11 +5,19 @@ Object {
   "anonymousId": "eu76@B#kao",
   "ip": "eu76@B#kao",
   "messageId": Any<String>,
+  "name": "eu76@B#kao",
   "page": Object {
+    "path": "eu76@B#kao",
+    "referrer": "eu76@B#kao",
+    "search": "eu76@B#kao",
+    "title": "eu76@B#kao",
+    "url": "eu76@B#kao",
+  },
+  "properties": Object {
     "testType": "eu76@B#kao",
   },
   "timestamp": Any<String>,
-  "url": "eu76@B#kao",
+  "type": "eu76@B#kao",
   "userAgent": "eu76@B#kao",
   "userId": "eu76@B#kao",
 }
@@ -19,5 +27,38 @@ exports[`Testing snapshot for actions-clay destination: pageVisit action - requi
 Object {
   "ip": "eu76@B#kao",
   "messageId": Any<String>,
+  "type": "eu76@B#kao",
+}
+`;
+
+exports[`Testing snapshot for actions-clay destination: track action - all fields 1`] = `
+Object {
+  "anonymousId": "NHQVrUx(HtHKStZdY",
+  "event": "NHQVrUx(HtHKStZdY",
+  "ip": "NHQVrUx(HtHKStZdY",
+  "messageId": Any<String>,
+  "page": Object {
+    "path": "NHQVrUx(HtHKStZdY",
+    "referrer": "NHQVrUx(HtHKStZdY",
+    "search": "NHQVrUx(HtHKStZdY",
+    "title": "NHQVrUx(HtHKStZdY",
+    "url": "NHQVrUx(HtHKStZdY",
+  },
+  "properties": Object {
+    "testType": "NHQVrUx(HtHKStZdY",
+  },
+  "timestamp": Any<String>,
+  "type": "NHQVrUx(HtHKStZdY",
+  "userAgent": "NHQVrUx(HtHKStZdY",
+  "userId": "NHQVrUx(HtHKStZdY",
+}
+`;
+
+exports[`Testing snapshot for actions-clay destination: track action - required fields 1`] = `
+Object {
+  "event": "NHQVrUx(HtHKStZdY",
+  "ip": "NHQVrUx(HtHKStZdY",
+  "messageId": Any<String>,
+  "type": "NHQVrUx(HtHKStZdY",
 }
 `;

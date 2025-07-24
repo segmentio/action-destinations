@@ -5,11 +5,19 @@ Object {
   "anonymousId": "zZg8#WaG5V1[W1",
   "ip": "zZg8#WaG5V1[W1",
   "messageId": Any<String>,
+  "name": "zZg8#WaG5V1[W1",
   "page": Object {
+    "path": "zZg8#WaG5V1[W1",
+    "referrer": "zZg8#WaG5V1[W1",
+    "search": "zZg8#WaG5V1[W1",
+    "title": "zZg8#WaG5V1[W1",
+    "url": "zZg8#WaG5V1[W1",
+  },
+  "properties": Object {
     "testType": "zZg8#WaG5V1[W1",
   },
   "timestamp": Any<String>,
-  "url": "zZg8#WaG5V1[W1",
+  "type": "zZg8#WaG5V1[W1",
   "userAgent": "zZg8#WaG5V1[W1",
   "userId": "zZg8#WaG5V1[W1",
 }
@@ -27,8 +35,13 @@ Object {
     "title": "Analytics Academy",
     "url": "https://segment.com/academy/",
   },
+  "properties": Object {
+    "ip": "zZg8#WaG5V1[W1",
+    "messageId": "zZg8#WaG5V1[W1",
+    "type": "zZg8#WaG5V1[W1",
+  },
   "timestamp": Any<String>,
-  "url": "https://segment.com/academy/",
+  "type": "zZg8#WaG5V1[W1",
   "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
   "userId": "user1234",
 }
