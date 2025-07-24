@@ -49,6 +49,7 @@ export type {
 export { hookTypeStrings }
 export type { MinimalInputField }
 export { fieldsToJsonSchema }
+export { filterPayloadByDependsOn, filterPayloadByActionDefinition } from './payload-filter'
 
 export interface SubscriptionStats {
   duration: number
