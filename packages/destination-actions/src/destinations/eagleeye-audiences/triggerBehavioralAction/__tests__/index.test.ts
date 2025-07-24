@@ -11,7 +11,8 @@ describe('EagleeyeActions.triggerBehavioralAction', () => {
 
     const event = createTestEvent({
       userId: 'some-user-id',
-      properties: {}
+      properties: {},
+      messageId: 'test-message-id',
     })
     const settings = {
       connectorUrl,
@@ -44,6 +45,9 @@ describe('EagleeyeActions.triggerBehavioralAction', () => {
         type: 'services/trigger',
         body: {
           identityValue: event.userId,
+          walletTransaction: { 
+            reference: 'test-message-id'
+          },
           triggers: behavioralActionTriggerReferences.split(',').map((reference) => ({
             reference
           }))

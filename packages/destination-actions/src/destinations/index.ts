@@ -206,6 +206,8 @@ register('6863e71f2a1e1ddc4b4612bf', './nudge')
 register('686799c65fcebef2a98c8141', './ortto-audiences')
 register('6870f42bdaad87a11d764e91', './eagleeye-audiences')
 register('6874c64e5eda096bf3850ee0', './aampe')
+register('6880c39343b2271b41970fd9', './epsilon')
+
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
