@@ -13,7 +13,7 @@ export const productListViewedEvents: ActionDefinition<Settings, Payload> = {
   fields: {
     objectIDs: {
       label: 'Product IDs',
-      description: 'Product IDs of the viewed items.',
+      description: 'Product IDs of the viewed items. Defaults to an array of `products.product_id`.',
       type: 'string',
       multiple: true,
       required: true,
