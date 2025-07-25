@@ -1,3 +1,20 @@
 // Generated file. DO NOT MODIFY IT BY HAND.
 
-export interface Settings {}
+export interface Settings {
+  /**
+   * The hostname or IP address of the SFTP server
+   */
+  sftp_host: string
+  /**
+   * The port number for the SFTP connection
+   */
+  sftp_port?: number
+  /**
+   * User credentials for establishing an SFTP connection
+   */
+  sftp_username: string
+  /**
+   * User credentials for establishing an SFTP connection
+   */
+  sftp_password: string
+}

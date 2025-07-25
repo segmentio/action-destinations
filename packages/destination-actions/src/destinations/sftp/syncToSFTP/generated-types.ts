@@ -2,49 +2,115 @@
 
 export interface Payload {
   /**
-   * The hostname or IP address of the SFTP server
+   * Column write to the SFTP CSV file.
    */
-  sftp_host: string
-  /**
-   * The port number for the SFTP connection
-   */
-  sftp_port?: number
-  /**
-   * User credentials for establishing an SFTP connection
-   */
-  sftp_username: string
-  /**
-   * User credentials for establishing an SFTP connection
-   */
-  sftp_password: string
-  /**
-   * Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.
-   */
-  sftp_folder_path: string
-  /**
-   * Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers.
-   */
-  audience_key: string
-  /**
-   * Additional data pertaining to the user to be written to the file.
-   */
-  identifier_data?: {
+  columns: {
+    /**
+     * Name of the event.
+     */
+    event_name?: string
+    /**
+     * The type of event
+     */
+    event_type?: string
+    /**
+     * User ID
+     */
+    user_id?: string
+    /**
+     * Anonymous ID
+     */
+    anonymous_id?: string
+    /**
+     * Email address
+     */
+    email?: string
+    /**
+     * Properties of the event
+     */
+    properties?: {
+      [k: string]: unknown
+    }
+    /**
+     * User traits
+     */
+    traits?: {
+      [k: string]: unknown
+    }
+    /**
+     * Context of the event
+     */
+    context?: {
+      [k: string]: unknown
+    }
+    /**
+     * Timestamp of the event
+     */
+    timestamp?: string
+    /**
+     * Name of column for the unique identifier for the message.
+     */
+    message_id?: string
+    /**
+     * Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment
+     */
+    integrations?: {
+      [k: string]: unknown
+    }
+    /**
+     * Name of the audience
+     */
+    audience_name?: string
+    /**
+     * ID of the audience
+     */
+    audience_id?: string
+    /**
+     * ID of the Engage Space where the Audience was generated
+     */
+    audience_space_id?: string
     [k: string]: unknown
   }
   /**
-   * Character used to separate tokens in the resulting file.
+   * Name of the column that will contain the action for the audience. true if the user is in the audience, false if not.
    */
-  delimiter: string
+  audience_action_column_name?: string
   /**
-   * Name of the CSV file to upload via SFTP. For multiple subscriptions, make sure to use a unique filename for each subscription.
+   * Specify the column name to store the batch size when the event is sent to S3. Leave blank if no column is required
    */
-  filename: string
+  batch_size_column_name?: string
   /**
-   * Receive events in a batch payload. This is recommended for SFTP uploads.
+   * Field used to retrieve Audience value
+   */
+  traits_or_props?: {
+    [k: string]: unknown
+  }
+  /**
+   * Field used to retrieve Audience Key
+   */
+  computation_key?: string
+  /**
+   * Enable Batching Hidden Field
    */
   enable_batching: boolean
   /**
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
-  batch_size?: number
+  batch_size: number
+  /**
+   * Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.
+   */
+  sftp_folder_path: string
+  /**
+   * Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.
+   */
+  filename_prefix: string
+  /**
+   * Character used to separate tokens in the resulting file.
+   */
+  delimiter: string
+  /**
+   * File extension for the uploaded file.
+   */
+  file_extension: string
 }
