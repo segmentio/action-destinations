@@ -1,5 +1,6 @@
 import { KafkaJSError } from 'kafkajs'
-import { IntegrationError, RetryableError } from '@segment/actions-core'
+import { IntegrationError, RetryableError, RequestClient, Response } from '@segment/actions-core'
+import { TopicMessages } from './types'
 
 export type KafkaResponse = {
   kafkaStatus: string
@@ -1111,15 +1112,61 @@ export const KafkaErrorMap = new Map<number, KafkaResponse>([
  * @param defaultMessage - Default error message if no specific mapping found
  * @returns IntegrationError or RetryableError based on error type
  */
-export const handleKafkaError = (error: KafkaJSError, defaultMessage: string) => {
+export async function handleKafkaError(
+  request: RequestClient,
+  url: string,
+  error: KafkaJSError,
+  defaultMessage: string,
+  data?: TopicMessages
+) {
+  const httpErrorBody: HttpErrorBody = {
+    name: error.name,
+    message: error.message,
+    retryable: error.retriable
+  }
+
   if (error instanceof KafkaJSError) {
     if (error.retriable) {
+      await emulateFailedHttpRequest(request, url, httpErrorBody, data)
       return new RetryableError(error.message)
     } else {
+      await emulateFailedHttpRequest(request, url, httpErrorBody, data)
       return new IntegrationError(error.message, 'KAFKA_ERROR', 400)
     }
   }
 
   // Fallback to default error handling
+  await emulateFailedHttpRequest(request, url, httpErrorBody, data)
   return new IntegrationError(defaultMessage, 'KAFKA_ERROR', 400)
+}
+
+type HttpErrorBody = {
+  name: string
+  message: string
+  retryable: boolean
+}
+
+function emulateFailedHttpRequest(
+  request: RequestClient,
+  url: string,
+  httpErrorBody: HttpErrorBody,
+  data?: TopicMessages
+) {
+  const emulateHttpResponse = new Response(JSON.stringify(httpErrorBody), {
+    headers: { 'Content-Type': 'application/json' },
+    status: httpErrorBody.retryable ? 503 : 400,
+    statusText: 'Kafka Error'
+  })
+
+  return request(url, {
+    method: 'POST',
+    json: {
+      data
+    },
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    emulateHttpResponse,
+    throwHttpErrors: false
+  })
 }
