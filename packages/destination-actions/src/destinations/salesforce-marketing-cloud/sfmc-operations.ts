@@ -141,9 +141,20 @@ export async function executeUpsertWithMultiStatus(
       err.response.data.additionalErrors.length > 0 &&
       err.response.data.additionalErrors
 
+    const retryableCodes = [10006]
+    const hasAnyRetryableError =
+      additionalError &&
+      additionalError.some(
+        (e) => retryableCodes.includes(e.errorcode) && e.message.includes('Unable to save rows for data extension ID')
+      )
+
+    let status = 500 // default status is 500
+    if (!hasAnyRetryableError && err?.response?.status) {
+      status = err.response.status
+    }
     payloads.forEach((_, index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: err?.response?.status || 500,
+        status: status,
         errormessage: additionalError ? additionalError[0].message : errData?.message || '',
         sent: rows[index] as Object as JSONLikeObject,
         /*
