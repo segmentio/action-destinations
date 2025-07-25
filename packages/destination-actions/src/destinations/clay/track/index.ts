@@ -15,13 +15,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Name',
       default: { '@path': '$.event' }
     },
-    type: {
-      type: 'string',
-      description: 'The type of the event. Either "page" or "track"',
-      label: 'Type',
-      required: true,
-      default: { '@path': '$.type' }
-    },
     timestamp: {
       type: 'string',
       format: 'date-time',
@@ -123,7 +116,10 @@ const action: ActionDefinition<Settings, Payload> = {
       headers: {
         Authorization: `Bearer ${settings.secret_key}`
       },
-      json: payload
+      json: {
+        ...payload,
+        type: 'track'
+      }
     })
   }
 }

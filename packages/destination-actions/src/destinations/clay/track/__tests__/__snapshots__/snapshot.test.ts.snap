@@ -17,7 +17,7 @@ Object {
     "testType": "s#NxR#]zhFrIncI7QBq",
   },
   "timestamp": "2050-11-27T17:19:35.865Z",
-  "type": "s#NxR#]zhFrIncI7QBq",
+  "type": "track",
   "userAgent": "s#NxR#]zhFrIncI7QBq",
   "userId": "s#NxR#]zhFrIncI7QBq",
 }
@@ -28,6 +28,6 @@ Object {
   "event": "s#NxR#]zhFrIncI7QBq",
   "ip": "s#NxR#]zhFrIncI7QBq",
   "messageId": "s#NxR#]zhFrIncI7QBq",
-  "type": "s#NxR#]zhFrIncI7QBq",
+  "type": "track",
 }
 `;

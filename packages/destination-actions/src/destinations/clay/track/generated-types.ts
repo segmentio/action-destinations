@@ -6,10 +6,6 @@ export interface Payload {
    */
   event: string
   /**
-   * The type of the event. Either "page" or "track"
-   */
-  type: string
-  /**
    * The timestamp of the track event
    */
   timestamp?: string

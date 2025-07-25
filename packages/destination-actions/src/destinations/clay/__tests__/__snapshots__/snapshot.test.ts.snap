@@ -17,7 +17,7 @@ Object {
     "testType": "eu76@B#kao",
   },
   "timestamp": Any<String>,
-  "type": "eu76@B#kao",
+  "type": "page",
   "userAgent": "eu76@B#kao",
   "userId": "eu76@B#kao",
 }
@@ -27,7 +27,7 @@ exports[`Testing snapshot for actions-clay destination: pageVisit action - requi
 Object {
   "ip": "eu76@B#kao",
   "messageId": Any<String>,
-  "type": "eu76@B#kao",
+  "type": "page",
 }
 `;
 
@@ -48,7 +48,7 @@ Object {
     "testType": "NHQVrUx(HtHKStZdY",
   },
   "timestamp": Any<String>,
-  "type": "NHQVrUx(HtHKStZdY",
+  "type": "track",
   "userAgent": "NHQVrUx(HtHKStZdY",
   "userId": "NHQVrUx(HtHKStZdY",
 }
@@ -59,6 +59,6 @@ Object {
   "event": "NHQVrUx(HtHKStZdY",
   "ip": "NHQVrUx(HtHKStZdY",
   "messageId": Any<String>,
-  "type": "NHQVrUx(HtHKStZdY",
+  "type": "track",
 }
 `;
