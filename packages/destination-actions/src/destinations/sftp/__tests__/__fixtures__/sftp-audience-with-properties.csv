@@ -1,0 +1,6 @@
+user_id,email,audience_name,audience_id,audience_action,timestamp,message_id,properties,traits
+"user1","user1@example.com","purchase_intent","aud_789","true","2023-07-26T15:23:39.803Z","msg_001","{""last_purchase"":""2023-07-20"",""total_spent"":250.00}","{""first_name"":""John"",""city"":""San Francisco""}"
+"user2","user2@example.com","purchase_intent","aud_789","true","2023-07-26T15:24:12.456Z","msg_002","{""last_purchase"":""2023-07-21"",""total_spent"":180.50}","{""first_name"":""Jane"",""city"":""New York""}"
+"user3","user3@example.com","purchase_intent","aud_789","false","2023-07-26T15:24:45.789Z","msg_003","{""last_purchase"":""2023-06-15"",""total_spent"":75.00}","{""first_name"":""Bob"",""city"":""Chicago""}"
+"user4","user4@example.com","purchase_intent","aud_789","true","2023-07-26T15:25:18.012Z","msg_004","{""last_purchase"":""2023-07-22"",""total_spent"":320.00}","{""first_name"":""Alice"",""city"":""Los Angeles""}"
+"user5","user5@example.com","purchase_intent","aud_789","true","2023-07-26T15:25:51.345Z","msg_005","{""last_purchase"":""2023-07-23"",""total_spent"":150.75}","{""first_name"":""Charlie"",""city"":""Seattle""}"
