@@ -5,8 +5,7 @@ import {
   Features,
   StatsContext,
   MultiStatusResponse,
-  JSONLikeObject,
-  ModifiedResponse
+  JSONLikeObject
 } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './send/generated-types'
@@ -240,7 +239,7 @@ export const sendData = async (
     try {
       await producer.send(data as ProducerRecord)
     } catch (error) {
-      return handleKafkaError(error as KafkaJSError, `Failed to deliver message to kafka: ${(error as Error).message}`)
+      handleKafkaError(error as KafkaJSError, `Failed to deliver message to kafka: ${(error as Error).message}`)
     }
   }
 
@@ -251,70 +250,5 @@ export const sendData = async (
     }
   } else {
     await producer.disconnect()
-  }
-
-  return generateHttpResponse({
-    status: 200,
-    statusText: 'OK',
-    url: 'https://kafka.segment.com',
-    data: '{"message": "Messages sent successfully"}'
-  })
-}
-
-type ModifiedResponseInput = {
-  status: number
-  statusText: string
-  url: string
-  data: string
-}
-
-export function generateHttpResponse(input: ModifiedResponseInput): ModifiedResponse<any> {
-  const headers = new Headers({
-    'Content-Type': 'application/json'
-  }) as Headers & { toJSON: () => Record<string, string> }
-  headers.toJSON = () => {
-    const jsonHeaders: Record<string, string> = {}
-    headers.forEach((value, key) => {
-      jsonHeaders[key] = value
-    })
-    return jsonHeaders
-  }
-
-  const encoder = new TextEncoder()
-  const encodedBytes = encoder.encode(input.data)
-
-  return {
-    status: input.status,
-    statusText: input.statusText,
-    ok: true,
-    url: input.url,
-    headers: headers as Headers & { toJSON: () => Record<string, string> },
-    content: input.data,
-    data: input.data ? JSON.parse(input.data) : undefined,
-    redirected: false,
-    type: 'default',
-    clone: function () {
-      return { ...this }
-    },
-    body: null,
-    bodyUsed: false,
-    arrayBuffer: async function () {
-      return encodedBytes.buffer
-    },
-    blob: async function () {
-      return new Blob([input.data], { type: 'application/json' })
-    },
-    formData: async function () {
-      throw new Error('formData not implemented')
-    },
-    json: async function () {
-      return input.data ? JSON.parse(input.data) : undefined
-    },
-    text: async function () {
-      return input.data
-    },
-    bytes: async function () {
-      return encodedBytes
-    }
   }
 }
