@@ -39,9 +39,7 @@ describe('TwilioMessaging.sendMessage', () => {
   })
 
   it('should send messsage with tags', async () => {
-    const body =
-      'To=%2B1234567890&From=%2B19876543210&Body=Hello+World%21&Tags=%22%7B%5C%22campaign_name%5C%22%3A%5C%22Spring+Sale+2022%5C%22%2C%5C%22message_type%5C%22%3A%5C%22cart_abandoned%5C%22%2C%5C%22number_tag%5C%22%3A%5C%2212345%5C%22%2C%5C%22boolean_tag%5C%22%3A%5C%22true%5C%22%7D%22'
-
+    const body = "To=%2B1234567890&From=%2B19876543210&Body=Hello+World%21&Tags=%7B%22campaign_name%22%3A%22Spring+Sale+2022%22%2C%22message_type%22%3A%22cart_abandoned%22%2C%22number_tag%22%3A%2212345%22%2C%22boolean_tag%22%3A%22true%22%7D"
     nock('https://api.twilio.com')
       .post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, body)
       .reply(200, {
@@ -68,6 +66,29 @@ describe('TwilioMessaging.sendMessage', () => {
         }
       }
     })
+  })
+
+  it('should thow error if tags malformed', async () => {
+     await expect( testDestination.testAction('sendMessage', {
+      settings: defaultSettings,
+      mapping: {
+        channel: CHANNELS.SMS,
+        senderType: SENDER_TYPE.PHONE_NUMBER,
+        toPhoneNumber: '+1234567890',
+        fromPhoneNumber: '+19876543210',
+        contentTemplateType: 'Inline',
+        inlineBody: 'Hello World!',
+        tags: {
+          campaign_name: 'Spring Sale 2022',
+          message_type: 'cart_abandoned',
+          number_tag: 12345,
+          boolean_tag: true,
+          null_tag: null,
+          empty_string_tag: '',
+          super_bad_tag: "$%^&*&^%$"
+        }
+      }
+    })).rejects.toThrow("Tag value \"$%^&*&^%$\" for key \"super_bad_tag\" contains invalid characters. Only alphanumeric, space, hyphen (-), and underscore (_) are allowed.")
   })
 
   it('should send MMS with messaging service', async () => {

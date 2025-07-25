@@ -7,7 +7,6 @@ export const fields: Record<string, InputField> = {
     description: 'The channel to send the message on.',
     type: 'string',
     required: true,
-    default: CHANNELS.SMS,
     choices: [
       { label: 'SMS', value: CHANNELS.SMS },
       { label: 'MMS', value: CHANNELS.MMS },
@@ -38,7 +37,7 @@ export const fields: Record<string, InputField> = {
     description: 'The number to send the message to (E.164 format).',
     type: 'string',
     required: false,
-    default: "+353858737577",
+    default: undefined,
     depends_on: {
       match: 'all',
       conditions: [
@@ -74,7 +73,7 @@ export const fields: Record<string, InputField> = {
     type: 'string',
     dynamic: true,
     required: false,
-    default: "+12515721976",
+    default: undefined,
     depends_on: {
       match: 'all',
       conditions: [
@@ -130,7 +129,6 @@ export const fields: Record<string, InputField> = {
     type: 'string',
     dynamic: true,
     required: false,
-    default: "HXce5b6598005d6375a040c9e7a48c1d15",
     allowNull: false,
     disabledInputMethods: ['variable', 'function'],
     depends_on: {
