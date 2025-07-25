@@ -2,11 +2,7 @@
 
 export interface Settings {
   /**
-   * Your Ms Bing Capi username
+   * Your Bing API Token.
    */
-  username: string
-  /**
-   * Your Ms Bing Capi password.
-   */
-  password: string
+  ApiToken: string
 }

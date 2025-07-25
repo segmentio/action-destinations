@@ -3,6 +3,8 @@ import type { Settings } from './generated-types'
 
 import sendEvent from './sendEvent'
 
+import pageLoad from './pageLoad'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Ms Bing Capi',
   slug: 'actions-ms-bing-capi',
@@ -39,7 +41,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    sendEvent
+    sendEvent,
+    pageLoad
   }
 }
 
