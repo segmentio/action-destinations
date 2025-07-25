@@ -1,5 +1,6 @@
 import { KafkaJSError } from 'kafkajs'
-import { ActionDestinationErrorResponse } from '@segment/actions-core'
+import { ModifiedResponse } from '@segment/actions-core'
+import { generateHttpResponse } from './utils'
 
 export type KafkaResponse = {
   kafkaStatus: string
@@ -1111,7 +1112,7 @@ export const KafkaErrorMap = new Map<number, KafkaResponse>([
  * @param defaultMessage - Default error message if no specific mapping found
  * @returns IntegrationError or RetryableError based on error type
  */
-export const handleKafkaError = (error: KafkaJSError, defaultMessage: string): ActionDestinationErrorResponse => {
+export const handleKafkaError = (error: KafkaJSError, defaultMessage: string): ModifiedResponse<any> => {
   // Extract error code from KafkaJS error
   let errorCode: number | undefined
 
@@ -1133,18 +1134,26 @@ export const handleKafkaError = (error: KafkaJSError, defaultMessage: string): A
     const kafkaError = KafkaErrorMap.get(errorCode)
 
     if (kafkaError) {
-      return new ActionDestinationErrorResponse({
-        errormessage: kafkaError.httpResponseMessage,
+      return generateHttpResponse({
         status: kafkaError.httpResponseCode,
-        body: kafkaError.kafkaStatus
+        statusText: kafkaError.httpResponseMessage,
+        url: 'https://kafka.segment.com',
+        data: JSON.stringify({
+          message: kafkaError.httpResponseMessage,
+          kafkaStatus: kafkaError.kafkaStatus
+        })
       })
     }
   }
 
   // Fallback for unmapped errors
-  return new ActionDestinationErrorResponse({
-    errormessage: `${defaultMessage}: ${error.message}`,
+  return generateHttpResponse({
     status: 400,
-    body: 'An unknown error occurred while processing the Kafka request.'
+    statusText: 'Bad Request',
+    url: 'https://kafka.segment.com',
+    data: JSON.stringify({
+      message: defaultMessage,
+      kafkaStatus: 'UNKNOWN_ERROR'
+    })
   })
 }
