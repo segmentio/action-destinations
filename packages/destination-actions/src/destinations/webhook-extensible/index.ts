@@ -30,6 +30,9 @@ const destination: DestinationDefinition<SettingsWithDynamicAuth> = {
     const { dynamicAuthSettings } = settings
     let accessToken
     let tokenPrefix = 'Bearer'
+    if (dynamicAuthSettings?.oauth?.type === 'noAuth') {
+      return {}
+    }
     if (dynamicAuthSettings?.bearer) {
       accessToken = dynamicAuthSettings?.bearer?.bearerToken
     } else {

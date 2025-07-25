@@ -1,4 +1,6 @@
+import { Features, StatsContext } from '@segment/actions-core/*'
 import { Payload } from './generated-types'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 
 export const SyncMode = {
   Upsert: 'upsert',
@@ -207,4 +209,22 @@ export interface CreatePropsReqItem {
   dataSensitivity: 'sensitive' | undefined
   fieldType: string
   options?: Array<{ label: string; value: string; hidden: boolean; description: string; displayOrder: number }>
+}
+
+export interface RequestData<Settings, Payload> {
+  rawData: Payload
+  payload: Payload
+  syncMode: SyncMode
+  subscriptionMetadata: SubscriptionMetadata
+  statsContext?: StatsContext
+  features?: Features
+  settings: Settings
+}
+
+export interface Association {
+  object_type?: string
+  association_label?: string
+  id_field_name?: string
+  id_field_value?: string
+  from_record_id?: string
 }

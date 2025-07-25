@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent, PayloadValidationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 
@@ -11,11 +11,11 @@ const settings: Settings = {
 }
 
 const validPayload = {
-  timestamp: timestamp,
-  event: 'Event Type 1',
+  timestamp,
+  event: 'Product Clicked', // <- Used as "type" in Attentive
   messageId: '123e4567-e89b-12d3-a456-426614174000',
   type: 'track',
-  userId: '123e4567-e89b-12d3-a456-426614174000',
+  userId: 'user-123',
   context: {
     traits: {
       phone: '+3538675765689',
@@ -23,8 +23,8 @@ const validPayload = {
     }
   },
   properties: {
-    tracking_url: 'https://tracking-url.com',
-    product_name: 'Product X'
+    product_name: 'Product X',
+    tracking_url: 'https://tracking-url.com'
   }
 } as Partial<SegmentEvent>
 
@@ -41,52 +41,59 @@ const mapping = {
 }
 
 const expectedPayload = {
-  type: 'Event Type 1',
-  properties: {
-    tracking_url: 'https://tracking-url.com',
-    product_name: 'Product X'
-  },
-  externalEventId: '123e4567-e89b-12d3-a456-426614174000',
-  occurredAt: '2024-01-08T13:52:50.212Z',
+  type: 'Product Clicked',
   user: {
     phone: '+3538675765689',
     email: 'test@test.com',
     externalIdentifiers: {
-      clientUserId: '123e4567-e89b-12d3-a456-426614174000'
+      clientUserId: 'user-123'
     }
-  }
+  },
+  properties: {
+    product_name: 'Product X',
+    tracking_url: 'https://tracking-url.com'
+  },
+  externalEventId: '123e4567-e89b-12d3-a456-426614174000',
+  occurredAt: timestamp
 }
 
-beforeEach((done) => {
+beforeEach(() => {
   testDestination = createTestIntegration(Definition)
   nock.cleanAll()
-  done()
 })
 
 describe('Attentive.customEvents', () => {
   it('should send a custom event to Attentive', async () => {
     const event = createTestEvent(validPayload)
 
-    nock('https://api.attentivemobile.com').post('/v1/events/custom', expectedPayload).reply(200, {})
+    nock('https://api.attentivemobile.com', {
+      reqheaders: {
+        authorization: 'Bearer test-api-key',
+        'content-type': 'application/json'
+      }
+    })
+      .post('/v1/events/custom', expectedPayload)
+      .reply(200, {})
 
     const responses = await testDestination.testAction('customEvents', {
       event,
       settings,
-      useDefaultMappings: true,
-      mapping
+      mapping,
+      useDefaultMappings: false
     })
 
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
   })
 
-  it('should throw error if no identifiers provided', async () => {
+  it('throws error if no userIdentifiers provided', async () => {
     const badPayload = {
-      ...validPayload
+      ...validPayload,
+      context: {
+        traits: {}
+      },
+      userId: undefined
     }
-    delete badPayload?.context?.traits?.phone
-    delete badPayload?.context?.traits?.email
-    badPayload.userId = undefined
 
     const event = createTestEvent(badPayload)
 
@@ -94,9 +101,29 @@ describe('Attentive.customEvents', () => {
       testDestination.testAction('customEvents', {
         event,
         settings,
-        useDefaultMappings: true,
-        mapping
+        mapping,
+        useDefaultMappings: false
       })
-    ).rejects.toThrowError(new PayloadValidationError('At least one user identifier is required.'))
+    ).rejects.toThrowError("At least one user identifier is required.")
+  })
+
+  it('throws error if properties contain arrays', async () => {
+    const badPayload = {
+      ...validPayload,
+      properties: {
+        someArray: [1, 2, 3]
+      }
+    }
+
+    const event = createTestEvent(badPayload)
+
+    await expect(
+      testDestination.testAction('customEvents', {
+        event,
+        settings,
+        mapping,
+        useDefaultMappings: false
+      })
+    ).rejects.toThrowError("Properties cannot contain arrays.")
   })
 })
