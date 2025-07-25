@@ -5,6 +5,7 @@ export type TwilioPayload = {
   SendAt?: string
   ValidityPeriod?: number
   MediaUrl?: string[]
+  Tags?: string
 } & Sender &
   Content
 

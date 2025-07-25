@@ -10,7 +10,7 @@ export const fields: Record<string, InputField> = {
     choices: [
       { label: 'SMS', value: CHANNELS.SMS },
       { label: 'MMS', value: CHANNELS.MMS },
-      { label: 'WhatsApp', value: CHANNELS.WHATSAPP },
+      { label: 'WhatsApp', value: CHANNELS.WHATSAPP }
       //{ label: 'RCS', value: CHANNELS.RCS } Will be hidden for private beta
     ]
   },
@@ -20,6 +20,7 @@ export const fields: Record<string, InputField> = {
       "The Sender type to use for the message. Depending on the selected 'Channel' this can be a phone number, messaging service, or Messenger sender ID.",
     type: 'string',
     required: true,
+    default: "Phone number",
     dynamic: true
   },
   contentTemplateType: {
@@ -28,6 +29,7 @@ export const fields: Record<string, InputField> = {
       'The Content Template type to use for the message. Selecting "Inline" will allow you to define the message body directly. For all other options a Content Template must be pre-defined in Twilio.',
     type: 'string',
     required: true,
+    default: "Text",
     dynamic: true
   },
   toPhoneNumber: {
@@ -213,5 +215,12 @@ export const fields: Record<string, InputField> = {
     format: 'date-time',
     required: false,
     default: undefined
+  },
+  tags: {
+    label: 'Tags',
+    description: 'Custom tags to be included in the message. Key:value pairs of strings are allowed.',
+    type: 'object',
+    required: false,
+    defaultObjectUI: 'keyvalue'
   }
 }
