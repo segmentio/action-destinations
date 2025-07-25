@@ -1,7 +1,8 @@
-import { createTestIntegration, PayloadValidationError, SegmentEvent } from '@segment/actions-core'
-import { SFTP_MIN_RECORD_COUNT } from '../properties'
+import { createTestIntegration, DEFAULT_REQUEST_TIMEOUT, PayloadValidationError } from '@segment/actions-core'
+import { uploadSFTP, validateSFTP } from '../client'
+import { Settings } from '../generated-types'
 
-// Mock SFTP client at the top level
+// Single unified mock for ssh2-sftp-client
 const mockSftpClient = {
   connect: jest.fn().mockResolvedValue(undefined),
   put: jest.fn().mockResolvedValue(undefined),
@@ -15,18 +16,14 @@ jest.mock('ssh2-sftp-client', () => {
 
 // Import destination after mocking
 import Destination from '../index'
-
 const testDestination = createTestIntegration(Destination)
 
-const mockedEvents: SegmentEvent[] = Array.from({ length: 50 }, (_, i) => ({
-  messageId: `segment-test-message-00000${i + 2}`,
-  timestamp: '2023-07-26T15:23:39.803Z',
-  type: 'track',
-  userId: `userid${i + 2}`,
-  receivedAt: '2015-12-12T19:11:01.266Z',
-  properties: {},
-  event: 'Audience Entered'
-}))
+const settings = {
+  sftp_host: 'test.example.com',
+  sftp_username: 'testuser',
+  sftp_password: 'testpass',
+  sftp_port: 22
+}
 
 describe('SFTP Destination', () => {
   beforeEach(() => {
@@ -41,79 +38,176 @@ describe('SFTP Destination', () => {
   })
 
   describe('testAuthentication', () => {
-    it('should validate authentication fields', async () => {
-      const authData = {}
-      expect(authData).toStrictEqual({})
+    it('should validate authentication fields with valid credentials', async () => {
+      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
+    })
+
+    it('should reject authentication with missing password', async () => {
+      const settings = {
+        sftp_host: 'test.example.com',
+        sftp_username: 'testuser',
+        sftp_port: 22
+      } as Settings
+
+      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
     })
   })
+})
 
-  describe('syncToSFTP', () => {
-    it('should be defined', () => {
-      expect(testDestination.actions.syncToSFTP).toBeDefined()
+describe('validateSFTP', () => {
+  const payload = {
+    sftp_folder_path: '/uploads',
+    delimiter: ',',
+    filename_prefix: 'test_filename_',
+    enable_batching: true,
+    batch_size: 100000,
+    file_extension: 'csv',
+    columns: {}
+  }
+
+  it('should throw if no sftp_username is provided', async () => {
+    const settings = {}
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    expect(() => validateSFTP(settings as any, payload)).toThrow('Missing Required SFTP Credentials (Username)')
+  })
+
+  it('should throw if no sftp_password is provided', async () => {
+    const settings = { sftp_username: 'testuser' }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    expect(() => validateSFTP(settings as any, payload)).toThrow('Missing Required SFTP Credentials (Password)')
+  })
+
+  it('should throw if no sftp_host is provided', async () => {
+    const settings = {
+      sftp_username: 'testuser',
+      sftp_password: 'testpass'
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    expect(() => validateSFTP(settings as any, payload)).toThrow('Missing Required SFTP host')
+  })
+
+  it('should throw if no folder path is provided in payload', async () => {
+    const payload = {}
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    expect(() => validateSFTP(settings, payload as any)).toThrow('Missing Required SFTP folder path')
+  })
+
+  it('should not throw when all required fields are present', async () => {
+    expect(() => validateSFTP(settings, payload)).not.toThrow()
+  })
+
+  describe('uploadSFTP error handling', () => {
+    beforeEach(() => {
+      jest.resetModules()
+      jest.useFakeTimers()
     })
 
-    it('should have required SFTP fields', () => {
-      const action = testDestination.actions.syncToSFTP
-      expect(action.definition.fields.sftp_host).toBeDefined()
-      expect(action.definition.fields.sftp_username).toBeDefined()
-      expect(action.definition.fields.sftp_password).toBeDefined()
-      expect(action.definition.fields.sftp_folder_path).toBeDefined()
-      expect(action.definition.fields.audience_key).toBeDefined()
+    afterEach(() => {
+      jest.useRealTimers()
     })
 
-    it('should validate minimum record count', async () => {
-      const settings = {}
-
+    it('should throw a PayloadValidationError when file path does not exist', async () => {
       const payload = {
-        sftp_host: 'test.example.com',
-        sftp_username: 'testuser',
-        sftp_password: 'testpass',
-        sftp_folder_path: '/uploads',
-        audience_key: 'test-audience',
+        sftp_folder_path: '/nonexistent/path',
+        filename_prefix: 'test_',
         delimiter: ',',
-        filename: 'test.csv',
-        enable_batching: true
+        enable_batching: true,
+        batch_size: 100000,
+        file_extension: 'csv',
+        columns: {}
       }
 
-      // Test with insufficient records
-      const insufficientEvents = mockedEvents.slice(0, SFTP_MIN_RECORD_COUNT - 1)
+      // Mock SFTP client to throw NO_SUCH_FILE error
+      mockSftpClient.put.mockRejectedValue({ code: 2, message: 'No such file' })
 
-      await expect(
-        testDestination.testAction('syncToSFTP', {
-          event: insufficientEvents[0],
-          settings,
-          mapping: payload,
-          useDefaultMappings: true
-        })
-      ).rejects.toThrow(PayloadValidationError as jest.Constructable)
+      await expect(uploadSFTP(settings, payload, 'test.csv', Buffer.from('test'))).rejects.toThrow(
+        PayloadValidationError as jest.Constructable
+      )
     })
 
-    it('should handle batch processing', async () => {
-      const settings = {}
-
+    it('should re-throw non-SFTP errors without modification', async () => {
       const payload = {
-        sftp_host: 'test.example.com',
-        sftp_username: 'testuser',
-        sftp_password: 'testpass',
         sftp_folder_path: '/uploads',
-        audience_key: 'test-audience',
+        filename_prefix: 'test_',
         delimiter: ',',
-        filename: 'test.csv',
-        enable_batching: true
+        enable_batching: true,
+        batch_size: 100000,
+        file_extension: 'csv',
+        columns: {}
       }
 
-      const sufficientEvents = mockedEvents.slice(0, SFTP_MIN_RECORD_COUNT)
+      // Mock SFTP client to throw a generic error (not an SFTP error)
+      const genericError = new Error('Connection timeout')
+      mockSftpClient.put.mockRejectedValue(genericError)
 
-      // This would normally test the actual upload, but since we're mocking SFTP
-      // we'll just verify the action can be called without errors
-      await expect(
-        testDestination.testBatchAction('syncToSFTP', {
-          events: sufficientEvents,
-          settings,
-          mapping: payload,
-          useDefaultMappings: true
-        })
-      ).resolves.not.toThrow()
+      await expect(uploadSFTP(settings, payload, 'test.csv', Buffer.from('test'))).rejects.toThrow('Connection timeout')
+    })
+
+    it('should re-throw SFTP errors with unknown codes', async () => {
+      const payload = {
+        sftp_folder_path: '/uploads',
+        filename_prefix: 'test_',
+        delimiter: ',',
+        enable_batching: true,
+        batch_size: 100000,
+        file_extension: 'csv',
+        columns: {}
+      }
+
+      // Mock SFTP client to throw an SFTP error with unknown code
+      const unknownSftpError = { code: 99, message: 'Unknown SFTP error' }
+      mockSftpClient.put.mockRejectedValue(unknownSftpError)
+
+      await expect(uploadSFTP(settings, payload, 'test.csv', Buffer.from('test'))).rejects.toEqual(unknownSftpError)
+    })
+
+    it('should re-throw connection errors', async () => {
+      const payload = {
+        sftp_folder_path: '/uploads',
+        filename_prefix: 'test_',
+        delimiter: ',',
+        enable_batching: true,
+        batch_size: 100000,
+        file_extension: 'csv',
+        columns: {}
+      }
+
+      // Mock SFTP client connection to fail
+      const connectionError = new Error('Connection refused')
+      mockSftpClient.connect.mockRejectedValue(connectionError)
+
+      await expect(uploadSFTP(settings, payload, 'test.csv', Buffer.from('test'))).rejects.toThrow('Connection refused')
+    })
+
+    // it('should throw timeout error when operation completes after timeout', async () => {})
+    it('should handle timeout error scenario', async () => {
+      // Test that the timeout mechanism is set up correctly
+      const mockSetTimeout = jest.spyOn(global, 'setTimeout')
+      const mockClearTimeout = jest.spyOn(global, 'clearTimeout')
+
+      const payload = {
+        sftp_folder_path: '/uploads',
+        filename_prefix: 'test_',
+        delimiter: ',',
+        enable_batching: true,
+        batch_size: 100000,
+        file_extension: 'csv',
+        columns: {}
+      }
+
+      // Ensure mocks are properly set up
+      mockSftpClient.connect.mockResolvedValue(undefined)
+      mockSftpClient.put.mockResolvedValue(undefined)
+      mockSftpClient.end.mockResolvedValue(undefined)
+
+      await uploadSFTP(settings, payload, 'test.csv', Buffer.from('test'))
+
+      // Verify timeout was set and cleared
+      expect(mockSetTimeout).toHaveBeenCalledWith(expect.any(Function), DEFAULT_REQUEST_TIMEOUT)
+      expect(mockClearTimeout).toHaveBeenCalled()
+
+      mockSetTimeout.mockRestore()
+      mockClearTimeout.mockRestore()
     })
   })
 })
