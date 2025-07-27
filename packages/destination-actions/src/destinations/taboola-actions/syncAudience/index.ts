@@ -103,6 +103,15 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       required: true,
       unsafe_hidden: true
     },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['external_audience_id', 'segment_computation_key']
+    },
     action: {
       label: 'Action',
       description: 'Action to perform on the audience.',

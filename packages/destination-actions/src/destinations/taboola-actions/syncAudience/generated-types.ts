@@ -36,6 +36,10 @@ export interface Payload {
    */
   batch_size: number
   /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
+  /**
    * Action to perform on the audience.
    */
   action?: string
