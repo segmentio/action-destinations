@@ -196,7 +196,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       'Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.',
     type: 'string',
     required: true,
-    default: { '@template': '/uploads/' }
+    default: { '@template': '/' }
   },
   filename_prefix: {
     label: 'Filename prefix',
@@ -226,7 +226,9 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     required: true,
     choices: [
       { label: 'csv', value: 'csv' },
-      { label: 'txt', value: 'txt' }
+      { label: 'txt', value: 'txt' },
+      { label: 'tsv', value: 'tsv' },
+      { label: 'psv', value: 'psv' }
     ],
     default: 'csv'
   }
