@@ -7,10 +7,19 @@ import Client from 'ssh2-sftp-client'
 jest.mock('ssh2-sftp-client')
 
 // Shared test data and helpers
-const settings: Settings = {
+const passwordSettings: Settings = {
+  auth_type: 'password',
   sftp_host: 'sftp_host',
   sftp_username: 'sftp_username',
   sftp_password: 'sftp_password',
+  sftp_port: 22
+}
+
+const sshKeySettings: Settings = {
+  auth_type: 'ssh_key',
+  sftp_host: 'sftp_host',
+  sftp_username: 'sftp_username',
+  sftp_ssh_key: 'sftp_ssh_key',
   sftp_port: 22
 }
 
@@ -21,12 +30,33 @@ describe('SFTP Client', () => {
   })
 
   describe('uploadSFTP success cases', () => {
-    it('uploads file successfully', async () => {
-      Client.prototype.connect = jest.fn()
-      Client.prototype.put = jest.fn()
-      Client.prototype.end = jest.fn()
+    beforeEach(() => {
+      Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
+      Client.prototype.put = jest.fn().mockResolvedValue(undefined)
+      Client.prototype.end = jest.fn().mockResolvedValue(undefined)
+    })
 
-      await uploadSFTP(settings, 'sftp_folder_path', 'filename', Buffer.from('test content'))
+    it('uploads file successfully with password authentication', async () => {
+      await uploadSFTP(passwordSettings, 'sftp_folder_path', 'filename', Buffer.from('test content'))
+
+      expect(Client.prototype.connect).toHaveBeenCalledWith({
+        host: 'sftp_host',
+        port: 22,
+        username: 'sftp_username',
+        password: 'sftp_password'
+      })
+      expect(Client.prototype.put).toHaveBeenCalled()
+    })
+
+    it('uploads file successfully with SSH key authentication', async () => {
+      await uploadSFTP(sshKeySettings, 'sftp_folder_path', 'filename', Buffer.from('test content'))
+
+      expect(Client.prototype.connect).toHaveBeenCalledWith({
+        host: 'sftp_host',
+        port: 22,
+        username: 'sftp_username',
+        privateKey: 'sftp_ssh_key'
+      })
       expect(Client.prototype.put).toHaveBeenCalled()
     })
   })
@@ -42,8 +72,22 @@ describe('SFTP Client', () => {
       Client.prototype.put = jest.fn().mockRejectedValue(sftpError)
 
       // Should throw PayloadValidationError for NO_SUCH_FILE
-      await expect(uploadSFTP(settings, '/nonexistent/path', 'filename', Buffer.from('test content'))).rejects.toThrow(
-        'Could not find path: /nonexistent/path'
+      await expect(
+        uploadSFTP(passwordSettings, '/nonexistent/path', 'filename', Buffer.from('test content'))
+      ).rejects.toThrow('Could not find path: /nonexistent/path')
+    })
+
+    it('re-throws non-SFTP errors unchanged', async () => {
+      Client.prototype.connect = jest.fn().mockResolvedValue(undefined)
+      Client.prototype.end = jest.fn().mockResolvedValue(undefined)
+
+      // Mock generic error (not SFTP-specific)
+      const genericError = new Error('Network error')
+      Client.prototype.put = jest.fn().mockRejectedValue(genericError)
+
+      // Should re-throw the generic error unchanged
+      await expect(uploadSFTP(passwordSettings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
+        'Network error'
       )
     })
 
@@ -56,7 +100,7 @@ describe('SFTP Client', () => {
       Client.prototype.put = jest.fn().mockRejectedValue(genericError)
 
       // Should re-throw the original error
-      await expect(uploadSFTP(settings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
+      await expect(uploadSFTP(passwordSettings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
         'Generic network error'
       )
     })
@@ -80,7 +124,7 @@ describe('SFTP Client', () => {
 
       // This should trigger the timeout immediately, set timeoutError,
       // then when put() completes, it should hit "if (timeoutError) throw timeoutError"
-      await expect(uploadSFTP(settings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
+      await expect(uploadSFTP(passwordSettings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
         SelfTimeoutError
       )
 
@@ -114,7 +158,7 @@ describe('SFTP Client', () => {
       // 3. sftp.end() is called and fails, triggering console.error(err) ← LINE 63
       // 4. timeoutError is set
       // 5. When put() completes, SelfTimeoutError is thrown
-      await expect(uploadSFTP(settings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
+      await expect(uploadSFTP(passwordSettings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
         SelfTimeoutError
       )
 

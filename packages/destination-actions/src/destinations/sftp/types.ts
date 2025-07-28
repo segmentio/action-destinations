@@ -40,3 +40,11 @@ export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unkno
   Payload,
   AudienceSettings
 > & { rawData?: RawData }
+
+export type sftpConnectionConfig = {
+  host: string
+  port: number
+  username: string
+  password?: string
+  privateKey?: string
+}

@@ -11,6 +11,17 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
+      auth_type: {
+        label: 'Authentication Type',
+        description: 'The type of authentication to use for the SFTP connection',
+        type: 'string',
+        choices: [
+          { label: 'Username and Password', value: 'password' },
+          { label: 'Username and SSH Key', value: 'ssh_key' }
+        ],
+        default: 'password',
+        required: true
+      },
       sftp_host: {
         label: 'SFTP Host',
         description: 'The hostname or IP address of the SFTP server',
@@ -34,7 +45,47 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Password',
         description: 'User credentials for establishing an SFTP connection',
         type: 'password',
-        required: true
+        required: {
+          conditions: [
+            {
+              fieldKey: 'auth_type',
+              operator: 'is',
+              value: 'password'
+            }
+          ]
+        },
+        depends_on: {
+          conditions: [
+            {
+              fieldKey: 'auth_type',
+              operator: 'is',
+              value: 'password'
+            }
+          ]
+        }
+      },
+      sftp_ssh_key: {
+        label: 'SSH Key',
+        description: 'SSH Key for establishing an SFTP connection.',
+        type: 'password',
+        required: {
+          conditions: [
+            {
+              fieldKey: 'auth_type',
+              operator: 'is',
+              value: 'ssh_key'
+            }
+          ]
+        },
+        depends_on: {
+          conditions: [
+            {
+              fieldKey: 'auth_type',
+              operator: 'is',
+              value: 'ssh_key'
+            }
+          ]
+        }
       }
     }
   },

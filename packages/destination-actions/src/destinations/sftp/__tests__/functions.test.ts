@@ -389,6 +389,7 @@ describe('getAudienceAction', () => {
 
 describe('send', () => {
   const mockSettings: Settings = {
+    auth_type: 'password',
     sftp_host: 'test.example.com',
     sftp_username: 'testuser',
     sftp_password: 'testpass',

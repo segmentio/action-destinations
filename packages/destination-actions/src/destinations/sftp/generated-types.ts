@@ -2,6 +2,10 @@
 
 export interface Settings {
   /**
+   * The type of authentication to use for the SFTP connection
+   */
+  auth_type: string
+  /**
    * The hostname or IP address of the SFTP server
    */
   sftp_host: string
@@ -16,5 +20,9 @@ export interface Settings {
   /**
    * User credentials for establishing an SFTP connection
    */
-  sftp_password: string
+  sftp_password?: string
+  /**
+   * SSH Key for establishing an SFTP connection.
+   */
+  sftp_ssh_key?: string
 }

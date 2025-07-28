@@ -2,6 +2,7 @@ import { DEFAULT_REQUEST_TIMEOUT, PayloadValidationError, SelfTimeoutError } fro
 import path from 'path'
 import Client from 'ssh2-sftp-client'
 import { Settings } from './generated-types'
+import { sftpConnectionConfig } from './types'
 
 enum SFTPErrorCode {
   NO_SUCH_FILE = 2
@@ -34,12 +35,8 @@ async function executeSFTPOperation(
   sftpFolderPath: string,
   action: { (sftp: Client): Promise<unknown> }
 ) {
-  await sftp.connect({
-    host: settings.sftp_host,
-    port: settings.sftp_port || 22,
-    username: settings.sftp_username,
-    password: settings.sftp_password
-  })
+  const connectionConfig = createConnectionConfig(settings)
+  await sftp.connect(connectionConfig)
 
   let timeoutError
   const timeout = setTimeout(() => {
@@ -72,6 +69,19 @@ async function executeSFTPOperation(
   }
 
   return retVal
+}
+
+function createConnectionConfig(settings: Settings): sftpConnectionConfig {
+  const { auth_type, sftp_ssh_key, sftp_password } = settings
+  const credentialKey = auth_type === 'ssh_key' ? 'privateKey' : 'password'
+  const credentialValue = auth_type === 'ssh_key' ? sftp_ssh_key : sftp_password
+
+  return {
+    host: settings.sftp_host,
+    port: settings.sftp_port || 22,
+    username: settings.sftp_username,
+    [credentialKey]: credentialValue
+  }
 }
 
 export { Client, executeSFTPOperation, uploadSFTP }
