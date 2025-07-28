@@ -8,7 +8,7 @@ import { Data, RawMapping } from '../types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync to SFTP',
   description: 'Syncs Segment event data to SFTP.',
-  defaultSubscription: 'type = "identify" or type = "track"',
+  defaultSubscription: 'type = "identify" or type = "track" or type = "page" or type = "screen" or type = "group"',
   fields: commonFields,
   perform: async (_, data) => {
     const { payload, settings } = data
