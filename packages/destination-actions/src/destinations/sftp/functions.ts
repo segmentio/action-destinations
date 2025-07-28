@@ -1,11 +1,9 @@
-import { uploadSFTP, validateSFTP } from './client'
+import { uploadSFTP } from './client'
 import { Settings } from './generated-types'
 import { Payload } from './syncToSFTP/generated-types'
 import { ColumnHeader, RawMapping } from './types'
 
 async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
-  validateSFTP(settings, payloads[0])
-
   const delimiter = payloads[0]?.delimiter
   const actionColName = payloads[0]?.audience_action_column_name
   const batchColName = payloads[0]?.batch_size_column_name
@@ -25,9 +23,10 @@ async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapp
   }
 
   const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName)
-  const filename = createFilename(payloads[0])
+  const { filename_prefix, file_extension, sftp_folder_path } = payloads[0]
+  const filename = createFilename(filename_prefix, file_extension)
 
-  return uploadSFTP(settings, payloads[0], filename, fileContent)
+  return uploadSFTP(settings, sftp_folder_path, filename, fileContent)
 }
 
 function clean(delimiter: string, str = '') {
@@ -37,15 +36,14 @@ function clean(delimiter: string, str = '') {
 /**
  * Creates a filename based on the payload's filename prefix and timestamp suffix.
  */
-function createFilename({ filename_prefix, file_extension }: Payload): string {
-  const filenamePrefix = String(filename_prefix)
+function createFilename(filename_prefix: string, file_extension: string): string {
   const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
   switch (true) {
-    case filenamePrefix.endsWith(`.${file_extension}`):
-      return filenamePrefix.replace(`.${file_extension}`, `_${dateSuffix}.${file_extension}`)
-    case filenamePrefix !== '':
-      return `${filenamePrefix}_${dateSuffix}.${file_extension}`
+    case filename_prefix.endsWith(`.${file_extension}`):
+      return filename_prefix.replace(`.${file_extension}`, `__${dateSuffix}.${file_extension}`)
+    case filename_prefix !== '':
+      return `${filename_prefix}__${dateSuffix}.${file_extension}`
     default:
       return `${dateSuffix}.${file_extension}`
   }

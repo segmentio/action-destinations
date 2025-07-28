@@ -350,7 +350,7 @@ describe('Integration Tests', () => {
     const comprehensivePayload = {
       sftp_folder_path: '/uploads',
       delimiter: ',',
-      filename_prefix: 'sfmc_audience_',
+      filename_prefix: 'sfmc_audience',
       enable_batching: true,
       batch_size: 100000,
       file_extension: 'csv',

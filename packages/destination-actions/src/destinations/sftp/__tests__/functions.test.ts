@@ -1,4 +1,4 @@
-import { uploadSFTP, validateSFTP } from '../client'
+import { uploadSFTP } from '../client'
 import {
   clean,
   createFilename,
@@ -15,7 +15,6 @@ import type { ColumnHeader, RawMapping } from '../types'
 // Mock the client functions
 jest.mock('../client')
 const mockUploadSFTP = uploadSFTP as jest.MockedFunction<typeof uploadSFTP>
-const mockValidateSFTP = validateSFTP as jest.MockedFunction<typeof validateSFTP>
 
 // Test helpers and shared data
 const createTestPayload = (overrides: Partial<Payload> = {}): Payload => ({
@@ -200,153 +199,48 @@ describe('createFilename', () => {
   })
 
   it('should create filename with prefix and timestamp when prefix does not end with extension', () => {
-    const payload: Payload = {
-      sftp_folder_path: '/uploads',
-      delimiter: ',',
-      filename_prefix: 'test_prefix',
-      enable_batching: true,
-      file_extension: 'csv',
-      batch_size: 100000,
-      columns: {}
-    }
-
-    const result = createFilename(payload)
-    expect(result).toBe(`test_prefix_${expectedTimestamp}.csv`)
+    const result = createFilename('test_prefix', 'csv')
+    expect(result).toBe(`test_prefix__${expectedTimestamp}.csv`)
   })
 
   it('should handle prefix that already ends with extension', () => {
-    const payload: Payload = {
-      sftp_folder_path: '/uploads',
-      delimiter: ',',
-      filename_prefix: 'test_file.csv',
-      enable_batching: true,
-      file_extension: 'csv',
-      batch_size: 100000,
-      columns: {}
-    }
-
-    const result = createFilename(payload)
-    expect(result).toBe(`test_file_${expectedTimestamp}.csv`)
+    const result = createFilename('test_file.csv', 'csv')
+    expect(result).toBe(`test_file__${expectedTimestamp}.csv`)
   })
 
   it('should handle empty prefix', () => {
-    const payload: Payload = {
-      sftp_folder_path: '/uploads',
-      delimiter: ',',
-      filename_prefix: '',
-      enable_batching: true,
-      file_extension: 'csv',
-      batch_size: 100000,
-      columns: {}
-    }
-
-    const result = createFilename(payload)
+    const result = createFilename('', 'csv')
     expect(result).toBe(`${expectedTimestamp}.csv`)
   })
 
-  it('should handle undefined prefix', () => {
-    const payload: Payload = {
-      sftp_folder_path: '/uploads',
-      delimiter: ',',
-      filename_prefix: undefined as any,
-      enable_batching: true,
-      file_extension: 'csv',
-      batch_size: 100000,
-      columns: {}
-    }
-
-    const result = createFilename(payload)
-    expect(result).toBe(`undefined_${expectedTimestamp}.csv`)
-  })
-
   it('should handle different file extensions', () => {
-    const payload: Payload = {
-      sftp_folder_path: '/uploads',
-      delimiter: ',',
-      filename_prefix: 'data',
-      enable_batching: true,
-      file_extension: 'txt',
-      batch_size: 100000,
-      columns: {}
-    }
-
-    const result = createFilename(payload)
-    expect(result).toBe(`data_${expectedTimestamp}.txt`)
+    const result = createFilename('data', 'txt')
+    expect(result).toBe(`data__${expectedTimestamp}.txt`)
   })
 
   it('should handle prefix with extension when extension matches', () => {
-    const payload: Payload = {
-      sftp_folder_path: '/uploads',
-      delimiter: ',',
-      filename_prefix: 'report.txt',
-      enable_batching: true,
-      file_extension: 'txt',
-      batch_size: 100000,
-      columns: {}
-    }
-
-    const result = createFilename(payload)
-    expect(result).toBe(`report_${expectedTimestamp}.txt`)
+    const result = createFilename('report.txt', 'txt')
+    expect(result).toBe(`report__${expectedTimestamp}.txt`)
   })
 
   it('should handle prefix with different extension than file_extension', () => {
-    const payload: Payload = {
-      sftp_folder_path: '/uploads',
-      delimiter: ',',
-      filename_prefix: 'report.csv',
-      enable_batching: true,
-      file_extension: 'txt',
-      batch_size: 100000,
-      columns: {}
-    }
-
-    const result = createFilename(payload)
-    expect(result).toBe(`report.csv_${expectedTimestamp}.txt`)
+    const result = createFilename('report.csv', 'txt')
+    expect(result).toBe(`report.csv__${expectedTimestamp}.txt`)
   })
 
   it('should handle numeric prefix', () => {
-    const payload: Payload = {
-      sftp_folder_path: '/uploads',
-      delimiter: ',',
-      filename_prefix: 123 as any,
-      enable_batching: true,
-      file_extension: 'csv',
-      batch_size: 100000,
-      columns: {}
-    }
-
-    const result = createFilename(payload)
-    expect(result).toBe(`123_${expectedTimestamp}.csv`)
+    const result = createFilename('123', 'csv')
+    expect(result).toBe(`123__${expectedTimestamp}.csv`)
   })
 
   it('should handle special characters in prefix', () => {
-    const payload: Payload = {
-      sftp_folder_path: '/uploads',
-      delimiter: ',',
-      filename_prefix: 'test-file_with@special#chars',
-      enable_batching: true,
-      file_extension: 'csv',
-      batch_size: 100000,
-      columns: {}
-    }
-
-    const result = createFilename(payload)
-    expect(result).toBe(`test-file_with@special#chars_${expectedTimestamp}.csv`)
+    const result = createFilename('test-file_with@special#chars', 'csv')
+    expect(result).toBe(`test-file_with@special#chars__${expectedTimestamp}.csv`)
   })
 
   it('should create proper timestamp format', () => {
-    const payload: Payload = {
-      sftp_folder_path: '/uploads',
-      delimiter: ',',
-      filename_prefix: 'end_of_year',
-      enable_batching: true,
-      file_extension: 'csv',
-      batch_size: 100000,
-      columns: {}
-    }
-
-    const result = createFilename(payload)
-    expect(result).toBe(`end_of_year_2023-07-26T15-23-39-803Z.csv`)
+    const result = createFilename('end_of_year', 'csv')
+    expect(result).toBe(`end_of_year__2023-07-26T15-23-39-803Z.csv`)
   })
 })
 
@@ -511,7 +405,6 @@ describe('send', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockValidateSFTP.mockImplementation(() => {})
     mockUploadSFTP.mockResolvedValue(undefined)
   })
 
@@ -533,10 +426,9 @@ describe('send', () => {
 
     await send(payloads, mockSettings, mockRawMapping)
 
-    expect(mockValidateSFTP).toHaveBeenCalledWith(mockSettings, payloads[0])
     expect(mockUploadSFTP).toHaveBeenCalledWith(
       mockSettings,
-      payloads[0],
+      '/uploads',
       expect.any(String), // filename
       expect.any(Buffer) // file content
     )

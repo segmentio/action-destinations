@@ -1,7 +1,6 @@
 import { SelfTimeoutError } from '@segment/actions-core'
 import { uploadSFTP } from '../client'
 import { Settings } from '../generated-types'
-import { Payload } from '../syncToSFTP/generated-types'
 
 import Client from 'ssh2-sftp-client'
 
@@ -15,17 +14,6 @@ const settings: Settings = {
   sftp_port: 22
 }
 
-const createMockPayload = (overrides: Partial<Payload> = {}): Payload => ({
-  sftp_folder_path: '/uploads',
-  filename_prefix: 'filename',
-  delimiter: 'delimiter',
-  enable_batching: false,
-  batch_size: 100000,
-  file_extension: 'csv',
-  columns: {},
-  ...overrides
-})
-
 describe('SFTP Client', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -38,9 +26,7 @@ describe('SFTP Client', () => {
       Client.prototype.put = jest.fn()
       Client.prototype.end = jest.fn()
 
-      const mockPayload = createMockPayload({ sftp_folder_path: 'sftp_folder_path' })
-
-      await uploadSFTP(settings, mockPayload, 'filename', Buffer.from('test content'))
+      await uploadSFTP(settings, 'sftp_folder_path', 'filename', Buffer.from('test content'))
       expect(Client.prototype.put).toHaveBeenCalled()
     })
   })
@@ -55,10 +41,8 @@ describe('SFTP Client', () => {
       sftpError.code = 2 // SFTPErrorCode.NO_SUCH_FILE
       Client.prototype.put = jest.fn().mockRejectedValue(sftpError)
 
-      const mockPayload = createMockPayload({ sftp_folder_path: '/nonexistent/path' })
-
       // Should throw PayloadValidationError for NO_SUCH_FILE
-      await expect(uploadSFTP(settings, mockPayload, 'filename', Buffer.from('test content'))).rejects.toThrow(
+      await expect(uploadSFTP(settings, '/nonexistent/path', 'filename', Buffer.from('test content'))).rejects.toThrow(
         'Could not find path: /nonexistent/path'
       )
     })
@@ -71,18 +55,8 @@ describe('SFTP Client', () => {
       const genericError = new Error('Generic network error')
       Client.prototype.put = jest.fn().mockRejectedValue(genericError)
 
-      const mockPayload: Payload = {
-        sftp_folder_path: '/uploads',
-        filename_prefix: 'filename',
-        delimiter: 'delimiter',
-        enable_batching: false,
-        batch_size: 100000,
-        file_extension: 'csv',
-        columns: {}
-      }
-
       // Should re-throw the original error
-      await expect(uploadSFTP(settings, mockPayload, 'filename', Buffer.from('test content'))).rejects.toThrow(
+      await expect(uploadSFTP(settings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
         'Generic network error'
       )
     })
@@ -104,19 +78,9 @@ describe('SFTP Client', () => {
       // Make put() resolve successfully but slowly (simulating the race condition)
       Client.prototype.put = jest.fn().mockResolvedValue(undefined)
 
-      const mockPayload: Payload = {
-        sftp_folder_path: '/uploads',
-        filename_prefix: 'filename',
-        delimiter: 'delimiter',
-        enable_batching: false,
-        batch_size: 100000,
-        file_extension: 'csv',
-        columns: {}
-      }
-
       // This should trigger the timeout immediately, set timeoutError,
       // then when put() completes, it should hit "if (timeoutError) throw timeoutError"
-      await expect(uploadSFTP(settings, mockPayload, 'filename', Buffer.from('test content'))).rejects.toThrow(
+      await expect(uploadSFTP(settings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
         SelfTimeoutError
       )
 
@@ -144,23 +108,13 @@ describe('SFTP Client', () => {
       // Make put() resolve successfully
       Client.prototype.put = jest.fn().mockResolvedValue(undefined)
 
-      const mockPayload: Payload = {
-        sftp_folder_path: '/uploads',
-        filename_prefix: 'filename',
-        delimiter: 'delimiter',
-        enable_batching: false,
-        batch_size: 100000,
-        file_extension: 'csv',
-        columns: {}
-      }
-
       // This should:
       // 1. Start the upload
       // 2. setTimeout callback executes immediately
       // 3. sftp.end() is called and fails, triggering console.error(err) ← LINE 63
       // 4. timeoutError is set
       // 5. When put() completes, SelfTimeoutError is thrown
-      await expect(uploadSFTP(settings, mockPayload, 'filename', Buffer.from('test content'))).rejects.toThrow(
+      await expect(uploadSFTP(settings, '/uploads', 'filename', Buffer.from('test content'))).rejects.toThrow(
         SelfTimeoutError
       )
 
