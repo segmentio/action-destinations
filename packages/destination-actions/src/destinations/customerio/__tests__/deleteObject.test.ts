@@ -26,7 +26,9 @@ describe('CustomerIO', () => {
             object_id: groupId,
             object_type_id: objectTypeId
           },
-          type: 'object'
+          type: 'object',
+          enable_batching: true,
+          batch_size: 10
         })
       })
     })

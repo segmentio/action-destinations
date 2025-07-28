@@ -38,7 +38,9 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person'
+          type: 'person',
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -76,7 +78,9 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person'
+          type: 'person',
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -117,7 +121,9 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person'
+          type: 'person',
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -153,7 +159,9 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person'
+          type: 'person',
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -192,7 +200,9 @@ describe('CustomerIO', () => {
           identifiers: {
             id: userId
           },
-          type: 'person'
+          type: 'person',
+          enable_batching: true,
+          batch_size: 10
         })
       })
     })

@@ -47,7 +47,9 @@ describe('CustomerIO', () => {
             object_type_id: traits.object_type_id,
             object_id: groupId
           },
-          cio_relationships: [{ identifiers: { id: userId } }]
+          cio_relationships: [{ identifiers: { id: userId } }],
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -89,7 +91,9 @@ describe('CustomerIO', () => {
             object_type_id: traits.object_type_id,
             object_id: groupId
           },
-          cio_relationships: [{ identifiers: { anonymous_id: anonymousId } }]
+          cio_relationships: [{ identifiers: { anonymous_id: anonymousId } }],
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -132,7 +136,9 @@ describe('CustomerIO', () => {
             object_type_id: '2',
             object_id: groupId
           },
-          cio_relationships: [{ identifiers: { id: userId } }]
+          cio_relationships: [{ identifiers: { id: userId } }],
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -174,7 +180,9 @@ describe('CustomerIO', () => {
             object_type_id: '1',
             object_id: groupId
           },
-          cio_relationships: [{ identifiers: { id: userId } }]
+          cio_relationships: [{ identifiers: { id: userId } }],
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -209,7 +217,9 @@ describe('CustomerIO', () => {
             object_type_id: '1',
             object_id: groupId
           },
-          cio_relationships: [{ identifiers: { id: userId } }]
+          cio_relationships: [{ identifiers: { id: userId } }],
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -247,7 +257,9 @@ describe('CustomerIO', () => {
             object_type_id: '1',
             object_id: groupId
           },
-          cio_relationships: [{ identifiers: { cio_id: 'abc123' } }]
+          cio_relationships: [{ identifiers: { cio_id: 'abc123' } }],
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -285,7 +297,9 @@ describe('CustomerIO', () => {
             object_type_id: '1',
             object_id: groupId
           },
-          cio_relationships: [{ identifiers: { email: 'foo@bar.com' } }]
+          cio_relationships: [{ identifiers: { email: 'foo@bar.com' } }],
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -327,7 +341,9 @@ describe('CustomerIO', () => {
             object_type_id: typeId,
             object_id: groupId
           },
-          cio_relationships: [{ identifiers: { id: userId } }]
+          cio_relationships: [{ identifiers: { id: userId } }],
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -369,7 +385,9 @@ describe('CustomerIO', () => {
             object_type_id: traits.object_type_id,
             object_id: groupId
           },
-          cio_relationships: [{ identifiers: { anonymous_id: anonymousId } }]
+          cio_relationships: [{ identifiers: { anonymous_id: anonymousId } }],
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -425,7 +443,9 @@ describe('CustomerIO', () => {
             object_type_id: traits.object_type_id,
             object_id: groupId
           },
-          cio_relationships: [relationship]
+          cio_relationships: [relationship],
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -481,7 +501,9 @@ describe('CustomerIO', () => {
             object_type_id: traits.object_type_id,
             object_id: groupId
           },
-          cio_relationships: [relationship]
+          cio_relationships: [relationship],
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -536,7 +558,9 @@ describe('CustomerIO', () => {
             object_type_id: traits.object_type_id,
             object_id: groupId
           },
-          cio_relationships: [relationship]
+          cio_relationships: [relationship],
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -590,7 +614,9 @@ describe('CustomerIO', () => {
             {
               identifiers: { id: userId }
             }
-          ]
+          ],
+          enable_batching: true,
+          batch_size: 10
         })
       })
     })

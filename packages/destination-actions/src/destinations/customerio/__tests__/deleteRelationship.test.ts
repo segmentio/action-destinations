@@ -48,7 +48,9 @@ describe('CustomerIO', () => {
               object_id: objectId,
               object_type_id: objectTypeId
             },
-            type: 'object'
+            type: 'object',
+            enable_batching: true,
+            batch_size: 10
           })
         })
 
@@ -78,7 +80,9 @@ describe('CustomerIO', () => {
                   person_id: event.userId
                 })
               }
-            ]
+            ],
+            enable_batching: true,
+            batch_size: 10
           })
         })
       })
@@ -132,7 +136,9 @@ describe('CustomerIO', () => {
             object_id: event.properties?.objectId,
             object_type_id: event.properties?.objectTypeId
           },
-          type: 'object'
+          type: 'object',
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -167,7 +173,9 @@ describe('CustomerIO', () => {
             object_id: event.properties?.objectId,
             object_type_id: event.properties?.objectTypeId
           },
-          type: 'object'
+          type: 'object',
+          enable_batching: true,
+          batch_size: 10
         })
       })
 
@@ -202,7 +210,9 @@ describe('CustomerIO', () => {
             object_id: event.properties?.objectId,
             object_type_id: event.properties?.objectTypeId
           },
-          type: 'object'
+          type: 'object',
+          enable_batching: true,
+          batch_size: 10
         })
       })
     })
