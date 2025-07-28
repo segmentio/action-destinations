@@ -1,8 +1,7 @@
-import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { apiBaseUrl } from '../properties'
-import { UserGroupJSON } from './types'
+import { processPayloads } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync to User Group',
@@ -39,14 +38,13 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.timestamp' }
     },
-    traits_or_properties: {
-      label: 'Traits or Properties',
-      description: 'Hidden fields used to figure out if user is added or removed from an Engage Audience',
+    additional_user_traits: {
+      label: 'Additional user traits',
+      description: 'Used for trait values to send to Livelike.',
       type: 'object',
       unsafe_hidden: true,
-      defaultObjectUI: 'keyvalue',
+      defaultObjectUI: 'keyvalue:only',
       additionalProperties: true,
-      required: true,
       properties: {
         livelike_profile_id: {
           label: 'LiveLike User Profile ID',
@@ -76,6 +74,18 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    traits_or_properties_hidden: {
+      label: 'Traits or Properties hidden',
+      description: 'Hidden field used to figure out if user is added or removed from an Engage Audience',
+      type: 'object',
+      default: {
+        '@if': {
+          exists: { '@path': '$.traits' },
+          then: { '@path': '$.traits' },
+          else: { '@path': '$.properties' }
+        }
+      }
+    },
     user_id: {
       label: 'User ID',
       type: 'string',
@@ -83,34 +93,22 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.userId'
       }
+    },
+    batch_size: {
+      label: 'Batch Size',
+      type: 'number',
+      description: 'The number of records to process in each batch. Default is 100.',
+      default: 100,
+      minimum: 1,
+      maximum: 1000
     }
   },
   perform: (request, { settings, payload }) => {
-    const url = `${apiBaseUrl}/applications/${settings.clientId}/segment-audience-sync/`
-    const { audience_id, audience_name, action, timestamp, user_id, traits_or_properties: { livelike_profile_id } = {}, traits_or_properties } = payload;
-    const actionValue = typeof action === 'boolean' ? action : traits_or_properties?.[audience_name]
-    delete traits_or_properties[audience_name]
-    if(livelike_profile_id){
-      delete traits_or_properties[livelike_profile_id]
-    }
-    if(typeof actionValue !== 'boolean') {
-      throw new PayloadValidationError('Action must be a boolean value (true for add, false for remove). If connecting to an Engage Audience, leave this field empty and ensure the audience_id and audience_name field mappings are left to their default values.')
-    }
+    return processPayloads(request, [payload], settings)
 
-    const json: UserGroupJSON = {
-      audience_id,
-      audience_name,
-      action: actionValue,
-      timestamp,
-      livelike_profile_id,
-      user_id,
-      traits_or_properties
-    }
-
-    return request(url, {
-      method: 'post',
-      json
-    })
+  },
+  performBatch: (request, { settings, payload }) => {
+    return processPayloads(request, payload, settings)
   }
 }
 

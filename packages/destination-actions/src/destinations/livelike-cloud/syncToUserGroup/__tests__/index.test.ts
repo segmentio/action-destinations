@@ -29,28 +29,30 @@ describe('LivelikeCloud.syncToUserGroup', () => {
       audience_id: { '@path': '$.context.personas.computation_id'},
       audience_name: {'@path': '$.context.personas.computation_key'} ,
       timestamp: { '@path': '$.timestamp' },
-      traits_or_properties: {
+      traits_or_properties_hidden: {
         '@if': {
           exists: { '@path': '$.traits' },
           then: { '@path': '$.traits' },
           else: { '@path': '$.properties' }
         }
       },
-      livelike_profile_id: {
-        '@if': {
-          exists: {'@path': '$.traits.livelike_profile_id'},
-          then: {'@path': '$.traits.livelike_profile_id' },
-          else: {'@path': '$.properties.livelike_profile_id'} 
+      additional_user_traits: {
+        livelike_profile_id: {
+          '@if': {
+            exists: { '@path': '$.traits.livelike_profile_id' },
+            then: { '@path': '$.traits.livelike_profile_id' },
+            else: { '@path': '$.properties.livelike_profile_id' }
+          }
+        },
+        email: {
+          '@if': {
+            exists: { '@path': '$.traits.email' },
+            then: { '@path': '$.traits.email' },
+            else: { '@path': '$.properties.email' }
+          }
         }
       },
-      user_id: { '@path': '$.userId'},
-      user_group_id: {
-        '@if': {
-          exists: {'@path': '$.traits.user_group_id'},
-          then: {'@path': '$.traits.user_group_id' },
-          else: {'@path': '$.properties.user_group_id'} 
-        }
-      }
+      user_id: { '@path': '$.userId'}
     }
 
     const settings = {
@@ -62,10 +64,71 @@ describe('LivelikeCloud.syncToUserGroup', () => {
 
       const engageAddAudienceTrack = createTestEvent({
         properties: {
-          audience_key: "test_audience",
           livelike_profile_id: "122",
           test_audience: true,
-          user_group_id: "456",
+          user_id: "900",
+          email: "test@test.com"
+        },
+        timestamp: "2025-07-02T16:26:57.511Z",
+        context: {
+          __segment_internal: {
+            creator: "sync-worker"
+          },
+          personas: {
+            computation_class: "audience",
+            computation_id: "aud_2zJkeVoLkrirhXup2uAPEsDLq4N",
+            computation_key: "test_audience",
+            namespace: "spa_9vACn44CYGDZNPNWDUXtMJ",
+            space_id: "spa_9vACn44CYGDZNPNWDUXtMJ"
+          },
+          library: {
+            name: "unknown",
+            version: "unknown"
+          }
+        },
+        messageId: "personas_2zKJ24JMRhVvIFJj4ukGOBKPeNo",
+        event: "Audience Entered",
+        receivedAt: "2025-07-02T16:27:10.584Z",
+        integrations: {
+          All: false,
+          LiveLike: true
+        },
+        userId: "900",
+        type: "track"
+      })
+
+      engageAddAudienceTrack.traits = undefined
+
+      const addJson = [{
+        audience_id: 'aud_2zJkeVoLkrirhXup2uAPEsDLq4N',
+        audience_name: 'test_audience',
+        action: true,
+        timestamp: '2025-07-02T16:26:57.511Z',
+        livelike_profile_id: '122',
+        user_id: '900',
+        email: "test@test.com"
+      }]
+
+      nock(apiBaseUrl)
+        .post('/applications/test-client-id/segment-audience-sync/', addJson)
+        .reply(200);
+  
+      const responses = await testDestination.testAction('syncToUserGroup', {
+        event: engageAddAudienceTrack,
+        settings,
+        mapping
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+
+    it('should remove user from Audience with an Engage track() call', async () => {
+
+      const engageAddAudienceTrack = createTestEvent({
+        properties: {
+          test_audience: false,
           user_id: "900"
         },
         timestamp: "2025-07-02T16:26:57.511Z",
@@ -98,16 +161,14 @@ describe('LivelikeCloud.syncToUserGroup', () => {
 
       engageAddAudienceTrack.traits = undefined
 
-      const addJson = {
+      const addJson = [{
         audience_id: 'aud_2zJkeVoLkrirhXup2uAPEsDLq4N',
         audience_name: 'test_audience',
-        action: true,
+        action: false,
         timestamp: '2025-07-02T16:26:57.511Z',
-        livelike_profile_id: '122',
-        user_id: '900',
-        user_group_id: '456'
-      }
-
+        user_id: '900'
+      }]
+      
       nock(apiBaseUrl)
         .post('/applications/test-client-id/segment-audience-sync/', addJson)
         .reply(200);
@@ -121,16 +182,203 @@ describe('LivelikeCloud.syncToUserGroup', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
     })
+  })
 
-    it('should remove user from Audience with an Engage identify() call', async () => {
-      
-      const engageRemoveAudienceIdentify = createTestEvent({
-        traits: {
-          audience_key: "test_audience",
+  describe('Non Engage payloads'  , () => { 
+
+    const mapping = {
+      audience_id: { '@path': '$.properties.audience_id'},
+      audience_name: {'@path': '$.properties.audience_name'} ,
+      timestamp: { '@path': '$.timestamp' },
+      action: { '@path': '$.properties.action' },
+      traits_or_properties_hidden: {
+        '@if': {
+          exists: { '@path': '$.traits' },
+          then: { '@path': '$.traits' },
+          else: { '@path': '$.properties' }
+        }
+      },
+      additional_user_traits: {
+        livelike_profile_id: {
+          '@if': {
+            exists: { '@path': '$.traits.livelike_profile_id' },
+            then: { '@path': '$.traits.livelike_profile_id' },
+            else: { '@path': '$.properties.livelike_profile_id' }
+          }
+        },
+        email: {
+          '@if': {
+            exists: { '@path': '$.traits.email' },
+            then: { '@path': '$.traits.email' },
+            else: { '@path': '$.properties.email' }
+          }
+        }
+      },
+      user_id: { '@path': '$.userId'}
+    }
+
+    const settings = {
+      clientId: 'test-client-id',
+      producerToken: 'test-producer-token'
+    }
+
+    it('should add user to Audience when track() call not from Engage', async () => {
+
+      const notEngageAddAudienceTrack = createTestEvent({
+        properties: {
+          audience_name: "test_audience",
+          audience_id: "test_audience_12345",
           livelike_profile_id: "122",
-          test_audience: false,
-          user_group_id: "456",
-          user_id: "900"
+          action: true,
+          user_id: "900",
+          email: "test@test.com"
+        },
+        timestamp: "2025-07-02T16:26:57.511Z",
+        context: {
+          library: {
+            name: "unknown",
+            version: "unknown"
+          }
+        },
+        messageId: "personas_2zKJ24JMRhVvIFJj4ukGOBKPeNo",
+        event: "Non Engage Audience Entered",
+        receivedAt: "2025-07-02T16:27:10.584Z",
+        integrations: {
+          All: false,
+          LiveLike: true
+        },
+        userId: "900",
+        type: "track"
+      })
+
+      notEngageAddAudienceTrack.traits = undefined
+
+      const addJson = [{
+        audience_id: 'test_audience_12345',
+        audience_name: 'test_audience',
+        action: true,
+        timestamp: '2025-07-02T16:26:57.511Z',
+        livelike_profile_id: '122',
+        user_id: '900',
+        email: "test@test.com"
+      }]
+
+      nock(apiBaseUrl)
+        .post('/applications/test-client-id/segment-audience-sync/', addJson)
+        .reply(200);
+  
+      const responses = await testDestination.testAction('syncToUserGroup', {
+        event: notEngageAddAudienceTrack,
+        settings,
+        mapping
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('should remove user to Audience when track() call not from Engage', async () => {
+
+      const notEngageAddAudienceTrack = createTestEvent({
+        properties: {
+          audience_name: "test_audience",
+          audience_id: "test_audience_12345",
+          livelike_profile_id: "122",
+          action: false,
+          user_id: "900",
+          email: "test@test.com"
+        },
+        timestamp: "2025-07-02T16:26:57.511Z",
+        context: {
+          library: {
+            name: "unknown",
+            version: "unknown"
+          }
+        },
+        messageId: "personas_2zKJ24JMRhVvIFJj4ukGOBKPeNo",
+        event: "Non Engage Audience Entered",
+        receivedAt: "2025-07-02T16:27:10.584Z",
+        integrations: {
+          All: false,
+          LiveLike: true
+        },
+        userId: "900",
+        type: "track"
+      })
+
+      notEngageAddAudienceTrack.traits = undefined
+
+      const addJson = [{
+        audience_id: 'test_audience_12345',
+        audience_name: 'test_audience',
+        action: false,
+        timestamp: '2025-07-02T16:26:57.511Z',
+        livelike_profile_id: '122',
+        user_id: '900',
+        email: "test@test.com"
+      }]
+
+      nock(apiBaseUrl)
+        .post('/applications/test-client-id/segment-audience-sync/', addJson)
+        .reply(200);
+  
+      const responses = await testDestination.testAction('syncToUserGroup', {
+        event: notEngageAddAudienceTrack,
+        settings,
+        mapping
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+  })
+
+  describe('Engage Audience payloads', () => {
+    
+    const mapping = {
+      audience_id: { '@path': '$.context.personas.computation_id'},
+      audience_name: {'@path': '$.context.personas.computation_key'} ,
+      timestamp: { '@path': '$.timestamp' },
+      traits_or_properties_hidden: {
+        '@if': {
+          exists: { '@path': '$.traits' },
+          then: { '@path': '$.traits' },
+          else: { '@path': '$.properties' }
+        }
+      },
+      additional_user_traits: {
+        livelike_profile_id: {
+          '@if': {
+            exists: { '@path': '$.traits.livelike_profile_id' },
+            then: { '@path': '$.traits.livelike_profile_id' },
+            else: { '@path': '$.properties.livelike_profile_id' }
+          }
+        },
+        email: {
+          '@if': {
+            exists: { '@path': '$.traits.email' },
+            then: { '@path': '$.traits.email' },
+            else: { '@path': '$.properties.email' }
+          }
+        }
+      },
+      user_id: { '@path': '$.userId'}
+    }
+
+    const settings = {
+      clientId: 'test-client-id',
+      producerToken: 'test-producer-token'
+    }
+
+    it('Batch: should add and remove users to Audience with an Engage track() call', async () => {
+
+      const engageAddAudienceTrack1 = createTestEvent({
+        properties: {
+          livelike_profile_id: "122",
+          test_audience: true,
+          user_id: "900",
+          email: "test@test.com"
         },
         timestamp: "2025-07-02T16:26:57.511Z",
         context: {
@@ -157,95 +405,78 @@ describe('LivelikeCloud.syncToUserGroup', () => {
           LiveLike: true
         },
         userId: "900",
-        type: "identify"
-      })
-
-      engageRemoveAudienceIdentify.properties = undefined
-
-      const removeJson = {
-        audience_id: 'aud_2zJkeVoLkrirhXup2uAPEsDLq4N',
-        audience_name: 'test_audience',
-        action: false,
-        timestamp: '2025-07-02T16:26:57.511Z',
-        livelike_profile_id: '122',
-        user_id: '900',
-        user_group_id: '456'
-      }
-
-      nock(apiBaseUrl)
-        .post('/applications/test-client-id/segment-audience-sync/', removeJson)
-        .reply(200);
-  
-      const responses = await testDestination.testAction('syncToUserGroup', 
-      {
-          event: engageRemoveAudienceIdentify,
-          settings,
-          mapping
-        }
-      )
-
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-    })
-  })
-
-  describe('Non Engage payloads'  , () => { 
-    it('should remove user from Audience with a non Engage payload', async () => {
-      
-      const settings = {
-        clientId: 'test-client-id',
-        producerToken: 'test-producer-token'
-      }
-
-      const nonEngageAddTrack = createTestEvent({
-        properties: {
-          audience_id: "custom_audience_id",
-          audience_name: "custom_audience_name",
-          livelike_profile_id: "livelike_profile_id_1",
-          action: true
-        },
-        timestamp: "2025-07-02T16:26:57.511Z",
-        messageId: "personas_2zKJ24JMRhVvIFJj4ukGOBKPeNo",
-        event: "Added To Custom User Group",
-        receivedAt: "2025-07-02T16:27:10.584Z",
-        userId: "900",
         type: "track"
       })
 
-      const nonEngageJson = {
-        audience_id: 'custom_audience_id',
-        audience_name: 'custom_audience_name',
+      engageAddAudienceTrack1.traits = undefined
+
+      const engageAddAudienceTrack2 = createTestEvent({
+        properties: {
+          livelike_profile_id: "2122",
+          test_audience: false,
+          email: "test2@test.com"
+        },
+        timestamp: "2025-07-02T16:26:57.511Z",
+        context: {
+          __segment_internal: {
+            creator: "sync-worker"
+          },
+          personas: {
+            computation_class: "audience",
+            computation_id: "aud_2zJkeVoLkrirhXup2uAPEsDLq4N",
+            computation_key: "test_audience",
+            namespace: "spa_9vACn44CYGDZNPNWDUXtMJ",
+            space_id: "spa_9vACn44CYGDZNPNWDUXtMJ"
+          },
+          library: {
+            name: "unknown",
+            version: "unknown"
+          }
+        },
+        messageId: "personas_2zKJ24JMRhVvIFJj4ukGOBKPeNo",
+        event: "Audience Existed",
+        receivedAt: "2025-07-02T16:27:10.584Z",
+        integrations: {
+          All: false,
+          LiveLike: true
+        },
+        userId: "2900",
+        type: "track"
+      })
+
+      engageAddAudienceTrack2.traits = undefined
+
+      const batchJSON = [{
+        audience_id: 'aud_2zJkeVoLkrirhXup2uAPEsDLq4N',
+        audience_name: 'test_audience',
         action: true,
         timestamp: '2025-07-02T16:26:57.511Z',
-        livelike_profile_id: 'livelike_profile_id_1',
-        user_id: '900'
-      }
-
-      const nonEngageMapping = {
-        audience_id: { '@path': '$.properties.audience_id'},
-        audience_name: {'@path': '$.properties.audience_name'} ,
-        action: { '@path': '$.properties.action' },
-        timestamp: { '@path': '$.timestamp' },
-        traits_or_properties: { '@path': '$.properties' },
-        livelike_profile_id: {'@path': '$.properties.livelike_profile_id'},
-        user_id: { '@path': '$.userId'},
-        user_group_id: {'@path': '$.properties.user_group_id'}
-      }
+        livelike_profile_id: '122',
+        user_id: '900',
+        email: "test@test.com"
+      },
+      {
+          audience_id: 'aud_2zJkeVoLkrirhXup2uAPEsDLq4N',
+          audience_name: 'test_audience',
+          action: false,
+          timestamp: '2025-07-02T16:26:57.511Z',
+          livelike_profile_id: '2122',
+          user_id: '2900',
+          email: "test2@test.com"
+      }]
 
       nock(apiBaseUrl)
-        .post('/applications/test-client-id/segment-audience-sync/', nonEngageJson)
+        .post('/applications/test-client-id/segment-audience-sync/', batchJSON)
         .reply(200);
   
-        const responses = await testDestination.testAction('syncToUserGroup', 
-        {
-            event: nonEngageAddTrack,
-            settings,
-            mapping: nonEngageMapping
-          }
-        )
+      const responses = await testDestination.testBatchAction('syncToUserGroup', {
+        events: [engageAddAudienceTrack1, engageAddAudienceTrack2],
+        settings,
+        mapping
+      })
 
-        expect(responses.length).toBe(1)
-        expect(responses[0].status).toBe(200)
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
     })
   })
 })

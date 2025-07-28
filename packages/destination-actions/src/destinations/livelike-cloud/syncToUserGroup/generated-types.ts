@@ -18,9 +18,9 @@ export interface Payload {
    */
   timestamp: string
   /**
-   * Hidden fields used to figure out if user is added or removed from an Engage Audience
+   * Used for trait values to send to Livelike.
    */
-  traits_or_properties: {
+  additional_user_traits?: {
     /**
      * The unique LiveLike user identifier.
      */
@@ -29,6 +29,12 @@ export interface Payload {
      * The email address of the user.
      */
     email?: string
+    [k: string]: unknown
+  }
+  /**
+   * Hidden field used to figure out if user is added or removed from an Engage Audience
+   */
+  traits_or_properties_hidden?: {
     [k: string]: unknown
   }
   /**

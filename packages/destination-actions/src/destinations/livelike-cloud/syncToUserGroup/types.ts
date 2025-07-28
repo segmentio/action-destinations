@@ -1,4 +1,4 @@
-export interface UserGroupJSON {
+export interface UserGroupItem {
     // required fields
     audience_id: string 
     audience_name: string
