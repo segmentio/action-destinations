@@ -50,10 +50,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, features, statsContext }) => {
-    await sendData(request, settings, [payload], features, statsContext)
+    return sendData(request, settings, [payload], features, statsContext)
   },
   performBatch: async (request, { settings, payload, features, statsContext }) => {
-    await sendData(request, settings, payload, features, statsContext)
+    return await sendData(request, settings, payload, features, statsContext)
   }
 }
 
