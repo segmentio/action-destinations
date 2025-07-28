@@ -48,7 +48,7 @@ export interface Payload {
   /**
    * The ID of the List that users will be synced to.
    */
-  external_audience_id?: string
+  external_audience_id: string
   /**
    * Enable batching for the request.
    */
@@ -68,7 +68,7 @@ export interface RetlOnMappingSaveInputs {
   /**
    * The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.
    */
-  list_id?: string
+  list_id: string
   /**
    * The name of the Google list that you would like to create.
    */
